@@ -9,7 +9,7 @@ namespace NServiceBus.Sagas
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class ActiveSagaInstance
     {
-        public ActiveSagaInstance(ISaga saga)
+        public ActiveSagaInstance(Saga saga)
         {
             Instance = saga;
             SagaType = saga.GetType();
@@ -17,7 +17,7 @@ namespace NServiceBus.Sagas
 
         public Type SagaType { get; private set; }
         
-        public ISaga Instance { get; private set; }
+        public Saga Instance { get; private set; }
         
         public bool IsNew { get; private set; }
                      

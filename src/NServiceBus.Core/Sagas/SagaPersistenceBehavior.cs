@@ -25,7 +25,7 @@
 
         public void Invoke(HandlerInvocationContext context, Action next)
         {
-            var saga = context.MessageHandler.Instance as ISaga;
+            var saga = context.MessageHandler.Instance as Saga;
             if (saga == null)
             {
                 next();
@@ -116,7 +116,7 @@
             return !string.IsNullOrEmpty(Headers.GetMessageHeader(message.Instance, Headers.IsSagaTimeoutMessage));
         }
 
-        IContainSagaData TryLoadSagaEntity(ISaga saga, LogicalMessage message)
+        IContainSagaData TryLoadSagaEntity(Saga saga, LogicalMessage message)
         {
             var sagaType = saga.GetType();
 
@@ -137,7 +137,7 @@
             return null;
         }
 
-        void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
+        void NotifyTimeoutManagerThatSagaHasCompleted(Saga saga)
         {
             MessageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
         }

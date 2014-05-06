@@ -7,7 +7,7 @@ namespace NServiceBus.Testing
     /// <summary>
     /// Saga unit testing framework.
     /// </summary>
-    public class Saga<T> where T : ISaga, new()
+    public class Saga<T> where T : Saga, new()
     {
         private readonly T saga;
         private readonly StubBus bus;

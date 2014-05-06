@@ -121,7 +121,7 @@
         /// <summary>
         /// Begin the test script for a saga of type T.
         /// </summary>
-        public static Saga<T> Saga<T>() where T : ISaga, new()
+        public static Saga<T> Saga<T>() where T : Saga, new()
         {
             return Saga<T>(Guid.NewGuid());
         }
@@ -129,7 +129,7 @@
         /// <summary>
         /// Begin the test script for a saga of type T while specifying the saga id.
         /// </summary>
-        public static Saga<T> Saga<T>(Guid sagaId) where T : ISaga, new()
+        public static Saga<T> Saga<T>(Guid sagaId) where T : Saga, new()
         {
             var saga = (T)Activator.CreateInstance(typeof(T));
 
@@ -147,7 +147,7 @@
         /// Begin the test script for the passed in saga instance.
         /// Callers need to instantiate the saga's data class as well as give it an ID.
         /// </summary>
-        public static Saga<T> Saga<T>(T saga) where T : ISaga, new()
+        public static Saga<T> Saga<T>(T saga) where T : Saga, new()
         {
             bus = new StubBus(messageCreator);
             ExtensionMethods.Bus = bus;

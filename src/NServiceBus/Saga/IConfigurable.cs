@@ -1,7 +1,7 @@
 namespace NServiceBus.Saga
 {
     /// <summary>
-    /// Implementers of <see cref="ISaga"/> should implement this interface as well if they want
+    /// Implementers of <see cref="Saga"/> should implement this interface as well if they want
     /// initialization time configuration.
     /// </summary>
     public interface IConfigurable

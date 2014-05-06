@@ -68,6 +68,7 @@
     <Compile Include="MessageMutator\IMutateOutgoingMessages.cs" />
     <Compile Include="RecoverableAttribute.cs" />
     <Compile Include="Saga\IFinder.cs" />
+    <Compile Include="Saga\Saga.cs" />
     <Compile Include="Support\RuntimeEnvironment.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="IdGeneration\CombGuid.cs" />
@@ -99,10 +100,9 @@
     <Compile Include="Saga\IFindSagas.cs" />
     <Compile Include="Saga\IHandleSagaNotFound.cs" />
     <Compile Include="Saga\IHandleTimeouts.cs" />
-    <Compile Include="Saga\ISaga.cs" />
     <Compile Include="Saga\ISagaPersister.cs" />
     <Compile Include="Saga\IAmStartedByMessages.cs" />
-    <Compile Include="Saga\Saga.cs" />
+    <Compile Include="Saga\SagaT.cs" />
     <Compile Include="Saga\ToSagaExpression.cs" />
     <Compile Include="Saga\UniqueAttribute.cs" />
     <Compile Include="Serialization\IMessageSerializer.cs" />

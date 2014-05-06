@@ -30,7 +30,7 @@
 
         /// <summary>
         /// Scans for types relevant to the saga infrastructure.
-        /// These include implementers of <see cref="ISaga" /> and <see cref="IFindSagas{T}" />.
+        /// These include implementers of <see cref="Saga" /> and <see cref="IFindSagas{T}" />.
         /// </summary>
         public bool FindAndConfigureSagasIn(IEnumerable<Type> types)
         {
@@ -223,7 +223,7 @@
 
         public static bool IsSagaType(Type t)
         {
-            return IsCompatible(t, typeof(ISaga));
+            return IsCompatible(t, typeof(Saga));
         }
 
         static bool IsFinderType(Type t)
@@ -259,14 +259,13 @@
             if (defaultConstructor == null)
                 throw new InvalidOperationException("Sagas which implement IConfigurable, like those which inherit from Saga<T>, must have a default constructor.");
 
-            var saga = Activator.CreateInstance(t) as ISaga;
+            var saga = Activator.CreateInstance(t) as Saga;
 
             var p = t.GetProperty("SagaMessageFindingConfiguration", typeof(IConfigureHowToFindSagaWithMessage));
             if (p != null)
                 p.SetValue(saga, SagaMessageFindingConfiguration, null);
 
-            if (saga is IConfigurable)
-                (saga as IConfigurable).Configure();
+            ((IConfigurable) saga).Configure();
         }
 
 

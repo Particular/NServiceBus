@@ -10,24 +10,14 @@ namespace NServiceBus.Saga
     /// To signify that the receipt of a message should start this saga,
     /// implement <see cref="IAmStartedByMessages{T}"/> for the relevant message type.
     /// </summary>
-    /// <typeparam name="T">A type that implements <see cref="IContainSagaData"/>.</typeparam>
-    public abstract class Saga<T> : IConfigurable, ISaga<T> where T : IContainSagaData, new()
+    public abstract class Saga : IConfigurable
     {
         /// <summary>
-        /// The saga's strongly typed data.
+        /// The saga's typed data.
         /// </summary>
-        public T Data { get; set; }
+        public IContainSagaData Entity{get; set; }
 
-        /// <summary>
-        /// A more generic projection on <see cref="Data" />.
-        /// </summary>
-        public IContainSagaData Entity
-        {
-            get { return Data; }
-            set { Data = (T)value; }
-        }
-
-        private bool configuring;
+        bool configuring;
         void IConfigurable.Configure()
         {
             configuring = true;
@@ -37,38 +27,25 @@ namespace NServiceBus.Saga
 
         /// <summary>
         /// Override this method in order to configure how this saga's data should be found.
-        /// Call <see cref="ConfigureMapping{TMessage}(System.Linq.Expressions.Expression{System.Func{T,object}},System.Linq.Expressions.Expression{System.Func{TMessage,object}})"/> for each property of each message you want
+        /// Call <see cref="ConfigureMapping{TSagaData,TMessage}"/> or <see cref="Saga{T}.ConfigureMapping{TMessage}"/>for each property of each message you want
         /// to use for lookup.
         /// </summary>
         public virtual void ConfigureHowToFindSaga()
         {
         }
 
-        /// <summary>
-        /// When the infrastructure is handling a message of the given type
-        /// this specifies which message property should be matched to 
-        /// which saga entity property in the persistent saga store.
-        /// </summary>
-        [ObsoleteEx(Message = "Use the more explicit ConfigureMapping<T>.ToSaga<TSaga>(...) instead. For example 'ConfigureMapping<MyMessage>(message => message.MyProp).ToSaga(sagaData => sagaData.MyProp);'.", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
-        protected virtual void ConfigureMapping<TMessage>(Expression<Func<T, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty)
-        {
-            if (!configuring)
-                throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
-
-            SagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
-        }
 
         /// <summary>
         /// When the infrastructure is handling a message of the given type
         /// this specifies which message property should be matched to 
         /// which saga entity property in the persistent saga store.
         /// </summary>
-        protected virtual ToSagaExpression<T, TMessage> ConfigureMapping<TMessage>(Expression<Func<TMessage, object>> messageProperty)
+        protected virtual ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TSagaData,TMessage>(Expression<Func<TMessage, object>> messageProperty) where TSagaData : IContainSagaData
         {
             if (!configuring)
                 throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
 
-            return new ToSagaExpression<T, TMessage>(SagaMessageFindingConfiguration, messageProperty);
+            return new ToSagaExpression<TSagaData, TMessage>(SagaMessageFindingConfiguration, messageProperty);
         }
 
         /// <summary>
@@ -190,7 +167,7 @@ namespace NServiceBus.Saga
 
         void SetTimeoutHeaders(object toSend)
         {
-            Headers.SetMessageHeader(toSend, Headers.SagaId, Data.Id.ToString());
+            Headers.SetMessageHeader(toSend, Headers.SagaId, Entity.Id.ToString());
             Headers.SetMessageHeader(toSend, Headers.IsSagaTimeoutMessage, Boolean.TrueString);
             Headers.SetMessageHeader(toSend, Headers.SagaType, GetType().AssemblyQualifiedName);
         }
@@ -200,11 +177,11 @@ namespace NServiceBus.Saga
         /// </summary>
         protected virtual void ReplyToOriginator(object message)
         {
-            if (string.IsNullOrEmpty(Data.Originator))
+            if (string.IsNullOrEmpty(Entity.Originator))
             {
-                throw new Exception("Data.Originator cannot be null. Perhaps the sender is a SendOnly endpoint.");
+                throw new Exception("Entity.Originator cannot be null. Perhaps the sender is a SendOnly endpoint.");
             }
-            Bus.Send(Data.Originator, Data.OriginalMessageId, message);
+            Bus.Send(Entity.Originator, Entity.OriginalMessageId, message);
         }
 
         /// <summary>
