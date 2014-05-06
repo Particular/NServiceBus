@@ -10,7 +10,6 @@
 
     public class When_sending_messages_from_a_non_dtc_endpoint : NServiceBusAcceptanceTest
     {
-
         [Test]
         public void Should_store_them_and_dispatch_them_from_the_outbox()
         {
@@ -20,15 +19,12 @@
                     .WithEndpoint<NonDtcSalesEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
                     .Done(c => context.OrderAckReceived)
                     .Run();
-
         }
-
 
         public class Context : ScenarioContext
         {
             public bool OrderAckReceived { get; set; }
         }
-
 
         public class NonDtcSalesEndpoint : EndpointConfigurationBuilder
         {
@@ -45,8 +41,6 @@
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>
             {
-                public Context Context { get; set; }
-
                 public IBus Bus { get; set; }
 
                 public void Handle(PlaceOrder message)
@@ -59,14 +53,11 @@
             {
                 public Context Context { get; set; }
 
-                public IBus Bus { get; set; }
-
                 public void Handle(SendOrderAcknowledgement message)
                 {
                     Context.OrderAckReceived = true;
                 }
             }
-
         }
 
         [Serializable]

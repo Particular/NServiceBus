@@ -36,9 +36,10 @@
                 return;
             }
 
+            context.Set("Outbox_StartDispatching", true);
+
             DispatchOperationToTransport(outboxMessage.TransportOperations);
 
-            context.Set("Outbox_StartDispatching", true);
             OutboxStorage.SetAsDispatched(messageId);
         }
 
