@@ -20,7 +20,7 @@
                             .Register(result => c.GotCallback = true)))
                 .WithEndpoint<SiteB>()
                 .Done(c => c.GotCallback)
-                .Run(TimeSpan.FromSeconds(2000));
+                .Run();
 
             Assert.IsTrue(context.GotCallback);
         }
