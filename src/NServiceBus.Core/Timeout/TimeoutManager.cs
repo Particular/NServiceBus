@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using Config;
+    using Settings;
     using Timeout.Core;
     using Timeout.Hosting.Windows;
     using Transports;
@@ -22,17 +23,23 @@
         {
             //has the user already specified a custom deferral method
             if (Configure.HasComponent<IDeferMessages>())
+            {
                 return false;
+            }
 
             //if we have a master node configured we should use the Master Node timeout manager instead
-            if (Configure.Instance.HasMasterNode())
+            if (SettingsHolder.GetOrDefault<bool>("Distributor.Enabled"))
+            {
                 return false;
+            }
 
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
 
             //if the user has specified another TM we don't need to run our own
             if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress))
+            {
                 return false;
+            }
             
             return true;
         }

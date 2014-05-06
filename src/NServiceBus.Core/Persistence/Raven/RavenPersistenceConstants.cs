@@ -1,6 +1,7 @@
 namespace NServiceBus.Persistence.Raven
 {
     using System;
+    using Config;
     using Utils;
 
     public static class RavenPersistenceConstants
@@ -18,13 +19,21 @@ namespace NServiceBus.Persistence.Raven
         {
             get
             {
-                var masterNode = Configure.Instance.GetMasterNode();
+                var masterNode = GetMasterNode();
 
                 if (string.IsNullOrEmpty(masterNode))
+                {
                     masterNode = "localhost";
+                }
 
                 return string.Format("http://{0}:{1}", masterNode, registryPort);
             }
+        }
+
+        static string GetMasterNode()
+        {
+            var section = Configure.GetConfigSection<MasterNodeConfig>();
+            return section != null ? section.Node : null;
         }
         
         public static Guid DefaultResourceManagerId

@@ -286,7 +286,7 @@ namespace NServiceBus.Unicast
             }
 
             //if we're a worker, send to the distributor data bus
-            if (Configure.Instance.WorkerRunsOnThisEndpoint())
+            if (SettingsHolder.GetOrDefault<bool>("Worker.Enabled"))
             {
                 MessageSender.Send(MessageBeingProcessed, MasterNodeAddress);
             }
@@ -311,7 +311,7 @@ namespace NServiceBus.Unicast
         public ICallback SendLocal(object message)
         {
             //if we're a worker, send to the distributor data bus
-            if (Configure.Instance.WorkerRunsOnThisEndpoint())
+            if (SettingsHolder.GetOrDefault<bool>("Worker.Enabled"))
             {
                 return SendMessage(new SendOptions(MasterNodeAddress), LogicalMessageFactory.Create(message));
             }
