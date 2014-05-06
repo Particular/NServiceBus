@@ -8,6 +8,7 @@
     using Pipeline;
     using Pipeline.Contexts;
     using Serialization;
+    using Transport;
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -17,7 +18,7 @@
 
         public void Invoke(SendPhysicalMessageContext context, Action next)
         {
-            if (context.LogicalMessage != null)
+            if (!context.MessageToSend.IsControlMessage())
             {
                 using (var ms = new MemoryStream())
                 {
