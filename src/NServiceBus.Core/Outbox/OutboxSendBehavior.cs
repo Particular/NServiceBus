@@ -3,6 +3,8 @@ namespace NServiceBus.Outbox
     using System;
     using Pipeline;
     using Pipeline.Contexts;
+    using Unicast.Behaviors;
+    using Unicast.Messages;
 
     class OutboxSendBehavior : IBehavior<SendPhysicalMessageContext>
     {
@@ -14,12 +16,14 @@ namespace NServiceBus.Outbox
 
             if (context.TryGet(out currentOutboxMessage) && !context.Get<bool>("Outbox_StartDispatching"))
             {
-                currentOutboxMessage.TransportOperations.Add(new TransportOperation(context.SendOptions, context.MessageToSend));
+                currentOutboxMessage.TransportOperations.Add(new TransportOperation(context.SendOptions, context.MessageToSend,context.LogicalMessage.MessageType.FullName));
             }
             else
             {
                 next();
             }
         }
+
+
     }
 }

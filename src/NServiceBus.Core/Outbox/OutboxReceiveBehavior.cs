@@ -4,12 +4,15 @@
     using System.Collections.Generic;
     using Pipeline;
     using Pipeline.Contexts;
+    using Unicast.Behaviors;
+    using Unicast.Messages;
 
     class OutboxReceiveBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public IOutboxStorage OutboxStorage { get; set; }
+        public DispatchMessageToTransportBehavior DispatchMessageToTransportBehavior { get; set; }
 
-        public PipelineExecutor PipelineExecutor { get; set; }
+        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
         
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
@@ -47,8 +50,10 @@
         {
             foreach (var transportOperation in operations)
             {
+                var metadata = MessageMetadataRegistry.GetMessageMetadata(transportOperation.MessageType);
+
                 //dispatch to transport
-                PipelineExecutor.InvokeSendPipeline(transportOperation.SendOptions, transportOperation.Message);
+                DispatchMessageToTransportBehavior.InvokeNative(transportOperation.SendOptions, transportOperation.Message, metadata);
             }
         }
     }

@@ -33,7 +33,7 @@
                     return;
                 }
 
-                behaviorList.InsertBefore<SerializeMessagesBehavior, OutboxSendBehavior>();
+                behaviorList.Replace<DispatchMessageToTransportBehavior, OutboxSendBehavior>();
             }
         }
     }
