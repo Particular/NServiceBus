@@ -507,7 +507,7 @@
     <Compile Include="Unicast\BusAsyncResult.cs" />
     <Compile Include="Unicast\Callback.cs" />
     <Compile Include="Unicast\Config\ConfigUnicastBus.cs" />
-    <Compile Include="Unicast\Config\DefaultToTimeoutManagerBasedDeferal.cs" />
+    <Compile Include="Unicast\Config\DefaultToTimeoutManagerBasedDeferral.cs" />
     <Compile Include="Unicast\DefaultDispatcherFactory.cs" />
     <Compile Include="Timeout\Core\TimeoutManagerDeferrer.cs" />
     <Compile Include="Unicast\Config\DefaultTransportForHost.cs" />

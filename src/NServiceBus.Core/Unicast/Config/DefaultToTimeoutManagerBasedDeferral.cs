@@ -5,7 +5,7 @@
     using Timeout;
     using Transports;
 
-    public class DefaultToTimeoutManagerBasedDeferal : IFinalizeConfiguration
+    public class DefaultToTimeoutManagerBasedDeferral : IFinalizeConfiguration
     {
         public void FinalizeConfiguration()
         {
