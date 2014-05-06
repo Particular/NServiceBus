@@ -1,18 +1,14 @@
 ﻿namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
+    using System;
     using Hosting.Profiles;
-    using Logging;
 
-    [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "Feature.Enable<Gateway>")]
+    [ObsoleteEx(RemoveInVersion = "6.0")]
     class GatewayProfileHandler : IHandleProfile<MultiSite>
     {
-        void IHandleProfile.ProfileActivated()
+        public void ProfileActivated()
         {
-            Log.Warn("MultiSite Profile is obsolete as Gateway is a feature now, you can use Feature.Enable<Gateway> to turn it on.");
-
-            Configure.Instance.RunGateway();
+            throw new Exception("MultiSite Profile is obsolete as Gateway is a feature now, you can use Feature.Enable<Gateway> to turn it on.");
         }
-
-        private readonly static ILog Log = LogManager.GetLogger(typeof(GatewayProfileHandler));
     }
 }

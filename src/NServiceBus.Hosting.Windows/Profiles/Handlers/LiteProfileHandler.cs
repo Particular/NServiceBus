@@ -7,7 +7,7 @@
 
     class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig
     {
-        void IHandleProfile.ProfileActivated()
+        public void ProfileActivated()
         {
             InMemoryPersistence.UseAsDefault();
 

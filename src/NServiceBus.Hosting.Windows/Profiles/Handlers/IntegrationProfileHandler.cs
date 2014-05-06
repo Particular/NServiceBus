@@ -6,7 +6,7 @@
 
     class IntegrationProfileHandler : IHandleProfile<Integration>
     {
-        void IHandleProfile.ProfileActivated()
+        public void ProfileActivated()
         {
             if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
             {

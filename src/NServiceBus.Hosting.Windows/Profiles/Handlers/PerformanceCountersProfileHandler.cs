@@ -7,7 +7,7 @@
     /// </summary>
     public class PerformanceCountersProfileHandler : IHandleProfile<PerformanceCounters>
     {
-        void IHandleProfile.ProfileActivated()
+        public void ProfileActivated()
         {
             Configure.Instance.EnablePerformanceCounters();
         }

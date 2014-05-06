@@ -5,7 +5,7 @@
 
     class ProductionProfileHandler : IHandleProfile<Production>
     {
-        void IHandleProfile.ProfileActivated()
+        public void ProfileActivated()
         {
             if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
             {
