@@ -49,10 +49,9 @@
                               context.NumberOfSubscriptionsReceived++;
                       }))
                     .Done(c => c.SubscribersOfTheEvent != null)
-                    .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>(Transports.Msmq)
-                        .For<AllSubscriptionStorages>(SubscriptionStorages.Msmq))
+                    
+                    .Repeat(r => r.For<AllBrokerTransports>())
                     .Should(c => Assert.AreEqual(1, c.SubscribersOfTheEvent.Count(), "There should only be one logical subscriber"))
-                    .MaxTestParallelism(1)//we force the endpoint names so we can't run this is parallel
                     .Run();
         }
 

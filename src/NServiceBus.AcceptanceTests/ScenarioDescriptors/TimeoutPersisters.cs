@@ -5,7 +5,6 @@
     using System.Linq;
     using AcceptanceTesting.Support;
     using Persistence.InMemory.TimeoutPersister;
-    using Persistence.Raven.TimeoutPersister;
     using Timeout.Core;
 
     public class TimeoutPersisters : ScenarioDescriptor

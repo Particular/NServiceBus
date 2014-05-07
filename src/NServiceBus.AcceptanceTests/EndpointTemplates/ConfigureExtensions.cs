@@ -8,9 +8,6 @@
     using Persistence.InMemory.SubscriptionStorage;
     using Persistence.InMemory.TimeoutPersister;
     using Persistence.Msmq.SubscriptionStorage;
-    using Persistence.Raven.SagaPersister;
-    using Persistence.Raven.SubscriptionStorage;
-    using Persistence.Raven.TimeoutPersister;
     using ScenarioDescriptors;
     using Serializers.Binary;
     using Serializers.Json;

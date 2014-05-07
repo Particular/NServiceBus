@@ -6,7 +6,6 @@
     using AcceptanceTesting.Support;
     using Persistence.InMemory.SubscriptionStorage;
     using Persistence.Msmq.SubscriptionStorage;
-    using Persistence.Raven.SubscriptionStorage;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     public class SubscriptionPersisters : ScenarioDescriptor

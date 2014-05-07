@@ -32,7 +32,7 @@
             Scenario.Define<Context>()
                     .WithEndpoint<CentralizedStoragePublisher>(b => b.When(c => c.EndpointsStarted, (bus, context) => bus.Publish(new EventHandledByLocalEndpoint())))
                     .Done(c => c.CatchAllHandlerGotTheMessage)
-                    .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>(Transports.ActiveMQ)) //exclude active since the support for polymorphic routing is not implemented
+                    .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())
                     .Should(c => Assert.True(c.CatchAllHandlerGotTheMessage))
 
                     .Run();

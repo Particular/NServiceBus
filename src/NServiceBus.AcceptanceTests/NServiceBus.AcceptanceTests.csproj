@@ -165,12 +165,10 @@
     <Compile Include="ScenarioDescriptors\SubscriptionPersisters.cs" />
     <Compile Include="ScenarioDescriptors\TimeoutPersisters.cs" />
     <Compile Include="ScenarioDescriptors\SagaPersisters.cs" />
-    <Compile Include="ScenarioDescriptors\AllSubscriptionStorages.cs" />
     <Compile Include="ScenarioDescriptors\AllTransports.cs" />
     <Compile Include="ScenarioDescriptors\AllBuilders.cs" />
     <Compile Include="ScenarioDescriptors\AllSerializers.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
-    <Compile Include="ScenarioDescriptors\SubscriptionStorages.cs" />
     <Compile Include="Scheduling\When_scheduling_a_recurring_task.cs" />
     <Compile Include="Transactions\FakePromotableResourceManager.cs" />
     <Compile Include="Transactions\When_receiving_a_message_with_dtc_disabled.cs" />

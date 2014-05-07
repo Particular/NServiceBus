@@ -5,7 +5,6 @@
     using System.Linq;
     using AcceptanceTesting.Support;
     using Persistence.InMemory.SagaPersister;
-    using Persistence.Raven.SagaPersister;
     using Saga;
 
     public class SagaPersisters : ScenarioDescriptor
