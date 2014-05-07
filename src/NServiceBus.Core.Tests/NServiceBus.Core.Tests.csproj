@@ -218,11 +218,6 @@
     <Compile Include="Persistence\RavenDB\SagaPersister\When_updating_a_saga_property_that_does_not_have_a_unique_attribute.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\When_updating_a_saga_property_that_has_a_unique_attribute.cs" />
     <Compile Include="Persistence\RavenDB\SubscriptionStorage\TestData.cs" />
-    <Compile Include="Persistence\RavenDB\SubscriptionStorage\When_listing_subscribers_for_message_types.cs" />
-    <Compile Include="Persistence\RavenDB\SubscriptionStorage\When_receiving_an_unsubscription_message.cs" />
-    <Compile Include="Persistence\RavenDB\SubscriptionStorage\When_receiving_a_subscription_message.cs" />
-    <Compile Include="Persistence\RavenDB\SubscriptionStorage\When_receiving_duplicate_subscription_messages.cs" />
-    <Compile Include="Persistence\RavenDB\SubscriptionStorage\WithRavenSubscriptionStorage.cs" />
     <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string.cs" />
     <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_and_database.cs" />
     <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_lambda.cs" />

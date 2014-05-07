@@ -40,7 +40,7 @@
             get
             {
                 var persisters = AvailablePersisters;
-                var persister = persisters.FirstOrDefault(p => p != typeof(InMemorySagaPersister) && p != typeof(RavenSagaPersister));
+                var persister = persisters.FirstOrDefault(p => p != typeof(InMemorySagaPersister));
 
                 if (persister == null)
                 {

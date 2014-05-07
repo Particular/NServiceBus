@@ -41,7 +41,7 @@
             get
             {
                 var persisters = AvailablePersisters;
-                var persister = persisters.FirstOrDefault(p => p != typeof(InMemorySubscriptionStorage) && p != typeof(RavenSubscriptionStorage) && p != typeof(MsmqSubscriptionStorage));
+                var persister = persisters.FirstOrDefault(p => p != typeof(InMemorySubscriptionStorage) && p != typeof(MsmqSubscriptionStorage));
 
                 if (persister == null)
                 {

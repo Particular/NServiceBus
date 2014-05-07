@@ -15,31 +15,34 @@ namespace NServiceBus.Core.Tests.Timeout
     using Raven.Client.Document;
     using Raven.Client.Embedded;
 
+//    [TestFixture]
+//    [Explicit]
+//    public class When_pooling_timeouts_with_raven : When_pooling_timeouts
+//    {
+//        IDocumentStore store;
+//
+//        protected override IPersistTimeouts CreateTimeoutPersister()
+//        {
+//            store = new EmbeddableDocumentStore
+//                    {
+//                        RunInMemory = true
+//                    };
+//            //IDocumentStore store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "TempTest" };
+//            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
+//            store.Conventions.MaxNumberOfRequestsPerSession = 10;
+//            store.Initialize();
+//
+//            return new RavenTimeoutPersistence(new StoreAccessor(store));
+//        }
+//
+//        [TearDown]
+//        public void Cleanup()
+//        {
+//            store.Dispose();
+//        }
+//    }
+
     [TestFixture]
-   [Explicit]
-    public class When_pooling_timeouts_with_raven : When_pooling_timeouts
-    {
-        private IDocumentStore store;
-
-        protected override IPersistTimeouts CreateTimeoutPersister()
-        {
-            store = new EmbeddableDocumentStore { RunInMemory = true };
-            //IDocumentStore store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "TempTest" };
-            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
-            store.Conventions.MaxNumberOfRequestsPerSession = 10;
-            store.Initialize();
-
-            return new RavenTimeoutPersistence(new StoreAccessor(store));
-        }
-
-        [TearDown]
-        public void Cleanup()
-        {
-            store.Dispose();
-        }
-    }
-
-   [TestFixture]
    [Explicit]
     public class When_pooling_timeouts_with_inMemory : When_pooling_timeouts
     {

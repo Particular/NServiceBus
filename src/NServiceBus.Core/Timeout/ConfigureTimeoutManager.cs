@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using Features;
     using Persistence.InMemory.TimeoutPersister;
     using Persistence.Raven;
@@ -19,6 +20,7 @@ namespace NServiceBus
         /// <summary>
         /// Use the Raven timeout persister implementation.
         /// </summary>
+        [Obsolete]
         public static Configure UseRavenTimeoutPersister(this Configure config)
         {
             if (!config.Configurer.HasComponent<StoreAccessor>())

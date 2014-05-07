@@ -10,7 +10,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
     using Logging;
     using Timeout.Core;
 
-    [ObsoleteEx]
+    [Obsolete]
     public class RavenTimeoutPersistence : IPersistTimeouts
     {
         readonly IDocumentStore store;

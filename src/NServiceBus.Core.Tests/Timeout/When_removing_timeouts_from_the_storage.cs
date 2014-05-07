@@ -11,28 +11,28 @@
     using Raven.Client.Document;
     using Raven.Client.Embedded;
 
-    [TestFixture]
-    public class When_removing_timeouts_from_the_storage_with_raven : When_removing_timeouts_from_the_storage
-    {
-        private IDocumentStore store;
-
-        protected override IPersistTimeouts CreateTimeoutPersister()
-        {
-            store = new EmbeddableDocumentStore {RunInMemory = true};
-            //store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "TempTest" };
-            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
-            store.Conventions.MaxNumberOfRequestsPerSession = 10;
-            store.Initialize();
-
-            return new RavenTimeoutPersistence(new StoreAccessor(store));
-        }
-
-        [TearDown]
-        public void Cleanup()
-        {
-            store.Dispose();
-        }
-    }
+//    [TestFixture]
+//    public class When_removing_timeouts_from_the_storage_with_raven : When_removing_timeouts_from_the_storage
+//    {
+//        private IDocumentStore store;
+//
+//        protected override IPersistTimeouts CreateTimeoutPersister()
+//        {
+//            store = new EmbeddableDocumentStore {RunInMemory = true};
+//            //store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "TempTest" };
+//            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
+//            store.Conventions.MaxNumberOfRequestsPerSession = 10;
+//            store.Initialize();
+//
+//            return new RavenTimeoutPersistence(new StoreAccessor(store));
+//        }
+//
+//        [TearDown]
+//        public void Cleanup()
+//        {
+//            store.Dispose();
+//        }
+//    }
 
     [TestFixture]
     public class When_removing_timeouts_from_the_storage_with_inMemory : When_removing_timeouts_from_the_storage

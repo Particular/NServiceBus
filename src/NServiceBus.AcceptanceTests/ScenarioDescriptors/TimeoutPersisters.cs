@@ -40,7 +40,7 @@
             get
             {
                 var persisters = AvailablePersisters;
-                var persister = persisters.FirstOrDefault(p => p != typeof(InMemoryTimeoutPersistence) && p != typeof(RavenTimeoutPersistence));
+                var persister = persisters.FirstOrDefault(p => p != typeof(InMemoryTimeoutPersistence));
 
                 if (persister == null)
                 {

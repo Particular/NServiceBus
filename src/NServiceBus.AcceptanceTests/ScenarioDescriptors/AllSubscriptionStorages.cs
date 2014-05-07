@@ -7,7 +7,6 @@
         public AllSubscriptionStorages()
         {
             Add(SubscriptionStorages.InMemory);
-            Add(SubscriptionStorages.Raven);
             Add(SubscriptionStorages.Msmq);
         }
     }

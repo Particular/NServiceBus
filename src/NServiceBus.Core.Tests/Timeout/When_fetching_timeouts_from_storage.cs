@@ -11,62 +11,62 @@ namespace NServiceBus.Core.Tests.Timeout
     using Raven.Client.Document;
     using Raven.Client.Embedded;
 
-    [TestFixture]
-    [Explicit]
-    public class When_fetching_timeouts_from_storage_with_raven : When_fetching_timeouts_from_storage
-    {
-        private IDocumentStore store;
-
-        protected override IPersistTimeouts CreateTimeoutPersister()
-        {
-            store = new EmbeddableDocumentStore {RunInMemory = true};
-            //store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "TempTest" };
-            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
-            store.Conventions.MaxNumberOfRequestsPerSession = 10;
-            store.Initialize();
-
-            store.JsonRequestFactory.DisableRequestCompression = true;
-           
-            return new RavenTimeoutPersistence(new StoreAccessor(store));
-        }
-
-        [TearDown]
-        public void Cleanup()
-        {
-            store.Dispose();
-        }
-
-        [Test]
-        public void Should_only_return_timeouts_for_this_specific_endpoint_and_any_ones_without_a_owner()
-        {
-            const int numberOfTimeoutsToAdd = 3;
-
-            for (var i = 0; i < numberOfTimeoutsToAdd; i++)
-            {
-                var d = new TimeoutData
-                {
-                    Time = DateTime.UtcNow.AddHours(-1),
-                    OwningTimeoutManager = Configure.EndpointName
-                };
-
-                persister.Add(d);
-            }
-
-            persister.Add(new TimeoutData
-            {
-                Time = DateTime.UtcNow.AddHours(-1),
-                OwningTimeoutManager = "MyOtherTM"
-            });
-
-            persister.Add(new TimeoutData
-            {
-                Time = DateTime.UtcNow.AddHours(-1),
-                OwningTimeoutManager = String.Empty,
-            });
-
-            Assert.AreEqual(numberOfTimeoutsToAdd + 1, GetNextChunk().Count);
-        }
-    }
+//    [TestFixture]
+//    [Explicit]
+//    public class When_fetching_timeouts_from_storage_with_raven : When_fetching_timeouts_from_storage
+//    {
+//        private IDocumentStore store;
+//
+//        protected override IPersistTimeouts CreateTimeoutPersister()
+//        {
+//            store = new EmbeddableDocumentStore {RunInMemory = true};
+//            //store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "TempTest" };
+//            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
+//            store.Conventions.MaxNumberOfRequestsPerSession = 10;
+//            store.Initialize();
+//
+//            store.JsonRequestFactory.DisableRequestCompression = true;
+//           
+//            return new RavenTimeoutPersistence(new StoreAccessor(store));
+//        }
+//
+//        [TearDown]
+//        public void Cleanup()
+//        {
+//            store.Dispose();
+//        }
+//
+//        [Test]
+//        public void Should_only_return_timeouts_for_this_specific_endpoint_and_any_ones_without_a_owner()
+//        {
+//            const int numberOfTimeoutsToAdd = 3;
+//
+//            for (var i = 0; i < numberOfTimeoutsToAdd; i++)
+//            {
+//                var d = new TimeoutData
+//                {
+//                    Time = DateTime.UtcNow.AddHours(-1),
+//                    OwningTimeoutManager = Configure.EndpointName
+//                };
+//
+//                persister.Add(d);
+//            }
+//
+//            persister.Add(new TimeoutData
+//            {
+//                Time = DateTime.UtcNow.AddHours(-1),
+//                OwningTimeoutManager = "MyOtherTM"
+//            });
+//
+//            persister.Add(new TimeoutData
+//            {
+//                Time = DateTime.UtcNow.AddHours(-1),
+//                OwningTimeoutManager = String.Empty,
+//            });
+//
+//            Assert.AreEqual(numberOfTimeoutsToAdd + 1, GetNextChunk().Count);
+//        }
+//    }
 
     [TestFixture]
     public class When_fetching_timeouts_from_storage_with_inMemory : When_fetching_timeouts_from_storage

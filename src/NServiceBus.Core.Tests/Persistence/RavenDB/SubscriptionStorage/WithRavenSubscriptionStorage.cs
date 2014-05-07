@@ -8,30 +8,31 @@
     using Raven.Client.Embedded;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-    public class WithRavenSubscriptionStorage
-    {
-        protected ISubscriptionStorage storage;
-        protected IDocumentStore store;
-
-        [SetUp]
-        public void SetupContext()
-        {
-            store = new EmbeddableDocumentStore { RunInMemory = true};
-            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
-           
-            store.Initialize();
-
-            storage = new RavenSubscriptionStorage(new StoreAccessor(store));
-            storage.Init();
-        }
-
-        [TearDown]
-        public void Cleanup()
-        {
-            if (store != null)
-            {
-                store.Dispose();
-            }
-        }
-    }
+    // TODO Move away
+//    public class WithRavenSubscriptionStorage
+//    {
+//        protected ISubscriptionStorage storage;
+//        protected IDocumentStore store;
+//
+//        [SetUp]
+//        public void SetupContext()
+//        {
+//            store = new EmbeddableDocumentStore { RunInMemory = true};
+//            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
+//           
+//            store.Initialize();
+//
+//            storage = new RavenSubscriptionStorage(new StoreAccessor(store));
+//            storage.Init();
+//        }
+//
+//        [TearDown]
+//        public void Cleanup()
+//        {
+//            if (store != null)
+//            {
+//                store.Dispose();
+//            }
+//        }
+//    }
 }

@@ -88,12 +88,6 @@
                 return config.UseInMemoryTimeoutPersister();
             }
 
-            if (persister.Contains(typeof(RavenTimeoutPersistence).FullName))
-            {
-                config.RavenPersistence(() => "url=http://localhost:8080");
-                return config.UseRavenTimeoutPersister();
-            }
-
             CallConfigureForPersister(config, persister);
 
             return config;
@@ -111,12 +105,6 @@
                 return config.InMemorySagaPersister();
             }
 
-            if (persister.Contains(typeof(RavenSagaPersister).FullName))
-            {
-                config.RavenPersistence(() => "url=http://localhost:8080");
-                return config.RavenSagaPersister();
-            }
-
             CallConfigureForPersister(config, persister);
 
             return config;
@@ -132,12 +120,6 @@
             if (persister.Contains(typeof(InMemorySubscriptionStorage).FullName))
             {
                 return config.InMemorySubscriptionStorage();
-            }
-
-            if (persister.Contains(typeof(RavenSubscriptionStorage).FullName))
-            {
-                config.RavenPersistence(() => "url=http://localhost:8080");
-                return config.RavenSubscriptionStorage();
             }
 
             if (persister.Contains(typeof(MsmqSubscriptionStorage).FullName))

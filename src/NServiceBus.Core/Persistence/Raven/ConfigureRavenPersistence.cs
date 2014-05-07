@@ -157,6 +157,7 @@ namespace NServiceBus
             return config;
         }
 
+        [Obsolete]
         public static void RegisterDefaults()
         {
             InfrastructureServices.SetDefaultFor<ISagaPersister>(() => Configure.Instance.RavenSagaPersister());

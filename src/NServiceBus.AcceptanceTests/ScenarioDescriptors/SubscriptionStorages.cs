@@ -22,18 +22,18 @@
             };
 
 
-        public static readonly RunDescriptor Raven = new RunDescriptor
-            {
-                Key = "RavenSubscriptionStorage",
-                Settings =
-                    new Dictionary<string, string>
-                        {
-                            {
-                                "SubscriptionStorage",
-                                typeof (RavenSubscriptionStorage).AssemblyQualifiedName
-                            }
-                        }
-            };
+//        public static readonly RunDescriptor Raven = new RunDescriptor
+//            {
+//                Key = "RavenSubscriptionStorage",
+//                Settings =
+//                    new Dictionary<string, string>
+//                        {
+//                            {
+//                                "SubscriptionStorage",
+//                                typeof (RavenSubscriptionStorage).AssemblyQualifiedName
+//                            }
+//                        }
+//            };
 
       
         public static readonly RunDescriptor Msmq = new RunDescriptor
