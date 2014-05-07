@@ -3,7 +3,7 @@ namespace NServiceBus
     using Persistence.Raven;
     using Persistence.Raven.SagaPersister;
 
-    public static class ConfigureRavenSagaPersister
+    public static class ConfigureRavenSagaPersister_Obsolete
     {
         public static Configure RavenSagaPersister(this Configure config)
         {
