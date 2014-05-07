@@ -1,12 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using Config;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
-    using Outbox;
-    using Persistence.InMemory.Outbox;
 
     public class When_sending_messages_from_a_non_dtc_endpoint : NServiceBusAcceptanceTest
     {
@@ -34,9 +31,6 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    InfrastructureServices.SetDefaultFor<IOutboxStorage>(() =>
-                        Configure.Component<InMemoryOutboxStorage>(DependencyLifecycle.SingleInstance));
-
                     Configure.Transactions.Advanced(t =>
                     {
                         t.DisableDistributedTransactions();
