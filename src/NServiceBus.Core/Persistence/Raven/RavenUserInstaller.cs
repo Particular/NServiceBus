@@ -15,7 +15,7 @@ namespace NServiceBus.Persistence.Raven
     /// <summary>
     /// Add the identity to the Raven users group 
     /// </summary>
-    public class RavenUserInstaller : INeedToInstallSomething<Windows>
+    public class RavenUserInstaller //: INeedToInstallSomething<Windows>
     {
         static readonly ILog logger = LogManager.GetLogger(typeof(RavenUserInstaller));
 
