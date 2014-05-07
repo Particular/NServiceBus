@@ -54,8 +54,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.RavenSagaPersister()
-                                                   .UnicastBus())
+                EndpointSetup<DefaultServer>()
                     .AddMapping<SomeEvent>(typeof (SagaEndpoint));
             }
 
