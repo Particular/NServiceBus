@@ -13,7 +13,6 @@
         private readonly StubBus bus;
         private readonly T handler;
         private IDictionary<string, string> incomingHeaders = new Dictionary<string, string>();
-        private readonly List<Action> assertions = new List<Action>();
         private IList<IExpectedInvocation> expectedInvocations = new List<IExpectedInvocation>();
 
         /// <summary>
@@ -265,9 +264,6 @@
             bus.ValidateAndReset(expectedInvocations);
             expectedInvocations.Clear();
 
-            assertions.ForEach(a => a());
-
-            assertions.Clear();
             ExtensionMethods.CurrentMessageBeingHandled = null;
         }
 
