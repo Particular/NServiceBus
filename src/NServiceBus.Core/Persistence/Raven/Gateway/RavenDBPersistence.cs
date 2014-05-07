@@ -7,6 +7,7 @@ namespace NServiceBus.Gateway.Persistence.Raven
     using global::Raven.Client;
     using NServiceBus.Persistence.Raven;
 
+    [ObsoleteEx]
     public class RavenDbPersistence : IPersistMessages
     {
         public RavenDbPersistence(StoreAccessor storeAccessor)

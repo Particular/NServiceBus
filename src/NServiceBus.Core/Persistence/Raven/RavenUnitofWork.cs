@@ -3,6 +3,7 @@ namespace NServiceBus.Persistence.Raven
     using System;
     using UnitOfWork;
 
+    [ObsoleteEx]
     public class RavenUnitOfWork : IManageUnitsOfWork
     {
         readonly RavenSessionFactory sessionFactory;

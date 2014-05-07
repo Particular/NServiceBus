@@ -6,6 +6,7 @@ namespace NServiceBus.Persistence.Raven.SubscriptionStorage
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
+    [ObsoleteEx]
     public class RavenSubscriptionStorage : ISubscriptionStorage
     {
         private readonly IDocumentStore store;

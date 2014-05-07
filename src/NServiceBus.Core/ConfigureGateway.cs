@@ -7,6 +7,7 @@ namespace NServiceBus
     using Gateway.Persistence.Raven;
     using Persistence.Raven;
 
+    [ObsoleteEx]
     public static class ConfigureGateway
     {
         /// <summary>

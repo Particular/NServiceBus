@@ -5,6 +5,7 @@
     using Raven.Abstractions.Exceptions;
     using Raven.Client;
 
+    [ObsoleteEx]
     public class RavenDBDeduplication : IDeduplicateMessages
     {
         public RavenDBDeduplication(StoreAccessor storeAccessor)

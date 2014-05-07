@@ -3,6 +3,7 @@ namespace NServiceBus.Persistence.Raven
     using System;
     using global::Raven.Client;
 
+    [ObsoleteEx]
     public class RavenSessionFactory
     {
         [ThreadStatic]

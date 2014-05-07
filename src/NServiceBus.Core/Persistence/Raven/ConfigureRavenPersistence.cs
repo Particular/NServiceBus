@@ -24,6 +24,7 @@ namespace NServiceBus
     /// <summary>
     /// Extension methods to configure RavenDB persister.
     /// </summary>
+    [ObsoleteEx]
     public static class ConfigureRavenPersistence
     {
         /// <summary>
