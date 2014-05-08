@@ -6,10 +6,10 @@
 
     public class StubBus : IBus
     {
-        private readonly IMessageCreator messageCreator;
-        private readonly IDictionary<string, string> outgoingHeaders = new Dictionary<string, string>();
-        private readonly List<ActualInvocation> actualInvocations = new List<ActualInvocation>();
-        private readonly TimeoutManager timeoutManager = new TimeoutManager();
+        IMessageCreator messageCreator;
+        Dictionary<string, string> outgoingHeaders = new Dictionary<string, string>();
+        List<ActualInvocation> actualInvocations = new List<ActualInvocation>();
+        TimeoutManager timeoutManager = new TimeoutManager();
 
         public void ValidateAndReset(IEnumerable<IExpectedInvocation> expectedInvocations)
         {
@@ -78,7 +78,7 @@
             return SendLocal(messageCreator.CreateInstance(messageConstructor));
         }
 
-        
+
         public ICallback Send(object message)
         {
             return Send(Address.Undefined, message);
@@ -125,12 +125,19 @@
         {
             if (address != Address.Undefined && correlationId != string.Empty)
             {
-                var d = new Dictionary<string, object> {{"Address", address}, {"CorrelationId", correlationId}};
+                var d = new Dictionary<string, object>
+                    {
+                        {"Address", address},
+                        {"CorrelationId", correlationId}
+                    };
                 return ProcessInvocation(typeof(ReplyToOriginatorInvocation<>), d, message);
             }
 
             if (address != Address.Undefined && correlationId == string.Empty)
-                return ProcessInvocation(typeof(SendToDestinationInvocation<>), new Dictionary<string, object> { { "Address", address } }, message);
+                return ProcessInvocation(typeof(SendToDestinationInvocation<>), new Dictionary<string, object>
+                    {
+                        {"Address", address}
+                    }, message);
 
             return ProcessInvocation(typeof(SendInvocation<>), message);
         }
@@ -147,7 +154,10 @@
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
         {
-            return ProcessInvocation(typeof(SendToSitesInvocation<>), new Dictionary<string, object> { { "Value", siteKeys } }, message);
+            return ProcessInvocation(typeof(SendToSitesInvocation<>), new Dictionary<string, object>
+                {
+                    {"Value", siteKeys}
+                }, message);
         }
 
         public ICallback Defer(TimeSpan delay, object message)
@@ -172,7 +182,10 @@
 
         public void Return<T>(T errorEnum)
         {
-            actualInvocations.Add(new ReturnInvocation<T> { Value = errorEnum});
+            actualInvocations.Add(new ReturnInvocation<T>
+                {
+                    Value = errorEnum
+                });
         }
 
         public void HandleCurrentMessageLater()
@@ -182,7 +195,10 @@
 
         public void ForwardCurrentMessageTo(string destination)
         {
-            actualInvocations.Add(new ForwardCurrentMessageToInvocation { Value = destination });
+            actualInvocations.Add(new ForwardCurrentMessageToInvocation
+                {
+                    Value = destination
+                });
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
@@ -236,7 +252,7 @@
             return messageCreator.CreateInstance(messageType);
         }
 
-        private ICallback ProcessInvocation(Type genericType, object message)
+        ICallback ProcessInvocation(Type genericType, object message)
         {
             return ProcessInvocation(genericType, new Dictionary<string, object>(), message);
         }
@@ -254,7 +270,7 @@
             return ProcessInvocationWithBuiltType(invocationType, others, message);
         }
 
-        private ICallback ProcessInvocationWithBuiltType(Type builtType, Dictionary<string, object> others, object message)
+        ICallback ProcessInvocationWithBuiltType(Type builtType, Dictionary<string, object> others, object message)
         {
             if (message == null)
                 throw new NullReferenceException("message is null.");
@@ -271,11 +287,11 @@
             return null;
         }
 
-        private Type GetMessageType(object message)
+        Type GetMessageType(object message)
         {
             if (message.GetType().FullName.EndsWith("__impl"))
             {
-                var name = message.GetType().FullName.Replace("__impl", "").Replace("\\","");
+                var name = message.GetType().FullName.Replace("__impl", "").Replace("\\", "");
                 foreach (var i in message.GetType().GetInterfaces())
                     if (i.FullName == name)
                         return i;
@@ -284,10 +300,13 @@
             return message.GetType();
         }
 
-        private ICallback ProcessDefer<T>(object delayOrProcessAt, object message)
+        ICallback ProcessDefer<T>(object delayOrProcessAt, object message)
         {
             timeoutManager.Push(delayOrProcessAt, message);
-            return ProcessInvocation<T>(typeof(DeferMessageInvocation<,>), new Dictionary<string, object> { { "Value", delayOrProcessAt } }, message);
+            return ProcessInvocation<T>(typeof(DeferMessageInvocation<,>), new Dictionary<string, object>
+                {
+                    {"Value", delayOrProcessAt}
+                }, message);
         }
     }
 }
