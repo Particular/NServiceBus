@@ -15,6 +15,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <FodyPath>..\packages\Fody</FodyPath>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -160,5 +161,5 @@
     <Exec Command='"$(SolutionDir)..\tools\IlMerge\ilmerge.exe" /keyfile:"$(SolutionDir)NServiceBus.snk" /internalize /out:"$(TargetPath)" "$(MergeTemp)" "$(TargetDir)log4net.dll" "$(TargetDir)Microsoft.Practices.ServiceLocation.dll" "$(TargetDir)Topshelf.dll" /targetplatform:"v4,$(FrameworkPathOverride)"' />
     <Delete Files="$(MergeTemp)"/>
   </Target>
-  <Import Project="$(SolutionDir)..\BuildSupport\GitFlowVersion\build\GitFlowVersionTask.targets" />
+  <Import Project="$(SolutionDir)..\BuildSupport\GitVersionTask\build\GitVersionTask.targets" />
 </Project>
