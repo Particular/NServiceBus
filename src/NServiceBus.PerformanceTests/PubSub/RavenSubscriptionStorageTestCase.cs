@@ -1,16 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Transactions;
-using NServiceBus;
-using NServiceBus.Persistence.Raven;
-using NServiceBus.Persistence.Raven.SubscriptionStorage;
-using NServiceBus.Unicast.Subscriptions;
-using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
-using Raven.Client.Document;
-
-public class RavenSubscriptionStorageTestCase : TestCase
+﻿public class RavenSubscriptionStorageTestCase : TestCase
 {
     int NumberOfSubscribers
     {

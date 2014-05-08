@@ -3,13 +3,8 @@
     using System;
     using System.Collections.Generic;
     using NServiceBus.Persistence.InMemory.TimeoutPersister;
-    using NServiceBus.Persistence.Raven;
-    using NServiceBus.Persistence.Raven.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
-    using Raven.Client;
-    using Raven.Client.Document;
-    using Raven.Client.Embedded;
 
 //    [TestFixture]
 //    public class When_removing_timeouts_from_the_storage_with_raven : When_removing_timeouts_from_the_storage

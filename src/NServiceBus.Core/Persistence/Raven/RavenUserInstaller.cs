@@ -8,8 +8,6 @@ namespace NServiceBus.Persistence.Raven
     using global::Raven.Client.Connection;
     using global::Raven.Client.Document;
     using global::Raven.Json.Linq;
-    using Installation;
-    using Installation.Environments;
     using Logging;
 
     /// <summary>
