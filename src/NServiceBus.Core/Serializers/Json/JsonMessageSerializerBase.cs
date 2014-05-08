@@ -64,21 +64,10 @@ namespace NServiceBus.Serializers.Json
         /// <returns>Deserialized messages.</returns>
         public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
         {
-            var settings = serializerSettings;
-
             var mostConcreteType = messageTypes != null ? messageTypes.FirstOrDefault() : null;
-            var requiresDynamicDeserialization = mostConcreteType != null && mostConcreteType.IsInterface;
+            var requiresDynamicDeserialization = mostConcreteType != null && mostConcreteType.IsAbstract;
 
-            if (requiresDynamicDeserialization)
-            {
-                settings = new JsonSerializerSettings{
-                        TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
-                        TypeNameHandling = TypeNameHandling.None,
-                        Converters = { new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.RoundtripKind }, new XContainerConverter() }
-                };
-            }
-
-            var jsonSerializer = JsonSerializer.Create(settings);
+            var jsonSerializer = JsonSerializer.Create(serializerSettings);
             jsonSerializer.ContractResolver = new MessageContractResolver(messageMapper);
             jsonSerializer.Binder = new MessageSerializationBinder(messageMapper, messageTypes);
 
