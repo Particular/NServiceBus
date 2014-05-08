@@ -53,11 +53,6 @@
             throw new NotSupportedException();
         }
 
-        public void Subscribe(Type messageType, Predicate<object> condition)
-        {
-            throw new NotSupportedException();
-        }
-
         public void Unsubscribe(Type messageType)
         {
             throw new NotSupportedException();
@@ -216,21 +211,6 @@
         public IInMemoryOperations InMemory
         {
             get { throw new NotImplementedException(); }
-        }
-
-        public void Shutdown()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IBus Start(Action startupAction)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IBus Start()
-        {
-            throw new NotImplementedException();
         }
 
 #pragma warning disable 67
