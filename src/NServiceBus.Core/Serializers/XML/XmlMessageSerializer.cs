@@ -411,15 +411,15 @@ namespace NServiceBus.Serializers.XML
                 {
                     if (parent.GetType().IsArray)
                         return parent.GetType().GetElementType();
-                    
-					var listImplementations = parent.GetType().GetInterfaces().Where(interfaceType => interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IList<>)).ToList();
-					if (listImplementations.Any())
-					{
-						var listImplementation = listImplementations.First();
-						return listImplementation.GetGenericArguments().Single();
-					}
 
-	                var args = parent.GetType().GetGenericArguments();
+                    var listImplementations = parent.GetType().GetInterfaces().Where(interfaceType => interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IList<>)).ToList();
+                    if (listImplementations.Any())
+                    {
+                        var listImplementation = listImplementations.First();
+                        return listImplementation.GetGenericArguments().Single();
+                    }
+
+                    var args = parent.GetType().GetGenericArguments();
 
                     if (args.Length == 1)
                     {
@@ -453,7 +453,7 @@ namespace NServiceBus.Serializers.XML
                 catch
                 {
                     // intentionally swallow exception
-                } 
+                }
             }
 
             throw new Exception("Could not determine type for node: '" + node.Name + "'.");
@@ -464,6 +464,32 @@ namespace NServiceBus.Serializers.XML
             if (t.IsSimpleType() || t == typeof(Uri))
             {
                 return GetPropertyValue(t, node);
+            }
+
+            if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+            {
+                var args = t.GetGenericArguments();
+                if (args.Length == 2)
+                {
+                    var keyType = args[0];
+                    var valueType = args[1];
+
+                    object key = null;
+                    object value = null;
+                    foreach (XmlNode xn in node.ChildNodes)
+                    {
+                        if (xn.Name == "Key")
+                        {
+                            key = GetObjectOfTypeFromNode(keyType, xn);
+                        }
+                        else if (xn.Name == "Value")
+                        {
+                            value = GetObjectOfTypeFromNode(valueType, xn);
+                        }
+                    }
+
+                    return Activator.CreateInstance(t, new[] { key, value });
+                }
             }
 
             if (typeof(IEnumerable).IsAssignableFrom(t))
@@ -523,7 +549,8 @@ namespace NServiceBus.Serializers.XML
                 if (prop.Name == n)
                 {
                     return prop;
-                }}
+                }
+            }
 
             return null;
         }
@@ -746,8 +773,7 @@ namespace NServiceBus.Serializers.XML
                         if (node.Name == "Key")
                         {
                             key = GetObjectOfTypeFromNode(keyType, node);
-                        }
-                        if (node.Name == "Value")
+                        } else if (node.Name == "Value")
                         {
                             value = GetObjectOfTypeFromNode(valueType, node);
                         }
@@ -951,7 +977,7 @@ namespace NServiceBus.Serializers.XML
                 {
                     namespacesToAdd.Add(value.GetType());
                 }
-                
+
                 builder.AppendFormat("<{0}>{1}</{0}>\n",
                     value.GetType().Name.ToLower() + ":" + name,
                     FormatAsString(value));
@@ -966,8 +992,8 @@ namespace NServiceBus.Serializers.XML
 
             if (useNS)
             {
-                var namespaces = InitializeNamespaces(new[] {value});
-                var baseTypes = GetBaseTypes(new[] {value});
+                var namespaces = InitializeNamespaces(new[] { value });
+                var baseTypes = GetBaseTypes(new[] { value });
                 CreateStartElementWithNamespaces(namespaces, baseTypes, builder, element);
             }
             else
@@ -1045,15 +1071,15 @@ namespace NServiceBus.Serializers.XML
             if (typeof(XContainer).IsAssignableFrom(type))
             {
                 var container = (XContainer)value;
-                if(SkipWrappingRawXml)
+                if (SkipWrappingRawXml)
                 {
-                    builder.AppendFormat("{0}\n", container); 
+                    builder.AppendFormat("{0}\n", container);
                 }
                 else
                 {
-                    builder.AppendFormat("<{0}>{1}</{0}>\n", name, container); 
+                    builder.AppendFormat("<{0}>{1}</{0}>\n", name, container);
                 }
-                
+
                 return;
             }
 
@@ -1305,7 +1331,7 @@ namespace NServiceBus.Serializers.XML
                         builder.Append(stringToEscape, startIndex, i - startIndex);
                     }
                     startIndex = i + 1;
-                    builder.AppendFormat("&#x{0:X};", (int) c);
+                    builder.AppendFormat("&#x{0:X};", (int)c);
                 }
             }
 
@@ -1380,7 +1406,7 @@ namespace NServiceBus.Serializers.XML
 
             return result;
         }
-        
+
         const string BASETYPE = "baseType";
 
         static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
