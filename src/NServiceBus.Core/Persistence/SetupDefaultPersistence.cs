@@ -1,13 +1,12 @@
 ﻿namespace NServiceBus.Persistence
 {
-    using System;
+    using InMemory;
 
     public class SetupDefaultPersistence : IWantToRunBeforeConfiguration
     {
-        [Obsolete]
         public void Init()
         {
-            ConfigureRavenPersistence.RegisterDefaults();
+            InMemoryPersistence.UseAsDefault();
         }
     }
 }

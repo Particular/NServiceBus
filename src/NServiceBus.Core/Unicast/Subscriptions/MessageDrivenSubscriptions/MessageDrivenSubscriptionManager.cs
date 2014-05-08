@@ -10,24 +10,32 @@
     using Queuing;
     using Transport;
     using Transports;
-    
+
     /// <summary>
-    /// Implements message driven subscriptions for transports that doesn't have native support for it (MSMQ , SqlServer, Azure Queues etc)
+    ///     Implements message driven subscriptions for transports that doesn't have native support for it (MSMQ , SqlServer,
+    ///     Azure Queues etc)
     /// </summary>
     public class MessageDrivenSubscriptionManager : IManageSubscriptions,
-                                                    IMutateIncomingTransportMessages
-                                                    
-                                                    
+        IMutateIncomingTransportMessages
+
+
     {
         public ISendMessages MessageSender { get; set; }
         public IBuilder Builder { get; set; }
         public ISubscriptionStorage SubscriptionStorage { get; set; }
-        public IAuthorizeSubscriptions SubscriptionAuthorizer { get { return subscriptionAuthorizer ?? (subscriptionAuthorizer = new NoopSubscriptionAuthorizer()); } set { subscriptionAuthorizer = value; } }
-        
+
+        public IAuthorizeSubscriptions SubscriptionAuthorizer
+        {
+            get { return subscriptionAuthorizer ?? (subscriptionAuthorizer = new NoopSubscriptionAuthorizer()); }
+            set { subscriptionAuthorizer = value; }
+        }
+
         public void Subscribe(Type eventType, Address publisherAddress)
         {
             if (publisherAddress == Address.Undefined)
+            {
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
+            }
 
             Logger.Info("Subscribing to " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
 
@@ -36,15 +44,17 @@
             subscriptionMessage.ReplyToAddress = Address.PublicReturnAddress;
 
             ThreadPool.QueueUserWorkItem(state =>
-                                         SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName));
+                SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName));
         }
 
 
         public void Unsubscribe(Type eventType, Address publisherAddress)
         {
             if (publisherAddress == Address.Undefined)
+            {
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
-          
+            }
+
             Logger.Info("Unsubscribing from " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
 
             var subscriptionMessage = CreateControlMessage(eventType);
@@ -55,27 +65,33 @@
             MessageSender.Send(subscriptionMessage, publisherAddress);
         }
 
-        public event EventHandler<SubscriptionEventArgs> ClientSubscribed;
-
         public void MutateIncoming(TransportMessage transportMessage)
         {
-           var messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
+            var messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
 
             var intent = transportMessage.MessageIntent;
 
             if (string.IsNullOrEmpty(messageTypeString) && intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
+            {
                 return;
+            }
 
             if (string.IsNullOrEmpty(messageTypeString))
+            {
                 throw new InvalidOperationException("Message intent is Subscribe, but the subscription message type header is missing!");
+            }
 
             if (intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
+            {
                 throw new InvalidOperationException("Subscription messages need to have intent set to Subscribe/Unsubscribe");
+            }
 
             var subscriberAddress = transportMessage.ReplyToAddress;
 
             if (subscriberAddress == null || subscriberAddress == Address.Undefined)
+            {
                 throw new InvalidOperationException("Subscription message arrived without a valid ReplyToAddress");
+            }
 
 
             if (SubscriptionStorage == null)
@@ -84,7 +100,9 @@
                 Logger.WarnFormat(warning);
 
                 if (Debugger.IsAttached) // only under debug, so that we don't expose ourselves to a denial of service
-                    throw new InvalidOperationException(warning);  // and cause message to go to error queue by throwing an exception
+                {
+                    throw new InvalidOperationException(warning); // and cause message to go to error queue by throwing an exception
+                }
 
                 return;
             }
@@ -104,13 +122,18 @@
 
                     var mt = new MessageType(messageTypeString);
 
-                    SubscriptionStorage.Subscribe(transportMessage.ReplyToAddress, new[] { mt });
+                    SubscriptionStorage.Subscribe(transportMessage.ReplyToAddress, new[]
+                    {
+                        mt
+                    });
                     if (ClientSubscribed != null)
+                    {
                         ClientSubscribed(this, new SubscriptionEventArgs
-                                             {
-                                                 MessageType = messageTypeString,
-                                                 SubscriberReturnAddress = subscriberAddress
-                                             });
+                        {
+                            MessageType = messageTypeString,
+                            SubscriberReturnAddress = subscriberAddress
+                        });
+                    }
                 }
 
                 return;
@@ -124,11 +147,13 @@
             }
 
             Logger.Info("Unsubscribing " + subscriberAddress + " from message type " + messageTypeString);
-            SubscriptionStorage.Unsubscribe(subscriberAddress, new[] { new MessageType(messageTypeString) });
+            SubscriptionStorage.Unsubscribe(subscriberAddress, new[]
+            {
+                new MessageType(messageTypeString)
+            });
         }
 
-    
-
+        public event EventHandler<SubscriptionEventArgs> ClientSubscribed;
 
         static string GetSubscriptionMessageTypeFrom(TransportMessage msg)
         {
@@ -163,29 +188,7 @@
             }
         }
 
-     
-
-    
-     
+        static readonly ILog Logger = LogManager.GetLogger(typeof(MessageDrivenSubscriptionManager));
         IAuthorizeSubscriptions subscriptionAuthorizer;
-
-        readonly static ILog Logger = LogManager.GetLogger(typeof(MessageDrivenSubscriptionManager));
-    }
-
-    class StorageInitializer : IWantToRunWhenBusStartsAndStops
-    {
-        public ISubscriptionStorage SubscriptionStorage { get; set; }
-
-        public void Start()
-        {
-            if (SubscriptionStorage != null)
-                SubscriptionStorage.Init();
-        }
-
-        public void Stop()
-        {
-
-        }
-
     }
 }

@@ -14,7 +14,7 @@
             var rootContext = new Context();
 
             Scenario.Define(rootContext)
-                    .WithEndpoint<Publisher1>(b => b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(args =>
+                .WithEndpoint<Publisher1>(b => b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(args =>
                 {
                     if (args.MessageType.Contains(typeof(IMyEvent).Name))
                     {
@@ -25,9 +25,8 @@
                     {
                         context.SubscribedToMyEvent2 = true;
                     }
-                }))
-                    .When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, bus => bus.Publish(new MyEvent1())))
-                    .WithEndpoint<Publisher2>(b => b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(args =>
+                })).When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, bus => bus.Publish(new MyEvent1())))
+                .WithEndpoint<Publisher2>(b => b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(args =>
                 {
                     if (args.MessageType.Contains(typeof(IMyEvent).Name))
                     {
@@ -38,21 +37,20 @@
                     {
                         context.SubscribedToMyEvent2 = true;
                     }
-                }))
-                    .When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, bus => bus.Publish(new MyEvent2())))
-                    .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
-                    {
-                        bus.Subscribe<IMyEvent>();
-                        bus.Subscribe<MyEvent2>();
+                })).When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, bus => bus.Publish(new MyEvent2())))
+                .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
+                {
+                    bus.Subscribe<IMyEvent>();
+                    bus.Subscribe<MyEvent2>();
 
-                        if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
-                        {
-                            context.SubscribedToIMyEvent = true;
-                            context.SubscribedToMyEvent2 = true;
-                        }
-                    }))
-                    .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)
-                    .Run();
+                    if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                    {
+                        context.SubscribedToIMyEvent = true;
+                        context.SubscribedToMyEvent2 = true;
+                    }
+                }))
+                .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)
+                .Run(TimeSpan.FromSeconds(2000));
 
             Assert.True(rootContext.SubscriberGotIMyEvent);
             Assert.True(rootContext.SubscriberGotMyEvent2);
