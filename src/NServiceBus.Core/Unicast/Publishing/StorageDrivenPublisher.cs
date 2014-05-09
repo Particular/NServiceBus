@@ -17,7 +17,7 @@
 
         public PipelineExecutor PipelineExecutor { get; set; }
       
-        public bool Publish(TransportMessage message, IEnumerable<Type> eventTypes)
+        public void Publish(TransportMessage message, IEnumerable<Type> eventTypes)
         {
             if (SubscriptionStorage == null)
             {
@@ -29,7 +29,7 @@
             if (!subscribers.Any())
             {
                 PipelineExecutor.CurrentContext.Set("NoSubscribersFoundForMessage",true);
-                return false;
+                return;
             }
                 
 
@@ -40,8 +40,6 @@
 
                 MessageSender.Send(message,subscriber);
             }
-
-            return true;
         }
     }
 }
