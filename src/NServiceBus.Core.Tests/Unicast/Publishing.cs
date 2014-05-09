@@ -36,24 +36,5 @@
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(subscriber2)));
         }
-
-        [Test]
-        public void Should_fire_the_no_subscribers_for_message_if_no_subscribers_exists()
-        {
-          
-            RegisterMessageType<EventMessage>();
-
-            var eventFired = false;
-            var eventMessage = new EventMessage();
-
-            unicastBus.NoSubscribersForMessage += (sender, args) =>
-                {
-                    eventFired = true;
-                    Assert.AreSame(eventMessage,args.Message);
-                };
-            bus.Publish(eventMessage);
-
-            Assert.True(eventFired);
-         }
     }
 }

@@ -24,7 +24,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public class UnicastBus : IUnicastBus, IInMemoryOperations
+    public class UnicastBus : IStartableBus, IInMemoryOperations
     {
         HostInformation hostInformation = HostInformation.CreateDefault();
 
@@ -98,11 +98,6 @@ namespace NServiceBus.Unicast
         public StaticMessageRouter MessageRouter { get; set; }
 
         /// <summary>
-        /// Event raised when no subscribers found for the published message.
-        /// </summary>
-        public event EventHandler<MessageEventArgs> NoSubscribersForMessage;
-
-        /// <summary>
         /// The registered subscription manager for this bus instance
         /// </summary>
         public IManageSubscriptions SubscriptionManager { get; set; }
@@ -135,12 +130,7 @@ namespace NServiceBus.Unicast
                     Intent = MessageIntentEnum.Publish
                 };
 
-            var context = InvokeSendPipeline(sendOptions, LogicalMessageFactory.Create(message));
-
-            if (!context.Get<bool>("SubscribersFound") && NoSubscribersForMessage != null)
-            {
-                NoSubscribersForMessage(this, new MessageEventArgs(message));
-            }
+            InvokeSendPipeline(sendOptions, LogicalMessageFactory.Create(message));
         }
 
         /// <summary>
