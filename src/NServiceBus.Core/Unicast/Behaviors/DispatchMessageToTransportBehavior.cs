@@ -114,10 +114,6 @@
                 .ToList();
 
             MessagePublisher.Publish(messageToSend, eventTypesToPublish);
-            //var subscribersFound = MessagePublisher.Publish(messageToSend, eventTypesToPublish);
-
-            //todo
-            //context.Set("SubscribersFound", subscribersFound);
         }
 
         static ILog Log = LogManager.GetLogger(typeof(DispatchMessageToTransportBehavior));
