@@ -5,23 +5,23 @@ namespace NServiceBus.Outbox
     using Pipeline.Contexts;
     using Unicast.Behaviors;
 
-    class OutboxSendBehavior : IBehavior<SendPhysicalMessageContext>
+    class OutboxSendBehavior : IBehavior<SendLogicalMessageContext>
     {
         public IOutboxStorage OutboxStorage { get; set; }
 
         public DispatchMessageToTransportBehavior DispatchMessageToTransportBehavior { get; set; }
 
-        public void Invoke(SendPhysicalMessageContext context, Action next)
+        public void Invoke(SendLogicalMessageContext context, Action next)
         {
             OutboxMessage currentOutboxMessage;
 
             if (context.TryGet(out currentOutboxMessage) && !context.Get<bool>("Outbox_StartDispatching"))
             {
-                currentOutboxMessage.TransportOperations.Add(new TransportOperation(context.SendOptions, context.MessageToSend,context.LogicalMessage.MessageType.FullName));
+                currentOutboxMessage.TransportOperations.Add(new TransportOperation(context.SendOptions, context.OutgoingMessage, context.LogicalMessage.MessageType.FullName));
             }
             else
             {
-                DispatchMessageToTransportBehavior.InvokeNative(context.SendOptions, context.MessageToSend, context.LogicalMessage.Metadata);
+                DispatchMessageToTransportBehavior.InvokeNative(context.SendOptions, context.OutgoingMessage, context.LogicalMessage.Metadata);
 
                 next();
             }

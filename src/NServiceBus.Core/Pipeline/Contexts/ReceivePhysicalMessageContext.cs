@@ -24,9 +24,16 @@
         {
             get { return Get<TransportMessage>(IncomingPhysicalMessageKey); }
         }
+
         public List<LogicalMessage> LogicalMessages
         {
             get { return Get<List<LogicalMessage>>(); }
+            set { Set(value); }
+        }
+
+        public LogicalMessage LogicalMessage
+        {
+            get { return Get<LogicalMessage>(); }
             set { Set(value); }
         }
 

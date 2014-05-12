@@ -4,6 +4,7 @@
     using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
+    using Transport;
     using Unicast;
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
@@ -12,7 +13,10 @@
     {
         public void Invoke(SendLogicalMessageContext context, Action next)
         {
-            VerifyBestPractices(context);
+            if (!context.LogicalMessage.IsControlMessage())
+            {
+                VerifyBestPractices(context);
+            }
 
             next();
         }
@@ -25,7 +29,7 @@
             }
             if (context.SendOptions.Destination == Address.Undefined)
             {
-                throw new InvalidOperationException("No destination specified for message: " + context.MessageToSend.MessageType);
+                throw new InvalidOperationException("No destination specified for message: " + context.LogicalMessage.MessageType);
             }
 
             switch (context.SendOptions.Intent)
@@ -34,13 +38,13 @@
                 case MessageIntentEnum.Unsubscribe:
                     break;
                 case MessageIntentEnum.Publish:
-                    MessagingBestPractices.AssertIsValidForPubSub(context.MessageToSend.MessageType);
+                    MessagingBestPractices.AssertIsValidForPubSub(context.LogicalMessage.MessageType);
                     break;
                 case MessageIntentEnum.Reply:
-                    MessagingBestPractices.AssertIsValidForReply(context.MessageToSend.MessageType);
+                    MessagingBestPractices.AssertIsValidForReply(context.LogicalMessage.MessageType);
                     break;
                 case MessageIntentEnum.Send:
-                    MessagingBestPractices.AssertIsValidForSend(context.MessageToSend.MessageType, context.SendOptions.Intent);
+                    MessagingBestPractices.AssertIsValidForSend(context.LogicalMessage.MessageType, context.SendOptions.Intent);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

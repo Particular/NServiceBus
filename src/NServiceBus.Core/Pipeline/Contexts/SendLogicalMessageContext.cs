@@ -5,7 +5,6 @@
     using Unicast;
     using Unicast.Messages;
 
-
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class SendLogicalMessageContext : BehaviorContext
@@ -22,12 +21,9 @@
             get { return Get<SendOptions>(); }
         }
 
-        public LogicalMessage MessageToSend
+        public LogicalMessage LogicalMessage
         {
-            get
-            {
-                return Get<LogicalMessage>();
-            }
+            get { return Get<LogicalMessage>(); }
         }
 
         public TransportMessage IncomingMessage
@@ -42,6 +38,11 @@
 
                 return message;
             }
+        }
+
+        public TransportMessage OutgoingMessage
+        {
+            get { return Get<TransportMessage>(); }
         }
     }
 }

@@ -11,7 +11,6 @@
         public TimeSpan TimeToBeReceived { get; set; }
         public IEnumerable<Type> MessageHierarchy{ get; set; }
 
-
         public override string ToString()
         {
             return string.Format("MessageType: {0}, Recoverable: {1}, TimeToBeReceived: {2} , Parent types: {3}", MessageType, Recoverable,

@@ -1,5 +1,7 @@
 namespace NServiceBus.Unicast.Transport
 {
+    using Messages;
+
     /// <summary>
     /// Helper for creating control messages
     /// </summary>
@@ -36,5 +38,11 @@ namespace NServiceBus.Unicast.Transport
                    transportMessage.Headers.ContainsKey(Headers.ControlMessageHeader);
         }
 
+
+        public static bool IsControlMessage(this LogicalMessage transportMessage)
+        {
+            return transportMessage.Headers != null &&
+                   transportMessage.Headers.ContainsKey(Headers.ControlMessageHeader);
+        }
     }
 }

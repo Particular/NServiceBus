@@ -37,11 +37,7 @@
                 throw new InvalidOperationException("Can't invoke the receive pipeline when the current context is: " + contextStacker.Current.GetType().Name);
             }
 
-
-            var pipeline = new BehaviorChain<ReceivePhysicalMessageContext>(pipelineBuilder.receivePhysicalMessageBehaviorList);
-
-
-            pipeline.Invoke(context);
+            InvokePipeline(pipelineBuilder.receivePhysicalMessageBehaviorList, context);
         }
 
         public void CompletePhysicalMessagePipelineContext()
@@ -49,41 +45,22 @@
             contextStacker.Pop();
         }
 
-        public void InvokeLogicalMessagePipeline(LogicalMessage message)
-        {
-            var pipeline = new BehaviorChain<ReceiveLogicalMessageContext>(pipelineBuilder.receiveLogicalMessageBehaviorList);
-            var context = new ReceiveLogicalMessageContext(CurrentContext, message);
-
-            Execute(pipeline, context);
-        }
-
         public HandlerInvocationContext InvokeHandlerPipeline(MessageHandler handler)
         {
-            var pipeline = new BehaviorChain<HandlerInvocationContext>(pipelineBuilder.handlerInvocationBehaviorList);
-
             var context = new HandlerInvocationContext(CurrentContext, handler);
 
-            Execute(pipeline, context);
+            InvokePipeline(pipelineBuilder.handlerInvocationBehaviorList, context);
 
             return context;
         }
 
         public SendLogicalMessageContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
         {
-            var pipeline = new BehaviorChain<SendLogicalMessageContext>(pipelineBuilder.sendLogicalMessageBehaviorList);
             var context = new SendLogicalMessageContext(CurrentContext, sendOptions, message);
 
-            Execute(pipeline,context);
+            InvokePipeline(pipelineBuilder.sendLogicalMessageBehaviorList, context);
 
             return context;
-        }
-
-        public void InvokeSendPipeline(SendOptions sendOptions, TransportMessage physicalMessage)
-        {
-            var pipeline = new BehaviorChain<SendPhysicalMessageContext>(pipelineBuilder.sendPhysicalMessageBehaviorList);
-            var context = new SendPhysicalMessageContext(CurrentContext, sendOptions, physicalMessage);
-
-            Execute(pipeline, context);
         }
 
         public void InvokePipeline<TContext>(IEnumerable<Type> behaviours, TContext context) where TContext : BehaviorContext
@@ -134,6 +111,5 @@
                 contextStacker.Pop();
             }
         }
-
     }
 }

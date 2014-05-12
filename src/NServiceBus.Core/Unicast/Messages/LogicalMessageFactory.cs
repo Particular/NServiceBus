@@ -36,6 +36,13 @@ namespace NServiceBus.Unicast.Messages
             return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(realMessageType), message, headers, this);
         }
 
+        public LogicalMessage CreateControl(Dictionary<string, string> headers)
+        {
+            headers.Add(Headers.ControlMessageHeader, true.ToString());
+
+            return new LogicalMessage(headers, this);
+        }
+
         Dictionary<string, string> GetMessageHeaders(object message)
         {
             Dictionary<object, Dictionary<string, string>> outgoingHeaders;

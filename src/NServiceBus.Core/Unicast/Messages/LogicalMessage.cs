@@ -11,6 +11,13 @@
     {
         readonly LogicalMessageFactory factory;
 
+        public LogicalMessage(Dictionary<string, string> headers, LogicalMessageFactory factory)
+        {
+            this.factory = factory;
+            Metadata = new MessageMetadata();
+            Headers = headers;
+        }
+
         public LogicalMessage(MessageMetadata metadata, object message, Dictionary<string,string> headers, LogicalMessageFactory factory)
         {
             this.factory = factory;

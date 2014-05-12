@@ -26,7 +26,7 @@
             }
 
 
-            public override void Override(BehaviorList<SendPhysicalMessageContext> behaviorList)
+            public override void Override(BehaviorList<SendLogicalMessageContext> behaviorList)
             {
                 if (!IsEnabled<Outbox>())
                 {

@@ -30,12 +30,10 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
 
         public class UserEndpoint : EndpointConfigurationBuilder
         {
-
             public UserEndpoint()
             {
                 EndpointSetup<DefaultServer>()
                     .AuditTo<AuditSpy>();
-
             }
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
@@ -49,8 +47,32 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
             }
 
 #pragma warning disable 618
-            class MyFilteringAuditBehavior : IBehavior<ReceivePhysicalMessageContext>,
-                IBehavior<ReceiveLogicalMessageContext>
+            class SetFiltering : IBehavior<ReceivePhysicalMessageContext>
+            {
+                public void Invoke(ReceivePhysicalMessageContext context, Action next)
+                {
+                    if (context.LogicalMessage.MessageType == typeof(MessageToBeAudited))
+                    {
+                        context.Get<AuditFilterResult>().DoNotAuditMessage = true;
+                    }
+                }
+
+                class AuditFilteringOverride : PipelineOverride
+                {
+                    public override void Override(BehaviorList<ReceivePhysicalMessageContext> behaviorList)
+                    {
+                        //and also hook into to logical receive pipeline to make filtering on message types easier
+                        behaviorList.Add<SetFiltering>();
+                    }
+                }
+            }
+
+            class AuditFilterResult
+            {
+                public bool DoNotAuditMessage { get; set; }
+            }
+
+            class FilteringAuditBehavior : IBehavior<ReceivePhysicalMessageContext>
             {
                 public MessageAuditer MessageAuditer { get; set; }
 
@@ -66,23 +88,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                     {
                         return;
                     }
+
                     MessageAuditer.ForwardMessageToAuditQueue(context.PhysicalMessage);
                 }
-
-                public void Invoke(ReceiveLogicalMessageContext context, Action next)
-                {
-                    //filter out messages of type MessageToBeAudited
-                    if (context.LogicalMessage.MessageType == typeof(MessageToBeAudited))
-                    {
-                        context.Get<AuditFilterResult>().DoNotAuditMessage = true;
-                    }
-                }
-
-                class AuditFilterResult
-                {
-                    public bool DoNotAuditMessage { get; set; }
-                }
-
 
                 //here we inject our behavior
                 class AuditFilteringOverride : PipelineOverride
@@ -90,18 +98,11 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                     public override void Override(BehaviorList<ReceivePhysicalMessageContext> behaviorList)
                     {
                         //we replace the default audit behavior with out own
-                        behaviorList.Replace<AuditBehavior, MyFilteringAuditBehavior>();
-                    }
-
-                    public override void Override(BehaviorList<ReceiveLogicalMessageContext> behaviorList)
-                    {
-                        //and also hook into to logical receive pipeline to make filtering on message types easier
-                        behaviorList.Add<MyFilteringAuditBehavior>();
+                        behaviorList.Replace<AuditBehavior, FilteringAuditBehavior>();
                     }
                 }
-
-#pragma warning restore 618
             }
+#pragma warning restore 618
         }
 
         public class AuditSpy : EndpointConfigurationBuilder

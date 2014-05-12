@@ -179,7 +179,6 @@
     <Compile Include="Unicast\Behaviors\ChildContainerBehavior.cs" />
     <Compile Include="Unicast\Behaviors\CreatePhysicalMessageBehavior.cs" />
     <Compile Include="Unicast\Behaviors\DispatchMessageToTransportBehavior.cs" />
-    <Compile Include="Pipeline\Contexts\ReceiveLogicalMessageContext.cs" />
     <Compile Include="Pipeline\Contexts\HandlerInvocationContext.cs" />
     <Compile Include="MessageMutator\MutateOutgoingMessageBehavior.cs" />
     <Compile Include="MessageMutator\MutateOutgoingPhysicalMessageBehavior.cs" />
@@ -187,7 +186,6 @@
     <Compile Include="Pipeline\PipelineExecutor.cs" />
     <Compile Include="Pipeline\Contexts\RootContext.cs" />
     <Compile Include="Pipeline\Contexts\SendLogicalMessageContext.cs" />
-    <Compile Include="Pipeline\Contexts\SendPhysicalMessageContext.cs" />
     <Compile Include="Unicast\Behaviors\SendValidatorBehavior.cs" />
     <Compile Include="Unicast\Behaviors\SerializeMessagesBehavior.cs" />
     <Compile Include="Sagas\ActiveSagaInstance.cs" />

@@ -11,7 +11,7 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class LoadHandlersBehavior : IBehavior<ReceiveLogicalMessageContext>
+    public class LoadHandlersBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public IMessageHandlerRegistry HandlerRegistry { get; set; }
 
@@ -19,7 +19,7 @@
 
         public PipelineExecutor PipelineFactory { get; set; }
 
-        public void Invoke(ReceiveLogicalMessageContext context, Action next)
+        public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
             var messageToHandle = context.LogicalMessage;
 
