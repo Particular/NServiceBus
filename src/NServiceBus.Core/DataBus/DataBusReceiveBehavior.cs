@@ -14,14 +14,14 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class DataBusReceiveBehavior : IBehavior<ReceiveLogicalMessageContext>
+    public class DataBusReceiveBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public IDataBus DataBus { get; set; }
 
         public IDataBusSerializer DataBusSerializer { get; set; }
 
 
-        public void Invoke(ReceiveLogicalMessageContext context, Action next)
+        public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
             var message = context.LogicalMessage.Instance;
 

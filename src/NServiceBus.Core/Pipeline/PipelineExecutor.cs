@@ -37,20 +37,12 @@
                 throw new InvalidOperationException("Can't invoke the receive pipeline when the current context is: " + contextStacker.Current.GetType().Name);
             }
 
-
             InvokePipeline(pipelineBuilder.receivePhysicalMessageBehaviorList, context);
         }
 
         public void CompletePhysicalMessagePipelineContext()
         {
             contextStacker.Pop();
-        }
-
-        public void InvokeLogicalMessagePipeline(LogicalMessage message)
-        {
-            var context = new ReceiveLogicalMessageContext(CurrentContext, message);
-
-            InvokePipeline(pipelineBuilder.receiveLogicalMessageBehaviorList, context);
         }
 
         public HandlerInvocationContext InvokeHandlerPipeline(MessageHandler handler)
@@ -69,13 +61,6 @@
             InvokePipeline(pipelineBuilder.sendLogicalMessageBehaviorList, context);
 
             return context;
-        }
-
-        public void InvokeSendPipeline(SendOptions sendOptions, TransportMessage physicalMessage)
-        {
-            var context = new SendPhysicalMessageContext(CurrentContext, sendOptions, physicalMessage);
-
-            InvokePipeline(pipelineBuilder.sendPhysicalMessageBehaviorList, context);
         }
 
         public void InvokePipeline<TContext>(IEnumerable<Type> behaviours, TContext context) where TContext : BehaviorContext
@@ -126,6 +111,5 @@
                 contextStacker.Pop();
             }
         }
-
     }
 }

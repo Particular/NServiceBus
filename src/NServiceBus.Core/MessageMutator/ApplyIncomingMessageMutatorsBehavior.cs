@@ -8,9 +8,9 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class ApplyIncomingMessageMutatorsBehavior : IBehavior<ReceiveLogicalMessageContext>
+    public class ApplyIncomingMessageMutatorsBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
-        public void Invoke(ReceiveLogicalMessageContext context, Action next)
+        public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
             var current = context.LogicalMessage.Instance;
 

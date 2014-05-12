@@ -12,31 +12,36 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class SerializeMessagesBehavior : IBehavior<SendPhysicalMessageContext>
+    public class SerializeMessagesBehavior : IBehavior<SendLogicalMessageContext>
     {
         public IMessageSerializer MessageSerializer { get; set; }
 
-        public void Invoke(SendPhysicalMessageContext context, Action next)
+        public void Invoke(SendLogicalMessageContext context, Action next)
         {
-            if (!context.MessageToSend.IsControlMessage())
+            if (context.LogicalMessage.IsControlMessage())
             {
-                using (var ms = new MemoryStream())
+                next();
+                return;
+            }
+
+            using (var ms = new MemoryStream())
+            {
+
+                MessageSerializer.Serialize(new[]
                 {
-                    
-                    MessageSerializer.Serialize(new[]{context.LogicalMessage.Instance}, ms);
+                    context.LogicalMessage.Instance
+                }, ms);
 
-                    context.MessageToSend.Headers[Headers.ContentType] = MessageSerializer.ContentType;
+                context.OutgoingMessage.Headers[Headers.ContentType] = MessageSerializer.ContentType;
 
-                    context.MessageToSend.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.LogicalMessage);
+                context.OutgoingMessage.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.LogicalMessage);
 
-                    context.MessageToSend.Body = ms.ToArray();
-                }
-              
-                foreach (var headerEntry in context.LogicalMessage.Headers)
-                {
-                    context.MessageToSend.Headers[headerEntry.Key] = headerEntry.Value;
-                }
-                
+                context.OutgoingMessage.Body = ms.ToArray();
+            }
+
+            foreach (var headerEntry in context.LogicalMessage.Headers)
+            {
+                context.OutgoingMessage.Headers[headerEntry.Key] = headerEntry.Value;
             }
 
             next();

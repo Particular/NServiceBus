@@ -251,15 +251,17 @@ namespace NServiceBus.Unicast
 
         public void Return<T>(T errorCode)
         {
-            var returnMessage = ControlMessage.Create(Address.Local);
-
-            returnMessage.MessageIntent = MessageIntentEnum.Reply;
-
-            returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
-            returnMessage.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
+            //var returnMessage = ControlMessage.Create(Address.Local);
+            var returnMessage = LogicalMessageFactory.CreateControl(new Dictionary<string, string>
+            {
+                {Headers.ReturnMessageErrorCodeHeader, errorCode.GetHashCode().ToString()}
+            });
+            
+            //returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
+            //.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
 
             var options = SendOptions.ReplyTo(MessageBeingProcessed.ReplyToAddress);
-
+            options.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
             PipelineFactory.InvokeSendPipeline(options, returnMessage);
         }
 

@@ -4,6 +4,7 @@
     using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
+    using Unicast.Transport;
 
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
@@ -12,12 +13,18 @@
     {
         public void Invoke(SendLogicalMessageContext context, Action next)
         {
-            var currentMessageToSend = context.MessageToSend.Instance;
+            if (context.LogicalMessage.IsControlMessage())
+            {
+                next();
+                return;
+            }
+
+            var currentMessageToSend = context.LogicalMessage.Instance;
 
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingMessages>())
             {
                 currentMessageToSend = mutator.MutateOutgoing(currentMessageToSend);
-                context.MessageToSend.UpdateMessageInstance(currentMessageToSend);
+                context.LogicalMessage.UpdateMessageInstance(currentMessageToSend);
             }
 
             next();

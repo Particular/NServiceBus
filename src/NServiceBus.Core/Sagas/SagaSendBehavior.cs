@@ -4,6 +4,7 @@
     using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
+    using Unicast.Transport;
 
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
@@ -12,13 +13,18 @@
     {
         public void Invoke(SendLogicalMessageContext context, Action next)
         {
+            if (context.LogicalMessage.IsControlMessage())
+            {
+                next();
+                return;
+            }
+
             ActiveSagaInstance saga;
 
             if (context.TryGet(out saga) && !saga.NotFound)
             {
-                context.MessageToSend.Headers[Headers.OriginatingSagaId] = saga.Instance.Entity.Id.ToString();
-                context.MessageToSend.Headers[Headers.OriginatingSagaType] = saga.SagaType.AssemblyQualifiedName;
-
+                context.LogicalMessage.Headers[Headers.OriginatingSagaId] = saga.Instance.Entity.Id.ToString();
+                context.LogicalMessage.Headers[Headers.OriginatingSagaType] = saga.SagaType.AssemblyQualifiedName;
             }
 
             //auto correlate with the saga we are replying to if needed
@@ -29,12 +35,12 @@
 
                 if (context.IncomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out sagaId))
                 {
-                    context.MessageToSend.Headers[Headers.SagaId] = sagaId;
+                    context.LogicalMessage.Headers[Headers.SagaId] = sagaId;
                 }
 
                 if (context.IncomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out sagaType))
                 {
-                    context.MessageToSend.Headers[Headers.SagaType] = sagaType;
+                    context.LogicalMessage.Headers[Headers.SagaType] = sagaType;
                 }
             }
 

@@ -21,9 +21,9 @@
             var logicalMessages = context.LogicalMessages;
             foreach (var message in logicalMessages)
             {
-                PipelineExecutor.InvokeLogicalMessagePipeline(message);
+                context.LogicalMessage = message;
+                next();
             }
-
 
             if (!context.PhysicalMessage.IsControlMessage())
             {
@@ -32,10 +32,7 @@
                     log.Warn("Received an empty message - ignoring.");
                 }
             }
-
-            next();
         }
-
 
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
     }

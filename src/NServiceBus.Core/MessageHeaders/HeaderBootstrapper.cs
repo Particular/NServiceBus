@@ -73,9 +73,9 @@ namespace NServiceBus.MessageHeaders
                 //are we in the process of sending a logical message
                 var outgoingLogicalMessageContext = pipelineFactory.CurrentContext as SendLogicalMessageContext;
 
-                if (outgoingLogicalMessageContext != null && outgoingLogicalMessageContext.MessageToSend.Instance == message)
+                if (outgoingLogicalMessageContext != null && outgoingLogicalMessageContext.LogicalMessage.Instance == message)
                 {
-                    outgoingLogicalMessageContext.MessageToSend.Headers[key] = value;
+                    outgoingLogicalMessageContext.LogicalMessage.Headers[key] = value;
                 }
 
                 Dictionary<object, Dictionary<string, string>> outgoingHeaders;

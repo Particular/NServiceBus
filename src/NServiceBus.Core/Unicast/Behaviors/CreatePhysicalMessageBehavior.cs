@@ -4,6 +4,7 @@
     using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
+    using Transport;
     using Unicast;
     using Messages;
 
@@ -20,38 +21,52 @@
         public void Invoke(SendLogicalMessageContext context, Action next)
         {
             var sendOptions = context.SendOptions;
+            TransportMessage toSend;
+            var isControl = false;
 
-            var toSend = new TransportMessage
+            if (context.LogicalMessage.IsControlMessage())
             {
-                MessageIntent = sendOptions.Intent,
-                ReplyToAddress = sendOptions.ReplyToAddress
-            };
+                toSend = ControlMessage.Create(Address.Local);
+                toSend.MessageIntent = sendOptions.Intent;
+                isControl = true;
+            }
+            else
+            {
+                toSend = new TransportMessage
+                {
+                    MessageIntent = sendOptions.Intent,
+                    ReplyToAddress = sendOptions.ReplyToAddress
+                };
+            }
 
             if (sendOptions.CorrelationId != null)
             {
                 toSend.CorrelationId = sendOptions.CorrelationId;
             }
 
-            //apply static headers
-            foreach (var kvp in UnicastBus.OutgoingHeaders)
+            if (!isControl)
             {
-                toSend.Headers[kvp.Key] = kvp.Value;
+                //apply static headers
+                foreach (var kvp in UnicastBus.OutgoingHeaders)
+                {
+                    toSend.Headers[kvp.Key] = kvp.Value;
+                }
             }
-
             //apply individual headers
-            foreach (var kvp in context.MessageToSend.Headers)
+            foreach (var kvp in context.LogicalMessage.Headers)
             {
                 toSend.Headers[kvp.Key] = kvp.Value;
             }
 
-            var messageDefinitions = MessageMetadataRegistry.GetMessageDefinition(context.MessageToSend.MessageType);
+            if (!isControl)
+            {
+                var messageDefinitions = MessageMetadataRegistry.GetMessageDefinition(context.LogicalMessage.MessageType);
 
-            toSend.TimeToBeReceived = messageDefinitions.TimeToBeReceived;
-            toSend.Recoverable = messageDefinitions.Recoverable;
+                toSend.TimeToBeReceived = messageDefinitions.TimeToBeReceived;
+                toSend.Recoverable = messageDefinitions.Recoverable;
+            }
 
             context.Set(toSend);
-
-            PipelineExecutor.InvokeSendPipeline(sendOptions,toSend);
 
             next();
         }
