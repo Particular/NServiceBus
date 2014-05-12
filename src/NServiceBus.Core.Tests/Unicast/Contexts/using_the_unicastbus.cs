@@ -180,7 +180,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected void RegisterMessageHandlerType<T>() where T : new()
         {
+// ReSharper disable HeapView.SlowDelegateCreation
             FuncBuilder.Register<T>(() => new T());
+// ReSharper restore HeapView.SlowDelegateCreation
 
             handlerRegistry.RegisterHandler(typeof(T));
         }
