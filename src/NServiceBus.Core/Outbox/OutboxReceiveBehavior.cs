@@ -13,7 +13,7 @@
         public DispatchMessageToTransportBehavior DispatchMessageToTransportBehavior { get; set; }
 
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
-        
+
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
             var messageId = context.PhysicalMessage.Id;
@@ -25,15 +25,11 @@
 
                 context.Set(outboxMessage);
 
-                using (OutboxStorage.OpenSession())
-                {
-                    //this runs the rest of the pipeline
-                    next();
+                next();
 
-                    OutboxStorage.StoreAndCommit(messageId, outboxMessage.TransportOperations);
-                }
+                OutboxStorage.Store(messageId, outboxMessage.TransportOperations);
             }
-            
+
             if (outboxMessage.Dispatched)
             {
                 return;

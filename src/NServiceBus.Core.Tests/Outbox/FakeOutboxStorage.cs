@@ -22,12 +22,7 @@
             return false;
         }
 
-        public IDisposable OpenSession()
-        {
-            return new EmptyDisposable();
-        }
-
-        public void StoreAndCommit(string messageId, IEnumerable<TransportOperation> transportOperations)
+        public void Store(string messageId, IEnumerable<TransportOperation> transportOperations)
         {
             StoredMessage = new OutboxMessage(messageId);
             StoredMessage.TransportOperations.AddRange(transportOperations);
@@ -63,12 +58,5 @@
         }
 
         bool throwOnDispatch;
-
-        class EmptyDisposable : IDisposable
-        {
-            public void Dispose()
-            {
-            }
-        }
     }
 }

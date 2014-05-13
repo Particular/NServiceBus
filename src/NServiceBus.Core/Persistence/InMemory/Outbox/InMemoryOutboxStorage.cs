@@ -24,12 +24,7 @@
             return true;
         }
 
-        public IDisposable OpenSession()
-        {
-            return new EmptyDisposable();
-        }
-
-        public void StoreAndCommit(string messageId, IEnumerable<TransportOperation> transportOperations)
+        public void Store(string messageId, IEnumerable<TransportOperation> transportOperations)
         {
             if (!storage.TryAdd(messageId, new StoredMessage(messageId, transportOperations)))
             {
@@ -54,13 +49,6 @@
         }
 
         ConcurrentDictionary<string, StoredMessage> storage = new ConcurrentDictionary<string, StoredMessage>();
-
-        class EmptyDisposable : IDisposable
-        {
-            public void Dispose()
-            {
-            }
-        }
 
         class StoredMessage
         {
