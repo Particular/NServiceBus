@@ -35,9 +35,8 @@ namespace NServiceBus.Unicast.Config
 
         void ConfigureBehaviors()
         {
-            Instance.ForAllTypes<IBehavior<HandlerInvocationContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-            Instance.ForAllTypes<IBehavior<ReceivePhysicalMessageContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-            Instance.ForAllTypes<IBehavior<SendLogicalMessageContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            Instance.ForAllTypes<IBehavior<IncomingContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            Instance.ForAllTypes<IBehavior<OutgoingContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
         }
 
 #pragma warning disable 0618

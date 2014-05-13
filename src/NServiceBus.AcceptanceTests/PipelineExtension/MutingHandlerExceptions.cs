@@ -51,9 +51,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
             }
 
 #pragma warning disable 618
-            class MyExceptionFilteringBehavior : IBehavior<HandlerInvocationContext>
+            class MyExceptionFilteringBehavior : IBehavior<IncomingContext>
             {
-                public void Invoke(HandlerInvocationContext context, Action next)
+                public void Invoke(IncomingContext context, Action next)
                 {
                     try
                     {
@@ -75,7 +75,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                 //here we inject our behavior
                 class MyExceptionFilteringOverride : PipelineOverride
                 {
-                    public override void Override(BehaviorList<HandlerInvocationContext> behaviorList)
+                    public override void Override(BehaviorList<IncomingContext> behaviorList)
                     {
                         //add our behavior to the pipeline just before NSB actually calls the handlers
                         behaviorList.InsertBefore<InvokeHandlersBehavior, MyExceptionFilteringBehavior>();

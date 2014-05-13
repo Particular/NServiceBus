@@ -17,7 +17,7 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class ExtractLogicalMessagesBehavior : IBehavior<ReceivePhysicalMessageContext>
+    public class ExtractLogicalMessagesBehavior : IBehavior<IncomingContext>
     {
 
         public IMessageSerializer MessageSerializer { get; set; }
@@ -30,7 +30,7 @@
 
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
-        public void Invoke(ReceivePhysicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
             if (SkipDeserialization)
             {

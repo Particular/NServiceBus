@@ -47,11 +47,11 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
             }
 
 #pragma warning disable 618
-            class SetFiltering : IBehavior<ReceivePhysicalMessageContext>
+            class SetFiltering : IBehavior<IncomingContext>
             {
-                public void Invoke(ReceivePhysicalMessageContext context, Action next)
+                public void Invoke(IncomingContext context, Action next)
                 {
-                    if (context.LogicalMessage.MessageType == typeof(MessageToBeAudited))
+                    if (context.IncomingLogicalMessage.MessageType == typeof(MessageToBeAudited))
                     {
                         context.Get<AuditFilterResult>().DoNotAuditMessage = true;
                     }
@@ -59,7 +59,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
 
                 class AuditFilteringOverride : PipelineOverride
                 {
-                    public override void Override(BehaviorList<ReceivePhysicalMessageContext> behaviorList)
+                    public override void Override(BehaviorList<IncomingContext> behaviorList)
                     {
                         //and also hook into to logical receive pipeline to make filtering on message types easier
                         behaviorList.Add<SetFiltering>();
@@ -72,11 +72,11 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                 public bool DoNotAuditMessage { get; set; }
             }
 
-            class FilteringAuditBehavior : IBehavior<ReceivePhysicalMessageContext>
+            class FilteringAuditBehavior : IBehavior<IncomingContext>
             {
                 public MessageAuditer MessageAuditer { get; set; }
 
-                public void Invoke(ReceivePhysicalMessageContext context, Action next)
+                public void Invoke(IncomingContext context, Action next)
                 {
                     var auditResult = new AuditFilterResult();
                     context.Set(auditResult);
@@ -95,7 +95,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                 //here we inject our behavior
                 class AuditFilteringOverride : PipelineOverride
                 {
-                    public override void Override(BehaviorList<ReceivePhysicalMessageContext> behaviorList)
+                    public override void Override(BehaviorList<IncomingContext> behaviorList)
                     {
                         //we replace the default audit behavior with out own
                         behaviorList.Replace<AuditBehavior, FilteringAuditBehavior>();

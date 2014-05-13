@@ -3,14 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using Unicast.Behaviors;
     using Unicast.Messages;
-
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class ReceivePhysicalMessageContext : BehaviorContext
+    public class IncomingContext : BehaviorContext
     {
-        public ReceivePhysicalMessageContext(BehaviorContext parentContext, TransportMessage transportMessage)
+        public IncomingContext(BehaviorContext parentContext, TransportMessage transportMessage)
             : base(parentContext)
         {
             handleCurrentMessageLaterWasCalled = false;
@@ -31,15 +31,19 @@
             set { Set(value); }
         }
 
-        public LogicalMessage LogicalMessage
+        public LogicalMessage IncomingLogicalMessage
         {
-            get { return Get<LogicalMessage>(); }
+            get { return Get<LogicalMessage>(IncomingLogicalMessageKey); }
+            set { Set(IncomingLogicalMessageKey, value); }
+        }
+
+        public MessageHandler MessageHandler
+        {
+            get { return Get<MessageHandler>(); }
             set { Set(value); }
         }
 
-        public static string IncomingPhysicalMessageKey
-        {
-            get { return "NServiceBus.IncomingPhysicalMessage"; }
-        }
+        public const string IncomingPhysicalMessageKey = "NServiceBus.IncomingPhysicalMessage";
+        const string IncomingLogicalMessageKey = "NServiceBus.IncomingLogicalMessageKey";
     }
 }

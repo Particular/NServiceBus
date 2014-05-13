@@ -10,7 +10,7 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class CreatePhysicalMessageBehavior : IBehavior<SendLogicalMessageContext>
+    public class CreatePhysicalMessageBehavior : IBehavior<OutgoingContext>
     {
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
@@ -18,13 +18,13 @@
 
         public PipelineExecutor PipelineExecutor { get; set; }
 
-        public void Invoke(SendLogicalMessageContext context, Action next)
+        public void Invoke(OutgoingContext context, Action next)
         {
             var sendOptions = context.SendOptions;
             TransportMessage toSend;
             var isControl = false;
 
-            if (context.LogicalMessage.IsControlMessage())
+            if (context.OutgoingLogicalMessage.IsControlMessage())
             {
                 toSend = ControlMessage.Create(Address.Local);
                 toSend.MessageIntent = sendOptions.Intent;
@@ -53,14 +53,14 @@
                 }
             }
             //apply individual headers
-            foreach (var kvp in context.LogicalMessage.Headers)
+            foreach (var kvp in context.OutgoingLogicalMessage.Headers)
             {
                 toSend.Headers[kvp.Key] = kvp.Value;
             }
 
             if (!isControl)
             {
-                var messageDefinitions = MessageMetadataRegistry.GetMessageDefinition(context.LogicalMessage.MessageType);
+                var messageDefinitions = MessageMetadataRegistry.GetMessageDefinition(context.OutgoingLogicalMessage.MessageType);
 
                 toSend.TimeToBeReceived = messageDefinitions.TimeToBeReceived;
                 toSend.Recoverable = messageDefinitions.Recoverable;

@@ -29,13 +29,12 @@
         {
             pipelineOverrides = builder.BuildAll<IPipelineOverride>().ToList();
             CreateReceivePhysicalMessageList();
-            CreateHandlerInvocationList();
             CreateSendLogicalMessageList();
         }
 
         void CreateReceivePhysicalMessageList()
         {
-            var behaviorList = new BehaviorList<ReceivePhysicalMessageContext>();
+            var behaviorList = new BehaviorList<IncomingContext>();
 
             behaviorList.Add<ChildContainerBehavior>();
             behaviorList.Add<MessageHandlingLoggingBehavior>();
@@ -52,7 +51,10 @@
             //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
             behaviorList.Add<DataBusReceiveBehavior>();
             behaviorList.Add<LoadHandlersBehavior>();
-
+            behaviorList.Add<SetCurrentMessageBeingHandledBehavior>();
+            behaviorList.Add<AuditInvokedSagaBehavior>();
+            behaviorList.Add<SagaPersistenceBehavior>();
+            behaviorList.Add<InvokeHandlersBehavior>();
             foreach (var pipelineOverride in pipelineOverrides)
             {
                 pipelineOverride.Override(behaviorList);
@@ -60,25 +62,9 @@
             receivePhysicalMessageBehaviorList = behaviorList.InnerList;
         }
 
-        void CreateHandlerInvocationList()
-        {
-            var behaviorList = new BehaviorList<HandlerInvocationContext>();
-
-            behaviorList.Add<SetCurrentMessageBeingHandledBehavior>();
-            behaviorList.Add<AuditInvokedSagaBehavior>();
-            behaviorList.Add<SagaPersistenceBehavior>();
-            behaviorList.Add<InvokeHandlersBehavior>();
-
-            foreach (var pipelineOverride in pipelineOverrides)
-            {
-                pipelineOverride.Override(behaviorList);
-            }
-            handlerInvocationBehaviorList = behaviorList.InnerList;
-        }
-
         void CreateSendLogicalMessageList()
         {
-            var behaviorList = new BehaviorList<SendLogicalMessageContext>();
+            var behaviorList = new BehaviorList<OutgoingContext>();
 
             behaviorList.Add<SendValidatorBehavior>();
             behaviorList.Add<SagaSendBehavior>();

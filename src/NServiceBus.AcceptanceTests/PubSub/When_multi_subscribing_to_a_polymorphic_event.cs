@@ -50,7 +50,7 @@
                     }
                 }))
                 .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)
-                .Run(TimeSpan.FromSeconds(2000));
+                .Run();
 
             Assert.True(rootContext.SubscriberGotIMyEvent);
             Assert.True(rootContext.SubscriberGotMyEvent2);

@@ -6,7 +6,6 @@
     using Contexts;
     using ObjectBuilder;
     using Unicast;
-    using Unicast.Behaviors;
     using Unicast.Messages;
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
@@ -25,12 +24,12 @@
 
         public void PreparePhysicalMessagePipelineContext(TransportMessage message)
         {
-            contextStacker.Push(new ReceivePhysicalMessageContext(CurrentContext, message));
+            contextStacker.Push(new IncomingContext(CurrentContext, message));
         }
 
         public void InvokeReceivePhysicalMessagePipeline()
         {
-            var context = contextStacker.Current as ReceivePhysicalMessageContext;
+            var context = contextStacker.Current as IncomingContext;
 
             if (context == null)
             {
@@ -45,18 +44,9 @@
             contextStacker.Pop();
         }
 
-        public HandlerInvocationContext InvokeHandlerPipeline(MessageHandler handler)
+        public OutgoingContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
         {
-            var context = new HandlerInvocationContext(CurrentContext, handler);
-
-            InvokePipeline(pipelineBuilder.handlerInvocationBehaviorList, context);
-
-            return context;
-        }
-
-        public SendLogicalMessageContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
-        {
-            var context = new SendLogicalMessageContext(CurrentContext, sendOptions, message);
+            var context = new OutgoingContext(CurrentContext, sendOptions, message);
 
             InvokePipeline(pipelineBuilder.sendLogicalMessageBehaviorList, context);
 

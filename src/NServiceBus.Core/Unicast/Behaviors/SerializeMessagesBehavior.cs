@@ -12,13 +12,13 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class SerializeMessagesBehavior : IBehavior<SendLogicalMessageContext>
+    public class SerializeMessagesBehavior : IBehavior<OutgoingContext>
     {
         public IMessageSerializer MessageSerializer { get; set; }
 
-        public void Invoke(SendLogicalMessageContext context, Action next)
+        public void Invoke(OutgoingContext context, Action next)
         {
-            if (context.LogicalMessage.IsControlMessage())
+            if (context.OutgoingLogicalMessage.IsControlMessage())
             {
                 next();
                 return;
@@ -29,17 +29,17 @@
 
                 MessageSerializer.Serialize(new[]
                 {
-                    context.LogicalMessage.Instance
+                    context.OutgoingLogicalMessage.Instance
                 }, ms);
 
                 context.OutgoingMessage.Headers[Headers.ContentType] = MessageSerializer.ContentType;
 
-                context.OutgoingMessage.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.LogicalMessage);
+                context.OutgoingMessage.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.OutgoingLogicalMessage);
 
                 context.OutgoingMessage.Body = ms.ToArray();
             }
 
-            foreach (var headerEntry in context.LogicalMessage.Headers)
+            foreach (var headerEntry in context.OutgoingLogicalMessage.Headers)
             {
                 context.OutgoingMessage.Headers[headerEntry.Key] = headerEntry.Value;
             }

@@ -9,22 +9,22 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class MutateOutgoingMessageBehavior : IBehavior<SendLogicalMessageContext>
+    public class MutateOutgoingMessageBehavior : IBehavior<OutgoingContext>
     {
-        public void Invoke(SendLogicalMessageContext context, Action next)
+        public void Invoke(OutgoingContext context, Action next)
         {
-            if (context.LogicalMessage.IsControlMessage())
+            if (context.OutgoingLogicalMessage.IsControlMessage())
             {
                 next();
                 return;
             }
 
-            var currentMessageToSend = context.LogicalMessage.Instance;
+            var currentMessageToSend = context.OutgoingLogicalMessage.Instance;
 
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingMessages>())
             {
                 currentMessageToSend = mutator.MutateOutgoing(currentMessageToSend);
-                context.LogicalMessage.UpdateMessageInstance(currentMessageToSend);
+                context.OutgoingLogicalMessage.UpdateMessageInstance(currentMessageToSend);
             }
 
             next();

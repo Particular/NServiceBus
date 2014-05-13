@@ -33,7 +33,7 @@ namespace NServiceBus.Core.Tests.DataBus
         void Invoke(LogicalMessage message)
         {
            
-            var context = new SendLogicalMessageContext(null, new SendOptions(), message);
+            var context = new OutgoingContext(null, new SendOptions(), message);
 
             sendBehavior.Invoke(context, () => { });
         }

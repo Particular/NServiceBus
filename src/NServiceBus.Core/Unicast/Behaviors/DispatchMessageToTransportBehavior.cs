@@ -12,7 +12,7 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class DispatchMessageToTransportBehavior : IBehavior<SendLogicalMessageContext>
+    public class DispatchMessageToTransportBehavior : IBehavior<OutgoingContext>
     {
         public ISendMessages MessageSender { get; set; }
 
@@ -21,9 +21,9 @@
         public IDeferMessages MessageDeferral { get; set; }
 
 
-        public void Invoke(SendLogicalMessageContext context, Action next)
+        public void Invoke(OutgoingContext context, Action next)
         {
-            InvokeNative(context.SendOptions, context.OutgoingMessage, context.LogicalMessage.Metadata);
+            InvokeNative(context.SendOptions, context.OutgoingMessage, context.OutgoingLogicalMessage.Metadata);
 
             next();
         }

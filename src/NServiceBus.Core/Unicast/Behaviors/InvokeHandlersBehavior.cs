@@ -16,15 +16,13 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class InvokeHandlersBehavior : IBehavior<HandlerInvocationContext>
+    public class InvokeHandlersBehavior : IBehavior<IncomingContext>
     {
         public IDictionary<Type, Type> MessageDispatcherMappings { get; set; }
 
-        public void Invoke(HandlerInvocationContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
-            var logicalMessage = context.Get<LogicalMessage>();
-
-            DispatchMessageToHandlersBasedOnType(context.Builder, logicalMessage, context.MessageHandler);
+            DispatchMessageToHandlersBasedOnType(context.Builder, context.IncomingLogicalMessage, context.MessageHandler);
 
             next();
         }

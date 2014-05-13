@@ -11,7 +11,7 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class LoadHandlersBehavior : IBehavior<ReceivePhysicalMessageContext>
+    public class LoadHandlersBehavior : IBehavior<IncomingContext>
     {
         public IMessageHandlerRegistry HandlerRegistry { get; set; }
 
@@ -19,9 +19,9 @@
 
         public PipelineExecutor PipelineFactory { get; set; }
 
-        public void Invoke(ReceivePhysicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
-            var messageToHandle = context.LogicalMessage;
+            var messageToHandle = context.IncomingLogicalMessage;
 
             // for now we cheat and pull it from the behavior context:
             var callbackInvoked = context.Get<bool>(CallbackInvocationBehavior.CallbackInvokedKey);
@@ -42,14 +42,16 @@
                     Invocation = (handlerInstance, message) => HandlerInvocationCache.InvokeHandle(handlerInstance, message)
                 };
 
-                if (PipelineFactory.InvokeHandlerPipeline(loadedHandler).ChainAborted)
+                context.MessageHandler = loadedHandler;
+
+                next();
+
+                if (context.ChainAborted)
                 {
                     //if the chain was aborted skip the other handlers
                     break;
                 }
             }
-
-            next();
         }
     }
 }

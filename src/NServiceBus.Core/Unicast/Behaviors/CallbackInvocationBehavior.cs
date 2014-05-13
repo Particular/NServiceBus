@@ -10,13 +10,13 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class CallbackInvocationBehavior : IBehavior<ReceivePhysicalMessageContext>
+    public class CallbackInvocationBehavior : IBehavior<IncomingContext>
     {
         public const string CallbackInvokedKey = "NServiceBus.CallbackInvocationBehavior.CallbackWasInvoked";
 
         public UnicastBus UnicastBus { get; set; }
 
-        public void Invoke(ReceivePhysicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
 
             var messageWasHandled = HandleCorrelatedMessage(context.PhysicalMessage, context);
@@ -26,7 +26,7 @@
             next();
         }
 
-        bool HandleCorrelatedMessage(TransportMessage transportMessage, ReceivePhysicalMessageContext context)
+        bool HandleCorrelatedMessage(TransportMessage transportMessage, IncomingContext context)
         {
             if (transportMessage.CorrelationId == null)
             {

@@ -8,13 +8,13 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class MutateOutgoingPhysicalMessageBehavior : IBehavior<SendLogicalMessageContext>
+    public class MutateOutgoingPhysicalMessageBehavior : IBehavior<OutgoingContext>
     {
-        public void Invoke(SendLogicalMessageContext context, Action next)
+        public void Invoke(OutgoingContext context, Action next)
         {
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingTransportMessages>())
             {
-                mutator.MutateOutgoing(context.LogicalMessage, context.OutgoingMessage);
+                mutator.MutateOutgoing(context.OutgoingLogicalMessage, context.OutgoingMessage);
             }
 
             next();

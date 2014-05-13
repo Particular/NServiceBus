@@ -424,7 +424,7 @@ namespace NServiceBus.Unicast
             return SetupCallback(physicalMessage.Id);
         }
 
-        SendLogicalMessageContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
+        OutgoingContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
         {
             if (sendOptions.ReplyToAddress == null && !SendOnlyMode)
             {
@@ -622,7 +622,7 @@ namespace NServiceBus.Unicast
             {
                 TransportMessage current;
 
-                if (!PipelineFactory.CurrentContext.TryGet(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey, out current))
+                if (!PipelineFactory.CurrentContext.TryGet(IncomingContext.IncomingPhysicalMessageKey, out current))
                 {
                     return null;
                 }
@@ -793,7 +793,7 @@ namespace NServiceBus.Unicast
             {
                 TransportMessage current;
 
-                if (!PipelineFactory.CurrentContext.TryGet(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey, out current))
+                if (!PipelineFactory.CurrentContext.TryGet(IncomingContext.IncomingPhysicalMessageKey, out current))
                 {
                     throw new InvalidOperationException("There is no current message being processed");
                 }

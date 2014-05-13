@@ -34,9 +34,9 @@ namespace NServiceBus.Core.Tests.DataBus
 
                 dataBus.Stub(s => s.Get(databusKey)).Return(stream);
 
-                receiveBehavior.Invoke(new ReceivePhysicalMessageContext(null, null)
+                receiveBehavior.Invoke(new IncomingContext(null, null)
                 {
-                    LogicalMessage = message
+                    IncomingLogicalMessage = message
                 }, () => { });
             }
 

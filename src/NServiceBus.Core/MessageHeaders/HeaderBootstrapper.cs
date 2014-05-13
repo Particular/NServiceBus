@@ -71,11 +71,11 @@ namespace NServiceBus.MessageHeaders
                 var pipelineFactory = Builder.Build<PipelineExecutor>();
 
                 //are we in the process of sending a logical message
-                var outgoingLogicalMessageContext = pipelineFactory.CurrentContext as SendLogicalMessageContext;
+                var outgoingLogicalMessageContext = pipelineFactory.CurrentContext as OutgoingContext;
 
-                if (outgoingLogicalMessageContext != null && outgoingLogicalMessageContext.LogicalMessage.Instance == message)
+                if (outgoingLogicalMessageContext != null && outgoingLogicalMessageContext.OutgoingLogicalMessage.Instance == message)
                 {
-                    outgoingLogicalMessageContext.LogicalMessage.Headers[key] = value;
+                    outgoingLogicalMessageContext.OutgoingLogicalMessage.Headers[key] = value;
                 }
 
                 Dictionary<object, Dictionary<string, string>> outgoingHeaders;
