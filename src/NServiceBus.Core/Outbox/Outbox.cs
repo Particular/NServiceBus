@@ -5,6 +5,7 @@
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast.Behaviors;
+    using UnitOfWork;
 
     public class Outbox:Feature
     {
@@ -22,7 +23,8 @@
                     return;
                 }
 
-                behaviorList.InsertAfter<ChildContainerBehavior, OutboxReceiveBehavior>();
+                behaviorList.InsertAfter<ChildContainerBehavior, OutboxDeduplicationBehavior>();
+                behaviorList.InsertAfter<UnitOfWorkBehavior, OutboxRecordBehavior>();
             }
 
 

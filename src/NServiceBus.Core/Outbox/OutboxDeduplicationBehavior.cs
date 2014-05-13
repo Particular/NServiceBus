@@ -7,7 +7,7 @@
     using Unicast.Behaviors;
     using Unicast.Messages;
 
-    class OutboxReceiveBehavior : IBehavior<ReceivePhysicalMessageContext>
+    public class OutboxDeduplicationBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public IOutboxStorage OutboxStorage { get; set; }
         public DispatchMessageToTransportBehavior DispatchMessageToTransportBehavior { get; set; }
