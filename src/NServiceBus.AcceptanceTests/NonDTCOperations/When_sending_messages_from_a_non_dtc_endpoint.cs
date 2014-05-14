@@ -37,7 +37,7 @@
                         t.DoNotWrapHandlersExecutionInATransactionScope();
                     });
 
-                    Configure.Features.Enable<Features.Outbox>();
+                    c.DefineOutboxStorage();
                 });
             }
 

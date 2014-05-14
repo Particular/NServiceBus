@@ -9,13 +9,13 @@
     public class When_handling_incoming_messages_headers_should_be_shared : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Message_sent_should_be_new_instance()
+        public void Should_expose_header_in_downstream_handlers()
         {
             var context = new Context();
 
             Scenario.Define(context)
                 .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new Message())))
-                .Done(c => c.SecondHandlerCanReadHeaderSetByFirstHandler)
+                .Done(c => c.GotMessage)
                 .Run();
 
             Assert.IsTrue(context.SecondHandlerCanReadHeaderSetByFirstHandler);
@@ -24,6 +24,7 @@
         public class Context : ScenarioContext
         {
             public bool SecondHandlerCanReadHeaderSetByFirstHandler { get; set; }
+            public bool GotMessage   { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -58,6 +59,7 @@
                 public void Handle(Message message)
                 {
                     var header = message.GetHeader("Key");
+                    Context.GotMessage = true;
                     Context.SecondHandlerCanReadHeaderSetByFirstHandler = header == "Value";
                 }
             }

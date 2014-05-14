@@ -34,6 +34,7 @@ namespace NServiceBus.Serializers.Json
         /// <summary>
         /// Removes the wrapping array if serializing a single message 
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "6.0", Message = "In version 5 multi-message sends was removed. So Wrapping messages is no longer required. It only remains for compatibility with 3.0 endpoints.")]
         public bool SkipArrayWrappingForSingleMessages { get; set; }
 
         /// <summary>

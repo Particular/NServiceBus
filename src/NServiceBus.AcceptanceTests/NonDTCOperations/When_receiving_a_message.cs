@@ -29,7 +29,6 @@
                         var duplicateMessageId = Guid.NewGuid().ToString();
                         bus.SendLocal<PlaceOrder>(m => m.SetHeader(Headers.MessageId, duplicateMessageId));
                         bus.SendLocal<PlaceOrder>(m => m.SetHeader(Headers.MessageId, duplicateMessageId));
-                      
                         bus.SendLocal(new PlaceOrder());
                     }))
                     .Done(c => context.OrderAckReceived >= 2)
@@ -55,11 +54,10 @@
                         t.DoNotWrapHandlersExecutionInATransactionScope();
                     });
 
-                    Configure.Features.Enable<Features.Outbox>();
+                    c.DefineOutboxStorage();
                 })
                 .AllowExceptions();
             }
-
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>
             {

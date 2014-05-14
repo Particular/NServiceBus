@@ -5,14 +5,14 @@
     using Outbox;
 
     [TestFixture]
-    public class OutboxReceiveBehaviorTests
+    public class OutboxDeduplicationBehaviorTests
     {
         [SetUp]
         public void SetUp()
         {
             fakeOutbox = new FakeOutboxStorage();
 
-            behavior = new OutboxReceiveBehavior
+            behavior = new OutboxDeduplicationBehavior
             {
                 OutboxStorage = fakeOutbox
             };
@@ -30,7 +30,7 @@
         }
 
         FakeOutboxStorage fakeOutbox;
-        OutboxReceiveBehavior behavior;
+        OutboxDeduplicationBehavior behavior;
 
         [Test]
         public void Should_mark_outbox_message_as_stored_when_successfully_processing_a_message()
@@ -41,7 +41,7 @@
             Invoke(context);
 
             Assert.True(context.Get<bool>("Outbox_StartDispatching"), "Outbox message should be flaged as dispatching");
-            Assert.True(fakeOutbox.StoredMessage.Dispatched);
+            Assert.True(fakeOutbox.Dispatched);
         }
 
         [Test]

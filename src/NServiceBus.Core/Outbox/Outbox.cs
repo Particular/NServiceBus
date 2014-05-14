@@ -5,8 +5,9 @@
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast.Behaviors;
+    using UnitOfWork;
 
-    public class Outbox:Feature
+    public class Outbox : Feature
     {
         public override void Initialize()
         {
@@ -22,9 +23,9 @@
                     return;
                 }
 
-                behaviorList.InsertAfter<ChildContainerBehavior, OutboxReceiveBehavior>();
+                behaviorList.InsertAfter<ChildContainerBehavior, OutboxDeduplicationBehavior>();
+                behaviorList.InsertAfter<UnitOfWorkBehavior, OutboxRecordBehavior>();
             }
-
 
             public override void Override(BehaviorList<OutgoingContext> behaviorList)
             {
@@ -37,6 +38,4 @@
             }
         }
     }
-
-
 }

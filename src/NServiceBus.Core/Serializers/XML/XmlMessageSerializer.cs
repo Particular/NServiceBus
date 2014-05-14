@@ -51,11 +51,6 @@ namespace NServiceBus.Serializers.XML
         public bool SanitizeInput { get; set; }
 
         /// <summary>
-        /// Removes the wrapping "<Messages/>" element if serializing a single message 
-        /// </summary>
-        public bool SkipWrappingElementForSingleMessages { get; set; }
-
-        /// <summary>
         /// Removes the wrapping of properties containing XDocument or XElement with property name as root element
         /// </summary>
         public bool SkipWrappingRawXml { get; set; }
@@ -841,7 +836,7 @@ namespace NServiceBus.Serializers.XML
 
             builder.AppendLine("<?xml version=\"1.0\" ?>");
 
-            if (SkipWrappingElementForSingleMessages && messages.Length == 1)
+            if (messages.Length == 1)
             {
                 builder.Append(messageBuilder);
             }
@@ -874,7 +869,7 @@ namespace NServiceBus.Serializers.XML
             {
                 var t = mapper.GetMappedTypeFor(m.GetType());
 
-                WriteObject(t.Name, t, m, messageBuilder, SkipWrappingElementForSingleMessages && messages.Length == 1);
+                WriteObject(t.Name, t, m, messageBuilder, messages.Length == 1);
             }
             return messageBuilder;
         }

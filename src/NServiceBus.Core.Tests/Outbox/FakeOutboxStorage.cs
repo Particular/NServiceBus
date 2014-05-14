@@ -8,6 +8,7 @@
     {
         public OutboxMessage ExistingMessage { get; set; }
         public OutboxMessage StoredMessage { get; set; }
+        public bool Dispatched { get; set; }
 
         public bool TryGet(string messageId, out OutboxMessage message)
         {
@@ -22,12 +23,7 @@
             return false;
         }
 
-        public IDisposable OpenSession()
-        {
-            return new EmptyDisposable();
-        }
-
-        public void StoreAndCommit(string messageId, IEnumerable<TransportOperation> transportOperations)
+        public void Store(string messageId, IEnumerable<TransportOperation> transportOperations)
         {
             StoredMessage = new OutboxMessage(messageId);
             StoredMessage.TransportOperations.AddRange(transportOperations);
@@ -40,14 +36,8 @@
                 throw new InvalidOperationException("Dispatch should not be invoked");
             }
 
-            if (StoredMessage != null)
-            {
-                if (StoredMessage.Id == messageId)
-                {
-                    StoredMessage = new OutboxMessage(messageId, true);
-                }
-            }
-
+            Dispatched = true;
+            
             if (ExistingMessage != null)
             {
                 if (ExistingMessage.Id == messageId)
@@ -63,12 +53,5 @@
         }
 
         bool throwOnDispatch;
-
-        class EmptyDisposable : IDisposable
-        {
-            public void Dispose()
-            {
-            }
-        }
     }
 }

@@ -140,7 +140,8 @@
     <Compile Include="Outbox\IOutboxStorage.cs" />
     <Compile Include="Outbox\Outbox.cs" />
     <Compile Include="Outbox\OutboxMessage.cs" />
-    <Compile Include="Outbox\OutboxReceiveBehavior.cs" />
+    <Compile Include="Outbox\OutboxDeduplicationBehavior.cs" />
+    <Compile Include="Outbox\OutboxRecordBehavior.cs" />
     <Compile Include="Outbox\OutboxSendBehavior.cs" />
     <Compile Include="Outbox\SetupDefaultPersistence.cs" />
     <Compile Include="Outbox\TransportOperation.cs" />

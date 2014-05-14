@@ -7,14 +7,14 @@
     using Unicast.Behaviors;
     using Unicast.Messages;
 
-    class OutboxReceiveBehavior : IBehavior<IncomingContext>
+    public class OutboxDeduplicationBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public IOutboxStorage OutboxStorage { get; set; }
         public DispatchMessageToTransportBehavior DispatchMessageToTransportBehavior { get; set; }
 
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
-        
-        public void Invoke(IncomingContext context, Action next)
+
+        public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
             var messageId = context.PhysicalMessage.Id;
             OutboxMessage outboxMessage;
@@ -25,15 +25,9 @@
 
                 context.Set(outboxMessage);
 
-                using (OutboxStorage.OpenSession())
-                {
-                    //this runs the rest of the pipeline
-                    next();
-
-                    OutboxStorage.StoreAndCommit(messageId, outboxMessage.TransportOperations);
-                }
+                next();
             }
-            
+
             if (outboxMessage.Dispatched)
             {
                 return;
