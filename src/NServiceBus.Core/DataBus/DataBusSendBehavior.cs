@@ -11,22 +11,26 @@
     using Gateway.HeaderManagement;
     using Pipeline;
     using Pipeline.Contexts;
+    using Unicast.Transport;
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class DataBusSendBehavior : IBehavior<SendLogicalMessageContext>
+    public class DataBusSendBehavior : IBehavior<OutgoingContext>
     {
         public IDataBus DataBus { get; set; }
 
         public IDataBusSerializer DataBusSerializer { get; set; }
 
-
-        public void Invoke(SendLogicalMessageContext context, Action next)
+        public void Invoke(OutgoingContext context, Action next)
         {
-            var timeToBeReceived = context.MessageToSend.Metadata.TimeToBeReceived;
+            if (context.OutgoingLogicalMessage.IsControlMessage())
+            {
+                next();
+                return;
+            }
 
-            var message = context.MessageToSend.Instance;
-
+            var timeToBeReceived = context.OutgoingLogicalMessage.Metadata.TimeToBeReceived;
+            var message = context.OutgoingLogicalMessage.Instance;
 
             foreach (var property in GetDataBusProperties(message))
             {
@@ -69,7 +73,7 @@
                     }
 
                     //we use the headers to in order to allow the infrastructure (eg. the gateway) to modify the actual key
-                    context.MessageToSend.Headers[HeaderMapper.DATABUS_PREFIX + headerKey] = headerValue;
+                    context.OutgoingLogicalMessage.Headers[HeaderMapper.DATABUS_PREFIX + headerKey] = headerValue;
                 }
             }
 

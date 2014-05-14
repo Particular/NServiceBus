@@ -8,18 +8,18 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class ApplyIncomingMessageMutatorsBehavior : IBehavior<ReceiveLogicalMessageContext>
+    public class ApplyIncomingMessageMutatorsBehavior : IBehavior<IncomingContext>
     {
-        public void Invoke(ReceiveLogicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
-            var current = context.LogicalMessage.Instance;
+            var current = context.IncomingLogicalMessage.Instance;
 
             foreach (var mutator in context.Builder.BuildAll<IMutateIncomingMessages>())
             {
                 //message mutators may need to assume that this has been set (eg. for the purposes of headers).
                 ExtensionMethods.CurrentMessageBeingHandled = current;
                 current = mutator.MutateIncoming(current);
-                context.LogicalMessage.UpdateMessageInstance(current);
+                context.IncomingLogicalMessage.UpdateMessageInstance(current);
             }
 
             next();

@@ -28,7 +28,7 @@ namespace NServiceBus.Licensing
 
         }
 
-        public override void Override(BehaviorList<ReceivePhysicalMessageContext> behaviorList)
+        public override void Override(BehaviorList<IncomingContext> behaviorList)
         {
             behaviorList.Add<LicenseBehavior>();
         }

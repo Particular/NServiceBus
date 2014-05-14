@@ -17,13 +17,13 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class SagaPersistenceBehavior : IBehavior<HandlerInvocationContext>
+    public class SagaPersistenceBehavior : IBehavior<IncomingContext>
     {
         public ISagaPersister SagaPersister { get; set; }
 
         public IDeferMessages MessageDeferrer { get; set; }
 
-        public void Invoke(HandlerInvocationContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
             var saga = context.MessageHandler.Instance as Saga;
             if (saga == null)
@@ -39,12 +39,12 @@
             //so that other behaviors can access the saga
             context.Set(sagaInstanceState);
 
-            var loadedEntity = TryLoadSagaEntity(saga, context.LogicalMessage);
+            var loadedEntity = TryLoadSagaEntity(saga, context.IncomingLogicalMessage);
 
             if (loadedEntity == null)
             {
                 //if this message are not allowed to start the saga
-                if (!Features.Sagas.ShouldMessageStartSaga(sagaInstanceState.SagaType, context.LogicalMessage.MessageType))
+                if (!Features.Sagas.ShouldMessageStartSaga(sagaInstanceState.SagaType, context.IncomingLogicalMessage.MessageType))
                 {
                     sagaInstanceState.MarkAsNotFound();
 
@@ -60,7 +60,7 @@
             }
 
 
-            if (IsTimeoutMessage(context.LogicalMessage))
+            if (IsTimeoutMessage(context.IncomingLogicalMessage))
             {
                 context.MessageHandler.Invocation = HandlerInvocationCache.InvokeTimeout;
             }
@@ -102,12 +102,12 @@
 
         void InvokeSagaNotFoundHandlers()
         {
-            logger.InfoFormat("Could not find a saga for the message type {0}. Going to invoke SagaNotFoundHandlers.", currentContext.LogicalMessage.MessageType.FullName);
+            logger.InfoFormat("Could not find a saga for the message type {0}. Going to invoke SagaNotFoundHandlers.", currentContext.IncomingLogicalMessage.MessageType.FullName);
 
             foreach (var handler in currentContext.Builder.BuildAll<IHandleSagaNotFound>())
             {
                 logger.DebugFormat("Invoking SagaNotFoundHandler: {0}", handler.GetType().FullName);
-                handler.Handle(currentContext.LogicalMessage.Instance);
+                handler.Handle(currentContext.IncomingLogicalMessage.Instance);
             }
         }
 
@@ -159,7 +159,7 @@
             string sagaId;
 
 
-            currentContext.LogicalMessage.Headers.TryGetValue(Headers.SagaId, out sagaId);
+            currentContext.IncomingLogicalMessage.Headers.TryGetValue(Headers.SagaId, out sagaId);
 
             if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
             {
@@ -193,7 +193,7 @@
 
             TransportMessage physicalMessage;
 
-            if (currentContext.TryGet(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey, out physicalMessage))
+            if (currentContext.TryGet(IncomingContext.IncomingPhysicalMessageKey, out physicalMessage))
             {
                 sagaEntity.OriginalMessageId = physicalMessage.Id;
 
@@ -206,7 +206,7 @@
             return sagaEntity;
         }
 
-        HandlerInvocationContext currentContext;
+        IncomingContext currentContext;
 
         readonly ILog logger = LogManager.GetLogger(typeof(SagaPersistenceBehavior));
     }

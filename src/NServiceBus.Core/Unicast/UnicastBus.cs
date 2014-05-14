@@ -251,15 +251,17 @@ namespace NServiceBus.Unicast
 
         public void Return<T>(T errorCode)
         {
-            var returnMessage = ControlMessage.Create(Address.Local);
-
-            returnMessage.MessageIntent = MessageIntentEnum.Reply;
-
-            returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
-            returnMessage.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
+            //var returnMessage = ControlMessage.Create(Address.Local);
+            var returnMessage = LogicalMessageFactory.CreateControl(new Dictionary<string, string>
+            {
+                {Headers.ReturnMessageErrorCodeHeader, errorCode.GetHashCode().ToString()}
+            });
+            
+            //returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
+            //.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
 
             var options = SendOptions.ReplyTo(MessageBeingProcessed.ReplyToAddress);
-
+            options.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
             PipelineFactory.InvokeSendPipeline(options, returnMessage);
         }
 
@@ -422,7 +424,7 @@ namespace NServiceBus.Unicast
             return SetupCallback(physicalMessage.Id);
         }
 
-        SendLogicalMessageContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
+        OutgoingContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
         {
             if (sendOptions.ReplyToAddress == null && !SendOnlyMode)
             {
@@ -620,7 +622,7 @@ namespace NServiceBus.Unicast
             {
                 TransportMessage current;
 
-                if (!PipelineFactory.CurrentContext.TryGet(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey, out current))
+                if (!PipelineFactory.CurrentContext.TryGet(IncomingContext.IncomingPhysicalMessageKey, out current))
                 {
                     return null;
                 }
@@ -791,7 +793,7 @@ namespace NServiceBus.Unicast
             {
                 TransportMessage current;
 
-                if (!PipelineFactory.CurrentContext.TryGet(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey, out current))
+                if (!PipelineFactory.CurrentContext.TryGet(IncomingContext.IncomingPhysicalMessageKey, out current))
                 {
                     throw new InvalidOperationException("There is no current message being processed");
                 }

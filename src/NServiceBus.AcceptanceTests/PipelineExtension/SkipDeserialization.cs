@@ -34,18 +34,18 @@
             //first we override the default "extraction" behavior
             class MyOverride : PipelineOverride
             {
-                public override void Override(BehaviorList<ReceivePhysicalMessageContext> behaviorList)
+                public override void Override(BehaviorList<IncomingContext> behaviorList)
                 {
                     behaviorList.Replace<ExtractLogicalMessagesBehavior, MyRawMessageHandler>();
                 }
             }
 
             //and then we handle the physical message our self
-            class MyRawMessageHandler:IBehavior<ReceivePhysicalMessageContext>
+            class MyRawMessageHandler:IBehavior<IncomingContext>
             {
                 public Context Context { get; set; }
 
-                public void Invoke(ReceivePhysicalMessageContext context, Action next)
+                public void Invoke(IncomingContext context, Action next)
                 {
                     var transportMessage = context.PhysicalMessage;
 

@@ -12,18 +12,22 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class ExecuteLogicalMessagesBehavior : IBehavior<ReceivePhysicalMessageContext>
+    public class ExecuteLogicalMessagesBehavior : IBehavior<IncomingContext>
     {
         public PipelineExecutor PipelineExecutor { get; set; }
 
-        public void Invoke(ReceivePhysicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
             var logicalMessages = context.LogicalMessages;
+
             foreach (var message in logicalMessages)
             {
-                PipelineExecutor.InvokeLogicalMessagePipeline(message);
+                using (context.CreateSnapshotRegion())
+                {
+                    context.IncomingLogicalMessage = message;
+                    next();
+                }
             }
-
 
             if (!context.PhysicalMessage.IsControlMessage())
             {
@@ -32,10 +36,7 @@
                     log.Warn("Received an empty message - ignoring.");
                 }
             }
-
-            next();
         }
-
 
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
     }

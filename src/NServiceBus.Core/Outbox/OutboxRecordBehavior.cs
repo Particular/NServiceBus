@@ -4,11 +4,11 @@ namespace NServiceBus.Outbox
     using Pipeline;
     using Pipeline.Contexts;
 
-    public class OutboxRecordBehavior : IBehavior<ReceivePhysicalMessageContext>
+    public class OutboxRecordBehavior : IBehavior<IncomingContext>
     {
         public IOutboxStorage OutboxStorage { get; set; }
 
-        public void Invoke(ReceivePhysicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
             next();
 

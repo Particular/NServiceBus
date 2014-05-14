@@ -7,9 +7,9 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class AuditInvokedSagaBehavior : IBehavior<HandlerInvocationContext>
+    public class AuditInvokedSagaBehavior : IBehavior<IncomingContext>
     {
-        public void Invoke(HandlerInvocationContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
             next();
 
@@ -24,13 +24,13 @@
 
             string header;
 
-            if (context.LogicalMessage.Headers.TryGetValue(Headers.InvokedSagas, out header))
+            if (context.IncomingLogicalMessage.Headers.TryGetValue(Headers.InvokedSagas, out header))
             {
-                context.LogicalMessage.Headers[Headers.InvokedSagas] += ";" + audit;
+                context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] += ";" + audit;
             }
             else
             {
-                context.LogicalMessage.Headers[Headers.InvokedSagas] = audit;
+                context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] = audit;
             }
         }
     }

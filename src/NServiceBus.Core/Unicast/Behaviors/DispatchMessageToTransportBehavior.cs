@@ -7,12 +7,12 @@
     using Messages;
     using Pipeline;
     using Pipeline.Contexts;
-    using Transports;
     using Queuing;
+    using Transports;
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class DispatchMessageToTransportBehavior : IBehavior<SendPhysicalMessageContext>
+    public class DispatchMessageToTransportBehavior : IBehavior<OutgoingContext>
     {
         public ISendMessages MessageSender { get; set; }
 
@@ -21,9 +21,9 @@
         public IDeferMessages MessageDeferral { get; set; }
 
 
-        public void Invoke(SendPhysicalMessageContext context, Action next)
+        public void Invoke(OutgoingContext context, Action next)
         {
-            InvokeNative(context.SendOptions,context.MessageToSend,context.LogicalMessage.Metadata);
+            InvokeNative(context.SendOptions, context.OutgoingMessage, context.OutgoingLogicalMessage.Metadata);
 
             next();
         }
@@ -62,7 +62,6 @@
                     sendOptions.Destination,
                     string.Join(", ", messageToSend.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));
             }
-
         }
 
         void SendOrDefer(TransportMessage messageToSend, SendOptions sendOptions)
@@ -78,6 +77,7 @@
                 {
                     MessageSender.Send(messageToSend, sendOptions.Destination);
                 }
+
                 return;
             }
 
@@ -93,8 +93,10 @@
                 {
                     MessageSender.Send(messageToSend, sendOptions.Destination);
                 }
+
                 return;
             }
+
             MessageSender.Send(messageToSend, sendOptions.Destination);
         }
 
@@ -115,10 +117,6 @@
                 .ToList();
 
             MessagePublisher.Publish(messageToSend, eventTypesToPublish);
-            //var subscribersFound = MessagePublisher.Publish(messageToSend, eventTypesToPublish);
-
-            //todo
-            //context.Set("SubscribersFound", subscribersFound);
         }
 
         static ILog Log = LogManager.GetLogger(typeof(DispatchMessageToTransportBehavior));

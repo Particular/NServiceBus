@@ -14,16 +14,16 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class DataBusReceiveBehavior : IBehavior<ReceiveLogicalMessageContext>
+    public class DataBusReceiveBehavior : IBehavior<IncomingContext>
     {
         public IDataBus DataBus { get; set; }
 
         public IDataBusSerializer DataBusSerializer { get; set; }
 
 
-        public void Invoke(ReceiveLogicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
-            var message = context.LogicalMessage.Instance;
+            var message = context.IncomingLogicalMessage.Instance;
 
 
             foreach (var property in GetDataBusProperties(message))
@@ -44,7 +44,7 @@
 
                 string dataBusKey;
 
-                if (!context.LogicalMessage.Headers.TryGetValue(HeaderMapper.DATABUS_PREFIX + headerKey, out dataBusKey))
+                if (!context.IncomingLogicalMessage.Headers.TryGetValue(HeaderMapper.DATABUS_PREFIX + headerKey, out dataBusKey))
                 {
                     continue;
                 }

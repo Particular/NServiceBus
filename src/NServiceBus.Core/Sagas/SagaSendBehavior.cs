@@ -4,21 +4,27 @@
     using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
+    using Unicast.Transport;
 
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class SagaSendBehavior : IBehavior<SendLogicalMessageContext>
+    public class SagaSendBehavior : IBehavior<OutgoingContext>
     {
-        public void Invoke(SendLogicalMessageContext context, Action next)
+        public void Invoke(OutgoingContext context, Action next)
         {
+            if (context.OutgoingLogicalMessage.IsControlMessage())
+            {
+                next();
+                return;
+            }
+
             ActiveSagaInstance saga;
 
             if (context.TryGet(out saga) && !saga.NotFound)
             {
-                context.MessageToSend.Headers[Headers.OriginatingSagaId] = saga.Instance.Entity.Id.ToString();
-                context.MessageToSend.Headers[Headers.OriginatingSagaType] = saga.SagaType.AssemblyQualifiedName;
-
+                context.OutgoingLogicalMessage.Headers[Headers.OriginatingSagaId] = saga.Instance.Entity.Id.ToString();
+                context.OutgoingLogicalMessage.Headers[Headers.OriginatingSagaType] = saga.SagaType.AssemblyQualifiedName;
             }
 
             //auto correlate with the saga we are replying to if needed
@@ -29,12 +35,12 @@
 
                 if (context.IncomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out sagaId))
                 {
-                    context.MessageToSend.Headers[Headers.SagaId] = sagaId;
+                    context.OutgoingLogicalMessage.Headers[Headers.SagaId] = sagaId;
                 }
 
                 if (context.IncomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out sagaType))
                 {
-                    context.MessageToSend.Headers[Headers.SagaType] = sagaType;
+                    context.OutgoingLogicalMessage.Headers[Headers.SagaType] = sagaType;
                 }
             }
 

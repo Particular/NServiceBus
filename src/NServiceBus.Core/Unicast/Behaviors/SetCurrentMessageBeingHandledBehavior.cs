@@ -2,17 +2,16 @@
 {
     using System;
     using System.ComponentModel;
-    using Messages;
     using Pipeline;
     using Pipeline.Contexts;
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class SetCurrentMessageBeingHandledBehavior : IBehavior<HandlerInvocationContext>
+    public class SetCurrentMessageBeingHandledBehavior : IBehavior<IncomingContext>
     {
-        public void Invoke(HandlerInvocationContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
-            var logicalMessage = context.Get<LogicalMessage>();
+            var logicalMessage = context.IncomingLogicalMessage;
 
             try
             {

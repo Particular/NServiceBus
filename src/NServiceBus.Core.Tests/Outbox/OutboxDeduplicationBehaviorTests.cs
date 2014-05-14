@@ -18,7 +18,7 @@
             };
         }
 
-        void Invoke(ReceivePhysicalMessageContext context, bool shouldAbort = false)
+        void Invoke(IncomingContext context, bool shouldAbort = false)
         {
             behavior.Invoke(context, () =>
             {
@@ -36,7 +36,7 @@
         public void Should_mark_outbox_message_as_stored_when_successfully_processing_a_message()
         {
             var incomingTransportMessage = new TransportMessage();
-            var context = new ReceivePhysicalMessageContext(null, incomingTransportMessage);
+            var context = new IncomingContext(null, incomingTransportMessage);
 
             Invoke(context);
 
@@ -51,7 +51,7 @@
 
             fakeOutbox.ExistingMessage = new OutboxMessage(incomingTransportMessage.Id, true);
             fakeOutbox.ThrowOnDispatch();
-            var context = new ReceivePhysicalMessageContext(null, incomingTransportMessage);
+            var context = new IncomingContext(null, incomingTransportMessage);
 
             Invoke(context);
 
@@ -66,7 +66,7 @@
 
             fakeOutbox.ExistingMessage = new OutboxMessage(incomingTransportMessage.Id);
 
-            var context = new ReceivePhysicalMessageContext(null, incomingTransportMessage);
+            var context = new IncomingContext(null, incomingTransportMessage);
 
             Invoke(context);
 

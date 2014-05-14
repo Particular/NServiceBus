@@ -9,12 +9,12 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class LicenseBehavior : IBehavior<ReceivePhysicalMessageContext>
+    public class LicenseBehavior : IBehavior<IncomingContext>
     {
 
         public bool LicenseExpired { get; set; }
 
-        public void Invoke(ReceivePhysicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
             context.PhysicalMessage.Headers[Headers.HasLicenseExpired] = LicenseExpired.ToString().ToLower();
 

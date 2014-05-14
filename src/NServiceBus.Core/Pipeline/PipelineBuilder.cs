@@ -22,39 +22,19 @@
         List<IPipelineOverride> pipelineOverrides;
         public List<Type> sendPhysicalMessageBehaviorList { get; private set; }
         public List<Type> receivePhysicalMessageBehaviorList { get; private set; }
-        public List<Type> receiveLogicalMessageBehaviorList { get; private set; }
         public List<Type> handlerInvocationBehaviorList { get; private set; }
         public List<Type> sendLogicalMessageBehaviorList { get; private set; }
 
         public PipelineBuilder(IBuilder builder)
         {
             pipelineOverrides = builder.BuildAll<IPipelineOverride>().ToList();
-            CreateSendPhysicalMessageList();
             CreateReceivePhysicalMessageList();
-            CreateReceiveLogicalMessageList();
-            CreateHandlerInvocationList();
             CreateSendLogicalMessageList();
-        }
-
-        void CreateSendPhysicalMessageList()
-        {
-            var behaviorList = new BehaviorList<SendPhysicalMessageContext>();
-
-            behaviorList.Add<SerializeMessagesBehavior>();
-            behaviorList.Add<MutateOutgoingPhysicalMessageBehavior>();
-            behaviorList.Add<DispatchMessageToTransportBehavior>();
-
-            foreach (var pipelineOverride in pipelineOverrides)
-            {
-                pipelineOverride.Override(behaviorList);
-            }
-
-            sendPhysicalMessageBehaviorList = behaviorList.InnerList;
         }
 
         void CreateReceivePhysicalMessageList()
         {
-            var behaviorList = new BehaviorList<ReceivePhysicalMessageContext>();
+            var behaviorList = new BehaviorList<IncomingContext>();
 
             behaviorList.Add<ChildContainerBehavior>();
             behaviorList.Add<MessageHandlingLoggingBehavior>();
@@ -63,10 +43,18 @@
             behaviorList.Add<UnitOfWorkBehavior>();
             behaviorList.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
             behaviorList.Add<RemoveIncomingHeadersBehavior>();
-            behaviorList.Add<ExtractLogicalMessagesBehavior>();
             behaviorList.Add<CallbackInvocationBehavior>();
+            behaviorList.Add<ExtractLogicalMessagesBehavior>();
             behaviorList.Add<ExecuteLogicalMessagesBehavior>();
 
+            behaviorList.Add<ApplyIncomingMessageMutatorsBehavior>();
+            //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
+            behaviorList.Add<DataBusReceiveBehavior>();
+            behaviorList.Add<LoadHandlersBehavior>();
+            behaviorList.Add<SetCurrentMessageBeingHandledBehavior>();
+            behaviorList.Add<AuditInvokedSagaBehavior>();
+            behaviorList.Add<SagaPersistenceBehavior>();
+            behaviorList.Add<InvokeHandlersBehavior>();
             foreach (var pipelineOverride in pipelineOverrides)
             {
                 pipelineOverride.Override(behaviorList);
@@ -74,40 +62,9 @@
             receivePhysicalMessageBehaviorList = behaviorList.InnerList;
         }
 
-        void CreateReceiveLogicalMessageList()
-        {
-            var behaviorList = new BehaviorList<ReceiveLogicalMessageContext>();
-            behaviorList.Add<ApplyIncomingMessageMutatorsBehavior>();
-            //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
-            behaviorList.Add<DataBusReceiveBehavior>();
-            behaviorList.Add<LoadHandlersBehavior>();
-
-            foreach (var pipelineOverride in pipelineOverrides)
-            {
-                pipelineOverride.Override(behaviorList);
-            }
-            receiveLogicalMessageBehaviorList = behaviorList.InnerList;
-        }
-
-        void CreateHandlerInvocationList()
-        {
-            var behaviorList = new BehaviorList<HandlerInvocationContext>();
-
-            behaviorList.Add<SetCurrentMessageBeingHandledBehavior>();
-            behaviorList.Add<AuditInvokedSagaBehavior>();
-            behaviorList.Add<SagaPersistenceBehavior>();
-            behaviorList.Add<InvokeHandlersBehavior>();
-
-            foreach (var pipelineOverride in pipelineOverrides)
-            {
-                pipelineOverride.Override(behaviorList);
-            }
-            handlerInvocationBehaviorList = behaviorList.InnerList;
-        }
-
         void CreateSendLogicalMessageList()
         {
-            var behaviorList = new BehaviorList<SendLogicalMessageContext>();
+            var behaviorList = new BehaviorList<OutgoingContext>();
 
             behaviorList.Add<SendValidatorBehavior>();
             behaviorList.Add<SagaSendBehavior>();
@@ -115,14 +72,14 @@
             //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
             behaviorList.Add<DataBusSendBehavior>();
             behaviorList.Add<CreatePhysicalMessageBehavior>();
-
+            behaviorList.Add<SerializeMessagesBehavior>();
+            behaviorList.Add<MutateOutgoingPhysicalMessageBehavior>();
+            behaviorList.Add<DispatchMessageToTransportBehavior>();
             foreach (var pipelineOverride in pipelineOverrides)
             {
                 pipelineOverride.Override(behaviorList);
             }
             sendLogicalMessageBehaviorList = behaviorList.InnerList;
         }
-
-
     }
 }

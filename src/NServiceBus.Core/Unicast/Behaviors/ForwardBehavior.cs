@@ -8,7 +8,7 @@
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class ForwardBehavior : IBehavior<ReceivePhysicalMessageContext>
+    public class ForwardBehavior : IBehavior<IncomingContext>
     {
         public ISendMessages MessageSender { get; set; }
 
@@ -16,7 +16,7 @@
 
         public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
 
-        public void Invoke(ReceivePhysicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
             next();
 

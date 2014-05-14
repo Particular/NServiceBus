@@ -5,16 +5,15 @@
     using Unicast;
     using Unicast.Messages;
 
-
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class SendLogicalMessageContext : BehaviorContext
+    public class OutgoingContext : BehaviorContext
     {
-        public SendLogicalMessageContext(BehaviorContext parentContext, SendOptions sendOptions, LogicalMessage message)
+        public OutgoingContext(BehaviorContext parentContext, SendOptions sendOptions, LogicalMessage message)
             : base(parentContext)
         {
             Set(sendOptions);
-            Set(message);
+            Set(OutgoingLogicalMessageKey, message);
         }
 
         public SendOptions SendOptions
@@ -22,12 +21,9 @@
             get { return Get<SendOptions>(); }
         }
 
-        public LogicalMessage MessageToSend
+        public LogicalMessage OutgoingLogicalMessage
         {
-            get
-            {
-                return Get<LogicalMessage>();
-            }
+            get { return Get<LogicalMessage>(OutgoingLogicalMessageKey); }
         }
 
         public TransportMessage IncomingMessage
@@ -38,10 +34,17 @@
 
                 //todo: I think we should move to strongly typed parent contexts so the below should be
                 // parentContext.IncomingMessage or similar
-                parentContext.TryGet(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey, out message);
+                parentContext.TryGet(IncomingContext.IncomingPhysicalMessageKey, out message);
 
                 return message;
             }
         }
+
+        public TransportMessage OutgoingMessage
+        {
+            get { return Get<TransportMessage>(); }
+        }
+
+        const string OutgoingLogicalMessageKey = "NServiceBus.OutgoingLogicalMessage";
     }
 }

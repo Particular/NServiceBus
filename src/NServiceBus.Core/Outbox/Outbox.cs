@@ -16,7 +16,7 @@
 
         public class PipelineOverride : Pipeline.PipelineOverride
         {
-            public override void Override(BehaviorList<ReceivePhysicalMessageContext> behaviorList)
+            public override void Override(BehaviorList<IncomingContext> behaviorList)
             {
                 if (!IsEnabled<Outbox>())
                 {
@@ -27,7 +27,7 @@
                 behaviorList.InsertAfter<UnitOfWorkBehavior, OutboxRecordBehavior>();
             }
 
-            public override void Override(BehaviorList<SendPhysicalMessageContext> behaviorList)
+            public override void Override(BehaviorList<OutgoingContext> behaviorList)
             {
                 if (!IsEnabled<Outbox>())
                 {
