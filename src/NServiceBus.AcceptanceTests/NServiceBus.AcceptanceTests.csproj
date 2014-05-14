@@ -162,6 +162,7 @@
     <Compile Include="Sagas\When_a_saga_message_goes_through_the_slr.cs" />
     <Compile Include="Sagas\When_using_contain_saga_data.cs" />
     <Compile Include="ScenarioDescriptors\Builders.cs" />
+    <Compile Include="ScenarioDescriptors\OutboxPersisters.cs" />
     <Compile Include="ScenarioDescriptors\SubscriptionPersisters.cs" />
     <Compile Include="ScenarioDescriptors\TimeoutPersisters.cs" />
     <Compile Include="ScenarioDescriptors\SagaPersisters.cs" />

@@ -129,6 +129,20 @@
             return config;
         }
 
+        public static Configure DefineOutboxStorage(this Configure config)
+        {
+            Configure.Features.Enable<Features.Outbox>();
+            
+            var persister = OutboxPersisters.Default;
+
+            if (persister != null)
+            {
+                CallConfigureForPersister(config, persister.AssemblyQualifiedName);
+            }
+
+            return config;
+        }
+
         static void CallConfigureForPersister(Configure config, string persister)
         {
             var type = Type.GetType(persister);
