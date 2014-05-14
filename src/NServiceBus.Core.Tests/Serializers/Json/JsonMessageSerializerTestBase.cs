@@ -167,57 +167,5 @@
             Assert.AreEqual("COO", ((C)a.B.C).Cstr);
         }
 
-        [Test]
-        public void TestMany()
-        {
-            var output = new MemoryStream();
-
-            var obj = MessageMapper.CreateInstance<IA>(
-              x =>
-              {
-                  x.S = "kalle";
-                  x.I = 42;
-                  x.Data = new byte[23];
-                  x.B = new B { BString = "BOO", C = new C { Cstr = "COO" } };
-              });
-
-            var obj2 = MessageMapper.CreateInstance<IA>(
-              x =>
-              {
-                  x.S = "kalle";
-                  x.I = 42;
-                  x.Data = new byte[23];
-                  x.B = new B { BString = "BOO", C = new C { Cstr = "COO" } };
-              });
-
-            new Random().NextBytes(obj.Data);
-
-            Serializer.Serialize(new IMessage[] { obj, obj2 }, output);
-
-            output.Position = 0;
-
-            var filename = string.Format("{0}.{1}.txt", GetType().Name, MethodBase.GetCurrentMethod().Name);
-
-            File.WriteAllBytes(filename, output.ToArray());
-
-            output.Position = 0;
-
-            var result = Serializer.Deserialize(output);
-
-            Assert.DoesNotThrow(() => output.Position = 0, "Stream should still be open");
-
-            Assert.IsNotEmpty(result);
-            Assert.That(result, Has.Length.EqualTo(2));
-
-            Assert.That(result[0], Is.AssignableTo(typeof(IA)));
-            var a = ((IA)result[0]);
-
-            Assert.AreEqual(a.Data, obj.Data);
-            Assert.AreEqual(42, a.I);
-            Assert.AreEqual("kalle", a.S);
-            Assert.IsNotNull(a.B);
-            Assert.AreEqual("BOO", a.B.BString);
-            Assert.AreEqual("COO", ((C)a.B.C).Cstr);
-        }
     }
 }

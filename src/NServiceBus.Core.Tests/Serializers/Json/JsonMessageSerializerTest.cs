@@ -1,7 +1,9 @@
 namespace NServiceBus.Serializers.Json.Tests
 {
+    using System;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using System.Xml.Linq;
     using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
@@ -239,6 +241,58 @@ namespace NServiceBus.Serializers.Json.Tests
                 Assert.AreEqual(messageWithXElement.Document.ToString(), result.Document.ToString());
                 Assert.AreEqual(XmlElement, json.Substring(13, json.Length - 15).Replace("\\", string.Empty));
             }
+        }
+
+        [Test]
+        public void TestMany()
+        {
+            var xml = @"[{
+    $type: ""NServiceBus.Serializers.Json.Tests.IA, NServiceBus.Core.Tests"",
+    Data: ""rhNAGU4dr/Qjz6ocAsOs3wk3ZmxHMOg="",
+    S: ""kalle"",
+    I: 42,
+    B: {
+        BString: ""BOO"",
+        C: {
+            $type: ""NServiceBus.Serializers.Json.Tests.C, NServiceBus.Core.Tests"",
+            Cstr: ""COO""
+        }
+    }
+}, {
+    $type: ""NServiceBus.Serializers.Json.Tests.IA, NServiceBus.Core.Tests"",
+    Data: ""AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="",
+    S: ""kalle"",
+    I: 42,
+    B: {
+        BString: ""BOO"",
+        C: {
+            $type: ""NServiceBus.Serializers.Json.Tests.C, NServiceBus.Core.Tests"",
+            Cstr: ""COO""
+        }
+    }
+}]";
+            using (var stream = new MemoryStream())
+            {
+                var streamWriter = new StreamWriter(stream);
+                streamWriter.Write(xml);
+                streamWriter.Flush();
+                stream.Position = 0;
+
+                var result = Serializer.Deserialize(stream);
+                Assert.IsNotEmpty(result);
+                Assert.That(result, Has.Length.EqualTo(2));
+
+                Assert.That(result[0], Is.AssignableTo(typeof(IA)));
+                var a = ((IA) result[0]);
+
+                Assert.AreEqual(23, a.Data.Length);
+                Assert.AreEqual(42, a.I);
+                Assert.AreEqual("kalle", a.S);
+                Assert.IsNotNull(a.B);
+                Assert.AreEqual("BOO", a.B.BString);
+                Assert.AreEqual("COO", ((C) a.B.C).Cstr);
+            }
+
         }
     }
 
