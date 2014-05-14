@@ -86,7 +86,7 @@
 
             var output = new MemoryStream();
 
-            Serializer.Serialize(new IMessage[] { obj }, output);
+            Serializer.Serialize(obj, output);
 
             output.Position = 0;
 
@@ -139,7 +139,7 @@
 
             new Random().NextBytes(obj.Data);
 
-            Serializer.Serialize(new IMessage[] { obj }, output);
+            Serializer.Serialize(obj, output);
 
             output.Position = 0;
 

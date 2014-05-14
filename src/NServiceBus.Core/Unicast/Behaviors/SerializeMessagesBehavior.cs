@@ -23,7 +23,7 @@
                 using (var ms = new MemoryStream())
                 {
                     
-                    MessageSerializer.Serialize(new[]{context.LogicalMessage.Instance}, ms);
+                    MessageSerializer.Serialize(context.LogicalMessage.Instance, ms);
 
                     context.MessageToSend.Headers[Headers.ContentType] = MessageSerializer.ContentType;
 

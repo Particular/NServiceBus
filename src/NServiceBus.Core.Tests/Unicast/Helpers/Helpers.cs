@@ -41,7 +41,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
 
             using (var stream = new MemoryStream())
             {
-                s.Serialize(new object[] { message }, stream);
+                s.Serialize(message, stream);
                 m.Body = stream.ToArray();
             }
 

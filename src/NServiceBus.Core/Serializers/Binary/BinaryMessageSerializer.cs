@@ -21,15 +21,15 @@ namespace NServiceBus.Serializers.Binary
 
             binaryFormatter.SurrogateSelector = surrogateSelector;
         }
-
+        
         /// <summary>
         /// Serializes the given set of messages into the given stream.
         /// </summary>
-        /// <param name="messages">Messages to serialize.</param>
-        /// <param name="stream">Stream for <paramref name="messages"/> to be serialized into.</param>
-        public void Serialize(object[] messages, Stream stream)
+        /// <param name="message">Message to serialize.</param>
+        /// <param name="stream">Stream for <paramref name="message"/> to be serialized into.</param>
+        public void Serialize(object message, Stream stream)
         {
-            binaryFormatter.Serialize(stream, new List<object>(messages));
+            binaryFormatter.Serialize(stream, new List<object> { message });
         }
 
         /// <summary>

@@ -25,7 +25,7 @@
 
             using (var stream = new MemoryStream())
             {
-                Serializer.Serialize(new object[] { messageWithXDocument }, stream);
+                Serializer.Serialize(messageWithXDocument, stream);
 
                 stream.Position = 0;
 
@@ -36,7 +36,7 @@
 
             using (var stream = new MemoryStream())
             {
-                Serializer.Serialize(new object[] { messageWithXElement }, stream);
+                Serializer.Serialize(messageWithXElement, stream);
 
                 stream.Position = 0;
 

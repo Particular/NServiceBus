@@ -41,7 +41,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { msg }, stream);
+                serializer.Serialize(msg, stream);
                 stream.Position = 0;
 
                 var msgArray = serializer.Deserialize(stream);
@@ -164,7 +164,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { messageWithXDocument }, stream);
+                serializer.Serialize(messageWithXDocument, stream);
                 stream.Position = 0;
 
                 serializer = SerializerFactory.Create(typeof (MessageWithXDocument));
@@ -181,7 +181,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { messageWithXElement }, stream);
+                serializer.Serialize(messageWithXElement, stream);
                 stream.Position = 0;
 
                 serializer = SerializerFactory.Create(typeof (MessageWithXElement));
@@ -202,7 +202,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { msg }, stream);
+                serializer.Serialize(msg, stream);
                 stream.Position = 0;
 
                 var msgArray = SerializerFactory.Create(typeof(MessageWithDouble)).Deserialize(stream);
@@ -250,7 +250,7 @@ namespace NServiceBus.Serializers.XML.Test
         {
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { msg }, stream);
+                serializer.Serialize(msg, stream);
                 stream.Position = 0;
 
                 string result;
@@ -310,7 +310,7 @@ namespace NServiceBus.Serializers.XML.Test
             var count = 0;
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { msgBeforeSerialization }, stream);
+                serializer.Serialize(msgBeforeSerialization, stream);
                 stream.Position = 0;
 
                 var reader = XmlReader.Create(stream);
@@ -347,7 +347,7 @@ namespace NServiceBus.Serializers.XML.Test
             Thread.CurrentThread.CurrentCulture = new CultureInfo("de-DE");
 
             var stream = new MemoryStream();
-            serializer.Serialize(new[] { msg }, stream);
+            serializer.Serialize(msg, stream);
 
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
 
@@ -421,9 +421,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             o.MoreNames = o.Names.ToArray();
 
-            var messages = new IMessage[] { o };
-
-            Time(messages, serializer);
+            Time(o, serializer);
         }
 
         [Test]
@@ -490,7 +488,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { msg }, stream);
+                serializer.Serialize(msg, stream);
                 stream.Position = 0;
 
                 var msgArray = serializer.Deserialize(stream);
@@ -510,7 +508,7 @@ namespace NServiceBus.Serializers.XML.Test
 
 			using (var stream = new MemoryStream())
 			{
-				serializer.Serialize(new[] { msg }, stream);
+				serializer.Serialize(msg, stream);
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
@@ -530,7 +528,7 @@ namespace NServiceBus.Serializers.XML.Test
 
 			using (var stream = new MemoryStream())
 			{
-				serializer.Serialize(new[] { msg }, stream);
+				serializer.Serialize(msg, stream);
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
@@ -550,7 +548,7 @@ namespace NServiceBus.Serializers.XML.Test
 
 			using (var stream = new MemoryStream())
 			{
-				serializer.Serialize(new[] { msg }, stream);
+				serializer.Serialize(msg, stream);
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
@@ -570,7 +568,7 @@ namespace NServiceBus.Serializers.XML.Test
 
 			using (var stream = new MemoryStream())
 			{
-				serializer.Serialize(new[] { msg }, stream);
+				serializer.Serialize(msg, stream);
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
@@ -590,7 +588,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { msg }, stream);
+                serializer.Serialize(msg, stream);
                 stream.Position = 0;
 
                 var msgArray = serializer.Deserialize(stream);
@@ -666,14 +664,14 @@ namespace NServiceBus.Serializers.XML.Test
             return o;
         }
 
-        private void Time(IMessage[] messages, IMessageSerializer serializer)
+        private void Time(object message, IMessageSerializer serializer)
         {
             var watch = new Stopwatch();
             watch.Start();
 
             for (var i = 0; i < numberOfIterations; i++)
                 using (var stream = new MemoryStream())
-                    serializer.Serialize(messages, stream);
+                    serializer.Serialize(message, stream);
 
             watch.Stop();
             Debug.WriteLine("Serializing: " + watch.Elapsed);
@@ -681,7 +679,7 @@ namespace NServiceBus.Serializers.XML.Test
             watch.Reset();
 
             var s = new MemoryStream();
-            serializer.Serialize(messages, s);
+            serializer.Serialize(message, s);
             var buffer = s.GetBuffer();
             s.Dispose();
 

@@ -71,7 +71,7 @@ namespace NServiceBus.Serializers.Json.Tests
             {
                 Serializer.SkipArrayWrappingForSingleMessages = true;
 
-                Serializer.Serialize(new object[] { new SuperMessage {SomeProperty = "John"} }, stream);
+                Serializer.Serialize(new SuperMessage {SomeProperty = "John"}, stream);
 
                 stream.Position = 0;
 
@@ -88,7 +88,7 @@ namespace NServiceBus.Serializers.Json.Tests
             {
                 Serializer.SkipArrayWrappingForSingleMessages = true;
 
-                Serializer.Serialize(new object[] { new SimpleMessage() }, stream);
+                Serializer.Serialize(new SimpleMessage(), stream);
 
                 stream.Position = 0;
                 var result = new StreamReader(stream).ReadToEnd();
@@ -104,7 +104,7 @@ namespace NServiceBus.Serializers.Json.Tests
             {
                 Serializer.SkipArrayWrappingForSingleMessages = true;
 
-                Serializer.Serialize(new object[] { new SimpleMessage{SomeProperty = "test"} }, stream);
+                Serializer.Serialize(new SimpleMessage{SomeProperty = "test"}, stream);
 
                 stream.Position = 0;
                 var result = (SimpleMessage) Serializer.Deserialize(stream, new[]{typeof(SimpleMessage)})[0];
@@ -121,7 +121,7 @@ namespace NServiceBus.Serializers.Json.Tests
             {
                 Serializer.SkipArrayWrappingForSingleMessages = true;
 
-                Serializer.Serialize(new object[] { new SimpleMessage() }, stream);
+                Serializer.Serialize(new SimpleMessage(), stream);
 
                 stream.Position = 0;
                 var result = new StreamReader(stream).ReadToEnd();
@@ -140,7 +140,7 @@ namespace NServiceBus.Serializers.Json.Tests
             {
                 Serializer.SkipArrayWrappingForSingleMessages = true;
 
-                Serializer.Serialize(new object[] { mapper.CreateInstance<ISuperMessageWithoutConcreteImpl>() }, stream);
+                Serializer.Serialize(mapper.CreateInstance<ISuperMessageWithoutConcreteImpl>(), stream);
 
                 stream.Position = 0;
                 var result = new StreamReader(stream).ReadToEnd();
@@ -163,7 +163,7 @@ namespace NServiceBus.Serializers.Json.Tests
                 var msg = mapper.CreateInstance<ISuperMessageWithoutConcreteImpl>();
                 msg.SomeProperty = "test";
 
-                Serializer.Serialize(new object[] { msg }, stream);
+                Serializer.Serialize(msg, stream);
 
                 stream.Position = 0;
 
@@ -187,7 +187,7 @@ namespace NServiceBus.Serializers.Json.Tests
                     SomeProperty = "test"
                 };
 
-                Serializer.Serialize(new object[] { msg }, stream);
+                Serializer.Serialize(msg, stream);
 
                 stream.Position = 0;
 
@@ -212,7 +212,7 @@ namespace NServiceBus.Serializers.Json.Tests
             {
                 Serializer.SkipArrayWrappingForSingleMessages = true;
 
-                Serializer.Serialize(new object[] { messageWithXDocument }, stream);
+                Serializer.Serialize(messageWithXDocument, stream);
 
                 stream.Position = 0;
                 var json = new StreamReader(stream).ReadToEnd();
@@ -228,7 +228,7 @@ namespace NServiceBus.Serializers.Json.Tests
             {
                 Serializer.SkipArrayWrappingForSingleMessages = true;
 
-                Serializer.Serialize(new object[] { messageWithXElement }, stream);
+                Serializer.Serialize(messageWithXElement, stream);
 
                 stream.Position = 0;
                 var json = new StreamReader(stream).ReadToEnd();

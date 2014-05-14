@@ -12,9 +12,9 @@ namespace NServiceBus.Serialization
         /// <summary>
         /// Serializes the given set of messages into the given stream.
         /// </summary>
-        /// <param name="messages">Messages to serialize.</param>
-        /// <param name="stream">Stream for <paramref name="messages"/> to be serialized into.</param>
-        void Serialize(object[] messages, Stream stream);
+        /// <param name="message">Message to serialize.</param>
+        /// <param name="stream">Stream for <paramref name="message"/> to be serialized into.</param>
+        void Serialize(object message, Stream stream);
 
         /// <summary>
         /// Deserializes from the given stream a set of messages.

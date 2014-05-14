@@ -20,7 +20,7 @@
             object[] messageDeserialized;
             using (Stream stream = new MemoryStream())
             {
-                serializer.Serialize(new object[] { message }, stream);
+                serializer.Serialize(message, stream);
 
                 stream.Position = 0;
 

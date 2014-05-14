@@ -46,7 +46,7 @@ namespace NServiceBus.Serializers.XML.Test
         {
             using (var stream = new MemoryStream())
             {
-                SerializerFactory.Create<T>().Serialize(new[] { message }, stream);
+                SerializerFactory.Create<T>().Serialize(message, stream);
                 stream.Position = 0;
               
                 var msgArray = SerializerFactory.Create<T>().Deserialize(stream, new[]{message.GetType()});
@@ -85,7 +85,7 @@ namespace NServiceBus.Serializers.XML.Test
                     config(serializer);
 
 
-                serializer.Serialize(new[] { message }, stream);
+                serializer.Serialize(message, stream);
                 stream.Position = 0;
                 var result = new StreamReader(stream);
 

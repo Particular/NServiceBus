@@ -406,15 +406,15 @@ namespace NServiceBus.Serializers.XML
                 {
                     if (parent.GetType().IsArray)
                         return parent.GetType().GetElementType();
-                    
-					var listImplementations = parent.GetType().GetInterfaces().Where(interfaceType => interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IList<>)).ToList();
-					if (listImplementations.Any())
-					{
-						var listImplementation = listImplementations.First();
-						return listImplementation.GetGenericArguments().Single();
-					}
 
-	                var args = parent.GetType().GetGenericArguments();
+                    var listImplementations = parent.GetType().GetInterfaces().Where(interfaceType => interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IList<>)).ToList();
+                    if (listImplementations.Any())
+                    {
+                        var listImplementation = listImplementations.First();
+                        return listImplementation.GetGenericArguments().Single();
+                    }
+
+                    var args = parent.GetType().GetGenericArguments();
 
                     if (args.Length == 1)
                     {
@@ -448,7 +448,7 @@ namespace NServiceBus.Serializers.XML
                 catch
                 {
                     // intentionally swallow exception
-                } 
+                }
             }
 
             throw new Exception("Could not determine type for node: '" + node.Name + "'.");
@@ -518,7 +518,8 @@ namespace NServiceBus.Serializers.XML
                 if (prop.Name == n)
                 {
                     return prop;
-                }}
+                }
+            }
 
             return null;
         }
@@ -826,74 +827,37 @@ namespace NServiceBus.Serializers.XML
         /// <summary>
         /// Serializes the given messages to the given stream.
         /// </summary>
-        public void Serialize(object[] messages, Stream stream)
+        public void Serialize(object message, Stream stream)
         {
-            var namespaces = InitializeNamespaces(messages);
-            var messageBuilder = SerializeMessages(messages);
+            InitializeNamespaces(message);
+            var messageBuilder = SerializeMessage(message);
 
             var builder = new StringBuilder();
-
-
             builder.AppendLine("<?xml version=\"1.0\" ?>");
 
-            if (messages.Length == 1)
-            {
-                builder.Append(messageBuilder);
-            }
-            else
-            {
-                var baseTypes = GetBaseTypes(messages);
-
-                WrapMessages(builder, namespaces, baseTypes, messageBuilder);
-            }
+            builder.Append(messageBuilder);
             var buffer = Encoding.UTF8.GetBytes(builder.ToString());
             stream.Write(buffer, 0, buffer.Length);
         }
 
         public string ContentType { get { return ContentTypes.Xml; } }
 
-        void WrapMessages(StringBuilder builder, List<string> namespaces, List<string> baseTypes, StringBuilder messageBuilder)
-        {
-            CreateStartElementWithNamespaces(namespaces, baseTypes, builder, "Messages");
 
-            builder.Append(messageBuilder);
-
-            builder.AppendLine("</Messages>");
-        }
-
-        StringBuilder SerializeMessages(object[] messages)
+        StringBuilder SerializeMessage(object message)
         {
             var messageBuilder = new StringBuilder();
+            var t = mapper.GetMappedTypeFor(message.GetType());
 
-            foreach (var m in messages)
-            {
-                var t = mapper.GetMappedTypeFor(m.GetType());
+            WriteObject(t.Name, t, message, messageBuilder, true);
 
-                WriteObject(t.Name, t, m, messageBuilder, messages.Length == 1);
-            }
             return messageBuilder;
         }
 
-        List<string> InitializeNamespaces(object[] messages)
+        string InitializeNamespaces(object message)
         {
-            namespacesToPrefix = new Dictionary<string, string>();
             namespacesToAdd = new List<Type>();
 
-            var namespaces = GetNamespaces(messages);
-            for (var i = 0; i < namespaces.Count; i++)
-            {
-                var prefix = "q" + i;
-                if (i == 0)
-                {
-                    prefix = "";
-                }
-
-                if (namespaces[i] != null)
-                {
-                    namespacesToPrefix[namespaces[i]] = prefix;
-                }
-            }
-            return namespaces;
+            return GetNamespace(message);
         }
 
         void Write(StringBuilder builder, Type t, object obj)
@@ -937,16 +901,14 @@ namespace NServiceBus.Serializers.XML
         void WriteObject(string name, Type type, object value, StringBuilder builder, bool useNS = false)
         {
             var element = name;
-            string prefix;
-            namespacesToPrefix.TryGetValue(type.Namespace, out prefix);
 
-            if (string.IsNullOrEmpty(prefix) && type == typeof(object) && (value.GetType().IsSimpleType()))
+            if (type == typeof(object) && (value.GetType().IsSimpleType()))
             {
                 if (!namespacesToAdd.Contains(value.GetType()))
                 {
                     namespacesToAdd.Add(value.GetType());
                 }
-                
+
                 builder.AppendFormat("<{0}>{1}</{0}>\n",
                     value.GetType().Name.ToLower() + ":" + name,
                     FormatAsString(value));
@@ -954,16 +916,12 @@ namespace NServiceBus.Serializers.XML
                 return;
             }
 
-            if (!string.IsNullOrEmpty(prefix))
-            {
-                element = prefix + ":" + name;
-            }
 
             if (useNS)
             {
-                var namespaces = InitializeNamespaces(new[] {value});
-                var baseTypes = GetBaseTypes(new[] {value});
-                CreateStartElementWithNamespaces(namespaces, baseTypes, builder, element);
+                var @namespace = InitializeNamespaces(value);
+                var baseTypes = GetBaseTypes(value);
+                CreateStartElementWithNamespaces(@namespace, baseTypes, builder, element);
             }
             else
             {
@@ -975,25 +933,14 @@ namespace NServiceBus.Serializers.XML
             builder.AppendFormat("</{0}>\n", element);
         }
 
-        void CreateStartElementWithNamespaces(List<string> namespaces, List<string> baseTypes, StringBuilder builder, string element)
+        void CreateStartElementWithNamespaces(string messageNamespace, List<string> baseTypes, StringBuilder builder, string element)
         {
-            string prefix;
 
             builder.AppendFormat(
                 "<{0} xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"",
                 element);
 
-            for (var i = 0; i < namespaces.Count; i++)
-            {
-                prefix = "q" + i;
-                if (i == 0)
-                {
-                    prefix = "";
-                }
-
-                builder.AppendFormat(" xmlns{0}=\"{1}/{2}\"", (prefix != "" ? ":" + prefix : prefix), nameSpace,
-                                     namespaces[i]);
-            }
+            builder.AppendFormat(" xmlns=\"{0}/{1}\"", nameSpace, messageNamespace);
 
             foreach (var t in namespacesToAdd)
             {
@@ -1002,7 +949,7 @@ namespace NServiceBus.Serializers.XML
 
             for (var i = 0; i < baseTypes.Count; i++)
             {
-                prefix = BASETYPE;
+                var prefix = BASETYPE;
                 if (i != 0)
                 {
                     prefix += i;
@@ -1040,15 +987,15 @@ namespace NServiceBus.Serializers.XML
             if (typeof(XContainer).IsAssignableFrom(type))
             {
                 var container = (XContainer)value;
-                if(SkipWrappingRawXml)
+                if (SkipWrappingRawXml)
                 {
-                    builder.AppendFormat("{0}\n", container); 
+                    builder.AppendFormat("{0}\n", container);
                 }
                 else
                 {
-                    builder.AppendFormat("<{0}>{1}</{0}>\n", name, container); 
+                    builder.AppendFormat("<{0}>{1}</{0}>\n", name, container);
                 }
-                
+
                 return;
             }
 
@@ -1300,7 +1247,7 @@ namespace NServiceBus.Serializers.XML
                         builder.Append(stringToEscape, startIndex, i - startIndex);
                     }
                     startIndex = i + 1;
-                    builder.AppendFormat("&#x{0:X};", (int) c);
+                    builder.AppendFormat("&#x{0:X};", (int)c);
                 }
             }
 
@@ -1323,59 +1270,46 @@ namespace NServiceBus.Serializers.XML
         }
 #pragma warning restore 652
 
-        List<string> GetNamespaces(object[] messages)
+        string GetNamespace(object message)
         {
-            var result = new List<string>();
-
-            foreach (var m in messages)
-            {
-                var ns = mapper.GetMappedTypeFor(m.GetType()).Namespace;
-                if (!result.Contains(ns))
-                {
-                    result.Add(ns);
-                }
-            }
-
-            return result;
+            //TODO: if the proxy type has the same NS as the real message type we dont need to look this up
+            return mapper.GetMappedTypeFor(message.GetType()).Namespace;
         }
 
-        List<string> GetBaseTypes(object[] messages)
+        List<string> GetBaseTypes(object message)
         {
             var result = new List<string>();
 
-            foreach (var m in messages)
+            var t = mapper.GetMappedTypeFor(message.GetType());
+
+            var baseType = t.BaseType;
+            while (baseType != typeof(object) && baseType != null)
             {
-                var t = mapper.GetMappedTypeFor(m.GetType());
-
-                var baseType = t.BaseType;
-                while (baseType != typeof(object) && baseType != null)
+                if (MessageConventionExtensions.IsMessageType(baseType))
                 {
-                    if (MessageConventionExtensions.IsMessageType(baseType))
+                    if (!result.Contains(baseType.FullName))
                     {
-                        if (!result.Contains(baseType.FullName))
-                        {
-                            result.Add(baseType.FullName);
-                        }
+                        result.Add(baseType.FullName);
                     }
-
-                    baseType = baseType.BaseType;
                 }
 
-                foreach (var i in t.GetInterfaces())
+                baseType = baseType.BaseType;
+            }
+
+            foreach (var i in t.GetInterfaces())
+            {
+                if (MessageConventionExtensions.IsMessageType(i))
                 {
-                    if (MessageConventionExtensions.IsMessageType(i))
+                    if (!result.Contains(i.FullName))
                     {
-                        if (!result.Contains(i.FullName))
-                        {
-                            result.Add(i.FullName);
-                        }
+                        result.Add(i.FullName);
                     }
                 }
             }
 
             return result;
         }
-        
+
         const string BASETYPE = "baseType";
 
         static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
@@ -1386,12 +1320,6 @@ namespace NServiceBus.Serializers.XML
 
         [ThreadStatic]
         static string defaultNameSpace;
-
-        /// <summary>
-        /// Used for serialization
-        /// </summary>
-        [ThreadStatic]
-        static IDictionary<string, string> namespacesToPrefix;
 
         /// <summary>
         /// Used for deserialization
