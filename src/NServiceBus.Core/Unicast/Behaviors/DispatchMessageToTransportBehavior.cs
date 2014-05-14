@@ -77,6 +77,7 @@
                 {
                     MessageSender.Send(messageToSend, sendOptions.Destination);
                 }
+
                 return;
             }
 
@@ -92,8 +93,10 @@
                 {
                     MessageSender.Send(messageToSend, sendOptions.Destination);
                 }
+
                 return;
             }
+
             MessageSender.Send(messageToSend, sendOptions.Destination);
         }
 

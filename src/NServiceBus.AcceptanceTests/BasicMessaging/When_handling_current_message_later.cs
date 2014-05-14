@@ -42,7 +42,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.Send(Address.Local, new SomeMessage())))
+                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.SendLocal(new SomeMessage())))
                 .Done(c => c.Done)
                 .Run();
 

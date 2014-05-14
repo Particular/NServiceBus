@@ -34,22 +34,26 @@
                 throw new InvalidOperationException(error);
             }
 
+
             foreach (var handlerType in handlerTypedToInvoke)
             {
-                var loadedHandler = new MessageHandler
+                using (context.CreateSnapshotRegion())
                 {
-                    Instance = context.Builder.Build(handlerType),
-                    Invocation = (handlerInstance, message) => HandlerInvocationCache.InvokeHandle(handlerInstance, message)
-                };
+                    var loadedHandler = new MessageHandler
+                    {
+                        Instance = context.Builder.Build(handlerType),
+                        Invocation = (handlerInstance, message) => HandlerInvocationCache.InvokeHandle(handlerInstance, message)
+                    };
 
-                context.MessageHandler = loadedHandler;
+                    context.MessageHandler = loadedHandler;
 
-                next();
+                    next();
 
-                if (context.ChainAborted)
-                {
-                    //if the chain was aborted skip the other handlers
-                    break;
+                    if (context.ChainAborted)
+                    {
+                        //if the chain was aborted skip the other handlers
+                        break;
+                    }
                 }
             }
         }

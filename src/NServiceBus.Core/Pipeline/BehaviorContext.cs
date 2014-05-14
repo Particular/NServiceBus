@@ -5,7 +5,6 @@
     using System.ComponentModel;
     using ObjectBuilder;
 
-
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class BehaviorContext
@@ -19,10 +18,17 @@
 
         public IBuilder Builder
         {
-            get
-            {
-                return Get<IBuilder>();
-            }
+            get { return Get<IBuilder>(); }
+        }
+
+        internal void SetChain(dynamic chain)
+        {
+            this.chain = chain;
+        }
+
+        internal IDisposable CreateSnapshotRegion()
+        {
+            return new SnapshotRegion(chain);
         }
 
         public void AbortChain()
@@ -45,7 +51,7 @@
             object value;
             if (stash.TryGetValue(key, out value))
             {
-                result = (T)value;
+                result = (T) value;
                 return true;
             }
 
@@ -98,11 +104,12 @@
                 if (parentContext != null)
                 {
                     parentContext.Remove(key);
-                } 
+                }
             }
         }
 
         protected readonly BehaviorContext parentContext;
+        dynamic chain;
 
         internal bool handleCurrentMessageLaterWasCalled;
 

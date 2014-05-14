@@ -19,10 +19,14 @@
         public void Invoke(IncomingContext context, Action next)
         {
             var logicalMessages = context.LogicalMessages;
+
             foreach (var message in logicalMessages)
             {
-                context.IncomingLogicalMessage = message;
-                next();
+                using (context.CreateSnapshotRegion())
+                {
+                    context.IncomingLogicalMessage = message;
+                    next();
+                }
             }
 
             if (!context.PhysicalMessage.IsControlMessage())

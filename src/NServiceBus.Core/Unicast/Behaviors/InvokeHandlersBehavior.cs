@@ -10,9 +10,7 @@
     using ObjectBuilder;
     using Pipeline;
     using Pipeline.Contexts;
-    using Unicast;
     using Transport;
-
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -73,12 +71,16 @@
             MessageDispatcherMappings.TryGetValue(messageHandlerTypeToInvoke, out factoryType);
 
             if (factoryType == null)
+            {
                 return null;
+            }
 
             var factory = builder.Build(factoryType) as IMessageDispatcherFactory;
 
             if (factory == null)
+            {
                 throw new InvalidOperationException(string.Format("Registered dispatcher factory {0} for type {1} does not implement IMessageDispatcherFactory", factoryType, messageHandlerTypeToInvoke));
+            }
 
             return factory;
         }

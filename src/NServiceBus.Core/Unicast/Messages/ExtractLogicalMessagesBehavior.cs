@@ -55,6 +55,7 @@
             {
                 throw new SerializationException(string.Format("An error occurred while attempting to extract logical messages from transport message {0}", transportMessage), exception);
             }
+
             next();
         }
 

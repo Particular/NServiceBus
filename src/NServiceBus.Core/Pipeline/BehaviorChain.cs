@@ -11,6 +11,7 @@
         // The number of T's is small and they will all log to the same point due to the typeof(BehaviorChain<>)
         static ILog Log = LogManager.GetLogger(typeof(BehaviorChain<>));
         Queue<Type> itemDescriptors = new Queue<Type>();
+        Stack<Queue<Type>> snapshots = new Stack<Queue<Type>>();
         bool stackTracePreserved;
 
         public BehaviorChain(IEnumerable<Type> behaviorList)
@@ -25,6 +26,7 @@
         {
             try
             {
+                context.SetChain(this);
                 InvokeNext(context);
             }
             catch (Exception exception)
@@ -61,6 +63,16 @@
                 // need to rethrow explicit exception to preserve the stack trace
                 throw exception;
             }
+        }
+
+        public void TakeSnapshot()
+        {
+            snapshots.Push(new Queue<Type>(itemDescriptors));
+        }
+
+        public void DeleteSnapshot()
+        {
+            itemDescriptors = new Queue<Type>(snapshots.Pop());
         }
     }
 }
