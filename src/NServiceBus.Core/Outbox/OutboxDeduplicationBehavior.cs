@@ -7,14 +7,14 @@
     using Unicast.Behaviors;
     using Unicast.Messages;
 
-    public class OutboxDeduplicationBehavior : IBehavior<ReceivePhysicalMessageContext>
+    public class OutboxDeduplicationBehavior : IBehavior<IncomingContext>
     {
         public IOutboxStorage OutboxStorage { get; set; }
         public DispatchMessageToTransportBehavior DispatchMessageToTransportBehavior { get; set; }
 
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
-        public void Invoke(ReceivePhysicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
             var messageId = context.PhysicalMessage.Id;
             OutboxMessage outboxMessage;
