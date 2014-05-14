@@ -8,6 +8,7 @@
     {
         public OutboxMessage ExistingMessage { get; set; }
         public OutboxMessage StoredMessage { get; set; }
+        public bool Dispatched { get; set; }
 
         public bool TryGet(string messageId, out OutboxMessage message)
         {
@@ -35,14 +36,8 @@
                 throw new InvalidOperationException("Dispatch should not be invoked");
             }
 
-            if (StoredMessage != null)
-            {
-                if (StoredMessage.Id == messageId)
-                {
-                    StoredMessage = new OutboxMessage(messageId, true);
-                }
-            }
-
+            Dispatched = true;
+            
             if (ExistingMessage != null)
             {
                 if (ExistingMessage.Id == messageId)

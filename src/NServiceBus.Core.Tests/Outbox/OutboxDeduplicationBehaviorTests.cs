@@ -41,7 +41,7 @@
             Invoke(context);
 
             Assert.True(context.Get<bool>("Outbox_StartDispatching"), "Outbox message should be flaged as dispatching");
-            Assert.True(fakeOutbox.StoredMessage.Dispatched);
+            Assert.True(fakeOutbox.Dispatched);
         }
 
         [Test]
