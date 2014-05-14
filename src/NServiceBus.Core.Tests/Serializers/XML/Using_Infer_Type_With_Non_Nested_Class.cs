@@ -10,18 +10,27 @@
         [Test]
         public void Execute()
         {
-            var m1 = new M1();
-            var m2_1 = new M2();
-            var m2_2 = new M2();
-            var m2_3 = new M2();
+            var xml = @"<?xml version=""1.0"" ?>
+<Messages 
+    xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+    xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
+    xmlns=""http://tempuri.net/NServiceBus.Core.Tests.Serializers.XML""
+    xmlns:baseType=""NServiceBus.Core.Tests.Serializers.XML.IMyBusMessage"">
+    <M1></M1>
+    <M2></M2>
+    <M2></M2>
+    <M2></M2>
+</Messages>
+";
 
             using (Stream stream = new MemoryStream())
             {
-                var serializer = SerializerFactory.Create(typeof(IMyBusMessage), typeof(M1), typeof(M2));
-                serializer.Serialize(new object[] {m1, m2_1, m2_2, m2_3}, stream);
-
+                var writer = new StreamWriter(stream);
+                writer.Write(xml);
+                writer.Flush();
                 stream.Position = 0;
 
+                var serializer = SerializerFactory.Create(typeof(IMyBusMessage), typeof(M1), typeof(M2));
                 var messageDeserialized = serializer.Deserialize(stream);
                 Assert.IsInstanceOf<M1>(messageDeserialized[0]);
                 Assert.IsInstanceOf<M2>(messageDeserialized[1]);

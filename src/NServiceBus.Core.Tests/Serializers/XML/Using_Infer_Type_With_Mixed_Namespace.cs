@@ -10,16 +10,25 @@
         [Test]
         public void Execute()
         {
-            var m1 = new NameSpace1.M1();
-            var m2_1 = new NameSpace2.M1();
-
+            var xml = @"<?xml version=""1.0"" ?>
+<Messages 
+    xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
+    xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
+    xmlns=""http://tempuri.net/NameSpace2"" 
+    xmlns:q1=""http://tempuri.net/NameSpace1"" 
+    xmlns:baseType=""NameSpace1.IMyBusMessage"">
+    <M1></M1>
+    <q1:M1></q1:M1>
+</Messages>
+";
             using (Stream stream = new MemoryStream())
             {
-                var serializer = SerializerFactory.Create(typeof(IMyBusMessage), typeof(NameSpace1.M1), typeof(NameSpace2.M1));
-                serializer.Serialize(new object[] { m2_1, m1 }, stream);
-
+                var writer = new StreamWriter(stream);
+                writer.Write(xml);
+                writer.Flush();
                 stream.Position = 0;
-                //   var readToEnd = new StreamReader(stream).ReadToEnd();
+
+                var serializer = SerializerFactory.Create(typeof(IMyBusMessage), typeof(NameSpace1.M1), typeof(NameSpace2.M1));
 
                 var messageDeserialized = serializer.Deserialize(stream);
                 Assert.IsInstanceOf<NameSpace2.M1>(messageDeserialized[0]);

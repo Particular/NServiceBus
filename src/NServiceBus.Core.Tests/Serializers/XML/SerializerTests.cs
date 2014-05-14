@@ -81,11 +81,26 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void Should_deserialize_multiple_messages_from_different_namespaces()
         {
+            var xml = @"<?xml version=""1.0"" ?>
+<Messages 
+    xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
+    xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
+    xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test.A"" 
+    xmlns:q1=""http://tempuri.net/NServiceBus.Serializers.XML.Test.B"">
+    <Command1>
+        <Id>1eb17e5d-8573-49af-a5cb-76b4a602bb79</Id>
+    </Command1>
+    <q1:Command2>
+        <Id>ad3b5a84-6cf1-4376-aa2d-058b1120c12f</Id>
+    </q1:Command2>
+</Messages>
+";
             using (var stream = new MemoryStream())
             {
-                SerializerFactory.Create(typeof(Command1), typeof(Command2)).Serialize(new object[] { new Command1(Guid.NewGuid()), new Command2(Guid.NewGuid()) }, stream);
+                var writer = new StreamWriter(stream);
+                writer.Write(xml);
+                writer.Flush();
                 stream.Position = 0;
-
                 var msgArray = SerializerFactory.Create(typeof(Command1), typeof(Command2)).Deserialize(stream);
 
                 Assert.AreEqual(typeof(Command1), msgArray[0].GetType());
@@ -779,15 +794,24 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void Should_be_able_to_deserialize_many_messages_of_same_type()
         {
-            var serializer = SerializerFactory.Create<EmptyMessage>();
-
+            var xml = @"<?xml version=""1.0"" ?>
+<Messages xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
+    <EmptyMessage>
+    </EmptyMessage>
+    <EmptyMessage>
+    </EmptyMessage>
+    <EmptyMessage>
+    </EmptyMessage>
+</Messages>
+";
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { new EmptyMessage(), new EmptyMessage(), new EmptyMessage() }, stream);
+                var streamWriter = new StreamWriter(stream);
+                 streamWriter.Write(xml);
+                streamWriter.Flush();
                 stream.Position = 0;
-
+            var serializer = SerializerFactory.Create<EmptyMessage>();
                 var msgArray = serializer.Deserialize(stream, new[] { typeof(EmptyMessage) });
-
                 Assert.AreEqual(3, msgArray.Length);
             }
         }
