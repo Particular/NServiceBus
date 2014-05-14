@@ -113,8 +113,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void Should_be_able_to_serialize_single_message_without_wrapping_element()
         {
-            Serializer.ForMessage<EmptyMessage>(new EmptyMessage(), s =>
-                { s.SkipWrappingElementForSingleMessages = true; })
+            Serializer.ForMessage<EmptyMessage>(new EmptyMessage())
                 .AssertResultingXml(d=> d.DocumentElement.Name == "EmptyMessage","Root should be message typename");
         }
 
@@ -184,7 +183,6 @@ namespace NServiceBus.Serializers.XML.Test
         public void Should_be_able_to_serialize_single_message_with_default_namespaces_and_then_deserialize()
         {
             var serializer = SerializerFactory.Create<MessageWithDouble>();
-            serializer.SkipWrappingElementForSingleMessages = true;
             var msg = new MessageWithDouble();
 
             using (var stream = new MemoryStream())
@@ -202,7 +200,6 @@ namespace NServiceBus.Serializers.XML.Test
         public void Should_be_able_to_serialize_single_message_with_default_namespaces()
         {
             var serializer = SerializerFactory.Create<EmptyMessage>();
-            serializer.SkipWrappingElementForSingleMessages = true;
             var msg = new EmptyMessage();
 
             var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">";
@@ -214,7 +211,6 @@ namespace NServiceBus.Serializers.XML.Test
         public void Should_be_able_to_serialize_single_message_with_specified_namespaces()
         {
             var serializer = SerializerFactory.Create<EmptyMessage>();
-            serializer.SkipWrappingElementForSingleMessages = true;
             serializer.Namespace = "http://super.com";
             var msg = new EmptyMessage();
 
@@ -227,7 +223,6 @@ namespace NServiceBus.Serializers.XML.Test
         public void Should_be_able_to_serialize_single_message_with_specified_namespace_with_trailing_forward_slashes()
         {
             var serializer = SerializerFactory.Create<EmptyMessage>();
-            serializer.SkipWrappingElementForSingleMessages = true;
             serializer.Namespace = "http://super.com///";
             var msg = new EmptyMessage();
 
