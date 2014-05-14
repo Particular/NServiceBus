@@ -20,6 +20,50 @@ namespace NServiceBus.Serializers.Json.Tests
             Serializer = new JsonMessageSerializer(MessageMapper);
         }
 
+
+        public class SimpleMessage1
+        {
+            public string PropertyOnMessage1 { get; set; }
+        }
+
+        public class SimpleMessage2
+        {
+            public string PropertyOnMessage2 { get; set; }
+        }
+
+
+        [Test]
+        public void Deserialize_messages_wrapped_in_array_from_older_endpoint()
+        {
+            var jsonWithMultipleMessages = @"
+[
+  {
+    $type: 'NServiceBus.Serializers.Json.Tests.JsonMessageSerializerTest+SimpleMessage1, NServiceBus.Core.Tests',
+    PropertyOnMessage1: 'Message1'
+  },
+  {
+    $type: 'NServiceBus.Serializers.Json.Tests.JsonMessageSerializerTest+SimpleMessage2, NServiceBus.Core.Tests',
+    PropertyOnMessage2: 'Message2'
+  }
+]";
+            using (var stream = new MemoryStream())
+            {
+                var streamWriter = new StreamWriter(stream);
+                streamWriter.Write(jsonWithMultipleMessages);
+                streamWriter.Flush();
+                stream.Position = 0;
+                var result = Serializer.Deserialize(stream, new[]
+                {
+                    typeof(SimpleMessage2),
+                    typeof(SimpleMessage1)
+                });
+
+                Assert.AreEqual(2, result.Length);
+                Assert.AreEqual("Message1", ((SimpleMessage1) result[0]).PropertyOnMessage1);
+                Assert.AreEqual("Message2", ((SimpleMessage2) result[1]).PropertyOnMessage2);
+            }
+        }
+
         [Test]
         public void Deserialize_message_with_interface_without_wrapping()
         {
@@ -202,7 +246,6 @@ namespace NServiceBus.Serializers.Json.Tests
     {
         public string SomeProperty { get; set; }
     }
-
     public class SuperMessage : IMyEvent
     {
         public string SomeProperty { get; set; }

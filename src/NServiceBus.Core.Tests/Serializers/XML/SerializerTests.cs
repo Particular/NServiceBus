@@ -284,7 +284,7 @@ namespace NServiceBus.Serializers.XML.Test
                 var msgArray = SerializerFactory.Create(typeof(MessageWithDouble),typeof(EmptyMessage))
                     .Deserialize(stream, new[] { typeof(MessageWithDouble), typeof(EmptyMessage) });
 
-                Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
+                Assert.AreEqual(23.4, ((MessageWithDouble)msgArray[0]).Double);
                 Assert.AreEqual(typeof(EmptyMessage), msgArray[1].GetType());
 
             }
