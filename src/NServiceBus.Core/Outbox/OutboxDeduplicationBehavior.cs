@@ -26,8 +26,6 @@
                 context.Set(outboxMessage);
 
                 next();
-
-                OutboxStorage.Store(messageId, outboxMessage.TransportOperations);
             }
 
             if (outboxMessage.Dispatched)

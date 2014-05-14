@@ -13,13 +13,9 @@ namespace NServiceBus.Outbox
             next();
 
             var messageId = context.PhysicalMessage.Id;
-            
-            OutboxMessage outboxMessage;
+            var outboxMessage = context.Get<OutboxMessage>();
 
-            if (context.TryGet(messageId, out outboxMessage))
-            {
-                OutboxStorage.Store(messageId, outboxMessage.TransportOperations);
-            }
+            OutboxStorage.Store(messageId, outboxMessage.TransportOperations);
         }
     }
 }

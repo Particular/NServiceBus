@@ -26,7 +26,5 @@ namespace NServiceBus.Outbox
                 next();
             }
         }
-
-
     }
 }

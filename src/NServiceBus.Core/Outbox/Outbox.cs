@@ -7,7 +7,7 @@
     using Unicast.Behaviors;
     using UnitOfWork;
 
-    public class Outbox:Feature
+    public class Outbox : Feature
     {
         public override void Initialize()
         {
@@ -27,7 +27,6 @@
                 behaviorList.InsertAfter<UnitOfWorkBehavior, OutboxRecordBehavior>();
             }
 
-
             public override void Override(BehaviorList<SendPhysicalMessageContext> behaviorList)
             {
                 if (!IsEnabled<Outbox>())
@@ -39,6 +38,4 @@
             }
         }
     }
-
-
 }
