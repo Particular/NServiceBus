@@ -49,7 +49,7 @@
 
                     next();
 
-                    if (context.ChainAborted)
+                    if (context.HandlerInvocationAborted)
                     {
                         //if the chain was aborted skip the other handlers
                         break;
