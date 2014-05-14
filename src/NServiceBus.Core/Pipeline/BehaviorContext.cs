@@ -14,7 +14,6 @@
             this.parentContext = parentContext;
         }
 
-        public bool ChainAborted { get; private set; }
 
         public IBuilder Builder
         {
@@ -31,10 +30,6 @@
             return new SnapshotRegion(chain);
         }
 
-        public void AbortChain()
-        {
-            ChainAborted = true;
-        }
 
         public T Get<T>()
         {

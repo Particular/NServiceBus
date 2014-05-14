@@ -605,7 +605,7 @@ namespace NServiceBus.Unicast
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
-            PipelineFactory.CurrentContext.AbortChain();
+            IncomingContext.CurrentContext.DoNotInvokeAnyMoreHandlers();
         }
 
         public IDictionary<string, string> OutgoingHeaders

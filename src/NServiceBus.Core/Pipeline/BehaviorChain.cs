@@ -39,7 +39,7 @@
 
         void InvokeNext(T context)
         {
-            if (itemDescriptors.Count == 0 || context.ChainAborted)
+            if (itemDescriptors.Count == 0)
             {
                 return;
             }

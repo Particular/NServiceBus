@@ -10,9 +10,13 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class IncomingContext : BehaviorContext
     {
+        [ThreadStatic]
+        static IncomingContext currentContext;
+
         public IncomingContext(BehaviorContext parentContext, TransportMessage transportMessage)
             : base(parentContext)
         {
+            currentContext = this;
             handleCurrentMessageLaterWasCalled = false;
 
             Set(IncomingPhysicalMessageKey, transportMessage);
@@ -20,11 +24,24 @@
             LogicalMessages = new List<LogicalMessage>();
         }
 
+
+        public bool HandlerInvocationAborted { get; private set; }
+
+        public void DoNotInvokeAnyMoreHandlers()
+        {
+            HandlerInvocationAborted = true;
+        }
+
+        public static IncomingContext CurrentContext
+        {
+            get { return currentContext; }
+        }
+
         public TransportMessage PhysicalMessage
         {
             get { return Get<TransportMessage>(IncomingPhysicalMessageKey); }
         }
-
+        
         public List<LogicalMessage> LogicalMessages
         {
             get { return Get<List<LogicalMessage>>(); }
@@ -42,6 +59,7 @@
             get { return Get<MessageHandler>(); }
             set { Set(value); }
         }
+
 
         public const string IncomingPhysicalMessageKey = "NServiceBus.IncomingPhysicalMessage";
         const string IncomingLogicalMessageKey = "NServiceBus.IncomingLogicalMessageKey";
