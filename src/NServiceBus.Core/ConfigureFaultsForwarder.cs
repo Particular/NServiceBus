@@ -5,7 +5,6 @@ namespace NServiceBus
     using Faults;
     using Faults.Forwarder;
     using Logging;
-    using Settings;
     using Utils;
 
     /// <summary>

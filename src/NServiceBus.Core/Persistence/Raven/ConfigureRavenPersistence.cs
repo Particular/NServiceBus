@@ -5,9 +5,6 @@ namespace NServiceBus
     using System.IO;
     using System.Net;
     using System.Text;
-    using Config;
-    using Gateway.Deduplication;
-    using Gateway.Persistence;
     using Logging;
     using Newtonsoft.Json;
     using Persistence.Raven;
@@ -15,10 +12,6 @@ namespace NServiceBus
     using Raven.Abstractions.Extensions;
     using Raven.Client;
     using Raven.Client.Document;
-    using Saga;
-    using Settings;
-    using Timeout.Core;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using ILogManager = Raven.Abstractions.Logging.ILogManager;
 
     /// <summary>
