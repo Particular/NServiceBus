@@ -484,7 +484,7 @@
     <Compile Include="Settings\Endpoint.cs" />
     <Compile Include="Settings\TransactionSettings.cs" />
     <Compile Include="SyncConfig.cs" />
-    <Compile Include="TaskSchedulers\MTATaskScheduler.cs" />
+    <Compile Include="Gateway\Channels\Http\MTATaskScheduler.cs" />
     <Compile Include="Timeout\Core\DefaultTimeoutManager.cs" />
     <Compile Include="Timeout\Core\IManageTimeouts.cs" />
     <Compile Include="Timeout\Core\IPersistTimeouts.cs" />
