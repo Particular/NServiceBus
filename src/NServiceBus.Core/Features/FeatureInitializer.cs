@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Text;
     using Config;
@@ -13,7 +14,26 @@
         /// </summary>
         public void Run()
         {
-            foreach (var feature in Configure.Instance.Features)
+            var features = Configure.Instance.Features;
+
+            DisableFeaturesThatAskedToBeDisabled(features);
+
+            DisableFeaturesThatAreDependingOnDisabledFeatures(features);
+        }
+
+        public void FinalizeConfiguration()
+        {
+            var features = Configure.Instance.Features;
+
+            InitializeFeatures(features);
+            InitializeFeaturesControlledByCategories();
+        }
+
+
+
+        static void DisableFeaturesThatAskedToBeDisabled(IEnumerable<Feature> features)
+        {
+            foreach (var feature in features)
             {
                 if (!Feature.IsEnabled(feature.GetType()))
                 {
@@ -33,18 +53,24 @@
             }
         }
 
-        public void FinalizeConfiguration()
+        static void DisableFeaturesThatAreDependingOnDisabledFeatures(IEnumerable<Feature> features)
         {
-            InitializeFeatures();
-            InitializeFeaturesControlledByCategories();
+            features
+                 .Where(f => f.Dependencies.Any(dependency => !Feature.IsEnabled(dependency)))
+                 .ToList()
+                 .ForEach(toBeDisabled =>
+                 {
+                     Feature.Disable(toBeDisabled.GetType());
+                     Logger.InfoFormat("Feature {0} has been disabled since its depending on the following disabled features: {1}", toBeDisabled.Name, string.Join(",", toBeDisabled.Dependencies.Where(d => !Feature.IsEnabled(d))));
+                 });
         }
 
-        static void InitializeFeatures()
+        static void InitializeFeatures(IEnumerable<Feature> features)
         {
             var statusText = new StringBuilder();
 
 
-            foreach (var feature in Configure.Instance.Features)
+            foreach (var feature in features)
             {
                 if (feature.Category != FeatureCategory.None)
                 {

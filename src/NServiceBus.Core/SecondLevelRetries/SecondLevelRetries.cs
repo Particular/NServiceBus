@@ -4,7 +4,6 @@ namespace NServiceBus.Features
     using Config;
     using Faults.Forwarder;
     using NServiceBus.SecondLevelRetries;
-    using Settings;
 
     public class SecondLevelRetries : Feature
     {

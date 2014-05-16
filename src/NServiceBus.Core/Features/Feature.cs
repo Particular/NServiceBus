@@ -142,6 +142,16 @@
             }
         }
 
+        protected void DependsOn<T>() where T:Feature
+        {
+            dependencies.Add(typeof(T));
+        }
+
+        public IEnumerable<Type> Dependencies
+        {
+            get { return dependencies.ToList(); }
+        } 
+
         public override string ToString()
         {
             
@@ -196,6 +206,7 @@
             name = GetType().Name.Replace("Feature", String.Empty);
         }
 
+        List<Type> dependencies = new List<Type>(); 
         string name;
     }
 
