@@ -60,10 +60,6 @@ namespace NServiceBus
             return instance != null;
         }
 
-        /// <summary>
-        /// Event raised when configuration is complete.
-        /// </summary>
-        public static event Action ConfigurationComplete;
 
         /// <summary>
         /// Gets/sets the builder.
@@ -179,7 +175,7 @@ namespace NServiceBus
 
         static TransportSettings transports;
 
-        public static FeatureSettings Features { get { return features ?? (features = new FeatureSettings()); } }
+        public FeatureSettings Features { get { return features ?? (features = new FeatureSettings()); } }
 
         static FeatureSettings features;
 
@@ -334,7 +330,7 @@ namespace NServiceBus
             {
                 return;
             }
-
+            ForAllTypes<Feature>(t => Features.Add((Feature)Activator.CreateInstance(t)));
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
@@ -353,11 +349,6 @@ namespace NServiceBus
             ActivateAndInvoke<IFinalizeConfiguration>(t => t.FinalizeConfiguration());
 
             initialized = true;
-
-            if (ConfigurationComplete != null)
-            {
-                ConfigurationComplete();
-            }
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()

@@ -67,7 +67,7 @@
 
             Serializers.SetDefault<Features.XmlSerialization>();
 
-            Configure.Features.Disable<Features.Audit>();
+            Configure.Instance.Features.Disable<Features.Audit>();
 
             Configure.Instance
                 .DefineEndpointName("UnitTests")

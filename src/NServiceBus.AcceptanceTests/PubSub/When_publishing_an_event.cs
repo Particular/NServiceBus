@@ -101,7 +101,7 @@
         {
             public Subscriber3()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.Disable<AutoSubscribe>())
                     .AddMapping<IFoo>(typeof(Publisher));
             }
 
@@ -120,7 +120,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.Disable<AutoSubscribe>())
                     .AddMapping<MyEvent>(typeof(Publisher));
             }
 
@@ -139,7 +139,7 @@
         {
             public Subscriber2()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.Disable<AutoSubscribe>())
                         .AddMapping<MyEvent>(typeof(Publisher));
             }
 

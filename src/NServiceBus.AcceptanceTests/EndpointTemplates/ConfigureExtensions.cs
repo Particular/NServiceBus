@@ -131,7 +131,7 @@
 
         public static Configure DefineOutboxStorage(this Configure config)
         {
-            Configure.Features.Enable<Features.Outbox>();
+            config.Features.Enable<Features.Outbox>();
             
             var persister = OutboxPersisters.Default;
 

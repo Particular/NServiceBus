@@ -211,8 +211,7 @@
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
     <Compile Include="DataBus\InMemory\InMemoryDataBus.cs" />
     <Compile Include="Features\FeatureSettings.cs" />
-    <Compile Include="Features\Support\FeatureInitializer.cs" />
-    <Compile Include="Features\Support\EnableDefaultFeatures.cs" />
+    <Compile Include="Features\FeatureInitializer.cs" />
     <Compile Include="Gateway\Channels\ChannelTypeAttribute.cs" />
     <Compile Include="Gateway\Deduplication\GatewayMessage.cs" />
     <Compile Include="Gateway\Deduplication\IDeduplicateMessages.cs" />

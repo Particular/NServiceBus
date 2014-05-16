@@ -14,7 +14,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
             Configure.Transactions.Disable();
-            Configure.Features.Disable<Features.SecondLevelRetries>();
+            Configure.Instance.Features.Disable<Features.SecondLevelRetries>();
 
             return Configure.Instance
                             .PurgeOnStartup(true)

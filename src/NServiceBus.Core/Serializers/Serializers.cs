@@ -20,7 +20,7 @@
             if (Configure.Instance.Configurer.HasComponent<IMessageSerializer>())
                 yield break;
 
-            var availableSerializers = GetAllAvailableFeatures();
+            var availableSerializers = GetAllAvailableFeatures().ToList();
 
             var enabledSerializers = availableSerializers.Where(f => f.Enabled).ToList();
 

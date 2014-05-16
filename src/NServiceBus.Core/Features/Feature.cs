@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Settings;
     using Utils;
 
@@ -99,14 +100,7 @@
             SettingsHolder.Instance.Set(featureType.FullName, false);
         }
 
-        /// <summary>
-        /// Disabled the give feature unless explicitly enabled
-        /// </summary>
-        public static void DisableByDefault(Type featureType)
-        {
-            SettingsHolder.Instance.SetDefault(featureType.FullName, false);
-        }
-
+      
         /// <summary>
         /// Returns true if the given feature is enabled
         /// </summary>
@@ -137,20 +131,7 @@
         /// </summary>
         public static IEnumerable<Feature> ByCategory(FeatureCategory category)
         {
-            var result = new List<Feature>();
-
-            Configure.Instance.ForAllTypes<Feature>(t =>
-            {
-                var feature = (Feature)Activator.CreateInstance(t);
-
-                if (feature.Category == category)
-                {
-                    result.Add(feature);
-                }
-
-            });
-
-            return result;
+            return Configure.Instance.Features.Where(f=>f.Category == category);
         }
 
         public string Version
@@ -214,7 +195,6 @@
         {
             name = GetType().Name.Replace("Feature", String.Empty);
         }
-
 
         string name;
     }

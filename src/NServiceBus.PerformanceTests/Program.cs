@@ -79,11 +79,11 @@
                     throw new InvalidOperationException("Illegal serialization format " + args[2]);
             }
 
-            Configure.Features.Disable<Audit>();
+            config.Features.Disable<Audit>();
 
             if (saga)
             {
-                Configure.Features.Enable<Sagas>();
+                config.Features.Enable<Sagas>();
 
                 config.RavenSagaPersister();
             }

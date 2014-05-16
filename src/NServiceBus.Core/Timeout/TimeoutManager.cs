@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
     using Config;
-    using Settings;
     using Timeout.Core;
     using Timeout.Hosting.Windows;
     using Transports;
