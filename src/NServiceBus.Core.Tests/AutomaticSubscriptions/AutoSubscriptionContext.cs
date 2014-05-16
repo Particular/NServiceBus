@@ -12,7 +12,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
         [SetUp]
         public void SetUp()
         {
-            autoSubscriptionStrategy = new DefaultAutoSubscriptionStrategy
+            autoSubscriptionStrategy = new AutoSubscriptionStrategy
             {
                 HandlerRegistry = new MessageHandlerRegistry(),
                 MessageRouter = new StaticMessageRouter(KnownMessageTypes())
@@ -34,6 +34,6 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
             autoSubscriptionStrategy.MessageRouter.RegisterMessageRoute(typeof(T), address);
         }
 
-        protected DefaultAutoSubscriptionStrategy autoSubscriptionStrategy;
+        protected AutoSubscriptionStrategy autoSubscriptionStrategy;
     }
 }

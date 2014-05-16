@@ -7,7 +7,7 @@ namespace NServiceBus.Unicast.Tests
     using Saga;
 
     [TestFixture]
-    class When_receiving_a_message_that_is_configure_to_start_a_saga : with_sagas
+    public class When_receiving_a_message_that_is_configure_to_start_a_saga : with_sagas
     {
         [Test]
         public void Should_create_a_new_saga_if_no_existing_instance_is_found()

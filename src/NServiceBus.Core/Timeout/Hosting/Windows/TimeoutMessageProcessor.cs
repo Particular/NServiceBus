@@ -7,11 +7,11 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Transports;
     using Unicast.Transport;
 
-    public class TimeoutMessageProcessor : IAdvancedSatellite
+    class TimeoutMessageProcessor : IAdvancedSatellite
     {
         public ISendMessages MessageSender { get; set; }
 
-        public IManageTimeouts TimeoutManager { get; set; }
+        public DefaultTimeoutManager TimeoutManager { get; set; }
 
         public Address InputAddress { get { return Features.TimeoutManager.InputAddress; } }
 

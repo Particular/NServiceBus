@@ -9,12 +9,12 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Transports;
     using Unicast.Transport;
 
-    public class TimeoutPersisterReceiver : IDisposable
+    class TimeoutPersisterReceiver : IDisposable
     {
         public IPersistTimeouts TimeoutsPersister { get; set; }
         public ISendMessages MessageSender { get; set; }
         public int SecondsToSleepBetweenPolls { get; set; }
-        public IManageTimeouts TimeoutManager { get; set; }
+        public DefaultTimeoutManager TimeoutManager { get; set; }
 
         public void Dispose()
         {

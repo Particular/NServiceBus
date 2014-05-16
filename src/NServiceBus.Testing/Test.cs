@@ -28,8 +28,7 @@
         /// </summary>
         public static void Initialize()
         {
-            Configure.With();
-            InitializeInternal();
+            InitializeInternal(Configure.With());
         }
 
         /// <summary>
@@ -48,8 +47,7 @@
         /// </summary>
         public static void Initialize(params Assembly[] assemblies)
         {
-            Configure.With(assemblies);
-            InitializeInternal();
+           InitializeInternal(Configure.With(assemblies));
         }
 
         /// <summary>
@@ -57,21 +55,22 @@
         /// </summary>
         public static void Initialize(params Type[] types)
         {
-            Configure.With(types);
-            InitializeInternal();
+            InitializeInternal(Configure.With(types));
         }
 
-        private static void InitializeInternal()
+        static void InitializeInternal(Configure config)
         {
             if (initialized)
                 return;
 
             Serializers.SetDefault<Features.XmlSerialization>();
 
-            Configure.Instance.Features.Disable<Features.Audit>();
 
-            Configure.Instance
-                .DefineEndpointName("UnitTests")
+
+            config.Features.Disable<Features.Sagas>(); 
+            config.Features.Disable<Features.Audit>();
+
+            config.DefineEndpointName("UnitTests")
                  .CustomConfigurationSource(testConfigurationSource)
                 .DefaultBuilder()
                 .UsePersistence<InMemory>()

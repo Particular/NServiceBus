@@ -23,8 +23,6 @@
 
             var transportToUse = settings.GetOrNull("Transport");
 
-            Feature.Enable<Sagas>();
-
             SettingsHolder.Instance.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
 
             var config = Configure.With(types)

@@ -12,37 +12,27 @@
 
     public class Sagas : Feature
     {
-        public override void Initialize(Configure config)
+        public override bool IsEnabledByDefault
         {
-            var sagasFound = FindAndConfigureSagasIn(Configure.TypesToScan);
-
-            if (sagasFound)
+            get
             {
-                InfrastructureServices.Enable<ISagaPersister>();
-
-                Logger.InfoFormat("Sagas found in scanned types, saga persister enabled");
-            }
-            else
-            {
-                Logger.InfoFormat("The saga feature was enabled but no saga implementations could be found. No need to enable the configured saga persister");
+                return true;
             }
         }
 
-        /// <summary>
-        /// Scans for types relevant to the saga infrastructure.
-        /// These include implementers of <see cref="Saga" /> and <see cref="IFindSagas{T}" />.
-        /// </summary>
-        public bool FindAndConfigureSagasIn(IEnumerable<Type> types)
+        public override bool ShouldBeEnabled()
         {
-            var sagasWereFound = false;
+            return Configure.TypesToScan.Any(IsSagaType);
+        }
 
-            foreach (var t in types)
+        public override void Initialize(Configure config)
+        {
+            foreach (var t in Configure.TypesToScan)
             {
                 if (IsSagaType(t))
                 {
                     Configure.Component(t, DependencyLifecycle.InstancePerCall);
                     ConfigureSaga(t);
-                    sagasWereFound = true;
                     continue;
                 }
 
@@ -62,9 +52,9 @@
 
             CreateAdditionalFindersAsNecessary();
 
-            return sagasWereFound;
         }
 
+       
         internal static void ConfigureHowToFindSagaWithMessage(Type sagaType, PropertyInfo sagaProp, Type messageType, PropertyInfo messageProp)
         {
             IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>> messageToProperties;
@@ -100,7 +90,7 @@
             }
         }
 
-        private void CreatePropertyFinder(Type sagaEntityType, Type messageType, PropertyInfo sagaProperty, PropertyInfo messageProperty)
+        void CreatePropertyFinder(Type sagaEntityType, Type messageType, PropertyInfo sagaProperty, PropertyInfo messageProperty)
         {
             var finderType = typeof(PropertySagaFinder<,>).MakeGenericType(sagaEntityType, messageType);
 

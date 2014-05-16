@@ -12,7 +12,7 @@ namespace NServiceBus.Core.Tests.Timeout
 
     [TestFixture]
     [Explicit]
-    public class When_pooling_timeouts_with_inMemory : When_pooling_timeouts
+    class When_pooling_timeouts_with_inMemory : When_pooling_timeouts
     {
         protected override IPersistTimeouts CreateTimeoutPersister()
         {
@@ -20,15 +20,15 @@ namespace NServiceBus.Core.Tests.Timeout
         }
     }
 
-    public abstract class When_pooling_timeouts
+    abstract class When_pooling_timeouts
     {
-        private IManageTimeouts manager;
-        private FakeMessageSender messageSender;
+        DefaultTimeoutManager manager;
+        FakeMessageSender messageSender;
         readonly Random rand = new Random();
-        private int expected;
+        int expected;
 
-        protected IPersistTimeouts persister;
-        protected TimeoutPersisterReceiver receiver;
+        IPersistTimeouts persister;
+        TimeoutPersisterReceiver receiver;
 
         protected abstract IPersistTimeouts CreateTimeoutPersister();
 

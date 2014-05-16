@@ -1,9 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
-    using Config;
     using Logging;
     using Transports;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     /// <summary>
     /// Adds support for pub/sub using a external subscription storage. This brings pub/sub to transport that lacks native support.
@@ -21,8 +19,6 @@
             }
 
             config.Configurer.ConfigureComponent<Unicast.Publishing.StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
-
-            InfrastructureServices.Enable<ISubscriptionStorage>();
         }
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(StorageDrivenPublisher));

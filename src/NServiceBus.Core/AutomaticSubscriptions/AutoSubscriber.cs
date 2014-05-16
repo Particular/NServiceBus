@@ -6,7 +6,7 @@
 
     public class AutoSubscriber:IWantToRunWhenBusStartsAndStops
     {
-        public IAutoSubscriptionStrategy AutoSubscriptionStrategy { get; set; }
+        public AutoSubscriptionStrategy AutoSubscriptionStrategy { get; set; }
 
         public IBus Bus { get; set; }
 
@@ -30,6 +30,6 @@
             
         }
 
-        readonly static ILog Logger = LogManager.GetLogger(typeof(DefaultAutoSubscriptionStrategy));
+        readonly static ILog Logger = LogManager.GetLogger(typeof(AutoSubscriber));
     }
 }

@@ -26,37 +26,11 @@ namespace NServiceBus.Hosting.Helpers
             AssembliesToSkip = new List<string>();
             MustReferenceAtLeastOneAssembly = new List<Assembly>();
             this.baseDirectoryToScan = baseDirectoryToScan;
-            SetScanNestedDirectories();
-            SetIncludeExesInScan();
         }
 
         public List<Assembly> MustReferenceAtLeastOneAssembly { get; private set; }
 
-        [ObsoleteEx(
-            RemoveInVersion = "5.0",
-            Message = @"Defaults to scan sub-directories. In the future, 'ScanNestedDirectories' will be opt-in.")]
-        void SetScanNestedDirectories()
-        {
-            bool scanNestedDirectories;
-            var appSetting = ConfigurationManager.AppSettings["NServiceBus/AssemblyScanning/ScanNestedDirectories"];
-            if (bool.TryParse(appSetting, out scanNestedDirectories))
-            {
-                ScanNestedDirectories = scanNestedDirectories;
-            }
-        }
-
-        [ObsoleteEx(
-            RemoveInVersion = "5.0",
-            Message = @"Defaults to pick up .exe files. In the future, 'IncludeExesInScan' will be opt-in.")]
-        void SetIncludeExesInScan()
-        {
-            bool includeExesInScan;
-            var appSetting = ConfigurationManager.AppSettings["NServiceBus/AssemblyScanning/IncludeExesInScan"];
-            if (bool.TryParse(appSetting, out includeExesInScan))
-            {
-                IncludeExesInScan = includeExesInScan;
-            }
-        }
+        
 
         /// <summary>
         ///     Traverses the specified base directory including all sub-directories, generating a list of assemblies that can be

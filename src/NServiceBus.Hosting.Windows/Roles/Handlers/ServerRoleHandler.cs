@@ -1,6 +1,5 @@
 namespace NServiceBus.Hosting.Windows.Roles.Handlers
 {
-    using Features;
     using Hosting.Roles;
     using Unicast.Config;
 
@@ -16,11 +15,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         {
             Configure.ScaleOut(s=>s.UseSingleBrokerQueue());
 
-            Feature.EnableByDefault<Sagas>();
-
-            return Configure.Instance
-                .PurgeOnStartup(false)
-                .UnicastBus();
+            return Configure.Instance.UnicastBus();
         }
     }
 }

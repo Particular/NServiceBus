@@ -4,10 +4,8 @@
     using System.Linq;
     using Config;
     using NServiceBus.Gateway.Channels;
-    using NServiceBus.Gateway.Deduplication;
     using NServiceBus.Gateway.HeaderManagement;
     using NServiceBus.Gateway.Notifications;
-    using NServiceBus.Gateway.Persistence;
     using NServiceBus.Gateway.Receiving;
     using NServiceBus.Gateway.Routing.Endpoints;
     using NServiceBus.Gateway.Routing.Sites;
@@ -22,9 +20,6 @@
             ConfigureReceiver(config);
 
             ConfigureSender(config);
-
-            InfrastructureServices.Enable<IPersistMessages>();
-            InfrastructureServices.Enable<IDeduplicateMessages>();
         }
 
         static void ConfigureChannels(Configure config)

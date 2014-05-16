@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Features
 {
-    using Config;
     using NServiceBus.Outbox;
     using Pipeline;
     using Pipeline.Contexts;
@@ -11,7 +10,7 @@
     {
         public override void Initialize(Configure config)
         {
-            InfrastructureServices.Enable<IOutboxStorage>();
+             
         }
 
         public class PipelineOverride : Pipeline.PipelineOverride

@@ -49,9 +49,7 @@
             InputAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts");
 
             config.Configurer.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
-
-            InfrastructureServices.Enable<IPersistTimeouts>();
-            InfrastructureServices.Enable<IManageTimeouts>();
+            config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
         }
 
         public static Address InputAddress { get; private set; }

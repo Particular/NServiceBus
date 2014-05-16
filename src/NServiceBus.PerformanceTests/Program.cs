@@ -81,13 +81,6 @@
 
             config.Features.Disable<Audit>();
 
-            if (saga)
-            {
-                config.Features.Enable<Sagas>();
-
-                config.RavenSagaPersister();
-            }
-
             if (volatileMode)
             {
                 Configure.Endpoint.AsVolatile();

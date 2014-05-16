@@ -22,18 +22,13 @@ namespace NServiceBus.Unicast.Config
             RegisterMessageOwnersAndBusAddress(knownMessages);
 
             ConfigureMessageRegistry(knownMessages);
-
-            if (SettingsHolder.Instance.GetOrDefault<bool>("UnicastBus.AutoSubscribe"))
-            {
-                InfrastructureServices.Enable<IAutoSubscriptionStrategy>();
-            }
         }
 
         void RegisterMessageOwnersAndBusAddress(IEnumerable<Type> knownMessages)
         {
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
             var router = new StaticMessageRouter(knownMessages);
-            var key = typeof(DefaultAutoSubscriptionStrategy).FullName + ".SubscribePlainMessages";
+            var key = typeof(AutoSubscriptionStrategy).FullName + ".SubscribePlainMessages";
 
             if (SettingsHolder.Instance.HasSetting(key))
             {

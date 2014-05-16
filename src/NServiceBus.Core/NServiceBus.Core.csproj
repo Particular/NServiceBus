@@ -249,7 +249,6 @@
     <Compile Include="Distributor\MasterNode\ConfigureMasterNode.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
     <Compile Include="Settings\TransportSettings.cs" />
-    <Compile Include="Unicast\Config\SetUnicastBusConfigurationDefaults.cs" />
     <Compile Include="Timeout\TimeoutManager.cs" />
     <Compile Include="Transports\Msmq\Config\ConfigureMsmqMessageQueue.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\ConfigureMsmqSubscriptionStorage.cs" />
@@ -284,8 +283,6 @@
     <Compile Include="Satellites\IAdvancedSatellite.cs" />
     <Compile Include="Settings\ISetDefaultSettings.cs" />
     <Compile Include="Settings\SettingsHolder.cs" />
-    <Compile Include="Config\InfrastructureServices.cs" />
-    <Compile Include="Timeout\Core\TimeoutManagerDefaults.cs" />
     <Compile Include="Transports\IConfigureTransport.cs" />
     <Compile Include="Transports\ICreateQueues.cs" />
     <Compile Include="Transports\IDeferMessages.cs" />
@@ -487,7 +484,6 @@
     <Compile Include="SyncConfig.cs" />
     <Compile Include="Gateway\Channels\Http\MTATaskScheduler.cs" />
     <Compile Include="Timeout\Core\DefaultTimeoutManager.cs" />
-    <Compile Include="Timeout\Core\IManageTimeouts.cs" />
     <Compile Include="Timeout\Core\IPersistTimeouts.cs" />
     <Compile Include="Timeout\Core\TimeoutData.cs" />
     <Compile Include="Timeout\Hosting\Windows\ManageMessageFailuresWithoutSlr.cs" />
@@ -522,8 +518,7 @@
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageDrivenPublisher.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageDrivenSubscriptions.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\NoopSubscriptionAuthorizer.cs" />
-    <Compile Include="AutomaticSubscriptions\DefaultAutoSubscriptionStrategy.cs" />
-    <Compile Include="AutomaticSubscriptions\IAutoSubscriptionStrategy.cs" />
+    <Compile Include="AutomaticSubscriptions\AutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\IMessageDispatcherFactory.cs" />
     <Compile Include="Unicast\MessageContext.cs" />
     <Compile Include="Unicast\MessageEventArgs.cs" />

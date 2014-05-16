@@ -14,7 +14,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         [SetUp]
         public void Context()
         {
-            var assemblyScanner = new AssemblyScanner(Path.GetDirectoryName(AssemblyLocation.CurrentDirectory))
+            var assemblyScanner = new AssemblyScanner(AssemblyLocation.CurrentDirectory)
                 {
                     AssembliesToInclude = new List<string>
                         {
