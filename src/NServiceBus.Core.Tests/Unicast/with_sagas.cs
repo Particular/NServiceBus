@@ -2,7 +2,6 @@
 {
     using System;
     using Contexts;
-    using Encryption;
     using NUnit.Framework;
     using Persistence.InMemory.SagaPersister;
     using Saga;
@@ -15,7 +14,6 @@
         [SetUp]
         public new void SetUp()
         {
-
             persister = new InMemorySagaPersister();
             FuncBuilder.Register<ISagaPersister>(() => persister);
 
