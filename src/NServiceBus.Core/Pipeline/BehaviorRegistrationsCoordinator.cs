@@ -54,7 +54,8 @@ namespace NServiceBus.Pipeline
                     continue;
                 }
 
-                throw new Exception(string.Format("Behavior registration with id '{0}' is already registered for '{1}'", metadata.Id, registrations[metadata.Id].BehaviorType));
+                var message = string.Format("Behavior registration with id '{0}' is already registered for '{1}'", metadata.Id, registrations[metadata.Id].BehaviorType);
+                throw new Exception(message);
             }
 
             //  Step 2: do replacements
@@ -62,7 +63,8 @@ namespace NServiceBus.Pipeline
             {
                 if (!registrations.ContainsKey(metadata.ReplaceId))
                 {
-                    throw new Exception(string.Format("You can only replace an existing behavior registration, '{0}' registration does not exist!", metadata.ReplaceId));
+                    var message = string.Format("You can only replace an existing behavior registration, '{0}' registration does not exist!", metadata.ReplaceId);
+                    throw new Exception(message);
                 }
 
                 registrations[metadata.ReplaceId].BehaviorType = metadata.BehaviorType;
@@ -77,7 +79,8 @@ namespace NServiceBus.Pipeline
             {
                 if (!registrations.ContainsKey(metadata.RemoveId))
                 {
-                    throw new Exception(string.Format("You cannot remove behavior registration with id '{0}', registration does not exist!", metadata.RemoveId));
+                    var message = string.Format("You cannot remove behavior registration with id '{0}', registration does not exist!", metadata.RemoveId);
+                    throw new Exception(message);
                 }
 
                 if (listOfBeforeAndAfterIds.Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase))
@@ -85,7 +88,8 @@ namespace NServiceBus.Pipeline
                     var add = additions.First(mr => (mr.Befores != null && mr.Befores.Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)) ||
                                                     (mr.Afters != null && mr.Afters.Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)));
 
-                    throw new Exception(string.Format("You cannot remove behavior registration with id '{0}', registration with id {1} depends on it!", metadata.RemoveId, add.Id));
+                    var message = string.Format("You cannot remove behavior registration with id '{0}', registration with id {1} depends on it!", metadata.RemoveId, add.Id);
+                    throw new Exception(message);
                 }
 
                 registrations.Remove(metadata.RemoveId);
@@ -156,7 +160,6 @@ namespace NServiceBus.Pipeline
             return output;
         }
 
-        static Type iBehaviourType = typeof(IBehavior<>);
         List<RegisterBehavior> additions = new List<RegisterBehavior>();
         List<RemoveBehavior> removals;
         List<ReplaceBehavior> replacements;
