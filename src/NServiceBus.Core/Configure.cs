@@ -17,6 +17,7 @@ namespace NServiceBus
     using Installation.Environments;
     using Logging;
     using ObjectBuilder;
+    using Pipeline;
     using Settings;
 
     /// <summary>
@@ -175,6 +176,10 @@ namespace NServiceBus
         public static SerializationSettings Serialization { get { return serialization ?? (serialization = new SerializationSettings()); } }
 
         static SerializationSettings serialization;
+
+        public static PipelineSettings Pipeline { get { return pipelineSettings ?? (pipelineSettings = new PipelineSettings()); } }
+
+        static PipelineSettings pipelineSettings;
 
         /// <summary>
         /// Allows the user to control how the current endpoint behaves when scaled out.

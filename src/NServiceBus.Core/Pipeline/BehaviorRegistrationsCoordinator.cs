@@ -4,41 +4,12 @@ namespace NServiceBus.Pipeline
     using System.Collections.Generic;
     using System.Linq;
 
-    public class BehaviorRegistrationsCoordinator
+    internal class BehaviorRegistrationsCoordinator
     {
-        public void Remove(string idToRemove)
+        public BehaviorRegistrationsCoordinator(List<RemoveBehavior> removals, List<ReplaceBehavior> replacements)
         {
-            // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
-            if (String.IsNullOrEmpty(idToRemove))
-            {
-                throw new ArgumentNullException("idToRemove");
-            }
-
-            removals.Add(new RemoveBehavior
-            {
-                RemoveId = idToRemove
-            });
-        }
-
-        public void Replace(string idToReplace, Type newBehavior, string description = null)
-        {
-            if (newBehavior.IsAssignableFrom(iBehaviourType))
-            {
-                throw new ArgumentException("TBehavior needs to implement IBehavior<TContext>");
-            }
-
-            if (String.IsNullOrEmpty(idToReplace))
-            {
-                throw new ArgumentNullException("idToReplace");
-            }
-
-            // If description is null use existing one
-            replacements.Add(new ReplaceBehavior
-            {
-                BehaviorType = newBehavior,
-                Description = description,
-                ReplaceId = idToReplace
-            });
+            this.removals = removals;
+            this.replacements = replacements;
         }
 
         public void Register(string id, Type behavior, string description)
@@ -66,19 +37,17 @@ namespace NServiceBus.Pipeline
             additions.Add(RegisterBehavior.Create(id, behavior, description));
         }
 
-        public void Register<T>() where T : RegisterBehavior, new()
+        public void Register(RegisterBehavior rego)
         {
-            additions.Add(Activator.CreateInstance<T>());
+            additions.Add(rego);
         }
 
-        internal IList<RegisterBehavior> BuildRuntimeModel()
+        public IEnumerable<RegisterBehavior> BuildRuntimeModel()
         {
             var registrations = CreateRegistrationsList();
 
-            return Sort(registrations).AsReadOnly();
+            return Sort(registrations);
         }
-
-        
 
         IEnumerable<RegisterBehavior> CreateRegistrationsList()
         {
@@ -145,7 +114,7 @@ namespace NServiceBus.Pipeline
             return registrations.Values;
         }
 
-        static List<RegisterBehavior> Sort(IEnumerable<RegisterBehavior> registrations)
+        static IEnumerable<RegisterBehavior> Sort(IEnumerable<RegisterBehavior> registrations)
         {
             // Step 1: create nodes for graph
             var nameToNodeDict = new Dictionary<string, Node>();
@@ -209,8 +178,8 @@ namespace NServiceBus.Pipeline
 
         static Type iBehaviourType = typeof(IBehavior<>);
         List<RegisterBehavior> additions = new List<RegisterBehavior>();
-        List<RemoveBehavior> removals = new List<RemoveBehavior>();
-        List<ReplaceBehavior> replacements = new List<ReplaceBehavior>();
+        List<RemoveBehavior> removals;
+        List<ReplaceBehavior> replacements;
 
         class CaseInsensitiveIdComparer : IEqualityComparer<RemoveBehavior>
         {

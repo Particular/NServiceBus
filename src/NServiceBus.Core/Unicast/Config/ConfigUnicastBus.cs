@@ -29,7 +29,6 @@ namespace NServiceBus.Unicast.Config
             RegisterMessageModules();
 
             Configurer.ConfigureComponent<PipelineExecutor>(DependencyLifecycle.SingleInstance);
-            Configurer.ConfigureComponent<PipelineBuilder>(DependencyLifecycle.SingleInstance);
             ConfigureBehaviors();
         }
 

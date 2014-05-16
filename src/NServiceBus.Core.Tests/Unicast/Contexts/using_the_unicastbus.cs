@@ -93,8 +93,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
-            var pipelineBuilder = new PipelineBuilder();
-            pipelineFactory = new PipelineExecutor(FuncBuilder , pipelineBuilder);
+            pipelineFactory = new PipelineExecutor(FuncBuilder);
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
@@ -117,7 +116,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                                                              });
 
             FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
-            FuncBuilder.Register<PipelineBuilder>(() => pipelineBuilder);
             FuncBuilder.Register<PipelineExecutor>(() => pipelineFactory);
             FuncBuilder.Register<TransportDefinition>(() => transportDefinition);
 

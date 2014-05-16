@@ -12,24 +12,24 @@ namespace NServiceBus.Core.Tests.Pipeline
         [Test]
         public void Foo()
         {
-            var f = new BehaviorRegistrationsCoordinator();
+            //var f = new BehaviorRegistrationsCoordinator();
 
-            f.Register("1", typeof(FakeBehavior), "1");
-            f.Register("2", typeof(FakeBehavior), "2");
-            f.Register("3", typeof(FakeBehavior), "3");
+            //f.Register("1", typeof(FakeBehavior), "1");
+            //f.Register("2", typeof(FakeBehavior), "2");
+            //f.Register("3", typeof(FakeBehavior), "3");
 
-            f.Register<MyCustomRegistration>();
+            //f.Register<MyCustomRegistration>();
 
-            //f.Remove("2");
+            ////f.Remove("2");
 
-            var finalOrder = f.BuildRuntimeModel();
+            //var finalOrder = f.BuildRuntimeModel();
 
-            Assert.AreEqual(4, finalOrder.Count);
+            //Assert.AreEqual(4, finalOrder.Count);
 
-            foreach (var metadata in finalOrder)
-            {
-                Console.Out.WriteLine(metadata.Id);
-            }
+            //foreach (var metadata in finalOrder)
+            //{
+            //    Console.Out.WriteLine(metadata.Id);
+            //}
         }
 
         class MyCustomRegistration : RegisterBehavior
