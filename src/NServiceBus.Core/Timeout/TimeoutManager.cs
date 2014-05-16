@@ -44,12 +44,12 @@
             return true;
         }
 
-        public override void Initialize()
+        public override void Initialize(Configure config)
         {
             DispatcherAddress = Address.Parse(Configure.EndpointName).SubScope("TimeoutsDispatcher");
             InputAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts");
 
-            Configure.Component<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
 
             InfrastructureServices.Enable<IPersistTimeouts>();
             InfrastructureServices.Enable<IManageTimeouts>();

@@ -9,11 +9,11 @@
 
     public class MsmqTransport:ConfigureTransport<Msmq>
     {
-        public override void Initialize()
+        public override void Initialize(Configure config)
         {
-            NServiceBus.Configure.Component<CorrelationIdMutatorForBackwardsCompatibilityWithV3>(DependencyLifecycle.InstancePerCall);
-            NServiceBus.Configure.Component<MsmqUnitOfWork>(DependencyLifecycle.SingleInstance);
-            NServiceBus.Configure.Component<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
+            config.Configurer.ConfigureComponent<CorrelationIdMutatorForBackwardsCompatibilityWithV3>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<MsmqUnitOfWork>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
           
             var cfg = NServiceBus.Configure.GetConfigSection<MsmqMessageQueueConfig>();
@@ -36,10 +36,10 @@
                 }
             }
 
-            NServiceBus.Configure.Component<MsmqMessageSender>(DependencyLifecycle.InstancePerCall)
+            config.Configurer.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.Settings, settings);
 
-            NServiceBus.Configure.Component<MsmqQueueCreator>(DependencyLifecycle.InstancePerCall)
+            config.Configurer.ConfigureComponent<MsmqQueueCreator>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.Settings, settings);
         }
 

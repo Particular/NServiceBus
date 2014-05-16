@@ -58,7 +58,7 @@
                         return;
                     }
 
-                    feature.Initialize();
+                    feature.Initialize(Configure.Instance);
 
                     statusText.AppendLine(string.Format("{0} - Enabled", feature));
                 });
@@ -86,7 +86,7 @@
                     var shouldBeInitialized = featuresToInitialize.Contains(feature);
 
                     if (shouldBeInitialized)
-                        feature.Initialize();
+                        feature.Initialize(Configure.Instance);
 
                     statusText.AppendLine(string.Format("       * {0} - {1}", feature.Name, shouldBeInitialized ? "Enabled" : "Disabled"));    
                 }

@@ -4,10 +4,10 @@
 
     public class BinarySerialization : Feature<Categories.Serializers>
     {
-        public override void Initialize()
+        public override void Initialize(Configure config)
         {
-            Configure.Component<SimpleMessageMapper>(DependencyLifecycle.SingleInstance);
-            Configure.Component<BinaryMessageSerializer>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<SimpleMessageMapper>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<BinaryMessageSerializer>(DependencyLifecycle.SingleInstance);
         }
     }
 }

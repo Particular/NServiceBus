@@ -11,7 +11,7 @@
     /// </summary>
     public class StorageDrivenPublisher : Feature
     {
-        public override void Initialize()
+        public override void Initialize(Configure config)
         {
             var transportDefinition = SettingsHolder.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
 
@@ -21,7 +21,7 @@
                 return;
             }
 
-            Configure.Component<Unicast.Publishing.StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<Unicast.Publishing.StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
 
             InfrastructureServices.Enable<ISubscriptionStorage>();
         }

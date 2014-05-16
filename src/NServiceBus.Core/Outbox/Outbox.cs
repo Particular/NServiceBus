@@ -9,7 +9,7 @@
 
     public class Outbox : Feature
     {
-        public override void Initialize()
+        public override void Initialize(Configure config)
         {
             InfrastructureServices.Enable<IOutboxStorage>();
         }

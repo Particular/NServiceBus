@@ -10,11 +10,9 @@
     public class Audit : Feature
     {
         static ILog Logger = LogManager.GetLogger(typeof(Audit));
-        
-        public override void Initialize()
-        {
-            base.Initialize();
 
+        public override void Initialize(Configure config)
+        {
             // If Audit feature is enabled and the value not specified via config and instead specified in the registry:
             // Log a warning when running in the debugger to remind user to make sure the 
             // production machine will need to have the required registry setting.
@@ -26,7 +24,7 @@
             // Setup the audit queue and the TTR in the MessageAuditer component. This component has
             // already been registered with the bus (InitMessageAuditer gets called first, before the feature
             // initialization happens, so we already have an instance of the MessageAuditer)
-            Configure.Instance.Configurer
+            config.Configurer
                 .ConfigureProperty<MessageAuditer>(p => p.AuditQueue, GetConfiguredAuditQueue())
                 .ConfigureProperty<MessageAuditer>(t => t.TimeToBeReceivedOnForwardedMessages, GetTimeToBeReceivedFromAuditConfig());
         }

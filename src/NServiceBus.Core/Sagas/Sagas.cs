@@ -12,7 +12,7 @@
 
     public class Sagas : Feature
     {
-        public override void Initialize()
+        public override void Initialize(Configure config)
         {
             var sagasFound = FindAndConfigureSagasIn(Configure.TypesToScan);
 

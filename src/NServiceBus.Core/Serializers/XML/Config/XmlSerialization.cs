@@ -6,10 +6,10 @@
 
     public class XmlSerialization : Feature<Categories.Serializers>
     {
-        public override void Initialize()
+        public override void Initialize(Configure config)
         {
-            Configure.Component<MessageMapper>(DependencyLifecycle.SingleInstance);
-            Configure.Component<XmlMessageSerializer>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<XmlMessageSerializer>(DependencyLifecycle.SingleInstance);
 
             SettingsHolder.ApplyTo<XmlMessageSerializer>();
         }
