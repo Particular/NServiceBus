@@ -66,9 +66,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
             transportDefinition = new Msmq();
             HandlerInvocationCache.Clear();
 
-            SettingsHolder.Reset();
-            SettingsHolder.SetDefault("Endpoint.SendOnly", false);
-            SettingsHolder.SetDefault("MasterNode.Address", MasterNodeAddress);
+            SettingsHolder.Instance.Reset();
+            SettingsHolder.Instance.SetDefault("Endpoint.SendOnly", false);
+            SettingsHolder.Instance.SetDefault("MasterNode.Address", MasterNodeAddress);
 
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();

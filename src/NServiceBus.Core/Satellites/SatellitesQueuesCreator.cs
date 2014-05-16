@@ -19,7 +19,7 @@ namespace NServiceBus.Satellites
         /// <param name="identity">The user for whom permissions will be given.</param>
         public void Install(string identity)
         {
-            if (SettingsHolder.Get<bool>("Endpoint.SendOnly"))
+            if (SettingsHolder.Instance.Get<bool>("Endpoint.SendOnly"))
             {
                 return;
             }

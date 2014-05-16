@@ -131,13 +131,13 @@ namespace NServiceBus.Unicast.Transport
 
             var returnAddressForFailures = address;
 
-            var workerRunsOnThisEndpoint = SettingsHolder.GetOrDefault<bool>("Worker.Enabled");
+            var workerRunsOnThisEndpoint = SettingsHolder.Instance.GetOrDefault<bool>("Worker.Enabled");
 
             if (workerRunsOnThisEndpoint
                 && (returnAddressForFailures.Queue.ToLower().EndsWith(".worker") || address == Address.Local))
                 //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
             {
-                returnAddressForFailures = SettingsHolder.Get<Address>("MasterNode.Address");
+                returnAddressForFailures = SettingsHolder.Instance.Get<Address>("MasterNode.Address");
 
                 Logger.InfoFormat("Worker started, failures will be redirected to {0}", returnAddressForFailures);
             }

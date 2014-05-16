@@ -6,7 +6,7 @@
     {
         public void Run()
         {
-            SettingsHolder.SetDefault("MasterNode.Address", Address.Parse(Configure.EndpointName));
+            SettingsHolder.Instance.SetDefault("MasterNode.Address", Address.Parse(Configure.EndpointName));
         }
     }
 }

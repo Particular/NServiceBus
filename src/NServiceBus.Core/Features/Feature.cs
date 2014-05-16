@@ -64,7 +64,7 @@
         /// </summary>
         public static void Enable(Type featureType)
         {
-            SettingsHolder.Set(featureType.FullName, true);
+            SettingsHolder.Instance.Set(featureType.FullName, true);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@
         /// </summary>
         public static void EnableByDefault(Type featureType)
         {
-            SettingsHolder.SetDefault(featureType.FullName, true);
+            SettingsHolder.Instance.SetDefault(featureType.FullName, true);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@
         /// </summary>
         public static void Disable(Type featureType)
         {
-            SettingsHolder.Set(featureType.FullName, false);
+            SettingsHolder.Instance.Set(featureType.FullName, false);
         }
 
         /// <summary>
@@ -104,7 +104,7 @@
         /// </summary>
         public static void DisableByDefault(Type featureType)
         {
-            SettingsHolder.SetDefault(featureType.FullName, false);
+            SettingsHolder.Instance.SetDefault(featureType.FullName, false);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@
         /// </summary>
         public static bool IsEnabled(Type feature)
         {
-            return SettingsHolder.GetOrDefault<bool>(feature.FullName);
+            return SettingsHolder.Instance.GetOrDefault<bool>(feature.FullName);
         }
 
         /// <summary>

@@ -175,7 +175,7 @@ namespace NServiceBus
 
                 documentStore.Conventions.MaxNumberOfRequestsPerSession = 100;
 
-                if (SettingsHolder.Get<bool>("Transactions.SuppressDistributedTransactions"))
+                if (config.Settings.Get<bool>("Transactions.SuppressDistributedTransactions"))
                 {
                     documentStore.EnlistInDistributedTransactions = false;
                 }

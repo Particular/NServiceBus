@@ -28,7 +28,7 @@
             }
 
             //if we have a master node configured we should use the Master Node timeout manager instead
-            if (SettingsHolder.GetOrDefault<bool>("Distributor.Enabled"))
+            if (Configure.Instance.Settings.GetOrDefault<bool>("Distributor.Enabled"))
             {
                 return false;
             }

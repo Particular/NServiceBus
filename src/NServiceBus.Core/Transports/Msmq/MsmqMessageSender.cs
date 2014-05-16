@@ -96,7 +96,7 @@ namespace NServiceBus.Transports.Msmq
                 return MessageQueueTransactionType.None;
             }
 
-            if (SettingsHolder.Get<bool>("Transactions.SuppressDistributedTransactions"))
+            if (SettingsHolder.Instance.Get<bool>("Transactions.SuppressDistributedTransactions"))
             {
                 return MessageQueueTransactionType.Single;
             }

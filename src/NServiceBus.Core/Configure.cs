@@ -42,6 +42,17 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Provides access to the settings holder
+        /// </summary>
+        public  SettingsHolder Settings
+        {
+            get
+            {
+                return SettingsHolder.Instance;
+            }
+        }
+
+        /// <summary>
         /// True if any of the <see cref="With()"/> has been called.
         /// </summary>
         public static bool WithHasBeenCalled()
@@ -337,7 +348,7 @@ namespace NServiceBus
             ForAllTypes<INeedToInstallSomething<Windows>>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             //lockdown the settings
-            SettingsHolder.PreventChanges();
+            Settings.PreventChanges();
 
             ActivateAndInvoke<IFinalizeConfiguration>(t => t.FinalizeConfiguration());
 

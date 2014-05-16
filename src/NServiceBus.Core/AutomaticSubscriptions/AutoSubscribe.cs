@@ -2,7 +2,6 @@
 {
     using AutomaticSubscriptions;
     using Config;
-    using Settings;
     using Transports;
 
     public class AutoSubscribe : Feature
@@ -13,7 +12,7 @@
 
             if (config.Configurer.HasComponent<DefaultAutoSubscriptionStrategy>())
             {
-                var transportDefinition = SettingsHolder.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
+                var transportDefinition = config.Settings.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
 
                 //if the transport has centralized pubsub we can auto-subscribe all events regardless if they have explicit routing or not
                 if (transportDefinition != null && transportDefinition.HasSupportForCentralizedPubSub)
@@ -22,7 +21,17 @@
                 }
                 
                 //apply any user specific settings
-                SettingsHolder.ApplyTo<DefaultAutoSubscriptionStrategy>();
+                var targetType = typeof(DefaultAutoSubscriptionStrategy);
+
+                foreach (var property in targetType.GetProperties())
+                {
+                    var settingsKey = targetType.FullName + "." + property.Name;
+
+                    if (config.Settings.HasSetting(settingsKey))
+                    {
+                        config.Configurer.ConfigureProperty<DefaultAutoSubscriptionStrategy>(property.Name, config.Settings.Get(settingsKey));
+                    }
+                }
             }
                 
         }

@@ -39,7 +39,7 @@
         /// </code>
         public XmlSerializationSettings DontWrapRawXml()
         {
-            SettingsHolder.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
+            SettingsHolder.Instance.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
 
             return this;
         }
@@ -53,7 +53,7 @@
             if(string.IsNullOrEmpty(namespaceToUse))
                 throw new ConfigurationErrorsException("Can't use a null or empty string as the xml namespace");
 
-            SettingsHolder.SetProperty<XmlMessageSerializer>(s => s.Namespace, namespaceToUse);
+            SettingsHolder.Instance.SetProperty<XmlMessageSerializer>(s => s.Namespace, namespaceToUse);
 
             return this;
         }
@@ -63,7 +63,7 @@
         /// </summary>
         public XmlSerializationSettings SanitizeInput()
         {
-            SettingsHolder.SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);
+            SettingsHolder.Instance.SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);
 
             return this;
         }

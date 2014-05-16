@@ -22,7 +22,7 @@ namespace NServiceBus
 			{
 				 return config;
 			}
-			if (SettingsHolder.Get<bool>("Endpoint.SendOnly"))
+			if (config.Settings.Get<bool>("Endpoint.SendOnly"))
 			{
 				return config;
 			}

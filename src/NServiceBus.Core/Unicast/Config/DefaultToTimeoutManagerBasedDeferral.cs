@@ -27,7 +27,7 @@
                 return Address.Parse(unicastConfig.TimeoutManagerAddress);
             }
 
-            return SettingsHolder.Get<Address>("MasterNode.Address").SubScope("Timeouts");
+            return SettingsHolder.Instance.Get<Address>("MasterNode.Address").SubScope("Timeouts");
         }
     }
 }

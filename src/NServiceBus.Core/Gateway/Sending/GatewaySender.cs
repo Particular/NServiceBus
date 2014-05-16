@@ -50,7 +50,7 @@ namespace NServiceBus.Gateway.Sending
 
         public Address InputAddress
         {
-            get { return SettingsHolder.Get<Address>("Gateway.InputAddress"); }
+            get { return SettingsHolder.Instance.Get<Address>("Gateway.InputAddress"); }
         }
 
         public bool Disabled

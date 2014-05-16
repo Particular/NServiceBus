@@ -15,7 +15,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         /// </summary>
         public AutoSubscribeSettings DoNotAutoSubscribeSagas()
         {
-            SettingsHolder.SetProperty<DefaultAutoSubscriptionStrategy>(c=>c.DoNotAutoSubscribeSagas,true);
+            SettingsHolder.Instance.SetProperty<DefaultAutoSubscriptionStrategy>(c => c.DoNotAutoSubscribeSagas, true);
             return this;
         }
 
@@ -24,7 +24,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         /// </summary>
         public AutoSubscribeSettings DoNotRequireExplicitRouting()
         {
-            SettingsHolder.SetProperty<DefaultAutoSubscriptionStrategy>(c => c.DoNotRequireExplicitRouting, true); 
+            SettingsHolder.Instance.SetProperty<DefaultAutoSubscriptionStrategy>(c => c.DoNotRequireExplicitRouting, true); 
             return this;
         }
 
@@ -33,7 +33,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         /// </summary>
         public AutoSubscribeSettings AutoSubscribePlainMessages()
         {
-            SettingsHolder.SetProperty<DefaultAutoSubscriptionStrategy>(c => c.SubscribePlainMessages, true);
+            SettingsHolder.Instance.SetProperty<DefaultAutoSubscriptionStrategy>(c => c.SubscribePlainMessages, true);
             return this;
         }
 

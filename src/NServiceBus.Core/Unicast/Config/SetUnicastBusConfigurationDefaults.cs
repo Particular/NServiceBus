@@ -6,7 +6,7 @@ namespace NServiceBus.Unicast.Config
     {
         public SetUnicastBusConfigurationDefaults()
         {
-            SettingsHolder.SetDefault("UnicastBus.AutoSubscribe", true);
+            SettingsHolder.Instance.SetDefault("UnicastBus.AutoSubscribe", true);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
                 throw new ArgumentException(string.Format("There is a problem with the subscription storage queue {0}. See enclosed exception for details.", Queue), ex);
             }
 
-            if (!transactional && SettingsHolder.Get<bool>("Transactions.Enabled"))
+            if (!transactional && SettingsHolder.Instance.Get<bool>("Transactions.Enabled"))
                 throw new ArgumentException("Queue must be transactional (" + Queue + ").");
 
             var messageReadPropertyFilter = new MessagePropertyFilter {Id = true, Body = true, Label = true};
@@ -152,7 +152,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
         /// </summary>
 	    private MessageQueueTransactionType GetTransactionType()
 	    {
-            if (!SettingsHolder.Get<bool>("Transactions.Enabled"))
+            if (!SettingsHolder.Instance.Get<bool>("Transactions.Enabled"))
             {
                 return MessageQueueTransactionType.None;
             }

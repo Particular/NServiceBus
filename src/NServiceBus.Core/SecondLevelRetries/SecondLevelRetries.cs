@@ -43,15 +43,15 @@ namespace NServiceBus.Features
 
             var processorAddress = Address.Parse(Configure.EndpointName).SubScope("Retries");
 
-            var useRemoteRetryProcessor = SettingsHolder.HasSetting("SecondLevelRetries.AddressOfRetryProcessor");
+            var useRemoteRetryProcessor = config.Settings.HasSetting("SecondLevelRetries.AddressOfRetryProcessor");
             if (useRemoteRetryProcessor)
             {
-                processorAddress = SettingsHolder.Get<Address>("SecondLevelRetries.AddressOfRetryProcessor");
+                processorAddress = config.Settings.Get<Address>("SecondLevelRetries.AddressOfRetryProcessor");
             }
 
             config.Configurer.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, processorAddress);
             config.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.InputAddress, processorAddress);
-            config.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.RetryPolicy, SettingsHolder.Get<Func<TransportMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy"));
+            config.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.RetryPolicy, config.Settings.Get<Func<TransportMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy"));
 
             if (useRemoteRetryProcessor)
             {

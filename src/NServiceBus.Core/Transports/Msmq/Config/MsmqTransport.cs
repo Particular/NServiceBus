@@ -28,7 +28,7 @@
             }
             else
             {
-                var connectionString = SettingsHolder.Get<string>("NServiceBus.Transport.ConnectionString");
+                var connectionString = config.Settings.Get<string>("NServiceBus.Transport.ConnectionString");
          
                 if (connectionString != null)
                 {
@@ -49,7 +49,7 @@
             Enable<MessageDrivenSubscriptions>();
 
             //for backwards compatibility
-            SettingsHolder.SetDefault("SerializationSettings.WrapSingleMessages", true);
+            config.Settings.SetDefault("SerializationSettings.WrapSingleMessages", true);
         }
 
         protected override string ExampleConnectionStringForErrorMessage

@@ -13,7 +13,7 @@ namespace NServiceBus.Core.Tests.Sagas
         [SetUp]
         public void Setup()
         {
-            SettingsHolder.Reset();
+            SettingsHolder.Instance.Reset();
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace NServiceBus.Core.Tests.Sagas
         [Test]
         public void When_registered_registering_multiple_addresses_for_same_type_and_using_plainmessages_last_one_wins()
         {
-            SettingsHolder.SetProperty<DefaultAutoSubscriptionStrategy>(s => s.SubscribePlainMessages, true);
+            SettingsHolder.Instance.SetProperty<DefaultAutoSubscriptionStrategy>(s => s.SubscribePlainMessages, true);
             var baseType = typeof(BaseMessage);
             var router = new StaticMessageRouter(Enumerable.Empty<Type>());
             var addressA = new Address("BaseMessage", "A");

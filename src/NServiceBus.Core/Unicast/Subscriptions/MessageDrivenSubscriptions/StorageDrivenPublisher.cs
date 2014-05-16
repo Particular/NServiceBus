@@ -2,7 +2,6 @@
 {
     using Config;
     using Logging;
-    using Settings;
     using Transports;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
@@ -13,7 +12,7 @@
     {
         public override void Initialize(Configure config)
         {
-            var transportDefinition = SettingsHolder.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
+            var transportDefinition = config.Settings.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
 
             if (transportDefinition != null && transportDefinition.HasNativePubSubSupport)
             {

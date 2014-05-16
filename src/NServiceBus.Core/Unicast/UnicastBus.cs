@@ -141,7 +141,7 @@ namespace NServiceBus.Unicast
             Subscribe(typeof(T));
         }
 
-        bool SendOnlyMode { get { return SettingsHolder.Get<bool>("Endpoint.SendOnly"); } }
+        bool SendOnlyMode { get { return SettingsHolder.Instance.Get<bool>("Endpoint.SendOnly"); } }
 
         /// <summary>
         /// Subscribes to receive published messages of the specified type.
@@ -273,9 +273,9 @@ namespace NServiceBus.Unicast
             }
 
             //if we're a worker, send to the distributor data bus
-            if (SettingsHolder.GetOrDefault<bool>("Worker.Enabled"))
+            if (SettingsHolder.Instance.GetOrDefault<bool>("Worker.Enabled"))
             {
-                MessageSender.Send(MessageBeingProcessed, SettingsHolder.Get<Address>("MasterNode.Address"));
+                MessageSender.Send(MessageBeingProcessed, SettingsHolder.Instance.Get<Address>("MasterNode.Address"));
             }
             else
             {
@@ -298,9 +298,9 @@ namespace NServiceBus.Unicast
         public ICallback SendLocal(object message)
         {
             //if we're a worker, send to the distributor data bus
-            if (SettingsHolder.GetOrDefault<bool>("Worker.Enabled"))
+            if (SettingsHolder.Instance.GetOrDefault<bool>("Worker.Enabled"))
             {
-                return SendMessage(new SendOptions(SettingsHolder.Get<Address>("MasterNode.Address")), LogicalMessageFactory.Create(message));
+                return SendMessage(new SendOptions(SettingsHolder.Instance.Get<Address>("MasterNode.Address")), LogicalMessageFactory.Create(message));
             }
             return SendMessage(new SendOptions(Address.Local), LogicalMessageFactory.Create(message));
         }
@@ -390,7 +390,7 @@ namespace NServiceBus.Unicast
         {
             Headers.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
 
-            return SendMessage(new SendOptions(SettingsHolder.Get<Address>("MasterNode.Address").SubScope("gateway")), LogicalMessageFactory.Create(message));
+            return SendMessage(new SendOptions(SettingsHolder.Instance.Get<Address>("MasterNode.Address").SubScope("gateway")), LogicalMessageFactory.Create(message));
         }
 
         public ICallback Defer(TimeSpan delay, object message)

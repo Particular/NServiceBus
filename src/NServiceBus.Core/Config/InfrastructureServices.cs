@@ -33,12 +33,12 @@ namespace NServiceBus.Config
                 return;
             }
 
-            if (!SettingsHolder.HasSetting<T>())
+            if (!SettingsHolder.Instance.HasSetting<T>())
             {
                 throw new ConfigurationErrorsException(string.Format("No explicit settings or default found for service {0}, please configure one explicitly", serviceType.FullName));
             }
 
-            var configAction = SettingsHolder.Get<Action>(serviceType.FullName);
+            var configAction = SettingsHolder.Instance.Get<Action>(serviceType.FullName);
 
             configAction();
 
@@ -57,7 +57,7 @@ namespace NServiceBus.Config
         {
             var serviceType = typeof(T);
 
-            SettingsHolder.SetDefault<T>(configAction);
+            SettingsHolder.Instance.SetDefault<T>(configAction);
             SetStatusToDisabled(serviceType);
             Logger.DebugFormat("Default provider for infrastructure service {0} has been set to a custom action", serviceType.FullName);
         }
@@ -71,7 +71,7 @@ namespace NServiceBus.Config
         {
             var serviceType = typeof(T);
 
-            SettingsHolder.SetDefault<T>(() => Configure.Component(providerType, dependencyLifecycle));
+            SettingsHolder.Instance.SetDefault<T>(() => Configure.Component(providerType, dependencyLifecycle));
             SetStatusToDisabled(serviceType);
             Logger.DebugFormat("Default provider for infrastructure service {0} has been set to {1}, lifecycle: {2}", serviceType.FullName, providerType.FullName, dependencyLifecycle);
         }
@@ -83,7 +83,7 @@ namespace NServiceBus.Config
         {
             var serviceType = typeof(T);
 
-            SettingsHolder.Set<T>(configAction);
+            SettingsHolder.Instance.Set<T>(configAction);
             Logger.InfoFormat("Explicit provider for infrastructure service {0} has been set to custom action", serviceType.FullName);
         }
 
@@ -94,7 +94,7 @@ namespace NServiceBus.Config
         {
             var serviceType = typeof(T);
 
-            SettingsHolder.Set<T>(() => Configure.Component(providerType, dependencyLifecycle));
+            SettingsHolder.Instance.Set<T>(() => Configure.Component(providerType, dependencyLifecycle));
             Logger.InfoFormat("Explicit provider for infrastructure service {0} has been set to {1}, lifecycle: {2}", serviceType.FullName, providerType.FullName, dependencyLifecycle);
         }
 
@@ -104,7 +104,7 @@ namespace NServiceBus.Config
         /// </summary>
         public static bool IsAvailable<T>()
         {
-            return SettingsHolder.HasSetting<T>();
+            return SettingsHolder.Instance.HasSetting<T>();
         }
 
         static void SetStatusToEnabled(Type serviceType)
