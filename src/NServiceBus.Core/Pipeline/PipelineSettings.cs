@@ -16,10 +16,7 @@ namespace NServiceBus.Pipeline
 
             var removals = SettingsHolder.Get<List<RemoveBehavior>>("Pipeline.Removals");
 
-            removals.Add(new RemoveBehavior
-            {
-                RemoveId = idToRemove
-            });
+            removals.Add(new RemoveBehavior(idToRemove));
         }
 
         public void Replace(string idToReplace, Type newBehavior, string description = null)
@@ -36,12 +33,7 @@ namespace NServiceBus.Pipeline
 
             var replacements = SettingsHolder.Get<List<ReplaceBehavior>>("Pipeline.Replacements");
 
-            replacements.Add(new ReplaceBehavior
-            {
-                BehaviorType = newBehavior,
-                Description = description,
-                ReplaceId = idToReplace
-            });
+            replacements.Add(new ReplaceBehavior(idToReplace, newBehavior, description));
         }
 
         public void Register(string id, Type behavior, string description)

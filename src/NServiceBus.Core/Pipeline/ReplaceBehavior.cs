@@ -4,8 +4,15 @@ namespace NServiceBus.Pipeline
 
     public class ReplaceBehavior
     {
-        public string ReplaceId { get; set; }
-        public string Description { get; set; }
-        public Type BehaviorType { get; set; }
+        public ReplaceBehavior(string idToReplace, Type behavior, string description = null)
+        {
+            ReplaceId = idToReplace;
+            Description = description;
+            BehaviorType = behavior;
+        }
+
+        public string ReplaceId { get; private set; }
+        public string Description { get; private set; }
+        public Type BehaviorType { get; private set; }
     }
 }

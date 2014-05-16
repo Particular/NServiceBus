@@ -2,6 +2,11 @@ namespace NServiceBus.Pipeline
 {
     public class RemoveBehavior
     {
-        public string RemoveId { get; set; }
+        public RemoveBehavior(string removeId)
+        {
+            RemoveId = removeId;
+        }
+
+        public string RemoveId { get; private set; }
     }
 }
