@@ -2,9 +2,8 @@ namespace NServiceBus.DataBus.Config
 {
     using System;
     using System.Linq;
-    using NServiceBus.Config;
 
-    public class Bootstrapper : IWantToRunBeforeConfigurationIsFinalized, IWantToRunWhenConfigurationIsComplete
+    public class Bootstrapper : IWantToRunBeforeConfigurationIsFinalized, IWantToRunWhenBusStartsAndStops
 	{
         static bool dataBusPropertyFound;
 
@@ -57,14 +56,17 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
             }
 		}
 
-        void IWantToRunWhenConfigurationIsComplete.Run()
+       
+
+        public IDataBus DataBus { get; set; }
+
+        public void Start()
         {
-            if (dataBusPropertyFound)
-            {
-                Bus.Started += (sender, eventArgs) => Configure.Instance.Builder.Build<IDataBus>().Start();
-            }
+            DataBus.Start();
         }
 
-        public IStartableBus Bus { get; set; }
+        public void Stop()
+        {
+        }
 	}
 }

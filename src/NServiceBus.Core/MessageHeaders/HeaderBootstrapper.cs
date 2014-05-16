@@ -100,7 +100,7 @@ namespace NServiceBus.MessageHeaders
 
         }
 
-        void IWantToRunWhenConfigurationIsComplete.Run()
+        void IWantToRunWhenConfigurationIsComplete.Run(Configure config)
         {
             SetupHeaderActions();
         }

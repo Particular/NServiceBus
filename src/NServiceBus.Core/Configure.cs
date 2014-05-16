@@ -352,7 +352,7 @@ namespace NServiceBus
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
-                .ForEach(o => o.Run());
+                .ForEach(o => o.Run(this));
         }
 
 
