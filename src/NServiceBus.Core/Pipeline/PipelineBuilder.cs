@@ -28,17 +28,18 @@
             var model = coordinator.BuildRuntimeModel();
             Incoming = new List<RegisterBehavior>();
             Outgoing = new List<RegisterBehavior>();
-            var incomingContextType = typeof(IBehavior<IncomingContext>);
-            var outgoingContextType = typeof(IBehavior<OutgoingContext>);
+            var behaviorType = typeof(IBehavior<>);
+            var outgoingContextType = typeof(OutgoingContext);
+            var incomingContextType = typeof(IncomingContext);
 
             foreach (var rego in model)
             {
-                if (rego.BehaviorType.IsAssignableFrom(incomingContextType))
+                if (behaviorType.MakeGenericType(incomingContextType).IsAssignableFrom(rego.BehaviorType))
                 {
                     Incoming.Add(rego);
                 }
 
-                if (rego.BehaviorType.IsAssignableFrom(outgoingContextType))
+                if (behaviorType.MakeGenericType(outgoingContextType).IsAssignableFrom(rego.BehaviorType))
                 {
                     Outgoing.Add(rego);
                 }
