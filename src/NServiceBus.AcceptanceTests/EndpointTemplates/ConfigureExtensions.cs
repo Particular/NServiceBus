@@ -145,7 +145,7 @@
 
         static void CallConfigureForPersister(Configure config, string persister)
         {
-            var type = Type.GetType(persister);
+            var type = Type.GetType(persister,true);
 
             var typeName = "Configure" + type.Name;
 
