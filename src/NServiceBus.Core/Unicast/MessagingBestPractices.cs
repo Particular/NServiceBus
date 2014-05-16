@@ -3,15 +3,8 @@ namespace NServiceBus.Unicast
     using System;
     using Logging;
 
-    /// <summary>
-    /// Enforce messaging rules
-    /// </summary>
-    public class MessagingBestPractices
+    class MessagingBestPractices
     {
-        /// <summary>
-        /// Enforce messaging rules. Make sure, the message can be used within the <see cref="IBus.Send(object)"/>.
-        /// </summary>
-        /// <param name="messageType">Event, Command or message</param>
         public static void AssertIsValidForSend(Type messageType, MessageIntentEnum messageIntent)
         {
             if (MessageConventionExtensions.IsEventType(messageType) && messageIntent != MessageIntentEnum.Publish)
@@ -20,9 +13,6 @@ namespace NServiceBus.Unicast
             }
         }
 
-        /// <summary>
-        /// Enforce messaging rules. Make sure, the message can be used by <see cref="IBus.Reply(object)"/>.
-        /// </summary>
         public static void AssertIsValidForReply(Type messageType)
         {
             if (MessageConventionExtensions.IsCommandType(messageType) || MessageConventionExtensions.IsEventType(messageType))
@@ -30,9 +20,7 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.");
             }
         }
-        /// <summary>
-        /// Enforce messaging rules. Make sure, the message can be used by pubsub bus methods (<see cref="IBus.Subscribe(System.Type)"/>, <see cref="IBus.Unsubscribe"/> and <see cref="IBus.Publish{T}(T)"/>)..
-        /// </summary>
+    
         public static void AssertIsValidForPubSub(Type messageType)
         {
             if (MessageConventionExtensions.IsCommandType(messageType))
