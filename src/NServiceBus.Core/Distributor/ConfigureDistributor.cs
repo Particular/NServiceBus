@@ -20,26 +20,16 @@ namespace NServiceBus
             throw new Exception("Obsolete");
         }
 
-        /// <summary>
-        /// Configure the distributor to run on this endpoint
-        /// </summary>
-        /// <param name="withWorker">True if this endpoint should enlist as a worker</param>
         public static Configure RunDistributor(this Configure config, bool withWorker = true)
         {
             throw new Exception("Obsolete");
         }
 
-        /// <summary>
-        /// Starting the Distributor without a worker running on its endpoint
-        /// </summary>
         public static Configure RunDistributorWithNoWorkerOnItsEndpoint(this Configure config)
         {
             throw new Exception("Obsolete");
         }
 
-        /// <summary>
-        /// Enlist Worker with Master node defined in the config.
-        /// </summary>
         public static Configure EnlistWithDistributor(this Configure config)
         {
             throw new Exception("Obsolete");

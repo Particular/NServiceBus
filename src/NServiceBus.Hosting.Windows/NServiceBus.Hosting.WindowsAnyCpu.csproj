@@ -9,12 +9,13 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NServiceBus.Hosting.Windows</RootNamespace>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <FodyPath>..\packages\Fody</FodyPath>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <AssemblyName>NServiceBus.Host</AssemblyName>
@@ -28,6 +29,7 @@
     <DocumentationFile>..\..\binaries\NServiceBus.Host.xml</DocumentationFile>
     <NoWarn>1591,1573,612,618</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <AssemblyName>NServiceBus.Host</AssemblyName>
@@ -40,6 +42,7 @@
     <DocumentationFile>..\..\binaries\NServiceBus.Host.xml</DocumentationFile>
     <NoWarn>1591,1573,612,618</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <DelaySign>true</DelaySign>
