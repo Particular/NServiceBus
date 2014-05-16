@@ -13,29 +13,29 @@ namespace NServiceBus.Unicast.Config
 
     class FinalizeUnicastBusConfiguration : IFinalizeConfiguration
     {
-        public void FinalizeConfiguration()
+        public void FinalizeConfiguration(Configure config)
         {
             var knownMessages = Configure.TypesToScan
                 .Where(MessageConventionExtensions.IsMessageType)
                 .ToList();
 
-            RegisterMessageOwnersAndBusAddress(knownMessages);
+            RegisterMessageOwnersAndBusAddress(config,knownMessages);
 
-            ConfigureMessageRegistry(knownMessages);
+            ConfigureMessageRegistry(config,knownMessages);
         }
 
-        void RegisterMessageOwnersAndBusAddress(IEnumerable<Type> knownMessages)
+        void RegisterMessageOwnersAndBusAddress(Configure config,IEnumerable<Type> knownMessages)
         {
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
             var router = new StaticMessageRouter(knownMessages);
             var key = typeof(AutoSubscriptionStrategy).FullName + ".SubscribePlainMessages";
 
-            if (SettingsHolder.Instance.HasSetting(key))
+            if (config.Settings.HasSetting(key))
             {
-                router.SubscribeToPlainMessages = SettingsHolder.Instance.Get<bool>(key);
+                router.SubscribeToPlainMessages = config.Settings.Get<bool>(key);
             }
 
-            Configure.Instance.Configurer.RegisterSingleton<StaticMessageRouter>(router);
+            config.Configurer.RegisterSingleton<StaticMessageRouter>(router);
 
             if (unicastConfig == null)
             {
@@ -45,9 +45,9 @@ namespace NServiceBus.Unicast.Config
             if (!string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
             {
                 var forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
-                Configure.Instance.Configurer.ConfigureProperty<ForwardBehavior>(b => b.ForwardReceivedMessagesTo, forwardAddress);
+                config.Configurer.ConfigureProperty<ForwardBehavior>(b => b.ForwardReceivedMessagesTo, forwardAddress);
             }
-            Configure.Instance.Configurer.ConfigureProperty<ForwardBehavior>(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
+            config.Configurer.ConfigureProperty<ForwardBehavior>(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
             
             var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()
                 .OrderByDescending(m => m)
@@ -73,17 +73,17 @@ namespace NServiceBus.Unicast.Config
             }
         }
 
-        void ConfigureMessageRegistry(List<Type> knownMessages)
+        void ConfigureMessageRegistry(Configure config,List<Type> knownMessages)
         {
             var messageRegistry = new MessageMetadataRegistry
             {
-                DefaultToNonPersistentMessages = !SettingsHolder.Instance.Get<bool>("Endpoint.DurableMessages")
+                DefaultToNonPersistentMessages = !config.Settings.Get<bool>("Endpoint.DurableMessages")
             };
 
             knownMessages.ForEach(messageRegistry.RegisterMessageType);
 
-            Configure.Instance.Configurer.RegisterSingleton<MessageMetadataRegistry>(messageRegistry);
-            Configure.Instance.Configurer.ConfigureComponent<LogicalMessageFactory>(DependencyLifecycle.SingleInstance);
+            config.Configurer.RegisterSingleton<MessageMetadataRegistry>(messageRegistry);
+            config.Configurer.ConfigureComponent<LogicalMessageFactory>(DependencyLifecycle.SingleInstance);
 
             if (!Logger.IsInfoEnabled)
             {

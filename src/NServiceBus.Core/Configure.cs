@@ -346,7 +346,7 @@ namespace NServiceBus
             //lockdown the settings
             Settings.PreventChanges();
 
-            ActivateAndInvoke<IFinalizeConfiguration>(t => t.FinalizeConfiguration());
+            ActivateAndInvoke<IFinalizeConfiguration>(t => t.FinalizeConfiguration(this));
 
             initialized = true;
 

@@ -21,11 +21,9 @@
             DisableFeaturesThatAreDependingOnDisabledFeatures(features);
         }
 
-        public void FinalizeConfiguration()
+        public void FinalizeConfiguration(Configure config)
         {
-            var features = Configure.Instance.Features;
-
-            InitializeFeatures(features);
+            InitializeFeatures(config.Features);
             InitializeFeaturesControlledByCategories();
         }
 
