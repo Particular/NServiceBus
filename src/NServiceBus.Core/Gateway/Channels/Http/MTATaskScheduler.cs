@@ -15,7 +15,7 @@ namespace System.Threading.Tasks.Schedulers
 
     /// <summary>Provides a scheduler that uses MTA threads.</summary>
     [SkipWeaving]
-    public sealed class MTATaskScheduler : TaskScheduler, IDisposable
+    sealed class MTATaskScheduler : TaskScheduler, IDisposable
     {
         private bool disposed;
         /// <summary>Stores the queued tasks to be executed by our pool of STA threads.</summary>
