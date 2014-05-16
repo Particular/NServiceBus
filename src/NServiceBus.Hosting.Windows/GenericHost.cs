@@ -14,18 +14,9 @@ namespace NServiceBus.Hosting
     using Utils;
     using Wcf;
 
-    /// <summary>
-    ///     A generic host that can be used to provide hosting services in different environments
-    /// </summary>
-    public class GenericHost : IHost
+    class GenericHost 
     {
-        /// <summary>
-        ///     Accepts the type which will specify the users custom configuration.
-        ///     This type should implement <see cref="IConfigureThisEndpoint" />.
-        /// </summary>
-        /// <param name="scannableAssembliesFullName">Assemblies full name that were scanned.</param>
-        public GenericHost(IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles,
-            string endpointName, IEnumerable<string> scannableAssembliesFullName = null)
+        public GenericHost(IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles, string endpointName, IEnumerable<string> scannableAssembliesFullName = null)
         {
             this.specifier = specifier;
 

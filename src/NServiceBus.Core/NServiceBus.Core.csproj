@@ -365,11 +365,9 @@
     <Compile Include="Hosting\Configuration\IConfigureLogging.cs" />
     <Compile Include="Hosting\Configuration\IConfigureThisEndpoint.cs" />
     <Compile Include="Hosting\Configuration\IWantCustomInitialization.cs" />
-    <Compile Include="Hosting\GenericHost.cs" />
     <Compile Include="Hosting\Helpers\AssemblyListExtensions.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
-    <Compile Include="Hosting\IHost.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="Hosting\Profiles\IHandleProfile.cs" />
     <Compile Include="Hosting\Profiles\IProfile.cs" />
