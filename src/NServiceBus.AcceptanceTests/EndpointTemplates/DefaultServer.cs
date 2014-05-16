@@ -35,13 +35,6 @@
                             .DefineTransport(settings)
                             .DefineSagaPersister(settings.GetOrNull("SagaPersister"));
 
-            if (transportToUse == null ||
-                transportToUse.Contains("Msmq") ||
-                transportToUse.Contains("SqlServer") ||
-                transportToUse.Contains("RabbitMq"))
-            {
-                config.DefineTimeoutPersister(settings.GetOrNull("TimeoutPersister"));
-            }
 
             if (transportToUse == null || transportToUse.Contains("Msmq") || transportToUse.Contains("SqlServer"))
             {

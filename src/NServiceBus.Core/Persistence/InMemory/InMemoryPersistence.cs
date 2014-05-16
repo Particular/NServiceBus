@@ -1,21 +1,26 @@
-﻿namespace NServiceBus.Persistence.InMemory
+﻿namespace NServiceBus.Persistence
 {
-    using Config;
-    using Gateway.Deduplication;
-    using Gateway.Persistence;
-    using Saga;
-    using Timeout.Core;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
+    using NServiceBus.InMemory.Gateway;
+    using NServiceBus.InMemory.Outbox;
+    using NServiceBus.InMemory.SagaPersister;
+    using NServiceBus.InMemory.SubscriptionStorage;
+    using NServiceBus.InMemory.TimeoutPersister;
 
-    public class InMemoryPersistence
+    class InMemoryPersistence:IConfigurePersistence<InMemory>
     {
-        public static void UseAsDefault()
+        public void Enable(Configure config)
         {
-            InfrastructureServices.SetDefaultFor<ISagaPersister>(() => Configure.Instance.InMemorySagaPersister());
-            InfrastructureServices.SetDefaultFor<IPersistTimeouts>(() => Configure.Instance.UseInMemoryTimeoutPersister());
-            InfrastructureServices.SetDefaultFor<IPersistMessages>(() => Configure.Instance.UseInMemoryGatewayPersister());
-            InfrastructureServices.SetDefaultFor<IDeduplicateMessages>(() => Configure.Instance.UseInMemoryGatewayDeduplication());
-            InfrastructureServices.SetDefaultFor<ISubscriptionStorage>(() => Configure.Instance.InMemorySubscriptionStorage());
+            config.Features.EnableByDefault<InMemorySagaPersistence>();
+            config.Features.EnableByDefault<InMemoryTimeoutPersistence>();
+            config.Features.EnableByDefault<InMemorySubscriptionPersistence>();
+            config.Features.EnableByDefault<InMemoryOutboxPersistence>();
+            config.Features.EnableByDefault<InMemoryGatewayPersistence>();
         }
     }
+
+    public class InMemory : PersistenceDefinition
+    {
+        
+    }
+
 }

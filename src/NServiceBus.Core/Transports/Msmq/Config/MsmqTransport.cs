@@ -2,12 +2,11 @@
 {
     using Config;
     using Logging;
-    using Settings;
     using Transports;
     using Transports.Msmq;
     using Transports.Msmq.Config;
 
-    public class MsmqTransport:ConfigureTransport<Msmq>
+    public class MsmqTransport : ConfigureTransport<Msmq>
     {
         public override void Initialize(Configure config)
         {
@@ -15,7 +14,7 @@
             config.Configurer.ConfigureComponent<MsmqUnitOfWork>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
-          
+
             var cfg = NServiceBus.Configure.GetConfigSection<MsmqMessageQueueConfig>();
 
             var settings = new MsmqSettings();
@@ -29,7 +28,7 @@
             else
             {
                 var connectionString = config.Settings.Get<string>("NServiceBus.Transport.ConnectionString");
-         
+
                 if (connectionString != null)
                 {
                     settings = new MsmqConnectionStringBuilder(connectionString).RetrieveSettings();
@@ -47,6 +46,7 @@
         {
             Enable<MsmqTransport>();
             Enable<MessageDrivenSubscriptions>();
+            EnableByDefault<StorageDrivenPublisher>();
 
             //for backwards compatibility
             config.Settings.SetDefault("SerializationSettings.WrapSingleMessages", true);

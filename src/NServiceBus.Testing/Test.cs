@@ -9,6 +9,7 @@
     using DataBus.InMemory;
     using Features.Categories;
     using MessageInterfaces;
+    using Persistence;
     using Saga;
 
     /// <summary>
@@ -73,10 +74,8 @@
                 .DefineEndpointName("UnitTests")
                  .CustomConfigurationSource(testConfigurationSource)
                 .DefaultBuilder()
-                .UseInMemoryGatewayPersister()
-                .UseInMemoryTimeoutPersister()
+                .UsePersistence<InMemory>()
                 .InMemoryFaultManagement()
-                .InMemorySubscriptionStorage()
                 .UnicastBus();
 
       

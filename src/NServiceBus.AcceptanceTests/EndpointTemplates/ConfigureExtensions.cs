@@ -2,11 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+    using InMemory.SagaPersister;
+    using InMemory.SubscriptionStorage;
+    using InMemory.TimeoutPersister;
     using ObjectBuilder.Common;
     using ObjectBuilder.Common.Config;
-    using Persistence.InMemory.SagaPersister;
-    using Persistence.InMemory.SubscriptionStorage;
-    using Persistence.InMemory.TimeoutPersister;
+    using Persistence;
     using Persistence.Msmq.SubscriptionStorage;
     using ScenarioDescriptors;
     using Serializers.Binary;
@@ -73,23 +74,6 @@
             throw new InvalidOperationException("Unknown serializer:" + serializer);
         }
 
-        public static Configure DefineTimeoutPersister(this Configure config, string persister)
-        {
-            if (string.IsNullOrEmpty(persister))
-            {
-                persister = TimeoutPersisters.Default.Settings["TimeoutPersister"];
-            }
-
-            if (persister.Contains(typeof(InMemoryTimeoutPersistence).FullName))
-            {
-                return config.UseInMemoryTimeoutPersister();
-            }
-
-            CallConfigureForPersister(config, persister);
-
-            return config;
-        }
-
         public static Configure DefineSagaPersister(this Configure config, string persister)
         {
             if (string.IsNullOrEmpty(persister))
@@ -99,7 +83,7 @@
 
             if (persister.Contains(typeof(InMemorySagaPersister).FullName))
             {
-                return config.InMemorySagaPersister();
+                return config.UsePersistence<InMemory>();
             }
 
             CallConfigureForPersister(config, persister);
@@ -116,7 +100,7 @@
 
             if (persister.Contains(typeof(InMemorySubscriptionStorage).FullName))
             {
-                return config.InMemorySubscriptionStorage();
+                return config.UsePersistence<InMemory>();
             }
 
             if (persister.Contains(typeof(MsmqSubscriptionStorage).FullName))

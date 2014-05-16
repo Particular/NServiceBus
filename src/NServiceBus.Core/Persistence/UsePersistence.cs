@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using Settings;
 
 
     /// <summary>
@@ -33,6 +34,12 @@
             ((IConfigurePersistence)Activator.CreateInstance(type)).Enable(config);
 
             return config;
+        }
+
+        public static void DefaultTo<T>() where T : PersistenceDefinition
+        {
+
+            SettingsHolder.Instance.SetDefault("DefaultPersistence",typeof(T));
         }
     }
 

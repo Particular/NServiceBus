@@ -1,16 +1,17 @@
-namespace NServiceBus.Persistence.InMemory.SagaPersister
+namespace NServiceBus.InMemory.SagaPersister
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
+    using Persistence;
     using Saga;
     using Serializers.Json;
 
     /// <summary>
     /// In memory implementation of ISagaPersister for quick development.
     /// </summary>
-    public class InMemorySagaPersister : ISagaPersister
+    class InMemorySagaPersister : ISagaPersister
     {
         public void Complete(IContainSagaData saga)
         {

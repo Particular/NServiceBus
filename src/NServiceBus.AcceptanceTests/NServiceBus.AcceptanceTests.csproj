@@ -35,6 +35,12 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>NServiceBus.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
@@ -187,6 +193,7 @@
     <Compile Include="Versioning\When_multiple_versions_of_a_message_is_published.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="NServiceBus.snk" />
     <None Include="ripple.dependencies.config" />
   </ItemGroup>
   <ItemGroup>

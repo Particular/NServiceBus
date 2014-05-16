@@ -6,7 +6,7 @@
 
 
     [TestFixture]
-    public class When_using_custom_finders_to_find_sagas : with_sagas
+    class When_using_custom_finders_to_find_sagas : with_sagas
     {
         [Test]
         public void Should_use_the_most_specific_finder_first_when_receiving_a_message()

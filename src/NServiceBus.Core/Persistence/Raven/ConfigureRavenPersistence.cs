@@ -157,15 +157,7 @@ namespace NServiceBus
             return config;
         }
 
-        [Obsolete]
-        public static void RegisterDefaults()
-        {
-            InfrastructureServices.SetDefaultFor<ISagaPersister>(() => Configure.Instance.RavenSagaPersister());
-            InfrastructureServices.SetDefaultFor<IPersistTimeouts>(() => Configure.Instance.UseRavenTimeoutPersister());
-            InfrastructureServices.SetDefaultFor<IPersistMessages>(() => Configure.Instance.UseRavenGatewayPersister());
-            InfrastructureServices.SetDefaultFor<IDeduplicateMessages>(() => Configure.Instance.UseRavenGatewayDeduplication());
-            InfrastructureServices.SetDefaultFor<ISubscriptionStorage>(() => Configure.Instance.RavenSubscriptionStorage());
-        }
+      
 
         static Configure InternalRavenPersistence(this Configure config, DocumentStore documentStore)
         {

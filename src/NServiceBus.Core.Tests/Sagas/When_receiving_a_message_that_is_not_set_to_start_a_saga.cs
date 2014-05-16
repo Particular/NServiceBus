@@ -5,7 +5,7 @@ namespace NServiceBus.Unicast.Tests
     using Saga;
 
     [TestFixture]
-    public class When_receiving_a_message_that_is_not_set_to_start_a_saga : with_sagas
+    class When_receiving_a_message_that_is_not_set_to_start_a_saga : with_sagas
     {
         [Test]
         public void Should_invoke_saga_not_found_handlers_if_no_saga_instance_is_found()

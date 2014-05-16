@@ -6,7 +6,7 @@ namespace NServiceBus.Unicast.Tests
     using Saga;
 
     [TestFixture]
-    public class When_sending_messages_from_a_saga : with_sagas
+    class When_sending_messages_from_a_saga : with_sagas
     {
         [Test]
         public void Should_attach_the_originating_saga_id_as_a_header()

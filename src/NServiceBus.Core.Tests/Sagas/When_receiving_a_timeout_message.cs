@@ -7,7 +7,7 @@ namespace NServiceBus.Unicast.Tests
     using Saga;
 
     [TestFixture]
-    public class When_receiving_a_timeout_message : with_sagas
+    class When_receiving_a_timeout_message : with_sagas
     {
         [Test]
         public void Should_invoke_timeout_method_even_if_there_is_a_message_handler_as_well()

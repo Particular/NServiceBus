@@ -5,7 +5,7 @@ namespace NServiceBus.Gateway.Persistence
     using System.IO;
     using System.Linq;
 
-    public class InMemoryPersistence : IPersistMessages
+    class InMemoryGatewayPersister : IPersistMessages
     {
         readonly IList<MessageInfo> storage = new List<MessageInfo>();
 

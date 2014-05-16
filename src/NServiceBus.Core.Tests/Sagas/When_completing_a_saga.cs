@@ -7,7 +7,7 @@ namespace NServiceBus.Unicast.Tests
     using Saga;
 
     [TestFixture]
-    public class When_completing_a_saga : with_sagas
+    class When_completing_a_saga : with_sagas
     {
         [Test]
         public void Should_not_be_persisted_if_completed_right_away()

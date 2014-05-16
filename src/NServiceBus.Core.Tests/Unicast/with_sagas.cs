@@ -2,12 +2,12 @@
 {
     using System;
     using Contexts;
+    using InMemory.SagaPersister;
     using NUnit.Framework;
-    using Persistence.InMemory.SagaPersister;
     using Saga;
     using Sagas.Finders;
 
-    public class with_sagas : using_the_unicastBus
+    class with_sagas : using_the_unicastBus
     {
         protected InMemorySagaPersister persister;
 

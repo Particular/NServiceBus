@@ -48,5 +48,10 @@ namespace NServiceBus.Features
         {
             return GetEnumerator();
         }
+
+        public void EnableByDefault<T>() where T:Feature
+        {
+            Feature.EnableByDefault<T>();    
+        }
     }
 }

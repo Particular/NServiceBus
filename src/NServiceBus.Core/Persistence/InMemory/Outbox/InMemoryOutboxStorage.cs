@@ -1,9 +1,10 @@
-﻿namespace NServiceBus.Persistence.InMemory.Outbox
+﻿namespace NServiceBus.InMemory.Outbox
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Outbox;
+    using Persistence;
 
     class InMemoryOutboxStorage : IOutboxStorage
     {

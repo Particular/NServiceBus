@@ -6,7 +6,7 @@ namespace NServiceBus.Unicast.Tests
     using Saga;
 
     [TestFixture]
-    public class When_receiving_a_message_that_hits_multiple_sagas_of_different_types : with_sagas
+    class When_receiving_a_message_that_hits_multiple_sagas_of_different_types : with_sagas
     {
         [Test]
         public void Should_invoke_all_of_them()
