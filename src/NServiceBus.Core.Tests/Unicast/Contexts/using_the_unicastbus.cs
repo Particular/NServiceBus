@@ -93,7 +93,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
-            var pipelineBuilder = new PipelineBuilder(FuncBuilder);
+            var pipelineBuilder = new PipelineBuilder();
             pipelineFactory = new PipelineExecutor(FuncBuilder , pipelineBuilder);
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);

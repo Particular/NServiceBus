@@ -2,35 +2,28 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Linq;
     using Audit;
     using Contexts;
     using DataBus;
     using MessageMutator;
     using NServiceBus.MessageMutator;
-    using ObjectBuilder;
     using Sagas;
     using Unicast.Behaviors;
     using Unicast.Messages;
     using UnitOfWork;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public class PipelineBuilder
     {
-        List<IPipelineOverride> pipelineOverrides;
+        public PipelineBuilder()
+        {
+            CreateReceivePhysicalMessageList();
+            CreateSendLogicalMessageList();
+        }
+
         public List<Type> sendPhysicalMessageBehaviorList { get; private set; }
         public List<Type> receivePhysicalMessageBehaviorList { get; private set; }
         public List<Type> handlerInvocationBehaviorList { get; private set; }
         public List<Type> sendLogicalMessageBehaviorList { get; private set; }
-
-        public PipelineBuilder(IBuilder builder)
-        {
-            pipelineOverrides = builder.BuildAll<IPipelineOverride>().ToList();
-            CreateReceivePhysicalMessageList();
-            CreateSendLogicalMessageList();
-        }
 
         void CreateReceivePhysicalMessageList()
         {
@@ -55,10 +48,6 @@
             behaviorList.Add<AuditInvokedSagaBehavior>();
             behaviorList.Add<SagaPersistenceBehavior>();
             behaviorList.Add<InvokeHandlersBehavior>();
-            foreach (var pipelineOverride in pipelineOverrides)
-            {
-                pipelineOverride.Override(behaviorList);
-            }
             receivePhysicalMessageBehaviorList = behaviorList.InnerList;
         }
 
@@ -75,10 +64,6 @@
             behaviorList.Add<SerializeMessagesBehavior>();
             behaviorList.Add<MutateOutgoingPhysicalMessageBehavior>();
             behaviorList.Add<DispatchMessageToTransportBehavior>();
-            foreach (var pipelineOverride in pipelineOverrides)
-            {
-                pipelineOverride.Override(behaviorList);
-            }
             sendLogicalMessageBehaviorList = behaviorList.InnerList;
         }
     }

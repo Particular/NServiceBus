@@ -1,12 +1,8 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
-    using System;
-    using System.ComponentModel;
     using Unicast;
     using Unicast.Messages;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public class OutgoingContext : BehaviorContext
     {
         public OutgoingContext(BehaviorContext parentContext, SendOptions sendOptions, LogicalMessage message)

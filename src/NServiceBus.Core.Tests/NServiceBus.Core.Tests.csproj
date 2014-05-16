@@ -141,6 +141,7 @@
     <Compile Include="AttributeTests.cs" />
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
     <Compile Include="Pipeline\BehaviorChainTests.cs" />
+    <Compile Include="Pipeline\PipelineBuilderTests.cs" />
     <Compile Include="Sagas\When_completing_a_saga.cs" />
     <Compile Include="Sagas\When_receiving_a_message_that_hits_multiple_sagas_of_different_types.cs" />
     <Compile Include="Sagas\When_receiving_a_message_that_is_configure_to_start_a_saga.cs" />

@@ -2,11 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using ObjectBuilder;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class BehaviorContext
     {
         protected BehaviorContext(BehaviorContext parentContext)
@@ -29,7 +26,6 @@
         {
             return new SnapshotRegion(chain);
         }
-
 
         public T Get<T>()
         {

@@ -81,7 +81,9 @@ namespace NServiceBus.Hosting.Profiles
                 throw new Exception(message);
             }
 
-            return configs.Select(_ => (T)Activator.CreateInstance(_));
+// ReSharper disable HeapView.SlowDelegateCreation
+            return configs.Select(type => (T)Activator.CreateInstance(type));
+// ReSharper restore HeapView.SlowDelegateCreation
         }
 
 

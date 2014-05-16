@@ -13,7 +13,7 @@ namespace NServiceBus.Settings
         /// </summary>
         public ScaleOutSettings UseSingleBrokerQueue()
         {
-            SettingsHolder.Set("ScaleOut.UseSingleBrokerQueue",true);
+            SettingsHolder.Set("ScaleOut.UseSingleBrokerQueue", true);
 
             return this;
         }

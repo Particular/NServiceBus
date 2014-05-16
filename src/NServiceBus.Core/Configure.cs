@@ -359,7 +359,9 @@ namespace NServiceBus
         /// </summary>
         public void ForAllTypes<T>(Action<Type> action) where T : class
         {
+// ReSharper disable HeapView.SlowDelegateCreation
             TypesToScan.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
+// ReSharper restore HeapView.SlowDelegateCreation
               .ToList().ForEach(action);
         }
 
@@ -378,7 +380,9 @@ namespace NServiceBus
                 return ConfigurationSource.GetConfiguration<T>();
             }
 
+// ReSharper disable HeapView.SlowDelegateCreation
             var sectionOverrideType = TypesToScan.FirstOrDefault(t => typeof (IProvideConfiguration<T>).IsAssignableFrom(t));
+// ReSharper restore HeapView.SlowDelegateCreation
 
             if (sectionOverrideType == null)
             {
@@ -551,7 +555,9 @@ namespace NServiceBus
 
             detailsMessage.AppendLine(" - Details:");
 
+// ReSharper disable HeapView.SlowDelegateCreation
             foreach (var detail in details.OrderByDescending(d => d.Item2))
+// ReSharper restore HeapView.SlowDelegateCreation
             {
                 detailsMessage.AppendLine(string.Format("{0} - {1:f4} s", detail.Item1.FullName, detail.Item2.TotalSeconds));
             }
