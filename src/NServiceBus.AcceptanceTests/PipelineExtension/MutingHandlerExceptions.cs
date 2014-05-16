@@ -7,7 +7,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
     using NUnit.Framework;
     using Pipeline;
     using Pipeline.Contexts;
-    using Unicast.Behaviors;
 
     /// <summary>
     /// This is a demo on how pipeline overrides can be used to control which messages that gets audited by NServiceBus
@@ -71,14 +70,23 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                     }
                 }
 
-
                 //here we inject our behavior
-                class MyExceptionFilteringOverride : PipelineOverride
+                class MyExceptionFilteringOverride : INeedInitialization
                 {
-                    public override void Override(BehaviorList<IncomingContext> behaviorList)
+                    public void Init()
                     {
                         //add our behavior to the pipeline just before NSB actually calls the handlers
-                        behaviorList.InsertBefore<InvokeHandlersBehavior, MyExceptionFilteringBehavior>();
+
+                        Configure.Pipeline.Register<MyExceptionFilteringRegistration>();
+                    }
+                }
+
+                class MyExceptionFilteringRegistration : RegisterBehavior
+                {
+                    public MyExceptionFilteringRegistration()
+                        : base("ExceptionFiltering", typeof(MyExceptionFilteringBehavior), "Custom exception filtering")
+                    {
+                        InsertBefore(WellKnownBehavior.InvokeHandlers);
                     }
                 }
 

@@ -159,13 +159,9 @@
     <Compile Include="MessageMutator\ApplyIncomingMessageMutatorsBehavior.cs" />
     <Compile Include="MessageMutator\ApplyIncomingTransportMessageMutatorsBehavior.cs" />
     <Compile Include="Audit\AuditBehavior.cs" />
-    <Compile Include="Pipeline\BehaviorList.cs" />
     <Compile Include="Pipeline\BehaviorRegistrationsCoordinator.cs" />
     <Compile Include="Pipeline\DefaultPipelineSettings.cs" />
-    <Compile Include="Pipeline\IPipelineOverride.cs" />
     <Compile Include="Pipeline\PipelineBuilder.cs" />
-    <Compile Include="Pipeline\PipelineOverride.cs" />
-    <Compile Include="Pipeline\PipelineOverrideConfigurer.cs" />
     <Compile Include="Pipeline\PipelineSettings.cs" />
     <Compile Include="Pipeline\RegisterBehavior.cs" />
     <Compile Include="Pipeline\RemoveBehavior.cs" />

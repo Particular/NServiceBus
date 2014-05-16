@@ -62,21 +62,21 @@
         {
             coordinator.Register(WellKnownBehavior.ChildContainer, typeof(ChildContainerBehavior), "Creates the child container");
             coordinator.Register("MessageReceivedLogging", typeof(MessageHandlingLoggingBehavior), "Logs the message received");
-            coordinator.Register("ForwardMessageToAuditQueue", typeof(AuditBehavior), "Forward message to audit queue after message is successfully processed");
+            coordinator.Register(WellKnownBehavior.AuditForwarder, typeof(AuditBehavior), "Forward message to audit queue after message is successfully processed");
             coordinator.Register("ForwardMessageTo", typeof(ForwardBehavior), "Forwards message to");
             coordinator.Register(WellKnownBehavior.UnitOfWork, typeof(UnitOfWorkBehavior), "Executes the UoW");
-            coordinator.Register(WellKnownBehavior.IncomingTransportMessageMutators, typeof(ApplyIncomingTransportMessageMutatorsBehavior), "Executes the IMutateIncomingTransportMessages");
+            coordinator.Register(WellKnownBehavior.IncomingTransportMessageMutators, typeof(ApplyIncomingTransportMessageMutatorsBehavior), "Executes IMutateIncomingTransportMessages");
             coordinator.Register("RemoveHeaders", typeof(RemoveIncomingHeadersBehavior), "For backward compatibility we need to remove some headers from the incoming message");
             coordinator.Register("CallBack", typeof(CallbackInvocationBehavior), "Updates the callback inmemory dictionary");
-            coordinator.Register("ExtractLogicalMessages", typeof(ExtractLogicalMessagesBehavior), "ExtractLogicalMessagesBehavior");
-            coordinator.Register("ExecuteLogicalMessages", typeof(ExecuteLogicalMessagesBehavior), "ExecuteLogicalMessagesBehavior");
-            coordinator.Register("ApplyIncomingMessageMutators", typeof(ApplyIncomingMessageMutatorsBehavior), "ApplyIncomingMessageMutatorsBehavior");
+            coordinator.Register(WellKnownBehavior.ExtractLogicalMessages, typeof(ExtractLogicalMessagesBehavior), "It splits the raw message into multiple logical messages");
+            coordinator.Register("ExecuteLogicalMessages", typeof(ExecuteLogicalMessagesBehavior), "Starts the execution of each logical message");
+            coordinator.Register("ApplyIncomingMessageMutators", typeof(ApplyIncomingMessageMutatorsBehavior), "Executes IMutateIncomingMessages");
             coordinator.Register("DataBusReceive", typeof(DataBusReceiveBehavior), "DataBusReceiveBehavior"); //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
             coordinator.Register("LoadHandlers", typeof(LoadHandlersBehavior), "LoadHandlersBehavior");
             coordinator.Register("SetCurrentMessageBeingHandled", typeof(SetCurrentMessageBeingHandledBehavior), "SetCurrentMessageBeingHandledBehavior");
             coordinator.Register("AuditInvokedSaga", typeof(AuditInvokedSagaBehavior), "AuditInvokedSagaBehavior");
             coordinator.Register("SagaPersistence", typeof(SagaPersistenceBehavior), "SagaPersistenceBehavior");
-            coordinator.Register("InvokeHandlers", typeof(InvokeHandlersBehavior), "InvokeHandlersBehavior");
+            coordinator.Register(WellKnownBehavior.InvokeHandlers, typeof(InvokeHandlersBehavior), "Calls the IHandleMessages<T>.Handle(T)");
         }
 
         void RegisterOutgoingCoreBehaviors()
@@ -88,7 +88,7 @@
             coordinator.Register("CreatePhysicalMessageBehavior", typeof(CreatePhysicalMessageBehavior), "InvokeHandlersBehavior");
             coordinator.Register("SerializeMessagesBehavior", typeof(SerializeMessagesBehavior), "InvokeHandlersBehavior");
             coordinator.Register("MutateOutgoingPhysicalMessageBehavior", typeof(MutateOutgoingPhysicalMessageBehavior), "InvokeHandlersBehavior");
-            coordinator.Register("DispatchMessageToTransportBehavior", typeof(DispatchMessageToTransportBehavior), "InvokeHandlersBehavior");
+            coordinator.Register(WellKnownBehavior.DispatchMessageToTransport, typeof(DispatchMessageToTransportBehavior), "Dispatches messages to the transport");
         }
 
         BehaviorRegistrationsCoordinator coordinator;

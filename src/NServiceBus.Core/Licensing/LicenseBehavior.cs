@@ -11,7 +11,6 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class LicenseBehavior : IBehavior<IncomingContext>
     {
-
         public bool LicenseExpired { get; set; }
 
         public void Invoke(IncomingContext context, Action next)

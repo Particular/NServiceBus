@@ -6,7 +6,7 @@
     using Config;
     using Logging;
 
-    public class FeatureInitializer : IFinalizeConfiguration, IWantToRunBeforeConfigurationIsFinalized
+    public class FeatureInitializer : IFinalizeConfiguration
     {
         /// <summary>
         /// Go trough all conditional features and figure out if the should be enabled or not

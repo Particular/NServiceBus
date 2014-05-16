@@ -337,7 +337,12 @@ namespace NServiceBus
 
             ActivateAndInvoke<INeedInitialization>(t => t.Init());
 
+            // HACK: I need this guy to run before IWantToRunBeforeConfigurationIsFinalized
+            new FeatureInitializer().Run();
+
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run());
+
+            
 
             ForAllTypes<INeedToInstallSomething<Windows>>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
