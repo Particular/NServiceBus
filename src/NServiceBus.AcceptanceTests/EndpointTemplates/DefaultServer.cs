@@ -6,7 +6,6 @@
     using System.Reflection;
     using AcceptanceTesting.Support;
     using Config.ConfigurationSource;
-    using Features;
     using Hosting.Helpers;
     using NServiceBus;
     using Settings;

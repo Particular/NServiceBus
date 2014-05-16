@@ -9,7 +9,6 @@ namespace NServiceBus.Unicast.Config
     using Messages;
     using NServiceBus.Config;
     using Routing;
-    using Settings;
 
     class FinalizeUnicastBusConfiguration : IFinalizeConfiguration
     {

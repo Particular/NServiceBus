@@ -1,7 +1,6 @@
 namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using Hosting.Helpers;
     using NUnit.Framework;
