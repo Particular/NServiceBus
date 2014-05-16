@@ -69,6 +69,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
             SettingsHolder.Reset();
             SettingsHolder.SetDefault("Endpoint.SendOnly", false);
             SettingsHolder.SetDefault("MasterNode.Address", MasterNodeAddress);
+            SettingsHolder.SetDefault("Pipeline.Removals", new List<RemoveBehavior>());
+            SettingsHolder.SetDefault("Pipeline.Replacements", new List<ReplaceBehavior>());
+            SettingsHolder.SetDefault("Pipeline.Additions", new List<RegisterBehavior>());
 
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
