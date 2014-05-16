@@ -11,7 +11,7 @@ namespace NServiceBus.InMemory.SagaPersister
     /// <summary>
     /// In memory implementation of ISagaPersister for quick development.
     /// </summary>
-    class InMemorySagaPersister : ISagaPersister
+    public class InMemorySagaPersister : ISagaPersister
     {
         public void Complete(IContainSagaData saga)
         {

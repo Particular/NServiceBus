@@ -5,7 +5,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
     using System.Linq;
     using Timeout.Core;
 
-    class InMemoryTimeoutPersister : IPersistTimeouts
+    public class InMemoryTimeoutPersister : IPersistTimeouts
     {
         readonly IList<TimeoutData> storage = new List<TimeoutData>();
         readonly object lockObject = new object();

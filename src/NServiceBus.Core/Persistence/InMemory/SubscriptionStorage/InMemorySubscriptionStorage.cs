@@ -9,7 +9,7 @@ namespace NServiceBus.InMemory.SubscriptionStorage
     /// <summary>
     /// In memory implementation of the subscription storage
     /// </summary>
-    class InMemorySubscriptionStorage : ISubscriptionStorage
+    public class InMemorySubscriptionStorage : ISubscriptionStorage
     {
         void ISubscriptionStorage.Subscribe(Address address, IEnumerable<MessageType> messageTypes)
         {
