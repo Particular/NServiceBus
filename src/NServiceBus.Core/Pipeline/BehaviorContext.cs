@@ -11,7 +11,6 @@
             this.parentContext = parentContext;
         }
 
-
         public IBuilder Builder
         {
             get { return Get<IBuilder>(); }
