@@ -14,26 +14,6 @@ namespace NServiceBus.Pipeline
 
         public void Register(string id, Type behavior, string description)
         {
-            if (behavior == null)
-            {
-                throw new ArgumentNullException("id");
-            }
-
-            if (behavior.IsAssignableFrom(iBehaviourType))
-            {
-                throw new ArgumentException("Needs to implement IBehavior<TContext>", "behavior");
-            }
-
-            if (String.IsNullOrEmpty(id))
-            {
-                throw new ArgumentNullException("id");
-            }
-
-            if (String.IsNullOrEmpty(description))
-            {
-                throw new ArgumentNullException("description");
-            }
-
             additions.Add(RegisterBehavior.Create(id, behavior, description));
         }
 
