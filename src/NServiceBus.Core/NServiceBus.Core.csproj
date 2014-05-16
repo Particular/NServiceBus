@@ -157,6 +157,7 @@
     <Compile Include="Persistence\Raven\Gateway\GatewayMessage.cs" />
     <Compile Include="Persistence\Raven\Gateway\RavenDBDeduplication.cs" />
     <Compile Include="Persistence\Raven\Gateway\RavenDBPersistence.cs" />
+    <Compile Include="Persistence\UsePersistence.cs" />
     <Compile Include="Pipeline\BehaviorContext.cs" />
     <Compile Include="Pipeline\BehaviorContextStacker.cs" />
     <Compile Include="MessageMutator\ApplyIncomingMessageMutatorsBehavior.cs" />
