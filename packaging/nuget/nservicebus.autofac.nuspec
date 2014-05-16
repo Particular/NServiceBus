@@ -17,7 +17,7 @@
     <dependencies/>
   </metadata>
   <files>
-    <file src="..\..\binaries\containers\autofac\NServiceBus.ObjectBuilder.Autofac.???" target="lib\net40" />
+    <file src="..\..\binaries\containers\autofac\NServiceBus.ObjectBuilder.Autofac.???" target="lib\net45" />
     <file src="tools\install.ps1" target="tools" />
     <!--<file src="..\..\src\ObjectBuilder.Autofac\**\*.cs" target="src" />
     <file src="..\..\src\NServiceBus.Core\ObjectBuilder\Autofac\AutofacObjectBuilder.cs" target="src\NServiceBus.Core\ObjectBuilder\Autofac\" />-->

@@ -17,7 +17,7 @@
     <dependencies/>
   </metadata>
   <files>
-    <file src="..\..\binaries\NServiceBus.???" target="lib\net40\" />
+    <file src="..\..\binaries\NServiceBus.???" target="lib\net45\" />
     <!--<file src="..\..\src\NServiceBus\**\*.cs" target="src" />-->
   </files>
 </package>
