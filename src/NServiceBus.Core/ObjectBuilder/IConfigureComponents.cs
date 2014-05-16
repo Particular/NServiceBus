@@ -12,6 +12,7 @@ namespace NServiceBus.ObjectBuilder
         /// <summary>
         /// Configures the given type. Can be used to configure all kinds of properties.
         /// </summary>
+        /// <param name="concreteComponent">The concrete implementation of the component.</param>
         /// <param name="dependencyLifecycle">Defines lifecycle semantics for the given type.</param>
         IComponentConfig ConfigureComponent(Type concreteComponent, DependencyLifecycle dependencyLifecycle);
 
