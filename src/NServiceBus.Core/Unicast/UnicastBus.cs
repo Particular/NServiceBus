@@ -597,7 +597,7 @@ namespace NServiceBus.Unicast
             //Injected at compile time
         }
 
-        public void DisposeManaged()
+        void DisposeManaged()
         {
             InnerShutdown();
             Configure.Instance.Builder.Dispose();

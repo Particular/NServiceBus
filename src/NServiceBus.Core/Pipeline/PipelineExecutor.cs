@@ -46,12 +46,12 @@
             //Injected
         }
 
-        public void PreparePhysicalMessagePipelineContext(TransportMessage message)
+        internal void PreparePhysicalMessagePipelineContext(TransportMessage message)
         {
             contextStacker.Push(new IncomingContext(CurrentContext, message));
         }
 
-        public void InvokeReceivePhysicalMessagePipeline()
+        internal void InvokeReceivePhysicalMessagePipeline()
         {
             var context = contextStacker.Current as IncomingContext;
 
@@ -63,12 +63,12 @@
             InvokePipeline(incomingBehaviors, context);
         }
 
-        public void CompletePhysicalMessagePipelineContext()
+        internal void CompletePhysicalMessagePipelineContext()
         {
             contextStacker.Pop();
         }
 
-        public OutgoingContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
+        internal OutgoingContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
         {
             var context = new OutgoingContext(CurrentContext, sendOptions, message);
 
@@ -84,7 +84,7 @@
             Execute(pipeline, context);
         }
 
-        public void DisposeManaged()
+        void DisposeManaged()
         {
             contextStacker.Dispose();
         }

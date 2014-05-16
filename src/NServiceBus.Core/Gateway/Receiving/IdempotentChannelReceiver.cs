@@ -36,7 +36,7 @@ namespace NServiceBus.Gateway.Receiving
             //Injected at compile time
         }
 
-        public void DisposeManaged()
+        void DisposeManaged()
         {
             if (channelReceiver != null)
             {
