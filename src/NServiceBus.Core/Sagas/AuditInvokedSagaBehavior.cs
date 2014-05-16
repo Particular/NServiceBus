@@ -1,13 +1,10 @@
 ﻿namespace NServiceBus.Sagas
 {
     using System;
-    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class AuditInvokedSagaBehavior : IBehavior<IncomingContext>
+    class AuditInvokedSagaBehavior : IBehavior<IncomingContext>
     {
         public void Invoke(IncomingContext context, Action next)
         {

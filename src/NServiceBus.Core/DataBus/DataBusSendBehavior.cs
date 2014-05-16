@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -13,9 +12,7 @@
     using Pipeline.Contexts;
     using Unicast.Transport;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class DataBusSendBehavior : IBehavior<OutgoingContext>
+    class DataBusSendBehavior : IBehavior<OutgoingContext>
     {
         public IDataBus DataBus { get; set; }
 

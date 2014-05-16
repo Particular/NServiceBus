@@ -27,7 +27,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Unicast.Messages;
     using UnitOfWork;
 
-    public class using_a_configured_unicastBus
+    class using_a_configured_unicastBus
     {
         protected UnicastBus bus;
 
@@ -262,7 +262,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
     }
 
-    public class using_the_unicastBus : using_a_configured_unicastBus
+    class using_the_unicastBus : using_a_configured_unicastBus
     {
         [SetUp]
         public new void SetUp()

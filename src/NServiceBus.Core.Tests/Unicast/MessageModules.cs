@@ -5,7 +5,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_processing_a_message_successfully_with_a_registered_message_module : using_the_unicastBus
+    class When_processing_a_message_successfully_with_a_registered_message_module : using_the_unicastBus
     {
         [Test]
         public void Should_invoke_the_begin_and_end_on_the_message_module()
@@ -44,7 +44,7 @@
     }
 
     [TestFixture]
-    public class When_a_message_if_forwarded_via_the_fault_manager : using_the_unicastBus
+    class When_a_message_if_forwarded_via_the_fault_manager : using_the_unicastBus
     {
         [Test]
         public void Should_invoke_begin_and_end_message()

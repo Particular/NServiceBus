@@ -2,7 +2,7 @@ namespace NServiceBus.Pipeline
 {
     using System;
 
-    public class ReplaceBehavior
+    class ReplaceBehavior
     {
         public ReplaceBehavior(string idToReplace, Type behavior, string description = null)
         {

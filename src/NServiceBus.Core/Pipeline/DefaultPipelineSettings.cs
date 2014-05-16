@@ -3,7 +3,7 @@ namespace NServiceBus.Pipeline
     using System.Collections.Generic;
     using Settings;
 
-    internal class DefaultPipelineSettings : ISetDefaultSettings
+    class DefaultPipelineSettings : ISetDefaultSettings
     {
         public DefaultPipelineSettings()
         {

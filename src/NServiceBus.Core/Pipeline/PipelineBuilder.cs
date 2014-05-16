@@ -12,7 +12,7 @@
     using Unicast.Messages;
     using UnitOfWork;
 
-    internal class PipelineBuilder
+    class PipelineBuilder
     {
         public PipelineBuilder()
         {

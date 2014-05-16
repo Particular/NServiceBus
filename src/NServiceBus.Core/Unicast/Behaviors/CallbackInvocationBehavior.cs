@@ -1,16 +1,13 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
-    using System.ComponentModel;
     using System.Linq;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
     using Transport;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class CallbackInvocationBehavior : IBehavior<IncomingContext>
+    class CallbackInvocationBehavior : IBehavior<IncomingContext>
     {
         public const string CallbackInvokedKey = "NServiceBus.CallbackInvocationBehavior.CallbackWasInvoked";
 

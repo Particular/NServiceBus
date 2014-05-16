@@ -2,14 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
 
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class UnitOfWorkBehavior : IBehavior<IncomingContext>
+    class UnitOfWorkBehavior : IBehavior<IncomingContext>
     {
        public void Invoke(IncomingContext context, Action next)
         {

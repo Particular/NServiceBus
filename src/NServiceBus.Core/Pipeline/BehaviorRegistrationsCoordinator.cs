@@ -4,7 +4,7 @@ namespace NServiceBus.Pipeline
     using System.Collections.Generic;
     using System.Linq;
 
-    internal class BehaviorRegistrationsCoordinator
+    class BehaviorRegistrationsCoordinator
     {
         public BehaviorRegistrationsCoordinator(List<RemoveBehavior> removals, List<ReplaceBehavior> replacements)
         {

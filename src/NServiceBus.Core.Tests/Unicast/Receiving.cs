@@ -11,7 +11,7 @@
     using Timeout;
 
     [TestFixture]
-    public class When_receiving_a_regular_message : using_the_unicastBus
+    class When_receiving_a_regular_message : using_the_unicastBus
     {
         [Test]
         public void Should_invoke_the_registered_message_handlers()
@@ -31,7 +31,7 @@
     }
 
     [TestFixture]
-    public class When_receiving_any_message : using_the_unicastBus
+    class When_receiving_any_message : using_the_unicastBus
     {
         [Test]
         public void Should_invoke_the_registered_catch_all_handler_using_a_object_parameter()
@@ -84,7 +84,7 @@
     }
   
     [TestFixture]
-    public class When_sending_messages_from_a_messageHandler : using_the_unicastBus
+     class When_sending_messages_from_a_messageHandler : using_the_unicastBus
     {
         [Test]
         public void Should_set_the_related_to_header_with_the_id_of_the_current_message()
@@ -102,7 +102,7 @@
     }
 
     [TestFixture]
-    public class When_replying_with_a_command : using_the_unicastBus
+    class When_replying_with_a_command : using_the_unicastBus
     {
         [Test]
         public void Should_not_be_allowed()
@@ -120,7 +120,7 @@
     }
 
     [TestFixture]
-    public class When_receiving_a_subscription_request : using_the_unicastBus
+    class When_receiving_a_subscription_request : using_the_unicastBus
     {
         [Test]
         public void Should_register_the_subscriber()
@@ -154,7 +154,7 @@
 
 
     [TestFixture]
-    public class When_receiving_a_v3_saga_timeout_message : using_the_unicastBus
+    class When_receiving_a_v3_saga_timeout_message : using_the_unicastBus
     {
         [Test]
         public void Should_set_the_newV4_flag()

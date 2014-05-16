@@ -1,15 +1,12 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
-    using System.ComponentModel;
     using System.Reflection;
     using Logging;
     using Pipeline;
     using Pipeline.Contexts;
     
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class MessageHandlingLoggingBehavior : IBehavior<IncomingContext>
+    class MessageHandlingLoggingBehavior : IBehavior<IncomingContext>
     {
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 

@@ -7,7 +7,7 @@ namespace NServiceBus.Unicast.Tests
     using Saga;
 
     [TestFixture]
-    public class When_receiving_a_message_that_is_handled_by_a_saga : with_sagas
+    class When_receiving_a_message_that_is_handled_by_a_saga : with_sagas
     {
         [Test]
         public void Should_find_existing_instance_by_id_if_saga_header_is_found()

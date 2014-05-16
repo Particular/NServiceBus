@@ -1,16 +1,13 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
-    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
     using Transport;
     using Unicast;
     using Messages;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class CreatePhysicalMessageBehavior : IBehavior<OutgoingContext>
+    class CreatePhysicalMessageBehavior : IBehavior<OutgoingContext>
     {
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 

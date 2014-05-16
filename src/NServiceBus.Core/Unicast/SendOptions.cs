@@ -1,11 +1,7 @@
 namespace NServiceBus.Unicast
 {
     using System;
-    using System.ComponentModel;
 
-
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public class SendOptions
     {
         TimeSpan? delayDeliveryWith;

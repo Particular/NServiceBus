@@ -7,7 +7,7 @@
     using Saga;
     using Sagas.Finders;
 
-    public class with_sagas : using_the_unicastBus
+    class with_sagas : using_the_unicastBus
     {
         protected InMemorySagaPersister persister;
 
