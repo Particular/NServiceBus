@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using InMemory.SagaPersister;
     using InMemory.SubscriptionStorage;
-    using InMemory.TimeoutPersister;
     using ObjectBuilder.Common;
     using ObjectBuilder.Common.Config;
     using Persistence;
