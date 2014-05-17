@@ -62,7 +62,11 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
 
         public void Start()
         {
-            DataBus.Start();
+            if (DataBus != null)
+            {
+                DataBus.Start();    
+            }
+            
         }
 
         public void Stop()
