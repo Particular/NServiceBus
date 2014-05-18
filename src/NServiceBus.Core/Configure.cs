@@ -25,11 +25,6 @@ namespace NServiceBus
     /// </summary>
     public class Configure
     {
-        static Configure()
-        {
-            ConfigurationSource = new DefaultConfigurationSource();
-        }
-
         /// <summary>
         /// Provides static access to the configuration object.
         /// </summary>
@@ -106,7 +101,7 @@ namespace NServiceBus
         /// <summary>
         /// Gets/sets the configuration source to be used.
         /// </summary>
-        public static IConfigurationSource ConfigurationSource { get; set; }
+        public IConfigurationSource ConfigurationSource { get; set; }
 
         /// <summary>
         /// Sets the current configuration source.
@@ -162,6 +157,7 @@ namespace NServiceBus
         /// </summary>
         protected Configure()
         {
+            ConfigurationSource = new DefaultConfigurationSource();
         }
 
         static Endpoint endpoint;
