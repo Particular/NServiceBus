@@ -1,12 +1,15 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Config;
+    using NServiceBus.Gateway;
     using NServiceBus.Gateway.Channels;
     using NServiceBus.Gateway.HeaderManagement;
     using NServiceBus.Gateway.Notifications;
     using NServiceBus.Gateway.Receiving;
+    using NServiceBus.Gateway.Routing;
     using NServiceBus.Gateway.Routing.Endpoints;
     using NServiceBus.Gateway.Routing.Sites;
     using NServiceBus.Gateway.Sending;
@@ -15,6 +18,17 @@
     {
         public override void Initialize(Configure config)
         {
+            
+            var txConfig = config.Configurer.ConfigureComponent<GatewayTransaction>(DependencyLifecycle.InstancePerCall);
+
+            var configSection = config.GetConfigSection<GatewayConfig>();
+            
+            if (configSection != null)
+            {
+                txConfig.ConfigureProperty(c => c.ConfiguredTimeout, configSection.TransactionTimeout);
+            }
+                
+
             ConfigureChannels(config);
 
             ConfigureReceiver(config);
@@ -53,11 +67,12 @@
 
             config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);
 
-            var configSection = Configure.GetConfigSection<GatewayConfig>();
+            var configSection = config.GetConfigSection<GatewayConfig>();
 
             if (configSection != null && configSection.GetChannels().Any())
             {
-                config.Configurer.ConfigureComponent<ConfigurationBasedChannelManager>(DependencyLifecycle.SingleInstance);
+                config.Configurer.ConfigureComponent<ConfigurationBasedChannelManager>(DependencyLifecycle.SingleInstance)
+                    .ConfigureProperty(c => c.ReceiveChannels, configSection.GetChannels());
             }
             else
             {
@@ -71,8 +86,20 @@
         {
             config.Configurer.ConfigureComponent<OriginatingSiteHeaderRouter>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<KeyPrefixConventionSiteRouter>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<ConfigurationBasedSiteRouter>(DependencyLifecycle.SingleInstance);
+
+            IDictionary<string,Site> sites = new Dictionary<string, Site>();
+
+            var section = config.GetConfigSection<GatewayConfig>();
+            if (section != null)
+            {
+                sites = section.SitesAsDictionary();
+            }
+
+            config.Configurer.ConfigureComponent<ConfigurationBasedSiteRouter>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(p => p.Sites, sites);
         }
+
+
 
         static void ConfigureReceiver(Configure config)
         {

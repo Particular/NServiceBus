@@ -22,7 +22,8 @@
         /// <summary>
         /// Returns true if the feature should be enable. This method wont be called if the feature is explicitly disabled
         /// </summary>
-        public virtual bool ShouldBeEnabled()
+        /// <param name="config"></param>
+        public virtual bool ShouldBeEnabled(Configure config)
         {
             return true;
         }

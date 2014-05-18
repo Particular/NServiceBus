@@ -385,7 +385,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns the requested config section using the current configuration source.
         /// </summary>
-        public static T GetConfigSection<T>() where T : class,new()
+        public T GetConfigSection<T>() where T : class,new()
         {
             if (TypesToScan == null)
             {

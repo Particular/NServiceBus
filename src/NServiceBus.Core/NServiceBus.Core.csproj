@@ -128,6 +128,7 @@
     <Compile Include="Gateway\Channels\DataReceivedOnChannelArgs.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReader.cs" />
+    <Compile Include="Gateway\Receiving\IdempotentChannelReceiver.cs" />
     <Compile Include="Gateway\Sending\CallType.cs" />
     <Compile Include="Gateway\GatewayTransaction.cs" />
     <Compile Include="GitFlowVersion.cs" />
@@ -396,7 +397,6 @@
     <Compile Include="Gateway\Receiving\ConfigurationBasedChannelManager.cs" />
     <Compile Include="Gateway\Receiving\ConventionBasedChannelManager.cs" />
     <Compile Include="Gateway\Receiving\GatewayReceiver.cs" />
-    <Compile Include="Gateway\Receiving\IdempotentChannelReceiver.cs" />
     <Compile Include="Gateway\Receiving\IManageReceiveChannels.cs" />
     <Compile Include="Gateway\Receiving\IReceiveMessagesFromSites.cs" />
     <Compile Include="Gateway\Routing\Endpoints\DefaultEndpointRouter.cs" />

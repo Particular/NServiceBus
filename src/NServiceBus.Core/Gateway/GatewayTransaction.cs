@@ -2,28 +2,22 @@
 {
     using System;
     using System.Transactions;
-    using Config;
 
-    internal static class GatewayTransaction
+    class GatewayTransaction
     {
-        private static readonly GatewayConfig Config;
-
-        static GatewayTransaction()
+        public TimeSpan Timeout(TimeSpan defaultTimeout)
         {
-            Config = Configure.GetConfigSection<GatewayConfig>();
-        }
-
-        internal static TimeSpan Timeout(TimeSpan defaultTimeout)
-        {
-            if (Config != null && Config.TransactionTimeout > defaultTimeout)
+            if (ConfiguredTimeout.HasValue && ConfiguredTimeout > defaultTimeout)
             {
-                return Config.TransactionTimeout;
+                return ConfiguredTimeout.Value;
             }
 
             return defaultTimeout;
         }
 
-        internal static TransactionScope Scope()
+        public TimeSpan? ConfiguredTimeout { get; set; }
+
+        public TransactionScope Scope()
         {
             return new TransactionScope(TransactionScopeOption.RequiresNew,
                 new TransactionOptions

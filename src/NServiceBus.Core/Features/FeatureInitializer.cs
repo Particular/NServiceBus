@@ -16,7 +16,7 @@
         {
             var features = config.Features;
 
-            DisableFeaturesThatAskedToBeDisabled(features);
+            DisableFeaturesThatAskedToBeDisabled(config);
 
             DisableFeaturesThatAreDependingOnDisabledFeatures(features);
         }
@@ -27,9 +27,9 @@
             InitializeFeaturesControlledByCategories();
         }
 
-        static void DisableFeaturesThatAskedToBeDisabled(IEnumerable<Feature> features)
+        static void DisableFeaturesThatAskedToBeDisabled(Configure config)
         {
-            foreach (var feature in features)
+            foreach (var feature in config.Features)
             {
                 if (!Feature.IsEnabled(feature.GetType()))
                 {
@@ -41,7 +41,7 @@
                     continue;
                 }
 
-                if (!feature.ShouldBeEnabled())
+                if (!feature.ShouldBeEnabled(config))
                 {
                     Feature.Disable(feature.GetType());
                     Logger.DebugFormat("Default feature {0} has requested to be disabled", feature.Name);

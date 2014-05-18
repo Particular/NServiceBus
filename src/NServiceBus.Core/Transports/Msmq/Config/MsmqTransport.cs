@@ -15,7 +15,7 @@
             config.Configurer.ConfigureComponent<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
 
-            var cfg = NServiceBus.Configure.GetConfigSection<MsmqMessageQueueConfig>();
+            var cfg = config.GetConfigSection<MsmqMessageQueueConfig>();
 
             var settings = new MsmqSettings();
             if (cfg != null)

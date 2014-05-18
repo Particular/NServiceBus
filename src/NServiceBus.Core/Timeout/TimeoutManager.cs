@@ -18,21 +18,21 @@
             }
         }
 
-        public override bool ShouldBeEnabled()
+        public override bool ShouldBeEnabled(Configure config)
         {
             //has the user already specified a custom deferral method
-            if (Configure.HasComponent<IDeferMessages>())
+            if (config.Configurer.HasComponent<IDeferMessages>())
             {
                 return false;
             }
 
             //if we have a master node configured we should use the Master Node timeout manager instead
-            if (Configure.Instance.Settings.GetOrDefault<bool>("Distributor.Enabled"))
+            if (config.Settings.GetOrDefault<bool>("Distributor.Enabled"))
             {
                 return false;
             }
 
-            var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
+            var unicastConfig = config.GetConfigSection<UnicastBusConfig>();
 
             //if the user has specified another TM we don't need to run our own
             if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress))

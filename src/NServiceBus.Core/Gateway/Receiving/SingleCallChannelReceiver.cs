@@ -11,15 +11,16 @@
     using Sending;
     using Utils;
 
-    public class SingleCallChannelReceiver : IReceiveMessagesFromSites
+    class SingleCallChannelReceiver : IReceiveMessagesFromSites
     {
         public SingleCallChannelReceiver(IChannelFactory channelFactory, IDeduplicateMessages deduplicator,
-            DataBusHeaderManager headerManager, IdempotentChannelReceiver receiver)
+            DataBusHeaderManager headerManager, IdempotentChannelReceiver receiver,GatewayTransaction transaction)
         {
             this.channelFactory = channelFactory;
             this.deduplicator = deduplicator;
             this.headerManager = headerManager;
             this.receiver = receiver;
+            this.transaction = transaction;
         }
 
         public IDataBus DataBus { get; set; }
@@ -66,7 +67,7 @@
 
                 Logger.DebugFormat("Received message of type {0} for client id: {1}", callInfo.Type, callInfo.ClientId);
 
-                using (var scope = GatewayTransaction.Scope())
+                using (var scope = transaction.Scope())
                 {
                     switch (callInfo.Type)
                     {
@@ -136,6 +137,8 @@
 
         [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")] 
         IdempotentChannelReceiver receiver;
+
+        readonly GatewayTransaction transaction;
 
         IChannelReceiver channelReceiver;
     }

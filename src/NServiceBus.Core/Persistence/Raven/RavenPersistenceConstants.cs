@@ -15,27 +15,25 @@ namespace NServiceBus.Persistence.Raven
             registryPort = RegistryReader<int>.Read("RavenPort", DefaultPort);
         }
 
-        public static string DefaultUrl
+        public static string DefaultUrl(Configure config)
         {
-            get
+            var masterNode = GetMasterNode(config);
+
+            if (string.IsNullOrEmpty(masterNode))
             {
-                var masterNode = GetMasterNode();
-
-                if (string.IsNullOrEmpty(masterNode))
-                {
-                    masterNode = "localhost";
-                }
-
-                return string.Format("http://{0}:{1}", masterNode, registryPort);
+                masterNode = "localhost";
             }
+
+            return string.Format("http://{0}:{1}", masterNode, registryPort);
+
         }
 
-        static string GetMasterNode()
+        static string GetMasterNode(Configure config)
         {
-            var section = Configure.GetConfigSection<MasterNodeConfig>();
+            var section = config.GetConfigSection<MasterNodeConfig>();
             return section != null ? section.Node : null;
         }
-        
+
         public static Guid DefaultResourceManagerId
         {
             get

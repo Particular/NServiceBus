@@ -9,9 +9,10 @@ namespace NServiceBus.Unicast.Queuing
         /// Address of queue the implementer requires.
         /// </summary>
         Address Address { get; }
+        
         /// <summary>
         /// True if no need to create queue
         /// </summary>
-        bool IsDisabled { get; }
+        bool ShouldCreateQueue(Configure config);
     }
 }

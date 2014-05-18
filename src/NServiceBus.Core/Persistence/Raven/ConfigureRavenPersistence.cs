@@ -54,7 +54,7 @@ namespace NServiceBus
 
             var store = new DocumentStore
             {
-                Url = RavenPersistenceConstants.DefaultUrl,
+                Url = RavenPersistenceConstants.DefaultUrl(config),
                 ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
                 DefaultDatabase = Configure.EndpointName,
             };
@@ -233,7 +233,7 @@ namespace NServiceBus
             }
             else
             {
-                store.Url = RavenPersistenceConstants.DefaultUrl;
+                store.Url = RavenPersistenceConstants.DefaultUrl(config);
                 store.ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId;
             }
 

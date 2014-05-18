@@ -8,7 +8,7 @@ namespace NServiceBus.Unicast.Transport.Config
     {
         public void Init(Configure config)
         {
-            var transportConfig = Configure.GetConfigSection<TransportConfig>();
+            var transportConfig = config.GetConfigSection<TransportConfig>();
             var maximumThroughput = 0;
             var maximumNumberOfRetries = 5;
             var maximumConcurrencyLevel = 1;

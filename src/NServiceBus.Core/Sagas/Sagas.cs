@@ -19,7 +19,7 @@
             }
         }
 
-        public override bool ShouldBeEnabled()
+        public override bool ShouldBeEnabled(Configure config)
         {
             return Configure.TypesToScan.Any(IsSagaType);
         }

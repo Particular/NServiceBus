@@ -16,7 +16,7 @@
             // If Audit feature is enabled and the value not specified via config and instead specified in the registry:
             // Log a warning when running in the debugger to remind user to make sure the 
             // production machine will need to have the required registry setting.
-            if (Debugger.IsAttached && GetAuditQueueAddressFromAuditConfig() == Address.Undefined)
+            if (Debugger.IsAttached && GetAuditQueueAddressFromAuditConfig(config) == Address.Undefined)
             {
                 Logger.Warn("Endpoint auditing is configured using the registry on this machine, please ensure that you either run Set-NServiceBusLocalMachineSettings cmdlet on the target deployment machine or specify the QueueName attribute in the AuditConfig section in your app.config file. To quickly add the AuditConfig section to your app.config, in Package Manager Console type: add-NServiceBusAuditConfig.");
             }
@@ -25,24 +25,26 @@
             // already been registered with the bus (InitMessageAuditer gets called first, before the feature
             // initialization happens, so we already have an instance of the MessageAuditer)
             config.Configurer
-                .ConfigureProperty<MessageAuditer>(p => p.AuditQueue, GetConfiguredAuditQueue())
-                .ConfigureProperty<MessageAuditer>(t => t.TimeToBeReceivedOnForwardedMessages, GetTimeToBeReceivedFromAuditConfig());
+                .ConfigureProperty<MessageAuditer>(p => p.AuditQueue, GetConfiguredAuditQueue(config))
+                .ConfigureProperty<MessageAuditer>(t => t.TimeToBeReceivedOnForwardedMessages, GetTimeToBeReceivedFromAuditConfig(config));
         }
 
         public override bool IsEnabledByDefault
         {
-            get
-            {
-                // Check to see if this entry is specified either in the AuditConfig section in app.config 
-                // or configured in the the registry. If neither place has the value set, then turn off auditing
-                // to be backwards compatible.
-                return GetConfiguredAuditQueue() != Address.Undefined;
-            }
+            get { return true; }
         }
 
-        Address GetConfiguredAuditQueue()
+        public override bool ShouldBeEnabled(Configure config)
         {
-            var auditAddress = GetAuditQueueAddressFromAuditConfig();
+            // Check to see if this entry is specified either in the AuditConfig section in app.config 
+            // or configured in the the registry. If neither place has the value set, then turn off auditing
+            // to be backwards compatible.
+            return GetConfiguredAuditQueue(config) != Address.Undefined;
+        }
+
+        Address GetConfiguredAuditQueue(Configure config)
+        {
+            var auditAddress = GetAuditQueueAddressFromAuditConfig(config);
             
             if (auditAddress == Address.Undefined)
             {
@@ -63,9 +65,9 @@
             return Address.Parse(forwardQueue);
         }
 
-        Address  GetAuditQueueAddressFromAuditConfig()
+        Address  GetAuditQueueAddressFromAuditConfig(Configure config)
         {
-            var messageAuditingConfig = Configure.GetConfigSection<AuditConfig>();
+            var messageAuditingConfig = config.GetConfigSection<AuditConfig>();
             if (messageAuditingConfig != null && !string.IsNullOrWhiteSpace(messageAuditingConfig.QueueName))
             {
                 return Address.Parse(messageAuditingConfig.QueueName);
@@ -74,9 +76,9 @@
         }
 
 
-        TimeSpan GetTimeToBeReceivedFromAuditConfig()
+        TimeSpan GetTimeToBeReceivedFromAuditConfig(Configure config)
         {
-            var messageAuditingConfig = Configure.GetConfigSection<AuditConfig>();
+            var messageAuditingConfig = config.GetConfigSection<AuditConfig>();
             if (messageAuditingConfig != null)
             {   
                 return messageAuditingConfig.OverrideTimeToBeReceived;

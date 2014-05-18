@@ -19,7 +19,7 @@
 
         static Address GetTimeoutManagerAddress(Configure config)
         {
-            var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
+            var unicastConfig = config.GetConfigSection<UnicastBusConfig>();
 
             if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress))
             {

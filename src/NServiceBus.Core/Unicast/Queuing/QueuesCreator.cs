@@ -33,7 +33,7 @@ namespace NServiceBus.Unicast.Queuing
 
             var wantQueueCreatedInstances = Configure.Instance.Builder.BuildAll<IWantQueueCreated>().ToList();
 
-            foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => !wantQueueCreatedInstance.IsDisabled))
+            foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => wantQueueCreatedInstance.ShouldCreateQueue(Configure.Instance)))
             {
                 if (wantQueueCreatedInstance.Address == null)
                 {
@@ -50,7 +50,7 @@ namespace NServiceBus.Unicast.Queuing
         /// </summary>
         public void Init(Configure config)
         {
-            config.ForAllTypes<IWantQueueCreated>(type => Configure.Instance.Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall));
+            config.ForAllTypes<IWantQueueCreated>(type => config.Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall));
         }
 
         readonly static ILog Logger = LogManager.GetLogger(typeof(QueuesCreator));
