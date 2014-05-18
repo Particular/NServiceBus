@@ -12,14 +12,13 @@
         public PipelineExecutor(Func<Type, object> builder, BehaviorContext rootContext)
         {
             this.builder = builder;
+            this.rootContext = rootContext;
             var pipelineBuilder = new PipelineBuilder();
             Incoming = pipelineBuilder.Incoming.AsReadOnly();
             Outgoing = pipelineBuilder.Outgoing.AsReadOnly();
 
             incomingBehaviors = Incoming.Select(r => r.BehaviorType);
             outgoingBehaviors = Outgoing.Select(r => r.BehaviorType);
-
-            contextStacker.Push(rootContext);
         }
 
         public IList<RegisterBehavior> Incoming { get; private set; }
@@ -29,7 +28,14 @@
         {
             get
             {
-                return contextStacker.Current;
+                var current = contextStacker.Current;
+
+                if (current != null)
+                {
+                    return current;
+                }
+
+                contextStacker.Push(rootContext);
             }
         }
 
@@ -97,6 +103,7 @@
 
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
         Func<Type, object> builder;
+        readonly BehaviorContext rootContext;
         IEnumerable<Type> incomingBehaviors;
         IEnumerable<Type> outgoingBehaviors;
     }
