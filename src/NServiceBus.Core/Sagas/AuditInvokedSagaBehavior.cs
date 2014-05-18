@@ -23,7 +23,7 @@
 
             if (context.IncomingLogicalMessage.Headers.TryGetValue(Headers.InvokedSagas, out header))
             {
-                context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] += ";" + audit;
+                context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] += string.Format(";{0}", audit);
             }
             else
             {

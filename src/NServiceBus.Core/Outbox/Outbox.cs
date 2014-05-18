@@ -40,7 +40,7 @@
             public OutboxRecorderRegistration()
                 : base("OutboxRecorder", typeof(OutboxRecordBehavior), "Records all action to the outbox storage")
             {
-                InsertBefore(WellKnownBehavior.IncomingTransportMessageMutators);
+                InsertBefore(WellKnownBehavior.MutateIncomingTransportMessage);
                 InsertAfter(WellKnownBehavior.UnitOfWork);
             }
         }

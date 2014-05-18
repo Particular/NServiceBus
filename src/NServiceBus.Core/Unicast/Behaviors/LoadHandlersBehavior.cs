@@ -30,7 +30,6 @@
                 throw new InvalidOperationException(error);
             }
 
-
             foreach (var handlerType in handlerTypedToInvoke)
             {
                 using (context.CreateSnapshotRegion())

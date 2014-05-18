@@ -17,11 +17,9 @@
 
         public IDataBusSerializer DataBusSerializer { get; set; }
 
-
         public void Invoke(IncomingContext context, Action next)
         {
             var message = context.IncomingLogicalMessage.Instance;
-
 
             foreach (var property in GetDataBusProperties(message))
             {
