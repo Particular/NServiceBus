@@ -20,7 +20,6 @@
 
             var types = GetTypesToUse(endpointConfiguration);
 
-            var transportToUse = settings.GetOrNull("Transport");
 
             SettingsHolder.Instance.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
 
@@ -30,13 +29,8 @@
                             .DefineBuilder(settings.GetOrNull("Builder"))
                             .DefineSerializer(settings.GetOrNull("Serializer"))
                             .DefineTransport(settings)
-                            .DefineSagaPersister(settings.GetOrNull("SagaPersister"));
+                            .DefinePersistence(settings);
 
-
-            if (transportToUse == null || transportToUse.Contains("Msmq") || transportToUse.Contains("SqlServer"))
-            {
-                config.DefineSubscriptionStorage(settings.GetOrNull("SubscriptionStorage"));
-            }
 
             return config.UnicastBus();
         }
