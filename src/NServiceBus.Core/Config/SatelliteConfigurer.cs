@@ -2,11 +2,11 @@ namespace NServiceBus.Config
 {
     using Satellites;
 
-    public class SatelliteConfigurer : INeedInitialization
+    class SatelliteConfigurer : INeedInitialization
     {
-        public void Init()
+        public void Init(Configure config)
         {
-            Configure.Instance.ForAllTypes<ISatellite>(s => Configure.Instance.Configurer.ConfigureComponent(s, DependencyLifecycle.SingleInstance));
+            config.ForAllTypes<ISatellite>(s => Configure.Instance.Configurer.ConfigureComponent(s, DependencyLifecycle.SingleInstance));
         }
     }
 }

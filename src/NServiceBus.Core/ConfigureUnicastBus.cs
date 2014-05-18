@@ -26,7 +26,7 @@ namespace NServiceBus
 
     class EnsureLoadMessageHandlersWasCalled : INeedInitialization
     {
-        public void Init()
+        public void Init(Configure config)
         {
             if (ConfigureUnicastBus.Instance != null)
             {

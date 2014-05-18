@@ -184,7 +184,7 @@ namespace NServiceBus
 
         static SerializationSettings serialization;
 
-        public static PipelineSettings Pipeline { get { return pipelineSettings ?? (pipelineSettings = new PipelineSettings()); } }
+        public PipelineSettings Pipeline { get { return pipelineSettings ?? (pipelineSettings = new PipelineSettings()); } }
 
         static PipelineSettings pipelineSettings;
 
@@ -344,7 +344,7 @@ namespace NServiceBus
 
             InvokeBeforeConfigurationInitializers();
 
-            ActivateAndInvoke<INeedInitialization>(t => t.Init());
+            ActivateAndInvoke<INeedInitialization>(t => t.Init(this));
 
             // HACK: I need this guy to run before IWantToRunBeforeConfigurationIsFinalized
             new FeatureInitializer().Run();

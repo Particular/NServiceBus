@@ -6,7 +6,7 @@ namespace NServiceBus.Unicast.Transport.Config
 
     class SetTransportThresholds : INeedInitialization
     {
-        public void Init()
+        public void Init(Configure config)
         {
             var transportConfig = Configure.GetConfigSection<TransportConfig>();
             var maximumThroughput = 0;
@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Transport.Config
                     MaxRetries = maximumNumberOfRetries
                 };
 
-            Configure.Instance.Configurer.ConfigureComponent(b => new TransportReceiver(transactionSettings, maximumConcurrencyLevel, maximumThroughput, b.Build<IDequeueMessages>(), b.Build<IManageMessageFailures>()), DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent(b => new TransportReceiver(transactionSettings, maximumConcurrencyLevel, maximumThroughput, b.Build<IDequeueMessages>(), b.Build<IManageMessageFailures>()), DependencyLifecycle.InstancePerCall);
         }
 
     }

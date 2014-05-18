@@ -11,7 +11,7 @@ namespace NServiceBus.Unicast.Queuing
     /// <summary>
     /// Iterating over all implementers of IWantQueueCreated and creating queue for each.
     /// </summary>
-    public class QueuesCreator : INeedInitialization, INeedToInstallSomething<Windows>
+    class QueuesCreator : INeedInitialization, INeedToInstallSomething<Windows>
     {
         public ICreateQueues QueueCreator { get; set; }
 
@@ -48,11 +48,11 @@ namespace NServiceBus.Unicast.Queuing
         /// <summary>
         /// Register all IWantQueueCreated implementers.
         /// </summary>
-        public void Init()
+        public void Init(Configure config)
         {
-            Configure.Instance.ForAllTypes<IWantQueueCreated>(type => Configure.Instance.Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall));
+            config.ForAllTypes<IWantQueueCreated>(type => Configure.Instance.Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall));
         }
 
-        private readonly static ILog Logger = LogManager.GetLogger(typeof(QueuesCreator));
+        readonly static ILog Logger = LogManager.GetLogger(typeof(QueuesCreator));
     }
 }

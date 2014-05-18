@@ -6,7 +6,7 @@ namespace NServiceBus.Unicast.Monitoring
     /// <summary>
     /// Stores the start and end times for statistic purposes
     /// </summary>
-    public class ProcessingStatistics : IManageUnitsOfWork, INeedInitialization
+    class ProcessingStatistics : IManageUnitsOfWork, INeedInitialization
     {
         /// <summary>
         /// Needs the bus to set the headers
@@ -56,9 +56,9 @@ namespace NServiceBus.Unicast.Monitoring
             }
         }
 
-        public void Init()
+        public void Init(Configure config)
         {
-            Configure.Instance.Configurer.ConfigureComponent<ProcessingStatistics>(DependencyLifecycle.InstancePerUnitOfWork);
+            config.Configurer.ConfigureComponent<ProcessingStatistics>(DependencyLifecycle.InstancePerUnitOfWork);
         }
     }
 }

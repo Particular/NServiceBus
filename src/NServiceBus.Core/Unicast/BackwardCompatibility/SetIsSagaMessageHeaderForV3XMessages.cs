@@ -37,9 +37,9 @@
             return message;
         }
 
-        public void Init()
+        public void Init(Configure config)
         {
-            Configure.Instance.Configurer.ConfigureComponent<SetIsSagaMessageHeaderForV3XMessages>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<SetIsSagaMessageHeaderForV3XMessages>(DependencyLifecycle.InstancePerCall);
         }
     }
 }
