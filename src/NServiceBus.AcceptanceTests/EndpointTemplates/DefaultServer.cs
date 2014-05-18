@@ -7,6 +7,7 @@
     using AcceptanceTesting.Support;
     using Config.ConfigurationSource;
     using Hosting.Helpers;
+    using Logging;
     using NServiceBus;
     using Settings;
 
@@ -16,7 +17,7 @@
         {
             var settings = runDescriptor.Settings;
 
-            SetLoggingLibrary.Log4Net(null, new ContextAppender(runDescriptor.ScenarioContext, endpointConfiguration));
+            LogManager.LoggerFactory = new ContextAppender(runDescriptor.ScenarioContext, endpointConfiguration);
 
             var types = GetTypesToUse(endpointConfiguration);
 

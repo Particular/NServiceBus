@@ -54,10 +54,6 @@
     <Reference Include="Common.Logging">
       <HintPath>..\packages\Common.Logging\lib\1.0\Common.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net\lib\2.0\log4net.dll</HintPath>
-      <Aliases>realOne</Aliases>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\packages\CommonServiceLocator\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
