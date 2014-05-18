@@ -108,7 +108,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
         void GenerateImplementationFor(Type interfaceType, ModuleBuilder moduleBuilder)
         {
-            if (!interfaceType.IsPublic && !interfaceType.IsNestedPublic)
+            if (!interfaceType.IsVisible)
             {
                 throw new Exception(string.Format("We can only generate a concrete implementation for '{0}' if '{0}' is public.", interfaceType));
             }
