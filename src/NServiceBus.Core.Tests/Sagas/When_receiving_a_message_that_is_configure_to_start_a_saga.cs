@@ -51,6 +51,7 @@ namespace NServiceBus.Unicast.Tests
         class MySagaData : ContainSagaData { }
 
         class StartMessage : IMessage { }
-        public interface StartMessageThatIsAnInterface : IMessage { }
     }
+
+    public interface StartMessageThatIsAnInterface : IMessage { }
 }
