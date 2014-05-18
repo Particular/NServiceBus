@@ -6,7 +6,7 @@ namespace NServiceBus.MessageMutator
     public interface IMutateIncomingMessages
     {
         /// <summary>
-        /// Mutates the given message right after it has been deseralized
+        /// Mutates the given message right after it has been deserialized
         /// </summary>
         object MutateIncoming(object message);
     }
