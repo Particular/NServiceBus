@@ -4,7 +4,6 @@ namespace NServiceBus.Features
     using Config;
     using Faults.Forwarder;
     using NServiceBus.SecondLevelRetries;
-    using Settings;
 
     public class SecondLevelRetries : Feature
     {
@@ -35,7 +34,7 @@ namespace NServiceBus.Features
             }
         }
 
-        public override void Initialize()
+        public override void Initialize(Configure config)
         {
             var retriesConfig = Configure.GetConfigSection<SecondLevelRetriesConfig>();
 
@@ -43,19 +42,19 @@ namespace NServiceBus.Features
 
             var processorAddress = Address.Parse(Configure.EndpointName).SubScope("Retries");
 
-            var useRemoteRetryProcessor = SettingsHolder.HasSetting("SecondLevelRetries.AddressOfRetryProcessor");
+            var useRemoteRetryProcessor = config.Settings.HasSetting("SecondLevelRetries.AddressOfRetryProcessor");
             if (useRemoteRetryProcessor)
             {
-                processorAddress = SettingsHolder.Get<Address>("SecondLevelRetries.AddressOfRetryProcessor");
+                processorAddress = config.Settings.Get<Address>("SecondLevelRetries.AddressOfRetryProcessor");
             }
 
-            Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, processorAddress);
-            Configure.Instance.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.InputAddress, processorAddress);
-            Configure.Instance.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.RetryPolicy, SettingsHolder.Get<Func<TransportMessage,TimeSpan>>("SecondLevelRetries.RetryPolicy"));
+            config.Configurer.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, processorAddress);
+            config.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.InputAddress, processorAddress);
+            config.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.RetryPolicy, config.Settings.Get<Func<TransportMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy"));
 
             if (useRemoteRetryProcessor)
             {
-                Configure.Instance.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, true);
+                config.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, true);
             } 
         }
 

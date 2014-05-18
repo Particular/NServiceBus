@@ -5,9 +5,6 @@ namespace NServiceBus
     using System.IO;
     using System.Net;
     using System.Text;
-    using Config;
-    using Gateway.Deduplication;
-    using Gateway.Persistence;
     using Logging;
     using Newtonsoft.Json;
     using Persistence.Raven;
@@ -15,10 +12,6 @@ namespace NServiceBus
     using Raven.Abstractions.Extensions;
     using Raven.Client;
     using Raven.Client.Document;
-    using Saga;
-    using Settings;
-    using Timeout.Core;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using ILogManager = Raven.Abstractions.Logging.ILogManager;
 
     /// <summary>
@@ -157,15 +150,7 @@ namespace NServiceBus
             return config;
         }
 
-        [Obsolete]
-        public static void RegisterDefaults()
-        {
-            InfrastructureServices.SetDefaultFor<ISagaPersister>(() => Configure.Instance.RavenSagaPersister());
-            InfrastructureServices.SetDefaultFor<IPersistTimeouts>(() => Configure.Instance.UseRavenTimeoutPersister());
-            InfrastructureServices.SetDefaultFor<IPersistMessages>(() => Configure.Instance.UseRavenGatewayPersister());
-            InfrastructureServices.SetDefaultFor<IDeduplicateMessages>(() => Configure.Instance.UseRavenGatewayDeduplication());
-            InfrastructureServices.SetDefaultFor<ISubscriptionStorage>(() => Configure.Instance.RavenSubscriptionStorage());
-        }
+      
 
         static Configure InternalRavenPersistence(this Configure config, DocumentStore documentStore)
         {
@@ -175,7 +160,7 @@ namespace NServiceBus
 
                 documentStore.Conventions.MaxNumberOfRequestsPerSession = 100;
 
-                if (SettingsHolder.Get<bool>("Transactions.SuppressDistributedTransactions"))
+                if (config.Settings.Get<bool>("Transactions.SuppressDistributedTransactions"))
                 {
                     documentStore.EnlistInDistributedTransactions = false;
                 }

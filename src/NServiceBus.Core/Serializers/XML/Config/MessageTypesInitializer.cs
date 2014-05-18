@@ -7,12 +7,12 @@ namespace NServiceBus.Serializers.XML.Config
     /// <summary>
     /// Initializes the mapper and the serializer with the found message types
     /// </summary>
-    public class MessageTypesInitializer : IWantToRunWhenConfigurationIsComplete
+    class MessageTypesInitializer : IWantToRunWhenConfigurationIsComplete
     {
         public MessageMapper Mapper { get; set; }
         public XmlMessageSerializer Serializer { get; set; }
 
-        public void Run()
+        public void Run(Configure config)
         {
             if (Mapper == null)
             {

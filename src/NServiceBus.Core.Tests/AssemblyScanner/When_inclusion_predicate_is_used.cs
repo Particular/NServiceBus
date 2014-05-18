@@ -1,7 +1,6 @@
 namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using Hosting.Helpers;
     using NUnit.Framework;
@@ -14,7 +13,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         [SetUp]
         public void Context()
         {
-            var assemblyScanner = new AssemblyScanner(Path.GetDirectoryName(AssemblyLocation.CurrentDirectory))
+            var assemblyScanner = new AssemblyScanner(AssemblyLocation.CurrentDirectory)
                 {
                     AssembliesToInclude = new List<string>
                         {

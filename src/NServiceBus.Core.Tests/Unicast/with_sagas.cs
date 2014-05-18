@@ -2,8 +2,8 @@
 {
     using System;
     using Contexts;
+    using InMemory.SagaPersister;
     using NUnit.Framework;
-    using Persistence.InMemory.SagaPersister;
     using Saga;
     using Sagas.Finders;
 

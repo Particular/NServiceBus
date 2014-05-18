@@ -2,7 +2,6 @@
 {
     using System;
     using NUnit.Framework;
-    using Persistence.InMemory.SagaPersister;
 
     [TestFixture]
     class When_saga_not_found_return_default

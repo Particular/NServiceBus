@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Settings;
     using Utils;
 
@@ -14,7 +15,7 @@
         /// <summary>
         /// Called when the feature should perform its initialization. This call will only happen if the feature is enabled.
         /// </summary>
-        public virtual void Initialize()
+        public virtual void Initialize(Configure config)
         {
         }
 
@@ -64,7 +65,7 @@
         /// </summary>
         public static void Enable(Type featureType)
         {
-            SettingsHolder.Set(featureType.FullName, true);
+            SettingsHolder.Instance.Set(featureType.FullName, true);
         }
 
         /// <summary>
@@ -80,7 +81,7 @@
         /// </summary>
         public static void EnableByDefault(Type featureType)
         {
-            SettingsHolder.SetDefault(featureType.FullName, true);
+            SettingsHolder.Instance.SetDefault(featureType.FullName, true);
         }
 
         /// <summary>
@@ -96,17 +97,10 @@
         /// </summary>
         public static void Disable(Type featureType)
         {
-            SettingsHolder.Set(featureType.FullName, false);
+            SettingsHolder.Instance.Set(featureType.FullName, false);
         }
 
-        /// <summary>
-        /// Disabled the give feature unless explicitly enabled
-        /// </summary>
-        public static void DisableByDefault(Type featureType)
-        {
-            SettingsHolder.SetDefault(featureType.FullName, false);
-        }
-
+      
         /// <summary>
         /// Returns true if the given feature is enabled
         /// </summary>
@@ -121,7 +115,7 @@
         /// </summary>
         public static bool IsEnabled(Type feature)
         {
-            return SettingsHolder.GetOrDefault<bool>(feature.FullName);
+            return SettingsHolder.Instance.GetOrDefault<bool>(feature.FullName);
         }
 
         /// <summary>
@@ -137,20 +131,7 @@
         /// </summary>
         public static IEnumerable<Feature> ByCategory(FeatureCategory category)
         {
-            var result = new List<Feature>();
-
-            Configure.Instance.ForAllTypes<Feature>(t =>
-            {
-                var feature = (Feature)Activator.CreateInstance(t);
-
-                if (feature.Category == category)
-                {
-                    result.Add(feature);
-                }
-
-            });
-
-            return result;
+            return Configure.Instance.Features.Where(f=>f.Category == category);
         }
 
         public string Version
@@ -160,6 +141,16 @@
                 return FileVersionRetriever.GetFileVersion(GetType());
             }
         }
+
+        protected void DependsOn<T>() where T:Feature
+        {
+            dependencies.Add(typeof(T));
+        }
+
+        public IEnumerable<Type> Dependencies
+        {
+            get { return dependencies.ToList(); }
+        } 
 
         public override string ToString()
         {
@@ -215,7 +206,7 @@
             name = GetType().Name.Replace("Feature", String.Empty);
         }
 
-
+        List<Type> dependencies = new List<Type>(); 
         string name;
     }
 

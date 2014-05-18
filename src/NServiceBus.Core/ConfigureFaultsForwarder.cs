@@ -5,7 +5,6 @@ namespace NServiceBus
     using Faults;
     using Faults.Forwarder;
     using Logging;
-    using Settings;
     using Utils;
 
     /// <summary>
@@ -22,7 +21,7 @@ namespace NServiceBus
 			{
 				 return config;
 			}
-			if (SettingsHolder.Get<bool>("Endpoint.SendOnly"))
+			if (config.Settings.Get<bool>("Endpoint.SendOnly"))
 			{
 				return config;
 			}

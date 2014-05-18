@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using AcceptanceTesting.Support;
-    using Persistence.InMemory.SagaPersister;
+    using InMemory.SagaPersister;
     using Saga;
 
     public class SagaPersisters : ScenarioDescriptor

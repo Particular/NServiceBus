@@ -31,7 +31,7 @@ namespace NServiceBus
 
         public static Configure RunGatewayWithInMemoryPersistence(this Configure config)
         {
-            return RunGateway(config, typeof(InMemoryPersistence));
+            return RunGateway(config, typeof(InMemoryGatewayPersister));
         }
 
         public static Configure RunGatewayWithRavenPersistence(this Configure config)
@@ -51,7 +51,7 @@ namespace NServiceBus
         /// </summary>
         public static Configure UseInMemoryGatewayPersister(this Configure config)
         {
-            config.Configurer.ConfigureComponent<InMemoryPersistence>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<InMemoryGatewayPersister>(DependencyLifecycle.SingleInstance);
             return config;
         }
 
@@ -60,7 +60,7 @@ namespace NServiceBus
         /// </summary>
         public static Configure UseInMemoryGatewayDeduplication(this Configure config)
         {
-            config.Configurer.ConfigureComponent<InMemoryDeduplication>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<InMemoryGatewayDeduplication>(DependencyLifecycle.SingleInstance);
             return config;
         }
 

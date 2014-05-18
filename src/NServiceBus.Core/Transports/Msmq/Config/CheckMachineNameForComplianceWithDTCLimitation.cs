@@ -33,11 +33,13 @@ namespace NServiceBus.Transports.Msmq.Config
         /// <summary>
         /// Method invoked to run custom code.
         /// </summary>
-        public void Run()
+        public void Run(Configure config)
         {
             if (!Feature.IsEnabled<MsmqTransport>())
+            {
                 return;
-            
+            }
+                
             uint capacity = 24;
             var buffer = new StringBuilder((int)capacity);
             if (!GetComputerNameEx(COMPUTER_NAME_FORMAT.ComputerNameNetBIOS, buffer, ref capacity)) 

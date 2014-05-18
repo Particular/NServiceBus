@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
     using Config;
-    using Settings;
     using Timeout.Core;
     using Timeout.Hosting.Windows;
     using Transports;
@@ -28,7 +27,7 @@
             }
 
             //if we have a master node configured we should use the Master Node timeout manager instead
-            if (SettingsHolder.GetOrDefault<bool>("Distributor.Enabled"))
+            if (Configure.Instance.Settings.GetOrDefault<bool>("Distributor.Enabled"))
             {
                 return false;
             }
@@ -44,15 +43,13 @@
             return true;
         }
 
-        public override void Initialize()
+        public override void Initialize(Configure config)
         {
             DispatcherAddress = Address.Parse(Configure.EndpointName).SubScope("TimeoutsDispatcher");
             InputAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts");
 
-            Configure.Component<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
-
-            InfrastructureServices.Enable<IPersistTimeouts>();
-            InfrastructureServices.Enable<IManageTimeouts>();
+            config.Configurer.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
         }
 
         public static Address InputAddress { get; private set; }

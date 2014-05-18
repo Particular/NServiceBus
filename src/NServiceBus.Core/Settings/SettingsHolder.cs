@@ -5,15 +5,29 @@ namespace NServiceBus.Settings
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq.Expressions;
+    using ObjectBuilder;
     using Utils.Reflection;
 
     /// <summary>
     /// Setting container.
     /// </summary>
-    public static class SettingsHolder
+    public class SettingsHolder
     {
-        static readonly ConcurrentDictionary<string, object> Overrides = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-        static readonly ConcurrentDictionary<string, object> Defaults = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        
+
+        public static SettingsHolder Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new SettingsHolder();
+                }
+                return instance;
+            }
+        }
+
+        static SettingsHolder instance;
 
         /// <summary>
         /// Gets the setting value.
@@ -21,7 +35,7 @@ namespace NServiceBus.Settings
         /// <typeparam name="T">The value of the setting.</typeparam>
         /// <param name="key">The key of the setting to get.</param>
         /// <returns>The setting value.</returns>
-        public static T Get<T>(string key)
+        public T Get<T>(string key)
         {
             return (T) Get(key);
         }
@@ -29,15 +43,15 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Gets the setting value.
         /// </summary>
-        public static object Get(string key)
+        public object Get(string key)
         {
             object result;
-            if (Overrides.TryGetValue(key, out result))
+            if (Instance.Overrides.TryGetValue(key, out result))
             {
                 return result;
             }
 
-            if (Defaults.TryGetValue(key, out result))
+            if (Instance.Defaults.TryGetValue(key, out result))
             {
                 return result;
             }
@@ -50,22 +64,22 @@ namespace NServiceBus.Settings
         /// </summary>
         /// <param name="key">The key to use to store the setting.</param>
         /// <param name="value">The setting value.</param>
-        public static void Set(string key, object value)
+        public void Set(string key, object value)
         {
             EnsureWriteEnabled(key);
 
-            Overrides[key] = value;
+            Instance.Overrides[key] = value;
         }
         /// <summary>
         /// Sets the value
         /// </summary>
         /// <typeparam name="T">The type to use as a key for storing the setting.</typeparam>
         /// <param name="value">The setting value.</param>
-        public static void Set<T>(object value)
+        public void Set<T>(object value)
         {
             Set(typeof(T).FullName, value);
         }
-        public static void Set<T>(Action value)
+        public void Set<T>(Action value)
         {
             Set(typeof(T).FullName, value);
         }
@@ -73,7 +87,7 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Sets the value of the given property
         /// </summary>
-        public static void SetProperty<T>(Expression<Func<T, object>> property, object value)
+        public void SetProperty<T>(Expression<Func<T, object>> property, object value)
         {
             var prop = Reflect<T>.GetProperty(property);
 
@@ -83,7 +97,7 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Sets the default value of the given property
         /// </summary>
-        public static void SetPropertyDefault<T>(Expression<Func<T, object>> property, object value)
+        public void SetPropertyDefault<T>(Expression<Func<T, object>> property, object value)
         {
             var prop = Reflect<T>.GetProperty(property);
 
@@ -95,40 +109,40 @@ namespace NServiceBus.Settings
         /// </summary>
         /// <typeparam name="T">The type to use as a key for storing the setting.</typeparam>
         /// <param name="value">The setting value.</param>
-        public static void SetDefault<T>(object value)
+        public void SetDefault<T>(object value)
         {
             SetDefault(typeof(T).FullName, value);
         }
 
-        public static void SetDefault<T>(Action value)
+        public void SetDefault<T>(Action value)
         {
             SetDefault(typeof(T).FullName, value);
         }
 
-        public static void SetDefault(string key, object value)
+        public void SetDefault(string key, object value)
         {
             EnsureWriteEnabled(key);
 
-            Defaults[key] = value;
+            Instance.Defaults[key] = value;
         }
 
-        public static void Reset()
+        public void Reset()
         {
             locked = false;
 
-            Overrides.Clear();
-            Defaults.Clear();
+            Instance.Overrides.Clear();
+            Instance.Defaults.Clear();
         }
 
-        public static T GetOrDefault<T>(string key)
+        public T GetOrDefault<T>(string key)
         {
             object result;
-            if (Overrides.TryGetValue(key, out result))
+            if (Instance.Overrides.TryGetValue(key, out result))
             {
                 return (T)result;
             }
 
-            if (Defaults.TryGetValue(key, out result))
+            if (Instance.Defaults.TryGetValue(key, out result))
             {
                 return (T)result;
             }
@@ -136,15 +150,15 @@ namespace NServiceBus.Settings
             return default(T);
         }
 
-        public static bool HasSetting(string key)
+        public bool HasSetting(string key)
         {
 
-            if (Overrides.ContainsKey(key))
+            if (Instance.Overrides.ContainsKey(key))
             {
                 return true;
             }
 
-            if (Defaults.ContainsKey(key))
+            if (Instance.Defaults.ContainsKey(key))
             {
                 return true;
             }
@@ -152,7 +166,7 @@ namespace NServiceBus.Settings
             return false;
         }
 
-        public static bool HasSetting<T>()
+        public bool HasSetting<T>()
         {
             var key = typeof(T).FullName;
 
@@ -162,12 +176,12 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Locks the settings to prevent further modifications
         /// </summary>
-        public static void PreventChanges()
+        public void PreventChanges()
         {
             locked = true;
         }
 
-        static void EnsureWriteEnabled(string key)
+        void EnsureWriteEnabled(string key)
         {
             if (locked)
             {
@@ -175,9 +189,9 @@ namespace NServiceBus.Settings
             }
         }
 
-        static bool locked;
+        bool locked;
 
-        public static void ApplyTo<T>()
+        public void ApplyTo<T>(IComponentConfig config)
         {
             var targetType = typeof (T);
 
@@ -187,9 +201,13 @@ namespace NServiceBus.Settings
                 
                 if (HasSetting(settingsKey))
                 {
-                    Configure.Instance.Configurer.ConfigureProperty<T>(property.Name, Get(settingsKey));
+                    config.ConfigureProperty(property.Name, Get(settingsKey));
                 }
             }
         }
+
+        readonly ConcurrentDictionary<string, object> Overrides = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        readonly ConcurrentDictionary<string, object> Defaults = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
     }
 }

@@ -1,24 +1,23 @@
 ﻿namespace NServiceBus.Unicast.Config
 {
     using NServiceBus.Config;
-    using Settings;
     using Timeout;
     using Transports;
 
     public class DefaultToTimeoutManagerBasedDeferral : IFinalizeConfiguration
     {
-        public void FinalizeConfiguration()
+        public void FinalizeConfiguration(Configure config)
         {
-            if (Configure.HasComponent<IDeferMessages>())
+            if (config.Configurer.HasComponent<IDeferMessages>())
             {
                 return;
             }
 
-            Configure.Component<TimeoutManagerDeferrer>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.TimeoutManagerAddress, GetTimeoutManagerAddress());
+            config.Configurer.ConfigureComponent<TimeoutManagerDeferrer>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(p => p.TimeoutManagerAddress, GetTimeoutManagerAddress(config));
         }
 
-        static Address GetTimeoutManagerAddress()
+        static Address GetTimeoutManagerAddress(Configure config)
         {
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
 
@@ -27,7 +26,7 @@
                 return Address.Parse(unicastConfig.TimeoutManagerAddress);
             }
 
-            return SettingsHolder.Get<Address>("MasterNode.Address").SubScope("Timeouts");
+            return config.Settings.Get<Address>("MasterNode.Address").SubScope("Timeouts");
         }
     }
 }

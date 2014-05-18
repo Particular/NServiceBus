@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using AcceptanceTesting.Support;
-    using Persistence.InMemory.SubscriptionStorage;
+    using InMemory.SubscriptionStorage;
     using Persistence.Msmq.SubscriptionStorage;
     using Persistence.Raven.SubscriptionStorage;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;

@@ -3,10 +3,7 @@ namespace NServiceBus.Timeout.Core
     using System;
     using Transports;
 
-    /// <summary>
-    /// Default implementation for <see cref="IManageTimeouts"/>
-    /// </summary>
-    public class DefaultTimeoutManager : IManageTimeouts
+    class DefaultTimeoutManager
     {
         /// <summary>
         /// The timeout persister.

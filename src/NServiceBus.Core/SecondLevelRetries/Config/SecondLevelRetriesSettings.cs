@@ -7,12 +7,12 @@ namespace NServiceBus.SecondLevelRetries.Config
     {
         public SecondLevelRetriesSettings()
         {
-            SettingsHolder.SetDefault("SecondLevelRetries.RetryPolicy", DefaultRetryPolicy.RetryPolicy);
+            SettingsHolder.Instance.SetDefault("SecondLevelRetries.RetryPolicy", DefaultRetryPolicy.RetryPolicy);
         }
 
         public void CustomRetryPolicy(Func<TransportMessage, TimeSpan> customPolicy)
         {
-            SettingsHolder.Set("SecondLevelRetries.RetryPolicy",customPolicy);
+            SettingsHolder.Instance.Set("SecondLevelRetries.RetryPolicy",customPolicy);
         }
     }
 }

@@ -8,6 +8,6 @@
         /// <summary>
         /// Invoked by the framework when the configuration is to be finalized
         /// </summary>
-        void FinalizeConfiguration();
+        void FinalizeConfiguration(Configure config);
     }
 }

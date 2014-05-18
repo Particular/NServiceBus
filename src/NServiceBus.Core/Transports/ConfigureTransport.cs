@@ -2,7 +2,6 @@ namespace NServiceBus.Transports
 {
     using System;
     using Features;
-    using Settings;
     using Unicast.Transport;
 
     public abstract class ConfigureTransport<T> : Feature, IConfigureTransport<T> where T : TransportDefinition
@@ -16,10 +15,10 @@ namespace NServiceBus.Transports
                 throw new InvalidOperationException(String.Format(Message, GetConfigFileIfExists(), typeof(T).Name, ExampleConnectionStringForErrorMessage));
             }
 
-            SettingsHolder.Set("NServiceBus.Transport.ConnectionString", connectionString);
+            config.Settings.Set("NServiceBus.Transport.ConnectionString", connectionString);
 
             var selectedTransportDefinition = Activator.CreateInstance<T>();
-            SettingsHolder.Set("NServiceBus.Transport.SelectedTransport", selectedTransportDefinition);
+            config.Settings.Set("NServiceBus.Transport.SelectedTransport", selectedTransportDefinition);
             config.Configurer.RegisterSingleton<TransportDefinition>(selectedTransportDefinition);
             InternalConfigure(config);
         }

@@ -9,7 +9,7 @@
     /// <summary>
     /// The default strategy for auto subscriptions.
     /// </summary>
-    public class DefaultAutoSubscriptionStrategy:IAutoSubscriptionStrategy
+    public class AutoSubscriptionStrategy
     {
         /// <summary>
         /// The known handlers

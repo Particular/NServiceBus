@@ -43,6 +43,17 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Provides access to the settings holder
+        /// </summary>
+        public  SettingsHolder Settings
+        {
+            get
+            {
+                return SettingsHolder.Instance;
+            }
+        }
+
+        /// <summary>
         /// True if any of the <see cref="With()"/> has been called.
         /// </summary>
         public static bool WithHasBeenCalled()
@@ -50,10 +61,6 @@ namespace NServiceBus
             return instance != null;
         }
 
-        /// <summary>
-        /// Event raised when configuration is complete.
-        /// </summary>
-        public static event Action ConfigurationComplete;
 
         /// <summary>
         /// Gets/sets the builder.
@@ -169,7 +176,7 @@ namespace NServiceBus
 
         static TransportSettings transports;
 
-        public static FeatureSettings Features { get { return features ?? (features = new FeatureSettings()); } }
+        public FeatureSettings Features { get { return features ?? (features = new FeatureSettings()); } }
 
         static FeatureSettings features;
 
@@ -329,6 +336,8 @@ namespace NServiceBus
                 return;
             }
 
+            ForAllTypes<Feature>(t => Features.Add((Feature)Activator.CreateInstance(t)));
+
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
@@ -342,25 +351,18 @@ namespace NServiceBus
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run());
 
-            
-
             ForAllTypes<INeedToInstallSomething<Windows>>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             //lockdown the settings
-            SettingsHolder.PreventChanges();
+            Settings.PreventChanges();
 
-            ActivateAndInvoke<IFinalizeConfiguration>(t => t.FinalizeConfiguration());
+            ActivateAndInvoke<IFinalizeConfiguration>(t => t.FinalizeConfiguration(this));
 
             initialized = true;
 
-            if (ConfigurationComplete != null)
-            {
-                ConfigurationComplete();
-            }
-
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
-                .ForEach(o => o.Run());
+                .ForEach(o => o.Run(this));
         }
 
 

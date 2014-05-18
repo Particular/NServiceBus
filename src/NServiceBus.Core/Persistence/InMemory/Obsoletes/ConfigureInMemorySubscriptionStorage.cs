@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using Persistence.InMemory.SubscriptionStorage;
+    using Persistence;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
@@ -11,10 +11,10 @@ namespace NServiceBus
         /// Stores subscription data in memory.
         /// This storage are for development scenarios only
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5.1", Replacement = "config.UsePersistence<Persistence.InMemory>()")]
         public static Configure InMemorySubscriptionStorage(this Configure config)
         {
-            config.Configurer.ConfigureComponent<InMemorySubscriptionStorage>(DependencyLifecycle.SingleInstance);
-            return config;
+            return config.UsePersistence<Persistence.InMemory>();
         }
     }
 }

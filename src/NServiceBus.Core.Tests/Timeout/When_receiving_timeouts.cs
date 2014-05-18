@@ -7,8 +7,8 @@ namespace NServiceBus.Core.Tests.Timeout
     [TestFixture]
     public class When_receiving_timeouts
     {
-        private FakeMessageSender messageSender;
-        private IManageTimeouts manager;
+        FakeMessageSender messageSender;
+        DefaultTimeoutManager manager;
 
         [SetUp]
         public void Setup()

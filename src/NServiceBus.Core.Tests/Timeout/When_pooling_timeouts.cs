@@ -5,57 +5,30 @@ namespace NServiceBus.Core.Tests.Timeout
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Persistence.InMemory.TimeoutPersister;
+    using InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Timeout.Hosting.Windows;
     using NUnit.Framework;
 
-//    [TestFixture]
-//    [Explicit]
-//    public class When_pooling_timeouts_with_raven : When_pooling_timeouts
-//    {
-//        IDocumentStore store;
-//
-//        protected override IPersistTimeouts CreateTimeoutPersister()
-//        {
-//            store = new EmbeddableDocumentStore
-//                    {
-//                        RunInMemory = true
-//                    };
-//            //IDocumentStore store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "TempTest" };
-//            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
-//            store.Conventions.MaxNumberOfRequestsPerSession = 10;
-//            store.Initialize();
-//
-//            return new RavenTimeoutPersistence(new StoreAccessor(store));
-//        }
-//
-//        [TearDown]
-//        public void Cleanup()
-//        {
-//            store.Dispose();
-//        }
-//    }
-
     [TestFixture]
-   [Explicit]
-    public class When_pooling_timeouts_with_inMemory : When_pooling_timeouts
+    [Explicit]
+    class When_pooling_timeouts_with_inMemory : When_pooling_timeouts
     {
         protected override IPersistTimeouts CreateTimeoutPersister()
         {
-            return new InMemoryTimeoutPersistence();
+            return new InMemoryTimeoutPersister();
         }
     }
 
-    public abstract class When_pooling_timeouts
+    abstract class When_pooling_timeouts
     {
-        private IManageTimeouts manager;
-        private FakeMessageSender messageSender;
+        DefaultTimeoutManager manager;
+        FakeMessageSender messageSender;
         readonly Random rand = new Random();
-        private int expected;
+        int expected;
 
-        protected IPersistTimeouts persister;
-        protected TimeoutPersisterReceiver receiver;
+        IPersistTimeouts persister;
+        TimeoutPersisterReceiver receiver;
 
         protected abstract IPersistTimeouts CreateTimeoutPersister();
 
@@ -90,7 +63,7 @@ namespace NServiceBus.Core.Tests.Timeout
             expected = 50;
 
             Enumerable.Range(1, expected).ToList().ForEach(i => persister.Add(CreateData(DateTime.UtcNow.AddSeconds(-5))));
-            
+
             StartAndStopReceiver();
 
             WaitForMessagesThenAssert(5);
@@ -115,9 +88,9 @@ namespace NServiceBus.Core.Tests.Timeout
 
             expected = 10;
             Push(expected, DateTime.UtcNow.AddSeconds(1));
-            
+
             Thread.Sleep(TimeSpan.FromSeconds(5));
-            
+
             WaitForMessagesThenAssert(10);
 
             messageSender.MessagesSent = 0;

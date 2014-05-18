@@ -7,7 +7,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Transports;
     using Unicast.Transport;
 
-    public class TimeoutDispatcherProcessor : IAdvancedSatellite
+    class TimeoutDispatcherProcessor : IAdvancedSatellite
     {  
         public ISendMessages MessageSender { get; set; }
 

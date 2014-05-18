@@ -1,9 +1,10 @@
-namespace NServiceBus.Persistence.InMemory.SagaPersister
+namespace NServiceBus.InMemory.SagaPersister
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
+    using Persistence;
     using Saga;
     using Serializers.Json;
 

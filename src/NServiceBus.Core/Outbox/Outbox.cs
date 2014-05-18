@@ -1,14 +1,13 @@
 ﻿namespace NServiceBus.Features
 {
-    using Config;
     using NServiceBus.Outbox;
     using Pipeline;
 
     public class Outbox : Feature
     {
-        public override void Initialize()
+        public override void Initialize(Configure config)
         {
-            InfrastructureServices.Enable<IOutboxStorage>();
+             
         }
 
         public class PipelineConfig : IWantToRunBeforeConfigurationIsFinalized

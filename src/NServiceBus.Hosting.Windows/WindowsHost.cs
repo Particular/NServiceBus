@@ -11,7 +11,7 @@ namespace NServiceBus.Hosting.Windows
     /// </summary>
     public class WindowsHost : MarshalByRefObject
     {
-        readonly IHost genericHost;
+        readonly GenericHost genericHost;
         readonly bool runOtherInstallers;
 
         /// <summary>

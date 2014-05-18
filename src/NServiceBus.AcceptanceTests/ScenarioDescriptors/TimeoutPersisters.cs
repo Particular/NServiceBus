@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using AcceptanceTesting.Support;
-    using Persistence.InMemory.TimeoutPersister;
+    using InMemory.TimeoutPersister;
     using Timeout.Core;
 
     public class TimeoutPersisters : ScenarioDescriptor
@@ -39,11 +39,11 @@
             get
             {
                 var persisters = AvailablePersisters;
-                var persister = persisters.FirstOrDefault(p => p != typeof(InMemoryTimeoutPersistence));
+                var persister = persisters.FirstOrDefault(p => p != typeof(InMemoryTimeoutPersister));
 
                 if (persister == null)
                 {
-                    persister = typeof(InMemoryTimeoutPersistence);
+                    persister = typeof(InMemoryTimeoutPersister);
                 }
 
                 return new RunDescriptor

@@ -21,7 +21,7 @@ namespace NServiceBus.Unicast.Queuing
         /// <param name="identity">The user for under which the queue will be created.</param>
         public void Install(string identity)
         {
-            if (SettingsHolder.Get<bool>("Endpoint.SendOnly"))
+            if (SettingsHolder.Instance.Get<bool>("Endpoint.SendOnly"))
             {
                 return;
             }

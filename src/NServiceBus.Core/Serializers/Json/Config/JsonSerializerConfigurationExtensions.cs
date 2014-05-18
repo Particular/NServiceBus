@@ -10,7 +10,7 @@
         /// </summary>
         public static SerializationSettings Json(this SerializationSettings settings)
         {
-            Feature.Enable<JsonSerialization>();
+           Feature.Enable<JsonSerialization>();
 
             return settings;
         }

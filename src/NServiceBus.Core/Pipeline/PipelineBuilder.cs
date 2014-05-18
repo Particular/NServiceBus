@@ -16,8 +16,8 @@
     {
         public PipelineBuilder()
         {
-            var removals = SettingsHolder.Get<List<RemoveBehavior>>("Pipeline.Removals");
-            var replacements = SettingsHolder.Get<List<ReplaceBehavior>>("Pipeline.Replacements");
+            var removals = SettingsHolder.Instance.Get<List<RemoveBehavior>>("Pipeline.Removals");
+            var replacements = SettingsHolder.Instance.Get<List<ReplaceBehavior>>("Pipeline.Replacements");
 
             coordinator = new BehaviorRegistrationsCoordinator(removals, replacements);
 
@@ -51,7 +51,7 @@
 
         void RegisterAdditionalBehaviors()
         {
-            var additions = SettingsHolder.Get<List<RegisterBehavior>>("Pipeline.Additions");
+            var additions = SettingsHolder.Instance.Get<List<RegisterBehavior>>("Pipeline.Additions");
 
             foreach (var rego in additions)
             {

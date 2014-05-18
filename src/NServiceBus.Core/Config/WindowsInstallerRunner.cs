@@ -22,7 +22,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// Runs the installers if necessary.
         /// </summary>
-        public void Run()
+        public void Run(Configure config)
         {
             if (!RunInstallers)
             {
@@ -34,7 +34,7 @@ namespace NServiceBus.Config
                 Installer<Installation.Environments.Windows>.RunOtherInstallers = true;
             }
 
-            Configure.Instance.ForInstallationOn<Installation.Environments.Windows>(RunAs).Install();
+            config.ForInstallationOn<Installation.Environments.Windows>(RunAs).Install();
         }
     }
 }

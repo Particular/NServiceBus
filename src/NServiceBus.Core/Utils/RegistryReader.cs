@@ -4,22 +4,10 @@
     using Logging;
     using Microsoft.Win32;
 
-    /// <summary>
-    /// Wrapper to read registry keys.
-    /// </summary>
-    /// <typeparam name="T">The type of the key to retrieve</typeparam>
-    public class RegistryReader<T>
+    static class RegistryReader<T>
     {
         static readonly ILog Logger = LogManager.GetLogger(typeof(RegistryReader<T>));
 
-        /// <summary>
-        /// Attempts to read the key from the registry.
-        /// </summary>
-        /// <param name="name">The name of the value to retrieve. This string is not case-sensitive.</param>
-        /// <param name="defaultValue">The value to return if <paramref name="name"/> does not exist. </param>
-        /// <returns>
-        /// The value associated with <paramref name="name"/>, with any embedded environment variables left unexpanded, or <paramref name="defaultValue"/> if <paramref name="name"/> is not found.
-        /// </returns>
         public static T Read(string name, T defaultValue = default(T))
         {
             try
@@ -34,7 +22,7 @@
             return defaultValue;
         }
 
-        protected static T ReadRegistryKeyValue(string keyName, object defaultValue)
+        static T ReadRegistryKeyValue(string keyName, object defaultValue)
         {
             object value;
 
@@ -50,7 +38,7 @@
             return (T)value;
         }
 
-        protected static object ReadRegistry(RegistryView view, string keyName, object defaultValue)
+        static object ReadRegistry(RegistryView view, string keyName, object defaultValue)
         {
             using (var key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view).OpenSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
             {

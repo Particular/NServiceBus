@@ -22,9 +22,7 @@
 
             var transportToUse = settings.GetOrNull("Transport");
 
-            Configure.Features.Enable<Features.Sagas>();
-
-            SettingsHolder.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
+            SettingsHolder.Instance.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
 
             var config = Configure.With(types)
                             .DefineEndpointName(endpointConfiguration.EndpointName)
@@ -34,13 +32,6 @@
                             .DefineTransport(settings)
                             .DefineSagaPersister(settings.GetOrNull("SagaPersister"));
 
-            if (transportToUse == null ||
-                transportToUse.Contains("Msmq") ||
-                transportToUse.Contains("SqlServer") ||
-                transportToUse.Contains("RabbitMq"))
-            {
-                config.DefineTimeoutPersister(settings.GetOrNull("TimeoutPersister"));
-            }
 
             if (transportToUse == null || transportToUse.Contains("Msmq") || transportToUse.Contains("SqlServer"))
             {

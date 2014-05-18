@@ -2,13 +2,13 @@ namespace NServiceBus.Settings
 {
     using System;
     using Features;
-    using Persistence.InMemory;
+    using Persistence;
 
     class DefaultEndpointSettings: ISetDefaultSettings
     {
         public DefaultEndpointSettings()
         {
-            SettingsHolder.SetDefault("Endpoint.SendOnly", false);
+            SettingsHolder.Instance.SetDefault("Endpoint.SendOnly", false);
         }
     }
 
@@ -16,7 +16,7 @@ namespace NServiceBus.Settings
     {
         public DefaultEndpointAdvancedSettings()
         {
-            SettingsHolder.SetDefault("Endpoint.DurableMessages", true);
+            SettingsHolder.Instance.SetDefault("Endpoint.DurableMessages", true);
         }
     }
 
@@ -32,7 +32,7 @@ namespace NServiceBus.Settings
         /// </summary>
         public Endpoint AsVolatile()
         {
-            InMemoryPersistence.UseAsDefault();
+            PersistenceConfig.DefaultTo<InMemory>();
 
             Configure.Transactions.Disable();
             Configure.Transactions.Advanced(s => s.DoNotWrapHandlersExecutionInATransactionScope()
@@ -51,7 +51,7 @@ namespace NServiceBus.Settings
         /// </remarks>
         public Endpoint AsSendOnly()
         {
-            SettingsHolder.Set("Endpoint.SendOnly", true);
+            SettingsHolder.Instance.Set("Endpoint.SendOnly", true);
             Feature.Disable<TimeoutManager>();
             return this;
         }
@@ -76,7 +76,7 @@ namespace NServiceBus.Settings
             /// </summary>
             public EndpointAdvancedSettings EnableDurableMessages()
             {
-                SettingsHolder.Set("Endpoint.DurableMessages", true);
+                SettingsHolder.Instance.Set("Endpoint.DurableMessages", true);
                 return this;
             }
 
@@ -85,7 +85,7 @@ namespace NServiceBus.Settings
             /// </summary>
             public EndpointAdvancedSettings DisableDurableMessages()
             {
-                SettingsHolder.Set("Endpoint.DurableMessages", false);
+                SettingsHolder.Instance.Set("Endpoint.DurableMessages", false);
                 return this;
             }
         }

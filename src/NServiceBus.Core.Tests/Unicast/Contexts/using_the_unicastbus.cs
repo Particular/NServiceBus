@@ -66,12 +66,12 @@ namespace NServiceBus.Unicast.Tests.Contexts
             transportDefinition = new Msmq();
             HandlerInvocationCache.Clear();
 
-            SettingsHolder.Reset();
-            SettingsHolder.SetDefault("Endpoint.SendOnly", false);
-            SettingsHolder.SetDefault("MasterNode.Address", MasterNodeAddress);
-            SettingsHolder.SetDefault("Pipeline.Removals", new List<RemoveBehavior>());
-            SettingsHolder.SetDefault("Pipeline.Replacements", new List<ReplaceBehavior>());
-            SettingsHolder.SetDefault("Pipeline.Additions", new List<RegisterBehavior>());
+            SettingsHolder.Instance.Reset();
+            SettingsHolder.Instance.SetDefault("Endpoint.SendOnly", false);
+            SettingsHolder.Instance.SetDefault("MasterNode.Address", MasterNodeAddress);
+			SettingsHolder.Instance.SetDefault("Pipeline.Removals", new List<RemoveBehavior>());
+            SettingsHolder.Instance.SetDefault("Pipeline.Replacements", new List<ReplaceBehavior>());
+            SettingsHolder.Instance.SetDefault("Pipeline.Additions", new List<RegisterBehavior>());
 
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();

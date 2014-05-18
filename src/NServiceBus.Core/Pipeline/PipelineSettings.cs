@@ -14,7 +14,7 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("idToRemove");
             }
 
-            var removals = SettingsHolder.Get<List<RemoveBehavior>>("Pipeline.Removals");
+            var removals = SettingsHolder.Instance.Get<List<RemoveBehavior>>("Pipeline.Removals");
 
             removals.Add(new RemoveBehavior(idToRemove));
         }
@@ -31,7 +31,7 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("idToReplace");
             }
 
-            var replacements = SettingsHolder.Get<List<ReplaceBehavior>>("Pipeline.Replacements");
+            var replacements = SettingsHolder.Instance.Get<List<ReplaceBehavior>>("Pipeline.Replacements");
 
             replacements.Add(new ReplaceBehavior(idToReplace, newBehavior, description));
         }
@@ -58,14 +58,14 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("description");
             }
 
-            var additions = SettingsHolder.Get<List<RegisterBehavior>>("Pipeline.Additions");
+            var additions = SettingsHolder.Instance.Get<List<RegisterBehavior>>("Pipeline.Additions");
 
             additions.Add(RegisterBehavior.Create(id, behavior, description));
         }
 
         public void Register<T>() where T : RegisterBehavior, new()
         {
-            var additions = SettingsHolder.Get<List<RegisterBehavior>>("Pipeline.Additions");
+            var additions = SettingsHolder.Instance.Get<List<RegisterBehavior>>("Pipeline.Additions");
 
             additions.Add(Activator.CreateInstance<T>());
         }

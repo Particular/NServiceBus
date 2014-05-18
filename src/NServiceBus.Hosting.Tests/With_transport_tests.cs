@@ -36,7 +36,7 @@ namespace NServiceBus.Hosting.Tests
             var handler = new DefaultTransportForHost();
             handler.Run();
 
-            Assert.True(SettingsHolder.Get<TransportDefinition>("NServiceBus.Transport.SelectedTransport") is Msmq);
+            Assert.True(SettingsHolder.Instance.Get<TransportDefinition>("NServiceBus.Transport.SelectedTransport") is Msmq);
         }
 
         [Test]

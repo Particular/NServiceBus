@@ -1,17 +1,17 @@
 ﻿namespace NServiceBus.Features
 {
     using MessageInterfaces.MessageMapper.Reflection;
+    using ObjectBuilder;
     using Serializers.XML;
-    using Settings;
 
     public class XmlSerialization : Feature<Categories.Serializers>
     {
-        public override void Initialize()
+        public override void Initialize(Configure config)
         {
-            Configure.Component<MessageMapper>(DependencyLifecycle.SingleInstance);
-            Configure.Component<XmlMessageSerializer>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
+            var c =  config.Configurer.ConfigureComponent<XmlMessageSerializer>(DependencyLifecycle.SingleInstance);
 
-            SettingsHolder.ApplyTo<XmlMessageSerializer>();
+            config.Settings.ApplyTo<XmlMessageSerializer>((IComponentConfig)c);
         }
     }
 }

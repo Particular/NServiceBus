@@ -7,9 +7,9 @@ namespace NServiceBus.Pipeline
     {
         public DefaultPipelineSettings()
         {
-            SettingsHolder.SetDefault("Pipeline.Removals", new List<RemoveBehavior>());
-            SettingsHolder.SetDefault("Pipeline.Replacements", new List<ReplaceBehavior>());
-            SettingsHolder.SetDefault("Pipeline.Additions", new List<RegisterBehavior>());
+            SettingsHolder.Instance.SetDefault("Pipeline.Removals", new List<RemoveBehavior>());
+            SettingsHolder.Instance.SetDefault("Pipeline.Replacements", new List<ReplaceBehavior>());
+            SettingsHolder.Instance.SetDefault("Pipeline.Additions", new List<RegisterBehavior>());
         }
     }
 }

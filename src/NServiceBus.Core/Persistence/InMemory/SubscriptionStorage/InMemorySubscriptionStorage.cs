@@ -1,4 +1,4 @@
-namespace NServiceBus.Persistence.InMemory.SubscriptionStorage
+namespace NServiceBus.InMemory.SubscriptionStorage
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
