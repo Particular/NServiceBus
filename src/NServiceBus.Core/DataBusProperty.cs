@@ -2,6 +2,7 @@
 {
     using System;
     using System.Runtime.Serialization;
+    using System.Security;
 
     /// <summary>
     /// Default implementation for <see cref="IDataBusProperty"/>.
@@ -24,7 +25,7 @@
         /// <summary>
         /// For serialization purposes.
         /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo"/> to populate with data. </param><param name="context">The destination (see <see cref="StreamingContext"/>) for this serialization. </param><exception cref="TSecurityException">The caller does not have the required permission. </exception>
+        /// <param name="info">The <see cref="SerializationInfo"/> to populate with data. </param><param name="context">The destination (see <see cref="StreamingContext"/>) for this serialization. </param><exception cref="SecurityException">The caller does not have the required permission. </exception>
         protected DataBusProperty(SerializationInfo info, StreamingContext context)
         {
             Key = info.GetString("Key");
