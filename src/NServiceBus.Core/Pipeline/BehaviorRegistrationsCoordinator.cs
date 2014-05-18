@@ -128,7 +128,7 @@ namespace NServiceBus.Pipeline
                         }
                         else
                         {
-                            Console.WriteLine("Registration ({0}) specified in the insertbefore of the {1} behavior does not exist!", beforeReference, node.Rego.Id);
+                            throw new Exception(string.Format("Registration '{0}' specified in the insertbefore of the '{1}' behavior does not exist!", beforeReference, node.Rego.Id));
                         }
                     }
                 }
@@ -144,7 +144,7 @@ namespace NServiceBus.Pipeline
                         }
                         else
                         {
-                            Console.WriteLine("Registration ({0}) specified in the insertafter of the {1} behavior does not exist!", afterReference, node.Rego.Id);
+                            throw new Exception(string.Format("Registration '{0}' specified in the insertafter of the '{1}' behavior does not exist!", afterReference, node.Rego.Id));
                         }
                     }
                 }
