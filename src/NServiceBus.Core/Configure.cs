@@ -8,17 +8,16 @@ namespace NServiceBus
     using System.Reflection;
     using System.Text;
     using System.Web;
-    using Config;
     using Config.ConfigurationSource;
     using Config.Conventions;
     using Features;
     using Hosting.Helpers;
-    using Installation;
-    using Installation.Environments;
     using Logging;
     using ObjectBuilder;
     using Pipeline;
+    using Pipeline.Contexts;
     using Settings;
+    using Startup;
 
     /// <summary>
     /// Central configuration entry point.
@@ -101,8 +100,6 @@ namespace NServiceBus
 
         IBuilder builder;
 
-        static bool initialized;
-
         /// <summary>
         /// Gets/sets the configuration source to be used.
         /// </summary>
@@ -178,7 +175,7 @@ namespace NServiceBus
 
         public FeatureSettings Features { get { return features ?? (features = new FeatureSettings()); } }
 
-        static FeatureSettings features;
+        FeatureSettings features;
 
         public static SerializationSettings Serialization { get { return serialization ?? (serialization = new SerializationSettings()); } }
 
@@ -275,21 +272,30 @@ namespace NServiceBus
         //}
 
         /// <summary>
-        /// Run a custom action at configuration time - useful for performing additional configuration not exposed by the fluent interface.
-        /// </summary>
-        public Configure RunCustomAction(Action action)
-        {
-            action();
-
-            return this;
-        }
-
-        /// <summary>
         /// Provides an instance to a startable bus.
         /// </summary>
         public IStartableBus CreateBus()
         {
-            Initialize();
+            var configurationContext = new ConfigurationContext(TypesToScan);
+
+            configurationContext.Set(this);
+
+            var pipe = new PipelineExecutor(Activator.CreateInstance, configurationContext);
+
+            var configurationBehaviors = new List<Type>
+            {
+                typeof(InstantiateFeaturesBehavior),
+                typeof(IWantToRunBeforeConfigurationBehavior),
+                typeof(INeedInitializationBehavior),
+                typeof(InitializeFeaturesBehavior),
+                typeof(IWantToRunBeforeConfigurationIsFinalizedBehavior),
+                typeof(ConfigureContainerTypesBehavior),
+                typeof(PreventChangesBehavior),
+                typeof(IFinalizeConfigurationBehavior),
+                typeof(IWantToRunWhenConfigurationIsCompleteBehavior)
+            };
+
+            pipe.InvokePipeline(configurationBehaviors, pipe.CurrentContext);
 
             if (!Configurer.HasComponent<IStartableBus>())
             {
@@ -331,38 +337,7 @@ namespace NServiceBus
         /// </summary>
         public void Initialize()
         {
-            if (initialized)
-            {
-                return;
-            }
-
-            ForAllTypes<Feature>(t => Features.Add((Feature)Activator.CreateInstance(t)));
-
-            ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
-            ForAllTypes<IWantToRunWhenBusStartsAndStops>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
-            InvokeBeforeConfigurationInitializers();
-
-            ActivateAndInvoke<INeedInitialization>(t => t.Init());
-
-            // HACK: I need this guy to run before IWantToRunBeforeConfigurationIsFinalized
-            new FeatureInitializer().Run();
-
-            ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run());
-
-            ForAllTypes<INeedToInstallSomething<Windows>>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
-            //lockdown the settings
-            Settings.PreventChanges();
-
-            ActivateAndInvoke<IFinalizeConfiguration>(t => t.FinalizeConfiguration(this));
-
-            initialized = true;
-
-            Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
-                .ToList()
-                .ForEach(o => o.Run(this));
+            
         }
 
 
