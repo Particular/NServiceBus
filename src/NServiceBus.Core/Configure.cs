@@ -321,7 +321,7 @@ namespace NServiceBus
                 return;
             }
 
-            ActivateAndInvoke<IWantToRunBeforeConfiguration>(t => t.Init());
+            ActivateAndInvoke<IWantToRunBeforeConfiguration>(t => t.Init(this));
 
             beforeConfigurationInitializersCalled = true;
         }

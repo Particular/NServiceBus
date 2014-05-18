@@ -4,7 +4,7 @@ namespace NServiceBus.Logging.Log4NetBridge
     {
         private static bool isConfigured;
 
-        public void Init()
+        public void Init(Configure configure)
         {
             if (isConfigured)
                 return;

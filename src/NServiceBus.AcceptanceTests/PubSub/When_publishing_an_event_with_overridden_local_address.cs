@@ -60,7 +60,7 @@
 
             public class OverrideLocalAddress : IWantToRunBeforeConfiguration
             {
-                public void Init()
+                public void Init(Configure configure)
                 {
                     Address.InitializeLocalAddress("myinputqueue");
                 }
