@@ -103,10 +103,6 @@
       <Project>{DD48B2D0-E996-412D-9157-821ED8B17A9D}</Project>
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
-      <Project>{73867D40-8CBB-48E9-BFFA-12BBDD48A341}</Project>
-      <Name>NServiceBus</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
