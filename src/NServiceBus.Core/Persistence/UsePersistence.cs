@@ -28,7 +28,7 @@
 
             if (customizations != null)
             {
-                customizations(new PersistenceConfiguration());
+                customizations(new PersistenceConfiguration(config));
             }
 
             ((IConfigurePersistence)Activator.CreateInstance(type)).Enable(config);
@@ -38,7 +38,6 @@
 
         public static void DefaultTo<T>() where T : PersistenceDefinition
         {
-
             SettingsHolder.Instance.SetDefault("DefaultPersistence",typeof(T));
         }
     }
@@ -51,7 +50,14 @@
     /// <summary>
     /// Provides a hook for extention methods in order tp provide custom configuration methods
     /// </summary>
-    public class PersistenceConfiguration{}
+    public class PersistenceConfiguration{
+        public Configure Config { get; private set; }
+
+        public PersistenceConfiguration(Configure config)
+        {
+            Config = config;
+        }
+    }
 
     /// <summary>
     /// Enables the given persistence using the default settings
