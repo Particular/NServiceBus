@@ -27,7 +27,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Unicast.Messages;
     using UnitOfWork;
 
-    public class using_a_configured_unicastBus
+    class using_a_configured_unicastBus
     {
         protected UnicastBus bus;
 
@@ -69,6 +69,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
             SettingsHolder.Instance.Reset();
             SettingsHolder.Instance.SetDefault("Endpoint.SendOnly", false);
             SettingsHolder.Instance.SetDefault("MasterNode.Address", MasterNodeAddress);
+			SettingsHolder.Instance.SetDefault("Pipeline.Removals", new List<RemoveBehavior>());
+            SettingsHolder.Instance.SetDefault("Pipeline.Replacements", new List<ReplaceBehavior>());
+            SettingsHolder.Instance.SetDefault("Pipeline.Additions", new List<RegisterBehavior>());
 
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
@@ -93,8 +96,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
-            var pipelineBuilder = new PipelineBuilder(FuncBuilder);
-            pipelineFactory = new PipelineExecutor(FuncBuilder , pipelineBuilder);
+            pipelineFactory = new PipelineExecutor(FuncBuilder);
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
@@ -117,7 +119,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                                                              });
 
             FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
-            FuncBuilder.Register<PipelineBuilder>(() => pipelineBuilder);
             FuncBuilder.Register<PipelineExecutor>(() => pipelineFactory);
             FuncBuilder.Register<TransportDefinition>(() => transportDefinition);
 
@@ -261,7 +262,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
     }
 
-    public class using_the_unicastBus : using_a_configured_unicastBus
+    class using_the_unicastBus : using_a_configured_unicastBus
     {
         [SetUp]
         public new void SetUp()

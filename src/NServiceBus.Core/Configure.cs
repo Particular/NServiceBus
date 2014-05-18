@@ -17,6 +17,7 @@ namespace NServiceBus
     using Installation.Environments;
     using Logging;
     using ObjectBuilder;
+    using Pipeline;
     using Settings;
 
     /// <summary>
@@ -183,6 +184,10 @@ namespace NServiceBus
 
         static SerializationSettings serialization;
 
+        public static PipelineSettings Pipeline { get { return pipelineSettings ?? (pipelineSettings = new PipelineSettings()); } }
+
+        static PipelineSettings pipelineSettings;
+
         /// <summary>
         /// Allows the user to control how the current endpoint behaves when scaled out.
         /// </summary>
@@ -330,7 +335,9 @@ namespace NServiceBus
             {
                 return;
             }
+
             ForAllTypes<Feature>(t => Features.Add((Feature)Activator.CreateInstance(t)));
+
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
@@ -338,6 +345,9 @@ namespace NServiceBus
             InvokeBeforeConfigurationInitializers();
 
             ActivateAndInvoke<INeedInitialization>(t => t.Init());
+
+            // HACK: I need this guy to run before IWantToRunBeforeConfigurationIsFinalized
+            new FeatureInitializer().Run();
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run());
 
@@ -361,7 +371,9 @@ namespace NServiceBus
         /// </summary>
         public void ForAllTypes<T>(Action<Type> action) where T : class
         {
+// ReSharper disable HeapView.SlowDelegateCreation
             TypesToScan.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
+// ReSharper restore HeapView.SlowDelegateCreation
               .ToList().ForEach(action);
         }
 
@@ -380,7 +392,9 @@ namespace NServiceBus
                 return ConfigurationSource.GetConfiguration<T>();
             }
 
+// ReSharper disable HeapView.SlowDelegateCreation
             var sectionOverrideType = TypesToScan.FirstOrDefault(t => typeof (IProvideConfiguration<T>).IsAssignableFrom(t));
+// ReSharper restore HeapView.SlowDelegateCreation
 
             if (sectionOverrideType == null)
             {
@@ -553,7 +567,9 @@ namespace NServiceBus
 
             detailsMessage.AppendLine(" - Details:");
 
+// ReSharper disable HeapView.SlowDelegateCreation
             foreach (var detail in details.OrderByDescending(d => d.Item2))
+// ReSharper restore HeapView.SlowDelegateCreation
             {
                 detailsMessage.AppendLine(string.Format("{0} - {1:f4} s", detail.Item1.FullName, detail.Item2.TotalSeconds));
             }

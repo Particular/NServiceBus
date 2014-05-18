@@ -7,7 +7,7 @@
     using Config;
     using Logging;
 
-    class FeatureInitializer : IFinalizeConfiguration, IWantToRunBeforeConfigurationIsFinalized
+    class FeatureInitializer : IFinalizeConfiguration
     {
         /// <summary>
         /// Go trough all conditional features and figure out if the should be enabled or not
@@ -26,8 +26,6 @@
             InitializeFeatures(config.Features);
             InitializeFeaturesControlledByCategories();
         }
-
-
 
         static void DisableFeaturesThatAskedToBeDisabled(IEnumerable<Feature> features)
         {

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -15,9 +14,7 @@
     using Unicast;
 
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class ExtractLogicalMessagesBehavior : IBehavior<IncomingContext>
+    class ExtractLogicalMessagesBehavior : IBehavior<IncomingContext>
     {
 
         public IMessageSerializer MessageSerializer { get; set; }

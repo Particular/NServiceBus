@@ -38,7 +38,7 @@
             //Injected at compile time
         }
 
-        public void DisposeManaged()
+        void DisposeManaged()
         {
             if (receiver != null)
             {

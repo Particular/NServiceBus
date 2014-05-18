@@ -46,7 +46,7 @@ namespace NServiceBus.Gateway.Channels.Http
             //Injected at compile time
         }
 
-        public void DisposeManaged()
+        void DisposeManaged()
         {
             if (tokenSource != null)
             {

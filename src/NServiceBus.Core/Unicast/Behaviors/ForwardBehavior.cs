@@ -1,14 +1,11 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
-    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
     using Transports;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class ForwardBehavior : IBehavior<IncomingContext>
+    class ForwardBehavior : IBehavior<IncomingContext>
     {
         public ISendMessages MessageSender { get; set; }
 

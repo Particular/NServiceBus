@@ -2,63 +2,27 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
+    using System.Linq;
     using Contexts;
     using ObjectBuilder;
     using Unicast;
     using Unicast.Messages;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public class PipelineExecutor : IDisposable
     {
-        IBuilder rootBuilder;
-        PipelineBuilder pipelineBuilder;
-        BehaviorContextStacker contextStacker = new BehaviorContextStacker();
-
-        public PipelineExecutor(IBuilder builder, PipelineBuilder pipelineBuilder)
+        public PipelineExecutor(IBuilder builder)
         {
             rootBuilder = builder;
-            this.pipelineBuilder = pipelineBuilder;
+            var pipelineBuilder = new PipelineBuilder();
+            Incoming = pipelineBuilder.Incoming.AsReadOnly();
+            Outgoing = pipelineBuilder.Outgoing.AsReadOnly();
+
+            incomingBehaviors = Incoming.Select(r => r.BehaviorType);
+            outgoingBehaviors = Outgoing.Select(r => r.BehaviorType);
         }
 
-        public void PreparePhysicalMessagePipelineContext(TransportMessage message)
-        {
-            contextStacker.Push(new IncomingContext(CurrentContext, message));
-        }
-
-        public void InvokeReceivePhysicalMessagePipeline()
-        {
-            var context = contextStacker.Current as IncomingContext;
-
-            if (context == null)
-            {
-                throw new InvalidOperationException("Can't invoke the receive pipeline when the current context is: " + contextStacker.Current.GetType().Name);
-            }
-
-            InvokePipeline(pipelineBuilder.receivePhysicalMessageBehaviorList, context);
-        }
-
-        public void CompletePhysicalMessagePipelineContext()
-        {
-            contextStacker.Pop();
-        }
-
-        public OutgoingContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
-        {
-            var context = new OutgoingContext(CurrentContext, sendOptions, message);
-
-            InvokePipeline(pipelineBuilder.sendLogicalMessageBehaviorList, context);
-
-            return context;
-        }
-
-        public void InvokePipeline<TContext>(IEnumerable<Type> behaviours, TContext context) where TContext : BehaviorContext
-        {
-            var pipeline = new BehaviorChain<TContext>(behaviours);
-
-            Execute(pipeline, context);
-        }
+        public IList<RegisterBehavior> Incoming { get; private set; }
+        public IList<RegisterBehavior> Outgoing { get; private set; }
 
         public BehaviorContext CurrentContext
         {
@@ -82,7 +46,45 @@
             //Injected
         }
 
-        public void DisposeManaged()
+        internal void PreparePhysicalMessagePipelineContext(TransportMessage message)
+        {
+            contextStacker.Push(new IncomingContext(CurrentContext, message));
+        }
+
+        internal void InvokeReceivePhysicalMessagePipeline()
+        {
+            var context = contextStacker.Current as IncomingContext;
+
+            if (context == null)
+            {
+                throw new InvalidOperationException("Can't invoke the receive pipeline when the current context is: " + contextStacker.Current.GetType().Name);
+            }
+
+            InvokePipeline(incomingBehaviors, context);
+        }
+
+        internal void CompletePhysicalMessagePipelineContext()
+        {
+            contextStacker.Pop();
+        }
+
+        internal OutgoingContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
+        {
+            var context = new OutgoingContext(CurrentContext, sendOptions, message);
+
+            InvokePipeline(outgoingBehaviors, context);
+
+            return context;
+        }
+
+        public void InvokePipeline<TContext>(IEnumerable<Type> behaviours, TContext context) where TContext : BehaviorContext
+        {
+            var pipeline = new BehaviorChain<TContext>(behaviours);
+
+            Execute(pipeline, context);
+        }
+
+        void DisposeManaged()
         {
             contextStacker.Dispose();
         }
@@ -97,9 +99,13 @@
             }
             finally
             {
-
                 contextStacker.Pop();
             }
         }
+
+        BehaviorContextStacker contextStacker = new BehaviorContextStacker();
+        IBuilder rootBuilder;
+        IEnumerable<Type> incomingBehaviors;
+        IEnumerable<Type> outgoingBehaviors;
     }
 }

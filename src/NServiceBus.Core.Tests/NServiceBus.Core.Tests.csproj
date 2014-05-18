@@ -160,6 +160,7 @@
     <Compile Include="Persistence\InMemory\When_updating_a_saga_with_the_same_unique_property_as_another_saga.cs" />
     <Compile Include="Persistence\InMemory\When_updating_a_saga_with_the_same_unique_property_value.cs" />
     <Compile Include="Pipeline\BehaviorChainTests.cs" />
+    <Compile Include="Pipeline\BehaviorRegistrationsCoordinatorTests.cs" />
     <Compile Include="Sagas\When_completing_a_saga.cs" />
     <Compile Include="Sagas\When_receiving_a_message_that_hits_multiple_sagas_of_different_types.cs" />
     <Compile Include="Sagas\When_receiving_a_message_that_is_configure_to_start_a_saga.cs" />
@@ -245,7 +246,6 @@
     <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_with_the_default_settings.cs" />
     <Compile Include="Persistence\RavenDB\WithRavenDbServer.cs" />
     <Compile Include="Persistence\RavenDB\With_using_raven_persistence.cs" />
-    <Compile Include="Pipeline\BehaviorListTests.cs" />
     <Compile Include="Routing\StaticMessageRouterTests.cs" />
     <Compile Include="Sagas\UniqueAttributeTests.cs" />
     <Compile Include="Sagas\When_resolving_message_handlers_for_a_saga.cs" />

@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
-    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using Messages;
@@ -10,9 +9,7 @@
     using Serialization;
     using Transport;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class SerializeMessagesBehavior : IBehavior<OutgoingContext>
+    class SerializeMessagesBehavior : IBehavior<OutgoingContext>
     {
         public IMessageSerializer MessageSerializer { get; set; }
 

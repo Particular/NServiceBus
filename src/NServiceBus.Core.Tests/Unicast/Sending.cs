@@ -7,7 +7,7 @@
     using Rhino.Mocks;
 
     [TestFixture]
-    public class When_sending_a_message_with_databusProperty : using_the_unicastBus
+    class When_sending_a_message_with_databusProperty : using_the_unicastBus
     {
         [Test]
         public void Should_sent_if_only_one_message_is_in_the_same_send()
@@ -19,7 +19,7 @@
     }
 
     [TestFixture]
-    public class When_sending_a_event_message : using_the_unicastBus
+    class When_sending_a_event_message : using_the_unicastBus
     {
         [Test]
         public void Should_get_an_error_messages()
@@ -30,7 +30,7 @@
     }
 
     [TestFixture]
-    public class When_sending_a_event_message_to_sites : using_the_unicastBus
+    class When_sending_a_event_message_to_sites : using_the_unicastBus
     {
         [Test]
         public void Should_get_an_error_messages()
@@ -41,7 +41,7 @@
     }
 
     [TestFixture]
-    public class When_sending_messages_to_sites : using_the_unicastBus
+    class When_sending_messages_to_sites : using_the_unicastBus
     {
         [Test]
         public void The_destination_sites_header_should_be_set_to_the_given_siteKeys()
@@ -63,7 +63,7 @@
     }
 
     [TestFixture]
-    public class When_sending_any_message : using_the_unicastBus
+    class When_sending_any_message : using_the_unicastBus
     {
         [Test]
         public void The_content_type_should_be_set()
@@ -132,7 +132,7 @@
     }
 
     [TestFixture]
-    public class When_sending_multiple_messages_in_one_go : using_the_unicastBus
+    class When_sending_multiple_messages_in_one_go : using_the_unicastBus
     {
 
         [Test]
@@ -168,7 +168,7 @@
 
 
     [TestFixture]
-    public class When_sending_any_message_from_a_volatile_endpoint : using_the_unicastBus
+    class When_sending_any_message_from_a_volatile_endpoint : using_the_unicastBus
     {
         [Test]
         public void It_should_be_non_persistent_by_default()
@@ -182,7 +182,7 @@
     }
 
     [TestFixture]
-    public class When_sending_a_command_message : using_the_unicastBus
+    class When_sending_a_command_message : using_the_unicastBus
     {
         [Test]
         public void Should_specify_the_message_to_be_recoverable()
@@ -196,7 +196,7 @@
     }
 
     [TestFixture]
-    public class When_sending_a_interface_message : using_the_unicastBus
+    class When_sending_a_interface_message : using_the_unicastBus
     {
         [Test]
         public void Should_specify_the_message_to_be_recoverable()
@@ -210,7 +210,7 @@
     }
 
     [TestFixture]
-    public class When_replying_to_a_saga : using_the_unicastBus
+    class When_replying_to_a_saga : using_the_unicastBus
     {
         [Test]
         public void The_saga_id_header_should_point_to_the_saga_we_are_replying_to()

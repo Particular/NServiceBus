@@ -1,13 +1,10 @@
 ﻿namespace NServiceBus.Sagas
 {
     using System;
-    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class AuditInvokedSagaBehavior : IBehavior<IncomingContext>
+    class AuditInvokedSagaBehavior : IBehavior<IncomingContext>
     {
         public void Invoke(IncomingContext context, Action next)
         {
@@ -26,7 +23,7 @@
 
             if (context.IncomingLogicalMessage.Headers.TryGetValue(Headers.InvokedSagas, out header))
             {
-                context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] += ";" + audit;
+                context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] += string.Format(";{0}", audit);
             }
             else
             {

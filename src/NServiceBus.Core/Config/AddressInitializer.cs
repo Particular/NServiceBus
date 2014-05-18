@@ -11,7 +11,9 @@ namespace NServiceBus.Config
         public void Init()
         {
             if (Address.Local == null)
+            {
                 Address.InitializeLocalAddress(ConfigureSettingLocalAddressNameAction.GetLocalAddressName());
+            }
         }
     }
 }

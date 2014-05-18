@@ -7,7 +7,7 @@
     using UnitOfWork;
 
     [TestFixture]
-    public class When_processing_a_message_with_timing_turned_on : using_the_unicastBus
+    class When_processing_a_message_with_timing_turned_on : using_the_unicastBus
     {
         [Test]
         public void Should_set_the_processing_headers()
@@ -26,7 +26,7 @@
     }
 
     [TestFixture]
-    public class When_sending_a_message_with_timing_turned_on : using_the_unicastBus
+    class When_sending_a_message_with_timing_turned_on : using_the_unicastBus
     {
         [Test]
         public void Should_set_the_time_sent_header()

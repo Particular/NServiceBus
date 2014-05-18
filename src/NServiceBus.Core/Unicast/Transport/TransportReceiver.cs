@@ -422,7 +422,7 @@ namespace NServiceBus.Unicast.Transport
             }
         }
 
-        public void DisposeManaged()
+        void DisposeManaged()
         {
             InnerStop();
 

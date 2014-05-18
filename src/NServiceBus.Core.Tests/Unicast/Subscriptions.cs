@@ -6,7 +6,7 @@ namespace NServiceBus.Unicast.Tests
     using NUnit.Framework;
     
     [TestFixture]
-    public class When_subscribing_to_messages : using_the_unicastBus
+    class When_subscribing_to_messages : using_the_unicastBus
     {
         readonly Address addressToOwnerOfTestMessage = new Address("TestMessageOwner", "localhost");
         /// <summary>
@@ -43,7 +43,7 @@ namespace NServiceBus.Unicast.Tests
     }
     
     [TestFixture]
-    public class When_using_a_non_centralized_pub_sub_transport : using_the_unicastBus
+    class When_using_a_non_centralized_pub_sub_transport : using_the_unicastBus
     {
         [Test]
         public void Should_throw_when_subscribing_to_a_message_that_has_no_configured_address()
@@ -59,7 +59,7 @@ namespace NServiceBus.Unicast.Tests
     }
 
     [TestFixture]
-    public class When_using_a_centralized_pub_sub_transport : using_the_unicastBus
+    class When_using_a_centralized_pub_sub_transport : using_the_unicastBus
     {
         [SetUp]
         public new void SetUp()
@@ -81,7 +81,7 @@ namespace NServiceBus.Unicast.Tests
     }
 
     [TestFixture]
-    public class When_subscribing_to_command_messages : using_the_unicastBus
+    class When_subscribing_to_command_messages : using_the_unicastBus
     {
         [Test]
         public void Should_get_an_error_messages()
@@ -92,7 +92,7 @@ namespace NServiceBus.Unicast.Tests
     }
 
     [TestFixture]
-    public class When_unsubscribing_to_command_messages : using_the_unicastBus
+    class When_unsubscribing_to_command_messages : using_the_unicastBus
     {
         [Test]
         public void Should_get_an_error_messages()

@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Transport.Monitoring
             //Injected at compile time
         }
 
-        public void DisposeManaged()
+        void DisposeManaged()
         {
             if (successRateCounter != null)
             {

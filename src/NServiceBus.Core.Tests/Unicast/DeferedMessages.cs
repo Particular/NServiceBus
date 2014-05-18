@@ -6,7 +6,7 @@
     using Timeout;
 
     [TestFixture]
-    public class When_deferring_a_message_with_no_timeoutManager_address_specified : using_the_unicastBus
+    class When_deferring_a_message_with_no_timeoutManager_address_specified : using_the_unicastBus
     {
         [Test]
         public void Should_use_a_convention_to_set_the_address()
@@ -21,7 +21,7 @@
     }
 
     [TestFixture]
-    public class When_deferring_a_message_with_a_set_delay : using_the_unicastBus
+    class When_deferring_a_message_with_a_set_delay : using_the_unicastBus
     {
         [Test]
         public void Should_set_the_expiry_header_to_a_absolute_utc_time()
@@ -41,7 +41,7 @@
     }
 
     [TestFixture]
-    public class When_deferring_a_message_with_a_absolute_time : using_the_unicastBus
+    class When_deferring_a_message_with_a_absolute_time : using_the_unicastBus
     {
         [Test]
         public void Should_set_the_expiry_header_to_a_absolute_utc_time()
@@ -56,7 +56,7 @@
     }
 
     [TestFixture]
-    public class When_short_cutting_deferred_messages_that_already_has_expired : using_the_unicastBus
+    class When_short_cutting_deferred_messages_that_already_has_expired : using_the_unicastBus
     {
         [Test]
         public void Should_use_utc_when_comparing()

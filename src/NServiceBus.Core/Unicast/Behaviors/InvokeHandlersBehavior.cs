@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
     using Logging;
@@ -12,9 +11,7 @@
     using Pipeline.Contexts;
     using Transport;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class InvokeHandlersBehavior : IBehavior<IncomingContext>
+    class InvokeHandlersBehavior : IBehavior<IncomingContext>
     {
         public IDictionary<Type, Type> MessageDispatcherMappings { get; set; }
 

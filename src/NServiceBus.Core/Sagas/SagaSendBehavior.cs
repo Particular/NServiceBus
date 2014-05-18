@@ -1,15 +1,12 @@
 ﻿namespace NServiceBus.Sagas
 {
     using System;
-    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast.Transport;
 
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class SagaSendBehavior : IBehavior<OutgoingContext>
+    class SagaSendBehavior : IBehavior<OutgoingContext>
     {
         public void Invoke(OutgoingContext context, Action next)
         {

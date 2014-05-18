@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
-    using System.ComponentModel;
     using System.Linq;
     using Logging;
     using Messages;
@@ -10,9 +9,7 @@
     using Queuing;
     using Transports;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class DispatchMessageToTransportBehavior : IBehavior<OutgoingContext>
+    class DispatchMessageToTransportBehavior : IBehavior<OutgoingContext>
     {
         public ISendMessages MessageSender { get; set; }
 

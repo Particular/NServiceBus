@@ -6,7 +6,6 @@
     using NUnit.Framework;
     using Pipeline;
     using Pipeline.Contexts;
-    using Unicast.Messages;
 
     //This is a demo on how the pipeline overrides can be used to create endpoints that doesn't deserialize incoming messages and there by
     // allows the user to handle the raw transport message. This replaces the old feature on the UnicastBus where SkipDeserialization could be set to tru
@@ -29,14 +28,12 @@
                 EndpointSetup<DefaultServer>();
             }
 
-
-#pragma warning disable 618
             //first we override the default "extraction" behavior
-            class MyOverride : PipelineOverride
+            class MyOverride : INeedInitialization
             {
-                public override void Override(BehaviorList<IncomingContext> behaviorList)
+                public void Init()
                 {
-                    behaviorList.Replace<ExtractLogicalMessagesBehavior, MyRawMessageHandler>();
+                    Configure.Pipeline.Replace(WellKnownBehavior.ExtractLogicalMessages, typeof(MyRawMessageHandler));
                 }
             }
 
@@ -54,7 +51,6 @@
                     Context.GotTheRawMessage = true;
                 }
             }
-#pragma warning restore 618
 
             class ThisHandlerWontGetInvoked:IHandleMessages<SomeMessage>
             {

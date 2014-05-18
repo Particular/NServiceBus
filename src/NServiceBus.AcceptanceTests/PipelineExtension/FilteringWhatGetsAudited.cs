@@ -46,7 +46,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                 }
             }
 
-#pragma warning disable 618
             class SetFiltering : IBehavior<IncomingContext>
             {
                 public void Invoke(IncomingContext context, Action next)
@@ -57,12 +56,11 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                     }
                 }
 
-                class AuditFilteringOverride : PipelineOverride
+                class AuditFilteringOverride : INeedInitialization
                 {
-                    public override void Override(BehaviorList<IncomingContext> behaviorList)
+                    public void Init()
                     {
-                        //and also hook into to logical receive pipeline to make filtering on message types easier
-                        behaviorList.Add<SetFiltering>();
+                        Configure.Pipeline.Register("SetFiltering", typeof(SetFiltering), "Filters audit entries");
                     }
                 }
             }
@@ -93,16 +91,15 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                 }
 
                 //here we inject our behavior
-                class AuditFilteringOverride : PipelineOverride
+                class AuditFilteringOverride : INeedInitialization
                 {
-                    public override void Override(BehaviorList<IncomingContext> behaviorList)
+                    public void Init()
                     {
                         //we replace the default audit behavior with out own
-                        behaviorList.Replace<AuditBehavior, FilteringAuditBehavior>();
+                        Configure.Pipeline.Replace(WellKnownBehavior.AuditForwarder, typeof(FilteringAuditBehavior), "A new audit forwarder that has filtering");
                     }
                 }
             }
-#pragma warning restore 618
         }
 
         public class AuditSpy : EndpointConfigurationBuilder

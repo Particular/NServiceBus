@@ -1,85 +1,97 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Linq;
     using Audit;
     using Contexts;
     using DataBus;
     using MessageMutator;
     using NServiceBus.MessageMutator;
-    using ObjectBuilder;
     using Sagas;
+    using Settings;
     using Unicast.Behaviors;
     using Unicast.Messages;
     using UnitOfWork;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class PipelineBuilder
+    class PipelineBuilder
     {
-        List<IPipelineOverride> pipelineOverrides;
-        public List<Type> sendPhysicalMessageBehaviorList { get; private set; }
-        public List<Type> receivePhysicalMessageBehaviorList { get; private set; }
-        public List<Type> handlerInvocationBehaviorList { get; private set; }
-        public List<Type> sendLogicalMessageBehaviorList { get; private set; }
-
-        public PipelineBuilder(IBuilder builder)
+        public PipelineBuilder()
         {
-            pipelineOverrides = builder.BuildAll<IPipelineOverride>().ToList();
-            CreateReceivePhysicalMessageList();
-            CreateSendLogicalMessageList();
-        }
+            var removals = SettingsHolder.Instance.Get<List<RemoveBehavior>>("Pipeline.Removals");
+            var replacements = SettingsHolder.Instance.Get<List<ReplaceBehavior>>("Pipeline.Replacements");
 
-        void CreateReceivePhysicalMessageList()
-        {
-            var behaviorList = new BehaviorList<IncomingContext>();
+            coordinator = new BehaviorRegistrationsCoordinator(removals, replacements);
 
-            behaviorList.Add<ChildContainerBehavior>();
-            behaviorList.Add<MessageHandlingLoggingBehavior>();
-            behaviorList.Add<AuditBehavior>();
-            behaviorList.Add<ForwardBehavior>();
-            behaviorList.Add<UnitOfWorkBehavior>();
-            behaviorList.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
-            behaviorList.Add<RemoveIncomingHeadersBehavior>();
-            behaviorList.Add<CallbackInvocationBehavior>();
-            behaviorList.Add<ExtractLogicalMessagesBehavior>();
-            behaviorList.Add<ExecuteLogicalMessagesBehavior>();
+            RegisterIncomingCoreBehaviors();
+            RegisterOutgoingCoreBehaviors();
+            RegisterAdditionalBehaviors();
 
-            behaviorList.Add<ApplyIncomingMessageMutatorsBehavior>();
-            //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
-            behaviorList.Add<DataBusReceiveBehavior>();
-            behaviorList.Add<LoadHandlersBehavior>();
-            behaviorList.Add<SetCurrentMessageBeingHandledBehavior>();
-            behaviorList.Add<AuditInvokedSagaBehavior>();
-            behaviorList.Add<SagaPersistenceBehavior>();
-            behaviorList.Add<InvokeHandlersBehavior>();
-            foreach (var pipelineOverride in pipelineOverrides)
+            var model = coordinator.BuildRuntimeModel();
+            Incoming = new List<RegisterBehavior>();
+            Outgoing = new List<RegisterBehavior>();
+            var behaviorType = typeof(IBehavior<>);
+            var outgoingContextType = typeof(OutgoingContext);
+            var incomingContextType = typeof(IncomingContext);
+
+            foreach (var rego in model)
             {
-                pipelineOverride.Override(behaviorList);
+                if (behaviorType.MakeGenericType(incomingContextType).IsAssignableFrom(rego.BehaviorType))
+                {
+                    Incoming.Add(rego);
+                }
+
+                if (behaviorType.MakeGenericType(outgoingContextType).IsAssignableFrom(rego.BehaviorType))
+                {
+                    Outgoing.Add(rego);
+                }
             }
-            receivePhysicalMessageBehaviorList = behaviorList.InnerList;
         }
 
-        void CreateSendLogicalMessageList()
+        public List<RegisterBehavior> Incoming { get; private set; }
+        public List<RegisterBehavior> Outgoing { get; private set; }
+
+        void RegisterAdditionalBehaviors()
         {
-            var behaviorList = new BehaviorList<OutgoingContext>();
+            var additions = SettingsHolder.Instance.Get<List<RegisterBehavior>>("Pipeline.Additions");
 
-            behaviorList.Add<SendValidatorBehavior>();
-            behaviorList.Add<SagaSendBehavior>();
-            behaviorList.Add<MutateOutgoingMessageBehavior>();
-            //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
-            behaviorList.Add<DataBusSendBehavior>();
-            behaviorList.Add<CreatePhysicalMessageBehavior>();
-            behaviorList.Add<SerializeMessagesBehavior>();
-            behaviorList.Add<MutateOutgoingPhysicalMessageBehavior>();
-            behaviorList.Add<DispatchMessageToTransportBehavior>();
-            foreach (var pipelineOverride in pipelineOverrides)
+            foreach (var rego in additions)
             {
-                pipelineOverride.Override(behaviorList);
+                coordinator.Register(rego);
             }
-            sendLogicalMessageBehaviorList = behaviorList.InnerList;
         }
+
+        void RegisterIncomingCoreBehaviors()
+        {
+            coordinator.Register(WellKnownBehavior.ChildContainer, typeof(ChildContainerBehavior), "Creates the child container");
+            coordinator.Register("MessageReceivedLogging", typeof(MessageHandlingLoggingBehavior), "Logs the message received");
+            coordinator.Register(WellKnownBehavior.AuditForwarder, typeof(AuditBehavior), "Forward message to audit queue after message is successfully processed");
+            coordinator.Register("ForwardMessageTo", typeof(ForwardBehavior), "Forwards message to");
+            coordinator.Register(WellKnownBehavior.UnitOfWork, typeof(UnitOfWorkBehavior), "Executes the UoW");
+            coordinator.Register(WellKnownBehavior.MutateIncomingTransportMessage, typeof(ApplyIncomingTransportMessageMutatorsBehavior), "Executes IMutateIncomingTransportMessages");
+            coordinator.Register("RemoveHeaders", typeof(RemoveIncomingHeadersBehavior), "For backward compatibility we need to remove some headers from the incoming message");
+            coordinator.Register("CallBack", typeof(CallbackInvocationBehavior), "Updates the callback inmemory dictionary");
+            coordinator.Register(WellKnownBehavior.ExtractLogicalMessages, typeof(ExtractLogicalMessagesBehavior), "It splits the raw message into multiple logical messages");
+            coordinator.Register(WellKnownBehavior.ExecuteLogicalMessages, typeof(ExecuteLogicalMessagesBehavior), "Starts the execution of each logical message");
+            coordinator.Register(WellKnownBehavior.MutateIncomingMessages, typeof(ApplyIncomingMessageMutatorsBehavior), "Executes IMutateIncomingMessages");
+            coordinator.Register("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message"); //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
+            coordinator.Register(WellKnownBehavior.ExecuteHandlers, typeof(LoadHandlersBehavior), "Executes all IHandleMessages<T>");
+            coordinator.Register("SetCurrentMessageBeingHandled", typeof(SetCurrentMessageBeingHandledBehavior), "Sets the static current message (this is used by the headers)");
+            coordinator.Register("AuditInvokedSaga", typeof(AuditInvokedSagaBehavior), "Populates the InvokedSaga header");
+            coordinator.Register(WellKnownBehavior.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic");
+            coordinator.Register(WellKnownBehavior.InvokeHandlers, typeof(InvokeHandlersBehavior), "Calls the IHandleMessages<T>.Handle(T)");
+        }
+
+        void RegisterOutgoingCoreBehaviors()
+        {
+            coordinator.Register(WellKnownBehavior.EnforceBestPractices, typeof(SendValidatorBehavior), "Enforces messaging best practices");
+            coordinator.Register("CopySagaHeaders", typeof(SagaSendBehavior), "Copies existing saga headers from incoming message to outgoing message. This facilitates the auto correlation");
+            coordinator.Register(WellKnownBehavior.MutateOutgoingMessages, typeof(MutateOutgoingMessageBehavior), "Executes IMutateOutgoingMessages");
+            coordinator.Register("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location"); //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
+            coordinator.Register(WellKnownBehavior.CreatePhysicalMessage, typeof(CreatePhysicalMessageBehavior), "Converts a logical message into a physical message");
+            coordinator.Register(WellKnownBehavior.SerializeMessage, typeof(SerializeMessagesBehavior), "Serializes the message to be sent out on the wire");
+            coordinator.Register(WellKnownBehavior.MutateOutgoingTransportMessage, typeof(MutateOutgoingPhysicalMessageBehavior), "Executes IMutateOutgoingTransportMessages");
+            coordinator.Register(WellKnownBehavior.DispatchMessageToTransport, typeof(DispatchMessageToTransportBehavior), "Dispatches messages to the transport");
+        }
+
+        BehaviorRegistrationsCoordinator coordinator;
     }
 }

@@ -22,7 +22,7 @@
             //Injected at compile time
         }
 
-        public void DisposeManaged()
+        void DisposeManaged()
         {
             if (store != null)
             {

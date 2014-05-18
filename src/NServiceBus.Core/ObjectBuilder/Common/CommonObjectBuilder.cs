@@ -127,7 +127,7 @@ namespace NServiceBus.ObjectBuilder.Common
             //Injected at compile time
         }
 
-        public void DisposeManaged()
+        void DisposeManaged()
         {
             if (container != null)
             {

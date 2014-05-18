@@ -2,12 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using Unicast.Behaviors;
     using Unicast.Messages;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public class IncomingContext : BehaviorContext
     {
         [ThreadStatic]

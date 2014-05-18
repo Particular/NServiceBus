@@ -1,15 +1,12 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
-    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
     using Transport;
     using Unicast;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class SendValidatorBehavior : IBehavior<OutgoingContext>
+    class SendValidatorBehavior : IBehavior<OutgoingContext>
     {
         public void Invoke(OutgoingContext context, Action next)
         {

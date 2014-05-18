@@ -2,9 +2,6 @@
 {
     using NServiceBus.Outbox;
     using Pipeline;
-    using Pipeline.Contexts;
-    using Unicast.Behaviors;
-    using UnitOfWork;
 
     public class Outbox : Feature
     {
@@ -13,27 +10,38 @@
              
         }
 
-        public class PipelineOverride : Pipeline.PipelineOverride
+        public class PipelineConfig : IWantToRunBeforeConfigurationIsFinalized
         {
-            public override void Override(BehaviorList<IncomingContext> behaviorList)
+            public void Run()
             {
                 if (!IsEnabled<Outbox>())
                 {
                     return;
                 }
 
-                behaviorList.InsertAfter<ChildContainerBehavior, OutboxDeduplicationBehavior>();
-                behaviorList.InsertAfter<UnitOfWorkBehavior, OutboxRecordBehavior>();
+                Configure.Pipeline.Register<OutboxDeduplicationRegistration>();
+                Configure.Pipeline.Register<OutboxRecorderRegistration>();
+                Configure.Pipeline.Replace(WellKnownBehavior.DispatchMessageToTransport, typeof(OutboxSendBehavior), "Sending behavior with a delay sending until all business transactions are committed to the outbox storage");
             }
+        }
 
-            public override void Override(BehaviorList<OutgoingContext> behaviorList)
+        class OutboxDeduplicationRegistration : RegisterBehavior
+        {
+            public OutboxDeduplicationRegistration()
+                : base("OutboxDeduplication", typeof(OutboxDeduplicationBehavior), "Deduplication for the outbox feature")
             {
-                if (!IsEnabled<Outbox>())
-                {
-                    return;
-                }
+                InsertAfter(WellKnownBehavior.ChildContainer);
+                InsertBefore(WellKnownBehavior.UnitOfWork);
+            }
+        }
 
-                behaviorList.Replace<DispatchMessageToTransportBehavior, OutboxSendBehavior>();
+        class OutboxRecorderRegistration : RegisterBehavior
+        {
+            public OutboxRecorderRegistration()
+                : base("OutboxRecorder", typeof(OutboxRecordBehavior), "Records all action to the outbox storage")
+            {
+                InsertBefore(WellKnownBehavior.MutateIncomingTransportMessage);
+                InsertAfter(WellKnownBehavior.UnitOfWork);
             }
         }
     }

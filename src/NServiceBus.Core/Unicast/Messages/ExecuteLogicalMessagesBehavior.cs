@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Messages
 {
     using System;
-    using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
     using Logging;
@@ -9,10 +8,7 @@
     using Pipeline.Contexts;
     using Transport;
 
-
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class ExecuteLogicalMessagesBehavior : IBehavior<IncomingContext>
+    class ExecuteLogicalMessagesBehavior : IBehavior<IncomingContext>
     {
         public PipelineExecutor PipelineExecutor { get; set; }
 
