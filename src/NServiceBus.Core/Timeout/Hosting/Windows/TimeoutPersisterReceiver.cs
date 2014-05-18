@@ -23,7 +23,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Start()
         {
-            TimeoutManager.TimeoutPushed += TimeoutsManagerOnTimeoutPushed;
+            TimeoutManager.TimeoutPushed = TimeoutsManagerOnTimeoutPushed;
 
             SecondsToSleepBetweenPolls = 1;
 
@@ -34,7 +34,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Stop()
         {
-            TimeoutManager.TimeoutPushed -= TimeoutsManagerOnTimeoutPushed;
+            TimeoutManager.TimeoutPushed = null;
             tokenSource.Cancel();
             resetEvent.WaitOne();
         }
@@ -133,7 +133,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             return transportMessage;
         }
 
-        void TimeoutsManagerOnTimeoutPushed(object sender, TimeoutData timeoutData)
+        void TimeoutsManagerOnTimeoutPushed(TimeoutData timeoutData)
         {
             lock (lockObject)
             {
