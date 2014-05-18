@@ -36,6 +36,8 @@
                 }
 
                 contextStacker.Push(rootContext);
+
+                return rootContext;
             }
         }
 
