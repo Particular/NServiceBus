@@ -28,8 +28,6 @@
                 EndpointSetup<DefaultServer>();
             }
 
-
-#pragma warning disable 618
             //first we override the default "extraction" behavior
             class MyOverride : INeedInitialization
             {
@@ -53,7 +51,6 @@
                     Context.GotTheRawMessage = true;
                 }
             }
-#pragma warning restore 618
 
             class ThisHandlerWontGetInvoked:IHandleMessages<SomeMessage>
             {

@@ -46,7 +46,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                 }
             }
 
-#pragma warning disable 618
             class SetFiltering : IBehavior<IncomingContext>
             {
                 public void Invoke(IncomingContext context, Action next)
@@ -101,7 +100,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                     }
                 }
             }
-#pragma warning restore 618
         }
 
         public class AuditSpy : EndpointConfigurationBuilder

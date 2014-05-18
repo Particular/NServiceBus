@@ -9,8 +9,6 @@
     using MessageMutator;
     using NUnit.Framework;
 
-#pragma warning disable 612, 618
-
     public class When_sending_a_message_off_to_slr : NServiceBusAcceptanceTest
     {
         [Test]
@@ -140,7 +138,4 @@
         {
         }
     }
-
-#pragma warning restore  612, 618
-
 }

@@ -7,8 +7,6 @@
     using MessageMutator;
     using NUnit.Framework;
 
-#pragma warning disable 612, 618
-
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
         [Test]
@@ -121,10 +119,5 @@
         public class MessageToBeAudited : IMessage
         {
         }
-
-        
     }
-
-#pragma warning restore  612, 618
-
 }

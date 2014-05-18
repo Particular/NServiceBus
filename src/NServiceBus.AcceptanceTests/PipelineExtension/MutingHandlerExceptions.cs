@@ -49,7 +49,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                 }
             }
 
-#pragma warning disable 618
             class MyExceptionFilteringBehavior : IBehavior<IncomingContext>
             {
                 public void Invoke(IncomingContext context, Action next)
@@ -89,9 +88,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                         InsertBefore(WellKnownBehavior.InvokeHandlers);
                     }
                 }
-
-#pragma warning restore 618
-
             }
         }
 
