@@ -1,8 +1,10 @@
 namespace NServiceBus.Gateway.Tests.Routing
 {
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Linq;
     using Channels;
+    using Config;
     using NUnit.Framework;
     using Receiving;
 
@@ -16,7 +18,15 @@ namespace NServiceBus.Gateway.Tests.Routing
         [SetUp]
         public void SetUp()
         {
-            config = new ConfigurationBasedChannelManager();
+
+            var section = ConfigurationManager.GetSection(typeof(GatewayConfig).Name) as GatewayConfig;
+
+
+            config = new ConfigurationBasedChannelManager
+            {
+                ReceiveChannels = section.GetChannels().ToList()
+            };
+
             activeChannels = config.GetReceiveChannels();
             defaultChannel = config.GetDefaultChannel();
 
