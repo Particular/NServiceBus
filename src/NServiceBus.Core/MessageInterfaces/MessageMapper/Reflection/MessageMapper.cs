@@ -46,7 +46,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <summary>
         /// Generates a concrete implementation of the given type if it is an interface.
         /// </summary>
-        public void InitType(Type t, ModuleBuilder moduleBuilder)
+        void InitType(Type t, ModuleBuilder moduleBuilder)
         {
             if (t == null)
             {
@@ -108,11 +108,17 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
         void GenerateImplementationFor(Type interfaceType, ModuleBuilder moduleBuilder)
         {
+            if (!interfaceType.IsPublic)
+            {
+                throw new Exception(string.Format("We can only generate a concrete implementation for '{0}' if '{0}' is public.", interfaceType));
+            }
+
             if (interfaceType.GetMethods().Any(mi => !(mi.IsSpecialName && (mi.Name.StartsWith("set_") || mi.Name.StartsWith("get_")))))
             {
                 Logger.Warn(string.Format("Interface {0} contains methods and can there for not be mapped. Be aware that non mapped interface can't be used to send messages.",interfaceType.Name));
                 return;
             }
+
             var mapped = CreateTypeFrom(interfaceType, moduleBuilder);
             interfaceToConcreteTypeMapping[interfaceType] = mapped;
             concreteToInterfaceTypeMapping[mapped] = interfaceType;
@@ -136,7 +142,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <summary>
         /// Generates a new full name for a type to be generated for the given type.
         /// </summary>
-        public string GetNewTypeName(Type t)
+        string GetNewTypeName(Type t)
         {
             return t.FullName + SUFFIX;
         }
@@ -145,7 +151,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// Generates the concrete implementation of the given type.
         /// Only properties on the given type are generated in the concrete implementation.
         /// </summary>
-        public Type CreateTypeFrom(Type t, ModuleBuilder moduleBuilder)
+        Type CreateTypeFrom(Type t, ModuleBuilder moduleBuilder)
         {
             var typeBuilder = moduleBuilder.DefineType(
                 GetNewTypeName(t),
