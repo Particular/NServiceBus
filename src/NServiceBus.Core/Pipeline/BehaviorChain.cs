@@ -7,6 +7,7 @@
 
     class BehaviorChain<T> where T : BehaviorContext
     {
+        readonly Func<Type, object> builder;
         // ReSharper disable once StaticFieldInGenericType
         // The number of T's is small and they will all log to the same point due to the typeof(BehaviorChain<>)
         static ILog Log = LogManager.GetLogger(typeof(BehaviorChain<>));
@@ -14,8 +15,9 @@
         Stack<Queue<Type>> snapshots = new Stack<Queue<Type>>();
         bool stackTracePreserved;
 
-        public BehaviorChain(IEnumerable<Type> behaviorList)
+        public BehaviorChain(Func<Type, object> builder, IEnumerable<Type> behaviorList)
         {
+            this.builder = builder;
             foreach (var behaviorType in behaviorList)
             {
                 itemDescriptors.Enqueue(behaviorType);
@@ -49,7 +51,7 @@
 
             try
             {
-                var instance = (IBehavior<T>)context.Builder.Build(behaviorType);
+                var instance = (IBehavior<T>)builder(behaviorType);
                 instance.Invoke(context, () => InvokeNext(context));
             }
             catch (Exception exception)

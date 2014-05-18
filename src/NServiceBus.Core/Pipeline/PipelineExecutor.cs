@@ -4,21 +4,22 @@
     using System.Collections.Generic;
     using System.Linq;
     using Contexts;
-    using ObjectBuilder;
     using Unicast;
     using Unicast.Messages;
 
     public class PipelineExecutor : IDisposable
     {
-        public PipelineExecutor(IBuilder builder)
+        public PipelineExecutor(Func<Type, object> builder, BehaviorContext rootContext)
         {
-            rootBuilder = builder;
+            this.builder = builder;
             var pipelineBuilder = new PipelineBuilder();
             Incoming = pipelineBuilder.Incoming.AsReadOnly();
             Outgoing = pipelineBuilder.Outgoing.AsReadOnly();
 
             incomingBehaviors = Incoming.Select(r => r.BehaviorType);
             outgoingBehaviors = Outgoing.Select(r => r.BehaviorType);
+
+            contextStacker.Push(rootContext);
         }
 
         public IList<RegisterBehavior> Incoming { get; private set; }
@@ -28,15 +29,6 @@
         {
             get
             {
-                var current = contextStacker.Current;
-
-                if (current != null)
-                {
-                    return current;
-                }
-
-                contextStacker.Push(new RootContext(rootBuilder));
-
                 return contextStacker.Current;
             }
         }
@@ -79,7 +71,7 @@
 
         public void InvokePipeline<TContext>(IEnumerable<Type> behaviours, TContext context) where TContext : BehaviorContext
         {
-            var pipeline = new BehaviorChain<TContext>(behaviours);
+            var pipeline = new BehaviorChain<TContext>(builder, behaviours);
 
             Execute(pipeline, context);
         }
@@ -104,7 +96,7 @@
         }
 
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
-        IBuilder rootBuilder;
+        Func<Type, object> builder;
         IEnumerable<Type> incomingBehaviors;
         IEnumerable<Type> outgoingBehaviors;
     }

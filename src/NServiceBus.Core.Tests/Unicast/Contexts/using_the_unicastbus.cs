@@ -15,6 +15,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Monitoring;
     using NUnit.Framework;
     using Pipeline;
+    using Pipeline.Contexts;
     using Publishing;
     using Rhino.Mocks;
     using Routing;
@@ -96,7 +97,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
-            pipelineFactory = new PipelineExecutor(FuncBuilder);
+            pipelineFactory = new PipelineExecutor(FuncBuilder.Build, new RootContext(FuncBuilder));
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
