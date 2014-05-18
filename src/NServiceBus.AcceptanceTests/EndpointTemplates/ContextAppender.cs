@@ -1,9 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
+    extern alias realOne;
+
     using AcceptanceTesting;
     using AcceptanceTesting.Support;
-    using log4net.Appender;
-    using log4net.Core;
+    using AppenderSkeleton = realOne::log4net.Appender.AppenderSkeleton;
+    using LoggingEvent = realOne::log4net.Core.LoggingEvent;
 
     public class ContextAppender : AppenderSkeleton
     {
