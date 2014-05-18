@@ -23,7 +23,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 internal static bool activated;
 
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                     activated = true;
                 }
@@ -48,7 +48,7 @@ namespace NServiceBus.Hosting.Tests
                                    typeof(InterfaceProfile).FullName,
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
-                profileManager.ActivateProfileHandlers();
+                profileManager.ActivateProfileHandlers(null);
                 Assert.IsTrue(InterfaceProfileHandler.activated);
             }
             [Test]
@@ -75,7 +75,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 internal static bool activated;
 
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                     activated = true;
                 }
@@ -100,7 +100,7 @@ namespace NServiceBus.Hosting.Tests
                                    typeof(ClassProfile).FullName,
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
-                profileManager.ActivateProfileHandlers();
+                profileManager.ActivateProfileHandlers(null);
                 Assert.IsTrue(ClassProfileHandler.activated);
             }
             [Test]
@@ -131,7 +131,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 public static bool activated;
 
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                     activated = true;
                 }
@@ -141,7 +141,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 public static bool activated;
 
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                     activated = true;
                 }
@@ -166,7 +166,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[] { typeof(ChildProfile).FullName };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
-                profileManager.ActivateProfileHandlers();
+                profileManager.ActivateProfileHandlers(null);
                 Assert.IsTrue(BaseProfileHandler.activated);
                 Assert.IsTrue(ChildProfileHandler.activated);
             }
@@ -175,7 +175,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[] { typeof(ChildProfile).FullName };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
-                profileManager.ActivateProfileHandlers();
+                profileManager.ActivateProfileHandlers(null);
                 Assert.IsTrue(BaseProfileHandler.activated);
                 Assert.IsTrue(ChildProfileHandler.activated);
             }
@@ -257,7 +257,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 public static int activatedCount;
 
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                     activatedCount++;
                 }
@@ -282,7 +282,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[] { typeof(MyProfile).FullName };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
-                profileManager.ActivateProfileHandlers();
+                profileManager.ActivateProfileHandlers(null);
                 Assert.AreEqual(1, Handler.activatedCount  );
             }
         }
@@ -301,7 +301,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 public static bool activated;
 
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                     activated = true;
                 }
@@ -310,7 +310,7 @@ namespace NServiceBus.Hosting.Tests
             public class Handler2 : IHandleProfile<Profile>
             {
                 public static bool activated;
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                     activated = true;
                 }
@@ -339,7 +339,7 @@ namespace NServiceBus.Hosting.Tests
                                    typeof (Profile).FullName,
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
-                profileManager.ActivateProfileHandlers();
+                profileManager.ActivateProfileHandlers(null);
                 Assert.IsTrue(Handler1.activated);
                 Assert.IsTrue(Handler2.activated);
             }
@@ -360,7 +360,7 @@ namespace NServiceBus.Hosting.Tests
 
             public class Handler1 : IHandleProfile<Profile1>
             {
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                     activations.Add(GetType());
                 }
@@ -368,7 +368,7 @@ namespace NServiceBus.Hosting.Tests
 
             public class Handler2 : IHandleProfile<Profile2>
             {
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                     activations.Add(GetType());
                 }
@@ -430,7 +430,7 @@ namespace NServiceBus.Hosting.Tests
                                    typeof (Profile2).FullName,
                                };
                 var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
-                profileManagerA.ActivateProfileHandlers();
+                profileManagerA.ActivateProfileHandlers(null);
                 CollectionAssert.AreEqual(new[] { typeof(Handler1), typeof(Handler2) }, activations);
 
                 activations.Clear();
@@ -441,7 +441,7 @@ namespace NServiceBus.Hosting.Tests
                                    typeof (Profile1).FullName,
                                };
                 var profileManagerB = new ProfileManager(allAssemblies, null, profilesB, null);
-                profileManagerB.ActivateProfileHandlers();
+                profileManagerB.ActivateProfileHandlers(null);
                 CollectionAssert.AreEqual(new[] { typeof(Handler2), typeof(Handler1) }, activations);
 
             }
@@ -462,7 +462,7 @@ namespace NServiceBus.Hosting.Tests
 
             public class Handler : IHandleProfile<Profile1>, IHandleProfile<Profile2>
             {
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                     activations.Add(this);
                 }
@@ -477,7 +477,7 @@ namespace NServiceBus.Hosting.Tests
                                    typeof (Profile2).FullName,
                                };
                 var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
-                profileManagerA.ActivateProfileHandlers();
+                profileManagerA.ActivateProfileHandlers(null);
                 Assert.IsInstanceOf<Handler>(activations[0]);
                 Assert.AreEqual(1, activations.Count);
             }
@@ -497,7 +497,7 @@ namespace NServiceBus.Hosting.Tests
 
             public class BaseHandler : IHandleProfile<BaseProfile>
             {
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                     activations.Add(GetType());
                 }
@@ -505,7 +505,7 @@ namespace NServiceBus.Hosting.Tests
 
             public class SpecializedHandler : IHandleProfile<SpecializedProfile>
             {
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                     activations.Add(GetType());
                 }
@@ -521,7 +521,7 @@ namespace NServiceBus.Hosting.Tests
                                    typeof (SpecializedProfile).FullName
                                };
                 var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
-                profileManagerA.ActivateProfileHandlers();
+                profileManagerA.ActivateProfileHandlers(null);
                 CollectionAssert.AreEquivalent(new[] { typeof(BaseHandler), typeof(SpecializedHandler) }, activations);
             }
 
@@ -535,7 +535,7 @@ namespace NServiceBus.Hosting.Tests
                                    typeof (BaseProfile).FullName
                                };
                 var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
-                profileManagerA.ActivateProfileHandlers();
+                profileManagerA.ActivateProfileHandlers(null);
                 CollectionAssert.AreEquivalent(new[]{typeof(BaseHandler)}, activations);
             }
         }
@@ -549,7 +549,7 @@ namespace NServiceBus.Hosting.Tests
             public class ChildHandler : AbstractHandler
             {
                 public new static bool activated;
-                public override void ProfileActivated()
+                public override void ProfileActivated(Configure config)
                 {
                     activated = true;
                 }
@@ -558,7 +558,7 @@ namespace NServiceBus.Hosting.Tests
             public abstract class AbstractHandler : IHandleProfile<Profile>
             {
                 public static bool activated;
-                public virtual void ProfileActivated()
+                public virtual void ProfileActivated(Configure config)
                 {
                     activated = true;
                 }
@@ -584,7 +584,7 @@ namespace NServiceBus.Hosting.Tests
                                    typeof (Profile).FullName,
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
-                profileManager.ActivateProfileHandlers();
+                profileManager.ActivateProfileHandlers(null);
                 Assert.IsTrue(ChildHandler.activated);
                 Assert.IsFalse(AbstractHandler.activated);
             }
@@ -605,7 +605,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 internal static IConfigureThisEndpoint config;
 
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                 }
 
@@ -624,7 +624,7 @@ namespace NServiceBus.Hosting.Tests
                                };
                 var configureThisEndpoint = new ConfigureThisEndpoint();
                 var profileManager = new ProfileManager(allAssemblies, configureThisEndpoint, profiles, null);
-                profileManager.ActivateProfileHandlers();
+                profileManager.ActivateProfileHandlers(null);
                 Assert.AreEqual(configureThisEndpoint, Handler.config);
             }
 
@@ -640,7 +640,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 internal static IEnumerable<Type> activeProfiles;
 
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                 }
 
@@ -659,7 +659,7 @@ namespace NServiceBus.Hosting.Tests
                                    typeof (Profile).FullName,
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
-                profileManager.ActivateProfileHandlers();
+                profileManager.ActivateProfileHandlers(null);
                 Assert.IsNotNull(Handler.activeProfiles);
                 Assert.AreEqual(1, Handler.activeProfiles.Count());
             }
@@ -678,7 +678,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 internal static bool activatedCalled;
 
-                public void ProfileActivated()
+                public void ProfileActivated(Configure config)
                 {
                     activatedCalled = true;
                 }
@@ -692,7 +692,7 @@ namespace NServiceBus.Hosting.Tests
                                    typeof (Profile).FullName,
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
-                profileManager.ActivateProfileHandlers();
+                profileManager.ActivateProfileHandlers(null);
                 Assert.IsTrue(Handler.activatedCalled);
             }
 
@@ -707,14 +707,14 @@ namespace NServiceBus.Hosting.Tests
 
             public class ChildHandler : BaseHandler
             {
-                public override void ProfileActivated()
+                public override void ProfileActivated(Configure config)
                 {
                 }
             }
 
             public class BaseHandler : IHandleProfile<Profile>
             {
-                public virtual void ProfileActivated()
+                public virtual void ProfileActivated(Configure config)
                 {
                 }
             }

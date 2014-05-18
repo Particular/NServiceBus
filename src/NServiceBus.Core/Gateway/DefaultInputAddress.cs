@@ -1,17 +1,15 @@
 ﻿namespace NServiceBus.Gateway
 {
-    using Settings;
-
     /// <summary>
     ///     Sets the default input address for the gateway
     /// </summary>
-    public class DefaultInputAddress : IWantToRunBeforeConfigurationIsFinalized
+    class DefaultInputAddress : IWantToRunBeforeConfigurationIsFinalized
     {
-        public void Run()
+        public void Run(Configure config)
         {
             var gatewayInputAddress = Address.Parse(Configure.EndpointName).SubScope("gateway");
 
-            SettingsHolder.Instance.SetDefault("Gateway.InputAddress", gatewayInputAddress);
+            config.Settings.SetDefault("Gateway.InputAddress", gatewayInputAddress);
         }
     }
 }

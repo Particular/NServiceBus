@@ -1,12 +1,10 @@
 ﻿namespace NServiceBus.Distributor.Config
 {
-    using Settings;
-
     class DefaultMasterNodeAddress : IWantToRunBeforeConfigurationIsFinalized
     {
-        public void Run()
+        public void Run(Configure config)
         {
-            SettingsHolder.Instance.SetDefault("MasterNode.Address", Address.Parse(Configure.EndpointName));
+            config.Settings.SetDefault("MasterNode.Address", Address.Parse(Configure.EndpointName));
         }
     }
 }

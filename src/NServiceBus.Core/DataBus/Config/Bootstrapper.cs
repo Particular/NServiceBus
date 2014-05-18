@@ -3,13 +3,13 @@ namespace NServiceBus.DataBus.Config
     using System;
     using System.Linq;
 
-    public class Bootstrapper : IWantToRunBeforeConfigurationIsFinalized, IWantToRunWhenBusStartsAndStops
+    class Bootstrapper : IWantToRunBeforeConfigurationIsFinalized, IWantToRunWhenBusStartsAndStops
 	{
         static bool dataBusPropertyFound;
 
-        void IWantToRunBeforeConfigurationIsFinalized.Run()
+        void IWantToRunBeforeConfigurationIsFinalized.Run(Configure config)
 		{
-            if (!Configure.Instance.Configurer.HasComponent<IDataBusSerializer>() && System.Diagnostics.Debugger.IsAttached)
+            if (!config.Configurer.HasComponent<IDataBusSerializer>() && System.Diagnostics.Debugger.IsAttached)
             {
                 var properties = Configure.TypesToScan
                     .Where(MessageConventionExtensions.IsMessageType)
@@ -44,19 +44,16 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
 		        return;
 		    }
 
-			if (!Configure.Instance.Configurer.HasComponent<IDataBus>())
+            if (!config.Configurer.HasComponent<IDataBus>())
 			{
 			    throw new InvalidOperationException("Messages containing databus properties found, please configure a databus!");
 			}
 
-            if (!Configure.Instance.Configurer.HasComponent<IDataBusSerializer>())
+            if (!config.Configurer.HasComponent<IDataBusSerializer>())
             {
-                Configure.Instance.Configurer.ConfigureComponent<DefaultDataBusSerializer>(
-                    DependencyLifecycle.SingleInstance);
+                config.Configurer.ConfigureComponent<DefaultDataBusSerializer>(DependencyLifecycle.SingleInstance);
             }
 		}
-
-       
 
         public IDataBus DataBus { get; set; }
 

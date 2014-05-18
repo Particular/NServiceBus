@@ -6,11 +6,11 @@ namespace NServiceBus.Unicast.Monitoring
     /// <summary>
     /// Initializes the performance counters if they are enabled
     /// </summary>
-    public class PerformanceCounterInitializer : IWantToRunBeforeConfigurationIsFinalized
+    class PerformanceCounterInitializer : IWantToRunBeforeConfigurationIsFinalized
     {
-        public void Run()
+        public void Run(Configure config)
         {
-            if (!Configure.Instance.PerformanceCountersEnabled())
+            if (!config.PerformanceCountersEnabled())
                 return;
 
             if (!PerformanceCounterCategory.Exists(CategoryName))
@@ -18,24 +18,24 @@ namespace NServiceBus.Unicast.Monitoring
                 return;
             }
 
-            SetupCriticalTimePerformanceCounter();
+            SetupCriticalTimePerformanceCounter(config);
 
-            SetupSLABreachCounter();
+            SetupSLABreachCounter(config);
         }
 
-        static void SetupCriticalTimePerformanceCounter()
+        static void SetupCriticalTimePerformanceCounter(Configure config)
         {
             var criticalTimeCalculator = new CriticalTimeCalculator();
             var criticalTimeCounter = InstantiateCounter("Critical Time");
 
             criticalTimeCalculator.Initialize(criticalTimeCounter);
 
-            Configure.Instance.Configurer.RegisterSingleton<CriticalTimeCalculator>(criticalTimeCalculator);
+            config.Configurer.RegisterSingleton<CriticalTimeCalculator>(criticalTimeCalculator);
         }
 
-        static void SetupSLABreachCounter()
+        static void SetupSLABreachCounter(Configure config)
         {
-            var endpointSla = Configure.Instance.EndpointSLA();
+            var endpointSla = config.EndpointSLA();
 
             if (endpointSla == TimeSpan.Zero)
                 return;
@@ -45,7 +45,7 @@ namespace NServiceBus.Unicast.Monitoring
 
             timeToSLABreachCalculator.Initialize(endpointSla, slaBreachCounter);
 
-            Configure.Instance.Configurer.RegisterSingleton<EstimatedTimeToSLABreachCalculator>(timeToSLABreachCalculator);
+            config.Configurer.RegisterSingleton<EstimatedTimeToSLABreachCalculator>(timeToSLABreachCalculator);
         }
 
         static PerformanceCounter InstantiateCounter(string counterName)

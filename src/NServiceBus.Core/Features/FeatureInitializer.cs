@@ -12,9 +12,9 @@
         /// <summary>
         /// Go trough all conditional features and figure out if the should be enabled or not
         /// </summary>
-        public void Run()
+        public void Run(Configure config)
         {
-            var features = Configure.Instance.Features;
+            var features = config.Features;
 
             DisableFeaturesThatAskedToBeDisabled(features);
 

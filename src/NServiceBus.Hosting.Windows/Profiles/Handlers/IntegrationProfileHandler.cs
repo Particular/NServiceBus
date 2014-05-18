@@ -6,11 +6,11 @@
 
     class IntegrationProfileHandler : IHandleProfile<Integration>
     {
-        public void ProfileActivated()
+        public void ProfileActivated(Configure config)
         {
-            if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+            if (!config.Configurer.HasComponent<IManageMessageFailures>())
             {
-                Configure.Instance.MessageForwardingInCaseOfFault();
+                config.MessageForwardingInCaseOfFault();
             }
          
             WindowsInstallerRunner.RunInstallers = true;

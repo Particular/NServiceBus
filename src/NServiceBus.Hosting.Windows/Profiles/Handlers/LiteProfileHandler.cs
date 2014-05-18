@@ -7,11 +7,11 @@
 
     class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig
     {
-        public void ProfileActivated()
+        public void ProfileActivated(Configure config)
         {
-            if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+            if (!config.Configurer.HasComponent<IManageMessageFailures>())
             {
-                Configure.Instance.InMemoryFaultManagement();
+                config.InMemoryFaultManagement();
             }
 
             WindowsInstallerRunner.RunInstallers = true;

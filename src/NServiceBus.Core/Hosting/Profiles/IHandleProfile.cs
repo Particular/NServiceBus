@@ -14,6 +14,6 @@
         /// <summary>
         /// Called when a given profile is activated.
         /// </summary>
-        void ProfileActivated();
+        void ProfileActivated(Configure config);
     }
 }

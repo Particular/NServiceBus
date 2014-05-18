@@ -5,11 +5,11 @@
     /// <summary>
     /// Handles the PerformanceCounters profile.
     /// </summary>
-    public class PerformanceCountersProfileHandler : IHandleProfile<PerformanceCounters>
+    class PerformanceCountersProfileHandler : IHandleProfile<PerformanceCounters>
     {
-        public void ProfileActivated()
+        public void ProfileActivated(Configure config)
         {
-            Configure.Instance.EnablePerformanceCounters();
+            config.EnablePerformanceCounters();
         }
     }
 }

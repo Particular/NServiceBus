@@ -6,7 +6,7 @@
     [ObsoleteEx(RemoveInVersion = "6.0")]
     class MasterProfileHandler : IHandleProfile<Master>
     {
-        public void ProfileActivated()
+        public void ProfileActivated(Configure config)
         {
             throw new Exception("The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.");
         }
