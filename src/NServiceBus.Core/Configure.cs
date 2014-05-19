@@ -98,17 +98,14 @@ namespace NServiceBus
 
         static bool initialized;
 
-        /// <summary>
-        /// Gets/sets the configuration source to be used.
-        /// </summary>
-        public IConfigurationSource ConfigurationSource { get; set; }
+        IConfigurationSource configurationSource;
 
         /// <summary>
         /// Sets the current configuration source.
         /// </summary>
         public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
         {
-            ConfigurationSource = configurationSource;
+            this.configurationSource = configurationSource;
             return this;
         }
 
@@ -157,7 +154,7 @@ namespace NServiceBus
         /// </summary>
         protected Configure()
         {
-            ConfigurationSource = new DefaultConfigurationSource();
+            configurationSource = new DefaultConfigurationSource();
         }
 
         static Endpoint endpoint;
@@ -385,7 +382,7 @@ namespace NServiceBus
         {
             if (TypesToScan == null)
             {
-                return ConfigurationSource.GetConfiguration<T>();
+                return configurationSource.GetConfiguration<T>();
             }
 
 // ReSharper disable HeapView.SlowDelegateCreation
@@ -394,7 +391,7 @@ namespace NServiceBus
 
             if (sectionOverrideType == null)
             {
-                return ConfigurationSource.GetConfiguration<T>();
+                return configurationSource.GetConfiguration<T>();
             }
 
             var sectionOverride = (IProvideConfiguration<T>)Activator.CreateInstance(sectionOverrideType);

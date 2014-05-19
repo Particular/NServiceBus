@@ -96,7 +96,6 @@
             throw new InvalidOperationException("Unknown serializer:" + serializer);
         }
 
-
         public static Configure DefineBuilder(this Configure config, string builder)
         {
             if (string.IsNullOrEmpty(builder))
