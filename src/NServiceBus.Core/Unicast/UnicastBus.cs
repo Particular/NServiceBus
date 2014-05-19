@@ -91,7 +91,7 @@ namespace NServiceBus.Unicast
         /// used primarily for the Distributor.
         /// </summary>
         public bool PropagateReturnAddressOnSend { get; set; }
-        
+
         /// <summary>
         /// The router for this <see cref="UnicastBus"/>
         /// </summary>
@@ -101,7 +101,7 @@ namespace NServiceBus.Unicast
         /// The registered subscription manager for this bus instance
         /// </summary>
         public IManageSubscriptions SubscriptionManager { get; set; }
-        
+
         /// <summary>
         /// Creates an instance of the requested message type (T), 
         /// performing the given action on the created message,
@@ -126,9 +126,9 @@ namespace NServiceBus.Unicast
         public virtual void Publish<T>(T message)
         {
             var sendOptions = new SendOptions
-                {
-                    Intent = MessageIntentEnum.Publish
-                };
+            {
+                Intent = MessageIntentEnum.Publish
+            };
 
             InvokeSendPipeline(sendOptions, LogicalMessageFactory.Create(message));
         }
@@ -164,7 +164,7 @@ namespace NServiceBus.Unicast
             }
 
             if (TransportDefinition.HasSupportForCentralizedPubSub)
-            {   
+            {
                 // We are dealing with a brokered transport wired for auto pub/sub.
                 SubscriptionManager.Subscribe(messageType, null);
                 return;
@@ -238,15 +238,16 @@ namespace NServiceBus.Unicast
         public void Reply(object message)
         {
             var options = SendOptions.ReplyTo(MessageBeingProcessed.ReplyToAddress);
-
-            options.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
-
+            SetCorrelationId(options);
             SendMessage(options, LogicalMessageFactory.Create(message));
         }
 
         public void Reply<T>(Action<T> messageConstructor)
         {
-            Reply(messageMapper.CreateInstance(messageConstructor));
+            var instance = messageMapper.CreateInstance(messageConstructor);
+            var options = SendOptions.ReplyTo(MessageBeingProcessed.ReplyToAddress);
+            SetCorrelationId(options);
+            SendMessage(options, LogicalMessageFactory.Create(instance));
         }
 
         public void Return<T>(T errorCode)
@@ -256,13 +257,18 @@ namespace NServiceBus.Unicast
             {
                 {Headers.ReturnMessageErrorCodeHeader, errorCode.GetHashCode().ToString()}
             });
-            
+
             //returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
             //.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
 
             var options = SendOptions.ReplyTo(MessageBeingProcessed.ReplyToAddress);
-            options.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
+            SetCorrelationId(options);
             PipelineFactory.InvokeSendPipeline(options, returnMessage);
+        }
+
+        void SetCorrelationId(SendOptions options)
+        {
+            options.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
         }
 
         public void HandleCurrentMessageLater()
@@ -307,12 +313,20 @@ namespace NServiceBus.Unicast
 
         public ICallback Send<T>(Action<T> messageConstructor)
         {
-            return Send(messageMapper.CreateInstance(messageConstructor));
+            object message = messageMapper.CreateInstance(messageConstructor);
+            var destination = GetDestinationForSend(message);
+            return SendMessage(new SendOptions(destination), LogicalMessageFactory.Create(message));
         }
 
         public ICallback Send(object message)
         {
-            var destinations =  GetAddressForMessageType(message.GetType())
+            var destination = GetDestinationForSend(message);
+            return SendMessage(new SendOptions(destination), LogicalMessageFactory.Create(message));
+        }
+
+        Address GetDestinationForSend(object message)
+        {
+            var destinations = GetAddressForMessageType(message.GetType())
                 .Distinct()
                 .ToList();
 
@@ -321,9 +335,7 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("Sends can only target one address.");
             }
 
-            var destination = destinations.SingleOrDefault();
-
-            return SendMessage(new SendOptions(destination), LogicalMessageFactory.Create(message));
+            return destinations.SingleOrDefault();
         }
 
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
