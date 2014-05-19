@@ -107,11 +107,6 @@ namespace NServiceBus
             get { return transactionSetting ?? (transactionSetting = new TransactionSettings(this)); }
         }
 
-        public static TransportSettings Transports
-        {
-            get { return transports ?? (transports = new TransportSettings()); }
-        }
-
         public FeatureSettings Features
         {
             get { return features ?? (features = new FeatureSettings(this)); }

@@ -5,5 +5,11 @@ namespace NServiceBus.Settings
     /// </summary>
     public class TransportSettings
     {
+        readonly Configure config;
+
+        public TransportSettings(Configure config)
+        {
+            this.config = config;
+        }
     }
 }
