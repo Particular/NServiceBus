@@ -34,11 +34,11 @@ namespace NServiceBus.Pipeline
 
         public string Id { get; private set; }
         public string Description { get; internal set; }
-        internal IList<string> Befores { get; private set; }
-        internal IList<string> Afters { get; private set; }
+        internal IList<BeforeRegistration> Befores { get; private set; }
+        internal IList<AfterRegistration> Afters { get; private set; }
         public Type BehaviorType { get; internal set; }
 
-        public void InsertBefore(string id)
+        public void InsertBefore(string id, bool ignoreIfNonExisting = false)
         {
             if (String.IsNullOrEmpty(id))
             {
@@ -47,13 +47,13 @@ namespace NServiceBus.Pipeline
 
             if (Befores == null)
             {
-                Befores = new List<string>();
+                Befores = new List<BeforeRegistration>();
             }
 
-            Befores.Add(id);
+            Befores.Add(new BeforeRegistration(id,ignoreIfNonExisting));
         }
 
-        public void InsertAfter(string id)
+        public void InsertAfter(string id, bool ignoreIfNonExisting = false)
         {
             if (String.IsNullOrEmpty(id))
             {
@@ -62,10 +62,10 @@ namespace NServiceBus.Pipeline
 
             if (Afters == null)
             {
-                Afters = new List<string>();
+                Afters = new List<AfterRegistration>();
             }
 
-            Afters.Add(id);
+            Afters.Add(new AfterRegistration(id,ignoreIfNonExisting));
         }
 
         internal static RegisterBehavior Create(string id, Type behavior, string description)
@@ -77,9 +77,34 @@ namespace NServiceBus.Pipeline
 
         class DefaultRegisterBehavior : RegisterBehavior
         {
-            public DefaultRegisterBehavior(Type behavior, string id, string description) : base(id, behavior, description)
+            public DefaultRegisterBehavior(Type behavior, string id, string description)
+                : base(id, behavior, description)
             {
             }
+        }
+    }
+
+    class AfterRegistration
+    {
+        public string Id { get; set; }
+        public bool IgnoreIfNonExisting { get; set; }
+
+        public AfterRegistration(string id, bool ignoreIfNonExisting)
+        {
+            Id = id;
+            IgnoreIfNonExisting = ignoreIfNonExisting;
+        }
+    }
+
+    class BeforeRegistration
+    {
+        public string Id { get; set; }
+        public bool IgnoreIfNonExisting { get; set; }
+
+        public BeforeRegistration(string id, bool ignoreIfNonExisting)
+        {
+            Id = id;
+            IgnoreIfNonExisting = ignoreIfNonExisting;
         }
     }
 }
