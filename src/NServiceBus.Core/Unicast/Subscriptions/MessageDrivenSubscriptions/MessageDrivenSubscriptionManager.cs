@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading;
     using Logging;
-    using MessageMutator;
     using ObjectBuilder;
     using Queuing;
     using Transport;
@@ -15,10 +14,7 @@
     ///     Implements message driven subscriptions for transports that doesn't have native support for it (MSMQ , SqlServer,
     ///     Azure Queues etc)
     /// </summary>
-    public class MessageDrivenSubscriptionManager : IManageSubscriptions,
-        IMutateIncomingTransportMessages
-
-
+    public class MessageDrivenSubscriptionManager : IManageSubscriptions
     {
         public ISendMessages MessageSender { get; set; }
         public IBuilder Builder { get; set; }
@@ -65,15 +61,15 @@
             MessageSender.Send(subscriptionMessage, publisherAddress);
         }
 
-        public void MutateIncoming(TransportMessage transportMessage)
+        internal bool TryHandleMessage(TransportMessage transportMessage)
         {
-            var messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
+            var messageTypeString = GetSubscriptionHeader(transportMessage);
 
             var intent = transportMessage.MessageIntent;
 
-            if (string.IsNullOrEmpty(messageTypeString) && intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
+            if (string.IsNullOrEmpty(messageTypeString) && transportMessage.MessageIntent != MessageIntentEnum.Subscribe && transportMessage.MessageIntent != MessageIntentEnum.Unsubscribe)
             {
-                return;
+                return false;
             }
 
             if (string.IsNullOrEmpty(messageTypeString))
@@ -93,7 +89,12 @@
                 throw new InvalidOperationException("Subscription message arrived without a valid ReplyToAddress");
             }
 
+            HandleSubscriptionMessage(transportMessage, subscriberAddress, messageTypeString);
+            return true;
+        }
 
+        void HandleSubscriptionMessage(TransportMessage transportMessage, Address subscriberAddress, string messageTypeString)
+        {
             if (SubscriptionStorage == null)
             {
                 var warning = string.Format("Subscription message from {0} arrived at this endpoint, yet this endpoint is not configured to be a publisher. To avoid this warning make this endpoint a publisher by configuring a subscription storage or using the AsA_Publisher role.", subscriberAddress);
@@ -155,7 +156,7 @@
 
         public event EventHandler<SubscriptionEventArgs> ClientSubscribed;
 
-        static string GetSubscriptionMessageTypeFrom(TransportMessage msg)
+        static string GetSubscriptionHeader(TransportMessage msg)
         {
             return (from header in msg.Headers where header.Key == Headers.SubscriptionMessageType select header.Value).FirstOrDefault();
         }
