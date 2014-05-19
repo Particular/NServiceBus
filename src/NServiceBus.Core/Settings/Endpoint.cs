@@ -41,7 +41,7 @@ namespace NServiceBus.Settings
         /// </summary>
         public Endpoint AsVolatile()
         {
-            PersistenceConfig.DefaultTo<InMemory>();
+            config.Settings.Set("Persistence", typeof(InMemory));
 
             config.Transactions.Disable();
             config.Transactions.Advanced(s => s.DoNotWrapHandlersExecutionInATransactionScope()

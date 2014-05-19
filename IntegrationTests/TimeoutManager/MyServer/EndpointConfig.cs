@@ -5,9 +5,9 @@
 
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Server,IWantCustomInitialization
     {
-        public void Init()
+        public Configure Init()
         {
-            Configure.With()
+            return Configure.With()
                 .DefaultBuilder()
                 //shows multi tenant operations of the sagas
                 .MessageToDatabaseMappingConvention(context =>
@@ -28,7 +28,7 @@
     {
         public IBus Bus { get; set; }
 
-        public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
+        public void MutateOutgoing(object message, TransportMessage transportMessage)
         {
             if (Bus.CurrentMessageContext == null)
                 return;
@@ -38,10 +38,10 @@
             transportMessage.Headers["tenant"] = Bus.CurrentMessageContext.Headers["tenant"];
         }
 
-        public void Init()
+        public void Init(Configure config)
         {
 
-            Configure.Instance.Configurer.ConfigureComponent<TenantPropagatingMutator>(
+            config.Configurer.ConfigureComponent<TenantPropagatingMutator>(
                 DependencyLifecycle.InstancePerCall);
         }
     }

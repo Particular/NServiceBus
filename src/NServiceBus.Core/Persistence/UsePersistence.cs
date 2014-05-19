@@ -1,8 +1,6 @@
 ﻿namespace NServiceBus.Persistence
 {
     using System;
-    using System.Linq;
-    using Settings;
 
 
     /// <summary>
@@ -16,29 +14,14 @@
         }
 
         public static Configure UsePersistence(this Configure config, Type definitionType, Action<PersistenceConfiguration> customizations = null)
-        {
-            var type =
-              config.TypesToScan.SingleOrDefault(
-                  t => typeof(IConfigurePersistence<>).MakeGenericType(definitionType).IsAssignableFrom(t));
-
-            if (type == null)
-                throw new InvalidOperationException(
-                    "We couldn't find a IConfigurePersistence implementation for your selected persistence: " +
-                    definitionType.Name);
-
-            if (customizations != null)
+        {   if (customizations != null)
             {
                 customizations(new PersistenceConfiguration(config));
             }
 
-            ((IConfigurePersistence)Activator.CreateInstance(type)).Enable(config);
+            config.Settings.Set("Persistence", definitionType);
 
             return config;
-        }
-
-        public static void DefaultTo<T>() where T : PersistenceDefinition
-        {
-            SettingsHolder.Instance.SetDefault("DefaultPersistence",typeof(T));
         }
     }
 
