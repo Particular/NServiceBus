@@ -301,7 +301,6 @@
     <Compile Include="Serializers\Json\Config\ConfigureJsonSerializer.cs" />
     <Compile Include="Distributor\MasterNode\ConfigureMasterNode.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
-    <Compile Include="Settings\TransportSettings.cs" />
     <Compile Include="Timeout\TimeoutManager.cs" />
     <Compile Include="Transports\Msmq\Config\ConfigureMsmqMessageQueue.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\ConfigureMsmqSubscriptionStorage.cs" />

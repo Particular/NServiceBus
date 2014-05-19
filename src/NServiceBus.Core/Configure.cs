@@ -125,7 +125,7 @@ namespace NServiceBus
         /// <summary>
         ///     Returns types in assemblies found in the current directory.
         /// </summary>
-        public IList<Type> TypesToScan { get; protected set; }
+        public IEnumerable<Type> TypesToScan { get; protected set; }
 
         /// <summary>
         ///     The name of this endpoint.
@@ -262,7 +262,7 @@ namespace NServiceBus
             //TODO: re-enable when we make message scanning lazy #1617
             //TypesToScan = TypesToScan.Union(GetMessageTypes(TypesToScan)).ToList();
 
-            Logger.DebugFormat("Number of types to scan: {0}", instance.TypesToScan.Count);
+            Logger.DebugFormat("Number of types to scan: {0}", instance.TypesToScan.Count());
 
             EndpointHelper.StackTraceToExamine = new StackTrace();
 
@@ -584,11 +584,10 @@ namespace NServiceBus
 
         static bool configSectionOverridesInitialized;
         static Endpoint endpoint;
-        static TransactionSettings transactionSetting;
-        static TransportSettings transports;
-        static FeatureSettings features;
-        static SerializationSettings serialization;
-        static PipelineSettings pipelineSettings;
+        TransactionSettings transactionSetting;
+        FeatureSettings features;
+        SerializationSettings serialization;
+        PipelineSettings pipelineSettings;
         static bool beforeConfigurationInitializersCalled;
 
         /// <summary>
