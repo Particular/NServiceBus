@@ -66,7 +66,7 @@ namespace NServiceBus.Hosting
                     bus.Start();
                 }
 
-                wcfManager.Startup();
+                wcfManager.Startup(Configure.Instance);
             }
             catch (Exception ex)
             {

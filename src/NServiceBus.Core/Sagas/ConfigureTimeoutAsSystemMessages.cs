@@ -8,15 +8,15 @@ namespace NServiceBus.Sagas
     /// <summary>
     /// Defining <see cref="IHandleTimeouts{T}"/> as valid system messages
     /// </summary>
-    public class ConfigureTimeoutAsSystemMessages : IWantToRunBeforeConfiguration
+    class ConfigureTimeoutAsSystemMessages : IWantToRunBeforeConfiguration
     {
         /// <summary>
         /// Defining <see cref="IHandleTimeouts{T}"/> as valid system messages
         /// </summary>
-        /// <param name="configure"></param>
-        public void Init(Configure configure)
+        /// <param name="config"></param>
+        public void Init(Configure config)
         {
-            var sagas = Configure.TypesToScan.Where(Features.Sagas.IsSagaType).ToList();
+            var sagas = config.TypesToScan.Where(Features.Sagas.IsSagaType).ToList();
 
             MessageConventionExtensions.AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
         }

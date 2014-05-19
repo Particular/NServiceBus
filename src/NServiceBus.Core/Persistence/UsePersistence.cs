@@ -18,7 +18,7 @@
         public static Configure UsePersistence(this Configure config, Type definitionType, Action<PersistenceConfiguration> customizations = null)
         {
             var type =
-              Configure.TypesToScan.SingleOrDefault(
+              config.TypesToScan.SingleOrDefault(
                   t => typeof(IConfigurePersistence<>).MakeGenericType(definitionType).IsAssignableFrom(t));
 
             if (type == null)

@@ -237,7 +237,7 @@ namespace NServiceBus
                 instance = new Configure();
             }
 
-            TypesToScan = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly())).ToList();
+            instance.TypesToScan = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly())).ToList();
 
             if (HttpRuntime.AppDomainAppId == null)
             {
@@ -245,14 +245,14 @@ namespace NServiceBus
                 var hostPath = Path.Combine(baseDirectory, "NServiceBus.Host.exe");
                 if (File.Exists(hostPath))
                 {
-                    TypesToScan = TypesToScan.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
+                    instance.TypesToScan = instance.TypesToScan.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
                 }
             }
 
             //TODO: re-enable when we make message scanning lazy #1617
             //TypesToScan = TypesToScan.Union(GetMessageTypes(TypesToScan)).ToList();
 
-            Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count);
+            Logger.DebugFormat("Number of types to scan: {0}", instance.TypesToScan.Count);
 
             EndpointHelper.StackTraceToExamine = new StackTrace();
 
@@ -373,7 +373,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns types in assemblies found in the current directory.
         /// </summary>
-        public static IList<Type> TypesToScan { get; private set; }
+        public IList<Type> TypesToScan { get; private set; }
 
         /// <summary>
         /// Returns the requested config section using the current configuration source.

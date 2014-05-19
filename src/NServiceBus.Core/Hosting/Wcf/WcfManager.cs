@@ -18,9 +18,9 @@
         /// Starts a <see cref="ServiceHost"/> for each found service. Defaults to <see cref="BasicHttpBinding"/> if
         /// no user specified binding is found
         /// </summary>
-        public void Startup()
+        public void Startup(Configure config)
         {
-            foreach (var serviceType in Configure.TypesToScan.Where(t => !t.IsAbstract && IsWcfService(t)))
+            foreach (var serviceType in config.TypesToScan.Where(t => !t.IsAbstract && IsWcfService(t)))
             {
                 var host = new WcfServiceHost(serviceType);
 

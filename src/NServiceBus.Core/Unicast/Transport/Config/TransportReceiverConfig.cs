@@ -43,7 +43,7 @@ namespace NServiceBus
         /// <returns>The configuration object.</returns>
         public static Configure UseTransport(this Configure config, Type transportDefinitionType, string connectionStringName = null)
         {
-            var transportConfigurer = CreateTransportConfigurer(transportDefinitionType);
+            var transportConfigurer = CreateTransportConfigurer(transportDefinitionType, config);
 
             if (!string.IsNullOrEmpty(connectionStringName))
             {
@@ -64,7 +64,7 @@ namespace NServiceBus
         /// <returns>The configuration object.</returns>
         public static Configure UseTransport(this Configure config, Type transportDefinitionType, Func<string> definesConnectionString)
         {
-            var transportConfigurer = CreateTransportConfigurer(transportDefinitionType);
+            var transportConfigurer = CreateTransportConfigurer(transportDefinitionType, config);
 
             TransportConnectionString.Override(definesConnectionString);
             
@@ -75,10 +75,10 @@ namespace NServiceBus
 
 
 
-        private static IConfigureTransport CreateTransportConfigurer(Type transportDefinitionType)
+        private static IConfigureTransport CreateTransportConfigurer(Type transportDefinitionType, Configure config)
         {
             var transportConfigurerType =
-                Configure.TypesToScan.SingleOrDefault(
+                config.TypesToScan.SingleOrDefault(
                     t => typeof (IConfigureTransport<>).MakeGenericType(transportDefinitionType).IsAssignableFrom(t));
 
             if (transportConfigurerType == null)

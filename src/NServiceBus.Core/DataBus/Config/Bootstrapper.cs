@@ -11,7 +11,7 @@ namespace NServiceBus.DataBus.Config
 		{
             if (!config.Configurer.HasComponent<IDataBusSerializer>() && System.Diagnostics.Debugger.IsAttached)
             {
-                var properties = Configure.TypesToScan
+                var properties = config.TypesToScan
                     .Where(MessageConventionExtensions.IsMessageType)
                     .SelectMany(messageType => messageType.GetProperties())
                     .Where(MessageConventionExtensions.IsDataBusProperty);
@@ -33,7 +33,7 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
             }
             else
             {
-                dataBusPropertyFound = Configure.TypesToScan
+                dataBusPropertyFound = config.TypesToScan
                     .Where(MessageConventionExtensions.IsMessageType)
                     .SelectMany(messageType => messageType.GetProperties())
                     .Any(MessageConventionExtensions.IsDataBusProperty);

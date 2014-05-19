@@ -42,14 +42,14 @@
 
             foreach (
                 var type in
-                    Configure.TypesToScan.Where(t => typeof(IChannelReceiver).IsAssignableFrom(t) && !t.IsInterface))
+                    config.TypesToScan.Where(t => typeof(IChannelReceiver).IsAssignableFrom(t) && !t.IsInterface))
             {
                 channelFactory.RegisterReceiver(type);
             }
 
             foreach (
                 var type in
-                    Configure.TypesToScan.Where(t => typeof(IChannelSender).IsAssignableFrom(t) && !t.IsInterface))
+                    config.TypesToScan.Where(t => typeof(IChannelSender).IsAssignableFrom(t) && !t.IsInterface))
             {
                 channelFactory.RegisterSender(type);
             }

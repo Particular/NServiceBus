@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast.Config
     {
         public void FinalizeConfiguration(Configure config)
         {
-            var knownMessages = Configure.TypesToScan
+            var knownMessages = config.TypesToScan
                 .Where(MessageConventionExtensions.IsMessageType)
                 .ToList();
 

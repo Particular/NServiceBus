@@ -21,12 +21,12 @@
 
         public override bool ShouldBeEnabled(Configure config)
         {
-            return Configure.TypesToScan.Any(IsSagaType);
+            return config.TypesToScan.Any(IsSagaType);
         }
 
         public override void Initialize(Configure config)
         {
-            foreach (var t in Configure.TypesToScan)
+            foreach (var t in config.TypesToScan)
             {
                 if (IsSagaType(t))
                 {

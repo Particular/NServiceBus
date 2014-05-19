@@ -19,7 +19,7 @@ namespace NServiceBus.Serializers.XML.Config
                 return;
             }
 
-            var messageTypes = Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType).ToList();
+            var messageTypes = config.TypesToScan.Where(MessageConventionExtensions.IsMessageType).ToList();
 
             Mapper.Initialize(messageTypes);
 

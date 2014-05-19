@@ -205,7 +205,7 @@
             if (!isHandler)
                 throw new ArgumentException("The handler object created does not implement IHandleMessages<T>.", "handlerCreationCallback");
 
-            var messageTypes = Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType).ToList();
+            var messageTypes = Configure.Instance.TypesToScan.Where(MessageConventionExtensions.IsMessageType).ToList();
 
             return new Handler<T>(handler, bus, messageCreator, messageTypes);
         }
