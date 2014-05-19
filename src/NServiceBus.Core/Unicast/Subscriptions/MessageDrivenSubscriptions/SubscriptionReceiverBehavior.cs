@@ -3,25 +3,13 @@
     using System;
     using System.Diagnostics;
     using System.Linq;
-    using System.Threading;
     using Logging;
-    using MessageMutator;
-    using ObjectBuilder;
-    using Queuing;
-    using Transport;
-    using Transports;
+    using Pipeline;
+    using Pipeline.Contexts;
 
-    /// <summary>
-    ///     Implements message driven subscriptions for transports that doesn't have native support for it (MSMQ , SqlServer,
-    ///     Azure Queues etc)
-    /// </summary>
-    public class MessageDrivenSubscriptionManager : IManageSubscriptions,
-        IMutateIncomingTransportMessages
-
-
+    class SubscriptionReceiverBehavior :
+        IBehavior<IncomingContext>
     {
-        public ISendMessages MessageSender { get; set; }
-        public IBuilder Builder { get; set; }
         public ISubscriptionStorage SubscriptionStorage { get; set; }
 
         public IAuthorizeSubscriptions SubscriptionAuthorizer
@@ -30,49 +18,16 @@
             set { subscriptionAuthorizer = value; }
         }
 
-        public void Subscribe(Type eventType, Address publisherAddress)
+        public void Invoke(IncomingContext context, Action next)
         {
-            if (publisherAddress == Address.Undefined)
-            {
-                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
-            }
-
-            Logger.Info("Subscribing to " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
-
-            var subscriptionMessage = CreateControlMessage(eventType);
-            subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
-            subscriptionMessage.ReplyToAddress = Address.PublicReturnAddress;
-
-            ThreadPool.QueueUserWorkItem(state =>
-                SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName));
-        }
-
-
-        public void Unsubscribe(Type eventType, Address publisherAddress)
-        {
-            if (publisherAddress == Address.Undefined)
-            {
-                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
-            }
-
-            Logger.Info("Unsubscribing from " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
-
-            var subscriptionMessage = CreateControlMessage(eventType);
-            subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
-
-            subscriptionMessage.ReplyToAddress = Address.PublicReturnAddress;
-
-            MessageSender.Send(subscriptionMessage, publisherAddress);
-        }
-
-        public void MutateIncoming(TransportMessage transportMessage)
-        {
+            var transportMessage = context.PhysicalMessage;
             var messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
 
             var intent = transportMessage.MessageIntent;
 
             if (string.IsNullOrEmpty(messageTypeString) && intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
             {
+                next();
                 return;
             }
 
@@ -107,8 +62,7 @@
                 return;
             }
 
-            //service locate to avoid a circular dependency
-            Builder.Build<IBus>().DoNotContinueDispatchingCurrentMessageToHandlers();
+            context.DoNotInvokeAnyMoreHandlers();
 
             if (transportMessage.MessageIntent == MessageIntentEnum.Subscribe)
             {
@@ -151,35 +105,7 @@
             return (from header in msg.Headers where header.Key == Headers.SubscriptionMessageType select header.Value).FirstOrDefault();
         }
 
-        static TransportMessage CreateControlMessage(Type eventType)
-        {
-            var subscriptionMessage = ControlMessage.Create(Address.Local);
-
-            subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
-            return subscriptionMessage;
-        }
-
-        void SendSubscribeMessageWithRetries(Address destination, TransportMessage subscriptionMessage, string messageType, int retriesCount = 0)
-        {
-            try
-            {
-                MessageSender.Send(subscriptionMessage, destination);
-            }
-            catch (QueueNotFoundException ex)
-            {
-                if (retriesCount < 10)
-                {
-                    Thread.Sleep(TimeSpan.FromSeconds(2));
-                    SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, ++retriesCount);
-                }
-                else
-                {
-                    Logger.ErrorFormat("Failed to subscribe to {0} at publisher queue {1}", ex, messageType, destination);
-                }
-            }
-        }
-
-        static readonly ILog Logger = LogManager.GetLogger(typeof(MessageDrivenSubscriptionManager));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(SubscriptionReceiverBehavior));
         IAuthorizeSubscriptions subscriptionAuthorizer;
     }
 }

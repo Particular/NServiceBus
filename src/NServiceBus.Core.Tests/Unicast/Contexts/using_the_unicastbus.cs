@@ -8,6 +8,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Behaviors;
     using Core.Tests;
     using Helpers;
+    using Licensing;
     using MessageHeaders;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
@@ -44,7 +45,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         public static Address MasterNodeAddress;
         protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
         protected MessageMetadataRegistry MessageMetadataRegistry;
-        protected MessageDrivenSubscriptionManager subscriptionManager;
+        protected SubscriptionManager subscriptionManager;
         protected StaticMessageRouter router;
 
         protected MessageHandlerRegistry handlerRegistry;
@@ -63,6 +64,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         [SetUp]
         public void SetUp()
         {
+            LicenseManager.InitializeLicense();
             transportDefinition = new Msmq();
             HandlerInvocationCache.Clear();
 
@@ -89,9 +91,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             subscriptionStorage = new FakeSubscriptionStorage();
-            subscriptionManager = new MessageDrivenSubscriptionManager
+            subscriptionManager = new SubscriptionManager
                 {
-                    Builder = FuncBuilder,
                     MessageSender = messageSender,
                     SubscriptionStorage = subscriptionStorage
                 };
@@ -105,7 +106,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory());
 
-            FuncBuilder.Register<IMutateIncomingTransportMessages>(() => subscriptionManager);
+            FuncBuilder.Register<IManageSubscriptions>(() => subscriptionManager);
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<MessageMetadataRegistry>(() => MessageMetadataRegistry);
 

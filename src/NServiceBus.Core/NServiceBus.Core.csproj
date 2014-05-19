@@ -252,7 +252,9 @@
     <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
     <Compile Include="Unicast\Messages\LogicalMessageFactory.cs" />
     <Compile Include="Unicast\SendOptions.cs" />
+    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubscriptionManager.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageInitializer.cs" />
+    <Compile Include="Unicast\Transport\TransportMessageExtensions.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />
@@ -587,7 +589,7 @@
     <Compile Include="Unicast\IMessageHandlerRegistry.cs" />
     <Compile Include="Unicast\MessageHandlerRegistry.cs" />
     <Compile Include="Unicast\Subscriptions\SubscriptionEventArgs.cs" />
-    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageDrivenSubscriptionManager.cs" />
+    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubscriptionReceiverBehavior.cs" />
     <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\ISubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageType.cs" />
