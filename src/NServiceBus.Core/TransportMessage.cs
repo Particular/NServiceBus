@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using IdGeneration;
-    using Unicast;
 
     /// <summary>
     ///     An envelope used by NServiceBus to package messages for transmission.

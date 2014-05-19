@@ -3,9 +3,7 @@ namespace NServiceBus.Pipeline
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using log4net.Repository.Hierarchy;
     using Logging;
-    using SecondLevelRetries;
 
     class BehaviorRegistrationsCoordinator
     {

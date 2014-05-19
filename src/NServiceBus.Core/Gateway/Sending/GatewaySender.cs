@@ -4,7 +4,6 @@ namespace NServiceBus.Gateway.Sending
     using System.Collections.Generic;
     using System.Linq;
     using Features;
-    using HeaderManagement;
     using Notifications;
     using ObjectBuilder;
     using Receiving;

@@ -17,7 +17,6 @@ namespace NServiceBus.Unicast
     using Routing;
     using Satellites;
     using Settings;
-    using Support;
     using Transport;
     using Transports;
 
