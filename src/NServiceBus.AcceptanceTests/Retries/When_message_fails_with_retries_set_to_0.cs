@@ -21,7 +21,6 @@
                     .Run();
 
             Assert.AreEqual(1, context.NumberOfTimesInvoked,"No FLR should be in use if MaxRetries is set to 0");
-            Assert.True(context.HeadersOfTheFailedMessage[Headers.ProcessingEndpoint].Contains("RetryEndpoint"), "The receiver should attach its endpoint name as a header");
         }
 
         public class Context : ScenarioContext
