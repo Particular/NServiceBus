@@ -1,6 +1,7 @@
 namespace NServiceBus.Transports
 {
     using System;
+    using Support;
 
     static class MessageForwarder
     {
@@ -19,6 +20,14 @@ namespace NServiceBus.Transports
                                        ReplyToAddress = Address.Local,
                                        TimeToBeReceived = timeToBeReceived == TimeSpan.Zero ? transportMessage.TimeToBeReceived : timeToBeReceived
                                    };
+
+            messageToForward.Headers[Headers.OriginatingEndpoint] = Configure.Instance.EndpointName;
+            messageToForward.Headers[Headers.OriginatingHostId] = Unicast.UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N");
+            messageToForward.Headers["NServiceBus.ProcessingMachine"] = RuntimeEnvironment.MachineName;
+            messageToForward.Headers[Headers.ProcessingEndpoint] = Configure.Instance.EndpointName;
+
+
+
             if (transportMessage.ReplyToAddress != null)
             {
                 messageToForward.Headers[Headers.OriginatingAddress] = transportMessage.ReplyToAddress.ToString();

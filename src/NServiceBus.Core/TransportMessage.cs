@@ -24,8 +24,6 @@ namespace NServiceBus
             id = CombGuid.Generate().ToString();
             Headers[NServiceBus.Headers.MessageId] = id;
             CorrelationId = id;
-            Headers.Add(NServiceBus.Headers.OriginatingEndpoint, Configure.Instance.EndpointName);
-            Headers.Add(NServiceBus.Headers.OriginatingHostId, UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N"));
             MessageIntent = MessageIntentEnum.Send;
             Headers[NServiceBus.Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
             Headers[NServiceBus.Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
