@@ -128,7 +128,6 @@
     <Compile Include="Gateway\Channels\DataReceivedOnChannelArgs.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReader.cs" />
-    <Compile Include="Gateway\Receiving\IdempotentChannelReceiver.cs" />
     <Compile Include="Gateway\Sending\CallType.cs" />
     <Compile Include="Gateway\GatewayTransaction.cs" />
     <Compile Include="GitFlowVersion.cs" />
@@ -191,10 +190,8 @@
     <Compile Include="Installation\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Gateway\GatewayExtensions.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayDeduplication.cs" />
-    <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayPersister.cs" />
     <Compile Include="Persistence\Raven\Gateway\GatewayMessage.cs" />
     <Compile Include="Persistence\Raven\Gateway\RavenDBDeduplication.cs" />
-    <Compile Include="Persistence\Raven\Gateway\RavenDBPersistence.cs" />
     <Compile Include="Persistence\UsePersistence.cs" />
     <Compile Include="Pipeline\BehaviorContext.cs" />
     <Compile Include="Pipeline\BehaviorContextStacker.cs" />
@@ -266,7 +263,6 @@
     <Compile Include="Distributor\ConfigureDistributor.cs" />
     <Compile Include="ConfigureFaultsForwarder.cs" />
     <Compile Include="ConfigureFileShareDataBus.cs" />
-    <Compile Include="ConfigureGateway.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
     <Compile Include="DataBus\InMemory\InMemoryDataBus.cs" />
     <Compile Include="Features\FeatureSettings.cs" />
@@ -393,7 +389,6 @@
     <Compile Include="Gateway\Notifications\INotifyAboutMessages.cs" />
     <Compile Include="Gateway\Notifications\MessageNotifier.cs" />
     <Compile Include="Gateway\Notifications\MessageReceivedOnChannelArgs.cs" />
-    <Compile Include="Gateway\Persistence\IPersistMessages.cs" />
     <Compile Include="Gateway\Receiving\ConfigurationBasedChannelManager.cs" />
     <Compile Include="Gateway\Receiving\ConventionBasedChannelManager.cs" />
     <Compile Include="Gateway\Receiving\GatewayReceiver.cs" />
@@ -408,7 +403,6 @@
     <Compile Include="Gateway\Routing\Sites\OriginatingSiteHeaderRouter.cs" />
     <Compile Include="Gateway\Sending\CallInfo.cs" />
     <Compile Include="Gateway\Sending\GatewaySender.cs" />
-    <Compile Include="Gateway\Sending\IdempotentChannelForwarder.cs" />
     <Compile Include="Gateway\Sending\IForwardMessagesToSites.cs" />
     <Compile Include="Gateway\Utils\Hasher.cs" />
     <Compile Include="Hosting\Configuration\EndpointNameAttribute.cs" />

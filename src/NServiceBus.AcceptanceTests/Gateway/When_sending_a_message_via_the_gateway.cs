@@ -81,11 +81,7 @@
         {
             public Headquarters()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.RunGateway().UseInMemoryGatewayPersister();
-                    c.Serialization.Xml();
-                })
+                EndpointSetup<DefaultServer>(c => c.Features.Enable<Features.Gateway>())
                     .IncludeType<MyRequest>()
                     .AllowExceptions()
                     .WithConfig<GatewayConfig>(c =>

@@ -48,12 +48,13 @@
         {
             public SiteA()
             {
-                EndpointSetup<DefaultServer>(c => c.RunGateway()
-                    .UseInMemoryGatewayPersister()
-                    .FileShareDataBus(@".\databus\siteA"))
-                    .WithConfig<GatewayConfig>(c =>
+                EndpointSetup<DefaultServer>(c =>
                     {
-                        c.Sites = new SiteCollection
+                        c.Features.Enable<Features.Gateway>();
+                        c.FileShareDataBus(@".\databus\siteA");
+                    }).WithConfig<GatewayConfig>(c =>
+                     {
+                         c.Sites = new SiteCollection
                         {
                             new SiteConfig
                             {
@@ -63,7 +64,7 @@
                             }
                         };
 
-                        c.Channels = new ChannelCollection
+                         c.Channels = new ChannelCollection
                         {
                             new ChannelConfig
                             {
@@ -72,7 +73,7 @@
                                 Default = true
                             }
                         };
-                    });
+                     });
             }
 
             public class MyResponseHandler : IHandleMessages<MyResponse>
@@ -84,7 +85,7 @@
                 {
                     Context.GotResponseBack = true;
                     Context.SiteAReceivedPayloadInResponse = response.OriginalPayload.Value;
-                    
+
                     // Inspect the headers to find the originating site address 
                     Context.OriginatingSiteForResponse = Bus.CurrentMessageContext.Headers[Headers.OriginatingSite];
                 }
@@ -95,11 +96,14 @@
         {
             public SiteB()
             {
-                EndpointSetup<DefaultServer>(c => c.RunGateway().UseInMemoryGatewayPersister()
-                    .FileShareDataBus(@".\databus\siteB"))
-                    .WithConfig<GatewayConfig>(c =>
-                    {
-                        c.Channels = new ChannelCollection
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.Features.Enable<Features.Gateway>();
+                    c.FileShareDataBus(@".\databus\siteB");
+                })
+                   .WithConfig<GatewayConfig>(c =>
+                   {
+                       c.Channels = new ChannelCollection
                         {
                             new ChannelConfig
                             {
@@ -108,7 +112,7 @@
                                 Default = true
                             }
                         };
-                    });
+                   });
 
             }
 
@@ -120,7 +124,7 @@
                 public void Handle(MyRequest request)
                 {
                     Context.SiteBReceivedPayload = request.Payload.Value;
-                    Bus.Reply(new MyResponse {OriginalPayload = request.Payload});
+                    Bus.Reply(new MyResponse { OriginalPayload = request.Payload });
 
                     // Inspect the headers to find the originating site address
                     Context.OriginatingSiteForRequest = Bus.CurrentMessageContext.Headers[Headers.OriginatingSite];

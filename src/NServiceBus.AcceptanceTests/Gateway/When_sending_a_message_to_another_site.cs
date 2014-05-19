@@ -4,6 +4,7 @@
     using Config;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -31,7 +32,7 @@
         {
             public Headquarters()
             {
-                EndpointSetup<DefaultServer>(c => c.RunGateway().UseInMemoryGatewayPersister())
+                EndpointSetup<DefaultServer>(c => c.Features.Enable<Gateway>())
                     .AllowExceptions()
                     .WithConfig<GatewayConfig>(c =>
                         {
@@ -73,7 +74,7 @@
         {
             public SiteA()
             {
-                EndpointSetup<DefaultServer>(c => c.RunGateway().UseInMemoryGatewayPersister())
+                EndpointSetup<DefaultServer>(c => c.Features.Enable<Gateway>())
                     .AllowExceptions()
                         .WithConfig<GatewayConfig>(c =>
                         {

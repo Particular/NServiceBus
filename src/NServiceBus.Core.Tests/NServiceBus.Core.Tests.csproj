@@ -200,12 +200,6 @@
     <Compile Include="Gateway\FakeMessageSender.cs" />
     <Compile Include="Gateway\FakeTransport.cs" />
     <Compile Include="Gateway\HeaderManagement\When_receiving_a_message_from_another_site.cs" />
-    <Compile Include="Gateway\Idempotency\Raven\in_the_raven_storage.cs" />
-    <Compile Include="Gateway\Idempotency\Raven\When_acking_an_already_acked_message.cs" />
-    <Compile Include="Gateway\Idempotency\Raven\When_acking_an_existing_message.cs" />
-    <Compile Include="Gateway\Idempotency\Raven\When_storing_a_duplicate_message.cs" />
-    <Compile Include="Gateway\Idempotency\Raven\When_storing_a_new_message.cs" />
-    <Compile Include="Gateway\Idempotency\Raven\When_updating_a_header_of_message.cs" />
     <Compile Include="Gateway\RegularMessage.cs" />
     <Compile Include="Gateway\Routing\When_routing_a_reply_message.cs" />
     <Compile Include="Gateway\Routing\When_routing_using_the_configuration_source.cs" />
