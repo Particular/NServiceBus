@@ -7,24 +7,27 @@
     using System.Reflection;
     using Config.ConfigurationSource;
     using DataBus.InMemory;
+    using Features;
     using Features.Categories;
     using MessageInterfaces;
     using Persistence;
     using Saga;
 
     /// <summary>
-    /// Entry class used for unit testing
+    ///     Entry class used for unit testing
     /// </summary>
     public static class Test
     {
         /// <summary>
-        /// Get the reference to the bus used for testing.
+        ///     Get the reference to the bus used for testing.
         /// </summary>
-        public static IBus Bus { get { return bus; } }
-        [ThreadStatic] private static StubBus bus;
+        public static IBus Bus
+        {
+            get { return bus; }
+        }
 
         /// <summary>
-        /// Initializes the testing infrastructure.
+        ///     Initializes the testing infrastructure.
         /// </summary>
         public static void Initialize()
         {
@@ -32,26 +35,28 @@
         }
 
         /// <summary>
-        /// Initializes the testing infrastructure specifying which assemblies to scan.
+        ///     Initializes the testing infrastructure specifying which assemblies to scan.
         /// </summary>
         public static void Initialize(IEnumerable<Assembly> assemblies)
         {
             if (assemblies == null)
+            {
                 throw new ArgumentNullException("assemblies");
-            
+            }
+
             Initialize(assemblies.ToArray());
-        }
-        
-        /// <summary>
-        /// Initializes the testing infrastructure specifying which assemblies to scan.
-        /// </summary>
-        public static void Initialize(params Assembly[] assemblies)
-        {
-           InitializeInternal(Configure.With(assemblies));
         }
 
         /// <summary>
-        /// Initializes the testing infrastructure specifying which types to scan.
+        ///     Initializes the testing infrastructure specifying which assemblies to scan.
+        /// </summary>
+        public static void Initialize(params Assembly[] assemblies)
+        {
+            InitializeInternal(Configure.With(assemblies));
+        }
+
+        /// <summary>
+        ///     Initializes the testing infrastructure specifying which types to scan.
         /// </summary>
         public static void Initialize(params Type[] types)
         {
@@ -61,63 +66,67 @@
         static void InitializeInternal(Configure config)
         {
             if (initialized)
+            {
                 return;
+            }
 
-            Serializers.SetDefault<Features.XmlSerialization>();
+            Serializers.SetDefault<XmlSerialization>();
 
 
-
-            config.Features.Disable<Features.Sagas>(); 
-            config.Features.Disable<Features.Audit>();
+            config.Features.Disable<Sagas>();
+            config.Features.Disable<Audit>();
 
             config.DefineEndpointName("UnitTests")
-                 .CustomConfigurationSource(testConfigurationSource)
+                .CustomConfigurationSource(testConfigurationSource)
                 .DefaultBuilder()
                 .UsePersistence<InMemory>()
                 .InMemoryFaultManagement()
                 .UnicastBus();
 
-      
+
             Configure.Component<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
 
-            Configure.Instance.Initialize();
+            config.Initialize();
 
-            
+
             var mapper = Configure.Instance.Builder.Build<IMessageMapper>();
             if (mapper == null)
+            {
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
+            }
 
-            //mapper.Initialize(Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType));
-            
             messageCreator = mapper;
             ExtensionMethods.GetHeaderAction = (msg, key) =>
+            {
+                ConcurrentDictionary<string, string> kv;
+                if (messageHeaders.TryGetValue(msg, out kv))
                 {
-                    ConcurrentDictionary<string, string> kv;
-                    if (messageHeaders.TryGetValue(msg, out kv))
+                    string val;
+                    if (kv.TryGetValue(key, out val))
                     {
-                        string val;
-                        if (kv.TryGetValue(key, out val))
-                        {
-                            return val;
-                        }
+                        return val;
                     }
+                }
 
-                    return null;
-                };
+                return null;
+            };
             ExtensionMethods.SetHeaderAction = (msg, key, val) =>
-                    messageHeaders.AddOrUpdate(msg, 
-                        o => new ConcurrentDictionary<string, string>(new[]{new KeyValuePair<string, string>(key, val)}), 
-                        (o, dictionary) =>
-                            {
-                                dictionary.AddOrUpdate(key, val, (s, s1) => val);
-                                return dictionary;
-                            });
-                
+                messageHeaders.AddOrUpdate(msg,
+                    o => new ConcurrentDictionary<string, string>(new[]
+                    {
+                        new KeyValuePair<string, string>(key, val)
+                    }),
+                    (o, dictionary) =>
+                    {
+                        dictionary.AddOrUpdate(key, val, (s, s1) => val);
+                        return dictionary;
+                    });
+
             initialized = true;
         }
 
         /// <summary>
-        /// Begin the test script for a saga of type T.
+        ///     Begin the test script for a saga of type T.
         /// </summary>
         public static Saga<T> Saga<T>() where T : Saga, new()
         {
@@ -125,25 +134,28 @@
         }
 
         /// <summary>
-        /// Begin the test script for a saga of type T while specifying the saga id.
+        ///     Begin the test script for a saga of type T while specifying the saga id.
         /// </summary>
         public static Saga<T> Saga<T>(Guid sagaId) where T : Saga, new()
         {
-            var saga = (T)Activator.CreateInstance(typeof(T));
+            var saga = (T) Activator.CreateInstance(typeof(T));
 
             var prop = typeof(T).GetProperty("Data");
             var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
 
             saga.Entity = sagaData;
 
-            if (saga.Entity != null) saga.Entity.Id = sagaId;
+            if (saga.Entity != null)
+            {
+                saga.Entity.Id = sagaId;
+            }
 
             return Saga(saga);
         }
 
         /// <summary>
-        /// Begin the test script for the passed in saga instance.
-        /// Callers need to instantiate the saga's data class as well as give it an ID.
+        ///     Begin the test script for the passed in saga instance.
+        ///     Callers need to instantiate the saga's data class as well as give it an ID.
         /// </summary>
         public static Saga<T> Saga<T>(T saga) where T : Saga, new()
         {
@@ -156,37 +168,39 @@
         }
 
         /// <summary>
-        /// Specify a test for a message handler of type T for a given message of type TMessage.
+        ///     Specify a test for a message handler of type T for a given message of type TMessage.
         /// </summary>
         public static Handler<T> Handler<T>() where T : new()
         {
-            var handler = (T)Activator.CreateInstance(typeof(T));
+            var handler = (T) Activator.CreateInstance(typeof(T));
 
             return Handler(handler);
         }
 
         /// <summary>
-        /// Specify a test for a message handler while supplying the instance to
-        /// test - injects the bus into a public property (if it exists).
+        ///     Specify a test for a message handler while supplying the instance to
+        ///     test - injects the bus into a public property (if it exists).
         /// </summary>
         public static Handler<T> Handler<T>(T handler)
         {
             Func<IBus, T> handlerCreator = b => handler;
             var prop = typeof(T).GetProperties().FirstOrDefault(p => p.PropertyType == typeof(IBus));
             if (prop != null)
+            {
                 handlerCreator = b =>
-                                     {
-                                         prop.SetValue(handler, b, null);
-                                         return handler;
-                                     };
+                {
+                    prop.SetValue(handler, b, null);
+                    return handler;
+                };
+            }
 
             return Handler(handlerCreator);
         }
 
         /// <summary>
-        /// Specify a test for a message handler specifying a callback to create
-        /// the handler and getting an instance of the bus passed in.
-        /// Useful for handlers based on constructor injection.
+        ///     Specify a test for a message handler specifying a callback to create
+        ///     the handler and getting an instance of the bus passed in.
+        ///     Useful for handlers based on constructor injection.
         /// </summary>
         public static Handler<T> Handler<T>(Func<IBus, T> handlerCreationCallback)
         {
@@ -196,14 +210,16 @@
             var handler = handlerCreationCallback.Invoke(bus);
 
             var isHandler = (from i in handler.GetType().GetInterfaces()
-                              let args = i.GetGenericArguments()
-                              where args.Length == 1
-                              where MessageConventionExtensions.IsMessageType(args[0])
-                              where typeof(IHandleMessages<>).MakeGenericType(args[0]).IsAssignableFrom(i)
-                              select i).Any();
+                let args = i.GetGenericArguments()
+                where args.Length == 1
+                where MessageConventionExtensions.IsMessageType(args[0])
+                where typeof(IHandleMessages<>).MakeGenericType(args[0]).IsAssignableFrom(i)
+                select i).Any();
 
             if (!isHandler)
+            {
                 throw new ArgumentException("The handler object created does not implement IHandleMessages<T>.", "handlerCreationCallback");
+            }
 
             var messageTypes = Configure.Instance.TypesToScan.Where(MessageConventionExtensions.IsMessageType).ToList();
 
@@ -211,7 +227,7 @@
         }
 
         /// <summary>
-        /// Instantiate a new message of type TMessage.
+        ///     Instantiate a new message of type TMessage.
         /// </summary>
         public static TMessage CreateInstance<TMessage>()
         {
@@ -219,13 +235,15 @@
         }
 
         /// <summary>
-        /// Instantiate a new message of type TMessage performing the given action
-        /// on the created message.
+        ///     Instantiate a new message of type TMessage performing the given action
+        ///     on the created message.
         /// </summary>
         public static TMessage CreateInstance<TMessage>(Action<TMessage> action)
         {
             return messageCreator.CreateInstance(action);
         }
+
+        [ThreadStatic] static StubBus bus;
 
         static IMessageCreator messageCreator;
         static readonly TestConfigurationSource testConfigurationSource = new TestConfigurationSource();
@@ -234,12 +252,12 @@
     }
 
     /// <summary>
-    /// Configuration source suitable for testing
+    ///     Configuration source suitable for testing
     /// </summary>
-    public class TestConfigurationSource:IConfigurationSource
+    public class TestConfigurationSource : IConfigurationSource
     {
         /// <summary>
-        /// Returns null for all types of T.
+        ///     Returns null for all types of T.
         /// </summary>
         public T GetConfiguration<T>() where T : class, new()
         {

@@ -11,12 +11,18 @@ namespace NServiceBus.Unicast.Config
     using Pipeline.Contexts;
 
     /// <summary>
-    /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
+    ///     Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
     /// </summary>
     public class ConfigUnicastBus : Configure
     {
+        public ConfigUnicastBus(Configure config)
+            : base(config.configurationSource)
+        {
+            TypesToScan = config.TypesToScan;
+        }
+
         /// <summary>
-        /// Wrap the given configure object storing its builder and configurer.
+        ///     Wrap the given configure object storing its builder and configurer.
         /// </summary>
         /// <param name="config"></param>
         public void Configure(Configure config)
@@ -39,6 +45,7 @@ namespace NServiceBus.Unicast.Config
         }
 
 #pragma warning disable 0618
+
         void RegisterMessageModules()
         {
             TypesToScan
@@ -53,17 +60,18 @@ namespace NServiceBus.Unicast.Config
             var authType = TypesToScan.FirstOrDefault(t => typeof(IAuthorizeSubscriptions).IsAssignableFrom(t) && !t.IsInterface);
 
             if (authType != null)
+            {
                 Configurer.ConfigureComponent(authType, DependencyLifecycle.SingleInstance);
+            }
         }
-        
+
         /// <summary>
-        /// Used to configure the bus.
+        ///     Used to configure the bus.
         /// </summary>
         IComponentConfig<UnicastBus> busConfig;
 
         /// <summary>
-        /// 
-        /// Loads all message handler assemblies in the runtime directory.
+        ///     Loads all message handler assemblies in the runtime directory.
         /// </summary>
         /// <returns></returns>
         public ConfigUnicastBus LoadMessageHandlers()
@@ -76,13 +84,15 @@ namespace NServiceBus.Unicast.Config
                     Logger.DebugFormat("Going to ask for message handler ordering from {0}.", t);
 
                     var order = new Order();
-                    ((ISpecifyMessageHandlerOrdering)Activator.CreateInstance(t)).SpecifyOrder(order);
+                    ((ISpecifyMessageHandlerOrdering) Activator.CreateInstance(t)).SpecifyOrder(order);
 
                     order.Types.ToList().ForEach(ht =>
-                                      {
-                                          if (types.Contains(ht))
-                                              throw new ConfigurationErrorsException(string.Format("The order in which the type {0} should be invoked was already specified by a previous implementor of ISpecifyMessageHandlerOrdering. Check the debug logs to see which other specifiers have been invoked.", ht));
-                                      });
+                    {
+                        if (types.Contains(ht))
+                        {
+                            throw new ConfigurationErrorsException(string.Format("The order in which the type {0} should be invoked was already specified by a previous implementor of ISpecifyMessageHandlerOrdering. Check the debug logs to see which other specifiers have been invoked.", ht));
+                        }
+                    });
 
                     types.AddRange(order.Types);
                 });
@@ -91,11 +101,10 @@ namespace NServiceBus.Unicast.Config
         }
 
         /// <summary>
-        /// Loads all message handler assemblies in the runtime directory
-        /// and specifies that handlers in the given assembly should run
-        /// before all others.
-        /// 
-        /// Use First{T} to indicate the type to load from.
+        ///     Loads all message handler assemblies in the runtime directory
+        ///     and specifies that handlers in the given assembly should run
+        ///     before all others.
+        ///     Use First{T} to indicate the type to load from.
         /// </summary>
         /// <typeparam name="TFirst"></typeparam>
         /// <returns></returns>
@@ -106,7 +115,10 @@ namespace NServiceBus.Unicast.Config
             {
                 if (typeof(First<>).MakeGenericType(args[0]).IsAssignableFrom(typeof(TFirst)))
                 {
-                    return LoadMessageHandlers(new[] { args[0] });
+                    return LoadMessageHandlers(new[]
+                    {
+                        args[0]
+                    });
                 }
             }
 
@@ -114,9 +126,9 @@ namespace NServiceBus.Unicast.Config
         }
 
         /// <summary>
-        /// Loads all message handler assemblies in the runtime directory
-        /// and specifies that the handlers in the given 'order' are to 
-        /// run before all others and in the order specified.
+        ///     Loads all message handler assemblies in the runtime directory
+        ///     and specifies that the handlers in the given 'order' are to
+        ///     run before all others and in the order specified.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="order"></param>
@@ -132,7 +144,9 @@ namespace NServiceBus.Unicast.Config
             var types = new List<Type>(TypesToScan);
 
             foreach (var t in orderedTypes)
+            {
                 types.Remove(t);
+            }
 
             types.InsertRange(0, orderedTypes);
 
@@ -140,9 +154,9 @@ namespace NServiceBus.Unicast.Config
         }
 
         /// <summary>
-        /// Scans the given types for types that are message handlers
-        /// then uses the Configurer to configure them into the container as single call components,
-        /// finally passing them to the bus as its MessageHandlerTypes.
+        ///     Scans the given types for types that are message handlers
+        ///     then uses the Configurer to configure them into the container as single call components,
+        ///     finally passing them to the bus as its MessageHandlerTypes.
         /// </summary>
         /// <param name="types"></param>
         /// <returns></returns>
@@ -161,10 +175,10 @@ namespace NServiceBus.Unicast.Config
             Configurer.RegisterSingleton<IMessageHandlerRegistry>(handlerRegistry);
 
             var availableDispatcherFactories = TypesToScan
-              .Where(
-                  factory =>
-                  !factory.IsInterface && typeof(IMessageDispatcherFactory).IsAssignableFrom(factory))
-              .ToList();
+                .Where(
+                    factory =>
+                        !factory.IsInterface && typeof(IMessageDispatcherFactory).IsAssignableFrom(factory))
+                .ToList();
 
             var dispatcherMappings = GetDispatcherFactories(handlers, availableDispatcherFactories);
 
@@ -182,7 +196,7 @@ namespace NServiceBus.Unicast.Config
 
             var customFactories = messageDispatcherFactories
                 .Where(t => t != defaultDispatcherFactory)
-                .Select(t => (IMessageDispatcherFactory)Activator.CreateInstance(t)).ToList();
+                .Select(t => (IMessageDispatcherFactory) Activator.CreateInstance(t)).ToList();
 
 
             foreach (var handler in handlers)
@@ -192,19 +206,23 @@ namespace NServiceBus.Unicast.Config
                 var factoryTypeToUse = defaultDispatcherFactory;
 
                 if (factory != null)
+                {
                     factoryTypeToUse = factory.GetType();
+                }
 
                 //until we can remove the dispatcher factory concept
                 if (factoryTypeToUse != typeof(DefaultDispatcherFactory))
+                {
                     result.Add(handler, factoryTypeToUse);
+                }
             }
             return result;
         }
-        
+
         /// <summary>
-        /// Set this if you want this endpoint to serve as something of a proxy;
-        /// recipients of messages sent by this endpoint will see the address
-        /// of endpoints that sent the incoming messages.
+        ///     Set this if you want this endpoint to serve as something of a proxy;
+        ///     recipients of messages sent by this endpoint will see the address
+        ///     of endpoints that sent the incoming messages.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -215,7 +233,7 @@ namespace NServiceBus.Unicast.Config
         }
 
         /// <summary>
-        /// Allow the bus to subscribe to itself
+        ///     Allow the bus to subscribe to itself
         /// </summary>
         /// <returns></returns>
         public ConfigUnicastBus DefaultDispatcherFactory<T>() where T : IMessageDispatcherFactory
@@ -227,7 +245,7 @@ namespace NServiceBus.Unicast.Config
         Type defaultDispatcherFactory = typeof(DefaultDispatcherFactory);
 
         /// <summary>
-        /// Returns true if the given type is a message handler.
+        ///     Returns true if the given type is a message handler.
         /// </summary>
         /// <param name="type"></param>
         internal static bool IsMessageHandler(Type type)
@@ -248,7 +266,7 @@ namespace NServiceBus.Unicast.Config
         }
 
         /// <summary>
-        /// Returns the message type handled by the given message handler type.
+        ///     Returns the message type handled by the given message handler type.
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
@@ -258,17 +276,22 @@ namespace NServiceBus.Unicast.Config
             {
                 var args = t.GetGenericArguments();
                 if (args.Length != 1)
+                {
                     return null;
+                }
 
                 var handlerType = typeof(IHandleMessages<>).MakeGenericType(args[0]);
                 if (handlerType.IsAssignableFrom(t))
+                {
                     return args[0];
+                }
             }
 
             return null;
         }
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(UnicastBus));
+
         internal bool LoadMessageHandlersCalled { get; private set; }
     }
 }
