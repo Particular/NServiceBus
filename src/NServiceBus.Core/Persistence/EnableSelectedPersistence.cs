@@ -2,12 +2,19 @@
 {
     using System;
     using System.Linq;
+    using System.Windows.Forms;
+    using Logging;
 
     class EnableSelectedPersistence:IWantToRunBeforeConfigurationIsFinalized,IWantToRunBeforeConfiguration
     {
         public void Run(Configure config)
         {
-            var definitionType = config.Settings.Get<Type>("Persistence");
+            var definitionType = config.Settings.GetOrDefault<Type>("Persistence");
+
+            if (definitionType == null)
+            {
+                throw new Exception("No persistence has been selected, please add a call to config.UsePersistence<T>() where T can be any of the supported persistence options");
+            }
 
             var type =
              config.TypesToScan.SingleOrDefault(
@@ -23,7 +30,16 @@
 
         public void Init(Configure configure)
         {
-            configure.Settings.SetDefault("Persistence", typeof(InMemory));
+            if (SystemInformation.UserInteractive)
+            {
+                configure.Settings.SetDefault("Persistence", typeof(InMemory));    
+            }
+            else
+            {
+                Logger.Info("Non interactive mode detected, no persistence will be defaulted");
+            }
         }
+
+        static readonly ILog Logger = LogManager.GetLogger(typeof(EnableSelectedPersistence));
     }
 }

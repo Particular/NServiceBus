@@ -14,13 +14,13 @@
         //default to xml
         static Type DefaultSerializer = typeof(XmlSerialization);
 
-        public override IEnumerable<Feature> GetFeaturesToInitialize()
+        public override IEnumerable<Feature> GetFeaturesToInitialize(Configure config)
         {
             //has the users already registered his own serializer? (mostly for backwards compatibility)
             if (Configure.Instance.Configurer.HasComponent<IMessageSerializer>())
                 yield break;
 
-            var availableSerializers = GetAllAvailableFeatures().ToList();
+            var availableSerializers = config.Features.Where(f => f.Category == this);
 
             var enabledSerializers = availableSerializers.Where(f => f.Enabled).ToList();
 

@@ -12,7 +12,7 @@
         public void FinalizeConfiguration(Configure config)
         {
             InitializeFeatures(config.Features);
-            InitializeFeaturesControlledByCategories();
+            InitializeFeaturesControlledByCategories(config);
         }
 
         static void InitializeFeatures(IEnumerable<Feature> features)
@@ -43,7 +43,7 @@
             Logger.InfoFormat("Features: \n{0}", statusText);
         }
 
-        static void InitializeFeaturesControlledByCategories()
+        static void InitializeFeaturesControlledByCategories(Configure config)
         {
             var statusText = new StringBuilder();
 
@@ -54,16 +54,19 @@
 
                 var category = (FeatureCategory)Activator.CreateInstance(t);
 
-                var featuresToInitialize = category.GetFeaturesToInitialize().ToList();
+                var featuresToInitialize = category.GetFeaturesToInitialize(config).ToList();
 
                 statusText.AppendLine(string.Format("   - {0}", category.Name));
 
-                foreach (var feature in category.GetAllAvailableFeatures())
+                foreach (var feature in config.Features.Where(f=>f.Category == category))
                 {
                     var shouldBeInitialized = featuresToInitialize.Contains(feature);
 
                     if (shouldBeInitialized)
-                        feature.Initialize(Configure.Instance);
+                    {
+                        feature.Initialize(config);
+                    }
+                      
 
                     statusText.AppendLine(string.Format("       * {0} - {1}", feature.Name, shouldBeInitialized ? "Enabled" : "Disabled"));
                 }

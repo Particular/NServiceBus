@@ -126,15 +126,6 @@
         {
             get { return FeatureCategory.None; }
         }
-
-        /// <summary>
-        /// Gets all features for the given category
-        /// </summary>
-        public static IEnumerable<Feature> ByCategory(FeatureCategory category)
-        {
-            return Configure.Instance.Features.Where(f=>f.Category == category);
-        }
-
         public string Version
         {
             get
@@ -235,7 +226,8 @@
         /// <summary>
         /// Returns the list of features in the category that should be used
         /// </summary>
-        public virtual IEnumerable<Feature> GetFeaturesToInitialize()
+        /// <param name="config"></param>
+        public virtual IEnumerable<Feature> GetFeaturesToInitialize(Configure config)
         {
             return new List<Feature>();
         }
@@ -246,11 +238,6 @@
         public string Name
         {
             get { return name; }
-        }
-
-        public IEnumerable<Feature> GetAllAvailableFeatures()
-        {
-            return Feature.ByCategory(this);
         }
 
         protected bool Equals(FeatureCategory other)
