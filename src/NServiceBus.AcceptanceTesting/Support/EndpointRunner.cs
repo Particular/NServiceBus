@@ -41,9 +41,9 @@
                 }
 
                 //apply custom config settings
-                endpointBehavior.CustomConfig.ForEach(customAction => customAction(config));
                 config = configuration.GetConfiguration(run, routingTable);
-
+                endpointBehavior.CustomConfig.ForEach(customAction => customAction(config));
+               
                 if (scenarioContext != null)
                 {
                     config.Configurer.RegisterSingleton(scenarioContext.GetType(), scenarioContext);
