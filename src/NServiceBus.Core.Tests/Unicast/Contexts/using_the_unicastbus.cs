@@ -104,7 +104,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory());
 
-            FuncBuilder.Register<IMutateIncomingTransportMessages>(() => subscriptionManager);
+            FuncBuilder.Register<IManageSubscriptions>(() => subscriptionManager);
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<MessageMetadataRegistry>(() => MessageMetadataRegistry);
 
