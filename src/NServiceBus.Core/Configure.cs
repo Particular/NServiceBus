@@ -124,7 +124,7 @@ namespace NServiceBus
 
         public PipelineSettings Pipeline
         {
-            get { return pipelineSettings ?? (pipelineSettings = new PipelineSettings()); }
+            get { return pipelineSettings ?? (pipelineSettings = new PipelineSettings(this)); }
         }
 
         /// <summary>

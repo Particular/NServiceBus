@@ -6,6 +6,8 @@ namespace NServiceBus.Pipeline
 
     public class PipelineSettings
     {
+        readonly Configure config;
+
         public void Remove(string idToRemove)
         {
             // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
@@ -14,7 +16,7 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("idToRemove");
             }
 
-            var removals = SettingsHolder.Instance.Get<List<RemoveBehavior>>("Pipeline.Removals");
+            var removals = config.Settings.Get<List<RemoveBehavior>>("Pipeline.Removals");
 
             removals.Add(new RemoveBehavior(idToRemove));
         }
@@ -31,7 +33,7 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("idToReplace");
             }
 
-            var replacements = SettingsHolder.Instance.Get<List<ReplaceBehavior>>("Pipeline.Replacements");
+            var replacements = config.Settings.Get<List<ReplaceBehavior>>("Pipeline.Replacements");
 
             replacements.Add(new ReplaceBehavior(idToReplace, newBehavior, description));
         }
@@ -58,7 +60,7 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("description");
             }
 
-            var additions = SettingsHolder.Instance.Get<List<RegisterBehavior>>("Pipeline.Additions");
+            var additions = config.Settings.Get<List<RegisterBehavior>>("Pipeline.Additions");
 
             additions.Add(RegisterBehavior.Create(id, behavior, description));
         }
@@ -71,5 +73,11 @@ namespace NServiceBus.Pipeline
         }
 
         static Type iBehaviourType = typeof(IBehavior<>);
+
+        public PipelineSettings(Configure config)
+        {
+            this.config = config;
+        
+        }
     }
 }
