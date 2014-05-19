@@ -34,8 +34,7 @@
         {
             public SiteA()
             {
-                EndpointSetup<DefaultServer>(c => c.RunGateway()
-                    .UseInMemoryGatewayPersister())
+                EndpointSetup<DefaultServer>(c => c.Features.Enable<Features.Gateway>())
                     .AllowExceptions()
                     .WithConfig<GatewayConfig>(c =>
                     {
@@ -66,7 +65,7 @@
         {
             public SiteB()
             {
-                EndpointSetup<DefaultServer>(c => c.RunGateway().UseInMemoryGatewayPersister())
+                EndpointSetup<DefaultServer>(c => c.Features.Enable<Features.Gateway>())
                     .AllowExceptions()
                     .WithConfig<GatewayConfig>(c =>
                     {

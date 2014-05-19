@@ -95,20 +95,11 @@ namespace NServiceBus.Gateway.Sending
         {
             transportMessage.Headers[Headers.OriginatingSite] = GetDefaultAddressForThisSite();
 
-            //TODO: derive this from the message and the channelType
-            var forwarder = HandleLegacy(transportMessage, targetSite) ??
-                            Builder.Build<IForwardMessagesToSites>();
+            var forwarder = Builder.Build<IForwardMessagesToSites>();
+            
             forwarder.Forward(transportMessage, targetSite);
 
             Notifier.RaiseMessageForwarded(Address.Local.ToString(), targetSite.Channel.Type, transportMessage);
-        }
-
-        IForwardMessagesToSites HandleLegacy(TransportMessage transportMessage, Site targetSite)
-        {
-            // send to be backwards compatible with Gateway 3.X
-            transportMessage.Headers[GatewayHeaders.LegacyMode] = targetSite.LegacyMode.ToString();
-
-            return targetSite.LegacyMode ? Builder.Build<IdempotentChannelForwarder>() : null;
         }
 
         string GetDefaultAddressForThisSite()

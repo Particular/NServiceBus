@@ -14,12 +14,11 @@
     class SingleCallChannelReceiver : IReceiveMessagesFromSites
     {
         public SingleCallChannelReceiver(IChannelFactory channelFactory, IDeduplicateMessages deduplicator,
-            DataBusHeaderManager headerManager, IdempotentChannelReceiver receiver,GatewayTransaction transaction)
+            DataBusHeaderManager headerManager, GatewayTransaction transaction)
         {
             this.channelFactory = channelFactory;
             this.deduplicator = deduplicator;
             this.headerManager = headerManager;
-            this.receiver = receiver;
             this.transaction = transaction;
         }
 
@@ -30,7 +29,6 @@
         {
             channelReceiver = channelFactory.GetReceiver(channel.Type);
             channelReceiver.DataReceived += DataReceivedOnChannel;
-            receiver.MessageReceived += MessageReceivedOnOldChannel;
             channelReceiver.Start(channel.Address, numberOfWorkerThreads);
         }
 
@@ -41,12 +39,6 @@
 
         void DisposeManaged()
         {
-            if (receiver != null)
-            {
-                receiver.MessageReceived -= MessageReceivedOnOldChannel;
-                receiver.Dispose();
-            }
-
             if (channelReceiver != null)
             {
                 channelReceiver.DataReceived -= DataReceivedOnChannel;
@@ -54,11 +46,7 @@
             }
         }
 
-        void MessageReceivedOnOldChannel(object sender, MessageReceivedOnChannelArgs e)
-        {
-            MessageReceived(sender, e);
-        }
-
+  
         void DataReceivedOnChannel(object sender, DataReceivedOnChannelArgs e)
         {
             using (e.Data)
@@ -78,8 +66,7 @@
                             HandleSubmit(callInfo);
                             break;
                         default:
-                            receiver.DispatchReceivedCallInfo(callInfo);
-                            break;
+                            throw new Exception("Unknown call type: " + callInfo.Type);
                     }
                     scope.Complete();
                 }
@@ -101,7 +88,7 @@
 
                 if (deduplicator.DeduplicateMessage(callInfo.ClientId, DateTime.UtcNow))
                 {
-                    MessageReceived(this, new MessageReceivedOnChannelArgs {Message = msg});
+                    MessageReceived(this, new MessageReceivedOnChannelArgs { Message = msg });
                 }
                 else
                 {
@@ -117,7 +104,7 @@
                 throw new InvalidOperationException("Databus transmission received without a configured databus");
             }
 
-            
+
             var newDatabusKey = DataBus.Put(callInfo.Data, callInfo.TimeToBeReceived);
             using (var databusStream = DataBus.Get(newDatabusKey))
             {
@@ -134,9 +121,6 @@
         IChannelFactory channelFactory;
         IDeduplicateMessages deduplicator;
         DataBusHeaderManager headerManager;
-
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")] 
-        IdempotentChannelReceiver receiver;
 
         readonly GatewayTransaction transaction;
 

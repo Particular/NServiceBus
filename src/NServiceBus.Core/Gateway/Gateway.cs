@@ -61,7 +61,6 @@
         {
             if (!config.Configurer.HasComponent<IForwardMessagesToSites>())
             {
-                config.Configurer.ConfigureComponent<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
                 config.Configurer.ConfigureComponent<SingleCallChannelForwarder>(DependencyLifecycle.InstancePerCall);
             }
 
@@ -105,7 +104,6 @@
         {
             if (!config.Configurer.HasComponent<IReceiveMessagesFromSites>())
             {
-                config.Configurer.ConfigureComponent<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
                 config.Configurer.ConfigureComponent<SingleCallChannelReceiver>(DependencyLifecycle.InstancePerCall);
                 config.Configurer.ConfigureComponent<Func<IReceiveMessagesFromSites>>(builder => () => builder.Build<SingleCallChannelReceiver>(), DependencyLifecycle.InstancePerCall);
             }
