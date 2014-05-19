@@ -3,6 +3,9 @@ namespace NServiceBus.Pipeline
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using log4net.Repository.Hierarchy;
+    using Logging;
+    using SecondLevelRetries;
 
     class BehaviorRegistrationsCoordinator
     {
@@ -44,11 +47,11 @@ namespace NServiceBus.Pipeline
                     registrations.Add(metadata.Id, metadata);
                     if (metadata.Afters != null)
                     {
-                        listOfBeforeAndAfterIds.AddRange(metadata.Afters);
+                        listOfBeforeAndAfterIds.AddRange(metadata.Afters.Select(a=>a.Id));
                     }
                     if (metadata.Befores != null)
                     {
-                        listOfBeforeAndAfterIds.AddRange(metadata.Befores);
+                        listOfBeforeAndAfterIds.AddRange(metadata.Befores.Select(b=>b.Id));
                     }
 
                     continue;
@@ -85,8 +88,8 @@ namespace NServiceBus.Pipeline
 
                 if (listOfBeforeAndAfterIds.Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase))
                 {
-                    var add = additions.First(mr => (mr.Befores != null && mr.Befores.Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)) ||
-                                                    (mr.Afters != null && mr.Afters.Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)));
+                    var add = additions.First(mr => (mr.Befores != null && mr.Befores.Select(b=>b.Id).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)) ||
+                                                    (mr.Afters != null && mr.Afters.Select(b=>b.Id).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)));
 
                     var message = string.Format("You cannot remove behavior registration with id '{0}', registration with id {1} depends on it!", metadata.RemoveId, add.Id);
                     throw new Exception(message);
@@ -122,13 +125,22 @@ namespace NServiceBus.Pipeline
                     foreach (var beforeReference in node.Rego.Befores)
                     {
                         Node referencedNode;
-                        if (nameToNodeDict.TryGetValue(beforeReference, out referencedNode))
+                        if (nameToNodeDict.TryGetValue(beforeReference.Id, out referencedNode))
                         {
                             referencedNode.previous.Add(node);
                         }
                         else
                         {
-                            throw new Exception(string.Format("Registration '{0}' specified in the insertbefore of the '{1}' behavior does not exist!", beforeReference, node.Rego.Id));
+                            var message = string.Format("Registration '{0}' specified in the insertbefore of the '{1}' behavior does not exist!", beforeReference, node.Rego.Id);
+
+                            if (beforeReference.IgnoreIfNonExisting)
+                            {
+                                Logger.Info(message);
+                            }
+                            else
+                            {
+                                throw new Exception(message);
+                            }
                         }
                     }
                 }
@@ -138,13 +150,22 @@ namespace NServiceBus.Pipeline
                     foreach (var afterReference in node.Rego.Afters)
                     {
                         Node referencedNode;
-                        if (nameToNodeDict.TryGetValue(afterReference, out referencedNode))
+                        if (nameToNodeDict.TryGetValue(afterReference.Id, out referencedNode))
                         {
                             node.previous.Add(referencedNode);
                         }
                         else
                         {
-                            throw new Exception(string.Format("Registration '{0}' specified in the insertafter of the '{1}' behavior does not exist!", afterReference, node.Rego.Id));
+                            var message = string.Format("Registration '{0}' specified in the insertafter of the '{1}' behavior does not exist!", afterReference, node.Rego.Id);
+
+                            if (afterReference.IgnoreIfNonExisting)
+                            {
+                                Logger.Info(message);
+                            }
+                            else
+                            {
+                                throw new Exception(message);
+                            }
                         }
                     }
                 }
@@ -163,6 +184,8 @@ namespace NServiceBus.Pipeline
         List<RegisterBehavior> additions = new List<RegisterBehavior>();
         List<RemoveBehavior> removals;
         List<ReplaceBehavior> replacements;
+
+        static readonly ILog Logger = LogManager.GetLogger(typeof(BehaviorRegistrationsCoordinator));
 
         class CaseInsensitiveIdComparer : IEqualityComparer<RemoveBehavior>
         {
