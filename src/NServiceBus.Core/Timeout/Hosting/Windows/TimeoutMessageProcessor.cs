@@ -115,7 +115,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     State = message.Body,
                     Time = DateTimeExtensions.ToUtcDateTime(expire),
                     Headers = message.Headers,
-                    OwningTimeoutManager = Configure.EndpointName
+                    OwningTimeoutManager = Configure.Instance.EndpointName
                 };
 
                 //add a temp header so that we can make sure to restore the ReplyToAddress

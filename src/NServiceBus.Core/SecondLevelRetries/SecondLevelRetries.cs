@@ -40,7 +40,7 @@ namespace NServiceBus.Features
 
             SetUpRetryPolicy(retriesConfig);
 
-            var processorAddress = Address.Parse(Configure.EndpointName).SubScope("Retries");
+            var processorAddress = Address.Parse(config.EndpointName).SubScope("Retries");
 
             var useRemoteRetryProcessor = config.Settings.HasSetting("SecondLevelRetries.AddressOfRetryProcessor");
             if (useRemoteRetryProcessor)

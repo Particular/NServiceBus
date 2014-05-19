@@ -4,7 +4,7 @@
     {
         public void Run(Configure config)
         {
-            config.Settings.SetDefault("MasterNode.Address", Address.Parse(Configure.EndpointName));
+            config.Settings.SetDefault("MasterNode.Address", Address.Parse(config.EndpointName));
         }
     }
 }

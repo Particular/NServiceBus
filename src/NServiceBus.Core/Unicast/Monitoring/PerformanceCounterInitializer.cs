@@ -26,7 +26,7 @@ namespace NServiceBus.Unicast.Monitoring
         static void SetupCriticalTimePerformanceCounter(Configure config)
         {
             var criticalTimeCalculator = new CriticalTimeCalculator();
-            var criticalTimeCounter = InstantiateCounter("Critical Time");
+            var criticalTimeCounter = InstantiateCounter(config,"Critical Time");
 
             criticalTimeCalculator.Initialize(criticalTimeCounter);
 
@@ -41,20 +41,20 @@ namespace NServiceBus.Unicast.Monitoring
                 return;
 
             var timeToSLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
-            var slaBreachCounter = InstantiateCounter("SLA violation countdown");
+            var slaBreachCounter = InstantiateCounter(config,"SLA violation countdown");
 
             timeToSLABreachCalculator.Initialize(endpointSla, slaBreachCounter);
 
             config.Configurer.RegisterSingleton<EstimatedTimeToSLABreachCalculator>(timeToSLABreachCalculator);
         }
 
-        static PerformanceCounter InstantiateCounter(string counterName)
+        static PerformanceCounter InstantiateCounter(Configure config, string counterName)
         {
             PerformanceCounter counter;
             
             try
             {
-                counter = new PerformanceCounter(CategoryName, counterName, Configure.EndpointName, false);
+                counter = new PerformanceCounter(CategoryName, counterName, config.EndpointName, false);
                 //access the counter type to force a exception to be thrown if the counter doesn't exists
                 // ReSharper disable once UnusedVariable
                 var t = counter.CounterType; 

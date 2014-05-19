@@ -130,7 +130,7 @@ namespace NServiceBus
         /// <summary>
         ///     The name of this endpoint.
         /// </summary>
-        public static string EndpointName
+        public string EndpointName
         {
             get { return GetEndpointNameAction(); }
         }

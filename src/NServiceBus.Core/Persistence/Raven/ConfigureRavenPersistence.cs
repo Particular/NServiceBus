@@ -56,7 +56,7 @@ namespace NServiceBus
             {
                 Url = RavenPersistenceConstants.DefaultUrl(config),
                 ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
-                DefaultDatabase = Configure.EndpointName,
+                DefaultDatabase = config.EndpointName,
             };
 
             return InternalRavenPersistence(config, store);
@@ -239,7 +239,7 @@ namespace NServiceBus
 
             if (database == null)
             {
-                database = Configure.EndpointName;
+                database = config.EndpointName;
             }
             else
             {

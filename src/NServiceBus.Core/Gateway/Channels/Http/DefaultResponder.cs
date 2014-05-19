@@ -10,7 +10,7 @@ namespace NServiceBus.Gateway.Channels.Http
             ctx.Response.StatusCode = 200;
 
             var response = string.Format("<html><body>EndpointName:{0} - Status: Ok</body></html>",
-                Configure.EndpointName);
+                Configure.Instance.EndpointName);
 
             ctx.Response.ContentType = "text/html";
 

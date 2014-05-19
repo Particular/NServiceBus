@@ -45,8 +45,8 @@
 
         public override void Initialize(Configure config)
         {
-            DispatcherAddress = Address.Parse(Configure.EndpointName).SubScope("TimeoutsDispatcher");
-            InputAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts");
+            DispatcherAddress = Address.Parse(config.EndpointName).SubScope("TimeoutsDispatcher");
+            InputAddress = Address.Parse(config.EndpointName).SubScope("Timeouts");
 
             config.Configurer.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);

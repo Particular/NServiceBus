@@ -169,7 +169,7 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             return new TimeoutData
                 {
-                    OwningTimeoutManager = Configure.EndpointName,
+                    OwningTimeoutManager = Configure.Instance.EndpointName,
                     Time = time,
                     Headers = new Dictionary<string, string>(),
                 };

@@ -40,7 +40,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                             .Where(
                                 t =>
                                     t.OwningTimeoutManager == String.Empty ||
-                                    t.OwningTimeoutManager == Configure.EndpointName)
+                                    t.OwningTimeoutManager == Configure.Instance.EndpointName)
                             .Where(
                                 t => 
                                     t.Time > startSlice && 
@@ -72,7 +72,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                             .Where(
                                 t =>
                                 t.OwningTimeoutManager == String.Empty ||
-                                t.OwningTimeoutManager == Configure.EndpointName)
+                                t.OwningTimeoutManager == Configure.Instance.EndpointName)
                             .Where(t => t.Time > now)
                             .OrderBy(t => t.Time)
                             .Select(t => new {t.Id, t.Time})

@@ -117,7 +117,7 @@
             config.Configurer.ConfigureComponent<DataBusHeaderManager>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(x => x.MainInputAddress, Address.Parse(Configure.EndpointName));
+                .ConfigureProperty(x => x.MainInputAddress, Address.Parse(config.EndpointName));
         }
     }
 }

@@ -67,7 +67,7 @@ namespace NServiceBus.Core.Tests.Timeout
                 var d = new TimeoutData
                 {
                     Time = DateTime.UtcNow.AddHours(-1),
-                    OwningTimeoutManager = Configure.EndpointName
+                    OwningTimeoutManager = Configure.Instance.EndpointName
                 };
 
                 persister.Add(d);
