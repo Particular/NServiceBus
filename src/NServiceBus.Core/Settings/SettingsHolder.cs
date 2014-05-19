@@ -13,8 +13,6 @@ namespace NServiceBus.Settings
     /// </summary>
     public class SettingsHolder
     {
-        
-
         public static SettingsHolder Instance
         {
             get

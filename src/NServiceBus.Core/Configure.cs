@@ -618,10 +618,10 @@ namespace NServiceBus
 
         static string lastProbeDirectory;
         static Configure instance;
+        static bool initialized;
         IBuilder builder;
         internal IConfigurationSource configurationSource;
         IConfigureComponents configurer;
-        bool initialized;
         bool invokeISetDefaultSettingsCalled;
     }
 }
