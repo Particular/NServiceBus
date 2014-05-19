@@ -137,7 +137,6 @@
     <Compile Include="HandlerOrdering\Order.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="Hosting\Configuration\IWantCustomLogging.cs" />
-    <Compile Include="Hosting\Configuration\IWantTheEndpointConfig.cs" />
     <Compile Include="Hosting\Configuration\IWantTheListOfActiveProfiles.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
@@ -412,7 +411,6 @@
     <Compile Include="Gateway\Sending\IdempotentChannelForwarder.cs" />
     <Compile Include="Gateway\Sending\IForwardMessagesToSites.cs" />
     <Compile Include="Gateway\Utils\Hasher.cs" />
-    <Compile Include="Hosting\Configuration\ConfigurationManager.cs" />
     <Compile Include="Hosting\Configuration\EndpointNameAttribute.cs" />
     <Compile Include="Hosting\Configuration\EndpointSLAAttribute.cs" />
     <Compile Include="Hosting\Configuration\IConfigureLogging.cs" />

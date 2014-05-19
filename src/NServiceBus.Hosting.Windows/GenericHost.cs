@@ -2,9 +2,9 @@ namespace NServiceBus.Hosting
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Linq;
     using System.Reflection;
-    using Configuration;
     using Helpers;
     using Installation;
     using Logging;
@@ -14,11 +14,12 @@ namespace NServiceBus.Hosting
     using Utils;
     using Wcf;
 
-    class GenericHost 
+    class GenericHost
     {
         public GenericHost(IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles, string endpointName, IEnumerable<string> scannableAssembliesFullName = null)
         {
             this.specifier = specifier;
+            config = null;
 
             if (String.IsNullOrEmpty(endpointName))
             {
@@ -46,7 +47,6 @@ namespace NServiceBus.Hosting
             profileManager = new ProfileManager(assembliesToScan, specifier, args, defaultProfiles);
             ProfileActivator.ProfileManager = profileManager;
 
-            configManager = new ConfigManager(assembliesToScan, specifier);
             wcfManager = new WcfManager();
             roleManager = new RoleManager(assembliesToScan);
         }
@@ -129,7 +129,7 @@ namespace NServiceBus.Hosting
                         {
                             if (!m.IsPublic && m.Name == "NServiceBus.IWantCustomInitialization.Init")
                             {
-                                (specifier as IWantCustomInitialization).Init();
+                                config = (specifier as IWantCustomInitialization).Init();
                                 called = true;
                             }
                         }
@@ -142,7 +142,7 @@ namespace NServiceBus.Hosting
                             {
                                 if (!tm.IsPublic && tm.Name == "NServiceBus.IWantCustomLogging.Init")
                                 {
-                                    (specifier as IWantCustomInitialization).Init();
+                                    config = (specifier as IWantCustomInitialization).Init();
                                 }
                             }
                         }
@@ -163,25 +163,37 @@ namespace NServiceBus.Hosting
                 }
             }
 
-            if (!Configure.WithHasBeenCalled())
+            if (config == null)
             {
-                Configure.With(assembliesToScan);
+                config = Configure.With(assembliesToScan);
             }
 
-            if (!Configure.BuilderIsConfigured())
+            ValidateThatIWantCustomInitIsOnlyUsedOnTheEndpointConfig();
+
+            if (!config.HasBuilder())
             {
-                Configure.Instance.DefaultBuilder();
+                config.DefaultBuilder();
             }
 
             roleManager.ConfigureBusForEndpoint(specifier);
+        }
 
-            configManager.ConfigureCustomInitAndStartup();
+        void ValidateThatIWantCustomInitIsOnlyUsedOnTheEndpointConfig()
+        {
+            var problems = config.TypesToScan.Where(t => typeof(IWantCustomInitialization).IsAssignableFrom(t) && !t.IsInterface && !typeof(IConfigureThisEndpoint).IsAssignableFrom(t)).ToList();
+
+            if (!problems.Any())
+            {
+                return;
+            }
+
+            throw new Exception("IWantCustomInitialization is only valid on the same class as ICOnfigureThisEndpoint. Please use INeedInitialization instead. Found types: " + string.Join(",",problems.Select(t=>t.FullName)));
         }
 
         readonly List<Assembly> assembliesToScan;
-        readonly ConfigManager configManager;
         readonly ProfileManager profileManager;
         readonly RoleManager roleManager;
+        Configure config;
         readonly IConfigureThisEndpoint specifier;
         readonly WcfManager wcfManager;
         IStartableBus bus;

@@ -166,7 +166,7 @@ namespace NServiceBus
             return Instance.HasBuilder();
         }
 
-        bool HasBuilder()
+        public bool HasBuilder()
         {
             return builder != null && configurer != null;
         }

@@ -5,7 +5,7 @@
     using Hosting.Profiles;
 
 
-    class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig
+    class LiteProfileHandler : IHandleProfile<Lite>
     {
         public void ProfileActivated(Configure config)
         {
@@ -16,7 +16,5 @@
 
             WindowsInstallerRunner.RunInstallers = true;
         }
-
-        public IConfigureThisEndpoint Config { get; set; }
     }
 }

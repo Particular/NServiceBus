@@ -154,12 +154,6 @@ namespace NServiceBus.Hosting.Profiles
                         wantsActiveProfiles.ActiveProfiles = activeProfiles;
                     }
 
-                    var wantsTheConfig = profileHandler as IWantTheEndpointConfig;
-                    if (wantsTheConfig != null)
-                    {
-                        wantsTheConfig.Config = specifier;
-                    }
-
                     Logger.Debug("Activating profile handler: " + handlerType.AssemblyQualifiedName);
                     profileHandler.ProfileActivated(config);
 

@@ -590,45 +590,7 @@ namespace NServiceBus.Hosting.Tests
             }
 
         }
-        [TestFixture]
-        public class When_handler_implements_IWantTheEndpointConfig
-        {
-
-            public class ConfigureThisEndpoint : IConfigureThisEndpoint
-            {
-            }
-            public interface Profile : IProfile
-            {
-            }
-
-            public class Handler : IHandleProfile<Profile>, IWantTheEndpointConfig
-            {
-                internal static IConfigureThisEndpoint config;
-
-                public void ProfileActivated(Configure config)
-                {
-                }
-
-                public IConfigureThisEndpoint Config
-                {
-                    get { return config; }
-                    set { config = value; }
-                }
-            }
-            [Test]
-            public void ActiveProfiles_should_be_set()
-            {
-                var profiles = new[]
-                               {
-                                   typeof (Profile).FullName,
-                               };
-                var configureThisEndpoint = new ConfigureThisEndpoint();
-                var profileManager = new ProfileManager(allAssemblies, configureThisEndpoint, profiles, null);
-                profileManager.ActivateProfileHandlers(null);
-                Assert.AreEqual(configureThisEndpoint, Handler.config);
-            }
-
-        }
+      
         [TestFixture]
         public class When_handler_implements_IWantTheListOfActiveProfiles
         {
