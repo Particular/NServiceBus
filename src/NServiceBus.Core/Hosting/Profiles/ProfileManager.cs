@@ -15,15 +15,13 @@ namespace NServiceBus.Hosting.Profiles
     {
         IEnumerable<Assembly> assembliesToScan;
         internal List<Type> activeProfiles;
-        IConfigureThisEndpoint specifier;
 
         /// <summary>
         /// Initializes the manager with the assemblies to scan and the endpoint configuration to use
         /// </summary>
-        public ProfileManager(List<Assembly> assembliesToScan, IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles)
+        public ProfileManager(List<Assembly> assembliesToScan, string[] args, List<Type> defaultProfiles)
         {
             this.assembliesToScan = assembliesToScan;
-            this.specifier = specifier;
 
             var existingProfiles = assembliesToScan.AllTypesAssignableTo<IProfile>();
             var profilesFromArguments = args

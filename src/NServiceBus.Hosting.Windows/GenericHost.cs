@@ -2,7 +2,6 @@ namespace NServiceBus.Hosting
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Linq;
     using System.Reflection;
     using Helpers;
@@ -44,7 +43,7 @@ namespace NServiceBus.Hosting
                     .ToList();
             }
 
-            profileManager = new ProfileManager(assembliesToScan, specifier, args, defaultProfiles);
+            profileManager = new ProfileManager(assembliesToScan, args, defaultProfiles);
             ProfileActivator.ProfileManager = profileManager;
 
             wcfManager = new WcfManager();
@@ -169,11 +168,6 @@ namespace NServiceBus.Hosting
             }
 
             ValidateThatIWantCustomInitIsOnlyUsedOnTheEndpointConfig();
-
-            if (!config.HasBuilder())
-            {
-                config.DefaultBuilder();
-            }
 
             roleManager.ConfigureBusForEndpoint(specifier);
         }

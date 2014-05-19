@@ -166,7 +166,7 @@ namespace NServiceBus
             return Instance.HasBuilder();
         }
 
-        public bool HasBuilder()
+        bool HasBuilder()
         {
             return builder != null && configurer != null;
         }
@@ -340,6 +340,11 @@ namespace NServiceBus
             if (initialized)
             {
                 return;
+            }
+
+            if (!HasBuilder())
+            {
+                this.DefaultBuilder();
             }
 
             ForAllTypes<Feature>(t => Features.Add((Feature) Activator.CreateInstance(t)));
