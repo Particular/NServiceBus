@@ -14,7 +14,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// </summary>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
-            Configure.Transactions.Disable();
+            Configure.Instance.Transactions.Disable();
             Configure.Instance.Features.Disable<SecondLevelRetries>();
             Configure.Instance.Features.Disable<StorageDrivenPublisher>();
             return Configure.Instance

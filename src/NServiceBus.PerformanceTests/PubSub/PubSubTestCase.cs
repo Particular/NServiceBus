@@ -41,15 +41,14 @@ public class PubSubTestCase : TestCase
     {
         TransportConfigOverride.MaximumConcurrencyLevel = NumberOfThreads;
 
-        Feature.Disable<Audit>();
-
-        Configure.Transactions.Enable();
-
         var config = Configure.With()
             .DefineEndpointName("PubSubPerformanceTest")
             .DefaultBuilder()
             .UseTransport<Msmq>()
             .InMemoryFaultManagement();
+
+
+        config.Features.Disable<Audit>();
 
         switch (GetStorageType())
         {
@@ -72,10 +71,10 @@ public class PubSubTestCase : TestCase
             Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
 
             var subscriptionStorage = Configure.Instance.Builder.Build<ISubscriptionStorage>();
-         
+
             var testEventMessage = new MessageType(typeof(RavenTestEvent));
 
-     
+
             subscriptionStorage.Init();
 
 
@@ -84,21 +83,21 @@ public class PubSubTestCase : TestCase
                 Settings = new MsmqSettings { UseTransactionalQueues = true }
             };
 
-                for (var i = 0; i < GetNumberOfSubscribers(); i++)
-                {
-                    var subscriberAddress = Address.Parse("PubSubPerformanceTest.Subscriber" + i);
-                    creator.CreateQueueIfNecessary(subscriberAddress, null);
+            for (var i = 0; i < GetNumberOfSubscribers(); i++)
+            {
+                var subscriberAddress = Address.Parse("PubSubPerformanceTest.Subscriber" + i);
+                creator.CreateQueueIfNecessary(subscriberAddress, null);
 
-                    using (var tx = new TransactionScope())
-                    {
-                        subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
+                using (var tx = new TransactionScope())
+                {
+                    subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
                         {
                             testEventMessage
                         });
 
-                        tx.Complete();
-                    }
+                    tx.Complete();
                 }
+            }
 
             Parallel.For(
           0,

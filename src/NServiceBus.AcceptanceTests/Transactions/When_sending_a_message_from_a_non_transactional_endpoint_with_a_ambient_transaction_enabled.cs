@@ -34,8 +34,8 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                     {
-                        Configure.Transactions.Disable();
-                        Configure.Transactions.Advanced(t => t.WrapHandlersExecutionInATransactionScope());
+                        c.Transactions.Disable();
+                        c.Transactions.Advanced(t => t.WrapHandlersExecutionInATransactionScope());
                     })
                     .AllowExceptions();
             }

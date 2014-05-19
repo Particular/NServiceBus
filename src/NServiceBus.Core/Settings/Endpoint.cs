@@ -34,8 +34,8 @@ namespace NServiceBus.Settings
         {
             PersistenceConfig.DefaultTo<InMemory>();
 
-            Configure.Transactions.Disable();
-            Configure.Transactions.Advanced(s => s.DoNotWrapHandlersExecutionInATransactionScope()
+            Configure.Instance.Transactions.Disable();
+            Configure.Instance.Transactions.Advanced(s => s.DoNotWrapHandlersExecutionInATransactionScope()
                                                   .DisableDistributedTransactions());
 
             Advanced(settings => settings.DisableDurableMessages());

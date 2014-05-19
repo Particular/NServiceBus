@@ -102,9 +102,9 @@ namespace NServiceBus
             get { return endpoint ?? (endpoint = new Endpoint()); }
         }
 
-        public static TransactionSettings Transactions
+        public TransactionSettings Transactions
         {
-            get { return transactionSetting ?? (transactionSetting = new TransactionSettings()); }
+            get { return transactionSetting ?? (transactionSetting = new TransactionSettings(this)); }
         }
 
         public static TransportSettings Transports

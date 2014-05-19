@@ -39,7 +39,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c=>Configure.Transactions.Advanced(a => a.DoNotWrapHandlersExecutionInATransactionScope()));
+                EndpointSetup<DefaultServer>(c=>c.Transactions.Advanced(a => a.DoNotWrapHandlersExecutionInATransactionScope()));
             }
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>

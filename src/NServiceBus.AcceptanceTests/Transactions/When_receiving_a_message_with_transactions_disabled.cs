@@ -32,7 +32,7 @@
         {
             public NonTransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Transactions.Disable())
+                EndpointSetup<DefaultServer>(c => c.Transactions.Disable())
                     .AllowExceptions();
             }
 

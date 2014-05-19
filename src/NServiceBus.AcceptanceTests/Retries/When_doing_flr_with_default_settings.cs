@@ -30,7 +30,7 @@
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<RetryEndpoint>(b =>
                         {
-                            b.CustomConfig(c => Configure.Transactions.Advanced(a => a.DisableDistributedTransactions()));
+                            b.CustomConfig(c => c.Transactions.Advanced(a => a.DisableDistributedTransactions()));
                             b.Given((bus, context) => bus.SendLocal(new MessageToBeRetried { Id = context.Id }));
                         })
                     .Done(c => c.HandedOverToSlr || c.NumberOfTimesInvoked > X())
@@ -46,7 +46,7 @@
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<RetryEndpoint>(b =>
                     {
-                        b.CustomConfig(c => Configure.Transactions.Disable());
+                        b.CustomConfig(c => c.Transactions.Disable());
                         b.Given((bus, context) =>
                             {
                                 bus.SendLocal(new MessageToBeRetried { Id = context.Id });

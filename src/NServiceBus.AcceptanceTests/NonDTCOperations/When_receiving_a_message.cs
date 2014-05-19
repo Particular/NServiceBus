@@ -46,16 +46,7 @@
         {
             public NonDtcReceivingEndpoint()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    Configure.Transactions.Advanced(t =>
-                    {
-                        t.DisableDistributedTransactions();
-                        t.DoNotWrapHandlersExecutionInATransactionScope();
-                    });
-
-                    c.Features.Enable<Features.Outbox>();
-                })
+                EndpointSetup<DefaultServer>(c => c.EnableOutbox())
                 .AllowExceptions();
             }
 
