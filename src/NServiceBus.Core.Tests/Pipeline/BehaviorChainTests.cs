@@ -13,7 +13,7 @@
         [Test]
         public void When_exception_is_thrown_stack_trace_is_trimmed()
         {
-            var behaviorChain = new BehaviorChain<FakeContext>(new List<Type>
+            var behaviorChain = new BehaviorChain<FakeContext>(Activator.CreateInstance, new List<Type>
                 {
                     typeof(SimpleBehavior1),
                     typeof(SimpleBehavior2),

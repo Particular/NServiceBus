@@ -4,15 +4,15 @@
     using System.Collections.Generic;
     using System.Linq;
     using Contexts;
-    using ObjectBuilder;
     using Unicast;
     using Unicast.Messages;
 
     public class PipelineExecutor : IDisposable
     {
-        public PipelineExecutor(IBuilder builder)
+        public PipelineExecutor(Func<Type, object> builder, BehaviorContext rootContext)
         {
-            rootBuilder = builder;
+            this.builder = builder;
+            this.rootContext = rootContext;
             var pipelineBuilder = new PipelineBuilder();
             Incoming = pipelineBuilder.Incoming.AsReadOnly();
             Outgoing = pipelineBuilder.Outgoing.AsReadOnly();
@@ -35,9 +35,9 @@
                     return current;
                 }
 
-                contextStacker.Push(new RootContext(rootBuilder));
+                contextStacker.Push(rootContext);
 
-                return contextStacker.Current;
+                return rootContext;
             }
         }
 
@@ -79,7 +79,7 @@
 
         public void InvokePipeline<TContext>(IEnumerable<Type> behaviours, TContext context) where TContext : BehaviorContext
         {
-            var pipeline = new BehaviorChain<TContext>(behaviours);
+            var pipeline = new BehaviorChain<TContext>(builder, behaviours);
 
             Execute(pipeline, context);
         }
@@ -104,7 +104,8 @@
         }
 
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
-        IBuilder rootBuilder;
+        Func<Type, object> builder;
+        readonly BehaviorContext rootContext;
         IEnumerable<Type> incomingBehaviors;
         IEnumerable<Type> outgoingBehaviors;
     }
