@@ -44,7 +44,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         public static Address MasterNodeAddress;
         protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
         protected MessageMetadataRegistry MessageMetadataRegistry;
-        protected MessageDrivenSubscriptionManager subscriptionManager;
+        protected SubscriptionManager subscriptionManager;
         protected StaticMessageRouter router;
 
         protected MessageHandlerRegistry handlerRegistry;
@@ -89,9 +89,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             subscriptionStorage = new FakeSubscriptionStorage();
-            subscriptionManager = new MessageDrivenSubscriptionManager
+            subscriptionManager = new SubscriptionManager
                 {
-                    Builder = FuncBuilder,
                     MessageSender = messageSender,
                     SubscriptionStorage = subscriptionStorage
                 };

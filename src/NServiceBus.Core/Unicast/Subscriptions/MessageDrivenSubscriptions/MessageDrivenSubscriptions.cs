@@ -6,7 +6,7 @@
     {
         public override void Initialize(Configure config)
         {
-            config.Configurer.ConfigureComponent<MessageDrivenSubscriptionManager>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<SubscriptionManager>(DependencyLifecycle.SingleInstance);
         }
     }
 }
