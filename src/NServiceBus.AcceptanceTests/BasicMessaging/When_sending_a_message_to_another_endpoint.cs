@@ -25,14 +25,12 @@
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Repeat(r =>r.For(Serializers.Binary)
-                                  .For<AllBuilders>()
+                                  //.For<AllBuilders>()
                     )
                     .Should(c =>
                         {
                             Assert.True(c.WasCalled, "The message handler should be called");
                             Assert.AreEqual(1, c.TimesCalled, "The message handler should only be invoked once");
-                            Assert.True(c.ReceivedHeaders[Headers.OriginatingEndpoint].Contains("Sender"), "The sender should attach its endpoint name as a header");
-                            Assert.True(c.ReceivedHeaders[Headers.ProcessingEndpoint].Contains("Receiver"), "The receiver should attach its endpoint name as a header");
                             Assert.AreEqual("StaticHeaderValue",c.ReceivedHeaders["MyStaticHeader"], "Static headers should be attached to outgoing messages");
                             Assert.AreEqual("MyHeaderValue", c.MyHeader, "Static headers should be attached to outgoing messages");
                         })
