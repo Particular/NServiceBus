@@ -703,8 +703,6 @@ namespace NServiceBus.Unicast
         {
             var incomingMessage = e.Message;
 
-            incomingMessage.Headers["NServiceBus.ProcessingMachine"] = RuntimeEnvironment.MachineName;
-            incomingMessage.Headers[Headers.ProcessingEndpoint] = Configure.Instance.EndpointName;
             incomingMessage.Headers[Headers.HostId] = HostInformation.HostId.ToString("N");
             incomingMessage.Headers[Headers.HostDisplayName] = HostInformation.DisplayName;
 
