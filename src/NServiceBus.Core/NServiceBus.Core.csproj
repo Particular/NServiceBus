@@ -589,7 +589,7 @@
     <Compile Include="Unicast\IMessageHandlerRegistry.cs" />
     <Compile Include="Unicast\MessageHandlerRegistry.cs" />
     <Compile Include="Unicast\Subscriptions\SubscriptionEventArgs.cs" />
-    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubscriptionReceiver.cs" />
+    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubscriptionReceiverBehavior.cs" />
     <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\ISubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageType.cs" />
