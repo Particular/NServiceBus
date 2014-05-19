@@ -8,6 +8,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Behaviors;
     using Core.Tests;
     using Helpers;
+    using Licensing;
     using MessageHeaders;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
@@ -63,6 +64,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         [SetUp]
         public void SetUp()
         {
+            LicenseManager.InitializeLicense();
             transportDefinition = new Msmq();
             HandlerInvocationCache.Clear();
 
