@@ -84,7 +84,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.RunGateway().UseInMemoryGatewayPersister();
-                    Configure.Serialization.Xml();
+                    c.Serialization.Xml();
                 })
                     .IncludeType<MyRequest>()
                     .AllowExceptions()

@@ -1,5 +1,7 @@
 namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
     /// </summary>
@@ -12,9 +14,7 @@ namespace NServiceBus
         [ObsoleteEx(Replacement = "Configure.Serialization.Binary()", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure BinarySerializer(this Configure config)
         {
-            Configure.Serialization.Binary();
-
-            return config;
+            throw new NotImplementedException();
         }
     }
 }

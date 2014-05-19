@@ -60,19 +60,19 @@
             switch (args[2].ToLower())
             {
                 case "xml":
-                    Configure.Serialization.Xml();
+                    config.Serialization.Xml();
                     break;
 
                 case "json":
-                    Configure.Serialization.Json();
+                    config.Serialization.Json();
                     break;
 
                 case "bson":
-                    Configure.Serialization.Bson();
+                    config.Serialization.Bson();
                     break;
 
                 case "bin":
-                    Configure.Serialization.Binary();
+                    config.Serialization.Binary();
                     break;
 
                 default:

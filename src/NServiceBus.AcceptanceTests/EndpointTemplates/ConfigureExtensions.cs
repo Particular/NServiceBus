@@ -71,25 +71,25 @@
 
             if (type == typeof(XmlMessageSerializer))
             {
-                Configure.Serialization.Xml();
+                config.Serialization.Xml();
                 return config;
             }
 
             if (type == typeof(JsonMessageSerializer))
             {
-                Configure.Serialization.Json();
+                config.Serialization.Json();
                 return config;
             }
 
             if (type == typeof(BsonMessageSerializer))
             {
-                Configure.Serialization.Bson();
+                config.Serialization.Bson();
                 return config;
             }
 
             if (type == typeof(BinaryMessageSerializer))
             {
-                Configure.Serialization.Binary();
+                config.Serialization.Binary();
                 return config;
             }
 

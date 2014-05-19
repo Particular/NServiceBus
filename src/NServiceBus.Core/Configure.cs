@@ -117,9 +117,9 @@ namespace NServiceBus
             get { return features ?? (features = new FeatureSettings(this)); }
         }
 
-        public static SerializationSettings Serialization
+        public SerializationSettings Serialization
         {
-            get { return serialization ?? (serialization = new SerializationSettings()); }
+            get { return serialization ?? (serialization = new SerializationSettings(this)); }
         }
 
         public PipelineSettings Pipeline
