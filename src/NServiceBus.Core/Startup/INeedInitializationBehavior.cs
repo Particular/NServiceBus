@@ -10,7 +10,7 @@ namespace NServiceBus.Startup
         {
             this.context = context;
 
-            ActivateAndInvoke<INeedInitialization>(t => t.Init());
+            ActivateAndInvoke<INeedInitialization>(t => t.Init(context.Configure));
 
             next();
         }

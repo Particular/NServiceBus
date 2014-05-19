@@ -47,9 +47,6 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Customization\Conventions.cs" />
@@ -77,10 +74,6 @@
     <ProjectReference Include="..\..\src\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
-      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
-      <Name>NServiceBus</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

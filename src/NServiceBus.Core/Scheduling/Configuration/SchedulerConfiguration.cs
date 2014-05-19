@@ -1,11 +1,11 @@
 namespace NServiceBus.Scheduling.Configuration
 {
-    public class SchedulerConfiguration : INeedInitialization
+    class SchedulerConfiguration : INeedInitialization
     {
-        public void Init()
+        public void Init(Configure config)
         {
-            Configure.Instance.Configurer.RegisterSingleton<IScheduledTaskStorage>(new InMemoryScheduledTaskStorage());
-            Configure.Instance.Configurer.ConfigureComponent<DefaultScheduler>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.RegisterSingleton<IScheduledTaskStorage>(new InMemoryScheduledTaskStorage());
+            config.Configurer.ConfigureComponent<DefaultScheduler>(DependencyLifecycle.InstancePerCall);
         }
     }
 }

@@ -46,9 +46,9 @@
                     Context.CorrelationIdReceived = transportMessage.CorrelationId;
                 }
 
-                public void Init()
+                public void Init(Configure config)
                 {
-                    Configure.Component<GetValueOfIncomingCorrelationId>(DependencyLifecycle.InstancePerCall);
+                    config.Configurer.ConfigureComponent<GetValueOfIncomingCorrelationId>(DependencyLifecycle.InstancePerCall);
                 }
             }
 

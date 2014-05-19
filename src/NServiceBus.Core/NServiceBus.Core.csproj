@@ -89,6 +89,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Address.cs" />
+    <Compile Include="AddressMode.cs" />
     <Compile Include="AllAssemblies.cs" />
     <Compile Include="App_Packages\Particular.Licensing\License.cs" />
     <Compile Include="App_Packages\Particular.Licensing\LicenseDeserializer.cs" />
@@ -106,10 +108,13 @@
     <Compile Include="AutomaticSubscriptions\AutoSubscriber.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettingsExtensions.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettings.cs" />
+    <Compile Include="CompletionResult.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
     <Compile Include="Config\ChannelCollection.cs" />
     <Compile Include="Config\ChannelConfig.cs" />
+    <Compile Include="ContentTypes.cs" />
+    <Compile Include="DataBusProperty.cs" />
     <Compile Include="Distributor\MasterNode\DefaultMasterNodeAddress.cs" />
     <Compile Include="Config\SiteCollection.cs" />
     <Compile Include="Config\SiteConfig.cs" />
@@ -118,12 +123,19 @@
     <Compile Include="DataBus\DataBusSendBehavior.cs" />
     <Compile Include="Encryption\MemberInfoExtensions.cs" />
     <Compile Include="ExceptionExtensions.cs" />
+    <Compile Include="ExpressAttribute.cs" />
+    <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Gateway\Channels\DataReceivedOnChannelArgs.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReader.cs" />
+    <Compile Include="Gateway\Receiving\IdempotentChannelReceiver.cs" />
     <Compile Include="Gateway\Sending\CallType.cs" />
     <Compile Include="Gateway\GatewayTransaction.cs" />
     <Compile Include="GitFlowVersion.cs" />
+    <Compile Include="HandlerOrdering\First.cs" />
+    <Compile Include="HandlerOrdering\ISpecifyMessageHandlerOrdering.cs" />
+    <Compile Include="HandlerOrdering\Order.cs" />
+    <Compile Include="Headers.cs" />
     <Compile Include="Hosting\Configuration\IWantCustomLogging.cs" />
     <Compile Include="Hosting\Configuration\IWantTheEndpointConfig.cs" />
     <Compile Include="Hosting\Configuration\IWantTheListOfActiveProfiles.cs" />
@@ -131,15 +143,36 @@
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
     <Compile Include="Hosting\HostInformation.cs" />
+    <Compile Include="IAuthorizeSubscriptions.cs" />
+    <Compile Include="IBus.cs" />
+    <Compile Include="ICallback.cs" />
+    <Compile Include="ICommand.cs" />
+    <Compile Include="IdGeneration\CombGuid.cs" />
+    <Compile Include="IEvent.cs" />
+    <Compile Include="IInMemoryOperations.cs" />
+    <Compile Include="IMessage.cs" />
+    <Compile Include="IMessageContext.cs" />
+    <Compile Include="IMessageCreator.cs" />
+    <Compile Include="IMessageHandler.cs" />
+    <Compile Include="IMessageModule.cs" />
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
+    <Compile Include="INeedInitialization.cs" />
     <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />
     <Compile Include="Installation\ElevateChecker.cs" />
+    <Compile Include="IStartableBus.cs" />
+    <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />
     <Compile Include="Licensing\LicenseBehavior.cs" />
     <Compile Include="Licensing\LicenseInitializer.cs" />
     <Compile Include="Licensing\LicenseLocationConventions.cs" />
     <Compile Include="Licensing\NonLockingFileReader.cs" />
     <Compile Include="Licensing\StaThreadRunner.cs" />
     <Compile Include="Licensing\LicenseExpiredFormDisplayer.cs" />
+    <Compile Include="MessageConventionException.cs" />
+    <Compile Include="MessageConventionExtensions.cs" />
+    <Compile Include="MessageIntentEnum.cs" />
+    <Compile Include="MessageMutator\IMessageMutator.cs" />
+    <Compile Include="MessageMutator\IMutateIncomingMessages.cs" />
+    <Compile Include="MessageMutator\IMutateOutgoingMessages.cs" />
     <Compile Include="Outbox\IOutboxStorage.cs" />
     <Compile Include="Outbox\Outbox.cs" />
     <Compile Include="Outbox\OutboxMessage.cs" />
@@ -190,6 +223,23 @@
     <Compile Include="Startup\IWantToRunBeforeConfigurationIsFinalizedBehavior.cs" />
     <Compile Include="Startup\IWantToRunWhenConfigurationIsCompleteBehavior.cs" />
     <Compile Include="Startup\PreventChangesBehavior.cs" />
+    <Compile Include="Saga\ContainSagaData.cs" />
+    <Compile Include="Saga\IAmStartedByMessages.cs" />
+    <Compile Include="Saga\IConfigurable.cs" />
+    <Compile Include="Saga\IConfigureHowToFindSagaWithMessage.cs" />
+    <Compile Include="Saga\IContainSagaData.cs" />
+    <Compile Include="Saga\IFinder.cs" />
+    <Compile Include="Saga\IFindSagas.cs" />
+    <Compile Include="Saga\IHandleSagaNotFound.cs" />
+    <Compile Include="Saga\IHandleTimeouts.cs" />
+    <Compile Include="Saga\ISagaPersister.cs" />
+    <Compile Include="Saga\Saga.cs" />
+    <Compile Include="Saga\SagaT.cs" />
+    <Compile Include="Saga\ToSagaExpression.cs" />
+    <Compile Include="Saga\UniqueAttribute.cs" />
+    <Compile Include="Serialization\IMessageSerializer.cs" />
+    <Compile Include="Support\RuntimeEnvironment.cs" />
+    <Compile Include="TimeToBeReceivedAttribute.cs" />
     <Compile Include="Transports\ConfigureTransport.cs" />
     <Compile Include="Unicast\Behaviors\CallbackInvocationBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ForwardBehavior.cs" />
@@ -358,7 +408,6 @@
     <Compile Include="Gateway\Receiving\ConfigurationBasedChannelManager.cs" />
     <Compile Include="Gateway\Receiving\ConventionBasedChannelManager.cs" />
     <Compile Include="Gateway\Receiving\GatewayReceiver.cs" />
-    <Compile Include="Gateway\Receiving\IdempotentChannelReceiver.cs" />
     <Compile Include="Gateway\Receiving\IManageReceiveChannels.cs" />
     <Compile Include="Gateway\Receiving\IReceiveMessagesFromSites.cs" />
     <Compile Include="Gateway\Routing\Endpoints\DefaultEndpointRouter.cs" />
@@ -592,6 +641,7 @@
     <Compile Include="Utils\RegistryReader.cs" />
     <Compile Include="Utils\StackTracePreserver.cs" />
     <Compile Include="WcfService.cs" />
+    <Compile Include="WireEncryptedString.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ripple.dependencies.config">
@@ -620,12 +670,6 @@
       <DependentUpon>LicenseExpiredForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
-      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
-      <Name>NServiceBus</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="Fody.targets" />

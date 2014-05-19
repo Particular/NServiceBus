@@ -3,6 +3,7 @@
     using System;
     using System.Net;
     using System.Runtime.Serialization;
+    using System.Security;
     using Support;
 
     ///<summary>
@@ -122,8 +123,8 @@
         /// <summary>
         /// Deserializes an Address.
         /// </summary>
-        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data. </param>
-        /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization. </param>
+        /// <param name="info">The <see cref="SerializationInfo"/> to populate with data. </param>
+        /// <param name="context">The destination (see <see cref="StreamingContext"/>) for this serialization. </param>
         protected Address(SerializationInfo info, StreamingContext context)
         {
             Queue = info.GetString("Queue");
@@ -141,11 +142,11 @@
         }
 
         /// <summary>
-        /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
+        /// Populates a <see cref="SerializationInfo"/> with the data needed to serialize the target object.
         /// </summary>
-        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data. </param>
-        /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization. </param>
-        /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
+        /// <param name="info">The <see cref="SerializationInfo"/> to populate with data. </param>
+        /// <param name="context">The destination (see <see cref="StreamingContext"/>) for this serialization. </param>
+        /// <exception cref="SecurityException">The caller does not have the required permission. </exception>
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Queue", Queue);
@@ -224,12 +225,12 @@
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:System.Object"/>.
+        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Object"/>.
         /// </summary>
         /// <returns>
-        /// true if the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:System.Object"/>; otherwise, false.
+        /// true if the specified <see cref="Object"/> is equal to the current <see cref="Object"/>; otherwise, false.
         /// </returns>
-        /// <param name="obj">The <see cref="T:System.Object"/> to compare with the current <see cref="T:System.Object"/>. </param><filterpriority>2</filterpriority>
+        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Object"/>. </param><filterpriority>2</filterpriority>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;

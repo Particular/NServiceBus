@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Hosting.Windows.LoggingHandlers.Internal
 {
+    using System.Configuration;
     using System.Reflection;
     using log4net.Appender;
     using log4net.Core;
@@ -84,12 +85,13 @@
             ConfigureAppender(appender);
         }
         
-        private static void ConfigureAppender(AppenderSkeleton appender)
+        static void ConfigureAppender(AppenderSkeleton appender)
         {
             if (appender.Layout == null)
                 appender.Layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
 
-            var cfg = Configure.GetConfigSection<Config.Logging>();
+            var cfg = ConfigurationManager.GetSection(typeof(Config.Logging).Name) as Config.Logging;
+
             if (cfg != null)
             {
                 foreach (var f in typeof(Level).GetFields(BindingFlags.Public | BindingFlags.Static))

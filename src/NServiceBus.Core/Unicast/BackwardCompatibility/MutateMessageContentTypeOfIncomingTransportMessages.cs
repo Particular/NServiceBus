@@ -21,9 +21,9 @@
             }
         }
 
-        public void Init()
+        public void Init(Configure config)
         {
-            Configure.Instance.Configurer.ConfigureComponent<MutateMessageContentTypeOfIncomingTransportMessages>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<MutateMessageContentTypeOfIncomingTransportMessages>(DependencyLifecycle.InstancePerCall);
         }
     }
 }

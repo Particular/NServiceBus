@@ -28,7 +28,7 @@ namespace NServiceBus
         /// </summary>
         public static Configure MsmqSubscriptionStorage(this Configure config, string endpointName)
         {
-            var cfg = Configure.GetConfigSection<MsmqSubscriptionStorageConfig>();
+            var cfg = config.GetConfigSection<MsmqSubscriptionStorageConfig>();
 
             if (cfg == null && string.IsNullOrEmpty(endpointName))
                 Logger.Warn("Could not find configuration section for Msmq Subscription Storage and no name was specified for this endpoint. Going to default the subscription queue");

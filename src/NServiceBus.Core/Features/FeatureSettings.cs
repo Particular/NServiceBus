@@ -53,5 +53,10 @@ namespace NServiceBus.Features
         {
             Feature.EnableByDefault<T>();    
         }
+
+        public bool IsEnabled<T>() where T:Feature
+        {
+            return Feature.IsEnabled<T>();
+        }
     }
 }

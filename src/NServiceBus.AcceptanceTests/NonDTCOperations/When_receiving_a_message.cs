@@ -54,7 +54,7 @@
                         t.DoNotWrapHandlersExecutionInATransactionScope();
                     });
 
-                    c.DefineOutboxStorage();
+                    c.Features.Enable<Features.Outbox>();
                 })
                 .AllowExceptions();
             }

@@ -3,32 +3,27 @@ namespace NServiceBus.Gateway.Receiving
     using System.Collections.Generic;
     using System.Linq;
     using Channels;
-    using Config;
 
-    public class ConfigurationBasedChannelManager : IManageReceiveChannels
+    class ConfigurationBasedChannelManager : IManageReceiveChannels
     {
-        public ConfigurationBasedChannelManager()
-        {
-            channels = Configure.GetConfigSection<GatewayConfig>().GetChannels();
-
-        }
+    
+        public List<ReceiveChannel> ReceiveChannels { get; set; }
 
         public IEnumerable<ReceiveChannel> GetReceiveChannels()
         {
-            return channels;
+            return ReceiveChannels;
         }
 
         public Channel GetDefaultChannel()
         {
-            var defaultChannel = channels.SingleOrDefault(c => c.Default);
+            var defaultChannel = ReceiveChannels.SingleOrDefault(c => c.Default);
 
             if (defaultChannel == null)
             {
-                defaultChannel = channels.First();
+                defaultChannel = ReceiveChannels.First();
             }
             return defaultChannel;
         }
 
-        readonly IEnumerable<ReceiveChannel> channels;
     }
 }

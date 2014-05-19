@@ -10,7 +10,7 @@ namespace NServiceBus.Startup
         {
             this.context = context;
 
-            ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run());
+            ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run(context.Configure));
 
             next();
         }

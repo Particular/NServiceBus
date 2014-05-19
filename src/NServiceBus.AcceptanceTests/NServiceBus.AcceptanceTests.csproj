@@ -54,10 +54,6 @@
     <Reference Include="Common.Logging">
       <HintPath>..\packages\Common.Logging\lib\1.0\Common.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net\lib\2.0\log4net.dll</HintPath>
-      <Aliases>realOne</Aliases>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\packages\CommonServiceLocator\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
@@ -172,14 +168,11 @@
     <Compile Include="Sagas\When_a_saga_message_goes_through_the_slr.cs" />
     <Compile Include="Sagas\When_using_contain_saga_data.cs" />
     <Compile Include="ScenarioDescriptors\Builders.cs" />
-    <Compile Include="ScenarioDescriptors\OutboxPersisters.cs" />
-    <Compile Include="ScenarioDescriptors\SubscriptionPersisters.cs" />
-    <Compile Include="ScenarioDescriptors\TimeoutPersisters.cs" />
-    <Compile Include="ScenarioDescriptors\SagaPersisters.cs" />
     <Compile Include="ScenarioDescriptors\AllTransports.cs" />
     <Compile Include="ScenarioDescriptors\AllBuilders.cs" />
     <Compile Include="ScenarioDescriptors\AllSerializers.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
+    <Compile Include="ScenarioDescriptors\Persistence.cs" />
     <Compile Include="Scheduling\When_scheduling_a_recurring_task.cs" />
     <Compile Include="Transactions\FakePromotableResourceManager.cs" />
     <Compile Include="Transactions\When_receiving_a_message_with_dtc_disabled.cs" />
@@ -224,10 +217,6 @@
     <ProjectReference Include="..\..\src\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
-      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
-      <Name>NServiceBus</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj">
       <Project>{758357f6-cd31-4337-80c4-ba377fc257af}</Project>

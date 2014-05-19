@@ -2,7 +2,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
 {
     using Settings;
 
-    public class AutoSubscribeSettings:ISetDefaultSettings
+    public class AutoSubscribeSettings
     {
         /// <summary>
         /// Turns off auto subscriptions for sagas. Sagas where not auto subscribed by default before v4

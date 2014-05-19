@@ -2,25 +2,16 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage.Config
 {
     using Unicast.Queuing;
 
-    /// <summary>
-    /// Signals to create MSMQ subscription queue
-    /// </summary>
-    public class SubscriptionsQueueCreator : IWantQueueCreated
+    class SubscriptionsQueueCreator : IWantQueueCreated
     {
-        /// <summary>
-        /// MSMQ Subscription storage
-        /// </summary>
         public Address Address
         {
             get { return ConfigureMsmqSubscriptionStorage.Queue; }
         }
 
-        /// <summary>
-        /// Disabling the creation of the MSMQ Subscription queue
-        /// </summary>
-        public bool IsDisabled
+        public bool ShouldCreateQueue(Configure config)
         {
-            get { return ConfigureMsmqSubscriptionStorage.Queue == null; }
+            return ConfigureMsmqSubscriptionStorage.Queue != null;
         }
     }
 }

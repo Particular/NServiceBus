@@ -1,14 +1,9 @@
 namespace NServiceBus.Unicast.Queuing.Installers
 {
-    using System.ComponentModel;
     using Audit;
     using Features;
 
-    /// <summary>
-    /// Signals to create forward received messages queue.
-    /// </summary>
-    [EditorBrowsable(EditorBrowsableState.Advanced)]
-    public class AuditQueueCreator : IWantQueueCreated
+    class AuditQueueCreator : IWantQueueCreated
     {
         public MessageAuditer Auditer { get; set; }
 
@@ -20,12 +15,9 @@ namespace NServiceBus.Unicast.Queuing.Installers
             get { return Auditer.AuditQueue; }
         }
 
-        /// <summary>
-        /// True if no need to create queue
-        /// </summary>
-        public bool IsDisabled
+        public bool ShouldCreateQueue(Configure config)
         {
-            get { return !Feature.IsEnabled<Audit>(); }
+            return config.Features.IsEnabled<Audit>();
         }
     }
 }

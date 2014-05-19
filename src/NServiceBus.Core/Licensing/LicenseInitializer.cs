@@ -5,7 +5,7 @@ namespace NServiceBus.Licensing
 
     class LicenseInitializer : INeedInitialization
     {
-        public void Init()
+        public void Init(Configure config)
         {
             var expiredLicense = true;
             try
@@ -20,10 +20,10 @@ namespace NServiceBus.Licensing
                 Logger.Fatal("Failed to initialize the license",ex);
             }
             
-            Configure.Component<LicenseBehavior>(DependencyLifecycle.InstancePerCall)
+            config.Configurer.ConfigureComponent<LicenseBehavior>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.LicenseExpired, expiredLicense);
 
-            Configure.Pipeline.Register("LicenseReminder", typeof(LicenseBehavior), "Reminds users if license has expired");
+            config.Pipeline.Register("LicenseReminder", typeof(LicenseBehavior), "Reminds users if license has expired");
         }
 
         static ILog Logger = LogManager.GetLogger(typeof(LicenseInitializer));

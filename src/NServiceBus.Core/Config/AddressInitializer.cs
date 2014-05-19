@@ -8,7 +8,8 @@ namespace NServiceBus.Config
         /// <summary>
         /// Initialize the local address
         /// </summary>
-        public void Init()
+        /// <param name="configure"></param>
+        public void Init(Configure configure)
         {
             if (Address.Local == null)
             {

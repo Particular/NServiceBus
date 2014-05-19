@@ -12,7 +12,7 @@ namespace NServiceBus.Gateway.Receiving
     using Utils;
 
     [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
-    public class IdempotentChannelReceiver : IReceiveMessagesFromSites
+    class IdempotentChannelReceiver : IReceiveMessagesFromSites
     {
         public IdempotentChannelReceiver(IChannelFactory channelFactory, IPersistMessages persister)
         {
@@ -21,6 +21,9 @@ namespace NServiceBus.Gateway.Receiving
         }
 
         public IDataBus DataBus { get; set; }
+
+        public GatewayTransaction GatewayTransaction { get; set; }
+
         public event EventHandler<MessageReceivedOnChannelArgs> MessageReceived;
 
         public void Start(Channel channel, int numberOfWorkerThreads)

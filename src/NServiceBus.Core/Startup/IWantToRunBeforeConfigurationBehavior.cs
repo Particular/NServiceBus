@@ -10,7 +10,7 @@
         {
             this.context = context;
 
-            ActivateAndInvoke<IWantToRunBeforeConfiguration>(t => t.Init());
+            ActivateAndInvoke<IWantToRunBeforeConfiguration>(t => t.Init(context.Configure));
 
             next();
         }

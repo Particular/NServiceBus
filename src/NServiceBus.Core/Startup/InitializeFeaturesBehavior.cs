@@ -9,7 +9,7 @@ namespace NServiceBus.Startup
     {
         public void Invoke(ConfigurationContext context, Action next)
         {
-            new FeatureInitializer().Run();
+            new FeatureInitializer().Run(context.Configure);
 
             next();
         }

@@ -13,7 +13,8 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// Defining <see cref="IHandleTimeouts{T}"/> as valid system messages
         /// </summary>
-        public void Init()
+        /// <param name="configure"></param>
+        public void Init(Configure configure)
         {
             var sagas = Configure.TypesToScan.Where(Features.Sagas.IsSagaType).ToList();
 

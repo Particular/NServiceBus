@@ -7,22 +7,10 @@
     {
         public override void Initialize(Configure config)
         {
+            config.Pipeline.Register<OutboxDeduplicationRegistration>();
+            config.Pipeline.Register<OutboxRecorderRegistration>();
+            config.Pipeline.Replace(WellKnownBehavior.DispatchMessageToTransport, typeof(OutboxSendBehavior), "Sending behavior with a delay sending until all business transactions are committed to the outbox storage");
              
-        }
-
-        public class PipelineConfig : IWantToRunBeforeConfigurationIsFinalized
-        {
-            public void Run()
-            {
-                if (!IsEnabled<Outbox>())
-                {
-                    return;
-                }
-
-                Configure.Pipeline.Register<OutboxDeduplicationRegistration>();
-                Configure.Pipeline.Register<OutboxRecorderRegistration>();
-                Configure.Pipeline.Replace(WellKnownBehavior.DispatchMessageToTransport, typeof(OutboxSendBehavior), "Sending behavior with a delay sending until all business transactions are committed to the outbox storage");
-            }
         }
 
         class OutboxDeduplicationRegistration : RegisterBehavior

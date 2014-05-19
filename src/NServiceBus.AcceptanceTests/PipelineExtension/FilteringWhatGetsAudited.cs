@@ -58,9 +58,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
 
                 class AuditFilteringOverride : INeedInitialization
                 {
-                    public void Init()
+                    public void Init(Configure config)
                     {
-                        Configure.Pipeline.Register("SetFiltering", typeof(SetFiltering), "Filters audit entries");
+                        config.Pipeline.Register("SetFiltering", typeof(SetFiltering), "Filters audit entries");
                     }
                 }
             }
@@ -93,10 +93,10 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                 //here we inject our behavior
                 class AuditFilteringOverride : INeedInitialization
                 {
-                    public void Init()
+                    public void Init(Configure config)
                     {
                         //we replace the default audit behavior with out own
-                        Configure.Pipeline.Replace(WellKnownBehavior.AuditForwarder, typeof(FilteringAuditBehavior), "A new audit forwarder that has filtering");
+                        config.Pipeline.Replace(WellKnownBehavior.AuditForwarder, typeof(FilteringAuditBehavior), "A new audit forwarder that has filtering");
                     }
                 }
             }

@@ -84,7 +84,7 @@ namespace NServiceBus.Settings
             /// <summary>
             ///    Sets the isolation level of the transaction.
             /// </summary>
-            /// <param name="isolationLevel">A <see cref="T:System.Transactions.IsolationLevel" /> enumeration that specifies the isolation level of the transaction.</param>
+            /// <param name="isolationLevel">A <see cref="IsolationLevel" /> enumeration that specifies the isolation level of the transaction.</param>
             public TransactionAdvancedSettings IsolationLevel(IsolationLevel isolationLevel)
             {
                 SettingsHolder.Instance.Set("Transactions.IsolationLevel", isolationLevel);
@@ -131,7 +131,7 @@ namespace NServiceBus.Settings
             /// <summary>
             /// Sets the default timeout period for the transaction.
             /// </summary>
-            /// <param name="defaultTimeout">A <see cref="T:System.TimeSpan" /> value that specifies the default timeout period for the transaction.</param>
+            /// <param name="defaultTimeout">A <see cref="TimeSpan" /> value that specifies the default timeout period for the transaction.</param>
             public TransactionAdvancedSettings DefaultTimeout(TimeSpan defaultTimeout)
             {
                 if (defaultTimeout > maxTimeout)

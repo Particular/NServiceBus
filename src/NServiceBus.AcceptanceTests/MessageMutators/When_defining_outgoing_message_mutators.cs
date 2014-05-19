@@ -44,9 +44,9 @@
                     transportMessage.Headers["TransportMutatorCalled"] = true.ToString();
                 }
 
-                public void Init()
+                public void Init(Configure config)
                 {
-                    Configure.Component<MyTransportMessageMutator>(DependencyLifecycle.InstancePerCall);
+                    config.Configurer.ConfigureComponent<MyTransportMessageMutator>(DependencyLifecycle.InstancePerCall);
                 }
             }
 
@@ -61,9 +61,9 @@
                     return message;
                 }
 
-                public void Init()
+                public void Init(Configure config)
                 {
-                    Configure.Component<MyMessageMutator>(DependencyLifecycle.InstancePerCall);
+                    config.Configurer.ConfigureComponent<MyMessageMutator>(DependencyLifecycle.InstancePerCall);
                 }
 
             }

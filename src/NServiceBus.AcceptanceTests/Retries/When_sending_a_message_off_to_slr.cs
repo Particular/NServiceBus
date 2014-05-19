@@ -92,9 +92,9 @@
                     transportMessage.Body[0]--;
                 }
 
-                public void Init()
+                public void Init(Configure config)
                 {
-                    Configure.Component<BodyMutator>(DependencyLifecycle.InstancePerCall);
+                    config.Configurer.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall);
                 }
             }
 

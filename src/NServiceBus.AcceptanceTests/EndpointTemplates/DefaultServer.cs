@@ -7,6 +7,7 @@
     using AcceptanceTesting.Support;
     using Config.ConfigurationSource;
     using Hosting.Helpers;
+    using Logging;
     using NServiceBus;
     using Settings;
 
@@ -16,11 +17,10 @@
         {
             var settings = runDescriptor.Settings;
 
-            SetLoggingLibrary.Log4Net(null, new ContextAppender(runDescriptor.ScenarioContext, endpointConfiguration));
+            LogManager.LoggerFactory = new ContextAppender(runDescriptor.ScenarioContext, endpointConfiguration);
 
             var types = GetTypesToUse(endpointConfiguration);
 
-            var transportToUse = settings.GetOrNull("Transport");
 
             SettingsHolder.Instance.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
 
@@ -30,13 +30,8 @@
                             .DefineBuilder(settings.GetOrNull("Builder"))
                             .DefineSerializer(settings.GetOrNull("Serializer"))
                             .DefineTransport(settings)
-                            .DefineSagaPersister(settings.GetOrNull("SagaPersister"));
+                            .DefinePersistence(settings);
 
-
-            if (transportToUse == null || transportToUse.Contains("Msmq") || transportToUse.Contains("SqlServer"))
-            {
-                config.DefineSubscriptionStorage(settings.GetOrNull("SubscriptionStorage"));
-            }
 
             return config.UnicastBus();
         }

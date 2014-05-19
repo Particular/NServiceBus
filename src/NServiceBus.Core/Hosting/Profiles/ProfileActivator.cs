@@ -13,10 +13,10 @@
         /// <summary>
         /// Activate profile handlers
         /// </summary>
-        public void Run()
+        public void Run(Configure config)
         {
             if (ProfileManager != null)
-                ProfileManager.ActivateProfileHandlers();
+                ProfileManager.ActivateProfileHandlers(config);
         }
     }
 }

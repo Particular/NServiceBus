@@ -73,9 +73,9 @@
                     transportMessage.Body = modifiedBody;
                 }
 
-                public void Init()
+                public void Init(Configure config)
                 {
-                    Configure.Component<BodyMutator>(DependencyLifecycle.InstancePerCall);
+                    config.Configurer.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall);
                 }
             }
 
@@ -100,9 +100,9 @@
                     Context.HasDiagnosticLicensingHeaders = transportMessage.Headers.TryGetValue(Headers.HasLicenseExpired, out licenseExpired);
                 }
 
-                public void Init()
+                public void Init(Configure config)
                 {
-                    Configure.Component<BodySpy>(DependencyLifecycle.InstancePerCall);
+                    config.Configurer.ConfigureComponent<BodySpy>(DependencyLifecycle.InstancePerCall);
                 }
             }
 

@@ -28,7 +28,7 @@ namespace NServiceBus
 
 			ErrorQueue = Address.Undefined;
 
-			var section = Configure.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();
+			var section = config.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();
 			if (section != null)
 			{
 				if (string.IsNullOrWhiteSpace(section.ErrorQueue))
@@ -79,11 +79,11 @@ namespace NServiceBus
 
 	class Bootstrapper : INeedInitialization
 	{
-		public void Init()
+        public void Init(Configure config)
 		{
-			if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+            if (!config.Configurer.HasComponent<IManageMessageFailures>())
 			{
-				Configure.Instance.MessageForwardingInCaseOfFault();
+                config.MessageForwardingInCaseOfFault();
 			}
 		}
 	}

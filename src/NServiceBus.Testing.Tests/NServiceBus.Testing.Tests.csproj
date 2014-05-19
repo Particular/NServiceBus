@@ -61,10 +61,6 @@
       <Project>{8b815173-9afa-4d95-bab4-686c298f17da}</Project>
       <Name>NServiceBus.Testing</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
-      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
-      <Name>NServiceBus</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="ripple.dependencies.config" />

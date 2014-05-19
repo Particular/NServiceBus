@@ -21,7 +21,7 @@
                             bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn, SecondMessage = true });                                    
                         }))
                     .Done(c => c.SecondMessageReceived)
-                    .Repeat(r => r.For(SagaPersisters.Default))
+                    .Repeat(r => r.For(Persistence.Default))
                     .Should(c => Assert.AreEqual(c.FirstSagaInstance, c.SecondSagaInstance, "The same saga instance should be invoked invoked for both messages"))
 
                     .Run();

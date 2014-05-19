@@ -2,12 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using InMemory.SagaPersister;
-    using InMemory.SubscriptionStorage;
     using ObjectBuilder.Common;
     using ObjectBuilder.Common.Config;
     using Persistence;
-    using Persistence.Msmq.SubscriptionStorage;
     using ScenarioDescriptors;
     using Serializers.Binary;
     using Serializers.Json;
@@ -35,6 +32,32 @@
             var transportType = Type.GetType(settings["Transport"]);
 
             return config.UseTransport(transportType, () => settings["Transport.ConnectionString"]);
+        }
+
+        public static Configure DefinePersistence(this Configure config, IDictionary<string, string> settings)
+        {
+            if (!settings.ContainsKey("Persistence"))
+            {
+                settings = Persistence.Default.Settings;
+            }
+
+            var persistenceType = Type.GetType(settings["Persistence"]);
+
+
+            var typeName = "Configure" + persistenceType.Name + "Persistence";
+
+            var configurerType = Type.GetType(typeName, false);
+
+            if (configurerType != null)
+            {
+                var configurer = Activator.CreateInstance(configurerType);
+
+                dynamic dc = configurer;
+
+                dc.Configure(config);
+            }
+
+            return config.UsePersistence(persistenceType);
         }
 
         public static Configure DefineSerializer(this Configure config, string serializer)
@@ -73,78 +96,6 @@
             throw new InvalidOperationException("Unknown serializer:" + serializer);
         }
 
-        public static Configure DefineSagaPersister(this Configure config, string persister)
-        {
-            if (string.IsNullOrEmpty(persister))
-            {
-                persister = SagaPersisters.Default.Settings["SagaPersister"];
-            }
-
-            if (persister.Contains(typeof(InMemorySagaPersister).FullName))
-            {
-                return config.UsePersistence<InMemory>();
-            }
-
-            CallConfigureForPersister(config, persister);
-
-            return config;
-        }
-
-        public static Configure DefineSubscriptionStorage(this Configure config, string persister)
-        {
-            if (string.IsNullOrEmpty(persister))
-            {
-                persister = SubscriptionPersisters.Default.Settings["SubscriptionStorage"];
-            }
-
-            if (persister.Contains(typeof(InMemorySubscriptionStorage).FullName))
-            {
-                return config.UsePersistence<InMemory>();
-            }
-
-            if (persister.Contains(typeof(MsmqSubscriptionStorage).FullName))
-            {
-                return config.MsmqSubscriptionStorage();
-            }
-
-            CallConfigureForPersister(config, persister);
-
-            return config;
-        }
-
-        public static Configure DefineOutboxStorage(this Configure config)
-        {
-            config.Features.Enable<Features.Outbox>();
-            
-            var persister = OutboxPersisters.Default;
-
-            if (persister != null)
-            {
-                CallConfigureForPersister(config, persister.AssemblyQualifiedName);
-            }
-
-            return config;
-        }
-
-        static void CallConfigureForPersister(Configure config, string persister)
-        {
-            var type = Type.GetType(persister,true);
-
-            var typeName = "Configure" + type.Name;
-
-            var configurerType = Type.GetType(typeName, false);
-
-            if (configurerType == null)
-            {
-                return;
-            }
-
-            var configurer = Activator.CreateInstance(configurerType);
-
-            dynamic dc = configurer;
-
-            dc.Configure(config);
-        }
 
         public static Configure DefineBuilder(this Configure config, string builder)
         {

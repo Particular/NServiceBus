@@ -21,7 +21,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
         	Configure.Instance.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
 
-            bootstrapper.Run();
+            bootstrapper.Run(Configure.Instance);
 
             Assert.True(Configure.Instance.Configurer.HasComponent<IDataBus>());
         }
@@ -35,7 +35,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             IWantToRunBeforeConfigurationIsFinalized bootstrapper = new Bootstrapper();
 
-            bootstrapper.Run();
+            bootstrapper.Run(Configure.Instance);
 
             Assert.False(Configure.Instance.Configurer.HasComponent<IDataBus>());
         }
@@ -56,7 +56,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             IWantToRunBeforeConfigurationIsFinalized bootstrapper = new Bootstrapper();
 
-            Assert.Throws<InvalidOperationException>(bootstrapper.Run);
+            Assert.Throws<InvalidOperationException>(()=>bootstrapper.Run(Configure.Instance));
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             Configure.Instance.Configurer.ConfigureComponent<IDataBusSerializer>(() => new MyDataBusSerializer(),DependencyLifecycle.SingleInstance);
 
-            Assert.DoesNotThrow(bootstrapper.Run);
+            Assert.DoesNotThrow(()=>bootstrapper.Run(Configure.Instance));
         }
 
         class MyDataBusSerializer : IDataBusSerializer

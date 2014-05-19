@@ -6,7 +6,7 @@ namespace NServiceBus.Timeout.Core
     /// <summary>
     /// Holds timeout information.
     /// </summary>
-    public class TimeoutData : EventArgs
+    public class TimeoutData 
     {
         /// <summary>
         /// Id of this timeout
@@ -44,10 +44,10 @@ namespace NServiceBus.Timeout.Core
         public Dictionary<string, string> Headers { get; set; }
 
         /// <summary>
-        /// Returns a <see cref="T:System.String"/> that represents the current <see cref="T:System.Object"/>.
+        /// Returns a <see cref="String"/> that represents the current <see cref="Object"/>.
         /// </summary>
         /// <returns>
-        /// A <see cref="T:System.String"/> that represents the current <see cref="T:System.Object"/>.
+        /// A <see cref="String"/> that represents the current <see cref="Object"/>.
         /// </returns>
         /// <filterpriority>2</filterpriority>
         public override string ToString()

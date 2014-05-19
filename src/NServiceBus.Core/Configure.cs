@@ -24,11 +24,6 @@ namespace NServiceBus
     /// </summary>
     public class Configure
     {
-        static Configure()
-        {
-            ConfigurationSource = new DefaultConfigurationSource();
-        }
-
         /// <summary>
         /// Provides static access to the configuration object.
         /// </summary>
@@ -103,7 +98,7 @@ namespace NServiceBus
         /// <summary>
         /// Gets/sets the configuration source to be used.
         /// </summary>
-        public static IConfigurationSource ConfigurationSource { get; set; }
+        public IConfigurationSource ConfigurationSource { get; set; }
 
         /// <summary>
         /// Sets the current configuration source.
@@ -159,6 +154,7 @@ namespace NServiceBus
         /// </summary>
         protected Configure()
         {
+            ConfigurationSource = new DefaultConfigurationSource();
         }
 
         static Endpoint endpoint;
@@ -181,7 +177,7 @@ namespace NServiceBus
 
         static SerializationSettings serialization;
 
-        public static PipelineSettings Pipeline { get { return pipelineSettings ?? (pipelineSettings = new PipelineSettings()); } }
+        public PipelineSettings Pipeline { get { return pipelineSettings ?? (pipelineSettings = new PipelineSettings()); } }
 
         static PipelineSettings pipelineSettings;
 
@@ -327,7 +323,7 @@ namespace NServiceBus
                 return;
             }
 
-            ActivateAndInvoke<IWantToRunBeforeConfiguration>(t => t.Init());
+            ActivateAndInvoke<IWantToRunBeforeConfiguration>(t => t.Init(this));
 
             beforeConfigurationInitializersCalled = true;
         }
@@ -360,7 +356,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns the requested config section using the current configuration source.
         /// </summary>
-        public static T GetConfigSection<T>() where T : class,new()
+        public T GetConfigSection<T>() where T : class,new()
         {
             if (TypesToScan == null)
             {

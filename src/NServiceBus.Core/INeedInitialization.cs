@@ -9,6 +9,6 @@
         /// <summary>
         /// Implementers will include custom initialization code here.
         /// </summary>
-        void Init();
+        void Init(Configure config);
     }
 }

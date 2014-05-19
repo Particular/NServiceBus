@@ -31,9 +31,9 @@
             //first we override the default "extraction" behavior
             class MyOverride : INeedInitialization
             {
-                public void Init()
+                public void Init(Configure config)
                 {
-                    Configure.Pipeline.Replace(WellKnownBehavior.ExtractLogicalMessages, typeof(MyRawMessageHandler));
+                    config.Pipeline.Replace(WellKnownBehavior.ExtractLogicalMessages, typeof(MyRawMessageHandler));
                 }
             }
 
