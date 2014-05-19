@@ -14,7 +14,7 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
-                        b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
+                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
                         {
                             if (s.SubscriberReturnAddress.Queue.Contains("Subscriber3"))
                             {
@@ -44,7 +44,7 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
-                        b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
+                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
                         {
                             if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
                                 context.Subscriber1Subscribed = true;

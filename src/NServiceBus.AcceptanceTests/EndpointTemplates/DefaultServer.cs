@@ -9,6 +9,7 @@
     using Hosting.Helpers;
     using Logging;
     using NServiceBus;
+    using PubSub;
     using Settings;
 
     public class DefaultServer : IEndpointSetupTemplate
@@ -21,18 +22,17 @@
 
             var types = GetTypesToUse(endpointConfiguration);
 
-
             SettingsHolder.Instance.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
 
             var config = Configure.With(types)
-                            .DefineEndpointName(endpointConfiguration.EndpointName)
-                            .CustomConfigurationSource(configSource)
-                            .DefineBuilder(settings.GetOrNull("Builder"))
-                            .DefineSerializer(settings.GetOrNull("Serializer"))
-                            .DefineTransport(settings)
-                            .DefinePersistence(settings);
-
-
+                .DefineEndpointName(endpointConfiguration.EndpointName)
+                .CustomConfigurationSource(configSource)
+                .DefineBuilder(settings.GetOrNull("Builder"))
+                .DefineSerializer(settings.GetOrNull("Serializer"))
+                .DefineTransport(settings)
+                .DefinePersistence(settings);
+            config.Pipeline.Register<SubscriptionBehavior.Registration>();
+            config.Configurer.ConfigureComponent<SubscriptionBehavior>(DependencyLifecycle.InstancePerCall);
             return config.UnicastBus();
         }
 

@@ -25,7 +25,7 @@
                             }
                             else
                             {
-                                Subscriptions.OnEndpointSubscribed(s => bus.SendLocal(new StartSagaMessage { SomeId = context.Id }));
+                                SubscriptionBehavior.OnEndpointSubscribed(s => bus.SendLocal(new StartSagaMessage { SomeId = context.Id }));
                             }
 
                         });

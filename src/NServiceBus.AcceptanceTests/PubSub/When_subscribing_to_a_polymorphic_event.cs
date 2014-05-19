@@ -5,7 +5,6 @@
     using AcceptanceTesting;
     using Features;
     using NUnit.Framework;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     public class When_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest
     {
@@ -100,15 +99,14 @@
         {
             if (Feature.IsEnabled<MessageDrivenSubscriptions>())
             {
-                Configure.Instance.Builder.Build<MessageDrivenSubscriptionManager>().ClientSubscribed +=
-                    (sender, args) =>
-                    {
-                        if (args.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
-                            context.Subscriber1Subscribed = true;
+                SubscriptionBehavior.OnEndpointSubscribed(args =>
+                {
+                    if (args.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                        context.Subscriber1Subscribed = true;
 
-                        if (args.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
-                            context.Subscriber2Subscribed = true;
-                    };
+                    if (args.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
+                        context.Subscriber2Subscribed = true;
+                });
             }
         }
 

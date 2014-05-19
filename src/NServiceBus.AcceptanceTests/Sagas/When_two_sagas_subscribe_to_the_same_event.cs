@@ -16,8 +16,8 @@ namespace NServiceBus.AcceptanceTests.Sagas
         public void Should_invoke_all_handlers_on_all_sagas()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<EndpointThatHostsTwoSagas>(b => 
-                        b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
+                    .WithEndpoint<EndpointThatHostsTwoSagas>(b =>
+                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
                         {
                             if (s.SubscriberReturnAddress.Queue.Contains("Saga1"))
                             {

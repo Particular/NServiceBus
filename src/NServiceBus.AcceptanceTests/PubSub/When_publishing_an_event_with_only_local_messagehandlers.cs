@@ -13,7 +13,7 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<MessageDrivenPublisher>(b =>
-                                             b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
+                                             b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
                                                  {
                                                      context.LocalEndpointSubscribed = true;
                                                  }))

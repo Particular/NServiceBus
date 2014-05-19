@@ -15,7 +15,7 @@
             Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
                         b.Given((bus, context) =>
-                            Subscriptions.OnEndpointSubscribed(s =>
+                            SubscriptionBehavior.OnEndpointSubscribed(s =>
                             {
                                 if (s.SubscriberReturnAddress.Queue.Contains("myinputqueue"))
                                     context.Subscriber1Subscribed = true;

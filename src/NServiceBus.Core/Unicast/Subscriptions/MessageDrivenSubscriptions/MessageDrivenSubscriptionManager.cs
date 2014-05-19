@@ -126,14 +126,6 @@
                     {
                         mt
                     });
-                    if (ClientSubscribed != null)
-                    {
-                        ClientSubscribed(this, new SubscriptionEventArgs
-                        {
-                            MessageType = messageTypeString,
-                            SubscriberReturnAddress = subscriberAddress
-                        });
-                    }
                 }
 
                 return;
@@ -153,7 +145,6 @@
             });
         }
 
-        public event EventHandler<SubscriptionEventArgs> ClientSubscribed;
 
         static string GetSubscriptionMessageTypeFrom(TransportMessage msg)
         {

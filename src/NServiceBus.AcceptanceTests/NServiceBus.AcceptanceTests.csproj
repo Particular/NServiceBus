@@ -140,11 +140,12 @@
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
     <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
     <Compile Include="PipelineExtension\SkipDeserialization.cs" />
+    <Compile Include="PubSub\SubscriptionBehavior.cs" />
     <Compile Include="PubSub\When_multi_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="PubSub\When_publishing_an_event_with_overridden_local_address.cs" />
     <Compile Include="PubSub\When_publishing_an_event_with_only_local_messagehandlers.cs" />
     <Compile Include="PubSub\When_publishing_an_event_with_the_subscriber_scaled_out.cs" />
-    <Compile Include="PubSub\Subscriptions.cs" />
+    <Compile Include="PubSub\SubscriptionEventArgs.cs" />
     <Compile Include="PubSub\When_subscribing_to_a_base_event_from_different_publishers.cs" />
     <Compile Include="PubSub\When_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="PubSub\When_publishing_an_event_using_a_broker_transport_with_centralized_routing.cs" />

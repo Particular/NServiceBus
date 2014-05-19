@@ -14,7 +14,7 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<V2Publisher>(b =>
-                        b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
+                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
                             {
                                 if (s.SubscriberReturnAddress.Queue.Contains("V1Subscriber"))
                                     context.V1Subscribed = true;

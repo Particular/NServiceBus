@@ -15,7 +15,7 @@
 
             Scenario.Define(cc)
                .WithEndpoint<Publisher1>(b =>
-                        b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
+                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
                         {
                             if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
                                 context.SubscribedToPublisher1 = true;
@@ -23,7 +23,7 @@
                         .When(c => c.SubscribedToPublisher1, bus => bus.Publish(new DerivedEvent1()))
                      )
                 .WithEndpoint<Publisher2>(b =>
-                        b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
+                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
                         {
                             if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
                                 context.SubscribedToPublisher2 = true;

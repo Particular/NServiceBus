@@ -19,7 +19,7 @@
                     .WithEndpoint<SagaThatPublishesAnEvent>(b =>
                                                             b.Given(
                                                                 (bus, context) =>
-                                                                Subscriptions.OnEndpointSubscribed(s =>
+                                                                SubscriptionBehavior.OnEndpointSubscribed(s =>
                                                                     {
                                                                         if (s.SubscriberReturnAddress.Queue.Contains("SagaThatIsStartedByTheEvent"))
                                                                         {
@@ -61,7 +61,7 @@
                  .WithEndpoint<SagaThatPublishesAnEvent>(b =>
                                                          b.Given(
                                                              (bus, context) =>
-                                                             Subscriptions.OnEndpointSubscribed(s =>
+                                                             SubscriptionBehavior.OnEndpointSubscribed(s =>
                                                              {
                                                                  if (s.SubscriberReturnAddress.Queue.Contains("SagaThatIsStartedByABaseEvent"))
                                                                  {
