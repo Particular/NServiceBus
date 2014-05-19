@@ -114,7 +114,7 @@ namespace NServiceBus
 
         public FeatureSettings Features
         {
-            get { return features ?? (features = new FeatureSettings()); }
+            get { return features ?? (features = new FeatureSettings(this)); }
         }
 
         public static SerializationSettings Serialization
@@ -282,17 +282,7 @@ namespace NServiceBus
         //    return types.SelectMany(MessageHandlerRegistry.GetMessageTypesIfIsMessageHandler);
         //}
 
-        /// <summary>
-        ///     Run a custom action at configuration time - useful for performing additional configuration not exposed by the
-        ///     fluent interface.
-        /// </summary>
-        public Configure RunCustomAction(Action action)
-        {
-            action();
-
-            return this;
-        }
-
+     
         /// <summary>
         ///     Provides an instance to a startable bus.
         /// </summary>
@@ -357,10 +347,10 @@ namespace NServiceBus
 
             ActivateAndInvoke<INeedInitialization>(t => t.Init(this));
 
-            // HACK: I need this guy to run before IWantToRunBeforeConfigurationIsFinalized
-            new FeatureInitializer().Run(this);
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run(this));
+            
+            Features.DisableFeaturesAsNeeded();
 
             ForAllTypes<INeedToInstallSomething<Windows>>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 

@@ -9,56 +9,10 @@
 
     class FeatureInitializer : IFinalizeConfiguration
     {
-        /// <summary>
-        /// Go trough all conditional features and figure out if the should be enabled or not
-        /// </summary>
-        public void Run(Configure config)
-        {
-            var features = config.Features;
-
-            DisableFeaturesThatAskedToBeDisabled(config);
-
-            DisableFeaturesThatAreDependingOnDisabledFeatures(features);
-        }
-
         public void FinalizeConfiguration(Configure config)
         {
             InitializeFeatures(config.Features);
             InitializeFeaturesControlledByCategories();
-        }
-
-        static void DisableFeaturesThatAskedToBeDisabled(Configure config)
-        {
-            foreach (var feature in config.Features)
-            {
-                if (!Feature.IsEnabled(feature.GetType()))
-                {
-                    if (feature.IsEnabledByDefault)
-                    {
-                        Logger.InfoFormat("Default feature {0} has been explicitly disabled", feature.Name);
-                    }
-
-                    continue;
-                }
-
-                if (!feature.ShouldBeEnabled(config))
-                {
-                    Feature.Disable(feature.GetType());
-                    Logger.DebugFormat("Default feature {0} has requested to be disabled", feature.Name);
-                }
-            }
-        }
-
-        static void DisableFeaturesThatAreDependingOnDisabledFeatures(IEnumerable<Feature> features)
-        {
-            features
-                 .Where(f => f.Dependencies.Any(dependency => !Feature.IsEnabled(dependency)))
-                 .ToList()
-                 .ForEach(toBeDisabled =>
-                 {
-                     Feature.Disable(toBeDisabled.GetType());
-                     Logger.InfoFormat("Feature {0} has been disabled since its depending on the following disabled features: {1}", toBeDisabled.Name, string.Join(",", toBeDisabled.Dependencies.Where(d => !Feature.IsEnabled(d))));
-                 });
         }
 
         static void InitializeFeatures(IEnumerable<Feature> features)
