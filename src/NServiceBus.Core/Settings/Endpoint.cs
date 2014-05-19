@@ -25,7 +25,16 @@ namespace NServiceBus.Settings
     /// </summary>
     public class Endpoint
     {
-        private readonly EndpointAdvancedSettings endpointAdvancedSettings = new EndpointAdvancedSettings();
+        readonly Configure config;
+
+        readonly EndpointAdvancedSettings endpointAdvancedSettings;
+
+        public Endpoint(Configure config)
+        {
+            this.config = config;
+
+            endpointAdvancedSettings = new EndpointAdvancedSettings(config);
+        }
 
         /// <summary>
         ///     Tells the endpoint to not enforce durability (using InMemory storages, non durable messages, ...).
@@ -34,8 +43,8 @@ namespace NServiceBus.Settings
         {
             PersistenceConfig.DefaultTo<InMemory>();
 
-            Configure.Instance.Transactions.Disable();
-            Configure.Instance.Transactions.Advanced(s => s.DoNotWrapHandlersExecutionInATransactionScope()
+            config.Transactions.Disable();
+            config.Transactions.Advanced(s => s.DoNotWrapHandlersExecutionInATransactionScope()
                                                   .DisableDistributedTransactions());
 
             Advanced(settings => settings.DisableDurableMessages());
@@ -51,8 +60,8 @@ namespace NServiceBus.Settings
         /// </remarks>
         public Endpoint AsSendOnly()
         {
-            SettingsHolder.Instance.Set("Endpoint.SendOnly", true);
-            Feature.Disable<TimeoutManager>();
+            config.Settings.Set("Endpoint.SendOnly", true);
+            config.Features.Disable<TimeoutManager>();
             return this;
         }
 
@@ -71,12 +80,19 @@ namespace NServiceBus.Settings
         /// </summary>
         public class EndpointAdvancedSettings
         {
+            readonly Configure config;
+
+            public EndpointAdvancedSettings(Configure config)
+            {
+                this.config = config;
+            }
+
             /// <summary>
             /// Configures endpoint with messages guaranteed to be delivered in the event of a computer failure or network problem.
             /// </summary>
             public EndpointAdvancedSettings EnableDurableMessages()
             {
-                SettingsHolder.Instance.Set("Endpoint.DurableMessages", true);
+                config.Settings.Set("Endpoint.DurableMessages", true);
                 return this;
             }
 
@@ -85,7 +101,7 @@ namespace NServiceBus.Settings
             /// </summary>
             public EndpointAdvancedSettings DisableDurableMessages()
             {
-                SettingsHolder.Instance.Set("Endpoint.DurableMessages", false);
+                config.Settings.Set("Endpoint.DurableMessages", false);
                 return this;
             }
         }

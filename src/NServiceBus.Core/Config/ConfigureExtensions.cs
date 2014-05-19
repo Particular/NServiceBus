@@ -13,7 +13,7 @@ namespace NServiceBus
         /// </remarks>
         public static IBus SendOnly(this Configure config)
         {
-            Configure.Endpoint.AsSendOnly();
+            config.Endpoint.AsSendOnly();
 
             config.Initialize();
             return config.Builder.Build<IBus>();

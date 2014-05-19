@@ -3,6 +3,7 @@
     using System;
     using Contexts;
     using NUnit.Framework;
+    using Settings;
 
     [TestFixture]
     class When_sending_a_message_in_send_only_mode : using_a_configured_unicastBus
@@ -10,7 +11,7 @@
         [Test]
         public void Should_be_allowed()
         {
-            Configure.Endpoint.AsSendOnly();
+            SettingsHolder.Instance.Set("Endpoint.SendOnly", true);
             RegisterMessageType<TestMessage>();
             bus.Send(Address.Local, new TestMessage());
         }
@@ -21,7 +22,7 @@
         [Test]
         public void Should_not_be_allowed()
         {
-            Configure.Endpoint.AsSendOnly(); 
+            SettingsHolder.Instance.Set("Endpoint.SendOnly", true);
             RegisterMessageType<TestMessage>();
             Assert.Throws<InvalidOperationException>(() => bus.Subscribe<TestMessage>());
         }
@@ -33,7 +34,7 @@
         [Test]
         public void Should_not_be_allowed()
         {
-            Configure.Endpoint.AsSendOnly();
+            SettingsHolder.Instance.Set("Endpoint.SendOnly", true);
 
             RegisterMessageType<TestMessage>();
             Assert.Throws<InvalidOperationException>(() => bus.Unsubscribe<TestMessage>());

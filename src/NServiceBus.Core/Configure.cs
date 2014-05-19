@@ -97,9 +97,9 @@ namespace NServiceBus
             }
         }
 
-        public static Endpoint Endpoint
+        public Endpoint Endpoint
         {
-            get { return endpoint ?? (endpoint = new Endpoint()); }
+            get { return endpoint ?? (endpoint = new Endpoint(this)); }
         }
 
         public TransactionSettings Transactions
@@ -583,7 +583,7 @@ namespace NServiceBus
         }
 
         static bool configSectionOverridesInitialized;
-        static Endpoint endpoint;
+        Endpoint endpoint;
         TransactionSettings transactionSetting;
         FeatureSettings features;
         SerializationSettings serialization;
