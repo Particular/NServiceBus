@@ -4,16 +4,13 @@
 
     public class OutboxMessage
     {
-        public OutboxMessage(string messageId, bool dispatched = false)
+        public OutboxMessage(string messageId)
         {
             Id = messageId;
-            Dispatched = dispatched;
         }
 
         public string Id { get; private set; }
        
-        public bool Dispatched { get; private set; }
-   
         public List<TransportOperation> TransportOperations
         {
             get

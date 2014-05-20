@@ -28,16 +28,7 @@
                 next();
             }
 
-            if (outboxMessage.Dispatched)
-            {
-                return;
-            }
-
-            context.Set("Outbox_StartDispatching", true);
-
             DispatchOperationToTransport(outboxMessage.TransportOperations);
-
-            OutboxStorage.SetAsDispatched(messageId);
         }
 
         void DispatchOperationToTransport(IEnumerable<TransportOperation> operations)

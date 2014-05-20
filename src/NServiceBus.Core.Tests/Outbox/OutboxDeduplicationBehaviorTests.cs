@@ -32,32 +32,7 @@
         FakeOutboxStorage fakeOutbox;
         OutboxDeduplicationBehavior behavior;
 
-        [Test]
-        public void Should_mark_outbox_message_as_stored_when_successfully_processing_a_message()
-        {
-            var incomingTransportMessage = new TransportMessage();
-            var context = new IncomingContext(null, incomingTransportMessage);
-
-            Invoke(context);
-
-            Assert.True(context.Get<bool>("Outbox_StartDispatching"), "Outbox message should be flaged as dispatching");
-            Assert.True(fakeOutbox.Dispatched);
-        }
-
-        [Test]
-        public void Should_not_dispatch_already_dispatched_messages()
-        {
-            var incomingTransportMessage = new TransportMessage();
-
-            fakeOutbox.ExistingMessage = new OutboxMessage(incomingTransportMessage.Id, true);
-            fakeOutbox.ThrowOnDispatch();
-            var context = new IncomingContext(null, incomingTransportMessage);
-
-            Invoke(context);
-
-            Assert.True(fakeOutbox.ExistingMessage.Dispatched);
-            Assert.Null(fakeOutbox.StoredMessage);
-        }
+     
 
         [Test]
         public void Should_shortcut_the_pipeline_if_existing_message_is_found()
@@ -70,7 +45,6 @@
 
             Invoke(context);
 
-            Assert.True(fakeOutbox.ExistingMessage.Dispatched);
             Assert.Null(fakeOutbox.StoredMessage);
         }
     }

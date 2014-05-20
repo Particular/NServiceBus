@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
-    using System;
     using System.Collections.Generic;
     using Outbox;
 
@@ -8,7 +7,6 @@
     {
         public OutboxMessage ExistingMessage { get; set; }
         public OutboxMessage StoredMessage { get; set; }
-        public bool Dispatched { get; set; }
 
         public bool TryGet(string messageId, out OutboxMessage message)
         {
@@ -28,30 +26,5 @@
             StoredMessage = new OutboxMessage(messageId);
             StoredMessage.TransportOperations.AddRange(transportOperations);
         }
-
-        public void SetAsDispatched(string messageId)
-        {
-            if (throwOnDispatch)
-            {
-                throw new InvalidOperationException("Dispatch should not be invoked");
-            }
-
-            Dispatched = true;
-            
-            if (ExistingMessage != null)
-            {
-                if (ExistingMessage.Id == messageId)
-                {
-                    ExistingMessage = new OutboxMessage(messageId, true);
-                }
-            }
-        }
-
-        public void ThrowOnDispatch()
-        {
-            throwOnDispatch = true;
-        }
-
-        bool throwOnDispatch;
     }
 }
