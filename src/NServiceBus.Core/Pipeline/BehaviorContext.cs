@@ -89,13 +89,7 @@
 
         public void Remove(string key)
         {
-            if (!stash.Remove(key))
-            {
-                if (parentContext != null)
-                {
-                    parentContext.Remove(key);
-                }
-            }
+            stash.Remove(key);
         }
 
         protected readonly BehaviorContext parentContext;
