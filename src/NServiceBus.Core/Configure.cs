@@ -266,8 +266,6 @@ namespace NServiceBus
 
             EndpointHelper.StackTraceToExamine = new StackTrace();
 
-            instance.InvokeISetDefaultSettings();
-
             return instance;
         }
 
@@ -291,18 +289,6 @@ namespace NServiceBus
             }
 
             return Builder.Build<IStartableBus>();
-        }
-
-        void InvokeISetDefaultSettings()
-        {
-            if (invokeISetDefaultSettingsCalled)
-            {
-                return;
-            }
-
-            ForAllTypes<ISetDefaultSettings>(t => Activator.CreateInstance(t));
-
-            invokeISetDefaultSettingsCalled = true;
         }
 
         void InvokeBeforeConfigurationInitializers()
@@ -611,6 +597,5 @@ namespace NServiceBus
         IBuilder builder;
         internal IConfigurationSource configurationSource;
         IConfigureComponents configurer;
-        bool invokeISetDefaultSettingsCalled;
     }
 }

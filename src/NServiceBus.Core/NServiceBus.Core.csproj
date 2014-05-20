@@ -332,7 +332,6 @@
     <Compile Include="Persistence\Raven\StoreAccessor.cs" />
     <Compile Include="Sagas\Sagas.cs" />
     <Compile Include="Satellites\IAdvancedSatellite.cs" />
-    <Compile Include="Settings\ISetDefaultSettings.cs" />
     <Compile Include="Settings\SettingsHolder.cs" />
     <Compile Include="Transports\IConfigureTransport.cs" />
     <Compile Include="Transports\ICreateQueues.cs" />

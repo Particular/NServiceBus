@@ -1,15 +1,14 @@
 namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
-    using Settings;
 
-    class DefaultPipelineSettings : ISetDefaultSettings
+    class DefaultPipelineSettings : IWantToRunBeforeConfiguration
     {
-        public DefaultPipelineSettings()
+        public void Init(Configure configure)
         {
-            SettingsHolder.Instance.SetDefault("Pipeline.Removals", new List<RemoveBehavior>());
-            SettingsHolder.Instance.SetDefault("Pipeline.Replacements", new List<ReplaceBehavior>());
-            SettingsHolder.Instance.SetDefault("Pipeline.Additions", new List<RegisterBehavior>());
+            configure.Settings.SetDefault("Pipeline.Removals", new List<RemoveBehavior>());
+            configure.Settings.SetDefault("Pipeline.Replacements", new List<ReplaceBehavior>());
+            configure.Settings.SetDefault("Pipeline.Additions", new List<RegisterBehavior>());
         }
     }
 }

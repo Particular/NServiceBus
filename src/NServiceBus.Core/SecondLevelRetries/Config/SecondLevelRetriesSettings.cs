@@ -3,11 +3,11 @@ namespace NServiceBus.SecondLevelRetries.Config
     using System;
     using Settings;
 
-    public class SecondLevelRetriesSettings:ISetDefaultSettings
+    public class SecondLevelRetriesSettings : IWantToRunBeforeConfiguration
     {
-        public SecondLevelRetriesSettings()
+        public void Init(Configure configure)
         {
-            SettingsHolder.Instance.SetDefault("SecondLevelRetries.RetryPolicy", DefaultRetryPolicy.RetryPolicy);
+           configure.Settings.SetDefault("SecondLevelRetries.RetryPolicy", DefaultRetryPolicy.RetryPolicy);
         }
 
         public void CustomRetryPolicy(Func<TransportMessage, TimeSpan> customPolicy)

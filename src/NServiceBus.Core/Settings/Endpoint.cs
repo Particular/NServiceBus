@@ -4,19 +4,19 @@ namespace NServiceBus.Settings
     using Features;
     using Persistence;
 
-    class DefaultEndpointSettings: ISetDefaultSettings
+    class DefaultEndpointSettings : IWantToRunBeforeConfiguration
     {
-        public DefaultEndpointSettings()
+        public void Init(Configure configure)
         {
-            SettingsHolder.Instance.SetDefault("Endpoint.SendOnly", false);
+            configure.Settings.SetDefault("Endpoint.SendOnly", false);
         }
     }
 
-    class DefaultEndpointAdvancedSettings : ISetDefaultSettings
+    class DefaultEndpointAdvancedSettings : IWantToRunBeforeConfiguration
     {
-        public DefaultEndpointAdvancedSettings()
+        public void Init(Configure configure)
         {
-            SettingsHolder.Instance.SetDefault("Endpoint.DurableMessages", true);
+            configure.Settings.SetDefault("Endpoint.DurableMessages", true);
         }
     }
 
