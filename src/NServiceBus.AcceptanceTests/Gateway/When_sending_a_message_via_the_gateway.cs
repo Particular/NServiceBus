@@ -25,7 +25,7 @@
                     webRequest.UserAgent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)";
 
                     webRequest.Headers.Add("Content-Encoding", "utf-8");
-                    webRequest.Headers.Add("NServiceBus.CallType", "Submit");
+                    webRequest.Headers.Add("NServiceBus.CallType", "SingleCallSubmit");
                     webRequest.Headers.Add("NServiceBus.AutoAck", "true");
                     webRequest.Headers.Add("MySpecialHeader", "MySpecialValue");
                     webRequest.Headers.Add("NServiceBus.Id", Guid.NewGuid().ToString("N"));
@@ -83,7 +83,6 @@
             {
                 EndpointSetup<DefaultServer>(c => c.Features.Enable<Features.Gateway>())
                     .IncludeType<MyRequest>()
-                    .AllowExceptions()
                     .WithConfig<GatewayConfig>(c =>
                     {
                         c.Channels = new ChannelCollection
