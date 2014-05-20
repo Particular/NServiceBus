@@ -129,7 +129,7 @@ namespace NServiceBus.Pipeline
                         }
                         else
                         {
-                            var message = string.Format("Registration '{0}' specified in the insertbefore of the '{1}' behavior does not exist!", beforeReference, node.Rego.Id);
+                            var message = string.Format("Registration '{0}' specified in the insertbefore of the '{1}' behavior does not exist!", beforeReference.Id, node.Rego.Id);
 
                             if (!beforeReference.Enforce)
                             {
@@ -154,7 +154,7 @@ namespace NServiceBus.Pipeline
                         }
                         else
                         {
-                            var message = string.Format("Registration '{0}' specified in the insertafter of the '{1}' behavior does not exist!", afterReference, node.Rego.Id);
+                            var message = string.Format("Registration '{0}' specified in the insertafter of the '{1}' behavior does not exist!", afterReference.Id, node.Rego.Id);
 
                             if (!afterReference.Enforce)
                             {
