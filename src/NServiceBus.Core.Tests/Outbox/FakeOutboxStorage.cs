@@ -26,5 +26,10 @@
             StoredMessage = new OutboxMessage(messageId);
             StoredMessage.TransportOperations.AddRange(transportOperations);
         }
+
+        public void SetAsDispatched(string messageId)
+        {
+            //no op
+        }
     }
 }

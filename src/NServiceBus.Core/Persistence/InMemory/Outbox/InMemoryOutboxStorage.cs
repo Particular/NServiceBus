@@ -2,7 +2,6 @@
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
     using NServiceBus.Outbox;
     using Persistence;
 
@@ -34,18 +33,7 @@
 
         public void SetAsDispatched(string messageId)
         {
-            var expectedState = new StoredMessage(messageId, Enumerable.Empty<TransportOperation>());
-            StoredMessage storedMessage;
-
-            storage.TryGetValue(messageId, out storedMessage);
-
-            if (!storage.TryUpdate(messageId, new StoredMessage(messageId, storedMessage.TransportOperations)
-            {
-                Dispatched = true
-            }, expectedState))
-            {
-                throw new ConcurrencyException(string.Format("Outbox message with id '{0}' is has already been updated by another thread.", messageId));
-            }
+            //no op since this is only relevant for cleanups
         }
 
         ConcurrentDictionary<string, StoredMessage> storage = new ConcurrentDictionary<string, StoredMessage>();
