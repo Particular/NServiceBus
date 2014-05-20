@@ -10,6 +10,7 @@
     using NServiceBus;
     using NServiceBus.Features;
     using Encryption;
+    using NServiceBus.Persistence;
     using NServiceBus.Unicast.Transport;
     using Saga;
     using System;
@@ -54,8 +55,9 @@
                 endpointName += ".SuppressDTC";
 
             var config = Configure.With()
-                                  .DefineEndpointName(endpointName)
-                                  .DefaultBuilder();
+                .DefineEndpointName(endpointName)
+                .DefaultBuilder()
+                .UsePersistence<InMemory>();
 
             switch (args[2].ToLower())
             {
