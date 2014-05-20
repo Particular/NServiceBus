@@ -7,7 +7,6 @@
     using NUnit.Framework;
     using PubSub;
     using Saga;
-    using ScenarioDescriptors;
 
     public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTest
     {
@@ -35,7 +34,6 @@
 
                     })
                     .Done(c => c.TimeoutReceived)
-                    .Repeat(r => r.For(Transports.Default))
                     .Run();
         }
 

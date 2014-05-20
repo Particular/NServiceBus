@@ -150,8 +150,8 @@ namespace NServiceBus.Pipeline
 
     class Dependency
     {
-        public string Id { get; set; }
-        public bool Enforce { get; set; }
+        public string Id { get; private set; }
+        public bool Enforce { get; private set; }
 
         public Dependency(string id, bool enforce)
         {

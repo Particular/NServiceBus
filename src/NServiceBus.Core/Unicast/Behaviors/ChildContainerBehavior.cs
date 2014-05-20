@@ -1,6 +1,7 @@
 namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using ObjectBuilder;
     using Pipeline;
     using Pipeline.Contexts;
 
@@ -11,7 +12,14 @@ namespace NServiceBus.Unicast.Behaviors
             using (var childBuilder = context.Builder.CreateChildBuilder())
             {
                 context.Set(childBuilder);
-                next();
+                try
+                {
+                    next();
+                }
+                finally
+                {
+                    context.Remove<IBuilder>();
+                }
             }
         }
     }
