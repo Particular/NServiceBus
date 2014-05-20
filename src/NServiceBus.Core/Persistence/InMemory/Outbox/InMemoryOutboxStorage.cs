@@ -2,6 +2,7 @@
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using NServiceBus.Outbox;
     using Persistence;
 
@@ -25,7 +26,7 @@
 
         public void Store(string messageId, IEnumerable<TransportOperation> transportOperations)
         {
-            if (!storage.TryAdd(messageId, new StoredMessage(messageId, transportOperations)))
+            if (!storage.TryAdd(messageId, new StoredMessage(messageId, transportOperations.ToList())))
             {
                 throw new ConcurrencyException(string.Format("Outbox message with id '{0}' is already present in storage.", messageId));
             }
@@ -33,14 +34,21 @@
 
         public void SetAsDispatched(string messageId)
         {
-            //no op since this is only relevant for cleanups
+            StoredMessage storedMessage;
+
+            if (!storage.TryGetValue(messageId, out storedMessage))
+            {
+                return;
+            }
+
+            storedMessage.TransportOperations.Clear();
         }
 
         ConcurrentDictionary<string, StoredMessage> storage = new ConcurrentDictionary<string, StoredMessage>();
 
         class StoredMessage
         {
-            public StoredMessage(string messageId, IEnumerable<TransportOperation> transportOperations)
+            public StoredMessage(string messageId, IList<TransportOperation> transportOperations)
             {
                 this.transportOperations = transportOperations;
                 Id = messageId;
@@ -50,7 +58,7 @@
 
             public bool Dispatched { get; set; }
 
-            public IEnumerable<TransportOperation> TransportOperations
+            public IList<TransportOperation> TransportOperations
             {
                 get { return transportOperations; }
             }
@@ -85,7 +93,7 @@
                 }
             }
 
-            readonly IEnumerable<TransportOperation> transportOperations;
+            readonly IList<TransportOperation> transportOperations;
         }
     }
 }

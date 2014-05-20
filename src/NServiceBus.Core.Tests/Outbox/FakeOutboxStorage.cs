@@ -12,7 +12,7 @@
         {
             message = null;
 
-            if (ExistingMessage != null && ExistingMessage.Id == messageId)
+            if (ExistingMessage != null && ExistingMessage.MessageId == messageId)
             {
                 message = ExistingMessage;
                 return true;

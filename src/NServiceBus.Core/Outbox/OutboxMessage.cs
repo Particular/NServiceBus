@@ -6,10 +6,10 @@
     {
         public OutboxMessage(string messageId)
         {
-            Id = messageId;
+            MessageId = messageId;
         }
 
-        public string Id { get; private set; }
+        public string MessageId { get; private set; }
        
         public List<TransportOperation> TransportOperations
         {

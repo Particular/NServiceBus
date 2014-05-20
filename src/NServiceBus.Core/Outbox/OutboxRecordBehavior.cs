@@ -4,7 +4,7 @@ namespace NServiceBus.Outbox
     using Pipeline;
     using Pipeline.Contexts;
 
-    public class OutboxRecordBehavior : IBehavior<IncomingContext>
+    class OutboxRecordBehavior : IBehavior<IncomingContext>
     {
         public IOutboxStorage OutboxStorage { get; set; }
 
