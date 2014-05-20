@@ -67,7 +67,7 @@
             coordinator.Register(WellKnownBehavior.AuditForwarder, typeof(AuditBehavior), "Forward message to audit queue after message is successfully processed");
             coordinator.Register("ForwardMessageTo", typeof(ForwardBehavior), "Forwards message to");
             coordinator.Register(WellKnownBehavior.UnitOfWork, typeof(UnitOfWorkBehavior), "Executes the UoW");
-            coordinator.Register("SubscriptionReceiverBehavior", typeof(SubscriptionReceiverBehavior), "Check for subscription messages");
+            coordinator.Register("SubscriptionReceiver", typeof(SubscriptionReceiverBehavior), "Check for subscription messages");
             coordinator.Register(WellKnownBehavior.MutateIncomingTransportMessage, typeof(ApplyIncomingTransportMessageMutatorsBehavior), "Executes IMutateIncomingTransportMessages");
             coordinator.Register("RemoveHeaders", typeof(RemoveIncomingHeadersBehavior), "For backward compatibility we need to remove some headers from the incoming message");
             coordinator.Register("CallBack", typeof(CallbackInvocationBehavior), "Updates the callback inmemory dictionary");
