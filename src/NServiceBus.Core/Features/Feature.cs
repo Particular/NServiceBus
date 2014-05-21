@@ -54,7 +54,7 @@
         }
 
         /// <summary>
-        /// Enables the give feature
+        /// Enables the given feature
         /// </summary>
         public static void Enable<T>() where T : Feature
         {
@@ -62,7 +62,7 @@
         }
 
         /// <summary>
-        /// Enables the give feature
+        /// Enables the given feature
         /// </summary>
         public static void Enable(Type featureType)
         {
@@ -70,7 +70,7 @@
         }
 
         /// <summary>
-        /// Enables the give feature unless explicitly disabled
+        /// Enables the given feature unless explicitly disabled
         /// </summary>
         public static void EnableByDefault<T>() where T : Feature
         {
@@ -78,7 +78,7 @@
         }
 
         /// <summary>
-        /// Enables the give feature unless explicitly disabled
+        /// Enables the given feature unless explicitly disabled
         /// </summary>
         public static void EnableByDefault(Type featureType)
         {
