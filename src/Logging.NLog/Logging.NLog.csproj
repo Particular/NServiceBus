@@ -19,20 +19,20 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\binaries\containers\NLog\</OutputPath>
+    <OutputPath>..\..\binaries\logging\NLog\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\binaries\containers\NLog\NServiceBus.NLog.xml</DocumentationFile>
+    <DocumentationFile>..\..\binaries\logging\NLog\NServiceBus.NLog.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\binaries\containers\NLog\</OutputPath>
+    <OutputPath>..\..\binaries\logging\NLog\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\binaries\containers\NLog\NServiceBus.NLog.xml</DocumentationFile>
+    <DocumentationFile>..\..\binaries\logging\NLog\NServiceBus.NLog.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NLog">
