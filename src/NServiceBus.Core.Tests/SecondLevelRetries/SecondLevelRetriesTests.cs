@@ -6,6 +6,7 @@
     using SecondLevelRetries.Helpers;
     using NUnit.Framework;
     using Transports;
+    using Unicast;
 
     [TestFixture]
     public class SecondLevelRetriesTests
@@ -151,15 +152,9 @@
 
         public TransportMessage DeferredMessage { get; set; }
 
-        public void Defer(TransportMessage message, DateTime processAt, Address address)
+        public void Defer(TransportMessage message, SendOptions sendOptions)
         {
-            MessageRoutedTo = address;
-            DeferredMessage = message;
-        }
-
-        public void Defer(TransportMessage message, TimeSpan delayBy, Address address)
-        {
-            MessageRoutedTo = address;
+            MessageRoutedTo = sendOptions.Destination;
             DeferredMessage = message;
         }
 

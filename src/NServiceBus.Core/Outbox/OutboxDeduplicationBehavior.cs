@@ -39,6 +39,7 @@
             {
                 var metadata = MessageMetadataRegistry.GetMessageMetadata(transportOperation.MessageType);
 
+                transportOperation.SendOptions.EnlistInReceiveTransaction = false;
                 //dispatch to transport
                 DispatchMessageToTransportBehavior.InvokeNative(transportOperation.SendOptions, transportOperation.Message, metadata);
             }

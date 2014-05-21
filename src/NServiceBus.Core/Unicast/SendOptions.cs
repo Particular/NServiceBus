@@ -10,6 +10,7 @@ namespace NServiceBus.Unicast
         {
             Intent = MessageIntentEnum.Send;
             EnforceMessagingBestPractices = true;
+            EnlistInReceiveTransaction = true;
         }
 
         public SendOptions(Address destination):this()
@@ -41,6 +42,7 @@ namespace NServiceBus.Unicast
         }
 
         public bool EnforceMessagingBestPractices { get; set; }
+        internal bool EnlistInReceiveTransaction { get; set; }
 
 
         public static SendOptions ReplyTo(Address replyToAddress)

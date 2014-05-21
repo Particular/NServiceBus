@@ -68,7 +68,7 @@
                 if (sendOptions.DelayDeliveryWith > TimeSpan.Zero)
                 {
                     SetIsDeferredHeader(messageToSend);
-                    MessageDeferral.Defer(messageToSend, sendOptions.DelayDeliveryWith.Value, sendOptions.Destination);
+                    MessageDeferral.Defer(messageToSend, sendOptions);
                 }
                 else
                 {
@@ -84,7 +84,7 @@
                 if (deliverAt > DateTime.UtcNow)
                 {
                     SetIsDeferredHeader(messageToSend);
-                    MessageDeferral.Defer(messageToSend, deliverAt, sendOptions.Destination);
+                    MessageDeferral.Defer(messageToSend, sendOptions);
                 }
                 else
                 {

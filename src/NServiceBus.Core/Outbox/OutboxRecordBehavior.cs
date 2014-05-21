@@ -12,10 +12,9 @@ namespace NServiceBus.Outbox
         {
             next();
 
-            var messageId = context.PhysicalMessage.Id;
             var outboxMessage = context.Get<OutboxMessage>();
 
-            OutboxStorage.Store(messageId, outboxMessage.TransportOperations);
+            OutboxStorage.Store(outboxMessage.MessageId, outboxMessage.TransportOperations);
         }
     }
 }

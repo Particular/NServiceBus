@@ -8,6 +8,7 @@ namespace NServiceBus.SecondLevelRetries
     using Logging;
     using Satellites;
     using Transports;
+    using Unicast;
 
     public class SecondLevelRetriesProcessor : ISatellite
     {
@@ -81,7 +82,13 @@ namespace NServiceBus.SecondLevelRetries
 
             logger.DebugFormat("Defer message and send it to {0}", addressOfFaultingEndpoint);
 
-            MessageDeferrer.Defer(message, retryMessageAt, addressOfFaultingEndpoint);
+            var sendOptions = new SendOptions(addressOfFaultingEndpoint)
+            {
+                DeliverAt = retryMessageAt
+            };
+
+
+            MessageDeferrer.Defer(message, sendOptions);
         }
 
         static ILog logger = LogManager.GetLogger<SecondLevelRetriesProcessor>();
