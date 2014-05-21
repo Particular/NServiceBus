@@ -7,6 +7,7 @@ namespace NServiceBus.Persistence.Raven.SagaPersister
     using global::Raven.Abstractions.Commands;
     using global::Raven.Client;
     using Saga;
+    using NServiceBus.Logging;
 
     public class RavenSagaPersister //: ISagaPersister
     {
@@ -15,6 +16,8 @@ namespace NServiceBus.Persistence.Raven.SagaPersister
         readonly RavenSessionFactory sessionFactory;
 
         protected IDocumentSession Session { get { return sessionFactory.Session; } }
+        
+        private static readonly ILog log = LogManager.GetLogger(typeof(RavenSagaPersister));
 
         public RavenSagaPersister(RavenSessionFactory sessionFactory)
         {
@@ -67,6 +70,7 @@ namespace NServiceBus.Persistence.Raven.SagaPersister
             if (IsUniqueProperty<T>(property))
                 return GetByUniqueProperty<T>(property, value);
 
+            log.Warn("Because RavenDB can only guarantee ACID on Load/Store by Id operations, it is not advisable to attempt to load a Saga by a property not marked as [Unique] as it will force Raven to query its eventually consistent indexes instead.");
             return GetByQuery<T>(property, value).FirstOrDefault();
         }
 
