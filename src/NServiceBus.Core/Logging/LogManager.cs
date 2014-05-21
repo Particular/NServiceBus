@@ -1,11 +1,10 @@
 namespace NServiceBus.Logging
 {
     using System;
-    using Loggers;
 
     public class LogManager
     {
-        static ILoggerFactory loggerFactory = new NullLoggerFactory();
+        static ILoggerFactory loggerFactory = new DefaultLoggerFactory(LogLevel.Info, null);
 
         public static ILoggerFactory LoggerFactory
         {

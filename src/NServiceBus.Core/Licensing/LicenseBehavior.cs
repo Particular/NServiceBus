@@ -2,7 +2,7 @@
 {
     using System;
     using System.Diagnostics;
-    using log4net;
+    using Logging;
     using Pipeline;
     using Pipeline.Contexts;
 

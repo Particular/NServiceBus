@@ -143,6 +143,7 @@
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="AttributeTests.cs" />
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
+    <Compile Include="Logging\Class1.cs" />
     <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniqueProperties.cs" />
     <Compile Include="Persistence\InMemory\AnotherSimpleSageEntity.cs" />
     <Compile Include="Persistence\InMemory\SagaWithTwoUniqueProperties.cs" />
@@ -168,7 +169,6 @@
     <Compile Include="Sagas\When_receiving_a_message_that_is_not_set_to_start_a_saga.cs" />
     <Compile Include="Sagas\When_receiving_a_timeout_message.cs" />
     <Compile Include="Sagas\When_sending_messages_from_a_saga.cs" />
-    <Compile Include="SetLoggingLibraryTests.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReaderTests.cs" />
     <Compile Include="GitFlowVersionTests.cs" />
     <Compile Include="StringStreamExtensions.cs" />
