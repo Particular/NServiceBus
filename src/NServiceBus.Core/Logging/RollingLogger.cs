@@ -14,7 +14,7 @@ namespace NServiceBus.Logging
         string targetDirectory;
         int numberOfArchiveFilesToKeep;
         long maxFileSize;
-        const long fileLimitInBytes = 100L * 1024 * 1024; //100MB
+        const long fileLimitInBytes = 10L * 1024 * 1024; //10MB
         internal Func<DateTime> GetDate = () => DateTime.Now.Date;
         DateTime lastWriteDate;
         long currentFileSize;
