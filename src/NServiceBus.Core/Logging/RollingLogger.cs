@@ -8,7 +8,6 @@ namespace NServiceBus.Logging
     using System.Linq;
     using System.Text;
 
-
     class RollingLogger
     {
         string targetDirectory;
@@ -22,10 +21,6 @@ namespace NServiceBus.Logging
 
         public RollingLogger(string targetDirectory, int numberOfArchiveFilesToKeep = 10, long maxFileSize = fileLimitInBytes)
         {
-            if (numberOfArchiveFilesToKeep > 10)
-            {
-                throw new Exception();
-            }
             this.targetDirectory = targetDirectory;
             this.numberOfArchiveFilesToKeep = numberOfArchiveFilesToKeep;
             this.maxFileSize = maxFileSize;
@@ -40,7 +35,8 @@ namespace NServiceBus.Logging
             }
             catch (Exception exception)
             {
-                Trace.WriteLine("Could not write to log file " + exception);
+                var errorMessage = string.Format("NServiceBus.Logging.RollingLogger Could not write to log file {0} {1}", currentfilePath, exception);
+                Trace.WriteLine(errorMessage);
             }
         }
 
