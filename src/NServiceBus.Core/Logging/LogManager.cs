@@ -32,6 +32,11 @@ namespace NServiceBus.Logging
 
         //TODO: perhaps add method for null logging
 
+        public static ILog GetLogger<T>()
+        {
+            return GetLogger(typeof(T));
+        }
+
         public static ILog GetLogger(Type type)
         {
             return loggerFactory.GetLogger(type);
