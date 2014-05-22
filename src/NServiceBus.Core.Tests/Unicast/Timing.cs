@@ -34,7 +34,7 @@
             RegisterMessageType<CommandMessage>();
 
             bus.Send(new CommandMessage());
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers.ContainsKey("NServiceBus.TimeSent")), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers.ContainsKey("NServiceBus.TimeSent")), Arg<SendOptions>.Is.Anything));
         }
     }
 }

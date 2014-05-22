@@ -23,7 +23,7 @@ namespace NServiceBus.Unicast.Tests
                     m.Headers[Headers.OriginatingSagaId] == sagaData.Id.ToString() && //id of the current saga
                     //todo: should we really us the AssemblyQualifiedName here? (what if users move sagas btw assemblies
                     m.Headers[Headers.OriginatingSagaType] == typeof(MySaga).AssemblyQualifiedName 
-                    ), Arg<Address>.Is.Anything));
+                    ), Arg<SendOptions>.Is.Anything));
         }
 
 

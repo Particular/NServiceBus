@@ -3,6 +3,7 @@
     using System;
     using Pipeline;
     using Pipeline.Contexts;
+    using Unicast;
     using Unicast.Transport;
 
 
@@ -25,7 +26,7 @@
             }
 
             //auto correlate with the saga we are replying to if needed
-            if (context.SendOptions.Intent == MessageIntentEnum.Reply && context.IncomingMessage != null)
+            if (context.DeliveryOptions is ReplyOptions  && context.IncomingMessage != null)
             {
                 string sagaId;
                 string sagaType;

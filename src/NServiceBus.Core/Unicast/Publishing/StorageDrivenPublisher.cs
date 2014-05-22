@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using IdGeneration;
+    using Messages;
     using Pipeline;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions;
@@ -17,14 +18,23 @@
 
         public PipelineExecutor PipelineExecutor { get; set; }
       
-        public void Publish(TransportMessage message, IEnumerable<Type> eventTypes)
+        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
+
+        public void Publish(TransportMessage message, PublishOptions publishOptions)
         {
+
             if (SubscriptionStorage == null)
             {
                 throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Please see: http://docs.particular.net/nservicebus/publish-subscribe-configuration'");
             }
                 
-            var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(eventTypes.Select(t => new MessageType(t))).ToList();
+            var eventTypesToPublish = MessageMetadataRegistry.GetMessageMetadata(publishOptions.EventType.FullName)
+                .MessageHierarchy
+                .Distinct()
+                .ToList();
+
+
+            var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(eventTypesToPublish.Select(t => new MessageType(t))).ToList();
 
             if (!subscribers.Any())
             {
@@ -38,7 +48,7 @@
                 //this is unicast so we give the message a unique ID
                 message.ChangeMessageId(CombGuid.Generate().ToString());
 
-                MessageSender.Send(message,subscriber);
+                MessageSender.Send(message, new SendOptions(subscriber));
             }
         }
     }

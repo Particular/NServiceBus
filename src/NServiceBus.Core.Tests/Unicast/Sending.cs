@@ -49,7 +49,7 @@
             RegisterMessageType<TestMessage>();
             bus.SendToSites(new[] { "SiteA,SiteB" }, new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers.ContainsKey(Headers.DestinationSites)), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers.ContainsKey(Headers.DestinationSites)), Arg<SendOptions>.Is.Anything));
         }
 
         [Test]
@@ -58,7 +58,7 @@
             RegisterMessageType<TestMessage>();
             bus.SendToSites(new[] { "SiteA,SiteB" }, new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(gatewayAddress)));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<SendOptions>.Matches(o => o.Destination == gatewayAddress)));
         }
     }
 
@@ -75,7 +75,7 @@
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m =>
                 m.Headers[Headers.ContentType] == "text/xml" &&
-                m.Headers["MyStaticHeader"] == "StaticHeaderValue"), Arg<Address>.Is.Anything));
+                m.Headers["MyStaticHeader"] == "StaticHeaderValue"), Arg<SendOptions>.Is.Anything));
         }
 
         [Test]
@@ -84,7 +84,7 @@
             RegisterMessageType<TestMessage>();
             bus.Send(new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<SendOptions>.Is.Anything));
         }
 
         [Test]
@@ -93,7 +93,7 @@
             RegisterMessageType<TestMessage>();
             bus.Send(new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.ReplyToAddress == Address.Local), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.ReplyToAddress == Address.Local), Arg<SendOptions>.Is.Anything));
         }
 
         [Test]
@@ -102,7 +102,7 @@
             RegisterMessageType<TestMessage>();
             bus.Send(new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers.ContainsKey(Headers.ConversationId)), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers.ContainsKey(Headers.ConversationId)), Arg<SendOptions>.Is.Anything));
         }
 
         [Test]
@@ -113,7 +113,7 @@
 
             bus.Send<TestMessage>(m => m.SetHeader(Headers.ConversationId, "my order id"));
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Headers.ConversationId] == "my order id"), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Headers.ConversationId] == "my order id"), Arg<SendOptions>.Is.Anything));
         }
 
         [Test, Ignore("Needs refactoring to make testing possible")]
@@ -127,7 +127,7 @@
             RegisterMessageType<TestMessage>();
             bus.Send(new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.ReplyToAddress == addressOfIncomingMessage), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.ReplyToAddress == addressOfIncomingMessage), Arg<SendOptions>.Is.Anything));
         }
     }
 
@@ -143,7 +143,7 @@
             bus.Send(new NonPersistentMessage());
             bus.Send(new PersistentMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<SendOptions>.Is.Anything));
         }
 
 
@@ -155,7 +155,7 @@
             bus.Send(new NonPersistentMessage());
             bus.Send(new PersistentMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.TimeToBeReceived == TimeSpan.FromMinutes(45)), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.TimeToBeReceived == TimeSpan.FromMinutes(45)), Arg<SendOptions>.Is.Anything));
         }
 
         [TimeToBeReceived("00:45:00")]
@@ -177,7 +177,7 @@
             RegisterMessageType<TestMessage>();
             bus.Send(new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => !m.Recoverable), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => !m.Recoverable), Arg<SendOptions>.Is.Anything));
         }
     }
 
@@ -191,7 +191,7 @@
 
             bus.Send(new CommandMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<SendOptions>.Is.Anything));
         }
     }
 
@@ -205,7 +205,7 @@
 
             bus.Send<InterfaceMessage>(m => { });
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<Address>.Is.Equal(defaultAddress)));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<SendOptions>.Matches(o=>o.Destination == defaultAddress)));
         }
     }
 
@@ -234,7 +234,7 @@
 
         void AssertSendWithHeaders(Func<IDictionary<string, string>, bool> condition)
         {
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => condition(m.Headers)), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => condition(m.Headers)), Arg<SendOptions>.Is.Anything));
         }
 
 

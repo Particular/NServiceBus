@@ -7,6 +7,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Core;
     using Logging;
     using Transports;
+    using Unicast;
     using Unicast.Transport;
 
     class TimeoutPersisterReceiver : IDisposable
@@ -86,8 +87,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                         startSlice = timeoutData.Item2;
                     }
 
-                    MessageSender.Send(CreateTransportMessage(timeoutData.Item1),
-                        Features.TimeoutManager.DispatcherAddress);
+                    MessageSender.Send(CreateTransportMessage(timeoutData.Item1),new SendOptions(Features.TimeoutManager.DispatcherAddress));
                 }
 
                 lock (lockObject)

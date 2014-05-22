@@ -21,7 +21,7 @@ namespace NServiceBus.Core.Tests.DataBus
             };
 
             var message = new LogicalMessage(metadata, new MessageWithNullDataBusProperty(), new Dictionary<string, string>(), null);
-            var context = new OutgoingContext(null,new SendOptions(), message);
+            var context = new OutgoingContext(null,new SendOptions(Address.Parse("MyEndpoint")), message);
 
             
             using (var stream = new MemoryStream())

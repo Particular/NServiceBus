@@ -2,32 +2,37 @@ namespace NServiceBus.Unicast
 {
     using System;
 
-    public class SendOptions
+    /// <summary>
+    /// Controls how a message will be sent by the transport
+    /// </summary>
+    public class SendOptions : DeliveryOptions
     {
         TimeSpan? delayDeliveryWith;
 
-        public SendOptions()
-        {
-            Intent = MessageIntentEnum.Send;
-            EnforceMessagingBestPractices = true;
-            EnlistInReceiveTransaction = true;
-        }
-
-        public SendOptions(Address destination):this()
+        public SendOptions(Address destination)
         {
             Destination = destination;
         }
 
-        public SendOptions(string destination): this(Address.Parse(destination))
+        public SendOptions(string destination)
+            : this(Address.Parse(destination))
         {
         }
 
-        public MessageIntentEnum Intent { get; set; }
-        public Address Destination { get; set; }
+        /// <summary>
+        /// The correlation id to be used on the message. Mostly used when doing Bus.Reply
+        /// </summary>
         public string CorrelationId { get; set; }
-        public Address ReplyToAddress { get; set; }
+
+        /// <summary>
+        /// The time when the message should be delivered to the destination
+        /// </summary>
         public DateTime? DeliverAt { get; set; }
 
+
+        /// <summary>
+        /// How long to delay delivery of the message
+        /// </summary>
         public TimeSpan? DelayDeliveryWith
         {
             get { return delayDeliveryWith; }
@@ -41,18 +46,9 @@ namespace NServiceBus.Unicast
             }
         }
 
-        public bool EnforceMessagingBestPractices { get; set; }
-        internal bool EnlistInReceiveTransaction { get; set; }
-
-
-        public static SendOptions ReplyTo(Address replyToAddress)
-        {
-            if (replyToAddress == null)
-            {
-                throw new InvalidOperationException("Can't reply with null reply-to-address field. It can happen if you are using a SendOnly client. See http://particular.net/articles/one-way-send-only-endpoints");
-            }
-
-            return new SendOptions(replyToAddress){Intent = MessageIntentEnum.Reply};
-        }
+        /// <summary>
+        /// Address where to send this message
+        /// </summary>
+        public Address Destination { get; set; }
     }
 }

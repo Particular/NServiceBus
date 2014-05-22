@@ -38,7 +38,7 @@
             
             try
             {
-                MessageSender.Send(message, TimeoutManagerAddress);
+                MessageSender.Send(message, new SendOptions(TimeoutManagerAddress));
             }
             catch (Exception ex)
             {
@@ -54,7 +54,7 @@
             controlMessage.Headers[headerKey] = headerValue;
             controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = Boolean.TrueString;
 
-            MessageSender.Send(controlMessage, TimeoutManagerAddress);
+            MessageSender.Send(controlMessage, new SendOptions(TimeoutManagerAddress));
         }
 
         static ILog Log = LogManager.GetLogger<TimeoutManagerDeferrer>();

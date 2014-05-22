@@ -5,16 +5,16 @@
 
     public class OutgoingContext : BehaviorContext
     {
-        public OutgoingContext(BehaviorContext parentContext, SendOptions sendOptions, LogicalMessage message)
+        public OutgoingContext(BehaviorContext parentContext, DeliveryOptions deliveryOptions, LogicalMessage message)
             : base(parentContext)
         {
-            Set(sendOptions);
+            Set(deliveryOptions);
             Set(OutgoingLogicalMessageKey, message);
         }
 
-        public SendOptions SendOptions
+        public DeliveryOptions DeliveryOptions
         {
-            get { return Get<SendOptions>(); }
+            get { return Get<DeliveryOptions>(); }
         }
 
         public LogicalMessage OutgoingLogicalMessage

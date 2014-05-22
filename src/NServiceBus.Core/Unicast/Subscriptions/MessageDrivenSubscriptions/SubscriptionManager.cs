@@ -43,7 +43,7 @@
 
             subscriptionMessage.ReplyToAddress = Address.PublicReturnAddress;
 
-            MessageSender.Send(subscriptionMessage, publisherAddress);
+            MessageSender.Send(subscriptionMessage, new SendOptions(publisherAddress));
         }
 
         static TransportMessage CreateControlMessage(Type eventType)
@@ -58,7 +58,7 @@
         {
             try
             {
-                MessageSender.Send(subscriptionMessage, destination);
+                MessageSender.Send(subscriptionMessage, new SendOptions(destination));
             }
             catch (QueueNotFoundException ex)
             {

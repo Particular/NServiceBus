@@ -168,9 +168,9 @@
     {
         public Address MessageSentTo { get; set; }
 
-        public void Send(TransportMessage message, Address address)
+        public void Send(TransportMessage message, SendOptions sendOptions)
         {
-            MessageSentTo = address;
+            MessageSentTo = sendOptions.Destination;
         }
     }
 }

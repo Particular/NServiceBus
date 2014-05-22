@@ -4,6 +4,7 @@ namespace NServiceBus.Faults.Forwarder
     using Logging;
     using SecondLevelRetries.Helpers;
     using Transports;
+    using Unicast;
     using Unicast.Queuing;
 
     /// <summary>
@@ -41,11 +42,11 @@ namespace NServiceBus.Faults.Forwarder
 
                 if (serializationException || MessageWasSentFromSLR(message))
                 {
-                    sender.Send(message, ErrorQueue);
+                    sender.Send(message, new SendOptions(ErrorQueue));
                     return;
                 }
 
-                sender.Send(message, destinationQ);
+                sender.Send(message, new SendOptions(destinationQ));
 
                 //HACK: We need this hack here till we refactor the SLR to be a first class concept in the TransportReceiver
                 if (RetriesErrorQueue == null)

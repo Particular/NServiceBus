@@ -3,6 +3,7 @@
     using System;
     using System.Threading;
     using Transports;
+    using Unicast;
 
     public class FakeMessageSender : ISendMessages
     {
@@ -11,11 +12,11 @@
             messageReceived = new ManualResetEvent(false);
         }
 
-        void ISendMessages.Send(TransportMessage message, Address address)
+        void ISendMessages.Send(TransportMessage message, SendOptions sendOptions)
         {
             details = new SendDetails
             {
-                Destination = address,
+                Destination = sendOptions.Destination,
                 Message = message
             };
 

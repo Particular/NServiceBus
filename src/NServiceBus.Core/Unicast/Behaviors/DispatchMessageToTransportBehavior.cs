@@ -20,12 +20,12 @@
 
         public void Invoke(OutgoingContext context, Action next)
         {
-            InvokeNative(context.SendOptions, context.OutgoingMessage, context.OutgoingLogicalMessage.Metadata);
+            InvokeNative(context.DeliveryOptions, context.OutgoingMessage);
 
             next();
         }
 
-        public void InvokeNative(SendOptions sendOptions, TransportMessage messageToSend, MessageMetadata metadata)
+        public void InvokeNative(DeliveryOptions deliveryOptions, TransportMessage messageToSend)
         {
             var messageDescription = "ControlMessage";
 
@@ -38,26 +38,18 @@
 
             try
             {
-                if (sendOptions.Intent == MessageIntentEnum.Publish)
+                if(deliveryOptions is PublishOptions)
                 {
-                    Publish(messageToSend, metadata);
+                    Publish(messageToSend, deliveryOptions as PublishOptions);
                 }
                 else
                 {
-                    SendOrDefer(messageToSend, sendOptions);
+                    SendOrDefer(messageToSend, deliveryOptions as SendOptions);
                 }
             }
             catch (QueueNotFoundException ex)
             {
                 throw new Exception(string.Format("The destination queue '{0}' could not be found. You may have misconfigured the destination for this kind of message ({1}) in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " + "It may also be the case that the given queue just hasn't been created yet, or has been deleted.", ex.Queue, messageDescription), ex);
-            }
-
-            if (Log.IsDebugEnabled)
-            {
-                Log.DebugFormat("Sending message {0} with ID {1} to destination {2}.\n" + "Message headers:\n{3}", messageDescription,
-                    messageToSend.Id,
-                    sendOptions.Destination,
-                    string.Join(", ", messageToSend.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));
             }
         }
 
@@ -72,7 +64,7 @@
                 }
                 else
                 {
-                    MessageSender.Send(messageToSend, sendOptions.Destination);
+                    MessageSender.Send(messageToSend, sendOptions);
                 }
 
                 return;
@@ -88,13 +80,13 @@
                 }
                 else
                 {
-                    MessageSender.Send(messageToSend, sendOptions.Destination);
+                    MessageSender.Send(messageToSend, sendOptions);
                 }
 
                 return;
             }
 
-            MessageSender.Send(messageToSend, sendOptions.Destination);
+            MessageSender.Send(messageToSend, sendOptions);
         }
 
         static void SetIsDeferredHeader(TransportMessage messageToSend)
@@ -102,18 +94,14 @@
             messageToSend.Headers[Headers.IsDeferredMessage] = true.ToString();
         }
 
-        void Publish(TransportMessage messageToSend, MessageMetadata metadata)
+        void Publish(TransportMessage messageToSend,PublishOptions publishOptions)
         {
             if (MessagePublisher == null)
             {
                 throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling: Feature.Enable<MessageDrivenPublisher>() in your configuration");
             }
 
-            var eventTypesToPublish = metadata.MessageHierarchy
-                .Distinct()
-                .ToList();
-
-            MessagePublisher.Publish(messageToSend, eventTypesToPublish);
+            MessagePublisher.Publish(messageToSend, publishOptions);
         }
 
         static ILog Log = LogManager.GetLogger<DispatchMessageToTransportBehavior>();

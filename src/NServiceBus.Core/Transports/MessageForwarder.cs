@@ -2,6 +2,7 @@ namespace NServiceBus.Transports
 {
     using System;
     using Support;
+    using Unicast;
 
     static class MessageForwarder
     {
@@ -22,7 +23,7 @@ namespace NServiceBus.Transports
                                    };
 
             messageToForward.Headers[Headers.OriginatingEndpoint] = Configure.Instance.EndpointName;
-            messageToForward.Headers[Headers.OriginatingHostId] = Unicast.UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N");
+            messageToForward.Headers[Headers.OriginatingHostId] = UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N");
             messageToForward.Headers["NServiceBus.ProcessingMachine"] = RuntimeEnvironment.MachineName;
             messageToForward.Headers[Headers.ProcessingEndpoint] = Configure.Instance.EndpointName;
 
@@ -34,7 +35,7 @@ namespace NServiceBus.Transports
             }
 
             // Send the newly created transport message to the queue
-            messageSender.Send(messageToForward, address);
+            messageSender.Send(messageToForward, new SendOptions(address));
         }
     }
 }

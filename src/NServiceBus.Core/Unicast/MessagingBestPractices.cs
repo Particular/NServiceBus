@@ -5,9 +5,9 @@ namespace NServiceBus.Unicast
 
     class MessagingBestPractices
     {
-        public static void AssertIsValidForSend(Type messageType, MessageIntentEnum messageIntent)
+        public static void AssertIsValidForSend(Type messageType)
         {
-            if (MessageConventionExtensions.IsEventType(messageType) && messageIntent != MessageIntentEnum.Publish)
+            if (MessageConventionExtensions.IsEventType(messageType))
             {
                 throw new InvalidOperationException("Events can have multiple recipient so they should be published");
             }

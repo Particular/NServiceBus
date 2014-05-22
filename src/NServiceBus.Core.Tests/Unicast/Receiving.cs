@@ -95,7 +95,7 @@
 
             ReceiveMessage(receivedMessage);
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Headers.RelatedTo] == receivedMessage.CorrelationId), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Headers.RelatedTo] == receivedMessage.CorrelationId), Arg<SendOptions>.Is.Anything));
         }
     }
 
@@ -113,7 +113,7 @@
 
             ReceiveMessage(receivedMessage);
 
-            messageSender.AssertWasNotCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Anything));
+            messageSender.AssertWasNotCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<SendOptions>.Is.Anything));
         }
     }
 

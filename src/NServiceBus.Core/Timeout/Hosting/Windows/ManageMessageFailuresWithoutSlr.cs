@@ -4,6 +4,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Faults;
     using Logging;
     using Transports;
+    using Unicast;
     using Unicast.Queuing;
 
     class ManageMessageFailuresWithoutSlr : IManageMessageFailures
@@ -45,7 +46,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 var sender = Configure.Instance.Builder.Build<ISendMessages>();
 
-                sender.Send(message, errorQueue);
+                sender.Send(message, new SendOptions(errorQueue));
             }
             catch (Exception exception)
             {

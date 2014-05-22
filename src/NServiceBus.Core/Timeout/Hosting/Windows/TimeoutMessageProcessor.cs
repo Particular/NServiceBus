@@ -5,6 +5,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Features;
     using Satellites;
     using Transports;
+    using Unicast;
     using Unicast.Transport;
 
     class TimeoutMessageProcessor : IAdvancedSatellite
@@ -72,7 +73,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
 
             TimeoutManager.RemoveTimeout(timeoutId);
-            MessageSender.Send(message, destination);
+            MessageSender.Send(message, new SendOptions(destination));
         }
 
         void HandleInternal(TransportMessage message)
