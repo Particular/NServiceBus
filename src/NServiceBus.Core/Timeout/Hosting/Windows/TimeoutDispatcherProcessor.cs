@@ -5,7 +5,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Features;
     using Satellites;
     using Transports;
-    using Unicast;
     using Unicast.Transport;
 
     class TimeoutDispatcherProcessor : IAdvancedSatellite
@@ -36,7 +35,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
             {
-                MessageSender.Send(timeoutData.ToTransportMessage(), new SendOptions(timeoutData.Destination));
+                MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions());
             }
 
             return true;

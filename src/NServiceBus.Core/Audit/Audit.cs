@@ -10,8 +10,7 @@
 
     public class Audit : Feature
     {
-        static ILog Logger = LogManager.GetLogger<Audit>();
-
+        
         public override void Initialize(Configure config)
         {
             // If Audit feature is enabled and the value not specified via config and instead specified in the registry:
@@ -89,8 +88,6 @@
             return Address.Undefined;
         }
 
-        static ILog Logger = LogManager.GetLogger(typeof(Audit));
-
-      
+        static ILog Logger = LogManager.GetLogger<Audit>();      
     }
 }

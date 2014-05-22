@@ -17,7 +17,6 @@ namespace NServiceBus.Transports
             {
                 Body = transportMessage.Body,
                 Recoverable = transportMessage.Recoverable,
-                ReplyToAddress = Address.Local,
                 TimeToBeReceived = sendOptions.TimeToBeReceived.HasValue ? sendOptions.TimeToBeReceived.Value : transportMessage.TimeToBeReceived
             };
 
@@ -34,7 +33,7 @@ namespace NServiceBus.Transports
             }
 
             // Send the newly created transport message to the queue
-            MessageSender.Send(messageToForward, new SendOptions(sendOptions.Destination));
+            MessageSender.Send(messageToForward, new SendOptions(sendOptions.Destination) { ReplyToAddress = Address.Local });
         }
 
         class Initialization : INeedInitialization

@@ -32,8 +32,10 @@ namespace NServiceBus
         /// <summary>
         ///     Creates a new TransportMessage with the given id and headers
         /// </summary>
-        public TransportMessage(string existingId, Dictionary<string, string> existingHeaders)
+        public TransportMessage(string existingId, Dictionary<string, string> existingHeaders,Address replyToAddress = null)
         {
+            ReplyToAddress = replyToAddress;
+
             if (existingHeaders == null)
             {
                 existingHeaders = new Dictionary<string, string>();
@@ -88,7 +90,7 @@ namespace NServiceBus
         /// <summary>
         ///     Gets/sets the reply-to address of the message bundle - replaces 'ReturnAddress'.
         /// </summary>
-        public Address ReplyToAddress { get; set; }
+        public Address ReplyToAddress { get; private set; }
 
         /// <summary>
         ///     Gets/sets whether or not the message is supposed to

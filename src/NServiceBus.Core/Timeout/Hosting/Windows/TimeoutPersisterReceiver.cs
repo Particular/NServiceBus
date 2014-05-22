@@ -87,7 +87,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                         startSlice = timeoutData.Item2;
                     }
 
-                    MessageSender.Send(CreateTransportMessage(timeoutData.Item1),new SendOptions(Features.TimeoutManager.DispatcherAddress));
+                    MessageSender.Send(CreateTransportMessage(timeoutData.Item1), new SendOptions(Features.TimeoutManager.DispatcherAddress) { ReplyToAddress = Features.TimeoutManager.DispatcherAddress });
                 }
 
                 lock (lockObject)
@@ -126,7 +126,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             //use the dispatcher as the reply to address so that retries go back to the dispatcher q
             // instead of the main endpoint q
-            var transportMessage = ControlMessage.Create(Features.TimeoutManager.DispatcherAddress);
+            var transportMessage = ControlMessage.Create();
 
             transportMessage.Headers["Timeout.Id"] = timeoutId;
 

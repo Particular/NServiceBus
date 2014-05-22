@@ -18,19 +18,19 @@
         {
             var deliveryOptions = context.DeliveryOptions;
 
-            var toSend = new TransportMessage
-            {
-                MessageIntent = MessageIntentEnum.Publish,
-                ReplyToAddress = deliveryOptions.ReplyToAddress
-            };
+            var toSend = new TransportMessage { MessageIntent = MessageIntentEnum.Publish };
 
             var sendOptions = deliveryOptions as SendOptions;
 
 
-            if (sendOptions != null && sendOptions.CorrelationId != null)
+            if (sendOptions != null)
             {
                 toSend.MessageIntent = sendOptions is ReplyOptions ? MessageIntentEnum.Reply : MessageIntentEnum.Send;
-                toSend.CorrelationId = sendOptions.CorrelationId;
+
+                if (sendOptions.CorrelationId != null)
+                {
+                    toSend.CorrelationId = sendOptions.CorrelationId;
+                }
             }
 
             //apply static headers
@@ -45,10 +45,13 @@
                 toSend.Headers[kvp.Key] = kvp.Value;
             }
 
-            var messageDefinitions = MessageMetadataRegistry.GetMessageDefinition(context.OutgoingLogicalMessage.MessageType);
+            if (context.OutgoingLogicalMessage.MessageType != null)
+            {
+                var messageDefinitions = MessageMetadataRegistry.GetMessageDefinition(context.OutgoingLogicalMessage.MessageType);
 
-            toSend.TimeToBeReceived = messageDefinitions.TimeToBeReceived;
-            toSend.Recoverable = messageDefinitions.Recoverable;
+                toSend.TimeToBeReceived = messageDefinitions.TimeToBeReceived;
+                toSend.Recoverable = messageDefinitions.Recoverable;
+            }
 
             context.Set(toSend);
 

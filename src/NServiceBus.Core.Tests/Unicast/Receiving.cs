@@ -89,6 +89,8 @@
         {
             var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
 
+            receivedMessage.CorrelationId = receivedMessage.Id;
+
             RegisterMessageType<EventMessage>();
             RegisterMessageType<CommandMessage>();
             RegisterMessageHandlerType<HandlerThatSendsAMessage>();

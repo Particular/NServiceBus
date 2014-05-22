@@ -142,11 +142,10 @@ namespace NServiceBus.Transports.Msmq
         {
             var headers = DeserializeMessageHeaders(m);
 
-            var result = new TransportMessage(m.Id, headers)
+            var result = new TransportMessage(m.Id, headers, GetIndependentAddressForQueue(m.ResponseQueue))
             {
                 Recoverable = m.Recoverable,
                 TimeToBeReceived = m.TimeToBeReceived,
-                ReplyToAddress = GetIndependentAddressForQueue(m.ResponseQueue),
                 CorrelationId = GetCorrelationId(m, headers)
             };
 

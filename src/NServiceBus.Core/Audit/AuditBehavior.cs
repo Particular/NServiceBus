@@ -27,7 +27,7 @@
             public Registration()
                 : base(WellKnownBehavior.Audit, typeof(AuditBehavior), "Send a copy of the successfully processed message to the configured audit queue")
             {
-                InsertAfter(WellKnownBehavior.InvokeHandlers);
+                InsertBefore(WellKnownBehavior.InvokeHandlers);
             }
         }
     }

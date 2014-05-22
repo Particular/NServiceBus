@@ -76,13 +76,14 @@ namespace NServiceBus.Gateway.Receiving
         {
             var messageToSend = e.Message;
 
-            messageToSend.ReplyToAddress = replyToAddress;
-
             var destination = EndpointRouter.GetDestinationFor(messageToSend);
 
             Logger.Info("Sending message to " + destination);
 
-            MessageSender.Send(messageToSend, new SendOptions(destination));
+            MessageSender.Send(messageToSend, new SendOptions(destination)
+            {
+                ReplyToAddress = replyToAddress
+            });
         }
 
         static ILog Logger = LogManager.GetLogger<GatewayReceiver>();

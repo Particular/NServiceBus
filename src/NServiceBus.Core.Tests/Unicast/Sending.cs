@@ -93,7 +93,7 @@
             RegisterMessageType<TestMessage>();
             bus.Send(new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.ReplyToAddress == Address.Local), Arg<SendOptions>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<SendOptions>.Matches(o=>o.ReplyToAddress == Address.Local)));
         }
 
         [Test]
@@ -224,7 +224,6 @@
 
             receivedMessage.Headers[Headers.OriginatingSagaId] = sagaId.ToString();
             receivedMessage.Headers[Headers.OriginatingSagaType] = sagaType;
-            receivedMessage.ReplyToAddress = Address.Parse("EndpointRunningTheSaga");
 
             RegisterMessageHandlerType<HandlerThatRepliesToSaga>();
             ReceiveMessage(receivedMessage);

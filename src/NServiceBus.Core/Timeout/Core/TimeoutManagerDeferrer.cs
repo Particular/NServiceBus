@@ -49,12 +49,12 @@
 
         public void ClearDeferredMessages(string headerKey, string headerValue)
         {
-            var controlMessage = ControlMessage.Create(Address.Local);
+            var controlMessage = ControlMessage.Create();
 
             controlMessage.Headers[headerKey] = headerValue;
             controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = Boolean.TrueString;
 
-            MessageSender.Send(controlMessage, new SendOptions(TimeoutManagerAddress));
+            MessageSender.Send(controlMessage, new SendOptions(TimeoutManagerAddress) { ReplyToAddress = Address.Local });
         }
 
         static ILog Log = LogManager.GetLogger<TimeoutManagerDeferrer>();

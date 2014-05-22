@@ -2,7 +2,6 @@ namespace NServiceBus.Timeout.Core
 {
     using System;
     using Transports;
-    using Unicast;
 
     class DefaultTimeoutManager
     {
@@ -14,7 +13,7 @@ namespace NServiceBus.Timeout.Core
         {
             if (timeout.Time.AddSeconds(-1) <= DateTime.UtcNow)
             {
-                MessageSender.Send(timeout.ToTransportMessage(), new SendOptions(timeout.Destination));
+                MessageSender.Send(timeout.ToTransportMessage(), timeout.ToSendOptions());
                 return;
             }
 

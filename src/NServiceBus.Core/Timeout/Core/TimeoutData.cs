@@ -2,6 +2,7 @@ namespace NServiceBus.Timeout.Core
 {
     using System;
     using System.Collections.Generic;
+    using Unicast;
 
     /// <summary>
     /// Holds timeout information.
@@ -61,20 +62,8 @@ namespace NServiceBus.Timeout.Core
         /// <returns>Returns a <see cref="TransportMessage"/>.</returns>
         public TransportMessage ToTransportMessage()
         {
-            var replyToAddress = Address.Local;
-            if (Headers != null)
-            {
-                string originalReplyToAddressValue;
-                if (Headers.TryGetValue(OriginalReplyToAddress, out originalReplyToAddressValue))
-                {
-                    replyToAddress = Address.Parse(originalReplyToAddressValue);
-                    Headers.Remove(OriginalReplyToAddress);
-                }
-            }
-
             var transportMessage = new TransportMessage(Id,Headers)
             {
-                ReplyToAddress = replyToAddress,
                 Recoverable = true,
                 Body = State
             };
@@ -89,6 +78,28 @@ namespace NServiceBus.Timeout.Core
             transportMessage.Headers["NServiceBus.RelatedToTimeoutId"] = Id;
 
             return transportMessage;
+        }
+
+        /// <summary>
+        /// Transforms the timeout to send options
+        /// </summary>
+        public SendOptions ToSendOptions()
+        {
+            var replyToAddress = Address.Local;
+            if (Headers != null)
+            {
+                string originalReplyToAddressValue;
+                if (Headers.TryGetValue(OriginalReplyToAddress, out originalReplyToAddressValue))
+                {
+                    replyToAddress = Address.Parse(originalReplyToAddressValue);
+                    Headers.Remove(OriginalReplyToAddress);
+                }
+            }
+
+            return new SendOptions(Destination)
+            {
+                ReplyToAddress = replyToAddress
+            };
         }
 
         /// <summary>

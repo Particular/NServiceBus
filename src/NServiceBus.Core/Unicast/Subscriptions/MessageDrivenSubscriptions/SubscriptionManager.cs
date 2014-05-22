@@ -46,7 +46,7 @@
 
         static TransportMessage CreateControlMessage(Type eventType)
         {
-            var subscriptionMessage = ControlMessage.Create(Address.Local);
+            var subscriptionMessage = ControlMessage.Create();
 
             subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
             return subscriptionMessage;
