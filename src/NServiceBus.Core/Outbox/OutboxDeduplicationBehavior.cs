@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using Pipeline;
     using Pipeline.Contexts;
+    using Transports;
+    using Unicast;
     using Unicast.Behaviors;
     using Unicast.Messages;
     using NServiceBus;
@@ -13,6 +15,8 @@
         public DispatchMessageToTransportBehavior DispatchMessageToTransportBehavior { get; set; }
 
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
+
+        public DefaultMessageAuditer DefaultMessageAuditer { get; set; }
 
         public void Invoke(IncomingContext context, Action next)
         {
@@ -47,7 +51,16 @@
                 };
 
                 //dispatch to transport
-                DispatchMessageToTransportBehavior.InvokeNative(deliveryOptions, message);
+
+                if (transportOperation.Options["Operation"] != "Audit")
+                {
+                    DispatchMessageToTransportBehavior.InvokeNative(deliveryOptions, message);    
+                }
+                else
+                {
+                    DefaultMessageAuditer.Audit(deliveryOptions as SendOptions, message);
+                }
+                
             }
         }
 

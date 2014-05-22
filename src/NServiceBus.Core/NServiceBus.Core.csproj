@@ -99,8 +99,6 @@
     <Compile Include="App_Packages\Particular.Licensing\UniversalDateParser.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
     <Compile Include="Audit\Audit.cs" />
-    <Compile Include="Audit\InitMessageAuditer.cs" />
-    <Compile Include="Audit\MessageAuditer.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscribe.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscriber.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettingsExtensions.cs" />
@@ -234,6 +232,8 @@
     <Compile Include="Support\RuntimeEnvironment.cs" />
     <Compile Include="TimeToBeReceivedAttribute.cs" />
     <Compile Include="Transports\ConfigureTransport.cs" />
+    <Compile Include="Audit\DefaultMessageAuditer.cs" />
+    <Compile Include="Audit\IAuditMessages.cs" />
     <Compile Include="Unicast\Behaviors\CallbackInvocationBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ForwardBehavior.cs" />
     <Compile Include="Unicast\Behaviors\InvokeHandlersBehavior.cs" />
@@ -551,7 +551,6 @@
     <Compile Include="Timeout\Core\TimeoutManagerDeferrer.cs" />
     <Compile Include="Unicast\Config\DefaultTransportForHost.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
-    <Compile Include="Transports\MessageForwarder.cs" />
     <Compile Include="Unicast\MessagesEventArgs.cs" />
     <Compile Include="Unicast\Queuing\Installers\ForwardReceivedMessagesToQueueCreator.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageDrivenPublisher.cs" />

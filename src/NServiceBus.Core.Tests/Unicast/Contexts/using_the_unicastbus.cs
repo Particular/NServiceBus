@@ -4,7 +4,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading;
-    using Audit;
     using Behaviors;
     using Core.Tests;
     using Helpers;
@@ -101,8 +100,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
-
-            FuncBuilder.Register<MessageAuditer>(() => new MessageAuditer());
 
             FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory());
 
@@ -256,12 +253,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
     }
 
-    public class FakeMessageAuditer : MessageAuditer
-    {
-        public override void ForwardMessageToAuditQueue(TransportMessage transportMessage)
-        {
-        }
-    }
 
     class using_the_unicastBus : using_a_configured_unicastBus
     {

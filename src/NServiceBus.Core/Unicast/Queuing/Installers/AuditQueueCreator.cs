@@ -1,18 +1,17 @@
 namespace NServiceBus.Unicast.Queuing.Installers
 {
-    using Audit;
     using Features;
 
     class AuditQueueCreator : IWantQueueCreated
     {
-        public MessageAuditer Auditer { get; set; }
+        public Address AuditQueue { get; set; }
 
         /// <summary>
         /// Address of queue the implementer requires.
         /// </summary>
         public Address Address
         {
-            get { return Auditer.AuditQueue; }
+            get { return AuditQueue; }
         }
 
         public bool ShouldCreateQueue(Configure config)

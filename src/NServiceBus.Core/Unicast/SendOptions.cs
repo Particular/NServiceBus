@@ -50,5 +50,10 @@ namespace NServiceBus.Unicast
         /// Address where to send this message
         /// </summary>
         public Address Destination { get; set; }
+
+        /// <summary>
+        /// The TTR to use for this message
+        /// </summary>
+        public TimeSpan? TimeToBeReceived { get; set; }
     }
 }

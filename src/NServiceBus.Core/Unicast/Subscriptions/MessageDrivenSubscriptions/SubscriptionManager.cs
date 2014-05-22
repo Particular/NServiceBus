@@ -23,7 +23,6 @@
 
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
-            subscriptionMessage.ReplyToAddress = Address.PublicReturnAddress;
 
             ThreadPool.QueueUserWorkItem(state =>
                 SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName));
@@ -41,9 +40,8 @@
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
 
-            subscriptionMessage.ReplyToAddress = Address.PublicReturnAddress;
 
-            MessageSender.Send(subscriptionMessage, new SendOptions(publisherAddress));
+            MessageSender.Send(subscriptionMessage, new SendOptions(publisherAddress) { ReplyToAddress = Address.PublicReturnAddress });
         }
 
         static TransportMessage CreateControlMessage(Type eventType)
@@ -58,7 +56,7 @@
         {
             try
             {
-                MessageSender.Send(subscriptionMessage, new SendOptions(destination));
+                MessageSender.Send(subscriptionMessage, new SendOptions(destination){ReplyToAddress =  Address.PublicReturnAddress});
             }
             catch (QueueNotFoundException ex)
             {

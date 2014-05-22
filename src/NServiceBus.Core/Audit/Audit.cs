@@ -5,6 +5,7 @@
     using Config;
     using Logging;
     using NServiceBus.Audit;
+    using Unicast.Queuing.Installers;
     using Utils;
 
     public class Audit : Feature
@@ -20,13 +21,26 @@
             {
                 Logger.Warn("Endpoint auditing is configured using the registry on this machine, please ensure that you either run Set-NServiceBusLocalMachineSettings cmdlet on the target deployment machine or specify the QueueName attribute in the AuditConfig section in your app.config file. To quickly add the AuditConfig section to your app.config, in Package Manager Console type: add-NServiceBusAuditConfig.");
             }
-   
-            // Setup the audit queue and the TTR in the MessageAuditer component. This component has
-            // already been registered with the bus (InitMessageAuditer gets called first, before the feature
-            // initialization happens, so we already have an instance of the MessageAuditer)
-            config.Configurer
-                .ConfigureProperty<MessageAuditer>(p => p.AuditQueue, GetConfiguredAuditQueue(config))
-                .ConfigureProperty<MessageAuditer>(t => t.TimeToBeReceivedOnForwardedMessages, GetTimeToBeReceivedFromAuditConfig(config));
+
+
+            config.Pipeline.Register<AuditBehavior.Registration>();
+
+            
+
+            var auditQueue = GetConfiguredAuditQueue(config);
+
+            config.Configurer.ConfigureComponent<AuditQueueCreator>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(t => t.AuditQueue, auditQueue);
+
+            var behaviorConfig = config.Configurer.ConfigureComponent<AuditBehavior>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(p => p.AuditQueue, auditQueue);
+
+
+            var messageAuditingConfig = config.GetConfigSection<AuditConfig>();
+            if (messageAuditingConfig != null && messageAuditingConfig.OverrideTimeToBeReceived > TimeSpan.Zero)
+            {
+                behaviorConfig.ConfigureProperty(t => t.TimeToBeReceivedOnForwardedMessages, messageAuditingConfig.OverrideTimeToBeReceived);
+            }
         }
 
         public override bool IsEnabledByDefault
@@ -75,15 +89,8 @@
             return Address.Undefined;
         }
 
+        static ILog Logger = LogManager.GetLogger(typeof(Audit));
 
-        TimeSpan GetTimeToBeReceivedFromAuditConfig(Configure config)
-        {
-            var messageAuditingConfig = config.GetConfigSection<AuditConfig>();
-            if (messageAuditingConfig != null)
-            {   
-                return messageAuditingConfig.OverrideTimeToBeReceived;
-            }
-            return new TimeSpan();
-        }
+      
     }
 }

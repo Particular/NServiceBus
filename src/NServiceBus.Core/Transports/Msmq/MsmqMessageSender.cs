@@ -29,9 +29,11 @@ namespace NServiceBus.Transports.Msmq
                         toSend.UseDeadLetterQueue = Settings.UseDeadLetterQueue;
                         toSend.UseJournalQueue = Settings.UseJournalQueue;
 
-                        if (sendOptions.ReplyToAddress != null)
+                        var replyToAddress = sendOptions.ReplyToAddress ?? message.ReplyToAddress;
+                        
+                        if (replyToAddress != null)
                         {
-                            toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(sendOptions.ReplyToAddress.ToString(), address.ToString()));
+                            toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(replyToAddress.ToString(), address.ToString()));
                         }
 
 

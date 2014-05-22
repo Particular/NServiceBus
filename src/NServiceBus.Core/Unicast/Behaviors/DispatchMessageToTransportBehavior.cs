@@ -1,9 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
-    using System.Linq;
     using Logging;
-    using Messages;
     using Pipeline;
     using Pipeline.Contexts;
     using Queuing;

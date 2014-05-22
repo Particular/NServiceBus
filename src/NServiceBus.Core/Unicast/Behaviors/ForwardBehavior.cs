@@ -7,11 +7,11 @@
 
     class ForwardBehavior : IBehavior<IncomingContext>
     {
-        public ISendMessages MessageSender { get; set; }
+        public IAuditMessages MessageAuditer { get; set; }
 
         public Address ForwardReceivedMessagesTo { get; set; }
 
-        public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
+        public TimeSpan? TimeToBeReceivedOnForwardedMessages { get; set; }
 
         public void Invoke(IncomingContext context, Action next)
         {
@@ -19,7 +19,10 @@
 
             if (ForwardReceivedMessagesTo != null && ForwardReceivedMessagesTo != Address.Undefined)
             {
-                MessageSender.ForwardMessage(context.PhysicalMessage, TimeToBeReceivedOnForwardedMessages, ForwardReceivedMessagesTo);
+                MessageAuditer.Audit(new SendOptions(ForwardReceivedMessagesTo)
+                {
+                    TimeToBeReceived = TimeToBeReceivedOnForwardedMessages
+                }, context.PhysicalMessage);
             }
         }
     }

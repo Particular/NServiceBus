@@ -2,7 +2,7 @@
 {
     public static class WellKnownBehavior
     {
-        public const string AuditForwarder = "Audit";
+        public const string Audit = "Audit";
         public const string ChildContainer = "ChildContainer";
         public const string UnitOfWork = "UnitOfWork";
         public const string MutateIncomingTransportMessage = "MutateIncomingTransportMessage";

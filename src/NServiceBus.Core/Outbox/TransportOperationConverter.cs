@@ -6,7 +6,7 @@ namespace NServiceBus.Outbox
 
     static class TransportOperationConverter
     {
-        public static Dictionary<string, string> ToTransportOperationOptions(this DeliveryOptions options)
+        public static Dictionary<string, string> ToTransportOperationOptions(this DeliveryOptions options, bool isAudit = false)
         {
             var result = new Dictionary<string, string>();
 
@@ -18,6 +18,11 @@ namespace NServiceBus.Outbox
             {
                 operation = sendOptions is ReplyOptions ? "Reply" : "Send";
 
+                if (isAudit)
+                {
+                    operation = "Audit";
+                }
+
                 if (sendOptions.DelayDeliveryWith.HasValue)
                 {
                     result["DelayDeliveryWith"] = sendOptions.DelayDeliveryWith.Value.ToString();
@@ -26,6 +31,12 @@ namespace NServiceBus.Outbox
                 if (sendOptions.DeliverAt.HasValue)
                 {
                     result["DeliverAt"] = DateTimeExtensions.ToWireFormattedString(sendOptions.DeliverAt.Value);
+                }
+
+
+                if (sendOptions.TimeToBeReceived.HasValue)
+                {
+                    result["TimeToBeReceived"] = sendOptions.TimeToBeReceived.ToString();
                 }
 
                 result["CorrelationId"] = sendOptions.CorrelationId;
@@ -44,7 +55,11 @@ namespace NServiceBus.Outbox
                 result["EventType"] = publishOptions.EventType.AssemblyQualifiedName;
             }
 
-            result["ReplyToAddress"] = options.ReplyToAddress.ToString();
+            if (options.ReplyToAddress != null)
+            {
+                result["ReplyToAddress"] = options.ReplyToAddress.ToString();                
+            }
+
             result["Operation"] = operation;
 
 
@@ -60,39 +75,63 @@ namespace NServiceBus.Outbox
                 case "publish":
                     return new PublishOptions(Type.GetType(options["EventType"]))
                     {
-                        ReplyToAddress =  Address.Parse(options["ReplyToAddress"])
+                        ReplyToAddress = Address.Parse(options["ReplyToAddress"])
                     };
 
                 case "send":
+                case "audit":
                     var sendOptions = new SendOptions(options["Destination"]);
 
-                    string delayDeliveryWith;
-                    if (options.TryGetValue("DelayDeliveryWith", out delayDeliveryWith))
-                    {
-                        sendOptions.DelayDeliveryWith = TimeSpan.Parse(delayDeliveryWith);
-                    }
+                    ApplySendOptionSettings(sendOptions, options);
 
-                    string deliverAt;
-                    if (options.TryGetValue("DeliverAt", out deliverAt))
-                    {
-                        sendOptions.DeliverAt = DateTimeExtensions.ToUtcDateTime(deliverAt);
-                    }
-
-                    sendOptions.CorrelationId = options["CorrelationId"];
-                    sendOptions.ReplyToAddress = Address.Parse(options["ReplyToAddress"]);
                     return sendOptions;
 
                 case "reply":
-                    return new ReplyOptions(Address.Parse(options["Destination"]), options["CorrelationId"])
+                    var replyOptions = new ReplyOptions(Address.Parse(options["Destination"]), options["CorrelationId"])
                     {
                         ReplyToAddress = Address.Parse(options["ReplyToAddress"])
                     };
-                    
+                    ApplySendOptionSettings(replyOptions, options);
+
+                    return replyOptions;
+
                 default:
                     throw new Exception("Unknown operation: " + operation);
             }
-        }
 
+
+        }
+        static void ApplySendOptionSettings(SendOptions sendOptions, Dictionary<string, string> options)
+        {
+            string delayDeliveryWith;
+            if (options.TryGetValue("DelayDeliveryWith", out delayDeliveryWith))
+            {
+                sendOptions.DelayDeliveryWith = TimeSpan.Parse(delayDeliveryWith);
+            }
+
+            string deliverAt;
+            if (options.TryGetValue("DeliverAt", out deliverAt))
+            {
+                sendOptions.DeliverAt = DateTimeExtensions.ToUtcDateTime(deliverAt);
+            }
+
+            string timeToBeReceived;
+            if (options.TryGetValue("TimeToBeReceived", out timeToBeReceived))
+            {
+                sendOptions.TimeToBeReceived = TimeSpan.Parse(timeToBeReceived);
+            }
+
+            sendOptions.CorrelationId = options["CorrelationId"];
+           
+            string replyToAddress;
+            if (options.TryGetValue("ReplyToAddress", out replyToAddress))
+            {
+                sendOptions.ReplyToAddress = Address.Parse(replyToAddress);
+            }
+
+
+            sendOptions.CorrelationId = options["CorrelationId"];
+        }
 
     }
 }
