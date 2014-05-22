@@ -5,7 +5,6 @@
     using Features;
     using NUnit.Framework;
     using PubSub;
-    using ScenarioDescriptors;
 
     public class When_multiple_versions_of_a_message_is_published : NServiceBusAcceptanceTest
     {
@@ -41,12 +40,6 @@
                                 c.V2Subscribed = true;
                         }))
                     .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
-                    .Repeat(r =>//broken for active mq until #1098 is fixed
-                                    r.For<AllSerializers>(Serializers.Binary)) //versioning isn't supported for binary serialization
-                    .Should(c =>
-                        {
-                            //put asserts in here if needed
-                        })
                     .Run();
         }
 

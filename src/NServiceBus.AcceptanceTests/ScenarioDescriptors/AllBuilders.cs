@@ -11,7 +11,6 @@
             Add(Builders.Ninject);
             Add(Builders.Spring);
             Add(Builders.StructureMap);
-            Add(Builders.Unity);
         }
     }
 }
