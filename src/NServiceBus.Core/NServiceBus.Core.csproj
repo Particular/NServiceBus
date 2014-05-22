@@ -167,6 +167,7 @@
     <Compile Include="Logging\DefaultLog.cs" />
     <Compile Include="Logging\DefaultLoggerFactory.cs" />
     <Compile Include="Logging\LogLevel.cs" />
+    <Compile Include="Logging\LogLevelReader.cs" />
     <Compile Include="Logging\RollingLogger.cs" />
     <Compile Include="MessageConventionException.cs" />
     <Compile Include="MessageConventionExtensions.cs" />

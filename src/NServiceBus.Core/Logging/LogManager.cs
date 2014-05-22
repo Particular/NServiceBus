@@ -2,9 +2,15 @@ namespace NServiceBus.Logging
 {
     using System;
 
-    public class LogManager
+    public static class LogManager
     {
-        static ILoggerFactory loggerFactory = new DefaultLoggerFactory(LogLevel.Info, null);
+
+        static LogManager()
+        {
+            var defaultLogLevel = LogLevelReader.GetDefaultLogLevel();
+            loggerFactory = new DefaultLoggerFactory(defaultLogLevel, null);
+        }
+        static ILoggerFactory loggerFactory;
 
         public static ILoggerFactory LoggerFactory
         {
@@ -17,6 +23,14 @@ namespace NServiceBus.Logging
                 loggerFactory = value;
             }
         }
+
+        public static void ConfigureDefaults(LogLevel level = LogLevel.Info, string loggingDirectory = null)
+        {
+            level = LogLevelReader.GetDefaultLogLevel(level);
+            LoggerFactory = new DefaultLoggerFactory(level, loggingDirectory);
+        }
+
+        //TODO: perhaps add method for null logging
 
         public static ILog GetLogger(Type type)
         {
