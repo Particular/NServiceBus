@@ -2,10 +2,7 @@ namespace NServiceBus.Logging.Loggers
 {
     using System;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public class NullLogger : ILog
+    class NullLogger : ILog
     {
         public bool IsDebugEnabled
         {

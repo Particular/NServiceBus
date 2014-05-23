@@ -87,9 +87,9 @@
     <Compile Include="GenericHost.cs" />
     <Compile Include="Installers\WindowsInstaller.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
-    <Compile Include="LoggingHandlers\Internal\ConfigureInternalLog4Net.cs" />
-    <Compile Include="LoggingHandlers\Internal\InternalLog4NetLog.cs" />
-    <Compile Include="LoggingHandlers\Internal\InternalLog4NetLoggerFactory.cs" />
+    <Compile Include="LoggingHandlers\IntegrationLoggingHandler.cs" />
+    <Compile Include="LoggingHandlers\LiteLoggingHandler.cs" />
+    <Compile Include="LoggingHandlers\ProductionLoggingHandler.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Profiles\Handlers\DistributorProfileHandler.cs" />
     <Compile Include="Profiles\Distributor.cs" />
@@ -101,9 +101,6 @@
     <Compile Include="Profiles\Worker.cs" />
     <Compile Include="Roles\AsA_Publisher.cs" />
     <Compile Include="Arguments\HostArguments.cs" />
-    <Compile Include="LoggingHandlers\IntegrationLoggingHandler.cs" />
-    <Compile Include="LoggingHandlers\LiteLoggingHandler.cs" />
-    <Compile Include="LoggingHandlers\ProductionLoggingHandler.cs" />
     <Compile Include="Profiles\Handlers\IntegrationProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\LiteProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\PerformanceCountersProfileHandler.cs" />

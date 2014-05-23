@@ -106,7 +106,7 @@
         {
             if (MessagePublisher == null)
             {
-                throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling: Feature.Enable<StorageDrivenPublisher>() in your configuration");
+                throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling: Feature.Enable<MessageDrivenPublisher>() in your configuration");
             }
 
             var eventTypesToPublish = metadata.MessageHierarchy

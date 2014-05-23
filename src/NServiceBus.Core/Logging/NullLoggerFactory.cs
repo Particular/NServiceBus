@@ -2,19 +2,16 @@ namespace NServiceBus.Logging.Loggers
 {
     using System;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public class ConsoleLoggerFactory : ILoggerFactory
+    class NullLoggerFactory : ILoggerFactory
     {
         public ILog GetLogger(Type type)
         {
-            return new ConsoleLogger();
+            return new NullLogger();
         }
 
         public ILog GetLogger(string name)
         {
-            return new ConsoleLogger();
+            return new NullLogger();
         }
     }
 }

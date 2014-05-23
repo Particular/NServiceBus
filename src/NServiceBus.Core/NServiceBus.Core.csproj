@@ -56,9 +56,6 @@
     <Reference Include="Janitor">
       <HintPath>..\packages\Janitor.Fody\Lib\portable-net4+sl4+wp7+win8+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
     </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net\lib\2.0\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -135,6 +132,8 @@
     <Compile Include="HandlerOrdering\ISpecifyMessageHandlerOrdering.cs" />
     <Compile Include="HandlerOrdering\Order.cs" />
     <Compile Include="Headers.cs" />
+    <Compile Include="Hosting\Configuration\IConfigureLogging.cs" />
+    <Compile Include="Hosting\Configuration\IConfigureLoggingForProfile.cs" />
     <Compile Include="Hosting\Configuration\IWantCustomLogging.cs" />
     <Compile Include="Hosting\Configuration\IWantTheListOfActiveProfiles.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
@@ -165,6 +164,12 @@
     <Compile Include="Licensing\NonLockingFileReader.cs" />
     <Compile Include="Licensing\StaThreadRunner.cs" />
     <Compile Include="Licensing\LicenseExpiredFormDisplayer.cs" />
+    <Compile Include="Logging\ColoredConsoleLogger.cs" />
+    <Compile Include="Logging\DefaultLog.cs" />
+    <Compile Include="Logging\DefaultLoggerFactory.cs" />
+    <Compile Include="Logging\LogLevel.cs" />
+    <Compile Include="Logging\LogLevelReader.cs" />
+    <Compile Include="Logging\RollingLogger.cs" />
     <Compile Include="MessageConventionException.cs" />
     <Compile Include="MessageConventionExtensions.cs" />
     <Compile Include="MessageIntentEnum.cs" />
@@ -408,7 +413,6 @@
     <Compile Include="Gateway\Utils\Hasher.cs" />
     <Compile Include="Hosting\Configuration\EndpointNameAttribute.cs" />
     <Compile Include="Hosting\Configuration\EndpointSLAAttribute.cs" />
-    <Compile Include="Hosting\Configuration\IConfigureLogging.cs" />
     <Compile Include="Hosting\Configuration\IConfigureThisEndpoint.cs" />
     <Compile Include="Hosting\Configuration\IWantCustomInitialization.cs" />
     <Compile Include="Hosting\Helpers\AssemblyListExtensions.cs" />
@@ -441,23 +445,8 @@
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />
-    <Compile Include="Logging\Internal\ReflectionExtensions.cs" />
-    <Compile Include="Logging\Internal\TypeExtensions.cs" />
-    <Compile Include="Logging\Log4NetBridge\ConfigureInternalLog4NetBridge.cs" />
-    <Compile Include="Logging\Log4NetBridge\Log4NetBridgeAppender.cs" />
-    <Compile Include="Logging\Loggers\ConsoleLogger.cs" />
-    <Compile Include="Logging\Loggers\ConsoleLoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetAppenderFactory.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetConfigurator.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetLogger.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetLoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\NLogConfigurator.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\NLogLogger.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\NLogLoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\NLogTargetFactory.cs" />
-    <Compile Include="Logging\Loggers\NullLogger.cs" />
-    <Compile Include="Logging\Loggers\NullLoggerFactory.cs" />
-    <Compile Include="Logging\LoggingLibraryException.cs" />
+    <Compile Include="Logging\NullLogger.cs" />
+    <Compile Include="Logging\NullLoggerFactory.cs" />
     <Compile Include="Logging\LogManager.cs" />
     <Compile Include="SecondLevelRetries\DefaultRetryPolicy.cs" />
     <Compile Include="SecondLevelRetries\Helpers\TransportMessageHelpers.cs" />
@@ -524,7 +513,7 @@
     <Compile Include="Serializers\XML\XmlMessageSerializer.cs" />
     <Compile Include="Serializers\XML\XmlSanitizingStream.cs" />
     <Compile Include="ServiceAsyncResult.cs" />
-    <Compile Include="SetLoggingLibrary.cs" />
+    <Compile Include="Logging\SetLoggingLibrary.cs" />
     <Compile Include="Settings\Endpoint.cs" />
     <Compile Include="Settings\TransactionSettings.cs" />
     <Compile Include="SyncConfig.cs" />
@@ -659,7 +648,7 @@
   <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
     <MakeDir Directories="$(TargetDir)temp\" />
-    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetDir)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Interop.MSMQ.dll&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
+    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetDir)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)Interop.MSMQ.dll&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
     <ItemGroup>
       <TempFiles Include="$(TargetDir)temp\*.*" />
     </ItemGroup>
