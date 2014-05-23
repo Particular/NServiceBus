@@ -76,6 +76,6 @@
             Logger.InfoFormat("Feature categories: \n{0}", statusText);
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(FeatureInitializer));
+        static ILog Logger = LogManager.GetLogger<FeatureInitializer>();
     }
 }

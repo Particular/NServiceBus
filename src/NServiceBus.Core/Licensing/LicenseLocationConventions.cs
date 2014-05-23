@@ -8,7 +8,7 @@ namespace NServiceBus.Licensing
 
     static class LicenseLocationConventions
     {
-        static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseLocationConventions));
+        static ILog Logger = LogManager.GetLogger(typeof(LicenseLocationConventions));
 
         public static string TryFindLicenseText()
         {

@@ -298,6 +298,6 @@ namespace NServiceBus.Transports.Msmq
         internal const string PRIVATE = "\\private$\\";
         static string localIp;
         static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
-        static ILog Logger = LogManager.GetLogger(typeof(MsmqUtilities));
+        static ILog Logger = LogManager.GetLogger<MsmqUtilities>();
     }
 }

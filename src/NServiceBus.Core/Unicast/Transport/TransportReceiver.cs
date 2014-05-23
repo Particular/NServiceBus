@@ -435,7 +435,7 @@ namespace NServiceBus.Unicast.Transport
 
         [ThreadStatic] static volatile bool needToAbort;
 
-        static ILog Logger = LogManager.GetLogger(typeof(TransportReceiver));
+        static ILog Logger = LogManager.GetLogger<TransportReceiver>();
         object changeMaximumMessageThroughputPerSecondLock = new object();
         ReceivePerformanceDiagnostics currentReceivePerformanceDiagnostics;
         FirstLevelRetries firstLevelRetries;

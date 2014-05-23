@@ -21,6 +21,6 @@
             config.Configurer.ConfigureComponent<Unicast.Publishing.StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(StorageDrivenPublisher));
+        static ILog Logger = LogManager.GetLogger<StorageDrivenPublisher>();
     }
 }

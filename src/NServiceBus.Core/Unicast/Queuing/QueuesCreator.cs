@@ -53,6 +53,6 @@ namespace NServiceBus.Unicast.Queuing
             config.ForAllTypes<IWantQueueCreated>(type => config.Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall));
         }
 
-        readonly static ILog Logger = LogManager.GetLogger(typeof(QueuesCreator));
+        static ILog Logger = LogManager.GetLogger<QueuesCreator>();
     }
 }

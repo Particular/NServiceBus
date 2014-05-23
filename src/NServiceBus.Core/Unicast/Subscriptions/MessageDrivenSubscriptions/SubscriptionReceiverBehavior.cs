@@ -105,7 +105,7 @@
             return (from header in msg.Headers where header.Key == Headers.SubscriptionMessageType select header.Value).FirstOrDefault();
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(SubscriptionReceiverBehavior));
+        static ILog Logger = LogManager.GetLogger<SubscriptionReceiverBehavior>();
         IAuthorizeSubscriptions subscriptionAuthorizer;
     }
 }

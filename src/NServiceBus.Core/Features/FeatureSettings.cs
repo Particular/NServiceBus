@@ -111,6 +111,6 @@ namespace NServiceBus.Features
                  });
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(FeatureSettings));
+        static ILog Logger = LogManager.GetLogger<FeatureSettings>();
     }
 }

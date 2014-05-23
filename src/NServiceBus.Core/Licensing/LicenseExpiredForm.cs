@@ -10,7 +10,7 @@
     [SkipWeaving]
     partial class LicenseExpiredForm : Form
     {
-        static ILog Logger = LogManager.GetLogger(typeof(LicenseExpiredForm));
+        static ILog Logger = LogManager.GetLogger<LicenseExpiredForm>();
         public LicenseExpiredForm()
         {
             InitializeComponent();

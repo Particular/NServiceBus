@@ -54,6 +54,6 @@ namespace NServiceBus.Hosting.Wcf
                 
         }
 
-        private readonly ILog logger = LogManager.GetLogger(typeof(WcfServiceHost));
+        static ILog logger = LogManager.GetLogger<WcfServiceHost>();
     }
 }

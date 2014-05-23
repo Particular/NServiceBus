@@ -814,7 +814,7 @@ namespace NServiceBus.Unicast
         volatile bool started;
         object startLocker = new object();
 
-        static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
+        static ILog Log = LogManager.GetLogger<UnicastBus>();
 
         IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
 

@@ -209,7 +209,7 @@ namespace NServiceBus.Gateway.Channels.Http
 
         const int MaximumBytesToRead = 100000;
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(HttpChannelReceiver));
+        static ILog Logger = LogManager.GetLogger<HttpChannelReceiver>();
         HttpListener listener;
         MTATaskScheduler scheduler;
         CancellationTokenSource tokenSource;

@@ -290,7 +290,7 @@ namespace NServiceBus.Unicast.Config
             return null;
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(UnicastBus));
+        static ILog Logger = LogManager.GetLogger<UnicastBus>();
 
         internal bool LoadMessageHandlersCalled { get; private set; }
     }

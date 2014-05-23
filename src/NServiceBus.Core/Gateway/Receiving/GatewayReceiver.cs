@@ -84,7 +84,7 @@ namespace NServiceBus.Gateway.Receiving
             MessageSender.Send(messageToSend, destination);
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(GatewayReceiver));
+        static ILog Logger = LogManager.GetLogger<GatewayReceiver>();
         readonly ICollection<IReceiveMessagesFromSites> activeReceivers;
 
         Address replyToAddress;

@@ -116,6 +116,6 @@
             MessagePublisher.Publish(messageToSend, eventTypesToPublish);
         }
 
-        static ILog Log = LogManager.GetLogger(typeof(DispatchMessageToTransportBehavior));
+        static ILog Log = LogManager.GetLogger<DispatchMessageToTransportBehavior>();
     }
 }

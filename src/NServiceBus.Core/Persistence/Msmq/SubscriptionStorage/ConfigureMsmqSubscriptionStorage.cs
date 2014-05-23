@@ -50,6 +50,6 @@ namespace NServiceBus
         /// </summary>
         public static Address Queue { get; set; }
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqSubscriptionStorage));
+        static ILog Logger = LogManager.GetLogger(typeof(MsmqSubscriptionStorage));
     }
 }

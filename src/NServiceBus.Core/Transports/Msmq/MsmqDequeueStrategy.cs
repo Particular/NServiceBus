@@ -359,7 +359,7 @@ namespace NServiceBus.Transports.Msmq
                 : "Unknown User";
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqDequeueStrategy));
+        static ILog Logger = LogManager.GetLogger<MsmqDequeueStrategy>();
         CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
         AutoResetEvent peekResetEvent = new AutoResetEvent(false);
         readonly TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);

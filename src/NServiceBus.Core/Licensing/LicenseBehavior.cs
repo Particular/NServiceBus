@@ -25,6 +25,6 @@
             }
         }
 
-        static ILog Log = LogManager.GetLogger(typeof(LicenseBehavior));
+        static ILog Log = LogManager.GetLogger<LicenseBehavior>();
     }
 }

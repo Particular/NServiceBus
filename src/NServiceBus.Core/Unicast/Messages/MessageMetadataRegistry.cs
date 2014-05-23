@@ -117,6 +117,6 @@
 
         public bool DefaultToNonPersistentMessages { get; set; }
 
-        static ILog Logger = LogManager.GetLogger(typeof(DefaultDispatcherFactory));
+        static ILog Logger = LogManager.GetLogger < MessageMetadataRegistry>();
     }
 }

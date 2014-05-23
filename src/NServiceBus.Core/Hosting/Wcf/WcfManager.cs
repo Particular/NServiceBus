@@ -73,6 +73,6 @@
         }
 
        
-        private readonly ILog logger = LogManager.GetLogger(typeof(WcfManager));
+        static ILog logger = LogManager.GetLogger<WcfManager>();
     }
 }

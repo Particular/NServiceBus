@@ -68,7 +68,7 @@ namespace NServiceBus.CircuitBreakers
         }
 
         static readonly TimeSpan NoPeriodicTriggering = TimeSpan.FromMilliseconds(-1);
-        static readonly ILog Logger = LogManager.GetLogger(typeof(RepeatedFailuresOverTimeCircuitBreaker));
+        static ILog Logger = LogManager.GetLogger<RepeatedFailuresOverTimeCircuitBreaker>();
 
         readonly TimeSpan delayAfterFailure;
         readonly string name;

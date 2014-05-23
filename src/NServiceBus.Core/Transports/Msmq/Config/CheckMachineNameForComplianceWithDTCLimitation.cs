@@ -28,7 +28,7 @@ namespace NServiceBus.Transports.Msmq.Config
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         static extern bool GetComputerNameEx(COMPUTER_NAME_FORMAT nameType, [Out] StringBuilder lpBuffer, ref uint lpnSize);
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(CheckMachineNameForComplianceWithDtcLimitation));
+        static ILog Logger = LogManager.GetLogger<CheckMachineNameForComplianceWithDtcLimitation>();
 
         /// <summary>
         /// Method invoked to run custom code.

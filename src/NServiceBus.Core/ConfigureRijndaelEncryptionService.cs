@@ -28,6 +28,6 @@ namespace NServiceBus
             return config;
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(RijndaelEncryptionServiceConfig));
+        static ILog Logger = LogManager.GetLogger(typeof(RijndaelEncryptionServiceConfig));
     }
 }

@@ -241,6 +241,6 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
         readonly List<Entry> entries = new List<Entry>();
         readonly object locker = new object();
 
-	    readonly ILog log = LogManager.GetLogger(typeof(ISubscriptionStorage));
+	    static ILog log = LogManager.GetLogger(typeof(ISubscriptionStorage));
     }
 }

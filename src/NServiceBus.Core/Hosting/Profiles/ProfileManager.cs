@@ -161,6 +161,6 @@ namespace NServiceBus.Hosting.Profiles
         }
 
 
-        static ILog Logger = LogManager.GetLogger(typeof(ProfileManager));
+        static ILog Logger = LogManager.GetLogger<ProfileManager>();
     }
 }

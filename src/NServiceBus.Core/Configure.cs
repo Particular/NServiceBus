@@ -137,7 +137,7 @@ namespace NServiceBus
 
         static ILog Logger
         {
-            get { return LogManager.GetLogger(typeof(Configure)); }
+            get { return LogManager.GetLogger<Configure>(); }
         }
 
         /// <summary>
@@ -491,7 +491,7 @@ namespace NServiceBus
                     catch (ReflectionTypeLoadException e)
                     {
                         var errorMessage = AssemblyScanner.FormatReflectionTypeLoadException(a.FullName, e);
-                        LogManager.GetLogger(typeof(Configure)).Warn(errorMessage);
+                        LogManager.GetLogger<Configure>().Warn(errorMessage);
                         //intentionally swallow exception
                     }
                 });

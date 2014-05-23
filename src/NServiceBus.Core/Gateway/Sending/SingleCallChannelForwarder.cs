@@ -76,7 +76,7 @@
             }
         }
 
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
-        readonly IChannelFactory channelFactory;
+        static ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
+        IChannelFactory channelFactory;
     }
 }

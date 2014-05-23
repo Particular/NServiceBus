@@ -95,6 +95,6 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (EncryptionService));
+        static ILog Logger = LogManager.GetLogger<EncryptionService>();
     }
 }

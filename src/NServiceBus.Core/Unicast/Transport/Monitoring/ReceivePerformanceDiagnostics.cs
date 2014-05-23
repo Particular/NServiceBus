@@ -7,7 +7,7 @@ namespace NServiceBus.Unicast.Transport.Monitoring
     class ReceivePerformanceDiagnostics : IDisposable
     {
         const string CategoryName = "NServiceBus";
-        static readonly ILog Logger = LogManager.GetLogger(typeof (ReceivePerformanceDiagnostics));
+        static ILog Logger = LogManager.GetLogger<ReceivePerformanceDiagnostics>();
         readonly Address receiveAddress;
         bool enabled;
         PerformanceCounter failureRateCounter;

@@ -102,6 +102,6 @@ namespace NServiceBus.Unicast.Config
                 string.Concat(messageDefinitions.Select(md => md.ToString() + "\n")));
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(FinalizeUnicastBusConfiguration));
+        static ILog Logger = LogManager.GetLogger<FinalizeUnicastBusConfiguration>();
     }
 }

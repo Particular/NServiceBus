@@ -77,7 +77,7 @@
                 select potentialMessageType;
         }
 
-        static readonly ILog Log = LogManager.GetLogger(typeof(MessageHandlerRegistry));
+        static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
         readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
     }
 }

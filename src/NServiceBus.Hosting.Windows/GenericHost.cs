@@ -69,7 +69,7 @@ namespace NServiceBus.Hosting
             }
             catch (Exception ex)
             {
-                LogManager.GetLogger(typeof(GenericHost)).Fatal("Exception when starting endpoint.", ex);
+                LogManager.GetLogger<GenericHost>().Fatal("Exception when starting endpoint.", ex);
                 throw;
             }
         }

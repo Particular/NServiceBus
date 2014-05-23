@@ -11,7 +11,7 @@ namespace NServiceBus.Installation
     /// </summary>
     public class PerformanceMonitorUsersInstaller : INeedToInstallSomething<Windows>
     {
-        static ILog logger = LogManager.GetLogger(typeof(PerformanceMonitorUsersInstaller));
+        static ILog logger = LogManager.GetLogger<PerformanceMonitorUsersInstaller>();
 
         public void Install(string identity)
         {

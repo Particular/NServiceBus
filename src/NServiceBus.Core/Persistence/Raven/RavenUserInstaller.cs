@@ -16,7 +16,7 @@ namespace NServiceBus.Persistence.Raven
     [ObsoleteEx]
     public class RavenUserInstaller //: INeedToInstallSomething<Windows>
     {
-        static readonly ILog logger = LogManager.GetLogger(typeof(RavenUserInstaller));
+        static ILog logger = LogManager.GetLogger<RavenUserInstaller>();
 
         public StoreAccessor StoreAccessor { get; set; }
 

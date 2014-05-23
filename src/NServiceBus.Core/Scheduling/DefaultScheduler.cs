@@ -8,10 +8,10 @@ namespace NServiceBus.Scheduling
 
     public class DefaultScheduler : IScheduler
     {
-        static readonly ILog logger = LogManager.GetLogger(typeof(DefaultScheduler));
+        static ILog logger = LogManager.GetLogger<DefaultScheduler>();
 
-        private readonly IBus bus;
-        private readonly IScheduledTaskStorage scheduledTaskStorage;        
+        IBus bus;
+        IScheduledTaskStorage scheduledTaskStorage;        
 
         public DefaultScheduler(IBus bus, IScheduledTaskStorage scheduledTaskStorage)
         {

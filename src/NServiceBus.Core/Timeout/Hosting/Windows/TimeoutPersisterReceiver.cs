@@ -145,7 +145,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(TimeoutPersisterReceiver));
+        static ILog Logger = LogManager.GetLogger<TimeoutPersisterReceiver>();
 
         RepeatedFailuresOverTimeCircuitBreaker circuitBreaker =
             new RepeatedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity", TimeSpan.FromMinutes(2),

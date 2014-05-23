@@ -17,7 +17,7 @@
     {
         IWindsorContainer container;
         IDisposable scope;
-        static ILog Logger = LogManager.GetLogger(typeof(WindsorObjectBuilder));
+        static ILog Logger = LogManager.GetLogger<WindsorObjectBuilder>();
 
         /// <summary>
         /// Instantiates the class with a new WindsorContainer.

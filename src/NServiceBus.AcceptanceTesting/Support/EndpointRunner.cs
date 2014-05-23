@@ -12,16 +12,16 @@
     [Serializable]
     public class EndpointRunner : MarshalByRefObject
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (EndpointRunner));
-        private readonly SemaphoreSlim contextChanged = new SemaphoreSlim(0);
-        private readonly IList<Guid> executedWhens = new List<Guid>();
-        private EndpointBehavior behavior;
-        private IStartableBus bus;
-        private Configure config;
-        private EndpointConfiguration configuration;
-        private Task executeWhens;
-        private ScenarioContext scenarioContext;
-        private bool stopped;
+        static ILog Logger = LogManager.GetLogger<EndpointRunner>();
+        readonly SemaphoreSlim contextChanged = new SemaphoreSlim(0);
+        readonly IList<Guid> executedWhens = new List<Guid>();
+        EndpointBehavior behavior;
+        IStartableBus bus;
+        Configure config;
+        EndpointConfiguration configuration;
+        Task executeWhens;
+        ScenarioContext scenarioContext;
+        bool stopped;
 
         public Result Initialize(RunDescriptor run, EndpointBehavior endpointBehavior,
             IDictionary<Type, string> routingTable, string endpointName)

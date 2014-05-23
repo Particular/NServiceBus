@@ -27,6 +27,6 @@ namespace NServiceBus.Faults.InMemory
             
         }
 
-        readonly ILog logger = LogManager.GetLogger(typeof(FaultManager));
+        static ILog logger = LogManager.GetLogger<FaultManager>();
     }
 }

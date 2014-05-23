@@ -166,6 +166,6 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
             Logger.Warn(sb.ToString());
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(RavenTimeoutPersistence));
+        static ILog Logger = LogManager.GetLogger(typeof(RavenTimeoutPersistence));
     }
 }

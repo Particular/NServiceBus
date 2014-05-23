@@ -183,7 +183,7 @@ namespace NServiceBus.Pipeline
         List<RemoveBehavior> removals;
         List<ReplaceBehavior> replacements;
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(BehaviorRegistrationsCoordinator));
+        static ILog Logger = LogManager.GetLogger<BehaviorRegistrationsCoordinator>();
 
         class CaseInsensitiveIdComparer : IEqualityComparer<RemoveBehavior>
         {

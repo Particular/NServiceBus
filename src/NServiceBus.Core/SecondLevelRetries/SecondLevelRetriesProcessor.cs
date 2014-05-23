@@ -84,6 +84,6 @@ namespace NServiceBus.SecondLevelRetries
             MessageDeferrer.Defer(message, retryMessageAt, addressOfFaultingEndpoint);
         }
 
-        readonly ILog logger = LogManager.GetLogger(typeof(SecondLevelRetriesProcessor));
+        static ILog logger = LogManager.GetLogger<SecondLevelRetriesProcessor>();
     }
 }

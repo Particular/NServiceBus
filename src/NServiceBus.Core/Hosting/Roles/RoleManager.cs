@@ -14,8 +14,8 @@
     /// </summary>
     public class RoleManager
     {
-        private readonly IDictionary<Type, Type> availableRoles;
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(RoleManager));
+        readonly IDictionary<Type, Type> availableRoles;
+        static ILog Logger = LogManager.GetLogger<RoleManager>();
 
         /// <summary>
         /// Creates the manager with the list of assemblies to scan for roles

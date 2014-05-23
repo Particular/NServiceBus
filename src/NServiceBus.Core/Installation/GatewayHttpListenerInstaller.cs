@@ -13,7 +13,7 @@ namespace NServiceBus.Installation
     /// </summary>
     public class GatewayHttpListenerInstaller : INeedToInstallSomething<Windows>
     {
-        static readonly ILog logger = LogManager.GetLogger(typeof(GatewayHttpListenerInstaller));
+        static ILog logger = LogManager.GetLogger<GatewayHttpListenerInstaller>();
         public IManageReceiveChannels ChannelManager { get; set; }
 
         public void Install(string identity)

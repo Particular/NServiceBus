@@ -40,6 +40,6 @@
             }
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(EnableSelectedPersistence));
+        static ILog Logger = LogManager.GetLogger<EnableSelectedPersistence>();
     }
 }

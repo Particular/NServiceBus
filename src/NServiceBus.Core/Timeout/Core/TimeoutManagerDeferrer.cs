@@ -41,6 +41,6 @@
             MessageSender.Send(controlMessage, TimeoutManagerAddress);
         }
 
-        static ILog Log = LogManager.GetLogger(typeof (TimeoutManagerDeferrer));
+        static ILog Log = LogManager.GetLogger<TimeoutManagerDeferrer>();
     }
 }

@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Logging;
     using NServiceBus.Sagas;
     using NServiceBus.Sagas.Finders;
     using Saga;
@@ -381,8 +380,6 @@
         static readonly IDictionary<Type, List<Type>> SagaTypeToMessageTypesRequiringSagaStartLookup = new Dictionary<Type, List<Type>>();
 
         static readonly IConfigureHowToFindSagaWithMessage SagaMessageFindingConfiguration = new ConfigureHowToFindSagaWithMessageDispatcher();
-
-        static readonly ILog Logger = LogManager.GetLogger(typeof(Sagas));
 
         /// <summary>
         /// Until we get rid of those statics

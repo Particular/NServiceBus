@@ -96,7 +96,7 @@
             }
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(StaticMessageRouter));
+        static ILog Logger = LogManager.GetLogger<StaticMessageRouter>();
         readonly ConcurrentDictionary<Type, List<Address>> routes;
     }
 }

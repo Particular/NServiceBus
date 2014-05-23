@@ -62,7 +62,7 @@
             get { return false; }
         }
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureMsmqMessageQueue));
+        static ILog Logger = LogManager.GetLogger < MsmqTransport>();
 
         private const string Message =
             @"

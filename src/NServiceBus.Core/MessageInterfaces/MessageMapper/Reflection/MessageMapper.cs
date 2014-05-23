@@ -431,6 +431,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         static readonly Dictionary<Type, Type> concreteToInterfaceTypeMapping = new Dictionary<Type, Type>();
         static readonly Dictionary<string, Type> nameToType = new Dictionary<string, Type>();
         static readonly Dictionary<Type, ConstructorInfo> typeToConstructor = new Dictionary<Type, ConstructorInfo>();
-        static ILog Logger = LogManager.GetLogger(typeof(MessageMapper));
+        static ILog Logger = LogManager.GetLogger<MessageMapper>();
     }
 }

@@ -204,6 +204,6 @@
 
         IncomingContext currentContext;
 
-        readonly ILog logger = LogManager.GetLogger(typeof(SagaPersistenceBehavior));
+        static ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();
     }
 }

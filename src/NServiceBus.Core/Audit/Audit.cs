@@ -9,7 +9,7 @@
 
     public class Audit : Feature
     {
-        static ILog Logger = LogManager.GetLogger(typeof(Audit));
+        static ILog Logger = LogManager.GetLogger<Audit>();
 
         public override void Initialize(Configure config)
         {

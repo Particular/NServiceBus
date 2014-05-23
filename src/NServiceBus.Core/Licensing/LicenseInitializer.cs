@@ -26,6 +26,6 @@ namespace NServiceBus.Licensing
             config.Pipeline.Register("LicenseReminder", typeof(LicenseBehavior), "Reminds users if license has expired");
         }
 
-        static ILog Logger = LogManager.GetLogger(typeof(LicenseInitializer));
+        static ILog Logger = LogManager.GetLogger<LicenseInitializer>();
     }
 }

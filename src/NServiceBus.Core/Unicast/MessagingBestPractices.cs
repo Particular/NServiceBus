@@ -34,6 +34,6 @@ namespace NServiceBus.Unicast
             }
         }
 
-        static ILog Log = LogManager.GetLogger(typeof(MessagingBestPractices));
+        static ILog Log = LogManager.GetLogger<MessagingBestPractices>();
     }
 }

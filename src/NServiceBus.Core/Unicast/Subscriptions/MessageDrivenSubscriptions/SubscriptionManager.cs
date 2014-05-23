@@ -74,6 +74,6 @@
             }
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(SubscriptionManager));
+        static ILog Logger = LogManager.GetLogger<SubscriptionManager>();
     }
 }

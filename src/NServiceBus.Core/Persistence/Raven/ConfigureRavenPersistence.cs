@@ -323,7 +323,7 @@ sb.AppendLine("Reason: " + exception);
             Logger.Warn(sb.ToString());
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureRavenPersistence));
+        static ILog Logger = LogManager.GetLogger(typeof(ConfigureRavenPersistence));
         static Action<IDocumentStore> customisationCallback = store => { };
 
         const string WrongRavenVersionMessage =

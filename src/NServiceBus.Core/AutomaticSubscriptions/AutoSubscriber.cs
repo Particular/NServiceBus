@@ -30,6 +30,6 @@
             
         }
 
-        readonly static ILog Logger = LogManager.GetLogger(typeof(AutoSubscriber));
+        static ILog Logger = LogManager.GetLogger<AutoSubscriber>();
     }
 }

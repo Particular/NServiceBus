@@ -6,7 +6,7 @@
 
     static class RegistryReader<T>
     {
-        static readonly ILog Logger = LogManager.GetLogger(typeof(RegistryReader<T>));
+        static ILog Logger = LogManager.GetLogger(typeof(RegistryReader<T>));
 
         public static T Read(string name, T defaultValue = default(T))
         {

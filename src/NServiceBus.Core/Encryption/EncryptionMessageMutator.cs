@@ -259,6 +259,6 @@ namespace NServiceBus.Encryption
 
         static ConcurrentDictionary<Type, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<MemberInfo>>();
 
-        static ILog Log = LogManager.GetLogger(typeof(IEncryptionService));
+        static ILog Log = LogManager.GetLogger<IEncryptionService>();
     }
 }
