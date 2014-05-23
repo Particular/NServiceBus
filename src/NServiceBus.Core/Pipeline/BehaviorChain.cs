@@ -9,10 +9,10 @@
     {
         // ReSharper disable once StaticFieldInGenericType
         // The number of T's is small and they will all log to the same point due to the typeof(BehaviorChain<>)
-        static ILog Log = LogManager.GetLogger(typeof(BehaviorChain<>));
+        static ILog logger = LogManager.GetLogger(typeof(BehaviorChain<>));
         Queue<Type> itemDescriptors = new Queue<Type>();
         Stack<Queue<Type>> snapshots = new Stack<Queue<Type>>();
-        ExceptionDispatchInfo  stackTracePreserved;
+        ExceptionDispatchInfo preservedRootException;
 
         public BehaviorChain(IEnumerable<Type> behaviorList)
         {
@@ -29,11 +29,13 @@
                 context.SetChain(this);
                 InvokeNext(context);
             }
-            catch (Exception exception)
+            catch
             {
-                // ReSharper disable once PossibleIntendedRethrow
-                // need to rethrow explicit exception to preserve the stack trace
-                throw exception;
+                if (preservedRootException != null)
+                {
+                    preservedRootException.Throw();
+                }
+                throw;
             }
         }
 
@@ -45,7 +47,7 @@
             }
 
             var behaviorType = itemDescriptors.Dequeue();
-            Log.Debug(behaviorType.Name);
+            logger.Debug(behaviorType.Name);
 
             try
             {
@@ -54,11 +56,11 @@
             }
             catch (Exception exception)
             {
-                if (stackTracePreserved == null)
+                if (preservedRootException == null)
                 {
-                    stackTracePreserved = ExceptionDispatchInfo.Capture(exception);
+                    preservedRootException = ExceptionDispatchInfo.Capture(exception);
                 }
-                stackTracePreserved.Throw();
+                throw;
             }
         }
 
