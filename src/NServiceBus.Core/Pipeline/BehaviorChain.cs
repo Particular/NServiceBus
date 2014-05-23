@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Runtime.ExceptionServices;
     using Logging;
-    using Utils;
 
     class BehaviorChain<T> where T : BehaviorContext
     {
@@ -12,7 +12,7 @@
         static ILog Log = LogManager.GetLogger(typeof(BehaviorChain<>));
         Queue<Type> itemDescriptors = new Queue<Type>();
         Stack<Queue<Type>> snapshots = new Stack<Queue<Type>>();
-        bool stackTracePreserved;
+        ExceptionDispatchInfo  stackTracePreserved;
 
         public BehaviorChain(IEnumerable<Type> behaviorList)
         {
@@ -54,14 +54,11 @@
             }
             catch (Exception exception)
             {
-                if (!stackTracePreserved)
+                if (stackTracePreserved == null)
                 {
-                    exception.PreserveStackTrace();
+                    stackTracePreserved = ExceptionDispatchInfo.Capture(exception);
                 }
-                stackTracePreserved = true;
-                // ReSharper disable once PossibleIntendedRethrow
-                // need to rethrow explicit exception to preserve the stack trace
-                throw exception;
+                stackTracePreserved.Throw();
             }
         }
 
