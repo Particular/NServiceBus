@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NServiceBus.Core.Tests.Logging
+﻿namespace NServiceBus.Core.Tests.Logging
 {
+    using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
@@ -12,7 +11,6 @@ namespace NServiceBus.Core.Tests.Logging
     [TestFixture]
     public class RollingLoggerTests
     {
-
 
         [Test]
         public void When_file_already_exists_that_file_is_written_to()

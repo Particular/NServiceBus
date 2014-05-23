@@ -143,7 +143,7 @@
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="AttributeTests.cs" />
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
-    <Compile Include="Logging\Class1.cs" />
+    <Compile Include="Logging\RollingLoggerTests.cs" />
     <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniqueProperties.cs" />
     <Compile Include="Persistence\InMemory\AnotherSimpleSageEntity.cs" />
     <Compile Include="Persistence\InMemory\SagaWithTwoUniqueProperties.cs" />
