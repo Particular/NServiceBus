@@ -2,12 +2,12 @@
 {
     /// <summary>
     /// Called in order to configure logging.
-    /// 
-    /// If you want logging configured regardless of profiles, do not use this interface,
-    /// instead implement <see cref="IWantCustomLogging"/> on the class which implements <see cref="IConfigureThisEndpoint"/>.
-    /// 
-    /// Implementors should work against the generic version of this interface.
     /// </summary>
+    /// <remarks>
+    /// If you want logging configured regardless of profiles, do not use this interface,
+    /// instead implement <see cref="IWantCustomInitialization"/>  and configure logging before you call <see cref="NServiceBus.Configure.With()"/>.
+    /// Implementors should work against the generic version of this interface <see cref="IConfigureLoggingForProfile{T}"/>.
+    /// </remarks>
     public interface IConfigureLogging
     {
         /// <summary>
@@ -15,11 +15,4 @@
         /// </summary>
         void Configure(IConfigureThisEndpoint specifier);
     }
-
-    /// <summary>
-    /// Called in order to configure logging for the given profile type.
-    /// If an implementation isn't found for a given profile, then the search continues
-    /// recursively up that profile's inheritance hierarchy.
-    /// </summary>
-    public interface IConfigureLoggingForProfile<T> : IConfigureLogging where T : IProfile {}
 }

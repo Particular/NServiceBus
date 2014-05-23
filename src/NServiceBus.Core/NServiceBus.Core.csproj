@@ -133,6 +133,7 @@
     <Compile Include="HandlerOrdering\Order.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="Hosting\Configuration\IConfigureLogging.cs" />
+    <Compile Include="Hosting\Configuration\IConfigureLoggingForProfile.cs" />
     <Compile Include="Hosting\Configuration\IWantCustomLogging.cs" />
     <Compile Include="Hosting\Configuration\IWantTheListOfActiveProfiles.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />

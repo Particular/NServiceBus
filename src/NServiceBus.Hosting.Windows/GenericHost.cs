@@ -102,54 +102,18 @@ namespace NServiceBus.Hosting
 
         void PerformConfiguration()
         {
-            if (specifier is IWantCustomLogging)
+            var loggingConfigurers = profileManager.GetLoggingConfigurer();
+            foreach (var loggingConfigurer in loggingConfigurers)
             {
-                (specifier as IWantCustomLogging).Init();
-            }
-            else
-            {
-                var loggingConfigurers = profileManager.GetLoggingConfigurer();
-                foreach (var loggingConfigurer in loggingConfigurers)
-                {
-                    loggingConfigurer.Configure(specifier);
-                }
+                loggingConfigurer.Configure(specifier);
             }
 
-            if (specifier is IWantCustomInitialization)
+            var initialization = specifier as IWantCustomInitialization;
+            if (initialization != null)
             {
                 try
                 {
-                    if (specifier is IWantCustomLogging)
-                    {
-                        var called = false;
-                        //make sure we don't call the Init method again, unless there's an explicit impl
-                        var initMap = specifier.GetType().GetInterfaceMap(typeof(IWantCustomInitialization));
-                        foreach (var m in initMap.TargetMethods)
-                        {
-                            if (!m.IsPublic && m.Name == "NServiceBus.IWantCustomInitialization.Init")
-                            {
-                                config = (specifier as IWantCustomInitialization).Init();
-                                called = true;
-                            }
-                        }
-
-                        if (!called)
-                        {
-                            //call the regular Init method if IWantCustomLogging was an explicitly implemented method
-                            var logMap = specifier.GetType().GetInterfaceMap(typeof(IWantCustomLogging));
-                            foreach (var tm in logMap.TargetMethods)
-                            {
-                                if (!tm.IsPublic && tm.Name == "NServiceBus.IWantCustomLogging.Init")
-                                {
-                                    config = (specifier as IWantCustomInitialization).Init();
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        (specifier as IWantCustomInitialization).Init();
-                    }
+                    initialization.Init();
                 }
                 catch (NullReferenceException ex)
                 {
