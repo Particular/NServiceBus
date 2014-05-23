@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
     using Internal;
+    using Logging;
     using Logging.Loggers.Log4NetAdapter;
     using Logging.Loggers.NLogAdapter;
 
@@ -11,6 +12,9 @@
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
+            if (LogManager.IsConfigured)
+                return;
+          
             if (Log4NetConfigurator.Log4NetExists)
                 SetLoggingLibrary.Log4Net(null, Log4NetAppenderFactory.CreateColoredConsoleAppender("Info"));
             else if (NLogConfigurator.NLogExists)

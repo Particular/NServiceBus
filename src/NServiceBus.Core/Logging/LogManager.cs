@@ -7,6 +7,8 @@ namespace NServiceBus.Logging
     {
         static ILoggerFactory loggerFactory = new NullLoggerFactory();
 
+        public static bool IsConfigured { get { return loggerFactory.GetType() != typeof(NullLoggerFactory); } }
+
         public static ILoggerFactory LoggerFactory
         {
             get { return loggerFactory; }
