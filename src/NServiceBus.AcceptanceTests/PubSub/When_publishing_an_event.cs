@@ -27,7 +27,7 @@
                     {
                         bus.Subscribe<IFoo>();
 
-                        if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                        if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
                         {
                             context.Subscriber3Subscribed = true;
                         }
@@ -58,14 +58,14 @@
                         {
                             bus.Subscribe<MyEvent>();
 
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
                                 context.Subscriber1Subscribed = true;
                         }))
                       .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
                       {
                           bus.Subscribe<MyEvent>();
 
-                          if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                          if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
                               context.Subscriber2Subscribed = true;
                       }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)

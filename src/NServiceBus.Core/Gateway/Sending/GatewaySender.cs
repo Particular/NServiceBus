@@ -3,7 +3,6 @@ namespace NServiceBus.Gateway.Sending
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Features;
     using Notifications;
     using ObjectBuilder;
     using Receiving;
@@ -16,6 +15,11 @@ namespace NServiceBus.Gateway.Sending
 
     class GatewaySender : IAdvancedSatellite
     {
+        public GatewaySender()
+        {
+            Disabled = true;
+        }
+
         public IBuilder Builder { get; set; }
         public IManageReceiveChannels ChannelManager { get; set; }
         public IMessageNotifier Notifier { get; set; }
@@ -55,11 +59,8 @@ namespace NServiceBus.Gateway.Sending
             get { return SettingsHolder.Instance.Get<Address>("Gateway.InputAddress"); }
         }
 
-        public bool Disabled
-        {
-            get { return !Feature.IsEnabled<Gateway>(); }
-        }
-
+        public bool Disabled { get; set; }
+       
         public void Start()
         {
         }

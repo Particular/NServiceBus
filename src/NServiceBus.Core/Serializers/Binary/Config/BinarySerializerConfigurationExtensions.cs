@@ -8,11 +8,11 @@
         /// <summary>
         /// Enables the binary message serializer
         /// </summary>
-        public static SerializationSettings Binary(this SerializationSettings settings)
+        public static Configure Binary(this SerializationSettings settings)
         {
-            Feature.Enable<BinarySerialization>();
+            settings.Config.Settings.Set("SelectedSerializer",typeof(BinarySerialization));
 
-            return settings;
+            return settings.Config;
         }
     }
 }

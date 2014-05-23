@@ -8,21 +8,21 @@
         /// <summary>
         /// Enables the json message serializer
         /// </summary>
-        public static SerializationSettings Json(this SerializationSettings settings)
+        public static Configure Json(this SerializationSettings settings)
         {
-           Feature.Enable<JsonSerialization>();
+            settings.Config.Settings.Set("SelectedSerializer", typeof(JsonSerialization));
 
-            return settings;
+            return settings.Config;
         }
 
         /// <summary>
         /// Enables the bson message serializer
         /// </summary>
-        public static SerializationSettings Bson(this SerializationSettings settings)
+        public static Configure Bson(this SerializationSettings settings)
         {
-            Feature.Enable<BsonSerialization>();
+            settings.Config.Settings.Set("SelectedSerializer", typeof(BsonSerialization));
 
-            return settings;
+            return settings.Config;
         }
     }
 }

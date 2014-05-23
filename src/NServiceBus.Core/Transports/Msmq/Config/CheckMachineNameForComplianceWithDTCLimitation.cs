@@ -35,7 +35,7 @@ namespace NServiceBus.Transports.Msmq.Config
         /// </summary>
         public void Run(Configure config)
         {
-            if (!Feature.IsEnabled<MsmqTransport>())
+            if (!config.Features.IsActivated<MsmqTransport>())
             {
                 return;
             }

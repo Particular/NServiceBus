@@ -8,9 +8,9 @@
     /// </summary>
     public class StorageDrivenPublisher : Feature
     {
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            var transportDefinition = config.Settings.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
+            var transportDefinition = context.Settings.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
 
             if (transportDefinition != null && transportDefinition.HasNativePubSubSupport)
             {
@@ -18,7 +18,7 @@
                 return;
             }
 
-            config.Configurer.ConfigureComponent<Unicast.Publishing.StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent<Unicast.Publishing.StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
         }
 
         static ILog Logger = LogManager.GetLogger<StorageDrivenPublisher>();

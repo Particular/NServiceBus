@@ -52,7 +52,7 @@
 
                 bus = config.CreateBus();
 
-                Configure.Instance.ForInstallationOn<Windows>().Install();
+                config.ForInstallationOn<Windows>().Install();
 
                 executeWhens = Task.Factory.StartNew(() =>
                 {

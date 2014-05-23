@@ -16,7 +16,7 @@ namespace NServiceBus.Unicast.Queuing.Installers
 
         public bool ShouldCreateQueue(Configure config)
         {
-            return config.Features.IsEnabled<Audit>();
+            return config.Features.IsActivated<Audit>();
         }
     }
 }

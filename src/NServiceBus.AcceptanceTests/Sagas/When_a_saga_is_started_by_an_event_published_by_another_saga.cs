@@ -35,7 +35,7 @@
                         {
                             bus.Subscribe<SomethingHappenedEvent>();
 
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
                                 context.IsEventSubscriptionReceived = true;
                         }))
 
@@ -77,7 +77,7 @@
                      {
                          bus.Subscribe<BaseEvent>();
 
-                          if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                         if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
                               context.IsEventSubscriptionReceived = true;
                      }))
                  .Done(c => c.DidSagaComplete)

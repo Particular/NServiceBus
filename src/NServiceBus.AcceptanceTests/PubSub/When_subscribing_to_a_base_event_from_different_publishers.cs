@@ -32,7 +32,7 @@
                      )
                .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                {
-                   if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                   if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
                    {
                        context.SubscribedToPublisher1 = true;
                        context.SubscribedToPublisher2 = true;

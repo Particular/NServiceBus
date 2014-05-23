@@ -70,9 +70,6 @@
                 return;
             }
 
-            Serializers.SetDefault<XmlSerialization>();
-
-
             config.Features.Disable<Sagas>();
             config.Features.Disable<Audit>();
 

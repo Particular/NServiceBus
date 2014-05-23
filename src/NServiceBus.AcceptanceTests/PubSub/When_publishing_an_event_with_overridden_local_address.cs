@@ -26,7 +26,7 @@
                         {
                             bus.Subscribe<MyEvent>();
 
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
                                 context.Subscriber1Subscribed = true;
                         }))
                     .Done(c => c.Subscriber1GotTheEvent)

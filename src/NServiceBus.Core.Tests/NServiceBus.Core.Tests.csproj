@@ -142,6 +142,8 @@
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="AttributeTests.cs" />
+    <Compile Include="Features\FeatureSettingsTests.cs" />
+    <Compile Include="Features\FeatureTests.cs" />
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
     <Compile Include="Logging\RollingLoggerTests.cs" />
     <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniqueProperties.cs" />
@@ -194,7 +196,6 @@
     <Compile Include="Encryption\WireEncryptedStringSpecs.cs" />
     <Compile Include="Fakes\FakeBus.cs" />
     <Compile Include="Fakes\FakeTransport.cs" />
-    <Compile Include="Features\FeatureCategories.cs" />
     <Compile Include="FuncBuilder.cs" />
     <Compile Include="Gateway\Config\When_routing_using_the_configuration_source.cs" />
     <Compile Include="Gateway\FakeMessageSender.cs" />

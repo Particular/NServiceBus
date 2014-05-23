@@ -2,7 +2,6 @@ namespace NServiceBus.Gateway.Receiving
 {
     using System;
     using System.Collections.Generic;
-    using Features;
     using Logging;
     using Notifications;
     using Routing;
@@ -16,6 +15,7 @@ namespace NServiceBus.Gateway.Receiving
         public GatewayReceiver()
         {
             activeReceivers = new List<IReceiveMessagesFromSites>();
+            Disabled = true;
         }
 
         public ISendMessages MessageSender { get; set; }
@@ -51,10 +51,7 @@ namespace NServiceBus.Gateway.Receiving
             get { return null; }
         }
 
-        public bool Disabled
-        {
-            get { return !Feature.IsEnabled<Gateway>(); }
-        }
+        public bool Disabled { get; set; }
 
         public void Start()
         {

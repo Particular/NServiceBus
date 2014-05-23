@@ -4,9 +4,9 @@
 
     public class MessageDrivenSubscriptions : Feature
     {
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            config.Configurer.ConfigureComponent<SubscriptionManager>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<SubscriptionManager>(DependencyLifecycle.SingleInstance);
         }
     }
 }

@@ -330,21 +330,28 @@ namespace NServiceBus
 
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run(this));
-            
-            Features.DisableFeaturesAsNeeded();
-
-            ForAllTypes<INeedToInstallSomething<Windows>>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+           
+            Settings.Set("EndpointName",EndpointName);
 
             //lockdown the settings
             Settings.PreventChanges();
 
             ActivateAndInvoke<IFinalizeConfiguration>(t => t.FinalizeConfiguration(this));
 
+            Features.SetupFeatures();
+
+            //this needs to be before the installers since they actually call .Initialize :(
             initialized = true;
 
+            ForAllTypes<INeedToInstallSomething<Windows>>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+
+           
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
                 .ForEach(o => o.Run(this));
+
+            
+
         }
 
 

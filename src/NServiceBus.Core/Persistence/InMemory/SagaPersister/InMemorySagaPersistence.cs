@@ -9,9 +9,9 @@
             DependsOn<Sagas>();
         }
 
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            config.Configurer.ConfigureComponent<InMemorySagaPersister>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<InMemorySagaPersister>(DependencyLifecycle.SingleInstance);
         }
     }
 }

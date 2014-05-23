@@ -30,13 +30,13 @@
                     .WithEndpoint<V1Subscriber>(b => b.Given((bus,c) =>
                         {
                             bus.Subscribe<V1Event>();
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
                                 c.V1Subscribed = true;
                         }))
                     .WithEndpoint<V2Subscriber>(b => b.Given((bus,c) =>
                         {
                             bus.Subscribe<V2Event>();
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
                                 c.V2Subscribed = true;
                         }))
                     .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)

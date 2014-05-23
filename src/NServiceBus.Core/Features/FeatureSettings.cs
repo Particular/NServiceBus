@@ -1,49 +1,69 @@
 namespace NServiceBus.Features
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
     using Logging;
+    using Settings;
 
     /// <summary>
     /// Settings for the various features
     /// </summary>
-    public class FeatureSettings:IEnumerable<Feature>
+    public class FeatureSettings : IEnumerable<Feature>
     {
         readonly Configure config;
+        readonly SettingsHolder settings;
 
         public FeatureSettings(Configure config)
         {
             this.config = config;
+            settings = config.Settings;
+        }
+
+        public FeatureSettings(SettingsHolder settings)
+        {
+            this.settings = settings;
         }
 
         /// <summary>
         /// Enables the given feature
         /// </summary>
-        public FeatureSettings Enable<T>() where T : Feature
+        public Configure Enable<T>() where T : Feature
         {
-            Feature.Enable<T>();
+            return Enable(typeof(T));
+        }
 
-            return this;
+        public Configure Enable(Type featureType)
+        {
+            settings.Set(featureType.FullName, true);
+
+            return config;
         }
 
         /// <summary>
         /// Disables the given feature
         /// </summary>
-        public FeatureSettings Disable<T>() where T : Feature
+        public Configure Disable<T>() where T : Feature
         {
-            Feature.Disable<T>();
+            return Disable(typeof(T));
+        }
 
-            return this;
+        public Configure Disable(Type featureType)
+        {
+            settings.Set(featureType.FullName, false);
+
+            return config;
         }
 
         public void Add(Feature feature)
         {
             if (feature.IsEnabledByDefault)
             {
-                Feature.EnableByDefault(feature.GetType());    
+                EnableByDefault(feature.GetType());
             }
-            
+
             features.Add(feature);
         }
 
@@ -58,59 +78,74 @@ namespace NServiceBus.Features
             return GetEnumerator();
         }
 
-        public void EnableByDefault<T>() where T:Feature
+        public void EnableByDefault<T>() where T : Feature
         {
-            Feature.EnableByDefault<T>();    
+            EnableByDefault(typeof(T));
         }
 
-        public bool IsEnabled<T>() where T:Feature
+        public void EnableByDefault(Type featureType)
         {
-            return Feature.IsEnabled<T>();
+            settings.SetDefault(featureType.FullName, true);
         }
 
-        public void DisableFeaturesAsNeeded()
+        bool IsEnabled<T>() where T : Feature
         {
-            var features = config.Features;
-
-            DisableFeaturesThatAskedToBeDisabled(config);
-
-            DisableFeaturesThatAreDependingOnDisabledFeatures(features);
+            return IsEnabled(typeof(T));
         }
 
-        static void DisableFeaturesThatAskedToBeDisabled(Configure config)
+        bool IsEnabled(Type featureType)
         {
-            foreach (var feature in config.Features)
+            return settings.GetOrDefault<bool>(featureType.FullName);
+        }
+
+        public void SetupFeatures()
+        {
+            var statusText = new StringBuilder();
+
+            var context = new FeatureConfigurationContext(settings, config.Configurer, config.Pipeline, config.TypesToScan);
+
+            var featuresToActivate = features.Where(f => IsEnabled(f.GetType()) && MeetsActivationCondition(f, statusText,context))
+              .ToList();
+
+            foreach (var feature in featuresToActivate)
             {
-                if (!Feature.IsEnabled(feature.GetType()))
-                {
-                    if (feature.IsEnabledByDefault)
-                    {
-                        Logger.InfoFormat("Default feature {0} has been explicitly disabled", feature.Name);
-                    }
+                feature.SetupFeature(context);
+             
 
-                    continue;
-                }
-
-                if (!feature.ShouldBeEnabled(config))
-                {
-                    Feature.Disable(feature.GetType());
-                    Logger.DebugFormat("Default feature {0} has requested to be disabled", feature.Name);
-                }
+                statusText.AppendLine(string.Format("{0} - Activated", feature));
             }
+
+            Logger.InfoFormat("Features: \n{0}", statusText);
         }
 
-        static void DisableFeaturesThatAreDependingOnDisabledFeatures(IEnumerable<Feature> features)
+        bool MeetsActivationCondition(Feature feature, StringBuilder statusText,FeatureConfigurationContext context)
         {
-            features
-                 .Where(f => f.Dependencies.Any(dependency => !Feature.IsEnabled(dependency)))
-                 .ToList()
-                 .ForEach(toBeDisabled =>
-                 {
-                     Feature.Disable(toBeDisabled.GetType());
-                     Logger.InfoFormat("Feature {0} has been disabled since its depending on the following disabled features: {1}", toBeDisabled.Name, string.Join(",", toBeDisabled.Dependencies.Where(d => !Feature.IsEnabled(d))));
-                 });
+            if (!feature.ShouldBeSetup(context))
+            {
+
+                statusText.AppendLine(string.Format("{0} - Activation condition(s) not fullfilled", feature));
+                return false;
+            }
+
+            return true;
         }
+
+        //void DisableFeaturesThatAreDependingOnDisabledFeatures()
+        //{
+        //    features.Where(f => f.Dependencies.Any(dependency => !IsEnabled(dependency)))
+        //         .ToList()
+        //         .ForEach(toBeDisabled =>
+        //         {
+        //             Disable(toBeDisabled.GetType());
+        //             Logger.InfoFormat("Feature {0} has been disabled since its depending on the following disabled features: {1}", toBeDisabled.Name, string.Join(",", toBeDisabled.Dependencies.Where(d => !IsEnabled(d))));
+        //         });
+        //}
 
         static ILog Logger = LogManager.GetLogger<FeatureSettings>();
+
+        public bool IsActivated<T>() where T:Feature
+        {
+            return features.Single(f => f.GetType() == typeof(T)).IsActivated;
+        }
     }
 }

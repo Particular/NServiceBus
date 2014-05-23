@@ -3,12 +3,12 @@
     using MessageInterfaces.MessageMapper.Reflection;
     using Serializers.Json;
 
-    public class BsonSerialization : Feature<Categories.Serializers>
+    public class BsonSerialization : Feature
     {
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            config.Configurer.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<BsonMessageSerializer>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<BsonMessageSerializer>(DependencyLifecycle.SingleInstance);
         }
     }
 }

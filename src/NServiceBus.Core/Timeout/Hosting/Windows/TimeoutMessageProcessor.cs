@@ -2,7 +2,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Core;
-    using Features;
     using Satellites;
     using Transports;
     using Unicast;
@@ -10,16 +9,18 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
     class TimeoutMessageProcessor : IAdvancedSatellite
     {
+        public TimeoutMessageProcessor()
+        {
+            Disabled = true;
+        }
+
         public ISendMessages MessageSender { get; set; }
 
         public DefaultTimeoutManager TimeoutManager { get; set; }
 
         public Address InputAddress { get { return Features.TimeoutManager.InputAddress; } }
 
-        public bool Disabled
-        {
-            get { return !Feature.IsEnabled<TimeoutManager>(); }
-        }
+        public bool Disabled { get; set; }
 
         public void Start()
         {

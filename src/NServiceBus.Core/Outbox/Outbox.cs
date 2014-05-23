@@ -7,16 +7,16 @@
 
     public class Outbox : Feature
     {
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            config.Pipeline.Register<OutboxDeduplicationRegistration>();
-            config.Pipeline.Register<OutboxRecorderRegistration>();
-            config.Pipeline.Replace(WellKnownBehavior.DispatchMessageToTransport, typeof(OutboxSendBehavior), "Sending behavior with a delay sending until all business transactions are committed to the outbox storage");
+            context.Pipeline.Register<OutboxDeduplicationRegistration>();
+            context.Pipeline.Register<OutboxRecorderRegistration>();
+            context.Pipeline.Replace(WellKnownBehavior.DispatchMessageToTransport, typeof(OutboxSendBehavior), "Sending behavior with a delay sending until all business transactions are committed to the outbox storage");
 
             //make the audit use the outbox as well
-            if (config.Configurer.HasComponent<IAuditMessages>())
+            if (context.Container.HasComponent<IAuditMessages>())
             {
-                config.Configurer.ConfigureComponent<OutboxAwareAuditer>(DependencyLifecycle.InstancePerCall);
+                context.Container.ConfigureComponent<OutboxAwareAuditer>(DependencyLifecycle.InstancePerCall);
             }
              
         }

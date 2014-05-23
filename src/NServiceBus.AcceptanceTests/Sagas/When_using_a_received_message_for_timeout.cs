@@ -18,7 +18,7 @@
                     {
                         b.Given((bus, context) =>
                         {
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
                             {
                                 bus.SendLocal(new StartSagaMessage { SomeId = context.Id });
                             }

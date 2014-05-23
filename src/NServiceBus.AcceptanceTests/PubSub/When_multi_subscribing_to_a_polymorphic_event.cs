@@ -43,7 +43,7 @@
                     bus.Subscribe<IMyEvent>();
                     bus.Subscribe<MyEvent2>();
 
-                    if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                    if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
                     {
                         context.SubscribedToIMyEvent = true;
                         context.SubscribedToMyEvent2 = true;

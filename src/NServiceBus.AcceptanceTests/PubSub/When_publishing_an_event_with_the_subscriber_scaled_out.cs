@@ -38,14 +38,14 @@
                         {
                             bus.Subscribe<MyEvent>();
 
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
                                 context.NumberOfSubscriptionsReceived++;
                         }))
                       .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
                       {
                           bus.Subscribe<MyEvent>();
 
-                          if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                          if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
                               context.NumberOfSubscriptionsReceived++;
                       }))
                     .Done(c => c.SubscribersOfTheEvent != null)

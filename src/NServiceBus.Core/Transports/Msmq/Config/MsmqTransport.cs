@@ -8,14 +8,14 @@
 
     public class MsmqTransport : ConfigureTransport<Msmq>
     {
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            config.Configurer.ConfigureComponent<CorrelationIdMutatorForBackwardsCompatibilityWithV3>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<MsmqUnitOfWork>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
+            context.Container.ConfigureComponent<CorrelationIdMutatorForBackwardsCompatibilityWithV3>(DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent<MsmqUnitOfWork>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
 
-            var cfg = config.GetConfigSection<MsmqMessageQueueConfig>();
+            var cfg = NServiceBus.Configure.Instance.GetConfigSection<MsmqMessageQueueConfig>();
 
             var settings = new MsmqSettings();
             if (cfg != null)
@@ -27,7 +27,7 @@
             }
             else
             {
-                var connectionString = config.Settings.Get<string>("NServiceBus.Transport.ConnectionString");
+                var connectionString = context.Settings.Get<string>("NServiceBus.Transport.ConnectionString");
 
                 if (connectionString != null)
                 {
@@ -35,18 +35,18 @@
                 }
             }
 
-            config.Configurer.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.InstancePerCall)
+            context.Container.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.Settings, settings);
 
-            config.Configurer.ConfigureComponent<MsmqQueueCreator>(DependencyLifecycle.InstancePerCall)
+            context.Container.ConfigureComponent<MsmqQueueCreator>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.Settings, settings);
         }
 
         protected override void InternalConfigure(Configure config)
         {
-            Enable<MsmqTransport>();
-            Enable<MessageDrivenSubscriptions>();
-            EnableByDefault<StorageDrivenPublisher>();
+            config.Features.Enable<MsmqTransport>();
+            config.Features.Enable<MessageDrivenSubscriptions>();
+            config.Features.EnableByDefault<StorageDrivenPublisher>();
 
             //for backwards compatibility
             config.Settings.SetDefault("SerializationSettings.WrapSingleMessages", true);

@@ -278,7 +278,6 @@
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
     <Compile Include="DataBus\InMemory\InMemoryDataBus.cs" />
     <Compile Include="Features\FeatureSettings.cs" />
-    <Compile Include="Features\FeatureInitializer.cs" />
     <Compile Include="Gateway\Channels\ChannelTypeAttribute.cs" />
     <Compile Include="Gateway\Deduplication\GatewayMessage.cs" />
     <Compile Include="Gateway\Deduplication\IDeduplicateMessages.cs" />
@@ -291,7 +290,7 @@
     <Compile Include="Serializers\Json\Config\BsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
-    <Compile Include="Serializers\Serializers.cs" />
+    <Compile Include="Serializers\EnableSelectedSerializer.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationSettings.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializerConfigurationExtensions.cs" />
@@ -320,8 +319,6 @@
     <Compile Include="Persistence\Raven\SagaPersister\ConfigureRavenSagaPersister.cs" />
     <Compile Include="Persistence\Raven\SubscriptionStorage\ConfigureRavenSubscriptionStorage.cs" />
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
-    <Compile Include="ConfigureSagas.cs" />
-    <Compile Include="Timeout\ConfigureTimeoutManager.cs" />
     <Compile Include="ConfigureUnicastBus.cs" />
     <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer.cs" />
     <Compile Include="Config\AddressInitializer.cs" />
