@@ -48,7 +48,7 @@
         public void Should_blow()
         {
             RegisterMessageType<TestMessage>();
-            var receivedMessage = Helpers.Helpers.Serialize(new TestMessage());
+            var receivedMessage = Helpers.Helpers.Serialize(new TestMessage(),true);
             RegisterMessageHandlerType<HandlerThatRepliesWithACommandToAMessage>();
             ReceiveMessage(receivedMessage);
             Assert.IsInstanceOf<InvalidOperationException>(ResultingException.GetBaseException());
@@ -62,7 +62,7 @@
         public void Should_blow()
         {
             RegisterMessageType<TestMessage>();
-            var receivedMessage = Helpers.Helpers.Serialize(new TestMessage());
+            var receivedMessage = Helpers.Helpers.Serialize(new TestMessage(),true);
             RegisterMessageHandlerType<HandlerThatReturns>();
             ReceiveMessage(receivedMessage);
             Assert.IsInstanceOf<InvalidOperationException>(ResultingException.GetBaseException());

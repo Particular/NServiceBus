@@ -1,11 +1,13 @@
 ﻿namespace NServiceBus.Management.Retries.Tests
 {
     using System;
+    using System.Collections.Generic;
     using Faults.Forwarder;
     using SecondLevelRetries;
     using SecondLevelRetries.Helpers;
     using NUnit.Framework;
     using Transports;
+    using Unicast;
 
     [TestFixture]
     public class SecondLevelRetriesTests
@@ -16,6 +18,8 @@
         Address ERROR_QUEUE = new Address("error","localhost");
         Address RETRIES_QUEUE = new Address("retries", "localhost");
         Address ORIGINAL_QUEUE = new Address("org", "hostname");
+        Address CLIENT_QUEUE = Address.Parse("clientQ@myMachine");
+
         TransportMessage message;
 
         [SetUp]
@@ -29,19 +33,17 @@
 
             satellite.RetryPolicy = DefaultRetryPolicy.RetryPolicy;
 
-            message = new TransportMessage();
+            message = new TransportMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), CLIENT_QUEUE);
         }
 
         [Test]
         public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_error_queue()
         {
-            var expected = new Address("clientQ", "myMachine");
-            message.ReplyToAddress = expected;
             satellite.RetryPolicy = _ => TimeSpan.MinValue;
 
             satellite.Handle(message);
 
-            Assert.AreEqual(expected, message.ReplyToAddress);
+            Assert.AreEqual(CLIENT_QUEUE, message.ReplyToAddress);
         }
 
         [Test]
@@ -49,15 +51,13 @@
         {
             TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");            
 
-            var expected = new Address("clientQ", "myMachine");
-            message.ReplyToAddress = expected;
-
+          
             for (var i = 0; i < DefaultRetryPolicy.NumberOfRetries + 1; i++)
             {
                 satellite.Handle(message);
             }
 
-            Assert.AreEqual(expected, message.ReplyToAddress);
+            Assert.AreEqual(CLIENT_QUEUE, message.ReplyToAddress);
         }
 
         [Test]
@@ -151,15 +151,9 @@
 
         public TransportMessage DeferredMessage { get; set; }
 
-        public void Defer(TransportMessage message, DateTime processAt, Address address)
+        public void Defer(TransportMessage message, SendOptions sendOptions)
         {
-            MessageRoutedTo = address;
-            DeferredMessage = message;
-        }
-
-        public void Defer(TransportMessage message, TimeSpan delayBy, Address address)
-        {
-            MessageRoutedTo = address;
+            MessageRoutedTo = sendOptions.Destination;
             DeferredMessage = message;
         }
 
@@ -173,9 +167,9 @@
     {
         public Address MessageSentTo { get; set; }
 
-        public void Send(TransportMessage message, Address address)
+        public void Send(TransportMessage message, SendOptions sendOptions)
         {
-            MessageSentTo = address;
+            MessageSentTo = sendOptions.Destination;
         }
     }
 }

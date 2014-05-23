@@ -20,31 +20,31 @@
 
         static void VerifyBestPractices(OutgoingContext context)
         {
-            if (!context.SendOptions.EnforceMessagingBestPractices)
+            if (!context.DeliveryOptions.EnforceMessagingBestPractices)
             {
                 return;
             }
-            if (context.SendOptions.Destination == Address.Undefined)
+
+            var sendOptions = context.DeliveryOptions as SendOptions;
+
+            if (sendOptions == null)
+            {
+                MessagingBestPractices.AssertIsValidForPubSub(context.OutgoingLogicalMessage.MessageType);
+                return;
+            }
+
+            if (sendOptions.Destination == Address.Undefined)
             {
                 throw new InvalidOperationException("No destination specified for message: " + context.OutgoingLogicalMessage.MessageType);
             }
 
-            switch (context.SendOptions.Intent)
+            if (sendOptions is ReplyOptions)
             {
-                case MessageIntentEnum.Subscribe:
-                case MessageIntentEnum.Unsubscribe:
-                    break;
-                case MessageIntentEnum.Publish:
-                    MessagingBestPractices.AssertIsValidForPubSub(context.OutgoingLogicalMessage.MessageType);
-                    break;
-                case MessageIntentEnum.Reply:
-                    MessagingBestPractices.AssertIsValidForReply(context.OutgoingLogicalMessage.MessageType);
-                    break;
-                case MessageIntentEnum.Send:
-                    MessagingBestPractices.AssertIsValidForSend(context.OutgoingLogicalMessage.MessageType, context.SendOptions.Intent);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                MessagingBestPractices.AssertIsValidForReply(context.OutgoingLogicalMessage.MessageType);
+            }
+            else
+            {
+                MessagingBestPractices.AssertIsValidForSend(context.OutgoingLogicalMessage.MessageType);
             }
         }
     }

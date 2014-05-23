@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
-    using Audit;
     using Contexts;
     using DataBus;
     using MessageMutator;
@@ -64,7 +63,6 @@
         {
             coordinator.Register(WellKnownBehavior.ChildContainer, typeof(ChildContainerBehavior), "Creates the child container");
             coordinator.Register("MessageReceivedLogging", typeof(MessageHandlingLoggingBehavior), "Logs the message received");
-            coordinator.Register(WellKnownBehavior.AuditForwarder, typeof(AuditBehavior), "Forward message to audit queue after message is successfully processed");
             coordinator.Register("ForwardMessageTo", typeof(ForwardBehavior), "Forwards message to");
             coordinator.Register(WellKnownBehavior.UnitOfWork, typeof(UnitOfWorkBehavior), "Executes the UoW");
             coordinator.Register("SubscriptionReceiver", typeof(SubscriptionReceiverBehavior), "Check for subscription messages");

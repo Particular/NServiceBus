@@ -99,8 +99,6 @@
     <Compile Include="App_Packages\Particular.Licensing\UniversalDateParser.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
     <Compile Include="Audit\Audit.cs" />
-    <Compile Include="Audit\InitMessageAuditer.cs" />
-    <Compile Include="Audit\MessageAuditer.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscribe.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscriber.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettingsExtensions.cs" />
@@ -184,6 +182,7 @@
     <Compile Include="Outbox\OutboxRecordBehavior.cs" />
     <Compile Include="Outbox\OutboxSendBehavior.cs" />
     <Compile Include="Outbox\TransportOperation.cs" />
+    <Compile Include="Outbox\TransportOperationConverter.cs" />
     <Compile Include="Persistence\EnableSelectedPersistence.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayPersistence.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxPersistence.cs" />
@@ -233,11 +232,14 @@
     <Compile Include="Support\RuntimeEnvironment.cs" />
     <Compile Include="TimeToBeReceivedAttribute.cs" />
     <Compile Include="Transports\ConfigureTransport.cs" />
+    <Compile Include="Audit\DefaultMessageAuditer.cs" />
+    <Compile Include="Audit\IAuditMessages.cs" />
     <Compile Include="Unicast\Behaviors\CallbackInvocationBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ForwardBehavior.cs" />
     <Compile Include="Unicast\Behaviors\InvokeHandlersBehavior.cs" />
     <Compile Include="Unicast\Behaviors\LoadHandlersBehavior.cs" />
     <Compile Include="Unicast\Behaviors\SetCurrentMessageBeingHandledBehavior.cs" />
+    <Compile Include="Unicast\DeliveryOptions.cs" />
     <Compile Include="Unicast\Messages\ExecuteLogicalMessagesBehavior.cs" />
     <Compile Include="Unicast\Messages\LogicalMessage.cs" />
     <Compile Include="Unicast\Behaviors\MessageHandler.cs" />
@@ -256,6 +258,8 @@
     <Compile Include="Sagas\ActiveSagaInstance.cs" />
     <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
     <Compile Include="Unicast\Messages\LogicalMessageFactory.cs" />
+    <Compile Include="Unicast\PublishOptions.cs" />
+    <Compile Include="Unicast\ReplyOptions.cs" />
     <Compile Include="Unicast\SendOptions.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubscriptionManager.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageInitializer.cs" />
@@ -547,7 +551,6 @@
     <Compile Include="Timeout\Core\TimeoutManagerDeferrer.cs" />
     <Compile Include="Unicast\Config\DefaultTransportForHost.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
-    <Compile Include="Transports\MessageForwarder.cs" />
     <Compile Include="Unicast\MessagesEventArgs.cs" />
     <Compile Include="Unicast\Queuing\Installers\ForwardReceivedMessagesToQueueCreator.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageDrivenPublisher.cs" />

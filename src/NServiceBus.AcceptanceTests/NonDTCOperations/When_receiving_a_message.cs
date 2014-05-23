@@ -47,7 +47,8 @@
             public NonDtcReceivingEndpoint()
             {
                 EndpointSetup<DefaultServer>(c => c.EnableOutbox())
-                .AllowExceptions();
+                .AllowExceptions()
+                .AuditTo(Address.Parse("audit"));
             }
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>

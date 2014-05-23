@@ -3,7 +3,6 @@
     using System;
     using Pipeline;
     using Pipeline.Contexts;
-    using Transport;
     using Unicast;
     using Messages;
 
@@ -17,45 +16,36 @@
 
         public void Invoke(OutgoingContext context, Action next)
         {
-            var sendOptions = context.SendOptions;
-            TransportMessage toSend;
-            var isControl = false;
+            var deliveryOptions = context.DeliveryOptions;
 
-            if (context.OutgoingLogicalMessage.IsControlMessage())
+            var toSend = new TransportMessage { MessageIntent = MessageIntentEnum.Publish };
+
+            var sendOptions = deliveryOptions as SendOptions;
+
+
+            if (sendOptions != null)
             {
-                toSend = ControlMessage.Create(Address.Local);
-                toSend.MessageIntent = sendOptions.Intent;
-                isControl = true;
-            }
-            else
-            {
-                toSend = new TransportMessage
+                toSend.MessageIntent = sendOptions is ReplyOptions ? MessageIntentEnum.Reply : MessageIntentEnum.Send;
+
+                if (sendOptions.CorrelationId != null)
                 {
-                    MessageIntent = sendOptions.Intent,
-                    ReplyToAddress = sendOptions.ReplyToAddress
-                };
-            }
-
-            if (sendOptions.CorrelationId != null)
-            {
-                toSend.CorrelationId = sendOptions.CorrelationId;
-            }
-
-            if (!isControl)
-            {
-                //apply static headers
-                foreach (var kvp in UnicastBus.OutgoingHeaders)
-                {
-                    toSend.Headers[kvp.Key] = kvp.Value;
+                    toSend.CorrelationId = sendOptions.CorrelationId;
                 }
             }
+
+            //apply static headers
+            foreach (var kvp in UnicastBus.OutgoingHeaders)
+            {
+                toSend.Headers[kvp.Key] = kvp.Value;
+            }
+
             //apply individual headers
             foreach (var kvp in context.OutgoingLogicalMessage.Headers)
             {
                 toSend.Headers[kvp.Key] = kvp.Value;
             }
 
-            if (!isControl)
+            if (context.OutgoingLogicalMessage.MessageType != null)
             {
                 var messageDefinitions = MessageMetadataRegistry.GetMessageDefinition(context.OutgoingLogicalMessage.MessageType);
 

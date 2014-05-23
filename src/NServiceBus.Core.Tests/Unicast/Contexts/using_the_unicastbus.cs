@@ -4,7 +4,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading;
-    using Audit;
     using Behaviors;
     using Core.Tests;
     using Helpers;
@@ -102,8 +101,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
 
-            FuncBuilder.Register<MessageAuditer>(() => new MessageAuditer());
-
             FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory());
 
             FuncBuilder.Register<IManageSubscriptions>(() => subscriptionManager);
@@ -167,12 +164,12 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected void VerifyThatMessageWasSentTo(Address destination)
         {
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(destination)));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<SendOptions>.Matches(o => o.Destination == destination)));
         }
 
         protected void VerifyThatMessageWasSentWithHeaders(Func<IDictionary<string, string>, bool> predicate)
         {
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(t => predicate(t.Headers)), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(t => predicate(t.Headers)), Arg<SendOptions>.Is.Anything));
         }
 
         protected void RegisterUow(IManageUnitsOfWork uow)
@@ -219,7 +216,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             try
             {
                 messageSender.AssertWasCalled(x =>
-                  x.Send(Arg<TransportMessage>.Matches(m => condition(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
+                  x.Send(Arg<TransportMessage>.Matches(m => condition(m)), Arg<SendOptions>.Matches(o => o.Destination == addressOfPublishingEndpoint)));
 
             }
             catch (Exception)
@@ -227,7 +224,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 //retry to avoid race conditions 
                 Thread.Sleep(2000);
                 messageSender.AssertWasCalled(x =>
-                 x.Send(Arg<TransportMessage>.Matches(m => condition(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
+                 x.Send(Arg<TransportMessage>.Matches(m => condition(m)), Arg<SendOptions>.Matches(o => o.Destination == addressOfPublishingEndpoint)));
             }
         }
 
@@ -236,7 +233,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             try
             {
                 messageSender.AssertWasCalled(x =>
-                  x.Send(Arg<TransportMessage>.Matches(m => IsSubscriptionFor<T>(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
+                  x.Send(Arg<TransportMessage>.Matches(m => IsSubscriptionFor<T>(m)), Arg<SendOptions>.Matches(o => o.Destination == addressOfPublishingEndpoint)));
 
             }
             catch (Exception)
@@ -244,7 +241,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 //retry to avoid race conditions 
                 Thread.Sleep(1000);
                 messageSender.AssertWasCalled(x =>
-                  x.Send(Arg<TransportMessage>.Matches(m => IsSubscriptionFor<T>(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
+                  x.Send(Arg<TransportMessage>.Matches(m => IsSubscriptionFor<T>(m)), Arg<SendOptions>.Matches(o => o.Destination == addressOfPublishingEndpoint)));
             }
         }
 
@@ -256,12 +253,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
     }
 
-    public class FakeMessageAuditer : MessageAuditer
-    {
-        public override void ForwardMessageToAuditQueue(TransportMessage transportMessage)
-        {
-        }
-    }
 
     class using_the_unicastBus : using_a_configured_unicastBus
     {

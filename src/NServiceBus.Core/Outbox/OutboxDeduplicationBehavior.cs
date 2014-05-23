@@ -4,15 +4,19 @@
     using System.Collections.Generic;
     using Pipeline;
     using Pipeline.Contexts;
+    using Transports;
+    using Unicast;
     using Unicast.Behaviors;
     using Unicast.Messages;
-
+    using NServiceBus;
     class OutboxDeduplicationBehavior : IBehavior<IncomingContext>
     {
         public IOutboxStorage OutboxStorage { get; set; }
         public DispatchMessageToTransportBehavior DispatchMessageToTransportBehavior { get; set; }
 
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
+
+        public DefaultMessageAuditer DefaultMessageAuditer { get; set; }
 
         public void Invoke(IncomingContext context, Action next)
         {
@@ -37,11 +41,29 @@
         {
             foreach (var transportOperation in operations)
             {
-                var metadata = MessageMetadataRegistry.GetMessageMetadata(transportOperation.MessageType);
+                var deliveryOptions = transportOperation.Options.ToDeliveryOptions();
+
+                deliveryOptions.EnlistInReceiveTransaction = false;
+
+                var message = new TransportMessage(transportOperation.MessageId, transportOperation.Headers)
+                {
+                    Body = transportOperation.Body
+                };
 
                 //dispatch to transport
-                DispatchMessageToTransportBehavior.InvokeNative(transportOperation.SendOptions, transportOperation.Message, metadata);
+
+                if (transportOperation.Options["Operation"] != "Audit")
+                {
+                    DispatchMessageToTransportBehavior.InvokeNative(deliveryOptions, message);    
+                }
+                else
+                {
+                    DefaultMessageAuditer.Audit(deliveryOptions as SendOptions, message);
+                }
+                
             }
         }
+
+      
     }
 }

@@ -124,13 +124,12 @@ namespace NServiceBus.Unicast
         /// </summary>
         public virtual void Publish<T>(T message)
         {
-            var sendOptions = new SendOptions
-            {
-                Intent = MessageIntentEnum.Publish
-            };
+            var options = new PublishOptions(typeof(T));
 
-            InvokeSendPipeline(sendOptions, LogicalMessageFactory.Create(message));
+            InvokeSendPipeline(options, LogicalMessageFactory.Create(message));
         }
+
+        
 
         /// <summary>
         /// Subscribes to the given type - T.
@@ -236,38 +235,34 @@ namespace NServiceBus.Unicast
 
         public void Reply(object message)
         {
-            var options = SendOptions.ReplyTo(MessageBeingProcessed.ReplyToAddress);
-            SetCorrelationId(options);
+            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress,GetCorrelationId()); 
+            
             SendMessage(options, LogicalMessageFactory.Create(message));
         }
 
         public void Reply<T>(Action<T> messageConstructor)
         {
             var instance = messageMapper.CreateInstance(messageConstructor);
-            var options = SendOptions.ReplyTo(MessageBeingProcessed.ReplyToAddress);
-            SetCorrelationId(options);
+            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId()); 
+
             SendMessage(options, LogicalMessageFactory.Create(instance));
         }
 
         public void Return<T>(T errorCode)
         {
-            //var returnMessage = ControlMessage.Create(Address.Local);
             var returnMessage = LogicalMessageFactory.CreateControl(new Dictionary<string, string>
             {
                 {Headers.ReturnMessageErrorCodeHeader, errorCode.GetHashCode().ToString()}
             });
 
-            //returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
-            //.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
+            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId()); 
 
-            var options = SendOptions.ReplyTo(MessageBeingProcessed.ReplyToAddress);
-            SetCorrelationId(options);
             PipelineFactory.InvokeSendPipeline(options, returnMessage);
         }
 
-        void SetCorrelationId(SendOptions options)
+        string GetCorrelationId()
         {
-            options.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
+            return !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
         }
 
         public void HandleCurrentMessageLater()
@@ -280,11 +275,11 @@ namespace NServiceBus.Unicast
             //if we're a worker, send to the distributor data bus
             if (SettingsHolder.Instance.GetOrDefault<bool>("Worker.Enabled"))
             {
-                MessageSender.Send(MessageBeingProcessed, SettingsHolder.Instance.Get<Address>("MasterNode.Address"));
+                MessageSender.Send(MessageBeingProcessed, new SendOptions(SettingsHolder.Instance.Get<Address>("MasterNode.Address")));
             }
             else
             {
-                MessageSender.Send(MessageBeingProcessed, Address.Local);
+                MessageSender.Send(MessageBeingProcessed, new SendOptions(Address.Local));
             }
 
             PipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled = true;
@@ -292,7 +287,7 @@ namespace NServiceBus.Unicast
 
         public void ForwardCurrentMessageTo(string destination)
         {
-            MessageSender.Send(MessageBeingProcessed, Address.Parse(destination));
+            MessageSender.Send(MessageBeingProcessed, new SendOptions(destination));
         }
 
         public ICallback SendLocal<T>(Action<T> messageConstructor)
@@ -435,7 +430,7 @@ namespace NServiceBus.Unicast
             return SetupCallback(physicalMessage.Id);
         }
 
-        OutgoingContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
+        OutgoingContext InvokeSendPipeline(DeliveryOptions sendOptions, LogicalMessage message)
         {
             if (sendOptions.ReplyToAddress == null && !SendOnlyMode)
             {
@@ -849,7 +844,5 @@ namespace NServiceBus.Unicast
                 return Builder.Build<TransportDefinition>();
             }
         }
-
-
     }
 }

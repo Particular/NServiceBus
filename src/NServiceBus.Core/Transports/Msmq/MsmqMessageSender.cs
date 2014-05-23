@@ -5,36 +5,20 @@ namespace NServiceBus.Transports.Msmq
     using System.Transactions;
     using Config;
     using Settings;
+    using Unicast;
     using Unicast.Queuing;
 
-    /// <summary>
-    ///     Msmq implementation of <see cref="ISendMessages" />.
-    /// </summary>
-    public class MsmqMessageSender : ISendMessages
+    class MsmqMessageSender : ISendMessages
     {
-        /// <summary>
-        ///     The current runtime settings for the transport
-        /// </summary>
         public MsmqSettings Settings { get; set; }
 
-        /// <summary>
-        /// Msmq unit of work to be used in non DTC mode <see cref="MsmqUnitOfWork"/>.
-        /// </summary>
         public MsmqUnitOfWork UnitOfWork { get; set; }
 
-       
 
-        /// <summary>
-        ///     Sends the given <paramref name="message" /> to the <paramref name="address" />.
-        /// </summary>
-        /// <param name="message">
-        ///     <see cref="TransportMessage" /> to send.
-        /// </param>
-        /// <param name="address">
-        ///     Destination <see cref="Address" />.
-        /// </param>
-        public void Send(TransportMessage message, Address address)
+
+        public void Send(TransportMessage message, SendOptions sendOptions)
         {
+            var address = sendOptions.Destination;
             var queuePath = MsmqUtilities.GetFullPath(address);
             try
             {
@@ -45,12 +29,15 @@ namespace NServiceBus.Transports.Msmq
                         toSend.UseDeadLetterQueue = Settings.UseDeadLetterQueue;
                         toSend.UseJournalQueue = Settings.UseJournalQueue;
 
-                        if (message.ReplyToAddress != null)
-                            toSend.ResponseQueue =
-                                new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(),
-                                                                                address.ToString()));
+                        var replyToAddress = sendOptions.ReplyToAddress ?? message.ReplyToAddress;
+                        
+                        if (replyToAddress != null)
+                        {
+                            toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(replyToAddress.ToString(), address.ToString()));
+                        }
 
-                        if (UnitOfWork.HasActiveTransaction())
+
+                        if (sendOptions.EnlistInReceiveTransaction && UnitOfWork.HasActiveTransaction())
                         {
                             q.Send(toSend, UnitOfWork.Transaction);
                         }

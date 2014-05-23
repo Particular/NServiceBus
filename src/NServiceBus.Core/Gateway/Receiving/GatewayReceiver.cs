@@ -9,6 +9,7 @@ namespace NServiceBus.Gateway.Receiving
     using Satellites;
     using Settings;
     using Transports;
+    using Unicast;
 
     public class GatewayReceiver : ISatellite
     {
@@ -75,13 +76,14 @@ namespace NServiceBus.Gateway.Receiving
         {
             var messageToSend = e.Message;
 
-            messageToSend.ReplyToAddress = replyToAddress;
-
             var destination = EndpointRouter.GetDestinationFor(messageToSend);
 
             Logger.Info("Sending message to " + destination);
 
-            MessageSender.Send(messageToSend, destination);
+            MessageSender.Send(messageToSend, new SendOptions(destination)
+            {
+                ReplyToAddress = replyToAddress
+            });
         }
 
         static ILog Logger = LogManager.GetLogger<GatewayReceiver>();

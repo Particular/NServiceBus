@@ -1,18 +1,20 @@
 ﻿namespace NServiceBus.Outbox
 {
-    using Unicast;
+    using System.Collections.Generic;
 
     public class TransportOperation
     {
-        public TransportOperation(SendOptions sendOptions, TransportMessage message, string messageType)
-        {
-            SendOptions = sendOptions;
-            Message = message;
-            MessageType = messageType;
-        }
+        public string MessageId { get; private set; }
+        public Dictionary<string, string> Options { get; private set; }
+        public byte[] Body { get; private set; }
+        public Dictionary<string, string> Headers { get; private set; }
 
-        public SendOptions SendOptions { get; private set; }
-        public TransportMessage Message { get;private set; }
-        public string MessageType { get; private set; }
+        public TransportOperation(string messageId, Dictionary<string, string> options, byte[] body, Dictionary<string, string> headers)
+        {
+            MessageId = messageId;
+            Options = options;
+            Body = body;
+            Headers = headers;
+        }
     }
 }

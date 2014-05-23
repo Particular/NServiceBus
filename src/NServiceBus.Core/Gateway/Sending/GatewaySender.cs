@@ -11,6 +11,7 @@ namespace NServiceBus.Gateway.Sending
     using Satellites;
     using Settings;
     using Transports;
+    using Unicast;
     using Unicast.Transport;
 
     class GatewaySender : IAdvancedSatellite
@@ -87,7 +88,7 @@ namespace NServiceBus.Gateway.Sending
             //todo - do we need to clone? check with Jonathan O
             messageToDispatch.Headers[Headers.DestinationSites] = destinationSite.Key;
 
-            MessageSender.Send(messageToDispatch, InputAddress);
+            MessageSender.Send(messageToDispatch, new SendOptions(InputAddress));
         }
 
         void SendToSite(TransportMessage transportMessage, Site targetSite)

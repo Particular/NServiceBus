@@ -5,6 +5,7 @@ namespace NServiceBus.Hosting.Tests
     using Roles.Handlers;
     using Settings;
     using Transports;
+    using Unicast;
     using Unicast.Config;
 
     [TestFixture]
@@ -53,7 +54,7 @@ namespace NServiceBus.Hosting.Tests
 
     public class MyTestTransportSender : ISendMessages
     {
-        public void Send(TransportMessage message, Address address)
+        public void Send(TransportMessage message, SendOptions sendOptions)
         {
         }
     }

@@ -68,9 +68,9 @@
             contextStacker.Pop();
         }
 
-        internal OutgoingContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
+        internal OutgoingContext InvokeSendPipeline(DeliveryOptions deliveryOptions, LogicalMessage message)
         {
-            var context = new OutgoingContext(CurrentContext, sendOptions, message);
+            var context = new OutgoingContext(CurrentContext, deliveryOptions, message);
 
             InvokePipeline(outgoingBehaviors, context);
 

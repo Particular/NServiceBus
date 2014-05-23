@@ -3,21 +3,42 @@
     using System;
     using Logging;
     using Transports;
+    using Unicast;
     using Unicast.Transport;
 
-    public class TimeoutManagerDeferrer : IDeferMessages
+    class TimeoutManagerDeferrer : IDeferMessages
     {
         public ISendMessages MessageSender { get; set; }
         public Address TimeoutManagerAddress { get; set; }
 
-        public void Defer(TransportMessage message, DateTime processAt, Address address)
+        public void Defer(TransportMessage message, SendOptions sendOptions)
         {
-            message.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(processAt);
-            message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = address.ToString();
+            message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = sendOptions.Destination.ToString();
 
+            DateTime deliverAt;
+
+            if (sendOptions.DelayDeliveryWith.HasValue)
+            {
+                deliverAt = DateTime.UtcNow + sendOptions.DelayDeliveryWith.Value;
+            }
+            else
+            {
+                if (sendOptions.DeliverAt.HasValue)
+                {
+                    deliverAt = sendOptions.DeliverAt.Value;    
+                }
+                else
+                {
+                    throw new ArgumentException("A delivery time needs to be specified for Deferred messages");
+                }
+                
+            }
+
+            message.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(deliverAt);
+            
             try
             {
-                MessageSender.Send(message, TimeoutManagerAddress);
+                MessageSender.Send(message, new SendOptions(TimeoutManagerAddress));
             }
             catch (Exception ex)
             {
@@ -26,19 +47,14 @@
             }
         }
 
-        public void Defer(TransportMessage message, TimeSpan delayBy, Address address)
-        {
-            Defer(message, DateTime.UtcNow + delayBy, address);
-        }
-
         public void ClearDeferredMessages(string headerKey, string headerValue)
         {
-            var controlMessage = ControlMessage.Create(Address.Local);
+            var controlMessage = ControlMessage.Create();
 
             controlMessage.Headers[headerKey] = headerValue;
             controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = Boolean.TrueString;
 
-            MessageSender.Send(controlMessage, TimeoutManagerAddress);
+            MessageSender.Send(controlMessage, new SendOptions(TimeoutManagerAddress) { ReplyToAddress = Address.Local });
         }
 
         static ILog Log = LogManager.GetLogger<TimeoutManagerDeferrer>();

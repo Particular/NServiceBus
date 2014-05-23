@@ -35,7 +35,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
             {
-                MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.Destination);
+                MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions());
             }
 
             return true;

@@ -1,27 +1,29 @@
 namespace NServiceBus.Unicast.Tests.Helpers
 {
+    using System;
+    using System.Collections.Generic;
     using System.IO;
     using MessageInterfaces.MessageMapper.Reflection;
     using Serializers.XML;
 
     class Helpers
     {
-        public static TransportMessage EmptyTransportMessage()
+        public static TransportMessage EmptyTransportMessage(Address replyToAddress = null)
         {
-            return new TransportMessage();
+            if (replyToAddress == null)
+            {
+                replyToAddress = Address.Parse("myClient");
+            }
+            return new TransportMessage(Guid.NewGuid().ToString(),new Dictionary<string, string>(),replyToAddress);
         }
 
         public static TransportMessage EmptySubscriptionMessage()
         {
-           var subscriptionMessage = new TransportMessage
-            {
-                MessageIntent = MessageIntentEnum.Subscribe,
-                ReplyToAddress = Address.Parse("mySubscriber")
-            };
+            var subscriptionMessage = new TransportMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), Address.Parse("mySubscriber")) { MessageIntent = MessageIntentEnum.Subscribe };
 
             subscriptionMessage.Headers[Headers.SubscriptionMessageType] =
                 "NServiceBus.Unicast.Tests.MyMessage, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c";
-             
+
             return subscriptionMessage;
         }
 
@@ -32,12 +34,17 @@ namespace NServiceBus.Unicast.Tests.Helpers
             return m;
         }
 
-        public static TransportMessage Serialize<T>(T message)
+        public static TransportMessage Serialize<T>(T message,bool nullReplyToAddress = false)
         {
             var s = new XmlMessageSerializer(new MessageMapper());
             s.Initialize(new[] { typeof(T) });
 
             var m = EmptyTransportMessage();
+
+            if (nullReplyToAddress)
+            {
+                m = new TransportMessage();
+            }
 
             using (var stream = new MemoryStream())
             {

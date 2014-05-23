@@ -1,5 +1,7 @@
 namespace NServiceBus.Gateway.Tests.HeaderManagement
 {
+    using System;
+    using System.Collections.Generic;
     using Gateway.HeaderManagement;
     using NUnit.Framework;
 
@@ -20,10 +22,7 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
             addressOfOriginatingEndpoint = Address.Parse( "EndpointLocatedInSiteA");
         
 
-            incomingMessage = new TransportMessage
-            {
-                ReplyToAddress = addressOfOriginatingEndpoint
-            };
+            incomingMessage = new TransportMessage(Guid.NewGuid().ToString(),new Dictionary<string, string>(),addressOfOriginatingEndpoint);
 
             incomingMessage.Headers[Headers.OriginatingSite] = originatingSite;
             incomingMessage.Headers[Headers.HttpFrom] = originatingSite;

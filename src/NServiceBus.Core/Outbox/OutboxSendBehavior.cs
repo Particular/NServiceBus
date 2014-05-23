@@ -17,11 +17,11 @@ namespace NServiceBus.Outbox
 
             if (context.TryGet(out currentOutboxMessage))
             {
-                currentOutboxMessage.TransportOperations.Add(new TransportOperation(context.SendOptions, context.OutgoingMessage, context.OutgoingLogicalMessage.MessageType.FullName));
+                currentOutboxMessage.TransportOperations.Add( new TransportOperation(context.OutgoingMessage.Id, context.DeliveryOptions.ToTransportOperationOptions(), context.OutgoingMessage.Body, context.OutgoingMessage.Headers)); 
             }
             else
             {
-                DispatchMessageToTransportBehavior.InvokeNative(context.SendOptions, context.OutgoingMessage, context.OutgoingLogicalMessage.Metadata);
+                DispatchMessageToTransportBehavior.InvokeNative(context.DeliveryOptions, context.OutgoingMessage);
 
                 next();
             }

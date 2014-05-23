@@ -4,10 +4,11 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
     using System;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using NServiceBus.Audit;
     using NUnit.Framework;
     using Pipeline;
     using Pipeline.Contexts;
+    using Transports;
+    using Unicast;
 
     /// <summary>
     /// This is a demo on how pipeline overrides can be used to control which messages that gets audited by NServiceBus
@@ -72,7 +73,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
 
             class FilteringAuditBehavior : IBehavior<IncomingContext>
             {
-                public MessageAuditer MessageAuditer { get; set; }
+                public IAuditMessages MessageAuditer { get; set; }
 
                 public void Invoke(IncomingContext context, Action next)
                 {
@@ -86,8 +87,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                     {
                         return;
                     }
-
-                    MessageAuditer.ForwardMessageToAuditQueue(context.PhysicalMessage);
+                    MessageAuditer.Audit(new SendOptions("audit"),context.PhysicalMessage);
                 }
 
                 //here we inject our behavior
@@ -96,7 +96,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                     public void Init(Configure config)
                     {
                         //we replace the default audit behavior with out own
-                        config.Pipeline.Replace(WellKnownBehavior.AuditForwarder, typeof(FilteringAuditBehavior), "A new audit forwarder that has filtering");
+                        config.Pipeline.Replace(WellKnownBehavior.Audit, typeof(FilteringAuditBehavior), "A new audit forwarder that has filtering");
                     }
                 }
             }
