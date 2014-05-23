@@ -17,7 +17,7 @@ namespace NServiceBus.Unicast
         /// Tells the transport to enlist the outgoing operation in the current receive transaction if possible.
         /// This is enabled by default
         /// </summary>
-        internal bool EnlistInReceiveTransaction { get; set; }
+        public bool EnlistInReceiveTransaction { get; set; }
         
         /// <summary>
         /// The reply address to use for outgoing messages
