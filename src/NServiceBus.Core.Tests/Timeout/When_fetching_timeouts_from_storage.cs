@@ -52,12 +52,13 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             const int numberOfTimeoutsToAdd = 50;
 
+            var configure = Configure.With();
             for (var i = 0; i < numberOfTimeoutsToAdd; i++)
             {
                 var d = new TimeoutData
                 {
                     Time = DateTime.UtcNow.AddHours(-1),
-                    OwningTimeoutManager = Configure.Instance.EndpointName
+                    OwningTimeoutManager = configure.EndpointName
                 };
 
                 persister.Add(d);

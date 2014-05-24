@@ -32,6 +32,12 @@
 
             class SetupScheduledAction : IWantToRunWhenBusStartsAndStops
             {
+                Configure config;
+
+                public SetupScheduledAction(Configure config)
+                {
+                    this.config = config;
+                }
 
                 public void Start()
                 {
@@ -39,7 +45,7 @@
                        .Action("MyTask", () =>
                        {
                            Console.Out.WriteLine("Task invoked");
-                           Configure.Instance.Builder.Build<Context>()
+                           config.Builder.Build<Context>()
                                     .ScheduleActionInvoked = true;
                        });
                 }

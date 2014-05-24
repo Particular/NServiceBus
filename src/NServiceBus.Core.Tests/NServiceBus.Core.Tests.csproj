@@ -280,6 +280,7 @@
     <Compile Include="Timeout\When_fetching_timeouts_from_storage.cs" />
     <Compile Include="Timeout\When_fetching_timeouts_from_storage_with_inMemory.cs" />
     <Compile Include="Timeout\When_pooling_timeouts.cs" />
+    <Compile Include="Timeout\When_pooling_timeouts_with_inMemory.cs" />
     <Compile Include="Timeout\When_receiving_timeouts.cs" />
     <Compile Include="Timeout\When_removing_timeouts_from_the_storage.cs" />
     <Compile Include="Fakes\FakeFailureManager.cs" />
