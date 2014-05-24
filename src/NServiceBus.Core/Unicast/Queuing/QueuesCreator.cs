@@ -13,7 +13,13 @@ namespace NServiceBus.Unicast.Queuing
     /// </summary>
     class QueuesCreator : INeedInitialization, INeedToInstallSomething<Windows>
     {
+        Configure configure;
         public ICreateQueues QueueCreator { get; set; }
+
+        public QueuesCreator(Configure configure)
+        {
+            this.configure = configure;
+        }
 
         /// <summary>
         /// Performs the installation providing permission for the given user.
@@ -31,9 +37,9 @@ namespace NServiceBus.Unicast.Queuing
                 return;
             }
 
-            var wantQueueCreatedInstances = Configure.Instance.Builder.BuildAll<IWantQueueCreated>().ToList();
+            var wantQueueCreatedInstances = configure.Builder.BuildAll<IWantQueueCreated>().ToList();
 
-            foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => wantQueueCreatedInstance.ShouldCreateQueue(Configure.Instance)))
+            foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => wantQueueCreatedInstance.ShouldCreateQueue(configure)))
             {
                 if (wantQueueCreatedInstance.Address == null)
                 {
