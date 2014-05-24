@@ -27,8 +27,8 @@
             Assert.IsTrue(stackTraceLines[0].Contains("BehaviorThatThrows.Invoke(FakeContext context, Action next)"),"First line should be the method that threw");
             Assert.IsTrue(stackTraceLines[1].Contains("BehaviorChain`1.InvokeNext(T context)"), "Second line should be the Recursive Invoke");
             Assert.AreEqual(exception.Message, "Exception Message");
-
         }
+
         static int CountStringOccurrences(string text, string pattern)
         {
             // Loop through all instances of the string 'text'.

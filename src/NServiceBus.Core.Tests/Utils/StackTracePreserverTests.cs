@@ -2,8 +2,8 @@ namespace NServiceBus.Core.Tests.Utils
 {
     using System;
     using System.Runtime.CompilerServices;
+    using System.Runtime.ExceptionServices;
     using NUnit.Framework;
-    using NServiceBus.Utils;
 
     [TestFixture]
     public class StackTracePreserverTests
@@ -17,10 +17,11 @@ namespace NServiceBus.Core.Tests.Utils
             Assert.IsTrue(preservedException.StackTrace.Contains("MethodThatThrows2"), actual);
             Assert.IsTrue(preservedException.StackTrace.Contains("MethodThatThrows1"), actual);
         }
+
         [Test]
         public void ShouldNotThrowWhenHandlingNonSerializableExceptions()
         {
-            new NonSerializableException().PreserveStackTrace();
+            ExceptionDispatchInfo.Capture(new NonSerializableException());
         }
 
         public class NonSerializableException : Exception
@@ -36,9 +37,8 @@ namespace NServiceBus.Core.Tests.Utils
             }
             catch (Exception exception)
             {
-                var innerException = exception.InnerException;
-                innerException.PreserveStackTrace();
-                throw innerException;
+                ExceptionDispatchInfo.Capture(exception.InnerException)
+                    .Throw();
             }
         }
 
@@ -60,6 +60,7 @@ namespace NServiceBus.Core.Tests.Utils
         {
             MethodThatThrows2();
         }
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         void MethodThatThrows2()
         {

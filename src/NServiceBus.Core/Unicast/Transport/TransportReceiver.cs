@@ -2,6 +2,7 @@ namespace NServiceBus.Unicast.Transport
 {
     using System;
     using System.Diagnostics;
+    using System.Runtime.ExceptionServices;
     using System.Runtime.Serialization;
     using System.Transactions;
     using Faults;
@@ -9,7 +10,6 @@ namespace NServiceBus.Unicast.Transport
     using Monitoring;
     using Settings;
     using Transports;
-    using Utils;
 
     /// <summary>
     ///     The default implementation of <see cref="ITransport" />
@@ -289,8 +289,8 @@ namespace NServiceBus.Unicast.Transport
 
             if (exceptionFromStartedMessageHandling != null)
             {
-                exceptionFromStartedMessageHandling.PreserveStackTrace();
-                throw exceptionFromStartedMessageHandling; //cause rollback 
+                ExceptionDispatchInfo.Capture(exceptionFromStartedMessageHandling)
+                    .Throw();
             }
 
             //care about failures here
@@ -322,21 +322,21 @@ namespace NServiceBus.Unicast.Transport
                     }
                     else
                     {
-                        exceptionFromMessageHandling.PreserveStackTrace();
-                        throw exceptionFromMessageHandling;//cause rollback    
+                        ExceptionDispatchInfo.Capture(exceptionFromMessageHandling)
+                            .Throw();
                     }
                 }
                 else
                 {
-                    exceptionFromMessageHandling.PreserveStackTrace();
-                    throw exceptionFromMessageHandling;//cause rollback    
+                    ExceptionDispatchInfo.Capture(exceptionFromMessageHandling)
+                        .Throw();
                 }
             }
 
             if (exceptionFromMessageModules != null) //cause rollback
             {
-                exceptionFromMessageModules.PreserveStackTrace();
-                throw exceptionFromMessageModules;
+                ExceptionDispatchInfo.Capture(exceptionFromMessageModules)
+                    .Throw();
             }
         }
 

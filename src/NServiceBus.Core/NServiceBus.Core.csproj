@@ -614,7 +614,6 @@
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
     <Compile Include="Utils\Reflection\Reflect.cs" />
     <Compile Include="Utils\RegistryReader.cs" />
-    <Compile Include="Utils\StackTracePreserver.cs" />
     <Compile Include="WcfService.cs" />
     <Compile Include="WireEncryptedString.cs" />
   </ItemGroup>

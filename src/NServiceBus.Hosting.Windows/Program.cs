@@ -4,13 +4,13 @@
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq;
+    using System.Runtime.ExceptionServices;
     using Arguments;
     using Helpers;
     using Installers;
     using Magnum.StateMachine;
     using Topshelf;
     using Topshelf.Configuration;
-    using Utils;
 
     /// <summary>
     /// Entry point to the process.
@@ -144,9 +144,8 @@
             }
             catch (StateMachineException exception)
             {
-                var innerException = exception.InnerException;
-                innerException.PreserveStackTrace();
-                throw innerException;
+                ExceptionDispatchInfo.Capture(exception.InnerException)
+                    .Throw();
             }
         }
 
