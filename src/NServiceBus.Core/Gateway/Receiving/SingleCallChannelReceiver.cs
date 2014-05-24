@@ -14,12 +14,13 @@
     class SingleCallChannelReceiver : IReceiveMessagesFromSites
     {
         public SingleCallChannelReceiver(IChannelFactory channelFactory, IDeduplicateMessages deduplicator,
-            DataBusHeaderManager headerManager, GatewayTransaction transaction)
+            DataBusHeaderManager headerManager, GatewayTransaction transaction, Configure configure)
         {
             this.channelFactory = channelFactory;
             this.deduplicator = deduplicator;
             this.headerManager = headerManager;
             this.transaction = transaction;
+            this.configure = configure;
         }
 
         public IDataBus DataBus { get; set; }
@@ -82,7 +83,7 @@
 
                 Hasher.Verify(stream, callInfo.Md5);
 
-                var msg = HeaderMapper.Map(headerManager.Reassemble(callInfo.ClientId, callInfo.Headers));
+                var msg = HeaderMapper.Map(headerManager.Reassemble(callInfo.ClientId, callInfo.Headers), configure);
                 msg.Body = new byte[stream.Length];
                 stream.Read(msg.Body, 0, msg.Body.Length);
 
@@ -123,6 +124,7 @@
         DataBusHeaderManager headerManager;
 
         readonly GatewayTransaction transaction;
+        readonly Configure configure;
 
         IChannelReceiver channelReceiver;
     }
