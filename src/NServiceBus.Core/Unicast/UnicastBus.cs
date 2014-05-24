@@ -25,15 +25,13 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class UnicastBus : IStartableBus, IInMemoryOperations
     {
-        Configure configure;
         HostInformation hostInformation = HostInformation.CreateDefault();
 
         // HACK: Statics are bad, remove
         internal static Guid HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor;
 
-        public UnicastBus(Configure configure)
+        public UnicastBus()
         {
-            this.configure = configure;
             HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = hostInformation.HostId;
         }
 
@@ -52,6 +50,7 @@ namespace NServiceBus.Unicast
             }
         }
 
+        public Configure Configure { get; set; }
         /// <summary>
         /// Should be used by programmer, not administrator.
         /// Sets an <see cref="ITransport"/> implementation to use as the
@@ -525,7 +524,7 @@ namespace NServiceBus.Unicast
                 }
                 catch (Exception ex)
                 {
-                    configure.RaiseCriticalError(String.Format("{0} could not be started.", name), ex);
+                    Configure.RaiseCriticalError(String.Format("{0} could not be started.", name), ex);
                 }
             }, TaskCreationOptions.LongRunning)).ToArray();
 
@@ -559,7 +558,7 @@ namespace NServiceBus.Unicast
                     }
                     catch (Exception ex)
                     {
-                        configure.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
+                        Configure.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
                     }
                 }, TaskCreationOptions.LongRunning);
 
@@ -608,7 +607,7 @@ namespace NServiceBus.Unicast
         void DisposeManaged()
         {
             InnerShutdown();
-            configure.Builder.Dispose();
+            Configure.Builder.Dispose();
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()

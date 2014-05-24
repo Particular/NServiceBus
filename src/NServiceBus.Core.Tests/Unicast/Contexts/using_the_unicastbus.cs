@@ -137,9 +137,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IDeferMessages>(() => deferrer);
             FuncBuilder.Register<IPublishMessages>(() => messagePublisher);
 
-            unicastBus = new UnicastBus(configure)
+            unicastBus = new UnicastBus
             {
-                //MasterNodeAddress = MasterNodeAddress,
+                Configure = configure,
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
                 Transport = Transport,
