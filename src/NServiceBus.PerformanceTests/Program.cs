@@ -17,6 +17,7 @@
     
     class Program
     {
+        static Configure config;
         static void Main(string[] args)
         {
             TransportConnectionString.Override(() => "deadLetter=false;journal=false");
@@ -54,7 +55,7 @@
             if (suppressDTC)
                 endpointName += ".SuppressDTC";
 
-            var config = Configure.With()
+            config = Configure.With()
                 .DefineEndpointName(endpointName)
                 .DefaultBuilder()
                 .UsePersistence<InMemory>();
@@ -110,7 +111,7 @@
 
             using (var startableBus = config.InMemoryFaultManagement().UnicastBus().CreateBus())
             {
-                Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
+                config.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
 
                 if (saga)
                 {
@@ -140,7 +141,7 @@
 
         private static void SetupRijndaelTestEncryptionService()
         {
-            var encryptConfig = Configure.Instance.Configurer.ConfigureComponent<NServiceBus.Encryption.Rijndael.EncryptionService>(DependencyLifecycle.SingleInstance);
+            var encryptConfig = config.Configurer.ConfigureComponent<NServiceBus.Encryption.Rijndael.EncryptionService>(DependencyLifecycle.SingleInstance);
             encryptConfig.ConfigureProperty(s => s.Key, Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
         }
 
@@ -156,7 +157,7 @@
 
         static void SeedSagaMessages(int numberOfMessages, string inputQueue, int concurrency)
         {
-            var bus = Configure.Instance.Builder.Build<IBus>();
+            var bus = config.Builder.Build<IBus>();
 
             for (var i = 0; i < numberOfMessages / concurrency; i++)
             {
@@ -175,7 +176,7 @@
         static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
         {
             var sw = new Stopwatch();
-            var bus = Configure.Instance.Builder.Build<IBus>();
+            var bus = config.Builder.Build<IBus>();
 
             sw.Start();
             Parallel.For(

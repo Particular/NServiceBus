@@ -15,6 +15,7 @@ using Runner;
 
 public class PubSubTestCase : TestCase
 {
+    Configure config;
     int GetNumberOfSubscribers()
     {
         int value;
@@ -41,7 +42,7 @@ public class PubSubTestCase : TestCase
     {
         TransportConfigOverride.MaximumConcurrencyLevel = NumberOfThreads;
 
-        var config = Configure.With()
+        config = Configure.With()
             .DefineEndpointName("PubSubPerformanceTest")
             .DefaultBuilder()
             .UseTransport<Msmq>()
@@ -68,9 +69,9 @@ public class PubSubTestCase : TestCase
         {
 
 
-            Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
+            config.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
 
-            var subscriptionStorage = Configure.Instance.Builder.Build<ISubscriptionStorage>();
+            var subscriptionStorage = config.Builder.Build<ISubscriptionStorage>();
 
             var testEventMessage = new MessageType(typeof(RavenTestEvent));
 

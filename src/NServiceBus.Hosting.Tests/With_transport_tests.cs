@@ -11,12 +11,14 @@ namespace NServiceBus.Hosting.Tests
     [TestFixture]
     public class With_transport_tests
     {
+
+        Configure configure;
         [SetUp]
         public void SetUp()
         {
-            Configure.With(new[] {typeof (TransportRoleHandler), typeof (MyTransportConfigurer)})
-                     .DefineEndpointName("myTests")
-                     .DefaultBuilder();
+            configure = Configure.With(new[] {typeof (TransportRoleHandler), typeof (MyTransportConfigurer)})
+                .DefineEndpointName("myTests")
+                .DefaultBuilder();
 
             roleManager = new RoleManager(new[] {typeof (TransportRoleHandler).Assembly});
         }
@@ -35,7 +37,7 @@ namespace NServiceBus.Hosting.Tests
         public void Should_default_to_msmq_if_no_other_transport_is_configured()
         {
             var handler = new DefaultTransportForHost();
-            handler.Run(Configure.Instance);
+            handler.Run(configure);
 
             Assert.True(SettingsHolder.Instance.Get<TransportDefinition>("NServiceBus.Transport.SelectedTransport") is Msmq);
         }
@@ -44,11 +46,11 @@ namespace NServiceBus.Hosting.Tests
         public void Should_used_configured_transport_if_one_is_configured()
         {
             var handler = new DefaultTransportForHost();
-            Configure.Instance.Configurer.ConfigureComponent<MyTestTransportSender>(DependencyLifecycle.SingleInstance);
+            configure.Configurer.ConfigureComponent<MyTestTransportSender>(DependencyLifecycle.SingleInstance);
 
-            handler.Run(Configure.Instance);
+            handler.Run(configure);
 
-            Assert.IsInstanceOf<MyTestTransportSender>(Configure.Instance.Builder.Build<ISendMessages>());
+            Assert.IsInstanceOf<MyTestTransportSender>(configure.Builder.Build<ISendMessages>());
         }
     }
 
