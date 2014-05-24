@@ -16,7 +16,7 @@ namespace NServiceBus.Installation
         static ILog logger = LogManager.GetLogger<GatewayHttpListenerInstaller>();
         public IManageReceiveChannels ChannelManager { get; set; }
 
-        public void Install(string identity)
+        public void Install(string identity, Configure configure)
         {
             if (!Feature.IsEnabled<Gateway>())
             {
