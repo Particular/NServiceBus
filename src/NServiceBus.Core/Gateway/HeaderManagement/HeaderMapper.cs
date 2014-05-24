@@ -61,7 +61,7 @@ namespace NServiceBus.Gateway.HeaderManagement
         public static void Map(TransportMessage from, IDictionary<string, string> to,Configure configure)
         {
             to[NServiceBus + Id] = from.Id;
-            to[NServiceBus + CorrelationId] = GetCorrelationForBackwardsCompatibility(from);
+            to[NServiceBus + CorrelationId] = GetCorrelationForBackwardsCompatibility(from, configure);
             to[NServiceBus + Recoverable] = from.Recoverable.ToString();
             to[NServiceBus + TimeToBeReceived] = from.TimeToBeReceived.ToString();
 
@@ -111,11 +111,11 @@ namespace NServiceBus.Gateway.HeaderManagement
         }
 
         [ObsoleteEx(RemoveInVersion = "6.0")]
-        static string GetCorrelationForBackwardsCompatibility(TransportMessage message)
+        static string GetCorrelationForBackwardsCompatibility(TransportMessage message, Configure configure)
         {
             var correlationIdToStore = message.CorrelationId;
 
-            if (Configure.HasComponent<MsmqMessageSender>())
+            if (configure.Configurer.HasComponent<MsmqMessageSender>())
             {
                 Guid correlationId;
 
