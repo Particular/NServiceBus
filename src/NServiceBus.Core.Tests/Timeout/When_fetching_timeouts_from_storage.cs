@@ -2,18 +2,8 @@ namespace NServiceBus.Core.Tests.Timeout
 {
     using System;
     using System.Collections.Generic;
-    using InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
-
-    [TestFixture]
-    public class When_fetching_timeouts_from_storage_with_inMemory : When_fetching_timeouts_from_storage
-    {
-        protected override IPersistTimeouts CreateTimeoutPersister()
-        {
-            return new InMemoryTimeoutPersister();
-        }
-    }
 
     public abstract class When_fetching_timeouts_from_storage
     {

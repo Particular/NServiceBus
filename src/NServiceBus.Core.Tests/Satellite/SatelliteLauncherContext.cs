@@ -24,17 +24,17 @@
 
             Transport = new TransportReceiver(TransactionSettings.Default, 1, 0, FakeReceiver, InMemoryFaultManager);
 
-            Configure.With(new Assembly[0])
+            var config = Configure.With(new Assembly[0])
                 .DefineEndpointName("Test")
                 .DefaultBuilder();
-            Configure.Instance.Builder = Builder;
+            config.Builder = Builder;
            
             RegisterTypes();
             Builder.Register<IManageMessageFailures>(() => InMemoryFaultManager);
             Builder.Register<TransportReceiver>(() => Transport);
 
             var configurer = new SatelliteConfigurer();
-            configurer.Init(Configure.Instance);
+            configurer.Init(config);
 
             var launcher = new SatelliteLauncher();
 

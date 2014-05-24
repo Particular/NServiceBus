@@ -22,7 +22,7 @@ namespace NServiceBus.Core.Tests.Config
         [TearDown]
         public void TearDown()
         {
-            Configure.Instance.CustomConfigurationSource(new DefaultConfigurationSource());
+            config.CustomConfigurationSource(new DefaultConfigurationSource());
         }
         
         [Test]

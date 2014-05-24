@@ -6,7 +6,7 @@ namespace NServiceBus.Config
     {
         public void Init(Configure config)
         {
-            config.ForAllTypes<ISatellite>(s => Configure.Instance.Configurer.ConfigureComponent(s, DependencyLifecycle.SingleInstance));
+            config.ForAllTypes<ISatellite>(s => config.Configurer.ConfigureComponent(s, DependencyLifecycle.SingleInstance));
         }
     }
 }
