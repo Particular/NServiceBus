@@ -89,7 +89,7 @@
             config.Initialize();
 
 
-            var mapper = Configure.Instance.Builder.Build<IMessageMapper>();
+            var mapper = config.Builder.Build<IMessageMapper>();
             if (mapper == null)
             {
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");

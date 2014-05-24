@@ -52,14 +52,15 @@ namespace NServiceBus.Unicast.Tests
         [Test, Explicit("For some reason the build server is having issues with this.")]
         public void Should_take_precedence()
         {
-            Configure.With(new Type[] {})
+            var config = Configure.With(new Type[] {})
                 .DefineEndpointName("Foo")
                 .CustomConfigurationSource(new CustomUnicastBusConfig())
-                .DefaultBuilder()
+                .DefaultBuilder();
+            config
                 .UnicastBus()
                 .CreateBus();
 
-            var messageOwners = Configure.Instance.Builder.Build<StaticMessageRouter>();
+            var messageOwners = config.Builder.Build<StaticMessageRouter>();
 
             Assert.AreEqual("Type", messageOwners.GetDestinationFor(typeof(MessageA)).Single().Queue);
             Assert.AreEqual("Namespace", messageOwners.GetDestinationFor(typeof(MessageB)).Single().Queue);

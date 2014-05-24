@@ -407,46 +407,34 @@ namespace NServiceBus
         [ObsoleteEx(Replacement = "use the instance based config.Configurer.ConfigureComponent<T>();")]
         public static IComponentConfig<T> Component<T>(DependencyLifecycle lifecycle)
         {
-         throw new NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <summary>
         ///     Configures the given type with the given lifecycle <see cref="DependencyLifecycle" />.
         /// </summary>
+        [ObsoleteEx(Replacement = "use the instance based config.Configurer.ConfigureComponent<T>();")]
         public static IComponentConfig Component(Type type, DependencyLifecycle lifecycle)
         {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component()");
-            }
-
-            return Instance.Configurer.ConfigureComponent(type, lifecycle);
+            throw new NotImplementedException();
         }
 
         /// <summary>
         ///     Configures the given type with the given <see cref="DependencyLifecycle" />.
         /// </summary>
+        [ObsoleteEx(Replacement = "use the instance based config.Configurer.ConfigureComponent<T>();")]
         public static IComponentConfig<T> Component<T>(Func<T> componentFactory, DependencyLifecycle lifecycle)
         {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
-            }
-
-            return Instance.Configurer.ConfigureComponent(componentFactory, lifecycle);
+            throw new NotImplementedException();
         }
 
         /// <summary>
         ///     Configures the given type with the given <see cref="DependencyLifecycle" />
         /// </summary>
+        [ObsoleteEx(Replacement = "use the instance based config.Configurer.ConfigureComponent<T>();")]
         public static IComponentConfig<T> Component<T>(Func<IBuilder, T> componentFactory, DependencyLifecycle lifecycle)
         {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
-            }
-
-            return Instance.Configurer.ConfigureComponent(componentFactory, lifecycle);
+            throw new NotImplementedException();
         }
 
         /// <summary>

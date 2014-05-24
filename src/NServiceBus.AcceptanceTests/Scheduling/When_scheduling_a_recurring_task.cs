@@ -32,6 +32,7 @@
 
             class SetupScheduledAction : IWantToRunWhenBusStartsAndStops
             {
+
                 public void Start()
                 {
                     Schedule.Every(TimeSpan.FromSeconds(5))
