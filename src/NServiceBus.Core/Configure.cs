@@ -30,6 +30,17 @@ namespace NServiceBus
         /// </summary>
         protected Configure(IConfigurationSource configurationSource = null)
         {
+            onCriticalErrorAction = (errorMessage, exception) =>
+            {
+                if (!HasBuilder())
+                    return;
+
+                if (!Configurer.HasComponent<IBus>())
+                    return;
+
+                Builder.Build<IStartableBus>()
+                    .Shutdown();
+            };
             this.configurationSource = configurationSource ?? new DefaultConfigurationSource();
         }
 
@@ -151,14 +162,10 @@ namespace NServiceBus
         /// <summary>
         ///     True if a builder has been defined.
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "5.0")]
         public static bool BuilderIsConfigured()
         {
-            if (!WithHasBeenCalled())
-            {
-                return false;
-            }
-
-            return Instance.HasBuilder();
+            throw new NotImplementedException();
         }
 
         bool HasBuilder()
@@ -440,25 +447,21 @@ namespace NServiceBus
         /// <summary>
         ///     Returns true if a component of type <typeparamref name="T" /> exists in the container.
         /// </summary>
+        [ObsoleteEx(Replacement = "use the instance based Configure.Configurer.HasComponent();")]
         public static bool HasComponent<T>()
         {
-            return HasComponent(typeof(T));
+            throw new NotImplementedException();
         }
 
 
         /// <summary>
         ///     Returns true if a component of type <paramref name="componentType" /> exists in the container.
         /// </summary>
+        [ObsoleteEx(Replacement = "use the instance based Configure.Configurer.HasComponent();")]
         public static bool HasComponent(Type componentType)
         {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.HasComponent");
-            }
-
-            return Instance.Configurer.HasComponent(componentType);
+            throw new NotImplementedException();
         }
-
 
         static IEnumerable<Type> GetAllowedTypes(params Assembly[] assemblies)
         {
@@ -581,5 +584,10 @@ namespace NServiceBus
         IBuilder builder;
         internal IConfigurationSource configurationSource;
         IConfigureComponents configurer;
+
+
+
+        internal Action<string, Exception> onCriticalErrorAction;
+
     }
 }
