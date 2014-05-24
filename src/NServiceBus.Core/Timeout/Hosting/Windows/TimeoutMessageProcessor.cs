@@ -10,11 +10,17 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
     class TimeoutMessageProcessor : IAdvancedSatellite
     {
+        Configure configure;
         public ISendMessages MessageSender { get; set; }
 
         public DefaultTimeoutManager TimeoutManager { get; set; }
 
         public Address InputAddress { get { return Features.TimeoutManager.InputAddress; } }
+
+        public TimeoutMessageProcessor(Configure configure)
+        {
+            this.configure = configure;
+        }
 
         public bool Disabled
         {
@@ -116,7 +122,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     State = message.Body,
                     Time = DateTimeExtensions.ToUtcDateTime(expire),
                     Headers = message.Headers,
-                    OwningTimeoutManager = Configure.Instance.EndpointName
+                    OwningTimeoutManager = configure.EndpointName
                 };
 
                 //add a temp header so that we can make sure to restore the ReplyToAddress
