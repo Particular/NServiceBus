@@ -285,7 +285,7 @@ namespace NServiceBus
 
             if (!Configurer.HasComponent<IStartableBus>())
             {
-                Instance.UnicastBus();
+                this.UnicastBus();
             }
 
             return Builder.Build<IStartableBus>();
@@ -333,7 +333,7 @@ namespace NServiceBus
             
             Features.DisableFeaturesAsNeeded();
 
-            ForAllTypes<INeedToInstallSomething<Windows>>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            ForAllTypes<INeedToInstallSomething<Windows>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             //lockdown the settings
             Settings.PreventChanges();
@@ -404,14 +404,10 @@ namespace NServiceBus
         /// <summary>
         ///     Configures the given type with the given <see cref="DependencyLifecycle" />.
         /// </summary>
+        [ObsoleteEx(Replacement = "use the instance based config.Configurer.ConfigureComponent<T>();")]
         public static IComponentConfig<T> Component<T>(DependencyLifecycle lifecycle)
         {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
-            }
-
-            return Instance.Configurer.ConfigureComponent<T>(lifecycle);
+         throw new NotImplementedException();
         }
 
         /// <summary>

@@ -39,7 +39,7 @@ namespace NServiceBus
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config)
         {
-            if (Configure.Instance.Configurer.HasComponent<RavenSessionFactory>())
+            if (config.Configurer.HasComponent<RavenSessionFactory>())
             {
                 return config;
             }

@@ -17,7 +17,7 @@
         public override IEnumerable<Feature> GetFeaturesToInitialize(Configure config)
         {
             //has the users already registered his own serializer? (mostly for backwards compatibility)
-            if (Configure.Instance.Configurer.HasComponent<IMessageSerializer>())
+            if (config.Configurer.HasComponent<IMessageSerializer>())
                 yield break;
 
             var availableSerializers = config.Features.Where(f => f.Category == this);

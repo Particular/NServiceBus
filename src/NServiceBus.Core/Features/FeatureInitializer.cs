@@ -11,11 +11,11 @@
     {
         public void FinalizeConfiguration(Configure config)
         {
-            InitializeFeatures(config.Features);
+            InitializeFeatures(config.Features, config);
             InitializeFeaturesControlledByCategories(config);
         }
 
-        static void InitializeFeatures(IEnumerable<Feature> features)
+        static void InitializeFeatures(IEnumerable<Feature> features, Configure config)
         {
             var statusText = new StringBuilder();
 
@@ -35,7 +35,7 @@
                     continue;
                 }
 
-                feature.Initialize(Configure.Instance);
+                feature.Initialize(config);
 
                 statusText.AppendLine(string.Format("{0} - Enabled", feature));
             }
@@ -47,7 +47,7 @@
         {
             var statusText = new StringBuilder();
 
-            Configure.Instance.ForAllTypes<FeatureCategory>(t =>
+            config.ForAllTypes<FeatureCategory>(t =>
             {
                 if (t == typeof(FeatureCategory.NoneFeatureCategory))
                     return;

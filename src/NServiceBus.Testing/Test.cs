@@ -84,8 +84,8 @@
                 .UnicastBus();
 
 
-            Configure.Component<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
-
+            config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
+            
             config.Initialize();
 
 

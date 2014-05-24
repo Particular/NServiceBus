@@ -29,26 +29,26 @@
             {
                 if (IsSagaType(t))
                 {
-                    Configure.Component(t, DependencyLifecycle.InstancePerCall);
+                    config.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
                     ConfigureSaga(t);
                     continue;
                 }
 
                 if (IsFinderType(t))
                 {
-                    Configure.Component(t, DependencyLifecycle.InstancePerCall);
+                    config.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
                     ConfigureFinder(t);
                     continue;
                 }
 
                 if (IsSagaNotFoundHandler(t))
                 {
-                    Configure.Component(t, DependencyLifecycle.InstancePerCall);
+                    config.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
                     continue;
                 }
             }
 
-            CreateAdditionalFindersAsNecessary();
+            CreateAdditionalFindersAsNecessary(config);
 
         }
 
@@ -69,30 +69,30 @@
 
         public static readonly IDictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>> SagaEntityToMessageToPropertyLookup = new Dictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>>();
 
-        void CreateAdditionalFindersAsNecessary()
+        void CreateAdditionalFindersAsNecessary(Configure config)
         {
             foreach (var sagaEntityPair in SagaEntityToMessageToPropertyLookup)
             {
                 foreach (var messageType in sagaEntityPair.Value.Keys)
                 {
                     var pair = sagaEntityPair.Value[messageType];
-                    CreatePropertyFinder(sagaEntityPair.Key, messageType, pair.Key, pair.Value);
+                    CreatePropertyFinder(sagaEntityPair.Key, messageType, pair.Key, pair.Value,config);
                 }
             }
 
             foreach (var sagaEntityType in SagaTypeToSagaEntityTypeLookup.Values)
             {
                 var sagaHeaderIdFinder = typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType);
-                Configure.Component(sagaHeaderIdFinder, DependencyLifecycle.InstancePerCall);
+                config.Configurer.ConfigureComponent(sagaHeaderIdFinder, DependencyLifecycle.InstancePerCall);
                 ConfigureFinder(sagaHeaderIdFinder);
             }
         }
 
-        void CreatePropertyFinder(Type sagaEntityType, Type messageType, PropertyInfo sagaProperty, PropertyInfo messageProperty)
+        void CreatePropertyFinder(Type sagaEntityType, Type messageType, PropertyInfo sagaProperty, PropertyInfo messageProperty, Configure config)
         {
             var finderType = typeof(PropertySagaFinder<,>).MakeGenericType(sagaEntityType, messageType);
 
-            Configure.Component(finderType, DependencyLifecycle.InstancePerCall)
+            config.Configurer.ConfigureComponent(finderType, DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty("SagaProperty", sagaProperty)
                 .ConfigureProperty("MessageProperty", messageProperty);
 
