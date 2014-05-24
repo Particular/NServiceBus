@@ -22,12 +22,12 @@
             InMemoryFaultManager = new Faults.InMemory.FaultManager();
             FakeReceiver = new FakeReceiver();
 
-            Transport = new TransportReceiver(TransactionSettings.Default, 1, 0, FakeReceiver, InMemoryFaultManager);
-
             var config = Configure.With(new Assembly[0])
                 .DefineEndpointName("Test")
                 .DefaultBuilder();
             config.Builder = Builder;
+            Transport = new TransportReceiver(TransactionSettings.Default, 1, 0, FakeReceiver, InMemoryFaultManager, config);
+
            
             RegisterTypes();
             Builder.Register<IManageMessageFailures>(() => InMemoryFaultManager);

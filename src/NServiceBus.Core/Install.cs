@@ -77,7 +77,7 @@ namespace NServiceBus
         }
 
         private readonly IIdentity identity;
-        readonly Configure config;
+        Configure config;
 
         /// <summary>
         /// Gets or sets RunOtherInstallers 
@@ -92,7 +92,7 @@ namespace NServiceBus
         /// </summary>
         public void Install()
         {
-            Configure.Instance.Initialize();
+            config.Initialize();
 
             if (RunOtherInstallers)
             {

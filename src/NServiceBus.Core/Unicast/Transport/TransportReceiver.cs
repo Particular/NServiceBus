@@ -16,8 +16,11 @@ namespace NServiceBus.Unicast.Transport
     /// </summary>
     public class TransportReceiver : ITransport, IDisposable
     {
-        public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures)
+        Configure configure;
+
+        public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures, Configure configure)
         {
+            this.configure = configure;
             TransactionSettings = transactionSettings;
             MaximumConcurrencyLevel = maximumConcurrencyLevel;
             MaximumMessageThroughputPerSecond = maximumThroughput;

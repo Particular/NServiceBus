@@ -30,7 +30,7 @@ namespace NServiceBus.Satellites
                 return;
             }
 
-            var satellites = Configure.Instance.Builder
+            var satellites = configure.Builder
                  .BuildAll<ISatellite>()
                  .ToList();
 
