@@ -150,15 +150,7 @@ namespace NServiceBus
         {
             get { return LogManager.GetLogger<Configure>(); }
         }
-
-        /// <summary>
-        ///     True if any of the <see cref="With()" /> has been called.
-        /// </summary>
-        public static bool WithHasBeenCalled()
-        {
-            return instance != null;
-        }
-
+        
         /// <summary>
         ///     True if a builder has been defined.
         /// </summary>
