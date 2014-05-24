@@ -13,13 +13,7 @@ namespace NServiceBus.Unicast.Queuing
     /// </summary>
     class QueuesCreator : INeedInitialization, INeedToInstallSomething<Windows>
     {
-        Configure configure;
         public ICreateQueues QueueCreator { get; set; }
-
-        public QueuesCreator(Configure configure)
-        {
-            this.configure = configure;
-        }
 
         /// <summary>
         /// Performs the installation providing permission for the given user.
@@ -37,9 +31,9 @@ namespace NServiceBus.Unicast.Queuing
                 return;
             }
 
-            var wantQueueCreatedInstances = configure.Builder.BuildAll<IWantQueueCreated>().ToList();
+            var wantQueueCreatedInstances = config.Builder.BuildAll<IWantQueueCreated>().ToList();
 
-            foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => wantQueueCreatedInstance.ShouldCreateQueue(configure)))
+            foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => wantQueueCreatedInstance.ShouldCreateQueue(config)))
             {
                 if (wantQueueCreatedInstance.Address == null)
                 {
@@ -56,9 +50,11 @@ namespace NServiceBus.Unicast.Queuing
         /// </summary>
         public void Init(Configure config)
         {
+            this.config = config;
             config.ForAllTypes<IWantQueueCreated>(type => config.Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall));
         }
 
         static ILog Logger = LogManager.GetLogger<QueuesCreator>();
+        Configure config;
     }
 }
