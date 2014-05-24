@@ -18,6 +18,7 @@
     /// </summary>
     public static class Test
     {
+        static Configure configure;
         /// <summary>
         ///     Get the reference to the bus used for testing.
         /// </summary>
@@ -72,7 +73,7 @@
 
             Serializers.SetDefault<XmlSerialization>();
 
-
+            configure = config;
             config.Features.Disable<Sagas>();
             config.Features.Disable<Audit>();
 
@@ -221,7 +222,7 @@
                 throw new ArgumentException("The handler object created does not implement IHandleMessages<T>.", "handlerCreationCallback");
             }
 
-            var messageTypes = Configure.Instance.TypesToScan.Where(MessageConventionExtensions.IsMessageType).ToList();
+            var messageTypes = configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType).ToList();
 
             return new Handler<T>(handler, bus, messageCreator, messageTypes);
         }
