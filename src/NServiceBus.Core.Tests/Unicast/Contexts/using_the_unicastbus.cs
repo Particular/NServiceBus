@@ -63,6 +63,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         [SetUp]
         public void SetUp()
         {
+            var configure = Configure.With();
             LicenseManager.InitializeLicense();
             transportDefinition = new Msmq();
             HandlerInvocationCache.Clear();
@@ -136,7 +137,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IDeferMessages>(() => deferrer);
             FuncBuilder.Register<IPublishMessages>(() => messagePublisher);
 
-            unicastBus = new UnicastBus
+            unicastBus = new UnicastBus(configure)
             {
                 //MasterNodeAddress = MasterNodeAddress,
                 Builder = FuncBuilder,

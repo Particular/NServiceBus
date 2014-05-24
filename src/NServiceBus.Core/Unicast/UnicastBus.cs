@@ -25,13 +25,15 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class UnicastBus : IStartableBus, IInMemoryOperations
     {
+        Configure configure;
         HostInformation hostInformation = HostInformation.CreateDefault();
 
         // HACK: Statics are bad, remove
         internal static Guid HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor;
 
-        public UnicastBus()
+        public UnicastBus(Configure configure)
         {
+            this.configure = configure;
             HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = hostInformation.HostId;
         }
 
@@ -523,7 +525,7 @@ namespace NServiceBus.Unicast
                 }
                 catch (Exception ex)
                 {
-                    Configure.Instance.RaiseCriticalError(String.Format("{0} could not be started.", name), ex);
+                    configure.RaiseCriticalError(String.Format("{0} could not be started.", name), ex);
                 }
             }, TaskCreationOptions.LongRunning)).ToArray();
 
@@ -557,7 +559,7 @@ namespace NServiceBus.Unicast
                     }
                     catch (Exception ex)
                     {
-                        Configure.Instance.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
+                        configure.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
                     }
                 }, TaskCreationOptions.LongRunning);
 
@@ -606,7 +608,7 @@ namespace NServiceBus.Unicast
         void DisposeManaged()
         {
             InnerShutdown();
-            Configure.Instance.Builder.Dispose();
+            configure.Builder.Dispose();
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
