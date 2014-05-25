@@ -27,7 +27,7 @@ namespace NServiceBus.Hosting.Windows
         List<string> scannableAssembliesFullName;
         WcfManager wcfManager;
         IStartableBus bus;
-        Configure config;
+       internal Configure config;
         string endpointName;
 
         /// <summary>
@@ -161,7 +161,6 @@ namespace NServiceBus.Hosting.Windows
             ProfileActivator.ProfileManager = profileManager;
 
             wcfManager = new WcfManager();
-            var roleManager = new RoleManager(assembliesToScan);
 
 
             var loggingConfigurers = profileManager.GetLoggingConfigurer();
@@ -198,6 +197,7 @@ namespace NServiceBus.Hosting.Windows
 
             ValidateThatIWantCustomInitIsOnlyUsedOnTheEndpointConfig();
 
+            var roleManager = new RoleManager(assembliesToScan, config);
             roleManager.ConfigureBusForEndpoint(specifier);
         }
 

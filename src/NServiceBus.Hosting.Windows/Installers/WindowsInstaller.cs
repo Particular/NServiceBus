@@ -36,7 +36,7 @@
             try
             {
                 host.Install(username);
-                Configure.Instance.Builder.Dispose();
+                host.config.Builder.Dispose();
             }
             catch (Exception ex)
             {

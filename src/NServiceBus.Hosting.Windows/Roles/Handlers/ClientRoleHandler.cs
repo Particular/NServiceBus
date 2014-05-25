@@ -12,12 +12,12 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// <summary>
         /// Configures the UnicastBus with typical settings for a client
         /// </summary>
-        public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
+        public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier, Configure configure)
         {
-            Configure.Instance.Transactions.Disable();
-            Configure.Instance.Features.Disable<SecondLevelRetries>();
-            Configure.Instance.Features.Disable<StorageDrivenPublisher>();
-            return Configure.Instance
+            configure.Transactions.Disable();
+            configure.Features.Disable<SecondLevelRetries>();
+            configure.Features.Disable<StorageDrivenPublisher>();
+            return configure
                             .PurgeOnStartup(true)
                             .DisableTimeoutManager()
                             .UnicastBus();

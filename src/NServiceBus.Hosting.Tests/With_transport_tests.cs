@@ -20,7 +20,7 @@ namespace NServiceBus.Hosting.Tests
                 .DefineEndpointName("myTests")
                 .DefaultBuilder();
 
-            roleManager = new RoleManager(new[] {typeof (TransportRoleHandler).Assembly});
+            roleManager = new RoleManager(new[] {typeof (TransportRoleHandler).Assembly},configure);
         }
 
         RoleManager roleManager;

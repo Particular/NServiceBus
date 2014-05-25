@@ -10,7 +10,7 @@ namespace NServiceBus.Hosting.Tests
         [SetUp]
         public void SetUp()
         {
-            roleManager = new RoleManager(new[] {typeof (RoleManagerTests).Assembly});
+            roleManager = new RoleManager(new[] {typeof (RoleManagerTests).Assembly},Configure.With());
         }
 
         RoleManager roleManager;
@@ -52,7 +52,7 @@ namespace NServiceBus.Hosting.Tests
     {
         public static bool ConfigureCalled;
 
-        public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
+        public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier, Configure configure)
         {
             ConfigureCalled = true;
 

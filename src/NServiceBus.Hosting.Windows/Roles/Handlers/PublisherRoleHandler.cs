@@ -13,7 +13,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// Configures the UnicastBus with typical settings for a publisher
         /// This role is only relevant for the transports that doesn't support native pub/sub like msmq and sqlServer
         /// </summary>
-        public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
+        public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier, Configure configure)
         {
             Feature.Disable<StorageDrivenPublisher>();
 
