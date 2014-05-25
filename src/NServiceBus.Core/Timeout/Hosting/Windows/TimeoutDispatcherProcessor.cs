@@ -9,17 +9,17 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
     class TimeoutDispatcherProcessor : IAdvancedSatellite
     {
-        readonly Configure configure;
-        public ISendMessages MessageSender { get; set; }
+        Configure configure;
+        ISendMessages messageSender;
+        IPersistTimeouts timeoutsPersister;
+        TimeoutPersisterReceiver timeoutPersisterReceiver;
 
-        public IPersistTimeouts TimeoutsPersister { get; set; }
-        
-        public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
-
-
-        public TimeoutDispatcherProcessor(Configure configure)
+        public TimeoutDispatcherProcessor(Configure configure, ISendMessages messageSender, IPersistTimeouts timeoutsPersister, TimeoutPersisterReceiver timeoutPersisterReceiver)
         {
             this.configure = configure;
+            this.messageSender = messageSender;
+            this.timeoutsPersister = timeoutsPersister;
+            this.timeoutPersisterReceiver = timeoutPersisterReceiver;
         }
 
         public Address InputAddress
@@ -40,9 +40,9 @@ namespace NServiceBus.Timeout.Hosting.Windows
             var timeoutId = message.Headers["Timeout.Id"];
             TimeoutData timeoutData;
 
-            if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
+            if (timeoutsPersister.TryRemove(timeoutId, out timeoutData))
             {
-                MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions());
+                messageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions());
             }
 
             return true;
@@ -50,12 +50,12 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Start()
         {
-            TimeoutPersisterReceiver.Start();
+            timeoutPersisterReceiver.Start();
         }
 
         public void Stop()
         {
-            TimeoutPersisterReceiver.Stop();
+            timeoutPersisterReceiver.Stop();
         }
 
         public Action<TransportReceiver> GetReceiverCustomization()

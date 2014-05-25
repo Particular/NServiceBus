@@ -577,8 +577,6 @@ namespace NServiceBus
         internal IConfigurationSource configurationSource;
         IConfigureComponents configurer;
 
-
-
         internal Action<string, Exception> onCriticalErrorAction;
 
     }

@@ -75,13 +75,13 @@ namespace NServiceBus.Hosting.Windows
             {
                 PerformConfiguration();
 
-                bus = Configure.Instance.CreateBus();
+                bus = config.CreateBus();
                 if (bus != null && !SettingsHolder.Instance.Get<bool>("Endpoint.SendOnly"))
                 {
                     bus.Start();
                 }
 
-                wcfManager.Startup(Configure.Instance);
+                wcfManager.Startup(config);
             }
             catch (Exception ex)
             {
@@ -123,7 +123,7 @@ namespace NServiceBus.Hosting.Windows
 
             PerformConfiguration();
             //HACK: to ensure the installer runner performs its installation
-            Configure.Instance.Initialize();
+            config.Initialize();
         }
 
 
