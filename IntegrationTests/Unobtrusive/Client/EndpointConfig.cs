@@ -4,20 +4,14 @@
 
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Client, IWantCustomInitialization
     {
-        public void Init()
+        public Configure Init()
         {
-            Configure.With()
-                     .DefaultBuilder()
-                     .FileShareDataBus(@"..\..\..\DataBusShare\");
-
+            var configure = Configure.With()
+                .DefaultBuilder()
+                .FileShareDataBus(@"..\..\..\DataBusShare\")
+                .RijndaelEncryptionService();
+            return configure;
         }
     }
 
-    class EncryptionConfig : IWantCustomInitialization
-    {
-        public void Init()
-        {
-            Configure.Instance.RijndaelEncryptionService();
-        }
-    }
 }

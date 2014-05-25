@@ -6,9 +6,9 @@ namespace MyConventions
 
     public class MessageConventions:IWantToRunBeforeConfiguration
     {
-        public void Init()
+        public void Init(Configure configure)
         {
-            Configure.Instance.DefiningCommandsAs(t => t.Namespace != null && t.Namespace.EndsWith("Commands"))
+            configure.DefiningCommandsAs(t => t.Namespace != null && t.Namespace.EndsWith("Commands"))
                 .DefiningEventsAs(t => t.Namespace != null && t.Namespace.EndsWith("Events"))
                 .DefiningMessagesAs(t => t.Namespace == "Messages")
                 .DefiningEncryptedPropertiesAs(p => p.Name.StartsWith("Encrypted"))
@@ -19,5 +19,6 @@ namespace MyConventions
                     : TimeSpan.MaxValue
                     );
         }
+
     }
 }
