@@ -1,7 +1,4 @@
-﻿using NServiceBus.Hosting.Roles;
-using NServiceBus.Unicast.Config;
-
-namespace SendOnlyEndpoint.NServiceBusHost
+﻿namespace SendOnlyEndpoint.NServiceBusHost
 {
 
     using System;
@@ -12,11 +9,12 @@ namespace SendOnlyEndpoint.NServiceBusHost
         /// <summary>
         /// Perform initialization logic.
         /// </summary>
-        public void Init()
+        public Configure Init()
         {
-            var bus = Configure.With()
+            var configure = Configure.With()
                 .DefaultBuilder()
-                .UseTransport<Msmq>()
+                .UseTransport<Msmq>();
+            var bus = configure
                 .UnicastBus()
                 .SendOnly();
 
@@ -24,21 +22,9 @@ namespace SendOnlyEndpoint.NServiceBusHost
             Console.ReadKey();
             bus.Send("SendOnlyDestination@someserver", new TestMessage());
             Console.WriteLine("Message sent to remote endpoint, you can verify this by looking at the outgoing queues in you msmq MMC-snapin");  
+
+            return configure;
         }
     }
 
-    public class TestMessage : IMessage { }
-
-    public interface SendOnly : IRole
-    {
-        
-    }
-
-    public class RoleSendOnly : IConfigureRole<SendOnly>
-    {
-        public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
-        {
-            return null;
-        }
-    }
 }

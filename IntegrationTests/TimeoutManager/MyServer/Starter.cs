@@ -1,5 +1,4 @@
 using MyServer.Scheduling;
-using NServiceBus.Hosting;
 
 namespace MyServer
 {
