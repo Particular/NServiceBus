@@ -7,7 +7,7 @@ namespace NServiceBus.Hosting.Windows
     using Microsoft.Practices.ServiceLocation;
 
     /// <summary>
-    /// Plugs into the generic service locator to return an instance of <see cref="GenericHost"/>.
+    /// Plugs into the generic service locator to return an instance of <see cref="WindowsHost"/>.
     /// </summary>
     public class HostServiceLocator : ServiceLocatorImplBase
     {
@@ -17,7 +17,7 @@ namespace NServiceBus.Hosting.Windows
         public static string[] Args;
 
         /// <summary>
-        /// Returns an instance of <see cref="GenericHost"/>
+        /// Returns an instance of <see cref="WindowsHost"/>
         /// </summary>
         protected override object DoGetInstance(Type serviceType, string key)
         {
