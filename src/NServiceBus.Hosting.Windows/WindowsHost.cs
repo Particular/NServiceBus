@@ -18,12 +18,9 @@ namespace NServiceBus.Hosting.Windows
         /// Accepts the type which will specify the users custom configuration.
         /// This type should implement <see cref="IConfigureThisEndpoint"/>.
         /// </summary>
-        /// <param name="scannableAssembliesFullName">Name of scan-able assemblies</param>
         public WindowsHost(Type endpointType, string[] args, string endpointName, bool runOtherInstallers, IEnumerable<string> scannableAssembliesFullName)
         {
-            var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
-
-            genericHost = new GenericHost(specifier, args, new List<Type> { typeof(Production) }, endpointName, scannableAssembliesFullName);
+            genericHost = new GenericHost(args, new List<Type> { typeof(Production) }, endpointName, endpointType, scannableAssembliesFullName);
 
             Configure.Instance.DefineCriticalErrorAction(OnCriticalError);
 

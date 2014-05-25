@@ -15,10 +15,9 @@ namespace NServiceBus.Hosting
 
     class GenericHost
     {
-        public GenericHost(IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles, string endpointName, IEnumerable<string> scannableAssembliesFullName = null)
+        public GenericHost(string[] args, List<Type> defaultProfiles, string endpointName, Type endpointType, IEnumerable<string> scannableAssembliesFullName = null)
         {
-            this.specifier = specifier;
-            config = null;
+            specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
             if (String.IsNullOrEmpty(endpointName))
             {
