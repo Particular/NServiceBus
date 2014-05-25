@@ -8,13 +8,20 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Unicast.Transport;
 
     class TimeoutDispatcherProcessor : IAdvancedSatellite
-    {  
+    {
+        readonly Configure configure;
         public ISendMessages MessageSender { get; set; }
 
         public IPersistTimeouts TimeoutsPersister { get; set; }
         
         public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
-      
+
+
+        public TimeoutDispatcherProcessor(Configure configure)
+        {
+            this.configure = configure;
+        }
+
         public Address InputAddress
         {
             get
@@ -57,7 +64,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 //TODO: The line below needs to change when we refactor the slr to be:
                 // transport.DisableSLR() or similar
-                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager);
+                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager, configure);
             };
         }
     }

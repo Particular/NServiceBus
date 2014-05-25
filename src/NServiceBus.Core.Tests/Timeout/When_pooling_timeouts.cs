@@ -39,7 +39,7 @@ namespace NServiceBus.Core.Tests.Timeout
                     MessageSender = messageSender,
                 };
 
-            receiver = new TimeoutPersisterReceiver
+            receiver = new TimeoutPersisterReceiver(configure)
                 {
                     TimeoutManager = manager,
                     TimeoutsPersister = persister,

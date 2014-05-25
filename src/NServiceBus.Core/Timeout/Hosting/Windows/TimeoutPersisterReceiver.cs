@@ -17,6 +17,13 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public int SecondsToSleepBetweenPolls { get; set; }
         public DefaultTimeoutManager TimeoutManager { get; set; }
 
+
+        public TimeoutPersisterReceiver(Configure configure)
+        {
+            circuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity", TimeSpan.FromMinutes(2),
+                ex => configure.RaiseCriticalError("Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
+        }
+
         public void Dispose()
         {
             //Injected
@@ -147,11 +154,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         static ILog Logger = LogManager.GetLogger<TimeoutPersisterReceiver>();
 
-        RepeatedFailuresOverTimeCircuitBreaker circuitBreaker =
-            new RepeatedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity", TimeSpan.FromMinutes(2),
-                ex =>
-                    Configure.Instance.RaiseCriticalError(
-                        "Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
+        RepeatedFailuresOverTimeCircuitBreaker circuitBreaker;
 
         readonly object lockObject = new object();
         ManualResetEvent resetEvent = new ManualResetEvent(true);

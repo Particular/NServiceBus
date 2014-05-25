@@ -43,7 +43,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 //TODO: The line below needs to change when we refactor the slr to be:
                 // transport.DisableSLR() or similar
-                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager);
+                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager, configure);
             };
         }
 
