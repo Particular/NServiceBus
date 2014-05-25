@@ -133,8 +133,8 @@ namespace NServiceBus.Hosting.Windows
 
 
             List<Assembly> assembliesToScan;
-            Configure.GetEndpointNameAction = () => endpointName;
-            Configure.DefineEndpointVersionRetriever = () => FileVersionRetriever.GetFileVersion(specifier.GetType());
+            config.GetEndpointNameAction = () => endpointName;
+            config.DefineEndpointVersionRetriever = () => FileVersionRetriever.GetFileVersion(specifier.GetType());
 
             if (scannableAssembliesFullName == null || !scannableAssembliesFullName.Any())
             {

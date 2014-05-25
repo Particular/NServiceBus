@@ -15,7 +15,9 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             Address.InitializeLocalAddress("MyEndpoint");
 
-            Configure.GetEndpointNameAction = () => "MyEndpoint";
+
+            var configure = Configure.With();
+            configure.GetEndpointNameAction = () => "MyEndpoint";
 
             messageSender = new FakeMessageSender();
             manager = new DefaultTimeoutManager

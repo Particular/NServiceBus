@@ -77,7 +77,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
-            Configure.GetEndpointNameAction = () => "TestEndpoint";
+            configure.GetEndpointNameAction = () => "TestEndpoint";
             router = new StaticMessageRouter(KnownMessageTypes());
             handlerRegistry = new MessageHandlerRegistry();
             MessageMetadataRegistry = new MessageMetadataRegistry

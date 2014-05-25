@@ -14,9 +14,10 @@ namespace NServiceBus.Core.Tests.Timeout
         [SetUp]
         public void Setup()
         {
+            var configure = Configure.With();
             Address.InitializeLocalAddress("MyEndpoint");
 
-            Configure.GetEndpointNameAction = () => "MyEndpoint";
+            configure.GetEndpointNameAction = () => "MyEndpoint";
 
             persister = CreateTimeoutPersister();
         }

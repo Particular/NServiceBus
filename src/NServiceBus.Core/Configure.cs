@@ -30,6 +30,7 @@ namespace NServiceBus
         /// </summary>
         protected Configure(IConfigurationSource configurationSource = null)
         {
+            defineLocalAddressNameFunc = GetEndpointNameAction;
             onCriticalErrorAction = (errorMessage, exception) =>
             {
                 if (!HasBuilder())
@@ -558,12 +559,12 @@ namespace NServiceBus
         /// <summary>
         ///     The function used to get the name of this endpoint.
         /// </summary>
-        public static Func<string> GetEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
+        public Func<string> GetEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
 
         /// <summary>
         ///     The function used to get the version of this endpoint.
         /// </summary>
-        public static Func<string> DefineEndpointVersionRetriever = () => EndpointHelper.GetEndpointVersion();
+        public Func<string> DefineEndpointVersionRetriever = () => EndpointHelper.GetEndpointVersion();
 
         /// <summary>
         ///     The function used to get the name of this endpoint.
@@ -578,6 +579,7 @@ namespace NServiceBus
         IConfigureComponents configurer;
 
         internal Action<string, Exception> onCriticalErrorAction;
+        internal Func<string> defineLocalAddressNameFunc;
 
     }
 }

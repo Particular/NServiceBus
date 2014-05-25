@@ -7,7 +7,6 @@ namespace NServiceBus
     /// </summary>
     public static class ConfigureSettingLocalAddressNameAction
     {
-        internal static Func<string> defineLocalAddressNameFunc = Configure.GetEndpointNameAction;
 
         /// <summary>
         /// Set a function that overrides the default naming of NServiceBus local addresses.
@@ -15,16 +14,16 @@ namespace NServiceBus
         /// </summary>
         public static Configure DefineLocalAddressNameFunc(this Configure config, Func<string> setLocalAddressNameFunc)
         {
-            defineLocalAddressNameFunc = setLocalAddressNameFunc;
+            config.defineLocalAddressNameFunc = setLocalAddressNameFunc;
             return config;
         }
         /// <summary>
         /// Execute function that returns the NServiceBus local addresses name. If not override by the user, NServiceBus defaults will be used.
         /// See: <a href="http://particular.net/articles/how-to-specify-your-input-queue-name">Here</a> for more details.
         /// </summary>
-        internal static string GetLocalAddressName()
+        internal static string GetLocalAddressName(this Configure config)
         {
-            return defineLocalAddressNameFunc();
+            return config.defineLocalAddressNameFunc();
         }
     }
 }
