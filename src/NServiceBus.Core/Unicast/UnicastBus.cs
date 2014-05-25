@@ -50,6 +50,7 @@ namespace NServiceBus.Unicast
             }
         }
 
+        public Configure Configure { get; set; }
         /// <summary>
         /// Should be used by programmer, not administrator.
         /// Sets an <see cref="ITransport"/> implementation to use as the
@@ -507,7 +508,7 @@ namespace NServiceBus.Unicast
                 Started(this, null);
             }
 
-            satelliteLauncher = new SatelliteLauncher { Builder = Builder };
+            satelliteLauncher = new SatelliteLauncher ( Builder );
             satelliteLauncher.Start();
 
             thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
@@ -523,7 +524,7 @@ namespace NServiceBus.Unicast
                 }
                 catch (Exception ex)
                 {
-                    Configure.Instance.RaiseCriticalError(String.Format("{0} could not be started.", name), ex);
+                    Configure.RaiseCriticalError(String.Format("{0} could not be started.", name), ex);
                 }
             }, TaskCreationOptions.LongRunning)).ToArray();
 
@@ -557,7 +558,7 @@ namespace NServiceBus.Unicast
                     }
                     catch (Exception ex)
                     {
-                        Configure.Instance.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
+                        Configure.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
                     }
                 }, TaskCreationOptions.LongRunning);
 
@@ -606,7 +607,7 @@ namespace NServiceBus.Unicast
         void DisposeManaged()
         {
             InnerShutdown();
-            Configure.Instance.Builder.Dispose();
+            Configure.Builder.Dispose();
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()

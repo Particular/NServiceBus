@@ -19,6 +19,7 @@ namespace NServiceBus.ObjectBuilder.Common.Config
 
             config.Configurer.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(c => c.Container, container);
+            config.Configurer.RegisterSingleton<Configure>(config);
 
             SyncConfig.MarkConfigured();
         }

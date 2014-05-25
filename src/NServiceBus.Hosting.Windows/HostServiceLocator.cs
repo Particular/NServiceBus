@@ -2,11 +2,12 @@ namespace NServiceBus.Hosting.Windows
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Arguments;
     using Microsoft.Practices.ServiceLocation;
 
     /// <summary>
-    /// Plugs into the generic service locator to return an instance of <see cref="GenericHost"/>.
+    /// Plugs into the generic service locator to return an instance of <see cref="WindowsHost"/>.
     /// </summary>
     public class HostServiceLocator : ServiceLocatorImplBase
     {
@@ -16,7 +17,7 @@ namespace NServiceBus.Hosting.Windows
         public static string[] Args;
 
         /// <summary>
-        /// Returns an instance of <see cref="GenericHost"/>
+        /// Returns an instance of <see cref="WindowsHost"/>
         /// </summary>
         protected override object DoGetInstance(Type serviceType, string key)
         {
@@ -24,11 +25,7 @@ namespace NServiceBus.Hosting.Windows
 
             var arguments = new HostArguments(Args);
 
-            var endpointName = string.Empty;
-            if (arguments.EndpointName != null)
-                endpointName = arguments.EndpointName;
-
-            return new WindowsHost(endpoint, Args, endpointName, false, arguments.ScannedAssemblies.ToArray());
+            return new WindowsHost(endpoint, Args, arguments.EndpointName, false, arguments.ScannedAssemblies.ToList());
         }
 
         /// <summary>

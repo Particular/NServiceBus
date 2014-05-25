@@ -35,13 +35,13 @@ namespace NServiceBus.Unicast.Config
             RegisterMessageModules();
 
             Configurer.ConfigureComponent<PipelineExecutor>(DependencyLifecycle.SingleInstance);
-            ConfigureBehaviors();
+            ConfigureBehaviors(config);
         }
 
-        void ConfigureBehaviors()
+        void ConfigureBehaviors(Configure config)
         {
-            Instance.ForAllTypes<IBehavior<IncomingContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-            Instance.ForAllTypes<IBehavior<OutgoingContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            config.ForAllTypes<IBehavior<IncomingContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            config.ForAllTypes<IBehavior<OutgoingContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
         }
 
 #pragma warning disable 0618

@@ -12,7 +12,7 @@ namespace NServiceBus
         /// </summary>
         public static Configure DefineEndpointName(this Configure config, Func<string> definesEndpointName)
         {
-            Configure.GetEndpointNameAction = definesEndpointName;
+            config.GetEndpointNameAction = definesEndpointName;
             return config;
         }
 
@@ -21,7 +21,7 @@ namespace NServiceBus
         /// </summary>
         public static Configure DefineEndpointName(this Configure config, string name)
         {
-            Configure.GetEndpointNameAction = () => name;
+            config.GetEndpointNameAction = () => name;
             return config;
         }
 

@@ -76,7 +76,7 @@
         {
             public CentralizedStoragePublisher()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.AutoSubscribe(s => s.DoNotRequireExplicitRouting()));
+                EndpointSetup<DefaultServer>(c => c.Features.AutoSubscribe(s => s.DoNotRequireExplicitRouting()));
             }
 
             class CatchAllHandler : IHandleMessages<IEvent> 

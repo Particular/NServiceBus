@@ -13,6 +13,13 @@ namespace NServiceBus.Faults.Forwarder
     /// </summary>
     public class FaultManager : IManageMessageFailures
     {
+        Configure configure;
+
+        public FaultManager(Configure configure)
+        {
+            this.configure = configure;
+        }
+
         void IManageMessageFailures.SerializationFailedForMessage(TransportMessage message, Exception e)
         {
             SendFailureMessage(message, e, true);
@@ -38,7 +45,7 @@ namespace NServiceBus.Faults.Forwarder
                
                 // Intentionally service-locate ISendMessages to avoid circular
                 // resolution problem in the container
-                var sender = Configure.Instance.Builder.Build<ISendMessages>();
+                var sender = configure.Builder.Build<ISendMessages>();
 
                 if (serializationException || MessageWasSentFromSLR(message))
                 {

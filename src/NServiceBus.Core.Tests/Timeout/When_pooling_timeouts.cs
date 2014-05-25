@@ -5,20 +5,9 @@ namespace NServiceBus.Core.Tests.Timeout
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Timeout.Hosting.Windows;
     using NUnit.Framework;
-
-    [TestFixture]
-    [Explicit]
-    class When_pooling_timeouts_with_inMemory : When_pooling_timeouts
-    {
-        protected override IPersistTimeouts CreateTimeoutPersister()
-        {
-            return new InMemoryTimeoutPersister();
-        }
-    }
 
     abstract class When_pooling_timeouts
     {
@@ -29,6 +18,7 @@ namespace NServiceBus.Core.Tests.Timeout
 
         IPersistTimeouts persister;
         TimeoutPersisterReceiver receiver;
+        protected Configure configure;
 
         protected abstract IPersistTimeouts CreateTimeoutPersister();
 
@@ -37,7 +27,8 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             Address.InitializeLocalAddress("MyEndpoint");
 
-            Configure.GetEndpointNameAction = () => "MyEndpoint";
+            configure = Configure.With();
+            configure.GetEndpointNameAction = () => "MyEndpoint";
 
             persister = CreateTimeoutPersister();
             messageSender = new FakeMessageSender();
@@ -48,13 +39,7 @@ namespace NServiceBus.Core.Tests.Timeout
                     MessageSender = messageSender,
                 };
 
-            receiver = new TimeoutPersisterReceiver
-                {
-                    TimeoutManager = manager,
-                    TimeoutsPersister = persister,
-                    MessageSender = messageSender,
-                    SecondsToSleepBetweenPolls = 1,
-                };
+            receiver = new TimeoutPersisterReceiver(configure, manager,messageSender,persister);
         }
 
         [Test]
@@ -165,11 +150,11 @@ namespace NServiceBus.Core.Tests.Timeout
             receiver.Stop();
         }
 
-        private static TimeoutData CreateData(DateTime time)
+        TimeoutData CreateData(DateTime time)
         {
             return new TimeoutData
                 {
-                    OwningTimeoutManager = Configure.Instance.EndpointName,
+                    OwningTimeoutManager = configure.EndpointName,
                     Time = time,
                     Headers = new Dictionary<string, string>(),
                 };

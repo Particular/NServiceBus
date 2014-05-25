@@ -9,6 +9,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB
     {
         Func<string> connectionStringFunc;
         string database;
+        Configure config;
 
         protected override void Initialize(Configure config)
         {
@@ -16,6 +17,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB
             database = "CustomDatabase";
 
             config.RavenPersistence(connectionStringFunc, database);
+            this.config = config;
         }
 
         [Test]
@@ -39,7 +41,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB
         [Test]
         public void It_should_use_the_default_resourceManager_id_if_not_specified_in_the_string()
         {
-            Assert.AreEqual(RavenPersistenceConstants.DefaultResourceManagerId, store.ResourceManagerId);
+            Assert.AreEqual(RavenPersistenceConstants.DefaultResourceManagerId(config), store.ResourceManagerId);
         }
     }
 }

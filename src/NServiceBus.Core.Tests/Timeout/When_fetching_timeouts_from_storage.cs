@@ -2,18 +2,8 @@ namespace NServiceBus.Core.Tests.Timeout
 {
     using System;
     using System.Collections.Generic;
-    using InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
-
-    [TestFixture]
-    public class When_fetching_timeouts_from_storage_with_inMemory : When_fetching_timeouts_from_storage
-    {
-        protected override IPersistTimeouts CreateTimeoutPersister()
-        {
-            return new InMemoryTimeoutPersister();
-        }
-    }
 
     public abstract class When_fetching_timeouts_from_storage
     {
@@ -24,9 +14,10 @@ namespace NServiceBus.Core.Tests.Timeout
         [SetUp]
         public void Setup()
         {
+            var configure = Configure.With();
             Address.InitializeLocalAddress("MyEndpoint");
 
-            Configure.GetEndpointNameAction = () => "MyEndpoint";
+            configure.GetEndpointNameAction = () => "MyEndpoint";
 
             persister = CreateTimeoutPersister();
         }
@@ -62,12 +53,13 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             const int numberOfTimeoutsToAdd = 50;
 
+            var configure = Configure.With();
             for (var i = 0; i < numberOfTimeoutsToAdd; i++)
             {
                 var d = new TimeoutData
                 {
                     Time = DateTime.UtcNow.AddHours(-1),
-                    OwningTimeoutManager = Configure.Instance.EndpointName
+                    OwningTimeoutManager = configure.EndpointName
                 };
 
                 persister.Add(d);

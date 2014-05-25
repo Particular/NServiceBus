@@ -8,13 +8,20 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Unicast.Transport;
 
     class TimeoutDispatcherProcessor : IAdvancedSatellite
-    {  
-        public ISendMessages MessageSender { get; set; }
+    {
+        Configure configure;
+        ISendMessages messageSender;
+        IPersistTimeouts timeoutsPersister;
+        TimeoutPersisterReceiver timeoutPersisterReceiver;
 
-        public IPersistTimeouts TimeoutsPersister { get; set; }
-        
-        public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
-      
+        public TimeoutDispatcherProcessor(Configure configure, ISendMessages messageSender, IPersistTimeouts timeoutsPersister, TimeoutPersisterReceiver timeoutPersisterReceiver)
+        {
+            this.configure = configure;
+            this.messageSender = messageSender;
+            this.timeoutsPersister = timeoutsPersister;
+            this.timeoutPersisterReceiver = timeoutPersisterReceiver;
+        }
+
         public Address InputAddress
         {
             get
@@ -33,9 +40,9 @@ namespace NServiceBus.Timeout.Hosting.Windows
             var timeoutId = message.Headers["Timeout.Id"];
             TimeoutData timeoutData;
 
-            if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
+            if (timeoutsPersister.TryRemove(timeoutId, out timeoutData))
             {
-                MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions());
+                messageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions());
             }
 
             return true;
@@ -43,12 +50,12 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Start()
         {
-            TimeoutPersisterReceiver.Start();
+            timeoutPersisterReceiver.Start();
         }
 
         public void Stop()
         {
-            TimeoutPersisterReceiver.Stop();
+            timeoutPersisterReceiver.Stop();
         }
 
         public Action<TransportReceiver> GetReceiverCustomization()
@@ -57,7 +64,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 //TODO: The line below needs to change when we refactor the slr to be:
                 // transport.DisableSLR() or similar
-                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager);
+                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager, configure);
             };
         }
     }

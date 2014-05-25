@@ -49,7 +49,7 @@ namespace NServiceBus
                 identity = new GenericIdentity(username);
             }
 
-            return new Installer<T>(identity);
+            return new Installer<T>(identity, config);
         }
     }
     
@@ -64,16 +64,20 @@ namespace NServiceBus
         {
             RunOtherInstallers = true;
         }
+
         /// <summary>
         /// Initializes a new instance of the Installer
         /// </summary>
         /// <param name="identity">Identity of the user to be used to setup installer.</param>
-        public Installer(IIdentity identity)
+        /// <param name="config"></param>
+        public Installer(IIdentity identity, Configure config)
         {
             this.identity = identity;
+            this.config = config;
         }
 
         private readonly IIdentity identity;
+        Configure config;
 
         /// <summary>
         /// Gets or sets RunOtherInstallers 
@@ -88,7 +92,7 @@ namespace NServiceBus
         /// </summary>
         public void Install()
         {
-            Configure.Instance.Initialize();
+            config.Initialize();
 
             if (RunOtherInstallers)
             {
@@ -106,8 +110,8 @@ namespace NServiceBus
                 return;
             }
 
-            Configure.Instance.Builder.BuildAll<INeedToInstallSomething>().ToList()
-                .ForEach(i=>i.Install(identity.Name));
+            config.Builder.BuildAll<INeedToInstallSomething>().ToList()
+                .ForEach(i => i.Install(identity.Name, config));
 
             installedOthersInstallers = true;
         }

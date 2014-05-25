@@ -12,10 +12,20 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
     class TimeoutPersisterReceiver : IDisposable
     {
-        public IPersistTimeouts TimeoutsPersister { get; set; }
-        public ISendMessages MessageSender { get; set; }
-        public int SecondsToSleepBetweenPolls { get; set; }
-        public DefaultTimeoutManager TimeoutManager { get; set; }
+        DefaultTimeoutManager timeoutManager;
+        ISendMessages messageSender;
+        IPersistTimeouts timeoutsPersister;
+        public int secondsToSleepBetweenPolls;
+
+
+        public TimeoutPersisterReceiver(Configure configure, DefaultTimeoutManager timeoutManager, ISendMessages messageSender, IPersistTimeouts timeoutsPersister)
+        {
+            this.timeoutManager = timeoutManager;
+            this.messageSender = messageSender;
+            this.timeoutsPersister = timeoutsPersister;
+            circuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity", TimeSpan.FromMinutes(2),
+                ex => configure.RaiseCriticalError("Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
+        }
 
         public void Dispose()
         {
@@ -24,9 +34,9 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Start()
         {
-            TimeoutManager.TimeoutPushed = TimeoutsManagerOnTimeoutPushed;
+            timeoutManager.TimeoutPushed = TimeoutsManagerOnTimeoutPushed;
 
-            SecondsToSleepBetweenPolls = 1;
+            secondsToSleepBetweenPolls = 1;
 
             tokenSource = new CancellationTokenSource();
 
@@ -35,7 +45,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Stop()
         {
-            TimeoutManager.TimeoutPushed = null;
+            timeoutManager.TimeoutPushed = null;
             tokenSource.Cancel();
             resetEvent.WaitOne();
         }
@@ -71,14 +81,14 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 if (nextRetrieval > DateTime.UtcNow)
                 {
-                    Thread.Sleep(SecondsToSleepBetweenPolls*1000);
+                    Thread.Sleep(secondsToSleepBetweenPolls*1000);
                     continue;
                 }
 
                 Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
 
                 DateTime nextExpiredTimeout;
-                var timeoutDatas = TimeoutsPersister.GetNextChunk(startSlice, out nextExpiredTimeout);
+                var timeoutDatas = timeoutsPersister.GetNextChunk(startSlice, out nextExpiredTimeout);
 
                 foreach (var timeoutData in timeoutDatas)
                 {
@@ -87,7 +97,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                         startSlice = timeoutData.Item2;
                     }
 
-                    MessageSender.Send(CreateTransportMessage(timeoutData.Item1), new SendOptions(Features.TimeoutManager.DispatcherAddress) { ReplyToAddress = Features.TimeoutManager.DispatcherAddress });
+                    messageSender.Send(CreateTransportMessage(timeoutData.Item1), new SendOptions(Features.TimeoutManager.DispatcherAddress) { ReplyToAddress = Features.TimeoutManager.DispatcherAddress });
                 }
 
                 lock (lockObject)
@@ -147,11 +157,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         static ILog Logger = LogManager.GetLogger<TimeoutPersisterReceiver>();
 
-        RepeatedFailuresOverTimeCircuitBreaker circuitBreaker =
-            new RepeatedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity", TimeSpan.FromMinutes(2),
-                ex =>
-                    Configure.Instance.RaiseCriticalError(
-                        "Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
+        RepeatedFailuresOverTimeCircuitBreaker circuitBreaker;
 
         readonly object lockObject = new object();
         ManualResetEvent resetEvent = new ManualResetEvent(true);

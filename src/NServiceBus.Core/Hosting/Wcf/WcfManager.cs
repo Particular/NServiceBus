@@ -13,7 +13,7 @@
     public class WcfManager
     {
         private readonly List<ServiceHost> hosts = new List<ServiceHost>();
-      
+
         /// <summary>
         /// Starts a <see cref="ServiceHost"/> for each found service. Defaults to <see cref="BasicHttpBinding"/> if
         /// no user specified binding is found
@@ -26,12 +26,10 @@
 
                 Binding binding = new BasicHttpBinding();
 
-                if (Configure.Instance.Configurer.HasComponent<Binding>())
-                    binding = Configure.Instance.Builder.Build<Binding>();
-                
-                host.AddDefaultEndpoint(   GetContractType(serviceType),
-                                           binding
-                                           ,"");
+                if (config.Configurer.HasComponent<Binding>())
+                    binding = config.Builder.Build<Binding>();
+
+                host.AddDefaultEndpoint(GetContractType(serviceType), binding, "");
 
                 hosts.Add(host);
 

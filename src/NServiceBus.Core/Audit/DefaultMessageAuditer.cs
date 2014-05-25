@@ -5,7 +5,13 @@ namespace NServiceBus.Transports
 
     class DefaultMessageAuditer:IAuditMessages
     {
+        Configure configure;
         public ISendMessages MessageSender { get; set; }
+
+        public DefaultMessageAuditer(Configure configure)
+        {
+            this.configure = configure;
+        }
 
         public void Audit(SendOptions sendOptions, TransportMessage transportMessage)
         {
@@ -20,10 +26,10 @@ namespace NServiceBus.Transports
                 TimeToBeReceived = sendOptions.TimeToBeReceived.HasValue ? sendOptions.TimeToBeReceived.Value : transportMessage.TimeToBeReceived
             };
 
-            messageToForward.Headers[Headers.OriginatingEndpoint] = Configure.Instance.EndpointName;
+            messageToForward.Headers[Headers.OriginatingEndpoint] = configure.EndpointName;
             messageToForward.Headers[Headers.OriginatingHostId] = UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N");
             messageToForward.Headers["NServiceBus.ProcessingMachine"] = RuntimeEnvironment.MachineName;
-            messageToForward.Headers[Headers.ProcessingEndpoint] = Configure.Instance.EndpointName;
+            messageToForward.Headers[Headers.ProcessingEndpoint] = configure.EndpointName;
 
 
 

@@ -39,7 +39,7 @@ namespace NServiceBus
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config)
         {
-            if (Configure.Instance.Configurer.HasComponent<RavenSessionFactory>())
+            if (config.Configurer.HasComponent<RavenSessionFactory>())
             {
                 return config;
             }
@@ -55,7 +55,7 @@ namespace NServiceBus
             var store = new DocumentStore
             {
                 Url = RavenPersistenceConstants.DefaultUrl(config),
-                ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
+                ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId(config),
                 DefaultDatabase = config.EndpointName,
             };
 
@@ -228,13 +228,13 @@ namespace NServiceBus
                 connectionStringParser.Parse();
                 if (connectionStringParser.ConnectionStringOptions.ResourceManagerId == Guid.Empty)
                 {
-                    store.ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId;
+                    store.ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId(config);
                 }
             }
             else
             {
                 store.Url = RavenPersistenceConstants.DefaultUrl(config);
-                store.ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId;
+                store.ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId(config);
             }
 
             if (database == null)

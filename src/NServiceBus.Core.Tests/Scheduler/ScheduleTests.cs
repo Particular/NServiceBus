@@ -20,8 +20,8 @@
         [SetUp]
         public void SetUp()
         {
-            Configure.With(new Assembly[0]);
-            Configure.Instance.Builder = _builder;
+            var config = Configure.With(new Assembly[0]);
+            config.Builder = _builder;
 
             _builder.Register<IBus>(() => _bus);
             _builder.Register<IScheduledTaskStorage>(() => _taskStorage);

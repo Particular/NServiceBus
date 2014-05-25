@@ -10,8 +10,8 @@
         public void SetUp()
         {
             fakeReceiver = new FakeReceiver();
-
-            TransportReceiver = new TransportReceiver(TransactionSettings.Default, 1, 0,fakeReceiver, new FakeFailureManager());
+            var configure = Configure.With();
+            TransportReceiver = new TransportReceiver(TransactionSettings.Default, 1, 0, fakeReceiver, new FakeFailureManager(), configure);
 
         }
 

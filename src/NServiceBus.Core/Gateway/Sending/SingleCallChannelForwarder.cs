@@ -14,9 +14,10 @@
 
     public class SingleCallChannelForwarder : IForwardMessagesToSites
     {
-        public SingleCallChannelForwarder(IChannelFactory channelFactory)
+        public SingleCallChannelForwarder(IChannelFactory channelFactory, Configure configure)
         {
             this.channelFactory = channelFactory;
+            this.configure = configure;
         }
 
         public IDataBus DataBus { get; set; }
@@ -25,7 +26,7 @@
         {
             var headers = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
 
-            HeaderMapper.Map(message, headers);
+            HeaderMapper.Map(message, headers, configure);
 
             var channelSender = channelFactory.GetSender(targetSite.Channel.Type);
 
@@ -78,5 +79,6 @@
 
         static ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
         IChannelFactory channelFactory;
+        readonly Configure configure;
     }
 }

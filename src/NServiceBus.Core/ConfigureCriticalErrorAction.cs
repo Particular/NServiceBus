@@ -8,18 +8,6 @@ namespace NServiceBus
     /// </summary>
     public static class ConfigureCriticalErrorAction
     {
-        static Action<string, Exception> onCriticalErrorAction = (errorMessage, exception) =>
-            {
-                if (!Configure.BuilderIsConfigured())
-                    return;
-
-                if (!Configure.Instance.Configurer.HasComponent<IBus>())
-                    return;
-
-                Configure.Instance.Builder.Build<IStartableBus>()
-                    .Shutdown();
-            };
-
         /// <summary>
         ///     Sets the function to be used when critical error occurs.
         /// </summary>
@@ -28,7 +16,7 @@ namespace NServiceBus
         /// <returns>The configuration object.</returns>
         public static Configure DefineCriticalErrorAction(this Configure config, Action<string, Exception> onCriticalError)
         {
-            onCriticalErrorAction = onCriticalError;
+            config.onCriticalErrorAction = onCriticalError;
             return config;
         }
 
@@ -42,7 +30,7 @@ namespace NServiceBus
         {
             LogManager.GetLogger("NServiceBus").Fatal(errorMessage, exception);
 
-            onCriticalErrorAction(errorMessage, exception);
+            config.onCriticalErrorAction(errorMessage, exception);
         }
 
     }

@@ -63,6 +63,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         [SetUp]
         public void SetUp()
         {
+            var configure = Configure.With();
             LicenseManager.InitializeLicense();
             transportDefinition = new Msmq();
             HandlerInvocationCache.Clear();
@@ -76,7 +77,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
-            Configure.GetEndpointNameAction = () => "TestEndpoint";
+            configure.GetEndpointNameAction = () => "TestEndpoint";
             router = new StaticMessageRouter(KnownMessageTypes());
             handlerRegistry = new MessageHandlerRegistry();
             MessageMetadataRegistry = new MessageMetadataRegistry
@@ -138,7 +139,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             unicastBus = new UnicastBus
             {
-                //MasterNodeAddress = MasterNodeAddress,
+                Configure = configure,
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
                 Transport = Transport,

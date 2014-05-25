@@ -7,9 +7,12 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB
     [TestFixture]
     public class When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_and_database : WithRavenDbServer
     {
+        Configure config;
+
         protected override void Initialize(Configure config)
         {
             config.RavenPersistence("Raven", "CustomDatabase");
+            this.config = config;
         }
 
         [Test]
@@ -34,16 +37,19 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB
         [Test]
         public void It_should_use_the_default_resourceManager_id_if_not_specified_in_the_string()
         {
-            Assert.AreEqual(RavenPersistenceConstants.DefaultResourceManagerId, store.ResourceManagerId);
+            Assert.AreEqual(RavenPersistenceConstants.DefaultResourceManagerId(config), store.ResourceManagerId);
         }
     }
 
     [TestFixture]
     public class When_configuring_the_raven_saga_persister_with_a_connection_string_that_has_a_default_database_set : WithRavenDbServer
     {
+        Configure config;
+
         protected override void Initialize(Configure config)
         {
             config.RavenPersistence("RavenWithDefaultDBSet");
+            this.config = config;
         }
 
         [Test]
@@ -55,16 +61,19 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB
         [Test]
         public void It_should_use_the_default_resourceManager_id_if_not_specified_in_the_string()
         {
-            Assert.AreEqual(RavenPersistenceConstants.DefaultResourceManagerId, store.ResourceManagerId);
+            Assert.AreEqual(RavenPersistenceConstants.DefaultResourceManagerId(config), store.ResourceManagerId);
         }
     }
 
     [TestFixture]
     public class When_configuring_the_raven_saga_persister_with_a_connection_string_that_has_a_database_set : WithRavenDbServer
     {
+        Configure config;
+
         protected override void Initialize(Configure config)
         {
             config.RavenPersistence("RavenWithDefaultDBSetUsingDataBase");
+            this.config = config;
         }
 
         [Test]
@@ -76,7 +85,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB
         [Test]
         public void It_should_use_the_default_resourceManager_id_if_not_specified_in_the_string()
         {
-            Assert.AreEqual(RavenPersistenceConstants.DefaultResourceManagerId, store.ResourceManagerId);
+            Assert.AreEqual(RavenPersistenceConstants.DefaultResourceManagerId(config), store.ResourceManagerId);
         }
     }
 

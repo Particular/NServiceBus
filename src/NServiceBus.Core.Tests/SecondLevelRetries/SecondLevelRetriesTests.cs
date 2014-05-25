@@ -25,8 +25,9 @@
         [SetUp]
         public void SetUp()
         {
+            var configure = Configure.With();
             satellite.InputAddress = RETRIES_QUEUE;
-            satellite.FaultManager = new FaultManager {ErrorQueue = ERROR_QUEUE};
+            satellite.FaultManager = new FaultManager(configure) { ErrorQueue = ERROR_QUEUE };
             
             satellite.MessageSender = messageSender;
             satellite.MessageDeferrer = deferrer;

@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Transport.Config
                     MaxRetries = maximumNumberOfRetries
                 };
 
-            config.Configurer.ConfigureComponent(b => new TransportReceiver(transactionSettings, maximumConcurrencyLevel, maximumThroughput, b.Build<IDequeueMessages>(), b.Build<IManageMessageFailures>()), DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent(b => new TransportReceiver(transactionSettings, maximumConcurrencyLevel, maximumThroughput, b.Build<IDequeueMessages>(), b.Build<IManageMessageFailures>(),config), DependencyLifecycle.InstancePerCall);
         }
 
     }

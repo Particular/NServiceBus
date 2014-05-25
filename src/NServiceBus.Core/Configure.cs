@@ -30,6 +30,18 @@ namespace NServiceBus
         /// </summary>
         protected Configure(IConfigurationSource configurationSource = null)
         {
+            defineLocalAddressNameFunc = GetEndpointNameAction;
+            onCriticalErrorAction = (errorMessage, exception) =>
+            {
+                if (!HasBuilder())
+                    return;
+
+                if (!Configurer.HasComponent<IBus>())
+                    return;
+
+                Builder.Build<IStartableBus>()
+                    .Shutdown();
+            };
             this.configurationSource = configurationSource ?? new DefaultConfigurationSource();
         }
 
@@ -139,26 +151,14 @@ namespace NServiceBus
         {
             get { return LogManager.GetLogger<Configure>(); }
         }
-
-        /// <summary>
-        ///     True if any of the <see cref="With()" /> has been called.
-        /// </summary>
-        public static bool WithHasBeenCalled()
-        {
-            return instance != null;
-        }
-
+        
         /// <summary>
         ///     True if a builder has been defined.
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "5.0")]
         public static bool BuilderIsConfigured()
         {
-            if (!WithHasBeenCalled())
-            {
-                return false;
-            }
-
-            return Instance.HasBuilder();
+            throw new NotImplementedException();
         }
 
         bool HasBuilder()
@@ -285,7 +285,7 @@ namespace NServiceBus
 
             if (!Configurer.HasComponent<IStartableBus>())
             {
-                Instance.UnicastBus();
+                this.UnicastBus();
             }
 
             return Builder.Build<IStartableBus>();
@@ -333,7 +333,7 @@ namespace NServiceBus
             
             Features.DisableFeaturesAsNeeded();
 
-            ForAllTypes<INeedToInstallSomething<Windows>>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            ForAllTypes<INeedToInstallSomething<Windows>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             //lockdown the settings
             Settings.PreventChanges();
@@ -404,77 +404,57 @@ namespace NServiceBus
         /// <summary>
         ///     Configures the given type with the given <see cref="DependencyLifecycle" />.
         /// </summary>
+        [ObsoleteEx(Replacement = "use the instance based config.Configurer.ConfigureComponent<T>();")]
         public static IComponentConfig<T> Component<T>(DependencyLifecycle lifecycle)
         {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
-            }
-
-            return Instance.Configurer.ConfigureComponent<T>(lifecycle);
+            throw new NotImplementedException();
         }
 
         /// <summary>
         ///     Configures the given type with the given lifecycle <see cref="DependencyLifecycle" />.
         /// </summary>
+        [ObsoleteEx(Replacement = "use the instance based config.Configurer.ConfigureComponent<T>();")]
         public static IComponentConfig Component(Type type, DependencyLifecycle lifecycle)
         {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component()");
-            }
-
-            return Instance.Configurer.ConfigureComponent(type, lifecycle);
+            throw new NotImplementedException();
         }
 
         /// <summary>
         ///     Configures the given type with the given <see cref="DependencyLifecycle" />.
         /// </summary>
+        [ObsoleteEx(Replacement = "use the instance based config.Configurer.ConfigureComponent<T>();")]
         public static IComponentConfig<T> Component<T>(Func<T> componentFactory, DependencyLifecycle lifecycle)
         {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
-            }
-
-            return Instance.Configurer.ConfigureComponent(componentFactory, lifecycle);
+            throw new NotImplementedException();
         }
 
         /// <summary>
         ///     Configures the given type with the given <see cref="DependencyLifecycle" />
         /// </summary>
+        [ObsoleteEx(Replacement = "use the instance based config.Configurer.ConfigureComponent<T>();")]
         public static IComponentConfig<T> Component<T>(Func<IBuilder, T> componentFactory, DependencyLifecycle lifecycle)
         {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
-            }
-
-            return Instance.Configurer.ConfigureComponent(componentFactory, lifecycle);
+            throw new NotImplementedException();
         }
 
         /// <summary>
         ///     Returns true if a component of type <typeparamref name="T" /> exists in the container.
         /// </summary>
+        [ObsoleteEx(Replacement = "use the instance based Configure.Configurer.HasComponent();")]
         public static bool HasComponent<T>()
         {
-            return HasComponent(typeof(T));
+            throw new NotImplementedException();
         }
 
 
         /// <summary>
         ///     Returns true if a component of type <paramref name="componentType" /> exists in the container.
         /// </summary>
+        [ObsoleteEx(Replacement = "use the instance based Configure.Configurer.HasComponent();")]
         public static bool HasComponent(Type componentType)
         {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.HasComponent");
-            }
-
-            return Instance.Configurer.HasComponent(componentType);
+            throw new NotImplementedException();
         }
-
 
         static IEnumerable<Type> GetAllowedTypes(params Assembly[] assemblies)
         {
@@ -579,12 +559,12 @@ namespace NServiceBus
         /// <summary>
         ///     The function used to get the name of this endpoint.
         /// </summary>
-        public static Func<string> GetEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
+        public Func<string> GetEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
 
         /// <summary>
         ///     The function used to get the version of this endpoint.
         /// </summary>
-        public static Func<string> DefineEndpointVersionRetriever = () => EndpointHelper.GetEndpointVersion();
+        public Func<string> DefineEndpointVersionRetriever = () => EndpointHelper.GetEndpointVersion();
 
         /// <summary>
         ///     The function used to get the name of this endpoint.
@@ -597,5 +577,9 @@ namespace NServiceBus
         IBuilder builder;
         internal IConfigurationSource configurationSource;
         IConfigureComponents configurer;
+
+        internal Action<string, Exception> onCriticalErrorAction;
+        internal Func<string> defineLocalAddressNameFunc;
+
     }
 }

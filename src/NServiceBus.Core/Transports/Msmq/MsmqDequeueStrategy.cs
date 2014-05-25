@@ -17,6 +17,8 @@ namespace NServiceBus.Transports.Msmq
     /// </summary>
     public class MsmqDequeueStrategy : IDequeueMessages, IDisposable
     {
+        Configure configure;
+
         /// <summary>
         ///     Purges the queue on startup.
         /// </summary>
@@ -26,6 +28,11 @@ namespace NServiceBus.Transports.Msmq
         ///     Msmq unit of work to be used in non DTC mode <see cref="MsmqUnitOfWork" />.
         /// </summary>
         public MsmqUnitOfWork UnitOfWork { get; set; }
+
+        public MsmqDequeueStrategy(Configure configure)
+        {
+            this.configure = configure;
+        }
 
         /// <summary>
         ///     Initializes the <see cref="IDequeueMessages" />.
@@ -347,7 +354,7 @@ namespace NServiceBus.Transports.Msmq
 
             circuitBreaker.Execute(
                 () =>
-                    Configure.Instance.RaiseCriticalError("Error in receiving messages.",
+                    configure.RaiseCriticalError("Error in receiving messages.",
                         new InvalidOperationException(errorException, messageQueueException)));
         }
 

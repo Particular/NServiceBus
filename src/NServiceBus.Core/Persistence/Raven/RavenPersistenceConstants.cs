@@ -34,12 +34,9 @@ namespace NServiceBus.Persistence.Raven
             return section != null ? section.Node : null;
         }
 
-        public static Guid DefaultResourceManagerId
+        public static Guid DefaultResourceManagerId(Configure configure)
         {
-            get
-            {
-                return DeterministicGuid.Create(Address.Local, "-", Configure.DefineEndpointVersionRetriever());
-            }
+            return DeterministicGuid.Create(Address.Local, "-", configure.DefineEndpointVersionRetriever());
         }
     }
 }

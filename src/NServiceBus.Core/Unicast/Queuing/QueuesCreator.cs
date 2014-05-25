@@ -19,7 +19,8 @@ namespace NServiceBus.Unicast.Queuing
         /// Performs the installation providing permission for the given user.
         /// </summary>
         /// <param name="identity">The user for under which the queue will be created.</param>
-        public void Install(string identity)
+        /// <param name="configure">The current instance of <see cref="Configure"/>.</param>
+        public void Install(string identity, Configure configure)
         {
             if (SettingsHolder.Instance.Get<bool>("Endpoint.SendOnly"))
             {
@@ -31,9 +32,9 @@ namespace NServiceBus.Unicast.Queuing
                 return;
             }
 
-            var wantQueueCreatedInstances = Configure.Instance.Builder.BuildAll<IWantQueueCreated>().ToList();
+            var wantQueueCreatedInstances = configure.Builder.BuildAll<IWantQueueCreated>().ToList();
 
-            foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => wantQueueCreatedInstance.ShouldCreateQueue(Configure.Instance)))
+            foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => wantQueueCreatedInstance.ShouldCreateQueue(configure)))
             {
                 if (wantQueueCreatedInstance.Address == null)
                 {
@@ -54,5 +55,6 @@ namespace NServiceBus.Unicast.Queuing
         }
 
         static ILog Logger = LogManager.GetLogger<QueuesCreator>();
+        
     }
 }

@@ -14,14 +14,16 @@
     /// </summary>
     public class RoleManager
     {
+        readonly Configure config;
         readonly IDictionary<Type, Type> availableRoles;
         static ILog Logger = LogManager.GetLogger<RoleManager>();
 
         /// <summary>
         /// Creates the manager with the list of assemblies to scan for roles
         /// </summary>
-        public RoleManager(IEnumerable<Assembly> assembliesToScan)
+        public RoleManager(IEnumerable<Assembly> assembliesToScan, Configure config)
         {
+            this.config = config;
             availableRoles = assembliesToScan.AllTypes()
                 .Select(t => new { Role = t.GetGenericallyContainedType(typeof(IConfigureRole<>), typeof(IRole)), Configurer = t })
                 .Where(x => x.Role != null)
@@ -64,14 +66,14 @@
                 //apply role
                 var roleConfigurer = (IConfigureRole)Activator.CreateInstance(role.Value);
 
-                var config = roleConfigurer.ConfigureRole(specifier);
+                var configUnicastBus = roleConfigurer.ConfigureRole(specifier, config);
 
-                if (config != null)
+                if (configUnicastBus != null)
                 {
                     if (unicastBusConfig != null)
                         throw new InvalidOperationException("Only one role can configure the UnicastBus");
 
-                    unicastBusConfig = config;
+                    unicastBusConfig = configUnicastBus;
                 }
 
                 Logger.Info("Role " + roleType + " configured");
