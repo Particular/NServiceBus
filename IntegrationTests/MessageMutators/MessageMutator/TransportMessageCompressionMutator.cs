@@ -10,7 +10,7 @@ namespace MessageMutators
     {
         private static readonly ILog Logger = LogManager.GetLogger("TransportMessageCompressionMutator");
 
-        public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
+        public void MutateOutgoing(object messages, TransportMessage transportMessage)
         {
             Logger.Info("transportMessage.Body size before compression: " + transportMessage.Body.Length);
             
