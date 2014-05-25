@@ -11,14 +11,14 @@ namespace NServiceBus.Hosting.Windows
     /// </summary>
     public class WindowsHost : MarshalByRefObject
     {
-        readonly GenericHost genericHost;
-        readonly bool runOtherInstallers;
+        GenericHost genericHost;
+        bool runOtherInstallers;
 
         /// <summary>
         /// Accepts the type which will specify the users custom configuration.
         /// This type should implement <see cref="IConfigureThisEndpoint"/>.
         /// </summary>
-        public WindowsHost(Type endpointType, string[] args, string endpointName, bool runOtherInstallers, IEnumerable<string> scannableAssembliesFullName)
+        public WindowsHost(Type endpointType, string[] args, string endpointName, bool runOtherInstallers, List<string> scannableAssembliesFullName)
         {
             genericHost = new GenericHost(args, new List<Type> { typeof(Production) }, endpointName, endpointType, scannableAssembliesFullName);
 

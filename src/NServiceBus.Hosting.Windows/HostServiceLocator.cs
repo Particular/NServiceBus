@@ -2,6 +2,7 @@ namespace NServiceBus.Hosting.Windows
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Arguments;
     using Microsoft.Practices.ServiceLocation;
 
@@ -24,11 +25,7 @@ namespace NServiceBus.Hosting.Windows
 
             var arguments = new HostArguments(Args);
 
-            var endpointName = string.Empty;
-            if (arguments.EndpointName != null)
-                endpointName = arguments.EndpointName;
-
-            return new WindowsHost(endpoint, Args, endpointName, false, arguments.ScannedAssemblies.ToArray());
+            return new WindowsHost(endpoint, Args, arguments.EndpointName, false, arguments.ScannedAssemblies.ToList());
         }
 
         /// <summary>

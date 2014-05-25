@@ -15,38 +15,29 @@ namespace NServiceBus.Hosting
 
     class GenericHost
     {
-        public GenericHost(string[] args, List<Type> defaultProfiles, string endpointName, Type endpointType, IEnumerable<string> scannableAssembliesFullName = null)
-        {
-            specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
+        string[] args;
+        List<Type> defaultProfiles;
+        Type endpointType;
+        List<string> scannableAssembliesFullName;
+        WcfManager wcfManager;
+        IStartableBus bus;
+        Configure config;
+        string endpointName;
 
+        public GenericHost(string[] args, List<Type> defaultProfiles, string endpointName, Type endpointType, List<string> scannableAssembliesFullName = null)
+        {
+            this.args = args;
+            this.defaultProfiles = defaultProfiles;
+            this.endpointType = endpointType;
+            this.scannableAssembliesFullName = scannableAssembliesFullName;
             if (String.IsNullOrEmpty(endpointName))
             {
-                endpointName = specifier.GetType().Namespace ?? specifier.GetType().Assembly.GetName().Name;
-            }
-
-            Configure.GetEndpointNameAction = () => endpointName;
-            Configure.DefineEndpointVersionRetriever = () => FileVersionRetriever.GetFileVersion(specifier.GetType());
-
-            if (scannableAssembliesFullName == null || !scannableAssembliesFullName.Any())
-            {
-                var assemblyScanner = new AssemblyScanner();
-                assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
-                assembliesToScan = assemblyScanner
-                    .GetScannableAssemblies()
-                    .Assemblies;
+                this.endpointName = endpointType.Namespace ?? endpointType.Assembly.GetName().Name;
             }
             else
             {
-                assembliesToScan = scannableAssembliesFullName
-                    .Select(Assembly.Load)
-                    .ToList();
+                this.endpointName = endpointName;
             }
-
-            profileManager = new ProfileManager(assembliesToScan, args, defaultProfiles);
-            ProfileActivator.ProfileManager = profileManager;
-
-            wcfManager = new WcfManager();
-            roleManager = new RoleManager(assembliesToScan);
         }
 
         /// <summary>
@@ -99,8 +90,39 @@ namespace NServiceBus.Hosting
             Configure.Instance.Initialize();
         }
 
+
+
         void PerformConfiguration()
         {
+            var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
+
+
+            List<Assembly> assembliesToScan;
+            Configure.GetEndpointNameAction = () => endpointName;
+            Configure.DefineEndpointVersionRetriever = () => FileVersionRetriever.GetFileVersion(specifier.GetType());
+
+            if (scannableAssembliesFullName == null || !scannableAssembliesFullName.Any())
+            {
+                var assemblyScanner = new AssemblyScanner();
+                assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
+                assembliesToScan = assemblyScanner
+                    .GetScannableAssemblies()
+                    .Assemblies;
+            }
+            else
+            {
+                assembliesToScan = scannableAssembliesFullName
+                    .Select(Assembly.Load)
+                    .ToList();
+            }
+
+            var profileManager = new ProfileManager(assembliesToScan, args, defaultProfiles);
+            ProfileActivator.ProfileManager = profileManager;
+
+            wcfManager = new WcfManager();
+            var roleManager = new RoleManager(assembliesToScan);
+
+
             var loggingConfigurers = profileManager.GetLoggingConfigurer();
             foreach (var loggingConfigurer in loggingConfigurers)
             {
@@ -147,12 +169,5 @@ namespace NServiceBus.Hosting
             throw new Exception("IWantCustomInitialization is only valid on the same class as ICOnfigureThisEndpoint. Please use INeedInitialization instead. Found types: " + string.Join(",",problems.Select(t=>t.FullName)));
         }
 
-        readonly List<Assembly> assembliesToScan;
-        readonly ProfileManager profileManager;
-        readonly RoleManager roleManager;
-        Configure config;
-        readonly IConfigureThisEndpoint specifier;
-        readonly WcfManager wcfManager;
-        IStartableBus bus;
     }
 }
