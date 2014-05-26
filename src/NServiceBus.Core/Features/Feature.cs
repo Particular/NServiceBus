@@ -34,13 +34,13 @@
         /// <returns></returns>
         protected void Prerequisite(Func<FeatureConfigurationContext, bool> condition)
         {
-            setupPrerequisite.Add(condition);
+            setupPrerequisites.Add(condition);
         }
 
 
         public  bool ShouldBeSetup(FeatureConfigurationContext config)
         {
-            return setupPrerequisite.All(condition => condition(config));
+            return setupPrerequisites.All(condition => condition(config));
         }
 
         /// <summary>
@@ -92,9 +92,9 @@
             return string.Format("{0} [{1}]",Name, Version);
         }
 
-        protected bool Equals(Feature other)
+        bool Equals(Feature other)
         {
-            return string.Equals(name, other.name);
+            return other != null && string.Equals(name, other.name);
         }
 
         public override bool Equals(object obj)
@@ -142,7 +142,7 @@
 
         List<Type> dependencies = new List<Type>();
 
-        List<Func<FeatureConfigurationContext, bool>> setupPrerequisite = new List<Func<FeatureConfigurationContext, bool>>(); 
+        List<Func<FeatureConfigurationContext, bool>> setupPrerequisites = new List<Func<FeatureConfigurationContext, bool>>(); 
 
         string name;
         bool isEnabledByDefault;
@@ -152,17 +152,17 @@
 
     public class FeatureConfigurationContext
     {
-        public FeatureConfigurationContext(ReadOnlySettings settings, IConfigureComponents container, PipelineSettings pipeline, IEnumerable<Type> typesToScan)
+        readonly Configure config;
+
+        public FeatureConfigurationContext(Configure config)
         {
-            Settings = settings;
-            Container = container;
-            Pipeline = pipeline;
-            TypesToScan = typesToScan;
+            this.config = config;
+            
         }
 
-        public ReadOnlySettings Settings { get; private set; }
-        public IConfigureComponents Container { get; private set; }
-        public PipelineSettings Pipeline { get; private set; }
-        public IEnumerable<Type> TypesToScan { get; private set; }
+        public ReadOnlySettings Settings { get { return config.Settings; } }
+        public IConfigureComponents Container { get { return config.Configurer; } }
+        public PipelineSettings Pipeline { get { return config.Pipeline; } }
+        public IEnumerable<Type> TypesToScan { get { return config.TypesToScan; } }
     }
 }

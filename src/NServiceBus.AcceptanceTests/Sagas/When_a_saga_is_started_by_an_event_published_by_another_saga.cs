@@ -35,7 +35,7 @@
                         {
                             bus.Subscribe<SomethingHappenedEvent>();
 
-                            if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
+                            if (context.HasSupportForCentralizedPubSub)
                                 context.IsEventSubscriptionReceived = true;
                         }))
 
@@ -77,7 +77,7 @@
                      {
                          bus.Subscribe<BaseEvent>();
 
-                         if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
+                         if (context.HasSupportForCentralizedPubSub)
                               context.IsEventSubscriptionReceived = true;
                      }))
                  .Done(c => c.DidSagaComplete)
@@ -96,7 +96,7 @@
         {
             public SagaThatPublishesAnEvent()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.Disable<AutoSubscribe>());
+                EndpointSetup<DefaultServer>(c => c.Features.Disable<AutoSubscribe>());
             }
 
             public class Saga1 : Saga<Saga1.Saga1Data>, IAmStartedByMessages<StartSaga>, IHandleTimeouts<Saga1.Timeout1>
@@ -136,7 +136,7 @@
         {
             public SagaThatIsStartedByTheEvent()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.Features.Disable<AutoSubscribe>())
                     .AddMapping<SomethingHappenedEvent>(typeof(SagaThatPublishesAnEvent));
 
             }
@@ -175,7 +175,7 @@
         {
             public SagaThatIsStartedByABaseEvent()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.Features.Disable<AutoSubscribe>())
                     .AddMapping<BaseEvent>(typeof(SagaThatPublishesAnEvent));
             }
 

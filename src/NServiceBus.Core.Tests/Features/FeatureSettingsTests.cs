@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Features
 {
+    using System;
     using NServiceBus.Features;
     using NUnit.Framework;
     using Settings;
@@ -7,26 +8,7 @@
     [TestFixture]
     public class FeatureSettingsTests
     {
-        [Test]
-        public void Should_allow_for_features_to_be_disabled()
-        {
-            var featureSettings = new FeatureSettings(new SettingsHolder())
-            {
-               
-            };
-
-            Assert.False(featureSettings.IsActivated<MyFeature>());
-
-            featureSettings.EnableByDefault<MyFeature>();
-
-            Assert.True(featureSettings.IsActivated<MyFeature>());
-
-            featureSettings.Disable<MyFeature>();
-
-            Assert.False(featureSettings.IsActivated<MyFeature>());
-        }
-
-
+     
         [Test]
         public void Should_check_activation_conditions()
         {
@@ -41,8 +23,8 @@
 
             featureSettings.SetupFeatures();
 
-            Assert.True(featureWithTrueCondition.WasActivated);
-            Assert.False(featureWithFalseCondition.WasActivated);
+            Assert.True(featureWithTrueCondition.IsActivated);
+            Assert.False(featureWithFalseCondition.IsActivated);
         }
 
 
@@ -72,11 +54,15 @@
 
     public class TestFeature : Feature
     {
-        public bool WasActivated { get; set; }
+
+        public Action<Feature> OnActivation;
 
         protected override void Setup(FeatureConfigurationContext context)
         {
-            WasActivated = true;
+            if (OnActivation != null)
+            {
+                OnActivation(this);
+            }
         }
     }
 }

@@ -2,6 +2,7 @@
 {
     using Config;
     using Logging;
+    using Timeout;
     using Transports;
     using Transports.Msmq;
     using Transports.Msmq.Config;
@@ -40,13 +41,17 @@
 
             context.Container.ConfigureComponent<MsmqQueueCreator>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.Settings, settings);
+
+            context.Container.ConfigureComponent<TimeoutManagerDeferrer>(DependencyLifecycle.InstancePerCall)
+              .ConfigureProperty(p => p.TimeoutManagerAddress, GetTimeoutManagerAddress(context));
         }
 
         protected override void InternalConfigure(Configure config)
         {
             config.Features.Enable<MsmqTransport>();
             config.Features.Enable<MessageDrivenSubscriptions>();
-            config.Features.EnableByDefault<StorageDrivenPublisher>();
+            config.Features.EnableByDefault<StorageDrivenPublishing>();
+            config.Features.EnableByDefault<TimeoutManager>();
 
             //for backwards compatibility
             config.Settings.SetDefault("SerializationSettings.WrapSingleMessages", true);
@@ -62,9 +67,21 @@
             get { return false; }
         }
 
+        static Address GetTimeoutManagerAddress(FeatureConfigurationContext context)
+        {
+            var unicastConfig = NServiceBus.Configure.Instance.GetConfigSection<UnicastBusConfig>();
+
+            if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress))
+            {
+                return Address.Parse(unicastConfig.TimeoutManagerAddress);
+            }
+
+            return context.Settings.Get<Address>("MasterNode.Address").SubScope("Timeouts");
+        }
+
         static ILog Logger = LogManager.GetLogger < MsmqTransport>();
 
-        private const string Message =
+        const string Message =
             @"
 MsmqMessageQueueConfig section has been deprecated in favor of using a connectionString instead.
 Here is an example of what is required:

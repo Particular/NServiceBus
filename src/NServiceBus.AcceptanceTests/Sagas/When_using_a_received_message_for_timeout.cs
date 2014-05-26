@@ -3,7 +3,6 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using Features;
     using NUnit.Framework;
     using PubSub;
     using Saga;
@@ -18,7 +17,7 @@
                     {
                         b.Given((bus, context) =>
                         {
-                            if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
+                            if (context.HasSupportForCentralizedPubSub)
                             {
                                 bus.SendLocal(new StartSagaMessage { SomeId = context.Id });
                             }

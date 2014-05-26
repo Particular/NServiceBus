@@ -16,7 +16,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         {
             Configure.Instance.Transactions.Disable();
             Configure.Instance.Features.Disable<SecondLevelRetries>();
-            Configure.Instance.Features.Disable<StorageDrivenPublisher>();
+            Configure.Instance.Features.Disable<StorageDrivenPublishing>();
             Configure.Instance.Features.Disable<TimeoutManager>();
             return Configure.Instance
                             .PurgeOnStartup(true)

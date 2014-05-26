@@ -6,7 +6,7 @@
     /// <summary>
     /// Adds support for pub/sub using a external subscription storage. This brings pub/sub to transport that lacks native support.
     /// </summary>
-    public class StorageDrivenPublisher : Feature
+    public class StorageDrivenPublishing : Feature
     {
         protected override void Setup(FeatureConfigurationContext context)
         {
@@ -21,6 +21,6 @@
             context.Container.ConfigureComponent<Unicast.Publishing.StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
         }
 
-        static ILog Logger = LogManager.GetLogger<StorageDrivenPublisher>();
+        static ILog Logger = LogManager.GetLogger<StorageDrivenPublishing>();
     }
 }

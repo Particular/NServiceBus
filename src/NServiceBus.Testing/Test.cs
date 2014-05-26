@@ -8,7 +8,6 @@
     using Config.ConfigurationSource;
     using DataBus.InMemory;
     using Features;
-    using Features.Categories;
     using MessageInterfaces;
     using Persistence;
     using Saga;
@@ -70,18 +69,17 @@
                 return;
             }
 
-            config.Features.Disable<Sagas>();
-            config.Features.Disable<Audit>();
-
             config.DefineEndpointName("UnitTests")
                 .CustomConfigurationSource(testConfigurationSource)
+                .Features.Disable<Sagas>()
+                .Features.Disable<Audit>()
                 .DefaultBuilder()
                 .UsePersistence<InMemory>()
                 .InMemoryFaultManagement()
                 .UnicastBus();
 
 
-            Configure.Component<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
 
             config.Initialize();
 

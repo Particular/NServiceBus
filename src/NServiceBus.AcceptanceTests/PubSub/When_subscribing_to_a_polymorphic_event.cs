@@ -20,14 +20,14 @@
                         {
                             bus.Subscribe<IMyEvent>();
 
-                            if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
+                            if (context.HasSupportForCentralizedPubSub)
                                 context.Subscriber1Subscribed = true;
                         }))
                     .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
                         {
                             bus.Subscribe<MyEvent>();
 
-                            if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
+                            if (context.HasSupportForCentralizedPubSub)
                                 context.Subscriber2Subscribed = true;
                         }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
@@ -62,7 +62,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.Features.Disable<AutoSubscribe>())
                     .AddMapping<IMyEvent>(typeof(Publisher));
             }
 
@@ -81,7 +81,7 @@
         {
             public Subscriber2()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.Features.Disable<AutoSubscribe>())
                         .AddMapping<MyEvent>(typeof(Publisher));
             }
 
@@ -97,7 +97,7 @@
         }
         static void EnableNotificationsOnSubscribe(Context context)
         {
-            if (Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
+            if (!context.HasSupportForCentralizedPubSub)
             {
                 SubscriptionBehavior.OnEndpointSubscribed(args =>
                 {

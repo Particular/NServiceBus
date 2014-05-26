@@ -8,6 +8,7 @@
     using Installation.Environments;
     using Logging;
     using NServiceBus.Support;
+    using Transports;
 
     [Serializable]
     public class EndpointRunner : MarshalByRefObject
@@ -49,6 +50,9 @@
                     config.Configurer.RegisterSingleton(scenarioContext.GetType(), scenarioContext);
                     scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
                 }
+
+                var transportDefinition = (TransportDefinition)Activator.CreateInstance(Type.GetType(run.Settings["Transport"]));
+                scenarioContext.HasSupportForCentralizedPubSub = transportDefinition.HasSupportForCentralizedPubSub; 
 
                 bus = config.CreateBus();
 

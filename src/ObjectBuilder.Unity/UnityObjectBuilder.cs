@@ -147,7 +147,7 @@
                 return new List<Type>();
             }
 
-            return new List<Type>(t.GetInterfaces().Where(x => x.FullName != null && !x.FullName.StartsWith("System.")))
+            return new List<Type>(t.GetInterfaces().Where(x => !x.FullName.StartsWith("System.")))
                    {
                        t
                    };

@@ -13,13 +13,13 @@ namespace NServiceBus.Features
     /// </summary>
     public class FeatureSettings : IEnumerable<Feature>
     {
-        readonly Configure config;
         readonly SettingsHolder settings;
+        readonly Configure config;
 
         public FeatureSettings(Configure config)
         {
-            this.config = config;
             settings = config.Settings;
+            this.config = config;
         }
 
         public FeatureSettings(SettingsHolder settings)
@@ -102,50 +102,71 @@ namespace NServiceBus.Features
         {
             var statusText = new StringBuilder();
 
-            var context = new FeatureConfigurationContext(settings, config.Configurer, config.Pipeline, config.TypesToScan);
+            var context = new FeatureConfigurationContext(config);
+        
 
-            var featuresToActivate = features.Where(f => IsEnabled(f.GetType()) && MeetsActivationCondition(f, statusText,context))
+            var featuresToActivate = features.Where(f => IsEnabled(f.GetType()) && MeetsActivationCondition(f, statusText, context))
               .ToList();
 
             foreach (var feature in featuresToActivate)
             {
-                feature.SetupFeature(context);
-             
-
-                statusText.AppendLine(string.Format("{0} - Activated", feature));
+                ActivateFeature(feature, statusText, featuresToActivate, context);
             }
 
             Logger.InfoFormat("Features: \n{0}", statusText);
         }
 
-        bool MeetsActivationCondition(Feature feature, StringBuilder statusText,FeatureConfigurationContext context)
+        bool ActivateFeature(Feature feature, StringBuilder statusText, List<Feature> featuresToActivate, FeatureConfigurationContext context)
+        {
+            if (feature.IsActivated)
+            {
+                return true;
+            }
+
+            if (feature.Dependencies.All(dependencyType =>
+            {
+                var dependency = featuresToActivate.SingleOrDefault(f => f.GetType() == dependencyType);
+
+
+                if (dependency == null)
+                {
+                    return false;
+                }
+
+                return ActivateFeature(dependency, statusText, featuresToActivate,context);
+            }))
+            {
+                feature.SetupFeature(context);
+
+
+                statusText.AppendLine(string.Format("{0} - Activated", feature));
+
+                return true;
+            }
+            statusText.AppendLine(string.Format("{0} - Not activated due to dependencies not being available: {1}", feature, string.Join(";", feature.Dependencies.Select(t => t.Name))));
+            return false;
+        }
+
+        bool MeetsActivationCondition(Feature feature, StringBuilder statusText, FeatureConfigurationContext context)
         {
             if (!feature.ShouldBeSetup(context))
             {
 
-                statusText.AppendLine(string.Format("{0} - Activation condition(s) not fullfilled", feature));
+                statusText.AppendLine(string.Format("{0} - setup prerequisites(s) not fullfilled", feature));
                 return false;
             }
 
             return true;
         }
 
-        //void DisableFeaturesThatAreDependingOnDisabledFeatures()
-        //{
-        //    features.Where(f => f.Dependencies.Any(dependency => !IsEnabled(dependency)))
-        //         .ToList()
-        //         .ForEach(toBeDisabled =>
-        //         {
-        //             Disable(toBeDisabled.GetType());
-        //             Logger.InfoFormat("Feature {0} has been disabled since its depending on the following disabled features: {1}", toBeDisabled.Name, string.Join(",", toBeDisabled.Dependencies.Where(d => !IsEnabled(d))));
-        //         });
-        //}
-
+        
         static ILog Logger = LogManager.GetLogger<FeatureSettings>();
 
-        public bool IsActivated<T>() where T:Feature
+        public bool IsActivated<T>() where T : Feature
         {
-            return features.Single(f => f.GetType() == typeof(T)).IsActivated;
+            var feature = features.SingleOrDefault(f => f.GetType() == typeof(T));
+
+            return feature != null && feature.IsActivated;
         }
     }
 }

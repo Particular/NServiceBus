@@ -43,7 +43,7 @@
                     bus.Subscribe<IMyEvent>();
                     bus.Subscribe<MyEvent2>();
 
-                    if (!Configure.Instance.Features.IsActivated<MessageDrivenSubscriptions>())
+                    if (context.HasSupportForCentralizedPubSub)
                     {
                         context.SubscribedToIMyEvent = true;
                         context.SubscribedToMyEvent2 = true;
@@ -84,7 +84,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.Features.Disable<AutoSubscribe>())
                     .AddMapping<IMyEvent>(typeof(Publisher1))
                     .AddMapping<MyEvent2>(typeof(Publisher2));
             }

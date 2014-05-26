@@ -193,7 +193,7 @@
 
         static IEnumerable<Type> GetAllInterfacesImplementedBy(Type t)
         {
-            return t.GetInterfaces().Where(x=>x.FullName != null && !x.FullName.StartsWith("System."));
+            return t.GetInterfaces().Where(x=>!x.FullName.StartsWith("System."));
         }
 
     }

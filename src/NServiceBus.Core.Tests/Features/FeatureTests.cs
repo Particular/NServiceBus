@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Features
 {
-    using NServiceBus.Features;
     using NUnit.Framework;
 
     [TestFixture]

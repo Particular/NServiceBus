@@ -15,7 +15,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// </summary>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
-             Configure.Instance.Features.Disable<StorageDrivenPublisher>();
+             Configure.Instance.Features.Disable<StorageDrivenPublishing>();
 
             return null;
         }
