@@ -26,7 +26,7 @@
         static IEnumerable<Type> GetAttributeTypes(Assembly assembly)
         {
             return assembly.GetTypes()
-                .Where(type =>
+                .Where(type => type.Namespace != null &&
                     typeof(Attribute).IsAssignableFrom(type) &&
                     //Ignore log4net attributes
                     !type.Namespace.Contains("log4net") &&
