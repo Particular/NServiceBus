@@ -41,6 +41,16 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Gets the setting value.
         /// </summary>
+        /// <typeparam name="T">The value of the setting.</typeparam>
+        /// <returns>The setting value.</returns>
+        public T Get<T>()
+        {
+            return (T)Get(typeof(T).FullName);
+        }
+
+        /// <summary>
+        /// Gets the setting value.
+        /// </summary>
         public object Get(string key)
         {
             object result;

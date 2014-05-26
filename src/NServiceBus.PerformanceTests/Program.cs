@@ -11,7 +11,6 @@
     using NServiceBus.Features;
     using Encryption;
     using NServiceBus.Persistence;
-    using NServiceBus.Unicast.Transport;
     using Saga;
     using System;
     
@@ -19,8 +18,6 @@
     {
         static void Main(string[] args)
         {
-            TransportConnectionString.Override(() => "deadLetter=false;journal=false");
-
             var testCaseToRun = args[0];
 
             int numberOfThreads;
@@ -57,6 +54,7 @@
             var config = Configure.With()
                 .DefineEndpointName(endpointName)
                 .DefaultBuilder()
+                .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
                 .UsePersistence<InMemory>();
 
             switch (args[2].ToLower())

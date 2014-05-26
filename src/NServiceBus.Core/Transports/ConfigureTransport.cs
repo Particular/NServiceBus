@@ -8,7 +8,8 @@ namespace NServiceBus.Transports
     {
         public void Configure(Configure config)
         {
-            var connectionString = TransportConnectionString.GetConnectionStringOrNull();
+            var connectionString = config.Settings.Get<TransportConnectionString>().GetConnectionStringOrNull();
+
 
             if (connectionString == null && RequiresConnectionString)
             {
@@ -16,6 +17,8 @@ namespace NServiceBus.Transports
             }
 
             config.Settings.Set("NServiceBus.Transport.ConnectionString", connectionString);
+
+
 
             var selectedTransportDefinition = Activator.CreateInstance<T>();
             config.Settings.Set("NServiceBus.Transport.SelectedTransport", selectedTransportDefinition);

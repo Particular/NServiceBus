@@ -263,6 +263,7 @@
     <Compile Include="Unicast\SendOptions.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubscriptionManager.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageInitializer.cs" />
+    <Compile Include="Unicast\Transport\Config\TransportConfiguration.cs" />
     <Compile Include="Unicast\Transport\TransportMessageExtensions.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
@@ -594,7 +595,7 @@
     <Compile Include="Unicast\Transport\ITransport.cs" />
     <Compile Include="Unicast\Transport\StartedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\Config\SetTransportThresholds.cs" />
-    <Compile Include="Unicast\Transport\Config\TransportReceiverConfig.cs" />
+    <Compile Include="Unicast\Transport\Config\UseTransportExtensions.cs" />
     <Compile Include="Unicast\Transport\FirstLevelRetries.cs" />
     <Compile Include="Unicast\Transport\Monitoring\ReceivePerformanceDiagnostics.cs" />
     <Compile Include="Unicast\Transport\ThroughputLimiter.cs" />

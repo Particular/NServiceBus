@@ -31,7 +31,7 @@
 
             var transportType = Type.GetType(settings["Transport"]);
 
-            return config.UseTransport(transportType, () => settings["Transport.ConnectionString"]);
+            return config.UseTransport(transportType, c => c.ConnectionString(settings["Transport.ConnectionString"]));
         }
 
         public static Configure DefinePersistence(this Configure config, IDictionary<string, string> settings)
