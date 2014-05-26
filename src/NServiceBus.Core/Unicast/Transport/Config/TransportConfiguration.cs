@@ -8,7 +8,7 @@ namespace NServiceBus
     /// </summary>
     public class TransportConfiguration
     {
-        protected Configure Config { get; private set; }
+        public Configure Config { get; private set; }
 
         public TransportConfiguration(Configure config)
         {
