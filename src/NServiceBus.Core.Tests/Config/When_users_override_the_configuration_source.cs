@@ -15,16 +15,16 @@ namespace NServiceBus.Core.Tests.Config
         public void SetUp()
         {
             userConfigurationSource = new UserConfigurationSource();
-            config = Configure.With(new Type[] { })
-                .CustomConfigurationSource(userConfigurationSource);
+            config = Configure.With(o =>
+            {
+                o.TypesToScan(new Type[]
+                {
+                });
+                o.CustomConfigurationSource(userConfigurationSource);
+            });
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            Configure.Instance.CustomConfigurationSource(new DefaultConfigurationSource());
-        }
-        
+      
         [Test]
         public void NService_bus_should_resolve_configuration_from_that_source()
         {

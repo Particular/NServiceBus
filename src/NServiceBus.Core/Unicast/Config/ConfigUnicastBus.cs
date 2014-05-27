@@ -6,6 +6,7 @@ namespace NServiceBus.Unicast.Config
     using System.Linq;
     using Behaviors;
     using Logging;
+    using NServiceBus.Config.ConfigurationSource;
     using ObjectBuilder;
     using Pipeline;
     using Pipeline.Contexts;
@@ -15,7 +16,7 @@ namespace NServiceBus.Unicast.Config
     /// </summary>
     public class ConfigUnicastBus : Configure
     {
-        public ConfigUnicastBus(IEnumerable<Type> availableTypes) : base(availableTypes)
+        public ConfigUnicastBus(IEnumerable<Type> availableTypes) : base(availableTypes,new DefaultConfigurationSource())
         {
         }
 

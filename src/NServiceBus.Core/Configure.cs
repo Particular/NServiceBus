@@ -28,10 +28,10 @@ namespace NServiceBus
         /// <summary>
         ///     Protected constructor to enable creation only via the With method.
         /// </summary>
-        protected Configure(IEnumerable<Type> availableTypes, IConfigurationSource configurationSource = null)
+        protected Configure(IEnumerable<Type> availableTypes, IConfigurationSource configurationSource)
         {
             Settings.Set("TypesToScan", availableTypes);
-            Settings.SetDefault<IConfigurationSource>(configurationSource ?? new DefaultConfigurationSource());
+            Settings.Set<IConfigurationSource>(configurationSource);
         }
 
         /// <summary>
@@ -173,10 +173,10 @@ namespace NServiceBus
         /// <summary>
         ///     Sets the current configuration source.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.CustomConfigurationSource(myConfigSource))")]
         public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
         {
-            Settings.Set<IConfigurationSource>(configurationSource);
-            return this;
+            throw new NotImplementedException();
         }
 
         void WireUpConfigSectionOverrides()
@@ -206,83 +206,51 @@ namespace NServiceBus
         /// </summary>
         public static Configure With()
         {
-            return With(o => {});
+            return With(o => { });
         }
 
-        /// <summary>
-        ///     Configure to scan for assemblies in the given directory rather than the regular runtime directory.
-        /// </summary>
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.AssembliesInDirectory(probeDirectory))")]
         public static Configure With(string probeDirectory)
         {
-            return With(o => o.AssembliesInDirectory(probeDirectory));
+            throw new NotImplementedException();
         }
 
-        /// <summary>
-        ///     Configure to use the types found in the given assemblies.
-        /// </summary>
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.ScanAssemblies(assemblies))")]
         public static Configure With(IEnumerable<Assembly> assemblies)
         {
-            return With(o => o.ScanAssemblies(assemblies));
+            throw new NotImplementedException();
         }
 
-        /// <summary>
-        ///     Configure to scan the given assemblies only.
-        /// </summary>
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = " With(o => o.ScanAssemblies(assemblies));")]
         public static Configure With(params Assembly[] assemblies)
         {
-            return With(o => o.ScanAssemblies(assemblies));
+            throw new NotImplementedException();
         }
 
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = " With(o => o.ScanAssemblies(assemblies));")]
         public static Configure With(IEnumerable<Type> typesToScan)
         {
-            return With(o => o.UseTypes(typesToScan));
+            throw new NotImplementedException();
         }
 
-        public static Configure With(Action<Options> customizations)
+        public static Configure With(Action<ConfigurationBuilder> customizations)
         {
-            var options = new Options();
+            var options = new ConfigurationBuilder();
 
             customizations(options);
 
             return With(options);
         }
 
-
-
-        /// <summary>
-        ///     Configure to scan the given types.
-        /// </summary>
-        static Configure With(Options options)
+        static Configure With(ConfigurationBuilder configurationBuilder)
         {
-            var typesToScan = options.TypesToScan;
-            var availableTypes = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly())).ToList();
-
-            if (HttpRuntime.AppDomainAppId == null)
-            {
-                var baseDirectory = options.Directory ?? AppDomain.CurrentDomain.BaseDirectory;
-                var hostPath = Path.Combine(baseDirectory, "NServiceBus.Host.exe");
-                if (File.Exists(hostPath))
-                {
-                    availableTypes = availableTypes.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
-                }
-            }
-
-            Logger.DebugFormat("Number of types to scan: {0}", availableTypes.Count());
-
             SettingsHolder.Instance.Reset();
-            instance = new Configure(availableTypes, options.ConfigurationSource);
+            instance = configurationBuilder.BuildConfiguration();
 
             EndpointHelper.StackTraceToExamine = new StackTrace();
 
             return instance;
         }
-
-        //TODO: re-enable when we make message scanning lazy #1617
-        //static IEnumerable<Type> GetMessageTypes(IList<Type> types)
-        //{
-        //    return types.SelectMany(MessageHandlerRegistry.GetMessageTypesIfIsMessageHandler);
-        //}
-
 
         /// <summary>
         ///     Provides an instance to a startable bus.
@@ -552,63 +520,98 @@ namespace NServiceBus
         IBuilder builder;
         IConfigureComponents configurer;
 
-        public class Options
+
+        public class ConfigurationBuilder
         {
-            public Options()
+            internal ConfigurationBuilder()
             {
-                ConfigurationSource = new DefaultConfigurationSource();
+                configurationSource = new DefaultConfigurationSource();
             }
 
-            public IEnumerable<Type> TypesToScan
+            /// <summary>
+            /// Specifies the range of types that NServiceBus scans for handlers etc
+            /// </summary>
+            /// <param name="typesToScan"></param>
+            public void TypesToScan(IEnumerable<Type> typesToScan)
             {
-                get
-                {
-                    if (typesToScan == null)
-                    {
-                        var directoryToScan = AppDomain.CurrentDomain.BaseDirectory;
-                        if (HttpRuntime.AppDomainAppId != null)
-                        {
-                            directoryToScan = HttpRuntime.BinDirectory;
-                        }
-
-                       AssembliesInDirectory(directoryToScan);
-                    }
-
-                    return typesToScan;
-                }
-            }
-            public IConfigurationSource ConfigurationSource { get; private set; }
-            public string Directory { get; set; }
-
-            public void UseTypes(IEnumerable<Type> typesToScan)
-            {
-                this.typesToScan = typesToScan;
+                scannedTypes = typesToScan;
             }
 
-            public void ScanAssemblies(IEnumerable<Assembly> assemblies)
+            /// <summary>
+            /// The assemblies to include when scanning for types
+            /// </summary>
+            /// <param name="assemblies"></param>
+            public void AssembliesToScan(IEnumerable<Assembly> assemblies)
             {
-                ScanAssemblies(assemblies.ToArray());
+                AssembliesToScan(assemblies.ToArray());
             }
 
-            public void ScanAssemblies(params Assembly[] assemblies)
+            /// <summary>
+            /// The assemblies to include when scanning for types
+            /// </summary>
+            /// <param name="assemblies"></param>
+            public void AssembliesToScan(params Assembly[] assemblies)
             {
-                typesToScan = GetAllowedTypes(assemblies);
+                scannedTypes = GetAllowedTypes(assemblies);
             }
 
 
-            public void AssembliesInDirectory(string probeDirectory)
+            /// <summary>
+            /// Specifies the directory where NServiceBus scans for types
+            /// </summary>
+            /// <param name="probeDirectory"></param>
+            public void ScanAssembliesInDirectory(string probeDirectory)
             {
-                Directory = probeDirectory;
-                ScanAssemblies(GetAssembliesInDirectory(probeDirectory));
+                directory = probeDirectory;
+                AssembliesToScan(GetAssembliesInDirectory(probeDirectory));
             }
 
+
+            /// <summary>
+            /// Overrides the default configuration source
+            /// </summary>
+            /// <param name="configurationSource"></param>
             public void CustomConfigurationSource(IConfigurationSource configurationSource)
             {
-                ConfigurationSource = configurationSource;
+                this.configurationSource = configurationSource;
             }
 
 
-            IEnumerable<Type> typesToScan;
+            /// <summary>
+            /// Creates the configuration object
+            /// </summary>
+            /// <returns></returns>
+            internal Configure BuildConfiguration()
+            {
+                if (scannedTypes == null)
+                {
+                    var directoryToScan = AppDomain.CurrentDomain.BaseDirectory;
+                    if (HttpRuntime.AppDomainAppId != null)
+                    {
+                        directoryToScan = HttpRuntime.BinDirectory;
+                    }
+
+                    ScanAssembliesInDirectory(directoryToScan);
+                }
+
+                scannedTypes = scannedTypes.Union(GetAllowedTypes(Assembly.GetExecutingAssembly())).ToList();
+
+                if (HttpRuntime.AppDomainAppId == null)
+                {
+                    var baseDirectory = directory ?? AppDomain.CurrentDomain.BaseDirectory;
+                    var hostPath = Path.Combine(baseDirectory, "NServiceBus.Host.exe");
+                    if (File.Exists(hostPath))
+                    {
+                        scannedTypes = scannedTypes.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
+                    }
+                }
+                return new Configure(scannedTypes, configurationSource);
+            }
+
+
+            IEnumerable<Type> scannedTypes;
+            IConfigurationSource configurationSource;
+            string directory;
         }
 
     }

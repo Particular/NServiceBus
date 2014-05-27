@@ -20,7 +20,7 @@
         [SetUp]
         public void SetUp()
         {
-            Configure.With(new Assembly[0]);
+            Configure.With(o=>o.AssembliesToScan(new Assembly[0]));
             Configure.Instance.Builder = _builder;
 
             _builder.Register<IBus>(() => _bus);

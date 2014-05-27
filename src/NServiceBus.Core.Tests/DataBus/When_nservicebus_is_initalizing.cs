@@ -13,7 +13,7 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public void Databus_should_be_registered_if_a_databus_property_is_found()
         {
-            Configure.With(new[] {typeof (MessageWithDataBusProperty)})
+            Configure.With(o=>o.TypesToScan(new[] {typeof (MessageWithDataBusProperty)}))
                 .DefineEndpointName("xyz") 
                 .DefaultBuilder();
 
@@ -29,7 +29,7 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public void Databus_should_not_be_registered_if_no_databus_property_is_found()
         {
-            Configure.With(new[] { typeof(MessageWithoutDataBusProperty) })
+            Configure.With(o=>o.TypesToScan(new[] { typeof(MessageWithoutDataBusProperty) }))
                 .DefineEndpointName("xyz") 
                 .DefaultBuilder();
 
@@ -48,7 +48,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 Assert.Ignore("This only work in debug mode.");
             }
 
-            Configure.With(new[] { typeof(MessageWithNonSerializableDataBusProperty) })
+            Configure.With(o=>o.TypesToScan(new[] { typeof(MessageWithNonSerializableDataBusProperty) }))
                 .DefineEndpointName("xyz")
                 .DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"))
                 .DefaultBuilder()
@@ -67,7 +67,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 Assert.Ignore("This only work in debug mode.");
             }
 
-            Configure.With(new[] { typeof(MessageWithNonSerializableDataBusProperty) })
+            Configure.With(o=>o.TypesToScan(new[] { typeof(MessageWithNonSerializableDataBusProperty) }))
                 .DefineEndpointName("xyz")
                 .DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"))
                 .DefaultBuilder()

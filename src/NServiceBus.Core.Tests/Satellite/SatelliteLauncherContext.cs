@@ -24,7 +24,7 @@
 
             Transport = new TransportReceiver(TransactionSettings.Default, 1, 0, FakeReceiver, InMemoryFaultManager);
 
-            Configure.With(new Assembly[0])
+            Configure.With(o=>o.AssembliesToScan(new Assembly[0]))
                 .DefineEndpointName("Test")
                 .DefaultBuilder();
             Configure.Instance.Builder = Builder;

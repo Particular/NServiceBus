@@ -53,7 +53,7 @@
         {
             InitializeInternal(Configure.With(o =>
             {
-                o.ScanAssemblies(assemblies);
+                o.AssembliesToScan(assemblies);
                 o.CustomConfigurationSource(testConfigurationSource);
             }));
         }
@@ -65,7 +65,7 @@
         {
             InitializeInternal(Configure.With(c =>
             {
-                c.UseTypes(types);
+                c.TypesToScan(types);
                 c.CustomConfigurationSource(testConfigurationSource);
             }));
         }
