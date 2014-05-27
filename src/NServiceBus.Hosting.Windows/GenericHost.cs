@@ -128,7 +128,8 @@ namespace NServiceBus.Hosting
 
             if (config == null)
             {
-                config = Configure.With(assembliesToScan);
+                config = Configure.With(assembliesToScan)
+                    .DefaultBuilder();
             }
 
             ValidateThatIWantCustomInitIsOnlyUsedOnTheEndpointConfig();
