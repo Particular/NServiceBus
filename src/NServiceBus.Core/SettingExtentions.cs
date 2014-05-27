@@ -39,5 +39,16 @@ namespace NServiceBus
         {
             return settings.Get<IEnumerable<Type>>("TypesToScan");
         }
+
+
+        /// <summary>
+        /// Returns the name of this endpoint
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        public static string EndpointName(this ReadOnlySettings settings)
+        {
+            return settings.Get<string>("EndpointName");
+        }
     }
 }

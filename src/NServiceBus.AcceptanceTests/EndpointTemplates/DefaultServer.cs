@@ -26,10 +26,10 @@
 
             var config = Configure.With(o =>
                                          {
+                                             o.EndpointName(endpointConfiguration.EndpointName);
                                              o.TypesToScan(types);
                                              o.CustomConfigurationSource(configSource);
                                          })
-                .DefineEndpointName(endpointConfiguration.EndpointName)
                 .DefineBuilder(settings.GetOrNull("Builder"))
                 .DefineSerializer(settings.GetOrNull("Serializer"))
                 .DefineTransport(settings)

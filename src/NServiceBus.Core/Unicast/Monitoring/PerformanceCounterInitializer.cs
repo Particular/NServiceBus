@@ -54,7 +54,7 @@ namespace NServiceBus.Unicast.Monitoring
             
             try
             {
-                counter = new PerformanceCounter(CategoryName, counterName, config.EndpointName, false);
+                counter = new PerformanceCounter(CategoryName, counterName, config.Settings.EndpointName(), false);
                 //access the counter type to force a exception to be thrown if the counter doesn't exists
                 // ReSharper disable once UnusedVariable
                 var t = counter.CounterType; 

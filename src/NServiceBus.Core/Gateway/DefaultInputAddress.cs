@@ -7,7 +7,7 @@
     {
         public void Run(Configure config)
         {
-            var gatewayInputAddress = Address.Parse(config.EndpointName).SubScope("gateway");
+            var gatewayInputAddress = Address.Parse(config.Settings.EndpointName()).SubScope("gateway");
 
             config.Settings.SetDefault("Gateway.InputAddress", gatewayInputAddress);
         }

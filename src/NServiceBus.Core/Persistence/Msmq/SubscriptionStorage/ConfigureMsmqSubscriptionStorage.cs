@@ -17,7 +17,7 @@ namespace NServiceBus
         /// </summary>
         public static Configure MsmqSubscriptionStorage(this Configure config)
         {
-            return MsmqSubscriptionStorage(config, config.EndpointName);
+            return MsmqSubscriptionStorage(config, config.Settings.EndpointName());
         }
 
         /// <summary>

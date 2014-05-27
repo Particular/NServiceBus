@@ -30,7 +30,11 @@
         /// </summary>
         public static void Initialize()
         {
-            InitializeInternal(Configure.With(o=>o.CustomConfigurationSource(testConfigurationSource)));
+            InitializeInternal(Configure.With(o =>
+            {
+                o.EndpointName("UnitTests");
+                o.CustomConfigurationSource(testConfigurationSource);
+            }));
         }
 
         /// <summary>
@@ -53,6 +57,7 @@
         {
             InitializeInternal(Configure.With(o =>
             {
+                o.EndpointName("UnitTests");
                 o.AssembliesToScan(assemblies);
                 o.CustomConfigurationSource(testConfigurationSource);
             }));
@@ -65,6 +70,7 @@
         {
             InitializeInternal(Configure.With(c =>
             {
+                c.EndpointName("UnitTests");
                 c.TypesToScan(types);
                 c.CustomConfigurationSource(testConfigurationSource);
             }));
@@ -77,13 +83,12 @@
                 return;
             }
 
-            config.DefineEndpointName("UnitTests")
-                .Features.Disable<Sagas>()
-                .Features.Disable<Audit>()
-                .DefaultBuilder()
-                .UsePersistence<InMemory>()
-                .InMemoryFaultManagement()
-                .UnicastBus();
+            config.Features.Disable<Sagas>()
+            .Features.Disable<Audit>()
+            .DefaultBuilder()
+            .UsePersistence<InMemory>()
+            .InMemoryFaultManagement()
+            .UnicastBus();
 
 
             config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
@@ -140,7 +145,7 @@
         /// </summary>
         public static Saga<T> Saga<T>(Guid sagaId) where T : Saga, new()
         {
-            var saga = (T) Activator.CreateInstance(typeof(T));
+            var saga = (T)Activator.CreateInstance(typeof(T));
 
             var prop = typeof(T).GetProperty("Data");
             var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
@@ -174,7 +179,7 @@
         /// </summary>
         public static Handler<T> Handler<T>() where T : new()
         {
-            var handler = (T) Activator.CreateInstance(typeof(T));
+            var handler = (T)Activator.CreateInstance(typeof(T));
 
             return Handler(handler);
         }
@@ -212,11 +217,11 @@
             var handler = handlerCreationCallback.Invoke(bus);
 
             var isHandler = (from i in handler.GetType().GetInterfaces()
-                let args = i.GetGenericArguments()
-                where args.Length == 1
-                where MessageConventionExtensions.IsMessageType(args[0])
-                where typeof(IHandleMessages<>).MakeGenericType(args[0]).IsAssignableFrom(i)
-                select i).Any();
+                             let args = i.GetGenericArguments()
+                             where args.Length == 1
+                             where MessageConventionExtensions.IsMessageType(args[0])
+                             where typeof(IHandleMessages<>).MakeGenericType(args[0]).IsAssignableFrom(i)
+                             select i).Any();
 
             if (!isHandler)
             {
@@ -245,7 +250,8 @@
             return messageCreator.CreateInstance(action);
         }
 
-        [ThreadStatic] static StubBus bus;
+        [ThreadStatic]
+        static StubBus bus;
 
         static IMessageCreator messageCreator;
         static readonly TestConfigurationSource testConfigurationSource = new TestConfigurationSource();

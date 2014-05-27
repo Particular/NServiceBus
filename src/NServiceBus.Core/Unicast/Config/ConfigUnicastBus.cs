@@ -16,7 +16,7 @@ namespace NServiceBus.Unicast.Config
     /// </summary>
     public class ConfigUnicastBus : Configure
     {
-        public ConfigUnicastBus(IEnumerable<Type> availableTypes) : base(availableTypes,new DefaultConfigurationSource())
+        public ConfigUnicastBus(IEnumerable<Type> availableTypes) : base("endpoint",availableTypes,new DefaultConfigurationSource())
         {
         }
 

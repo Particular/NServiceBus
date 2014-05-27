@@ -28,10 +28,11 @@ namespace NServiceBus
         /// <summary>
         ///     Protected constructor to enable creation only via the With method.
         /// </summary>
-        protected Configure(IEnumerable<Type> availableTypes, IConfigurationSource configurationSource)
+        protected Configure(string endpointName, IEnumerable<Type> availableTypes, IConfigurationSource configurationSource)
         {
-            Settings.Set("TypesToScan", availableTypes);
-            Settings.Set<IConfigurationSource>(configurationSource);
+            Settings.SetDefault("EndpointName", endpointName);
+            Settings.SetDefault("TypesToScan", availableTypes);
+            Settings.SetDefault<IConfigurationSource>(configurationSource);
         }
 
         /// <summary>
@@ -131,13 +132,6 @@ namespace NServiceBus
             get { return Settings.GetAvailableTypes(); }
         }
 
-        /// <summary>
-        ///     The name of this endpoint.
-        /// </summary>
-        public string EndpointName
-        {
-            get { return GetEndpointNameAction(); }
-        }
 
         static ILog Logger
         {
@@ -170,14 +164,7 @@ namespace NServiceBus
             return builder != null && configurer != null;
         }
 
-        /// <summary>
-        ///     Sets the current configuration source.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.CustomConfigurationSource(myConfigSource))")]
-        public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
-        {
-            throw new NotImplementedException();
-        }
+
 
         void WireUpConfigSectionOverrides()
         {
@@ -209,29 +196,6 @@ namespace NServiceBus
             return With(o => { });
         }
 
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.AssembliesInDirectory(probeDirectory))")]
-        public static Configure With(string probeDirectory)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.ScanAssemblies(assemblies))")]
-        public static Configure With(IEnumerable<Assembly> assemblies)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = " With(o => o.ScanAssemblies(assemblies));")]
-        public static Configure With(params Assembly[] assemblies)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = " With(o => o.ScanAssemblies(assemblies));")]
-        public static Configure With(IEnumerable<Type> typesToScan)
-        {
-            throw new NotImplementedException();
-        }
 
         public static Configure With(Action<ConfigurationBuilder> customizations)
         {
@@ -307,8 +271,6 @@ namespace NServiceBus
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run(this));
 
-            Settings.Set("EndpointName", EndpointName);
-
             //lockdown the settings
             Settings.PreventChanges();
 
@@ -325,9 +287,6 @@ namespace NServiceBus
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
                 .ForEach(o => o.Run(this));
-
-
-
         }
 
 
@@ -500,19 +459,8 @@ namespace NServiceBus
         PipelineSettings pipelineSettings;
         static bool beforeConfigurationInitializersCalled;
 
-        /// <summary>
-        ///     The function used to get the name of this endpoint.
-        /// </summary>
-        public static Func<string> GetEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
-
-        /// <summary>
-        ///     The function used to get the version of this endpoint.
-        /// </summary>
-        public static Func<string> DefineEndpointVersionRetriever = () => EndpointHelper.GetEndpointVersion();
-
-        /// <summary>
-        ///     The function used to get the name of this endpoint.
-        /// </summary>
+    
+    
         public static Func<FileInfo, Assembly> LoadAssembly = s => Assembly.LoadFrom(s.FullName);
 
         static Configure instance;
@@ -525,7 +473,7 @@ namespace NServiceBus
         {
             internal ConfigurationBuilder()
             {
-                configurationSource = new DefaultConfigurationSource();
+                configurationSourceToUse = new DefaultConfigurationSource();
             }
 
             /// <summary>
@@ -573,9 +521,27 @@ namespace NServiceBus
             /// <param name="configurationSource"></param>
             public void CustomConfigurationSource(IConfigurationSource configurationSource)
             {
-                this.configurationSource = configurationSource;
+                configurationSourceToUse = configurationSource;
             }
 
+
+            /// <summary>
+            /// Defines the name to use for this endpoint
+            /// </summary>
+            /// <param name="name"></param>
+            public void EndpointName(string name)
+            {
+                EndpointName(()=>name);
+            }
+
+            /// <summary>
+            /// Defines the name to use for this endpoint
+            /// </summary>
+            /// <param name="nameFunc"></param>
+            public void EndpointName(Func<string> nameFunc)
+            {
+                getEndpointNameAction = nameFunc;
+            }
 
             /// <summary>
             /// Creates the configuration object
@@ -583,6 +549,8 @@ namespace NServiceBus
             /// <returns></returns>
             internal Configure BuildConfiguration()
             {
+                endpointName = getEndpointNameAction();
+
                 if (scannedTypes == null)
                 {
                     var directoryToScan = AppDomain.CurrentDomain.BaseDirectory;
@@ -605,14 +573,84 @@ namespace NServiceBus
                         scannedTypes = scannedTypes.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
                     }
                 }
-                return new Configure(scannedTypes, configurationSource);
+                return new Configure(endpointName, scannedTypes, configurationSourceToUse);
             }
 
 
             IEnumerable<Type> scannedTypes;
-            IConfigurationSource configurationSource;
+            IConfigurationSource configurationSourceToUse;
             string directory;
+            string endpointName;
+            Func<string> getEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
         }
 
+
+        /// <summary>
+        ///     Sets the current configuration source.
+        /// </summary>
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.CustomConfigurationSource(myConfigSource))")]
+        // ReSharper disable UnusedParameter.Global
+        public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     The name of this endpoint.
+        /// </summary>
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "config.Settings.EndpointName()")]
+        public string EndpointName
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.AssembliesInDirectory(probeDirectory))")]
+        public static Configure With(string probeDirectory)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.ScanAssemblies(assemblies))")]
+        public static Configure With(IEnumerable<Assembly> assemblies)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.ScanAssemblies(assemblies));")]
+        public static Configure With(params Assembly[] assemblies)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.ScanAssemblies(assemblies))")]
+        public static Configure With(IEnumerable<Type> typesToScan)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.EndpointName(definesEndpointName))")]
+        public static Configure DefineEndpointName(Func<string> definesEndpointName)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Sets the function that specified the name of this endpoint
+        /// </summary>
+
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.EndpointName(name))")]
+        public static Configure DefineEndpointName(string name)
+        {
+            throw new NotImplementedException();
+        }
+        // ReSharper restore UnusedParameter.Global
+
     }
+
+
+
 }

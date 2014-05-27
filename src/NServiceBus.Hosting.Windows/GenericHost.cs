@@ -10,7 +10,6 @@ namespace NServiceBus.Hosting
     using Profiles;
     using Roles;
     using Settings;
-    using Utils;
     using Wcf;
 
     class GenericHost
@@ -25,8 +24,8 @@ namespace NServiceBus.Hosting
                 endpointName = specifier.GetType().Namespace ?? specifier.GetType().Assembly.GetName().Name;
             }
 
-            Configure.GetEndpointNameAction = () => endpointName;
-            Configure.DefineEndpointVersionRetriever = () => FileVersionRetriever.GetFileVersion(specifier.GetType());
+
+            endpointNameToUse = endpointName;
 
             if (scannableAssembliesFullName == null || !scannableAssembliesFullName.Any())
             {
@@ -128,8 +127,12 @@ namespace NServiceBus.Hosting
 
             if (config == null)
             {
-                config = Configure.With(assembliesToScan)
-                    .DefaultBuilder();
+                config = Configure.With(o =>
+                {
+                    o.EndpointName(endpointNameToUse);
+                    o.AssembliesToScan(assembliesToScan);
+                })
+                .DefaultBuilder();
             }
 
             ValidateThatIWantCustomInitIsOnlyUsedOnTheEndpointConfig();
@@ -156,5 +159,6 @@ namespace NServiceBus.Hosting
         readonly IConfigureThisEndpoint specifier;
         readonly WcfManager wcfManager;
         IStartableBus bus;
+        string endpointNameToUse;
     }
 }

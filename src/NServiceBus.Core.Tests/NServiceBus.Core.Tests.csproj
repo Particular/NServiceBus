@@ -206,7 +206,6 @@
     <Compile Include="Gateway\Routing\When_routing_a_reply_message.cs" />
     <Compile Include="Gateway\Routing\When_routing_using_the_configuration_source.cs" />
     <Compile Include="Installers\GatewayHttpListenerInstallerTests.cs" />
-    <Compile Include="Installers\RavenUserInstallerTests.cs" />
     <Compile Include="Installers\PerformanceMonitorUsersInstallerTests.cs" />
     <Compile Include="ExceptionTests.cs" />
     <Compile Include="MessageMapper\When_mapping_ienumerable_implementations.cs" />

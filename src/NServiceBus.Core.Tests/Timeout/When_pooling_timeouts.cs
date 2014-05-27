@@ -37,8 +37,7 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             Address.InitializeLocalAddress("MyEndpoint");
 
-            Configure.GetEndpointNameAction = () => "MyEndpoint";
-
+            
             persister = CreateTimeoutPersister();
             messageSender = new FakeMessageSender();
 
@@ -169,7 +168,7 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             return new TimeoutData
                 {
-                    OwningTimeoutManager = Configure.Instance.EndpointName,
+                    OwningTimeoutManager = "MyEndpoint",
                     Time = time,
                     Headers = new Dictionary<string, string>(),
                 };

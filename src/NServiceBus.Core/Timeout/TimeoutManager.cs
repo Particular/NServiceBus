@@ -49,7 +49,8 @@
 
 
             context.Container.ConfigureComponent<TimeoutMessageProcessor>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(t=>t.Disabled,false);
+                .ConfigureProperty(t=>t.Disabled,false)
+                .ConfigureProperty(t=>t.EndpointName,context.Settings.EndpointName());
             context.Container.ConfigureComponent<TimeoutDispatcherProcessor>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(t => t.Disabled, false);
 

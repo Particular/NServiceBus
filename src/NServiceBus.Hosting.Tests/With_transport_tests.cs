@@ -14,11 +14,18 @@ namespace NServiceBus.Hosting.Tests
         [SetUp]
         public void SetUp()
         {
-            Configure.With(o=>o.TypesToScan(new[] {typeof (TransportRoleHandler), typeof (MyTransportConfigurer)}))
-                     .DefineEndpointName("myTests")
+            Configure.With(o =>
+            {
+                o.EndpointName("myTests");
+                o.TypesToScan(new[]
+                {
+                    typeof(TransportRoleHandler),
+                    typeof(MyTransportConfigurer)
+                });
+            })
                      .DefaultBuilder();
 
-            roleManager = new RoleManager(new[] {typeof (TransportRoleHandler).Assembly});
+            roleManager = new RoleManager(new[] { typeof(TransportRoleHandler).Assembly });
         }
 
         RoleManager roleManager;

@@ -51,8 +51,7 @@
             if (suppressDTC)
                 endpointName += ".SuppressDTC";
 
-            var config = Configure.With()
-                .DefineEndpointName(endpointName)
+            var config = Configure.With(o => o.EndpointName(endpointName))
                 .DefaultBuilder()
                 .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
                 .UsePersistence<InMemory>();

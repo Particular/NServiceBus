@@ -21,6 +21,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public Address InputAddress { get { return Features.TimeoutManager.InputAddress; } }
 
         public bool Disabled { get; set; }
+        public string EndpointName{ get; set; }
 
         public void Start()
         {
@@ -117,7 +118,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     State = message.Body,
                     Time = DateTimeExtensions.ToUtcDateTime(expire),
                     Headers = message.Headers,
-                    OwningTimeoutManager = Configure.Instance.EndpointName
+                    OwningTimeoutManager = EndpointName
                 };
 
                 //add a temp header so that we can make sure to restore the ReplyToAddress

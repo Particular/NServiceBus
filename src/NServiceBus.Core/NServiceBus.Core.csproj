@@ -190,12 +190,9 @@
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersistence.cs" />
     <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionPersistence.cs" />
     <Compile Include="Persistence\InMemory\TimeoutPersister\InMemoryTimeoutPersistence.cs" />
-    <Compile Include="Persistence\Raven\RavenUserInstaller.cs" />
     <Compile Include="Installation\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Gateway\GatewayExtensions.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayDeduplication.cs" />
-    <Compile Include="Persistence\Raven\Gateway\GatewayMessage.cs" />
-    <Compile Include="Persistence\Raven\Gateway\RavenDBDeduplication.cs" />
     <Compile Include="Persistence\UsePersistence.cs" />
     <Compile Include="Pipeline\BehaviorContext.cs" />
     <Compile Include="Pipeline\BehaviorContextStacker.cs" />
@@ -317,9 +314,6 @@
     <Compile Include="ConfigureQueueCreation.cs" />
     <Compile Include="ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />
-    <Compile Include="Persistence\Raven\ConfigureRavenPersistence.cs" />
-    <Compile Include="Persistence\Raven\SagaPersister\ConfigureRavenSagaPersister.cs" />
-    <Compile Include="Persistence\Raven\SubscriptionStorage\ConfigureRavenSubscriptionStorage.cs" />
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="ConfigureUnicastBus.cs" />
     <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer.cs" />
@@ -338,7 +332,6 @@
     <Compile Include="Config\MessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="Config\MsmqMessageQueueConfig.cs" />
     <Compile Include="Config\IFinalizeConfiguration.cs" />
-    <Compile Include="Persistence\Raven\StoreAccessor.cs" />
     <Compile Include="Sagas\Sagas.cs" />
     <Compile Include="Satellites\IAdvancedSatellite.cs" />
     <Compile Include="Settings\SettingsHolder.cs" />
@@ -376,7 +369,6 @@
     <Compile Include="Encryption\EncryptionMessageMutator.cs" />
     <Compile Include="Encryption\IEncryptionService.cs" />
     <Compile Include="Encryption\Rijndael\EncryptionService.cs" />
-    <Compile Include="EndpointConventions.cs" />
     <Compile Include="Faults\FaultsHeaderKeys.cs" />
     <Compile Include="Faults\Forwarder\Config\FaultsQueueCreator.cs" />
     <Compile Include="Faults\Forwarder\FaultManager.cs" />
@@ -473,10 +465,6 @@
     <Compile Include="ObjectBuilder\IComponentConfig.cs" />
     <Compile Include="ObjectBuilder\IConfigureComponents.cs" />
     <Compile Include="Persistence\ConcurrencyException.cs" />
-    <Compile Include="Persistence\Raven\RavenConventions.cs" />
-    <Compile Include="Persistence\Raven\RavenPersistenceConstants.cs" />
-    <Compile Include="Persistence\Raven\RavenSessionFactory.cs" />
-    <Compile Include="Persistence\Raven\RavenUnitofWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -484,7 +472,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersister.cs" />
-    <Compile Include="Persistence\Raven\SagaPersister\RavenSagaPersister.cs" />
     <Compile Include="Sagas\ConfigureHowToFindSagaWithMessageDispatcher.cs" />
     <Compile Include="Sagas\ConfigureTimeoutAsSystemMessages.cs" />
     <Compile Include="Sagas\Finders\HeaderSagaIdFinder.cs" />
@@ -527,7 +514,6 @@
     <Compile Include="Timeout\Core\TimeoutData.cs" />
     <Compile Include="Timeout\Hosting\Windows\ManageMessageFailuresWithoutSlr.cs" />
     <Compile Include="Persistence\InMemory\TimeoutPersister\InMemoryTimeoutPersister.cs" />
-    <Compile Include="Persistence\Raven\TimeoutPersister\RavenTimeoutPersistence.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutDispatcherProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutPersisterReceiver.cs" />
@@ -586,8 +572,6 @@
     <Compile Include="Persistence\Msmq\SubscriptionStorage\Config\SubscriptionsQueueCreator.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\Entry.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorage.cs" />
-    <Compile Include="Persistence\Raven\SubscriptionStorage\RavenSubscriptionStorage.cs" />
-    <Compile Include="Persistence\Raven\SubscriptionStorage\Subscription.cs" />
     <Compile Include="Unicast\Transport\ControlMessage.cs" />
     <Compile Include="Unicast\Transport\FailedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\ITransport.cs" />
