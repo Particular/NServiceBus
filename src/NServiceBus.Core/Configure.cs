@@ -223,11 +223,6 @@ namespace NServiceBus
         {
             Initialize();
 
-            if (!Configurer.HasComponent<IStartableBus>())
-            {
-                Instance.UnicastBus();
-            }
-
             return Builder.Build<IStartableBus>();
         }
 

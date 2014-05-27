@@ -39,7 +39,7 @@
             config.Pipeline.Register<SubscriptionBehavior.Registration>();
             config.Configurer.ConfigureComponent<SubscriptionBehavior>(DependencyLifecycle.InstancePerCall);
            
-            return config.UnicastBus();
+            return config;
         }
 
         static IEnumerable<Type> GetTypesToUse(EndpointConfiguration endpointConfiguration)

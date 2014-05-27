@@ -105,7 +105,7 @@
                     throw new InvalidOperationException("Illegal transport " + args[2]);
             }
 
-            using (var startableBus = config.InMemoryFaultManagement().UnicastBus().CreateBus())
+            using (var startableBus = config.InMemoryFaultManagement().CreateBus())
             {
                 Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
 

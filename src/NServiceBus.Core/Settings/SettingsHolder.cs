@@ -7,10 +7,11 @@ namespace NServiceBus.Settings
     using System.Linq.Expressions;
     using ObjectBuilder;
     using Utils.Reflection;
-/// <summary>
+    
+    /// <summary>
     /// Setting container.
     /// </summary>
-    public class SettingsHolder:ReadOnlySettings
+    public class SettingsHolder : ReadOnlySettings
     {
         public static SettingsHolder Instance
         {
@@ -34,7 +35,7 @@ namespace NServiceBus.Settings
         /// <returns>The setting value.</returns>
         public T Get<T>(string key)
         {
-            return (T) Get(key);
+            return (T)Get(key);
         }
 
         /// <summary>
@@ -200,12 +201,12 @@ namespace NServiceBus.Settings
 
         public void ApplyTo<T>(IComponentConfig config)
         {
-            var targetType = typeof (T);
+            var targetType = typeof(T);
 
             foreach (var property in targetType.GetProperties())
             {
-                var settingsKey = targetType.FullName + "." + property.Name; 
-                
+                var settingsKey = targetType.FullName + "." + property.Name;
+
                 if (HasSetting(settingsKey))
                 {
                     config.ConfigureProperty(property.Name, Get(settingsKey));

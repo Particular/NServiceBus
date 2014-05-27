@@ -238,6 +238,7 @@
     <Compile Include="Unicast\Behaviors\InvokeHandlersBehavior.cs" />
     <Compile Include="Unicast\Behaviors\LoadHandlersBehavior.cs" />
     <Compile Include="Unicast\Behaviors\SetCurrentMessageBeingHandledBehavior.cs" />
+    <Compile Include="Unicast\Config\UnicastBus.cs" />
     <Compile Include="Unicast\DeliveryOptions.cs" />
     <Compile Include="Unicast\Messages\ExecuteLogicalMessagesBehavior.cs" />
     <Compile Include="Unicast\Messages\LogicalMessage.cs" />
@@ -315,7 +316,6 @@
     <Compile Include="ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
-    <Compile Include="ConfigureUnicastBus.cs" />
     <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer.cs" />
     <Compile Include="Config\AddressInitializer.cs" />
     <Compile Include="Config\Advanced\ConfigureSettingLocalAddressNameAction.cs" />
@@ -531,7 +531,7 @@
     <Compile Include="Unicast\BuilderExtensions.cs" />
     <Compile Include="Unicast\BusAsyncResult.cs" />
     <Compile Include="Unicast\Callback.cs" />
-    <Compile Include="Unicast\Config\ConfigUnicastBus.cs" />
+    <Compile Include="Unicast\Config\LoadMessageHandlersExtentions.cs" />
     <Compile Include="Timeout\Core\TimeoutManagerDeferrer.cs" />
     <Compile Include="Unicast\Config\DefaultTransportForHost.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />

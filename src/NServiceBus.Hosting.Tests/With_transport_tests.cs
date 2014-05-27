@@ -3,7 +3,6 @@ namespace NServiceBus.Hosting.Tests
     using NUnit.Framework;
     using Roles;
     using Roles.Handlers;
-    using Settings;
     using Transports;
     using Unicast;
     using Unicast.Config;
@@ -11,10 +10,12 @@ namespace NServiceBus.Hosting.Tests
     [TestFixture]
     public class With_transport_tests
     {
+        Configure config;
+
         [SetUp]
         public void SetUp()
         {
-            Configure.With(o =>
+            config= Configure.With(o =>
             {
                 o.EndpointName("myTests");
                 o.TypesToScan(new[]
@@ -33,7 +34,7 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void Should_configure_requested_transport()
         {
-            roleManager.ConfigureBusForEndpoint(new ConfigWithCustomTransport());
+            roleManager.ConfigureBusForEndpoint(new ConfigWithCustomTransport(), config);
 
             Assert.True(MyTransportConfigurer.Called);
         }
@@ -42,20 +43,20 @@ namespace NServiceBus.Hosting.Tests
         public void Should_default_to_msmq_if_no_other_transport_is_configured()
         {
             var handler = new DefaultTransportForHost();
-            handler.Run(Configure.Instance);
+            handler.Run(config);
 
-            Assert.True(SettingsHolder.Instance.Get<TransportDefinition>("NServiceBus.Transport.SelectedTransport") is Msmq);
+            Assert.True(config.Settings.Get<TransportDefinition>("NServiceBus.Transport.SelectedTransport") is Msmq);
         }
 
         [Test]
         public void Should_used_configured_transport_if_one_is_configured()
         {
             var handler = new DefaultTransportForHost();
-            Configure.Instance.Configurer.ConfigureComponent<MyTestTransportSender>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<MyTestTransportSender>(DependencyLifecycle.SingleInstance);
 
-            handler.Run(Configure.Instance);
+            handler.Run(config);
 
-            Assert.IsInstanceOf<MyTestTransportSender>(Configure.Instance.Builder.Build<ISendMessages>());
+            Assert.IsInstanceOf<MyTestTransportSender>(config.Builder.Build<ISendMessages>());
         }
     }
 

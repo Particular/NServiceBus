@@ -57,8 +57,7 @@ public class PubSubTestCase : TestCase
                 break;
         }
 
-        using (var bus = config.UnicastBus()
-            .CreateBus())
+        using (var bus = config.CreateBus())
         {
 
 

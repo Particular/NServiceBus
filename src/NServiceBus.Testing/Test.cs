@@ -84,11 +84,10 @@
             }
 
             config.Features.Disable<Sagas>()
-            .Features.Disable<Audit>()
-            .DefaultBuilder()
-            .UsePersistence<InMemory>()
-            .InMemoryFaultManagement()
-            .UnicastBus();
+                .Features.Disable<Audit>()
+                .DefaultBuilder()
+                .UsePersistence<InMemory>()
+                .InMemoryFaultManagement();
 
 
             config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);

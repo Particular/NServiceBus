@@ -9,7 +9,6 @@ namespace NServiceBus.Hosting
     using Logging;
     using Profiles;
     using Roles;
-    using Settings;
     using Wcf;
 
     class GenericHost
@@ -58,13 +57,14 @@ namespace NServiceBus.Hosting
             {
                 PerformConfiguration();
 
-                bus = Configure.Instance.CreateBus();
-                if (bus != null && !SettingsHolder.Instance.Get<bool>("Endpoint.SendOnly"))
+                bus = config.CreateBus();
+
+                if (bus != null && !config.Settings.Get<bool>("Endpoint.SendOnly"))
                 {
                     bus.Start();
                 }
 
-                wcfManager.Startup(Configure.Instance);
+                wcfManager.Startup(config);
             }
             catch (Exception ex)
             {
@@ -137,7 +137,7 @@ namespace NServiceBus.Hosting
 
             ValidateThatIWantCustomInitIsOnlyUsedOnTheEndpointConfig();
 
-            roleManager.ConfigureBusForEndpoint(specifier);
+            roleManager.ConfigureBusForEndpoint(specifier,config);
         }
 
         void ValidateThatIWantCustomInitIsOnlyUsedOnTheEndpointConfig()
