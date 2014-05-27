@@ -28,7 +28,7 @@ namespace NServiceBus.Core.Tests.Config
         [Test]
         public void NService_bus_should_resolve_configuration_from_that_source()
         {
-            var section = config.GetConfigSection<TestConfigurationSection>();
+            var section = config.Settings.GetConfigSection<TestConfigurationSection>();
 
             Assert.AreEqual(section.TestSetting,"TestValue");
         }

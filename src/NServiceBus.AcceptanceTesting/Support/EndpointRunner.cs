@@ -49,11 +49,12 @@
                 {
                     config.Configurer.RegisterSingleton(scenarioContext.GetType(), scenarioContext);
                     scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
+                
+                    var transportDefinition = config.Settings.Get<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
+
+                    scenarioContext.HasSupportForCentralizedPubSub = transportDefinition.HasSupportForCentralizedPubSub;
                 }
-
-                var transportDefinition = (TransportDefinition)Activator.CreateInstance(Type.GetType(run.Settings["Transport"]));
-                scenarioContext.HasSupportForCentralizedPubSub = transportDefinition.HasSupportForCentralizedPubSub; 
-
+              
                 bus = config.CreateBus();
 
                 config.ForInstallationOn<Windows>().Install();

@@ -16,7 +16,7 @@
             context.Container.ConfigureComponent<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
 
-            var cfg = NServiceBus.Configure.Instance.GetConfigSection<MsmqMessageQueueConfig>();
+            var cfg = context.Settings.GetConfigSection<MsmqMessageQueueConfig>();
 
             var settings = new MsmqSettings();
             if (cfg != null)
@@ -69,7 +69,7 @@
 
         static Address GetTimeoutManagerAddress(FeatureConfigurationContext context)
         {
-            var unicastConfig = NServiceBus.Configure.Instance.GetConfigSection<UnicastBusConfig>();
+            var unicastConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
 
             if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress))
             {

@@ -28,9 +28,10 @@ namespace NServiceBus
         /// <summary>
         ///     Protected constructor to enable creation only via the With method.
         /// </summary>
-        protected Configure(IConfigurationSource configurationSource = null)
+        protected Configure(IEnumerable<Type> availableTypes, IConfigurationSource configurationSource = null)
         {
-            this.configurationSource = configurationSource ?? new DefaultConfigurationSource();
+            Settings.Set("TypesToScan", availableTypes);
+            Settings.SetDefault<IConfigurationSource>(configurationSource ?? new DefaultConfigurationSource());
         }
 
         /// <summary>
@@ -125,7 +126,10 @@ namespace NServiceBus
         /// <summary>
         ///     Returns types in assemblies found in the current directory.
         /// </summary>
-        public IEnumerable<Type> TypesToScan { get; protected set; }
+        public IEnumerable<Type> TypesToScan
+        {
+            get { return Settings.GetAvailableTypes(); }
+        }
 
         /// <summary>
         ///     The name of this endpoint.
@@ -171,7 +175,7 @@ namespace NServiceBus
         /// </summary>
         public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
         {
-            this.configurationSource = configurationSource;
+            Settings.Set<IConfigurationSource>(configurationSource);
             return this;
         }
 
@@ -242,12 +246,7 @@ namespace NServiceBus
         /// </summary>
         public static Configure With(IEnumerable<Type> typesToScan)
         {
-            if (instance == null)
-            {
-                instance = new Configure();
-            }
-
-            instance.TypesToScan = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly())).ToList();
+            var availableTypes = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly())).ToList();
 
             if (HttpRuntime.AppDomainAppId == null)
             {
@@ -255,14 +254,13 @@ namespace NServiceBus
                 var hostPath = Path.Combine(baseDirectory, "NServiceBus.Host.exe");
                 if (File.Exists(hostPath))
                 {
-                    instance.TypesToScan = instance.TypesToScan.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
+                    availableTypes = availableTypes.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
                 }
             }
 
-            //TODO: re-enable when we make message scanning lazy #1617
-            //TypesToScan = TypesToScan.Union(GetMessageTypes(TypesToScan)).ToList();
+            Logger.DebugFormat("Number of types to scan: {0}", availableTypes.Count());
 
-            Logger.DebugFormat("Number of types to scan: {0}", instance.TypesToScan.Count());
+            instance = new Configure(availableTypes);
 
             EndpointHelper.StackTraceToExamine = new StackTrace();
 
@@ -275,7 +273,7 @@ namespace NServiceBus
         //    return types.SelectMany(MessageHandlerRegistry.GetMessageTypesIfIsMessageHandler);
         //}
 
-     
+
         /// <summary>
         ///     Provides an instance to a startable bus.
         /// </summary>
@@ -318,7 +316,7 @@ namespace NServiceBus
                 this.DefaultBuilder();
             }
 
-            ForAllTypes<Feature>(t => Features.Add((Feature) Activator.CreateInstance(t)));
+            ForAllTypes<Feature>(t => Features.Add((Feature)Activator.CreateInstance(t)));
 
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
@@ -330,8 +328,8 @@ namespace NServiceBus
 
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run(this));
-           
-            Settings.Set("EndpointName",EndpointName);
+
+            Settings.Set("EndpointName", EndpointName);
 
             //lockdown the settings
             Settings.PreventChanges();
@@ -345,12 +343,12 @@ namespace NServiceBus
 
             ForAllTypes<INeedToInstallSomething<Windows>>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-           
+
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
                 .ForEach(o => o.Run(this));
 
-            
+
 
         }
 
@@ -360,35 +358,13 @@ namespace NServiceBus
         /// </summary>
         public void ForAllTypes<T>(Action<Type> action) where T : class
         {
-// ReSharper disable HeapView.SlowDelegateCreation
+            // ReSharper disable HeapView.SlowDelegateCreation
             TypesToScan.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
-// ReSharper restore HeapView.SlowDelegateCreation
+                // ReSharper restore HeapView.SlowDelegateCreation
                 .ToList().ForEach(action);
         }
 
-        /// <summary>
-        ///     Returns the requested config section using the current configuration source.
-        /// </summary>
-        public T GetConfigSection<T>() where T : class, new()
-        {
-            if (TypesToScan == null)
-            {
-                return configurationSource.GetConfiguration<T>();
-            }
 
-// ReSharper disable HeapView.SlowDelegateCreation
-            var sectionOverrideType = TypesToScan.FirstOrDefault(t => typeof(IProvideConfiguration<T>).IsAssignableFrom(t));
-// ReSharper restore HeapView.SlowDelegateCreation
-
-            if (sectionOverrideType == null)
-            {
-                return configurationSource.GetConfiguration<T>();
-            }
-
-            var sectionOverride = (IProvideConfiguration<T>) Activator.CreateInstance(sectionOverrideType);
-
-            return sectionOverride.GetConfiguration();
-        }
 
         /// <summary>
         ///     Load and return all assemblies in the given directory except the given ones to exclude.
@@ -523,7 +499,7 @@ namespace NServiceBus
                 var sw = new Stopwatch();
 
                 sw.Start();
-                var instanceToInvoke = (T) Activator.CreateInstance(t);
+                var instanceToInvoke = (T)Activator.CreateInstance(t);
                 action(instanceToInvoke);
                 sw.Stop();
 
@@ -540,9 +516,9 @@ namespace NServiceBus
 
             detailsMessage.AppendLine(" - Details:");
 
-// ReSharper disable HeapView.SlowDelegateCreation
+            // ReSharper disable HeapView.SlowDelegateCreation
             foreach (var detail in details.OrderByDescending(d => d.Item2))
-// ReSharper restore HeapView.SlowDelegateCreation
+            // ReSharper restore HeapView.SlowDelegateCreation
             {
                 detailsMessage.AppendLine(string.Format("{0} - {1:f4} s", detail.Item1.FullName, detail.Item2.TotalSeconds));
             }
@@ -602,7 +578,6 @@ namespace NServiceBus
         static Configure instance;
         static bool initialized;
         IBuilder builder;
-        internal IConfigurationSource configurationSource;
         IConfigureComponents configurer;
     }
 }

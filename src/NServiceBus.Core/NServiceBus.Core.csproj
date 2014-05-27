@@ -229,6 +229,8 @@
     <Compile Include="Saga\ToSagaExpression.cs" />
     <Compile Include="Saga\UniqueAttribute.cs" />
     <Compile Include="Serialization\IMessageSerializer.cs" />
+    <Compile Include="SettingExtentions.cs" />
+    <Compile Include="Settings\ReadOnlySettings.cs" />
     <Compile Include="Support\RuntimeEnvironment.cs" />
     <Compile Include="TimeToBeReceivedAttribute.cs" />
     <Compile Include="Transports\ConfigureTransport.cs" />

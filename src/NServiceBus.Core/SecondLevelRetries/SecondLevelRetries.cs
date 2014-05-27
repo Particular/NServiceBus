@@ -21,7 +21,7 @@ namespace NServiceBus.Features
             {
                 return false;
             }
-            var retriesConfig = Configure.Instance.GetConfigSection<SecondLevelRetriesConfig>();
+            var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
 
             if (retriesConfig == null)
                 return true;
@@ -34,7 +34,7 @@ namespace NServiceBus.Features
 
         protected override void Setup(FeatureConfigurationContext context)
         {
-            var retriesConfig = Configure.Instance.GetConfigSection<SecondLevelRetriesConfig>();
+            var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
 
             SetUpRetryPolicy(retriesConfig);
 

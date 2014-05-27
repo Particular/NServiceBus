@@ -29,7 +29,7 @@
                 return false;
             }
 
-            var unicastConfig = Configure.Instance.GetConfigSection<UnicastBusConfig>();
+            var unicastConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
 
             //if the user has specified another TM we don't need to run our own
             if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress))

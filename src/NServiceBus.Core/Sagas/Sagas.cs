@@ -13,12 +13,12 @@
         public Sagas()
         {
             EnableByDefault();
-            Prerequisite(config => config.TypesToScan.Any(IsSagaType));
+            Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType));
         }
 
         protected override void Setup(FeatureConfigurationContext context)
         {
-            foreach (var t in context.TypesToScan)
+            foreach (var t in context.Settings.GetAvailableTypes())
             {
                 if (IsSagaType(t))
                 {

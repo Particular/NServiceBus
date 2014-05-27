@@ -41,7 +41,7 @@
                 .ConfigureProperty(p => p.AuditQueue, auditQueue);
 
 
-            var messageAuditingConfig = Configure.Instance.GetConfigSection<AuditConfig>();
+            var messageAuditingConfig = context.Settings.GetConfigSection<AuditConfig>();
             if (messageAuditingConfig != null && messageAuditingConfig.OverrideTimeToBeReceived > TimeSpan.Zero)
             {
                 behaviorConfig.ConfigureProperty(t => t.TimeToBeReceivedOnForwardedMessages, messageAuditingConfig.OverrideTimeToBeReceived);
@@ -73,7 +73,7 @@
 
         Address GetAuditQueueAddressFromAuditConfig(FeatureConfigurationContext context)
         {
-            var messageAuditingConfig = Configure.Instance.GetConfigSection<AuditConfig>();
+            var messageAuditingConfig = context.Settings.GetConfigSection<AuditConfig>();
             if (messageAuditingConfig != null && !string.IsNullOrWhiteSpace(messageAuditingConfig.QueueName))
             {
                 return Address.Parse(messageAuditingConfig.QueueName);

@@ -14,7 +14,7 @@ namespace NServiceBus
         {
             if (Instance == null)
             {
-                Instance = new ConfigUnicastBus(config);
+                Instance = new ConfigUnicastBus(config.TypesToScan);
                 Instance.Configure(config);
             }
 

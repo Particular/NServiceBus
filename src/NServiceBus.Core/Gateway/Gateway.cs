@@ -21,7 +21,7 @@
 
             var txConfig = context.Container.ConfigureComponent<GatewayTransaction>(DependencyLifecycle.InstancePerCall);
 
-            var configSection = Configure.Instance.GetConfigSection<GatewayConfig>();
+            var configSection = context.Settings.GetConfigSection<GatewayConfig>();
 
             if (configSection != null)
             {
@@ -42,14 +42,14 @@
 
             foreach (
                 var type in
-                    context.TypesToScan.Where(t => typeof(IChannelReceiver).IsAssignableFrom(t) && !t.IsInterface))
+                    context.Settings.GetAvailableTypes().Where(t => typeof(IChannelReceiver).IsAssignableFrom(t) && !t.IsInterface))
             {
                 channelFactory.RegisterReceiver(type);
             }
 
             foreach (
                 var type in
-                    context.TypesToScan.Where(t => typeof(IChannelSender).IsAssignableFrom(t) && !t.IsInterface))
+                    context.Settings.GetAvailableTypes().Where(t => typeof(IChannelSender).IsAssignableFrom(t) && !t.IsInterface))
             {
                 channelFactory.RegisterSender(type);
             }
@@ -68,7 +68,7 @@
             context.Container.ConfigureComponent<GatewaySender>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(t => t.Disabled, false);
 
-            var configSection = Configure.Instance.GetConfigSection<GatewayConfig>();
+            var configSection = context.Settings.GetConfigSection<GatewayConfig>();
 
             if (configSection != null && configSection.GetChannels().Any())
             {
@@ -90,7 +90,7 @@
 
             IDictionary<string, Site> sites = new Dictionary<string, Site>();
 
-            var section = Configure.Instance.GetConfigSection<GatewayConfig>();
+            var section = context.Settings.GetConfigSection<GatewayConfig>();
             if (section != null)
             {
                 sites = section.SitesAsDictionary();

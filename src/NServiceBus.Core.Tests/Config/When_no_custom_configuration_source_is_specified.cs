@@ -11,7 +11,7 @@ namespace NServiceBus.Core.Tests.Config
         {
             var config = Configure.With(new Type[] { });
 
-            var configSection = config.GetConfigSection<TestConfigurationSection>();
+            var configSection = config.Settings.GetConfigSection<TestConfigurationSection>();
 
             Assert.AreEqual(configSection.TestSetting,"test");
         }

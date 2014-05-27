@@ -15,10 +15,8 @@ namespace NServiceBus.Unicast.Config
     /// </summary>
     public class ConfigUnicastBus : Configure
     {
-        public ConfigUnicastBus(Configure config)
-            : base(config.configurationSource)
+        public ConfigUnicastBus(IEnumerable<Type> availableTypes) : base(availableTypes)
         {
-            TypesToScan = config.TypesToScan;
         }
 
         /// <summary>

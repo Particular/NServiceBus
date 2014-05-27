@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Config
 
         void RegisterMessageOwnersAndBusAddress(Configure config,IEnumerable<Type> knownMessages)
         {
-            var unicastConfig = config.GetConfigSection<UnicastBusConfig>();
+            var unicastConfig = config.Settings.GetConfigSection<UnicastBusConfig>();
             var router = new StaticMessageRouter(knownMessages);
             var key = typeof(AutoSubscriptionStrategy).FullName + ".SubscribePlainMessages";
 

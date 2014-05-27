@@ -156,13 +156,11 @@
 
         public FeatureConfigurationContext(Configure config)
         {
-            this.config = config;
-            
+            this.config = config;            
         }
 
         public ReadOnlySettings Settings { get { return config.Settings; } }
         public IConfigureComponents Container { get { return config.Configurer; } }
         public PipelineSettings Pipeline { get { return config.Pipeline; } }
-        public IEnumerable<Type> TypesToScan { get { return config.TypesToScan; } }
     }
 }

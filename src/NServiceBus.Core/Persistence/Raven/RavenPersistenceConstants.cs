@@ -30,7 +30,7 @@ namespace NServiceBus.Persistence.Raven
 
         static string GetMasterNode(Configure config)
         {
-            var section = config.GetConfigSection<MasterNodeConfig>();
+            var section = config.Settings.GetConfigSection<MasterNodeConfig>();
             return section != null ? section.Node : null;
         }
 
