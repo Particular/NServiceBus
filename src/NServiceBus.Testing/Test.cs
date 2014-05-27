@@ -30,7 +30,7 @@
         /// </summary>
         public static void Initialize()
         {
-            InitializeInternal(Configure.With());
+            InitializeInternal(Configure.With(o=>o.CustomConfigurationSource(testConfigurationSource)));
         }
 
         /// <summary>
@@ -51,7 +51,11 @@
         /// </summary>
         public static void Initialize(params Assembly[] assemblies)
         {
-            InitializeInternal(Configure.With(assemblies));
+            InitializeInternal(Configure.With(o =>
+            {
+                o.ScanAssemblies(assemblies);
+                o.CustomConfigurationSource(testConfigurationSource);
+            }));
         }
 
         /// <summary>
@@ -59,7 +63,11 @@
         /// </summary>
         public static void Initialize(params Type[] types)
         {
-            InitializeInternal(Configure.With(types));
+            InitializeInternal(Configure.With(c =>
+            {
+                c.UseTypes(types);
+                c.CustomConfigurationSource(testConfigurationSource);
+            }));
         }
 
         static void InitializeInternal(Configure config)
@@ -70,7 +78,6 @@
             }
 
             config.DefineEndpointName("UnitTests")
-                .CustomConfigurationSource(testConfigurationSource)
                 .Features.Disable<Sagas>()
                 .Features.Disable<Audit>()
                 .DefaultBuilder()
@@ -84,7 +91,7 @@
             config.Initialize();
 
 
-            var mapper = Configure.Instance.Builder.Build<IMessageMapper>();
+            var mapper = config.Builder.Build<IMessageMapper>();
             if (mapper == null)
             {
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");

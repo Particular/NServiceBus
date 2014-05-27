@@ -206,12 +206,7 @@ namespace NServiceBus
         /// </summary>
         public static Configure With()
         {
-            if (HttpRuntime.AppDomainAppId != null)
-            {
-                return With(HttpRuntime.BinDirectory);
-            }
-
-            return With(AppDomain.CurrentDomain.BaseDirectory);
+            return With(o => {});
         }
 
         /// <summary>
@@ -219,8 +214,7 @@ namespace NServiceBus
         /// </summary>
         public static Configure With(string probeDirectory)
         {
-            lastProbeDirectory = probeDirectory;
-            return With(GetAssembliesInDirectory(probeDirectory));
+            return With(o => o.AssembliesInDirectory(probeDirectory));
         }
 
         /// <summary>
@@ -228,7 +222,7 @@ namespace NServiceBus
         /// </summary>
         public static Configure With(IEnumerable<Assembly> assemblies)
         {
-            return With(assemblies.ToArray());
+            return With(o => o.ScanAssemblies(assemblies));
         }
 
         /// <summary>
@@ -236,21 +230,36 @@ namespace NServiceBus
         /// </summary>
         public static Configure With(params Assembly[] assemblies)
         {
-            var types = GetAllowedTypes(assemblies);
-
-            return With(types);
+            return With(o => o.ScanAssemblies(assemblies));
         }
+
+        public static Configure With(IEnumerable<Type> typesToScan)
+        {
+            return With(o => o.UseTypes(typesToScan));
+        }
+
+        public static Configure With(Action<Options> customizations)
+        {
+            var options = new Options();
+
+            customizations(options);
+
+            return With(options);
+        }
+
+
 
         /// <summary>
         ///     Configure to scan the given types.
         /// </summary>
-        public static Configure With(IEnumerable<Type> typesToScan)
+        static Configure With(Options options)
         {
+            var typesToScan = options.TypesToScan;
             var availableTypes = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly())).ToList();
 
             if (HttpRuntime.AppDomainAppId == null)
             {
-                var baseDirectory = lastProbeDirectory ?? AppDomain.CurrentDomain.BaseDirectory;
+                var baseDirectory = options.Directory ?? AppDomain.CurrentDomain.BaseDirectory;
                 var hostPath = Path.Combine(baseDirectory, "NServiceBus.Host.exe");
                 if (File.Exists(hostPath))
                 {
@@ -260,7 +269,8 @@ namespace NServiceBus
 
             Logger.DebugFormat("Number of types to scan: {0}", availableTypes.Count());
 
-            instance = new Configure(availableTypes);
+            SettingsHolder.Instance.Reset();
+            instance = new Configure(availableTypes, options.ConfigurationSource);
 
             EndpointHelper.StackTraceToExamine = new StackTrace();
 
@@ -384,18 +394,6 @@ namespace NServiceBus
                 .Assemblies;
         }
 
-        /// <summary>
-        ///     Configures the given type with the given <see cref="DependencyLifecycle" />.
-        /// </summary>
-        public static IComponentConfig<T> Component<T>(DependencyLifecycle lifecycle)
-        {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
-            }
-
-            return Instance.Configurer.ConfigureComponent<T>(lifecycle);
-        }
 
         /// <summary>
         ///     Configures the given type with the given lifecycle <see cref="DependencyLifecycle" />.
@@ -410,31 +408,6 @@ namespace NServiceBus
             return Instance.Configurer.ConfigureComponent(type, lifecycle);
         }
 
-        /// <summary>
-        ///     Configures the given type with the given <see cref="DependencyLifecycle" />.
-        /// </summary>
-        public static IComponentConfig<T> Component<T>(Func<T> componentFactory, DependencyLifecycle lifecycle)
-        {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
-            }
-
-            return Instance.Configurer.ConfigureComponent(componentFactory, lifecycle);
-        }
-
-        /// <summary>
-        ///     Configures the given type with the given <see cref="DependencyLifecycle" />
-        /// </summary>
-        public static IComponentConfig<T> Component<T>(Func<IBuilder, T> componentFactory, DependencyLifecycle lifecycle)
-        {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
-            }
-
-            return Instance.Configurer.ConfigureComponent(componentFactory, lifecycle);
-        }
 
         /// <summary>
         ///     Returns true if a component of type <typeparamref name="T" /> exists in the container.
@@ -574,10 +547,69 @@ namespace NServiceBus
         /// </summary>
         public static Func<FileInfo, Assembly> LoadAssembly = s => Assembly.LoadFrom(s.FullName);
 
-        static string lastProbeDirectory;
         static Configure instance;
         static bool initialized;
         IBuilder builder;
         IConfigureComponents configurer;
+
+        public class Options
+        {
+            public Options()
+            {
+                ConfigurationSource = new DefaultConfigurationSource();
+            }
+
+            public IEnumerable<Type> TypesToScan
+            {
+                get
+                {
+                    if (typesToScan == null)
+                    {
+                        var directoryToScan = AppDomain.CurrentDomain.BaseDirectory;
+                        if (HttpRuntime.AppDomainAppId != null)
+                        {
+                            directoryToScan = HttpRuntime.BinDirectory;
+                        }
+
+                       AssembliesInDirectory(directoryToScan);
+                    }
+
+                    return typesToScan;
+                }
+            }
+            public IConfigurationSource ConfigurationSource { get; private set; }
+            public string Directory { get; set; }
+
+            public void UseTypes(IEnumerable<Type> typesToScan)
+            {
+                this.typesToScan = typesToScan;
+            }
+
+            public void ScanAssemblies(IEnumerable<Assembly> assemblies)
+            {
+                ScanAssemblies(assemblies.ToArray());
+            }
+
+            public void ScanAssemblies(params Assembly[] assemblies)
+            {
+                typesToScan = GetAllowedTypes(assemblies);
+            }
+
+
+            public void AssembliesInDirectory(string probeDirectory)
+            {
+                Directory = probeDirectory;
+                ScanAssemblies(GetAssembliesInDirectory(probeDirectory));
+            }
+
+            public void CustomConfigurationSource(IConfigurationSource configurationSource)
+            {
+                ConfigurationSource = configurationSource;
+            }
+
+
+            IEnumerable<Type> typesToScan;
+        }
+
     }
 }
