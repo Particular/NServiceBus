@@ -532,7 +532,6 @@
     <Compile Include="Unicast\BusAsyncResult.cs" />
     <Compile Include="Unicast\Callback.cs" />
     <Compile Include="Unicast\Config\ConfigUnicastBus.cs" />
-    <Compile Include="Unicast\DefaultDispatcherFactory.cs" />
     <Compile Include="Timeout\Core\TimeoutManagerDeferrer.cs" />
     <Compile Include="Unicast\Config\DefaultTransportForHost.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
@@ -542,7 +541,6 @@
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageDrivenSubscriptions.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\NoopSubscriptionAuthorizer.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscriptionStrategy.cs" />
-    <Compile Include="Unicast\IMessageDispatcherFactory.cs" />
     <Compile Include="Unicast\MessageContext.cs" />
     <Compile Include="Unicast\MessageEventArgs.cs" />
     <Compile Include="Unicast\Messages\MessageMetadataRegistry.cs" />

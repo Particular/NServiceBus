@@ -4,7 +4,6 @@ namespace NServiceBus.Unicast.Config
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq;
-    using Behaviors;
     using Logging;
     using NServiceBus.Config.ConfigurationSource;
     using ObjectBuilder;
@@ -173,49 +172,7 @@ namespace NServiceBus.Unicast.Config
 
             Configurer.RegisterSingleton<IMessageHandlerRegistry>(handlerRegistry);
 
-            var availableDispatcherFactories = TypesToScan
-                .Where(
-                    factory =>
-                        !factory.IsInterface && typeof(IMessageDispatcherFactory).IsAssignableFrom(factory))
-                .ToList();
-
-            var dispatcherMappings = GetDispatcherFactories(handlers, availableDispatcherFactories);
-
-            //configure the message dispatcher for each handler
-            Configurer.ConfigureProperty<InvokeHandlersBehavior>(b => b.MessageDispatcherMappings, dispatcherMappings);
-
-            availableDispatcherFactories.ToList().ForEach(factory => Configurer.ConfigureComponent(factory, DependencyLifecycle.InstancePerUnitOfWork));
-
             return this;
-        }
-
-        IDictionary<Type, Type> GetDispatcherFactories(IEnumerable<Type> handlers, IEnumerable<Type> messageDispatcherFactories)
-        {
-            var result = new Dictionary<Type, Type>();
-
-            var customFactories = messageDispatcherFactories
-                .Where(t => t != defaultDispatcherFactory)
-                .Select(t => (IMessageDispatcherFactory) Activator.CreateInstance(t)).ToList();
-
-
-            foreach (var handler in handlers)
-            {
-                var factory = customFactories.FirstOrDefault(f => f.CanDispatch(handler));
-
-                var factoryTypeToUse = defaultDispatcherFactory;
-
-                if (factory != null)
-                {
-                    factoryTypeToUse = factory.GetType();
-                }
-
-                //until we can remove the dispatcher factory concept
-                if (factoryTypeToUse != typeof(DefaultDispatcherFactory))
-                {
-                    result.Add(handler, factoryTypeToUse);
-                }
-            }
-            return result;
         }
 
         /// <summary>
@@ -231,17 +188,6 @@ namespace NServiceBus.Unicast.Config
             return this;
         }
 
-        /// <summary>
-        ///     Allow the bus to subscribe to itself
-        /// </summary>
-        /// <returns></returns>
-        public ConfigUnicastBus DefaultDispatcherFactory<T>() where T : IMessageDispatcherFactory
-        {
-            defaultDispatcherFactory = typeof(T);
-            return this;
-        }
-
-        Type defaultDispatcherFactory = typeof(DefaultDispatcherFactory);
 
         /// <summary>
         ///     Returns true if the given type is a message handler.
