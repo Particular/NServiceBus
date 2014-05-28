@@ -17,7 +17,7 @@
                     .Done(c => c.DidSaga2ReceiveMessage)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.DidSaga2ReceiveMessage))
-                    .Run(TimeSpan.FromSeconds(20));
+                    .Run();
         }
 
         public class Context : ScenarioContext

@@ -83,7 +83,7 @@
                  .Done(c => c.DidSagaComplete)
                  .Repeat(r => r.For(Transports.Default))
                  .Should(c => Assert.True(c.DidSagaComplete))
-                 .Run(TimeSpan.FromMinutes(3));
+                 .Run();
         }
 
         public class SagaContext : ScenarioContext
