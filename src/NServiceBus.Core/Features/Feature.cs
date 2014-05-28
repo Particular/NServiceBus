@@ -19,14 +19,6 @@
         /// </summary>
         protected abstract void Setup(FeatureConfigurationContext context);
 
-        public void SetupFeature(FeatureConfigurationContext config)
-        {
-            Setup(config);
-
-            isActivated = true;
-        }
-
-      
         /// <summary>
         /// Adds a setup prerequisite condition. If false this feature won't be setup
         /// </summary>
@@ -38,18 +30,6 @@
         }
 
 
-        public  bool ShouldBeSetup(FeatureConfigurationContext config)
-        {
-            return setupPrerequisites.All(condition => condition(config));
-        }
-
-        /// <summary>
-        /// Return <c>true</c> if this is a default <see cref="Feature"/> that needs to be turned on automatically.
-        /// </summary>
-        public bool IsEnabledByDefault
-        {
-            get { return isEnabledByDefault; }
-        }
 
         /// <summary>
         /// Feature name.
@@ -82,6 +62,12 @@
         {
             get { return dependencies.ToList(); }
         }
+
+        public bool IsEnabledByDefault
+        {
+            get { return isEnabledByDefault; }
+        }
+
 
         public bool IsActivated { get { return isActivated; } }
         
@@ -133,6 +119,20 @@
         public static bool operator !=(Feature feature1, Feature feature2)
         {
             return !(feature1 == feature2);
+        }
+
+      
+        internal bool ShouldBeSetup(FeatureConfigurationContext config)
+        {
+            return setupPrerequisites.All(condition => condition(config));
+        }
+
+
+        internal void SetupFeature(FeatureConfigurationContext config)
+        {
+            Setup(config);
+
+            isActivated = true;
         }
 
         protected Feature()

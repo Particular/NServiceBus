@@ -23,8 +23,8 @@
 
             featureSettings.SetupFeatures();
 
-            Assert.True(featureWithTrueCondition.IsActivated);
-            Assert.False(featureWithFalseCondition.IsActivated);
+            Assert.True(featureWithTrueCondition.IsActive);
+            Assert.False(featureWithFalseCondition.IsActive);
         }
 
 

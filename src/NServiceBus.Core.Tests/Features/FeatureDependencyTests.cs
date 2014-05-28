@@ -22,7 +22,7 @@
 
             featureSettings.SetupFeatures();
 
-            Assert.False(dependingFeature.IsActivated);
+            Assert.False(dependingFeature.IsActive);
         }
 
 
@@ -49,7 +49,7 @@
 
             featureSettings.SetupFeatures();
 
-            Assert.True(dependingFeature.IsActivated);
+            Assert.True(dependingFeature.IsActive);
 
             Assert.IsInstanceOf<MyFeature>(order.First(), "Upstream deps should be activated first");
         }

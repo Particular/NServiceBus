@@ -118,7 +118,7 @@ namespace NServiceBus.Features
 
         bool ActivateFeature(Feature feature, StringBuilder statusText, List<Feature> featuresToActivate, FeatureConfigurationContext context)
         {
-            if (feature.IsActivated)
+            if (feature.IsActive)
             {
                 return true;
             }
@@ -166,7 +166,7 @@ namespace NServiceBus.Features
         {
             var feature = features.SingleOrDefault(f => f.GetType() == typeof(T));
 
-            return feature != null && feature.IsActivated;
+            return feature != null && feature.IsActive;
         }
     }
 }
