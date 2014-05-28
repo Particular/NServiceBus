@@ -120,6 +120,7 @@
     <Compile Include="ExceptionExtensions.cs" />
     <Compile Include="ExpressAttribute.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="Features\FeatureConfigurationContext.cs" />
     <Compile Include="Features\FeatureExtensions.cs" />
     <Compile Include="Features\SettingsExtentions.cs" />
     <Compile Include="Gateway\Channels\DataReceivedOnChannelArgs.cs" />
