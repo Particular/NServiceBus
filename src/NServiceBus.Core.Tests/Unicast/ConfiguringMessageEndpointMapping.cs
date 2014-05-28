@@ -13,15 +13,12 @@ namespace NServiceBus.Unicast.Tests
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Linq;
     using Messages;
     using Messages.ANamespace;
     using Messages.ANamespace.ASubNamespace;
     using NServiceBus.Config;
-    using NServiceBus.Config.ConfigurationSource;
     using NUnit.Framework;
-    using Routing;
 
     public class Configuring_message_endpoint_mapping
     {
