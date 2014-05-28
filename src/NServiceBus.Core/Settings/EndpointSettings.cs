@@ -23,13 +23,13 @@ namespace NServiceBus.Settings
     /// <summary>
     ///     Configuration class for Endpoint settings.
     /// </summary>
-    public class Endpoint
+    public class EndpointSettings
     {
         readonly Configure config;
 
         readonly EndpointAdvancedSettings endpointAdvancedSettings;
 
-        public Endpoint(Configure config)
+        public EndpointSettings(Configure config)
         {
             this.config = config;
 
@@ -39,7 +39,7 @@ namespace NServiceBus.Settings
         /// <summary>
         ///     Tells the endpoint to not enforce durability (using InMemory storages, non durable messages, ...).
         /// </summary>
-        public Endpoint AsVolatile()
+        public void AsVolatile()
         {
             config.Settings.Set("Persistence", typeof(InMemory));
 
@@ -54,8 +54,6 @@ namespace NServiceBus.Settings
             });
 
             Advanced(settings => settings.DisableDurableMessages());
-
-            return this;
         }
 
         /// <summary>
@@ -64,25 +62,23 @@ namespace NServiceBus.Settings
         /// <remarks>
         ///     Use this in endpoints whose only purpose is sending messages, websites are often a good example of send only endpoints.
         /// </remarks>
-        public Endpoint AsSendOnly()
+        public void AsSendOnly()
         {
             config.Settings.Set("Endpoint.SendOnly", true);
             config.Features(f=>f.Disable<TimeoutManager>());
-            return this;
         }
 
         /// <summary>
-        ///     <see cref="Endpoint" /> advance settings.
+        ///     <see cref="EndpointSettings" /> advance settings.
         /// </summary>
         /// <param name="action">A lambda to set the advance settings.</param>
-        public Endpoint Advanced(Action<EndpointAdvancedSettings> action)
+        public void Advanced(Action<EndpointAdvancedSettings> action)
         {
             action(endpointAdvancedSettings);
-            return this;
         }
 
         /// <summary>
-        ///     <see cref="Endpoint" /> advance settings.
+        ///     <see cref="EndpointSettings" /> advance settings.
         /// </summary>
         public class EndpointAdvancedSettings
         {
@@ -96,19 +92,17 @@ namespace NServiceBus.Settings
             /// <summary>
             /// Configures endpoint with messages guaranteed to be delivered in the event of a computer failure or network problem.
             /// </summary>
-            public EndpointAdvancedSettings EnableDurableMessages()
+            public void EnableDurableMessages()
             {
                 config.Settings.Set("Endpoint.DurableMessages", true);
-                return this;
             }
 
             /// <summary>
             /// Configures endpoint with messages that are not guaranteed to be delivered in the event of a computer failure or network problem.
             /// </summary>
-            public EndpointAdvancedSettings DisableDurableMessages()
+            public void DisableDurableMessages()
             {
                 config.Settings.Set("Endpoint.DurableMessages", false);
-                return this;
             }
         }
     }

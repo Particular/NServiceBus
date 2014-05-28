@@ -230,6 +230,7 @@
     <Compile Include="Saga\UniqueAttribute.cs" />
     <Compile Include="Serialization\IMessageSerializer.cs" />
     <Compile Include="SettingsExtentions.cs" />
+    <Compile Include="Settings\EndpointSettingsExtensions.cs" />
     <Compile Include="Settings\ReadOnlySettings.cs" />
     <Compile Include="Settings\ScaleOutExtentions.cs" />
     <Compile Include="Settings\TransactionSettingsExtentions.cs" />
@@ -510,7 +511,7 @@
     <Compile Include="Serializers\XML\XmlSanitizingStream.cs" />
     <Compile Include="ServiceAsyncResult.cs" />
     <Compile Include="Logging\SetLoggingLibrary.cs" />
-    <Compile Include="Settings\Endpoint.cs" />
+    <Compile Include="Settings\EndpointSettings.cs" />
     <Compile Include="Settings\TransactionSettings.cs" />
     <Compile Include="SyncConfig.cs" />
     <Compile Include="Gateway\Channels\Http\MTATaskScheduler.cs" />

@@ -81,7 +81,7 @@
 
             if (volatileMode)
             {
-                config.Endpoint.AsVolatile();
+                config.Endpoint(e=>e.AsVolatile());
             }
 
             if (suppressDTC)

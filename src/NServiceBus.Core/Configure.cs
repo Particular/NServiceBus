@@ -99,11 +99,6 @@ namespace NServiceBus
             }
         }
 
-        public Endpoint Endpoint
-        {
-            get { return endpoint ?? (endpoint = new Endpoint(this)); }
-        }
-
         public SerializationSettings Serialization
         {
             get { return serialization ?? (serialization = new SerializationSettings(this)); }
@@ -430,7 +425,6 @@ namespace NServiceBus
         }
 
         static bool configSectionOverridesInitialized;
-        Endpoint endpoint;
         FeatureActivator features;
         SerializationSettings serialization;
         PipelineSettings pipelineSettings;
