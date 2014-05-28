@@ -120,7 +120,8 @@
 
             var endpointName = context.Settings.Get<string>("EndpointName");
 
-            context.Container.ConfigureProperty<GatewayHttpListenerInstaller>(t => t.Enabled, true);
+            context.Container.ConfigureComponent<GatewayHttpListenerInstaller>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(t => t.Enabled, true);
 
             context.Container.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(x => x.MainInputAddress, Address.Parse(endpointName));
