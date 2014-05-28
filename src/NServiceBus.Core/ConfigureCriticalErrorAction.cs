@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using Logging;
 
     /// <summary>
@@ -34,7 +35,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Execute the configured Critical error action.
+        ///     Execute the configured Critical error action. The action will be performed on a separate thread
         /// </summary>
         /// <param name="config">The configuration object.</param>
         /// <param name="errorMessage">The error message.</param>
@@ -43,7 +44,7 @@ namespace NServiceBus
         {
             LogManager.GetLogger("NServiceBus").Fatal(errorMessage, exception);
 
-            onCriticalErrorAction(errorMessage, exception);
+            ThreadPool.QueueUserWorkItem(state =>onCriticalErrorAction(errorMessage, exception));
         }
 
         /// <summary>
