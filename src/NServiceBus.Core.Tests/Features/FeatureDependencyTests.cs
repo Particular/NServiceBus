@@ -15,10 +15,10 @@
             var dependingFeature = new DependingFeature();
             var feature = new MyFeature();
 
-            var featureSettings = new FeatureSettings(new SettingsHolder())
-            {
-               dependingFeature,feature
-            };
+            var featureSettings = new FeatureActivator(new SettingsHolder());
+
+            featureSettings.Add(dependingFeature);
+            featureSettings.Add(feature);
 
             featureSettings.SetupFeatures();
 
@@ -40,12 +40,15 @@
                 OnActivation = f => order.Add(f)
             };
 
-            var featureSettings = new FeatureSettings(new SettingsHolder())
-            {
-               dependingFeature,feature
-            };
+            var settings = new SettingsHolder();
 
-            featureSettings.Enable<MyFeature>();
+
+            var featureSettings = new FeatureActivator(settings);
+
+            featureSettings.Add(dependingFeature);
+            featureSettings.Add(feature);
+
+            settings.EnableFeatureByDefault<MyFeature>();
 
             featureSettings.SetupFeatures();
 

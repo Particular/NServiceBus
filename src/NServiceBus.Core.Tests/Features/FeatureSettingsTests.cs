@@ -15,11 +15,11 @@
             var featureWithTrueCondition = new MyFeatureWithTrueActivationCondition();
             var featureWithFalseCondition = new MyFeatureWithFalseActivationCondition();
 
-            var featureSettings = new FeatureSettings(new SettingsHolder())
-            {
-               featureWithTrueCondition,
-               featureWithFalseCondition
-            };
+            var featureSettings = new FeatureActivator(new SettingsHolder());
+
+            featureSettings.Add(featureWithTrueCondition);
+            featureSettings.Add(featureWithFalseCondition);
+       
 
             featureSettings.SetupFeatures();
 

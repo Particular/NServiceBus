@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using Config;
+    using Installation;
     using NServiceBus.Gateway;
     using NServiceBus.Gateway.Channels;
     using NServiceBus.Gateway.HeaderManagement;
@@ -118,6 +119,8 @@
             context.Container.ConfigureComponent<DataBusHeaderManager>(DependencyLifecycle.InstancePerCall);
 
             var endpointName = context.Settings.Get<string>("EndpointName");
+
+            context.Container.ConfigureProperty<GatewayHttpListenerInstaller>(t => t.Enabled, true);
 
             context.Container.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(x => x.MainInputAddress, Address.Parse(endpointName));

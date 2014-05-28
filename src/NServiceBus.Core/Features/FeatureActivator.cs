@@ -1,98 +1,41 @@
 namespace NServiceBus.Features
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
     using Logging;
     using Settings;
 
-    /// <summary>
-    /// Settings for the various features
-    /// </summary>
-    public class FeatureSettings : IEnumerable<Feature>
+    class FeatureActivator
     {
         readonly SettingsHolder settings;
         readonly Configure config;
+        readonly List<Feature> features = new List<Feature>(); 
 
-        public FeatureSettings(Configure config)
+        public FeatureActivator(Configure config)
+            : this(config.Settings)
         {
-            settings = config.Settings;
             this.config = config;
         }
 
-        public FeatureSettings(SettingsHolder settings)
+        public FeatureActivator(SettingsHolder settings)
         {
             this.settings = settings;
         }
 
-        /// <summary>
-        /// Enables the given feature
-        /// </summary>
-        public Configure Enable<T>() where T : Feature
-        {
-            return Enable(typeof(T));
-        }
-
-        public Configure Enable(Type featureType)
-        {
-            settings.Set(featureType.FullName, true);
-
-            return config;
-        }
-
-        /// <summary>
-        /// Disables the given feature
-        /// </summary>
-        public Configure Disable<T>() where T : Feature
-        {
-            return Disable(typeof(T));
-        }
-
-        public Configure Disable(Type featureType)
-        {
-            settings.Set(featureType.FullName, false);
-
-            return config;
-        }
-
+      
         public void Add(Feature feature)
         {
             if (feature.IsEnabledByDefault)
             {
-                EnableByDefault(feature.GetType());
+                settings.EnableFeatureByDefault(feature.GetType());
             }
 
             features.Add(feature);
         }
 
-        List<Feature> features = new List<Feature>();
-        public IEnumerator<Feature> GetEnumerator()
-        {
-            return features.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public void EnableByDefault<T>() where T : Feature
-        {
-            EnableByDefault(typeof(T));
-        }
-
-        public void EnableByDefault(Type featureType)
-        {
-            settings.SetDefault(featureType.FullName, true);
-        }
-
-        bool IsEnabled<T>() where T : Feature
-        {
-            return IsEnabled(typeof(T));
-        }
-
+       
         bool IsEnabled(Type featureType)
         {
             return settings.GetOrDefault<bool>(featureType.FullName);
@@ -159,14 +102,6 @@ namespace NServiceBus.Features
             return true;
         }
 
-        
-        static ILog Logger = LogManager.GetLogger<FeatureSettings>();
-
-        public bool IsActivated<T>() where T : Feature
-        {
-            var feature = features.SingleOrDefault(f => f.GetType() == typeof(T));
-
-            return feature != null && feature.IsActive;
-        }
+        static ILog Logger = LogManager.GetLogger<FeatureActivator>();
     }
 }

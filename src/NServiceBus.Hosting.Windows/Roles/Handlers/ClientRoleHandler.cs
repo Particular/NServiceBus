@@ -12,10 +12,13 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         {
             config.Transactions.Disable();
 
-            config.Features.Disable<SecondLevelRetries>()
-                .Features.Disable<StorageDrivenPublishing>()
-                .Features.Disable<TimeoutManager>()
-                .PurgeOnStartup(true);
+            config.Features(f =>
+            {
+                f.Disable<SecondLevelRetries>();
+                f.Disable<StorageDrivenPublishing>();
+                f.Disable<TimeoutManager>();
+            })
+            .PurgeOnStartup(true);
         }
     }
 }

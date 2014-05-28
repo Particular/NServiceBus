@@ -6,7 +6,7 @@ namespace NServiceBus
     using Config.ConfigurationSource;
     using Settings;
 
-    public static class SettingExtentions
+    public static class SettingsExtentions
     {
         /// <summary>
         ///     Returns the requested config section using the current configuration source.
@@ -50,5 +50,7 @@ namespace NServiceBus
         {
             return settings.Get<string>("EndpointName");
         }
+
+
     }
 }

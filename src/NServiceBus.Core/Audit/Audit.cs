@@ -35,10 +35,12 @@
             var auditQueue = GetConfiguredAuditQueue(context);
 
             context.Container.ConfigureComponent<AuditQueueCreator>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(p=>p.Enabled,true)
                 .ConfigureProperty(t => t.AuditQueue, auditQueue);
 
             var behaviorConfig = context.Container.ConfigureComponent<AuditBehavior>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.AuditQueue, auditQueue);
+                
 
 
             var messageAuditingConfig = context.Settings.GetConfigSection<AuditConfig>();

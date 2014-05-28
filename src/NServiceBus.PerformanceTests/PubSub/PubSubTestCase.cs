@@ -45,7 +45,7 @@ public class PubSubTestCase : TestCase
             .DefaultBuilder()
             .UseTransport<Msmq>()
             .InMemoryFaultManagement()
-            .Features.Disable<Audit>();
+            .Features(f=>f.Disable<Audit>());
 
         switch (GetStorageType())
         {

@@ -120,6 +120,8 @@
     <Compile Include="ExceptionExtensions.cs" />
     <Compile Include="ExpressAttribute.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="Features\FeatureExtensions.cs" />
+    <Compile Include="Features\SettingsExtentions.cs" />
     <Compile Include="Gateway\Channels\DataReceivedOnChannelArgs.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReader.cs" />
@@ -226,7 +228,7 @@
     <Compile Include="Saga\ToSagaExpression.cs" />
     <Compile Include="Saga\UniqueAttribute.cs" />
     <Compile Include="Serialization\IMessageSerializer.cs" />
-    <Compile Include="SettingExtentions.cs" />
+    <Compile Include="SettingsExtentions.cs" />
     <Compile Include="Settings\ReadOnlySettings.cs" />
     <Compile Include="Support\RuntimeEnvironment.cs" />
     <Compile Include="TimeToBeReceivedAttribute.cs" />
@@ -277,7 +279,7 @@
     <Compile Include="ConfigureFileShareDataBus.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
     <Compile Include="DataBus\InMemory\InMemoryDataBus.cs" />
-    <Compile Include="Features\FeatureSettings.cs" />
+    <Compile Include="Features\FeatureActivator.cs" />
     <Compile Include="Gateway\Channels\ChannelTypeAttribute.cs" />
     <Compile Include="Gateway\Deduplication\GatewayMessage.cs" />
     <Compile Include="Gateway\Deduplication\IDeduplicateMessages.cs" />
@@ -556,7 +558,6 @@
     <Compile Include="Unicast\Queuing\Installers\EndpointInputQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\Installers\AuditQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\IWantQueueCreated.cs" />
-    <Compile Include="Transports\Msmq\Config\CheckMachineNameForComplianceWithDTCLimitation.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
     <Compile Include="Unicast\Routing\StaticMessageRouter.cs" />

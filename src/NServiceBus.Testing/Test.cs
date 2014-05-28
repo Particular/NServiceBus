@@ -83,9 +83,12 @@
                 return;
             }
 
-            config.Features.Disable<Sagas>()
-                .Features.Disable<Audit>()
-                .DefaultBuilder()
+            config.Features(f =>
+            {
+                f.Disable<Sagas>();
+                f.Disable<Audit>();
+            })
+            .DefaultBuilder()
                 .UsePersistence<InMemory>()
                 .InMemoryFaultManagement();
 

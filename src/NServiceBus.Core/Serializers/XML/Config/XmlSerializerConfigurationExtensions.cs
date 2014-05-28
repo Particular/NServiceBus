@@ -12,7 +12,7 @@
         /// </summary>
         public static Configure Xml(this SerializationSettings settings, Action<XmlSerializationSettings> customSettings = null)
         {
-            settings.Config.Features.Enable<XmlSerialization>();
+            settings.Config.Features(f=>f.Enable<XmlSerialization>());
 
             settings.Config.Settings.Set("SelectedSerializer", typeof(XmlSerialization));
 

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Persistence
 {
+    using Features;
     using NServiceBus.InMemory.Gateway;
     using NServiceBus.InMemory.Outbox;
     using NServiceBus.InMemory.SagaPersister;
@@ -10,11 +11,11 @@
     {
         public void Enable(Configure config)
         {
-            config.Features.EnableByDefault<InMemorySagaPersistence>();
-            config.Features.EnableByDefault<InMemoryTimeoutPersistence>();
-            config.Features.EnableByDefault<InMemorySubscriptionPersistence>();
-            config.Features.EnableByDefault<InMemoryOutboxPersistence>();
-            config.Features.EnableByDefault<InMemoryGatewayPersistence>();
+            config.Settings.EnableFeatureByDefault<InMemorySagaPersistence>();
+            config.Settings.EnableFeatureByDefault<InMemoryTimeoutPersistence>();
+            config.Settings.EnableFeatureByDefault<InMemorySubscriptionPersistence>();
+            config.Settings.EnableFeatureByDefault<InMemoryOutboxPersistence>();
+            config.Settings.EnableFeatureByDefault<InMemoryGatewayPersistence>();
         }
     }
 

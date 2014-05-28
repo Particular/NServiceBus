@@ -109,11 +109,6 @@ namespace NServiceBus
             get { return transactionSetting ?? (transactionSetting = new TransactionSettings(this)); }
         }
 
-        public FeatureSettings Features
-        {
-            get { return features ?? (features = new FeatureSettings(this)); }
-        }
-
         public SerializationSettings Serialization
         {
             get { return serialization ?? (serialization = new SerializationSettings(this)); }
@@ -252,8 +247,9 @@ namespace NServiceBus
             {
                 this.DefaultBuilder();
             }
+            features = new FeatureActivator(this);
 
-            ForAllTypes<Feature>(t => Features.Add((Feature)Activator.CreateInstance(t)));
+            ForAllTypes<Feature>(t => features.Add((Feature)Activator.CreateInstance(t)));
 
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
@@ -271,7 +267,7 @@ namespace NServiceBus
 
             ActivateAndInvoke<IFinalizeConfiguration>(t => t.FinalizeConfiguration(this));
 
-            Features.SetupFeatures();
+            features.SetupFeatures();
 
             //this needs to be before the installers since they actually call .Initialize :(
             initialized = true;
@@ -449,7 +445,7 @@ namespace NServiceBus
         static bool configSectionOverridesInitialized;
         Endpoint endpoint;
         TransactionSettings transactionSetting;
-        FeatureSettings features;
+        FeatureActivator features;
         SerializationSettings serialization;
         PipelineSettings pipelineSettings;
         static bool beforeConfigurationInitializersCalled;

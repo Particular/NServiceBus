@@ -4,21 +4,18 @@ namespace NServiceBus.Installation
     using System.Diagnostics;
     using System.IO;
     using Environments;
-    using Features;
     using Gateway.Receiving;
     using Logging;
 
-    /// <summary>
-    /// Allows the identity to host http listeners for the <see cref="Gateway"/>
-    /// </summary>
-    public class GatewayHttpListenerInstaller : INeedToInstallSomething<Windows>
+    class GatewayHttpListenerInstaller : INeedToInstallSomething<Windows>
     {
         static ILog logger = LogManager.GetLogger<GatewayHttpListenerInstaller>();
         public IManageReceiveChannels ChannelManager { get; set; }
+        public bool Enabled { get; set; }
 
         public void Install(string identity, Configure config)
         {
-            if (!config.Features.IsActivated<Gateway>())
+            if (!Enabled)
             {
                 return;
             }

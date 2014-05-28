@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
+    using System.Runtime.InteropServices;
+    using System.Text;
     using Config;
     using Logging;
     using Timeout;
@@ -11,6 +13,8 @@
     {
         protected override void Setup(FeatureConfigurationContext context)
         {
+            new CheckMachineNameForComplianceWithDtcLimitation()
+            .Check();
             context.Container.ConfigureComponent<CorrelationIdMutatorForBackwardsCompatibilityWithV3>(DependencyLifecycle.InstancePerCall);
             context.Container.ConfigureComponent<MsmqUnitOfWork>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
@@ -48,10 +52,14 @@
 
         protected override void InternalConfigure(Configure config)
         {
-            config.Features.Enable<MsmqTransport>();
-            config.Features.Enable<MessageDrivenSubscriptions>();
-            config.Features.EnableByDefault<StorageDrivenPublishing>();
-            config.Features.EnableByDefault<TimeoutManager>();
+            config.Features(f =>
+            {
+                f.Enable<MsmqTransport>();
+                f.Enable<MessageDrivenSubscriptions>();
+            });
+
+            config.Settings.EnableFeatureByDefault<StorageDrivenPublishing>();
+            config.Settings.EnableFeatureByDefault<TimeoutManager>();
 
             //for backwards compatibility
             config.Settings.SetDefault("SerializationSettings.WrapSingleMessages", true);
@@ -79,7 +87,7 @@
             return context.Settings.Get<Address>("MasterNode.Address").SubScope("Timeouts");
         }
 
-        static ILog Logger = LogManager.GetLogger < MsmqTransport>();
+        static ILog Logger = LogManager.GetLogger<MsmqTransport>();
 
         const string Message =
             @"
@@ -88,5 +96,45 @@ Here is an example of what is required:
   <connectionStrings>
     <add name=""NServiceBus/Transport"" connectionString=""cacheSendConnection=true;journal=false;deadLetter=true"" />
   </connectionStrings>";
+
+
+
+    }
+
+    enum COMPUTER_NAME_FORMAT
+    {
+        ComputerNameNetBIOS,
+        ComputerNameDnsHostname,
+        ComputerNameDnsDomain,
+        ComputerNameDnsFullyQualified,
+        ComputerNamePhysicalNetBIOS,
+        ComputerNamePhysicalDnsHostname,
+        ComputerNamePhysicalDnsDomain,
+        ComputerNamePhysicalDnsFullyQualified
+    }
+
+    public class CheckMachineNameForComplianceWithDtcLimitation
+    {
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        static extern bool GetComputerNameEx(COMPUTER_NAME_FORMAT nameType, [Out] StringBuilder lpBuffer, ref uint lpnSize);
+
+        static ILog Logger = LogManager.GetLogger<CheckMachineNameForComplianceWithDtcLimitation>();
+
+        /// <summary>
+        /// Method invoked to run custom code.
+        /// </summary>
+        public void Check()
+        {
+
+            uint capacity = 24;
+            var buffer = new StringBuilder((int)capacity);
+            if (!GetComputerNameEx(COMPUTER_NAME_FORMAT.ComputerNameNetBIOS, buffer, ref capacity))
+                return;
+            var netbiosName = buffer.ToString();
+            if (netbiosName.Length <= 15) return;
+
+            Logger.Warn(string.Format(
+                "NetBIOS name [{0}] is longer than 15 characters. Shorten it for DTC to work. See: http://particular.net/articles/dtcping-warning-the-cid-values-for-both-test-machines-are-the-same", netbiosName));
+        }
     }
 }

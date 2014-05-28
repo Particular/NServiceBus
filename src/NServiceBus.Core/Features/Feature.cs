@@ -69,12 +69,14 @@
         }
 
 
-        public bool IsActivated { get { return isActivated; } }
+        /// <summary>
+        /// Indicates that the feature is active
+        /// </summary>
+        public bool IsActive { get { return isActive; } }
         
 
         public override string ToString()
         {
-            
             return string.Format("{0} [{1}]",Name, Version);
         }
 
@@ -132,7 +134,7 @@
         {
             Setup(config);
 
-            isActivated = true;
+            isActive = true;
         }
 
         protected Feature()
@@ -147,7 +149,7 @@
         string name;
         bool isEnabledByDefault;
 
-        bool isActivated;
+        bool isActive;
     }
 
     public class FeatureConfigurationContext

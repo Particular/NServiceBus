@@ -61,7 +61,7 @@ namespace NServiceBus.Settings
         public Endpoint AsSendOnly()
         {
             config.Settings.Set("Endpoint.SendOnly", true);
-            config.Features.Disable<TimeoutManager>();
+            config.Features(f=>f.Disable<TimeoutManager>());
             return this;
         }
 
