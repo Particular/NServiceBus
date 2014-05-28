@@ -20,7 +20,7 @@
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures();
+            featureSettings.SetupFeatures(null);
 
             Assert.False(dependingFeature.IsActive);
         }
@@ -50,7 +50,7 @@
 
             settings.EnableFeatureByDefault<MyFeature>();
 
-            featureSettings.SetupFeatures();
+            featureSettings.SetupFeatures(null);
 
             Assert.True(dependingFeature.IsActive);
 

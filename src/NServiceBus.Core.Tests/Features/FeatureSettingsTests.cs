@@ -19,9 +19,9 @@
 
             featureSettings.Add(featureWithTrueCondition);
             featureSettings.Add(featureWithFalseCondition);
-       
 
-            featureSettings.SetupFeatures();
+
+            featureSettings.SetupFeatures(null);
 
             Assert.True(featureWithTrueCondition.IsActive);
             Assert.False(featureWithFalseCondition.IsActive);

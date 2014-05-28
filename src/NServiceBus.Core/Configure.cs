@@ -230,7 +230,7 @@ namespace NServiceBus
                 this.DefaultBuilder();
             }
 
-            featureActivator = new FeatureActivator(this);
+            featureActivator = new FeatureActivator(Settings);
 
             Configurer.RegisterSingleton<FeatureActivator>(featureActivator);
 
@@ -252,7 +252,8 @@ namespace NServiceBus
 
             ActivateAndInvoke<IFinalizeConfiguration>(t => t.FinalizeConfiguration(this));
 
-            featureActivator.SetupFeatures();
+            featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
+            featureActivator.RegisterStartupTasks(Configurer);
 
             //this needs to be before the installers since they actually call .Initialize :(
             initialized = true;

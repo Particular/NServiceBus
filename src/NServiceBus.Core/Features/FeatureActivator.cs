@@ -10,12 +10,6 @@ namespace NServiceBus.Features
 
     class FeatureActivator
     {
-        public FeatureActivator(Configure config)
-            : this(config.Settings)
-        {
-            this.config = config;
-        }
-
         public FeatureActivator(SettingsHolder settings)
         {
             this.settings = settings;
@@ -38,12 +32,9 @@ namespace NServiceBus.Features
             return settings.GetOrDefault<bool>(featureType.FullName);
         }
 
-        public void SetupFeatures()
+        public void SetupFeatures(FeatureConfigurationContext context)
         {
             var statusText = new StringBuilder();
-
-            var context = new FeatureConfigurationContext(config);
-
 
             var featuresToActivate = features.Where(f => IsEnabled(f.GetType()) && MeetsActivationCondition(f, statusText, context))
               .ToList();
@@ -54,16 +45,20 @@ namespace NServiceBus.Features
             }
 
             Logger.InfoFormat("Features: \n{0}", statusText);
+        }
 
+
+
+        public void RegisterStartupTasks(IConfigureComponents container)
+        {
             foreach (var feature in features.Where(f => f.IsActive))
             {
                 foreach (var taskType in feature.StartupTasks)
                 {
-                    config.Configurer.ConfigureComponent(taskType, DependencyLifecycle.SingleInstance);
+                    container.ConfigureComponent(taskType, DependencyLifecycle.SingleInstance);
                 }
             }
         }
-
         bool ActivateFeature(Feature feature, StringBuilder statusText, List<Feature> featuresToActivate, FeatureConfigurationContext context)
         {
             if (feature.IsActive)
@@ -122,7 +117,6 @@ namespace NServiceBus.Features
         }
 
         readonly SettingsHolder settings;
-        readonly Configure config;
         readonly List<Feature> features = new List<Feature>();
 
         static ILog Logger = LogManager.GetLogger<FeatureActivator>();
