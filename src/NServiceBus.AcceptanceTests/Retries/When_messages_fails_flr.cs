@@ -76,7 +76,13 @@
                         Context.TimeOfSecondAttempt = DateTime.UtcNow;
                     }
 
-                    Context.NumberOfSlrRetriesPerformed = int.Parse(Bus.CurrentMessageContext.Headers[Headers.Retries]); 
+                    string retries;
+
+                    if (Bus.CurrentMessageContext.Headers.TryGetValue(Headers.Retries,out retries))
+                    {
+                        Context.NumberOfSlrRetriesPerformed = int.Parse(retries);     
+                    }
+                    
                         
                     throw new Exception("Simulated exception");
                 }

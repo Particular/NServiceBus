@@ -52,7 +52,7 @@ namespace NServiceBus.Features
             context.Container.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, processorAddress);
             context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.InputAddress, processorAddress);
             context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.RetryPolicy, context.Settings.Get<Func<TransportMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy"));
-            context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, !useRemoteRetryProcessor); 
+            context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, useRemoteRetryProcessor); 
         }
 
         static void SetUpRetryPolicy(SecondLevelRetriesConfig retriesConfig)
