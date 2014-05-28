@@ -171,14 +171,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Allows the user to control how the current endpoint behaves when scaled out.
-        /// </summary>
-        public static void ScaleOut(Action<ScaleOutSettings> customScaleOutSettings)
-        {
-            customScaleOutSettings(new ScaleOutSettings());
-        }
-
-        /// <summary>
         ///     Creates a new configuration object scanning assemblies in the regular runtime directory.
         /// </summary>
         public static Configure With()

@@ -9,7 +9,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// </summary>
         public void ConfigureRole(IConfigureThisEndpoint specifier,Configure config)
         {
-            Configure.ScaleOut(s=>s.UseSingleBrokerQueue());
+            config.ScaleOut(s => s.UseSingleBrokerQueue());
         }
     }
 }
