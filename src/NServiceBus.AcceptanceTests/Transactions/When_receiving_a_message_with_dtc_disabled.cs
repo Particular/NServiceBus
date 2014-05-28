@@ -39,9 +39,11 @@
         {
             public NonDTCEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Transactions.Advanced(t =>
-                    t.DisableDistributedTransactions()
-                        .WrapHandlersExecutionInATransactionScope()));
+                EndpointSetup<DefaultServer>(c => c.Transactions(t=>t.Advanced(a =>
+                    {
+                        a.DisableDistributedTransactions();
+                        a.WrapHandlersExecutionInATransactionScope();
+                    })));
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

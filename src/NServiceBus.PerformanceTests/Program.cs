@@ -86,7 +86,7 @@
 
             if (suppressDTC)
             {
-                config.Transactions.Advanced(settings => settings.DisableDistributedTransactions());
+                config.Transactions(t=>t.Advanced(settings => settings.DisableDistributedTransactions()));
             }
 
             if (encryption)

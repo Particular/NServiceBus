@@ -231,6 +231,7 @@
     <Compile Include="Serialization\IMessageSerializer.cs" />
     <Compile Include="SettingsExtentions.cs" />
     <Compile Include="Settings\ReadOnlySettings.cs" />
+    <Compile Include="Settings\TransactionSettingsExtentions.cs" />
     <Compile Include="Support\RuntimeEnvironment.cs" />
     <Compile Include="TimeToBeReceivedAttribute.cs" />
     <Compile Include="Transports\ConfigureTransport.cs" />

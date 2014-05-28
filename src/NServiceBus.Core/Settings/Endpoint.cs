@@ -43,9 +43,15 @@ namespace NServiceBus.Settings
         {
             config.Settings.Set("Persistence", typeof(InMemory));
 
-            config.Transactions.Disable();
-            config.Transactions.Advanced(s => s.DoNotWrapHandlersExecutionInATransactionScope()
-                                                  .DisableDistributedTransactions());
+            config.Transactions(t =>
+            {
+                t.Disable();
+                t.Advanced(a =>
+                {
+                    a.DoNotWrapHandlersExecutionInATransactionScope();
+                    a.DisableDistributedTransactions();
+                });
+            });
 
             Advanced(settings => settings.DisableDurableMessages());
 

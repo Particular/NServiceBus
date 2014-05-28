@@ -104,11 +104,6 @@ namespace NServiceBus
             get { return endpoint ?? (endpoint = new Endpoint(this)); }
         }
 
-        public TransactionSettings Transactions
-        {
-            get { return transactionSetting ?? (transactionSetting = new TransactionSettings(this)); }
-        }
-
         public SerializationSettings Serialization
         {
             get { return serialization ?? (serialization = new SerializationSettings(this)); }
@@ -444,7 +439,6 @@ namespace NServiceBus
 
         static bool configSectionOverridesInitialized;
         Endpoint endpoint;
-        TransactionSettings transactionSetting;
         FeatureActivator features;
         SerializationSettings serialization;
         PipelineSettings pipelineSettings;

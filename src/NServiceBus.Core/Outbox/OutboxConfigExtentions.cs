@@ -13,15 +13,12 @@
         public static Configure EnableOutbox(this Configure config)
         {
 
-            config.Transactions.Advanced(t =>
+            return config.Transactions(t => t.Advanced(a =>
             {
-                t.DisableDistributedTransactions();
-                t.DoNotWrapHandlersExecutionInATransactionScope();
-            });
-
-            config.Features(f=>f.Enable<Features.Outbox>());
-
-            return config;
+                a.DisableDistributedTransactions();
+                a.DoNotWrapHandlersExecutionInATransactionScope();
+            }))
+            .Features(f => f.Enable<Features.Outbox>());
         }
     }
 }
