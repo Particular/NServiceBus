@@ -2,12 +2,12 @@
 {
     using Serializers.Binary;
 
-    public class BinarySerialization : Feature<Categories.Serializers>
+    public class BinarySerialization : Feature
     {
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            config.Configurer.ConfigureComponent<SimpleMessageMapper>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<BinaryMessageSerializer>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<SimpleMessageMapper>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<BinaryMessageSerializer>(DependencyLifecycle.SingleInstance);
         }
     }
 }

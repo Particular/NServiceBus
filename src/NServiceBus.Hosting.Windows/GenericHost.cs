@@ -9,8 +9,6 @@ namespace NServiceBus.Hosting
     using Logging;
     using Profiles;
     using Roles;
-    using Settings;
-    using Utils;
     using Wcf;
 
     class GenericHost
@@ -25,8 +23,8 @@ namespace NServiceBus.Hosting
                 endpointName = specifier.GetType().Namespace ?? specifier.GetType().Assembly.GetName().Name;
             }
 
-            Configure.GetEndpointNameAction = () => endpointName;
-            Configure.DefineEndpointVersionRetriever = () => FileVersionRetriever.GetFileVersion(specifier.GetType());
+
+            endpointNameToUse = endpointName;
 
             if (scannableAssembliesFullName == null || !scannableAssembliesFullName.Any())
             {
@@ -59,13 +57,14 @@ namespace NServiceBus.Hosting
             {
                 PerformConfiguration();
 
-                bus = Configure.Instance.CreateBus();
-                if (bus != null && !SettingsHolder.Instance.Get<bool>("Endpoint.SendOnly"))
+                bus = config.CreateBus();
+
+                if (bus != null && !config.Settings.Get<bool>("Endpoint.SendOnly"))
                 {
                     bus.Start();
                 }
 
-                wcfManager.Startup(Configure.Instance);
+                wcfManager.Startup(config);
             }
             catch (Exception ex)
             {
@@ -128,13 +127,17 @@ namespace NServiceBus.Hosting
 
             if (config == null)
             {
-                config = Configure.With(assembliesToScan)
-                    .DefaultBuilder();
+                config = Configure.With(o =>
+                {
+                    o.EndpointName(endpointNameToUse);
+                    o.AssembliesToScan(assembliesToScan);
+                })
+                .DefaultBuilder();
             }
 
             ValidateThatIWantCustomInitIsOnlyUsedOnTheEndpointConfig();
 
-            roleManager.ConfigureBusForEndpoint(specifier);
+            roleManager.ConfigureBusForEndpoint(specifier,config);
         }
 
         void ValidateThatIWantCustomInitIsOnlyUsedOnTheEndpointConfig()
@@ -156,5 +159,6 @@ namespace NServiceBus.Hosting
         readonly IConfigureThisEndpoint specifier;
         readonly WcfManager wcfManager;
         IStartableBus bus;
+        string endpointNameToUse;
     }
 }

@@ -14,7 +14,7 @@ namespace NServiceBus.Core.Tests.Config
         [SetUp]
         public void SetUp()
         {
-            var configure = Configure.With(Assembly.GetExecutingAssembly());
+            var configure = Configure.With(o => o.AssembliesToScan(Assembly.GetExecutingAssembly()));
             loadedTypes = configure.TypesToScan.ToList();
         }
 

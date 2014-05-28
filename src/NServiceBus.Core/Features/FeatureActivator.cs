@@ -1,0 +1,107 @@
+namespace NServiceBus.Features
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Logging;
+    using Settings;
+
+    class FeatureActivator
+    {
+        readonly SettingsHolder settings;
+        readonly Configure config;
+        readonly List<Feature> features = new List<Feature>(); 
+
+        public FeatureActivator(Configure config)
+            : this(config.Settings)
+        {
+            this.config = config;
+        }
+
+        public FeatureActivator(SettingsHolder settings)
+        {
+            this.settings = settings;
+        }
+
+      
+        public void Add(Feature feature)
+        {
+            if (feature.IsEnabledByDefault)
+            {
+                settings.EnableFeatureByDefault(feature.GetType());
+            }
+
+            features.Add(feature);
+        }
+
+       
+        bool IsEnabled(Type featureType)
+        {
+            return settings.GetOrDefault<bool>(featureType.FullName);
+        }
+
+        public void SetupFeatures()
+        {
+            var statusText = new StringBuilder();
+
+            var context = new FeatureConfigurationContext(config);
+        
+
+            var featuresToActivate = features.Where(f => IsEnabled(f.GetType()) && MeetsActivationCondition(f, statusText, context))
+              .ToList();
+
+            foreach (var feature in featuresToActivate)
+            {
+                ActivateFeature(feature, statusText, featuresToActivate, context);
+            }
+
+            Logger.InfoFormat("Features: \n{0}", statusText);
+        }
+
+        bool ActivateFeature(Feature feature, StringBuilder statusText, List<Feature> featuresToActivate, FeatureConfigurationContext context)
+        {
+            if (feature.IsActive)
+            {
+                return true;
+            }
+
+            if (feature.Dependencies.All(dependencyType =>
+            {
+                var dependency = featuresToActivate.SingleOrDefault(f => f.GetType() == dependencyType);
+
+
+                if (dependency == null)
+                {
+                    return false;
+                }
+
+                return ActivateFeature(dependency, statusText, featuresToActivate,context);
+            }))
+            {
+                feature.SetupFeature(context);
+
+
+                statusText.AppendLine(string.Format("{0} - Activated", feature));
+
+                return true;
+            }
+            statusText.AppendLine(string.Format("{0} - Not activated due to dependencies not being available: {1}", feature, string.Join(";", feature.Dependencies.Select(t => t.Name))));
+            return false;
+        }
+
+        bool MeetsActivationCondition(Feature feature, StringBuilder statusText, FeatureConfigurationContext context)
+        {
+            if (!feature.ShouldBeSetup(context))
+            {
+
+                statusText.AppendLine(string.Format("{0} - setup prerequisites(s) not fullfilled", feature));
+                return false;
+            }
+
+            return true;
+        }
+
+        static ILog Logger = LogManager.GetLogger<FeatureActivator>();
+    }
+}

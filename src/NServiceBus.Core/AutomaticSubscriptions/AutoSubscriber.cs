@@ -1,18 +1,20 @@
 ﻿namespace NServiceBus.AutomaticSubscriptions
 {
     using System.Linq;
-    using Features;
     using Logging;
 
-    public class AutoSubscriber:IWantToRunWhenBusStartsAndStops
+    class AutoSubscriber:IWantToRunWhenBusStartsAndStops
     {
         public AutoSubscriptionStrategy AutoSubscriptionStrategy { get; set; }
 
         public IBus Bus { get; set; }
 
+
+        public bool Enabled { get; set; }
+
         public void Start()
         {
-            if (!Feature.IsEnabled<AutoSubscribe>())
+            if (!Enabled)
                 return;
 
 

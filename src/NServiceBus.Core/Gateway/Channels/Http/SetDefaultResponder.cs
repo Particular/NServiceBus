@@ -6,7 +6,8 @@ namespace NServiceBus.Gateway.Channels.Http
         {
             if (!config.Configurer.HasComponent<IHttpResponder>())
             {
-                config.Configurer.ConfigureComponent<DefaultResponder>(DependencyLifecycle.InstancePerCall);
+                config.Configurer.ConfigureComponent<DefaultResponder>(DependencyLifecycle.InstancePerCall)
+                                     .ConfigureProperty(t => t.EndpointName, config.Settings.EndpointName());
             }
         }
     }

@@ -44,13 +44,6 @@ namespace NServiceBus.Hosting.Tests
         [TestFixture]
         public class EndpointName_Getter_Tests : TestContext
         {
-            [SetUp]
-            public void Setup()
-            {
-                // configuration hangs around between tests - have to clear it
-                Configure.With().DefineEndpointName((Func<string>) null);
-            }
-
             HostArguments hostArguments;
 
             [TestFixtureSetUp]
@@ -65,7 +58,7 @@ namespace NServiceBus.Hosting.Tests
             [Test]
             public void when_endpointName_attribute_exists_it_should_have_first_priority()
             {
-                Configure.With().DefineEndpointName("EndpointNameFromConfiguration");
+                Configure.With(o => o.EndpointName("EndpointNameFromConfiguration"));
                 EndpointType = new EndpointType(hostArguments, typeof (TestEndpointTypeWithEndpointNameAttribute));
 
                 Assert.AreEqual("EndpointNameFromAttribute", EndpointType.EndpointName);
@@ -75,7 +68,7 @@ namespace NServiceBus.Hosting.Tests
             [Ignore("this hasn't been implemented yet as far as i can tell")]
             public void when_endpointName_is_provided_via_configuration_it_should_have_second_priority()
             {
-                Configure.With().DefineEndpointName("EndpointNameFromConfiguration");
+                Configure.With(o => o.EndpointName("EndpointNameFromConfiguration"));
                 EndpointType = new EndpointType(hostArguments, typeof (TestEndpointType));
 
                 Assert.AreEqual("EndpointNameFromConfiguration", EndpointType.EndpointName);

@@ -15,7 +15,7 @@ namespace NServiceBus
         /// </summary>
         public static Configure RijndaelEncryptionService(this Configure config)
         {
-            var section = config.GetConfigSection<RijndaelEncryptionServiceConfig>();
+            var section = config.Settings.GetConfigSection<RijndaelEncryptionServiceConfig>();
 
             if (section == null)
                 Logger.Warn("Could not find configuration section for Rijndael Encryption Service.");

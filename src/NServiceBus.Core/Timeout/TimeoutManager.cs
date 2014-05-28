@@ -10,29 +10,26 @@
     /// </summary>
     public class TimeoutManager : Feature
     {
-        public override bool IsEnabledByDefault
+        public TimeoutManager()
         {
-            get
-            {
-                return true;
-            }
+            Prerequisite(ShouldRun);
         }
 
-        public override bool ShouldBeEnabled(Configure config)
+        bool ShouldRun(FeatureConfigurationContext context)
         {
             //has the user already specified a custom deferral method
-            if (config.Configurer.HasComponent<IDeferMessages>())
+            if (context.Container.HasComponent<IDeferMessages>())
             {
                 return false;
             }
 
             //if we have a master node configured we should use the Master Node timeout manager instead
-            if (config.Settings.GetOrDefault<bool>("Distributor.Enabled"))
+            if (context.Settings.GetOrDefault<bool>("Distributor.Enabled"))
             {
                 return false;
             }
 
-            var unicastConfig = config.GetConfigSection<UnicastBusConfig>();
+            var unicastConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
 
             //if the user has specified another TM we don't need to run our own
             if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress))
@@ -43,13 +40,22 @@
             return true;
         }
 
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            DispatcherAddress = Address.Parse(config.EndpointName).SubScope("TimeoutsDispatcher");
-            InputAddress = Address.Parse(config.EndpointName).SubScope("Timeouts");
+            var endpointName = context.Settings.Get<string>("EndpointName");
 
-            config.Configurer.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
+            DispatcherAddress = Address.Parse(endpointName).SubScope("TimeoutsDispatcher");
+            InputAddress = Address.Parse(endpointName).SubScope("Timeouts");
+
+
+            context.Container.ConfigureComponent<TimeoutMessageProcessor>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(t=>t.Disabled,false)
+                .ConfigureProperty(t=>t.EndpointName,context.Settings.EndpointName());
+            context.Container.ConfigureComponent<TimeoutDispatcherProcessor>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(t => t.Disabled, false);
+
+            context.Container.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
         }
 
         public static Address InputAddress { get; private set; }

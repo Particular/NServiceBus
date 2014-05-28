@@ -10,14 +10,16 @@
         /// <summary>
         /// Enables the xml message serializer with the given settings
         /// </summary>
-        public static SerializationSettings Xml(this SerializationSettings settings, Action<XmlSerializationSettings> customSettings = null)
+        public static Configure Xml(this SerializationSettings settings, Action<XmlSerializationSettings> customSettings = null)
         {
-            Feature.Enable<XmlSerialization>();
+            settings.Config.Features(f=>f.Enable<XmlSerialization>());
+
+            settings.Config.Settings.Set("SelectedSerializer", typeof(XmlSerialization));
 
             if (customSettings != null)
                 customSettings(new XmlSerializationSettings());
 
-            return settings;
+            return settings.Config;
         }
     }
 }

@@ -2,7 +2,6 @@ namespace NServiceBus.Hosting.Tests
 {
     using NUnit.Framework;
     using Roles;
-    using Unicast.Config;
 
     [TestFixture]
     public class RoleManagerTests
@@ -18,7 +17,7 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void Should_configure_inherited_roles()
         {
-            roleManager.ConfigureBusForEndpoint(new ConfigurationWithInheritedRole());
+            roleManager.ConfigureBusForEndpoint(new ConfigurationWithInheritedRole(),null);
 
             Assert.True(TestRoleConfigurer.ConfigureCalled);
         }
@@ -26,7 +25,7 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void Should_configure_requested_role()
         {
-            roleManager.ConfigureBusForEndpoint(new ConfigurationWithTestRole());
+            roleManager.ConfigureBusForEndpoint(new ConfigurationWithTestRole(), null);
 
             Assert.True(TestRoleConfigurer.ConfigureCalled);
         }
@@ -52,11 +51,9 @@ namespace NServiceBus.Hosting.Tests
     {
         public static bool ConfigureCalled;
 
-        public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
+        public void ConfigureRole(IConfigureThisEndpoint specifier,Configure config)
         {
             ConfigureCalled = true;
-
-            return null;
         }
     }
 }

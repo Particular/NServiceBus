@@ -7,7 +7,7 @@ namespace NServiceBus
     /// </summary>
     public static class ConfigureSettingLocalAddressNameAction
     {
-        internal static Func<string> defineLocalAddressNameFunc = Configure.GetEndpointNameAction;
+        internal static Func<string> defineLocalAddressNameFunc = () => Configure.Instance.Settings.EndpointName();
 
         /// <summary>
         /// Set a function that overrides the default naming of NServiceBus local addresses.

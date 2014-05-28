@@ -1,7 +1,5 @@
 namespace NServiceBus.Unicast.Queuing.Installers
 {
-    using Features;
-
     class AuditQueueCreator : IWantQueueCreated
     {
         public Address AuditQueue { get; set; }
@@ -14,9 +12,11 @@ namespace NServiceBus.Unicast.Queuing.Installers
             get { return AuditQueue; }
         }
 
+        public bool Enabled { get; set; }
+
         public bool ShouldCreateQueue(Configure config)
         {
-            return config.Features.IsEnabled<Audit>();
+            return Enabled;
         }
     }
 }

@@ -11,7 +11,7 @@
         public void Integration()
         {
             var installer = new PerformanceMonitorUsersInstaller();
-            installer.Install(@"location\username");
+            installer.Install(@"location\username", null);
         }
     }
 }

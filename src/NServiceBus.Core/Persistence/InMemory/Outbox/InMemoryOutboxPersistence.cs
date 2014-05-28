@@ -9,9 +9,9 @@
             DependsOn<Outbox>();
         }
 
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            config.Configurer.ConfigureComponent<InMemoryOutboxStorage>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<InMemoryOutboxStorage>(DependencyLifecycle.SingleInstance);
         }
     }
 }

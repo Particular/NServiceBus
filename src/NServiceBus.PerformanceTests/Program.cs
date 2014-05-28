@@ -51,11 +51,11 @@
             if (suppressDTC)
                 endpointName += ".SuppressDTC";
 
-            var config = Configure.With()
-                .DefineEndpointName(endpointName)
+            var config = Configure.With(o => o.EndpointName(endpointName))
                 .DefaultBuilder()
                 .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
-                .UsePersistence<InMemory>();
+                .UsePersistence<InMemory>()
+                .Features(f=>f.Disable<Audit>());
 
             switch (args[2].ToLower())
             {
@@ -78,8 +78,6 @@
                 default:
                     throw new InvalidOperationException("Illegal serialization format " + args[2]);
             }
-
-            config.Features.Disable<Audit>();
 
             if (volatileMode)
             {
@@ -106,7 +104,7 @@
                     throw new InvalidOperationException("Illegal transport " + args[2]);
             }
 
-            using (var startableBus = config.InMemoryFaultManagement().UnicastBus().CreateBus())
+            using (var startableBus = config.InMemoryFaultManagement().CreateBus())
             {
                 Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
 

@@ -7,11 +7,11 @@ namespace NServiceBus.Settings
     using System.Linq.Expressions;
     using ObjectBuilder;
     using Utils.Reflection;
-
+    
     /// <summary>
     /// Setting container.
     /// </summary>
-    public class SettingsHolder
+    public class SettingsHolder : ReadOnlySettings
     {
         public static SettingsHolder Instance
         {
@@ -35,7 +35,7 @@ namespace NServiceBus.Settings
         /// <returns>The setting value.</returns>
         public T Get<T>(string key)
         {
-            return (T) Get(key);
+            return (T)Get(key);
         }
 
         /// <summary>
@@ -54,12 +54,12 @@ namespace NServiceBus.Settings
         public object Get(string key)
         {
             object result;
-            if (Instance.Overrides.TryGetValue(key, out result))
+            if (Overrides.TryGetValue(key, out result))
             {
                 return result;
             }
 
-            if (Instance.Defaults.TryGetValue(key, out result))
+            if (Defaults.TryGetValue(key, out result))
             {
                 return result;
             }
@@ -76,7 +76,7 @@ namespace NServiceBus.Settings
         {
             EnsureWriteEnabled(key);
 
-            Instance.Overrides[key] = value;
+            Overrides[key] = value;
         }
         /// <summary>
         /// Sets the value
@@ -131,26 +131,26 @@ namespace NServiceBus.Settings
         {
             EnsureWriteEnabled(key);
 
-            Instance.Defaults[key] = value;
+            Defaults[key] = value;
         }
 
         public void Reset()
         {
             locked = false;
 
-            Instance.Overrides.Clear();
-            Instance.Defaults.Clear();
+            Overrides.Clear();
+            Defaults.Clear();
         }
 
         public T GetOrDefault<T>(string key)
         {
             object result;
-            if (Instance.Overrides.TryGetValue(key, out result))
+            if (Overrides.TryGetValue(key, out result))
             {
                 return (T)result;
             }
 
-            if (Instance.Defaults.TryGetValue(key, out result))
+            if (Defaults.TryGetValue(key, out result))
             {
                 return (T)result;
             }
@@ -161,12 +161,12 @@ namespace NServiceBus.Settings
         public bool HasSetting(string key)
         {
 
-            if (Instance.Overrides.ContainsKey(key))
+            if (Overrides.ContainsKey(key))
             {
                 return true;
             }
 
-            if (Instance.Defaults.ContainsKey(key))
+            if (Defaults.ContainsKey(key))
             {
                 return true;
             }
@@ -201,12 +201,12 @@ namespace NServiceBus.Settings
 
         public void ApplyTo<T>(IComponentConfig config)
         {
-            var targetType = typeof (T);
+            var targetType = typeof(T);
 
             foreach (var property in targetType.GetProperties())
             {
-                var settingsKey = targetType.FullName + "." + property.Name; 
-                
+                var settingsKey = targetType.FullName + "." + property.Name;
+
                 if (HasSetting(settingsKey))
                 {
                     config.ConfigureProperty(property.Name, Get(settingsKey));

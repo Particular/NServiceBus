@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Settings;
     using Utils;
 
     /// <summary>
@@ -13,27 +12,19 @@
     {
 
         /// <summary>
-        /// Called when the feature should perform its initialization. This call will only happen if the feature is enabled.
+        /// Called when the features is activated
         /// </summary>
-        public virtual void Initialize(Configure config)
-        {
-        }
+        protected abstract void Setup(FeatureConfigurationContext context);
 
         /// <summary>
-        /// Returns true if the feature should be enable. This method wont be called if the feature is explicitly disabled
+        /// Adds a setup prerequisite condition. If false this feature won't be setup
+        /// Prerequisites are only evaluated if the feature is enabled
         /// </summary>
-        /// <param name="config"></param>
-        public virtual bool ShouldBeEnabled(Configure config)
+        /// <param name="condition">Condition that must be met in order for this feature to be activated</param>
+        /// <returns></returns>
+        protected void Prerequisite(Func<FeatureConfigurationContext, bool> condition)
         {
-            return true;
-        }
-
-        /// <summary>
-        /// Return <c>true</c> if this is a default <see cref="Feature"/> that needs to be turned on automatically.
-        /// </summary>
-        public virtual bool IsEnabledByDefault
-        {
-            get { return false; }
+            setupPrerequisites.Add(condition);
         }
 
         /// <summary>
@@ -45,87 +36,17 @@
         }
 
         /// <summary>
-        /// True if this specific feature is enabled
+        /// Marks this feature as enabled by default. 
         /// </summary>
-        public bool Enabled
+        protected void EnableByDefault()
         {
-            get { return IsEnabled(GetType()); }
-            
+            isEnabledByDefault = true;
         }
 
+     
         /// <summary>
-        /// Enables the given feature
+        /// The version for this feature
         /// </summary>
-        public static void Enable<T>() where T : Feature
-        {
-            Enable(typeof (T));
-        }
-
-        /// <summary>
-        /// Enables the given feature
-        /// </summary>
-        public static void Enable(Type featureType)
-        {
-            SettingsHolder.Instance.Set(featureType.FullName, true);
-        }
-
-        /// <summary>
-        /// Enables the given feature unless explicitly disabled
-        /// </summary>
-        public static void EnableByDefault<T>() where T : Feature
-        {
-            EnableByDefault(typeof (T));
-        }
-
-        /// <summary>
-        /// Enables the given feature unless explicitly disabled
-        /// </summary>
-        public static void EnableByDefault(Type featureType)
-        {
-            SettingsHolder.Instance.SetDefault(featureType.FullName, true);
-        }
-
-        /// <summary>
-        /// Turns the given feature off
-        /// </summary>
-        public static void Disable<T>() where T : Feature
-        {
-            Disable(typeof (T));
-        }
-
-        /// <summary>
-        /// Turns the given feature off
-        /// </summary>
-        public static void Disable(Type featureType)
-        {
-            SettingsHolder.Instance.Set(featureType.FullName, false);
-        }
-
-      
-        /// <summary>
-        /// Returns true if the given feature is enabled
-        /// </summary>
-        public static bool IsEnabled<T>() where T : Feature
-        {
-            return IsEnabled(typeof (T));
-        }
-
-
-        /// <summary>
-        /// Returns true if the given feature is enabled
-        /// </summary>
-        public static bool IsEnabled(Type feature)
-        {
-            return SettingsHolder.Instance.GetOrDefault<bool>(feature.FullName);
-        }
-
-        /// <summary>
-        /// Returns the category for this feature if any
-        /// </summary>
-        public virtual FeatureCategory Category 
-        {
-            get { return FeatureCategory.None; }
-        }
         public string Version
         {
             get
@@ -134,25 +55,47 @@
             }
         }
 
+        /// <summary>
+        /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless the dependant feature is actived.
+        /// This also causes this feature to be activated after the other feature
+        /// </summary>
+        /// <typeparam name="T">Feature that this feature depends on</typeparam>
         protected void DependsOn<T>() where T:Feature
         {
             dependencies.Add(typeof(T));
         }
 
-        public IEnumerable<Type> Dependencies
+        /// <summary>
+        /// The list of features that this feature is depending on
+        /// </summary>
+        internal IEnumerable<Type> Dependencies
         {
             get { return dependencies.ToList(); }
-        } 
+        }
+
+        /// <summary>
+        /// Tells if this feature is enabled by default
+        /// </summary>
+        public bool IsEnabledByDefault
+        {
+            get { return isEnabledByDefault; }
+        }
+
+
+        /// <summary>
+        /// Indicates that the feature is active
+        /// </summary>
+        public bool IsActive { get { return isActive; } }
+        
 
         public override string ToString()
         {
-            
             return string.Format("{0} [{1}]",Name, Version);
         }
 
-        protected bool Equals(Feature other)
+        bool Equals(Feature other)
         {
-            return string.Equals(name, other.name);
+            return other != null && string.Equals(name, other.name);
         }
 
         public override bool Equals(object obj)
@@ -193,97 +136,32 @@
             return !(feature1 == feature2);
         }
 
+      
+        internal bool ShouldBeSetup(FeatureConfigurationContext config)
+        {
+            return setupPrerequisites.All(condition => condition(config));
+        }
+
+
+        internal void SetupFeature(FeatureConfigurationContext config)
+        {
+            Setup(config);
+
+            isActive = true;
+        }
+
         protected Feature()
         {
             name = GetType().Name.Replace("Feature", String.Empty);
         }
 
-        List<Type> dependencies = new List<Type>(); 
-        string name;
-    }
+        List<Type> dependencies = new List<Type>();
 
-    public abstract class Feature<T>:Feature where T: FeatureCategory
-    {
-        public override FeatureCategory Category
-        {
-            get { return Activator.CreateInstance<T>(); }
-        }
-    }
-
-    public abstract class FeatureCategory
-    {
-        public FeatureCategory()
-        {
-            name = GetType().Name.Replace(typeof(FeatureCategory).Name, String.Empty);
-        }
-
-        public static FeatureCategory None
-        {
-            get { return new NoneFeatureCategory(); }
-            
-        }
-
-        /// <summary>
-        /// Returns the list of features in the category that should be used
-        /// </summary>
-        /// <param name="config"></param>
-        public virtual IEnumerable<Feature> GetFeaturesToInitialize(Configure config)
-        {
-            return new List<Feature>();
-        }
-
-        /// <summary>
-        /// Feature name.
-        /// </summary>
-        public string Name
-        {
-            get { return name; }
-        }
-
-        protected bool Equals(FeatureCategory other)
-        {
-            return string.Equals(name, other.name);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            }
-            return Equals((FeatureCategory)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return (name != null ? name.GetHashCode() : 0);
-        }
-
-        public static bool operator ==(FeatureCategory cat1, FeatureCategory cat2)
-        {
-            if (ReferenceEquals(cat1, null))
-            {
-                return ReferenceEquals(cat2, null);
-            }
-
-            return cat1.Equals(cat2);
-        }
-
-        public static bool operator !=(FeatureCategory cat1, FeatureCategory cat2)
-        {
-            return !(cat1 == cat2);
-        }
+        List<Func<FeatureConfigurationContext, bool>> setupPrerequisites = new List<Func<FeatureConfigurationContext, bool>>(); 
 
         string name;
+        bool isEnabledByDefault;
 
-        public class NoneFeatureCategory :FeatureCategory{}
+        bool isActive;
     }
 }

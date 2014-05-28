@@ -38,14 +38,14 @@
                         {
                             bus.Subscribe<MyEvent>();
 
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (context.HasSupportForCentralizedPubSub)
                                 context.NumberOfSubscriptionsReceived++;
                         }))
                       .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
                       {
                           bus.Subscribe<MyEvent>();
 
-                          if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                          if (context.HasSupportForCentralizedPubSub)
                               context.NumberOfSubscriptionsReceived++;
                       }))
                     .Done(c => c.SubscribersOfTheEvent != null)
@@ -79,7 +79,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.Features(f => f.Disable<AutoSubscribe>()))
                     .AddMapping<MyEvent>(typeof (Publisher))
                     .CustomMachineName(Server1)
                     .CustomEndpointName("MyEndpoint");
@@ -99,7 +99,7 @@
         {
             public Subscriber2()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.Features(f => f.Disable<AutoSubscribe>()))
                         .AddMapping<MyEvent>(typeof(Publisher))
                         .CustomMachineName(Server2)
                         .CustomEndpointName("MyEndpoint");

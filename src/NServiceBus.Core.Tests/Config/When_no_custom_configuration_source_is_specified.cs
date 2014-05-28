@@ -9,9 +9,9 @@ namespace NServiceBus.Core.Tests.Config
         [Test]
         public void The_default_configuration_source_should_be_default()
         {
-            var config = Configure.With(new Type[] { });
+            var config = Configure.With(o=>o.TypesToScan(new Type[] { }));
 
-            var configSection = config.GetConfigSection<TestConfigurationSection>();
+            var configSection = config.Settings.GetConfigSection<TestConfigurationSection>();
 
             Assert.AreEqual(configSection.TestSetting,"test");
         }

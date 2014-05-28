@@ -3,7 +3,6 @@ namespace NServiceBus.Satellites
     using System.Linq;
     using Installation;
     using Installation.Environments;
-    using Settings;
     using Transports;
 
     /// <summary>
@@ -12,14 +11,15 @@ namespace NServiceBus.Satellites
     public class SatellitesQueuesCreator : INeedToInstallSomething<Windows>
     {
         public ICreateQueues QueueCreator { get; set; }
-        
+
         /// <summary>
         /// Performs the installation providing permission for the given user.
         /// </summary>
         /// <param name="identity">The user for whom permissions will be given.</param>
-        public void Install(string identity)
+        /// <param name="config"></param>
+        public void Install(string identity, Configure config)
         {
-            if (SettingsHolder.Instance.Get<bool>("Endpoint.SendOnly"))
+            if (config.Settings.Get<bool>("Endpoint.SendOnly"))
             {
                 return;
             }
@@ -29,7 +29,7 @@ namespace NServiceBus.Satellites
                 return;
             }
 
-            var satellites = Configure.Instance.Builder
+            var satellites = config.Builder
                  .BuildAll<ISatellite>()
                  .ToList();
 

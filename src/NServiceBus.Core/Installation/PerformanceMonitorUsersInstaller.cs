@@ -13,7 +13,7 @@ namespace NServiceBus.Installation
     {
         static ILog logger = LogManager.GetLogger<PerformanceMonitorUsersInstaller>();
 
-        public void Install(string identity)
+        public void Install(string identity, Configure config)
         {
             //did not use DirectoryEntry to avoid a ref to the DirectoryServices.dll
             try

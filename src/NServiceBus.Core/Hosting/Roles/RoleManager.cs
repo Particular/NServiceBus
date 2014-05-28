@@ -6,7 +6,6 @@
     using System.Reflection;
     using Helpers;
     using Logging;
-    using Unicast.Config;
     using Utils.Reflection;
 
     /// <summary>
@@ -31,10 +30,8 @@
         /// <summary>
         /// Checks if the specifier contains a given role and uses it to configure the UnicastBus appropriately.
         /// </summary>
-        public void ConfigureBusForEndpoint(IConfigureThisEndpoint specifier)
+        public void ConfigureBusForEndpoint(IConfigureThisEndpoint specifier,Configure config)
         {
-            ConfigUnicastBus unicastBusConfig = null;
-
             var roleFound = false;
             foreach (var role in availableRoles)
             {
@@ -64,15 +61,8 @@
                 //apply role
                 var roleConfigurer = (IConfigureRole)Activator.CreateInstance(role.Value);
 
-                var config = roleConfigurer.ConfigureRole(specifier);
+                roleConfigurer.ConfigureRole(specifier,config);
 
-                if (config != null)
-                {
-                    if (unicastBusConfig != null)
-                        throw new InvalidOperationException("Only one role can configure the UnicastBus");
-
-                    unicastBusConfig = config;
-                }
 
                 Logger.Info("Role " + roleType + " configured");
                 foreach (var markerProfile in GetMarkerRoles(specifier.GetType(), roleType))

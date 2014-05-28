@@ -1,16 +1,21 @@
 namespace NServiceBus
 {
     using System;
-    using Features;
     using SecondLevelRetries.Config;
 
     public static class FeatureSettingsExtensions
     {
-        public static FeatureSettings SecondLevelRetries(this FeatureSettings settings, Action<SecondLevelRetriesSettings> customSettings)
+        /// <summary>
+        /// Allows for customization of the second level retries
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="customSettings"></param>
+        /// <returns></returns>
+        public static Configure SecondLevelRetries(this Configure config, Action<SecondLevelRetriesSettings> customSettings)
         {
-            customSettings(new SecondLevelRetriesSettings());
+            customSettings(new SecondLevelRetriesSettings(config));
 
-            return settings;
+            return config;
         }
     }
 }

@@ -61,5 +61,8 @@
 
         public bool EndpointsStarted { get; set; }
         public string Exceptions { get; set; }
+
+        public bool HasSupportForCentralizedPubSub { get; set; }
+
     }
 }

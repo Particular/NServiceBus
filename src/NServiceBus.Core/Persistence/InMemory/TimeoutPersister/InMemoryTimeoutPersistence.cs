@@ -9,9 +9,9 @@
             DependsOn<TimeoutManager>();
         }
 
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            config.Configurer.ConfigureComponent<InMemoryTimeoutPersister>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<InMemoryTimeoutPersister>(DependencyLifecycle.SingleInstance);
         }
     }
 }

@@ -7,15 +7,21 @@ namespace NServiceBus.Features
 
     public class SecondLevelRetries : Feature
     {
-        public override bool ShouldBeEnabled(Configure config)
+        public SecondLevelRetries()
+        {
+            EnableByDefault();
+            Prerequisite(ShouldRun);
+        }
+
+        bool ShouldRun(FeatureConfigurationContext context)
         {
             // if we're not using the Fault Forwarder, we should act as if SLR is disabled
             //this will change when we make SLR a first class citizen
-            if (!config.Configurer.HasComponent<FaultManager>())
+            if (!context.Container.HasComponent<FaultManager>())
             {
                 return false;
             }
-            var retriesConfig = config.GetConfigSection<SecondLevelRetriesConfig>();
+            var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
 
             if (retriesConfig == null)
                 return true;
@@ -26,36 +32,27 @@ namespace NServiceBus.Features
             return retriesConfig.Enabled;
         }
 
-        public override bool IsEnabledByDefault
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            get
-            {
-                return true;
-            }
-        }
-
-        public override void Initialize(Configure config)
-        {
-            var retriesConfig = config.GetConfigSection<SecondLevelRetriesConfig>();
+            var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
 
             SetUpRetryPolicy(retriesConfig);
 
-            var processorAddress = Address.Parse(config.EndpointName).SubScope("Retries");
+            var endpointName = context.Settings.Get<string>("EndpointName");
 
-            var useRemoteRetryProcessor = config.Settings.HasSetting("SecondLevelRetries.AddressOfRetryProcessor");
+
+            var processorAddress = Address.Parse(endpointName).SubScope("Retries");
+
+            var useRemoteRetryProcessor = context.Settings.HasSetting("SecondLevelRetries.AddressOfRetryProcessor");
             if (useRemoteRetryProcessor)
             {
-                processorAddress = config.Settings.Get<Address>("SecondLevelRetries.AddressOfRetryProcessor");
+                processorAddress = context.Settings.Get<Address>("SecondLevelRetries.AddressOfRetryProcessor");
             }
 
-            config.Configurer.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, processorAddress);
-            config.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.InputAddress, processorAddress);
-            config.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.RetryPolicy, config.Settings.Get<Func<TransportMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy"));
-
-            if (useRemoteRetryProcessor)
-            {
-                config.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, true);
-            } 
+            context.Container.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, processorAddress);
+            context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.InputAddress, processorAddress);
+            context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.RetryPolicy, context.Settings.GetOrDefault<Func<TransportMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy") ?? DefaultRetryPolicy.RetryPolicy);
+            context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, useRemoteRetryProcessor); 
         }
 
         static void SetUpRetryPolicy(SecondLevelRetriesConfig retriesConfig)

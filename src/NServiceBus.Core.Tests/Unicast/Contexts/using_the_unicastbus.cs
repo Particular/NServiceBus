@@ -68,6 +68,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             HandlerInvocationCache.Clear();
 
             SettingsHolder.Instance.Reset();
+            SettingsHolder.Instance.SetDefault("EndpointName", "TestEndpoint");
             SettingsHolder.Instance.SetDefault("Endpoint.SendOnly", false);
             SettingsHolder.Instance.SetDefault("MasterNode.Address", MasterNodeAddress);
 			SettingsHolder.Instance.SetDefault("Pipeline.Removals", new List<RemoveBehavior>());
@@ -76,7 +77,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
-            Configure.GetEndpointNameAction = () => "TestEndpoint";
             router = new StaticMessageRouter(KnownMessageTypes());
             handlerRegistry = new MessageHandlerRegistry();
             MessageMetadataRegistry = new MessageMetadataRegistry

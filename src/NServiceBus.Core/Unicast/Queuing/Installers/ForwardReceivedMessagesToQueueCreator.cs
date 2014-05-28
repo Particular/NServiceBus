@@ -8,8 +8,7 @@ namespace NServiceBus.Unicast.Queuing.Installers
 
         public bool ShouldCreateQueue(Configure config)
         {
-
-            var unicastConfig = config.GetConfigSection<UnicastBusConfig>();
+            var unicastConfig = config.Settings.GetConfigSection<UnicastBusConfig>();
 
             if ((unicastConfig != null) && (!string.IsNullOrEmpty(unicastConfig.ForwardReceivedMessagesTo)))
             {

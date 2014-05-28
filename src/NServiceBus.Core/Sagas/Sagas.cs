@@ -10,22 +10,15 @@
 
     public class Sagas : Feature
     {
-        public override bool IsEnabledByDefault
+        public Sagas()
         {
-            get
-            {
-                return true;
-            }
+            EnableByDefault();
+            Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType));
         }
 
-        public override bool ShouldBeEnabled(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            return config.TypesToScan.Any(IsSagaType);
-        }
-
-        public override void Initialize(Configure config)
-        {
-            foreach (var t in config.TypesToScan)
+            foreach (var t in context.Settings.GetAvailableTypes())
             {
                 if (IsSagaType(t))
                 {
@@ -49,10 +42,9 @@
             }
 
             CreateAdditionalFindersAsNecessary();
-
         }
 
-       
+
         internal static void ConfigureHowToFindSagaWithMessage(Type sagaType, PropertyInfo sagaProp, Type messageType, PropertyInfo messageProp)
         {
             IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>> messageToProperties;
@@ -115,7 +107,7 @@
 
             return messageTypes.Any(msgTypeHandleBySaga => msgTypeHandleBySaga.IsAssignableFrom(messageType));
         }
-        
+
         /// <summary>
         /// Returns the saga type configured for the given entity type.
         /// </summary>
@@ -253,7 +245,7 @@
             if (p != null)
                 p.SetValue(saga, SagaMessageFindingConfiguration, null);
 
-            ((IConfigurable) saga).Configure();
+            ((IConfigurable)saga).Configure();
         }
 
 

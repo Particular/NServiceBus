@@ -62,7 +62,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.UnicastBus().LoadMessageHandlers<First<TestSaga>>());
+                EndpointSetup<DefaultServer>(c => c.LoadMessageHandlers<First<TestSaga>>());
             }
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleMessages<CompleteSagaMessage>, IHandleMessages<AnotherMessage>

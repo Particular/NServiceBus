@@ -19,7 +19,7 @@
                 t.DoNotWrapHandlersExecutionInATransactionScope();
             });
 
-            config.Features.Enable<Features.Outbox>();
+            config.Features(f=>f.Enable<Features.Outbox>());
 
             return config;
         }

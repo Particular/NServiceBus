@@ -8,7 +8,6 @@
     using Config.ConfigurationSource;
     using DataBus.InMemory;
     using Features;
-    using Features.Categories;
     using MessageInterfaces;
     using Persistence;
     using Saga;
@@ -31,7 +30,11 @@
         /// </summary>
         public static void Initialize()
         {
-            InitializeInternal(Configure.With());
+            InitializeInternal(Configure.With(o =>
+            {
+                o.EndpointName("UnitTests");
+                o.CustomConfigurationSource(testConfigurationSource);
+            }));
         }
 
         /// <summary>
@@ -52,7 +55,12 @@
         /// </summary>
         public static void Initialize(params Assembly[] assemblies)
         {
-            InitializeInternal(Configure.With(assemblies));
+            InitializeInternal(Configure.With(o =>
+            {
+                o.EndpointName("UnitTests");
+                o.AssembliesToScan(assemblies);
+                o.CustomConfigurationSource(testConfigurationSource);
+            }));
         }
 
         /// <summary>
@@ -60,7 +68,12 @@
         /// </summary>
         public static void Initialize(params Type[] types)
         {
-            InitializeInternal(Configure.With(types));
+            InitializeInternal(Configure.With(c =>
+            {
+                c.EndpointName("UnitTests");
+                c.TypesToScan(types);
+                c.CustomConfigurationSource(testConfigurationSource);
+            }));
         }
 
         static void InitializeInternal(Configure config)
@@ -70,26 +83,22 @@
                 return;
             }
 
-            Serializers.SetDefault<XmlSerialization>();
-
-
-            config.Features.Disable<Sagas>();
-            config.Features.Disable<Audit>();
-
-            config.DefineEndpointName("UnitTests")
-                .CustomConfigurationSource(testConfigurationSource)
-                .DefaultBuilder()
+            config.Features(f =>
+            {
+                f.Disable<Sagas>();
+                f.Disable<Audit>();
+            })
+            .DefaultBuilder()
                 .UsePersistence<InMemory>()
-                .InMemoryFaultManagement()
-                .UnicastBus();
+                .InMemoryFaultManagement();
 
 
-            Configure.Component<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
 
             config.Initialize();
 
 
-            var mapper = Configure.Instance.Builder.Build<IMessageMapper>();
+            var mapper = config.Builder.Build<IMessageMapper>();
             if (mapper == null)
             {
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
@@ -138,7 +147,7 @@
         /// </summary>
         public static Saga<T> Saga<T>(Guid sagaId) where T : Saga, new()
         {
-            var saga = (T) Activator.CreateInstance(typeof(T));
+            var saga = (T)Activator.CreateInstance(typeof(T));
 
             var prop = typeof(T).GetProperty("Data");
             var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
@@ -172,7 +181,7 @@
         /// </summary>
         public static Handler<T> Handler<T>() where T : new()
         {
-            var handler = (T) Activator.CreateInstance(typeof(T));
+            var handler = (T)Activator.CreateInstance(typeof(T));
 
             return Handler(handler);
         }
@@ -210,11 +219,11 @@
             var handler = handlerCreationCallback.Invoke(bus);
 
             var isHandler = (from i in handler.GetType().GetInterfaces()
-                let args = i.GetGenericArguments()
-                where args.Length == 1
-                where MessageConventionExtensions.IsMessageType(args[0])
-                where typeof(IHandleMessages<>).MakeGenericType(args[0]).IsAssignableFrom(i)
-                select i).Any();
+                             let args = i.GetGenericArguments()
+                             where args.Length == 1
+                             where MessageConventionExtensions.IsMessageType(args[0])
+                             where typeof(IHandleMessages<>).MakeGenericType(args[0]).IsAssignableFrom(i)
+                             select i).Any();
 
             if (!isHandler)
             {
@@ -243,7 +252,8 @@
             return messageCreator.CreateInstance(action);
         }
 
-        [ThreadStatic] static StubBus bus;
+        [ThreadStatic]
+        static StubBus bus;
 
         static IMessageCreator messageCreator;
         static readonly TestConfigurationSource testConfigurationSource = new TestConfigurationSource();

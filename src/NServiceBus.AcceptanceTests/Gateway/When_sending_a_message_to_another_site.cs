@@ -32,7 +32,7 @@
         {
             public Headquarters()
             {
-                EndpointSetup<DefaultServer>(c => c.Features.Enable<Gateway>())
+                EndpointSetup<DefaultServer>(c => c.Features(f=>f.Enable<Gateway>()))
                     .AllowExceptions()
                     .WithConfig<GatewayConfig>(c =>
                         {
@@ -74,7 +74,7 @@
         {
             public SiteA()
             {
-                EndpointSetup<DefaultServer>(c => c.Features.Enable<Gateway>())
+                EndpointSetup<DefaultServer>(c => c.Features(f => f.Enable<Features.Gateway>()))
                     .AllowExceptions()
                         .WithConfig<GatewayConfig>(c =>
                         {

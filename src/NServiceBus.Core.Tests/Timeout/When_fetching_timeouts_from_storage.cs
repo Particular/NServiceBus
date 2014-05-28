@@ -26,7 +26,6 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             Address.InitializeLocalAddress("MyEndpoint");
 
-            Configure.GetEndpointNameAction = () => "MyEndpoint";
 
             persister = CreateTimeoutPersister();
         }
@@ -67,7 +66,7 @@ namespace NServiceBus.Core.Tests.Timeout
                 var d = new TimeoutData
                 {
                     Time = DateTime.UtcNow.AddHours(-1),
-                    OwningTimeoutManager = Configure.Instance.EndpointName
+                    OwningTimeoutManager = "MyEndpoint"
                 };
 
                 persister.Add(d);

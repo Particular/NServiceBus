@@ -24,16 +24,22 @@
 
             SettingsHolder.Instance.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
 
-            var config = Configure.With(types)
-                .DefineEndpointName(endpointConfiguration.EndpointName)
-                .CustomConfigurationSource(configSource)
+            var config = Configure.With(o =>
+                                         {
+                                             o.EndpointName(endpointConfiguration.EndpointName);
+                                             o.TypesToScan(types);
+                                             o.CustomConfigurationSource(configSource);
+                                         })
                 .DefineBuilder(settings.GetOrNull("Builder"))
                 .DefineSerializer(settings.GetOrNull("Serializer"))
                 .DefineTransport(settings)
                 .DefinePersistence(settings);
+            
+            config.Settings.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             config.Pipeline.Register<SubscriptionBehavior.Registration>();
             config.Configurer.ConfigureComponent<SubscriptionBehavior>(DependencyLifecycle.InstancePerCall);
-            return config.UnicastBus();
+           
+            return config;
         }
 
         static IEnumerable<Type> GetTypesToUse(EndpointConfiguration endpointConfiguration)

@@ -46,68 +46,7 @@ namespace NServiceBus.Unicast.Tests
         }
     }
 
-    [TestFixture]
-    public class The_more_specific_mappings
-    {
-        [Test, Explicit("For some reason the build server is having issues with this.")]
-        public void Should_take_precedence()
-        {
-            Configure.With(new Type[] {})
-                .DefineEndpointName("Foo")
-                .CustomConfigurationSource(new CustomUnicastBusConfig())
-                .DefaultBuilder()
-                .UnicastBus()
-                .CreateBus();
-
-            var messageOwners = Configure.Instance.Builder.Build<StaticMessageRouter>();
-
-            Assert.AreEqual("Type", messageOwners.GetDestinationFor(typeof(MessageA)).Single().Queue);
-            Assert.AreEqual("Namespace", messageOwners.GetDestinationFor(typeof(MessageB)).Single().Queue);
-            Assert.AreEqual("Assembly", messageOwners.GetDestinationFor(typeof(MessageD)).Single().Queue);
-            Assert.AreEqual("MessagesWithType", messageOwners.GetDestinationFor(typeof(MessageE)).Single().Queue);
-            Assert.AreEqual("Namespace", messageOwners.GetDestinationFor(typeof(MessageF)).Single().Queue);
-        }
-
-        class CustomUnicastBusConfig : IConfigurationSource
-        {
-            public T GetConfiguration<T>() where T : class, new()
-            {
-                var mappingByType = new MessageEndpointMapping { Endpoint = "Type", TypeFullName = "NServiceBus.Unicast.Tests.Messages.MessageA", AssemblyName = "NServiceBus.Core.Tests" };
-                var mappingByNamespace = new MessageEndpointMapping { Endpoint = "Namespace", Namespace = "NServiceBus.Unicast.Tests.Messages", AssemblyName = "NServiceBus.Core.Tests" };
-                var mappingByAssembly = new MessageEndpointMapping { Endpoint = "Assembly", AssemblyName = "NServiceBus.Core.Tests" };
-                var mappingByMessagesWithType = new MessageEndpointMapping { Endpoint = "MessagesWithType", Messages = "NServiceBus.Unicast.Tests.Messages.MessageE, NServiceBus.Core.Tests" };
-                var mappings = new MessageEndpointMappingCollection { mappingByNamespace, mappingByType, mappingByAssembly, mappingByMessagesWithType };
-
-
-                var type = typeof(T);
-
-                if (type == typeof(MessageForwardingInCaseOfFaultConfig))
-                    return new MessageForwardingInCaseOfFaultConfig
-                    {
-                        ErrorQueue = "error"
-                    } as T;
-
-                if (type == typeof(UnicastBusConfig))
-                {
-
-                    return new UnicastBusConfig
-                    {
-                        MessageEndpointMappings = mappings,
-                    } as T;
-
-                }
-
-                if (type == typeof(Logging))
-                    return new Logging
-                    {
-                        Threshold = "WARN"
-                    } as T;
-
-
-                return ConfigurationManager.GetSection(type.Name) as T;
-            }
-        }
-    }
+    
 
     [TestFixture]
     public class When_configuring_an_endpoint_mapping_using_an_assembly_name_in_the_messages_property : Configuring_message_endpoint_mapping

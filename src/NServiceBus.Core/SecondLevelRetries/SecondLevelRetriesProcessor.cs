@@ -3,7 +3,6 @@ namespace NServiceBus.SecondLevelRetries
     using System;
     using System.Globalization;
     using Faults.Forwarder;
-    using Features;
     using Helpers;
     using Logging;
     using Satellites;
@@ -14,10 +13,7 @@ namespace NServiceBus.SecondLevelRetries
     {
         public SecondLevelRetriesProcessor()
         {
-            if (!Feature.IsEnabled<SecondLevelRetries>())
-            {
-                Disabled = true;
-            }
+            Disabled = true;
         }
 
         public ISendMessages MessageSender { get; set; }

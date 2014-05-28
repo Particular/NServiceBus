@@ -10,7 +10,7 @@ namespace NServiceBus.Gateway.Receiving
         {
             yield return new ReceiveChannel
             {
-                Address = string.Format("http://localhost/{0}/", Configure.Instance.EndpointName),
+                Address = string.Format("http://localhost/{0}/", EndpointName),
                 Type = "Http",
                 NumberOfWorkerThreads = 1
             };
@@ -20,5 +20,7 @@ namespace NServiceBus.Gateway.Receiving
         {
             return GetReceiveChannels().First();
         }
+
+        public string EndpointName { get; set; }
     }
 }

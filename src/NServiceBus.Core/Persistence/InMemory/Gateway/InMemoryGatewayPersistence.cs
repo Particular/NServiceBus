@@ -10,9 +10,9 @@
             DependsOn<Gateway>();
         }
 
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            config.Configurer.ConfigureComponent<InMemoryGatewayDeduplication>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<InMemoryGatewayDeduplication>(DependencyLifecycle.SingleInstance);
         }
     }
 }

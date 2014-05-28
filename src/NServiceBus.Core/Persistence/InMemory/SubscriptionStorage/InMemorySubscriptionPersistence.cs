@@ -10,9 +10,9 @@
         }
 
 
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            config.Configurer.ConfigureComponent<InMemorySubscriptionStorage>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<InMemorySubscriptionStorage>(DependencyLifecycle.SingleInstance);
         }
     }
 }

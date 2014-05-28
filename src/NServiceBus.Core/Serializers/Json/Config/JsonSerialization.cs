@@ -3,13 +3,13 @@
     using MessageInterfaces.MessageMapper.Reflection;
     using Serializers.Json;
 
-    public class JsonSerialization : Feature<Categories.Serializers>
+    public class JsonSerialization : Feature
     {
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            config.Configurer.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<JsonMessageSerializer>(DependencyLifecycle.SingleInstance)
-                 .ConfigureProperty(s => s.SkipArrayWrappingForSingleMessages, !config.Settings.GetOrDefault<bool>("SerializationSettings.WrapSingleMessages"));
+            context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<JsonMessageSerializer>(DependencyLifecycle.SingleInstance)
+                 .ConfigureProperty(s => s.SkipArrayWrappingForSingleMessages, !context.Settings.GetOrDefault<bool>("SerializationSettings.WrapSingleMessages"));
         }
     }
 }

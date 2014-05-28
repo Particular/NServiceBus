@@ -5,18 +5,26 @@
 
     public class AutoSubscribe : Feature
     {
-        public override void Initialize(Configure config)
+        public AutoSubscribe()
+        {
+            EnableByDefault();
+        }
+
+        protected override void Setup(FeatureConfigurationContext context)
         {
 
-            config.Configurer.ConfigureComponent<AutoSubscriptionStrategy>(DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent<AutoSubscriptionStrategy>(DependencyLifecycle.InstancePerCall);
 
-            var transportDefinition = config.Settings.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
+            var transportDefinition = context.Settings.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
 
             //if the transport has centralized pubsub we can auto-subscribe all events regardless if they have explicit routing or not
             if (transportDefinition != null && transportDefinition.HasSupportForCentralizedPubSub)
             {
-                config.Configurer.ConfigureProperty<AutoSubscriptionStrategy>(s => s.DoNotRequireExplicitRouting, true);
+                context.Container.ConfigureProperty<AutoSubscriptionStrategy>(s => s.DoNotRequireExplicitRouting, true);
             }
+
+            context.Container.ConfigureComponent<AutoSubscriber>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(t => t.Enabled, true);
 
             //apply any user specific settings
             var targetType = typeof(AutoSubscriptionStrategy);
@@ -25,18 +33,10 @@
             {
                 var settingsKey = targetType.FullName + "." + property.Name;
 
-                if (config.Settings.HasSetting(settingsKey))
+                if (context.Settings.HasSetting(settingsKey))
                 {
-                    config.Configurer.ConfigureProperty<AutoSubscriptionStrategy>(property.Name, config.Settings.Get(settingsKey));
+                    context.Container.ConfigureProperty<AutoSubscriptionStrategy>(property.Name, context.Settings.Get(settingsKey));
                 }
-            }
-        }
-
-        public override bool IsEnabledByDefault
-        {
-            get
-            {
-                return true;
             }
         }
     }

@@ -13,8 +13,14 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public void Databus_should_be_registered_if_a_databus_property_is_found()
         {
-            Configure.With(new[] {typeof (MessageWithDataBusProperty)})
-                .DefineEndpointName("xyz") 
+            Configure.With(o =>
+            {
+                o.EndpointName("xyz");
+                o.TypesToScan(new[]
+                {
+                    typeof(MessageWithDataBusProperty)
+                });
+            })
                 .DefaultBuilder();
 
             IWantToRunBeforeConfigurationIsFinalized bootstrapper = new Bootstrapper();
@@ -29,8 +35,14 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public void Databus_should_not_be_registered_if_no_databus_property_is_found()
         {
-            Configure.With(new[] { typeof(MessageWithoutDataBusProperty) })
-                .DefineEndpointName("xyz") 
+            Configure.With(o =>
+            {
+                o.EndpointName("xyz");
+                o.TypesToScan(new[]
+                {
+                    typeof(MessageWithoutDataBusProperty)
+                });
+            })
                 .DefaultBuilder();
 
             IWantToRunBeforeConfigurationIsFinalized bootstrapper = new Bootstrapper();
@@ -48,15 +60,21 @@ namespace NServiceBus.Core.Tests.DataBus
                 Assert.Ignore("This only work in debug mode.");
             }
 
-            Configure.With(new[] { typeof(MessageWithNonSerializableDataBusProperty) })
-                .DefineEndpointName("xyz")
+            Configure.With(o =>
+            {
+                o.EndpointName("xyz");
+                o.TypesToScan(new[]
+                {
+                    typeof(MessageWithNonSerializableDataBusProperty)
+                });
+            })
                 .DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"))
                 .DefaultBuilder()
                 .Configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
 
             IWantToRunBeforeConfigurationIsFinalized bootstrapper = new Bootstrapper();
 
-            Assert.Throws<InvalidOperationException>(()=>bootstrapper.Run(Configure.Instance));
+            Assert.Throws<InvalidOperationException>(() => bootstrapper.Run(Configure.Instance));
         }
 
         [Test]
@@ -67,17 +85,23 @@ namespace NServiceBus.Core.Tests.DataBus
                 Assert.Ignore("This only work in debug mode.");
             }
 
-            Configure.With(new[] { typeof(MessageWithNonSerializableDataBusProperty) })
-                .DefineEndpointName("xyz")
+            Configure.With(o =>
+            {
+                o.EndpointName("xyz");
+                o.TypesToScan(new[]
+                {
+                    typeof(MessageWithNonSerializableDataBusProperty)
+                });
+            })
                 .DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"))
                 .DefaultBuilder()
                 .Configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
 
             IWantToRunBeforeConfigurationIsFinalized bootstrapper = new Bootstrapper();
 
-            Configure.Instance.Configurer.ConfigureComponent<IDataBusSerializer>(() => new MyDataBusSerializer(),DependencyLifecycle.SingleInstance);
+            Configure.Instance.Configurer.ConfigureComponent<IDataBusSerializer>(() => new MyDataBusSerializer(), DependencyLifecycle.SingleInstance);
 
-            Assert.DoesNotThrow(()=>bootstrapper.Run(Configure.Instance));
+            Assert.DoesNotThrow(() => bootstrapper.Run(Configure.Instance));
         }
 
         class MyDataBusSerializer : IDataBusSerializer
@@ -94,5 +118,5 @@ namespace NServiceBus.Core.Tests.DataBus
         }
     }
 
-    
+
 }

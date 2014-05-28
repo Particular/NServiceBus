@@ -8,6 +8,7 @@
     using Installation.Environments;
     using Logging;
     using NServiceBus.Support;
+    using Transports;
 
     [Serializable]
     public class EndpointRunner : MarshalByRefObject
@@ -48,11 +49,15 @@
                 {
                     config.Configurer.RegisterSingleton(scenarioContext.GetType(), scenarioContext);
                     scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
-                }
+                
+                    var transportDefinition = config.Settings.Get<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
 
+                    scenarioContext.HasSupportForCentralizedPubSub = transportDefinition.HasSupportForCentralizedPubSub;
+                }
+              
                 bus = config.CreateBus();
 
-                Configure.Instance.ForInstallationOn<Windows>().Install();
+                config.ForInstallationOn<Windows>().Install();
 
                 executeWhens = Task.Factory.StartNew(() =>
                 {

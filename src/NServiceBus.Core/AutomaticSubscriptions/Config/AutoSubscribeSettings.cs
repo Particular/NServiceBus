@@ -1,34 +1,39 @@
 namespace NServiceBus.AutomaticSubscriptions.Config
 {
-    using Settings;
-
+    /// <summary>
+    /// Provides fine grained control over auto subscribe
+    /// </summary>
     public class AutoSubscribeSettings
     {
+        readonly Configure config;
+
+        public AutoSubscribeSettings(Configure config)
+        {
+            this.config = config;
+        }
+
         /// <summary>
         /// Turns off auto subscriptions for sagas. Sagas where not auto subscribed by default before v4
         /// </summary>
-        public AutoSubscribeSettings DoNotAutoSubscribeSagas()
+        public void DoNotAutoSubscribeSagas()
         {
-            SettingsHolder.Instance.SetProperty<AutoSubscriptionStrategy>(c => c.DoNotAutoSubscribeSagas, true);
-            return this;
+            config.Settings.SetProperty<AutoSubscriptionStrategy>(c => c.DoNotAutoSubscribeSagas, true);
         }
 
         /// <summary>
         /// Allows to endpoint to subscribe to messages owned by the local endpoint
         /// </summary>
-        public AutoSubscribeSettings DoNotRequireExplicitRouting()
+        public void DoNotRequireExplicitRouting()
         {
-            SettingsHolder.Instance.SetProperty<AutoSubscriptionStrategy>(c => c.DoNotRequireExplicitRouting, true); 
-            return this;
+            config.Settings.SetProperty<AutoSubscriptionStrategy>(c => c.DoNotRequireExplicitRouting, true); 
         }
 
         /// <summary>
         /// Turns on auto-subscriptions for messages not marked as commands. This was the default before v4
         /// </summary>
-        public AutoSubscribeSettings AutoSubscribePlainMessages()
+        public void AutoSubscribePlainMessages()
         {
-            SettingsHolder.Instance.SetProperty<AutoSubscriptionStrategy>(c => c.SubscribePlainMessages, true);
-            return this;
+            config.Settings.SetProperty<AutoSubscriptionStrategy>(c => c.SubscribePlainMessages, true);
         }
     }
 }

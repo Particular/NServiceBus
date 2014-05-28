@@ -26,8 +26,7 @@
         {
             Address.InitializeLocalAddress("MyEndpoint");
 
-            Configure.GetEndpointNameAction = () => "MyEndpoint";
-
+            
             persister = CreateTimeoutPersister();
         }
 

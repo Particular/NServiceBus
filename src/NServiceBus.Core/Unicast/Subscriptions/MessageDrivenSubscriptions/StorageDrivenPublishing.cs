@@ -6,11 +6,11 @@
     /// <summary>
     /// Adds support for pub/sub using a external subscription storage. This brings pub/sub to transport that lacks native support.
     /// </summary>
-    public class StorageDrivenPublisher : Feature
+    public class StorageDrivenPublishing : Feature
     {
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            var transportDefinition = config.Settings.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
+            var transportDefinition = context.Settings.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
 
             if (transportDefinition != null && transportDefinition.HasNativePubSubSupport)
             {
@@ -18,9 +18,9 @@
                 return;
             }
 
-            config.Configurer.ConfigureComponent<Unicast.Publishing.StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent<Unicast.Publishing.StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
         }
 
-        static ILog Logger = LogManager.GetLogger<StorageDrivenPublisher>();
+        static ILog Logger = LogManager.GetLogger<StorageDrivenPublishing>();
     }
 }

@@ -27,12 +27,12 @@
                     {
                         bus.Subscribe<IFoo>();
 
-                        if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                        if (context.HasSupportForCentralizedPubSub)
                         {
                             context.Subscriber3Subscribed = true;
                         }
                     }))
-                      
+
                     .Done(c => c.Subscriber3GotTheEvent)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.Subscriber3GotTheEvent))
@@ -57,16 +57,19 @@
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                         {
                             bus.Subscribe<MyEvent>();
-
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (context.HasSupportForCentralizedPubSub)
+                            {
                                 context.Subscriber1Subscribed = true;
+                            }
                         }))
                       .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
                       {
                           bus.Subscribe<MyEvent>();
 
-                          if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                          if (context.HasSupportForCentralizedPubSub)
+                          {
                               context.Subscriber2Subscribed = true;
+                          }
                       }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
                     .Repeat(r => r.For(Transports.Default))
@@ -101,7 +104,7 @@
         {
             public Subscriber3()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.Features(f => f.Disable<AutoSubscribe>()))
                     .AddMapping<IFoo>(typeof(Publisher));
             }
 
@@ -120,7 +123,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.Features(f => f.Disable<AutoSubscribe>()))
                     .AddMapping<MyEvent>(typeof(Publisher));
             }
 
@@ -139,7 +142,7 @@
         {
             public Subscriber2()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Instance.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.Features(f => f.Disable<AutoSubscribe>()))
                         .AddMapping<MyEvent>(typeof(Publisher));
             }
 

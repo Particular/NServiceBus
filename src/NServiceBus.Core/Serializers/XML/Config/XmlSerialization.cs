@@ -4,14 +4,14 @@
     using ObjectBuilder;
     using Serializers.XML;
 
-    public class XmlSerialization : Feature<Categories.Serializers>
+    public class XmlSerialization : Feature
     {
-        public override void Initialize(Configure config)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            config.Configurer.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
-            var c =  config.Configurer.ConfigureComponent<XmlMessageSerializer>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
+            var c = context.Container.ConfigureComponent<XmlMessageSerializer>(DependencyLifecycle.SingleInstance);
 
-            config.Settings.ApplyTo<XmlMessageSerializer>((IComponentConfig)c);
+            context.Settings.ApplyTo<XmlMessageSerializer>((IComponentConfig)c);
         }
     }
 }

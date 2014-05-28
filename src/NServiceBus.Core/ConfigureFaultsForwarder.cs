@@ -28,7 +28,7 @@ namespace NServiceBus
 
 			ErrorQueue = Address.Undefined;
 
-			var section = config.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();
+			var section = config.Settings.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();
 			if (section != null)
 			{
 				if (string.IsNullOrWhiteSpace(section.ErrorQueue))

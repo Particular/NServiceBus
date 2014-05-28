@@ -8,7 +8,12 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Unicast.Transport;
 
     class TimeoutDispatcherProcessor : IAdvancedSatellite
-    {  
+    {
+        public TimeoutDispatcherProcessor()
+        {
+            Disabled = true;
+        }
+
         public ISendMessages MessageSender { get; set; }
 
         public IPersistTimeouts TimeoutsPersister { get; set; }
@@ -23,10 +28,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
         }
 
-        public bool Disabled
-        {
-            get { return !Feature.IsEnabled<TimeoutManager>(); }
-        }
+        public bool Disabled { get; set; }
 
         public bool Handle(TransportMessage message)
         {

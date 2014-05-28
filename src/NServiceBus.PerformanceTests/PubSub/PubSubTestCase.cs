@@ -41,20 +41,14 @@ public class PubSubTestCase : TestCase
     {
         TransportConfigOverride.MaximumConcurrencyLevel = NumberOfThreads;
 
-        var config = Configure.With()
-            .DefineEndpointName("PubSubPerformanceTest")
+        var config = Configure.With(o => o.EndpointName("PubSubPerformanceTest"))
             .DefaultBuilder()
             .UseTransport<Msmq>()
-            .InMemoryFaultManagement();
-
-
-        config.Features.Disable<Audit>();
+            .InMemoryFaultManagement()
+            .Features(f=>f.Disable<Audit>());
 
         switch (GetStorageType())
         {
-            case "raven":
-                config.RavenSubscriptionStorage();
-                break;
             case "inmemory":
                 config.UsePersistence<InMemory>();
                 break;
@@ -63,8 +57,7 @@ public class PubSubTestCase : TestCase
                 break;
         }
 
-        using (var bus = config.UnicastBus()
-            .CreateBus())
+        using (var bus = config.CreateBus())
         {
 
 

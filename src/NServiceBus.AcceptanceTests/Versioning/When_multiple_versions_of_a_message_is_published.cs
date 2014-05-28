@@ -2,7 +2,6 @@
 {
     using EndpointTemplates;
     using AcceptanceTesting;
-    using Features;
     using NUnit.Framework;
     using PubSub;
 
@@ -30,13 +29,13 @@
                     .WithEndpoint<V1Subscriber>(b => b.Given((bus,c) =>
                         {
                             bus.Subscribe<V1Event>();
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (c.HasSupportForCentralizedPubSub)
                                 c.V1Subscribed = true;
                         }))
                     .WithEndpoint<V2Subscriber>(b => b.Given((bus,c) =>
                         {
                             bus.Subscribe<V2Event>();
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (c.HasSupportForCentralizedPubSub)
                                 c.V2Subscribed = true;
                         }))
                     .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
