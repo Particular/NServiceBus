@@ -65,6 +65,11 @@
             dependencies.Add(typeof(T));
         }
 
+        protected void RegisterStartupTask<T>() where T : FeatureStartupTask
+        {
+            startupTasks.Add(typeof(T));
+        }
+
         /// <summary>
         /// The list of features that this feature is depending on
         /// </summary>
@@ -154,7 +159,8 @@
         {
             name = GetType().Name.Replace("Feature", String.Empty);
         }
-
+        internal IEnumerable<Type> StartupTasks { get { return startupTasks; } } 
+        
         List<Type> dependencies = new List<Type>();
 
         List<Func<FeatureConfigurationContext, bool>> setupPrerequisites = new List<Func<FeatureConfigurationContext, bool>>(); 
@@ -163,5 +169,6 @@
         bool isEnabledByDefault;
 
         bool isActive;
+        List<Type> startupTasks = new List<Type>();
     }
 }

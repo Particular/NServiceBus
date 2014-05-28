@@ -100,7 +100,6 @@
     <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
     <Compile Include="Audit\Audit.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscribe.cs" />
-    <Compile Include="AutomaticSubscriptions\AutoSubscriber.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettingsExtensions.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettings.cs" />
     <Compile Include="CompletionResult.cs" />
@@ -122,6 +121,7 @@
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Features\FeatureConfigurationContext.cs" />
     <Compile Include="Features\FeatureExtensions.cs" />
+    <Compile Include="Features\FeatureStartupTask.cs" />
     <Compile Include="Features\SettingsExtentions.cs" />
     <Compile Include="Gateway\Channels\DataReceivedOnChannelArgs.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />

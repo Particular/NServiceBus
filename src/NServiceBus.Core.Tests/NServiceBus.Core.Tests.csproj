@@ -144,6 +144,7 @@
     <Compile Include="AttributeTests.cs" />
     <Compile Include="Features\FeatureDependencyTests.cs" />
     <Compile Include="Features\FeatureSettingsTests.cs" />
+    <Compile Include="Features\FeatureStartupTests.cs" />
     <Compile Include="Features\FeatureTests.cs" />
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
     <Compile Include="Logging\RollingLoggerTests.cs" />

@@ -229,9 +229,12 @@ namespace NServiceBus
             {
                 this.DefaultBuilder();
             }
-            features = new FeatureActivator(this);
 
-            ForAllTypes<Feature>(t => features.Add((Feature)Activator.CreateInstance(t)));
+            featureActivator = new FeatureActivator(this);
+
+            Configurer.RegisterSingleton<FeatureActivator>(featureActivator);
+
+            ForAllTypes<Feature>(t => featureActivator.Add((Feature)Activator.CreateInstance(t)));
 
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
@@ -249,7 +252,7 @@ namespace NServiceBus
 
             ActivateAndInvoke<IFinalizeConfiguration>(t => t.FinalizeConfiguration(this));
 
-            features.SetupFeatures();
+            featureActivator.SetupFeatures();
 
             //this needs to be before the installers since they actually call .Initialize :(
             initialized = true;
@@ -425,7 +428,7 @@ namespace NServiceBus
         }
 
         static bool configSectionOverridesInitialized;
-        FeatureActivator features;
+        FeatureActivator featureActivator;
         SerializationSettings serialization;
         PipelineSettings pipelineSettings;
         static bool beforeConfigurationInitializersCalled;

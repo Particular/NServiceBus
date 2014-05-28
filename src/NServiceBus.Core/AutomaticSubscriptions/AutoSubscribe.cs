@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus.Features
 {
+    using System.Linq;
     using AutomaticSubscriptions;
+    using Logging;
     using Transports;
 
     public class AutoSubscribe : Feature
@@ -8,6 +10,8 @@
         public AutoSubscribe()
         {
             EnableByDefault();
+
+            RegisterStartupTask<ApplySubscriptions>();
         }
 
         protected override void Setup(FeatureConfigurationContext context)
@@ -23,9 +27,6 @@
                 context.Container.ConfigureProperty<AutoSubscriptionStrategy>(s => s.DoNotRequireExplicitRouting, true);
             }
 
-            context.Container.ConfigureComponent<AutoSubscriber>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(t => t.Enabled, true);
-
             //apply any user specific settings
             var targetType = typeof(AutoSubscriptionStrategy);
 
@@ -38,6 +39,26 @@
                     context.Container.ConfigureProperty<AutoSubscriptionStrategy>(property.Name, context.Settings.Get(settingsKey));
                 }
             }
+        }
+
+        class ApplySubscriptions : FeatureStartupTask
+        {
+            public AutoSubscriptionStrategy AutoSubscriptionStrategy { get; set; }
+
+            public IBus Bus { get; set; }
+
+            protected override void OnStart()
+            {
+                foreach (var eventType in AutoSubscriptionStrategy.GetEventsToSubscribe()
+                    .Where(t => !MessageConventionExtensions.IsInSystemConventionList(t))) //never auto-subscribe system messages
+                {
+                    Bus.Subscribe(eventType);
+
+                    Logger.DebugFormat("Auto subscribed to event {0}", eventType);
+                }
+            }
+
+            static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();
         }
     }
 }
