@@ -51,15 +51,20 @@
                     .Done(c => c.SubscribersOfTheEvent != null)
                     
                     .Repeat(r => r.For<AllBrokerTransports>())
-                    .Should(c => Assert.AreEqual(1, c.SubscribersOfTheEvent.Count(), "There should only be one logical subscriber"))
+                    .Should(c => Assert.AreEqual(1, c.SubscribersOfTheEvent.Count, "There should only be one logical subscriber"))
                     .Run();
         }
 
         public class Context : ScenarioContext
         {
+            public Context()
+            {
+                SubscribersOfTheEvent = new string[0];
+            }
+
             public int NumberOfSubscriptionsReceived { get; set; }
 
-            public IEnumerable<string> SubscribersOfTheEvent { get; set; }
+            public IList<string> SubscribersOfTheEvent { get; set; }
         }
 
         public class Publisher : EndpointConfigurationBuilder
