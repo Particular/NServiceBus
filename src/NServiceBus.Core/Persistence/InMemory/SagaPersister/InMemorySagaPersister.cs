@@ -30,29 +30,31 @@ namespace NServiceBus.InMemory.SagaPersister
                 {
                     var prop = entity.SagaEntity.GetType().GetProperty(propertyName);
                     if (prop != null)
+                    {
                         if (prop.GetValue(entity.SagaEntity, null).Equals(propertyValue))
                         {
                             entity.ReadByThreadId.Add(Thread.CurrentThread.ManagedThreadId);
                             return (TSagaData)DeepClone(entity.SagaEntity);
                         }
+                    }
                 }
             }
             return default(TSagaData);
         }
 
-        public T Get<T>(Guid sagaId) where T : IContainSagaData
+        public TSagaData Get<TSagaData>(Guid sagaId) where TSagaData : IContainSagaData
         {
             lock (syncRoot)
             {
                 VersionedSagaEntity result;
                 data.TryGetValue(sagaId, out result);
-                if ((result != null) && (result.SagaEntity is T))
+                if ((result != null) && (result.SagaEntity is TSagaData))
                 {
                     result.ReadByThreadId.Add(Thread.CurrentThread.ManagedThreadId);
-                    return (T)DeepClone(result.SagaEntity);
+                    return (TSagaData)DeepClone(result.SagaEntity);
                 }
             }
-            return default(T);
+            return default(TSagaData);
         }
 
         public void Save(IContainSagaData saga)
