@@ -29,6 +29,7 @@ namespace NServiceBus
         /// </summary>
         Configure(string endpointName, IList<Type> availableTypes, IConfigurationSource configurationSource)
         {
+            LogManager.HasConfigBeenInitialised = true;
             Settings.SetDefault("EndpointName", endpointName);
             Settings.SetDefault("TypesToScan", availableTypes);
             Settings.SetDefault<IConfigurationSource>(configurationSource);
