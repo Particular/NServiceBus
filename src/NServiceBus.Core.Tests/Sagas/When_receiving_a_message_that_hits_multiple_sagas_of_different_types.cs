@@ -35,11 +35,12 @@ namespace NServiceBus.Unicast.Tests
                 Data.SomeValue = "Test";
             }
 
-            public override void ConfigureHowToFindSaga()
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData2> mapper)
             {
-                ConfigureMapping<MessageThatHitsExistingSaga>(m => m.PropertyThatCorrelatesToSaga)
+                mapper.ConfigureMapping<MessageThatHitsExistingSaga>(m => m.PropertyThatCorrelatesToSaga)
                     .ToSaga(s => s.PropertyThatCorrelatesToMessage);
             }
+
         }
 
         class MySagaData2 : ContainSagaData
@@ -55,11 +56,12 @@ namespace NServiceBus.Unicast.Tests
                 Data.SomeValue = "Test";
             }
 
-            public override void ConfigureHowToFindSaga()
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
             {
-                ConfigureMapping<MessageThatHitsExistingSaga>(m => m.PropertyThatCorrelatesToSaga)
+                mapper.ConfigureMapping<MessageThatHitsExistingSaga>(m => m.PropertyThatCorrelatesToSaga)
                     .ToSaga(s => s.PropertyThatCorrelatesToMessage);
             }
+
         }
 
         class MySagaData : ContainSagaData

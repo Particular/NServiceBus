@@ -74,10 +74,10 @@
                     Console.Out.WriteLine("Saga received DoSomethingResponse for DataId: {0} and MarkAsComplete", message.DataId);
                     MarkAsComplete();
                 }
-
-                public override void ConfigureHowToFindSaga()
+                
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga2Data> mapper)
                 {
-                    ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class MySaga2Data : ContainSagaData
@@ -85,6 +85,7 @@
                     [Unique]
                     public virtual Guid DataId { get; set; }
                 }
+
             }
         }
         

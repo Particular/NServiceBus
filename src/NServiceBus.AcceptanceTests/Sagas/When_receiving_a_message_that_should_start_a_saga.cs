@@ -65,6 +65,10 @@
                 {
                     Context.SagaStarted = true;
                 }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+                {
+                }
             }
 
             public class TestSagaData : IContainSagaData

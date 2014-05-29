@@ -67,9 +67,9 @@ namespace NServiceBus.Unicast.Tests
                 Data.SomeValue = "Test";
             }
 
-            public override void ConfigureHowToFindSaga()
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
             {
-                ConfigureMapping<MessageThatHitsExistingSaga>(m => m.PropertyThatCorrelatesToSaga)
+                mapper.ConfigureMapping<MessageThatHitsExistingSaga>(m => m.PropertyThatCorrelatesToSaga)
                     .ToSaga(s => s.PropertyThatCorrelatesToMessage);
             }
         }

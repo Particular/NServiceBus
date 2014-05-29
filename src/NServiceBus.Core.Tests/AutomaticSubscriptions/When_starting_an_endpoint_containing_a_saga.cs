@@ -40,8 +40,11 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
                 throw new NotImplementedException();
             }
 
-
             public class MySagaData : ContainSagaData
+            {
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
             {
             }
         }

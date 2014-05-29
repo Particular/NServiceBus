@@ -36,6 +36,10 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
             public class MySagaData : ContainSagaData
             {
             }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+            {
+            }
         }
         public class EventMessageBase : IEvent
         {

@@ -53,11 +53,11 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     Bus.SendLocal(new StartSaga2());
                     MarkAsComplete();
                 }
-
-                public override void ConfigureHowToFindSaga()
+                
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
                 {
-                    ConfigureMapping<MessageSaga1WillHandle>(m => m.DataId).ToSaga(s => s.DataId);
-                    ConfigureMapping<StartSaga1>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<MessageSaga1WillHandle>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<StartSaga1>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
             }
@@ -79,6 +79,10 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 }
 
                 public class Saga2Data : ContainSagaData
+                {
+                }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
                 {
                 }
             }

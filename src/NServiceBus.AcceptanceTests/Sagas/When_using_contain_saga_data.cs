@@ -54,9 +54,9 @@
                     Context.DidAllSagaInstancesReceiveTimeouts = true;
                 }
 
-                public override void ConfigureHowToFindSaga()
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
                 {
-                    ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class MySagaData : ContainSagaData
@@ -68,6 +68,7 @@
                 public class TimeHasPassed
                 {
                 }
+
             }
         }
 

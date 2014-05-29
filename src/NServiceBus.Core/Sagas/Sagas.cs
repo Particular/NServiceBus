@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.Serialization;
     using NServiceBus.Sagas;
     using NServiceBus.Sagas.Finders;
     using Saga;
@@ -231,19 +232,8 @@
             var prop = t.GetProperty("Data");
             MapSagaTypeToSagaEntityType(t, prop.PropertyType);
 
-            var defaultConstructor = t.GetConstructor(Type.EmptyTypes);
-            if (defaultConstructor == null)
-                throw new InvalidOperationException("Sagas which implement IConfigurable, like those which inherit from Saga<T>, must have a default constructor.");
-
-            var saga = (Saga)Activator.CreateInstance(t);
-
-            var p = t.GetProperty("SagaMessageFindingConfiguration", typeof(IConfigureHowToFindSagaWithMessage));
-            if (p != null)
-            {
-                p.SetValue(saga, SagaMessageFindingConfiguration, null);
-            }
-
-            saga.Configure();
+            var saga = (Saga)FormatterServices.GetUninitializedObject(t);
+            saga.ConfigureHowToFindSaga(SagaMessageFindingConfiguration);
         }
 
 

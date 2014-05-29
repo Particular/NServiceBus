@@ -8,8 +8,8 @@ namespace NServiceBus.Saga
     /// </summary>
     public class ToSagaExpression<TSagaData, TMessage> where TSagaData : IContainSagaData
     {
-        readonly IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
-        readonly Expression<Func<TMessage, object>> messageProperty;
+        IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
+        Expression<Func<TMessage, object>> messageProperty;
 
         /// <summary>
         /// Constructs the expression

@@ -129,6 +129,10 @@
                 public class Timeout1
                 {
                 }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
+                {
+                }
             }
         }
 
@@ -168,6 +172,10 @@
                 public class Saga2Timeout
                 {
                 }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
+                {
+                }
             }
         }
 
@@ -194,6 +202,10 @@
                 {
                     [Unique]
                     public virtual Guid DataId { get; set; }
+                }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+                {
                 }
             }
         }

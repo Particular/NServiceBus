@@ -68,9 +68,11 @@
 
         public void Timeout(MyOtherTimeout state)
         {
-
         }
 
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutSagaData> mapper)
+        {
+        }
     }
 
     class StartMessage

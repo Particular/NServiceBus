@@ -33,6 +33,10 @@ namespace NServiceBus.Unicast.Tests
             {
                 Bus.Send(new MessageSentFromSaga());
             }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+            {
+            }
         }
 
         class MySagaData : ContainSagaData

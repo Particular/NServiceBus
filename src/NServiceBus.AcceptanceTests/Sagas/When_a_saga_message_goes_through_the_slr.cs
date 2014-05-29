@@ -49,11 +49,11 @@
                         });
                 }
 
-                public override void ConfigureHowToFindSaga()
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
                 {
-                    ConfigureMapping<StartSagaMessage>(m=>m.SomeId)
+                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s=>s.SomeId);
-                    ConfigureMapping<SecondSagaMessage>(m => m.SomeId)
+                    mapper.ConfigureMapping<SecondSagaMessage>(m => m.SomeId)
                       .ToSaga(s => s.SomeId);
                 }
 
@@ -67,6 +67,7 @@
 
                     Context.SecondMessageProcessed = true;
                 }
+
             }
 
             public class TestSagaData : IContainSagaData

@@ -145,12 +145,15 @@
 
         public class SagaThatDoesAReplyData : ContainSagaData
         {
-             
         }
 
         public void Handle(MyRequest myRequest)
         {
             Bus.Reply(new MyReply());
+        }
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaThatDoesAReplyData> mapper)
+        {
         }
     }
 
@@ -179,6 +182,10 @@
         {
             Bus.Publish<Event>();
             MarkAsComplete();
+        }
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+        {
         }
     }
 
@@ -257,6 +264,10 @@
                                            m.OrderId = message.OrderId;
                                            m.Total = message.Total*(decimal) 0.9;
                                        });
+        }
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<DiscountPolicyData> mapper)
+        {
         }
     }
 

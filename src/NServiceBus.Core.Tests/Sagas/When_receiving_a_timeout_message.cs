@@ -39,6 +39,10 @@ namespace NServiceBus.Unicast.Tests
             {
                 Assert.Fail("Regular handler should not be invoked");
             }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+            {
+            }
         }
 
         class MySagaData : ContainSagaData
