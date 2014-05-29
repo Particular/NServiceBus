@@ -158,6 +158,7 @@
     <Compile Include="Sagas\Issue_2044.cs" />
     <Compile Include="Sagas\When_doing_request_response_between_sagas.cs" />
     <Compile Include="Sagas\Issue_1819.cs" />
+    <Compile Include="Sagas\When_saga_has_a_non_empty_constructor.cs" />
     <Compile Include="Sagas\When_sending_from_a_saga_timeout.cs" />
     <Compile Include="Sagas\When_sending_from_a_saga_handle.cs" />
     <Compile Include="Sagas\When_an_endpoint_replies_to_a_saga.cs" />
