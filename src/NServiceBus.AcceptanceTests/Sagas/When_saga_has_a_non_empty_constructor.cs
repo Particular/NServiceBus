@@ -42,6 +42,7 @@
                 IAmStartedByMessages<StartSagaMessage>, IHandleMessages<OtherMessage>
             {
 
+                // ReSharper disable once UnusedParameter.Local
                 public TestSaga(IBus bus)
                 {
                     
