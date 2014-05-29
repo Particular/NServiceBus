@@ -41,12 +41,6 @@
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Abstractions">
-      <HintPath>..\packages\RavenDB.Client\lib\net40\Raven.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Client.Lightweight">
-      <HintPath>..\packages\RavenDB.Client\lib\net40\Raven.Client.Lightweight.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
@@ -64,19 +58,19 @@
     <Compile Include="Encryption\EncryptionTestMessage.cs" />
     <Compile Include="StatisticsUoW.cs" />
     <Compile Include="PubSub\PubSubTestCase.cs" />
-    <Compile Include="PubSub\RavenSubscriptionStorageTestCase.cs" />
     <Compile Include="PubSub\TestCase.cs" />
     <Compile Include="TestMessage.cs" />
     <Compile Include="TestMessageHandler.cs" />
     <Compile Include="TestObject.cs" />
-    <Compile Include="TestRavenUnitOfWork.cs" />
     <Compile Include="Saga\TestSaga.cs" />
     <Compile Include="Statistics.cs" />
     <Compile Include="TransportConfigOverride.cs" />
     <Compile Include="TwoPhaseCommitEnlistment.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ripple.dependencies.config" />
+    <None Include="ripple.dependencies.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="TestSuites\Mutators.ps1" />
     <None Include="TestSuites\PubSub-Raven.ps1" />
     <None Include="TestSuites\Sagas-Concurrency.ps1" />

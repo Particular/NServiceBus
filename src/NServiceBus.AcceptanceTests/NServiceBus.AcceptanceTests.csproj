@@ -82,12 +82,6 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Abstractions">
-      <HintPath>..\packages\RavenDB.Client\lib\net40\Raven.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Client.Lightweight">
-      <HintPath>..\packages\RavenDB.Client\lib\net40\Raven.Client.Lightweight.dll</HintPath>
-    </Reference>
     <Reference Include="Spring.Core">
       <HintPath>..\packages\Spring.Core\lib\net40\Spring.Core.dll</HintPath>
     </Reference>
@@ -189,7 +183,9 @@
     <Compile Include="Versioning\When_multiple_versions_of_a_message_is_published.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ripple.dependencies.config" />
+    <None Include="ripple.dependencies.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ObjectBuilder.Autofac\ObjectBuilder.Autofac.csproj">

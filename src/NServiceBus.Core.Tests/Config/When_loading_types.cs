@@ -19,14 +19,6 @@ namespace NServiceBus.Core.Tests.Config
         }
 
         [Test]
-        public void Should_exclude_the_raven_client_types()
-        {
-            CollectionAssert.AreEquivalent(
-                new Type[0],
-                loadedTypes.Where(a => a.Namespace != null && a.Namespace.StartsWith("Raven.Client")).ToArray());
-        }
-
-        [Test]
         public void Should_always_include_the_core_nservicebus_types()
         {
             Assert.True(

@@ -40,19 +40,5 @@ namespace NServiceBus.Core.Tests.Config
             CollectionAssert.AreEquivalent(new String[0],
                 foundAssemblies.Where(a => a.FullName.ToLower().StartsWith("nhibernate")).ToArray());
         }
-
-        [Test]
-        public void Should_exclude_log4net()
-        {
-            CollectionAssert.AreEquivalent(new String[0],
-                foundAssemblies.Where(a => a.FullName.ToLower().StartsWith("log4net")).ToArray());
-        }
-
-        [Test]
-        public void Should_exclude_raven()
-        {
-            CollectionAssert.AreEquivalent(new String[0],
-                foundAssemblies.Where(a => a.FullName.ToLower().StartsWith("raven")).ToArray());
-        }
     }
 }

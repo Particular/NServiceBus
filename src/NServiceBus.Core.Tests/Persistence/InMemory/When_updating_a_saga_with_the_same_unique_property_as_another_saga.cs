@@ -1,7 +1,6 @@
-namespace NServiceBus.SagaPersisters.Raven.Tests
+namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
-    using InMemory.Tests;
     using NServiceBus.InMemory.SagaPersister;
     using NUnit.Framework;
 

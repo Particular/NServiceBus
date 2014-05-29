@@ -10,7 +10,7 @@ using NServiceBus.Transports.Msmq;
 using NServiceBus.Transports.Msmq.Config;
 using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
-using RavenTestMessages;
+using PublishTestMessages;
 using Runner;
 
 public class PubSubTestCase : TestCase
@@ -31,7 +31,7 @@ public class PubSubTestCase : TestCase
 
         if (string.IsNullOrEmpty(value))
         {
-            return "raven";
+            return "inmemory";
         }
         return value.ToLower();
     }
@@ -65,7 +65,7 @@ public class PubSubTestCase : TestCase
 
             var subscriptionStorage = Configure.Instance.Builder.Build<ISubscriptionStorage>();
 
-            var testEventMessage = new MessageType(typeof(RavenTestEvent));
+            var testEventMessage = new MessageType(typeof(TestEvent));
 
 
             subscriptionStorage.Init();
@@ -96,7 +96,7 @@ public class PubSubTestCase : TestCase
           0,
           NumberMessages,
           new ParallelOptions { MaxDegreeOfParallelism = NumberOfThreads },
-          x => bus.SendLocal(new PerformRavenPublish()));
+          x => bus.SendLocal(new PerformPublish()));
 
 
             Statistics.StartTime = DateTime.Now;
@@ -112,22 +112,22 @@ public class PubSubTestCase : TestCase
     }
 }
 
-class PublishRavenEventHandler : IHandleMessages<PerformRavenPublish>
+class PublishEventHandler : IHandleMessages<PerformPublish>
 {
     public IBus Bus { get; set; }
-    public void Handle(PerformRavenPublish message)
+    public void Handle(PerformPublish message)
     {
-        Bus.Publish<RavenTestEvent>();
+        Bus.Publish<TestEvent>();
     }
 }
 
-namespace RavenTestMessages
+namespace PublishTestMessages
 {
-    public class PerformRavenPublish : IMessage
+    public class PerformPublish : IMessage
     {
     }
 
-    public class RavenTestEvent : IEvent
+    public class TestEvent : IEvent
     {
     }
 }

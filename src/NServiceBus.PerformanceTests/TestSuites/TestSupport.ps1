@@ -14,7 +14,7 @@
 		[Parameter(Position=5,Mandatory=$false)]
 		[string] $messagemode = "normalmessages",
 		[Parameter(Position=6,Mandatory=$false)]
-		[string] $persistence = "ravendb",
+		[string] $persistence = "inmemory",
 		[Parameter(Position=7,Mandatory=$false)]
 		[string] $concurrency = "1"
 )
