@@ -7,8 +7,8 @@ namespace NServiceBus.Sagas.Finders
     /// <summary>
     /// Finds the given type of saga by looking it up based on the given property.
     /// </summary>
-    public class PropertySagaFinder<TSaga, TMessage> : IFindSagas<TSaga>.Using<TMessage>
-        where TSaga : IContainSagaData
+    public class PropertySagaFinder<TSagaData, TMessage> : IFindSagas<TSagaData>.Using<TMessage>
+        where TSagaData : IContainSagaData
     {
         /// <summary>
         /// Injected persister
@@ -28,7 +28,7 @@ namespace NServiceBus.Sagas.Finders
         /// <summary>
         /// Uses the saga persister to find the saga.
         /// </summary>
-        public TSaga FindBy(TMessage message)
+        public TSagaData FindBy(TMessage message)
         {
             if (SagaPersister == null)
                 throw new InvalidOperationException(
@@ -37,9 +37,9 @@ namespace NServiceBus.Sagas.Finders
             var propertyValue = MessageProperty.GetValue(message, null);
             
             if(SagaProperty.Name.ToLower() == "id")
-                return SagaPersister.Get<TSaga>((Guid)propertyValue);
+                return SagaPersister.Get<TSagaData>((Guid)propertyValue);
 
-            return SagaPersister.Get<TSaga>(SagaProperty.Name, propertyValue);
+            return SagaPersister.Get<TSagaData>(SagaProperty.Name, propertyValue);
         }
     }
 }

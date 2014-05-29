@@ -21,11 +21,11 @@ namespace NServiceBus.InMemory.SagaPersister
             }
         }
 
-        public T Get<T>(string property, object value) where T : IContainSagaData
+        public TSagaData Get<TSagaData>(string property, object value) where TSagaData : IContainSagaData
         {
             lock (syncRoot)
             {
-                var values = data.Values.Where(x => x.SagaEntity is T);
+                var values = data.Values.Where(x => x.SagaEntity is TSagaData);
                 foreach (var entity in values)
                 {
                     var prop = entity.SagaEntity.GetType().GetProperty(property);
@@ -33,11 +33,11 @@ namespace NServiceBus.InMemory.SagaPersister
                         if (prop.GetValue(entity.SagaEntity, null).Equals(value))
                         {
                             entity.ReadByThreadId.Add(Thread.CurrentThread.ManagedThreadId);
-                            return (T)DeepClone(entity.SagaEntity);
+                            return (TSagaData)DeepClone(entity.SagaEntity);
                         }
                 }
             }
-            return default(T);
+            return default(TSagaData);
         }
 
         public T Get<T>(Guid sagaId) where T : IContainSagaData
