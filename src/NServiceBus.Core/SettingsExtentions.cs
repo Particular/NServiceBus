@@ -35,9 +35,9 @@ namespace NServiceBus
         /// </summary>
         /// <param name="settings"></param>
         /// <returns></returns>
-        public static IEnumerable<Type> GetAvailableTypes(this ReadOnlySettings settings)
+        public static IList<Type> GetAvailableTypes(this ReadOnlySettings settings)
         {
-            return settings.Get<IEnumerable<Type>>("TypesToScan");
+            return settings.Get<IList<Type>>("TypesToScan");
         }
 
 
