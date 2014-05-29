@@ -21,7 +21,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <typeparam name="TMessage">The message type to map to.</typeparam>
         /// <param name="messageProperty">An <see cref="Expression{TDelegate}"/> that represents the message.</param>
-        /// <returns>A <see cref="ToSagaExpression{TSagaData,TMessage}"/> that provides the fluend chained <see cref="ToSagaExpression{TSagaData,TMessage}.ToSaga"/> to link <paramref name="messageProperty"/> with <typeparamref name="TSagaData"/>.</returns>
+        /// <returns>A <see cref="ToSagaExpression{TSagaData,TMessage}"/> that provides the fluent chained <see cref="ToSagaExpression{TSagaData,TMessage}.ToSaga"/> to link <paramref name="messageProperty"/> with <typeparamref name="TSagaData"/>.</returns>
         public ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(Expression<Func<TMessage, object>> messageProperty) 
         {
             return new ToSagaExpression<TSagaData, TMessage>(sagaMessageFindingConfiguration, messageProperty);
