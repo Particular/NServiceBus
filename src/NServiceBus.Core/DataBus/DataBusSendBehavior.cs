@@ -98,5 +98,15 @@
         }
 
         readonly static ConcurrentDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>();
+
+
+        public class Registration : RegisterBehavior
+        {
+            public Registration(): base("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location")
+            {
+                InsertAfter(WellKnownBehavior.MutateOutgoingMessages);
+                InsertBefore(WellKnownBehavior.CreatePhysicalMessage);
+            }
+        }
     }
 }

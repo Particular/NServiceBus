@@ -24,6 +24,9 @@ namespace NServiceBus.Features
             {
                 context.Container.ConfigureComponent<DefaultDataBusSerializer>(DependencyLifecycle.SingleInstance);
             }
+
+            context.Pipeline.Register<DataBusReceiveBehavior.Registration>();
+            context.Pipeline.Register<DataBusSendBehavior.Registration>();
 		}
 
         static bool DataBusPropertiesFound(FeatureConfigurationContext context)
