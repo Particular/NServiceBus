@@ -79,7 +79,7 @@
             else
             {
                 context.Container.ConfigureComponent<ConventionBasedChannelManager>(DependencyLifecycle.SingleInstance)
-                    .ConfigureProperty(t => t.EndpointName, context.Settings.EndpointName()); ;
+                    .ConfigureProperty(t => t.EndpointName, context.Settings.EndpointName());
             }
 
             ConfigureSiteRouters(context);

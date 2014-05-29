@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Unicast.Config.Tests
 {
-    using Features;
     using NUnit.Framework;
 
     [TestFixture]

@@ -364,7 +364,7 @@
     <Compile Include="SecondLevelRetries\SecondLevelRetries.cs" />
     <Compile Include="Config\TransportConfig.cs" />
     <Compile Include="Config\UnicastBusConfig.cs" />
-    <Compile Include="DataBus\Config\Bootstrapper.cs" />
+    <Compile Include="DataBus\DataBusFeature.cs" />
     <Compile Include="DataBus\DefaultDatabusSerializer.cs" />
     <Compile Include="DataBus\FileShare\FileShareDataBus.cs" />
     <Compile Include="DataBus\IDataBus.cs" />
