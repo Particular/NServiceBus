@@ -23,7 +23,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public class UnicastBus : IStartableBus, IInMemoryOperations
+    public class UnicastBus : IStartableBus,IBus, IInMemoryOperations
     {
         HostInformation hostInformation = HostInformation.CreateDefault();
 
@@ -463,6 +463,29 @@ namespace NServiceBus.Unicast
         public IBus Start()
         {
             return Start(() => { });
+        }
+
+        public ISendOnlyBus StartInSendOnlyMode()
+        {
+            LicenseManager.PromptUserForLicenseIfTrialHasExpired();
+
+            if (started)
+            {
+                return this;
+            }
+
+            lock (startLocker)
+            {
+                if (started)
+                {
+                    return this;
+                }
+
+                //todo: Invoke the feature startup tasks
+              
+                started = true;
+            }
+            return this;
         }
 
         public IBus Start(Action startupAction)
