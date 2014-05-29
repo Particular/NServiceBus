@@ -106,7 +106,7 @@
 
             using (var startableBus = config.InMemoryFaultManagement().CreateBus())
             {
-                Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
+                Configure.Instance.ForInstallationOn().Install();
 
                 if (saga)
                 {

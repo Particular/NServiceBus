@@ -5,7 +5,6 @@
     using System.Runtime.Remoting.Lifetime;
     using System.Threading;
     using System.Threading.Tasks;
-    using Installation.Environments;
     using Logging;
     using NServiceBus.Support;
     using Transports;
@@ -57,7 +56,7 @@
               
                 bus = config.CreateBus();
 
-                config.ForInstallationOn<Windows>().Install();
+                config.ForInstallationOn().Install();
 
                 executeWhens = Task.Factory.StartNew(() =>
                 {

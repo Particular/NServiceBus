@@ -13,13 +13,4 @@ namespace NServiceBus.Installation
         /// <param name="config"></param>
         void Install(string identity,Configure config);
     }
-
-    /// <summary>
-    /// Interface invoked by the infrastructure when going to install an endpoint for a specific environment.
-    /// </summary>
-    /// <typeparam name="T">The environment type.</typeparam>
-    public interface INeedToInstallSomething<T> : INeedToInstallSomething where T : IEnvironment
-    {
-        
-    }
 }

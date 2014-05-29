@@ -3,11 +3,10 @@ namespace NServiceBus.Installation
     using System;
     using System.Diagnostics;
     using System.IO;
-    using Environments;
     using Gateway.Receiving;
     using Logging;
 
-    class GatewayHttpListenerInstaller : INeedToInstallSomething<Windows>
+    class GatewayHttpListenerInstaller : INeedToInstallSomething
     {
         static ILog logger = LogManager.GetLogger<GatewayHttpListenerInstaller>();
         public IManageReceiveChannels ChannelManager { get; set; }

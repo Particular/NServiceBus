@@ -2,13 +2,12 @@ namespace NServiceBus.Satellites
 {
     using System.Linq;
     using Installation;
-    using Installation.Environments;
     using Transports;
 
     /// <summary>
     /// Responsible to create a queue, using the registered ICreateQueues for each satellite
     /// </summary>
-    public class SatellitesQueuesCreator : INeedToInstallSomething<Windows>
+    public class SatellitesQueuesCreator : INeedToInstallSomething
     {
         public ICreateQueues QueueCreator { get; set; }
 

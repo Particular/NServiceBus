@@ -3,14 +3,13 @@ namespace NServiceBus.Unicast.Queuing
     using System;
     using System.Linq;
     using Installation;
-    using Installation.Environments;
     using Logging;
     using Transports;
 
     /// <summary>
     /// Iterating over all implementers of IWantQueueCreated and creating queue for each.
     /// </summary>
-    class QueuesCreator : INeedInitialization, INeedToInstallSomething<Windows>
+    class QueuesCreator : INeedInitialization, INeedToInstallSomething
     {
         public ICreateQueues QueueCreator { get; set; }
 

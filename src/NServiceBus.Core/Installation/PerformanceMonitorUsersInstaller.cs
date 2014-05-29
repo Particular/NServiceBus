@@ -3,13 +3,12 @@ namespace NServiceBus.Installation
     using System;
     using System.Diagnostics;
     using System.IO;
-    using Environments;
     using Logging;
 
     /// <summary>
     /// Add the identity to the 'Performance Monitor Users' local group 
     /// </summary>
-    public class PerformanceMonitorUsersInstaller : INeedToInstallSomething<Windows>
+    public class PerformanceMonitorUsersInstaller : INeedToInstallSomething
     {
         static ILog logger = LogManager.GetLogger<PerformanceMonitorUsersInstaller>();
 

@@ -432,8 +432,6 @@
     <Compile Include="IIncludesBuilder.cs" />
     <Compile Include="Impersonation\Windows\WindowsIdentityEnricher.cs" />
     <Compile Include="Install.cs" />
-    <Compile Include="Installation\Environments\Windows.cs" />
-    <Compile Include="Installation\IEnvironment.cs" />
     <Compile Include="Installation\INeedToInstallSomething.cs" />
     <Compile Include="IWantToRunBeforeConfiguration.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />

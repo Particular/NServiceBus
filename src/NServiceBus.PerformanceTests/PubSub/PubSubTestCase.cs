@@ -61,7 +61,7 @@ public class PubSubTestCase : TestCase
         {
 
 
-            Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
+            Configure.Instance.ForInstallationOn().Install();
 
             var subscriptionStorage = Configure.Instance.Builder.Build<ISubscriptionStorage>();
 

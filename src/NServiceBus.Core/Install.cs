@@ -14,12 +14,11 @@ namespace NServiceBus
         /// Indicates which environment is going to be installed, specifying that resources 
         /// to be created will be provided permissions for the currently logged on user.
         /// </summary>
-        /// <typeparam name="T">The environment type.</typeparam>
         /// <param name="config">Extension method object.</param>
         /// <returns>An Installer object whose Install method should be invoked.</returns>
-        public static Installer<T> ForInstallationOn<T>(this Configure config) where T : IEnvironment
+        public static Installer ForInstallationOn(this Configure config)
         {
-            return ForInstallationOn<T>(config, null);
+            return ForInstallationOn(config, null);
         }
 
         /// <summary>
@@ -27,11 +26,10 @@ namespace NServiceBus
         /// to be created will be provided permissions for the user represented by the userToken
         /// (where not the currently logged on user) or the currently logged on user.
         /// </summary>
-        /// <typeparam name="T">The environment type.</typeparam>
         /// <param name="config">Extension method object.</param>
         /// <param name="username">The username.</param>
         /// <returns>An Installer object whose Install method should be invoked.</returns>
-        public static Installer<T> ForInstallationOn<T>(this Configure config, string username) where T : IEnvironment
+        public static Installer ForInstallationOn(this Configure config, string username)
         {
             if (config.Configurer == null)
                 throw new InvalidOperationException("No container found. Please call '.DefaultBuilder()' after 'Configure.With()' before calling this method (or provide an alternative container).");
@@ -49,7 +47,7 @@ namespace NServiceBus
                 identity = new GenericIdentity(username);
             }
 
-            return new Installer<T>(identity,config);
+            return new Installer(identity, config);
         }
     }
     
@@ -57,8 +55,7 @@ namespace NServiceBus
     /// Resolves objects who implement INeedToInstall and invokes them for the given environment.
     /// Assumes that implementors have already been registered in the container.
     /// </summary>
-    /// <typeparam name="T">The environment for which the installers should be invoked.</typeparam>
-    public class Installer<T> where T : IEnvironment
+    public class Installer
     {
         static Installer()
         {

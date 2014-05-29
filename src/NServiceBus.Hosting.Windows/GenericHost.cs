@@ -5,7 +5,6 @@ namespace NServiceBus.Hosting
     using System.Linq;
     using System.Reflection;
     using Helpers;
-    using Installation;
     using Logging;
     using Profiles;
     using Roles;
@@ -92,7 +91,7 @@ namespace NServiceBus.Hosting
         /// <summary>
         ///     When installing as windows service (/install), run infrastructure installers
         /// </summary>
-        public void Install<TEnvironment>(string username) where TEnvironment : IEnvironment
+        public void Install()
         {
             PerformConfiguration();
             //HACK: to ensure the installer runner performs its installation

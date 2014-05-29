@@ -74,14 +74,14 @@ namespace NServiceBus.Hosting.Windows
         {
             if (runOtherInstallers)
             {
-                Installer<Installation.Environments.Windows>.RunOtherInstallers = true;
+                Installer.RunOtherInstallers = true;
             }
 
             //HACK: to force username to passed through to the 
             WindowsInstallerRunner.RunInstallers = true;
             WindowsInstallerRunner.RunAs = username;
 
-            genericHost.Install<Installation.Environments.Windows>(username);
+            genericHost.Install();
         }
     }
 }

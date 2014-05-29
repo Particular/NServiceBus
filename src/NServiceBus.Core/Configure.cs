@@ -14,7 +14,6 @@ namespace NServiceBus
     using Features;
     using Hosting.Helpers;
     using Installation;
-    using Installation.Environments;
     using Logging;
     using ObjectBuilder;
     using Pipeline;
@@ -266,7 +265,7 @@ namespace NServiceBus
             //this needs to be before the installers since they actually call .Initialize :(
             initialized = true;
 
-            ForAllTypes<INeedToInstallSomething<Windows>>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            ForAllTypes<INeedToInstallSomething>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()

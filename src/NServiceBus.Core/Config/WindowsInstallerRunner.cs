@@ -31,10 +31,10 @@ namespace NServiceBus.Config
 
             if (RunInstallers)
             {
-                Installer<Installation.Environments.Windows>.RunOtherInstallers = true;
+                Installer.RunOtherInstallers = true;
             }
 
-            config.ForInstallationOn<Installation.Environments.Windows>(RunAs).Install();
+            config.ForInstallationOn(RunAs).Install();
         }
     }
 }
