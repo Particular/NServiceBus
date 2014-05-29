@@ -24,12 +24,12 @@ namespace NServiceBus.Saga
 		/// Gets a saga entity from the persistence store by its Id.
 		/// </summary>
 		/// <param name="sagaId">The Id of the saga entity to get.</param>
-        T Get<T>(Guid sagaId) where T : IContainSagaData;
+        TSagaData Get<TSagaData>(Guid sagaId) where TSagaData : IContainSagaData;
 
         /// <summary>
         /// Looks up a saga entity by a given property.
         /// </summary>
-        T Get<T>(string property, object value) where T : IContainSagaData;
+        TSagaData Get<TSagaData>(string propertyName, object propertyValue) where TSagaData : IContainSagaData;
 
 		/// <summary>
         /// Sets a saga as completed and removes it from the active saga list

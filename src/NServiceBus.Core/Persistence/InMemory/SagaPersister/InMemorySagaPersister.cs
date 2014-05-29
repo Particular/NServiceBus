@@ -21,16 +21,16 @@ namespace NServiceBus.InMemory.SagaPersister
             }
         }
 
-        public TSagaData Get<TSagaData>(string property, object value) where TSagaData : IContainSagaData
+        public TSagaData Get<TSagaData>(string propertyName, object propertyValue) where TSagaData : IContainSagaData
         {
             lock (syncRoot)
             {
                 var values = data.Values.Where(x => x.SagaEntity is TSagaData);
                 foreach (var entity in values)
                 {
-                    var prop = entity.SagaEntity.GetType().GetProperty(property);
+                    var prop = entity.SagaEntity.GetType().GetProperty(propertyName);
                     if (prop != null)
-                        if (prop.GetValue(entity.SagaEntity, null).Equals(value))
+                        if (prop.GetValue(entity.SagaEntity, null).Equals(propertyValue))
                         {
                             entity.ReadByThreadId.Add(Thread.CurrentThread.ManagedThreadId);
                             return (TSagaData)DeepClone(entity.SagaEntity);
