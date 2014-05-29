@@ -11,19 +11,16 @@ namespace NServiceBus.Satellites
 
     public class SatelliteLauncher
     {
-        public SatelliteLauncher()
-        {
-            if (Configure.Instance != null)
-            {
-                Builder = Configure.Instance.Builder;
-            }
-        }
+        readonly IBuilder builder;
 
-        public IBuilder Builder { get; set; }
+        public SatelliteLauncher(IBuilder builder)
+        {
+            this.builder = builder;
+        }
 
         public void Start()
         {
-            var satellitesList = Builder.BuildAll<ISatellite>()
+            var satellitesList = builder.BuildAll<ISatellite>()
                                         .ToList()
                                         .Where(s => !s.Disabled)
                                         .ToList();
@@ -45,7 +42,7 @@ namespace NServiceBus.Satellites
 
                     if (satellite.InputAddress != null)
                     {
-                        satelliteContext.Transport = Builder.Build<TransportReceiver>();
+                        satelliteContext.Transport = builder.Build<TransportReceiver>();
 
                         var advancedSatellite = satellite as IAdvancedSatellite;
                         if (advancedSatellite != null)

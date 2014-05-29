@@ -2,6 +2,7 @@ namespace NServiceBus.Faults.Forwarder
 {
     using System;
     using Logging;
+    using ObjectBuilder;
     using SecondLevelRetries.Helpers;
     using Transports;
     using Unicast;
@@ -13,6 +14,13 @@ namespace NServiceBus.Faults.Forwarder
     /// </summary>
     public class FaultManager : IManageMessageFailures
     {
+        readonly IBuilder builder;
+
+        public FaultManager(IBuilder builder)
+        {
+            this.builder = builder;
+        }
+
         void IManageMessageFailures.SerializationFailedForMessage(TransportMessage message, Exception e)
         {
             SendFailureMessage(message, e, true);
@@ -38,7 +46,7 @@ namespace NServiceBus.Faults.Forwarder
                
                 // Intentionally service-locate ISendMessages to avoid circular
                 // resolution problem in the container
-                var sender = Configure.Instance.Builder.Build<ISendMessages>();
+                var sender = builder.Build<ISendMessages>();
 
                 if (serializationException || MessageWasSentFromSLR(message))
                 {

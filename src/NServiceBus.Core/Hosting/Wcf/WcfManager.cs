@@ -8,15 +8,13 @@
     using Logging;
 
     /// <summary>
-    /// Enable users to expose messages as WCF services
+    ///     Enable users to expose messages as WCF services
     /// </summary>
     public class WcfManager
     {
-        private readonly List<ServiceHost> hosts = new List<ServiceHost>();
-      
         /// <summary>
-        /// Starts a <see cref="ServiceHost"/> for each found service. Defaults to <see cref="BasicHttpBinding"/> if
-        /// no user specified binding is found
+        ///     Starts a <see cref="ServiceHost" /> for each found service. Defaults to <see cref="BasicHttpBinding" /> if
+        ///     no user specified binding is found
         /// </summary>
         public void Startup(Configure config)
         {
@@ -26,12 +24,14 @@
 
                 Binding binding = new BasicHttpBinding();
 
-                if (Configure.Instance.Configurer.HasComponent<Binding>())
-                    binding = Configure.Instance.Builder.Build<Binding>();
-                
-                host.AddDefaultEndpoint(   GetContractType(serviceType),
-                                           binding
-                                           ,"");
+                if (config.Configurer.HasComponent<Binding>())
+                {
+                    binding = config.Builder.Build<Binding>();
+                }
+
+                host.AddDefaultEndpoint(GetContractType(serviceType),
+                    binding
+                    , "");
 
                 hosts.Add(host);
 
@@ -41,38 +41,45 @@
         }
 
         /// <summary>
-        /// Shuts down the service hosts
+        ///     Shuts down the service hosts
         /// </summary>
         public void Shutdown()
         {
             hosts.ForEach(h => h.Close());
         }
 
-        private static Type GetContractType(Type t)
+        static Type GetContractType(Type t)
         {
             var args = t.BaseType.GetGenericArguments();
 
             return typeof(IWcfService<,>).MakeGenericType(args);
         }
 
-        private static bool IsWcfService(Type t)
+        static bool IsWcfService(Type t)
         {
             var args = t.GetGenericArguments();
             if (args.Length == 2)
+            {
                 if (MessageConventionExtensions.IsMessageType(args[0]))
                 {
                     var wcfType = typeof(WcfService<,>).MakeGenericType(args);
                     if (wcfType.IsAssignableFrom(t))
+                    {
                         return true;
+                    }
                 }
+            }
 
             if (t.BaseType != null)
+            {
                 return IsWcfService(t.BaseType) && !t.IsAbstract;
+            }
 
             return false;
         }
 
-       
+
         static ILog logger = LogManager.GetLogger<WcfManager>();
+        readonly List<ServiceHost> hosts = new List<ServiceHost>();
     }
 }

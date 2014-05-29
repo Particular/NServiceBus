@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using Core.Tests;
     using Faults.Forwarder;
     using SecondLevelRetries;
     using SecondLevelRetries.Helpers;
@@ -26,7 +27,7 @@
         public void SetUp()
         {
             satellite.InputAddress = RETRIES_QUEUE;
-            satellite.FaultManager = new FaultManager {ErrorQueue = ERROR_QUEUE};
+            satellite.FaultManager = new FaultManager(new FuncBuilder()) {ErrorQueue = ERROR_QUEUE};
             
             satellite.MessageSender = messageSender;
             satellite.MessageDeferrer = deferrer;

@@ -39,7 +39,7 @@
             var configurer = new SatelliteConfigurer();
             configurer.Init(Configure.Instance);
 
-            var launcher = new SatelliteLauncher();
+            var launcher = new SatelliteLauncher(Builder);
 
             BeforeRun();
             launcher.Start();

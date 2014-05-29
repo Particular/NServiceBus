@@ -135,7 +135,7 @@ namespace NServiceBus
         /// <summary>
         ///     True if any of the <see cref="With()" /> has been called.
         /// </summary>
-        public static bool WithHasBeenCalled()
+        static bool WithHasBeenCalled()
         {
             return instance != null;
         }
@@ -143,7 +143,7 @@ namespace NServiceBus
         /// <summary>
         ///     True if a builder has been defined.
         /// </summary>
-        public static bool BuilderIsConfigured()
+        internal static bool BuilderIsConfigured()
         {
             if (!WithHasBeenCalled())
             {
