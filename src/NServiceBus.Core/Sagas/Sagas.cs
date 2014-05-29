@@ -37,7 +37,6 @@
                 if (IsSagaNotFoundHandler(t))
                 {
                     Configure.Component(t, DependencyLifecycle.InstancePerCall);
-                    continue;
                 }
             }
 
