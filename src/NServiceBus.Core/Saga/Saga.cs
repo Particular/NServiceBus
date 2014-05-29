@@ -10,7 +10,7 @@ namespace NServiceBus.Saga
     /// To signify that the receipt of a message should start this saga,
     /// implement <see cref="IAmStartedByMessages{T}"/> for the relevant message type.
     /// </summary>
-    public abstract class Saga : IConfigurable
+    public abstract class Saga 
     {
         /// <summary>
         /// The saga's typed data.
@@ -18,7 +18,7 @@ namespace NServiceBus.Saga
         public IContainSagaData Entity{get; set; }
 
         bool configuring;
-        void IConfigurable.Configure()
+        internal void Configure()
         {
             configuring = true;
             ConfigureHowToFindSaga();

@@ -216,7 +216,6 @@
     <Compile Include="Sagas\SagaSendBehavior.cs" />
     <Compile Include="Saga\ContainSagaData.cs" />
     <Compile Include="Saga\IAmStartedByMessages.cs" />
-    <Compile Include="Saga\IConfigurable.cs" />
     <Compile Include="Saga\IConfigureHowToFindSagaWithMessage.cs" />
     <Compile Include="Saga\IContainSagaData.cs" />
     <Compile Include="Saga\IFinder.cs" />

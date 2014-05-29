@@ -232,20 +232,19 @@
             var prop = t.GetProperty("Data");
             MapSagaTypeToSagaEntityType(t, prop.PropertyType);
 
-            if (!typeof(IConfigurable).IsAssignableFrom(t))
-                return;
-
             var defaultConstructor = t.GetConstructor(Type.EmptyTypes);
             if (defaultConstructor == null)
                 throw new InvalidOperationException("Sagas which implement IConfigurable, like those which inherit from Saga<T>, must have a default constructor.");
 
-            var saga = Activator.CreateInstance(t) as Saga;
+            var saga = (Saga)Activator.CreateInstance(t);
 
             var p = t.GetProperty("SagaMessageFindingConfiguration", typeof(IConfigureHowToFindSagaWithMessage));
             if (p != null)
+            {
                 p.SetValue(saga, SagaMessageFindingConfiguration, null);
+            }
 
-            ((IConfigurable)saga).Configure();
+            saga.Configure();
         }
 
 
