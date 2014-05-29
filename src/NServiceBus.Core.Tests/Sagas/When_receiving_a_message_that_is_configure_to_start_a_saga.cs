@@ -46,6 +46,9 @@ namespace NServiceBus.Unicast.Tests
         {
             public void Handle(StartMessage message) { }
             public void Handle(StartMessageThatIsAnInterface message) { }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+            {
+            }
         }
 
         class MySagaData : ContainSagaData { }

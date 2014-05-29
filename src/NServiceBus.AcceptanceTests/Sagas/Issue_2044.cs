@@ -68,6 +68,10 @@
                 public class Saga1Data : ContainSagaData
                 {
                 }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
+                {
+                }
             }
 
             public class SagaNotFound : IHandleSagaNotFound

@@ -210,7 +210,6 @@
     <Compile Include="Sagas\SagaSendBehavior.cs" />
     <Compile Include="Saga\ContainSagaData.cs" />
     <Compile Include="Saga\IAmStartedByMessages.cs" />
-    <Compile Include="Saga\IConfigurable.cs" />
     <Compile Include="Saga\IConfigureHowToFindSagaWithMessage.cs" />
     <Compile Include="Saga\IContainSagaData.cs" />
     <Compile Include="Saga\IFinder.cs" />
@@ -219,6 +218,7 @@
     <Compile Include="Saga\IHandleTimeouts.cs" />
     <Compile Include="Saga\ISagaPersister.cs" />
     <Compile Include="Saga\Saga.cs" />
+    <Compile Include="Saga\SagaPropertyMapper.cs" />
     <Compile Include="Saga\SagaT.cs" />
     <Compile Include="Saga\ToSagaExpression.cs" />
     <Compile Include="Saga\UniqueAttribute.cs" />

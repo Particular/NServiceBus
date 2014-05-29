@@ -15,11 +15,11 @@
         {
             MarkAsComplete();
         }
-        public override void ConfigureHowToFindSaga()
-        {
-            ConfigureMapping<StartSagaMessage>(m => m.Id).ToSaga(s => s.Number);
-            ConfigureMapping<CompleteSagaMessage>(m => m.Id).ToSaga(s => s.Number);
-        }
 
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+        {
+            mapper.ConfigureMapping<StartSagaMessage>(m => m.Id).ToSaga(s => s.Number);
+            mapper.ConfigureMapping<CompleteSagaMessage>(m => m.Id).ToSaga(s => s.Number);
+        }
     }
 }

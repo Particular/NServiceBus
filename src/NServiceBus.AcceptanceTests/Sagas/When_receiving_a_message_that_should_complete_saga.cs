@@ -76,13 +76,13 @@
                     Context.StartSagaMessageReceived = true;
                 }
 
-                public override void ConfigureHowToFindSaga()
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
                 {
-                    ConfigureMapping<StartSagaMessage>(m=>m.SomeId)
+                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s=>s.SomeId);
-                    ConfigureMapping<CompleteSagaMessage>(m => m.SomeId)
+                    mapper.ConfigureMapping<CompleteSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
-                    ConfigureMapping<AnotherMessage>(m => m.SomeId)
+                    mapper.ConfigureMapping<AnotherMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
 
@@ -96,6 +96,7 @@
                 {
                     Context.SagaReceivedAnotherMessage = true;
                 }
+
             }
 
             public class TestSagaData : IContainSagaData

@@ -52,15 +52,16 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     MarkAsComplete();
                 }
 
-                public override void ConfigureHowToFindSaga()
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestingSagaData> mapper)
                 {
-                    ConfigureMapping<InitiateRequestingSaga>(m => m.DataId).ToSaga(s => s.DataId);
+                   mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.DataId).ToSaga(s => s.DataId);
                 }
                 public class RequestingSagaData : ContainSagaData
                 {
                     [Unique]
                     public virtual Guid DataId { get; set; }
                 }
+
             }
 
             public class RespondingSaga : Saga<RespondingSaga.RespondingSagaData>, 
@@ -73,13 +74,14 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     Bus.Reply(new ResponseFromOtherSaga { DataId = message.DataId });
                 }
 
-                public override void ConfigureHowToFindSaga()
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RespondingSagaData> mapper)
                 {
                 }
 
                 public class RespondingSagaData : ContainSagaData
                 {
                 }
+
             }
         }
 

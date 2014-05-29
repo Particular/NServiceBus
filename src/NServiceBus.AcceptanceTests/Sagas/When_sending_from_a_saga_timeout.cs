@@ -50,9 +50,11 @@
                 public class Saga1Data : ContainSagaData
                 {
                 }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
+                {
+                }
             }
-
-
 
             public class Saga2 : Saga<Saga2.Saga2Data>, IAmStartedByMessages<StartSaga2>
             {
@@ -64,6 +66,10 @@
                 }
 
                 public class Saga2Data : ContainSagaData
+                {
+                }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
                 {
                 }
             }

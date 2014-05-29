@@ -90,10 +90,10 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     MarkAsComplete();
                 }
 
-                public override void ConfigureHowToFindSaga()
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga1Data> mapper)
                 {
-                    ConfigureMapping<GroupPendingEvent>(m => m.DataId).ToSaga(s => s.DataId);
-                    ConfigureMapping<CompleteSaga1Now>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<GroupPendingEvent>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<CompleteSaga1Now>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class MySaga1Data : ContainSagaData
@@ -101,6 +101,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     [Unique]
                     public virtual  Guid DataId { get; set; }
                 }
+
             }
 
             public class Saga2 : Saga<Saga2.MySaga2Data>, IAmStartedByMessages<StartSaga2>, IHandleMessages<GroupPendingEvent>
@@ -122,10 +123,10 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     MarkAsComplete();
                 }
 
-                public override void ConfigureHowToFindSaga()
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga2Data> mapper)
                 {
-                    ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
-                    ConfigureMapping<GroupPendingEvent>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<GroupPendingEvent>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class MySaga2Data : ContainSagaData
@@ -133,6 +134,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     [Unique]
                     public virtual  Guid DataId { get; set; }
                 }
+
             }
         }
 

@@ -7,7 +7,7 @@
     using Saga;
     using ScenarioDescriptors;
 
-    public class When_receiving_a_message_that_is_mapped_to_an_existing_saga_instance : NServiceBusAcceptanceTest
+    public class When_saga_has_a_non_empty_constructor : NServiceBusAcceptanceTest
     {
         static Guid IdThatSagaIsCorrelatedOn = Guid.NewGuid();
 
@@ -18,12 +18,10 @@
                     .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
                         {
                             bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn });
-                            bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn, SecondMessage = true });                                    
+                            bus.SendLocal(new OtherMessage { SomeId = IdThatSagaIsCorrelatedOn });                                    
                         }))
                     .Done(c => c.SecondMessageReceived)
                     .Repeat(r => r.For(Persistence.Default))
-                    .Should(c => Assert.AreEqual(c.FirstSagaInstance, c.SecondSagaInstance, "The same saga instance should be invoked invoked for both messages"))
-
                     .Run();
         }
 
@@ -31,8 +29,6 @@
         {
             public bool SecondMessageReceived { get; set; }
 
-            public Guid FirstSagaInstance { get; set; }
-            public Guid SecondSagaInstance { get; set; }
         }
 
         public class SagaEndpoint : EndpointConfigurationBuilder
@@ -42,30 +38,31 @@
                 EndpointSetup<DefaultServer>(c=>c.Transactions(t=>t.Advanced(a => a.DoNotWrapHandlersExecutionInATransactionScope())));
             }
 
-            public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>
+            public class TestSaga : Saga<TestSagaData>,
+                IAmStartedByMessages<StartSagaMessage>, IHandleMessages<OtherMessage>
             {
+
+                // ReSharper disable once UnusedParameter.Local
+                public TestSaga(IBus bus)
+                {
+                    
+                }
                 public Context Context { get; set; }
                 public void Handle(StartSagaMessage message)
                 {
                     Data.SomeId = message.SomeId;
-
-                    if (message.SecondMessage)
-                    {
-                        Context.SecondSagaInstance = Data.Id;
-                        Context.SecondMessageReceived = true;
-                    }
-                    else
-                    {
-                        Context.FirstSagaInstance = Data.Id;
-                    }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
+                    mapper.ConfigureMapping<OtherMessage>(m => m.SomeId)
                         .ToSaga(s=>s.SomeId);
                 }
 
+                public void Handle(OtherMessage message)
+                {
+                    Context.SecondMessageReceived = true;
+                }
             }
 
             public class TestSagaData : IContainSagaData
@@ -84,7 +81,11 @@
         {
             public Guid SomeId { get; set; }
 
-            public bool SecondMessage { get; set; }
+        }
+        [Serializable]
+        public class OtherMessage : ICommand
+        {
+            public Guid SomeId { get; set; }
         }
     }
 }

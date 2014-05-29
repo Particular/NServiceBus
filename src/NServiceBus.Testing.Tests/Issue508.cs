@@ -66,6 +66,10 @@
             Bus.Send(new TheMessageSentAtTimeout());
             MarkAsComplete();
         }
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TheData> mapper)
+        {
+        }
     }
 
     public class TheData : IContainSagaData

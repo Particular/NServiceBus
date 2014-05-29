@@ -46,6 +46,10 @@
             public void Handle(Foo2 message)
             {
             }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+            {
+            }
         }
         class MySagaData : ContainSagaData
         {

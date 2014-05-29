@@ -33,6 +33,10 @@ namespace NServiceBus.Unicast.Tests
             {
                 Assert.Fail("Handler should not be invoked");
             }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+            {
+            }
         }
 
         class SagaNotFoundHandler : IHandleSagaNotFound

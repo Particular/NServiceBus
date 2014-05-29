@@ -38,6 +38,10 @@ namespace NServiceBus.Unicast.Tests
             {
                 MarkAsComplete();
             }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+            {
+            }
         }
 
         class MySagaData : ContainSagaData

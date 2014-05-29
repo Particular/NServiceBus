@@ -1,7 +1,6 @@
 namespace NServiceBus.Saga
 {
     using System;
-    using System.Linq.Expressions;
 
     /// <summary>
     /// This class is used to define sagas containing data and handling a message.
@@ -10,43 +9,17 @@ namespace NServiceBus.Saga
     /// To signify that the receipt of a message should start this saga,
     /// implement <see cref="IAmStartedByMessages{T}"/> for the relevant message type.
     /// </summary>
-    public abstract class Saga : IConfigurable
+    public abstract class Saga 
     {
         /// <summary>
         /// The saga's typed data.
         /// </summary>
         public IContainSagaData Entity{get; set; }
 
-        bool configuring;
-        void IConfigurable.Configure()
-        {
-            configuring = true;
-            ConfigureHowToFindSaga();
-            configuring = false;
-        }
-
         /// <summary>
         /// Override this method in order to configure how this saga's data should be found.
-        /// Call <see cref="ConfigureMapping{TSagaData,TMessage}"/> or <see cref="Saga{T}.ConfigureMapping{TMessage}"/>for each property of each message you want
-        /// to use for lookup.
         /// </summary>
-        public virtual void ConfigureHowToFindSaga()
-        {
-        }
-
-
-        /// <summary>
-        /// When the infrastructure is handling a message of the given type
-        /// this specifies which message property should be matched to 
-        /// which saga entity property in the persistent saga store.
-        /// </summary>
-        protected virtual ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TSagaData,TMessage>(Expression<Func<TMessage, object>> messageProperty) where TSagaData : IContainSagaData
-        {
-            if (!configuring)
-                throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
-
-            return new ToSagaExpression<TSagaData, TMessage>(SagaMessageFindingConfiguration, messageProperty);
-        }
+        internal protected abstract void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
 
         /// <summary>
         /// Bus object used for retrieving the sender endpoint which caused this saga to start.
@@ -61,19 +34,10 @@ namespace NServiceBus.Saga
 
                 return bus;
             }
-
             set { bus = value; }
         }
 
         IBus bus;
-
-        /// <summary>
-        /// Object used to configure mapping between saga properties and message properties
-        /// for the purposes of finding sagas when a message arrives.
-        /// 
-        /// Do NOT use at runtime (handling messages) - it will be null.
-        /// </summary>
-        public IConfigureHowToFindSagaWithMessage SagaMessageFindingConfiguration { get; set; }
 
         /// <summary>
         /// Indicates that the saga is complete.

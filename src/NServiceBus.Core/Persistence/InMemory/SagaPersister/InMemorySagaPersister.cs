@@ -21,38 +21,40 @@ namespace NServiceBus.InMemory.SagaPersister
             }
         }
 
-        public T Get<T>(string property, object value) where T : IContainSagaData
+        public TSagaData Get<TSagaData>(string propertyName, object propertyValue) where TSagaData : IContainSagaData
         {
             lock (syncRoot)
             {
-                var values = data.Values.Where(x => x.SagaEntity is T);
+                var values = data.Values.Where(x => x.SagaEntity is TSagaData);
                 foreach (var entity in values)
                 {
-                    var prop = entity.SagaEntity.GetType().GetProperty(property);
+                    var prop = entity.SagaEntity.GetType().GetProperty(propertyName);
                     if (prop != null)
-                        if (prop.GetValue(entity.SagaEntity, null).Equals(value))
+                    {
+                        if (prop.GetValue(entity.SagaEntity, null).Equals(propertyValue))
                         {
                             entity.ReadByThreadId.Add(Thread.CurrentThread.ManagedThreadId);
-                            return (T)DeepClone(entity.SagaEntity);
+                            return (TSagaData)DeepClone(entity.SagaEntity);
                         }
+                    }
                 }
             }
-            return default(T);
+            return default(TSagaData);
         }
 
-        public T Get<T>(Guid sagaId) where T : IContainSagaData
+        public TSagaData Get<TSagaData>(Guid sagaId) where TSagaData : IContainSagaData
         {
             lock (syncRoot)
             {
                 VersionedSagaEntity result;
                 data.TryGetValue(sagaId, out result);
-                if ((result != null) && (result.SagaEntity is T))
+                if ((result != null) && (result.SagaEntity is TSagaData))
                 {
                     result.ReadByThreadId.Add(Thread.CurrentThread.ManagedThreadId);
-                    return (T)DeepClone(result.SagaEntity);
+                    return (TSagaData)DeepClone(result.SagaEntity);
                 }
             }
-            return default(T);
+            return default(TSagaData);
         }
 
         public void Save(IContainSagaData saga)

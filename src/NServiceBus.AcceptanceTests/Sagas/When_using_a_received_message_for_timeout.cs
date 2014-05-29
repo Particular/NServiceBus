@@ -66,11 +66,11 @@
                     Context.StartSagaMessageReceived = true;
                 }
 
-                public override void ConfigureHowToFindSaga()
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
                 {
-                    ConfigureMapping<StartSagaMessage>(m => m.SomeId)
+                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
-                    ConfigureMapping<SomeEvent>(m => m.SomeId)
+                    mapper.ConfigureMapping<SomeEvent>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
 
@@ -85,6 +85,7 @@
                     Context.TimeoutReceived = true;
                     MarkAsComplete();
                 }
+
             }
 
             public class TestSagaData : IContainSagaData
