@@ -88,7 +88,7 @@ namespace NServiceBus
             Replacement = "LogManager.LoggerFactory = new MyCustomLoggerFactory()")]
         public static void Custom(ILoggerFactory loggerFactory)
         {
-            LogManager.LoggerFactory = loggerFactory;
+            throw new NotImplementedException();
         }
 
    
