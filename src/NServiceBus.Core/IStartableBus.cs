@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// The interface used for starting and stopping an IBus.
     /// </summary>
-    public interface IStartableBus : IBus, IDisposable
+    public interface IStartableBus
     {
         /// <summary>
         /// Performs the given startup action, starts the bus, and returns a reference to it.
@@ -20,14 +20,23 @@ namespace NServiceBus
         /// <returns>A reference to the bus.</returns>
         IBus Start();
 
+
+        /// <summary>
+        /// Starts the bus in send only mode
+        /// </summary>
+        /// <returns>A reference to the bus.</returns>
+        ISendOnlyBus StartInSendOnlyMode();
+
         /// <summary>
         /// Performs the shutdown of the current <see cref="IBus"/>.
         /// </summary>
+        //todo: obsolete
         void Shutdown();
 
         /// <summary>
         /// Event raised when the bus is started.
         /// </summary>
+        //todo: obsolete
         event EventHandler Started;
     }
 }

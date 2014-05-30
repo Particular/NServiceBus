@@ -151,6 +151,7 @@
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />
     <Compile Include="Installation\ElevateChecker.cs" />
+    <Compile Include="ISendOnlyBus.cs" />
     <Compile Include="IStartableBus.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />
     <Compile Include="Licensing\LicenseBehavior.cs" />
