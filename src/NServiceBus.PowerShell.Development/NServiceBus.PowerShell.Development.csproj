@@ -65,9 +65,6 @@
     <Compile Include="VsConstants.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="RavenResources\*.*">
-      <Visible>false</Visible>
-    </EmbeddedResource>
     <Content Include="NServiceBus.PowerShell.Development.psd1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

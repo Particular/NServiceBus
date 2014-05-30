@@ -34,7 +34,7 @@ namespace Server.Saga
         {
             LogMessage("v3.0 Timeout fired, with state: " + state.SomeValue);
 
-            LogMessage("Marking the saga as complete, be aware that this will remove the document from the storage (RavenDB)");
+            LogMessage("Marking the saga as complete, be aware that this will remove the document from the storage");
             MarkAsComplete();
         }
     }

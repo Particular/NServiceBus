@@ -72,7 +72,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="TestSuites\Mutators.ps1" />
-    <None Include="TestSuites\PubSub-Raven.ps1" />
     <None Include="TestSuites\Sagas-Concurrency.ps1" />
     <None Include="TestSuites\SqlServer.ps1" />
     <None Include="TestSuites\PubSub.ps1" />
