@@ -72,7 +72,6 @@
             coordinator.Register(WellKnownBehavior.ExtractLogicalMessages, typeof(ExtractLogicalMessagesBehavior), "It splits the raw message into multiple logical messages");
             coordinator.Register(WellKnownBehavior.ExecuteLogicalMessages, typeof(ExecuteLogicalMessagesBehavior), "Starts the execution of each logical message");
             coordinator.Register(WellKnownBehavior.MutateIncomingMessages, typeof(ApplyIncomingMessageMutatorsBehavior), "Executes IMutateIncomingMessages");
-            coordinator.Register("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message"); //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
             coordinator.Register(WellKnownBehavior.ExecuteHandlers, typeof(LoadHandlersBehavior), "Executes all IHandleMessages<T>");
             coordinator.Register("SetCurrentMessageBeingHandled", typeof(SetCurrentMessageBeingHandledBehavior), "Sets the static current message (this is used by the headers)");
             coordinator.Register("AuditInvokedSaga", typeof(AuditInvokedSagaBehavior), "Populates the InvokedSaga header");
@@ -85,7 +84,6 @@
             coordinator.Register(WellKnownBehavior.EnforceBestPractices, typeof(SendValidatorBehavior), "Enforces messaging best practices");
             coordinator.Register("CopySagaHeaders", typeof(SagaSendBehavior), "Copies existing saga headers from incoming message to outgoing message. This facilitates the auto correlation");
             coordinator.Register(WellKnownBehavior.MutateOutgoingMessages, typeof(MutateOutgoingMessageBehavior), "Executes IMutateOutgoingMessages");
-            coordinator.Register("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location"); //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
             coordinator.Register(WellKnownBehavior.CreatePhysicalMessage, typeof(CreatePhysicalMessageBehavior), "Converts a logical message into a physical message");
             coordinator.Register(WellKnownBehavior.SerializeMessage, typeof(SerializeMessagesBehavior), "Serializes the message to be sent out on the wire");
             coordinator.Register(WellKnownBehavior.MutateOutgoingTransportMessage, typeof(MutateOutgoingPhysicalMessageBehavior), "Executes IMutateOutgoingTransportMessages");

@@ -3,17 +3,17 @@ namespace NServiceBus.Core.Tests.DataBus
     using System;
     using System.IO;
     using NServiceBus.DataBus;
-    using NServiceBus.DataBus.Config;
     using NServiceBus.DataBus.InMemory;
+    using NServiceBus.Features;
     using NUnit.Framework;
 
     [TestFixture]
     public class When_nservicebus_is_initializing
     {
         [Test]
-        public void Databus_should_be_registered_if_a_databus_property_is_found()
+        public void Databus_should_be_activated_if_a_databus_property_is_found()
         {
-            Configure.With(o =>
+            var config = Configure.With(o =>
             {
                 o.EndpointName("xyz");
                 o.TypesToScan(new[]
@@ -23,19 +23,17 @@ namespace NServiceBus.Core.Tests.DataBus
             })
                 .DefaultBuilder();
 
-            IWantToRunBeforeConfigurationIsFinalized bootstrapper = new Bootstrapper();
+            var feature = new DataBusFeature();
 
-        	Configure.Instance.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
 
-            bootstrapper.Run(Configure.Instance);
-
-            Assert.True(Configure.Instance.Configurer.HasComponent<IDataBus>());
+            Assert.True(feature.ShouldBeSetup(new FeatureConfigurationContext(config)));
         }
 
         [Test]
-        public void Databus_should_not_be_registered_if_no_databus_property_is_found()
+        public void Databus_should_not_be_activated_if_no_databus_property_is_found()
         {
-            Configure.With(o =>
+            var config = Configure.With(o =>
             {
                 o.EndpointName("xyz");
                 o.TypesToScan(new[]
@@ -45,11 +43,10 @@ namespace NServiceBus.Core.Tests.DataBus
             })
                 .DefaultBuilder();
 
-            IWantToRunBeforeConfigurationIsFinalized bootstrapper = new Bootstrapper();
+            var feature = new DataBusFeature();
 
-            bootstrapper.Run(Configure.Instance);
 
-            Assert.False(Configure.Instance.Configurer.HasComponent<IDataBus>());
+            Assert.False(feature.ShouldBeSetup(new FeatureConfigurationContext(config)));
         }
 
         [Test]
@@ -60,7 +57,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 Assert.Ignore("This only work in debug mode.");
             }
 
-            Configure.With(o =>
+            var config = Configure.With(o =>
             {
                 o.EndpointName("xyz");
                 o.TypesToScan(new[]
@@ -69,12 +66,11 @@ namespace NServiceBus.Core.Tests.DataBus
                 });
             })
                 .DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"))
-                .DefaultBuilder()
-                .Configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
+                .DefaultBuilder();
 
-            IWantToRunBeforeConfigurationIsFinalized bootstrapper = new Bootstrapper();
+            var feature = new DataBusFeature();
 
-            Assert.Throws<InvalidOperationException>(() => bootstrapper.Run(Configure.Instance));
+            Assert.Throws<InvalidOperationException>(() => feature.ShouldBeSetup(new FeatureConfigurationContext(config)));
         }
 
         [Test]
@@ -85,7 +81,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 Assert.Ignore("This only work in debug mode.");
             }
 
-            Configure.With(o =>
+            var config=Configure.With(o =>
             {
                 o.EndpointName("xyz");
                 o.TypesToScan(new[]
@@ -94,14 +90,15 @@ namespace NServiceBus.Core.Tests.DataBus
                 });
             })
                 .DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"))
-                .DefaultBuilder()
-                .Configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
+                .DefaultBuilder();
+            
+            config.Configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
 
-            IWantToRunBeforeConfigurationIsFinalized bootstrapper = new Bootstrapper();
+            var feature = new DataBusFeature();
 
-            Configure.Instance.Configurer.ConfigureComponent<IDataBusSerializer>(() => new MyDataBusSerializer(), DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<IDataBusSerializer>(() => new MyDataBusSerializer(), DependencyLifecycle.SingleInstance);
 
-            Assert.DoesNotThrow(() => bootstrapper.Run(Configure.Instance));
+            Assert.DoesNotThrow(() => feature.ShouldBeSetup(new FeatureConfigurationContext(config)));
         }
 
         class MyDataBusSerializer : IDataBusSerializer

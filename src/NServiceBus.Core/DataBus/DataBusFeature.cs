@@ -1,17 +1,41 @@
-namespace NServiceBus.DataBus.Config
+namespace NServiceBus.Features
 {
     using System;
     using System.Linq;
+    using DataBus;
 
-    class Bootstrapper : IWantToRunBeforeConfigurationIsFinalized, IWantToRunWhenBusStartsAndStops
+    public class DataBusFeature : Feature
 	{
-        static bool dataBusPropertyFound;
+        public DataBusFeature()
+        {
+            EnableByDefault();
+            Prerequisite(DataBusPropertiesFound);
+            RegisterStartupTask<StorageInitializer>();
+        }
 
-        void IWantToRunBeforeConfigurationIsFinalized.Run(Configure config)
-		{
-            if (!config.Configurer.HasComponent<IDataBusSerializer>() && System.Diagnostics.Debugger.IsAttached)
+        protected override void Setup(FeatureConfigurationContext context)
+        {
+            if (!context.Container.HasComponent<IDataBus>())
+			{
+			    throw new InvalidOperationException("Messages containing databus properties found, please configure a databus!");
+			}
+
+            if (!context.Container.HasComponent<IDataBusSerializer>())
             {
-                var properties = config.TypesToScan
+                context.Container.ConfigureComponent<DefaultDataBusSerializer>(DependencyLifecycle.SingleInstance);
+            }
+
+            context.Pipeline.Register<DataBusReceiveBehavior.Registration>();
+            context.Pipeline.Register<DataBusSendBehavior.Registration>();
+		}
+
+        static bool DataBusPropertiesFound(FeatureConfigurationContext context)
+        {
+            var dataBusPropertyFound = false;
+
+            if (!context.Container.HasComponent<IDataBusSerializer>() && System.Diagnostics.Debugger.IsAttached)
+            {
+                var properties = context.Settings.GetAvailableTypes()
                     .Where(MessageConventionExtensions.IsMessageType)
                     .SelectMany(messageType => messageType.GetProperties())
                     .Where(MessageConventionExtensions.IsDataBusProperty);
@@ -33,41 +57,21 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
             }
             else
             {
-                dataBusPropertyFound = config.TypesToScan
+                dataBusPropertyFound = context.Settings.GetAvailableTypes()
                     .Where(MessageConventionExtensions.IsMessageType)
                     .SelectMany(messageType => messageType.GetProperties())
                     .Any(MessageConventionExtensions.IsDataBusProperty);
             }
-
-		    if (!dataBusPropertyFound)
-		    {
-		        return;
-		    }
-
-            if (!config.Configurer.HasComponent<IDataBus>())
-			{
-			    throw new InvalidOperationException("Messages containing databus properties found, please configure a databus!");
-			}
-
-            if (!config.Configurer.HasComponent<IDataBusSerializer>())
-            {
-                config.Configurer.ConfigureComponent<DefaultDataBusSerializer>(DependencyLifecycle.SingleInstance);
-            }
-		}
-
-        public IDataBus DataBus { get; set; }
-
-        public void Start()
+            return dataBusPropertyFound;
+        }
+        class StorageInitializer:FeatureStartupTask
         {
-            if (DataBus != null)
+            public IDataBus DataBus { get; set; }
+
+            protected override void OnStart()
             {
                 DataBus.Start();    
             }
-            
-        }
-
-        public void Stop()
-        {
         }
 	}
 }
