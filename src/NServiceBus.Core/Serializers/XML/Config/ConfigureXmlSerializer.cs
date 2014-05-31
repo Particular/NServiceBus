@@ -1,3 +1,5 @@
+
+// ReSharper disable UnusedParameter.Global
 namespace NServiceBus
 {
     using System;
@@ -5,6 +7,7 @@ namespace NServiceBus
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
     /// </summary>
+    [ObsoleteEx(Replacement = "config.Serialization.Xml()", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
     public static class ConfigureXmlSerializer
     {
 
