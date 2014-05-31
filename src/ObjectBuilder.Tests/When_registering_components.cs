@@ -103,6 +103,21 @@ namespace ObjectBuilder.Tests
             });
         }
 
+        [Test]
+        public void Properties_configured_multiple_times_should_retain_only_the_last_configuration()
+        {
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(DuplicateClass), DependencyLifecycle.SingleInstance);
+                builder.ConfigureProperty(typeof(DuplicateClass), "SomeProperty", false);
+                builder.ConfigureProperty(typeof(DuplicateClass), "SomeProperty", true); // this should remove/override the previous property setting
+
+                var component = (DuplicateClass) builder.Build(typeof(DuplicateClass));
+
+                Assert.True(component.SomeProperty);
+            });
+        }
+
 
         [Test]
         public void Setter_dependencies_should_be_supported()

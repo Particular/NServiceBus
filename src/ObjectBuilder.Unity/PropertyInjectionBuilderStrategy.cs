@@ -24,7 +24,12 @@ namespace NServiceBus.ObjectBuilder.Unity
                 configuredProperties[type] = properties = new List<Tuple<string, object>>();
             }
 
-            properties.Add(new Tuple<string, object>(name, value));
+            var propertySetting = properties.FirstOrDefault(i => i.Item1 == name);
+            if(propertySetting != null)
+            {
+                properties.Remove(propertySetting);
+            }
+            properties.Add(new Tuple<string, object>(name,value));
         }
 
         public override void PreBuildUp(IBuilderContext context)
