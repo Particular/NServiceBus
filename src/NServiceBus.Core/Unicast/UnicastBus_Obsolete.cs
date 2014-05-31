@@ -3,9 +3,6 @@ namespace NServiceBus.Unicast
 {
     using System;
 
-    /// <summary>
-    /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
-    /// </summary>
     public partial class UnicastBus
     {
         [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Message = "InMemory.Raise has been removed from the core please see http://docs.particular.net/nservicebus/inmemoryremoval")]
