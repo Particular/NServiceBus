@@ -23,7 +23,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public class UnicastBus : IStartableBus, IInMemoryOperations
+    public partial class UnicastBus : IStartableBus, IInMemoryOperations
     {
         HostInformation hostInformation = HostInformation.CreateDefault();
 
@@ -678,20 +678,6 @@ namespace NServiceBus.Unicast
             started = false;
         }
 
-        public void Raise<T>(Action<T> messageConstructor)
-        {
-            ThrowInMemoryException();
-        }
-
-        public void Raise<T>(T @event)
-        {
-            ThrowInMemoryException();
-        }
-
-        static void ThrowInMemoryException()
-        {
-            throw new Exception("InMemory.Raise has been removed from the core please see http://docs.particular.net/nservicebus/inmemoryremoval");
-        }
 
         void TransportStartedMessageProcessing(object sender, StartedMessageProcessingEventArgs e)
         {
