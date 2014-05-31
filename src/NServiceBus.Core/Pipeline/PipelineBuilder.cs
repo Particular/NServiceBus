@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using Contexts;
-    using DataBus;
     using MessageMutator;
     using NServiceBus.MessageMutator;
     using Sagas;
