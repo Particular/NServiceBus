@@ -25,7 +25,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
         /// <summary>
         /// Tells StructureMap to do setter injection for the given type
         /// </summary>
-        public static void EnableSetterInjectionFor(this ConfigurationExpression configuration, Type pluginType)
+        public static void EnableSetterInjectionFor(Type pluginType)
         {
             PluginCache.AddFilledType(pluginType);
         }

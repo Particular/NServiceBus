@@ -150,7 +150,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         RepeatedFailuresOverTimeCircuitBreaker circuitBreaker =
             new RepeatedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity", TimeSpan.FromMinutes(2),
                 ex =>
-                    Configure.Instance.RaiseCriticalError(
+                    ConfigureCriticalErrorAction.RaiseCriticalError(
                         "Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
 
         readonly object lockObject = new object();

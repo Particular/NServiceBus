@@ -347,7 +347,7 @@ namespace NServiceBus.Transports.Msmq
 
             circuitBreaker.Execute(
                 () =>
-                    Configure.Instance.RaiseCriticalError("Error in receiving messages.",
+                    ConfigureCriticalErrorAction.RaiseCriticalError("Error in receiving messages.",
                         new InvalidOperationException(errorException, messageQueueException)));
         }
 

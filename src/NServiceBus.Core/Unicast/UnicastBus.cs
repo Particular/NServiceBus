@@ -523,7 +523,7 @@ namespace NServiceBus.Unicast
                 }
                 catch (Exception ex)
                 {
-                    Configure.Instance.RaiseCriticalError(String.Format("{0} could not be started.", name), ex);
+                    ConfigureCriticalErrorAction.RaiseCriticalError(String.Format("{0} could not be started.", name), ex);
                 }
             }, TaskCreationOptions.LongRunning)).ToArray();
 
@@ -557,7 +557,7 @@ namespace NServiceBus.Unicast
                     }
                     catch (Exception ex)
                     {
-                        Configure.Instance.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
+                        ConfigureCriticalErrorAction.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
                     }
                 }, TaskCreationOptions.LongRunning);
 

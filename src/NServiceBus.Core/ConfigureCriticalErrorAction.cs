@@ -36,10 +36,9 @@ namespace NServiceBus
         /// <summary>
         ///     Execute the configured Critical error action. The action will be performed on a separate thread
         /// </summary>
-        /// <param name="config">The configuration object.</param>
         /// <param name="errorMessage">The error message.</param>
         /// <param name="exception">The critical exception thrown.</param>
-        public static void RaiseCriticalError(this Configure config, string errorMessage, Exception exception)
+        public static void RaiseCriticalError(string errorMessage, Exception exception)
         {
             LogManager.GetLogger("NServiceBus").Fatal(errorMessage, exception);
 
