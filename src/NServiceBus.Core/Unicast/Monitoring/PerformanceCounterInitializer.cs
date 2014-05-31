@@ -10,7 +10,7 @@ namespace NServiceBus.Unicast.Monitoring
     {
         public void Run(Configure config)
         {
-            if (!config.PerformanceCountersEnabled())
+            if (!MonitoringConfig.PerformanceCountersEnabled)
                 return;
 
             if (!PerformanceCounterCategory.Exists(CategoryName))
@@ -35,7 +35,7 @@ namespace NServiceBus.Unicast.Monitoring
 
         static void SetupSLABreachCounter(Configure config)
         {
-            var endpointSla = config.EndpointSLA();
+            var endpointSla = MonitoringConfig.EndpointSLA;
 
             if (endpointSla == TimeSpan.Zero)
                 return;
