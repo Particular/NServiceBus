@@ -184,6 +184,8 @@
 
             foreach (var binding in bindings)
             {
+                // if there is already a propertyvalue parameter for this binding then remove it
+                binding.Parameters.Remove(new PropertyValue(property, c => null));
                 binding.Parameters.Add(new PropertyValue(property, value));
             }
         }
