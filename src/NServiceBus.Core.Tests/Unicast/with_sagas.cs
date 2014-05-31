@@ -46,8 +46,7 @@
                     var propertyLookups = entityLookups.Value;
 
                     var finder = Activator.CreateInstance(propertyFinder);
-                    propertyFinder.GetProperty("SagaProperty").SetValue(finder, propertyLookups.Key);
-                    propertyFinder.GetProperty("MessageProperty").SetValue(finder, propertyLookups.Value);
+                    propertyFinder.GetProperty("SagaToMessageMap").SetValue(finder, propertyLookups);
                     FuncBuilder.Register(propertyFinder, () => finder);
                 }
             }
