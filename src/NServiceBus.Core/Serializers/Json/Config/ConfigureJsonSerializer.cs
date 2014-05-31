@@ -1,7 +1,9 @@
+// ReSharper disable UnusedParameter.Global
 namespace NServiceBus
 {
     using System;
 
+    [ObsoleteEx(Replacement = "config.Serialization.Json()", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
     public static class ConfigureJsonSerializer
     {
         [ObsoleteEx(Replacement = "config.Serialization.Json()", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
