@@ -213,7 +213,6 @@
                 var message = new EncryptionTestMessage
                 {
                     Secret = MySecretMessage,
-                    SecretField = MySecretMessage,
                     CreditCard = new ClassForNesting { EncryptedProperty = MySecretMessage },
                     LargeByteArray = new byte[1], // the length of the array is not the issue now
                     ListOfCreditCards =
