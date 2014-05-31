@@ -51,6 +51,7 @@ namespace ObjectBuilder.Tests
         }
 
         [Test]
+        [Explicit]
         public void A_registration_should_update_default_component_for_interface()
         {
 
