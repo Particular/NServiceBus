@@ -64,6 +64,14 @@
             }
         }
 
-      
+        public class OutboxDeduplicationRegistration : RegisterBehavior
+        {
+            public OutboxDeduplicationRegistration()
+                : base("OutboxDeduplication", typeof(OutboxDeduplicationBehavior), "Deduplication for the outbox feature")
+            {
+                InsertAfter(WellKnownBehavior.ChildContainer);
+                InsertBefore(WellKnownBehavior.UnitOfWork);
+            }
+        }
     }
 }

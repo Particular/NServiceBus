@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Settings;
     using Utils;
 
     /// <summary>
@@ -56,6 +57,17 @@
         }
 
         /// <summary>
+        /// Enables the feature to setup default settings
+        /// </summary>
+        /// <param name="settings"></param>
+        protected void Defaults(Action<SettingsHolder> settings)
+        {
+            defaults.Add(settings);
+        }
+
+
+
+        /// <summary>
         /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless the dependant feature is actived.
         /// This also causes this feature to be activated after the other feature
         /// </summary>
@@ -65,6 +77,12 @@
             dependencies.Add(typeof(T));
         }
 
+
+        /// <summary>
+        /// Registers a task that will be invoked at startup. This task will have DI and will only run if the feature it self is activated.
+        /// More that one startup task can be registered by a single feature
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         protected void RegisterStartupTask<T>() where T : FeatureStartupTask
         {
             startupTasks.Add(typeof(T));
@@ -159,7 +177,9 @@
         {
             name = GetType().Name.Replace("Feature", String.Empty);
         }
-        internal IEnumerable<Type> StartupTasks { get { return startupTasks; } } 
+        internal IEnumerable<Type> StartupTasks { get { return startupTasks; } }
+
+        internal IEnumerable<Action<SettingsHolder>> RegisteredDefaults { get { return defaults; } } 
         
         List<Type> dependencies = new List<Type>();
 
@@ -170,5 +190,6 @@
 
         bool isActive;
         List<Type> startupTasks = new List<Type>();
+        List<Action<SettingsHolder>> defaults = new List<Action<SettingsHolder>>();
     }
 }

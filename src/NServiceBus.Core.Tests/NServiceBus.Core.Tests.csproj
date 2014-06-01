@@ -96,6 +96,7 @@
     <Compile Include="Logging\RollingLoggerTests.cs" />
     <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniqueProperties.cs" />
     <Compile Include="Persistence\InMemory\AnotherSimpleSageEntity.cs" />
+    <Compile Include="Persistence\InMemory\InMemoryOutboxPersisterTests.cs" />
     <Compile Include="Persistence\InMemory\SagaWithTwoUniqueProperties.cs" />
     <Compile Include="Persistence\InMemory\SagaWithUniqueProperty.cs" />
     <Compile Include="Persistence\InMemory\SimpleSagaEntity.cs" />
