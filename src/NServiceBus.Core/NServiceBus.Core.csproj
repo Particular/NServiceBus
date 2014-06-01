@@ -173,7 +173,8 @@
     <Compile Include="MessageMutator\IMutateOutgoingMessages.cs" />
     <Compile Include="Outbox\IOutboxStorage.cs" />
     <Compile Include="Outbox\Outbox.cs" />
-    <Compile Include="Outbox\OutboxConfigExtentions.cs" />
+    <Compile Include="Outbox\OutboxAwareAuditer.cs" />
+    <Compile Include="Outbox\OutboxConfigExtensions.cs" />
     <Compile Include="Outbox\OutboxMessage.cs" />
     <Compile Include="Outbox\OutboxDeduplicationBehavior.cs" />
     <Compile Include="Outbox\OutboxRecordBehavior.cs" />

@@ -23,6 +23,11 @@ namespace NServiceBus.Features
                 settings.EnableFeatureByDefault(feature.GetType());
             }
 
+            foreach (var defaultSetting in feature.RegisteredDefaults)
+            {
+                defaultSetting(settings);
+            }
+
             features.Add(feature);
         }
 
