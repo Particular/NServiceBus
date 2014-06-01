@@ -218,6 +218,9 @@ namespace NServiceBus
             //this needs to be before the installers since they actually call .Initialize :(
             initialized = true;
 
+            configurer.RegisterSingleton<Configure>(this);
+            configurer.RegisterSingleton<ReadOnlySettings>(Settings);
+
             ForAllTypes<INeedToInstallSomething>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
 
