@@ -9,7 +9,7 @@
     /// </summary>
     public class InMemoryDataBus : IDataBus
     {
-        Dictionary<string, Entry> storage = new Dictionary<string, Entry>();
+        private readonly IDictionary<string, Entry> storage = new Dictionary<string, Entry>();
 
         /// <summary>
         /// Gets a data item from the bus.
@@ -19,16 +19,14 @@
         public Stream Get(string key)
         {
             lock (storage)
-            {
                 return new MemoryStream(storage[key].Data);
-            }
         }
 
         /// <summary>
         /// Adds a data item to the bus and returns the assigned key.
         /// </summary>
         /// <param name="stream">A create containing the data to be sent on the databus.</param>
-        /// <param name="timeToBeReceived">Ignored.</param>
+        /// <param name="timeToBeReceived">The time to be received specified on the message type. TimeSpan.MaxValue is the default.</param>
         public string Put(Stream stream, TimeSpan timeToBeReceived)
         {
             var key = Guid.NewGuid().ToString();
@@ -37,12 +35,11 @@
             stream.Read(data, 0, (int)stream.Length);
 
             lock (storage)
-            {
                 storage.Add(key, new Entry
                 {
                     Data = data,
+                    ExpireAt = DateTime.Now + timeToBeReceived
                 });
-            }
             return key;
         }
 
@@ -51,20 +48,20 @@
         /// </summary>
         public void Start()
         {
+            //no-op
         }
 
         //used for test purposes
         public Entry Peek(string key)
         {
             lock (storage)
-            {
                 return storage[key];
-            }
         }
 
         public class Entry
         {
             public byte[] Data;
+            public DateTime ExpireAt;
         }
     }
 }
