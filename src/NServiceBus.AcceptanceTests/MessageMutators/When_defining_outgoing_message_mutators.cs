@@ -19,6 +19,7 @@
                     .Run();
 
             Assert.True(context.TransportMutatorCalled);
+            Assert.True(context.MutatedOutgoingMessage is MessageToBeMutated);
             Assert.True(context.MessageMutatorCalled);
         }
 
@@ -27,6 +28,7 @@
             public bool MessageProcessed { get; set; }
             public bool TransportMutatorCalled { get; set; }
             public bool MessageMutatorCalled { get; set; }
+            public object MutatedOutgoingMessage { get; set; }
         }
 
         public class OutgoingMutatorEndpoint : EndpointConfigurationBuilder
@@ -39,8 +41,11 @@
 
             class MyTransportMessageMutator:IMutateOutgoingTransportMessages,INeedInitialization
             {
+
+                public Context Context { get; set; }
                 public void MutateOutgoing(object message, TransportMessage transportMessage)
                 {
+                    Context.MutatedOutgoingMessage = message;
                     transportMessage.Headers["TransportMutatorCalled"] = true.ToString();
                 }
 

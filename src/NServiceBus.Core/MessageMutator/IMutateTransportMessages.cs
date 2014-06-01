@@ -1,4 +1,3 @@
-
 namespace NServiceBus.MessageMutator
 {
     /// <summary>
