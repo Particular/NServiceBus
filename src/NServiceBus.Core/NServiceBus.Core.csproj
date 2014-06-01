@@ -97,6 +97,7 @@
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettingsExtensions.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettings.cs" />
     <Compile Include="CompletionResult.cs" />
+    <Compile Include="Configure_Obsolete.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
     <Compile Include="Config\ChannelCollection.cs" />

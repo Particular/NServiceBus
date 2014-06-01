@@ -22,7 +22,7 @@ namespace NServiceBus
     /// <summary>
     ///     Central configuration entry point.
     /// </summary>
-    public class Configure
+    public partial class Configure
     {
         /// <summary>
         ///     Protected constructor to enable creation only via the With method.
@@ -32,18 +32,6 @@ namespace NServiceBus
             Settings.SetDefault("EndpointName", endpointName);
             Settings.SetDefault("TypesToScan", availableTypes);
             Settings.SetDefault<IConfigurationSource>(configurationSource);
-        }
-
-        /// <summary>
-        ///     Provides static access to the configuration object.
-        /// </summary>
-        public static Configure Instance
-        {
-            get
-            {
-                //we can't check for null here since that would break the way we do extension methods (the must be on a instance)
-                return instance;
-            }
         }
 
         /// <summary>
@@ -114,42 +102,6 @@ namespace NServiceBus
         public IList<Type> TypesToScan
         {
             get { return Settings.GetAvailableTypes(); }
-        }
-
-
-        static ILog Logger
-        {
-            get { return LogManager.GetLogger<Configure>(); }
-        }
-
-        /// <summary>
-        ///     The name of this endpoint.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "config.Settings.EndpointName()")]
-        public string EndpointName
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        /// <summary>
-        ///     True if any of the <see cref="With()" /> has been called.
-        /// </summary>
-        static bool WithHasBeenCalled()
-        {
-            return instance != null;
-        }
-
-        /// <summary>
-        ///     True if a builder has been defined.
-        /// </summary>
-        internal static bool BuilderIsConfigured()
-        {
-            if (!WithHasBeenCalled())
-            {
-                return false;
-            }
-
-            return Instance.HasBuilder();
         }
 
         bool HasBuilder()
@@ -304,44 +256,6 @@ namespace NServiceBus
                 .Assemblies;
         }
 
-
-        /// <summary>
-        ///     Configures the given type with the given lifecycle <see cref="DependencyLifecycle" />.
-        /// </summary>
-        public static IComponentConfig Component(Type type, DependencyLifecycle lifecycle)
-        {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component()");
-            }
-
-            return Instance.Configurer.ConfigureComponent(type, lifecycle);
-        }
-
-
-        /// <summary>
-        ///     Returns true if a component of type <typeparamref name="T" /> exists in the container.
-        /// </summary>
-        public static bool HasComponent<T>()
-        {
-            return HasComponent(typeof(T));
-        }
-
-
-        /// <summary>
-        ///     Returns true if a component of type <paramref name="componentType" /> exists in the container.
-        /// </summary>
-        public static bool HasComponent(Type componentType)
-        {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.HasComponent");
-            }
-
-            return Instance.Configurer.HasComponent(componentType);
-        }
-
-
         static IList<Type> GetAllowedTypes(params Assembly[] assemblies)
         {
             var types = new List<Type>();
@@ -434,54 +348,6 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
-        /// <summary>
-        ///     Sets the current configuration source.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.CustomConfigurationSource(myConfigSource))")]
-        // ReSharper disable UnusedParameter.Global
-        public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.AssembliesInDirectory(probeDirectory))")]
-        public static Configure With(string probeDirectory)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.ScanAssemblies(assemblies))")]
-        public static Configure With(IEnumerable<Assembly> assemblies)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.ScanAssemblies(assemblies));")]
-        public static Configure With(params Assembly[] assemblies)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.ScanAssemblies(assemblies))")]
-        public static Configure With(IEnumerable<Type> typesToScan)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.EndpointName(definesEndpointName))")]
-        public static Configure DefineEndpointName(Func<string> definesEndpointName)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        ///     Sets the function that specified the name of this endpoint
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.EndpointName(name))")]
-        public static Configure DefineEndpointName(string name)
-        {
-            throw new NotImplementedException();
-        }
 
         static bool configSectionOverridesInitialized;
         static bool beforeConfigurationInitializersCalled;
@@ -489,7 +355,6 @@ namespace NServiceBus
 
         public static Func<FileInfo, Assembly> LoadAssembly = s => Assembly.LoadFrom(s.FullName);
 
-        static Configure instance;
         static bool initialized;
         IBuilder builder;
         IConfigureComponents configurer;
