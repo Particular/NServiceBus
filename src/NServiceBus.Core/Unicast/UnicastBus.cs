@@ -168,11 +168,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            var addresses = GetAddressForMessageType(messageType);
-            if (addresses.Count == 0)
-            {
-                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
-            }
+            var addresses = GetAtLeastOneAddressForMessageType(messageType);
 
             foreach (var destination in addresses)
             {
@@ -183,6 +179,19 @@ namespace NServiceBus.Unicast
 
                 SubscriptionManager.Subscribe(messageType, destination);
             }
+        }
+
+        List<Address> GetAtLeastOneAddressForMessageType(Type messageType)
+        {
+            var addresses = GetAddressForMessageType(messageType)
+                .Distinct()
+                .ToList();
+            if (addresses.Count == 0)
+            {
+                var error = string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType);
+                throw new InvalidOperationException(error);
+            }
+            return addresses;
         }
 
         /// <summary>
@@ -220,11 +229,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            var addresses = GetAddressForMessageType(messageType);
-            if (addresses.Count == 0)
-            {
-                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
-            }
+            var addresses = GetAtLeastOneAddressForMessageType(messageType);
 
             foreach (var destination in addresses)
             {
@@ -320,9 +325,7 @@ namespace NServiceBus.Unicast
 
         Address GetDestinationForSend(object message)
         {
-            var destinations = GetAddressForMessageType(message.GetType())
-                .Distinct()
-                .ToList();
+            var destinations = GetAtLeastOneAddressForMessageType(message.GetType());
 
             if (destinations.Count > 1)
             {
