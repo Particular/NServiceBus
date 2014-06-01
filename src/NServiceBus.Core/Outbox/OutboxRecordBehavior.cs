@@ -16,5 +16,15 @@ namespace NServiceBus.Outbox
 
             OutboxStorage.Store(outboxMessage.MessageId, outboxMessage.TransportOperations);
         }
+
+        public class OutboxRecorderRegistration : RegisterBehavior
+        {
+            public OutboxRecorderRegistration()
+                : base("OutboxRecorder", typeof(OutboxRecordBehavior), "Records all action to the outbox storage")
+            {
+                InsertBefore(WellKnownBehavior.MutateIncomingTransportMessage);
+                InsertAfter(WellKnownBehavior.UnitOfWork);
+            }
+        }
     }
 }

@@ -14,10 +14,10 @@
     /// </summary>
     public class Outbox : Feature
     {
-        static ILog log = LogManager.GetLogger<Outbox>();
-
         internal Outbox()
         {
+            Defaults(s => s.SetDefault(TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5)));
+
             var rabbit = Type.GetType("NServiceBus.Features.RabbitMqTransport, NServiceBus.Transports.RabbitMQ", false);
             var azureServiceBus = Type.GetType("NServiceBus.Features.AzureServiceBusTransport, NServiceBus.Azure.Transports.WindowsAzureServiceBus", false);
             var azureStorageQueue = Type.GetType("NServiceBus.Features.AzureStorageQueueTransport, NServiceBus.Azure.Transports.WindowsAzureStorageQueues", false);
@@ -57,6 +57,10 @@
 
                 Prerequisite(context =>
                 {
+                    if (context.Settings.GetOrDefault<bool>("DisableOutboxTransportCheck"))
+                    {
+                        return true;
+                    }
                     var configValue = ConfigurationManager.AppSettings.Get("NServiceBus/Outbox");
 
                     if (configValue == null)
@@ -84,13 +88,15 @@ The reason you need to do this is because we need to ensure that you have read a
             RegisterStartupTask<DtcRunningWarning>();
         }
 
+        public const string TimeToKeepDeduplicationEntries = "Outbox.TimeToKeepDeduplicationEntries";
+
         /// <summary>
         /// See <see cref="Feature.Setup"/>
         /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
-            context.Pipeline.Register<OutboxDeduplicationRegistration>();
-            context.Pipeline.Register<OutboxRecorderRegistration>();
+            context.Pipeline.Register<OutboxDeduplicationBehavior.OutboxDeduplicationRegistration>();
+            context.Pipeline.Register<OutboxRecordBehavior.OutboxRecorderRegistration>();
             context.Pipeline.Replace(WellKnownBehavior.DispatchMessageToTransport, typeof(OutboxSendBehavior), "Sending behavior with a delay sending until all business transactions are committed to the outbox storage");
 
             //make the audit use the outbox as well
@@ -100,25 +106,6 @@ The reason you need to do this is because we need to ensure that you have read a
             }
         }
 
-        class OutboxDeduplicationRegistration : RegisterBehavior
-        {
-            public OutboxDeduplicationRegistration()
-                : base("OutboxDeduplication", typeof(OutboxDeduplicationBehavior), "Deduplication for the outbox feature")
-            {
-                InsertAfter(WellKnownBehavior.ChildContainer);
-                InsertBefore(WellKnownBehavior.UnitOfWork);
-            }
-        }
-
-        class OutboxRecorderRegistration : RegisterBehavior
-        {
-            public OutboxRecorderRegistration()
-                : base("OutboxRecorder", typeof(OutboxRecordBehavior), "Records all action to the outbox storage")
-            {
-                InsertBefore(WellKnownBehavior.MutateIncomingTransportMessage);
-                InsertAfter(WellKnownBehavior.UnitOfWork);
-            }
-        }
     }
 
     class DtcRunningWarning :FeatureStartupTask
@@ -139,6 +126,7 @@ The reason you need to do this is because we need to ensure that you have read a
 Because you have configured this endpoint to run with Outbox enabled we recommend turning MSDTC off to ensure that the Outbox behavior is working as expected and no other resources are enlisting in distributed transactions.");
                 }
             }
+// ReSharper disable once EmptyGeneralCatchClause
             catch (Exception)
             {
                 // Ignore if we can't check it.

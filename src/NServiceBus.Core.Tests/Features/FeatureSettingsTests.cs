@@ -8,7 +8,7 @@
     [TestFixture]
     public class FeatureSettingsTests
     {
-     
+
         [Test]
         public void Should_check_activation_conditions()
         {
@@ -27,9 +27,32 @@
             Assert.False(featureWithFalseCondition.IsActive);
         }
 
+        [Test]
+        public void Should_register_defaults_if_present()
+        {
+            var settings = new SettingsHolder();
+            var featureSettings = new FeatureActivator(settings);
+
+            featureSettings.Add(new MyFeatureWithDefaults());
+
+            featureSettings.SetupFeatures(null);
+
+            Assert.True(settings.Get<bool>("Test1"));
+            Assert.True(settings.Get<bool>("Test2"));
+        }
+
 
         public class MyFeature : TestFeature
         {
+        }
+
+        public class MyFeatureWithDefaults : TestFeature
+        {
+            public MyFeatureWithDefaults()
+            {
+                Defaults(s => s.SetDefault("Test1", true));
+                Defaults(s => s.SetDefault("Test2", true));
+            }
         }
 
         public class MyFeatureWithTrueActivationCondition : TestFeature

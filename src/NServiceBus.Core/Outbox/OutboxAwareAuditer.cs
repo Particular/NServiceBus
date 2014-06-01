@@ -1,6 +1,5 @@
-﻿namespace NServiceBus.Features
+namespace NServiceBus.Outbox
 {
-    using NServiceBus.Outbox;
     using Pipeline;
     using Transports;
     using Unicast;

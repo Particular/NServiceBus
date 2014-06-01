@@ -19,10 +19,10 @@
                     .Done(c => context.OrderAckReceived == 1)
                     .Run(TimeSpan.FromSeconds(10));
 
-            Assert.AreEqual(1, context.OrderAckReceived,"Order ack should have been received since outbox dispatch isn't part of the receive tx");
+            Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received since outbox dispatch isn't part of the receive tx");
         }
 
-      
+
 
         public class Context : ScenarioContext
         {
@@ -35,11 +35,13 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
+                    c.Settings.Set("DisableOutboxTransportCheck",true);
                     c.EnableOutbox();
                     c.Pipeline.Register<BlowUpAfterDispatchBehavior.Registration>();
                     c.Configurer.ConfigureComponent<BlowUpAfterDispatchBehavior>(DependencyLifecycle.InstancePerCall);
                 })
                 .AllowExceptions();
+
             }
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>
@@ -71,9 +73,9 @@
         class SendOrderAcknowledgement : IMessage { }
     }
 
-    public class BlowUpAfterDispatchBehavior:IBehavior<IncomingContext>
+    public class BlowUpAfterDispatchBehavior : IBehavior<IncomingContext>
     {
-        public class Registration:RegisterBehavior
+        public class Registration : RegisterBehavior
         {
             public Registration()
                 : base("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing")
@@ -101,7 +103,7 @@
             {
                 next();
             }
-            
+
 
             called = true;
 

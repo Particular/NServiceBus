@@ -42,6 +42,7 @@
             }
 
             storedMessage.TransportOperations.Clear();
+            storedMessage.Dispatched = true;
         }
 
         ConcurrentDictionary<string, StoredMessage> storage = new ConcurrentDictionary<string, StoredMessage>();
@@ -52,11 +53,14 @@
             {
                 this.transportOperations = transportOperations;
                 Id = messageId;
+                StoredAt = DateTime.UtcNow;
             }
 
             public string Id { get; private set; }
 
             public bool Dispatched { get; set; }
+
+            public DateTime StoredAt { get; set; }
 
             public IList<TransportOperation> TransportOperations
             {
@@ -94,6 +98,19 @@
             }
 
             readonly IList<TransportOperation> transportOperations;
+        }
+
+        public void RemoveEntriesOlderThan(DateTime dateTime)
+        {
+            var entriesToRemove = storage.Where(e => e.Value.Dispatched && e.Value.StoredAt < dateTime)
+                .Select(e=>e.Key);
+
+            foreach (var entry in entriesToRemove)
+            {
+                StoredMessage toRemove;
+
+                storage.TryRemove(entry, out toRemove);   
+            }
         }
     }
 }

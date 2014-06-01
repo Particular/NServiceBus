@@ -3,7 +3,7 @@
     /// <summary>
     /// Config methods for the outbox
     /// </summary>
-    public static class OutboxConfigExtentions
+    public static class OutboxConfigExtensions
     {
         /// <summary>
         /// Eanbles outbox operations

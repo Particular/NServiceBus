@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Settings;
     using Utils;
 
     /// <summary>
@@ -63,6 +64,20 @@
         {
             get { return startupTasks; }
         }
+
+        /// <summary>
+        /// Registers default settings
+        /// </summary>
+        /// <param name="settings">The settings holder</param>
+        protected void Defaults(Action<SettingsHolder> settings)
+         {
+             defaults.Add(settings);
+         }
+
+        /// <summary>
+        /// Access to the registered defaults
+        /// </summary>
+        internal IEnumerable<Action<SettingsHolder>> RegisteredDefaults { get { return defaults; } }
 
         /// <summary>
         ///     Called when the features is activated
@@ -170,5 +185,6 @@
         string name;
         List<Func<FeatureConfigurationContext, bool>> setupPrerequisites = new List<Func<FeatureConfigurationContext, bool>>();
         List<Type> startupTasks = new List<Type>();
+        List<Action<SettingsHolder>> defaults = new List<Action<SettingsHolder>>();
     }
 }
