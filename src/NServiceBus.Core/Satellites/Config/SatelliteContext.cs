@@ -2,7 +2,7 @@ namespace NServiceBus.Satellites.Config
 {
     using Unicast.Transport;
 
-    public class SatelliteContext
+    class SatelliteContext
     {
         internal SatelliteContext()
         {
