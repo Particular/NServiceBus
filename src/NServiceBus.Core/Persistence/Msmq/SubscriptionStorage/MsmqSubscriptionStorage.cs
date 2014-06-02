@@ -14,7 +14,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
 	/// Provides functionality for managing message subscriptions
 	/// using MSMQ.
 	/// </summary>
-    public class MsmqSubscriptionStorage : ISubscriptionStorage
+    class MsmqSubscriptionStorage : ISubscriptionStorage
     {
         void ISubscriptionStorage.Init()
         {
