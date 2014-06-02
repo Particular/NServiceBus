@@ -45,11 +45,8 @@ namespace NServiceBus
 
 
         /// <summary>
-        ///     Gets/sets the builder.
+        ///     Gets the builder.
         /// </summary>
-        /// <remarks>
-        ///     Setting the builder should only be done by NServiceBus framework code.
-        /// </remarks>
         public IBuilder Builder
         {
             get
@@ -61,7 +58,7 @@ namespace NServiceBus
 
                 return builder;
             }
-            set { builder = value; }
+            internal set { builder = value; }
         }
 
         /// <summary>
@@ -352,6 +349,10 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
+        // ReSharper disable UnusedParameter.Global
+
+
+        // ReSharper restore UnusedParameter.Global
 
         static bool configSectionOverridesInitialized;
         static bool beforeConfigurationInitializersCalled;
@@ -481,8 +482,5 @@ namespace NServiceBus
             Func<string> getEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
             IList<Type> scannedTypes;
         }
-
-
-        // ReSharper restore UnusedParameter.Global
     }
 }
