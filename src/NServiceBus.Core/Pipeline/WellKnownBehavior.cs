@@ -1,5 +1,9 @@
-﻿namespace NServiceBus.Pipeline
+﻿#pragma warning disable 1591
+namespace NServiceBus.Pipeline
 {
+    /// <summary>
+    /// A list of commonly used keys that map to <see cref="IBehavior{TContext}"/> functionality.
+    /// </summary>
     public static class WellKnownBehavior
     {
         public const string Audit = "Audit";

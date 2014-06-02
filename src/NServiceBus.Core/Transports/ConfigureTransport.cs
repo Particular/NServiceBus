@@ -4,6 +4,10 @@ namespace NServiceBus.Transports
     using Features;
     using Unicast.Transport;
 
+    /// <summary>
+    /// Base class for configuring <see cref="TransportDefinition"/> features.
+    /// </summary>
+    /// <typeparam name="T">The <see cref="TransportDefinition"/> to configure.</typeparam>
     public abstract class ConfigureTransport<T> : Feature, IConfigureTransport<T> where T : TransportDefinition, new()
     {
         public void Configure(Configure config)

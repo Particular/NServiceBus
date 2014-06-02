@@ -9,6 +9,9 @@
     using Transports.Msmq;
     using Transports.Msmq.Config;
 
+    /// <summary>
+    /// Used to configure the MSMQ transport.
+    /// </summary>
     public class MsmqTransport : ConfigureTransport<Msmq>
     {
         protected override void Setup(FeatureConfigurationContext context)

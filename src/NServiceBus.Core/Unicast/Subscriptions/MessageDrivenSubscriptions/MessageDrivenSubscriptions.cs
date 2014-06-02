@@ -3,7 +3,7 @@
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     /// <summary>
-    /// Message Driven Subscriptions
+    /// Used to configure Message Driven Subscriptions
     /// </summary>
     public class MessageDrivenSubscriptions : Feature
     {

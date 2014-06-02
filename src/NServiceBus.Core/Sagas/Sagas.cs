@@ -10,7 +10,7 @@
     using Saga;
 
     /// <summary>
-    /// Sagas
+    /// Used to configure saga.
     /// </summary>
     public class Sagas : Feature
     {

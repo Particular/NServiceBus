@@ -5,7 +5,7 @@
     using Transports;
 
     /// <summary>
-    /// Outbox
+    /// Used to configure the outbox.
     /// </summary>
     public class Outbox : Feature
     {

@@ -16,7 +16,7 @@
     using NServiceBus.Gateway.Sending;
 
     /// <summary>
-    /// Gateway
+    /// Used to configure the gateway.
     /// </summary>
     public class Gateway : Feature
     {

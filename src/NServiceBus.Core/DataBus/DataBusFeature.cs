@@ -5,7 +5,7 @@ namespace NServiceBus.Features
     using DataBus;
 
     /// <summary>
-    /// DataBus 
+    /// Used to configure the databus. 
     /// </summary>
     public class DataBusFeature : Feature
 	{

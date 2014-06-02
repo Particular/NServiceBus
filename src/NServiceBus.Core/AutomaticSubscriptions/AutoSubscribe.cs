@@ -5,6 +5,9 @@
     using Logging;
     using Transports;
 
+    /// <summary>
+    /// Used to configure auto subscriptions.
+    /// </summary>
     public class AutoSubscribe : Feature
     {
         internal AutoSubscribe()

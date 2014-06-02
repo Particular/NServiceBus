@@ -5,6 +5,9 @@ namespace NServiceBus.Features
     using Faults.Forwarder;
     using NServiceBus.SecondLevelRetries;
 
+    /// <summary>
+    /// Used to configure Second Level Retries.
+    /// </summary>
     public class SecondLevelRetries : Feature
     {
         internal SecondLevelRetries()

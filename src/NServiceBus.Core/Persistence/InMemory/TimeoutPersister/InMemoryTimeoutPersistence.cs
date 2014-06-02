@@ -2,6 +2,9 @@
 {
     using Features;
 
+    /// <summary>
+    /// Used to configure in memory timeout persistence.
+    /// </summary>
     public class InMemoryTimeoutPersistence : Feature
     {
         internal InMemoryTimeoutPersistence()

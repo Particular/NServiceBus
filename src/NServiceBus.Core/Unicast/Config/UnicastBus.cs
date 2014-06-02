@@ -5,7 +5,7 @@ namespace NServiceBus.Features
     using Pipeline.Contexts;
 
     /// <summary>
-    ///     UnicastBus
+    ///   Used to configure the <see cref="Unicast.UnicastBus"/>
     /// </summary>
     public class UnicastBus : Feature
     {
