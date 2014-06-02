@@ -2,6 +2,9 @@
 {
     using Features;
 
+    /// <summary>
+    /// Used to configure in memory outbox persistence.
+    /// </summary>
     public class InMemoryOutboxPersistence : Feature
     {
         internal InMemoryOutboxPersistence()

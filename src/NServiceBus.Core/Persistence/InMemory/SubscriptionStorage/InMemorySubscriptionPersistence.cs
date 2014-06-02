@@ -1,7 +1,9 @@
 ﻿namespace NServiceBus.InMemory.SubscriptionStorage
 {
     using Features;
-
+    /// <summary>
+    /// Used to configure in memory subscription persistence.
+    /// </summary>
     public class InMemorySubscriptionPersistence : Feature
     {
         internal InMemorySubscriptionPersistence()

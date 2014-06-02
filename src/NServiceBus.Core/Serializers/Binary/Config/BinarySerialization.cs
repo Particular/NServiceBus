@@ -2,6 +2,9 @@
 {
     using Serializers.Binary;
 
+    /// <summary>
+    /// Usd to configure binary as message serialization.
+    /// </summary>
     public class BinarySerialization : Feature
     {
         

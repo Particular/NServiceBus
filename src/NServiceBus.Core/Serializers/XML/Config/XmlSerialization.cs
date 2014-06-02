@@ -4,9 +4,8 @@
     using ObjectBuilder;
     using Serializers.XML;
 
-
     /// <summary>
-    /// Used to control xml as a message serializer
+    /// Used to configure xml as a message serializer
     /// </summary>
     public class XmlSerialization : Feature
     {

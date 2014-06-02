@@ -6,7 +6,7 @@
     using Transports;
 
     /// <summary>
-    /// This feature provides message deferral based on a external timeout manager.
+    /// Used to configure the timeout manager that provides message deferral.
     /// </summary>
     public class TimeoutManager : Feature
     {

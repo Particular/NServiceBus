@@ -8,6 +8,9 @@
     using Unicast.Queuing.Installers;
     using Utils;
 
+    /// <summary>
+    /// Used to configuremessage auditing.
+    /// </summary>
     public class Audit : Feature
     {
         
