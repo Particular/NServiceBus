@@ -348,7 +348,7 @@
 
     public class WireEncryptedStringContext
     {
-        protected EncryptionMessageMutator mutator;
+        internal EncryptionMessageMutator mutator;
 
         protected string EncryptedBase64Value = "encrypted value";
         protected string MySecretMessage = "A secret";

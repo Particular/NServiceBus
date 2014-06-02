@@ -13,7 +13,7 @@ namespace NServiceBus.Encryption
     /// <summary>
     /// Invokes the encryption service to encrypt/decrypt messages
     /// </summary>
-    public class EncryptionMessageMutator : IMessageMutator
+    class EncryptionMessageMutator : IMessageMutator
     {
         public IEncryptionService EncryptionService { get; set; }
 
