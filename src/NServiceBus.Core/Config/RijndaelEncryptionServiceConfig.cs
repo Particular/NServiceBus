@@ -1,7 +1,11 @@
 namespace NServiceBus.Config
 {
     using System.Configuration;
+    using Encryption.Rijndael;
 
+    /// <summary>
+    /// Used to configure <see cref="EncryptionService"/>.
+    /// </summary>
     public class RijndaelEncryptionServiceConfig : ConfigurationSection
     {
         /// <summary>

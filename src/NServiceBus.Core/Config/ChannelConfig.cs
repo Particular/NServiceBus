@@ -1,7 +1,11 @@
 namespace NServiceBus.Config
 {
     using System.Configuration;
+    using Gateway.Channels;
 
+    /// <summary>
+    /// Used to configure <see cref="ReceiveChannel"/>.
+    /// </summary>
     public class ChannelConfig : ConfigurationElement
     {
         /// <summary>
