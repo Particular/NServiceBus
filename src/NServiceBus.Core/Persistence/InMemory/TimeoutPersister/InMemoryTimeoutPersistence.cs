@@ -12,6 +12,9 @@
             DependsOn<TimeoutManager>();
         }
 
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<InMemoryTimeoutPersister>(DependencyLifecycle.SingleInstance);

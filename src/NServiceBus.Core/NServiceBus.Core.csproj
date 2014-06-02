@@ -236,6 +236,7 @@
     <Compile Include="Transports\ConfigureTransport.cs" />
     <Compile Include="Audit\DefaultMessageAuditer.cs" />
     <Compile Include="Audit\IAuditMessages.cs" />
+    <Compile Include="Transports\Msmq\Config\CheckMachineNameForComplianceWithDtcLimitation.cs" />
     <Compile Include="Unicast\Behaviors\CallbackInvocationBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ForwardBehavior.cs" />
     <Compile Include="Unicast\Behaviors\InvokeHandlersBehavior.cs" />

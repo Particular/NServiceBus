@@ -20,6 +20,9 @@
             Prerequisite(config => GetConfiguredAuditQueue(config) != Address.Undefined);
         }
 
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
             // If Audit feature is enabled and the value not specified via config and instead specified in the registry:

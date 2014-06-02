@@ -20,6 +20,9 @@
             Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType));
         }
 
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
             foreach (var t in context.Settings.GetAvailableTypes())

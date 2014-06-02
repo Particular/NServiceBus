@@ -11,7 +11,7 @@ namespace NServiceBus.Saga
     {
         IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
 
-        public SagaPropertyMapper(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
+        internal SagaPropertyMapper(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {
             this.sagaMessageFindingConfiguration = sagaMessageFindingConfiguration;
         }
