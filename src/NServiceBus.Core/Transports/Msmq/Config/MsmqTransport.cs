@@ -12,6 +12,11 @@
     /// </summary>
     public class MsmqTransport : ConfigureTransport<Msmq>
     {
+        internal MsmqTransport()
+        {
+            
+        }
+
         /// <summary>
         /// See <see cref="Feature.Setup"/>
         /// </summary>

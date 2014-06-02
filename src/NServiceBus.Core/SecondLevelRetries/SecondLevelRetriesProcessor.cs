@@ -9,7 +9,7 @@ namespace NServiceBus.SecondLevelRetries
     using Transports;
     using Unicast;
 
-    public class SecondLevelRetriesProcessor : ISatellite
+    class SecondLevelRetriesProcessor : ISatellite
     {
         public SecondLevelRetriesProcessor()
         {

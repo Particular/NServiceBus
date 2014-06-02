@@ -6,6 +6,7 @@ namespace NServiceBus
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.Serialization;
     using System.Text;
     using System.Web;
     using Config;
@@ -18,6 +19,7 @@ namespace NServiceBus
     using ObjectBuilder;
     using Pipeline;
     using Settings;
+    using Utils.Reflection;
 
     /// <summary>
     ///     Central configuration entry point.
@@ -191,7 +193,8 @@ namespace NServiceBus
 
             Configurer.RegisterSingleton<FeatureActivator>(featureActivator);
 
-            ForAllTypes<Feature>(t => featureActivator.Add((Feature) Activator.CreateInstance(t)));
+
+            ForAllTypes<Feature>(t => featureActivator.Add(t.Construct<Feature>()));
 
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
