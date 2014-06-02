@@ -4,7 +4,6 @@ namespace NServiceBus.InMemory.SagaPersister
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
-    using Persistence;
     using Saga;
     using Serializers.Json;
 
@@ -111,7 +110,7 @@ namespace NServiceBus.InMemory.SagaPersister
             public void ConcurrencyCheck()
             {
                 if (!ReadByThreadId.Contains(Thread.CurrentThread.ManagedThreadId))
-                    throw new ConcurrencyException(
+                    throw new Exception(
                         string.Format(
                             "InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved by [Worker.{1}]",
                             SagaEntity.Id, savedByThreadId));

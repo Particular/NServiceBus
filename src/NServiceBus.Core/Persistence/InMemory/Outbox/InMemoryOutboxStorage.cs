@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.InMemory.Outbox
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Outbox;
-    using Persistence;
 
     class InMemoryOutboxStorage : IOutboxStorage
     {
@@ -28,7 +28,7 @@
         {
             if (!storage.TryAdd(messageId, new StoredMessage(messageId, transportOperations.ToList())))
             {
-                throw new ConcurrencyException(string.Format("Outbox message with id '{0}' is already present in storage.", messageId));
+                throw new Exception(string.Format("Outbox message with id '{0}' is already present in storage.", messageId));
             }
         }
 
