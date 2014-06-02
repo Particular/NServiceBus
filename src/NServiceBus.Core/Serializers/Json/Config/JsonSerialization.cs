@@ -3,8 +3,9 @@
     using MessageInterfaces.MessageMapper.Reflection;
     using Serializers.Json;
 
+
     /// <summary>
-    /// Json Serialization
+    /// Used to control json as a message serializer
     /// </summary>
     public class JsonSerialization : Feature
     {
