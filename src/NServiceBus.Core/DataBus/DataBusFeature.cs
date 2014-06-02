@@ -4,8 +4,14 @@ namespace NServiceBus.Features
     using System.Linq;
     using DataBus;
 
+    /// <summary>
+    /// DataBus 
+    /// </summary>
     public class DataBusFeature : Feature
 	{
+        /// <summary>
+        ///  Creates an instance of <see cref="DataBusFeature"/>.
+        /// </summary>
         public DataBusFeature()
         {
             EnableByDefault();

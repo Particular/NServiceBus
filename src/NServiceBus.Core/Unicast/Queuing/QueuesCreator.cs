@@ -6,17 +6,10 @@ namespace NServiceBus.Unicast.Queuing
     using Logging;
     using Transports;
 
-    /// <summary>
-    /// Iterating over all implementers of IWantQueueCreated and creating queue for each.
-    /// </summary>
     class QueuesCreator : INeedInitialization, INeedToInstallSomething
     {
         public ICreateQueues QueueCreator { get; set; }
 
-        /// <summary>
-        /// Performs the installation providing permission for the given user.
-        /// </summary>
-        /// <param name="identity">The user for under which the queue will be created.</param>
         public void Install(string identity, Configure config)
         {
             if (config.Settings.Get<bool>("Endpoint.SendOnly"))
@@ -43,9 +36,6 @@ namespace NServiceBus.Unicast.Queuing
             }
         }
 
-        /// <summary>
-        /// Register all IWantQueueCreated implementers.
-        /// </summary>
         public void Init(Configure config)
         {
             config.ForAllTypes<IWantQueueCreated>(type => config.Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall));

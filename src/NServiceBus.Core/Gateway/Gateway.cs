@@ -15,6 +15,9 @@
     using NServiceBus.Gateway.Routing.Sites;
     using NServiceBus.Gateway.Sending;
 
+    /// <summary>
+    /// Gateway
+    /// </summary>
     public class Gateway : Feature
     {
         protected override void Setup(FeatureConfigurationContext context)

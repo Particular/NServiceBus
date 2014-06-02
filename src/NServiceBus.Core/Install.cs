@@ -66,7 +66,8 @@ namespace NServiceBus
         /// Initializes a new instance of the Installer
         /// </summary>
         /// <param name="identity">Identity of the user to be used to setup installer.</param>
-        public Installer(IIdentity identity,Configure config)
+        /// <param name="config"><see cref="Configure"/> instance.</param>
+        public Installer(IIdentity identity, Configure config)
         {
             this.identity = identity;
             this.config = config;

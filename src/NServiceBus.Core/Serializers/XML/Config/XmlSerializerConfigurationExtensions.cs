@@ -5,6 +5,9 @@
     using Serializers.XML.Config;
     using Settings;
 
+    /// <summary>
+    /// XmlSerializer configuration extensions.
+    /// </summary>
     public static class XmlSerializerConfigurationExtensions
     {
         /// <summary>

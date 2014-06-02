@@ -9,8 +9,14 @@
     using NServiceBus.Sagas.Finders;
     using Saga;
 
+    /// <summary>
+    /// Sagas
+    /// </summary>
     public class Sagas : Feature
     {
+        /// <summary>
+        /// Creates an instance of <see cref="Sagas"/>.
+        /// </summary>
         public Sagas()
         {
             EnableByDefault();

@@ -5,10 +5,13 @@ namespace NServiceBus.Features
     using Pipeline.Contexts;
 
     /// <summary>
-    ///     Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
+    ///     UnicastBus
     /// </summary>
     public class UnicastBus : Feature
     {
+        /// <summary>
+        /// Creates an instance of <see cref="UnicastBus"/>.
+        /// </summary>
         public UnicastBus()
         {
             EnableByDefault();

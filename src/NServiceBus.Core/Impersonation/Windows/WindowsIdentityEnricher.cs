@@ -7,7 +7,7 @@ namespace NServiceBus.Impersonation.Windows
     /// <summary>
     /// Stamps outgoing messages with the current windows identity
     /// </summary>
-    public class WindowsIdentityEnricher : IMutateOutgoingTransportMessages
+    class WindowsIdentityEnricher : IMutateOutgoingTransportMessages
     {
         public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
         {

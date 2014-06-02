@@ -3,6 +3,9 @@
     using MessageInterfaces.MessageMapper.Reflection;
     using Serializers.Json;
 
+    /// <summary>
+    /// Json Serialization
+    /// </summary>
     public class JsonSerialization : Feature
     {
         protected override void Setup(FeatureConfigurationContext context)

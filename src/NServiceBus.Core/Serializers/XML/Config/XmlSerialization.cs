@@ -4,6 +4,9 @@
     using ObjectBuilder;
     using Serializers.XML;
 
+    /// <summary>
+    /// XML Serialization
+    /// </summary>
     public class XmlSerialization : Feature
     {
         protected override void Setup(FeatureConfigurationContext context)

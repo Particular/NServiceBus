@@ -5,6 +5,9 @@
     using Transports;
     using Unicast;
 
+    /// <summary>
+    /// Outbox
+    /// </summary>
     public class Outbox : Feature
     {
         protected override void Setup(FeatureConfigurationContext context)

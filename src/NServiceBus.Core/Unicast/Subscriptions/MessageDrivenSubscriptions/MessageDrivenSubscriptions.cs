@@ -2,6 +2,9 @@
 {
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
+    /// <summary>
+    /// Message Driven Subscriptions
+    /// </summary>
     public class MessageDrivenSubscriptions : Feature
     {
         protected override void Setup(FeatureConfigurationContext context)
