@@ -51,7 +51,7 @@ namespace NServiceBus.Saga
         /// <param name="at"><see cref="DateTime"/> to send timeout <typeparamref name="TTimeoutMessageType"/>.</param>
         protected void RequestTimeout<TTimeoutMessageType>(DateTime at) where TTimeoutMessageType : new()
         {
-            RequestTimeout(at, Activator.CreateInstance<TTimeoutMessageType>());
+            RequestTimeout(at, new TTimeoutMessageType());
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace NServiceBus.Saga
         /// <param name="action">Callback to execute after <paramref name="at"/> is reached.</param>
         protected void RequestTimeout<TTimeoutMessageType>(DateTime at, Action<TTimeoutMessageType> action) where TTimeoutMessageType : new()
         {
-            var instance = Activator.CreateInstance<TTimeoutMessageType>();
+            var instance = new TTimeoutMessageType();
             action(instance);
             RequestTimeout(at, instance);
         }
@@ -100,7 +100,7 @@ namespace NServiceBus.Saga
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
         protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within) where TTimeoutMessageType : new()
         {
-            RequestTimeout(within, Activator.CreateInstance<TTimeoutMessageType>());
+            RequestTimeout(within, new TTimeoutMessageType());
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace NServiceBus.Saga
         /// <param name="messageConstructor">An <see cref="Action"/> which initializes properties of the message that is sent after <paramref name="within"/> expires.</param>
         protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, Action<TTimeoutMessageType> messageConstructor) where TTimeoutMessageType : new()
         {
-            var instance = Activator.CreateInstance<TTimeoutMessageType>();
+            var instance = new TTimeoutMessageType();
             messageConstructor(instance);
             RequestTimeout(within, instance);
         }
@@ -158,7 +158,7 @@ namespace NServiceBus.Saga
         {
             if (messageConstructor != null)
             {
-                var instance = Activator.CreateInstance<TMessage>();
+                var instance = new TMessage();
                 messageConstructor(instance);
                 ReplyToOriginator(instance);
             }

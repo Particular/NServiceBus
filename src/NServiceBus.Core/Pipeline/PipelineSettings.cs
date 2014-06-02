@@ -69,7 +69,7 @@ namespace NServiceBus.Pipeline
         {
             var additions = SettingsHolder.Instance.Get<List<RegisterBehavior>>("Pipeline.Additions");
 
-            additions.Add(Activator.CreateInstance<T>());
+            additions.Add(new T());
         }
 
         static Type iBehaviourType = typeof(IBehavior<>);

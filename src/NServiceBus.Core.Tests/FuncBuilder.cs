@@ -13,9 +13,9 @@
         {
 
         }
-        public void Register<T>()
+        public void Register<T>() where T : new()
         {
-            Register(typeof(T), ()=>Activator.CreateInstance<T>());
+            Register(typeof(T), ()=> new T());
         }
 
         public void Register(Type t)
