@@ -10,7 +10,7 @@
     /// </summary>
     public class TimeoutManager : Feature
     {
-        public TimeoutManager()
+        internal TimeoutManager()
         {
             Prerequisite(ShouldRun);
         }

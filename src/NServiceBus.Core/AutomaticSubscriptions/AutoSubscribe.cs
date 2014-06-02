@@ -7,7 +7,7 @@
 
     public class AutoSubscribe : Feature
     {
-        public AutoSubscribe()
+        internal AutoSubscribe()
         {
             EnableByDefault();
 

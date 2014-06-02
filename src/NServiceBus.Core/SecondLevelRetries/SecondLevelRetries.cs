@@ -7,7 +7,7 @@ namespace NServiceBus.Features
 
     public class SecondLevelRetries : Feature
     {
-        public SecondLevelRetries()
+        internal SecondLevelRetries()
         {
             EnableByDefault();
             Prerequisite(ShouldRun);

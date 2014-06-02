@@ -9,10 +9,8 @@ namespace NServiceBus.Features
     /// </summary>
     public class UnicastBus : Feature
     {
-        /// <summary>
-        /// Creates an instance of <see cref="UnicastBus"/>.
-        /// </summary>
-        public UnicastBus()
+
+        internal UnicastBus()
         {
             EnableByDefault();
         }

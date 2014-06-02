@@ -11,7 +11,7 @@
     public class Audit : Feature
     {
         
-        public Audit()
+        internal Audit()
         {
             EnableByDefault();
             Prerequisite(config => GetConfiguredAuditQueue(config) != Address.Undefined);

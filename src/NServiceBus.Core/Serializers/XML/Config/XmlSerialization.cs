@@ -9,6 +9,11 @@
     /// </summary>
     public class XmlSerialization : Feature
     {
+        
+        internal XmlSerialization()
+        {
+        }
+
         protected override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);

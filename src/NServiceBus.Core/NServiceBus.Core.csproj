@@ -176,6 +176,7 @@
     <Compile Include="MessageMutator\IMutateOutgoingTransportMessages.cs" />
     <Compile Include="Outbox\IOutboxStorage.cs" />
     <Compile Include="Outbox\Outbox.cs" />
+    <Compile Include="Outbox\OutboxAwareAuditer.cs" />
     <Compile Include="Outbox\OutboxConfigExtentions.cs" />
     <Compile Include="Outbox\OutboxMessage.cs" />
     <Compile Include="Outbox\OutboxDeduplicationBehavior.cs" />

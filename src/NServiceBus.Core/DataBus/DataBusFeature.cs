@@ -9,10 +9,7 @@ namespace NServiceBus.Features
     /// </summary>
     public class DataBusFeature : Feature
 	{
-        /// <summary>
-        ///  Creates an instance of <see cref="DataBusFeature"/>.
-        /// </summary>
-        public DataBusFeature()
+        internal DataBusFeature()
         {
             EnableByDefault();
             Prerequisite(DataBusPropertiesFound);

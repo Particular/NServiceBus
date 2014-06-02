@@ -8,6 +8,11 @@
     /// </summary>
     public class JsonSerialization : Feature
     {
+        
+        internal JsonSerialization()
+        {
+        }
+
         protected override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);

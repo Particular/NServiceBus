@@ -5,6 +5,11 @@
 
     public class BsonSerialization : Feature
     {
+        
+        internal BsonSerialization()
+        {
+        }
+
         protected override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);

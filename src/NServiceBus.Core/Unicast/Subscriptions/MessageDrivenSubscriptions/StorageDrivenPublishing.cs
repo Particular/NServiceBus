@@ -8,6 +8,10 @@
     /// </summary>
     public class StorageDrivenPublishing : Feature
     {
+        internal StorageDrivenPublishing()
+        {
+        }
+
         protected override void Setup(FeatureConfigurationContext context)
         {
             var transportDefinition = context.Settings.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");

@@ -4,6 +4,10 @@
 
     public class BinarySerialization : Feature
     {
+        
+        internal BinarySerialization()
+        {
+        }
         protected override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<SimpleMessageMapper>(DependencyLifecycle.SingleInstance);

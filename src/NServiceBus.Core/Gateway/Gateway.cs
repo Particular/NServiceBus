@@ -20,6 +20,11 @@
     /// </summary>
     public class Gateway : Feature
     {
+
+        internal Gateway()
+        {
+        }
+
         /// <summary>
         ///     Called when the features is activated
         /// </summary>

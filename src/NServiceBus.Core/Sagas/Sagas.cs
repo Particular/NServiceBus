@@ -14,10 +14,7 @@
     /// </summary>
     public class Sagas : Feature
     {
-        /// <summary>
-        /// Creates an instance of <see cref="Sagas"/>.
-        /// </summary>
-        public Sagas()
+        internal Sagas()
         {
             EnableByDefault();
             Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType));
