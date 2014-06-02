@@ -14,7 +14,8 @@
         }
 
         public static Configure UsePersistence(this Configure config, Type definitionType, Action<PersistenceConfiguration> customizations = null)
-        {   if (customizations != null)
+        {   
+            if (customizations != null)
             {
                 customizations(new PersistenceConfiguration(config));
             }

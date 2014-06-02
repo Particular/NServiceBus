@@ -5,39 +5,34 @@
     using System.Windows.Forms;
     using Logging;
 
-    class EnableSelectedPersistence:IWantToRunBeforeConfigurationIsFinalized,IWantToRunBeforeConfiguration
+    class EnableSelectedPersistence:IWantToRunBeforeConfigurationIsFinalized
     {
         public void Run(Configure config)
         {
-            var definitionType = config.Settings.GetOrDefault<Type>("Persistence");
+            var definitionType = config.Settings.Get<Type>("Persistence");
 
             if (definitionType == null)
             {
-                throw new Exception("No persistence has been selected, please add a call to config.UsePersistence<T>() where T can be any of the supported persistence options");
+                const string message = "No persistence has been selected, please add a call to config.UsePersistence<T>() where T can be any of the supported persistence options supported. http://docs.particular.net/nservicebus/persistence-in-nservicebus";
+
+                if (SystemInformation.UserInteractive)
+                {
+                    Logger.Warn(message);    
+                }
+                else
+                {
+                    throw new Exception(message);    
+                }
             }
 
-            var type =
-             config.TypesToScan.SingleOrDefault(
-                 t => typeof(IConfigurePersistence<>).MakeGenericType(definitionType).IsAssignableFrom(t));
+            var type = config.TypesToScan.SingleOrDefault(t => typeof(IConfigurePersistence<>).MakeGenericType(definitionType).IsAssignableFrom(t));
 
             if (type == null)
-                throw new InvalidOperationException(
-                    "We couldn't find a IConfigurePersistence implementation for your selected persistence: " +
-                    definitionType.Name);
-
+            {
+                throw new InvalidOperationException("We couldn't find a IConfigurePersistence implementation for your selected persistence: " + definitionType.Name);
+            }
+                
             ((IConfigurePersistence)Activator.CreateInstance(type)).Enable(config);
-        }
-
-        public void Init(Configure configure)
-        {
-            if (SystemInformation.UserInteractive)
-            {
-                configure.Settings.SetDefault("Persistence", typeof(InMemory));    
-            }
-            else
-            {
-                Logger.Info("Non interactive mode detected, no persistence will be defaulted");
-            }
         }
 
         static ILog Logger = LogManager.GetLogger<EnableSelectedPersistence>();
