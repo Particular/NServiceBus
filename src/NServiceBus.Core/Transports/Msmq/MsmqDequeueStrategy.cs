@@ -15,7 +15,7 @@ namespace NServiceBus.Transports.Msmq
     /// <summary>
     ///     Default implementation of <see cref="IDequeueMessages" /> for MSMQ.
     /// </summary>
-    public class MsmqDequeueStrategy : IDequeueMessages, IDisposable
+    class MsmqDequeueStrategy : IDequeueMessages, IDisposable
     {
         /// <summary>
         ///     Purges the queue on startup.
@@ -185,7 +185,7 @@ namespace NServiceBus.Transports.Msmq
                 Message message;
                 if (transactionSettings.IsTransactional)
                 {
-                    if (transactionSettings.DontUseDistributedTransactions)
+                    if (transactionSettings.SuppressDistributedTransactions)
                     {
                         using (var msmqTransaction = new MessageQueueTransaction())
                         {

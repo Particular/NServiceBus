@@ -20,6 +20,9 @@
     /// </summary>
     public class Gateway : Feature
     {
+        /// <summary>
+        ///     Called when the features is activated
+        /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
 

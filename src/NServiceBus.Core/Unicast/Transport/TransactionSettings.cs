@@ -61,7 +61,6 @@
         /// </remarks>
         public int MaxRetries { get; set; }
 
-
         /// <summary>
         /// If true the transport won't enlist in distributed transactions
         /// </summary>

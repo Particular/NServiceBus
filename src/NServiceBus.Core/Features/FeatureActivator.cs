@@ -70,7 +70,6 @@ namespace NServiceBus.Features
             {
                 var dependency = featuresToActivate.SingleOrDefault(f => f.GetType() == dependencyType);
 
-
                 if (dependency == null)
                 {
                     return false;

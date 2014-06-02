@@ -16,6 +16,14 @@ namespace NServiceBus.Unicast.Transport
     /// </summary>
     public class TransportReceiver : ITransport, IDisposable
     {
+        /// <summary>
+        /// Creates an instance of <see cref="TransportReceiver"/>
+        /// </summary>
+        /// <param name="transactionSettings">The transaction settings to use for this <see cref="TransportReceiver"/>.</param>
+        /// <param name="maximumConcurrencyLevel">The maximum number of messages to process in parallel.</param>
+        /// <param name="maximumThroughput">The maximum throughput per second, 0 means unlimited.</param>
+        /// <param name="receiver">The <see cref="IDequeueMessages"/> instance to use.</param>
+        /// <param name="manageMessageFailures">The <see cref="IManageMessageFailures"/> instance to use.</param>
         public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures)
         {
             TransactionSettings = transactionSettings;
@@ -36,6 +44,10 @@ namespace NServiceBus.Unicast.Transport
         public IManageMessageFailures FailureManager { get; set; }
 
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
             //Injected at compile time
@@ -88,6 +100,10 @@ namespace NServiceBus.Unicast.Transport
         /// </summary>
         public int MaximumMessageThroughputPerSecond { get; private set; }
 
+        /// <summary>
+        /// Updates the MaximumMessageThroughputPerSecond setting.
+        /// </summary>
+        /// <param name="maximumMessageThroughputPerSecond">The new value.</param>
         public void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)
         {
             if (maximumMessageThroughputPerSecond == MaximumMessageThroughputPerSecond)
@@ -120,6 +136,9 @@ namespace NServiceBus.Unicast.Transport
         /// </summary>
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
+        /// <summary>
+        /// Starts the transport listening for messages on the given local address.
+        /// </summary>
         public void Start(Address address)
         {
             if (isStarted)
@@ -443,6 +462,9 @@ namespace NServiceBus.Unicast.Transport
         Address receiveAddress;
         ThroughputLimiter throughputLimiter;
 
+        /// <summary>
+        /// The <see cref="TransactionSettings"/> being used.
+        /// </summary>
         public TransactionSettings TransactionSettings { get; private set; }
     }
 }

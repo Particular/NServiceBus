@@ -9,11 +9,19 @@ namespace NServiceBus.Unicast
     {
         TimeSpan? delayDeliveryWith;
 
+        /// <summary>
+        /// Creates an instance of <see cref="SendOptions"/>.
+        /// </summary>
+        /// <param name="destination">Address where to send this message</param>
         public SendOptions(Address destination)
         {
             Destination = destination;
         }
 
+        /// <summary>
+        /// Creates an instance of <see cref="SendOptions"/>.
+        /// </summary>
+        /// <param name="destination">Address where to send this message</param>
         public SendOptions(string destination)
             : this(Address.Parse(destination))
         {
