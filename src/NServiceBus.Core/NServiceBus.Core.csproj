@@ -185,6 +185,7 @@
     <Compile Include="Outbox\TransportOperationConverter.cs" />
     <Compile Include="Persistence\EnableSelectedPersistence.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayPersistence.cs" />
+    <Compile Include="Persistence\InMemory\InMemory.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxPersistence.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxStorage.cs" />
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersistence.cs" />

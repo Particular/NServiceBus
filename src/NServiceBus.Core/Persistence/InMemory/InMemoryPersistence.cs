@@ -18,10 +18,4 @@
             config.Settings.EnableFeatureByDefault<InMemoryGatewayPersistence>();
         }
     }
-
-    public class InMemory : PersistenceDefinition
-    {
-        
-    }
-
 }
