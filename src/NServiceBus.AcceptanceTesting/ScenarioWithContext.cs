@@ -7,7 +7,7 @@ namespace NServiceBus.AcceptanceTesting
     using Customization;
     using Support;
 
-    public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext>, IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext
+    public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext>, IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext, new()
     {
         public ScenarioWithContext(Func<TContext> factory)
         {
@@ -115,7 +115,7 @@ namespace NServiceBus.AcceptanceTesting
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
         public Func<ScenarioContext, bool> done = context => true;
 
-        Func<TContext> contextFactory = () => Activator.CreateInstance<TContext>();
+        Func<TContext> contextFactory = () => new TContext();
         Action<RunSummary> reports;
     }
 }

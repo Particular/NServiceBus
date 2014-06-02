@@ -4,7 +4,7 @@ namespace NServiceBus.Transports
     using Features;
     using Unicast.Transport;
 
-    public abstract class ConfigureTransport<T> : Feature, IConfigureTransport<T> where T : TransportDefinition
+    public abstract class ConfigureTransport<T> : Feature, IConfigureTransport<T> where T : TransportDefinition, new()
     {
         public void Configure(Configure config)
         {
@@ -20,7 +20,7 @@ namespace NServiceBus.Transports
 
 
 
-            var selectedTransportDefinition = Activator.CreateInstance<T>();
+            var selectedTransportDefinition = new T();
             config.Settings.Set("NServiceBus.Transport.SelectedTransport", selectedTransportDefinition);
             config.Configurer.RegisterSingleton<TransportDefinition>(selectedTransportDefinition);
             InternalConfigure(config);
