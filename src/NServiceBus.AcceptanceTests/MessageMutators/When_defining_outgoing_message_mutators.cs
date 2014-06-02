@@ -46,7 +46,7 @@
                 public Context Context { get; set; }
                 public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
                 {
-                    Context.OutgoingMessageLogicalMessageReceived = true;
+                    Context.OutgoingMessageLogicalMessageReceived = logicalMessage != null;
                     transportMessage.Headers["TransportMutatorCalled"] = true.ToString();
                 }
 
