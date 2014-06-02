@@ -34,6 +34,6 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
             autoSubscriptionStrategy.MessageRouter.RegisterMessageRoute(typeof(T), address);
         }
 
-        protected AutoSubscriptionStrategy autoSubscriptionStrategy;
+        internal AutoSubscriptionStrategy autoSubscriptionStrategy;
     }
 }
