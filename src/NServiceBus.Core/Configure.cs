@@ -6,7 +6,6 @@ namespace NServiceBus
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using System.Runtime.Serialization;
     using System.Text;
     using System.Web;
     using Config;

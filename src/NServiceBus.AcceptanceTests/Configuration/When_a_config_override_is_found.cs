@@ -4,10 +4,7 @@
     using Config.ConfigurationSource;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using Faults.Forwarder;
     using NUnit.Framework;
-    using Unicast;
-    using Unicast.Transport;
 
     public class When_a_config_override_is_found : NServiceBusAcceptanceTest
     {
