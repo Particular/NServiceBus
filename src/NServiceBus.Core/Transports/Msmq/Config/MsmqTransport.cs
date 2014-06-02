@@ -69,9 +69,6 @@
 
             config.Settings.EnableFeatureByDefault<StorageDrivenPublishing>();
             config.Settings.EnableFeatureByDefault<TimeoutManager>();
-
-            //for backwards compatibility
-            config.Settings.SetDefault("SerializationSettings.WrapSingleMessages", true);
         }
 
         protected override string ExampleConnectionStringForErrorMessage
