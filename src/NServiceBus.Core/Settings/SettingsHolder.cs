@@ -32,7 +32,7 @@ namespace NServiceBus.Settings
             return (T)Get(key);
         }
 
-        public bool TryGetValue<T>(string key, out T val)
+        public bool TryGet<T>(string key, out T val)
         {
             val = default(T);
 

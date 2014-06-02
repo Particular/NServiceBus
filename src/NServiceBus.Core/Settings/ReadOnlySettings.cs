@@ -29,7 +29,7 @@ namespace NServiceBus.Settings
         /// <param name="key">Key for the setting</param>
         /// <param name="val">Output parameter for the setting</param>
         /// <returns>True if found and type matches, false otherwise</returns>
-        bool TryGetValue<T>(string key, out T val);
+        bool TryGet<T>(string key, out T val);
 
         /// <summary>
         /// Gets the setting value.
