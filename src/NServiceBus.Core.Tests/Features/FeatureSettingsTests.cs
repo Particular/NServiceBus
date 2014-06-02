@@ -54,6 +54,11 @@
 
     public abstract class TestFeature : Feature
     {
+        public bool Enabled
+        {
+            get { return IsEnabledByDefault; }
+            set { if (value) EnableByDefault(); }
+        }
 
         public Action<Feature> OnActivation;
 

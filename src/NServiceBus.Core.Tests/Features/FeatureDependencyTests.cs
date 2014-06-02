@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Features
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Features;
@@ -9,36 +10,58 @@
     [TestFixture]
     public class FeatureDependencyTests
     {
-        [Test]
-        public void Should_not_activate_features_with_unmet_dependencies_all()
+        private IEnumerable<FeatureCombinations> FeatureCombinationsForTests
         {
-            var dependingFeature = new DependingFeature1();
-            var feature = new MyFeature();
+            get
+            {
+                yield return new FeatureCombinations
+                {
+                    DependingFeature = new DependsOnOne_Feature(),
+                    AvailableFeatures = new Feature[] { new MyFeature(), new MyFeature2(), new MyFeature3() },
+                    ShouldBeActive = false,
+                };
 
-            var featureSettings = new FeatureActivator(new SettingsHolder());
+                yield return new FeatureCombinations
+                {
+                    DependingFeature = new DependsOnOne_Feature(),
+                    AvailableFeatures = new Feature[] { new MyFeature { Enabled = true }, new MyFeature2(), new MyFeature3() },
+                    ShouldBeActive = true,
+                };
 
-            featureSettings.Add(dependingFeature);
-            featureSettings.Add(feature);
+                yield return new FeatureCombinations
+                {
+                    DependingFeature = new DependsOnOne_Feature(),
+                    AvailableFeatures = new Feature[] { new MyFeature(), new MyFeature2 { Enabled = true }, new MyFeature3() },
+                    ShouldBeActive = false,
+                };
 
-            featureSettings.SetupFeatures(null);
+                yield return new FeatureCombinations
+                {
+                    DependingFeature = new DependsOnAny_Feature(),
+                    AvailableFeatures = new Feature[] { new MyFeature { Enabled = true }, new MyFeature2(), new MyFeature3() },
+                    ShouldBeActive = true,
+                };
 
-            Assert.False(dependingFeature.IsActive);
+                yield return new FeatureCombinations
+                {
+                    DependingFeature = new DependsOnAll_Feature(),
+                    AvailableFeatures = new Feature[] { new MyFeature { Enabled = true }, new MyFeature2(), new MyFeature3() },
+                    ShouldBeActive = false,
+                };
+            }
         }
 
-        [Test]
-        public void Should_not_activate_features_with_unmet_dependencies_any()
+        [TestCaseSource("FeatureCombinationsForTests")]
+        public void Should_only_activate_features_if_dependencies_are_met(FeatureCombinations setup)
         {
-            var dependingFeature = new DependingFeature2();
-            var feature = new MyFeature();
-
             var featureSettings = new FeatureActivator(new SettingsHolder());
-
+            var dependingFeature = setup.DependingFeature;
             featureSettings.Add(dependingFeature);
-            featureSettings.Add(feature);
+            Array.ForEach(setup.AvailableFeatures, featureSettings.Add);
 
             featureSettings.SetupFeatures(null);
 
-            Assert.False(dependingFeature.IsActive);
+            Assert.AreEqual(setup.ShouldBeActive, dependingFeature.IsActive);
         }
 
         [Test]
@@ -46,7 +69,7 @@
         {
             var order = new List<Feature>();
 
-            var dependingFeature = new DependingFeature1
+            var dependingFeature = new DependsOnOne_Feature
             {
                 OnActivation = f => order.Add(f)
             };
@@ -88,22 +111,40 @@
 
         }
 
-        public class DependingFeature1 : TestFeature
+        public class DependsOnOne_Feature : TestFeature
         {
-            public DependingFeature1()
+            public DependsOnOne_Feature()
             {
                 EnableByDefault();
                 DependsOn<MyFeature>();
             }
         }
 
-        public class DependingFeature2 : TestFeature
+        public class DependsOnAll_Feature : TestFeature
         {
-            public DependingFeature2()
+            public DependsOnAll_Feature()
+            {
+                EnableByDefault();
+                DependsOn<MyFeature>();
+                DependsOn<MyFeature2>();
+                DependsOn<MyFeature3>();
+            }
+        }
+
+        public class DependsOnAny_Feature : TestFeature
+        {
+            public DependsOnAny_Feature()
             {
                 EnableByDefault();
                 DependsOnAny(typeof(MyFeature), typeof(MyFeature2), typeof(MyFeature3));
             }
+        }
+
+        public class FeatureCombinations
+        {
+            public Feature DependingFeature { get; set; }
+            public Feature[] AvailableFeatures { get; set; }
+            public bool ShouldBeActive { get; set; }
         }
     }
 }
