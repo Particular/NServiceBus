@@ -7,7 +7,7 @@ namespace NServiceBus.Transports.Msmq
     using Logging;
     using Support;
 
-    public class MsmqQueueCreator : ICreateQueues
+    class MsmqQueueCreator : ICreateQueues
     {
         static ILog Logger = LogManager.GetLogger<MsmqQueueCreator>();
         static string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
