@@ -11,11 +11,12 @@ namespace NServiceBus.Utils.Reflection
         public static T Construct<T>(this Type type)
         {
             var defaultConstructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[] { }, null);
-            if (defaultConstructor == null)
+            if (defaultConstructor != null)
             {
-                throw new Exception(string.Format("Expected '{0}' to have a default constructor", type.Name));
+                return (T)defaultConstructor.Invoke(null); 
             }
-            return (T)defaultConstructor.Invoke(null);
+
+            return (T)Activator.CreateInstance(type);
         }
 
         public static Type GetGenericallyContainedType(this Type type, Type openGenericType, Type genericArg)
