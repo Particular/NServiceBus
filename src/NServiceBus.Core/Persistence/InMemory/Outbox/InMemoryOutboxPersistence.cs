@@ -2,9 +2,9 @@
 {
     using Features;
 
-    public class InMemoryOutboxPersistence:Feature
+    public class InMemoryOutboxPersistence : Feature
     {
-        public InMemoryOutboxPersistence()
+        internal InMemoryOutboxPersistence()
         {
             DependsOn<Outbox>();
         }

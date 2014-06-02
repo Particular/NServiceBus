@@ -2,9 +2,9 @@
 {
     using Features;
 
-    public class InMemorySagaPersistence:Feature
+    public class InMemorySagaPersistence : Feature
     {
-        public InMemorySagaPersistence()
+        internal InMemorySagaPersistence()
         {
             DependsOn<Sagas>();
         }

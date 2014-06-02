@@ -2,9 +2,9 @@
 {
     using Features;
 
-    public class InMemorySubscriptionPersistence:Feature
+    public class InMemorySubscriptionPersistence : Feature
     {
-        public InMemorySubscriptionPersistence()
+        internal InMemorySubscriptionPersistence()
         {
             DependsOn<MessageDrivenSubscriptions>();
         }

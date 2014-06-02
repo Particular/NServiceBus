@@ -2,9 +2,9 @@
 {
     using Features;
 
-    public class InMemoryTimeoutPersistence:Feature
+    public class InMemoryTimeoutPersistence : Feature
     {
-        public InMemoryTimeoutPersistence()
+        internal InMemoryTimeoutPersistence()
         {
             DependsOn<TimeoutManager>();
         }

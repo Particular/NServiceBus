@@ -6,12 +6,9 @@
     /// <summary>
     /// In-memory Gateway
     /// </summary>
-    public class InMemoryGatewayPersistence:Feature
+    public class InMemoryGatewayPersistence : Feature
     {
-        /// <summary>
-        /// Creates an instance of <see cref="InMemoryGatewayPersistence"/>.
-        /// </summary>
-        public InMemoryGatewayPersistence()
+        internal InMemoryGatewayPersistence()
         {
             DependsOn<Gateway>();
         }
