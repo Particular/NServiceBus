@@ -50,7 +50,7 @@ namespace NServiceBus
 			}
 
 			
-			var errorQueue = RegistryReader<string>.Read("ErrorQueue");
+			var errorQueue = RegistryReader.Read("ErrorQueue");
 			if (!string.IsNullOrWhiteSpace(errorQueue))
 			{
 				Logger.Debug("Error queue retrieved from registry settings.");

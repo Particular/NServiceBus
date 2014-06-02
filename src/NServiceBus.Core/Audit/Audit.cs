@@ -63,7 +63,7 @@
 
         Address ReadAuditQueueNameFromRegistry()
         {
-            var forwardQueue = RegistryReader<string>.Read("AuditQueue");
+            var forwardQueue = RegistryReader.Read("AuditQueue");
             if (string.IsNullOrWhiteSpace(forwardQueue))
             {
                 return Address.Undefined;
