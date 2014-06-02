@@ -6,7 +6,7 @@ namespace NServiceBus.Sagas.Finders
     /// <summary>
     /// Finds sagas based on the sagaid header
     /// </summary>
-    public class HeaderSagaIdFinder<T> : IFindSagas<T>.Using<object> where T : IContainSagaData
+    class HeaderSagaIdFinder<T> : IFindSagas<T>.Using<object> where T : IContainSagaData
     {
 
         /// <summary>
