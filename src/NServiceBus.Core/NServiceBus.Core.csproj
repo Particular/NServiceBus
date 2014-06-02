@@ -184,6 +184,7 @@
     <Compile Include="Outbox\TransportOperation.cs" />
     <Compile Include="Outbox\TransportOperationConverter.cs" />
     <Compile Include="Persistence\EnableSelectedPersistence.cs" />
+    <Compile Include="Persistence\IConfigurePersistence.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayPersistence.cs" />
     <Compile Include="Persistence\InMemory\InMemory.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxPersistence.cs" />
@@ -194,6 +195,8 @@
     <Compile Include="Installation\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Gateway\GatewayExtensions.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayDeduplication.cs" />
+    <Compile Include="Persistence\PersistenceConfiguration.cs" />
+    <Compile Include="Persistence\PersistenceDefinition.cs" />
     <Compile Include="Persistence\UsePersistence.cs" />
     <Compile Include="Pipeline\BehaviorContext.cs" />
     <Compile Include="Pipeline\BehaviorContextStacker.cs" />
