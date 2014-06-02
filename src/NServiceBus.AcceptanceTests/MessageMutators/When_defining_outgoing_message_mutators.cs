@@ -20,7 +20,7 @@
                     .Run();
 
             Assert.True(context.TransportMutatorCalled);
-            Assert.IsNull(context.OutgoingMessageLogicalMessage);
+            Assert.IsTrue(context.OutgoingMessageLogicalMessageReceived);
             Assert.True(context.MessageMutatorCalled);
         }
 
@@ -29,7 +29,7 @@
             public bool MessageProcessed { get; set; }
             public bool TransportMutatorCalled { get; set; }
             public bool MessageMutatorCalled { get; set; }
-            public object OutgoingMessageLogicalMessage { get; set; }
+            public bool OutgoingMessageLogicalMessageReceived { get; set; }
         }
 
         public class OutgoingMutatorEndpoint : EndpointConfigurationBuilder
@@ -46,7 +46,7 @@
                 public Context Context { get; set; }
                 public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
                 {
-                    Context.OutgoingMessageLogicalMessage = logicalMessage;
+                    Context.OutgoingMessageLogicalMessageReceived = true;
                     transportMessage.Headers["TransportMutatorCalled"] = true.ToString();
                 }
 
