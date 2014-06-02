@@ -21,7 +21,6 @@
         /// Prerequisites are only evaluated if the feature is enabled
         /// </summary>
         /// <param name="condition">Condition that must be met in order for this feature to be activated</param>
-        /// <returns></returns>
         protected void Prerequisite(Func<FeatureConfigurationContext, bool> condition)
         {
             setupPrerequisites.Add(condition);
