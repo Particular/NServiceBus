@@ -2,6 +2,7 @@ namespace NServiceBus.Gateway.HeaderManagement
 {
     using System;
     using MessageMutator;
+    using Unicast.Messages;
 
     class GatewayHeaderManager : IMutateTransportMessages, INeedInitialization
     {
@@ -30,7 +31,7 @@ namespace NServiceBus.Gateway.HeaderManagement
             };
         }
 
-        public void MutateOutgoing(object message, TransportMessage transportMessage)
+        public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
         {
             if (returnInfo == null)
             {

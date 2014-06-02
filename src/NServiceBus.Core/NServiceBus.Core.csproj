@@ -171,7 +171,9 @@
     <Compile Include="MessageIntentEnum.cs" />
     <Compile Include="MessageMutator\IMessageMutator.cs" />
     <Compile Include="MessageMutator\IMutateIncomingMessages.cs" />
+    <Compile Include="MessageMutator\IMutateIncomingTransportMessages.cs" />
     <Compile Include="MessageMutator\IMutateOutgoingMessages.cs" />
+    <Compile Include="MessageMutator\IMutateOutgoingTransportMessages.cs" />
     <Compile Include="Outbox\IOutboxStorage.cs" />
     <Compile Include="Outbox\Outbox.cs" />
     <Compile Include="Outbox\OutboxConfigExtentions.cs" />

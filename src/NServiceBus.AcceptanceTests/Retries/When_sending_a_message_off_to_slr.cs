@@ -8,6 +8,7 @@
     using AcceptanceTesting;
     using MessageMutator;
     using NUnit.Framework;
+    using Unicast.Messages;
 
     public class When_sending_a_message_off_to_slr : NServiceBusAcceptanceTest
     {
@@ -87,7 +88,7 @@
                 }
 
 
-                public void MutateOutgoing(object message, TransportMessage transportMessage)
+                public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
                 {
                     transportMessage.Body[0]--;
                 }

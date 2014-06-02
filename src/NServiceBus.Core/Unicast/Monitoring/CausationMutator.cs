@@ -2,6 +2,7 @@ namespace NServiceBus.Unicast.Monitoring
 {
     using IdGeneration;
     using MessageMutator;
+    using Messages;
 
     /// <summary>
     /// Mutator to set the related to header
@@ -16,7 +17,7 @@ namespace NServiceBus.Unicast.Monitoring
         /// <summary>
         /// Keeps track of related messages to make auditing possible
         /// </summary>
-        public void MutateOutgoing(object message, TransportMessage transportMessage)
+        public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
         {
             if (transportMessage.Headers.ContainsKey(Headers.ConversationId))
                 return;
