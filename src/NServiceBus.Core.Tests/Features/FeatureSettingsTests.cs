@@ -52,7 +52,7 @@
 
     }
 
-    public class TestFeature : Feature
+    public abstract class TestFeature : Feature
     {
 
         public Action<Feature> OnActivation;

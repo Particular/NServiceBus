@@ -38,9 +38,17 @@
         /// <summary>
         ///     The list of features that this feature is depending on
         /// </summary>
-        internal IEnumerable<Type> Dependencies
+        internal IEnumerable<Type> DependenciesAll
         {
-            get { return dependencies.ToList(); }
+            get { return dependenciesAll; }
+        }
+
+        /// <summary>
+        ///     The list of features that this feature is depending on at least one of
+        /// </summary>
+        internal IEnumerable<Type> DependenciesAny
+        {
+            get { return dependenciesAny; }
         }
 
         /// <summary>
@@ -96,7 +104,28 @@
         /// <typeparam name="T">Feature that this feature depends on</typeparam>
         protected void DependsOn<T>() where T : Feature
         {
-            dependencies.Add(typeof(T));
+            dependenciesAll.Add(typeof(T));
+        }
+
+        /// <summary>
+        /// Register this feature as depending on at least on of the given features. This means that this feature won't be activeated
+        /// unless at least one of the provided features list is active.
+        /// This also causes this feature to be activated after the other features.
+        /// </summary>
+        /// <param name="features">Features list that this feature require at least one of from to exist</param>
+        protected void DependsOnAny(params Type[] features)
+        {
+            if (dependenciesAny != null)
+                throw new NotSupportedException("You cannot call DependsOnAny multiple times");
+
+            dependenciesAny = new List<Type>();
+            foreach (var feature in features)
+            {
+                if (!feature.IsSubclassOf(typeof(Feature)))
+                    throw new Exception("A Feature Can only depend on another Feature; " + feature.FullName + " is not a Feature");
+
+                dependenciesAny.Add(feature);
+            }
         }
 
         /// <summary>
@@ -134,7 +163,8 @@
             isActive = true;
         }
 
-        List<Type> dependencies = new List<Type>();
+        List<Type> dependenciesAll = new List<Type>();
+        List<Type> dependenciesAny;
 
         bool isActive;
         bool isEnabledByDefault;

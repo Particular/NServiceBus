@@ -59,33 +59,37 @@ namespace NServiceBus.Features
                 }
             }
         }
-        bool ActivateFeature(Feature feature, StringBuilder statusText, List<Feature> featuresToActivate, FeatureConfigurationContext context)
+
+        static bool ActivateFeature(Feature feature, StringBuilder statusText, List<Feature> featuresToActivate, FeatureConfigurationContext context)
         {
             if (feature.IsActive)
             {
                 return true;
             }
 
-            if (feature.Dependencies.All(dependencyType =>
-            {
-                var dependency = featuresToActivate.SingleOrDefault(f => f.GetType() == dependencyType);
+            Func<Type, bool> dependencyActivator = dependencyType =>
+                                 {
+                                     var dependency = featuresToActivate.SingleOrDefault(f => f.GetType() == dependencyType);
 
-                if (dependency == null)
-                {
-                    return false;
-                }
+                                     if (dependency == null)
+                                     {
+                                         return false;
+                                     }
 
-                return ActivateFeature(dependency, statusText, featuresToActivate, context);
-            }))
+                                     return ActivateFeature(dependency, statusText, featuresToActivate, context);
+                                 };
+
+            if (feature.DependenciesAll.All(dependencyActivator) && (feature.DependenciesAny == null || feature.DependenciesAny.Any(dependencyActivator)))
             {
                 feature.SetupFeature(context);
-
-
                 statusText.AppendLine(string.Format("{0} - Activated", feature));
-
                 return true;
             }
-            statusText.AppendLine(string.Format("{0} - Not activated due to dependencies not being available: {1}", feature, string.Join(";", feature.Dependencies.Select(t => t.Name))));
+
+            statusText.AppendLine(string.Format("{0} - Not activated due to dependencies not being available: All:({1}) Any:({2})",
+                feature,
+                string.Join(";", feature.DependenciesAll.Select(t => t.Name)),
+                feature.DependenciesAny == null ? string.Empty : string.Join(";", feature.DependenciesAny.Select(t => t.Name))));
             return false;
         }
 
