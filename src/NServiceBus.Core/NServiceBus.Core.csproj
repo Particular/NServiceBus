@@ -607,7 +607,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="DataBus\InMemory\" />
     <Folder Include="Unicast\Monitoring\Config\" />
   </ItemGroup>
   <ItemGroup>
