@@ -30,8 +30,6 @@
 
             context.Pipeline.Register<AuditBehavior.Registration>();
 
-
-
             var auditQueue = GetConfiguredAuditQueue(context);
 
             context.Container.ConfigureComponent<AuditQueueCreator>(DependencyLifecycle.InstancePerCall)

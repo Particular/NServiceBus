@@ -56,8 +56,8 @@
         }
 
         /// <summary>
-        /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless the dependant feature is actived.
-        /// This also causes this feature to be activated after the other feature
+        /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless the dependant feature is active.
+        /// This also causes this feature to be activated after the other feature.
         /// </summary>
         /// <typeparam name="T">Feature that this feature depends on</typeparam>
         protected void DependsOn<T>() where T:Feature
