@@ -1,8 +1,8 @@
 namespace NServiceBus.Scheduling
 {
-    public class ScheduledTaskMessageHandler : IHandleMessages<Messages.ScheduledTask>
+    class ScheduledTaskMessageHandler : IHandleMessages<Messages.ScheduledTask>
     {
-        private readonly IScheduler scheduler;
+        IScheduler scheduler;
 
         public ScheduledTaskMessageHandler(IScheduler scheduler)
         {
