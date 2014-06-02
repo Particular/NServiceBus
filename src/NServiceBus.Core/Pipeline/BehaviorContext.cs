@@ -4,13 +4,23 @@
     using System.Collections.Generic;
     using ObjectBuilder;
 
+    /// <summary>
+    /// Base class for a pipeline behavior.
+    /// </summary>
     public abstract class BehaviorContext
     {
+        /// <summary>
+        /// Create an instance of <see cref="BehaviorContext"/>.
+        /// </summary>
+        /// <param name="parentContext"></param>
         protected BehaviorContext(BehaviorContext parentContext)
         {
             this.parentContext = parentContext;
         }
 
+        /// <summary>
+        /// The current <see cref="IBuilder"/>
+        /// </summary>
         public IBuilder Builder
         {
             get { return Get<IBuilder>(); }

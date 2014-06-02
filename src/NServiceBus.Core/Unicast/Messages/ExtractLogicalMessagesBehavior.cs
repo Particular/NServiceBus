@@ -16,7 +16,6 @@
 
     class ExtractLogicalMessagesBehavior : IBehavior<IncomingContext>
     {
-
         public IMessageSerializer MessageSerializer { get; set; }
     
         public UnicastBus UnicastBus { get; set; }

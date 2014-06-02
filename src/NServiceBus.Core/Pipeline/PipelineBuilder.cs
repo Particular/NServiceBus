@@ -71,7 +71,7 @@
             coordinator.Register(WellKnownBehavior.ExtractLogicalMessages, typeof(ExtractLogicalMessagesBehavior), "It splits the raw message into multiple logical messages");
             coordinator.Register(WellKnownBehavior.ExecuteLogicalMessages, typeof(ExecuteLogicalMessagesBehavior), "Starts the execution of each logical message");
             coordinator.Register(WellKnownBehavior.MutateIncomingMessages, typeof(ApplyIncomingMessageMutatorsBehavior), "Executes IMutateIncomingMessages");
-            coordinator.Register(WellKnownBehavior.ExecuteHandlers, typeof(LoadHandlersBehavior), "Executes all IHandleMessages<T>");
+            coordinator.Register(WellKnownBehavior.LoadHandlers, typeof(LoadHandlersBehavior), "Executes all IHandleMessages<T>");
             coordinator.Register("SetCurrentMessageBeingHandled", typeof(SetCurrentMessageBeingHandledBehavior), "Sets the static current message (this is used by the headers)");
             coordinator.Register("AuditInvokedSaga", typeof(AuditInvokedSagaBehavior), "Populates the InvokedSaga header");
             coordinator.Register(WellKnownBehavior.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic");
