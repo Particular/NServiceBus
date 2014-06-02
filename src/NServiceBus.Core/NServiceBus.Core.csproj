@@ -26,7 +26,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\NServiceBus.Core.xml</DocumentationFile>
-    <NoWarn>618</NoWarn>
+    <NoWarn>1591,1573,618</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
@@ -38,7 +38,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\NServiceBus.Core.xml</DocumentationFile>
-    <NoWarn>618</NoWarn>
+    <NoWarn>1591,1573,618</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
