@@ -15,7 +15,7 @@ namespace NServiceBus.Transports.Msmq
     /// <summary>
     ///     MSMQ-related utility functions
     /// </summary>
-    public class MsmqUtilities
+    class MsmqUtilities
     {
         /// <summary>
         ///     Turns a '@' separated value into a full path.
