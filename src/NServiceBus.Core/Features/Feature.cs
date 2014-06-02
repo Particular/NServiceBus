@@ -108,11 +108,11 @@
         }
 
         /// <summary>
-        /// Register this feature as depending on at least on of the given features. This means that this feature won't be activeated
-        /// unless at least one of the provided features list is active.
+        /// Register this feature as depending on at least on of the given features. This means that this feature won't be activated
+        /// unless at least one of the provided features in the list is active.
         /// This also causes this feature to be activated after the other features.
         /// </summary>
-        /// <param name="features">Features list that this feature require at least one of from to exist</param>
+        /// <param name="features">Features list that this feature require at least one of to be activated.</param>
         protected void DependsOnAny(params Type[] features)
         {
             if (dependenciesAny != null)
