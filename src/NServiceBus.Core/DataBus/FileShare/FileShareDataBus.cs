@@ -7,10 +7,10 @@ namespace NServiceBus.DataBus.FileShare
     /// <summary>
     /// File share implementation of <see cref="IDataBus"/>.
     /// </summary>
-    public class FileShareDataBus : IDataBus
+    class FileShareDataBus : IDataBus
 	{
 		readonly string basePath;
-        static ILog logger = LogManager.GetLogger < FileShareDataBus>();
+        static ILog logger = LogManager.GetLogger<FileShareDataBus>();
 
 		/// <summary>
         /// Create a <see cref="FileShareDataBus"/> with the specified <paramref name="basePath"/>.
