@@ -77,6 +77,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\NServiceBus.Core\Utils\FileVersionRetriever.cs">
+      <Link>FileVersionRetriever.cs</Link>
+    </Compile>
     <Compile Include="EndpointType.cs" />
     <Compile Include="EndpointTypeDeterminer.cs" />
     <Compile Include="GenericHost.cs" />
