@@ -281,7 +281,6 @@
     <Compile Include="ConfigureFaultsForwarder.cs" />
     <Compile Include="ConfigureFileShareDataBus.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
-    <Compile Include="DataBus\InMemory\InMemoryDataBus.cs" />
     <Compile Include="Features\FeatureActivator.cs" />
     <Compile Include="Gateway\Channels\ChannelTypeAttribute.cs" />
     <Compile Include="Gateway\Deduplication\GatewayMessage.cs" />
@@ -604,6 +603,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="DataBus\InMemory\" />
     <Folder Include="Unicast\Monitoring\Config\" />
   </ItemGroup>
   <ItemGroup>
