@@ -35,6 +35,9 @@ namespace NServiceBus.Features
             return retriesConfig.Enabled;
         }
 
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
             var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();

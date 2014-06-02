@@ -70,9 +70,9 @@ namespace NServiceBus.Transports.Msmq
         static void ThrowFailedToSendException(Address address, Exception ex)
         {
             if (address == null)
-                throw new FailedToSendMessageException("Failed to send message.", ex);
+                throw new Exception("Failed to send message.", ex);
 
-            throw new FailedToSendMessageException(
+            throw new Exception(
                 string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine), ex);
         }
 

@@ -34,7 +34,7 @@
             }
             catch (Exception ex)
             {
-                throw new MessageConventionException("Failed to evaluate Message convention. See inner exception for details.", ex);           
+                throw new Exception("Failed to evaluate Message convention. See inner exception for details.", ex);           
             }
         }
 
@@ -77,7 +77,7 @@
             }
             catch (Exception ex)
             {
-                throw new MessageConventionException("Failed to evaluate Command convention. See inner exception for details.", ex);
+                throw new Exception("Failed to evaluate Command convention. See inner exception for details.", ex);
             }
         }
 
@@ -100,7 +100,7 @@
             }
             catch (Exception ex)
             {
-                throw new MessageConventionException("Failed to evaluate Express convention. See inner exception for details.", ex);
+                throw new Exception("Failed to evaluate Express convention. See inner exception for details.", ex);
             }
         }
 
@@ -117,7 +117,7 @@
             }
             catch (Exception ex)
             {
-                throw new MessageConventionException("Failed to evaluate Encrypted Property convention. See inner exception for details.", ex);
+                throw new Exception("Failed to evaluate Encrypted Property convention. See inner exception for details.", ex);
             }
         }
 
@@ -132,7 +132,7 @@
             }
             catch (Exception ex)
             {
-                throw new MessageConventionException("Failed to evaluate DataBus Property convention. See inner exception for details.", ex);
+                throw new Exception("Failed to evaluate DataBus Property convention. See inner exception for details.", ex);
             }
         }
 
@@ -155,7 +155,7 @@
             }
             catch (Exception ex)
             {
-                throw new MessageConventionException("Failed to evaluate Event convention. See inner exception for details.", ex);
+                throw new Exception("Failed to evaluate Event convention. See inner exception for details.", ex);
             }
         }
 

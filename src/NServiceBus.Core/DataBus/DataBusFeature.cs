@@ -16,6 +16,9 @@ namespace NServiceBus.Features
             RegisterStartupTask<StorageInitializer>();
         }
 
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
             if (!context.Container.HasComponent<IDataBus>())
