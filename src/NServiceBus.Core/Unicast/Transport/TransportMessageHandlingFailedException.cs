@@ -12,9 +12,8 @@ namespace NServiceBus.Unicast.Transport
         /// Constructor
         /// </summary>
         /// <param name="originalException">The exception that got thrown from the message handler.</param>
-        public TransportMessageHandlingFailedException(Exception originalException)
-            : base("An exception was thrown by the message handler.", originalException)
-        {
-        }
+        public TransportMessageHandlingFailedException(Exception originalException): base("An exception was thrown by the message handler.", originalException){}
+
+        protected TransportMessageHandlingFailedException(System.Runtime.Serialization.SerializationInfo info,System.Runtime.Serialization.StreamingContext context): base(info, context){}
     }
 }
