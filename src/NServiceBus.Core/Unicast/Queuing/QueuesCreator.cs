@@ -17,7 +17,6 @@ namespace NServiceBus.Unicast.Queuing
         /// Performs the installation providing permission for the given user.
         /// </summary>
         /// <param name="identity">The user for under which the queue will be created.</param>
-        /// <param name="config"></param>
         public void Install(string identity, Configure config)
         {
             if (config.Settings.Get<bool>("Endpoint.SendOnly"))

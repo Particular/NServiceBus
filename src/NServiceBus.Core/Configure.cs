@@ -378,7 +378,6 @@ namespace NServiceBus
             /// <summary>
             ///     Specifies the range of types that NServiceBus scans for handlers etc
             /// </summary>
-            /// <param name="typesToScan"></param>
             public void TypesToScan(IEnumerable<Type> typesToScan)
             {
                 scannedTypes = typesToScan.ToList();
@@ -387,7 +386,6 @@ namespace NServiceBus
             /// <summary>
             ///     The assemblies to include when scanning for types
             /// </summary>
-            /// <param name="assemblies"></param>
             public void AssembliesToScan(IEnumerable<Assembly> assemblies)
             {
                 AssembliesToScan(assemblies.ToArray());
@@ -396,7 +394,6 @@ namespace NServiceBus
             /// <summary>
             ///     The assemblies to include when scanning for types
             /// </summary>
-            /// <param name="assemblies"></param>
             public void AssembliesToScan(params Assembly[] assemblies)
             {
                 scannedTypes = GetAllowedTypes(assemblies);
@@ -406,7 +403,6 @@ namespace NServiceBus
             /// <summary>
             ///     Specifies the directory where NServiceBus scans for types
             /// </summary>
-            /// <param name="probeDirectory"></param>
             public void ScanAssembliesInDirectory(string probeDirectory)
             {
                 directory = probeDirectory;
@@ -417,7 +413,6 @@ namespace NServiceBus
             /// <summary>
             ///     Overrides the default configuration source
             /// </summary>
-            /// <param name="configurationSource"></param>
             public void CustomConfigurationSource(IConfigurationSource configurationSource)
             {
                 configurationSourceToUse = configurationSource;
@@ -427,7 +422,6 @@ namespace NServiceBus
             /// <summary>
             ///     Defines the name to use for this endpoint
             /// </summary>
-            /// <param name="name"></param>
             public void EndpointName(string name)
             {
                 EndpointName(() => name);
@@ -436,7 +430,6 @@ namespace NServiceBus
             /// <summary>
             ///     Defines the name to use for this endpoint
             /// </summary>
-            /// <param name="nameFunc"></param>
             public void EndpointName(Func<string> nameFunc)
             {
                 getEndpointNameAction = nameFunc;
@@ -445,7 +438,6 @@ namespace NServiceBus
             /// <summary>
             ///     Creates the configuration object
             /// </summary>
-            /// <returns></returns>
             internal Configure BuildConfiguration()
             {
                 endpointName = getEndpointNameAction();

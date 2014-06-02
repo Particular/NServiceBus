@@ -33,8 +33,6 @@ namespace NServiceBus
         /// <summary>
         /// Gets the list of types available to this endpoint
         /// </summary>
-        /// <param name="settings"></param>
-        /// <returns></returns>
         public static IList<Type> GetAvailableTypes(this ReadOnlySettings settings)
         {
             return settings.Get<IList<Type>>("TypesToScan");
@@ -44,8 +42,6 @@ namespace NServiceBus
         /// <summary>
         /// Returns the name of this endpoint
         /// </summary>
-        /// <param name="settings"></param>
-        /// <returns></returns>
         public static string EndpointName(this ReadOnlySettings settings)
         {
             return settings.Get<string>("EndpointName");

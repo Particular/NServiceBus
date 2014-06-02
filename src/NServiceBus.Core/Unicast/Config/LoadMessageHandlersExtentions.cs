@@ -13,7 +13,6 @@ namespace NServiceBus
         /// <summary>
         ///     Loads all message handler assemblies in the runtime directory.
         /// </summary>
-        /// <returns></returns>
         public static Configure LoadMessageHandlers(this Configure config)
         {
             var types = new List<Type>();
@@ -46,8 +45,6 @@ namespace NServiceBus
         ///     before all others.
         ///     Use First{T} to indicate the type to load from.
         /// </summary>
-        /// <typeparam name="TFirst"></typeparam>
-        /// <returns></returns>
         public static Configure LoadMessageHandlers<TFirst>(this Configure config)
         {
             var args = typeof(TFirst).GetGenericArguments();
@@ -70,10 +67,6 @@ namespace NServiceBus
         ///     and specifies that the handlers in the given 'order' are to
         ///     run before all others and in the order specified.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="config"></param>
-        /// <param name="order"></param>
-        /// <returns></returns>
         public static Configure LoadMessageHandlers<T>(this Configure config, First<T> order)
         {
             return config.LoadMessageHandlers(order.Types);
@@ -98,9 +91,6 @@ namespace NServiceBus
         ///     then uses the Configurer to configure them into the container as single call components,
         ///     finally passing them to the bus as its MessageHandlerTypes.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="types"></param>
-        /// <returns></returns>
         static Configure ConfigureMessageHandlersIn(this Configure config, IEnumerable<Type> types)
         {
             var handlerRegistry = new MessageHandlerRegistry();

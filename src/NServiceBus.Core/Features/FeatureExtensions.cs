@@ -13,9 +13,6 @@
         /// <summary>
         /// Provides fine grained control for features
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="customizations"></param>
-        /// <returns></returns>
         public static Configure Features(this Configure config,Action<FeatureSettings> customizations)
         {
             customizations(new FeatureSettings(config.Settings));
@@ -46,7 +43,6 @@
             /// <summary>
             /// Enables the given feature
             /// </summary>
-            /// <param name="featureType"></param>
             public void Enable(Type featureType)
             {
                 settings.Set(featureType.FullName, true);
@@ -63,8 +59,6 @@
             /// <summary>
             /// Disables the give feature
             /// </summary>
-            /// <param name="featureType"></param>
-            /// <returns></returns>
             public void Disable(Type featureType)
             {
                 settings.Set(featureType.FullName, false);

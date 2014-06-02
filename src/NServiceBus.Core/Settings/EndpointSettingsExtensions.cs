@@ -12,9 +12,6 @@ namespace NServiceBus
         /// <summary>
         /// Allows users to change endpoint related settings
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="customizations"></param>
-        /// <returns></returns>
         public static Configure Endpoint(this Configure config,Action<EndpointSettings> customizations)
         {
             customizations(new EndpointSettings(config));

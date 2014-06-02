@@ -8,8 +8,6 @@
         /// <summary>
         /// Eanbles outbox operations
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure EnableOutbox(this Configure config)
         {
 

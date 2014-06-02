@@ -18,7 +18,6 @@ namespace NServiceBus
         /// <summary>
         /// Configures the transport to use the given string as the connection string
         /// </summary>
-        /// <param name="connectionString"></param>
         public void ConnectionString(string connectionString)
         {
             Config.Settings.Set<TransportConnectionString>(new TransportConnectionString(()=>connectionString));
@@ -27,7 +26,6 @@ namespace NServiceBus
         /// <summary>
         /// Configures the transport to use the connection string with the given name
         /// </summary>
-        /// <param name="name"></param>
         public void ConnectionStringName(string name)
         {
             Config.Settings.Set<TransportConnectionString>(new TransportConnectionString(name));
@@ -36,7 +34,6 @@ namespace NServiceBus
         /// <summary>
         /// Configures the transport to use the given func as the connection string
         /// </summary>
-        /// <param name="connectionString"></param>
         public void ConnectionString(Func<string> connectionString)
         {
             Config.Settings.Set<TransportConnectionString>(new TransportConnectionString(connectionString));

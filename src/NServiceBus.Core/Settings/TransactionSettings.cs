@@ -84,7 +84,6 @@ namespace NServiceBus.Settings
             /// <summary>
             ///     Default constructor.
             /// </summary>
-            /// <param name="config"></param>
             public TransactionAdvancedSettings(Configure config)
             {
                 this.config = config;

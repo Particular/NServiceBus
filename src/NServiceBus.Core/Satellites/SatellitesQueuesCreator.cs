@@ -15,7 +15,6 @@ namespace NServiceBus.Satellites
         /// Performs the installation providing permission for the given user.
         /// </summary>
         /// <param name="identity">The user for whom permissions will be given.</param>
-        /// <param name="config"></param>
         public void Install(string identity, Configure config)
         {
             if (config.Settings.Get<bool>("Endpoint.SendOnly"))

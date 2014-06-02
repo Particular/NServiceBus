@@ -10,7 +10,6 @@ namespace NServiceBus.Installation
         /// Performs the installation providing permission for the given user.
         /// </summary>
         /// <param name="identity">The user for whom permissions will be given.</param>
-        /// <param name="config"></param>
         void Install(string identity,Configure config);
     }
 }

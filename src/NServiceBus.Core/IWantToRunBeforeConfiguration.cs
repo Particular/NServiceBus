@@ -8,7 +8,6 @@ namespace NServiceBus
         /// <summary>
         /// Invoked before configuration starts
         /// </summary>
-        /// <param name="configure"></param>
         void Init(Configure configure);
     }
 }
