@@ -10,7 +10,7 @@ namespace NServiceBus.Hosting.Wcf
     /// <summary>
     /// A specialized service host that adds a default endpoint if non is specified in config
     /// </summary>
-    public class WcfServiceHost : ServiceHost
+    class WcfServiceHost : ServiceHost
     {
         /// <summary>
         /// Constructs the host with the given service type
