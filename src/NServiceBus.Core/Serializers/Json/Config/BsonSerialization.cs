@@ -4,7 +4,7 @@
     using Serializers.Json;
 
     /// <summary>
-    /// Used to control Bson as a message serializer
+    /// Uses Bson as the message serialization.
     /// </summary>
     public class BsonSerialization : Feature
     {

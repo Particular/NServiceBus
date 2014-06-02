@@ -4,7 +4,7 @@
     using Serializers.Json;
 
     /// <summary>
-    /// Used to configure json as a message serializer
+    /// Uses JSON as the message serialization.
     /// </summary>
     public class JsonSerialization : Feature
     {

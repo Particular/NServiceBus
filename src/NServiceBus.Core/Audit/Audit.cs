@@ -9,7 +9,7 @@
     using Utils;
 
     /// <summary>
-    /// Used to configuremessage auditing.
+    /// Enabled message auditing for this endpoint.
     /// </summary>
     public class Audit : Feature
     {
