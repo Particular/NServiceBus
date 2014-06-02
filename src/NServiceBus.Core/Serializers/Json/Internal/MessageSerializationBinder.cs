@@ -6,10 +6,10 @@ namespace NServiceBus.Serializers.Json.Internal
     using System.Runtime.Serialization;
     using MessageInterfaces;
 
-    public class MessageSerializationBinder : SerializationBinder
+    class MessageSerializationBinder : SerializationBinder
     {
-        private readonly IMessageMapper _messageMapper;
-        private readonly IList<Type> messageTypes;
+        IMessageMapper _messageMapper;
+        IList<Type> messageTypes;
 
         public MessageSerializationBinder(IMessageMapper messageMapper, IList<Type> messageTypes = null)
         {
