@@ -6,7 +6,7 @@ namespace NServiceBus.Unicast.Monitoring
     using System.Linq;
     using System.Threading;
 
-    public class EstimatedTimeToSLABreachCalculator : IDisposable
+    class EstimatedTimeToSLABreachCalculator : IDisposable
     {
 
         public void Dispose()
