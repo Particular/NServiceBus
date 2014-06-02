@@ -7,7 +7,7 @@ namespace NServiceBus.Unicast.Monitoring
     /// <summary>
     ///     Performance counter for the critical time
     /// </summary>
-    public class CriticalTimeCalculator : IDisposable
+    class CriticalTimeCalculator : IDisposable
     {
         PerformanceCounter counter;
         TimeSpan maxDelta = TimeSpan.FromSeconds(2);
