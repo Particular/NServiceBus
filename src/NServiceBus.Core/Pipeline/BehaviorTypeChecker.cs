@@ -6,23 +6,23 @@ namespace NServiceBus.Pipeline
     static class BehaviorTypeChecker
     {
 
-        public static void ThrowIfInvalid(Type behavior)
+        public static void ThrowIfInvalid(Type behavior, string paramName)
         {
             if (behavior == null)
             {
-                throw new Exception("Behavior cannot be null.");
+                throw new ArgumentNullException(paramName);
             }
             if (behavior.IsAbstract)
             {
-                throw new Exception(string.Format("The behavior '{0}' is invalid since it is abstract.", behavior.Name));
+                throw new ArgumentException(string.Format("The behavior '{0}' is invalid since it is abstract.", behavior.Name), paramName);
             }
             if (behavior.IsGenericTypeDefinition)
             {
-                throw new Exception(string.Format("The behavior '{0}' is invalid since it is an open generic.", behavior.Name));
+                throw new ArgumentException(string.Format("The behavior '{0}' is invalid since it is an open generic.", behavior.Name), paramName);
             }
             if (!IsAssignableToIBehavior(behavior))
             {
-                throw new Exception(string.Format("The behavior '{0}' is invalid since it does not implement IBehavior<T>.", behavior.Name));
+                throw new ArgumentException(string.Format("The behavior '{0}' is invalid since it does not implement IBehavior<T>.", behavior.Name), paramName);
             }
         }
 

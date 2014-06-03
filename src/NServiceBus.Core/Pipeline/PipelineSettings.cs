@@ -23,7 +23,7 @@ namespace NServiceBus.Pipeline
 
         public void Replace(string idToReplace, Type newBehavior, string description = null)
         {
-            BehaviorTypeChecker.ThrowIfInvalid(newBehavior);
+            BehaviorTypeChecker.ThrowIfInvalid(newBehavior, "newBehavior");
 
             if (string.IsNullOrEmpty(idToReplace))
             {
@@ -38,7 +38,7 @@ namespace NServiceBus.Pipeline
         public void Register(string id, Type behavior, string description)
         {
 
-            BehaviorTypeChecker.ThrowIfInvalid(behavior);
+            BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
             if (string.IsNullOrEmpty(id))
             {

@@ -16,7 +16,7 @@ namespace NServiceBus.Pipeline
         /// <param name="description">A brief description of what this <see cref="IBehavior{TContext}"/> does.</param>
         protected RegisterBehavior(string id, Type behavior, string description)
         {
-            BehaviorTypeChecker.ThrowIfInvalid(behavior);
+            BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
             if (String.IsNullOrEmpty(id))
             {

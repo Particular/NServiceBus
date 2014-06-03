@@ -11,7 +11,7 @@
         [Test]
         public void Should_not_throw_for_simple_behavior()
         {
-            BehaviorTypeChecker.ThrowIfInvalid(typeof(ValidBehavior));
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(ValidBehavior), "foo");
         }
 
         class ValidBehavior : IBehavior<RootContext>
@@ -24,21 +24,19 @@
         [Test]
         public void Should_not_throw_for_closed_generic_behavior()
         {
-            BehaviorTypeChecker.ThrowIfInvalid(typeof(GenericBehavior<object>));
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(GenericBehavior<object>), "foo");
         }
 
         [Test]
         public void Should_throw_for_non_behavior()
         {
-            var exception = Assert.Throws<Exception>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(string)));
-            Assert.AreEqual("The behavior 'String' is invalid since it does not implement IBehavior<T>.", exception.Message);
+            Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(string), "foo"));
         }
 
         [Test]
         public void Should_throw_for_open_generic_behavior()
         {
-            var exception = Assert.Throws<Exception>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(GenericBehavior<>)));
-            Assert.AreEqual("The behavior 'GenericBehavior`1' is invalid since it is an open generic.", exception.Message);
+            Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(GenericBehavior<>), "foo"));
         }
 
         class GenericBehavior<T> : IBehavior<RootContext>
@@ -51,8 +49,7 @@
         [Test]
         public void Should_throw_for_abstract_behavior()
         {
-            var exception = Assert.Throws<Exception>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(AbstractBehavior)));
-            Assert.AreEqual("The behavior 'AbstractBehavior' is invalid since it is abstract.", exception.Message);
+            Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(AbstractBehavior), "foo"));
         }
 
         abstract class AbstractBehavior : IBehavior<RootContext>
