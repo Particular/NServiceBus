@@ -8,13 +8,13 @@ namespace NServiceBus.Hosting.Tests
         using Windows.Arguments;
         using NUnit.Framework;
 
-        public abstract class TestContext
+        abstract class TestContext
         {
             protected EndpointType EndpointType;
         }
 
         [TestFixture]
-        public class OtherProperty_Getter_Tests : TestContext
+        class OtherProperty_Getter_Tests : TestContext
         {
             [TestFixtureSetUp]
             public void TestFixtureSetup()
@@ -42,7 +42,7 @@ namespace NServiceBus.Hosting.Tests
         }
 
         [TestFixture]
-        public class EndpointName_Getter_Tests : TestContext
+        class EndpointName_Getter_Tests : TestContext
         {
             HostArguments hostArguments;
 
@@ -100,7 +100,7 @@ namespace NServiceBus.Hosting.Tests
         }
 
         [TestFixture]
-        public class ServiceName_Getter_Tests : TestContext
+        class ServiceName_Getter_Tests : TestContext
         {
             HostArguments hostArguments;
 

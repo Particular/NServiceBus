@@ -8,7 +8,7 @@ namespace NServiceBus.Hosting.Windows
     /// <summary>
     /// Plugs into the generic service locator to return an instance of <see cref="GenericHost"/>.
     /// </summary>
-    public class HostServiceLocator : ServiceLocatorImplBase
+    class HostServiceLocator : ServiceLocatorImplBase
     {
         /// <summary>
         /// Command line arguments.

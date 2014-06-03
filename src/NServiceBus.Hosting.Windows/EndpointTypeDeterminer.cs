@@ -16,7 +16,7 @@
     ///     Configuration
     ///     Assembly scanning for <see cref="IConfigureThisEndpoint" />
     /// </remarks>
-    public class EndpointTypeDeterminer
+    class EndpointTypeDeterminer
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="EndpointTypeDeterminer" /> class.

@@ -6,7 +6,7 @@
     /// <summary>
     /// Windows Installer for NService Bus Host
     /// </summary>
-    public class WindowsInstaller
+    class WindowsInstaller
     {
         /// <summary>
         /// Run installers (infrastructure and per endpoint) and handles profiles.

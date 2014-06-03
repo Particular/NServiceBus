@@ -4,7 +4,7 @@
     /// <summary>
     /// Handles logging configuration for the production profile
     /// </summary>
-    public class ProductionLoggingHandler : IConfigureLoggingForProfile<Production>
+    class ProductionLoggingHandler : IConfigureLoggingForProfile<Production>
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
