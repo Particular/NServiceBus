@@ -30,6 +30,9 @@ namespace NServiceBus.Unicast
         // HACK: Statics are bad, remove
         internal static Guid HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor;
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="UnicastBus"/>.
+        /// </summary>
         public UnicastBus()
         {
             HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = hostInformation.HostId;
@@ -101,26 +104,27 @@ namespace NServiceBus.Unicast
         /// </summary>
         public IManageSubscriptions SubscriptionManager { get; set; }
 
+
         /// <summary>
-        /// Creates an instance of the requested message type (T), 
-        /// performing the given action on the created message,
-        /// and then publishing it.
+        /// <see cref="IBus.Publish{T}(Action{T})"/>
         /// </summary>
         public void Publish<T>(Action<T> messageConstructor)
         {
             Publish(messageMapper.CreateInstance(messageConstructor));
         }
 
+
         /// <summary>
-        /// Publishes the message to all subscribers of the message type.
+        /// <see cref="IBus.Publish{T}()"/>
         /// </summary>
         public virtual void Publish<T>()
         {
             Publish(messageMapper.CreateInstance<T>());
         }
 
+
         /// <summary>
-        /// Publishes the messages to all subscribers of the first message's type.
+        /// <see cref="IBus.Publish{T}(T)"/>
         /// </summary>
         public virtual void Publish<T>(T message)
         {
@@ -129,10 +133,8 @@ namespace NServiceBus.Unicast
             InvokeSendPipeline(options, LogicalMessageFactory.Create(message));
         }
 
-        
-
         /// <summary>
-        /// Subscribes to the given type - T.
+        /// <see cref="IBus.Subscribe{T}()"/>
         /// </summary>
         public void Subscribe<T>()
         {
@@ -142,9 +144,8 @@ namespace NServiceBus.Unicast
         bool SendOnlyMode { get { return SettingsHolder.Instance.Get<bool>("Endpoint.SendOnly"); } }
 
         /// <summary>
-        /// Subscribes to receive published messages of the specified type.
+        /// <see cref="IBus.Subscribe(Type)"/>
         /// </summary>
-        /// <param name="messageType">The type of message to subscribe to.</param>
         public virtual void Subscribe(Type messageType)
         {
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
@@ -195,15 +196,16 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Unsubscribes from the given type of message - T.
+        /// <see cref="IBus.Unsubscribe{T}()"/>
         /// </summary>
         public void Unsubscribe<T>()
         {
             Unsubscribe(typeof(T));
         }
 
+
         /// <summary>
-        /// Unsubscribes from receiving published messages of the specified type.
+        /// <see cref="IBus.Unsubscribe(Type)"/>
         /// </summary>
         public virtual void Unsubscribe(Type messageType)
         {
@@ -238,6 +240,9 @@ namespace NServiceBus.Unicast
 
         }
 
+        /// <summary>
+        /// <see cref="IBus.Reply(object)"/>
+        /// </summary>
         public void Reply(object message)
         {
             var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress,GetCorrelationId()); 
@@ -245,6 +250,9 @@ namespace NServiceBus.Unicast
             SendMessage(options, LogicalMessageFactory.Create(message));
         }
 
+        /// <summary>
+        /// <see cref="IBus.Reply{T}(Action{T})"/>
+        /// </summary>
         public void Reply<T>(Action<T> messageConstructor)
         {
             var instance = messageMapper.CreateInstance(messageConstructor);
@@ -253,6 +261,9 @@ namespace NServiceBus.Unicast
             SendMessage(options, LogicalMessageFactory.Create(instance));
         }
 
+        /// <summary>
+        /// <see cref="IBus.Return{T}"/>
+        /// </summary>
         public void Return<T>(T errorCode)
         {
             var returnMessage = LogicalMessageFactory.CreateControl(new Dictionary<string, string>
@@ -270,6 +281,9 @@ namespace NServiceBus.Unicast
             return !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
         }
 
+        /// <summary>
+        /// <see cref="IBus.HandleCurrentMessageLater"/>
+        /// </summary>
         public void HandleCurrentMessageLater()
         {
             if (PipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled)
@@ -290,16 +304,25 @@ namespace NServiceBus.Unicast
             PipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled = true;
         }
 
+        /// <summary>
+        /// <see cref="IBus.ForwardCurrentMessageTo(string)"/>
+        /// </summary>
         public void ForwardCurrentMessageTo(string destination)
         {
             MessageSender.Send(MessageBeingProcessed, new SendOptions(destination));
         }
 
+        /// <summary>
+        /// <see cref="IBus.SendLocal{T}(Action{T})"/>
+        /// </summary>
         public ICallback SendLocal<T>(Action<T> messageConstructor)
         {
             return SendLocal(messageMapper.CreateInstance(messageConstructor));
         }
 
+        /// <summary>
+        /// <see cref="IBus.Send(object)"/>
+        /// </summary>
         public ICallback SendLocal(object message)
         {
             //if we're a worker, send to the distributor data bus
@@ -310,6 +333,9 @@ namespace NServiceBus.Unicast
             return SendMessage(new SendOptions(Address.Local), LogicalMessageFactory.Create(message));
         }
 
+        /// <summary>
+        /// <see cref="IBus.Send{T}(Action{T})"/>
+        /// </summary>
         public ICallback Send<T>(Action<T> messageConstructor)
         {
             object message = messageMapper.CreateInstance(messageConstructor);
@@ -317,6 +343,9 @@ namespace NServiceBus.Unicast
             return SendMessage(new SendOptions(destination), LogicalMessageFactory.Create(message));
         }
 
+        /// <summary>
+        /// <see cref="IBus.Send(object)"/>
+        /// </summary>
         public ICallback Send(object message)
         {
             var destination = GetDestinationForSend(message);
@@ -335,26 +364,41 @@ namespace NServiceBus.Unicast
             return destinations.SingleOrDefault();
         }
 
+        /// <summary>
+        /// <see cref="IBus.Send{T}(string,Action{T})"/>
+        /// </summary>
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
             return SendMessage(new SendOptions(destination), LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
         }
 
+        /// <summary>
+        /// <see cref="IBus.Send{T}(Address,Action{T})"/>
+        /// </summary>
         public ICallback Send<T>(Address address, Action<T> messageConstructor)
         {
             return SendMessage(new SendOptions(address), LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
         }
 
+        /// <summary>
+        /// <see cref="IBus.Send(string,object)"/>
+        /// </summary>
         public ICallback Send(string destination, object message)
         {
             return SendMessage(new SendOptions(destination), LogicalMessageFactory.Create(message));
         }
 
+        /// <summary>
+        /// <see cref="IBus.Send(Address,object)"/>
+        /// </summary>
         public ICallback Send(Address address, object message)
         {
             return SendMessage(new SendOptions(address), LogicalMessageFactory.Create(message));
         }
 
+        /// <summary>
+        /// <see cref="IBus.Send{T}(string,string,Action{T})"/>
+        /// </summary>
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
             var options = new SendOptions(destination)
@@ -365,6 +409,9 @@ namespace NServiceBus.Unicast
             return SendMessage(options, LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
         }
 
+        /// <summary>
+        /// <see cref="IBus.Send{T}(Address,string,Action{T})"/>
+        /// </summary>
         public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
         {
             var options = new SendOptions(address)
@@ -375,6 +422,9 @@ namespace NServiceBus.Unicast
             return SendMessage(options, LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
         }
 
+        /// <summary>
+        /// <see cref="IBus.Send(string,string,object)"/>
+        /// </summary>
         public ICallback Send(string destination, string correlationId, object message)
         {
             var options = new SendOptions(destination)
@@ -385,6 +435,9 @@ namespace NServiceBus.Unicast
             return SendMessage(options, LogicalMessageFactory.Create(message));
         }
 
+        /// <summary>
+        /// <see cref="IBus.Send(Address,string,object)"/>
+        /// </summary>
         public ICallback Send(Address address, string correlationId, object message)
         {
             var options = new SendOptions(address)
@@ -395,6 +448,9 @@ namespace NServiceBus.Unicast
             return SendMessage(options, LogicalMessageFactory.Create(message));
         }
 
+        /// <summary>
+        /// <see cref="IBus.SendToSites"/>
+        /// </summary>
         public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
         {
             Headers.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
@@ -402,6 +458,9 @@ namespace NServiceBus.Unicast
             return SendMessage(new SendOptions(SettingsHolder.Instance.Get<Address>("MasterNode.Address").SubScope("gateway")), LogicalMessageFactory.Create(message));
         }
 
+        /// <summary>
+        /// <see cref="IBus.Defer(System.TimeSpan,object)"/>
+        /// </summary>
         public ICallback Defer(TimeSpan delay, object message)
         {
             var options = new SendOptions(Address.Local)
@@ -413,6 +472,9 @@ namespace NServiceBus.Unicast
             return SendMessage(options, LogicalMessageFactory.Create(message));
         }
 
+        /// <summary>
+        /// <see cref="IBus.Defer(DateTime,object)"/>
+        /// </summary>
         public ICallback Defer(DateTime processAt, object message)
         {
             var options = new SendOptions(Address.Local)
@@ -649,6 +711,9 @@ namespace NServiceBus.Unicast
             }
         }
 
+        /// <summary>
+        /// Shits down the bus and stops processing messages.
+        /// </summary>
         public void Shutdown()
         {
             InnerShutdown();
