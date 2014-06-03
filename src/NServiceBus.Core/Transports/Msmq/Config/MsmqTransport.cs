@@ -18,7 +18,7 @@
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>
+        /// <see cref="Feature.Setup"/>
         /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
@@ -59,6 +59,9 @@
               .ConfigureProperty(p => p.TimeoutManagerAddress, GetTimeoutManagerAddress(context));
         }
 
+        /// <summary>
+        /// <see cref="ConfigureTransport{T}.InternalConfigure"/>
+        /// </summary>
         protected override void InternalConfigure(Configure config)
         {
             config.Features(f =>
@@ -71,11 +74,17 @@
             config.Settings.EnableFeatureByDefault<TimeoutManager>();
         }
 
+        /// <summary>
+        /// <see cref="ConfigureTransport{T}.ExampleConnectionStringForErrorMessage"/>
+        /// </summary>
         protected override string ExampleConnectionStringForErrorMessage
         {
             get { return "cacheSendConnection=true;journal=false;deadLetter=true"; }
         }
 
+        /// <summary>
+        /// <see cref="ConfigureTransport{T}.RequiresConnectionString"/>
+        /// </summary>
         protected override bool RequiresConnectionString
         {
             get { return false; }
