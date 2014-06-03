@@ -53,7 +53,7 @@
 
         internal static void ConfigureHowToFindSagaWithMessage(Type sagaType, PropertyInfo sagaProp, Type messageType, PropertyInfo messageProp)
         {
-            IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>> messageToProperties;
+            Dictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>> messageToProperties;
             SagaEntityToMessageToPropertyLookup.TryGetValue(sagaType, out messageToProperties);
 
             if (messageToProperties == null)
@@ -65,7 +65,7 @@
             messageToProperties[messageType] = new KeyValuePair<PropertyInfo, PropertyInfo>(sagaProp, messageProp);
         }
 
-        public static readonly IDictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>> SagaEntityToMessageToPropertyLookup = new Dictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>>();
+        internal static readonly Dictionary<Type, Dictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>> SagaEntityToMessageToPropertyLookup = new Dictionary<Type, Dictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>>();
 
         void CreateAdditionalFindersAsNecessary()
         {
@@ -144,7 +144,7 @@
         {
             MethodInfo result = null;
 
-            IDictionary<Type, MethodInfo> methods;
+            Dictionary<Type, MethodInfo> methods;
             FinderTypeToMessageToMethodInfoLookup.TryGetValue(finder.GetType(), out methods);
 
             if (methods != null)
@@ -207,7 +207,7 @@
             return SagaTypeToSagaEntityTypeLookup.Values;
         }
 
-        public static bool IsSagaType(Type t)
+        internal static bool IsSagaType(Type t)
         {
             return IsCompatible(t, typeof(Saga));
         }
@@ -273,7 +273,7 @@
 
                 var method = t.GetMethod("FindBy", new[] { messageType });
 
-                IDictionary<Type, MethodInfo> methods;
+                Dictionary<Type, MethodInfo> methods;
                 FinderTypeToMessageToMethodInfoLookup.TryGetValue(t, out methods);
 
                 if (methods == null)
@@ -355,17 +355,13 @@
                 messages.Add(messageType);
         }
 
-        readonly static IDictionary<Type, List<Type>> MessageTypeToSagaTypesLookup = new Dictionary<Type, List<Type>>();
-
-        static readonly IDictionary<Type, Type> SagaEntityTypeToSagaTypeLookup = new Dictionary<Type, Type>();
-        static readonly IDictionary<Type, Type> SagaTypeToSagaEntityTypeLookup = new Dictionary<Type, Type>();
-
-        static readonly IDictionary<Type, Type> FinderTypeToSagaEntityTypeLookup = new Dictionary<Type, Type>();
-        static readonly IDictionary<Type, IDictionary<Type, MethodInfo>> FinderTypeToMessageToMethodInfoLookup = new Dictionary<Type, IDictionary<Type, MethodInfo>>();
-
-        static readonly IDictionary<Type, List<Type>> SagaTypeToMessageTypesRequiringSagaStartLookup = new Dictionary<Type, List<Type>>();
-
-        static readonly IConfigureHowToFindSagaWithMessage SagaMessageFindingConfiguration = new ConfigureHowToFindSagaWithMessageDispatcher();
+        static Dictionary<Type, List<Type>> MessageTypeToSagaTypesLookup = new Dictionary<Type, List<Type>>();
+        static Dictionary<Type, Type> SagaEntityTypeToSagaTypeLookup = new Dictionary<Type, Type>();
+        static Dictionary<Type, Type> SagaTypeToSagaEntityTypeLookup = new Dictionary<Type, Type>();
+        static Dictionary<Type, Type> FinderTypeToSagaEntityTypeLookup = new Dictionary<Type, Type>();
+        static Dictionary<Type, Dictionary<Type, MethodInfo>> FinderTypeToMessageToMethodInfoLookup = new Dictionary<Type, Dictionary<Type, MethodInfo>>();
+        static Dictionary<Type, List<Type>> SagaTypeToMessageTypesRequiringSagaStartLookup = new Dictionary<Type, List<Type>>();
+        static IConfigureHowToFindSagaWithMessage SagaMessageFindingConfiguration = new ConfigureHowToFindSagaWithMessageDispatcher();
 
         /// <summary>
         /// Until we get rid of those statics
