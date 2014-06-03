@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Persistence
 {
     /// <summary>
-    /// Provides a hook for extention methods in order tp provide custom configuration methods
+    /// Provides a hook for extention methods in order to provide custom configuration methods
     /// </summary>
     public class PersistenceConfiguration
     {

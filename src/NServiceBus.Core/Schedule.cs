@@ -5,10 +5,10 @@ namespace NServiceBus
 
     public class Schedule
     {        
-        private readonly IScheduler scheduler;
-        private readonly ScheduledTask scheduledTask;
+        IScheduler scheduler;
+        ScheduledTask scheduledTask;
 
-        private Schedule(TimeSpan timeSpan)
+        Schedule(TimeSpan timeSpan)
         {            
             scheduler = Configure.Instance.Builder.Build<IScheduler>();
             scheduledTask = new ScheduledTask { Every = timeSpan };

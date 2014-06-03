@@ -13,6 +13,9 @@ namespace NServiceBus.Serializers.Binary
     /// </summary>
     public class BinaryMessageSerializer : IMessageSerializer
     {
+        /// <summary>
+        /// Initializes a new instance of <see cref="BinaryMessageSerializer"/>.
+        /// </summary>
         public BinaryMessageSerializer()
         {
             var surrogateSelector = new SurrogateSelector();
