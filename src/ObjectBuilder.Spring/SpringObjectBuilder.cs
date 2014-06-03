@@ -10,7 +10,7 @@
     /// <summary>
     /// Implementation of <see cref="IContainer"/> using the Spring Framework container
     /// </summary>
-    public class SpringObjectBuilder : IContainer
+    class SpringObjectBuilder : IContainer
     {
         GenericApplicationContext context;
         bool isChildContainer;
@@ -29,7 +29,6 @@
         /// <summary>
         /// Instantiates the builder using the given container.
         /// </summary>
-        [CLSCompliant(false)]
         public SpringObjectBuilder(GenericApplicationContext context)
         {
             this.context = context;

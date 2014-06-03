@@ -7,7 +7,7 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
     using global::Ninject.Extensions.NamedScope;
     using global::Ninject.Syntax;
 
-    public class NinjectChildContainer : DisposeNotifyingObject, IContainer
+    class NinjectChildContainer : DisposeNotifyingObject, IContainer
     {
         IResolutionRoot resolutionRoot;
 

@@ -6,7 +6,7 @@
     using Common;
     using Microsoft.Practices.Unity;
 
-    public class UnityObjectBuilder : IContainer
+    class UnityObjectBuilder : IContainer
     {
         IUnityContainer container;
 

@@ -13,7 +13,7 @@
     /// <summary>
     /// Castle Windsor implementation of IContainer.
     /// </summary>
-    public class WindsorObjectBuilder : IContainer
+    class WindsorObjectBuilder : IContainer
     {
         IWindsorContainer container;
         IDisposable scope;

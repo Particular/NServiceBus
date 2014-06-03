@@ -22,7 +22,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\binaries\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;MAKE_AutofacObjectBuilder_INTERNAL</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\NServiceBus.Core.xml</DocumentationFile>
@@ -34,7 +34,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\binaries\</OutputPath>
-    <DefineConstants>TRACE;MAKE_AutofacObjectBuilder_INTERNAL</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\NServiceBus.Core.xml</DocumentationFile>

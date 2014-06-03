@@ -16,7 +16,7 @@
     /// <summary>
     /// Implementation of IBuilderInternal using the Ninject Framework container
     /// </summary>
-    public class NinjectObjectBuilder : IContainer
+    class NinjectObjectBuilder : IContainer
     {
         /// <summary>
         /// The kernel hold by this object builder.

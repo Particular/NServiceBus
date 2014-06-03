@@ -27,7 +27,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\containers\unity\NServiceBus.ObjectBuilder.Unity.xml</DocumentationFile>
-    <NoWarn>1591,1573</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
@@ -39,7 +40,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\containers\unity\NServiceBus.ObjectBuilder.Unity.xml</DocumentationFile>
-    <NoWarn>1591,1573</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>

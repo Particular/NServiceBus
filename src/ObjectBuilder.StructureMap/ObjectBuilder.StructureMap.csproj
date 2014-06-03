@@ -28,7 +28,8 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>..\..\binaries\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.xml</DocumentationFile>
-    <NoWarn>1591,1573</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
@@ -41,7 +42,8 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>..\..\binaries\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.xml</DocumentationFile>
-    <NoWarn>1591,1573</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>

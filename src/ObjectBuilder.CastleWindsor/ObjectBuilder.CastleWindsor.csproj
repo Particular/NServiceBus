@@ -28,7 +28,8 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <NoWarn>1591,1573</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
@@ -41,7 +42,8 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <NoWarn>1591,1573</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>

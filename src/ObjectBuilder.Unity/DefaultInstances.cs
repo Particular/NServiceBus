@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public static class DefaultInstances
+    static class DefaultInstances
     {
         static readonly HashSet<Type> typesWithDefaultInstances = new HashSet<Type>();
 

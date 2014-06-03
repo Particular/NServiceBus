@@ -11,7 +11,7 @@
     /// <summary>
     /// ObjectBuilder implementation for the StructureMap IoC-Container
     /// </summary>
-    public class StructureMapObjectBuilder : Common.IContainer
+    class StructureMapObjectBuilder : Common.IContainer
     {
         IContainer container;
         IDictionary<Type, Instance> configuredInstances = new Dictionary<Type, Instance>();

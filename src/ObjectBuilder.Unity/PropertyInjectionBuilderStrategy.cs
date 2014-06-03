@@ -6,7 +6,7 @@ namespace NServiceBus.ObjectBuilder.Unity
     using Microsoft.Practices.ObjectBuilder2;
     using Microsoft.Practices.Unity;
 
-    public class PropertyInjectionBuilderStrategy : BuilderStrategy
+    class PropertyInjectionBuilderStrategy : BuilderStrategy
     {
         IUnityContainer unityContainer;
         static IDictionary<Type, List<Tuple<string, object>>> configuredProperties = new Dictionary<Type, List<Tuple<string, object>>>();
