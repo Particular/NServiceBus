@@ -77,9 +77,9 @@
             return context;
         }
 
-        public void InvokePipeline<TContext>(IEnumerable<Type> behaviours, TContext context) where TContext : BehaviorContext
+        public void InvokePipeline<TContext>(IEnumerable<Type> behaviors, TContext context) where TContext : BehaviorContext
         {
-            var pipeline = new BehaviorChain<TContext>(behaviours);
+            var pipeline = new BehaviorChain<TContext>(behaviors);
 
             Execute(pipeline, context);
         }

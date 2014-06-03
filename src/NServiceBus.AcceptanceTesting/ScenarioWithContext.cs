@@ -26,7 +26,7 @@ namespace NServiceBus.AcceptanceTesting
 
             defineBehavior(builder);
 
-            behaviours.Add(builder.Build());
+            behaviors.Add(builder.Build());
 
             return this;
         }
@@ -61,7 +61,7 @@ namespace NServiceBus.AcceptanceTesting
             var sw = new Stopwatch();
 
             sw.Start();
-            ScenarioRunner.Run(runDescriptors, behaviours, shoulds, done, limitTestParallelismTo, reports);
+            ScenarioRunner.Run(runDescriptors, behaviors, shoulds, done, limitTestParallelismTo, reports);
 
             sw.Stop();
 
@@ -110,7 +110,7 @@ namespace NServiceBus.AcceptanceTesting
 
         
         int limitTestParallelismTo;
-        readonly IList<EndpointBehavior> behaviours = new List<EndpointBehavior>();
+        readonly IList<EndpointBehavior> behaviors = new List<EndpointBehavior>();
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => builder.For(Conventions.DefaultRunDescriptor());
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
         public Func<ScenarioContext, bool> done = context => true;
