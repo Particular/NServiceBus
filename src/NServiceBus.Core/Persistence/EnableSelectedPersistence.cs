@@ -9,20 +9,22 @@
     {
         public void Run(Configure config)
         {
-            var definitionType = config.Settings.Get<Type>("Persistence");
+            var definitionType = config.Settings.GetOrDefault<Type>("Persistence");
 
             if (definitionType == null)
             {
-                const string message = "No persistence has been selected, please add a call to config.UsePersistence<T>() where T can be any of the supported persistence options supported. http://docs.particular.net/nservicebus/persistence-in-nservicebus";
-
                 if (SystemInformation.UserInteractive)
                 {
-                    Logger.Warn(message);    
+                    const string warningMessage = "No persistence has been selected, NServiceBus will now use InMemory persistence. We recommend that you change the persistence before deploying to production. To do this,  please add a call to config.UsePersistence<T>() where T can be any of the supported persistence options supported. http://docs.particular.net/nservicebus/persistence-in-nservicebus.";
+                    Logger.Warn(warningMessage);
                 }
                 else
                 {
-                    throw new Exception(message);    
+                    const string errorMessage = "No persistence has been selected, please add a call to config.UsePersistence<T>() where T can be any of the supported persistence options supported. http://docs.particular.net/nservicebus/persistence-in-nservicebus";
+                    throw new Exception(errorMessage);    
                 }
+                config.UsePersistence<InMemory>();
+                definitionType = typeof(InMemory);
             }
 
             var type = config.TypesToScan.SingleOrDefault(t => typeof(IConfigurePersistence<>).MakeGenericType(definitionType).IsAssignableFrom(t));
