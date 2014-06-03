@@ -11,7 +11,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// Implementation of the ICallback interface for the unicast bus.
     /// </summary>
-    public class Callback : ICallback
+    class Callback : ICallback
     {
         static readonly Type AsyncControllerType;
 
