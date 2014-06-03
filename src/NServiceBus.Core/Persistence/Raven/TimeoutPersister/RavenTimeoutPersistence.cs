@@ -14,6 +14,9 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
     {
         readonly IDocumentStore store;
 
+        DateTime lastCleanupTime = DateTime.MinValue;
+        bool seenStaleResults;
+
         public RavenTimeoutPersistence(StoreAccessor  storeAccessor)
         {
             store = storeAccessor.Store;
@@ -21,79 +24,64 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
 
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
-            try
+            var now = DateTime.UtcNow;
+            var results = new List<Tuple<string, DateTime>>();
+            RavenQueryStatistics stats;
+            using (var session = OpenSession())
             {
-                var now = DateTime.UtcNow;
-                var skip = 0;
-                var results = new List<Tuple<string, DateTime>>();
-                var numberOfRequestsExecutedSoFar = 0;
-                RavenQueryStatistics stats;
+                session.Advanced.AllowNonAuthoritativeInformation = true;
 
-                do
+                var query = session.Query<TimeoutData>()
+                    .OrderBy(t => t.Time)
+                    .Statistics(out stats)
+                    .Where(
+                        t =>
+                            t.OwningTimeoutManager == String.Empty ||
+                            t.OwningTimeoutManager == Configure.EndpointName)
+                    .Where(t => t.Time <= now);
+
+                // Allow for occasionally cleaning up old timeouts for edge cases where timeouts have been
+                // added after startSlice have been set to a later timout and we might have missed them
+                // because of stale indexes.
+                // This will be done by omitting the lower end of the range query, making this a catch-all
+                // for past timeouts. We will only do that occasionally and if we have seen stale results in
+                // the past, since this can introduce some slowness for systems with many timeouts set.
+                if (!seenStaleResults || now > lastCleanupTime.AddMinutes(5))
                 {
-                    using (var session = OpenSession())
-                    {
-                        session.Advanced.AllowNonAuthoritativeInformation = true;
-
-                        var query = session.Query<TimeoutData>()
-                            .Where(
-                                t =>
-                                    t.OwningTimeoutManager == String.Empty ||
-                                    t.OwningTimeoutManager == Configure.EndpointName)
-                            .Where(
-                                t => 
-                                    t.Time > startSlice && 
-                                    t.Time <= now)
-                            .OrderBy(t => t.Time)
-                            .Select(t => new {t.Id, t.Time})
-                            .Statistics(out stats);
-                        do
-                        {
-                            results.AddRange(query
-                                                 .Skip(skip)
-                                                 .Take(1024)
-                                                 .ToList()
-                                                 .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time)));
-
-                            skip += 1024;
-                        } while (skip < stats.TotalResults &&
-                                 ++numberOfRequestsExecutedSoFar < session.Advanced.MaxNumberOfRequestsPerSession);
-                    }
-                } while (skip < stats.TotalResults);
-
-                using (var session = OpenSession())
-                {
-                    session.Advanced.AllowNonAuthoritativeInformation = true;
-
-                    //Retrieve next time we need to run query
-                    var startOfNextChunk =
-                        session.Query<TimeoutData>()
-                            .Where(
-                                t =>
-                                t.OwningTimeoutManager == String.Empty ||
-                                t.OwningTimeoutManager == Configure.EndpointName)
-                            .Where(t => t.Time > now)
-                            .OrderBy(t => t.Time)
-                            .Select(t => new {t.Id, t.Time})
-                            .FirstOrDefault();
-
-                    if (startOfNextChunk != null)
-                    {
-                        nextTimeToRunQuery = startOfNextChunk.Time;
-                    }
-                    else
-                    {
-                        nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10);
-                    }
-
-                    return results;
+                    query = query.Where(t => t.Time > startSlice);
                 }
+                else
+                {
+                    lastCleanupTime = now;
+                    seenStaleResults = false;
+                }
+
+                results.AddRange(query
+                    .Select(t => new
+                                 {
+                                     t.Id,
+                                     t.Time
+                                 })
+                    .Take(1024)
+                    .ToList()
+                    .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time))
+                    );
             }
-            catch (WebException ex)
+
+            if (stats.IsStale) seenStaleResults = true;
+
+            // Next execution is either now if we haven't consumed the entire thing, or delayed
+            // a bit if we ded
+            if (stats.TotalResults > 1024 || stats.IsStale)
             {
-                LogRavenConnectionFailure(ex);
-                throw;
+                nextTimeToRunQuery = now;
             }
+            else
+            {
+                nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10);
+            }
+
+            return results;
         }
 
         public void Add(TimeoutData timeout)
