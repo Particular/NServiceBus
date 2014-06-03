@@ -29,7 +29,11 @@
         {
             public NonDtcSalesEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableOutbox());
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.Settings.Set("DisableOutboxTransportCheck", true);
+                    c.EnableOutbox();
+                });
             }
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>
@@ -54,9 +58,9 @@
         }
 
         [Serializable]
-        class PlaceOrder : ICommand{}
+        class PlaceOrder : ICommand { }
 
         [Serializable]
-        class SendOrderAcknowledgement : IMessage{}
+        class SendOrderAcknowledgement : IMessage { }
     }
 }
