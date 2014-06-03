@@ -21,7 +21,7 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("id");
             }
 
-            if (behavior.IsAssignableFrom(iBehaviourType))
+            if (!behavior.IsAssignableFrom(iBehaviourType))
             {
                 throw new ArgumentException("Needs to implement IBehavior<TContext>", "behavior");
             }
