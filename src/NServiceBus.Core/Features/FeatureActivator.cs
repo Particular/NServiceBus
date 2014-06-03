@@ -59,14 +59,14 @@ namespace NServiceBus.Features
 
             Func<List<Type>, bool> dependencyActivator = dependenciesTypes =>
                                  {
-                                     var dependency = featuresToActivate.SingleOrDefault(f => dependenciesTypes.Any(type => f.GetType() == type));
+                                     var dependantFeaturesToActivate = new List<Feature>();
 
-                                     if (dependency == null)
+                                     foreach (var dependency in dependenciesTypes.Select(dependencyType => featuresToActivate.SingleOrDefault(f => f.GetType() == dependencyType)).Where(dependency => dependency != null))
                                      {
-                                         return false;
+                                         dependantFeaturesToActivate.Add(dependency);
                                      }
 
-                                     return ActivateFeature(dependency, featuresToActivate, context);
+                                     return dependantFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, dependantFeaturesToActivate, context));
                                  };
 
             if (feature.Dependencies.All(dependencyActivator))

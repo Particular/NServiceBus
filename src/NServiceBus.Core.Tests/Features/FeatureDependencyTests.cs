@@ -79,8 +79,6 @@
             };
 
             var settings = new SettingsHolder();
-
-
             var featureSettings = new FeatureActivator(settings);
 
             featureSettings.Add(dependingFeature);
@@ -95,10 +93,53 @@
             Assert.IsInstanceOf<MyFeature>(order.First(), "Upstream deps should be activated first");
         }
 
+        [Test]
+        public void Should_activate_all_upstream_deps_first()
+        {
+            var order = new List<Feature>();
+
+            var dependingFeature = new DependsOnAllOptional_Feature
+            {
+                OnActivation = f => order.Add(f)
+            };
+            var feature = new MyFeature
+            {
+                OnActivation = f => order.Add(f)
+            };
+            var feature2 = new MyFeature2
+            {
+                OnActivation = f => order.Add(f)
+            };
+            var feature3 = new MyFeature3
+            {
+                OnActivation = f => order.Add(f)
+            };
+
+            var settings = new SettingsHolder();
+            var featureSettings = new FeatureActivator(settings);
+
+            featureSettings.Add(dependingFeature);
+            featureSettings.Add(feature);
+            featureSettings.Add(feature2);
+            featureSettings.Add(feature3);
+
+            settings.EnableFeatureByDefault<MyFeature>();
+            settings.EnableFeatureByDefault<MyFeature2>();
+            settings.EnableFeatureByDefault<MyFeature3>();
+
+            featureSettings.SetupFeatures(null);
+
+            Assert.True(dependingFeature.IsActive);
+
+            Assert.IsInstanceOf<MyFeature>(order[0], "Upstream deps should be activated first");
+            Assert.IsInstanceOf<MyFeature2>(order[1], "Upstream deps should be activated first");
+            Assert.IsInstanceOf<MyFeature3>(order[2], "Upstream deps should be activated first");
+        }
+
 
         public class MyFeature : TestFeature
         {
-      
+
         }
 
         public class MyFeature2 : TestFeature
@@ -128,6 +169,15 @@
                 DependsOn<MyFeature>();
                 DependsOn<MyFeature2>();
                 DependsOn<MyFeature3>();
+            }
+        }
+
+        public class DependsOnAllOptional_Feature : TestFeature
+        {
+            public DependsOnAllOptional_Feature()
+            {
+                EnableByDefault();
+                DependsOnAtLeastOne(typeof(MyFeature), typeof(MyFeature2), typeof(MyFeature3));
             }
         }
 
