@@ -273,7 +273,7 @@ namespace NServiceBus.Unicast
 
             var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId()); 
 
-            PipelineFactory.InvokeSendPipeline(options, returnMessage);
+            InvokeSendPipeline(options, returnMessage);
         }
 
         string GetCorrelationId()
