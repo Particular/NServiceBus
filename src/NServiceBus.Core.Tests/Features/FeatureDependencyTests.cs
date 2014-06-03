@@ -136,7 +136,7 @@
             public DependsOnAny_Feature()
             {
                 EnableByDefault();
-                DependsOnAny(typeof(MyFeature), typeof(MyFeature2), typeof(MyFeature3));
+                DependsOnAtLeastOne(typeof(MyFeature), typeof(MyFeature2), typeof(MyFeature3));
             }
         }
 

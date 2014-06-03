@@ -26,7 +26,6 @@
             get { return name; }
         }
 
-
         /// <summary>
         ///     The version for this feature
         /// </summary>
@@ -38,17 +37,9 @@
         /// <summary>
         ///     The list of features that this feature is depending on
         /// </summary>
-        internal IEnumerable<Type> DependenciesAll
+        internal List<List<Type>> Dependencies
         {
-            get { return dependenciesAll; }
-        }
-
-        /// <summary>
-        ///     The list of features that this feature is depending on at least one of
-        /// </summary>
-        internal IEnumerable<Type> DependenciesAny
-        {
-            get { return dependenciesAny; }
+            get { return dependencies; }
         }
 
         /// <summary>
@@ -104,28 +95,35 @@
         /// <typeparam name="T">Feature that this feature depends on</typeparam>
         protected void DependsOn<T>() where T : Feature
         {
-            dependenciesAll.Add(typeof(T));
+            dependencies.Add(new List<Type>
+            {
+                typeof(T)
+            });
         }
 
         /// <summary>
-        /// Register this feature as depending on at least on of the given features. This means that this feature won't be activated
-        /// unless at least one of the provided features in the list is active.
-        /// This also causes this feature to be activated after the other features.
+        ///     Register this feature as depending on at least on of the given features. This means that this feature won't be
+        ///     activated
+        ///     unless at least one of the provided features in the list is active.
+        ///     This also causes this feature to be activated after the other features.
         /// </summary>
         /// <param name="features">Features list that this feature require at least one of to be activated.</param>
-        protected void DependsOnAny(params Type[] features)
+        protected void DependsOnAtLeastOne(params Type[] features)
         {
-            if (dependenciesAny != null)
-                throw new NotSupportedException("You cannot call DependsOnAny multiple times");
+            if (features == null)
+            {
+                throw new ArgumentNullException("features");
+            }
 
-            dependenciesAny = new List<Type>();
             foreach (var feature in features)
             {
-                if (!feature.IsSubclassOf(typeof(Feature)))
-                    throw new Exception("A Feature Can only depend on another Feature; " + feature.FullName + " is not a Feature");
-
-                dependenciesAny.Add(feature);
+                if (!feature.IsSubclassOf(featureType))
+                {
+                    throw new ArgumentException(string.Format("A Feature can only depend on another Feature. '{0}' is not a Feature", feature.FullName), "features");
+                }
             }
+
+            dependencies.Add(new List<Type>(features));
         }
 
         /// <summary>
@@ -139,10 +137,10 @@
 
 
         /// <summary>
-        /// Returns a string that represents the current object.
+        ///     Returns a string that represents the current object.
         /// </summary>
         /// <returns>
-        /// A string that represents the current object.
+        ///     A string that represents the current object.
         /// </returns>
         /// <filterpriority>2</filterpriority>
         public override string ToString()
@@ -163,8 +161,9 @@
             isActive = true;
         }
 
-        List<Type> dependenciesAll = new List<Type>();
-        List<Type> dependenciesAny;
+        static Type featureType = typeof(Feature);
+
+        List<List<Type>> dependencies = new List<List<Type>>();
 
         bool isActive;
         bool isEnabledByDefault;

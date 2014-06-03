@@ -3,8 +3,6 @@ namespace NServiceBus.Features
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
-    using Logging;
     using ObjectBuilder;
     using Settings;
 
@@ -14,7 +12,6 @@ namespace NServiceBus.Features
         {
             this.settings = settings;
         }
-
 
         public void Add(Feature feature)
         {
@@ -26,7 +23,6 @@ namespace NServiceBus.Features
             features.Add(feature);
         }
 
-
         bool IsEnabled(Type featureType)
         {
             return settings.GetOrDefault<bool>(featureType.FullName);
@@ -34,20 +30,14 @@ namespace NServiceBus.Features
 
         public void SetupFeatures(FeatureConfigurationContext context)
         {
-            var statusText = new StringBuilder();
-
-            var featuresToActivate = features.Where(f => IsEnabled(f.GetType()) && MeetsActivationCondition(f, statusText, context))
+            var featuresToActivate = features.Where(f => IsEnabled(f.GetType()) && MeetsActivationCondition(f, context))
               .ToList();
 
             foreach (var feature in featuresToActivate)
             {
-                ActivateFeature(feature, statusText, featuresToActivate, context);
+                ActivateFeature(feature, featuresToActivate, context);
             }
-
-            Logger.InfoFormat("Features: \n{0}", statusText);
         }
-
-
 
         public void RegisterStartupTasks(IConfigureComponents container)
         {
@@ -60,36 +50,31 @@ namespace NServiceBus.Features
             }
         }
 
-        static bool ActivateFeature(Feature feature, StringBuilder statusText, List<Feature> featuresToActivate, FeatureConfigurationContext context)
+        static bool ActivateFeature(Feature feature, List<Feature> featuresToActivate, FeatureConfigurationContext context)
         {
             if (feature.IsActive)
             {
                 return true;
             }
 
-            Func<Type, bool> dependencyActivator = dependencyType =>
+            Func<List<Type>, bool> dependencyActivator = dependenciesTypes =>
                                  {
-                                     var dependency = featuresToActivate.SingleOrDefault(f => f.GetType() == dependencyType);
+                                     var dependency = featuresToActivate.SingleOrDefault(f => dependenciesTypes.Any(type => f.GetType() == type));
 
                                      if (dependency == null)
                                      {
                                          return false;
                                      }
 
-                                     return ActivateFeature(dependency, statusText, featuresToActivate, context);
+                                     return ActivateFeature(dependency, featuresToActivate, context);
                                  };
 
-            if (feature.DependenciesAll.All(dependencyActivator) && (feature.DependenciesAny == null || feature.DependenciesAny.Any(dependencyActivator)))
+            if (feature.Dependencies.All(dependencyActivator))
             {
                 feature.SetupFeature(context);
-                statusText.AppendLine(string.Format("{0} - Activated", feature));
                 return true;
             }
 
-            statusText.AppendLine(string.Format("{0} - Not activated due to dependencies not being available: All:({1}) Any:({2})",
-                feature,
-                string.Join(";", feature.DependenciesAll.Select(t => t.Name)),
-                feature.DependenciesAny == null ? string.Empty : string.Join(";", feature.DependenciesAny.Select(t => t.Name))));
             return false;
         }
 
@@ -107,12 +92,10 @@ namespace NServiceBus.Features
             }
         }
 
-        bool MeetsActivationCondition(Feature feature, StringBuilder statusText, FeatureConfigurationContext context)
+        bool MeetsActivationCondition(Feature feature, FeatureConfigurationContext context)
         {
             if (!feature.ShouldBeSetup(context))
             {
-
-                statusText.AppendLine(string.Format("{0} - setup prerequisites(s) not fullfilled", feature));
                 return false;
             }
 
@@ -121,8 +104,6 @@ namespace NServiceBus.Features
 
         readonly SettingsHolder settings;
         readonly List<Feature> features = new List<Feature>();
-
-        static ILog Logger = LogManager.GetLogger<FeatureActivator>();
 
         class Runner : IWantToRunWhenBusStartsAndStops
         {
