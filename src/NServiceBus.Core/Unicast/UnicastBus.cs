@@ -523,13 +523,22 @@ namespace NServiceBus.Unicast
             return result;
         }
 
+        /// <summary>
+        /// <see cref="IStartableBus.Started"/>
+        /// </summary>
         public event EventHandler Started;
 
+        /// <summary>
+        /// <see cref="IStartableBus.Start()"/>
+        /// </summary>
         public IBus Start()
         {
             return Start(() => { });
         }
 
+        /// <summary>
+        /// <see cref="IStartableBus.Start(System.Action)"/>
+        /// </summary>
         public IBus Start(Action startupAction)
         {
             LicenseManager.PromptUserForLicenseIfTrialHasExpired();
@@ -663,6 +672,9 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("Cannot start subscriber without a queue configured. Please specify the LocalAddress property of UnicastBusConfig.");
         }
 
+        /// <summary>
+        /// <see cref="IDisposable.Dispose"/>
+        /// </summary>
         public void Dispose()
         {
             //Injected at compile time
@@ -674,11 +686,17 @@ namespace NServiceBus.Unicast
             Builder.Dispose();
         }
 
+        /// <summary>
+        /// <see cref="IBus.DoNotContinueDispatchingCurrentMessageToHandlers"/>
+        /// </summary>
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             IncomingContext.CurrentContext.DoNotInvokeAnyMoreHandlers();
         }
 
+        /// <summary>
+        /// <see cref="IBus.OutgoingHeaders"/>
+        /// </summary>
         public IDictionary<string, string> OutgoingHeaders
         {
             get
@@ -687,6 +705,9 @@ namespace NServiceBus.Unicast
             }
         }
 
+        /// <summary>
+        /// <see cref="IBus.CurrentMessageContext"/>
+        /// </summary>
         public IMessageContext CurrentMessageContext
         {
             get
@@ -699,15 +720,6 @@ namespace NServiceBus.Unicast
                 }
 
                 return new MessageContext(current);
-            }
-        }
-
-        public IInMemoryOperations InMemory
-        {
-            get
-            {
-                ThrowInMemoryException();
-                return null;
             }
         }
 

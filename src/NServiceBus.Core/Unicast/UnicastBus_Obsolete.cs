@@ -22,5 +22,15 @@ namespace NServiceBus.Unicast
         {
             throw new Exception("InMemory.Raise has been removed from the core please see http://docs.particular.net/nservicebus/inmemoryremoval");
         }
+
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Message = "InMemory has been removed from the core please see http://docs.particular.net/nservicebus/inmemoryremoval")]
+        public IInMemoryOperations InMemory
+        {
+            get
+            {
+                ThrowInMemoryException();
+                return null;
+            }
+        }
     }
 }
