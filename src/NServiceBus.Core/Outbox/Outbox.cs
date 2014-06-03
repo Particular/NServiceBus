@@ -14,6 +14,8 @@
     /// </summary>
     public class Outbox : Feature
     {
+        static ILog log = LogManager.GetLogger<Outbox>();
+
         internal Outbox()
         {
             var rabbit = Type.GetType("NServiceBus.Features.RabbitMqTransport, NServiceBus.Transports.RabbitMQ", false);
@@ -59,12 +61,21 @@
 
                     if (configValue == null)
                     {
-                        return false;
+                        throw new Exception(@"To use the Outbox feature with MSMQ or SQLServer transports you need to enable it in your config file.
+To do that add the following:
+<appSettings>
+    <add key=""NServiceBus/Outbox"" value=""true""/>
+</appSettings>
+
+The reason you need to do this is because we need to ensure that you have read all the documentation regarding this feature and know the limitations when running it under MSMQ or SQLServer transports.");
                     }
                     
                     bool result;
 
-                    Boolean.TryParse(configValue, out result);
+                    if (Boolean.TryParse(configValue, out result))
+                    {
+                        throw new Exception("Invalid value in \"NServiceBus/Outbox\" AppSetting. Please ensure it is either \"true\" or \"false\".");
+                    }
 
                     return result;
                 });
