@@ -37,7 +37,7 @@
 
                 yield return new FeatureCombinations
                 {
-                    DependingFeature = new DependsOnAny_Feature(),
+                    DependingFeature = new DependsOnAtLeastOne_Feature(),
                     AvailableFeatures = new Feature[] { new MyFeature { Enabled = true }, new MyFeature2(), new MyFeature3() },
                     ShouldBeActive = true,
                 };
@@ -98,7 +98,7 @@
         {
             var order = new List<Feature>();
 
-            var dependingFeature = new DependsOnAllOptional_Feature
+            var dependingFeature = new DependsOnAtLeastOne_Feature
             {
                 OnActivation = f => order.Add(f)
             };
@@ -172,18 +172,9 @@
             }
         }
 
-        public class DependsOnAllOptional_Feature : TestFeature
+        public class DependsOnAtLeastOne_Feature : TestFeature
         {
-            public DependsOnAllOptional_Feature()
-            {
-                EnableByDefault();
-                DependsOnAtLeastOne(typeof(MyFeature), typeof(MyFeature2), typeof(MyFeature3));
-            }
-        }
-
-        public class DependsOnAny_Feature : TestFeature
-        {
-            public DependsOnAny_Feature()
+            public DependsOnAtLeastOne_Feature()
             {
                 EnableByDefault();
                 DependsOnAtLeastOne(typeof(MyFeature), typeof(MyFeature2), typeof(MyFeature3));
