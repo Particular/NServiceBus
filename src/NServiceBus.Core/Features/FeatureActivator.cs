@@ -82,7 +82,7 @@ namespace NServiceBus.Features
         static ILog Logger = LogManager.GetLogger<DisplayDiagnosticsForFeatures>();
         public void Run(Configure config)
         {
-            StringBuilder statusText = new StringBuilder();
+            var statusText = new StringBuilder();
 
             statusText.AppendLine("------------- FEATURES ----------------");
 
