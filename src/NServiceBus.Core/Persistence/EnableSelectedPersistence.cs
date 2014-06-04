@@ -23,7 +23,7 @@
                     const string errorMessage = "No persistence has been selected, please add a call to config.UsePersistence<T>() where T can be any of the supported persistence options supported. http://docs.particular.net/nservicebus/persistence-in-nservicebus";
                     throw new Exception(errorMessage);    
                 }
-                config.UsePersistence<InMemory>();
+                
                 definitionType = typeof(InMemory);
             }
 
