@@ -18,8 +18,8 @@
             var featureSettings = new FeatureActivator(new SettingsHolder());
 
             featureSettings.Add(feature);
-       
-            featureSettings.SetupFeatures(null);
+
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With().DefaultBuilder()));
 
             featureSettings.StartFeatures(new FakeBuilder(typeof(FeatureWithStartupTask.Runner)));
             Assert.True(FeatureWithStartupTask.Runner.Started);

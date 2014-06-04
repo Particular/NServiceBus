@@ -17,35 +17,35 @@
                 yield return new FeatureCombinations
                 {
                     DependingFeature = new DependsOnOne_Feature(),
-                    AvailableFeatures = new Feature[] { new MyFeature(), new MyFeature2(), new MyFeature3() },
+                    AvailableFeatures = new Feature[] { new MyFeature1(), new MyFeature2(), new MyFeature3() },
                     ShouldBeActive = false,
                 };
 
                 yield return new FeatureCombinations
                 {
                     DependingFeature = new DependsOnOne_Feature(),
-                    AvailableFeatures = new Feature[] { new MyFeature { Enabled = true }, new MyFeature2(), new MyFeature3() },
+                    AvailableFeatures = new Feature[] { new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3() },
                     ShouldBeActive = true,
                 };
 
                 yield return new FeatureCombinations
                 {
                     DependingFeature = new DependsOnOne_Feature(),
-                    AvailableFeatures = new Feature[] { new MyFeature(), new MyFeature2 { Enabled = true }, new MyFeature3() },
+                    AvailableFeatures = new Feature[] { new MyFeature1(), new MyFeature2 { Enabled = true }, new MyFeature3() },
                     ShouldBeActive = false,
                 };
 
                 yield return new FeatureCombinations
                 {
                     DependingFeature = new DependsOnAtLeastOne_Feature(),
-                    AvailableFeatures = new Feature[] { new MyFeature { Enabled = true }, new MyFeature2(), new MyFeature3() },
+                    AvailableFeatures = new Feature[] { new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3() },
                     ShouldBeActive = true,
                 };
 
                 yield return new FeatureCombinations
                 {
                     DependingFeature = new DependsOnAll_Feature(),
-                    AvailableFeatures = new Feature[] { new MyFeature { Enabled = true }, new MyFeature2(), new MyFeature3() },
+                    AvailableFeatures = new Feature[] { new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3() },
                     ShouldBeActive = false,
                 };
             }
@@ -59,7 +59,7 @@
             featureSettings.Add(dependingFeature);
             Array.ForEach(setup.AvailableFeatures, featureSettings.Add);
 
-            featureSettings.SetupFeatures(null);
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With().DefaultBuilder()));
 
             Assert.AreEqual(setup.ShouldBeActive, dependingFeature.IsActive);
         }
@@ -73,7 +73,7 @@
             {
                 OnActivation = f => order.Add(f)
             };
-            var feature = new MyFeature
+            var feature = new MyFeature1
             {
                 OnActivation = f => order.Add(f)
             };
@@ -84,13 +84,13 @@
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);
 
-            settings.EnableFeatureByDefault<MyFeature>();
+            settings.EnableFeatureByDefault<MyFeature1>();
 
-            featureSettings.SetupFeatures(null);
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With().DefaultBuilder()));
 
             Assert.True(dependingFeature.IsActive);
 
-            Assert.IsInstanceOf<MyFeature>(order.First(), "Upstream deps should be activated first");
+            Assert.IsInstanceOf<MyFeature1>(order.First(), "Upstream deps should be activated first");
         }
 
         [Test]
@@ -102,7 +102,7 @@
             {
                 OnActivation = f => order.Add(f)
             };
-            var feature = new MyFeature
+            var feature = new MyFeature1
             {
                 OnActivation = f => order.Add(f)
             };
@@ -123,21 +123,21 @@
             featureSettings.Add(feature2);
             featureSettings.Add(feature3);
 
-            settings.EnableFeatureByDefault<MyFeature>();
+            settings.EnableFeatureByDefault<MyFeature1>();
             settings.EnableFeatureByDefault<MyFeature2>();
             settings.EnableFeatureByDefault<MyFeature3>();
 
-            featureSettings.SetupFeatures(null);
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With().DefaultBuilder()));
 
             Assert.True(dependingFeature.IsActive);
 
-            Assert.IsInstanceOf<MyFeature>(order[0], "Upstream deps should be activated first");
+            Assert.IsInstanceOf<MyFeature1>(order[0], "Upstream deps should be activated first");
             Assert.IsInstanceOf<MyFeature2>(order[1], "Upstream deps should be activated first");
             Assert.IsInstanceOf<MyFeature3>(order[2], "Upstream deps should be activated first");
         }
 
 
-        public class MyFeature : TestFeature
+        public class MyFeature1 : TestFeature
         {
 
         }
@@ -157,7 +157,7 @@
             public DependsOnOne_Feature()
             {
                 EnableByDefault();
-                DependsOn<MyFeature>();
+                DependsOn<MyFeature1>();
             }
         }
 
@@ -166,7 +166,7 @@
             public DependsOnAll_Feature()
             {
                 EnableByDefault();
-                DependsOn<MyFeature>();
+                DependsOn<MyFeature1>();
                 DependsOn<MyFeature2>();
                 DependsOn<MyFeature3>();
             }
@@ -177,7 +177,7 @@
             public DependsOnAtLeastOne_Feature()
             {
                 EnableByDefault();
-                DependsOnAtLeastOne(typeof(MyFeature), typeof(MyFeature2), typeof(MyFeature3));
+                DependsOnAtLeastOne(typeof(MyFeature1), typeof(MyFeature2), typeof(MyFeature3));
             }
         }
 

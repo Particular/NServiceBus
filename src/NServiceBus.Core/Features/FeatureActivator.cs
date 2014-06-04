@@ -194,7 +194,7 @@ namespace NServiceBus.Features
                                  {
                                      var dependantFeaturesToActivate = new List<Tuple<Feature, FeatureDiagnosticData>>();
 
-                                     foreach (var dependency in dependenciesTypes.Select(dependencyType => featuresToActivate.SingleOrDefault(f => f.GetType() == dependencyType)).Where(dependency => dependency != null))
+                                     foreach (var dependency in dependenciesTypes.Select(dependencyType => featuresToActivate.SingleOrDefault(f => f.Item1.GetType() == dependencyType)).Where(dependency => dependency != null))
                                      {
                                          dependantFeaturesToActivate.Add(dependency);
                                      }
