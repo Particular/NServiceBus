@@ -194,12 +194,15 @@ namespace NServiceBus.Features
                                  {
                                      var dependantFeaturesToActivate = new List<Tuple<Feature, FeatureDiagnosticData>>();
 
-                                     foreach (var dependency in dependenciesTypes.Select(dependencyType => featuresToActivate.SingleOrDefault(f => f.Item1.GetType() == dependencyType)).Where(dependency => dependency != null))
+                                     foreach (var dependency in dependenciesTypes.Select(dependencyType => featuresToActivate
+                                         .SingleOrDefault(f => f.Item1.GetType() == dependencyType))
+                                         .Where(dependency => dependency != null))
                                      {
                                          dependantFeaturesToActivate.Add(dependency);
                                      }
+                                     var hasAllUpstreamDepsBeenActivated = dependantFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, context));
 
-                                     return dependantFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, dependantFeaturesToActivate, context));
+                                     return hasAllUpstreamDepsBeenActivated;
                                  };
 
             if (feature.Item1.Dependencies.All(dependencyActivator))

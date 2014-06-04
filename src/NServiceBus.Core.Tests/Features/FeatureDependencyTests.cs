@@ -136,6 +136,70 @@
             Assert.IsInstanceOf<MyFeature3>(order[2], "Upstream deps should be activated first");
         }
 
+        [Test]
+        public void Should_activate_all_upstream_deps_when_chain_deep()
+        {
+            var order = new List<Feature>();
+
+           
+            var level1 = new Level1
+            {
+                OnActivation = f => order.Add(f)
+            };
+            var level2 = new Level2
+            {
+                OnActivation = f => order.Add(f)
+            };
+            var level3 = new Level3
+            {
+                OnActivation = f => order.Add(f)
+            };
+
+            var settings = new SettingsHolder();
+            var featureSettings = new FeatureActivator(settings);
+
+            //the orders matter here to expose a bug
+            featureSettings.Add(level3);
+            featureSettings.Add(level2);
+            featureSettings.Add(level1);
+
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With().DefaultBuilder()));
+
+
+            Assert.True(level1.IsActive, "Level1 wasn't activated");
+            Assert.True(level2.IsActive, "Level2 wasn't activated");
+            Assert.True(level3.IsActive, "Level3 wasn't activated");
+
+            Assert.IsInstanceOf<Level1>(order[0], "Upstream deps should be activated first");
+            Assert.IsInstanceOf<Level2>(order[1], "Upstream deps should be activated first");
+            Assert.IsInstanceOf<Level3>(order[2], "Upstream deps should be activated first");
+        }
+
+        public class Level1 : TestFeature
+        {
+            public Level1()
+            {
+                EnableByDefault();
+            }
+        }
+
+        public class Level2 : TestFeature
+        {
+            public Level2()
+            {
+                EnableByDefault();
+                DependsOn<Level1>();
+            }
+        }
+
+        public class Level3 : TestFeature
+        {
+            public Level3()
+            {
+                EnableByDefault();
+                DependsOn<Level2>();
+            }
+        }
 
         public class MyFeature1 : TestFeature
         {
