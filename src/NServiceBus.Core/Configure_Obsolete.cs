@@ -29,7 +29,7 @@ namespace NServiceBus
         ///     The name of this endpoint.
         /// </summary>
         [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "config.Settings.EndpointName()")]
-        public string EndpointName
+        public static string EndpointName
         {
             get { throw new NotImplementedException(); }
         }
