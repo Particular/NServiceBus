@@ -2,7 +2,6 @@
 {
     using Config;
     using Logging;
-    using Timeout;
     using Transports;
     using Transports.Msmq;
     using Transports.Msmq.Config;
