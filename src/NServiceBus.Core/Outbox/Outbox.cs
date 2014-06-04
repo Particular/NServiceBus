@@ -88,7 +88,7 @@ The reason you need to do this is because we need to ensure that you have read a
             RegisterStartupTask<DtcRunningWarning>();
         }
 
-        public const string TimeToKeepDeduplicationEntries = "Outbox.TimeToKeepDeduplicationEntries";
+        internal const string TimeToKeepDeduplicationEntries = "Outbox.TimeToKeepDeduplicationEntries";
 
         /// <summary>
         /// See <see cref="Feature.Setup"/>

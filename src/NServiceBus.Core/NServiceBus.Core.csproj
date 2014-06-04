@@ -182,6 +182,7 @@
     <Compile Include="Outbox\OutboxDeduplicationBehavior.cs" />
     <Compile Include="Outbox\OutboxRecordBehavior.cs" />
     <Compile Include="Outbox\OutboxSendBehavior.cs" />
+    <Compile Include="Outbox\OutboxSettings.cs" />
     <Compile Include="Outbox\TransportOperation.cs" />
     <Compile Include="Outbox\TransportOperationConverter.cs" />
     <Compile Include="Persistence\EnableSelectedPersistence.cs" />
