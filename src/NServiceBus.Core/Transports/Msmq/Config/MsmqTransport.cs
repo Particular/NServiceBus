@@ -54,9 +54,6 @@
 
             context.Container.ConfigureComponent<MsmqQueueCreator>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.Settings, settings);
-
-            context.Container.ConfigureComponent<TimeoutManagerDeferrer>(DependencyLifecycle.InstancePerCall)
-              .ConfigureProperty(p => p.TimeoutManagerAddress, GetTimeoutManagerAddress(context));
         }
 
         /// <summary>
@@ -68,6 +65,7 @@
             {
                 f.Enable<MsmqTransport>();
                 f.Enable<MessageDrivenSubscriptions>();
+                f.Enable<TimeoutManagerBasedDeferral>();
             });
 
             config.Settings.EnableFeatureByDefault<StorageDrivenPublishing>();
@@ -88,18 +86,6 @@
         protected override bool RequiresConnectionString
         {
             get { return false; }
-        }
-
-        static Address GetTimeoutManagerAddress(FeatureConfigurationContext context)
-        {
-            var unicastConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
-
-            if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress))
-            {
-                return Address.Parse(unicastConfig.TimeoutManagerAddress);
-            }
-
-            return context.Settings.Get<Address>("MasterNode.Address").SubScope("Timeouts");
         }
 
         static ILog Logger = LogManager.GetLogger<MsmqTransport>();

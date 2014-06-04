@@ -3,7 +3,6 @@
     using Config;
     using Timeout.Core;
     using Timeout.Hosting.Windows;
-    using Transports;
 
     /// <summary>
     /// Used to configure the timeout manager that provides message deferral.
@@ -12,17 +11,12 @@
     {
         internal TimeoutManager()
         {
+            DependsOn<TimeoutManagerBasedDeferral>();
             Prerequisite(ShouldRun);
         }
 
         bool ShouldRun(FeatureConfigurationContext context)
         {
-            //has the user already specified a custom deferral method
-            if (context.Container.HasComponent<IDeferMessages>())
-            {
-                return false;
-            }
-
             //if we have a master node configured we should use the Master Node timeout manager instead
             if (context.Settings.GetOrDefault<bool>("Distributor.Enabled"))
             {
