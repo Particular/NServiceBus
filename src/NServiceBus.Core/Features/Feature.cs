@@ -16,7 +16,17 @@
         /// </summary>
         protected Feature()
         {
-            name = GetType().Name.Replace("Feature", String.Empty);
+            name = GetType().Name;
+
+            if (name.EndsWith("Feature"))
+            {
+                var length = "Feature".Length;
+
+                if (name.Length > length)
+                {
+                    name = name.Substring(0, name.Length - length);
+                }
+            }
         }
 
         /// <summary>
