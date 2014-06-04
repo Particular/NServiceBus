@@ -189,6 +189,7 @@
     <Compile Include="Persistence\IConfigurePersistence.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayPersistence.cs" />
     <Compile Include="Persistence\InMemory\InMemory.cs" />
+    <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemoryTimeoutPersister.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxPersistence.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxStorage.cs" />
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersistence.cs" />
