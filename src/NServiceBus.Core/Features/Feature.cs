@@ -60,7 +60,7 @@
             get { return isActive; }
         }
 
-        internal IEnumerable<Type> StartupTasks
+        internal List<Type> StartupTasks
         {
             get { return startupTasks; }
         }
@@ -77,7 +77,7 @@
         /// <summary>
         /// Access to the registered defaults
         /// </summary>
-        internal IEnumerable<Action<SettingsHolder>> RegisteredDefaults { get { return defaults; } }
+        internal List<Action<SettingsHolder>> RegisteredDefaults { get { return defaults; } }
 
         /// <summary>
         ///     Called when the features is activated

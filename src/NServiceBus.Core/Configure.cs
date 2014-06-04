@@ -192,7 +192,6 @@ namespace NServiceBus
 
             Configurer.RegisterSingleton<FeatureActivator>(featureActivator);
 
-
             ForAllTypes<Feature>(t => featureActivator.Add(t.Construct<Feature>()));
 
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
@@ -202,7 +201,6 @@ namespace NServiceBus
             InvokeBeforeConfigurationInitializers();
 
             ActivateAndInvoke<INeedInitialization>(t => t.Init(this));
-
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run(this));
 
