@@ -1,3 +1,4 @@
+// ReSharper disable UnusedParameter.Global
 namespace NServiceBus
 {
     [ObsoleteEx(Replacement = "Configure.EnableInstallers .", RemoveInVersion = "6", TreatAsErrorFromVersion = "5")]
