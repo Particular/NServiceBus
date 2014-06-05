@@ -1,14 +1,14 @@
-namespace NServiceBus.Hosting
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Helpers;
+    using Hosting.Helpers;
+    using Hosting.Profiles;
+    using Hosting.Roles;
+    using Hosting.Wcf;
     using Logging;
-    using Profiles;
-    using Roles;
-    using Wcf;
 
     class GenericHost
     {

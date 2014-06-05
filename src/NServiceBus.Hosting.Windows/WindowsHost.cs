@@ -11,7 +11,7 @@ namespace NServiceBus.Hosting.Windows
     /// </summary>
     public class WindowsHost : MarshalByRefObject
     {
-        readonly GenericHost genericHost;
+        readonly NServiceBus.GenericHost genericHost;
         readonly bool runOtherInstallers;
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace NServiceBus.Hosting.Windows
         {
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
-            genericHost = new GenericHost(specifier, args, new List<Type> { typeof(Production) }, endpointName, scannableAssembliesFullName);
+            genericHost = new NServiceBus.GenericHost(specifier, args, new List<Type> { typeof(Production) }, endpointName, scannableAssembliesFullName);
 
             Configure.Instance.DefineCriticalErrorAction(OnCriticalError);
 

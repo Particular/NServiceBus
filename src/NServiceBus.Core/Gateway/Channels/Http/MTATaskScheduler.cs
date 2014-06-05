@@ -6,12 +6,15 @@
 //
 //--------------------------------------------------------------------------
 
-namespace System.Threading.Tasks.Schedulers
+namespace NServiceBus
 {
-    using Collections.Concurrent;
-    using Collections.Generic;
+    using System.Threading.Tasks;
+    using System;
+    using System.Threading;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using Janitor;
-    using Linq;
+    using System.Linq;
 
     /// <summary>Provides a scheduler that uses MTA threads.</summary>
     [SkipWeaving]
