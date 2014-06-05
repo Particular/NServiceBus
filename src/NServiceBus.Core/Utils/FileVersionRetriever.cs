@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Utils
+﻿namespace NServiceBus
 {
     using System;
     using System.Diagnostics;

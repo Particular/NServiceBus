@@ -513,7 +513,7 @@ namespace NServiceBus.Unicast
 
         ICallback SetupCallback(string transportMessageId)
         {
-            var result = new Callback(transportMessageId);
+            var result = new NServiceBus.Callback(transportMessageId);
             result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
             {
                 //TODO: what should we do if the key already exists?

@@ -81,6 +81,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Obsoletes.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />
     <Compile Include="AllAssemblies.cs" />
@@ -229,6 +230,7 @@
     <Compile Include="Saga\IHandleSagaNotFound.cs" />
     <Compile Include="Saga\IHandleTimeouts.cs" />
     <Compile Include="Saga\ISagaPersister.cs" />
+    <Compile Include="Saga\Obsoletes.cs" />
     <Compile Include="Saga\Saga.cs" />
     <Compile Include="Saga\SagaPropertyMapper.cs" />
     <Compile Include="Saga\SagaT.cs" />

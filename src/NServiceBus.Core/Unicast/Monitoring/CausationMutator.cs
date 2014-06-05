@@ -1,6 +1,5 @@
 namespace NServiceBus.Unicast.Monitoring
 {
-    using IdGeneration;
     using MessageMutator;
     using Messages;
 

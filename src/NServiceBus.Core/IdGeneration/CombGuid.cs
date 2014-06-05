@@ -1,4 +1,4 @@
-namespace NServiceBus.IdGeneration
+namespace NServiceBus
 {
     using System;
 
