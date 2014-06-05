@@ -3,7 +3,6 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Net;
     using System.Text;
     using global::Raven.Client;
     using global::Raven.Client.Linq;
@@ -14,18 +13,58 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
     {
         readonly IDocumentStore store;
 
+        public TimeSpan CleanupGapFromTimeslice { get; set; }
+        public TimeSpan TriggerCleanupEvery { get; set; }
+
         DateTime lastCleanupTime = DateTime.MinValue;
         bool seenStaleResults;
 
-        public RavenTimeoutPersistence(StoreAccessor  storeAccessor)
+        public RavenTimeoutPersistence(StoreAccessor storeAccessor)
         {
             store = storeAccessor.Store;
+            TriggerCleanupEvery = TimeSpan.FromMinutes(2);
+            CleanupGapFromTimeslice = TimeSpan.FromMinutes(1);
         }
 
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
             var now = DateTime.UtcNow;
             var results = new List<Tuple<string, DateTime>>();
+
+            // Allow for occasionally cleaning up old timeouts for edge cases where timeouts have been
+            // added after startSlice have been set to a later timout and we might have missed them
+            // because of stale indexes.
+            if (seenStaleResults && (lastCleanupTime.Add(TriggerCleanupEvery) > now || lastCleanupTime == DateTime.MinValue))
+            {
+                using (var session = OpenSession())
+                {
+                    session.Advanced.AllowNonAuthoritativeInformation = true;
+
+                    var query = session.Query<TimeoutData>()
+                        .OrderBy(t => t.Time)
+                        .Where(
+                            t =>
+                                t.OwningTimeoutManager == String.Empty ||
+                                t.OwningTimeoutManager == Configure.EndpointName)
+                        .Where(t => t.Time <= startSlice.Subtract(CleanupGapFromTimeslice))
+                        ;
+
+                    results.AddRange(query
+                        .Select(t => new
+                        {
+                            t.Id,
+                            t.Time
+                        })
+                        .Take(1024)
+                        .ToList()
+                        .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time))
+                        );
+                }
+
+                lastCleanupTime = DateTime.UtcNow;
+                seenStaleResults = false;
+            }
+
             RavenQueryStatistics stats;
             using (var session = OpenSession())
             {
@@ -33,28 +72,13 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
 
                 var query = session.Query<TimeoutData>()
                     .OrderBy(t => t.Time)
-                    .Statistics(out stats)
                     .Where(
                         t =>
                             t.OwningTimeoutManager == String.Empty ||
                             t.OwningTimeoutManager == Configure.EndpointName)
-                    .Where(t => t.Time <= now);
-
-                // Allow for occasionally cleaning up old timeouts for edge cases where timeouts have been
-                // added after startSlice have been set to a later timout and we might have missed them
-                // because of stale indexes.
-                // This will be done by omitting the lower end of the range query, making this a catch-all
-                // for past timeouts. We will only do that occasionally and if we have seen stale results in
-                // the past, since this can introduce some slowness for systems with many timeouts set.
-                if (!seenStaleResults || now > lastCleanupTime.AddMinutes(5))
-                {
-                    query = query.Where(t => t.Time > startSlice);
-                }
-                else
-                {
-                    lastCleanupTime = now;
-                    seenStaleResults = false;
-                }
+                    .Where(t => t.Time > startSlice && t.Time <= now)
+                    .Statistics(out stats)
+                    ;
 
                 results.AddRange(query
                     .Select(t => new
