@@ -3,7 +3,6 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Net;
     using System.Text;
     using global::Raven.Client;
     using global::Raven.Client.Linq;
