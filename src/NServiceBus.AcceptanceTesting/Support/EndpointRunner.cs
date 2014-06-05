@@ -53,10 +53,9 @@
 
                     scenarioContext.HasSupportForCentralizedPubSub = transportDefinition.HasSupportForCentralizedPubSub;
                 }
-              
-                bus = config.CreateBus();
 
-                config.ForInstallationOn().Install();
+                config.EnableInstallers();
+                bus = config.CreateBus();
 
                 executeWhens = Task.Factory.StartNew(() =>
                 {
