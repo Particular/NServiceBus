@@ -1,8 +1,7 @@
 ﻿#pragma warning disable 1591
+using System;
 namespace NServiceBus
 {
-    using System;
-
     [ObsoleteEx(Message = "Since the case where this exception was thrown should not be handled by consumers of the API it has been removed", RemoveInVersion = "6", TreatAsErrorFromVersion = "5")]
     public class MessageConventionException : Exception
     {
@@ -160,6 +159,27 @@ namespace NServiceBus.Logging.Loggers
 {
     [ObsoleteEx(Message = "Sensible defaults for logging are now built into NServicebus. To customise logging there are external nuget packages available to connect NServiceBus to the various popular logging frameworks.", RemoveInVersion = "6", TreatAsErrorFromVersion = "5")]
     public class NullLoggerFactory
+    {
+    }
+}
+namespace NServiceBus.Logging
+{
+    [ObsoleteEx(Message = "Since the case where this exception was thrown should not be handled by consumers of the API it has been removed", RemoveInVersion = "6", TreatAsErrorFromVersion = "5")]
+    public class LoggingLibraryException : Exception
+    {
+    }
+}
+namespace NServiceBus
+{
+    [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "IHandleProfile is now passed an instance of Configure. IWantCustomInitialization is now expected to return a new instance of Configure.")]
+    public interface IWantTheEndpointConfig 
+    {
+    }
+}
+namespace NServiceBus.Timeout.Core
+{
+    [ObsoleteEx(Message = "Timeout management is an internal concern and cannot be replaced.",RemoveInVersion = "6", TreatAsErrorFromVersion = "5")]
+    public interface IManageTimeouts 
     {
     }
 }
