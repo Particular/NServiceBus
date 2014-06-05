@@ -38,14 +38,14 @@
                         {
                             bus.Subscribe<MyEvent>();
 
-                            if (context.HasSupportForCentralizedPubSub)
+                            if (context.HasNativePubSubSupport)
                                 context.NumberOfSubscriptionsReceived++;
                         }))
                       .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
                       {
                           bus.Subscribe<MyEvent>();
 
-                          if (context.HasSupportForCentralizedPubSub)
+                          if (context.HasNativePubSubSupport)
                               context.NumberOfSubscriptionsReceived++;
                       }))
                     .Done(c => c.SubscribersOfTheEvent != null)

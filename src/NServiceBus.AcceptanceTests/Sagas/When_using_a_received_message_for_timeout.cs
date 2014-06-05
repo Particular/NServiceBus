@@ -17,7 +17,7 @@
                     {
                         b.Given((bus, context) =>
                         {
-                            if (context.HasSupportForCentralizedPubSub)
+                            if (context.HasNativePubSubSupport)
                             {
                                 bus.SendLocal(new StartSagaMessage { SomeId = context.Id });
                             }

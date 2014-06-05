@@ -51,7 +51,7 @@
                 
                     var transportDefinition = config.Settings.Get<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
 
-                    scenarioContext.HasSupportForCentralizedPubSub = transportDefinition.HasSupportForCentralizedPubSub;
+                    scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
                 }
               
                 bus = config.CreateBus();

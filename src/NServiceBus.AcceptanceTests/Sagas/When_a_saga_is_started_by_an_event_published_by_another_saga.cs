@@ -35,7 +35,7 @@
                         {
                             bus.Subscribe<SomethingHappenedEvent>();
 
-                            if (context.HasSupportForCentralizedPubSub)
+                            if (context.HasNativePubSubSupport)
                                 context.IsEventSubscriptionReceived = true;
                         }))
 
@@ -77,7 +77,7 @@
                      {
                          bus.Subscribe<BaseEvent>();
 
-                         if (context.HasSupportForCentralizedPubSub)
+                         if (context.HasNativePubSubSupport)
                               context.IsEventSubscriptionReceived = true;
                      }))
                  .Done(c => c.DidSagaComplete)

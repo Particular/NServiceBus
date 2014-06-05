@@ -29,13 +29,13 @@
                     .WithEndpoint<V1Subscriber>(b => b.Given((bus,c) =>
                         {
                             bus.Subscribe<V1Event>();
-                            if (c.HasSupportForCentralizedPubSub)
+                            if (c.HasNativePubSubSupport)
                                 c.V1Subscribed = true;
                         }))
                     .WithEndpoint<V2Subscriber>(b => b.Given((bus,c) =>
                         {
                             bus.Subscribe<V2Event>();
-                            if (c.HasSupportForCentralizedPubSub)
+                            if (c.HasNativePubSubSupport)
                                 c.V2Subscribed = true;
                         }))
                     .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)

@@ -26,7 +26,7 @@
                         {
                             bus.Subscribe<MyEvent>();
 
-                            if (context.HasSupportForCentralizedPubSub)
+                            if (context.HasNativePubSubSupport)
                                 context.Subscriber1Subscribed = true;
                         }))
                     .Done(c => c.Subscriber1GotTheEvent)

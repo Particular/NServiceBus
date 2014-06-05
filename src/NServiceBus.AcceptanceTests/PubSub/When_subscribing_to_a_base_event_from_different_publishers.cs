@@ -32,7 +32,7 @@
                      )
                .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                {
-                   if (context.HasSupportForCentralizedPubSub)
+                   if (context.HasNativePubSubSupport)
                    {
                        context.SubscribedToPublisher1 = true;
                        context.SubscribedToPublisher2 = true;

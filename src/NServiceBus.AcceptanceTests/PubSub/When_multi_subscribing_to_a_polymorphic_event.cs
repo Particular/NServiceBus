@@ -43,7 +43,7 @@
                     bus.Subscribe<IMyEvent>();
                     bus.Subscribe<MyEvent2>();
 
-                    if (context.HasSupportForCentralizedPubSub)
+                    if (context.HasNativePubSubSupport)
                     {
                         context.SubscribedToIMyEvent = true;
                         context.SubscribedToMyEvent2 = true;
