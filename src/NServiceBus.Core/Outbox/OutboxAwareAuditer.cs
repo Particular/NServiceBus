@@ -18,6 +18,8 @@ namespace NServiceBus.Outbox
 
             if (context.TryGet(out currentOutboxMessage))
             {
+                message.RevertToOriginalBodyIfNeeded();
+                
                 currentOutboxMessage.TransportOperations.Add(new TransportOperation(message.Id, sendOptions.ToTransportOperationOptions(true), message.Body, message.Headers));
             }
             else
