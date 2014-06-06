@@ -524,22 +524,9 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IStartableBus.Started"/>
-        /// </summary>
-        public event EventHandler Started;
-
-        /// <summary>
         /// <see cref="IStartableBus.Start()"/>
         /// </summary>
         public IBus Start()
-        {
-            return Start(() => { });
-        }
-
-        /// <summary>
-        /// <see cref="IStartableBus.Start(System.Action)"/>
-        /// </summary>
-        public IBus Start(Action startupAction)
         {
             LicenseManager.PromptUserForLicenseIfTrialHasExpired();
 
@@ -557,11 +544,6 @@ namespace NServiceBus.Unicast
 
                 Address.PreventChanges();
 
-                if (startupAction != null)
-                {
-                    startupAction();
-                }
-
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
                 if (!DoNotStartTransport)
@@ -574,11 +556,6 @@ namespace NServiceBus.Unicast
                 }
 
                 started = true;
-            }
-
-            if (Started != null)
-            {
-                Started(this, null);
             }
 
             satelliteLauncher = new SatelliteLauncher(Builder);
@@ -602,6 +579,13 @@ namespace NServiceBus.Unicast
             }, TaskCreationOptions.LongRunning)).ToArray();
 
             return this;
+        }
+
+        /// <summary>
+        /// <see cref="IStartableBus.RunInstallers"/>.
+        /// </summary>
+        public void RunInstallers()
+        {
         }
 
         void ExecuteIWantToRunAtStartupStopMethods()

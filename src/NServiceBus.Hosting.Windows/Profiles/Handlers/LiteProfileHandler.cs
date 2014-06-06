@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
-    using Config;
     using Faults;
+    using Features;
     using Hosting.Profiles;
 
 
@@ -14,7 +14,7 @@
                 config.InMemoryFaultManagement();
             }
 
-            WindowsInstallerRunner.RunInstallers = true;
+            config.Settings.EnableFeatureByDefault<InstallationSupport>();
         }
     }
 }

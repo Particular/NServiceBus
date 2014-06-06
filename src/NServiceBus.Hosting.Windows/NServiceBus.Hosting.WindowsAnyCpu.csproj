@@ -110,6 +110,7 @@
     <Compile Include="Roles\Handlers\ServerRoleHandler.cs" />
     <Compile Include="Roles\Handlers\TransportRoleHandler.cs" />
     <Compile Include="Roles\UsingTransport.cs" />
+    <Compile Include="InstallWindowsHost.cs" />
     <Compile Include="WindowsHost.cs" />
     <Compile Include="Profiles\Integration.cs" />
     <Compile Include="Profiles\Lite.cs" />

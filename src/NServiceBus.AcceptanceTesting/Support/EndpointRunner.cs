@@ -53,10 +53,9 @@
 
                     scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
                 }
-              
-                bus = config.CreateBus();
 
-                config.ForInstallationOn().Install();
+                config.EnableInstallers();
+                bus = config.CreateBus();
 
                 executeWhens = Task.Factory.StartNew(() =>
                 {

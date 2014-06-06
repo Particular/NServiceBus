@@ -13,7 +13,6 @@ namespace NServiceBus
     using Config.Conventions;
     using Features;
     using Hosting.Helpers;
-    using Installation;
     using Logging;
     using ObjectBuilder;
     using Pipeline;
@@ -217,9 +216,6 @@ namespace NServiceBus
 
             configurer.RegisterSingleton<Configure>(this);
             configurer.RegisterSingleton<ReadOnlySettings>(Settings);
-
-            ForAllTypes<INeedToInstallSomething>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()

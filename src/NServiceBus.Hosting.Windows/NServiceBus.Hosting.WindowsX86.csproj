@@ -88,6 +88,7 @@
     <Compile Include="EndpointTypeDeterminer.cs" />
     <Compile Include="GenericHost.cs" />
     <Compile Include="Installers\WindowsInstaller.cs" />
+    <Compile Include="InstallWindowsHost.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="LoggingHandlers\IntegrationLoggingHandler.cs" />
     <Compile Include="LoggingHandlers\LiteLoggingHandler.cs" />
