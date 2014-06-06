@@ -631,3 +631,31 @@ namespace NServiceBus.Features
     {
     }
 }
+
+namespace NServiceBus
+{
+    [ObsoleteEx(
+        RemoveInVersion = "6",
+        TreatAsErrorFromVersion = "5")]
+    public static class TransportReceiverConfig
+    {
+
+        [ObsoleteEx(
+            Replacement = "configure.UseTransport<T>(Action<TransportConfiguration>)",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure UseTransport<T>(this Configure config, Func<string> definesConnectionString)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Replacement = "configure.UseTransport(Type, Action<TransportConfiguration>)",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure UseTransport(this Configure config, Type transportDefinitionType, Func<string> definesConnectionString)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
