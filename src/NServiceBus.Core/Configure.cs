@@ -378,61 +378,68 @@ namespace NServiceBus
             /// <summary>
             ///     Specifies the range of types that NServiceBus scans for handlers etc
             /// </summary>
-            public void TypesToScan(IEnumerable<Type> typesToScan)
+            public ConfigurationBuilder TypesToScan(IEnumerable<Type> typesToScan)
             {
                 scannedTypes = typesToScan.ToList();
+                return this;
             }
 
             /// <summary>
             ///     The assemblies to include when scanning for types
             /// </summary>
-            public void AssembliesToScan(IEnumerable<Assembly> assemblies)
+            public ConfigurationBuilder AssembliesToScan(IEnumerable<Assembly> assemblies)
             {
                 AssembliesToScan(assemblies.ToArray());
+                return this;
             }
 
             /// <summary>
             ///     The assemblies to include when scanning for types
             /// </summary>
-            public void AssembliesToScan(params Assembly[] assemblies)
+            public ConfigurationBuilder AssembliesToScan(params Assembly[] assemblies)
             {
                 scannedTypes = GetAllowedTypes(assemblies);
+                return this;
             }
 
 
             /// <summary>
             ///     Specifies the directory where NServiceBus scans for types
             /// </summary>
-            public void ScanAssembliesInDirectory(string probeDirectory)
+            public ConfigurationBuilder ScanAssembliesInDirectory(string probeDirectory)
             {
                 directory = probeDirectory;
                 AssembliesToScan(GetAssembliesInDirectory(probeDirectory));
+                return this;
             }
 
 
             /// <summary>
             ///     Overrides the default configuration source
             /// </summary>
-            public void CustomConfigurationSource(IConfigurationSource configurationSource)
+            public ConfigurationBuilder CustomConfigurationSource(IConfigurationSource configurationSource)
             {
                 configurationSourceToUse = configurationSource;
+                return this;
             }
 
 
             /// <summary>
             ///     Defines the name to use for this endpoint
             /// </summary>
-            public void EndpointName(string name)
+            public ConfigurationBuilder EndpointName(string name)
             {
                 EndpointName(() => name);
+                return this;
             }
 
             /// <summary>
             ///     Defines the name to use for this endpoint
             /// </summary>
-            public void EndpointName(Func<string> nameFunc)
+            public ConfigurationBuilder EndpointName(Func<string> nameFunc)
             {
                 getEndpointNameAction = nameFunc;
+                return this;
             }
 
             /// <summary>
