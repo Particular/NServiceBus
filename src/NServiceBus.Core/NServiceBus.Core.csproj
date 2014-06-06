@@ -448,7 +448,6 @@
     <Compile Include="IExcludesBuilder.cs" />
     <Compile Include="IIncludesBuilder.cs" />
     <Compile Include="Impersonation\Windows\WindowsIdentityEnricher.cs" />
-    <Compile Include="Installation\Install.cs" />
     <Compile Include="Installation\INeedToInstallSomething.cs" />
     <Compile Include="IWantToRunBeforeConfiguration.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />

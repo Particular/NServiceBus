@@ -19,8 +19,6 @@ namespace NServiceBus
             {
                 EnableByDefault();
             }
-            //TODO:
-            //  RegisterStartupTask<Starter>();
         }
 
         protected override void Setup(FeatureConfigurationContext context)
