@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports.Msmq
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -11,6 +11,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Xml;
     using System.Xml.Serialization;
     using Logging;
+    using Transports.Msmq;
 
     /// <summary>
     ///     MSMQ-related utility functions

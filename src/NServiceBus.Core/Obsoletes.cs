@@ -12,7 +12,7 @@ namespace NServiceBus
     }
 }
 
-namespace NServiceBus
+namespace NServiceBus.Persistence
 {
     [ObsoleteEx(
         Message = "Since the case where this exception was thrown should not be handled by consumers of the API it has been removed", 
@@ -22,6 +22,21 @@ namespace NServiceBus
     {
     }
 }
+
+
+
+namespace NServiceBus.Unicast.Queuing
+{
+    [ObsoleteEx(
+        Message = "Since the case where this exception was thrown should not be handled by consumers of the API it has been removed", 
+        RemoveInVersion = "6", 
+        TreatAsErrorFromVersion = "5")]
+    public class FailedToSendMessageException : Exception
+    {
+    }
+}
+
+
 
 namespace NServiceBus.IdGeneration
 {
@@ -321,8 +336,9 @@ namespace NServiceBus
             Replacement = "configure.CreateBus().RunInstallers();",
             RemoveInVersion = "6", 
             TreatAsErrorFromVersion = "5")]
-        public static void ForInstallationOn(this Configure config)
+        public static Installer<T> ForInstallationOn<T>(this Configure config)
         {
+            throw new NotImplementedException();
         }
 
         [ObsoleteEx(
@@ -330,9 +346,9 @@ namespace NServiceBus
             Replacement = "configure.CreateBus().RunInstallers();",
             RemoveInVersion = "6", 
             TreatAsErrorFromVersion = "5")]
-        public static void ForInstallationOn(this Configure config, string username)
+        public static Installer<T> ForInstallationOn<T>(this Configure config, string username)
         {
-
+            throw new NotImplementedException();
         }
     }
 
@@ -352,17 +368,260 @@ namespace NServiceBus
             Replacement = "var configure = Configure.With(x => x.EndpointName(\"MyEndpointName\"));",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
-        public static void DefineEndpointName(this Configure config, Func<string> definesEndpointName)
+        public static Configure DefineEndpointName(this Configure config, Func<string> definesEndpointName)
         {
+            throw new NotImplementedException();
         }
 
         [ObsoleteEx(
             Replacement = "var configure = Configure.With(x => x.EndpointName(\"MyEndpointName\"));",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
-        public static void DefineEndpointName(this Configure config, string name)
+        public static Configure DefineEndpointName(this Configure config, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+    }
+}
+
+
+namespace NServiceBus
+{
+    [ObsoleteEx(
+        Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+        RemoveInVersion = "6",
+        TreatAsErrorFromVersion = "5")]
+    public static class ConfigureRavenPersistence
+    {
+
+        [ObsoleteEx(
+            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure CustomiseRavenPersistence(this Configure config, object callback)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure MessageToDatabaseMappingConvention(this Configure config, Func<IMessageContext, string> convention)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure RavenPersistence(this Configure config)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure RavenPersistence(this Configure config, string connectionStringName)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString, string database)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        [ObsoleteEx(
+            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure RavenPersistenceWithStore(this Configure config, object documentStore)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static void RegisterDefaults()
         {
         }
 
+    }
+}
+namespace NServiceBus
+{
+    [ObsoleteEx(
+            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+    public static class ConfigureRavenSagaPersister
+    {
+        [ObsoleteEx(
+            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure RavenSagaPersister(this Configure config)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus
+{
+    [ObsoleteEx(
+        Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+        RemoveInVersion = "6",
+        TreatAsErrorFromVersion = "5")]
+    public static class ConfigureRavenSubscriptionStorage
+    {
+        [ObsoleteEx(
+            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure RavenSubscriptionStorage(this Configure config)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus
+{
+    [ObsoleteEx(
+        RemoveInVersion = "6",
+        TreatAsErrorFromVersion = "5")]
+    public static class ConfigureTimeoutManager
+    {
+        //TODO: add a better message/replacement
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure DisableTimeoutManager(this Configure config)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        [ObsoleteEx(
+            Replacement = "InMemory timeout persistence is now the default.",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure UseInMemoryTimeoutPersister(this Configure config)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure UseRavenTimeoutPersister(this Configure config)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+
+namespace NServiceBus
+{
+    [ObsoleteEx(
+        RemoveInVersion = "6",
+        TreatAsErrorFromVersion = "5")]
+    public static class ConfigureUnicastBus
+    {
+
+        //TODO: add replacement
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Address GetTimeoutManagerAddress(this Configure config)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Replacement = "configure.CreateBus();",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static Configure UnicastBus(this Configure config)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+
+namespace NServiceBus
+{
+    [ObsoleteEx(
+        Replacement = "Inject an instance of IBus in the constructor and assign that to a field for use",
+        RemoveInVersion = "6",
+        TreatAsErrorFromVersion = "5")]
+    public static class MessageHandlerExtensionMethods
+    {
+        [ObsoleteEx(
+            Replacement = "Inject an instance of IBus in the constructor and assign that to a field for use",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static IBus Bus<T>(this IHandleMessages<T> handler)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Transports.Msmq
+{
+    [ObsoleteEx(
+        Message = "MsmqUtilities was never intended to be exposed as part of the public API. PLease copy the required functionality into your codebase.",
+        RemoveInVersion = "6",
+        TreatAsErrorFromVersion = "5")]
+    public class MsmqUtilities
+    {
+        
+    }
+}
+
+
+namespace NServiceBus.Unicast.Config
+{
+    [ObsoleteEx(
+        Replacement = "Configure",
+        RemoveInVersion = "6",
+        TreatAsErrorFromVersion = "5")]
+    public class ConfigUnicastBus 
+    {
     }
 }

@@ -2,7 +2,6 @@
 {
     using System;
     using NUnit.Framework;
-    using Transports.Msmq;
 
     [TestFixture]
     public class MsmqUtilitiesTests

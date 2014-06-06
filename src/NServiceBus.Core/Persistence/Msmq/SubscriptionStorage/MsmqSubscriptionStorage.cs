@@ -6,7 +6,6 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
     using System.Transactions;
     using Logging;
     using Settings;
-    using Transports.Msmq;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using MessageType = Unicast.Subscriptions.MessageType;
 
