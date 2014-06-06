@@ -385,7 +385,6 @@ namespace NServiceBus
     }
 }
 
-
 namespace NServiceBus
 {
     [ObsoleteEx(
@@ -553,7 +552,6 @@ namespace NServiceBus
     }
 }
 
-
 namespace NServiceBus
 {
     [ObsoleteEx(
@@ -582,7 +580,6 @@ namespace NServiceBus
     }
 }
 
-
 namespace NServiceBus
 {
     [ObsoleteEx(
@@ -610,10 +607,8 @@ namespace NServiceBus.Transports.Msmq
         TreatAsErrorFromVersion = "5")]
     public class MsmqUtilities
     {
-        
     }
 }
-
 
 namespace NServiceBus.Unicast.Config
 {
@@ -622,6 +617,17 @@ namespace NServiceBus.Unicast.Config
         RemoveInVersion = "6",
         TreatAsErrorFromVersion = "5")]
     public class ConfigUnicastBus 
+    {
+    }
+}
+
+namespace NServiceBus.Features
+{
+    [ObsoleteEx(
+        Replacement = "NServiceBus.Features.StorageDrivenPublishing",
+        RemoveInVersion = "6",
+        TreatAsErrorFromVersion = "5")]
+    public class StorageDrivenPublisher
     {
     }
 }
