@@ -42,6 +42,12 @@ namespace NServiceBus
             return instance != null;
         }
 
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "Simply execute this action instead of calling this method")]
+        public Configure RunCustomAction(Action action)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         ///     True if a builder has been defined.
         /// </summary>
@@ -53,6 +59,12 @@ namespace NServiceBus
             }
 
             return Instance.HasBuilder();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "ReadOnlySettings.GetConfigSection<T>")]
+        public static T GetConfigSection<T>()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
