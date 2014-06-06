@@ -8,7 +8,7 @@ namespace NServiceBus
     /// <summary>
     /// Contains extension methods to configure license.
     /// </summary>
-    static class ConfigureLicenseExtensions
+    public static class ConfigureLicenseExtensions
     {
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
 

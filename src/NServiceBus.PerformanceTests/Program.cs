@@ -104,10 +104,9 @@
                     throw new InvalidOperationException("Illegal transport " + args[2]);
             }
 
+            config.EnableInstallers();
             using (var startableBus = config.InMemoryFaultManagement().CreateBus())
             {
-                Configure.Instance.ForInstallationOn().Install();
-
                 if (saga)
                 {
                     SeedSagaMessages(numberOfMessages, endpointName, concurrency);

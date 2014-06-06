@@ -5,7 +5,7 @@ namespace NServiceBus.DataBus
 
     class DefaultDataBusSerializer : IDataBusSerializer
 	{
-		private static readonly BinaryFormatter formatter = new BinaryFormatter();
+		static BinaryFormatter formatter = new BinaryFormatter();
       
 		public void Serialize(object databusProperty, Stream stream)
 		{

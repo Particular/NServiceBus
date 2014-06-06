@@ -91,11 +91,12 @@ namespace NServiceBus
         /// <summary>
         ///     When installing as windows service (/install), run infrastructure installers
         /// </summary>
-        public void Install()
+        public void Install(string username)
         {
             PerformConfiguration();
+            config.EnableInstallers(username);
             //HACK: to ensure the installer runner performs its installation
-            Configure.Instance.Initialize();
+            config.Initialize();
         }
 
         void PerformConfiguration()
@@ -111,7 +112,7 @@ namespace NServiceBus
             {
                 try
                 {
-                    initialization.Init();
+                    config = initialization.Init();
                 }
                 catch (NullReferenceException ex)
                 {

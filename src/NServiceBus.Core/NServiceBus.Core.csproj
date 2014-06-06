@@ -81,6 +81,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Installation\InstallationSupport.cs" />
+    <Compile Include="Installation\InstallConfigExtensions.cs" />
     <Compile Include="Obsoletes.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />
@@ -109,7 +111,6 @@
     <Compile Include="Distributor\MasterNode\DefaultMasterNodeAddress.cs" />
     <Compile Include="Config\SiteCollection.cs" />
     <Compile Include="Config\SiteConfig.cs" />
-    <Compile Include="Config\WindowsInstallerRunner.cs" />
     <Compile Include="DataBus\DataBusReceiveBehavior.cs" />
     <Compile Include="DataBus\DataBusSendBehavior.cs" />
     <Compile Include="Encryption\MemberInfoExtensions.cs" />
@@ -152,8 +153,8 @@
     <Compile Include="IMessageModule.cs" />
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="INeedInitialization.cs" />
-    <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />
-    <Compile Include="Installation\ElevateChecker.cs" />
+    <Compile Include="Gateway\GatewayHttpListenerInstaller.cs" />
+    <Compile Include="Utils\ElevateChecker.cs" />
     <Compile Include="IStartableBus.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />
     <Compile Include="Licensing\LicenseBehavior.cs" />
@@ -196,7 +197,7 @@
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersistence.cs" />
     <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionPersistence.cs" />
     <Compile Include="Persistence\InMemory\TimeoutPersister\InMemoryTimeoutPersistence.cs" />
-    <Compile Include="Installation\PerformanceMonitorUsersInstaller.cs" />
+    <Compile Include="Unicast\Monitoring\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Gateway\GatewayExtensions.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayDeduplication.cs" />
     <Compile Include="Persistence\PersistenceConfiguration.cs" />
@@ -447,7 +448,6 @@
     <Compile Include="IExcludesBuilder.cs" />
     <Compile Include="IIncludesBuilder.cs" />
     <Compile Include="Impersonation\Windows\WindowsIdentityEnricher.cs" />
-    <Compile Include="Install.cs" />
     <Compile Include="Installation\INeedToInstallSomething.cs" />
     <Compile Include="IWantToRunBeforeConfiguration.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
