@@ -581,13 +581,6 @@ namespace NServiceBus.Unicast
             return this;
         }
 
-        /// <summary>
-        /// <see cref="IStartableBus.RunInstallers"/>.
-        /// </summary>
-        public void RunInstallers()
-        {
-        }
-
         void ExecuteIWantToRunAtStartupStopMethods()
         {
             if (thingsToRunAtStartup == null)
