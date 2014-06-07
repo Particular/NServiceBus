@@ -60,28 +60,25 @@
 
         void RegisterIncomingCoreBehaviors()
         {
-            coordinator.Register(WellKnownBehavior.ChildContainer, typeof(ChildContainerBehavior), "Creates the child container");
-            coordinator.Register("MessageReceivedLogging", typeof(MessageHandlingLoggingBehavior), "Logs the message received");
+            coordinator.Register(WellKnownBehavior.CreateChildContainer, typeof(ChildContainerBehavior), "Creates the child container");
+            coordinator.Register("LogTheIncomingMessage", typeof(MessageHandlingLoggingBehavior), "Logs the message received");
             coordinator.Register("ForwardMessageTo", typeof(ForwardBehavior), "Forwards message to");
-            coordinator.Register(WellKnownBehavior.UnitOfWork, typeof(UnitOfWorkBehavior), "Executes the UoW");
-            coordinator.Register("SubscriptionReceiver", typeof(SubscriptionReceiverBehavior), "Check for subscription messages");
+            coordinator.Register(WellKnownBehavior.ExecuteUnitOfWork, typeof(UnitOfWorkBehavior), "Executes the UoW");
+            coordinator.Register("HandleSubscriptionRequests", typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.");
             coordinator.Register(WellKnownBehavior.MutateIncomingTransportMessage, typeof(ApplyIncomingTransportMessageMutatorsBehavior), "Executes IMutateIncomingTransportMessages");
             coordinator.Register("RemoveHeaders", typeof(RemoveIncomingHeadersBehavior), "For backward compatibility we need to remove some headers from the incoming message");
-            coordinator.Register("CallBack", typeof(CallbackInvocationBehavior), "Updates the callback inmemory dictionary");
+            coordinator.Register("InvokeRegisteredCallbacks", typeof(CallbackInvocationBehavior), "Updates the callback inmemory dictionary");
             coordinator.Register(WellKnownBehavior.ExtractLogicalMessages, typeof(ExtractLogicalMessagesBehavior), "It splits the raw message into multiple logical messages");
             coordinator.Register(WellKnownBehavior.ExecuteLogicalMessages, typeof(ExecuteLogicalMessagesBehavior), "Starts the execution of each logical message");
             coordinator.Register(WellKnownBehavior.MutateIncomingMessages, typeof(ApplyIncomingMessageMutatorsBehavior), "Executes IMutateIncomingMessages");
             coordinator.Register(WellKnownBehavior.LoadHandlers, typeof(LoadHandlersBehavior), "Executes all IHandleMessages<T>");
             coordinator.Register("SetCurrentMessageBeingHandled", typeof(SetCurrentMessageBeingHandledBehavior), "Sets the static current message (this is used by the headers)");
-            coordinator.Register("AuditInvokedSaga", typeof(AuditInvokedSagaBehavior), "Populates the InvokedSaga header");
-            coordinator.Register(WellKnownBehavior.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic");
             coordinator.Register(WellKnownBehavior.InvokeHandlers, typeof(InvokeHandlersBehavior), "Calls the IHandleMessages<T>.Handle(T)");
         }
 
         void RegisterOutgoingCoreBehaviors()
         {
             coordinator.Register(WellKnownBehavior.EnforceBestPractices, typeof(SendValidatorBehavior), "Enforces messaging best practices");
-            coordinator.Register("CopySagaHeaders", typeof(SagaSendBehavior), "Copies existing saga headers from incoming message to outgoing message. This facilitates the auto correlation");
             coordinator.Register(WellKnownBehavior.MutateOutgoingMessages, typeof(MutateOutgoingMessageBehavior), "Executes IMutateOutgoingMessages");
             coordinator.Register(WellKnownBehavior.CreatePhysicalMessage, typeof(CreatePhysicalMessageBehavior), "Converts a logical message into a physical message");
             coordinator.Register(WellKnownBehavior.SerializeMessage, typeof(SerializeMessagesBehavior), "Serializes the message to be sent out on the wire");

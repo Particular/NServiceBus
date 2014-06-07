@@ -69,8 +69,8 @@
             public OutboxDeduplicationRegistration()
                 : base("OutboxDeduplication", typeof(OutboxDeduplicationBehavior), "Deduplication for the outbox feature")
             {
-                InsertAfter(WellKnownBehavior.ChildContainer);
-                InsertBefore(WellKnownBehavior.UnitOfWork);
+                InsertAfter(WellKnownBehavior.CreateChildContainer);
+                InsertBefore(WellKnownBehavior.ExecuteUnitOfWork);
             }
         }
     }

@@ -85,7 +85,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                     public MyExceptionFilteringRegistration()
                         : base("ExceptionFiltering", typeof(MyExceptionFilteringBehavior), "Custom exception filtering")
                     {
-                        InsertAfter(WellKnownBehavior.Audit);
+                        InsertAfter(WellKnownBehavior.AuditProcessedMessage);
                         InsertBefore(WellKnownBehavior.InvokeHandlers);
                     }
                 }
