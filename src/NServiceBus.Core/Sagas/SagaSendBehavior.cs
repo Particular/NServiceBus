@@ -44,5 +44,14 @@
 
             next();
         }
+
+        public class SagaSendRegistration : RegisterBehavior
+        {
+            public SagaSendRegistration()
+                : base("CopySagaHeaders", typeof(SagaSendBehavior), "Copies existing saga headers from incoming message to outgoing message. This facilitates the auto correlation")
+            {
+                InsertAfter(WellKnownBehavior.EnforceBestPractices);
+            }
+        }
     }
 }

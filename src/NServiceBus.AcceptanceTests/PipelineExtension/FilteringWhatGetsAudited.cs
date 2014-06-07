@@ -96,7 +96,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                     public void Init(Configure config)
                     {
                         //we replace the default audit behavior with out own
-                        config.Pipeline.Replace(WellKnownBehavior.Audit, typeof(FilteringAuditBehavior), "A new audit forwarder that has filtering");
+                        config.Pipeline.Replace(WellKnownBehavior.AuditProcessedMessage, typeof(FilteringAuditBehavior), "A new audit forwarder that has filtering");
                     }
                 }
             }
