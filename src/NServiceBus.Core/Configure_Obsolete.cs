@@ -141,8 +141,8 @@ namespace NServiceBus
 
         [ObsoleteEx(
             RemoveInVersion = "6",
-            TreatAsErrorFromVersion = "5", 
-            Replacement = "Configure.With(o => o.CustomConfigurationSource(myConfigSource))")]
+            TreatAsErrorFromVersion = "5",
+            Replacement = "var configure = Configure.Configure.With(o => o.CustomConfigurationSource(myConfigSource))")]
         public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
         {
             throw new NotImplementedException();
@@ -150,8 +150,8 @@ namespace NServiceBus
 
         [ObsoleteEx(
             RemoveInVersion = "6", 
-            TreatAsErrorFromVersion = "5", 
-            Replacement = "Configure.With(o => o.AssembliesInDirectory(probeDirectory))")]
+            TreatAsErrorFromVersion = "5",
+            Replacement = "var configure = Configure.Configure.With(o => o.AssembliesInDirectory(probeDirectory))")]
         public static Configure With(string probeDirectory)
         {
             throw new NotImplementedException();
@@ -159,8 +159,8 @@ namespace NServiceBus
 
         [ObsoleteEx(
             RemoveInVersion = "6",
-            TreatAsErrorFromVersion = "5", 
-            Replacement = "With(o => o.ScanAssemblies(assemblies))")]
+            TreatAsErrorFromVersion = "5",
+            Replacement = "var configure = Configure.With(o => o.ScanAssemblies(assemblies))")]
         public static Configure With(IEnumerable<Assembly> assemblies)
         {
             throw new NotImplementedException();
@@ -168,8 +168,8 @@ namespace NServiceBus
 
         [ObsoleteEx(
             RemoveInVersion = "6", 
-            TreatAsErrorFromVersion = "5", 
-            Replacement = "With(o => o.ScanAssemblies(assemblies));")]
+            TreatAsErrorFromVersion = "5",
+            Replacement = "var configure = Configure.With(o => o.ScanAssemblies(assemblies));")]
         public static Configure With(params Assembly[] assemblies)
         {
             throw new NotImplementedException();
@@ -178,7 +178,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6", 
             TreatAsErrorFromVersion = "5",
-            Replacement = "With(o => o.ScanAssemblies(assemblies))")]
+            Replacement = "var configure = Configure.With(o => o.ScanAssemblies(assemblies))")]
         public static Configure With(IEnumerable<Type> typesToScan)
         {
             throw new NotImplementedException();
@@ -187,7 +187,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "With(o => o.EndpointName(definesEndpointName))")]
+            Replacement = "var configure = Configure.With(o => o.EndpointName(definesEndpointName))")]
         public static Configure DefineEndpointName(Func<string> definesEndpointName)
         {
             throw new NotImplementedException();
@@ -199,7 +199,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "With(o => o.EndpointName(name))")]
+            Replacement = "var configure = Configure.With(o => o.EndpointName(name))")]
         public static Configure DefineEndpointName(string name)
         {
             throw new NotImplementedException();
