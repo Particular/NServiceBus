@@ -61,7 +61,7 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             expected = 50;
 
-            Enumerable.Range(1, expected).ToList().ForEach(i => persister.Add(CreateData(DateTime.UtcNow.AddSeconds(-5))));
+            Enumerable.Range(1, expected).ToList().ForEach(i => persister.Add("Id-" + i,CreateData(DateTime.UtcNow.AddSeconds(-5))));
 
             StartAndStopReceiver();
 
@@ -73,7 +73,7 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             expected = 1;
 
-            manager.PushTimeout(CreateData(DateTime.UtcNow.AddSeconds(2)));
+            manager.PushTimeout("SomeId",CreateData(DateTime.UtcNow.AddSeconds(2)));
 
             StartAndStopReceiver(5);
 
@@ -154,7 +154,7 @@ namespace NServiceBus.Core.Tests.Timeout
 
         private void Push(int total, DateTime time)
         {
-            Enumerable.Range(1, total).ToList().ForEach(i => manager.PushTimeout(CreateData(time)));
+            Enumerable.Range(1, total).ToList().ForEach(i => manager.PushTimeout("id-" + i,CreateData(time)));
         }
 
         private void StartAndStopReceiver(int secondsToWaitBeforeCallingStop = 1)

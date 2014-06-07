@@ -127,7 +127,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     data.Headers[TimeoutData.OriginalReplyToAddress] = message.ReplyToAddress.ToString();
                 }
 
-                TimeoutManager.PushTimeout(data);
+                TimeoutManager.PushTimeout(message.Id,data);
             }
         }
 

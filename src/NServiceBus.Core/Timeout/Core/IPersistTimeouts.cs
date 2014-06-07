@@ -19,8 +19,9 @@ namespace NServiceBus.Timeout.Core
         /// <summary>
         /// Adds a new timeout.
         /// </summary>
-        /// <param name="timeout">Timeout data.</param>
-        void Add(TimeoutData timeout);
+        /// <param name="timeoutId">The timeout id.</param>
+        /// /// <param name="timeout">Timeout data.</param>
+        void Add(string timeoutId,TimeoutData timeout);
 
         /// <summary>
         /// Removes the timeout if it hasn't been previously removed.

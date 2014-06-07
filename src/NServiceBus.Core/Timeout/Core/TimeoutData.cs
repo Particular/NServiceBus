@@ -10,11 +10,6 @@ namespace NServiceBus.Timeout.Core
     public class TimeoutData 
     {
         /// <summary>
-        /// Id of this timeout
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
         /// The address of the client who requested the timeout.
         /// </summary>
         public Address Destination { get; set; }
@@ -43,42 +38,6 @@ namespace NServiceBus.Timeout.Core
         /// Store the headers to preserve them across timeouts
         /// </summary>
         public Dictionary<string, string> Headers { get; set; }
-
-        /// <summary>
-        /// Returns a <see cref="String"/> that represents the current <see cref="Object"/>.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="String"/> that represents the current <see cref="Object"/>.
-        /// </returns>
-        /// <filterpriority>2</filterpriority>
-        public override string ToString()
-        {
-            return string.Format("Timeout({0}) - Expires:{1}, SagaId:{2}", Id, Time, SagaId);
-        }
-
-        /// <summary>
-        /// Transforms the timeout to a <see cref="TransportMessage"/>.
-        /// </summary>
-        /// <returns>Returns a <see cref="TransportMessage"/>.</returns>
-        public TransportMessage ToTransportMessage()
-        {
-            var transportMessage = new TransportMessage(Id,Headers)
-            {
-                Recoverable = true,
-                Body = State
-            };
-
-
-            if (SagaId != Guid.Empty)
-            {
-                transportMessage.Headers[NServiceBus.Headers.SagaId] = SagaId.ToString();
-            }
-
-
-            transportMessage.Headers["NServiceBus.RelatedToTimeoutId"] = Id;
-
-            return transportMessage;
-        }
 
         /// <summary>
         /// Transforms the timeout to send options

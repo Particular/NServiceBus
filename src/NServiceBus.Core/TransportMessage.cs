@@ -51,6 +51,18 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Creates a new transport message with the given headers and body
+        /// </summary>
+        /// <param name="existingHeaders">The existing headers</param>
+        /// <param name="body">The body, can be byte[0] for control messages</param>
+        public TransportMessage(Dictionary<string, string> existingHeaders,byte[] body)
+        {
+            headers = existingHeaders;
+            this.body = body;
+            Recoverable = true;
+        }
+
+        /// <summary>
         ///     Gets/sets the identifier of this message bundle.
         /// </summary>
         public string Id

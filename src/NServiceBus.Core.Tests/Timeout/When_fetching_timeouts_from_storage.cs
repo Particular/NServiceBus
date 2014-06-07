@@ -37,7 +37,7 @@ namespace NServiceBus.Core.Tests.Timeout
 
             for (var i = 0; i < numberOfTimeoutsToAdd; i++)
             {
-                persister.Add(new TimeoutData
+                persister.Add("Id-" + i,new TimeoutData
                 {
                     OwningTimeoutManager = String.Empty,
                     Time = DateTime.UtcNow.AddHours(-1)
@@ -46,7 +46,7 @@ namespace NServiceBus.Core.Tests.Timeout
 
             for (var i = 0; i < numberOfTimeoutsToAdd; i++)
             {
-                persister.Add(new TimeoutData
+                persister.Add("Id-" + i,new TimeoutData
                 {
                     OwningTimeoutManager = String.Empty,
                     Time = DateTime.UtcNow.AddHours(1)
@@ -69,11 +69,11 @@ namespace NServiceBus.Core.Tests.Timeout
                     OwningTimeoutManager = "MyEndpoint"
                 };
 
-                persister.Add(d);
+                persister.Add("Id-" + i,d);
             }
 
             var expected = DateTime.UtcNow.AddHours(1);
-            persister.Add(new TimeoutData
+            persister.Add("OtherId",new TimeoutData
             {
                 Time = expected,
                 OwningTimeoutManager = String.Empty,

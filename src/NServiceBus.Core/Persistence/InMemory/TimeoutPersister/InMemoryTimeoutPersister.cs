@@ -1,61 +1,57 @@
 namespace NServiceBus.InMemory.TimeoutPersister
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using Timeout.Core;
 
     class InMemoryTimeoutPersister : IPersistTimeouts
     {
-        readonly IList<TimeoutData> storage = new List<TimeoutData>();
-        readonly object lockObject = new object();
 
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
-            lock (lockObject)
-            {
-                var results = storage
-                    .Where(data => data.Time > startSlice && data.Time <= DateTime.UtcNow)
-                    .OrderBy(data => data.Time)
-                    .Select(t => new Tuple<string, DateTime>(t.Id, t.Time))
-                    .ToList();
+            var results = storage
+                .Where(kvp => kvp.Value.Time > startSlice && kvp.Value.Time <= DateTime.UtcNow)
+                .OrderBy(kvp => kvp.Value.Time)
+                .Select(kvp => new Tuple<string, DateTime>(kvp.Key, kvp.Value.Time))
+                .ToList();
 
-                var nextTimeout = storage
-                    .Where(data => data.Time > DateTime.UtcNow)
-                    .OrderBy(data => data.Time)
-                    .FirstOrDefault();
+            var nextTimeout = storage.Values
+                .Where(data => data.Time > DateTime.UtcNow)
+                .OrderBy(data => data.Time)
+                .FirstOrDefault();
 
-                nextTimeToRunQuery = nextTimeout != null ? nextTimeout.Time : DateTime.UtcNow.AddMinutes(1);
+            nextTimeToRunQuery = nextTimeout != null ? nextTimeout.Time : DateTime.UtcNow.AddMinutes(1);
 
-                return results;
-            }
+            return results;
         }
 
-        public void Add(TimeoutData timeout)
+        public void Add(string timeoutId, TimeoutData timeout)
         {
-            lock (lockObject)
-            {
-                timeout.Id = Guid.NewGuid().ToString();
-                storage.Add(timeout);
-            }
+            storage.TryAdd(timeoutId,timeout);
         }
 
         public bool TryRemove(string timeoutId, out TimeoutData timeoutData)
         {
-            lock (lockObject)
-            {
-                timeoutData = storage.SingleOrDefault(t => t.Id == timeoutId);
-                
-                return timeoutData != null && storage.Remove(timeoutData);
-            }
+            return storage.TryRemove(timeoutId, out timeoutData);
         }
 
         public void RemoveTimeoutBy(Guid sagaId)
         {
-            lock (lockObject)
+            var toDelete = storage.Where(kvp => kvp.Value.SagaId == sagaId)
+                .Select(kvp => kvp.Key)
+                .ToList();
+
+            foreach (var key in toDelete)
             {
-                storage.Where(t => t.SagaId == sagaId).ToList().ForEach(item => storage.Remove(item));
+                TimeoutData data;
+
+                storage.TryRemove(key, out data);
             }
         }
+
+        readonly ConcurrentDictionary<string, TimeoutData> storage = new ConcurrentDictionary<string, TimeoutData>();
+
     }
 }
