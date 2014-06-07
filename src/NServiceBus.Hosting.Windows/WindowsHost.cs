@@ -20,8 +20,9 @@ namespace NServiceBus.Hosting.Windows
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
             genericHost = new NServiceBus.GenericHost(specifier, args, new List<Type> { typeof(Production) }, endpointName, scannableAssembliesFullName);
-
+#pragma warning disable 0618
             Configure.Instance.DefineCriticalErrorAction(OnCriticalError);
+#pragma warning restore 0618
         }
 
         /// <summary>

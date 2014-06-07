@@ -16,6 +16,8 @@
     
     class Program
     {
+        static Configure config;
+
         static void Main(string[] args)
         {
             var testCaseToRun = args[0];
@@ -51,7 +53,7 @@
             if (suppressDTC)
                 endpointName += ".SuppressDTC";
 
-            var config = Configure.With(o => o.EndpointName(endpointName))
+            config = Configure.With(o => o.EndpointName(endpointName))
                 .DefaultBuilder()
                 .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
                 .UsePersistence<InMemory>()
@@ -127,15 +129,12 @@
 
                 DumpSetting(args);
                 Statistics.Dump();
-
-
-
             }
         }
 
         private static void SetupRijndaelTestEncryptionService()
         {
-            var encryptConfig = Configure.Instance.Configurer.ConfigureComponent<NServiceBus.Encryption.Rijndael.EncryptionService>(DependencyLifecycle.SingleInstance);
+            var encryptConfig = config.Configurer.ConfigureComponent<NServiceBus.Encryption.Rijndael.EncryptionService>(DependencyLifecycle.SingleInstance);
             encryptConfig.ConfigureProperty(s => s.Key, Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
         }
 
@@ -151,7 +150,9 @@
 
         static void SeedSagaMessages(int numberOfMessages, string inputQueue, int concurrency)
         {
+#pragma warning disable 0618
             var bus = Configure.Instance.Builder.Build<IBus>();
+#pragma warning restore 0618
 
             for (var i = 0; i < numberOfMessages / concurrency; i++)
             {
@@ -170,7 +171,8 @@
         static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
         {
             var sw = new Stopwatch();
-            var bus = Configure.Instance.Builder.Build<IBus>();
+
+            var bus = config.Builder.Build<IBus>();
 
             sw.Start();
             Parallel.For(

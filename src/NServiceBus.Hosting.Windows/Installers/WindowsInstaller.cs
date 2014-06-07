@@ -55,7 +55,9 @@
             try
             {
                 host.Install(username);
+#pragma warning disable 0618
                 Configure.Instance.Builder.Dispose();
+#pragma warning restore 0618
             }
             catch (Exception ex)
             {

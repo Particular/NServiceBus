@@ -320,12 +320,12 @@ namespace NServiceBus
 
             if (logAsWarn)
             {
-                Logger.Warn(message + detailsMessage);
+                logger.Warn(message + detailsMessage);
             }
             else
             {
-                Logger.Info(message);
-                Logger.Debug(detailsMessage.ToString());
+                logger.Info(message);
+                logger.Debug(detailsMessage.ToString());
             }
         }
 
@@ -345,17 +345,9 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
-        // ReSharper disable UnusedParameter.Global
-
-
-        // ReSharper restore UnusedParameter.Global
-
         static bool configSectionOverridesInitialized;
         static bool beforeConfigurationInitializersCalled;
-
-
-        public static Func<FileInfo, Assembly> LoadAssembly = s => Assembly.LoadFrom(s.FullName);
-
+        static ILog logger = LogManager.GetLogger<Configure>();
         static bool initialized;
         IBuilder builder;
         IConfigureComponents configurer;

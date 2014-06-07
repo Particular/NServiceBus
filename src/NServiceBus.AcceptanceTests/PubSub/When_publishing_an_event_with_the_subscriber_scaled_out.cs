@@ -29,9 +29,11 @@
                                 context.NumberOfSubscriptionsReceived++;
                             }))
                         .When(c => c.NumberOfSubscriptionsReceived >= 2, (bus, c) =>
-                            {
-                                c.SubscribersOfTheEvent = Configure.Instance.Builder.Build<ISubscriptionStorage>()
-                                                                  .GetSubscriberAddressesForMessage(new[] { new MessageType(typeof(MyEvent)) }).Select(a => a.ToString()).ToList();
+                        {
+#pragma warning disable 0618
+                            c.SubscribersOfTheEvent = Configure.Instance.Builder.Build<ISubscriptionStorage>()
+                                                              .GetSubscriberAddressesForMessage(new[] { new MessageType(typeof(MyEvent)) }).Select(a => a.ToString()).ToList();
+#pragma warning restore 0618
                             })
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
