@@ -30,6 +30,11 @@
                 context.Set(outboxMessage);
 
                 next();
+
+                if (context.handleCurrentMessageLaterWasCalled)
+                {
+                    return;
+                }
             }
 
             DispatchOperationToTransport(outboxMessage.TransportOperations);

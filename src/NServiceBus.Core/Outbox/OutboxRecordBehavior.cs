@@ -11,6 +11,11 @@ namespace NServiceBus.Outbox
         public void Invoke(IncomingContext context, Action next)
         {
             next();
+            
+            if (context.handleCurrentMessageLaterWasCalled)
+            {
+                return;
+            }
 
             var outboxMessage = context.Get<OutboxMessage>();
 

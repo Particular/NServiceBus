@@ -5,37 +5,23 @@
     using Outbox;
 
     [TestFixture]
-    public class OutboxDeduplicationBehaviorTests
+    public class OutboxRecordBehaviorTests
     {
-
         [Test]
-        public void Should_shortcut_the_pipeline_if_existing_message_is_found()
+        public void Should_not_store_the_message_if_handle_current_message_later_was_called()
         {
             var incomingTransportMessage = new TransportMessage();
-
-            fakeOutbox.ExistingMessage = new OutboxMessage(incomingTransportMessage.Id);
-
-            var context = new IncomingContext(null, incomingTransportMessage);
-
-            Invoke(context);
-
-            Assert.Null(fakeOutbox.StoredMessage);
-        }
-
-        [Test]
-        public void Should_not_dispatch_the_message_if_handle_current_message_later_was_called()
-        {
-            var incomingTransportMessage = new TransportMessage();
-
 
             var context = new IncomingContext(null, incomingTransportMessage)
             {
                 handleCurrentMessageLaterWasCalled = true
             };
 
+            context.Set(new OutboxMessage("SomeId"));
+
             Invoke(context);
 
-            Assert.False(fakeOutbox.WasDispatched);
+            Assert.Null(fakeOutbox.StoredMessage);
         }
 
         [SetUp]
@@ -43,7 +29,7 @@
         {
             fakeOutbox = new FakeOutboxStorage();
 
-            behavior = new OutboxDeduplicationBehavior
+            behavior = new OutboxRecordBehavior
             {
                 OutboxStorage = fakeOutbox
             };
@@ -61,6 +47,6 @@
         }
 
         FakeOutboxStorage fakeOutbox;
-        OutboxDeduplicationBehavior behavior;
+        OutboxRecordBehavior behavior;
     }
 }

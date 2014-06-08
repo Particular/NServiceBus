@@ -302,6 +302,8 @@ namespace NServiceBus.Unicast
             }
 
             PipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled = true;
+
+            IncomingContext.CurrentContext.DoNotInvokeAnyMoreHandlers();
         }
 
         /// <summary>

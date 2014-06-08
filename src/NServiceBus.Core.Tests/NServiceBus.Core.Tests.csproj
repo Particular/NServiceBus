@@ -97,6 +97,7 @@
     <Compile Include="Features\FeatureTests.cs" />
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
     <Compile Include="Logging\RollingLoggerTests.cs" />
+    <Compile Include="Outbox\OutboxRecordBehaviorTests.cs" />
     <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniqueProperties.cs" />
     <Compile Include="Persistence\InMemory\AnotherSimpleSageEntity.cs" />
     <Compile Include="Persistence\InMemory\InMemoryOutboxPersisterTests.cs" />
