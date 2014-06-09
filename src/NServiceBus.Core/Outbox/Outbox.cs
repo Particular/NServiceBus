@@ -18,6 +18,8 @@
         {
             Defaults(s => s.SetDefault(TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5)));
 
+            Prerequisite(c => c.Settings.Get<bool>("Transactions.Enabled"));
+
             var rabbit = Type.GetType("NServiceBus.Features.RabbitMqTransport, NServiceBus.Transports.RabbitMQ", false);
             var azureServiceBus = Type.GetType("NServiceBus.Features.AzureServiceBusTransport, NServiceBus.Azure.Transports.WindowsAzureServiceBus", false);
             var azureStorageQueue = Type.GetType("NServiceBus.Features.AzureStorageQueueTransport, NServiceBus.Azure.Transports.WindowsAzureStorageQueues", false);
