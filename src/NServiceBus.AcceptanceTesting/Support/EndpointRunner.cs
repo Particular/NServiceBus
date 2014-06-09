@@ -31,7 +31,7 @@
                 behavior = endpointBehavior;
                 scenarioContext = run.ScenarioContext;
                 configuration =
-                    ((IEndpointConfigurationFactory) Activator.CreateInstance(endpointBehavior.EndpointBuilderType))
+                    ((IEndpointConfigurationFactory)Activator.CreateInstance(endpointBehavior.EndpointBuilderType))
                         .Get();
                 configuration.EndpointName = endpointName;
 
@@ -42,28 +42,25 @@
 
                 //apply custom config settings
                 config = configuration.GetConfiguration(run, routingTable);
+
+                config.Configurer.RegisterSingleton(scenarioContext.GetType(), scenarioContext);
+                scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
+
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(config));
-               
+
                 config.EnableInstallers();
                 bus = config.CreateBus();
 
+                var transportDefinition = config.Settings.Get<TransportDefinition>();
 
-                if (scenarioContext != null)
-                {
-                    config.Configurer.RegisterSingleton(scenarioContext.GetType(), scenarioContext);
-                    scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
-
-                    var transportDefinition = config.Settings.Get<TransportDefinition>();
-
-                    scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
-                }
+                scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
 
                 executeWhens = Task.Factory.StartNew(() =>
                 {
                     while (!stopped)
                     {
                         if (!contextChanged.Wait(TimeSpan.FromSeconds(5)))
-                            //we spin around each 5s since the callback mechanism seems to be shaky
+                        //we spin around each 5s since the callback mechanism seems to be shaky
                         {
                             continue;
                         }
@@ -149,7 +146,7 @@
 
         public override object InitializeLifetimeService()
         {
-            var lease = (ILease) base.InitializeLifetimeService();
+            var lease = (ILease)base.InitializeLifetimeService();
             if (lease.CurrentState == LeaseState.Initial)
             {
                 lease.InitialLeaseTime = TimeSpan.FromMinutes(2);
