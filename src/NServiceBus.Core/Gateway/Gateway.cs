@@ -40,12 +40,13 @@
                 txConfig.ConfigureProperty(c => c.ConfiguredTimeout, configSection.TransactionTimeout);
             }
 
+            var gatewayInputAddress = Address.Parse(context.Settings.EndpointName()).SubScope("gateway");
 
             ConfigureChannels(context);
 
-            ConfigureReceiver(context);
+            ConfigureReceiver(context, gatewayInputAddress);
 
-            ConfigureSender(context);
+            ConfigureSender(context, gatewayInputAddress);
         }
 
         static void ConfigureChannels(FeatureConfigurationContext context)
@@ -69,7 +70,7 @@
             context.Container.RegisterSingleton<IChannelFactory>(channelFactory);
         }
 
-        static void ConfigureSender(FeatureConfigurationContext context)
+        static void ConfigureSender(FeatureConfigurationContext context, Address gatewayInputAddress)
         {
             if (!context.Container.HasComponent<IForwardMessagesToSites>())
             {
@@ -78,6 +79,7 @@
 
             context.Container.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<GatewaySender>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(t => t.InputAddress, gatewayInputAddress)
                 .ConfigureProperty(t => t.Disabled, false);
 
             var configSection = context.Settings.GetConfigSection<GatewayConfig>();
@@ -115,7 +117,7 @@
 
 
 
-        static void ConfigureReceiver(FeatureConfigurationContext context)
+        static void ConfigureReceiver(FeatureConfigurationContext context, Address gatewayInputAddress)
         {
             if (!context.Container.HasComponent<IReceiveMessagesFromSites>())
             {
@@ -129,7 +131,7 @@
 
             context.Container.ConfigureComponent<DataBusHeaderManager>(DependencyLifecycle.InstancePerCall);
 
-            var endpointName = context.Settings.Get<string>("EndpointName");
+            var endpointName = context.Settings.EndpointName();
 
             context.Container.ConfigureComponent<GatewayHttpListenerInstaller>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.Enabled, true);
@@ -138,7 +140,8 @@
                 .ConfigureProperty(x => x.MainInputAddress, Address.Parse(endpointName));
 
             context.Container.ConfigureComponent<GatewayReceiver>(DependencyLifecycle.SingleInstance)
-         .ConfigureProperty(t => t.Disabled, false);
+                .ConfigureProperty(t => t.ReplyToAddress, gatewayInputAddress)
+                .ConfigureProperty(t => t.Disabled, false);
         }
     }
 }

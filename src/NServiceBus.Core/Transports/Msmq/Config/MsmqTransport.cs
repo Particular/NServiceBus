@@ -49,7 +49,8 @@
             }
 
             context.Container.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(t => t.Settings, settings);
+                .ConfigureProperty(t => t.Settings, settings)
+                .ConfigureProperty(t => t.SuppressDistributedTransactions, context.Settings.Get<bool>("Transactions.SuppressDistributedTransactions"));
 
             context.Container.ConfigureComponent<MsmqQueueCreator>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.Settings, settings);

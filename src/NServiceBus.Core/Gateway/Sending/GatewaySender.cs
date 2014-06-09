@@ -8,7 +8,6 @@ namespace NServiceBus.Gateway.Sending
     using Receiving;
     using Routing;
     using Satellites;
-    using Settings;
     using Transports;
     using Unicast;
     using Unicast.Transport;
@@ -54,11 +53,8 @@ namespace NServiceBus.Gateway.Sending
             return true;
         }
 
-        public Address InputAddress
-        {
-            get { return SettingsHolder.Instance.Get<Address>("Gateway.InputAddress"); }
-        }
-
+        public Address InputAddress { get; set; }
+       
         public bool Disabled { get; set; }
        
         public void Start()

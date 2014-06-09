@@ -10,7 +10,6 @@
     using Logging;
     using NServiceBus;
     using PubSub;
-    using Settings;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
@@ -21,8 +20,6 @@
             LogManager.LoggerFactory = new ContextAppender(runDescriptor.ScenarioContext, endpointConfiguration);
 
             var types = GetTypesToUse(endpointConfiguration);
-
-            SettingsHolder.Instance.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
 
             var config = Configure.With(o =>
                                          {

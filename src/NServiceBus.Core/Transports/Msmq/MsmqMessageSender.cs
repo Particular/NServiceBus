@@ -4,7 +4,6 @@ namespace NServiceBus.Transports.Msmq
     using System.Messaging;
     using System.Transactions;
     using Config;
-    using Settings;
     using Unicast;
     using Unicast.Queuing;
 
@@ -14,7 +13,7 @@ namespace NServiceBus.Transports.Msmq
 
         public MsmqUnitOfWork UnitOfWork { get; set; }
 
-
+        public bool SuppressDistributedTransactions { get; set; }
 
         public void Send(TransportMessage message, SendOptions sendOptions)
         {
@@ -83,7 +82,7 @@ namespace NServiceBus.Transports.Msmq
                 return MessageQueueTransactionType.None;
             }
 
-            if (SettingsHolder.Instance.Get<bool>("Transactions.SuppressDistributedTransactions"))
+            if (SuppressDistributedTransactions)
             {
                 return MessageQueueTransactionType.Single;
             }
