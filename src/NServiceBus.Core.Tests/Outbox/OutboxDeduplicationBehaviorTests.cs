@@ -3,6 +3,7 @@
     using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
     using Outbox;
+    using Unicast.Transport;
 
     [TestFixture]
     public class OutboxDeduplicationBehaviorTests
@@ -45,7 +46,8 @@
 
             behavior = new OutboxDeduplicationBehavior
             {
-                OutboxStorage = fakeOutbox
+                OutboxStorage = fakeOutbox,
+                TransactionSettings = TransactionSettings.Default
             };
         }
 

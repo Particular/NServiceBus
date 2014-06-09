@@ -6,14 +6,14 @@
 
     public class TransactionSettings
     {
-        public TransactionSettings()
+        public TransactionSettings(ReadOnlySettings settings)
         {
             MaxRetries = 5;
-            IsTransactional = SettingsHolder.Instance.Get<bool>("Transactions.Enabled");
-            TransactionTimeout = SettingsHolder.Instance.Get<TimeSpan>("Transactions.DefaultTimeout");
-            IsolationLevel = SettingsHolder.Instance.Get<IsolationLevel>("Transactions.IsolationLevel");
-            SuppressDistributedTransactions = SettingsHolder.Instance.Get<bool>("Transactions.SuppressDistributedTransactions");
-            DoNotWrapHandlersExecutionInATransactionScope = SettingsHolder.Instance.Get<bool>("Transactions.DoNotWrapHandlersExecutionInATransactionScope");
+            IsTransactional = settings.Get<bool>("Transactions.Enabled");
+            TransactionTimeout = settings.Get<TimeSpan>("Transactions.DefaultTimeout");
+            IsolationLevel = settings.Get<IsolationLevel>("Transactions.IsolationLevel");
+            SuppressDistributedTransactions = settings.Get<bool>("Transactions.SuppressDistributedTransactions");
+            DoNotWrapHandlersExecutionInATransactionScope = settings.Get<bool>("Transactions.DoNotWrapHandlersExecutionInATransactionScope");
         }
 
         protected TransactionSettings(bool isTransactional, TimeSpan transactionTimeout, IsolationLevel isolationLevel, int maxRetries, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope)

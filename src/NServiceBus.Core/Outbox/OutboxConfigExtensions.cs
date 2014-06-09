@@ -18,7 +18,11 @@
                 customizations(new OutboxSettings(config.Settings));
             }
 
-            return config.Transactions(t => t.Advanced(a => a.DisableDistributedTransactions()))
+            return config.Transactions(t => t.Advanced(a =>
+            {
+                a.DisableDistributedTransactions();
+                a.DoNotWrapHandlersExecutionInATransactionScope();
+            }))
             .Features(f => f.Enable<Features.Outbox>());
         }
     }

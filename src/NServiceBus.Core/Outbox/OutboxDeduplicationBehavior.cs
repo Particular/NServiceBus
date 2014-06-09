@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Transactions;
     using Pipeline;
     using Pipeline.Contexts;
     using Transports;
@@ -9,6 +10,8 @@
     using Unicast.Behaviors;
     using Unicast.Messages;
     using NServiceBus;
+    using Unicast.Transport;
+
     class OutboxDeduplicationBehavior : IBehavior<IncomingContext>
     {
         public IOutboxStorage OutboxStorage { get; set; }
@@ -17,6 +20,8 @@
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
         public DefaultMessageAuditer DefaultMessageAuditer { get; set; }
+
+        public TransactionSettings TransactionSettings { get; set; }
 
         public void Invoke(IncomingContext context, Action next)
         {
@@ -29,7 +34,13 @@
 
                 context.Set(outboxMessage);
 
-                next();
+                //we use this scope to make sure that we escalate to DTC if the user is talking to another resource by misstake
+                using (var checkForEscalationScope = new TransactionScope(TransactionScopeOption.RequiresNew,new TransactionOptions{IsolationLevel = TransactionSettings.IsolationLevel,Timeout = TransactionSettings.TransactionTimeout}))
+                {
+                    next();
+                    checkForEscalationScope.Complete();
+                }
+                
 
                 if (context.handleCurrentMessageLaterWasCalled)
                 {

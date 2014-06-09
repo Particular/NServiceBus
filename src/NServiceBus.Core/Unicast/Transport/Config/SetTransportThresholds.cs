@@ -20,7 +20,7 @@ namespace NServiceBus.Unicast.Transport.Config
                 maximumConcurrencyLevel = transportConfig.MaximumConcurrencyLevel;
             }
 
-            var transactionSettings = new TransactionSettings
+            var transactionSettings = new TransactionSettings(config.Settings)
                 {
                     MaxRetries = maximumNumberOfRetries
                 };
