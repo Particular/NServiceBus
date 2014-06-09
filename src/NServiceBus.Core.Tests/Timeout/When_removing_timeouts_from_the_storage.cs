@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
@@ -47,10 +48,10 @@
                 persister.TryRemove(timeout.Item1, out timeoutData);
             }
 
-            Assert.AreEqual(0, GetNextChunk().Count);
+            Assert.AreEqual(0, GetNextChunk().Count());
         }
 
-        protected List<Tuple<string, DateTime>> GetNextChunk()
+        protected IEnumerable<Tuple<string, DateTime>> GetNextChunk()
         {
             DateTime nextTimeToRunQuery;
             return persister.GetNextChunk(DateTime.UtcNow.AddYears(-3), out nextTimeToRunQuery);

@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.Timeout
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
@@ -53,7 +54,7 @@ namespace NServiceBus.Core.Tests.Timeout
                 });
             }
             
-            Assert.AreEqual(numberOfTimeoutsToAdd, GetNextChunk().Count);
+            Assert.AreEqual(numberOfTimeoutsToAdd, GetNextChunk().Count());
         }
 
         [Test]
@@ -87,7 +88,7 @@ namespace NServiceBus.Core.Tests.Timeout
             Assert.True(totalMilliseconds < 200);
         }
 
-        protected List<Tuple<string, DateTime>> GetNextChunk()
+        protected IEnumerable<Tuple<string, DateTime>> GetNextChunk()
         {
             DateTime nextTimeToRunQuery;
             return persister.GetNextChunk(DateTime.UtcNow.AddYears(-3), out nextTimeToRunQuery);

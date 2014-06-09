@@ -10,24 +10,23 @@ namespace NServiceBus.InMemory.TimeoutPersister
         readonly IList<TimeoutData> storage = new List<TimeoutData>();
         readonly object lockObject = new object();
 
-        public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
+        public IEnumerable<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
             lock (lockObject)
             {
-                var results = storage
-                    .Where(data => data.Time > startSlice && data.Time <= DateTime.UtcNow)
-                    .OrderBy(data => data.Time)
-                    .Select(t => new Tuple<string, DateTime>(t.Id, t.Time))
-                    .ToList();
+                var now = DateTime.UtcNow;
 
                 var nextTimeout = storage
-                    .Where(data => data.Time > DateTime.UtcNow)
+                    .Where(data => data.Time > now)
                     .OrderBy(data => data.Time)
                     .FirstOrDefault();
 
                 nextTimeToRunQuery = nextTimeout != null ? nextTimeout.Time : DateTime.UtcNow.AddMinutes(1);
 
-                return results;
+                return storage
+                    .Where(data => data.Time > startSlice && data.Time <= now)
+                    .OrderBy(data => data.Time)
+                    .Select(t => new Tuple<string, DateTime>(t.Id, t.Time));
             }
         }
 
