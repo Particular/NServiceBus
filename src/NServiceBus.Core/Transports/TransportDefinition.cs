@@ -19,5 +19,10 @@ namespace NServiceBus.Transports
         /// Indicates that the transport has support for distributed transactions
         /// </summary>
         public bool? HasSupportForDistributedTransactions { get; protected set; }
+
+        /// <summary>
+        /// True if the transport
+        /// </summary>
+        public bool RequireOutboxConsent { get; set; }
     }
 }

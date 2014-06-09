@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Linq;
     using Transports;
     using Unicast.Transport;
+    using Utils.Reflection;
 
     /// <summary>
     /// Extension methods to configure transport.
@@ -40,7 +41,8 @@ namespace NServiceBus
                 customizations(new TransportConfiguration(config));
             }
 
-            config.Settings.Set("Transport", transportConfigurerType);
+            config.Settings.Set<TransportDefinition>(transportDefinitionType.Construct<TransportDefinition>());
+            config.Settings.Set("TransportConfigurer", transportConfigurerType);
 
             return config;
         }

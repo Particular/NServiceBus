@@ -7,7 +7,7 @@ namespace NServiceBus.Transports
     {
         public void Run(Configure config)
         {
-            var configType = config.Settings.GetOrDefault<Type>("Transport");
+            var configType = config.Settings.GetOrDefault<Type>("TransportConfigurer");
 
             configType.Construct<IConfigureTransport>().Configure(config);
         }

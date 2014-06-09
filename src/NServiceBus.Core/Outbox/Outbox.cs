@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
-    using System.Collections.Generic;
     using System.Configuration;
     using System.ServiceProcess;
     using Logging;
@@ -20,74 +19,46 @@
 
             Prerequisite(c => c.Settings.Get<bool>("Transactions.Enabled"));
 
-            var rabbit = Type.GetType("NServiceBus.Features.RabbitMqTransport, NServiceBus.Transports.RabbitMQ", false);
-            var azureServiceBus = Type.GetType("NServiceBus.Features.AzureServiceBusTransport, NServiceBus.Azure.Transports.WindowsAzureServiceBus", false);
-            var azureStorageQueue = Type.GetType("NServiceBus.Features.AzureStorageQueueTransport, NServiceBus.Azure.Transports.WindowsAzureStorageQueues", false);
-
-            var dependencies = new List<Type>();
-
-            if (rabbit != null)
+            Prerequisite(c =>
             {
-                dependencies.Add(rabbit);
-            }
-            if (azureServiceBus != null)
-            {
-                dependencies.Add(azureServiceBus);
-            }
-            if (azureStorageQueue != null)
-            {
-                dependencies.Add(azureStorageQueue);
-            }
-
-            if (dependencies.Count > 0)
-            {
-                DependsOnAtLeastOne(dependencies.ToArray());
-                EnableByDefault();
-            }
-            else
-            {
-                var sql = Type.GetType("NServiceBus.Features.SqlServerTransport, NServiceBus.Transports.SQLServer", false);
-
-                if (sql != null)
+                if (!c.Settings.Get<TransportDefinition>().RequireOutboxConsent)
                 {
-                    dependencies.Add(sql);                        
+                    return true;
                 }
 
-                dependencies.Add(typeof(MsmqTransport));
+                return RequireOutboxConsent(c);
+            });
 
-                DependsOnAtLeastOne(dependencies.ToArray());
+            RegisterStartupTask<DtcRunningWarning>();
+        }
 
-                Prerequisite(context =>
-                {
-                    if (context.Settings.GetOrDefault<bool>("DisableOutboxTransportCheck"))
-                    {
-                        return true;
-                    }
-                    var configValue = ConfigurationManager.AppSettings.Get("NServiceBus/Outbox");
+        static bool RequireOutboxConsent(FeatureConfigurationContext context)
+        {
+            if (context.Settings.GetOrDefault<bool>("DisableOutboxTransportCheck"))
+            {
+                return true;
+            }
+            var configValue = ConfigurationManager.AppSettings.Get("NServiceBus/Outbox");
 
-                    if (configValue == null)
-                    {
-                        throw new Exception(@"To use the Outbox feature with MSMQ or SQLServer transports you need to enable it in your config file.
+            if (configValue == null)
+            {
+                throw new Exception(@"To use the Outbox feature with MSMQ or SQLServer transports you need to enable it in your config file.
 To do that add the following:
 <appSettings>
     <add key=""NServiceBus/Outbox"" value=""true""/>
 </appSettings>
 
 The reason you need to do this is because we need to ensure that you have read all the documentation regarding this feature and know the limitations when running it under MSMQ or SQLServer transports.");
-                    }
-                    
-                    bool result;
-
-                    if (Boolean.TryParse(configValue, out result))
-                    {
-                        throw new Exception("Invalid value in \"NServiceBus/Outbox\" AppSetting. Please ensure it is either \"true\" or \"false\".");
-                    }
-
-                    return result;
-                });
             }
 
-            RegisterStartupTask<DtcRunningWarning>();
+            bool result;
+
+            if (Boolean.TryParse(configValue, out result))
+            {
+                throw new Exception("Invalid value in \"NServiceBus/Outbox\" AppSetting. Please ensure it is either \"true\" or \"false\".");
+            }
+
+            return result;
         }
 
         internal const string TimeToKeepDeduplicationEntries = "Outbox.TimeToKeepDeduplicationEntries";
