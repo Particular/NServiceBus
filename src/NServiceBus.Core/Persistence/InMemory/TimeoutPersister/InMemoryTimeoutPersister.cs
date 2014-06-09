@@ -21,7 +21,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
                     .OrderBy(data => data.Time)
                     .FirstOrDefault();
 
-                nextTimeToRunQuery = nextTimeout != null ? nextTimeout.Time : DateTime.UtcNow.AddMinutes(1);
+                nextTimeToRunQuery = nextTimeout != null ? nextTimeout.Time : now.AddMinutes(1);
 
                 return storage
                     .Where(data => data.Time > startSlice && data.Time <= now)
