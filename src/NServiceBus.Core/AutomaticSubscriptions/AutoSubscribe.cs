@@ -25,7 +25,7 @@
 
             context.Container.ConfigureComponent<AutoSubscriptionStrategy>(DependencyLifecycle.InstancePerCall);
 
-            var transportDefinition = context.Settings.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
+            var transportDefinition = context.Settings.Get<TransportDefinition>();
 
             //if the transport has centralized pubsub we can auto-subscribe all events regardless if they have explicit routing or not
             if (transportDefinition != null && transportDefinition.HasSupportForCentralizedPubSub)

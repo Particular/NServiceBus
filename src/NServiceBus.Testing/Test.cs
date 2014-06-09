@@ -5,7 +5,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Config.ConfigurationSource;
     using DataBus.InMemory;
     using Features;
     using MessageInterfaces;
@@ -89,6 +88,7 @@
                 f.Disable<Audit>();
             })
             .DefaultBuilder()
+                .UseTransport<FakeTestTransport>()
                 .UsePersistence<InMemory>()
                 .InMemoryFaultManagement();
 
@@ -259,19 +259,5 @@
         static readonly TestConfigurationSource testConfigurationSource = new TestConfigurationSource();
         static readonly ConcurrentDictionary<object, ConcurrentDictionary<string, string>> messageHeaders = new ConcurrentDictionary<object, ConcurrentDictionary<string, string>>();
         static bool initialized;
-    }
-
-    /// <summary>
-    ///     Configuration source suitable for testing
-    /// </summary>
-    public class TestConfigurationSource : IConfigurationSource
-    {
-        /// <summary>
-        ///     Returns null for all types of T.
-        /// </summary>
-        public T GetConfiguration<T>() where T : class, new()
-        {
-            return null;
-        }
     }
 }

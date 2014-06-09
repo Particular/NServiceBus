@@ -53,7 +53,7 @@
                     config.Configurer.RegisterSingleton(scenarioContext.GetType(), scenarioContext);
                     scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
 
-                    var transportDefinition = config.Settings.Get<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
+                    var transportDefinition = config.Settings.Get<TransportDefinition>();
 
                     scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
                 }

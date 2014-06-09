@@ -62,6 +62,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FakeTestTransport.cs" />
+    <Compile Include="FakeTestTransportConfigurer.cs" />
     <Compile Include="Handler.cs" />
     <Compile Include="InMemoryDataBus.cs" />
     <Compile Include="Invocations.cs" />
@@ -70,6 +72,7 @@
     <Compile Include="Saga.cs" />
     <Compile Include="StubBus.cs" />
     <Compile Include="Test.cs" />
+    <Compile Include="TestConfigurationSource.cs" />
     <Compile Include="TimeoutManager.cs" />
   </ItemGroup>
   <ItemGroup>

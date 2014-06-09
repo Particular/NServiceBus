@@ -25,8 +25,7 @@ namespace NServiceBus.Transports
 
             config.Settings.Set("NServiceBus.Transport.ConnectionString", connectionString);
 
-            var selectedTransportDefinition = new T();
-            config.Settings.Set("NServiceBus.Transport.SelectedTransport", selectedTransportDefinition);
+            var selectedTransportDefinition = config.Settings.Get<TransportDefinition>();
             config.Configurer.RegisterSingleton<TransportDefinition>(selectedTransportDefinition);
             InternalConfigure(config);
         }
