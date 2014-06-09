@@ -7,17 +7,18 @@ namespace NServiceBus.Timeout.Core
     {
         public IPersistTimeouts TimeoutsPersister { get; set; }
         public ISendMessages MessageSender { get; set; }
+
         public Action<TimeoutData> TimeoutPushed;
 
-        public void PushTimeout(TimeoutData timeout)
+        public void PushTimeout(string timeoutId, TimeoutData timeout)
         {
             if (timeout.Time.AddSeconds(-1) <= DateTime.UtcNow)
             {
-                MessageSender.Send(timeout.ToTransportMessage(), timeout.ToSendOptions());
+                MessageSender.Send( new TransportMessage(timeout.Headers,timeout.State), timeout.ToSendOptions());
                 return;
             }
 
-            TimeoutsPersister.Add(timeout);
+            TimeoutsPersister.Add(timeoutId,timeout);
 
             if (TimeoutPushed != null)
             {

@@ -26,10 +26,10 @@ namespace NServiceBus.Core.Tests.Timeout
         [Test]
         public void Should_dispatch_timeout_if_is_due_now()
         {
-            manager.PushTimeout(new TimeoutData
-                {
-                    Time = DateTime.UtcNow,
-                });
+            manager.PushTimeout("SomeId",new TimeoutData
+            {
+                Time = DateTime.UtcNow,
+            });
 
             Assert.AreEqual(1, messageSender.MessagesSent);
         }
