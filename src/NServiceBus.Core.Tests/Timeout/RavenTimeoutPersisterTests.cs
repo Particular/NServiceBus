@@ -84,7 +84,12 @@
                             {
                                 RunInMemory = true
                             }.Initialize();
-            persister = new RavenTimeoutPersistence(new StoreAccessor(documentStore));
+
+            persister = new RavenTimeoutPersistence(new StoreAccessor(documentStore))
+                        {
+                            TriggerCleanupEvery = TimeSpan.FromSeconds(1),
+                            CleanupGapFromTimeslice = TimeSpan.FromSeconds(2),
+                        };
         }
 
         [TearDown]
