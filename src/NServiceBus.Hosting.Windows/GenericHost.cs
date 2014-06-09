@@ -95,8 +95,7 @@ namespace NServiceBus
         {
             PerformConfiguration();
             config.EnableInstallers(username);
-            //HACK: to ensure the installer runner performs its installation
-            config.Initialize();
+            config.CreateBus();
         }
 
         void PerformConfiguration()

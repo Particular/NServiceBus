@@ -175,7 +175,7 @@ namespace NServiceBus
         /// <summary>
         ///     Finalizes the configuration by invoking all initialisers.
         /// </summary>
-        public void Initialize()
+        internal void Initialize()
         {
             if (initialized)
             {
