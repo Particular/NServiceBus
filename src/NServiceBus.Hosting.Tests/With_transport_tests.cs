@@ -79,11 +79,8 @@ namespace NServiceBus.Hosting.Tests
 
     public class MyTransportConfigurer : IConfigureTransport<MyTestTransport>
     {
-        public static bool Called;
-
         public void Configure(Configure config)
         {
-            Called = true;
         }
     }
 }
