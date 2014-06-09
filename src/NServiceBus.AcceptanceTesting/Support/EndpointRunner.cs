@@ -44,18 +44,19 @@
                 config = configuration.GetConfiguration(run, routingTable);
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(config));
                
+                config.EnableInstallers();
+                bus = config.CreateBus();
+
+
                 if (scenarioContext != null)
                 {
                     config.Configurer.RegisterSingleton(scenarioContext.GetType(), scenarioContext);
                     scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
-                
+
                     var transportDefinition = config.Settings.Get<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
 
                     scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
                 }
-
-                config.EnableInstallers();
-                bus = config.CreateBus();
 
                 executeWhens = Task.Factory.StartNew(() =>
                 {

@@ -154,6 +154,7 @@
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="Gateway\GatewayHttpListenerInstaller.cs" />
+    <Compile Include="Unicast\Transport\Config\EnableSelectedTransport.cs" />
     <Compile Include="Utils\ElevateChecker.cs" />
     <Compile Include="IStartableBus.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />
