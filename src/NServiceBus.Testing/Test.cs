@@ -95,7 +95,7 @@
 
             config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
 
-            config.Initialize();
+            config.CreateBus();
 
 
             var mapper = config.Builder.Build<IMessageMapper>();
