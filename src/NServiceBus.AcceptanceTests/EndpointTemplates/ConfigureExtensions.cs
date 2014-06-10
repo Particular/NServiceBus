@@ -6,9 +6,6 @@
     using ObjectBuilder.Common.Config;
     using Persistence;
     using ScenarioDescriptors;
-    using Serializers.Binary;
-    using Serializers.Json;
-    using Serializers.XML;
 
     public static class ConfigureExtensions
     {
@@ -58,42 +55,6 @@
             }
 
             return config.UsePersistence(persistenceType);
-        }
-
-        public static Configure DefineSerializer(this Configure config, string serializer)
-        {
-            if (string.IsNullOrEmpty(serializer))
-            {
-                return config; //xml is the default
-            }
-
-            var type = Type.GetType(serializer);
-
-            if (type == typeof(XmlMessageSerializer))
-            {
-                config.Serialization.Xml();
-                return config;
-            }
-
-            if (type == typeof(JsonMessageSerializer))
-            {
-                config.Serialization.Json();
-                return config;
-            }
-
-            if (type == typeof(BsonMessageSerializer))
-            {
-                config.Serialization.Bson();
-                return config;
-            }
-
-            if (type == typeof(BinaryMessageSerializer))
-            {
-                config.Serialization.Binary();
-                return config;
-            }
-
-            throw new InvalidOperationException("Unknown serializer:" + serializer);
         }
 
         public static Configure DefineBuilder(this Configure config, string builder)

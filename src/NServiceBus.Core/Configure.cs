@@ -84,11 +84,6 @@ namespace NServiceBus
             }
         }
 
-        public SerializationSettings Serialization
-        {
-            get { return serialization ?? (serialization = new SerializationSettings(this)); }
-        }
-
         public PipelineSettings Pipeline
         {
             get { return pipelineSettings ?? (pipelineSettings = new PipelineSettings(this)); }
@@ -353,7 +348,6 @@ namespace NServiceBus
         IConfigureComponents configurer;
         FeatureActivator featureActivator;
         PipelineSettings pipelineSettings;
-        SerializationSettings serialization;
 
 
         public class ConfigurationBuilder

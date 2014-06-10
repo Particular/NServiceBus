@@ -2,9 +2,6 @@
 {
     using System.Collections.Generic;
     using AcceptanceTesting.Support;
-    using NServiceBus.Serializers.Binary;
-    using NServiceBus.Serializers.Json;
-    using NServiceBus.Serializers.XML;
 
     public static class Serializers
     {
@@ -15,7 +12,7 @@
                     new Dictionary<string, string>
                         {
                             {
-                                "Serializer", typeof (BinaryMessageSerializer).AssemblyQualifiedName
+                                "Serializer", typeof (Binary).AssemblyQualifiedName
                             }
                         }
             };
@@ -27,7 +24,7 @@
                     new Dictionary<string, string>
                         {
                             {
-                                "Serializer", typeof (BsonMessageSerializer).AssemblyQualifiedName
+                                "Serializer", typeof (Bson).AssemblyQualifiedName
                             }
                         }
             };
@@ -39,7 +36,7 @@
                     new Dictionary<string, string>
                         {
                             {
-                                "Serializer", typeof (XmlMessageSerializer).AssemblyQualifiedName
+                                "Serializer", typeof (Xml).AssemblyQualifiedName
                             }
                         }
             };
@@ -51,7 +48,7 @@
                     new Dictionary<string, string>
                         {
                             {
-                                "Serializer", typeof (JsonMessageSerializer).AssemblyQualifiedName
+                                "Serializer", typeof (Json).AssemblyQualifiedName
                             }
                         }
             };

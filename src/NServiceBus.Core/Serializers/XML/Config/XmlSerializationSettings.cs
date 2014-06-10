@@ -8,6 +8,13 @@
     /// </summary>
     public class XmlSerializationSettings
     {
+        readonly SettingsHolder settings;
+
+        public XmlSerializationSettings(SettingsHolder settings)
+        {
+            this.settings = settings;
+        }
+
         /// <summary>
         /// Tells the serializer to not wrap properties which have either XDocument or XElement with a "PropertyName" element.
         /// By default the xml serializer serializes the following message
@@ -39,7 +46,7 @@
         /// </code>
         public XmlSerializationSettings DontWrapRawXml()
         {
-            SettingsHolder.Instance.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
+            settings.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
 
             return this;
         }
@@ -53,7 +60,7 @@
             if(string.IsNullOrEmpty(namespaceToUse))
                 throw new ConfigurationErrorsException("Can't use a null or empty string as the xml namespace");
 
-            SettingsHolder.Instance.SetProperty<XmlMessageSerializer>(s => s.Namespace, namespaceToUse);
+            settings.SetProperty<XmlMessageSerializer>(s => s.Namespace, namespaceToUse);
 
             return this;
         }
@@ -63,7 +70,7 @@
         /// </summary>
         public XmlSerializationSettings SanitizeInput()
         {
-            SettingsHolder.Instance.SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);
+            settings.SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);
 
             return this;
         }

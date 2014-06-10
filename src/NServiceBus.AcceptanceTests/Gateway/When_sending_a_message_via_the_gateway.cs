@@ -81,11 +81,7 @@
         {
             public Headquarters()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.Features(f => f.Enable<Features.Gateway>());
-                    c.Serialization.Xml();
-                })
+                EndpointSetup<DefaultServer>(c => c.Features(f => f.Enable<Features.Gateway>()))
                     .IncludeType<MyRequest>()
                     .WithConfig<GatewayConfig>(c =>
                     {
