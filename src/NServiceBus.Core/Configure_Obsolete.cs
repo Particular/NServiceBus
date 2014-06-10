@@ -8,6 +8,7 @@ namespace NServiceBus
     using System.Reflection;
     using Config.ConfigurationSource;
     using ObjectBuilder;
+    using Settings;
 
     public partial class Configure
     {
@@ -244,12 +245,18 @@ namespace NServiceBus
         //    }
         //}
 
-        //public static TransactionSettings Transactions
-        //{
-        //    get
-        //    {
-        //    }
-        //}
+        [ObsoleteEx(
+            Message = "This has been converted to an extension method",
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Replacement = "configure.Transactions(Action<TransactionSettings>)")]
+        public static TransactionSettings Transactions
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         //public static TransportSettings Transports
         //{
