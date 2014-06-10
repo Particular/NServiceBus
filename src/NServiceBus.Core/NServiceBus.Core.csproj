@@ -228,7 +228,6 @@
     <Compile Include="Pipeline\SnapshotRegion.cs" />
     <Compile Include="Pipeline\WellKnownBehavior.cs" />
     <Compile Include="Sagas\AuditInvokedSagaBehavior.cs" />
-    <Compile Include="Sagas\RemoveIncomingHeadersBehavior.cs" />
     <Compile Include="Sagas\SagaSendBehavior.cs" />
     <Compile Include="Saga\ContainSagaData.cs" />
     <Compile Include="Saga\IAmStartedByMessages.cs" />
@@ -268,7 +267,7 @@
     <Compile Include="Unicast\Messages\ExecuteLogicalMessagesBehavior.cs" />
     <Compile Include="Unicast\Messages\LogicalMessage.cs" />
     <Compile Include="Unicast\Behaviors\MessageHandler.cs" />
-    <Compile Include="Unicast\Behaviors\MessageHandlingLoggingBehavior.cs" />
+    <Compile Include="Unicast\Behaviors\LogOutgoingMessageBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ChildContainerBehavior.cs" />
     <Compile Include="Unicast\Behaviors\CreatePhysicalMessageBehavior.cs" />
     <Compile Include="Unicast\Behaviors\DispatchMessageToTransportBehavior.cs" />

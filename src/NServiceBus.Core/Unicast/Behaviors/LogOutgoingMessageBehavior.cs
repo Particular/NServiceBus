@@ -6,7 +6,7 @@
     using Pipeline;
     using Pipeline.Contexts;
     
-    class MessageHandlingLoggingBehavior : IBehavior<IncomingContext>
+    class LogOutgoingMessageBehavior : IBehavior<IncomingContext>
     {
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 

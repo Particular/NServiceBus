@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using Contexts;
     using MessageMutator;
+    using NServiceBus.Logging;
     using NServiceBus.MessageMutator;
     using Sagas;
     using Unicast.Behaviors;
@@ -55,12 +56,9 @@
         void RegisterIncomingCoreBehaviors()
         {
             coordinator.Register(WellKnownBehavior.CreateChildContainer, typeof(ChildContainerBehavior), "Creates the child container");
-            coordinator.Register("LogTheIncomingMessage", typeof(MessageHandlingLoggingBehavior), "Logs the message received");
-            coordinator.Register("ForwardMessageTo", typeof(ForwardBehavior), "Forwards message to");
             coordinator.Register(WellKnownBehavior.ExecuteUnitOfWork, typeof(UnitOfWorkBehavior), "Executes the UoW");
-            coordinator.Register("HandleSubscriptionRequests", typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.");
+            coordinator.Register("ProcessSubscriptionRequests", typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.");
             coordinator.Register(WellKnownBehavior.MutateIncomingTransportMessage, typeof(ApplyIncomingTransportMessageMutatorsBehavior), "Executes IMutateIncomingTransportMessages");
-            coordinator.Register("RemoveHeaders", typeof(RemoveIncomingHeadersBehavior), "For backward compatibility we need to remove some headers from the incoming message");
             coordinator.Register("InvokeRegisteredCallbacks", typeof(CallbackInvocationBehavior), "Updates the callback inmemory dictionary");
             coordinator.Register(WellKnownBehavior.ExtractLogicalMessages, typeof(ExtractLogicalMessagesBehavior), "It splits the raw message into multiple logical messages");
             coordinator.Register(WellKnownBehavior.ExecuteLogicalMessages, typeof(ExecuteLogicalMessagesBehavior), "Starts the execution of each logical message");
@@ -77,6 +75,10 @@
             coordinator.Register(WellKnownBehavior.CreatePhysicalMessage, typeof(CreatePhysicalMessageBehavior), "Converts a logical message into a physical message");
             coordinator.Register(WellKnownBehavior.SerializeMessage, typeof(SerializeMessagesBehavior), "Serializes the message to be sent out on the wire");
             coordinator.Register(WellKnownBehavior.MutateOutgoingTransportMessage, typeof(MutateOutgoingPhysicalMessageBehavior), "Executes IMutateOutgoingTransportMessages");
+            if (LogManager.GetLogger("").IsDebugEnabled) // TODO: Fix the GetLogger!
+            {
+                coordinator.Register("LogOutgoingMessage", typeof(LogOutgoingMessageBehavior), "Logs the message contents before it is sent.");
+            }
             coordinator.Register(WellKnownBehavior.DispatchMessageToTransport, typeof(DispatchMessageToTransportBehavior), "Dispatches messages to the transport");
         }
 
