@@ -25,7 +25,16 @@ namespace NServiceBus
                 return configurationSource.GetConfiguration<T>();
             }
 
-            var sectionOverride = (IProvideConfiguration<T>)Activator.CreateInstance(sectionOverrideType);
+            IProvideConfiguration<T> sectionOverride;
+
+            if (HasConstructorThatAcceptsSettings(sectionOverrideType))
+            {
+                sectionOverride = (IProvideConfiguration<T>)Activator.CreateInstance(sectionOverrideType, new object[] { settings });
+            }
+            else
+            {
+                sectionOverride = (IProvideConfiguration<T>)Activator.CreateInstance(sectionOverrideType);
+            }
 
             return sectionOverride.GetConfiguration();
         }
@@ -47,6 +56,11 @@ namespace NServiceBus
             return settings.Get<string>("EndpointName");
         }
 
+
+        static bool HasConstructorThatAcceptsSettings(Type sectionOverrideType)
+        {
+            return sectionOverrideType.GetConstructor(new [] { typeof(ReadOnlySettings) }) != null;
+        }
 
     }
 }
