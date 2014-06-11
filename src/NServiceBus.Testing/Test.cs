@@ -41,6 +41,8 @@
                 customisations(c);
             }));
         }
+        
+        // ReSharper disable UnusedParameter.Global
 
         /// <summary>
         ///     Initializes the testing infrastructure specifying which assemblies to scan.
@@ -77,6 +79,7 @@
         {
             throw new NotImplementedException();
         }
+        // ReSharper restore UnusedParameter.Global
 
         static void InitializeInternal(Configure config)
         {

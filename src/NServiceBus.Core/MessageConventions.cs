@@ -2,7 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Reflection;
-
+    // ReSharper disable UnusedParameter.Global
+    
     /// <summary>
     /// Static extension methods to Configure.
     /// </summary>
@@ -15,6 +16,7 @@ namespace NServiceBus
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
             Replacement = "Configure.With(b=> b.Conventions(c=> c.DefiningMessagesAs(definesMessageType)))")]
+
         public static Configure DefiningMessagesAs(this Configure config, Func<Type, bool> definesMessageType)
         {
             throw new NotImplementedException();
@@ -98,4 +100,6 @@ namespace NServiceBus
             throw new NotImplementedException();
         }
     }
+    // ReSharper restore UnusedParameter.Global
+
 }
