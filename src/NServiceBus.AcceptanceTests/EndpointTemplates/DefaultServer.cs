@@ -17,7 +17,7 @@
         {
             var settings = runDescriptor.Settings;
 
-            LogManager.LoggerFactory = new ContextAppender(runDescriptor.ScenarioContext, endpointConfiguration);
+            LogManager.LoggerFactory = new ContextAppender(runDescriptor.ScenarioContext);
 
             var types = GetTypesToUse(endpointConfiguration);
 

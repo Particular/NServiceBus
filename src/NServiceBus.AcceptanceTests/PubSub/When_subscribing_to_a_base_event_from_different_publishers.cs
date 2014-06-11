@@ -58,7 +58,8 @@
         {
             public Publisher1()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>()
+                    .AllowExceptions();
             }
         }
 
