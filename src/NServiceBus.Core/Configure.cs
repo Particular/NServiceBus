@@ -361,7 +361,7 @@ namespace NServiceBus
             }
 
             /// <summary>
-            ///     Specifies the range of types that NServiceBus scans for handlers etc
+            ///     Specifies the range of types that NServiceBus scans for handlers etc.
             /// </summary>
             public ConfigurationBuilder TypesToScan(IEnumerable<Type> typesToScan)
             {
@@ -370,7 +370,7 @@ namespace NServiceBus
             }
 
             /// <summary>
-            ///     The assemblies to include when scanning for types
+            ///     The assemblies to include when scanning for types.
             /// </summary>
             public ConfigurationBuilder AssembliesToScan(IEnumerable<Assembly> assemblies)
             {
@@ -379,7 +379,7 @@ namespace NServiceBus
             }
 
             /// <summary>
-            ///     The assemblies to include when scanning for types
+            ///     The assemblies to include when scanning for types.
             /// </summary>
             public ConfigurationBuilder AssembliesToScan(params Assembly[] assemblies)
             {
@@ -389,7 +389,7 @@ namespace NServiceBus
 
 
             /// <summary>
-            ///     Specifies the directory where NServiceBus scans for types
+            ///     Specifies the directory where NServiceBus scans for types.
             /// </summary>
             public ConfigurationBuilder ScanAssembliesInDirectory(string probeDirectory)
             {
@@ -400,7 +400,7 @@ namespace NServiceBus
 
 
             /// <summary>
-            ///     Overrides the default configuration source
+            ///     Overrides the default configuration source.
             /// </summary>
             public ConfigurationBuilder CustomConfigurationSource(IConfigurationSource configurationSource)
             {
@@ -410,7 +410,7 @@ namespace NServiceBus
 
 
             /// <summary>
-            ///     Defines the name to use for this endpoint
+            ///     Defines the name to use for this endpoint.
             /// </summary>
             public ConfigurationBuilder EndpointName(string name)
             {
@@ -419,7 +419,7 @@ namespace NServiceBus
             }
 
             /// <summary>
-            ///     Defines the name to use for this endpoint
+            ///     Defines the name to use for this endpoint.
             /// </summary>
             public ConfigurationBuilder EndpointName(Func<string> nameFunc)
             {
@@ -428,7 +428,7 @@ namespace NServiceBus
             }
 
             /// <summary>
-            ///     Defines the name to use for this endpoint
+            ///     Defines the conventions to use for this endpoint.
             /// </summary>
             public ConfigurationBuilder Conventions(Action<ConventionsBuilder> conventions)
             {
@@ -438,7 +438,7 @@ namespace NServiceBus
             }
 
             /// <summary>
-            ///     Creates the configuration object
+            ///     Creates the configuration object.
             /// </summary>
             internal Configure BuildConfiguration()
             {
@@ -485,57 +485,64 @@ namespace NServiceBus
             /// <summary>
             ///     Sets the function to be used to evaluate whether a type is a message.
             /// </summary>
-            public void DefiningMessagesAs(Func<Type, bool> definesMessageType)
+            public ConventionsBuilder DefiningMessagesAs(Func<Type, bool> definesMessageType)
             {
                 this.definesMessageType = definesMessageType;
+                return this;
             }
 
             /// <summary>
             ///     Sets the function to be used to evaluate whether a type is a commands.
             /// </summary>
-            public void DefiningCommandsAs(Func<Type, bool> definesCommandType)
+            public ConventionsBuilder DefiningCommandsAs(Func<Type, bool> definesCommandType)
             {
                 this.definesCommandType = definesCommandType;
+                return this;
             }
 
             /// <summary>
             ///     Sets the function to be used to evaluate whether a type is a event.
             /// </summary>
-            public void DefiningEventsAs(Func<Type, bool> definesEventType)
+            public ConventionsBuilder DefiningEventsAs(Func<Type, bool> definesEventType)
             {
                 this.definesEventType = definesEventType;
+                return this;
             }
 
             /// <summary>
             ///     Sets the function to be used to evaluate whether a property should be encrypted or not.
             /// </summary>
-            public void DefiningEncryptedPropertiesAs(Func<PropertyInfo, bool> definesEncryptedProperty)
+            public ConventionsBuilder DefiningEncryptedPropertiesAs(Func<PropertyInfo, bool> definesEncryptedProperty)
             {
                 this.definesEncryptedProperty = definesEncryptedProperty;
+                return this;
             }
 
             /// <summary>
             ///     Sets the function to be used to evaluate whether a property should be sent via the DataBus or not.
             /// </summary>
-            public void DefiningDataBusPropertiesAs(Func<PropertyInfo, bool> definesDataBusProperty)
+            public ConventionsBuilder DefiningDataBusPropertiesAs(Func<PropertyInfo, bool> definesDataBusProperty)
             {
                 this.definesDataBusProperty = definesDataBusProperty;
+                return this;
             }
 
             /// <summary>
             ///     Sets the function to be used to evaluate whether a message has a time to be received.
             /// </summary>
-            public void DefiningTimeToBeReceivedAs(Func<Type, TimeSpan> retrieveTimeToBeReceived)
+            public ConventionsBuilder DefiningTimeToBeReceivedAs(Func<Type, TimeSpan> retrieveTimeToBeReceived)
             {
                 this.retrieveTimeToBeReceived = retrieveTimeToBeReceived;
+                return this;
             }
 
             /// <summary>
             ///     Sets the function to be used to evaluate whether a type is an express message or not.
             /// </summary>
-            public void DefiningExpressMessagesAs(Func<Type, bool> definesExpressMessageType)
+            public ConventionsBuilder DefiningExpressMessagesAs(Func<Type, bool> definesExpressMessageType)
             {
                 this.definesExpressMessageType = definesExpressMessageType;
+                return this;
             }
 
             internal Conventions BuildConventions()
