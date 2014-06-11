@@ -5,15 +5,21 @@
     using System.Linq;
     using Contexts;
     using ObjectBuilder;
+    using Settings;
     using Unicast;
     using Unicast.Messages;
 
     public class PipelineExecutor : IDisposable
     {
-        public PipelineExecutor(IBuilder builder)
+        public PipelineExecutor(ReadOnlySettings settings, IBuilder builder)
         {
             rootBuilder = builder;
-            var pipelineBuilder = new PipelineBuilder();
+
+            var additions = settings.GetOrDefault<List<RegisterBehavior>>("Pipeline.Additions") ?? new List<RegisterBehavior>();
+            var removals = settings.GetOrDefault<List<RemoveBehavior>>("Pipeline.Removals") ?? new List<RemoveBehavior>();
+            var replacements = settings.GetOrDefault<List<ReplaceBehavior>>("Pipeline.Replacements") ?? new List<ReplaceBehavior>();
+
+            var pipelineBuilder = new PipelineBuilder(additions, removals,replacements);
             Incoming = pipelineBuilder.Incoming.AsReadOnly();
             Outgoing = pipelineBuilder.Outgoing.AsReadOnly();
 

@@ -2,7 +2,9 @@
 {
     using Fakes;
     using NUnit.Framework;
+    using Settings;
     using Unicast.Transport;
+    using TransactionSettings = Unicast.Transport.TransactionSettings;
 
     public class for_the_transactional_transport
     {
@@ -11,7 +13,10 @@
         {
             fakeReceiver = new FakeReceiver();
 
-            TransportReceiver = new TransportReceiver(TransactionSettings.Default, 1, 0,fakeReceiver, new FakeFailureManager());
+            TransportReceiver = new TransportReceiver(TransactionSettings.Default, 1, 0,fakeReceiver, new FakeFailureManager())
+            {
+                Settings = new SettingsHolder()
+            };
 
         }
 

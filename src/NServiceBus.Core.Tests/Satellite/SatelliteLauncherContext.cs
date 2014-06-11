@@ -6,7 +6,9 @@
     using NServiceBus.Config;
     using NUnit.Framework;
     using Satellites;
+    using Settings;
     using Unicast.Transport;
+    using TransactionSettings = Unicast.Transport.TransactionSettings;
 
     public abstract class SatelliteLauncherContext
     {
@@ -22,7 +24,10 @@
             InMemoryFaultManager = new Faults.InMemory.FaultManager();
             FakeReceiver = new FakeReceiver();
 
-            Transport = new TransportReceiver(TransactionSettings.Default, 1, 0, FakeReceiver, InMemoryFaultManager);
+            Transport = new TransportReceiver(TransactionSettings.Default, 1, 0, FakeReceiver, InMemoryFaultManager)
+            {
+                Settings = new SettingsHolder()
+            };
 
             Configure.With(o =>
             {

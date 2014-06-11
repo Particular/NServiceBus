@@ -54,6 +54,11 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
+        /// Access to the current settings
+        /// </summary>
+        public ReadOnlySettings Settings { get; set; }
+
+        /// <summary>
         /// Should be used by programmer, not administrator.
         /// Sets an <see cref="ITransport"/> implementation to use as the
         /// listening endpoint for the bus.
@@ -141,7 +146,7 @@ namespace NServiceBus.Unicast
             Subscribe(typeof(T));
         }
 
-        bool SendOnlyMode { get { return SettingsHolder.Instance.Get<bool>("Endpoint.SendOnly"); } }
+        bool SendOnlyMode { get { return Settings.Get<bool>("Endpoint.SendOnly"); } }
 
         /// <summary>
         /// <see cref="IBus.Subscribe(Type)"/>
@@ -292,9 +297,9 @@ namespace NServiceBus.Unicast
             }
 
             //if we're a worker, send to the distributor data bus
-            if (SettingsHolder.Instance.GetOrDefault<bool>("Worker.Enabled"))
+            if (Settings.GetOrDefault<bool>("Worker.Enabled"))
             {
-                MessageSender.Send(MessageBeingProcessed, new SendOptions(SettingsHolder.Instance.Get<Address>("MasterNode.Address")));
+                MessageSender.Send(MessageBeingProcessed, new SendOptions(Settings.Get<Address>("MasterNode.Address")));
             }
             else
             {
@@ -328,9 +333,9 @@ namespace NServiceBus.Unicast
         public ICallback SendLocal(object message)
         {
             //if we're a worker, send to the distributor data bus
-            if (SettingsHolder.Instance.GetOrDefault<bool>("Worker.Enabled"))
+            if (Settings.GetOrDefault<bool>("Worker.Enabled"))
             {
-                return SendMessage(new SendOptions(SettingsHolder.Instance.Get<Address>("MasterNode.Address")), LogicalMessageFactory.Create(message));
+                return SendMessage(new SendOptions(Settings.Get<Address>("MasterNode.Address")), LogicalMessageFactory.Create(message));
             }
             return SendMessage(new SendOptions(Address.Local), LogicalMessageFactory.Create(message));
         }
@@ -457,7 +462,7 @@ namespace NServiceBus.Unicast
         {
             Headers.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
 
-            return SendMessage(new SendOptions(SettingsHolder.Instance.Get<Address>("MasterNode.Address").SubScope("gateway")), LogicalMessageFactory.Create(message));
+            return SendMessage(new SendOptions(Settings.Get<Address>("MasterNode.Address").SubScope("gateway")), LogicalMessageFactory.Create(message));
         }
 
         /// <summary>

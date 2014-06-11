@@ -2,7 +2,6 @@ namespace NServiceBus.Pipeline
 {
     using System;
     using System.Collections.Generic;
-    using Settings;
 
     public class PipelineSettings
     {
@@ -16,8 +15,15 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("idToRemove");
             }
 
-            var removals = config.Settings.Get<List<RemoveBehavior>>("Pipeline.Removals");
+            List<RemoveBehavior> removals;
 
+            if (!config.Settings.TryGet("Pipeline.Removals",out removals))
+            {
+                removals = new List<RemoveBehavior>();
+            
+                config.Settings.Set("Pipeline.Removals", removals);
+            }
+            
             removals.Add(new RemoveBehavior(idToRemove));
         }
 
@@ -30,7 +36,15 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("idToReplace");
             }
 
-            var replacements = config.Settings.Get<List<ReplaceBehavior>>("Pipeline.Replacements");
+
+            List<ReplaceBehavior> replacements;
+
+            if (!config.Settings.TryGet("Pipeline.Replacements", out replacements))
+            {
+                replacements = new List<ReplaceBehavior>();
+
+                config.Settings.Set("Pipeline.Replacements", replacements);
+            }
 
             replacements.Add(new ReplaceBehavior(idToReplace, newBehavior, description));
         }
@@ -50,7 +64,14 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("description");
             }
 
-            var additions = config.Settings.Get<List<RegisterBehavior>>("Pipeline.Additions");
+            List<RegisterBehavior> additions;
+
+            if (!config.Settings.TryGet("Pipeline.Additions", out additions))
+            {
+                additions = new List<RegisterBehavior>();
+
+                config.Settings.Set("Pipeline.Additions", additions);
+            }
 
             additions.Add(RegisterBehavior.Create(id, behavior, description));
         }
@@ -58,7 +79,14 @@ namespace NServiceBus.Pipeline
 
         public void Register<T>() where T : RegisterBehavior, new()
         {
-            var additions = SettingsHolder.Instance.Get<List<RegisterBehavior>>("Pipeline.Additions");
+            List<RegisterBehavior> additions;
+
+            if (!config.Settings.TryGet("Pipeline.Additions", out additions))
+            {
+                additions = new List<RegisterBehavior>();
+
+                config.Settings.Set("Pipeline.Additions", additions);
+            }
 
             additions.Add(new T());
         }

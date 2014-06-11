@@ -218,7 +218,6 @@
     <Compile Include="Audit\AuditBehavior.cs" />
     <Compile Include="Pipeline\BehaviorRegistrationsCoordinator.cs" />
     <Compile Include="Pipeline\BehaviorTypeChecker.cs" />
-    <Compile Include="Pipeline\DefaultPipelineSettings.cs" />
     <Compile Include="Pipeline\Dependency.cs" />
     <Compile Include="Pipeline\PipelineBuilder.cs" />
     <Compile Include="Pipeline\PipelineSettings.cs" />
