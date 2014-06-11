@@ -2,8 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using ObjectBuilder.Common;
-    using ObjectBuilder.Common.Config;
     using Persistence;
     using ScenarioDescriptors;
 
@@ -55,20 +53,6 @@
             }
 
             return config.UsePersistence(persistenceType);
-        }
-
-        public static Configure DefineBuilder(this Configure config, string builder)
-        {
-            if (string.IsNullOrEmpty(builder))
-            {
-                return config.DefaultBuilder();
-            }
-
-            var container = (IContainer) Activator.CreateInstance(Type.GetType(builder));
-
-            ConfigureCommon.With(config, container);
-
-            return config;
         }
     }
 }

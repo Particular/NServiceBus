@@ -1,8 +1,7 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using Castle.Windsor;
-    using ObjectBuilder.CastleWindsor;
-    using ObjectBuilder.Common.Config;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
@@ -12,21 +11,23 @@
         /// <summary>
         /// Use the Castle Windsor builder.
         /// </summary>
+        [Obsolete("Replace with Configure.With(c=>.UseContainer<CastleWindsorBuilder>())", true)]
+// ReSharper disable UnusedParameter.Global
         public static Configure CastleWindsorBuilder(this Configure config)
+// ReSharper restore UnusedParameter.Global
         {
-            ConfigureCommon.With(config, new WindsorObjectBuilder());
-
-            return config;
+            throw new NotImplementedException();
         }
 
         /// <summary>
         /// Use the Castle Windsor builder passing in a pre-configured container to be used by nServiceBus.
         /// </summary>
+        [Obsolete("Replace with Configure.With(c=>.UseContainer(new CastleWindsorBuilder(container)))", true)]
+// ReSharper disable UnusedParameter.Global
         public static Configure CastleWindsorBuilder(this Configure config, IWindsorContainer container)
+// ReSharper restore UnusedParameter.Global
         {
-            ConfigureCommon.With(config, new WindsorObjectBuilder(container));
-
-            return config;
+            throw new NotImplementedException();
         }
     }
 }

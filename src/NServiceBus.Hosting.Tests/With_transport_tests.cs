@@ -15,7 +15,7 @@ namespace NServiceBus.Hosting.Tests
         [SetUp]
         public void SetUp()
         {
-            config= Configure.With(o =>
+            config = Configure.With(o =>
             {
                 o.EndpointName("myTests");
                 o.TypesToScan(new[]
@@ -23,8 +23,7 @@ namespace NServiceBus.Hosting.Tests
                     typeof(TransportRoleHandler),
                     typeof(MyTransportConfigurer)
                 });
-            })
-                     .DefaultBuilder();
+            });
 
             roleManager = new RoleManager(new[] { typeof(TransportRoleHandler).Assembly });
         }

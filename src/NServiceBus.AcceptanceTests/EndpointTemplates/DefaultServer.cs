@@ -21,14 +21,20 @@
 
             var types = GetTypesToUse(endpointConfiguration);
 
-
             var config = Configure.With(o =>
                                          {
                                              o.EndpointName(endpointConfiguration.EndpointName);
                                              o.TypesToScan(types);
                                              o.CustomConfigurationSource(configSource);
+                                             
+                                             
+                                             string selectedBuilder;
+                                             if (settings.TryGetValue("Builder",out selectedBuilder))
+                                             {
+                                                 o.UseContainer(Type.GetType(selectedBuilder));
+                                             }
+                                           
                                          })
-                .DefineBuilder(settings.GetOrNull("Builder"))
                 .DefineTransport(settings)
                 .DefinePersistence(settings);
             

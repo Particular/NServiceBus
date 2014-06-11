@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
-    using ObjectBuilder.Common.Config;
-    using ObjectBuilder.StructureMap;
+    using System;
     using StructureMap;
 
     /// <summary>
@@ -10,23 +9,31 @@
     public static class ConfigureStructureMapBuilder
     {
         /// <summary>
-        /// Use StructureMap as your container.
+        /// Remove
         /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        [Obsolete("Replace with Configure.With(c=>.UseContainer<StructureMapObjectBuilder>())", true)]
+// ReSharper disable UnusedParameter.Global
         public static Configure StructureMapBuilder(this Configure config)
+// ReSharper restore UnusedParameter.Global
         {
-            ConfigureCommon.With(config, new StructureMapObjectBuilder());
-
-            return config;
+            throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Use StructureMap as your container passing in a pre-configured container to be used by nServiceBus.
+        /// Remove
         /// </summary>
+        /// <param name="config"></param>
+        /// <param name="container"></param>
+        /// <returns></returns>
+        [Obsolete("Replace with Configure.With(c=>.UseContainer(new StructureMapObjectBuilder()))", true)]
+// ReSharper disable UnusedParameter.Global
         public static Configure StructureMapBuilder(this Configure config, IContainer container)
+// ReSharper restore UnusedParameter.Global
         {
-            ConfigureCommon.With(config, new StructureMapObjectBuilder(container));
+            throw new NotImplementedException();
 
-            return config;
         }
     }
 }
