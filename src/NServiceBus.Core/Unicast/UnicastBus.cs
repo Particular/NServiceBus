@@ -143,7 +143,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public virtual void Subscribe(Type messageType)
         {
-            MessagingBestPractices.AssertIsValidForPubSub(messageType);
+            MessagingBestPractices.AssertIsValidForPubSub(messageType, Builder.Build<Conventions>());
 
             if (SendOnlyMode)
             {
@@ -204,7 +204,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public virtual void Unsubscribe(Type messageType)
         {
-            MessagingBestPractices.AssertIsValidForPubSub(messageType);
+            MessagingBestPractices.AssertIsValidForPubSub(messageType, Builder.Build<Conventions>());
 
             if (SendOnlyMode)
             {

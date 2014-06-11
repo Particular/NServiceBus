@@ -53,10 +53,12 @@
 
             public IBus Bus { get; set; }
 
+            public Conventions Conventions { get; set; }
+
             protected override void OnStart()
             {
                 foreach (var eventType in AutoSubscriptionStrategy.GetEventsToSubscribe()
-                    .Where(t => !MessageConventionExtensions.IsInSystemConventionList(t))) //never auto-subscribe system messages
+                    .Where(t => !Conventions.IsInSystemConventionList(t))) //never auto-subscribe system messages
                 {
                     Bus.Subscribe(eventType);
 

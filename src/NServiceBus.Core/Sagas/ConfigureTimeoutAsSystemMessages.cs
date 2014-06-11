@@ -17,7 +17,7 @@ namespace NServiceBus.Sagas
         {
             var sagas = config.TypesToScan.Where(Features.Sagas.IsSagaType).ToList();
 
-            MessageConventionExtensions.AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
+            config.Settings.Get<Conventions>().AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
         }
 
         static bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)

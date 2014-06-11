@@ -3,6 +3,7 @@
     using NServiceBus.DataBus;
     using NUnit.Framework;
     using Rhino.Mocks;
+    using Conventions = NServiceBus.Conventions;
 
     class on_the_bus
     {
@@ -18,13 +19,15 @@
             receiveBehavior = new DataBusReceiveBehavior
             {
                 DataBus = dataBus,
-                DataBusSerializer = new DefaultDataBusSerializer()
+                DataBusSerializer = new DefaultDataBusSerializer(),
+                Conventions = new Conventions(),
             };
 
             sendBehavior = new DataBusSendBehavior
             {
                 DataBus = dataBus,
-                DataBusSerializer = new DefaultDataBusSerializer()
+                Conventions = new Conventions(),
+                DataBusSerializer = new DefaultDataBusSerializer(),
             };
         }
 

@@ -6,6 +6,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
     using NUnit.Framework;
     using Unicast;
     using Unicast.Routing;
+    using Conventions = NServiceBus.Conventions;
 
     public class AutoSubscriptionContext
     {
@@ -14,8 +15,9 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
         {
             autoSubscriptionStrategy = new AutoSubscriptionStrategy
             {
-                HandlerRegistry = new MessageHandlerRegistry(),
-                MessageRouter = new StaticMessageRouter(KnownMessageTypes())
+                HandlerRegistry = new MessageHandlerRegistry(new Conventions()),
+                MessageRouter = new StaticMessageRouter(KnownMessageTypes()),
+                Conventions = new Conventions()
             };
         }
 

@@ -62,7 +62,7 @@
         [SetUp]
         public void SetUp()
         {
-            MessageConventionExtensions.IsEncryptedPropertyAction = p => p.Name.StartsWith("Encrypted");
+            conventions.IsEncryptedPropertyAction = p => p.Name.StartsWith("Encrypted");
         }
     }
 

@@ -27,12 +27,14 @@ namespace NServiceBus
         /// <summary>
         ///     Protected constructor to enable creation only via the With method.
         /// </summary>
-        Configure(string endpointName, IList<Type> availableTypes, IConfigurationSource configurationSource)
+        Configure(string endpointName, IList<Type> availableTypes, IConfigurationSource configurationSource, Conventions conventions)
         {
+            this.conventions = conventions;
             LogManager.HasConfigBeenInitialised = true;
             Settings.SetDefault("EndpointName", endpointName);
             Settings.SetDefault("TypesToScan", availableTypes);
             Settings.SetDefault<IConfigurationSource>(configurationSource);
+            Settings.SetDefault<Conventions>(conventions);
         }
 
         /// <summary>
@@ -211,6 +213,7 @@ namespace NServiceBus
 
             configurer.RegisterSingleton<Configure>(this);
             configurer.RegisterSingleton<ReadOnlySettings>(Settings);
+            configurer.RegisterSingleton<Conventions>(conventions);
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
@@ -344,11 +347,11 @@ namespace NServiceBus
         static bool beforeConfigurationInitializersCalled;
         static ILog logger = LogManager.GetLogger<Configure>();
         static bool initialized;
+        readonly Conventions conventions;
         IBuilder builder;
         IConfigureComponents configurer;
         FeatureActivator featureActivator;
         PipelineSettings pipelineSettings;
-
 
         public class ConfigurationBuilder
         {
@@ -425,6 +428,16 @@ namespace NServiceBus
             }
 
             /// <summary>
+            ///     Defines the name to use for this endpoint
+            /// </summary>
+            public ConfigurationBuilder Conventions(Action<ConventionsBuilder> conventions)
+            {
+                conventions(conventionsBuilder);
+
+                return this;
+            }
+
+            /// <summary>
             ///     Creates the configuration object
             /// </summary>
             internal Configure BuildConfiguration()
@@ -453,15 +466,121 @@ namespace NServiceBus
                         scannedTypes = scannedTypes.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
                     }
                 }
-                return new Configure(endpointName, scannedTypes, configurationSourceToUse);
+                return new Configure(endpointName, scannedTypes, configurationSourceToUse, conventionsBuilder.BuildConventions());
             }
 
-
             IConfigurationSource configurationSourceToUse;
+            ConventionsBuilder conventionsBuilder = new ConventionsBuilder();
             string directory;
             string endpointName;
             Func<string> getEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
             IList<Type> scannedTypes;
+        }
+
+        /// <summary>
+        /// Conventions builder class.
+        /// </summary>
+        public class ConventionsBuilder
+        {
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a type is a message.
+            /// </summary>
+            public void DefiningMessagesAs(Func<Type, bool> definesMessageType)
+            {
+                this.definesMessageType = definesMessageType;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a type is a commands.
+            /// </summary>
+            public void DefiningCommandsAs(Func<Type, bool> definesCommandType)
+            {
+                this.definesCommandType = definesCommandType;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a type is a event.
+            /// </summary>
+            public void DefiningEventsAs(Func<Type, bool> definesEventType)
+            {
+                this.definesEventType = definesEventType;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a property should be encrypted or not.
+            /// </summary>
+            public void DefiningEncryptedPropertiesAs(Func<PropertyInfo, bool> definesEncryptedProperty)
+            {
+                this.definesEncryptedProperty = definesEncryptedProperty;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a property should be sent via the DataBus or not.
+            /// </summary>
+            public void DefiningDataBusPropertiesAs(Func<PropertyInfo, bool> definesDataBusProperty)
+            {
+                this.definesDataBusProperty = definesDataBusProperty;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a message has a time to be received.
+            /// </summary>
+            public void DefiningTimeToBeReceivedAs(Func<Type, TimeSpan> retrieveTimeToBeReceived)
+            {
+                this.retrieveTimeToBeReceived = retrieveTimeToBeReceived;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a type is an express message or not.
+            /// </summary>
+            public void DefiningExpressMessagesAs(Func<Type, bool> definesExpressMessageType)
+            {
+                this.definesExpressMessageType = definesExpressMessageType;
+            }
+
+            internal Conventions BuildConventions()
+            {
+                var conventions = new Conventions();
+
+                if (definesCommandType != null)
+                {
+                    conventions.IsCommandTypeAction = definesCommandType;
+                }
+                if (definesDataBusProperty != null)
+                {
+                    conventions.IsDataBusPropertyAction = definesDataBusProperty;
+                }
+                if (definesEncryptedProperty != null)
+                {
+                    conventions.IsEncryptedPropertyAction = definesEncryptedProperty;
+                }
+                if (definesEventType != null)
+                {
+                    conventions.IsEventTypeAction = definesEventType;
+                }
+                if (definesExpressMessageType != null)
+                {
+                    conventions.IsExpressMessageAction = definesExpressMessageType;
+                }
+                if (definesMessageType != null)
+                {
+                    conventions.IsMessageTypeAction = definesMessageType;
+                }
+                if (retrieveTimeToBeReceived != null)
+                {
+                    conventions.TimeToBeReceivedAction = retrieveTimeToBeReceived;
+                }
+
+                return conventions;
+            }
+
+            Func<Type, bool> definesCommandType;
+            Func<PropertyInfo, bool> definesDataBusProperty;
+            Func<PropertyInfo, bool> definesEncryptedProperty;
+            Func<Type, bool> definesEventType;
+            Func<Type, bool> definesExpressMessageType;
+            Func<Type, bool> definesMessageType;
+            Func<Type, TimeSpan> retrieveTimeToBeReceived;
         }
     }
 }

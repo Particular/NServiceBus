@@ -13,7 +13,10 @@ namespace NServiceBus.Serializers.XML.Test
              var types = new List<Type> {typeof (T)};
              var mapper = new MessageMapper();
              mapper.Initialize(types);
-             var serializer = new XmlMessageSerializer(mapper);
+             var serializer = new XmlMessageSerializer(mapper)
+             {
+                 Conventions = new Conventions()
+             };
 
              serializer.Initialize(types);
 

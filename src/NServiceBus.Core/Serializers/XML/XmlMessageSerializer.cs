@@ -56,6 +56,11 @@ namespace NServiceBus.Serializers.XML
         public bool SkipWrappingRawXml { get; set; }
 
         /// <summary>
+        /// Message conventions
+        /// </summary>
+        public Conventions Conventions { get; set; }
+
+        /// <summary>
         /// Scans the given type storing maps to fields and properties to save on reflection at runtime.
         /// </summary>
         public void InitType(Type t)
@@ -1285,7 +1290,7 @@ namespace NServiceBus.Serializers.XML
             var baseType = t.BaseType;
             while (baseType != typeof(object) && baseType != null)
             {
-                if (MessageConventionExtensions.IsMessageType(baseType))
+                if (Conventions.IsMessageType(baseType))
                 {
                     if (!result.Contains(baseType.FullName))
                     {
@@ -1298,7 +1303,7 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var i in t.GetInterfaces())
             {
-                if (MessageConventionExtensions.IsMessageType(i))
+                if (Conventions.IsMessageType(i))
                 {
                     if (!result.Contains(i.FullName))
                     {

@@ -14,14 +14,14 @@
             [Test]
             public void Should_throw_an_exception_for_a_unmapped_type()
             {
-                var defaultMessageRegistry = new MessageMetadataRegistry();
+                var defaultMessageRegistry = new MessageMetadataRegistry(false, new Conventions());
                 Assert.Throws<Exception>(() => defaultMessageRegistry.GetMessageDefinition(typeof(int)));
             }
 
             [Test]
             public void Should_return_metadata_for_a_mapped_type()
             {
-                var defaultMessageRegistry = new MessageMetadataRegistry();
+                var defaultMessageRegistry = new MessageMetadataRegistry(false, new Conventions());
                 defaultMessageRegistry.RegisterMessageType(typeof(int));
                 var messageMetadata = defaultMessageRegistry.GetMessageDefinition(typeof(int));
                 Assert.AreEqual(typeof(int), messageMetadata.MessageType);
@@ -32,7 +32,8 @@
             [Test]
             public void Should_return_the_correct_parent_hierarchy()
             {
-                var defaultMessageRegistry = new MessageMetadataRegistry();
+                var defaultMessageRegistry = new MessageMetadataRegistry(false, new Conventions());
+
                 defaultMessageRegistry.RegisterMessageType(typeof(MyEvent));
                 var messageMetadata = defaultMessageRegistry.GetMessageDefinition(typeof(MyEvent));
 

@@ -11,64 +11,91 @@ namespace NServiceBus
         /// <summary>
         /// Sets the function to be used to evaluate whether a type is a message.
         /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Replacement = "Configure.With(b=> b.Conventions(c=> c.DefiningMessagesAs(definesMessageType)))")]
         public static Configure DefiningMessagesAs(this Configure config, Func<Type, bool> definesMessageType)
         {
-            MessageConventionExtensions.IsMessageTypeAction = definesMessageType;
-            return config;
+            throw new NotImplementedException();
+
         }
 
         /// <summary>
         /// Sets the function to be used to evaluate whether a type is a commands.
         /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Replacement = "Configure.With(b=> b.Conventions(c=> c.DefiningCommandsAs(definesCommandType)))")]
         public static Configure DefiningCommandsAs(this Configure config, Func<Type, bool> definesCommandType)
         {
-            MessageConventionExtensions.IsCommandTypeAction = definesCommandType;
-            return config;
+            throw new NotImplementedException();
+
         }
 
         /// <summary>
         /// Sets the function to be used to evaluate whether a type is a event.
         /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Replacement = "Configure.With(b=> b.Conventions(c=> c.DefiningEventsAs(definesEventType)))")]
         public static Configure DefiningEventsAs(this Configure config, Func<Type, bool> definesEventType)
         {
-            MessageConventionExtensions.IsEventTypeAction = definesEventType;
-            return config;
+            throw new NotImplementedException();
+
         }
 
         /// <summary>
         /// Sets the function to be used to evaluate whether a property should be encrypted or not.
         /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Replacement = "Configure.With(b=> b.Conventions(c=> c.DefiningEncryptedPropertiesAs(definesEncryptedProperty)))")]
         public static Configure DefiningEncryptedPropertiesAs(this Configure config, Func<PropertyInfo, bool> definesEncryptedProperty)
         {
-            MessageConventionExtensions.IsEncryptedPropertyAction = definesEncryptedProperty;
-            return config;
+            throw new NotImplementedException();
+
         }
 
         /// <summary>
         /// Sets the function to be used to evaluate whether a property should be sent via the DataBus or not.
         /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Replacement = "Configure.With(b=> b.Conventions(c=> c.DefiningDataBusPropertiesAs(definesDataBusProperty)))")]
         public static Configure DefiningDataBusPropertiesAs(this Configure config, Func<PropertyInfo, bool> definesDataBusProperty)
         {
-            MessageConventionExtensions.IsDataBusPropertyAction = definesDataBusProperty;
-            return config;
+            throw new NotImplementedException();
+
         }
 
         /// <summary>
         /// Sets the function to be used to evaluate whether a message has a time to be received.
         /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Replacement = "Configure.With(b=> b.Conventions(c=> c.DefiningTimeToBeReceivedAs(retrieveTimeToBeReceived)))")]
         public static Configure DefiningTimeToBeReceivedAs(this Configure config, Func<Type, TimeSpan> retrieveTimeToBeReceived)
         {
-            MessageConventionExtensions.TimeToBeReceivedAction = retrieveTimeToBeReceived;
-            return config;
+            throw new NotImplementedException();
+
         }
 
         /// <summary>
         /// Sets the function to be used to evaluate whether a type is an express message or not.
         /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Replacement = "Configure.With(b=> b.Conventions(c=> c.DefiningExpressMessagesAs(definesExpressMessageType)))")]
         public static Configure DefiningExpressMessagesAs(this Configure config, Func<Type, bool> definesExpressMessageType)
         {
-            MessageConventionExtensions.IsExpressMessageAction = definesExpressMessageType;
-            return config;
+            throw new NotImplementedException();
         }
     }
 }

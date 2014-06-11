@@ -40,11 +40,9 @@ namespace NServiceBus.Core.Tests.DataBus
                 {
                     typeof(MessageWithoutDataBusProperty)
                 });
-            })
-                .DefaultBuilder();
+            }).DefaultBuilder();
 
             var feature = new DataBusFeature();
-
 
             Assert.False(feature.ShouldBeSetup(new FeatureConfigurationContext(config)));
         }

@@ -10,6 +10,8 @@
     /// </summary>
     public class MessageHandlerRegistry : IMessageHandlerRegistry
     {
+        readonly Conventions conventions;
+
         /// <summary>
         ///     Gets the list of <see cref="IHandleMessages{T}" /> <see cref="Type" />s for the given
         ///     <paramref name="messageType" />
@@ -28,7 +30,7 @@
         {
             return from handlers in handlerList.Values
                    from typeHandled in handlers
-                   where MessageConventionExtensions.IsMessageType(typeHandled)
+                   where conventions.IsMessageType(typeHandled)
                    select typeHandled;
         }
 
@@ -66,18 +68,23 @@
         /// <summary>
         ///     If the type is a message handler, returns all the message types that it handles
         /// </summary>
-        static IEnumerable<Type> GetMessageTypesIfIsMessageHandler(Type type)
+        IEnumerable<Type> GetMessageTypesIfIsMessageHandler(Type type)
         {
             return from t in type.GetInterfaces()
                 where t.IsGenericType
                 let potentialMessageType = t.GetGenericArguments()[0]
                 where
-                    MessageConventionExtensions.IsMessageType(potentialMessageType) ||
+                    conventions.IsMessageType(potentialMessageType) ||
                     typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
                 select potentialMessageType;
         }
 
         static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
         readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
+
+        public MessageHandlerRegistry(Conventions conventions)
+        {
+            this.conventions = conventions;
+        }
     }
 }
