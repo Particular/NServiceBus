@@ -38,6 +38,7 @@
                        context.SubscribedToPublisher2 = true;
                    }
                }))
+               .AllowExceptions()
                .Done(c => c.GotTheEventFromPublisher1 && c.GotTheEventFromPublisher2)
                .Run();
 

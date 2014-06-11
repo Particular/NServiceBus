@@ -2,20 +2,12 @@ namespace NServiceBus.Core.Tests.Sagas
 {
     using System;
     using System.Linq;
-    using NServiceBus.AutomaticSubscriptions;
     using NUnit.Framework;
-    using Settings;
     using Unicast.Routing;
 
     [TestFixture]
     public class StaticMessageRouterTests
     {
-        [SetUp]
-        public void Setup()
-        {
-            SettingsHolder.Instance.Reset();
-        }
-
         [Test]
         public void When_initialized_known_message_returns_empty()
         {
@@ -124,7 +116,6 @@ namespace NServiceBus.Core.Tests.Sagas
         [Test]
         public void When_registered_registering_multiple_addresses_for_same_type_and_using_plainmessages_last_one_wins()
         {
-            SettingsHolder.Instance.SetProperty<AutoSubscriptionStrategy>(s => s.SubscribePlainMessages, true);
             var baseType = typeof(BaseMessage);
             var router = new StaticMessageRouter(Enumerable.Empty<Type>());
             var addressA = new Address("BaseMessage", "A");

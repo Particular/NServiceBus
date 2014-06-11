@@ -61,7 +61,7 @@ namespace NServiceBus.AcceptanceTesting
             var sw = new Stopwatch();
 
             sw.Start();
-            ScenarioRunner.Run(runDescriptors, behaviors, shoulds, done, limitTestParallelismTo, reports);
+            ScenarioRunner.Run(runDescriptors, behaviors, shoulds, done, limitTestParallelismTo, reports, allowedExceptions);
 
             sw.Stop();
 
@@ -74,6 +74,17 @@ namespace NServiceBus.AcceptanceTesting
         {
             runDescriptorsBuilderAction = action;
 
+            return this;
+        }
+
+        public IScenarioWithEndpointBehavior<TContext> AllowExceptions(Func<Exception, bool> filter = null)
+        {
+            if (filter == null)
+            {
+                filter = exception => true;
+            }
+
+            allowedExceptions = filter;
             return this;
         }
 
@@ -117,5 +128,6 @@ namespace NServiceBus.AcceptanceTesting
 
         Func<TContext> contextFactory = () => new TContext();
         Action<RunSummary> reports;
+        Func<Exception, bool> allowedExceptions;
     }
 }

@@ -15,7 +15,9 @@ namespace NServiceBus
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
             Message = "See http://docs.particular.net/nservicebus/how-to-specify-your-input-queue-name for how to configure the queue name.")]
+// ReSharper disable UnusedParameter.Global
         public static Configure DefineLocalAddressNameFunc(this Configure config, Func<string> setLocalAddressNameFunc)
+// ReSharper restore UnusedParameter.Global
         {
             throw new NotImplementedException();
         }

@@ -24,8 +24,10 @@ namespace NServiceBus.Unicast.Transport
         /// <param name="maximumThroughput">The maximum throughput per second, 0 means unlimited.</param>
         /// <param name="receiver">The <see cref="IDequeueMessages"/> instance to use.</param>
         /// <param name="manageMessageFailures">The <see cref="IManageMessageFailures"/> instance to use.</param>
-        public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures)
+        /// <param name="settings">The current settings</param>
+        public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures,ReadOnlySettings settings)
         {
+            this.settings = settings;
             TransactionSettings = transactionSettings;
             MaximumConcurrencyLevel = maximumConcurrencyLevel;
             MaximumMessageThroughputPerSecond = maximumThroughput;
@@ -136,6 +138,7 @@ namespace NServiceBus.Unicast.Transport
         /// </summary>
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
+
         /// <summary>
         /// Starts the transport listening for messages on the given local address.
         /// </summary>
@@ -150,13 +153,13 @@ namespace NServiceBus.Unicast.Transport
 
             var returnAddressForFailures = address;
 
-            var workerRunsOnThisEndpoint = SettingsHolder.Instance.GetOrDefault<bool>("Worker.Enabled");
+            var workerRunsOnThisEndpoint = settings.GetOrDefault<bool>("Worker.Enabled");
 
             if (workerRunsOnThisEndpoint
                 && (returnAddressForFailures.Queue.ToLower().EndsWith(".worker") || address == Address.Local))
                 //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
             {
-                returnAddressForFailures = SettingsHolder.Instance.Get<Address>("MasterNode.Address");
+                returnAddressForFailures = settings.Get<Address>("MasterNode.Address");
 
                 Logger.InfoFormat("Worker started, failures will be redirected to {0}", returnAddressForFailures);
             }
@@ -461,6 +464,8 @@ namespace NServiceBus.Unicast.Transport
         bool isStarted;
         Address receiveAddress;
         ThroughputLimiter throughputLimiter;
+        readonly ReadOnlySettings settings;
+
 
         /// <summary>
         /// The <see cref="TransactionSettings"/> being used.

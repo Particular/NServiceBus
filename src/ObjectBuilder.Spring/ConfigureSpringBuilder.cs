@@ -1,8 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using ObjectBuilder.Common.Config;
-    using ObjectBuilder.Spring;
     using Spring.Context.Support;
 
     /// <summary>
@@ -13,22 +11,24 @@
         /// <summary>
         /// Use the Spring Framework as the container.
         /// </summary>
+        [Obsolete("Replace with Configure.With(c=>.UseContainer<SpringObjectBuilder>())", true)]
+// ReSharper disable UnusedParameter.Global
         public static Configure SpringFrameworkBuilder(this Configure config)
+// ReSharper restore UnusedParameter.Global
         {
-            ConfigureCommon.With(config, new SpringObjectBuilder());
-
-            return config;
+            throw new NotImplementedException();
         }
 
         /// <summary>
         /// Use the Spring Framework as the container with the initialized application context
         /// </summary>
         [CLSCompliant(false)]
-        public static Configure SpringFrameworkBuilder(this Configure config,GenericApplicationContext applicationContext)
+        [Obsolete("Replace with Configure.With(c=>.UseContainer(new SpringObjectBuilder(context)))", true)]
+// ReSharper disable UnusedParameter.Global
+        public static Configure SpringFrameworkBuilder(this Configure config, GenericApplicationContext applicationContext)
+// ReSharper restore UnusedParameter.Global
         {
-            ConfigureCommon.With(config, new SpringObjectBuilder(applicationContext));
-
-            return config;
+            throw new NotImplementedException();
         }
 
     }

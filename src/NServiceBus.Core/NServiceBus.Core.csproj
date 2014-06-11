@@ -154,6 +154,7 @@
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="Gateway\GatewayHttpListenerInstaller.cs" />
+    <Compile Include="Pipeline\PipelineModifications.cs" />
     <Compile Include="Serialization\SerializationConfigExtensions.cs" />
     <Compile Include="Serialization\SerializationConfiguration.cs" />
     <Compile Include="Serialization\SerializationDefinition.cs" />
@@ -218,7 +219,6 @@
     <Compile Include="Audit\AuditBehavior.cs" />
     <Compile Include="Pipeline\BehaviorRegistrationsCoordinator.cs" />
     <Compile Include="Pipeline\BehaviorTypeChecker.cs" />
-    <Compile Include="Pipeline\DefaultPipelineSettings.cs" />
     <Compile Include="Pipeline\Dependency.cs" />
     <Compile Include="Pipeline\PipelineBuilder.cs" />
     <Compile Include="Pipeline\PipelineSettings.cs" />
@@ -478,7 +478,6 @@
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />
-    <Compile Include="ObjectBuilder\Common\Config\ConfigureCommon.cs" />
     <Compile Include="ObjectBuilder\Common\Config\ConfigureContainer.cs" />
     <Compile Include="ObjectBuilder\Common\IContainer.cs" />
     <Compile Include="ObjectBuilder\Common\SynchronizedInvoker.cs" />
@@ -527,7 +526,6 @@
     <Compile Include="Logging\SetLoggingLibrary.cs" />
     <Compile Include="Settings\EndpointSettings.cs" />
     <Compile Include="Settings\TransactionSettings.cs" />
-    <Compile Include="SyncConfig.cs" />
     <Compile Include="Gateway\Channels\Http\MTATaskScheduler.cs" />
     <Compile Include="Timeout\Core\DefaultTimeoutManager.cs" />
     <Compile Include="Timeout\Core\IPersistTimeouts.cs" />

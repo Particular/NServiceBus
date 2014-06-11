@@ -90,7 +90,6 @@
                 f.Disable<Sagas>();
                 f.Disable<Audit>();
             })
-            .DefaultBuilder()
                 .UseTransport<FakeTestTransport>()
                 .UsePersistence<InMemory>()
                 .InMemoryFaultManagement();

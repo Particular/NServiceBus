@@ -5,7 +5,6 @@
     using MessageMutator;
     using NServiceBus.MessageMutator;
     using Sagas;
-    using Settings;
     using Unicast.Behaviors;
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -13,16 +12,13 @@
 
     class PipelineBuilder
     {
-        public PipelineBuilder()
+        public PipelineBuilder(PipelineModifications modifications)
         {
-            var removals = SettingsHolder.Instance.Get<List<RemoveBehavior>>("Pipeline.Removals");
-            var replacements = SettingsHolder.Instance.Get<List<ReplaceBehavior>>("Pipeline.Replacements");
-
-            coordinator = new BehaviorRegistrationsCoordinator(removals, replacements);
+            coordinator = new BehaviorRegistrationsCoordinator(modifications.Removals, modifications.Replacements);
 
             RegisterIncomingCoreBehaviors();
             RegisterOutgoingCoreBehaviors();
-            RegisterAdditionalBehaviors();
+            RegisterAdditionalBehaviors(modifications.Additions);
 
             var model = coordinator.BuildRuntimeModel();
             Incoming = new List<RegisterBehavior>();
@@ -48,10 +44,8 @@
         public List<RegisterBehavior> Incoming { get; private set; }
         public List<RegisterBehavior> Outgoing { get; private set; }
 
-        void RegisterAdditionalBehaviors()
+        void RegisterAdditionalBehaviors(List<RegisterBehavior> additions)
         {
-            var additions = SettingsHolder.Instance.Get<List<RegisterBehavior>>("Pipeline.Additions");
-
             foreach (var rego in additions)
             {
                 coordinator.Register(rego);

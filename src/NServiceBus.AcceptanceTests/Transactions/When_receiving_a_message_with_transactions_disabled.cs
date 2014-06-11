@@ -15,6 +15,7 @@
 
             Scenario.Define<Context>()
                     .WithEndpoint<NonTransactionalEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
+                    .AllowExceptions()
                     .Done(c => c.TestComplete)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.AreEqual(1, c.TimesCalled, "Should not retry the message"))
@@ -32,8 +33,7 @@
         {
             public NonTransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Transactions(t=>t.Disable()))
-                    .AllowExceptions();
+                EndpointSetup<DefaultServer>(c => c.Transactions(t=>t.Disable()));
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

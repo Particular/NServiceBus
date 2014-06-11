@@ -54,7 +54,6 @@
                 endpointName += ".SuppressDTC";
 
             config = Configure.With(o => o.EndpointName(endpointName))
-                .DefaultBuilder()
                 .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
                 .UsePersistence<InMemory>()
                 .Features(f=>f.Disable<Audit>());

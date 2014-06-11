@@ -130,8 +130,7 @@ namespace NServiceBus
                 {
                     o.EndpointName(endpointNameToUse);
                     o.AssembliesToScan(assembliesToScan);
-                })
-                .DefaultBuilder();
+                });
             }
 
             ValidateThatIWantCustomInitIsOnlyUsedOnTheEndpointConfig();

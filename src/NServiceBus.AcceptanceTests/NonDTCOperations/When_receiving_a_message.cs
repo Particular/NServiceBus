@@ -14,6 +14,7 @@
 
             Scenario.Define(context)
                     .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
+                    .AllowExceptions()
                     .Done(c => context.OrderAckReceived == 1)
                     .Run();
         }
@@ -31,6 +32,7 @@
                         bus.SendLocal<PlaceOrder>(m => m.SetHeader(Headers.MessageId, duplicateMessageId));
                         bus.SendLocal(new PlaceOrder());
                     }))
+                    .AllowExceptions()
                     .Done(c => context.OrderAckReceived >= 2)
                     .Run();
 
@@ -49,10 +51,9 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.Settings.Set("DisableOutboxTransportCheck", true);
-               
+
                     c.EnableOutbox();
                 })
-                .AllowExceptions()
                 .AuditTo(Address.Parse("audit"));
             }
 

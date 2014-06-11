@@ -15,6 +15,8 @@ namespace NServiceBus
     using Hosting.Helpers;
     using Logging;
     using ObjectBuilder;
+    using ObjectBuilder.Autofac;
+    using ObjectBuilder.Common;
     using Pipeline;
     using Settings;
     using Utils.Reflection;
@@ -27,14 +29,22 @@ namespace NServiceBus
         /// <summary>
         ///     Protected constructor to enable creation only via the With method.
         /// </summary>
-        Configure(string endpointName, IList<Type> availableTypes, IConfigurationSource configurationSource, Conventions conventions)
+        Configure(string endpointName, IList<Type> availableTypes, IConfigurationSource configurationSource, IContainer container, Conventions conventions)
         {
-            this.conventions = conventions;
+            settings = new SettingsHolder();
             LogManager.HasConfigBeenInitialised = true;
+            
+            RegisterContainerAdapter(container);
+
+            configurer.RegisterSingleton<Configure>(this);
+            configurer.RegisterSingleton<ReadOnlySettings>(Settings);
+            configurer.RegisterSingleton<Conventions>(conventions);
+
             Settings.SetDefault("EndpointName", endpointName);
             Settings.SetDefault("TypesToScan", availableTypes);
             Settings.SetDefault<IConfigurationSource>(configurationSource);
             Settings.SetDefault<Conventions>(conventions);
+            Settings.Set<PipelineModifications>(new PipelineModifications());
         }
 
         /// <summary>
@@ -42,7 +52,7 @@ namespace NServiceBus
         /// </summary>
         public SettingsHolder Settings
         {
-            get { return SettingsHolder.Instance; }
+            get { return settings; }
         }
 
 
@@ -60,7 +70,6 @@ namespace NServiceBus
 
                 return builder;
             }
-            internal set { builder = value; }
         }
 
         /// <summary>
@@ -77,12 +86,6 @@ namespace NServiceBus
                 }
 
                 return configurer;
-            }
-            set
-            {
-                configurer = value;
-                WireUpConfigSectionOverrides();
-                InvokeBeforeConfigurationInitializers();
             }
         }
 
@@ -104,19 +107,28 @@ namespace NServiceBus
             return builder != null && configurer != null;
         }
 
+        void RegisterContainerAdapter(IContainer container)
+        {
+            if (builder != null)
+            {
+                throw new InvalidOperationException("Container adapter already specified");
+            }
+
+            var b = new CommonObjectBuilder { Container = container, Synchronized = settings.GetOrDefault<bool>("UseSyncronizationDomain") };
+
+            builder = b;
+            configurer = b;
+
+            Configurer.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(c => c.Container, container);
+        }
+
 
         void WireUpConfigSectionOverrides()
         {
-            if (configSectionOverridesInitialized)
-            {
-                return;
-            }
-
             TypesToScan
                 .Where(t => t.GetInterfaces().Any(IsGenericConfigSource))
                 .ToList().ForEach(t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
-            configSectionOverridesInitialized = true;
         }
 
         /// <summary>
@@ -139,7 +151,6 @@ namespace NServiceBus
 
         static Configure With(ConfigurationBuilder configurationBuilder)
         {
-            SettingsHolder.Instance.Reset();
             instance = configurationBuilder.BuildConfiguration();
 
             EndpointHelper.StackTraceToExamine = new StackTrace();
@@ -157,18 +168,6 @@ namespace NServiceBus
             return Builder.Build<IStartableBus>();
         }
 
-        void InvokeBeforeConfigurationInitializers()
-        {
-            if (beforeConfigurationInitializersCalled)
-            {
-                return;
-            }
-
-            ActivateAndInvoke<IWantToRunBeforeConfiguration>(t => t.Init(this));
-
-            beforeConfigurationInitializersCalled = true;
-        }
-
         /// <summary>
         ///     Finalizes the configuration by invoking all initialisers.
         /// </summary>
@@ -184,6 +183,8 @@ namespace NServiceBus
                 this.DefaultBuilder();
             }
 
+            WireUpConfigSectionOverrides();
+
             featureActivator = new FeatureActivator(Settings);
 
             Configurer.RegisterSingleton<FeatureActivator>(featureActivator);
@@ -194,7 +195,7 @@ namespace NServiceBus
 
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            InvokeBeforeConfigurationInitializers();
+            ActivateAndInvoke<IWantToRunBeforeConfiguration>(t => t.Init(this));
 
             ActivateAndInvoke<INeedInitialization>(t => t.Init(this));
 
@@ -210,10 +211,6 @@ namespace NServiceBus
 
             //this needs to be before the installers since they actually call .Initialize :(
             initialized = true;
-
-            configurer.RegisterSingleton<Configure>(this);
-            configurer.RegisterSingleton<ReadOnlySettings>(Settings);
-            configurer.RegisterSingleton<Conventions>(conventions);
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
@@ -291,7 +288,7 @@ namespace NServiceBus
                 var sw = new Stopwatch();
 
                 sw.Start();
-                var instanceToInvoke = (T) Activator.CreateInstance(t);
+                var instanceToInvoke = (T)Activator.CreateInstance(t);
                 action(instanceToInvoke);
                 sw.Stop();
 
@@ -310,7 +307,7 @@ namespace NServiceBus
 
             // ReSharper disable HeapView.SlowDelegateCreation
             foreach (var detail in details.OrderByDescending(d => d.Item2))
-                // ReSharper restore HeapView.SlowDelegateCreation
+            // ReSharper restore HeapView.SlowDelegateCreation
             {
                 detailsMessage.AppendLine(string.Format("{0} - {1:f4} s", detail.Item1.FullName, detail.Item2.TotalSeconds));
             }
@@ -343,16 +340,13 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
-        static bool configSectionOverridesInitialized;
-        static bool beforeConfigurationInitializersCalled;
         static ILog logger = LogManager.GetLogger<Configure>();
-        static bool initialized;
-        readonly Conventions conventions;
+        bool initialized;
         IBuilder builder;
         IConfigureComponents configurer;
         FeatureActivator featureActivator;
         PipelineSettings pipelineSettings;
-
+        SettingsHolder settings;
         public class ConfigurationBuilder
         {
             internal ConfigurationBuilder()
@@ -438,7 +432,42 @@ namespace NServiceBus
             }
 
             /// <summary>
-            ///     Creates the configuration object.
+            /// Defines a custom builder to use
+            /// </summary>
+            /// <typeparam name="T">The builder type</typeparam>
+            /// <returns></returns>
+            public ConfigurationBuilder UseContainer<T>() where T : IContainer
+            {
+                return UseContainer(typeof(T));
+            }
+
+
+
+            /// <summary>
+            /// Defines a custom builder to use
+            /// </summary>
+            /// <param name="builderType">The type of the builder</param>
+            /// <returns></returns>
+            public ConfigurationBuilder UseContainer(Type builderType)
+            {
+                UseContainer(builderType.Construct<IContainer>());
+
+                return this;
+            }
+
+            /// <summary>
+            /// Uses an already active instance of a builder
+            /// </summary>
+            /// <param name="builder">The instance to use</param>
+            /// <returns></returns>
+            public ConfigurationBuilder UseContainer(IContainer builder)
+            {
+                customBuilder = builder;
+
+                return this;
+            }
+            /// <summary>
+            ///     Creates the configuration object
             /// </summary>
             internal Configure BuildConfiguration()
             {
@@ -466,9 +495,14 @@ namespace NServiceBus
                         scannedTypes = scannedTypes.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
                     }
                 }
-                return new Configure(endpointName, scannedTypes, configurationSourceToUse, conventionsBuilder.BuildConventions());
+                var builder = customBuilder ?? new AutofacObjectBuilder();
+
+
+                return new Configure(endpointName, scannedTypes, configurationSourceToUse, builder, conventionsBuilder.BuildConventions());
             }
 
+
+            IContainer customBuilder;
             IConfigurationSource configurationSourceToUse;
             ConventionsBuilder conventionsBuilder = new ConventionsBuilder();
             string directory;

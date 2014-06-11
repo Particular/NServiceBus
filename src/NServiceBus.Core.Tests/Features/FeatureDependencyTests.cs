@@ -59,7 +59,7 @@
             featureSettings.Add(dependingFeature);
             Array.ForEach(setup.AvailableFeatures, featureSettings.Add);
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With().DefaultBuilder()));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With()));
 
             Assert.AreEqual(setup.ShouldBeActive, dependingFeature.IsActive);
         }
@@ -86,7 +86,7 @@
 
             settings.EnableFeatureByDefault<MyFeature1>();
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With().DefaultBuilder()));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With()));
 
             Assert.True(dependingFeature.IsActive);
 
@@ -127,7 +127,7 @@
             settings.EnableFeatureByDefault<MyFeature2>();
             settings.EnableFeatureByDefault<MyFeature3>();
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With().DefaultBuilder()));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With()));
 
             Assert.True(dependingFeature.IsActive);
 
@@ -163,7 +163,7 @@
             featureSettings.Add(level2);
             featureSettings.Add(level1);
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With().DefaultBuilder()));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With()));
 
 
             Assert.True(level1.IsActive, "Level1 wasn't activated");

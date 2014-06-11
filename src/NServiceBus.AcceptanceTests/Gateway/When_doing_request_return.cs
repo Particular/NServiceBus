@@ -19,6 +19,7 @@
                         bus.SendToSites(new[] { "SiteB" }, new MyRequest())
                             .Register(result => c.GotCallback = true)))
                 .WithEndpoint<SiteB>()
+                .AllowExceptions()
                 .Done(c => c.GotCallback)
                 .Run();
 
@@ -35,7 +36,6 @@
             public SiteA()
             {
                 EndpointSetup<DefaultServer>(c => c.Features(f => f.Enable<Features.Gateway>()))
-                    .AllowExceptions()
                     .WithConfig<GatewayConfig>(c =>
                     {
                         c.Sites = new SiteCollection
@@ -66,7 +66,6 @@
             public SiteB()
             {
                 EndpointSetup<DefaultServer>(c => c.Features(f => f.Enable<Features.Gateway>()))
-                    .AllowExceptions()
                     .WithConfig<GatewayConfig>(c =>
                     {
                         c.Channels = new ChannelCollection

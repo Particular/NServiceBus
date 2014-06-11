@@ -49,6 +49,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected MessageHandlerRegistry handlerRegistry;
         protected TransportDefinition transportDefinition;
+        protected SettingsHolder settings;
 
         PipelineExecutor pipelineFactory;
 
@@ -65,17 +66,19 @@ namespace NServiceBus.Unicast.Tests.Contexts
             LicenseManager.InitializeLicense();
             transportDefinition = new Msmq();
             HandlerInvocationCache.Clear();
-
-            SettingsHolder.Instance.Reset();
-            SettingsHolder.Instance.SetDefault("EndpointName", "TestEndpoint");
-            SettingsHolder.Instance.SetDefault("Endpoint.SendOnly", false);
-            SettingsHolder.Instance.SetDefault("MasterNode.Address", MasterNodeAddress);
-			SettingsHolder.Instance.SetDefault("Pipeline.Removals", new List<RemoveBehavior>());
-            SettingsHolder.Instance.SetDefault("Pipeline.Replacements", new List<ReplaceBehavior>());
-            SettingsHolder.Instance.SetDefault("Pipeline.Additions", new List<RegisterBehavior>());
+         
+            settings = new SettingsHolder();
+            
+            settings.SetDefault("EndpointName", "TestEndpoint");
+            settings.SetDefault("Endpoint.SendOnly", false);
+            settings.SetDefault("MasterNode.Address", MasterNodeAddress);
+            settings.Set<PipelineModifications>(new PipelineModifications());
 
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
+
+            FuncBuilder.Register<ReadOnlySettings>(()=>settings);
+
             router = new StaticMessageRouter(KnownMessageTypes());
             var conventions = new Conventions();
             handlerRegistry = new MessageHandlerRegistry(conventions);
@@ -92,7 +95,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
-            pipelineFactory = new PipelineExecutor(FuncBuilder);
+            pipelineFactory = new PipelineExecutor(settings,FuncBuilder);
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
@@ -139,7 +142,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 Transport = Transport,
                 MessageMapper = MessageMapper,
                 SubscriptionManager = subscriptionManager,
-                MessageRouter = router
+                MessageRouter = router,
+                Settings = settings
             };
             bus = unicastBus;
 

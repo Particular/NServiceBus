@@ -16,6 +16,7 @@
 
             Scenario.Define(context)
                     .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
+                    .AllowExceptions()
                     .Done(c => context.OrderAckReceived == 1)
                     .Run(TimeSpan.FromSeconds(10));
 
@@ -35,12 +36,11 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.Settings.Set("DisableOutboxTransportCheck",true);
+                    c.Settings.Set("DisableOutboxTransportCheck", true);
                     c.EnableOutbox();
                     c.Pipeline.Register<BlowUpAfterDispatchBehavior.Registration>();
                     c.Configurer.ConfigureComponent<BlowUpAfterDispatchBehavior>(DependencyLifecycle.InstancePerCall);
-                })
-                .AllowExceptions();
+                });
 
             }
 

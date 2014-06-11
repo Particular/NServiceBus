@@ -13,20 +13,6 @@ namespace NServiceBus.Settings
     /// </summary>
     public class SettingsHolder : ReadOnlySettings
     {
-        public static SettingsHolder Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = new SettingsHolder();
-                }
-                return instance;
-            }
-        }
-
-        static SettingsHolder instance;
-
         public T Get<T>(string key)
         {
             return (T)Get(key);
@@ -134,14 +120,6 @@ namespace NServiceBus.Settings
             EnsureWriteEnabled(key);
 
             Defaults[key] = value;
-        }
-
-        public void Reset()
-        {
-            locked = false;
-
-            Overrides.Clear();
-            Defaults.Clear();
         }
 
         public T GetOrDefault<T>(string key)
