@@ -42,6 +42,7 @@ namespace NServiceBus
             Settings.SetDefault("EndpointName", endpointName);
             Settings.SetDefault("TypesToScan", availableTypes);
             Settings.SetDefault<IConfigurationSource>(configurationSource);
+            Settings.Set<PipelineModifications>(new PipelineModifications());
         }
 
         /// <summary>

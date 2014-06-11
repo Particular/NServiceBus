@@ -154,6 +154,7 @@
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="Gateway\GatewayHttpListenerInstaller.cs" />
+    <Compile Include="Pipeline\PipelineModifications.cs" />
     <Compile Include="Serialization\SerializationConfigExtensions.cs" />
     <Compile Include="Serialization\SerializationConfiguration.cs" />
     <Compile Include="Serialization\SerializationDefinition.cs" />

@@ -12,13 +12,13 @@
 
     class PipelineBuilder
     {
-        public PipelineBuilder(List<RegisterBehavior> additions, List<RemoveBehavior> removals, List<ReplaceBehavior> replacements)
+        public PipelineBuilder(PipelineModifications modifications)
         {
-            coordinator = new BehaviorRegistrationsCoordinator(removals, replacements);
+            coordinator = new BehaviorRegistrationsCoordinator(modifications.Removals, modifications.Replacements);
 
             RegisterIncomingCoreBehaviors();
             RegisterOutgoingCoreBehaviors();
-            RegisterAdditionalBehaviors(additions);
+            RegisterAdditionalBehaviors(modifications.Additions);
 
             var model = coordinator.BuildRuntimeModel();
             Incoming = new List<RegisterBehavior>();
