@@ -78,12 +78,7 @@ namespace NServiceBus.Unicast
         public IMessageMapper MessageMapper
         {
             get { return messageMapper; }
-            set
-            {
-                messageMapper = value;
-
-                ExtensionMethods.Bus = this;
-            }
+            set { messageMapper = value; }
         }
 
         /// <summary>
