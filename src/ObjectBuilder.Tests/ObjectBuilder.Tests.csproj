@@ -126,10 +126,6 @@
       <Project>{c05e5b87-eb74-4a3f-b4fc-afdd28570850}</Project>
       <Name>ObjectBuilder.StructureMap</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ObjectBuilder.Unity\ObjectBuilder.Unity.csproj">
-      <Project>{343b2e7a-e228-4b31-abb5-f5437b2e7a4c}</Project>
-      <Name>ObjectBuilder.Unity</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />

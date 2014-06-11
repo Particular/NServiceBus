@@ -11,7 +11,6 @@ namespace ObjectBuilder.Tests
     using NServiceBus.ObjectBuilder.Ninject;
     using NServiceBus.ObjectBuilder.Spring;
     using NServiceBus.ObjectBuilder.StructureMap;
-    using NServiceBus.ObjectBuilder.Unity;
     using NUnit.Framework;
     using StructureMap;
     using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
@@ -51,13 +50,10 @@ namespace ObjectBuilder.Tests
                     new StructureMapObjectBuilder(new Container()),
                     new AutofacObjectBuilder(),
                     new WindsorObjectBuilder(),
-                    new UnityObjectBuilder(),
                     new SpringObjectBuilder(),
                     new NinjectObjectBuilder(new StandardKernel(new NinjectSettings {LoadExtensions = false},
                                                                 new ContextPreservationModule(), new NamedScopeModule())),
                 };
-
-            DefaultInstances.Clear();
 
             var initialize = InitializeBuilder();
 
