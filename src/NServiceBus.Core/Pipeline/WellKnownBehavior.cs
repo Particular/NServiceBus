@@ -33,9 +33,9 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public const string InvokeHandlers = "InvokeHandlers";
         /// <summary>
-        /// Extracts all logical messages from the transport message.
+        /// Deserializes all logical messages from the transport message.
         /// </summary>
-        public const string ExtractLogicalMessages = "ExtractLogicalMessages";
+        public const string DeserializeMessages = "DeserializeMessages";
         /// <summary>
         /// Runs incoming mutation for each logical message.
         /// </summary>

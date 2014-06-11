@@ -323,6 +323,8 @@
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />
     <Compile Include="Unicast\Messages\ExtractLogicalMessagesBehavior.cs" />
+    <Compile Include="Unicast\Messages\DeserializeLogicalMessagesBehavior.cs" />
+    <Compile Include="Unicast\Config\FinalizeUnicastBusConfiguration.cs" />
     <Compile Include="Gateway\Gateway.cs" />
     <Compile Include="Hosting\Profiles\IHandleAnyProfile.cs" />
     <Compile Include="Persistence\InMemory\InMemoryPersistence.cs" />

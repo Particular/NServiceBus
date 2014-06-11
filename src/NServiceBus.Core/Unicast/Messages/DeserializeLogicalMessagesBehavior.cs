@@ -14,7 +14,7 @@
     using Unicast;
 
 
-    class ExtractLogicalMessagesBehavior : IBehavior<IncomingContext>
+    class DeserializeLogicalMessagesBehavior : IBehavior<IncomingContext>
     {
         public IMessageSerializer MessageSerializer { get; set; }
     

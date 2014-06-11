@@ -33,7 +33,7 @@
             {
                 public void Init(Configure config)
                 {
-                    config.Pipeline.Replace(WellKnownBehavior.ExtractLogicalMessages, typeof(MyRawMessageHandler));
+                    config.Pipeline.Replace(WellKnownBehavior.DeserializeMessages, typeof(MyRawMessageHandler));
                 }
             }
 

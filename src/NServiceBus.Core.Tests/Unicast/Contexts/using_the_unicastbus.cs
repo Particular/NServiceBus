@@ -109,7 +109,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
             FuncBuilder.Register<IMessageMapper>(() => MessageMapper);
 
-            FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior
+            FuncBuilder.Register<DeserializeLogicalMessagesBehavior>(() => new DeserializeLogicalMessagesBehavior
                                                              {
                                                                  MessageSerializer = MessageSerializer,
                                                                  MessageMetadataRegistry = MessageMetadataRegistry,
