@@ -52,10 +52,5 @@
         {
             get { return AllAvailable.SingleOrDefault(r => r.Key == "Spring"); }
         }
-
-        public static RunDescriptor Unity
-        {
-            get { return AllAvailable.SingleOrDefault(r => r.Key == "Unity"); }
-        }
     }
 }

@@ -38,7 +38,7 @@
                        context.SubscribedToPublisher2 = true;
                    }
                }))
-               .AllowExceptions()
+               .AllowExceptions(e => e.Message.Contains("Oracle.DataAccess.Client.OracleException: ORA-00001"))
                .Done(c => c.GotTheEventFromPublisher1 && c.GotTheEventFromPublisher2)
                .Run();
 
