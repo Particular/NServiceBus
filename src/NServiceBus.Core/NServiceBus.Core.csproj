@@ -154,6 +154,13 @@
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="Gateway\GatewayHttpListenerInstaller.cs" />
+    <Compile Include="Serialization\SerializationConfigExtensions.cs" />
+    <Compile Include="Serialization\SerializationConfiguration.cs" />
+    <Compile Include="Serialization\SerializationDefinition.cs" />
+    <Compile Include="Serializers\Binary\Binary.cs" />
+    <Compile Include="Serializers\Json\Bson.cs" />
+    <Compile Include="Serializers\Json\Json.cs" />
+    <Compile Include="Serializers\XML\Config\Xml.cs" />
     <Compile Include="Unicast\Transport\Config\EnableSelectedTransport.cs" />
     <Compile Include="Utils\ElevateChecker.cs" />
     <Compile Include="IStartableBus.cs" />
@@ -308,11 +315,11 @@
     <Compile Include="Serializers\Json\Config\BsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
-    <Compile Include="Serializers\EnableSelectedSerializer.cs" />
+    <Compile Include="Serialization\EnableSelectedSerializer.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationSettings.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializerConfigurationExtensions.cs" />
-    <Compile Include="Settings\SerializationSettings.cs" />
+    <Compile Include="Serialization\Obsoletes\SerializationSettings.cs" />
     <Compile Include="Transports\Msmq\CorrelationIdMutatorForBackwardsCompatibilityWithV3.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />

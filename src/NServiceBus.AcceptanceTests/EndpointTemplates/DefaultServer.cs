@@ -21,6 +21,7 @@
 
             var types = GetTypesToUse(endpointConfiguration);
 
+
             var config = Configure.With(o =>
                                          {
                                              o.EndpointName(endpointConfiguration.EndpointName);
@@ -28,14 +29,20 @@
                                              o.CustomConfigurationSource(configSource);
                                          })
                 .DefineBuilder(settings.GetOrNull("Builder"))
-                .DefineSerializer(settings.GetOrNull("Serializer"))
                 .DefineTransport(settings)
                 .DefinePersistence(settings);
             
+            var serializer = settings.GetOrNull("Serializer");
+
+            if (serializer != null)
+            {
+                config.UseSerialization(Type.GetType(serializer));
+            }
+
             config.Settings.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             config.Pipeline.Register<SubscriptionBehavior.Registration>();
             config.Configurer.ConfigureComponent<SubscriptionBehavior>(DependencyLifecycle.InstancePerCall);
-           
+
             return config;
         }
 

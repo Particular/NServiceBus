@@ -220,6 +220,15 @@ namespace NServiceBus
             Replacement = "var configure = Configure.With(b => b.EndpointName(\"MyEndpointName\"));")]
         public static Func<string> GetEndpointNameAction;
 
+        [ObsoleteEx(
+           RemoveInVersion = "6",
+           TreatAsErrorFromVersion = "5",
+           Replacement = "config.UseSerialization<TSerializer>(c=>c.AnyCustomSettingNeeded())")]
+        public static SerializationSettings Serialization
+        {
+            get { throw new NotImplementedException(); }
+        }
+
         //public static Func<string> DefineEndpointVersionRetriever;
 
         //public static IConfigurationSource ConfigurationSource{get;set;}
