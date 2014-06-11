@@ -22,6 +22,7 @@ namespace NServiceBus.Serializers.XML
     public class XmlMessageSerializer : IMessageSerializer
     {
         readonly IMessageMapper mapper;
+        readonly Conventions conventions;
         IList<Type> messageTypes;
 
         string nameSpace = "http://tempuri.net";
@@ -54,11 +55,6 @@ namespace NServiceBus.Serializers.XML
         /// Removes the wrapping of properties containing XDocument or XElement with property name as root element
         /// </summary>
         public bool SkipWrappingRawXml { get; set; }
-
-        /// <summary>
-        /// Message conventions
-        /// </summary>
-        public Conventions Conventions { get; set; }
 
         /// <summary>
         /// Scans the given type storing maps to fields and properties to save on reflection at runtime.
@@ -1290,7 +1286,7 @@ namespace NServiceBus.Serializers.XML
             var baseType = t.BaseType;
             while (baseType != typeof(object) && baseType != null)
             {
-                if (Conventions.IsMessageType(baseType))
+                if (conventions.IsMessageType(baseType))
                 {
                     if (!result.Contains(baseType.FullName))
                     {
@@ -1303,7 +1299,7 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var i in t.GetInterfaces())
             {
-                if (Conventions.IsMessageType(i))
+                if (conventions.IsMessageType(i))
                 {
                     if (!result.Contains(i.FullName))
                     {
@@ -1344,9 +1340,11 @@ namespace NServiceBus.Serializers.XML
         /// Initializes an instance of a <see cref="XmlMessageSerializer"/>.
         /// </summary>
         /// <param name="mapper">Message Mapper</param>
-        public XmlMessageSerializer(IMessageMapper mapper)
+        /// <param name="conventions">The endpoint conventions.</param>
+        public XmlMessageSerializer(IMessageMapper mapper, Conventions conventions)
         {
             this.mapper = mapper;
+            this.conventions = conventions;
         }
 
 

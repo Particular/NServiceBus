@@ -83,7 +83,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             var conventions = new Conventions();
             handlerRegistry = new MessageHandlerRegistry(conventions);
             MessageMetadataRegistry = new MessageMetadataRegistry(false, conventions);
-            MessageSerializer = new XmlMessageSerializer(MessageMapper) { Conventions = conventions };
+            MessageSerializer = new XmlMessageSerializer(MessageMapper, conventions);
 
             gatewayAddress = MasterNodeAddress.SubScope("gateway");
 
