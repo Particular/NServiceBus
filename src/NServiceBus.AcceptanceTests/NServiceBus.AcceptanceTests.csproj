@@ -121,7 +121,6 @@
     <Compile Include="BasicMessaging\When_sending_a_message_that_is_registered_multiple_times_to_another_endpoint.cs" />
     <Compile Include="BasicMessaging\When_using_a_custom_correlation_id.cs" />
     <Compile Include="BasicMessaging\When_using_callbacks_in_a_scaleout_scenario.cs" />
-    <Compile Include="BusStartStop\When_bus_start_and_stops_with_a_pending_message.cs" />
     <Compile Include="Configuration\When_a_config_override_is_found.cs" />
     <Compile Include="Encryption\When_using_encryption.cs" />
     <Compile Include="EndpointTemplates\ContextAppender.cs" />
