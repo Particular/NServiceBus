@@ -8,7 +8,6 @@ namespace ObjectBuilder.Tests
     using NServiceBus.ObjectBuilder.CastleWindsor;
     using NServiceBus.ObjectBuilder.Ninject;
     using NServiceBus.ObjectBuilder.Spring;
-    using NServiceBus.ObjectBuilder.Unity;
     using NUnit.Framework;
     using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
 
@@ -177,7 +176,7 @@ namespace ObjectBuilder.Tests
 
                 Assert.AreNotSame(builder.Build(typeof(InstancePerUoWComponent)), builder.Build(typeof(InstancePerUoWComponent)), "UoW's should be instance per call in the root container");
             },
-            typeof(AutofacObjectBuilder), typeof(WindsorObjectBuilder), typeof(UnityObjectBuilder));
+            typeof(AutofacObjectBuilder), typeof(WindsorObjectBuilder));
         }
         [Test]
         public void Should_not_dispose_singletons_when_container_goes_out_of_scope()
