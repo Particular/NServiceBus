@@ -178,7 +178,7 @@
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\LogLevelReader.cs" />
     <Compile Include="Logging\RollingLogger.cs" />
-    <Compile Include="MessageConventionExtensions.cs" />
+    <Compile Include="Conventions.cs" />
     <Compile Include="MessageIntentEnum.cs" />
     <Compile Include="MessageMutator\IMessageMutator.cs" />
     <Compile Include="MessageMutator\IMutateIncomingMessages.cs" />

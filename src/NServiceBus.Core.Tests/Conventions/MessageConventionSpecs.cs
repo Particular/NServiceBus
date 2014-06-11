@@ -11,16 +11,16 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                MessageConventionExtensions.IsMessageTypeAction = t =>
+                conventions.IsMessageTypeAction = t =>
                 {
                     timesCalled++;
                     return false;
                 };
 
-                MessageConventionExtensions.IsMessage(this);
+                conventions.IsMessage(this);
                 Assert.AreEqual(1, timesCalled);
 
-                MessageConventionExtensions.IsMessage(this);
+                conventions.IsMessage(this);
                 Assert.AreEqual(1, timesCalled);
             }
         }
@@ -32,16 +32,16 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                MessageConventionExtensions.IsEventTypeAction = t =>
+                conventions.IsEventTypeAction = t =>
                 {
                     timesCalled++;
                     return false;
                 };
 
-                MessageConventionExtensions.IsEvent(this);
+                conventions.IsEvent(this);
                 Assert.AreEqual(1, timesCalled);
 
-                MessageConventionExtensions.IsEvent(this);
+                conventions.IsEvent(this);
                 Assert.AreEqual(1, timesCalled);
             }
         }
@@ -53,16 +53,16 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                MessageConventionExtensions.IsCommandTypeAction = t =>
+                conventions.IsCommandTypeAction = t =>
                 {
                     timesCalled++;
                     return false;
                 };
 
-                MessageConventionExtensions.IsCommand(this);
+                conventions.IsCommand(this);
                 Assert.AreEqual(1, timesCalled);
 
-                MessageConventionExtensions.IsCommand(this);
+                conventions.IsCommand(this);
                 Assert.AreEqual(1, timesCalled);
             }
         }
@@ -71,31 +71,17 @@
 
 namespace NServiceBus.Core.Tests.Conventions.NServiceBus.Config.UnitTests
 {
-    using System;
     using NUnit.Framework;
+    using Conventions = global::NServiceBus.Conventions;
 
     public class MessageConventionTestBase
     {
-        Func<Type, bool> IsEventTypeAction;
-        Func<Type, bool> IsCommandTypeAction;
-        Func<Type, bool> IsMessageTypeAction;
+        protected Conventions conventions;
 
         [SetUp]
         public void SetUp()
         {
-            IsEventTypeAction = MessageConventionExtensions.IsEventTypeAction;
-            IsCommandTypeAction = MessageConventionExtensions.IsCommandTypeAction;
-            IsMessageTypeAction = MessageConventionExtensions.IsMessageTypeAction;
-
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            MessageConventionExtensions.IsEventTypeAction = IsEventTypeAction;
-            MessageConventionExtensions.IsCommandTypeAction = IsCommandTypeAction;
-            MessageConventionExtensions.IsMessageTypeAction = IsMessageTypeAction;
-
+            conventions = new Conventions();
         }
     }
 }

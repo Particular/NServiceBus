@@ -29,7 +29,7 @@ namespace NServiceBus
         /// <summary>
         ///     Protected constructor to enable creation only via the With method.
         /// </summary>
-        Configure(string endpointName, IList<Type> availableTypes, IConfigurationSource configurationSource, IContainer container)
+        Configure(string endpointName, IList<Type> availableTypes, IConfigurationSource configurationSource, IContainer container, Conventions conventions)
         {
             settings = new SettingsHolder();
             LogManager.HasConfigBeenInitialised = true;
@@ -38,10 +38,12 @@ namespace NServiceBus
 
             configurer.RegisterSingleton<Configure>(this);
             configurer.RegisterSingleton<ReadOnlySettings>(Settings);
-            
+            configurer.RegisterSingleton<Conventions>(conventions);
+
             Settings.SetDefault("EndpointName", endpointName);
             Settings.SetDefault("TypesToScan", availableTypes);
             Settings.SetDefault<IConfigurationSource>(configurationSource);
+            Settings.SetDefault<Conventions>(conventions);
             Settings.Set<PipelineModifications>(new PipelineModifications());
         }
 
@@ -345,7 +347,6 @@ namespace NServiceBus
         FeatureActivator featureActivator;
         PipelineSettings pipelineSettings;
         SettingsHolder settings;
-
         public class ConfigurationBuilder
         {
             internal ConfigurationBuilder()
@@ -354,7 +355,7 @@ namespace NServiceBus
             }
 
             /// <summary>
-            ///     Specifies the range of types that NServiceBus scans for handlers etc
+            ///     Specifies the range of types that NServiceBus scans for handlers etc.
             /// </summary>
             public ConfigurationBuilder TypesToScan(IEnumerable<Type> typesToScan)
             {
@@ -363,7 +364,7 @@ namespace NServiceBus
             }
 
             /// <summary>
-            ///     The assemblies to include when scanning for types
+            ///     The assemblies to include when scanning for types.
             /// </summary>
             public ConfigurationBuilder AssembliesToScan(IEnumerable<Assembly> assemblies)
             {
@@ -372,7 +373,7 @@ namespace NServiceBus
             }
 
             /// <summary>
-            ///     The assemblies to include when scanning for types
+            ///     The assemblies to include when scanning for types.
             /// </summary>
             public ConfigurationBuilder AssembliesToScan(params Assembly[] assemblies)
             {
@@ -382,7 +383,7 @@ namespace NServiceBus
 
 
             /// <summary>
-            ///     Specifies the directory where NServiceBus scans for types
+            ///     Specifies the directory where NServiceBus scans for types.
             /// </summary>
             public ConfigurationBuilder ScanAssembliesInDirectory(string probeDirectory)
             {
@@ -393,7 +394,7 @@ namespace NServiceBus
 
 
             /// <summary>
-            ///     Overrides the default configuration source
+            ///     Overrides the default configuration source.
             /// </summary>
             public ConfigurationBuilder CustomConfigurationSource(IConfigurationSource configurationSource)
             {
@@ -403,7 +404,7 @@ namespace NServiceBus
 
 
             /// <summary>
-            ///     Defines the name to use for this endpoint
+            ///     Defines the name to use for this endpoint.
             /// </summary>
             public ConfigurationBuilder EndpointName(string name)
             {
@@ -412,7 +413,7 @@ namespace NServiceBus
             }
 
             /// <summary>
-            ///     Defines the name to use for this endpoint
+            ///     Defines the name to use for this endpoint.
             /// </summary>
             public ConfigurationBuilder EndpointName(Func<string> nameFunc)
             {
@@ -420,6 +421,15 @@ namespace NServiceBus
                 return this;
             }
 
+            /// <summary>
+            ///     Defines the conventions to use for this endpoint.
+            /// </summary>
+            public ConfigurationBuilder Conventions(Action<ConventionsBuilder> conventions)
+            {
+                conventions(conventionsBuilder);
+
+                return this;
+            }
 
             /// <summary>
             /// Defines a custom builder to use
@@ -488,15 +498,130 @@ namespace NServiceBus
                 var builder = customBuilder ?? new AutofacObjectBuilder();
 
 
-                return new Configure(endpointName, scannedTypes, configurationSourceToUse, builder);
+                return new Configure(endpointName, scannedTypes, configurationSourceToUse, builder, conventionsBuilder.BuildConventions());
             }
+
 
             IContainer customBuilder;
             IConfigurationSource configurationSourceToUse;
+            ConventionsBuilder conventionsBuilder = new ConventionsBuilder();
             string directory;
             string endpointName;
             Func<string> getEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
             IList<Type> scannedTypes;
+        }
+
+        /// <summary>
+        /// Conventions builder class.
+        /// </summary>
+        public class ConventionsBuilder
+        {
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a type is a message.
+            /// </summary>
+            public ConventionsBuilder DefiningMessagesAs(Func<Type, bool> definesMessageType)
+            {
+                this.definesMessageType = definesMessageType;
+                return this;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a type is a commands.
+            /// </summary>
+            public ConventionsBuilder DefiningCommandsAs(Func<Type, bool> definesCommandType)
+            {
+                this.definesCommandType = definesCommandType;
+                return this;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a type is a event.
+            /// </summary>
+            public ConventionsBuilder DefiningEventsAs(Func<Type, bool> definesEventType)
+            {
+                this.definesEventType = definesEventType;
+                return this;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a property should be encrypted or not.
+            /// </summary>
+            public ConventionsBuilder DefiningEncryptedPropertiesAs(Func<PropertyInfo, bool> definesEncryptedProperty)
+            {
+                this.definesEncryptedProperty = definesEncryptedProperty;
+                return this;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a property should be sent via the DataBus or not.
+            /// </summary>
+            public ConventionsBuilder DefiningDataBusPropertiesAs(Func<PropertyInfo, bool> definesDataBusProperty)
+            {
+                this.definesDataBusProperty = definesDataBusProperty;
+                return this;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a message has a time to be received.
+            /// </summary>
+            public ConventionsBuilder DefiningTimeToBeReceivedAs(Func<Type, TimeSpan> retrieveTimeToBeReceived)
+            {
+                this.retrieveTimeToBeReceived = retrieveTimeToBeReceived;
+                return this;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a type is an express message or not.
+            /// </summary>
+            public ConventionsBuilder DefiningExpressMessagesAs(Func<Type, bool> definesExpressMessageType)
+            {
+                this.definesExpressMessageType = definesExpressMessageType;
+                return this;
+            }
+
+            internal Conventions BuildConventions()
+            {
+                var conventions = new Conventions();
+
+                if (definesCommandType != null)
+                {
+                    conventions.IsCommandTypeAction = definesCommandType;
+                }
+                if (definesDataBusProperty != null)
+                {
+                    conventions.IsDataBusPropertyAction = definesDataBusProperty;
+                }
+                if (definesEncryptedProperty != null)
+                {
+                    conventions.IsEncryptedPropertyAction = definesEncryptedProperty;
+                }
+                if (definesEventType != null)
+                {
+                    conventions.IsEventTypeAction = definesEventType;
+                }
+                if (definesExpressMessageType != null)
+                {
+                    conventions.IsExpressMessageAction = definesExpressMessageType;
+                }
+                if (definesMessageType != null)
+                {
+                    conventions.IsMessageTypeAction = definesMessageType;
+                }
+                if (retrieveTimeToBeReceived != null)
+                {
+                    conventions.TimeToBeReceivedAction = retrieveTimeToBeReceived;
+                }
+
+                return conventions;
+            }
+
+            Func<Type, bool> definesCommandType;
+            Func<PropertyInfo, bool> definesDataBusProperty;
+            Func<PropertyInfo, bool> definesEncryptedProperty;
+            Func<Type, bool> definesEventType;
+            Func<Type, bool> definesExpressMessageType;
+            Func<Type, bool> definesMessageType;
+            Func<Type, TimeSpan> retrieveTimeToBeReceived;
         }
     }
 }

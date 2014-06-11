@@ -58,7 +58,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             var localAddress = "endpointA";
             MasterNodeAddress = new Address(localAddress, "MasterNode");
             Address.InitializeLocalAddress(localAddress);
-            
         }
 
         [SetUp]
@@ -81,14 +80,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<ReadOnlySettings>(()=>settings);
 
             router = new StaticMessageRouter(KnownMessageTypes());
-            handlerRegistry = new MessageHandlerRegistry();
-            MessageMetadataRegistry = new MessageMetadataRegistry
-                {
-                    DefaultToNonPersistentMessages = false
-                };
+            var conventions = new Conventions();
+            handlerRegistry = new MessageHandlerRegistry(conventions);
+            MessageMetadataRegistry = new MessageMetadataRegistry(false, conventions);
+            MessageSerializer = new XmlMessageSerializer(MessageMapper, conventions);
 
-            MessageSerializer = new XmlMessageSerializer(MessageMapper);
-            //ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
             gatewayAddress = MasterNodeAddress.SubScope("gateway");
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
@@ -141,7 +137,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             unicastBus = new UnicastBus
             {
-                //MasterNodeAddress = MasterNodeAddress,
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
                 Transport = Transport,
@@ -155,6 +150,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CausationMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
             FuncBuilder.Register<UnicastBus>(() => unicastBus);
+            FuncBuilder.Register<Conventions>(() => conventions);
             new HeaderBootstrapper
             {
                 Builder = FuncBuilder
@@ -307,8 +303,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 }
             }
 
-
-
             ReceiveMessage(messageToReceive);
         }
 
@@ -323,7 +317,5 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 ResultingException = ex;
             }
         }
-
-
     }
 }

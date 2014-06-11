@@ -7,6 +7,18 @@
 
     class MessageMetadataRegistry
     {
+        public MessageMetadataRegistry(bool defaultToNonPersistentMessages, Conventions conventions)
+        {
+            this.defaultToNonPersistentMessages = defaultToNonPersistentMessages;
+            this.conventions = conventions;
+        }
+
+        public bool DefaultToNonPersistentMessages
+        {
+            get { return defaultToNonPersistentMessages; }
+            set { defaultToNonPersistentMessages = value; }
+        }
+
         public MessageMetadata GetMessageDefinition(Type messageType)
         {
             MessageMetadata metadata;
@@ -37,15 +49,12 @@
                 Logger.DebugFormat("Message type: '{0}' could not be determined by a 'Type.GetType', scanning known messages for a match", messageTypeIdentifier);
                 return messages.Values.FirstOrDefault(m => m.MessageType.FullName == messageTypeIdentifier);
             }
-            else
+            MessageMetadata metadata;
+            if (messages.TryGetValue(messageType, out metadata))
             {
-                MessageMetadata metadata;
-                if (messages.TryGetValue(messageType, out metadata))
-                {
-                    return metadata;
-                }
-                Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, please make sure the same message registration conventions are used in all endpoints, specially if you are using unobtrusive mode. ", messageType, messageType.FullName);
+                return metadata;
             }
+            Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, please make sure the same message registration conventions are used in all endpoints, specially if you are using unobtrusive mode. ", messageType, messageType.FullName);
             return null;
         }
 
@@ -58,22 +67,27 @@
         public void RegisterMessageType(Type messageType)
         {
             var metadata = new MessageMetadata
-                           {
-                               MessageType = messageType,
-                               Recoverable = !DefaultToNonPersistentMessages,
-                               TimeToBeReceived = MessageConventionExtensions.TimeToBeReceivedAction(messageType)
-                           };
+            {
+                MessageType = messageType,
+                Recoverable = !defaultToNonPersistentMessages,
+                TimeToBeReceived = conventions.TimeToBeReceivedAction(messageType)
+            };
 
-            if (MessageConventionExtensions.IsExpressMessageType(messageType))
+            if (conventions.IsExpressMessageType(messageType))
+            {
                 metadata.Recoverable = false;
+            }
 
             //get the parent types
             var parentMessages = GetParentTypes(messageType)
-                .Where(MessageConventionExtensions.IsMessageType)
+                .Where(conventions.IsMessageType)
                 .OrderByDescending(PlaceInMessageHierarchy)
                 .ToList();
 
-            metadata.MessageHierarchy = new[] { messageType }.Concat(parentMessages);
+            metadata.MessageHierarchy = new[]
+            {
+                messageType
+            }.Concat(parentMessages);
 
             messages[messageType] = metadata;
         }
@@ -113,10 +127,9 @@
             }
         }
 
+        static ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
+        readonly Conventions conventions;
         readonly Dictionary<Type, MessageMetadata> messages = new Dictionary<Type, MessageMetadata>();
-
-        public bool DefaultToNonPersistentMessages { get; set; }
-
-        static ILog Logger = LogManager.GetLogger < MessageMetadataRegistry>();
+        bool defaultToNonPersistentMessages;
     }
 }

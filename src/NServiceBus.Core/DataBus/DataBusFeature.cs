@@ -38,13 +38,14 @@ namespace NServiceBus.Features
         static bool DataBusPropertiesFound(FeatureConfigurationContext context)
         {
             var dataBusPropertyFound = false;
+            var conventions = context.Settings.Get<Conventions>();
 
             if (!context.Container.HasComponent<IDataBusSerializer>() && System.Diagnostics.Debugger.IsAttached)
             {
                 var properties = context.Settings.GetAvailableTypes()
-                    .Where(MessageConventionExtensions.IsMessageType)
+                    .Where(conventions.IsMessageType)
                     .SelectMany(messageType => messageType.GetProperties())
-                    .Where(MessageConventionExtensions.IsDataBusProperty);
+                    .Where(conventions.IsDataBusProperty);
 
                 foreach (var property in properties)
                 {
@@ -64,9 +65,9 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
             else
             {
                 dataBusPropertyFound = context.Settings.GetAvailableTypes()
-                    .Where(MessageConventionExtensions.IsMessageType)
+                    .Where(conventions.IsMessageType)
                     .SelectMany(messageType => messageType.GetProperties())
-                    .Any(MessageConventionExtensions.IsDataBusProperty);
+                    .Any(conventions.IsDataBusProperty);
             }
             return dataBusPropertyFound;
         }

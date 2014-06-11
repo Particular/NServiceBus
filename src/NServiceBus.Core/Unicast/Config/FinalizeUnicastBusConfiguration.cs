@@ -15,7 +15,7 @@ namespace NServiceBus.Unicast.Config
         public void FinalizeConfiguration(Configure config)
         {
             var knownMessages = config.TypesToScan
-                .Where(MessageConventionExtensions.IsMessageType)
+                .Where(config.Settings.Get<Conventions>().IsMessageType)
                 .ToList();
 
             RegisterMessageOwnersAndBusAddress(config,knownMessages);
@@ -23,7 +23,7 @@ namespace NServiceBus.Unicast.Config
             ConfigureMessageRegistry(config,knownMessages);
         }
 
-        void RegisterMessageOwnersAndBusAddress(Configure config,IEnumerable<Type> knownMessages)
+        void RegisterMessageOwnersAndBusAddress(Configure config, IEnumerable<Type> knownMessages)
         {
             var unicastConfig = config.Settings.GetConfigSection<UnicastBusConfig>();
             var router = new StaticMessageRouter(knownMessages);
@@ -61,12 +61,13 @@ namespace NServiceBus.Unicast.Config
             {
                 mapping.Configure((messageType, address) =>
                 {
-                    if (!(MessageConventionExtensions.IsMessageType(messageType) || MessageConventionExtensions.IsEventType(messageType) || MessageConventionExtensions.IsCommandType(messageType)))
+                    var conventions = config.Settings.Get<Conventions>();
+                    if (!(conventions.IsMessageType(messageType) || conventions.IsEventType(messageType) || conventions.IsCommandType(messageType)))
                     {
                         return;
                     }
 
-                    if (MessageConventionExtensions.IsEventType(messageType))
+                    if (conventions.IsEventType(messageType))
                     {
                         router.RegisterEventRoute(messageType, address);
                         return;
@@ -77,12 +78,9 @@ namespace NServiceBus.Unicast.Config
             }
         }
 
-        void ConfigureMessageRegistry(Configure config,List<Type> knownMessages)
+        void ConfigureMessageRegistry(Configure config, List<Type> knownMessages)
         {
-            var messageRegistry = new MessageMetadataRegistry
-            {
-                DefaultToNonPersistentMessages = !config.Settings.Get<bool>("Endpoint.DurableMessages")
-            };
+            var messageRegistry = new MessageMetadataRegistry(!config.Settings.Get<bool>("Endpoint.DurableMessages"), config.Settings.Get<Conventions>());
 
             knownMessages.ForEach(messageRegistry.RegisterMessageType);
 

@@ -21,6 +21,8 @@
         /// </summary>
         public StaticMessageRouter MessageRouter { get; set; }
 
+        public Conventions Conventions { get; set; }
+
         /// <summary>
         /// If set to true the endpoint will subscribe to it self even if no endpoint mappings exists
         /// </summary>
@@ -40,7 +42,7 @@
         {
             return HandlerRegistry.GetMessageTypes()
                 //get all potential messages
-                .Where(t => !MessageConventionExtensions.IsCommandType(t) && (SubscribePlainMessages || MessageConventionExtensions.IsEventType(t)))
+                .Where(t => !Conventions.IsCommandType(t) && (SubscribePlainMessages || Conventions.IsEventType(t)))
                 //get messages that has routing if required
                 .Where(t => DoNotRequireExplicitRouting || MessageRouter.GetDestinationFor(t).Any())
                 //get messages with other handlers than sagas if needed

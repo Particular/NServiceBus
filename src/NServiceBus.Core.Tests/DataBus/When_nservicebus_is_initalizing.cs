@@ -42,7 +42,6 @@ namespace NServiceBus.Core.Tests.DataBus
             });
             var feature = new DataBusFeature();
 
-
             Assert.False(feature.ShouldBeSetup(new FeatureConfigurationContext(config)));
         }
 

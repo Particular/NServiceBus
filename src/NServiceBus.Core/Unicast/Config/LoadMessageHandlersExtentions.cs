@@ -72,7 +72,7 @@ namespace NServiceBus
             return config.LoadMessageHandlers(order.Types);
         }
 
-        static Configure LoadMessageHandlers(this Configure config,IEnumerable<Type> orderedTypes)
+        static Configure LoadMessageHandlers(this Configure config, IEnumerable<Type> orderedTypes)
         {
             var types = new List<Type>(config.Settings.GetAvailableTypes());
 
@@ -93,7 +93,7 @@ namespace NServiceBus
         /// </summary>
         static Configure ConfigureMessageHandlersIn(this Configure config, IEnumerable<Type> types)
         {
-            var handlerRegistry = new MessageHandlerRegistry();
+            var handlerRegistry = new MessageHandlerRegistry(config.Settings.Get<Conventions>());
             var handlers = new List<Type>();
 
             foreach (var t in types.Where(IsMessageHandler))

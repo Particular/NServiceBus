@@ -10,6 +10,7 @@
     class with_sagas : using_the_unicastBus
     {
         protected InMemorySagaPersister persister;
+        Conventions conventions;
 
         [SetUp]
         public new void SetUp()
@@ -18,13 +19,15 @@
             FuncBuilder.Register<ISagaPersister>(() => persister);
 
             Features.Sagas.Clear();
-        }
 
+            conventions = new Conventions();
+        }
 
         protected void RegisterCustomFinder<T>() where T : IFinder
         {
-            Features.Sagas.ConfigureFinder(typeof(T));
+            Features.Sagas.ConfigureFinder(typeof(T), conventions);
         }
+
         protected void RegisterSaga<T>(object sagaEntity = null) where T : new()
         {
             var sagaEntityType = GetSagaEntityType<T>();
@@ -32,8 +35,8 @@
             var sagaHeaderIdFinder = typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType);
             FuncBuilder.Register(sagaHeaderIdFinder);
 
-            Features.Sagas.ConfigureSaga(typeof(T));
-            Features.Sagas.ConfigureFinder(sagaHeaderIdFinder);
+            Features.Sagas.ConfigureSaga(typeof(T), conventions);
+            Features.Sagas.ConfigureFinder(sagaHeaderIdFinder, conventions);
 
             if (Features.Sagas.SagaEntityToMessageToPropertyLookup.ContainsKey(sagaEntityType))
             {
@@ -41,7 +44,7 @@
                 {
                     var propertyFinder = typeof(PropertySagaFinder<,>).MakeGenericType(sagaEntityType, entityLookups.Key);
 
-                    Features.Sagas.ConfigureFinder(propertyFinder);
+                    Features.Sagas.ConfigureFinder(propertyFinder, conventions);
 
                     var propertyLookups = entityLookups.Value;
 
