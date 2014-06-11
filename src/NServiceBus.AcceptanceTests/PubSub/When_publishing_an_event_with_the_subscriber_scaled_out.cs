@@ -51,8 +51,8 @@
                               context.NumberOfSubscriptionsReceived++;
                       }))
                     .Done(c => c.SubscribersOfTheEvent != null)
-                    
-                    .Repeat(r => r.For<AllBrokerTransports>())
+
+                    .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                     .Should(c => Assert.AreEqual(1, c.SubscribersOfTheEvent.Count, "There should only be one logical subscriber"))
                     .Run();
         }
