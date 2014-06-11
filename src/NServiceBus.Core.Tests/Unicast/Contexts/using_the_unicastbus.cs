@@ -73,6 +73,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             settings.SetDefault("EndpointName", "TestEndpoint");
             settings.SetDefault("Endpoint.SendOnly", false);
             settings.SetDefault("MasterNode.Address", MasterNodeAddress);
+            settings.Set<PipelineModifications>(new PipelineModifications());
 
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();

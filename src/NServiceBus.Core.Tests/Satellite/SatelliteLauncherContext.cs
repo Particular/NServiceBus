@@ -30,7 +30,7 @@
             {
                 o.EndpointName("xyz");
                 o.AssembliesToScan(new Assembly[0]);
-            }).DefaultBuilder();
+            });
 
             RegisterTypes();
             Builder.Register<IManageMessageFailures>(() => InMemoryFaultManager);

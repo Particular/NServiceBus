@@ -16,6 +16,7 @@
             Scenario.Define<Context>()
                     .WithEndpoint<Headquarters>(b => b.Given(bus => bus.SendToSites(new[] { "SiteA" }, new MyRequest())))
                     .WithEndpoint<SiteA>()
+                    .AllowExceptions()
                     .Done(c => c.GotResponseBack)
                     .Repeat(r => r.For(Transports.Default)
                     )
@@ -33,7 +34,6 @@
             public Headquarters()
             {
                 EndpointSetup<DefaultServer>(c => c.Features(f=>f.Enable<Gateway>()))
-                    .AllowExceptions()
                     .WithConfig<GatewayConfig>(c =>
                         {
                             c.Sites = new SiteCollection
@@ -75,7 +75,6 @@
             public SiteA()
             {
                 EndpointSetup<DefaultServer>(c => c.Features(f => f.Enable<Gateway>()))
-                    .AllowExceptions()
                         .WithConfig<GatewayConfig>(c =>
                         {
                             c.Channels = new ChannelCollection

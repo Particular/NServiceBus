@@ -43,8 +43,6 @@
 
         public Type AuditEndpoint { get; set; }
 
-        public bool AllowExceptions { get; set; }
-
         string endpointName;
     }
 }

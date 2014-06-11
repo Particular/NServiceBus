@@ -19,7 +19,7 @@
 
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With().DefaultBuilder()));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With()));
 
             featureSettings.StartFeatures(new FakeBuilder(typeof(FeatureWithStartupTask.Runner)));
             Assert.True(FeatureWithStartupTask.Runner.Started);

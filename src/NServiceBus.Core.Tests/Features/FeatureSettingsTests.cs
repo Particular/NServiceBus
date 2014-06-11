@@ -21,7 +21,7 @@
             featureSettings.Add(featureWithFalseCondition);
 
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With().DefaultBuilder()));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With()));
 
             Assert.True(featureWithTrueCondition.IsActive);
             Assert.False(featureWithFalseCondition.IsActive);
@@ -35,7 +35,7 @@
 
             featureSettings.Add(new MyFeatureWithDefaults());
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With().DefaultBuilder()));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With()));
 
             Assert.True(settings.Get<bool>("Test1"));
             Assert.True(settings.Get<bool>("Test2"));

@@ -20,8 +20,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 {
                     typeof(MessageWithDataBusProperty)
                 });
-            })
-                .DefaultBuilder();
+            });
 
             var feature = new DataBusFeature();
 
@@ -40,9 +39,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 {
                     typeof(MessageWithoutDataBusProperty)
                 });
-            })
-                .DefaultBuilder();
-
+            });
             var feature = new DataBusFeature();
 
 
@@ -65,8 +62,7 @@ namespace NServiceBus.Core.Tests.DataBus
                     typeof(MessageWithNonSerializableDataBusProperty)
                 });
             })
-                .DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"))
-                .DefaultBuilder();
+                .DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"));
 
             var feature = new DataBusFeature();
 
@@ -81,7 +77,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 Assert.Ignore("This only work in debug mode.");
             }
 
-            var config=Configure.With(o =>
+            var config = Configure.With(o =>
             {
                 o.EndpointName("xyz");
                 o.TypesToScan(new[]
@@ -89,8 +85,7 @@ namespace NServiceBus.Core.Tests.DataBus
                     typeof(MessageWithNonSerializableDataBusProperty)
                 });
             })
-                .DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"))
-                .DefaultBuilder();
+                .DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"));
             
             config.Configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
 

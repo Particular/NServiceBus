@@ -15,6 +15,7 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid() })))
+                    .AllowExceptions()
                     .Done(c => c.SecondMessageProcessed)
                     .Repeat(r => r.For(Transports.Default))
                     .Run();
@@ -32,8 +33,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>()
-                    .AllowExceptions();
+                EndpointSetup<DefaultServer>();
             }
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>,IHandleMessages<SecondSagaMessage>

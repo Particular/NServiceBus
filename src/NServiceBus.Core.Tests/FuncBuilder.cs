@@ -129,7 +129,7 @@
 
         public void RegisterSingleton(Type lookupType, object instance)
         {
-            throw new NotImplementedException();
+            Register(lookupType,()=>instance);
         }
 
         public bool HasComponent(Type componentType)
