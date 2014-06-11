@@ -6,7 +6,7 @@ namespace NServiceBus.Config
         {
             if (Address.Local == null)
             {
-                Address.InitializeLocalAddress(ConfigureSettingLocalAddressNameAction.GetLocalAddressName());
+                Address.InitializeLocalAddress(configure.Settings.EndpointName());
             }
         }
     }
