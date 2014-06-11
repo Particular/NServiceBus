@@ -29,7 +29,10 @@ namespace NServiceBus
         /// </summary>
         Configure(string endpointName, IList<Type> availableTypes, IConfigurationSource configurationSource)
         {
+            settings = new SettingsHolder();
+
             LogManager.HasConfigBeenInitialised = true;
+
             Settings.SetDefault("EndpointName", endpointName);
             Settings.SetDefault("TypesToScan", availableTypes);
             Settings.SetDefault<IConfigurationSource>(configurationSource);
@@ -40,10 +43,10 @@ namespace NServiceBus
         /// </summary>
         public SettingsHolder Settings
         {
-            get { return SettingsHolder.Instance; }
+            get { return settings; }
         }
 
-
+        
         /// <summary>
         ///     Gets the builder.
         /// </summary>
@@ -137,7 +140,6 @@ namespace NServiceBus
 
         static Configure With(ConfigurationBuilder configurationBuilder)
         {
-            SettingsHolder.Instance.Reset();
             instance = configurationBuilder.BuildConfiguration();
 
             EndpointHelper.StackTraceToExamine = new StackTrace();
@@ -348,7 +350,7 @@ namespace NServiceBus
         IConfigureComponents configurer;
         FeatureActivator featureActivator;
         PipelineSettings pipelineSettings;
-
+        SettingsHolder settings;
 
         public class ConfigurationBuilder
         {
