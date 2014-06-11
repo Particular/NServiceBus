@@ -137,6 +137,11 @@ namespace NServiceBus.Unicast.Transport
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
         /// <summary>
+        /// Access to the current settings
+        /// </summary>
+        public ReadOnlySettings Settings { get; set; }
+
+        /// <summary>
         /// Starts the transport listening for messages on the given local address.
         /// </summary>
         public void Start(Address address)
@@ -150,13 +155,13 @@ namespace NServiceBus.Unicast.Transport
 
             var returnAddressForFailures = address;
 
-            var workerRunsOnThisEndpoint = SettingsHolder.Instance.GetOrDefault<bool>("Worker.Enabled");
+            var workerRunsOnThisEndpoint = Settings.GetOrDefault<bool>("Worker.Enabled");
 
             if (workerRunsOnThisEndpoint
                 && (returnAddressForFailures.Queue.ToLower().EndsWith(".worker") || address == Address.Local))
                 //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
             {
-                returnAddressForFailures = SettingsHolder.Instance.Get<Address>("MasterNode.Address");
+                returnAddressForFailures = Settings.Get<Address>("MasterNode.Address");
 
                 Logger.InfoFormat("Worker started, failures will be redirected to {0}", returnAddressForFailures);
             }
