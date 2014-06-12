@@ -29,22 +29,20 @@ namespace NServiceBus
         /// <summary>
         ///     Protected constructor to enable creation only via the With method.
         /// </summary>
-        Configure(string endpointName, IList<Type> availableTypes, IConfigurationSource configurationSource, IContainer container, Conventions conventions)
+        Configure(SettingsHolder settings, IConfigurationSource configurationSource, IContainer container, Conventions conventions)
         {
-            settings = new SettingsHolder();
+            this.settings = settings;
             LogManager.HasConfigBeenInitialised = true;
             
             RegisterContainerAdapter(container);
 
             configurer.RegisterSingleton<Configure>(this);
-            configurer.RegisterSingleton<ReadOnlySettings>(Settings);
+            configurer.RegisterSingleton<ReadOnlySettings>(settings);
             configurer.RegisterSingleton<Conventions>(conventions);
 
-            Settings.SetDefault("EndpointName", endpointName);
-            Settings.SetDefault("TypesToScan", availableTypes);
-            Settings.SetDefault<IConfigurationSource>(configurationSource);
-            Settings.SetDefault<Conventions>(conventions);
-            Settings.Set<PipelineModifications>(new PipelineModifications());
+            settings.SetDefault<IConfigurationSource>(configurationSource);
+            settings.SetDefault<Conventions>(conventions);
+            settings.Set<PipelineModifications>(new PipelineModifications());
         }
 
         /// <summary>
@@ -347,6 +345,7 @@ namespace NServiceBus
         FeatureActivator featureActivator;
         PipelineSettings pipelineSettings;
         SettingsHolder settings;
+
         public class ConfigurationBuilder
         {
             internal ConfigurationBuilder()
@@ -422,6 +421,15 @@ namespace NServiceBus
             }
 
             /// <summary>
+            ///     Defines the version of this endpoint.
+            /// </summary>
+            public ConfigurationBuilder EndpointVersion(Func<string> versionFunc)
+            {
+                getEndpointVersionAction = versionFunc;
+                return this;
+            }
+
+            /// <summary>
             ///     Defines the conventions to use for this endpoint.
             /// </summary>
             public ConfigurationBuilder Conventions(Action<ConventionsBuilder> conventions)
@@ -471,6 +479,8 @@ namespace NServiceBus
             /// </summary>
             internal Configure BuildConfiguration()
             {
+                var version = getEndpointVersionAction();
+
                 endpointName = getEndpointNameAction();
 
                 if (scannedTypes == null)
@@ -496,11 +506,13 @@ namespace NServiceBus
                     }
                 }
                 var builder = customBuilder ?? new AutofacObjectBuilder();
+                var settings = new SettingsHolder();
+                settings.SetDefault("EndpointName", endpointName);
+                settings.SetDefault("TypesToScan", scannedTypes);
+                settings.SetDefault("EndpointVersion", version);
 
-
-                return new Configure(endpointName, scannedTypes, configurationSourceToUse, builder, conventionsBuilder.BuildConventions());
+                return new Configure(settings, configurationSourceToUse, builder, conventionsBuilder.BuildConventions());
             }
-
 
             IContainer customBuilder;
             IConfigurationSource configurationSourceToUse;
@@ -508,6 +520,7 @@ namespace NServiceBus
             string directory;
             string endpointName;
             Func<string> getEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
+            Func<string> getEndpointVersionAction = () => EndpointHelper.GetEndpointVersion();
             IList<Type> scannedTypes;
         }
 

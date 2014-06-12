@@ -24,6 +24,7 @@ namespace NServiceBus
 
 
             endpointNameToUse = endpointName;
+            endpointVersionToUse = FileVersionRetriever.GetFileVersion(specifier.GetType());
 
             if (scannableAssembliesFullName == null || !scannableAssembliesFullName.Any())
             {
@@ -129,6 +130,7 @@ namespace NServiceBus
                 config = Configure.With(o =>
                 {
                     o.EndpointName(endpointNameToUse);
+                    o.EndpointVersion(() => endpointVersionToUse);
                     o.AssembliesToScan(assembliesToScan);
                 });
             }
@@ -158,5 +160,6 @@ namespace NServiceBus
         readonly WcfManager wcfManager;
         IStartableBus bus;
         string endpointNameToUse;
+        string endpointVersionToUse;
     }
 }
