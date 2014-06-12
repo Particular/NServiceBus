@@ -5,6 +5,7 @@
     using System.ServiceProcess;
     using Logging;
     using NServiceBus.Outbox;
+    using Persistence;
     using Pipeline;
     using Transports;
     using Unicast.Transport;
@@ -31,6 +32,7 @@
             });
 
             RegisterStartupTask<DtcRunningWarning>();
+
         }
 
         static bool RequireOutboxConsent(FeatureConfigurationContext context)
@@ -69,6 +71,11 @@ The reason you need to do this is because we need to ensure that you have read a
         /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
+            if (!context.Settings.Get<PersistenceDefinition>().HasOutboxStorage)
+            {
+                throw new Exception("Selected persister doesn't have support for outbox storage. Please select another storage or disable the outbox feature using config.Features(f=>f.Disable<Outbox>())");    
+            }
+
             context.Pipeline.Register<OutboxDeduplicationBehavior.OutboxDeduplicationRegistration>();
             context.Pipeline.Register<OutboxRecordBehavior.OutboxRecorderRegistration>();
             context.Pipeline.Replace(WellKnownBehavior.DispatchMessageToTransport, typeof(OutboxSendBehavior), "Sending behavior with a delay sending until all business transactions are committed to the outbox storage");

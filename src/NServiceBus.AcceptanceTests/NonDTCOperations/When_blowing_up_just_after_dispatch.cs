@@ -21,8 +21,6 @@
                     .Repeat(r=>r.For<AllOutboxCapableStorages>())
                     .Should(context => Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received since outbox dispatch isn't part of the receive tx"))
                     .Run(TimeSpan.FromSeconds(20));
-
-            ;
         }
 
 

@@ -8,7 +8,7 @@
     {
         public AllOutboxCapableStorages()
         {
-            var defaultStorage = ScenarioDescriptors.Persistence.Default;
+            var defaultStorage = Persistence.Default;
 
             var definitionType = Type.GetType(defaultStorage.Settings["Persistence"]);
 
