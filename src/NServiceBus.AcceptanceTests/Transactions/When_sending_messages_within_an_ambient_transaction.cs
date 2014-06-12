@@ -30,7 +30,7 @@
                             }
                         }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.TimesCalled >= 2)
-                    .Repeat(r => r.For<AllDtcTransports>()) //not stable for sqlserver
+                    .Repeat(r => r.For<AllDtcTransports>())
                     .Should(c => Assert.AreEqual(1, c.SequenceNumberOfFirstMessage,"The transport should preserve the order in which the transactional messages are delivered to the queuing system"))
                     .Run();
         }
@@ -52,7 +52,7 @@
 
                         }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled)
-                    .Repeat(r => r.For(Transports.Default))
+                    .Repeat(r => r.For<AllDtcTransports>())
                     .Should(c => Assert.False(c.MessageThatIsEnlistedHandlerWasCalled, "The transactional handler should not be called"))
                     .Run();
         }
