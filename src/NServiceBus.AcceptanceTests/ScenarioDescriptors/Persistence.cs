@@ -8,20 +8,6 @@
 
     public static class Persistence
     {
-        public static IEnumerable<RunDescriptor> AllAvailable
-        {
-            get
-            {
-                if (availablePersisters == null)
-                {
-                    availablePersisters = GetAllAvailable().ToList();
-                }
-
-                return availablePersisters;
-            }
-        }
-
-
         public static RunDescriptor Default
         {
             get
@@ -37,6 +23,19 @@
                     return persistenceOtherThanInMemory.First();
 
                 return InMemory;
+            }
+        }
+
+        static IEnumerable<RunDescriptor> AllAvailable
+        {
+            get
+            {
+                if (availablePersisters == null)
+                {
+                    availablePersisters = GetAllAvailable().ToList();
+                }
+
+                return availablePersisters;
             }
         }
 

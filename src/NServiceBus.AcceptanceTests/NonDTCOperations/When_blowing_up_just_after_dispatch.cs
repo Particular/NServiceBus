@@ -6,21 +6,23 @@
     using NUnit.Framework;
     using Pipeline;
     using Pipeline.Contexts;
+    using ScenarioDescriptors;
 
     public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_still_release_the_outgoing_messages_to_the_transport()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+          
+            Scenario.Define<Context>()
                     .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
                     .AllowExceptions()
-                    .Done(c => context.OrderAckReceived == 1)
-                    .Run(TimeSpan.FromSeconds(10));
+                    .Done(c => c.OrderAckReceived == 1)
+                    .Repeat(r=>r.For<AllOutboxCapableStorages>())
+                    .Should(context => Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received since outbox dispatch isn't part of the receive tx"))
+                    .Run(TimeSpan.FromSeconds(20));
 
-            Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received since outbox dispatch isn't part of the receive tx");
+            ;
         }
 
 
