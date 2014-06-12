@@ -5,21 +5,29 @@
     using System.Linq;
     using Logging;
 
-    class MessageMetadataRegistry
+    /// <summary>
+    ///     Cache of message metadata.
+    /// </summary>
+    public class MessageMetadataRegistry
     {
-        public MessageMetadataRegistry(bool defaultToNonPersistentMessages, Conventions conventions)
+        internal MessageMetadataRegistry(bool defaultToNonPersistentMessages, Conventions conventions)
         {
             this.defaultToNonPersistentMessages = defaultToNonPersistentMessages;
             this.conventions = conventions;
         }
 
-        public bool DefaultToNonPersistentMessages
+        internal bool DefaultToNonPersistentMessages
         {
             get { return defaultToNonPersistentMessages; }
             set { defaultToNonPersistentMessages = value; }
         }
 
-        public MessageMetadata GetMessageDefinition(Type messageType)
+        /// <summary>
+        ///     Retrieves the <see cref="MessageMetadata" /> for the specified type.
+        /// </summary>
+        /// <param name="messageType">The message type to retrieve metadata for.</param>
+        /// <returns>The <see cref="MessageMetadata" /> for the specified type.</returns>
+        public MessageMetadata GetMessageMetadata(Type messageType)
         {
             MessageMetadata metadata;
             if (messages.TryGetValue(messageType, out metadata))
@@ -30,11 +38,11 @@
             throw new Exception(message);
         }
 
-        public bool HasDefinitionFor(Type messageType)
-        {
-            return messages.ContainsKey(messageType);
-        }
-
+        /// <summary>
+        ///     Retrieves the <see cref="MessageMetadata" /> for the message identifier.
+        /// </summary>
+        /// <param name="messageTypeIdentifier">The message identifier to retrieve metadata for.</param>
+        /// <returns>The <see cref="MessageMetadata" /> for the specified type.</returns>
         public MessageMetadata GetMessageMetadata(string messageTypeIdentifier)
         {
             if (string.IsNullOrEmpty(messageTypeIdentifier))
@@ -58,13 +66,12 @@
             return null;
         }
 
-        public IEnumerable<MessageMetadata> GetAllMessages()
+        internal IEnumerable<MessageMetadata> GetAllMessages()
         {
             return new List<MessageMetadata>(messages.Values);
         }
 
-
-        public void RegisterMessageType(Type messageType)
+        internal void RegisterMessageType(Type messageType)
         {
             //get the parent types
             var parentMessages = GetParentTypes(messageType)

@@ -15,7 +15,7 @@
             public void Should_throw_an_exception_for_a_unmapped_type()
             {
                 var defaultMessageRegistry = new MessageMetadataRegistry(false, new Conventions());
-                Assert.Throws<Exception>(() => defaultMessageRegistry.GetMessageDefinition(typeof(int)));
+                Assert.Throws<Exception>(() => defaultMessageRegistry.GetMessageMetadata(typeof(int)));
             }
 
             [Test]
@@ -23,7 +23,7 @@
             {
                 var defaultMessageRegistry = new MessageMetadataRegistry(false, new Conventions());
                 defaultMessageRegistry.RegisterMessageType(typeof(int));
-                var messageMetadata = defaultMessageRegistry.GetMessageDefinition(typeof(int));
+                var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(int));
                 Assert.AreEqual(typeof(int), messageMetadata.MessageType);
                 Assert.AreEqual(1, messageMetadata.MessageHierarchy.Count());
             }
@@ -35,7 +35,7 @@
                 var defaultMessageRegistry = new MessageMetadataRegistry(false, new Conventions());
 
                 defaultMessageRegistry.RegisterMessageType(typeof(MyEvent));
-                var messageMetadata = defaultMessageRegistry.GetMessageDefinition(typeof(MyEvent));
+                var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(MyEvent));
 
                 Assert.AreEqual(5, messageMetadata.MessageHierarchy.Count());
 

@@ -15,7 +15,7 @@ namespace NServiceBus.Unicast.Messages
         readonly IMessageMapper messageMapper;
         readonly PipelineExecutor pipelineExecutor;
 
-        internal LogicalMessageFactory(MessageMetadataRegistry messageMetadataRegistry, IMessageMapper messageMapper, PipelineExecutor pipelineExecutor)
+        public LogicalMessageFactory(MessageMetadataRegistry messageMetadataRegistry, IMessageMapper messageMapper, PipelineExecutor pipelineExecutor)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.messageMapper = messageMapper;
@@ -65,7 +65,7 @@ namespace NServiceBus.Unicast.Messages
 
             var realMessageType = messageMapper.GetMappedTypeFor(messageType);
 
-            return new LogicalMessage(messageMetadataRegistry.GetMessageDefinition(realMessageType), message, headers, this);
+            return new LogicalMessage(messageMetadataRegistry.GetMessageMetadata(realMessageType), message, headers, this);
         }
 
         /// <summary>
