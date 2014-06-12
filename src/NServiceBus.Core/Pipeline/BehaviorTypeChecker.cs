@@ -5,7 +5,6 @@ namespace NServiceBus.Pipeline
 
     static class BehaviorTypeChecker
     {
-
         public static void ThrowIfInvalid(Type behavior, string paramName)
         {
             if (behavior == null)

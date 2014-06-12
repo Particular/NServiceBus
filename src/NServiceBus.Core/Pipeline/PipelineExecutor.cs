@@ -9,9 +9,12 @@
     using Unicast;
     using Unicast.Messages;
 
+    /// <summary>
+    /// Orchestrates the execution of a pipeline.
+    /// </summary>
     public class PipelineExecutor : IDisposable
     {
-        public PipelineExecutor(ReadOnlySettings settings, IBuilder builder)
+        internal PipelineExecutor(ReadOnlySettings settings, IBuilder builder)
         {
             rootBuilder = builder;
 
@@ -23,9 +26,19 @@
             outgoingBehaviors = Outgoing.Select(r => r.BehaviorType);
         }
 
+        /// <summary>
+        /// The list of incoming steps registered.
+        /// </summary>
         public IList<RegisterBehavior> Incoming { get; private set; }
+        
+        /// <summary>
+        /// The list of outgoing steps registered.
+        /// </summary>
         public IList<RegisterBehavior> Outgoing { get; private set; }
 
+        /// <summary>
+        /// The current context being executed.
+        /// </summary>
         public BehaviorContext CurrentContext
         {
             get
@@ -43,6 +56,23 @@
             }
         }
 
+        /// <summary>
+        /// Invokes a chain of behaviors. 
+        /// </summary>
+        /// <typeparam name="TContext">The context to use.</typeparam>
+        /// <param name="behaviors">The behaviors to execute in the specified order.</param>
+        /// <param name="context">The context instance.</param>
+        public void InvokePipeline<TContext>(IEnumerable<Type> behaviors, TContext context) where TContext : BehaviorContext
+        {
+            var pipeline = new BehaviorChain<TContext>(behaviors);
+
+            Execute(pipeline, context);
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
             //Injected
@@ -77,13 +107,6 @@
             InvokePipeline(outgoingBehaviors, context);
 
             return context;
-        }
-
-        public void InvokePipeline<TContext>(IEnumerable<Type> behaviors, TContext context) where TContext : BehaviorContext
-        {
-            var pipeline = new BehaviorChain<TContext>(behaviors);
-
-            Execute(pipeline, context);
         }
 
         void DisposeManaged()

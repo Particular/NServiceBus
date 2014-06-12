@@ -95,7 +95,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
-            pipelineFactory = new PipelineExecutor(settings,FuncBuilder);
+            pipelineFactory = new PipelineExecutor(settings, FuncBuilder);
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
