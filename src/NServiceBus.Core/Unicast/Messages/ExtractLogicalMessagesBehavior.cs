@@ -22,18 +22,10 @@
 
         public LogicalMessageFactory LogicalMessageFactory { get; set; }
 
-        public bool SkipDeserialization { get; set; }
-
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
         public void Invoke(IncomingContext context, Action next)
         {
-            if (SkipDeserialization)
-            {
-                next();
-                return;
-            }
-
             var transportMessage = context.PhysicalMessage;
 
             if (transportMessage.IsControlMessage())
