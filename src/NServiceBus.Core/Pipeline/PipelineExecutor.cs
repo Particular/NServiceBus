@@ -14,7 +14,12 @@
     /// </summary>
     public class PipelineExecutor : IDisposable
     {
-        internal PipelineExecutor(ReadOnlySettings settings, IBuilder builder)
+        /// <summary>
+        /// Create a new instance of <see cref="PipelineExecutor"/>.
+        /// </summary>
+        /// <param name="settings">The settings to read data from.</param>
+        /// <param name="builder">The builder.</param>
+        public PipelineExecutor(ReadOnlySettings settings, IBuilder builder)
         {
             rootBuilder = builder;
 
