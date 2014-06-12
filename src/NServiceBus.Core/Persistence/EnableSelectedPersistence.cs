@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Windows.Forms;
     using Logging;
+    using Utils.Reflection;
 
     class EnableSelectedPersistence:IWantToRunBeforeConfigurationIsFinalized
     {
@@ -33,7 +34,9 @@
             {
                 throw new InvalidOperationException("We couldn't find a IConfigurePersistence implementation for your selected persistence: " + definitionType.Name);
             }
-                
+
+            config.Settings.Set<PersistenceDefinition>(definitionType.Construct<PersistenceDefinition>());
+
             ((IConfigurePersistence)Activator.CreateInstance(type)).Enable(config);
         }
 
