@@ -128,6 +128,6 @@ namespace NServiceBus.AcceptanceTesting
 
         Func<TContext> contextFactory = () => new TContext();
         Action<RunSummary> reports;
-        Func<Exception, bool> allowedExceptions;
+        Func<Exception, bool> allowedExceptions = exception => false;
     }
 }
