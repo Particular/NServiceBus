@@ -100,7 +100,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
 
-            FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory());
+            FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory(MessageMetadataRegistry, MessageMapper, pipelineFactory));
 
             FuncBuilder.Register<IManageSubscriptions>(() => subscriptionManager);
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
