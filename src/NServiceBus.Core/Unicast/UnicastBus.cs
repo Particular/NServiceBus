@@ -266,9 +266,21 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Return<T>(T errorCode)
         {
+            var tType = errorCode.GetType();
+            if (!(tType.IsEnum || tType == typeof(Int32) || tType == typeof(Int16) || tType == typeof(Int64)))
+            {
+                throw new ArgumentException("The errorCode can only be an enum or an integer.", "errorCode");
+            }
+
+            var returnCode = errorCode.ToString();
+            if (tType.IsEnum)
+            {
+                returnCode = Enum.Format(tType, errorCode, "D");
+            }
+
             var returnMessage = LogicalMessageFactory.CreateControl(new Dictionary<string, string>
             {
-                {Headers.ReturnMessageErrorCodeHeader, errorCode.GetHashCode().ToString()}
+                {Headers.ReturnMessageErrorCodeHeader, returnCode}
             });
 
             var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId()); 
