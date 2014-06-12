@@ -358,10 +358,7 @@
         [SetUp]
         public void BaseSetUp()
         {
-            conventions = new Conventions
-            {
-                IsEncryptedPropertyAction = property => typeof(WireEncryptedString).IsAssignableFrom(property.PropertyType)
-            };
+            conventions = BuildConventions();
 
             mutator = new EncryptionMessageMutator
             {
@@ -372,6 +369,11 @@
                 }),
                 Conventions = conventions
             };
+        }
+
+        protected virtual Conventions BuildConventions()
+        {
+            return new Conventions(isEncryptedPropertyAction: property => typeof(WireEncryptedString).IsAssignableFrom(property.PropertyType));
         }
 
         protected WireEncryptedString Create()

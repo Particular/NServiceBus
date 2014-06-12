@@ -3,6 +3,7 @@
     namespace NServiceBus.Config.UnitTests
     {
         using NUnit.Framework;
+        using Conventions = global::NServiceBus.Conventions;
 
         [TestFixture]
         public class When_applying_message_conventions_to_messages : MessageConventionTestBase
@@ -11,11 +12,11 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                conventions.IsMessageTypeAction = t =>
+                conventions = new Conventions(isMessageTypeAction: t =>
                 {
                     timesCalled++;
                     return false;
-                };
+                });
 
                 conventions.IsMessage(this);
                 Assert.AreEqual(1, timesCalled);
@@ -32,11 +33,11 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                conventions.IsEventTypeAction = t =>
+                conventions = new Conventions(isEventTypeAction: t =>
                 {
                     timesCalled++;
                     return false;
-                };
+                });
 
                 conventions.IsEvent(this);
                 Assert.AreEqual(1, timesCalled);
@@ -53,11 +54,11 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                conventions.IsCommandTypeAction = t =>
+                conventions = new Conventions(isCommandTypeAction: t =>
                 {
                     timesCalled++;
                     return false;
-                };
+                });
 
                 conventions.IsCommand(this);
                 Assert.AreEqual(1, timesCalled);
@@ -71,17 +72,10 @@
 
 namespace NServiceBus.Core.Tests.Conventions.NServiceBus.Config.UnitTests
 {
-    using NUnit.Framework;
     using Conventions = global::NServiceBus.Conventions;
 
     public class MessageConventionTestBase
     {
         protected Conventions conventions;
-
-        [SetUp]
-        public void SetUp()
-        {
-            conventions = new Conventions();
-        }
     }
 }

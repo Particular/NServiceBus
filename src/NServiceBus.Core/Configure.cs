@@ -581,37 +581,8 @@ namespace NServiceBus
 
             internal Conventions BuildConventions()
             {
-                var conventions = new Conventions();
-
-                if (definesCommandType != null)
-                {
-                    conventions.IsCommandTypeAction = definesCommandType;
-                }
-                if (definesDataBusProperty != null)
-                {
-                    conventions.IsDataBusPropertyAction = definesDataBusProperty;
-                }
-                if (definesEncryptedProperty != null)
-                {
-                    conventions.IsEncryptedPropertyAction = definesEncryptedProperty;
-                }
-                if (definesEventType != null)
-                {
-                    conventions.IsEventTypeAction = definesEventType;
-                }
-                if (definesExpressMessageType != null)
-                {
-                    conventions.IsExpressMessageAction = definesExpressMessageType;
-                }
-                if (definesMessageType != null)
-                {
-                    conventions.IsMessageTypeAction = definesMessageType;
-                }
-                if (retrieveTimeToBeReceived != null)
-                {
-                    conventions.TimeToBeReceivedAction = retrieveTimeToBeReceived;
-                }
-
+                var conventions = new Conventions(isCommandTypeAction: definesCommandType, isDataBusPropertyAction: definesDataBusProperty, isEncryptedPropertyAction: definesEncryptedProperty, isEventTypeAction: definesEventType, isExpressMessageAction: definesExpressMessageType, isMessageTypeAction: definesMessageType, timeToBeReceivedAction: retrieveTimeToBeReceived);
+           
                 return conventions;
             }
 

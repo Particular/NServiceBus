@@ -7,17 +7,48 @@
     using System.Reflection;
 
     /// <summary>
-    ///     Message related conventions.
+    ///     Message convention definitions.
     /// </summary>
     public class Conventions
     {
+        internal Conventions(Func<Type, TimeSpan> timeToBeReceivedAction = null, Func<Type, bool> isMessageTypeAction = null, Func<Type, bool> isExpressMessageAction = null, Func<Type, bool> isEventTypeAction = null, Func<Type, bool> isCommandTypeAction = null, Func<PropertyInfo, bool> isDataBusPropertyAction = null, Func<PropertyInfo, bool> isEncryptedPropertyAction = null)
+        {
+            if (isCommandTypeAction != null)
+            {
+                this.isCommandTypeAction = isCommandTypeAction;
+            }
+            if (isDataBusPropertyAction != null)
+            {
+                this.isDataBusPropertyAction = isDataBusPropertyAction;
+            }
+            if (isEncryptedPropertyAction != null)
+            {
+                this.isEncryptedPropertyAction = isEncryptedPropertyAction;
+            }
+            if (isEventTypeAction != null)
+            {
+                this.isEventTypeAction = isEventTypeAction;
+            }
+            if (isExpressMessageAction != null)
+            {
+                this.isExpressMessageAction = isExpressMessageAction;
+            }
+            if (isMessageTypeAction != null)
+            {
+                this.isMessageTypeAction = isMessageTypeAction;
+            }
+            if (timeToBeReceivedAction != null)
+            {
+                this.timeToBeReceivedAction = timeToBeReceivedAction;
+            }
+        }
+
         /// <summary>
         ///     The function used to determine whether a type is a command type.
         /// </summary>
         public Func<Type, bool> IsCommandTypeAction
         {
             get { return isCommandTypeAction; }
-            internal set { isCommandTypeAction = value; }
         }
 
         /// <summary>
@@ -26,7 +57,6 @@
         public Func<PropertyInfo, bool> IsDataBusPropertyAction
         {
             get { return isDataBusPropertyAction; }
-            internal set { isDataBusPropertyAction = value; }
         }
 
         /// <summary>
@@ -35,7 +65,6 @@
         public Func<PropertyInfo, bool> IsEncryptedPropertyAction
         {
             get { return isEncryptedPropertyAction; }
-            internal set { isEncryptedPropertyAction = value; }
         }
 
         /// <summary>
@@ -44,7 +73,6 @@
         public Func<Type, bool> IsEventTypeAction
         {
             get { return isEventTypeAction; }
-            internal set { isEventTypeAction = value; }
         }
 
         /// <summary>
@@ -53,7 +81,6 @@
         public Func<Type, bool> IsExpressMessageAction
         {
             get { return isExpressMessageAction; }
-            internal set { isExpressMessageAction = value; }
         }
 
         /// <summary>
@@ -62,7 +89,6 @@
         public Func<Type, bool> IsMessageTypeAction
         {
             get { return isMessageTypeAction; }
-            internal set { isMessageTypeAction = value; }
         }
 
         /// <summary>
@@ -71,7 +97,6 @@
         public Func<Type, TimeSpan> TimeToBeReceivedAction
         {
             get { return timeToBeReceivedAction; }
-            internal set { timeToBeReceivedAction = value; }
         }
 
         /// <summary>
