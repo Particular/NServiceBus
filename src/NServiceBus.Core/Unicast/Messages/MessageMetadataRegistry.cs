@@ -26,7 +26,7 @@
             {
                 return metadata;
             }
-            var message = string.Format("Could not find Metadata for '{0}'.{1}Please ensure the following:{1}1. '{0}' is included in initial scanning see File Scanning: http://particular.net/articles/the-nservicebus-host{1}2. '{0}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode' see: http://particular.net/articles/unobtrusive-mode-messages", messageType.FullName, Environment.NewLine);
+            var message = string.Format("Could not find metadata for '{0}'.{1}Please ensure the following:{1}1. '{0}' is included in initial scanning see File Scanning: http://particular.net/articles/the-nservicebus-host{1}2. '{0}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode' see: http://particular.net/articles/unobtrusive-mode-messages", messageType.FullName, Environment.NewLine);
             throw new Exception(message);
         }
 
@@ -66,28 +66,16 @@
 
         public void RegisterMessageType(Type messageType)
         {
-            var metadata = new MessageMetadata
-            {
-                MessageType = messageType,
-                Recoverable = !defaultToNonPersistentMessages,
-                TimeToBeReceived = conventions.TimeToBeReceivedAction(messageType)
-            };
-
-            if (conventions.IsExpressMessageType(messageType))
-            {
-                metadata.Recoverable = false;
-            }
-
             //get the parent types
             var parentMessages = GetParentTypes(messageType)
                 .Where(conventions.IsMessageType)
                 .OrderByDescending(PlaceInMessageHierarchy)
                 .ToList();
 
-            metadata.MessageHierarchy = new[]
+            var metadata = new MessageMetadata(messageType, !conventions.IsExpressMessageType(messageType) && !defaultToNonPersistentMessages, conventions.TimeToBeReceivedAction(messageType), new[]
             {
                 messageType
-            }.Concat(parentMessages);
+            }.Concat(parentMessages));
 
             messages[messageType] = metadata;
         }

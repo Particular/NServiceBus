@@ -15,11 +15,7 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public void Should_not_blow_up()
         {
-            var metadata = new MessageMetadata
-            {
-                TimeToBeReceived = TimeSpan.FromDays(1)
-            };
-
+            var metadata = new MessageMetadata(timeToBeReceived: TimeSpan.FromDays(1));
             var message = new LogicalMessage(metadata, new MessageWithNullDataBusProperty(), new Dictionary<string, string>(), null);
             var context = new OutgoingContext(null,new SendOptions(Address.Parse("MyEndpoint")), message);
 
