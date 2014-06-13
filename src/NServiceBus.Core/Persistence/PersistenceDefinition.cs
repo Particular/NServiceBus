@@ -28,6 +28,6 @@
         /// <summary>
         /// Indicates if the persistence has support for storing gateway deduplication data
         /// </summary>
-        public bool HasGatewaysStorage { get; protected set; }
+        public bool HasGatewayStorage { get; protected set; }
     }
 }
