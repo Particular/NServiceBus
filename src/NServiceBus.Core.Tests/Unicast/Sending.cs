@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Contexts;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
     using Rhino.Mocks;
 
@@ -210,11 +211,11 @@
     }
 
     [TestFixture]
-    class When_replying_to_a_saga : using_the_unicastBus
+    class When_replying_to_a_saga : with_sagas
     {
         [Test]
         public void The_saga_id_header_should_point_to_the_saga_we_are_replying_to()
-        {
+        {   
             RegisterMessageType<SagaRequest>();
             RegisterMessageType<ReplyToSaga>();
             var receivedMessage = Helpers.Helpers.Serialize(new SagaRequest());
