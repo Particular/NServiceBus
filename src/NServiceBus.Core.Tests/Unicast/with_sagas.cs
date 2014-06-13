@@ -3,6 +3,7 @@
     using System;
     using Contexts;
     using InMemory.SagaPersister;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
     using Saga;
     using Sagas.Finders;
@@ -17,10 +18,16 @@
         {
             persister = new InMemorySagaPersister();
             FuncBuilder.Register<ISagaPersister>(() => persister);
-
             Features.Sagas.Clear();
 
             conventions = new Conventions();
+        }
+
+        protected override void ApplyPipelineModifications()
+        {
+            pipelineModifications.Additions.Add(new SagaPersistenceBehavior.SagaPersistenceRegistration());
+            pipelineModifications.Additions.Add(new AuditInvokedSagaBehavior.AuditInvokedSagaRegistration());
+            pipelineModifications.Additions.Add(new AttachSagaDetailsBehavior.SagaSendRegistration());
         }
 
         protected void RegisterCustomFinder<T>() where T : IFinder

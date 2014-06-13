@@ -39,7 +39,7 @@
             context.Pipeline.Register<SagaPersistenceBehavior.SagaPersistenceRegistration>();
 
             // Register the saga related behavior for outgoing messages
-            context.Pipeline.Register<SagaSendBehavior.SagaSendRegistration>();
+            context.Pipeline.Register<AttachSagaDetailsBehavior.SagaSendRegistration>();
 
             foreach (var t in context.Settings.GetAvailableTypes())
             {
