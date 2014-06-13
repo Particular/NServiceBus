@@ -202,8 +202,6 @@ namespace NServiceBus
             //lockdown the settings
             Settings.PreventChanges();
 
-            ActivateAndInvoke<IFinalizeConfiguration>(t => t.FinalizeConfiguration(this));
-
             featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
             featureActivator.RegisterStartupTasks(Configurer);
 
