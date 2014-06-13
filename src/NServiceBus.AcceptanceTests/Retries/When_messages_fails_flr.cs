@@ -24,7 +24,7 @@
                             Assert.GreaterOrEqual(1,context.NumberOfSlrRetriesPerformed, "The SLR should only do one retry");
                             Assert.GreaterOrEqual(context.TimeOfSecondAttempt - context.TimeOfFirstAttempt,SlrDelay , "The SLR should delay the retry");
                         })
-                    .Run(TimeSpan.FromSeconds(20));
+                    .Run();
         }
 
         public class Context : ScenarioContext
