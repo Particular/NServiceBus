@@ -109,7 +109,7 @@
                     RunInMemory = true
                 }.Initialize())
                 {
-                    var persister2 = new RavenTimeoutPersistence(new StoreAccessor(documentStore));
+                    var persister2 = new RavenTimeoutPersistence(new StoreAccessor(store));
 
                     var sagaId = Guid.NewGuid();
                     for (var i = 0; i < 10000; i++)
