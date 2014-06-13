@@ -3,6 +3,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net;
     using System.Text;
     using global::Raven.Client;
     using global::Raven.Client.Linq;
@@ -28,14 +29,46 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
 
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
-            var now = DateTime.UtcNow;
-            var results = new List<Tuple<string, DateTime>>();
-
-            // Allow for occasionally cleaning up old timeouts for edge cases where timeouts have been
-            // added after startSlice have been set to a later timout and we might have missed them
-            // because of stale indexes.
-            if (seenStaleResults && (lastCleanupTime.Add(TriggerCleanupEvery) > now || lastCleanupTime == DateTime.MinValue))
+            try
             {
+                var now = DateTime.UtcNow;
+                var results = new List<Tuple<string, DateTime>>();
+
+                // Allow for occasionally cleaning up old timeouts for edge cases where timeouts have been
+                // added after startSlice have been set to a later timout and we might have missed them
+                // because of stale indexes.
+                if (seenStaleResults && (lastCleanupTime.Add(TriggerCleanupEvery) > now || lastCleanupTime == DateTime.MinValue))
+                {
+                    using (var session = OpenSession())
+                    {
+                        session.Advanced.AllowNonAuthoritativeInformation = true;
+
+                        var query = session.Query<TimeoutData>()
+                            .OrderBy(t => t.Time)
+                            .Where(
+                                t =>
+                                    t.OwningTimeoutManager == String.Empty ||
+                                    t.OwningTimeoutManager == Configure.EndpointName)
+                            .Where(t => t.Time <= startSlice.Subtract(CleanupGapFromTimeslice))
+                            ;
+
+                        results.AddRange(query
+                            .Select(t => new
+                            {
+                                t.Id,
+                                t.Time
+                            })
+                            .Take(1024)
+                            .ToList()
+                            .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time))
+                            );
+                    }
+
+                    lastCleanupTime = DateTime.UtcNow;
+                    seenStaleResults = false;
+                }
+
+                RavenQueryStatistics stats;
                 using (var session = OpenSession())
                 {
                     session.Advanced.AllowNonAuthoritativeInformation = true;
@@ -46,66 +79,42 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                             t =>
                                 t.OwningTimeoutManager == String.Empty ||
                                 t.OwningTimeoutManager == Configure.EndpointName)
-                        .Where(t => t.Time <= startSlice.Subtract(CleanupGapFromTimeslice))
+                        .Where(t => t.Time > startSlice && t.Time <= now)
+                        .Statistics(out stats)
                         ;
 
                     results.AddRange(query
                         .Select(t => new
-                        {
-                            t.Id,
-                            t.Time
-                        })
+                                     {
+                                         t.Id,
+                                         t.Time
+                                     })
                         .Take(1024)
                         .ToList()
                         .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time))
                         );
                 }
 
-                lastCleanupTime = DateTime.UtcNow;
-                seenStaleResults = false;
-            }
+                if (stats.IsStale) seenStaleResults = true;
 
-            RavenQueryStatistics stats;
-            using (var session = OpenSession())
+                // Next execution is either now if we haven't consumed the entire thing, or delayed
+                // a bit if we ded
+                if (stats.TotalResults > 1024 || stats.IsStale)
+                {
+                    nextTimeToRunQuery = now;
+                }
+                else
+                {
+                    nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10);
+                }
+
+                return results;
+            }
+            catch (WebException ex)
             {
-                session.Advanced.AllowNonAuthoritativeInformation = true;
-
-                var query = session.Query<TimeoutData>()
-                    .OrderBy(t => t.Time)
-                    .Where(
-                        t =>
-                            t.OwningTimeoutManager == String.Empty ||
-                            t.OwningTimeoutManager == Configure.EndpointName)
-                    .Where(t => t.Time > startSlice && t.Time <= now)
-                    .Statistics(out stats)
-                    ;
-
-                results.AddRange(query
-                    .Select(t => new
-                                 {
-                                     t.Id,
-                                     t.Time
-                                 })
-                    .Take(1024)
-                    .ToList()
-                    .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time))
-                    );
+                LogRavenConnectionFailure(ex);
+                throw;
             }
-
-            if (stats.IsStale) seenStaleResults = true;
-
-            // Next execution is either now if we haven't consumed the entire thing, or delayed
-            // a bit if we ded
-            if (stats.TotalResults > 1024 || stats.IsStale)
-            {
-                nextTimeToRunQuery = now;
-            }
-            else
-            {
-                nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10);
-            }
-
-            return results;
         }
 
         public void Add(TimeoutData timeout)
