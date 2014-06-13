@@ -13,6 +13,11 @@ namespace NServiceBus.Features
         internal UnicastBus()
         {
             EnableByDefault();
+            Defaults(s =>
+            {
+               s.SetDefault("Endpoint.SendOnly", false);
+               s.SetDefault("Endpoint.DurableMessages", true);
+            });
         }
 
         /// <summary>

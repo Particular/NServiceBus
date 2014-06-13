@@ -4,22 +4,6 @@ namespace NServiceBus.Settings
     using Features;
     using Persistence;
 
-    class DefaultEndpointSettings : IWantToRunBeforeConfiguration
-    {
-        public void Init(Configure configure)
-        {
-            configure.Settings.SetDefault("Endpoint.SendOnly", false);
-        }
-    }
-
-    class DefaultEndpointAdvancedSettings : IWantToRunBeforeConfiguration
-    {
-        public void Init(Configure configure)
-        {
-            configure.Settings.SetDefault("Endpoint.DurableMessages", true);
-        }
-    }
-
     /// <summary>
     ///     Configuration class for Endpoint settings.
     /// </summary>
@@ -41,7 +25,7 @@ namespace NServiceBus.Settings
         /// </summary>
         public void AsVolatile()
         {
-            config.Settings.Set("Persistence", typeof(InMemory));
+            config.UsePersistence<InMemory>();
 
             config.Transactions(t =>
             {
