@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using Contexts;
-    using NServiceBus.Sagas;
     using NUnit.Framework;
     using Rhino.Mocks;
 

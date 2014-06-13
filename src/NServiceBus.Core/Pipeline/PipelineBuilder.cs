@@ -5,7 +5,6 @@
     using MessageMutator;
     using NServiceBus.Logging;
     using NServiceBus.MessageMutator;
-    using Sagas;
     using Unicast.Behaviors;
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
