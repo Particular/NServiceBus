@@ -74,6 +74,95 @@
             }
         }
 
+        [TestCase]
+        public void Should_not_skip_timeouts_also_with_multiple_clients_adding_timeouts()
+        {
+            var expected = new List<Tuple<string, DateTime>>();
+            var lastTimeout = DateTime.UtcNow;
+            var finishedAdding1 = false;
+            var finishedAdding2 = false;
+            new Thread(() =>
+            {
+                var sagaId = Guid.NewGuid();
+                for (var i = 0; i < 10000; i++)
+                {
+                    var td = new TimeoutData
+                    {
+                        SagaId = sagaId,
+                        Destination = new Address("queue", "machine"),
+                        Time = DateTime.UtcNow.AddSeconds(1 + RandomProvider.GetThreadRandom().Next(1, 20)),
+                        OwningTimeoutManager = string.Empty,
+                    };
+                    persister.Add(td);
+                    expected.Add(new Tuple<string, DateTime>(td.Id, td.Time));
+                    lastTimeout = (td.Time > lastTimeout) ? td.Time : lastTimeout;
+                    //Trace.WriteLine("Added timeout for " + td.Time);
+                }
+                finishedAdding1 = true;
+                Trace.WriteLine("*** Finished adding ***");
+            }).Start();
+
+            new Thread(() =>
+            {
+                using (var store = new EmbeddableDocumentStore
+                {
+                    RunInMemory = true
+                }.Initialize())
+                {
+                    var persister2 = new RavenTimeoutPersistence(new StoreAccessor(documentStore));
+
+                    var sagaId = Guid.NewGuid();
+                    for (var i = 0; i < 10000; i++)
+                    {
+                        var td = new TimeoutData
+                        {
+                            SagaId = sagaId,
+                            Destination = new Address("queue", "machine"),
+                            Time = DateTime.UtcNow.AddSeconds(1 + RandomProvider.GetThreadRandom().Next(1, 20)),
+                            OwningTimeoutManager = string.Empty,
+                        };
+                        persister2.Add(td);
+                        expected.Add(new Tuple<string, DateTime>(td.Id, td.Time));
+                        lastTimeout = (td.Time > lastTimeout) ? td.Time : lastTimeout;
+                        //Trace.WriteLine("Added timeout for " + td.Time);
+                    }
+                }
+                finishedAdding2 = true;
+                Trace.WriteLine("*** Finished adding via a second client connection ***");
+            }).Start();
+
+            // Mimic the behavior of the TimeoutPersister coordinator
+            var found = 0;
+            var startSlice = DateTime.UtcNow.AddYears(-10);
+            var nextRetrieval = DateTime.UtcNow;
+            while (!finishedAdding1 || !finishedAdding2 || startSlice < lastTimeout)
+            {
+                var timeoutDatas = persister.GetNextChunk(startSlice, out nextRetrieval);
+                Trace.WriteLine("Querying for timeouts starting at " + startSlice + " with last known added timeout at " + lastTimeout);
+                foreach (var timeoutData in timeoutDatas)
+                {
+                    if (startSlice < timeoutData.Item2)
+                    {
+                        startSlice = timeoutData.Item2;
+                    }
+                    found++;
+
+                    TimeoutData td;
+                    Assert.IsTrue(persister.TryRemove(timeoutData.Item1, out td));
+                }
+            }
+
+            Assert.AreEqual(expected.Count, found);
+
+            WaitForIndexing(documentStore);
+
+            using (var session = documentStore.OpenSession())
+            {
+                var results = session.Query<TimeoutData>().ToList();
+                Assert.AreEqual(0, results.Count);
+            }
+        }
+
         IDocumentStore documentStore;
         IPersistTimeouts persister;
 
