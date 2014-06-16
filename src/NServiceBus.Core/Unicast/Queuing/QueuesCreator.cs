@@ -24,7 +24,7 @@ namespace NServiceBus.Unicast.Queuing
 
             var wantQueueCreatedInstances = config.Builder.BuildAll<IWantQueueCreated>().ToList();
 
-            foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => wantQueueCreatedInstance.ShouldCreateQueue(config)))
+            foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => wantQueueCreatedInstance.ShouldCreateQueue()))
             {
                 if (wantQueueCreatedInstance.Address == null)
                 {

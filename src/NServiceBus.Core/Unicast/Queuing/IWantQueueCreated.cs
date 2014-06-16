@@ -13,6 +13,6 @@ namespace NServiceBus.Unicast.Queuing
         /// <summary>
         /// True if no need to create queue
         /// </summary>
-        bool ShouldCreateQueue(Configure config);
+        bool ShouldCreateQueue();
     }
 }
