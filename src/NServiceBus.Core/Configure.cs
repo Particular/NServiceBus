@@ -181,6 +181,8 @@ namespace NServiceBus
                 this.DefaultBuilder();
             }
 
+            Address.InitializeLocalAddress(settings.EndpointName());
+
             WireUpConfigSectionOverrides();
 
             featureActivator = new FeatureActivator(Settings);
@@ -192,8 +194,6 @@ namespace NServiceBus
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
-            ActivateAndInvoke<IWantToRunBeforeConfiguration>(t => t.Init(this));
 
             ActivateAndInvoke<INeedInitialization>(t => t.Init(this));
 

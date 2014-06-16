@@ -17,6 +17,14 @@
         internal Sagas()
         {
             EnableByDefault();
+
+            Defaults(s =>
+            {
+                var sagas = s.GetAvailableTypes().Where(IsSagaType).ToList();
+
+                s.Get<Conventions>().AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
+            });
+
             Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType));
         }
 
@@ -243,6 +251,13 @@
             saga.ConfigureHowToFindSaga(SagaMessageFindingConfiguration);
         }
 
+        static bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)
+        {
+            var timeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
+            var messageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
+
+            return sagas.Any(t => timeoutHandler.IsAssignableFrom(t) && !messageHandler.IsAssignableFrom(t));
+        }
 
         internal static void ConfigureFinder(Type t, Conventions conventions)
         {

@@ -340,7 +340,6 @@
     <Compile Include="Features\Feature.cs" />
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer.cs" />
-    <Compile Include="Config\AddressInitializer.cs" />
     <Compile Include="Config\Advanced\ConfigureSettingLocalAddressNameAction.cs" />
     <Compile Include="Config\ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Config\ConfigurationSource\IConfigurationSource.cs" />
@@ -491,7 +490,6 @@
     </Compile>
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersister.cs" />
     <Compile Include="Sagas\ConfigureHowToFindSagaWithMessageDispatcher.cs" />
-    <Compile Include="Sagas\ConfigureTimeoutAsSystemMessages.cs" />
     <Compile Include="Sagas\Finders\HeaderSagaIdFinder.cs" />
     <Compile Include="Sagas\Finders\PropertySagaFinder.cs" />
     <Compile Include="Satellites\Config\SatelliteContext.cs" />
