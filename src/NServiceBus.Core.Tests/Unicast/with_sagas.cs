@@ -3,7 +3,7 @@
     using System;
     using Contexts;
     using InMemory.SagaPersister;
-    using NServiceBus.Sagas;
+    using Sagas;
     using NUnit.Framework;
     using Saga;
     using Sagas.Finders;

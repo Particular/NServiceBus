@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using Contexts;
     using MessageMutator;
-    using NServiceBus.Logging;
+    using Logging;
     using NServiceBus.MessageMutator;
     using Unicast.Behaviors;
     using Unicast.Messages;

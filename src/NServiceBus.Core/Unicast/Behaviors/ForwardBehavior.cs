@@ -2,11 +2,11 @@
 {
     using System;
     using NServiceBus.Config;
-    using NServiceBus.Features;
+    using Features;
     using Pipeline;
     using Pipeline.Contexts;
     using Transports;
-    using NServiceBus.Unicast.Queuing.Installers;
+    using Queuing.Installers;
 
     public class ForwardReceivedMessages : Feature
     {
