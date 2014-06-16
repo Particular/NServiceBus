@@ -1,6 +1,6 @@
 namespace NServiceBus.Scheduling.Configuration
 {
-    class ConfigureScheduledTaskAsSystemMessages : IWantToRunBeforeConfiguration
+    class ConfigureScheduledTaskAsSystemMessages : INeedInitialization
     {
         public void Init(Configure config)
         {
