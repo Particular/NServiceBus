@@ -325,7 +325,7 @@ namespace NServiceBus
 {
     [ObsoleteEx(
         Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them",
-        Replacement = "configure.CreateBus().RunInstallers();", 
+        Replacement = "configure.EnableInstallers().CreateBus();", 
         RemoveInVersion = "6",
         TreatAsErrorFromVersion = "5")]
     public static class Install
@@ -333,7 +333,7 @@ namespace NServiceBus
 
         [ObsoleteEx(
             Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them",
-            Replacement = "configure.CreateBus().RunInstallers();",
+            Replacement = "configure.EnableInstallers().CreateBus();",
             RemoveInVersion = "6", 
             TreatAsErrorFromVersion = "5")]
         public static Installer<T> ForInstallationOn<T>(this Configure config)
@@ -343,7 +343,7 @@ namespace NServiceBus
 
         [ObsoleteEx(
             Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them",
-            Replacement = "configure.CreateBus().RunInstallers();",
+            Replacement = "configure.EnableInstallers().CreateBus();",
             RemoveInVersion = "6", 
             TreatAsErrorFromVersion = "5")]
         public static Installer<T> ForInstallationOn<T>(this Configure config, string username)
