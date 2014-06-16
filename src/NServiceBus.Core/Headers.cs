@@ -55,6 +55,11 @@
         /// Header containing a correlation id for a message.
         /// </summary>
         public const string CorrelationId = "NServiceBus.CorrelationId";
+
+        /// <summary>
+        /// Header containing the ReplyToAddress for a message.
+        /// </summary>
+        public const string ReplyToAddress = "NServiceBus.ReplyToAddress";
         
         /// <summary>
         /// Prefix included on the wire when sending applicative headers.

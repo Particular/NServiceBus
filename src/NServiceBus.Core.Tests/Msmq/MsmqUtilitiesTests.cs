@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Msmq
 {
     using System;
+    using System.Messaging;
     using NUnit.Framework;
 
     [TestFixture]
@@ -37,6 +38,20 @@
             var result = MsmqUtilities.Convert(message);
 
             Assert.AreEqual(expected, result.Headers["NServiceBus.ExceptionInfo.Message"]);
+        }
+
+        [Test]
+        public void Should_fetch_the_replytoaddress_from_responsequeue_for_backwards_compatibility()
+        {
+            var transportMessage = new TransportMessage();
+
+            
+            var message = MsmqUtilities.Convert(transportMessage);
+
+            message.ResponseQueue = new MessageQueue( MsmqUtilities.GetReturnAddress("local", "destination"));
+            var result = MsmqUtilities.Convert(message);
+
+            Assert.AreEqual("local@"+Environment.MachineName, result.Headers[Headers.ReplyToAddress]);
         }
     }
 }

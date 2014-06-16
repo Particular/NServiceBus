@@ -34,7 +34,7 @@
 
             satellite.RetryPolicy = DefaultRetryPolicy.RetryPolicy;
 
-            message = new TransportMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), CLIENT_QUEUE);
+            message = new TransportMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>{{Headers.ReplyToAddress,CLIENT_QUEUE.ToString()}});
         }
 
         [Test]
