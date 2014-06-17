@@ -9,7 +9,7 @@
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using UnitOfWork;
-    using NServiceBus.Sagas;
+    using Sagas;
 
     class PipelineBuilder
     {
