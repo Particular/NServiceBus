@@ -14,12 +14,12 @@ namespace NServiceBus.Unicast.Tests.Helpers
             {
                 replyToAddress = Address.Parse("myClient");
             }
-            return new TransportMessage(Guid.NewGuid().ToString(),new Dictionary<string, string>(),replyToAddress);
+            return new TransportMessage(Guid.NewGuid().ToString(),new Dictionary<string, string>{{Headers.ReplyToAddress,replyToAddress.ToString()}});
         }
 
         public static TransportMessage EmptySubscriptionMessage()
         {
-            var subscriptionMessage = new TransportMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), Address.Parse("mySubscriber")) { MessageIntent = MessageIntentEnum.Subscribe };
+            var subscriptionMessage = new TransportMessage(Guid.NewGuid().ToString(), new Dictionary<string, string> { { Headers.ReplyToAddress, "mySubscriber" } }) { MessageIntent = MessageIntentEnum.Subscribe };
 
             subscriptionMessage.Headers[Headers.SubscriptionMessageType] =
                 "NServiceBus.Unicast.Tests.MyMessage, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c";

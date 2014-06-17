@@ -97,11 +97,8 @@ namespace NServiceBus
             return "127.0.0.1";
         }
 
-        /// <summary>
-        ///     Gets an independent address for the queue in the form:
-        ///     queue@machine.
-        /// </summary>
-        public static Address GetIndependentAddressForQueue(MessageQueue q)
+       
+        static Address GetIndependentAddressForQueue(MessageQueue q)
         {
             if (q == null)
             {
@@ -143,12 +140,20 @@ namespace NServiceBus
         {
             var headers = DeserializeMessageHeaders(m);
 
-            var result = new TransportMessage(m.Id, headers, GetIndependentAddressForQueue(m.ResponseQueue))
+            
+            var result = new TransportMessage(m.Id, headers)
             {
                 Recoverable = m.Recoverable,
                 TimeToBeReceived = m.TimeToBeReceived,
                 CorrelationId = GetCorrelationId(m, headers)
             };
+
+            //note: we can drop this line when we no longer support interop btw v3 + v4
+            if (m.ResponseQueue != null)
+            {
+                result.Headers[Headers.ReplyToAddress] = GetIndependentAddressForQueue(m.ResponseQueue).ToString();    
+            }
+            
 
             if (Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific))
             {
