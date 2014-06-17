@@ -3,7 +3,7 @@ namespace NServiceBus.Sagas
     using System;
     using Saga;
 
-    class ActiveSagaInstance
+    public class ActiveSagaInstance
     {
         public ActiveSagaInstance(Saga saga)
         {
