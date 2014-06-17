@@ -7,7 +7,7 @@
     using Unicast.Transport;
 
 
-    class SagaSendBehavior : IBehavior<OutgoingContext>
+    class PopulateAutoCorrelationHeadersForRepliesBehavior : IBehavior<OutgoingContext>
     {
         public void Invoke(OutgoingContext context, Action next)
         {

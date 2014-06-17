@@ -28,7 +28,7 @@ namespace NServiceBus.Outbox
                 : base("OutboxRecorder", typeof(OutboxRecordBehavior), "Records all action to the outbox storage")
             {
                 InsertBefore(WellKnownBehavior.MutateIncomingTransportMessage);
-                InsertAfter(WellKnownBehavior.UnitOfWork);
+                InsertAfter(WellKnownBehavior.ExecuteUnitOfWork);
             }
         }
     }

@@ -10,7 +10,7 @@ namespace NServiceBus.Unicast.Queuing.Installers
             get { return Address.Local; }
         }
 
-        public bool ShouldCreateQueue(Configure config)
+        public bool ShouldCreateQueue()
         {
             return true;
         }

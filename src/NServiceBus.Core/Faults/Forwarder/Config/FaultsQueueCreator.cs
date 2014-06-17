@@ -9,7 +9,7 @@ namespace NServiceBus.Faults.Forwarder.Config
             get { return ConfigureFaultsForwarder.ErrorQueue; }
         }
 
-        public bool ShouldCreateQueue(Configure config)
+        public bool ShouldCreateQueue()
         {
             return ConfigureFaultsForwarder.ErrorQueue != null;
         }

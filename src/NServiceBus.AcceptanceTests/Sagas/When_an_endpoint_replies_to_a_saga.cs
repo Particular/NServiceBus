@@ -62,10 +62,9 @@
 
                 public void Handle(StartSaga message)
                 {
-                    var dataId = Guid.NewGuid();
-                    Console.Out.WriteLine("Saga2 sending DoSomething for DataId: {0}", dataId);
-                    Data.DataId = dataId;
-                    Bus.Send(new DoSomething { DataId = dataId });
+                    Console.Out.WriteLine("Saga2 sending DoSomething for DataId: {0}", message.DataId);
+                    Data.DataId = message.DataId;
+                    Bus.Send(new DoSomething { DataId = message.DataId });
                 }
 
                 public void Handle(DoSomethingResponse message)
@@ -77,7 +76,6 @@
                 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga2Data> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class MySaga2Data : ContainSagaData
@@ -85,7 +83,6 @@
                     [Unique]
                     public virtual Guid DataId { get; set; }
                 }
-
             }
         }
         

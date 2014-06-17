@@ -34,6 +34,9 @@
         protected override void Setup(FeatureConfigurationContext context)
         {
             conventions = context.Settings.Get<Conventions>();
+            // Register the Saga related behavior for incoming messages
+            context.Pipeline.Register<AuditInvokedSagaBehavior.AuditInvokedSagaRegistration>();
+            context.Pipeline.Register<SagaPersistenceBehavior.SagaPersistenceRegistration>();
 
             foreach (var t in context.Settings.GetAvailableTypes())
             {

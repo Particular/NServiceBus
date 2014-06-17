@@ -9,7 +9,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage.Config
             get { return ConfigureMsmqSubscriptionStorage.Queue; }
         }
 
-        public bool ShouldCreateQueue(Configure config)
+        public bool ShouldCreateQueue()
         {
             return ConfigureMsmqSubscriptionStorage.Queue != null;
         }

@@ -11,15 +11,15 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Auditing.
         /// </summary>
-        public const string Audit = "Audit";
+        public const string AuditProcessedMessage = "AuditProcessedMessage";
         /// <summary>
         /// Child Container creator.
         /// </summary>
-        public const string ChildContainer = "ChildContainer";
+        public const string CreateChildContainer = "CreateChildContainer";
         /// <summary>
         /// Executes UoWs.
         /// </summary>
-        public const string UnitOfWork = "UnitOfWork";
+        public const string ExecuteUnitOfWork = "ExecuteUnitOfWork";
         /// <summary>
         /// Runs incoming mutation for <see cref="TransportMessage"/>.
         /// </summary>
@@ -33,9 +33,9 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public const string InvokeHandlers = "InvokeHandlers";
         /// <summary>
-        /// Extracts all logical messages from the transport message.
+        /// Deserializes all logical messages from the transport message.
         /// </summary>
-        public const string ExtractLogicalMessages = "ExtractLogicalMessages";
+        public const string DeserializeMessages = "DeserializeMessages";
         /// <summary>
         /// Runs incoming mutation for each logical message.
         /// </summary>

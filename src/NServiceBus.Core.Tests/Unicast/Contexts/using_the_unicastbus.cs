@@ -50,6 +50,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected MessageHandlerRegistry handlerRegistry;
         protected TransportDefinition transportDefinition;
         protected SettingsHolder settings;
+        protected PipelineModifications pipelineModifications;
 
         PipelineExecutor pipelineFactory;
 
@@ -72,7 +73,10 @@ namespace NServiceBus.Unicast.Tests.Contexts
             settings.SetDefault("EndpointName", "TestEndpoint");
             settings.SetDefault("Endpoint.SendOnly", false);
             settings.SetDefault("MasterNode.Address", MasterNodeAddress);
-            settings.Set<PipelineModifications>(new PipelineModifications());
+            pipelineModifications = new PipelineModifications();
+            settings.Set<PipelineModifications>(pipelineModifications);
+
+            ApplyPipelineModifications();
 
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
@@ -109,7 +113,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
             FuncBuilder.Register<IMessageMapper>(() => MessageMapper);
 
-            FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior
+            FuncBuilder.Register<DeserializeLogicalMessagesBehavior>(() => new DeserializeLogicalMessagesBehavior
                                                              {
                                                                  MessageSerializer = MessageSerializer,
                                                                  MessageMetadataRegistry = MessageMetadataRegistry,
@@ -155,6 +159,10 @@ namespace NServiceBus.Unicast.Tests.Contexts
             {
                 Builder = FuncBuilder
             }.SetupHeaderActions();
+        }
+
+        protected virtual void ApplyPipelineModifications()
+        {
         }
 
         protected virtual IEnumerable<Type> KnownMessageTypes()

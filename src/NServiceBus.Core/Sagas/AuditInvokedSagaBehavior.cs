@@ -30,5 +30,14 @@
                 context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] = audit;
             }
         }
+
+        public class AuditInvokedSagaRegistration : RegisterBehavior
+        {
+            public AuditInvokedSagaRegistration()
+                : base("AuditInvokedSaga", typeof(AuditInvokedSagaBehavior), "Populates the InvokedSaga header")
+            {
+                InsertAfter("SetCurrentMessageBeingHandled");
+            }
+        }
     }
 }
