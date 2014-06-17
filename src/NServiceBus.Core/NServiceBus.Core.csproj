@@ -154,6 +154,7 @@
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="Gateway\GatewayHttpListenerInstaller.cs" />
+    <Compile Include="Persistence\EnabledPersistences.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
     <Compile Include="Serialization\SerializationConfigExtensions.cs" />
     <Compile Include="Serialization\SerializationConfiguration.cs" />
@@ -196,7 +197,7 @@
     <Compile Include="Outbox\OutboxSettings.cs" />
     <Compile Include="Outbox\TransportOperation.cs" />
     <Compile Include="Outbox\TransportOperationConverter.cs" />
-    <Compile Include="Persistence\EnableSelectedPersistence.cs" />
+    <Compile Include="Persistence\EnableSelectedPersistences.cs" />
     <Compile Include="Persistence\IConfigurePersistence.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayPersistence.cs" />
     <Compile Include="Persistence\InMemory\InMemory.cs" />

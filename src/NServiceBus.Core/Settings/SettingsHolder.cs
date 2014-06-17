@@ -122,6 +122,15 @@ namespace NServiceBus.Settings
             Defaults[key] = value;
         }
 
+        /// <summary>
+        /// Gets the setting or default based on the typename
+        /// </summary>
+        /// <typeparam name="T">The setting to get</typeparam>
+        /// <returns></returns>
+        public T GetOrDefault<T>()
+        {
+            return GetOrDefault<T>(typeof(T).FullName);
+        }
         public T GetOrDefault<T>(string key)
         {
             object result;
