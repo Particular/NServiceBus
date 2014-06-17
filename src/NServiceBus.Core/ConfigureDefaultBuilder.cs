@@ -11,7 +11,7 @@ namespace NServiceBus
        [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "Just remove, builder is defaulted if needed in v5")]
+            Message = "Default builder will be used automatically")]
 // ReSharper disable once UnusedParameter.Global
         public static Configure DefaultBuilder(this Configure config)
         {
