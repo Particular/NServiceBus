@@ -1,12 +1,11 @@
 namespace NServiceBus
 {
-    using Config;
-    using Logging;
-    using Persistence.Msmq.SubscriptionStorage;
+    using System;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "config.UsePersistence<Msmq>()")]
     public static class ConfigureMsmqSubscriptionStorage
     {
         /// <summary>
@@ -15,9 +14,11 @@ namespace NServiceBus
         /// you should not choose this option - prefer the DbSubscriptionStorage
         /// in that case.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "6",TreatAsErrorFromVersion = "5",Replacement = "config.UsePersistence<Msmq>()")]
+// ReSharper disable once UnusedParameter.Global
         public static Configure MsmqSubscriptionStorage(this Configure config)
         {
-            return MsmqSubscriptionStorage(config, config.Settings.EndpointName());
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -26,31 +27,18 @@ namespace NServiceBus
         /// you should not choose this option - prefer the DbSubscriptionStorage
         /// in that case.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "config.UsePersistence<Msmq>(c=>c.QueueName('SomeName'))")]
+// ReSharper disable UnusedParameter.Global
         public static Configure MsmqSubscriptionStorage(this Configure config, string endpointName)
+// ReSharper restore UnusedParameter.Global
         {
-            var cfg = config.Settings.GetConfigSection<MsmqSubscriptionStorageConfig>();
-
-            if (cfg == null && string.IsNullOrEmpty(endpointName))
-                Logger.Warn("Could not find configuration section for Msmq Subscription Storage and no name was specified for this endpoint. Going to default the subscription queue");
-
-            if (string.IsNullOrEmpty(endpointName))
-                endpointName = "NServiceBus";
-
-
-            Queue = cfg != null ? Address.Parse(cfg.Queue): Address.Parse(endpointName).SubScope("subscriptions");
-
-            config.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(s => s.Queue, Queue)
-                .ConfigureProperty(s => s.TransactionsEnabled, config.Settings.Get<bool>("Transactions.Enabled"));
-
-            return config;
+            throw new NotImplementedException();
         }
 
         /// <summary>
         /// Queue used to store subscriptions.
         /// </summary>
+         [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "config.UsePersistence<Msmq>(c=>c.QueueName('SomeName'))")]
         public static Address Queue { get; set; }
-
-        static ILog Logger = LogManager.GetLogger(typeof(MsmqSubscriptionStorage));
     }
 }

@@ -155,6 +155,9 @@
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="Gateway\GatewayHttpListenerInstaller.cs" />
     <Compile Include="Persistence\EnabledPersistences.cs" />
+    <Compile Include="Persistence\Msmq\Msmq.cs" />
+    <Compile Include="Persistence\Msmq\MsmqPersistence.cs" />
+    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
     <Compile Include="Serialization\SerializationConfigExtensions.cs" />
     <Compile Include="Serialization\SerializationConfiguration.cs" />
@@ -578,7 +581,7 @@
     <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\ISubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageType.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\Config\SubscriptionsQueueCreator.cs" />
+    <Compile Include="Persistence\Msmq\SubscriptionStorage\SubscriptionsQueueCreator.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\Entry.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorage.cs" />
     <Compile Include="Unicast\Transport\ControlMessage.cs" />

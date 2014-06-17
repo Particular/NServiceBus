@@ -7,7 +7,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
     /// Describes an entry in the list of subscriptions.
     /// </summary>
     [Serializable]
-    public class Entry
+    class Entry
     {
         /// <summary>
         /// Gets the message type for the subscription entry.
