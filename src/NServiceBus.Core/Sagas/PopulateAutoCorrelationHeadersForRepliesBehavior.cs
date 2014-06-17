@@ -7,7 +7,7 @@
     using Unicast.Transport;
 
 
-    class AttachSagaDetailsBehavior : IBehavior<OutgoingContext>
+    class PopulateAutoCorrelationHeadersForRepliesBehavior : IBehavior<OutgoingContext>
     {
         public void Invoke(OutgoingContext context, Action next)
         {
@@ -43,15 +43,6 @@
             }
 
             next();
-        }
-
-        public class SagaSendRegistration : RegisterBehavior
-        {
-            public SagaSendRegistration()
-                : base("CopySagaHeaders", typeof(AttachSagaDetailsBehavior), "Copies existing saga headers from incoming message to outgoing message. This facilitates the auto correlation")
-            {
-                InsertBefore(WellKnownBehavior.CreatePhysicalMessage);
-            }
         }
     }
 }

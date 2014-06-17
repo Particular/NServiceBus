@@ -27,7 +27,6 @@
         {
             pipelineModifications.Additions.Add(new SagaPersistenceBehavior.SagaPersistenceRegistration());
             pipelineModifications.Additions.Add(new AuditInvokedSagaBehavior.AuditInvokedSagaRegistration());
-            pipelineModifications.Additions.Add(new AttachSagaDetailsBehavior.SagaSendRegistration());
         }
 
         protected void RegisterCustomFinder<T>() where T : IFinder

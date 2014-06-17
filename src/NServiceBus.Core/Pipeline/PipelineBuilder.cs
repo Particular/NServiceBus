@@ -9,6 +9,7 @@
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using UnitOfWork;
+    using NServiceBus.Sagas;
 
     class PipelineBuilder
     {
@@ -71,6 +72,7 @@
         {
             coordinator.Register(WellKnownBehavior.EnforceBestPractices, typeof(SendValidatorBehavior), "Enforces messaging best practices");
             coordinator.Register(WellKnownBehavior.MutateOutgoingMessages, typeof(MutateOutgoingMessageBehavior), "Executes IMutateOutgoingMessages");
+            coordinator.Register("PopulateAutoCorrelationHeadersForReplies", typeof(PopulateAutoCorrelationHeadersForRepliesBehavior), "Copies existing saga headers from incoming message to outgoing message to facilitate the auto correlation in the saga, when replying to a message that was sent by a saga.");
             coordinator.Register(WellKnownBehavior.CreatePhysicalMessage, typeof(CreatePhysicalMessageBehavior), "Converts a logical message into a physical message");
             coordinator.Register(WellKnownBehavior.SerializeMessage, typeof(SerializeMessagesBehavior), "Serializes the message to be sent out on the wire");
             coordinator.Register(WellKnownBehavior.MutateOutgoingTransportMessage, typeof(MutateOutgoingPhysicalMessageBehavior), "Executes IMutateOutgoingTransportMessages");

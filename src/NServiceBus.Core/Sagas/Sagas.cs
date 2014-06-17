@@ -38,9 +38,6 @@
             context.Pipeline.Register<AuditInvokedSagaBehavior.AuditInvokedSagaRegistration>();
             context.Pipeline.Register<SagaPersistenceBehavior.SagaPersistenceRegistration>();
 
-            // Register the saga related behavior for outgoing messages
-            context.Pipeline.Register<AttachSagaDetailsBehavior.SagaSendRegistration>();
-
             foreach (var t in context.Settings.GetAvailableTypes())
             {
                 if (IsSagaType(t))
