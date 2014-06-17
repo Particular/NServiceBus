@@ -10,14 +10,14 @@
     public class EnabledPersistencesTests
     {
         [Test]
-        public void Should_make_sure_there_is_no_overlap_in_selected_storages()
+        public void Should_make_sure_there_is_no_overlap_in_claimed_storages()
         {
             var selected = new EnabledPersistences();
 
-            selected.Add(typeof(PersitenceA),new List<Storage>{Storage.Sagas});
-            selected.Add(typeof(PersitenceB), new List<Storage> { Storage.Outbox });
+            selected.ClaimStorages(typeof(PersitenceA),new List<Storage>{Storage.Sagas});
+            selected.ClaimStorages(typeof(PersitenceB), new List<Storage> { Storage.Outbox });
 
-            Assert.Throws<Exception>(() => selected.Add(typeof(PersitenceC), new List<Storage> { Storage.Sagas }));
+            Assert.Throws<Exception>(() => selected.ClaimStorages(typeof(PersitenceC), new List<Storage> { Storage.Sagas }));
         }
 
 
@@ -26,8 +26,8 @@
         {
             var selected = new EnabledPersistences();
 
-            selected.Add(typeof(PersitenceA), new List<Storage> { Storage.Sagas });
-            selected.Add(typeof(PersitenceA), new List<Storage> { Storage.Outbox });
+            selected.ClaimStorages(typeof(PersitenceA), new List<Storage> { Storage.Sagas });
+            selected.ClaimStorages(typeof(PersitenceA), new List<Storage> { Storage.Outbox });
 
             Assert.AreEqual(2,selected.GetEnabled().First().StoragesToEnable.Count);
         }
@@ -37,10 +37,23 @@
         {
             var selected = new EnabledPersistences();
 
-            selected.Add(typeof(PersitenceA), new List<Storage> { Storage.Sagas, Storage.Sagas });
-            selected.Add(typeof(PersitenceA), new List<Storage> { Storage.Sagas });
+            selected.ClaimStorages(typeof(PersitenceA), new List<Storage> { Storage.Sagas, Storage.Sagas });
+            selected.ClaimStorages(typeof(PersitenceA), new List<Storage> { Storage.Sagas });
 
             Assert.AreEqual(1, selected.GetEnabled().First().StoragesToEnable.Count);
+        }
+
+        [Test]
+        public void Should_assing_available_storage_to_wildcard_claims()
+        {
+            var selected = new EnabledPersistences();
+
+            selected.ClaimStorages(typeof(PersitenceA), new List<Storage> { Storage.Sagas});
+            selected.AddWildcardRegistration(typeof(PersitenceB), new List<Storage>{Storage.Sagas,Storage.Timeouts});
+
+            Assert.False(selected.GetEnabled().Single(p => p.PersitenceType == typeof(PersitenceB)).StoragesToEnable.Contains(Storage.Sagas));
+            Assert.True(selected.GetEnabled().Single(p => p.PersitenceType == typeof(PersitenceB)).StoragesToEnable.Contains(Storage.Timeouts));
+            Assert.True(selected.GetEnabled().Single(p => p.PersitenceType == typeof(PersitenceA)).StoragesToEnable.Contains(Storage.Sagas));
         }
 
 

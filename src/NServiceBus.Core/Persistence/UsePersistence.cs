@@ -31,28 +31,34 @@
         /// <returns></returns>
         public static Configure UsePersistence(this Configure config, Type definitionType, Action<PersistenceConfiguration> customizations = null)
         {
-            var definition = definitionType.Construct<PersistenceDefinition>();
+            EnabledPersistences enabledPersistences;
 
-            var storagesToEnable = definition.SupportedStorages;
-
-            if (customizations != null)
+            if (!config.Settings.TryGet(out enabledPersistences))
             {
-                var persistenceConfiguration = new PersistenceConfiguration(config);
-
-                customizations(persistenceConfiguration);
-
-                if (persistenceConfiguration.SpecificStorages.Any())
-                {
-                    storagesToEnable = persistenceConfiguration.SpecificStorages;
-                }
+                enabledPersistences = new EnabledPersistences();
+                config.Settings.Set<EnabledPersistences>(enabledPersistences);
             }
 
-            if (config.Settings.HasSetting<EnabledPersistences>())
+            var supportedStorages = definitionType.Construct<PersistenceDefinition>().SupportedStorages.ToList();
+
+            if (customizations == null)
             {
-                config.Settings.Set<EnabledPersistences>(new EnabledPersistences());
+                enabledPersistences.AddWildcardRegistration(definitionType, supportedStorages);
+                return config;
             }
 
-            config.Settings.Get<EnabledPersistences>().Add(definitionType, storagesToEnable.ToList());
+            var persistenceConfiguration = new PersistenceConfiguration(config);
+
+            customizations(persistenceConfiguration);
+
+            if (persistenceConfiguration.SpecificStorages.Any())
+            {
+                enabledPersistences.ClaimStorages(definitionType, persistenceConfiguration.SpecificStorages);
+            }
+            else
+            {
+                enabledPersistences.AddWildcardRegistration(definitionType, supportedStorages);
+            }
 
             return config;
         }

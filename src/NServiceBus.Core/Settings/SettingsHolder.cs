@@ -7,7 +7,7 @@ namespace NServiceBus.Settings
     using System.Linq.Expressions;
     using ObjectBuilder;
     using Utils.Reflection;
-    
+
     /// <summary>
     /// Setting container.
     /// </summary>
@@ -18,6 +18,10 @@ namespace NServiceBus.Settings
             return (T)Get(key);
         }
 
+        public bool TryGet<T>(out T val)
+        {
+            return TryGet(typeof(T).FullName, out val);
+        }
         public bool TryGet<T>(string key, out T val)
         {
             val = default(T);

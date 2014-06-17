@@ -17,10 +17,10 @@
                 if (!string.IsNullOrEmpty(specificPersistence))
                     return AllAvailable.Single(r => r.Key == specificPersistence);
 
-                var persistenceOtherThanInMemory = AllAvailable.Where(t => t != InMemory).ToList();
+                var nonCorePersisters = AllAvailable.Where(t => t != InMemory && t.Key != "Msmq").ToList();
 
-                if (persistenceOtherThanInMemory.Count() == 1)
-                    return persistenceOtherThanInMemory.First();
+                if (nonCorePersisters.Count() == 1)
+                    return nonCorePersisters.First();
 
                 return InMemory;
             }

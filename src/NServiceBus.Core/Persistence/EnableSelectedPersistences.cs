@@ -22,8 +22,9 @@
                     throw new InvalidOperationException("We couldn't find a IConfigurePersistence implementation for your selected persistence: " + definitionType.Name);
                 }
 
+                Logger.InfoFormat("Activating persistence {0} to provide {1} storage(s)", definitionType.Name, string.Join(",", selectedPersistence.StoragesToEnable));
 
-                ((IConfigurePersistence)Activator.CreateInstance(type)).Enable(config, selectedPersistence.StoragesToEnable);      
+                ((IConfigurePersistence)Activator.CreateInstance(type)).Enable(config, selectedPersistence.StoragesToEnable);
             }
 
           

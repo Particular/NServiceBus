@@ -6,7 +6,15 @@
 
     class EnabledPersistences
     {
-        public void Add(Type definitionType, List<Storage> storagesToEnable)
+
+        public void AddWildcardRegistration(Type definitionType, List<Storage> supportedStorages)
+        {
+            var alreadyClaimed = selection.Values.SelectMany(s => s.StoragesToEnable).ToList();
+
+            AddOrUpdate(definitionType, supportedStorages.Where(s=>!alreadyClaimed.Contains(s)).ToList());
+        }
+
+        public void ClaimStorages(Type definitionType, List<Storage> storagesToEnable)
         {
             var distinctStoragesToEnable = storagesToEnable.Distinct().ToList();
 
@@ -22,13 +30,17 @@
 
             }
 
-            EnabledPersistence existingSelection;
 
+            AddOrUpdate(definitionType, distinctStoragesToEnable);
+        }
+
+        void AddOrUpdate(Type definitionType, List<Storage> distinctStoragesToEnable)
+        {
+            EnabledPersistence existingSelection;
             if (selection.TryGetValue(definitionType, out existingSelection))
             {
                 existingSelection.StoragesToEnable.AddRange(distinctStoragesToEnable);
                 existingSelection.StoragesToEnable = existingSelection.StoragesToEnable.Distinct().ToList();
-
             }
             else
             {
@@ -37,7 +49,6 @@
                     PersitenceType = definitionType,
                     StoragesToEnable = distinctStoragesToEnable
                 };
-
             }
         }
 
@@ -55,5 +66,6 @@
             public Type PersitenceType;
             public List<Storage> StoragesToEnable = new List<Storage>();
         }
+
     }
 }
