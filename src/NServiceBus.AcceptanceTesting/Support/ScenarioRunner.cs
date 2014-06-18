@@ -129,6 +129,9 @@ namespace NServiceBus.AcceptanceTesting.Support
                 {
                     Console.Out.WriteLine("{0} = {1}", prop.Name, prop.GetValue(runResult.ScenarioContext, null));
                 }
+
+                Console.Out.WriteLine("Trace:");
+                Console.Out.WriteLine(runResult.ScenarioContext.Trace);
             }
             else
             {
@@ -400,5 +403,4 @@ namespace NServiceBus.AcceptanceTesting.Support
 
         public IEnumerable<EndpointBehavior> Endpoints { get; set; }
     }
-
 }

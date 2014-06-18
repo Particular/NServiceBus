@@ -16,11 +16,19 @@
                     .WithEndpoint<SagaEndpoint>(b =>
                         {
                             b.Given((bus, context) => bus.SendLocal(new StartSagaMessage {SomeId = context.Id}));
-                            b.When(context => context.StartSagaMessageReceived, (bus, context) => bus.SendLocal(new CompleteSagaMessage { SomeId = context.Id }));
+                            b.When(context => context.StartSagaMessageReceived, (bus, context) =>
+                            {
+                                context.AddTrace("CompleteSagaMessage sent");
+
+                                bus.SendLocal(new CompleteSagaMessage
+                                {
+                                    SomeId = context.Id
+                                });
+                            });
                         })
                     .Done(c => c.SagaCompleted)
                     .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.IsNull(c.UnhandledException))
+                    .Should(c => Assert.True(c.SagaCompleted))
 
                     .Run();
         }
@@ -37,17 +45,12 @@
                       })
                     .Done(c => c.AnotherMessageReceived)
                     .Repeat(r => r.For(Transports.Default))
-                    .Should(c =>
-                        {
-                            Assert.IsNull(c.UnhandledException);
-                            Assert.False(c.SagaReceivedAnotherMessage,"AnotherMessage should not be delivered to the saga after completion");
-                        })
+                    .Should(c => Assert.False(c.SagaReceivedAnotherMessage,"AnotherMessage should not be delivered to the saga after completion"))
                     .Run();
         }
 
         public class Context : ScenarioContext
         {
-            public Exception UnhandledException { get; set; }
             public Guid Id { get; set; }
 
             public bool StartSagaMessageReceived { get; set; }
@@ -71,6 +74,8 @@
 
                 public void Handle(StartSagaMessage message)
                 {
+                    Context.AddTrace("Saga started");
+
                     Data.SomeId = message.SomeId;
 
                     Context.StartSagaMessageReceived = true;
@@ -88,12 +93,14 @@
 
                 public void Handle(CompleteSagaMessage message)
                 {
+                    Context.AddTrace("CompleteSagaMessage received");
                     MarkAsComplete();
                     Context.SagaCompleted = true;
                 }
 
                 public void Handle(AnotherMessage message)
                 {
+                    Context.AddTrace("AnotherMessage received");
                     Context.SagaReceivedAnotherMessage = true;
                 }
 
