@@ -56,6 +56,19 @@
             Assert.True(selected.GetEnabled().Single(p => p.PersitenceType == typeof(PersitenceA)).StoragesToEnable.Contains(Storage.Sagas));
         }
 
+        [Test]
+        public void Should_provide_status_on_availalable_storages()
+        {
+            var selected = new EnabledPersistences();
+
+            selected.ClaimStorages(typeof(PersitenceA), new List<Storage> { Storage.Sagas });
+            selected.AddWildcardRegistration(typeof(PersitenceB), new List<Storage> { Storage.Timeouts });
+
+            Assert.True(selected.HasSupportFor(Storage.Sagas));
+            Assert.True(selected.HasSupportFor(Storage.Timeouts));
+            Assert.False(selected.HasSupportFor(Storage.Subscriptions));
+        }
+
 
         class PersitenceA : PersistenceDefinition
         {

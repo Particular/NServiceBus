@@ -6,6 +6,10 @@
 
     class EnabledPersistences
     {
+        public bool HasSupportFor(Storage storageType)
+        {
+            return selection.Values.SelectMany(s => s.StoragesToEnable).Contains(storageType);
+        }
 
         public void AddWildcardRegistration(Type definitionType, List<Storage> supportedStorages)
         {
