@@ -1,23 +1,18 @@
-﻿namespace MyServer
+﻿using NServiceBus.Persistence;
+using NServiceBus.Unicast.Messages;
+
+namespace MyServer
 {
     using NServiceBus;
     using NServiceBus.MessageMutator;
 
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server,IWantCustomInitialization
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server,INeedInitialization
     {
-        public Configure Init()
+        public void Init(Configure config)
         {
-            return Configure.With()
-                .DefaultBuilder()
-                //shows multi tenant operations of the sagas
-                .MessageToDatabaseMappingConvention(context =>
-                                                        {
-                                                            if (context.Headers.ContainsKey("tenant"))
-                                                                return context.Headers["tenant"];
-
-                                                            return string.Empty;
-                                                        });
-
+            config.UsePersistence<NServiceBus.Persistence.Legacy.Msmq>();
+            config.UsePersistence<InMemory>();
+            
         }
     }
 
@@ -28,7 +23,8 @@
     {
         public IBus Bus { get; set; }
 
-        public void MutateOutgoing(object message, TransportMessage transportMessage)
+        
+        public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
         {
             if (Bus.CurrentMessageContext == null)
                 return;
@@ -44,5 +40,6 @@
             config.Configurer.ConfigureComponent<TenantPropagatingMutator>(
                 DependencyLifecycle.InstancePerCall);
         }
+
     }
 }

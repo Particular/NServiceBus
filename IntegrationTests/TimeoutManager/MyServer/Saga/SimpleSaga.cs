@@ -15,9 +15,9 @@
             RequestTimeout<MyTimeOutState>(TimeSpan.FromSeconds(10), t => t.SomeValue = someState);
         }
 
-        public override void ConfigureHowToFindSaga()
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SimpleSagaData> mapper)
         {
-            ConfigureMapping<StartSagaMessage>(s => s.OrderId).ToSaga(m => m.OrderId);
+            mapper.ConfigureMapping<StartSagaMessage>(s => s.OrderId).ToSaga(m => m.OrderId);
         }
 
         void LogMessage(string message)

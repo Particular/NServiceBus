@@ -1,17 +1,19 @@
-namespace NServiceBus.Persistence.Msmq.SubscriptionStorage.Config
+namespace NServiceBus.Persistence.SubscriptionStorage
 {
     using Unicast.Queuing;
 
     class SubscriptionsQueueCreator : IWantQueueCreated
     {
+        public Address StorageQueue { get; set; }
+
         public Address Address
         {
-            get { return ConfigureMsmqSubscriptionStorage.Queue; }
+            get { return StorageQueue; }
         }
 
         public bool ShouldCreateQueue()
         {
-            return ConfigureMsmqSubscriptionStorage.Queue != null;
+            return StorageQueue != null;
         }
     }
 }

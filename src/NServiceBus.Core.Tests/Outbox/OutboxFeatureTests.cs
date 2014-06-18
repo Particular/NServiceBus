@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Generic;
     using NServiceBus.Features;
+    using NServiceBus.Persistence;
     using NUnit.Framework;
-    using Persistence;
 
     [TestFixture]
     public class OutboxFeatureTests

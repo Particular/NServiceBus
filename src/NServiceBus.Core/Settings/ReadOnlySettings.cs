@@ -25,6 +25,14 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Safely get the settings value, returning false if the settings key was not found.
         /// </summary>
+        /// <typeparam name="T">The type to get, fullname will be used as key</typeparam>
+        /// <param name="val">The value if present</param>
+        /// <returns></returns>
+        bool TryGet<T>(out T val);
+
+        /// <summary>
+        /// Safely get the settings value, returning false if the settings key was not found.
+        /// </summary>
         /// <typeparam name="T">The type of the setting.</typeparam>
         /// <param name="key">The key of the setting to get.</param>
         /// <param name="val">The setting value.</param>

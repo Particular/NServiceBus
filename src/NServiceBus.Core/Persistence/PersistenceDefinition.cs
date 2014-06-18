@@ -1,33 +1,46 @@
 ﻿namespace NServiceBus.Persistence
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
     /// <summary>
     /// Base class for persistence definitions
     /// </summary>
     public abstract class PersistenceDefinition
     {
         /// <summary>
-        /// Indicates if the persistence has support for storing outbox messages
+        /// Used be the storage definitions to declare what they suppoprt
         /// </summary>
-        public bool HasOutboxStorage { get; protected set; }
-        
-        /// <summary>
-        /// Indicates if the persistence has support for storing sagas
-        /// </summary>
-        public bool HasSagaStorage { get; protected set; }
-        
-        /// <summary>
-        /// Indicates if the persistence has support for storing timeous
-        /// </summary>
-        public bool HasTimeoutStorage { get; protected set; }
+        /// <param name="supported"></param>
+        protected void Supports(params Storage[] supported)
+        {
+            supportedStorages.AddRange(supported.ToList());
+        }
 
         /// <summary>
-        /// Indicates if the persistence has support for storing subscriptions
+        /// True if supplied storage is supported
         /// </summary>
-        public bool HasSubscriptionStorage { get; protected set; }
+        /// <param name="storage"></param>
+        /// <returns></returns>
+        public bool HasSupportFor(Storage storage)
+        {
+            return SupportedStorages.Contains(storage);
+        }
 
-        /// <summary>
-        /// Indicates if the persistence has support for storing gateway deduplication data
-        /// </summary>
-        public bool HasGatewayStorage { get; protected set; }
+        internal IEnumerable<Storage> SupportedStorages { get { return supportedStorages.Distinct(); } }
+ 
+        List<Storage> supportedStorages = new List<Storage>();
+    }
+
+    /// <summary>
+    /// The storage needs of NServiceBus
+    /// </summary>
+    public enum Storage
+    {
+        Timeouts = 1,
+        Subscriptions = 2,
+        Sagas = 3,
+        GatewayDeduplication = 4,
+        Outbox = 5,
     }
 }

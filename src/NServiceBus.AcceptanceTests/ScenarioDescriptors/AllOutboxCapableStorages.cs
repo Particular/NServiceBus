@@ -14,7 +14,7 @@
 
             var definition = (PersistenceDefinition) Activator.CreateInstance(definitionType);
 
-            if (definition.HasOutboxStorage)
+            if (definition.HasSupportFor(Storage.Outbox))
             {
                 Add(defaultStorage);
             }

@@ -52,7 +52,7 @@ public class PubSubTestCase : TestCase
                 config.UsePersistence<InMemory>();
                 break;
             case "msmq":
-                config.MsmqSubscriptionStorage();
+                config.UsePersistence<NServiceBus.Persistence.Legacy.Msmq>();
                 break;
         }
 

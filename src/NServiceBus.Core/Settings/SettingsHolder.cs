@@ -7,7 +7,7 @@ namespace NServiceBus.Settings
     using System.Linq.Expressions;
     using ObjectBuilder;
     using Utils.Reflection;
-    
+
     /// <summary>
     /// Setting container.
     /// </summary>
@@ -18,6 +18,10 @@ namespace NServiceBus.Settings
             return (T)Get(key);
         }
 
+        public bool TryGet<T>(out T val)
+        {
+            return TryGet(typeof(T).FullName, out val);
+        }
         public bool TryGet<T>(string key, out T val)
         {
             val = default(T);
@@ -122,6 +126,15 @@ namespace NServiceBus.Settings
             Defaults[key] = value;
         }
 
+        /// <summary>
+        /// Gets the setting or default based on the typename
+        /// </summary>
+        /// <typeparam name="T">The setting to get</typeparam>
+        /// <returns></returns>
+        public T GetOrDefault<T>()
+        {
+            return GetOrDefault<T>(typeof(T).FullName);
+        }
         public T GetOrDefault<T>(string key)
         {
             object result;
