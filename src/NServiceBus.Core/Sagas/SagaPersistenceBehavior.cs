@@ -75,6 +75,8 @@
                 return;
             }
 
+            LogSaga(sagaInstanceState, context);
+
             if (saga.Completed)
             {
                 if (!sagaInstanceState.IsNew)
@@ -99,6 +101,24 @@
                 {
                     SagaPersister.Update(saga.Entity);
                 }
+            }
+        }
+
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.1", Message = "Enriching the headers for saga related information has been moved to the SagaAudit plugin in ServiceControl.  Add a reference to the Saga audit plugin in your endpoint to get more information.")]
+        void LogSaga(ActiveSagaInstance saga, IncomingContext context)
+        {
+
+            var audit = string.Format("{0}:{1}", saga.SagaType.FullName, saga.Instance.Entity.Id);
+
+            string header;
+
+            if (context.IncomingLogicalMessage.Headers.TryGetValue(Headers.InvokedSagas, out header))
+            {
+                context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] += string.Format(";{0}", audit);
+            }
+            else
+            {
+                context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] = audit;
             }
         }
 
