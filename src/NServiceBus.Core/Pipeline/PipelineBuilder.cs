@@ -3,26 +3,23 @@
     using System.Collections.Generic;
     using Contexts;
     using MessageMutator;
+    using Logging;
     using NServiceBus.MessageMutator;
-    using Sagas;
-    using Settings;
     using Unicast.Behaviors;
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using UnitOfWork;
+    using Sagas;
 
     class PipelineBuilder
     {
-        public PipelineBuilder()
+        public PipelineBuilder(PipelineModifications modifications)
         {
-            var removals = SettingsHolder.Instance.Get<List<RemoveBehavior>>("Pipeline.Removals");
-            var replacements = SettingsHolder.Instance.Get<List<ReplaceBehavior>>("Pipeline.Replacements");
-
-            coordinator = new BehaviorRegistrationsCoordinator(removals, replacements);
+            coordinator = new BehaviorRegistrationsCoordinator(modifications.Removals, modifications.Replacements);
 
             RegisterIncomingCoreBehaviors();
             RegisterOutgoingCoreBehaviors();
-            RegisterAdditionalBehaviors();
+            RegisterAdditionalBehaviors(modifications.Additions);
 
             var model = coordinator.BuildRuntimeModel();
             Incoming = new List<RegisterBehavior>();
@@ -48,10 +45,8 @@
         public List<RegisterBehavior> Incoming { get; private set; }
         public List<RegisterBehavior> Outgoing { get; private set; }
 
-        void RegisterAdditionalBehaviors()
+        void RegisterAdditionalBehaviors(List<RegisterBehavior> additions)
         {
-            var additions = SettingsHolder.Instance.Get<List<RegisterBehavior>>("Pipeline.Additions");
-
             foreach (var rego in additions)
             {
                 coordinator.Register(rego);
@@ -60,32 +55,31 @@
 
         void RegisterIncomingCoreBehaviors()
         {
-            coordinator.Register(WellKnownBehavior.ChildContainer, typeof(ChildContainerBehavior), "Creates the child container");
-            coordinator.Register("MessageReceivedLogging", typeof(MessageHandlingLoggingBehavior), "Logs the message received");
-            coordinator.Register("ForwardMessageTo", typeof(ForwardBehavior), "Forwards message to");
-            coordinator.Register(WellKnownBehavior.UnitOfWork, typeof(UnitOfWorkBehavior), "Executes the UoW");
-            coordinator.Register("SubscriptionReceiver", typeof(SubscriptionReceiverBehavior), "Check for subscription messages");
+            coordinator.Register(WellKnownBehavior.CreateChildContainer, typeof(ChildContainerBehavior), "Creates the child container");
+            coordinator.Register(WellKnownBehavior.ExecuteUnitOfWork, typeof(UnitOfWorkBehavior), "Executes the UoW");
+            coordinator.Register("ProcessSubscriptionRequests", typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.");
             coordinator.Register(WellKnownBehavior.MutateIncomingTransportMessage, typeof(ApplyIncomingTransportMessageMutatorsBehavior), "Executes IMutateIncomingTransportMessages");
-            coordinator.Register("RemoveHeaders", typeof(RemoveIncomingHeadersBehavior), "For backward compatibility we need to remove some headers from the incoming message");
-            coordinator.Register("CallBack", typeof(CallbackInvocationBehavior), "Updates the callback inmemory dictionary");
-            coordinator.Register(WellKnownBehavior.ExtractLogicalMessages, typeof(ExtractLogicalMessagesBehavior), "It splits the raw message into multiple logical messages");
+            coordinator.Register("InvokeRegisteredCallbacks", typeof(CallbackInvocationBehavior), "Updates the callback inmemory dictionary");
+            coordinator.Register(WellKnownBehavior.DeserializeMessages, typeof(DeserializeLogicalMessagesBehavior), "Deserializes the physical message body into logical messages");
             coordinator.Register(WellKnownBehavior.ExecuteLogicalMessages, typeof(ExecuteLogicalMessagesBehavior), "Starts the execution of each logical message");
             coordinator.Register(WellKnownBehavior.MutateIncomingMessages, typeof(ApplyIncomingMessageMutatorsBehavior), "Executes IMutateIncomingMessages");
-            coordinator.Register(WellKnownBehavior.ExecuteHandlers, typeof(LoadHandlersBehavior), "Executes all IHandleMessages<T>");
+            coordinator.Register(WellKnownBehavior.LoadHandlers, typeof(LoadHandlersBehavior), "Executes all IHandleMessages<T>");
             coordinator.Register("SetCurrentMessageBeingHandled", typeof(SetCurrentMessageBeingHandledBehavior), "Sets the static current message (this is used by the headers)");
-            coordinator.Register("AuditInvokedSaga", typeof(AuditInvokedSagaBehavior), "Populates the InvokedSaga header");
-            coordinator.Register(WellKnownBehavior.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic");
             coordinator.Register(WellKnownBehavior.InvokeHandlers, typeof(InvokeHandlersBehavior), "Calls the IHandleMessages<T>.Handle(T)");
         }
 
         void RegisterOutgoingCoreBehaviors()
         {
             coordinator.Register(WellKnownBehavior.EnforceBestPractices, typeof(SendValidatorBehavior), "Enforces messaging best practices");
-            coordinator.Register("CopySagaHeaders", typeof(SagaSendBehavior), "Copies existing saga headers from incoming message to outgoing message. This facilitates the auto correlation");
             coordinator.Register(WellKnownBehavior.MutateOutgoingMessages, typeof(MutateOutgoingMessageBehavior), "Executes IMutateOutgoingMessages");
+            coordinator.Register("PopulateAutoCorrelationHeadersForReplies", typeof(PopulateAutoCorrelationHeadersForRepliesBehavior), "Copies existing saga headers from incoming message to outgoing message to facilitate the auto correlation in the saga, when replying to a message that was sent by a saga.");
             coordinator.Register(WellKnownBehavior.CreatePhysicalMessage, typeof(CreatePhysicalMessageBehavior), "Converts a logical message into a physical message");
             coordinator.Register(WellKnownBehavior.SerializeMessage, typeof(SerializeMessagesBehavior), "Serializes the message to be sent out on the wire");
             coordinator.Register(WellKnownBehavior.MutateOutgoingTransportMessage, typeof(MutateOutgoingPhysicalMessageBehavior), "Executes IMutateOutgoingTransportMessages");
+            if (LogManager.GetLogger("LogOutgoingMessage").IsDebugEnabled)
+            {
+                coordinator.Register("LogOutgoingMessage", typeof(LogOutgoingMessageBehavior), "Logs the message contents before it is sent.");
+            }
             coordinator.Register(WellKnownBehavior.DispatchMessageToTransport, typeof(DispatchMessageToTransportBehavior), "Dispatches messages to the transport");
         }
 

@@ -27,7 +27,7 @@
                     {
                         bus.Subscribe<IFoo>();
 
-                        if (context.HasSupportForCentralizedPubSub)
+                        if (context.HasNativePubSubSupport)
                         {
                             context.Subscriber3Subscribed = true;
                         }
@@ -57,7 +57,7 @@
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                         {
                             bus.Subscribe<MyEvent>();
-                            if (context.HasSupportForCentralizedPubSub)
+                            if (context.HasNativePubSubSupport)
                             {
                                 context.Subscriber1Subscribed = true;
                             }
@@ -66,7 +66,7 @@
                       {
                           bus.Subscribe<MyEvent>();
 
-                          if (context.HasSupportForCentralizedPubSub)
+                          if (context.HasNativePubSubSupport)
                           {
                               context.Subscriber2Subscribed = true;
                           }

@@ -10,8 +10,6 @@
         /// <summary>
         /// Defers the given message
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="sendOptions"></param>
         void Defer(TransportMessage message, SendOptions sendOptions);
 
         /// <summary>

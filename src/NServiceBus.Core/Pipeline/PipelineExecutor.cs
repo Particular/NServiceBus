@@ -5,15 +5,25 @@
     using System.Linq;
     using Contexts;
     using ObjectBuilder;
+    using Settings;
     using Unicast;
     using Unicast.Messages;
 
+    /// <summary>
+    /// Orchestrates the execution of a pipeline.
+    /// </summary>
     public class PipelineExecutor : IDisposable
     {
-        public PipelineExecutor(IBuilder builder)
+        /// <summary>
+        /// Create a new instance of <see cref="PipelineExecutor"/>.
+        /// </summary>
+        /// <param name="settings">The settings to read data from.</param>
+        /// <param name="builder">The builder.</param>
+        public PipelineExecutor(ReadOnlySettings settings, IBuilder builder)
         {
             rootBuilder = builder;
-            var pipelineBuilder = new PipelineBuilder();
+
+            var pipelineBuilder = new PipelineBuilder(settings.Get<PipelineModifications>());
             Incoming = pipelineBuilder.Incoming.AsReadOnly();
             Outgoing = pipelineBuilder.Outgoing.AsReadOnly();
 
@@ -21,9 +31,19 @@
             outgoingBehaviors = Outgoing.Select(r => r.BehaviorType);
         }
 
+        /// <summary>
+        /// The list of incoming steps registered.
+        /// </summary>
         public IList<RegisterBehavior> Incoming { get; private set; }
+        
+        /// <summary>
+        /// The list of outgoing steps registered.
+        /// </summary>
         public IList<RegisterBehavior> Outgoing { get; private set; }
 
+        /// <summary>
+        /// The current context being executed.
+        /// </summary>
         public BehaviorContext CurrentContext
         {
             get
@@ -41,6 +61,23 @@
             }
         }
 
+        /// <summary>
+        /// Invokes a chain of behaviors. 
+        /// </summary>
+        /// <typeparam name="TContext">The context to use.</typeparam>
+        /// <param name="behaviors">The behaviors to execute in the specified order.</param>
+        /// <param name="context">The context instance.</param>
+        public void InvokePipeline<TContext>(IEnumerable<Type> behaviors, TContext context) where TContext : BehaviorContext
+        {
+            var pipeline = new BehaviorChain<TContext>(behaviors);
+
+            Execute(pipeline, context);
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
             //Injected
@@ -75,13 +112,6 @@
             InvokePipeline(outgoingBehaviors, context);
 
             return context;
-        }
-
-        public void InvokePipeline<TContext>(IEnumerable<Type> behaviours, TContext context) where TContext : BehaviorContext
-        {
-            var pipeline = new BehaviorChain<TContext>(behaviours);
-
-            Execute(pipeline, context);
         }
 
         void DisposeManaged()

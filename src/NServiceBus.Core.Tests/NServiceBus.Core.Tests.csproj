@@ -65,6 +65,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\NServiceBus.Testing\InMemoryDataBus.cs">
+      <Link>DataBus\InMemoryDataBus.cs</Link>
+    </Compile>
     <Compile Include="AssemblyLocation.cs" />
     <Compile Include="AssemblyScanner\AssemblyScannerTests.cs" />
     <Compile Include="AssemblyScanner\When_directory_with_no_reference_dlls_is_scanned.cs" />
@@ -94,8 +97,11 @@
     <Compile Include="Features\FeatureTests.cs" />
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
     <Compile Include="Logging\RollingLoggerTests.cs" />
+    <Compile Include="Outbox\OutboxFeatureTests.cs" />
+    <Compile Include="Outbox\OutboxRecordBehaviorTests.cs" />
     <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniqueProperties.cs" />
     <Compile Include="Persistence\InMemory\AnotherSimpleSageEntity.cs" />
+    <Compile Include="Persistence\InMemory\InMemoryOutboxPersisterTests.cs" />
     <Compile Include="Persistence\InMemory\SagaWithTwoUniqueProperties.cs" />
     <Compile Include="Persistence\InMemory\SagaWithUniqueProperty.cs" />
     <Compile Include="Persistence\InMemory\SimpleSagaEntity.cs" />
@@ -112,6 +118,7 @@
     <Compile Include="Persistence\InMemory\When_updating_a_saga_with_the_same_unique_property_value.cs" />
     <Compile Include="Pipeline\BehaviorChainTests.cs" />
     <Compile Include="Pipeline\BehaviorRegistrationsCoordinatorTests.cs" />
+    <Compile Include="Pipeline\BehaviorTypeCheckerTests.cs" />
     <Compile Include="Sagas\When_completing_a_saga.cs" />
     <Compile Include="Sagas\When_receiving_a_message_that_hits_multiple_sagas_of_different_types.cs" />
     <Compile Include="Sagas\When_receiving_a_message_that_is_configure_to_start_a_saga.cs" />

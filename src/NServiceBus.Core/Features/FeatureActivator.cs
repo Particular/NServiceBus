@@ -4,9 +4,118 @@ namespace NServiceBus.Features
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Config;
     using Logging;
     using ObjectBuilder;
     using Settings;
+
+    /// <summary>
+    /// Provides diagnostics data about <see cref="Feature"/>s.
+    /// </summary>
+    public class FeaturesReport
+    {
+        readonly IList<FeatureDiagnosticData> data;
+
+        internal FeaturesReport(IEnumerable<FeatureDiagnosticData> data)
+        {
+            this.data = data.ToList().AsReadOnly();
+        }
+
+        /// <summary>
+        /// List of <see cref="Feature"/>s diagnostic data.
+        /// </summary>
+        public IList<FeatureDiagnosticData> Features
+        {
+            get { return data; }
+        }
+    }
+
+    /// <summary>
+    /// <see cref="Feature"/> diagnostics data.
+    /// </summary>
+    public class FeatureDiagnosticData
+    {
+        /// <summary>
+        /// Gets the <see cref="Feature"/> name.
+        /// </summary>
+        public string Name { get; internal set; }
+        
+        /// <summary>
+        /// Gets whether <see cref="Feature"/> is set to be enabled by default.
+        /// </summary>
+        public bool EnabledByDefault { get; internal set; }
+        
+        /// <summary>
+        /// Gets the status of the <see cref="Feature"/>.
+        /// </summary>
+        public bool Active { get; internal set; }
+        
+        /// <summary>
+        /// Gets whether all prerequisites are fulfilled for this <see cref="Feature"/>.
+        /// </summary>
+        public bool PrerequisitesFulfilled { get; internal set; }
+        
+        /// <summary>
+        /// Gets the list of <see cref="Feature"/>s that this <see cref="Feature"/> depends on.
+        /// </summary>
+        public IList<List<Type>> Dependencies { get; internal set; }
+        
+        /// <summary>
+        /// Gets the <see cref="Feature"/> version.
+        /// </summary>
+        public string Version { get; internal set; }
+        
+        /// <summary>
+        /// Gets the <see cref="Feature"/> startup tasks.
+        /// </summary>
+        public IList<Type> StartupTasks { get; internal set; }
+        
+        /// <summary>
+        /// Gets whether all dependant <see cref="Feature"/>s are activated.
+        /// </summary>
+        public bool DependenciesAreMeet { get; set; }
+    }
+
+    class DisplayDiagnosticsForFeatures : IWantToRunWhenConfigurationIsComplete
+    {
+        public FeaturesReport FeaturesReport { get; set; }
+        static ILog Logger = LogManager.GetLogger<DisplayDiagnosticsForFeatures>();
+        public void Run(Configure config)
+        {
+            var statusText = new StringBuilder();
+
+            statusText.AppendLine("------------- FEATURES ----------------");
+
+            foreach (var diagnosticData in FeaturesReport.Features)
+            {
+                statusText.AppendLine(string.Format("Name: {0}", diagnosticData.Name));
+                statusText.AppendLine(string.Format("Version: {0}", diagnosticData.Version));
+                statusText.AppendLine(string.Format("Enabled by Default: {0}", diagnosticData.EnabledByDefault ? "Yes" : "No"));
+                statusText.AppendLine(string.Format("Status: {0}", diagnosticData.Active ? "Enabled" : "Disabled"));
+                if (!diagnosticData.Active)
+                {
+                    statusText.Append("Deactivation reason: ");
+                    if (!diagnosticData.PrerequisitesFulfilled)
+                    {
+                        statusText.AppendLine(string.Format("Did not fulfill one of the Prerequisites"));
+                    } 
+                    else if (!diagnosticData.DependenciesAreMeet)
+                    {
+                        statusText.AppendLine(string.Format("Did not meet one of the dependencies: {0}", String.Join(",", diagnosticData.Dependencies.Select(t => "[" + String.Join(",", t.Select(t1 => t1.Name)) + "]"))));
+                    }
+                }
+                else
+                {
+                    statusText.AppendLine(string.Format("Dependencies: {0}", diagnosticData.Dependencies.Count == 0 ? "None" : String.Join(",", diagnosticData.Dependencies.Select(t => "[" + String.Join(",", t.Select(t1 => t1.Name)) + "]"))));
+                    statusText.AppendLine(string.Format("Startup Tasks: {0}", diagnosticData.StartupTasks.Count == 0 ? "None" : String.Join(",", diagnosticData.StartupTasks.Select(t => t.Name))));
+                }
+
+                statusText.AppendLine();
+            }
+
+            Logger.Info(statusText.ToString());
+        }
+    }
 
     class FeatureActivator
     {
@@ -15,7 +124,6 @@ namespace NServiceBus.Features
             this.settings = settings;
         }
 
-
         public void Add(Feature feature)
         {
             if (feature.IsEnabledByDefault)
@@ -23,79 +131,50 @@ namespace NServiceBus.Features
                 settings.EnableFeatureByDefault(feature.GetType());
             }
 
-            features.Add(feature);
-        }
+            foreach (var defaultSetting in feature.RegisteredDefaults)
+            {
+                defaultSetting(settings);
+            }
 
-
-        bool IsEnabled(Type featureType)
-        {
-            return settings.GetOrDefault<bool>(featureType.FullName);
+            features.Add(Tuple.Create(feature, new FeatureDiagnosticData
+            {
+                EnabledByDefault = feature.IsEnabledByDefault,
+                Name = feature.Name,
+                Version = feature.Version,
+                StartupTasks = feature.StartupTasks.AsReadOnly(),
+                Dependencies = feature.Dependencies.AsReadOnly(),
+            }));
         }
 
         public void SetupFeatures(FeatureConfigurationContext context)
         {
-            var statusText = new StringBuilder();
-
-            var featuresToActivate = features.Where(f => IsEnabled(f.GetType()) && MeetsActivationCondition(f, statusText, context))
-              .ToList();
+            var featuresToActivate = features.Where(f => IsEnabled(f.Item1.GetType()) && (f.Item2.PrerequisitesFulfilled = MeetsActivationCondition(f.Item1, context)))
+                .ToList();
 
             foreach (var feature in featuresToActivate)
             {
-                ActivateFeature(feature, statusText, featuresToActivate, context);
+                ActivateFeature(feature, featuresToActivate, context);
             }
 
-            Logger.InfoFormat("Features: \n{0}", statusText);
+            context.Container.RegisterSingleton<FeaturesReport>(new FeaturesReport(features.Select(t=>t.Item2)));
         }
-
-
 
         public void RegisterStartupTasks(IConfigureComponents container)
         {
-            foreach (var feature in features.Where(f => f.IsActive))
+            foreach (var feature in features.Where(f => f.Item1.IsActive))
             {
-                foreach (var taskType in feature.StartupTasks)
+                foreach (var taskType in feature.Item1.StartupTasks)
                 {
                     container.ConfigureComponent(taskType, DependencyLifecycle.SingleInstance);
                 }
             }
         }
-        bool ActivateFeature(Feature feature, StringBuilder statusText, List<Feature> featuresToActivate, FeatureConfigurationContext context)
-        {
-            if (feature.IsActive)
-            {
-                return true;
-            }
-
-            if (feature.Dependencies.All(dependencyType =>
-            {
-                var dependency = featuresToActivate.SingleOrDefault(f => f.GetType() == dependencyType);
-
-
-                if (dependency == null)
-                {
-                    return false;
-                }
-
-                return ActivateFeature(dependency, statusText, featuresToActivate, context);
-            }))
-            {
-                feature.SetupFeature(context);
-
-
-                statusText.AppendLine(string.Format("{0} - Activated", feature));
-
-                return true;
-            }
-            statusText.AppendLine(string.Format("{0} - Not activated due to dependencies not being available: {1}", feature, string.Join(";", feature.Dependencies.Select(t => t.Name))));
-            return false;
-        }
-
 
         public void StartFeatures(IBuilder builder)
         {
-            foreach (var feature in features.Where(f => f.IsActive))
+            foreach (var feature in features.Where(f => f.Item1.IsActive))
             {
-                foreach (var taskType in feature.StartupTasks)
+                foreach (var taskType in feature.Item1.StartupTasks)
                 {
                     var task = (FeatureStartupTask)builder.Build(taskType);
 
@@ -104,12 +183,51 @@ namespace NServiceBus.Features
             }
         }
 
-        bool MeetsActivationCondition(Feature feature, StringBuilder statusText, FeatureConfigurationContext context)
+        static bool ActivateFeature(Tuple<Feature, FeatureDiagnosticData> feature, List<Tuple<Feature, FeatureDiagnosticData>> featuresToActivate, FeatureConfigurationContext context)
+        {
+            if (feature.Item1.IsActive)
+            {
+                return true;
+            }
+
+            Func<List<Type>, bool> dependencyActivator = dependenciesTypes =>
+                                 {
+                                     var dependantFeaturesToActivate = new List<Tuple<Feature, FeatureDiagnosticData>>();
+
+                                     foreach (var dependency in dependenciesTypes.Select(dependencyType => featuresToActivate
+                                         .SingleOrDefault(f => f.Item1.GetType() == dependencyType))
+                                         .Where(dependency => dependency != null))
+                                     {
+                                         dependantFeaturesToActivate.Add(dependency);
+                                     }
+                                     var hasAllUpstreamDepsBeenActivated = dependantFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, context));
+
+                                     return hasAllUpstreamDepsBeenActivated;
+                                 };
+
+            if (feature.Item1.Dependencies.All(dependencyActivator))
+            {
+                feature.Item1.SetupFeature(context);
+                feature.Item2.Active = true;
+                feature.Item2.DependenciesAreMeet = true;
+
+                return true;
+            }
+
+            feature.Item2.DependenciesAreMeet = false;
+
+            return false;
+        }
+
+        bool IsEnabled(Type featureType)
+        {
+            return settings.GetOrDefault<bool>(featureType.FullName);
+        }
+
+        bool MeetsActivationCondition(Feature feature, FeatureConfigurationContext context)
         {
             if (!feature.ShouldBeSetup(context))
             {
-
-                statusText.AppendLine(string.Format("{0} - setup prerequisites(s) not fullfilled", feature));
                 return false;
             }
 
@@ -117,9 +235,7 @@ namespace NServiceBus.Features
         }
 
         readonly SettingsHolder settings;
-        readonly List<Feature> features = new List<Feature>();
-
-        static ILog Logger = LogManager.GetLogger<FeatureActivator>();
+        readonly List<Tuple<Feature, FeatureDiagnosticData>> features = new List<Tuple<Feature, FeatureDiagnosticData>>();
 
         class Runner : IWantToRunWhenBusStartsAndStops
         {
@@ -138,6 +254,5 @@ namespace NServiceBus.Features
             {
             }
         }
-
     }
 }

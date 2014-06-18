@@ -2,39 +2,27 @@ namespace NServiceBus.Hosting.Windows
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Threading;
-    using Config;
 
     /// <summary>
     /// A windows implementation of the NServiceBus hosting solution
     /// </summary>
     public class WindowsHost : MarshalByRefObject
     {
-        readonly GenericHost genericHost;
-        readonly bool runOtherInstallers;
+        NServiceBus.GenericHost genericHost;
 
         /// <summary>
         /// Accepts the type which will specify the users custom configuration.
         /// This type should implement <see cref="IConfigureThisEndpoint"/>.
         /// </summary>
-        /// <param name="endpointType"></param>
-        /// <param name="args"></param>
-        /// <param name="endpointName"></param>
-        /// <param name="runOtherInstallers"></param>
-        /// <param name="scannableAssembliesFullName"></param>
-        public WindowsHost(Type endpointType, string[] args, string endpointName, bool runOtherInstallers, IEnumerable<string> scannableAssembliesFullName)
+        public WindowsHost(Type endpointType, string[] args, string endpointName, IEnumerable<string> scannableAssembliesFullName)
         {
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
-            genericHost = new GenericHost(specifier, args, new List<Type> { typeof(Production) }, endpointName, scannableAssembliesFullName);
-
+            genericHost = new NServiceBus.GenericHost(specifier, args, new List<Type> { typeof(Production) }, endpointName, scannableAssembliesFullName);
+#pragma warning disable 0618
             Configure.Instance.DefineCriticalErrorAction(OnCriticalError);
-
-            if (runOtherInstallers || Debugger.IsAttached)
-            {
-                this.runOtherInstallers = true;
-            }
+#pragma warning restore 0618
         }
 
         /// <summary>
@@ -66,22 +54,5 @@ namespace NServiceBus.Hosting.Windows
             genericHost.Stop();
         }
 
-        /// <summary>
-        /// Performs installations
-        /// </summary>
-        /// <param name="username">Username passed in to host.</param>
-        public void Install(string username)
-        {
-            if (runOtherInstallers)
-            {
-                Installer.RunOtherInstallers = true;
-            }
-
-            //HACK: to force username to passed through to the 
-            WindowsInstallerRunner.RunInstallers = true;
-            WindowsInstallerRunner.RunAs = username;
-
-            genericHost.Install();
-        }
     }
 }

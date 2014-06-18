@@ -7,7 +7,7 @@ namespace NServiceBus.Hosting.Windows.Arguments
     using System.Text;
     using NDesk.Options;
 
-    public class HostArguments
+    class HostArguments
     {
         private readonly OptionSet installOptions;
         private readonly OptionSet uninstallOptions;

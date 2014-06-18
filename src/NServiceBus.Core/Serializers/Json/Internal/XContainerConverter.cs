@@ -6,7 +6,7 @@ namespace NServiceBus.Serializers.Json.Internal
     using System.Xml.Linq;
     using Newtonsoft.Json;
 
-    public class XContainerConverter : JsonConverter
+    class XContainerConverter : JsonConverter
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {

@@ -3,6 +3,11 @@
     /// <summary>
     /// Interface used to finalize configuration. This is the final point where the container can be altered.
     /// </summary>
+    /// 
+     [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Message = "IFinalizeConfiguration is no longer in use. Please use the Feature concept instead")]
     public interface IFinalizeConfiguration
     {
         /// <summary>

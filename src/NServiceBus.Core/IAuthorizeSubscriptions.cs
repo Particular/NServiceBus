@@ -1,4 +1,5 @@
-﻿namespace NServiceBus
+﻿// ReSharper disable UnusedParameter.Global
+namespace NServiceBus
 {
     using System.Collections.Generic;
     using System.Security.Principal;

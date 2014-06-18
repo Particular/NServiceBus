@@ -1,8 +1,7 @@
 namespace NServiceBus
 {
+    using System;
     using Autofac;
-    using ObjectBuilder.Autofac;
-    using ObjectBuilder.Common.Config;
 
     /// <summary>
     /// Contains extension methods to <see cref="Configure"/>.
@@ -14,10 +13,11 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The configuration context.</param>
         /// <returns>The configuration context.</returns>
+        [Obsolete("Replace with Configure.With(c=>.UseContainer<AutofacObjectBuilder>())", true)]
+// ReSharper disable once UnusedParameter.Global
         public static Configure AutofacBuilder(this Configure config)
         {
-            ConfigureCommon.With(config, new AutofacObjectBuilder());
-            return config;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -26,10 +26,12 @@ namespace NServiceBus
         /// <param name="config">The configuration context.</param>
         /// <param name="rootScope">The root-most lifetime scope.</param>
         /// <returns>The configuration context.</returns>
+        [Obsolete("Replace with Configure.With(c=>.UseContainer(new AutofacObjectBuilder()))", true)]
+// ReSharper disable UnusedParameter.Global
         public static Configure AutofacBuilder(this Configure config, ILifetimeScope rootScope)
+// ReSharper restore UnusedParameter.Global
         {
-            ConfigureCommon.With(config, new AutofacObjectBuilder(rootScope));
-            return config;
+            throw new NotImplementedException();
         }
     }
 }

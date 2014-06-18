@@ -6,25 +6,6 @@
 
     public class FakeBus : IBus 
     {
-        public T CreateInstance<T>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public T CreateInstance<T>(Action<T> action)
-        {
-            throw new NotImplementedException();
-        }
-
-        public object CreateInstance(Type messageType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Publish<T>(params T[] messages)
-        {
-            throw new NotImplementedException();
-        }
 
         public void Publish<T>(T message)
         {
@@ -51,22 +32,12 @@
             throw new NotImplementedException();
         }
 
-        public void Subscribe(Type messageType, Predicate<object> condition)
-        {
-            throw new NotImplementedException();
-        }
-
         public void Unsubscribe(Type messageType)
         {
             throw new NotImplementedException();
         }
 
         public void Unsubscribe<T>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICallback SendLocal(params object[] messages)
         {
             throw new NotImplementedException();
         }
@@ -81,11 +52,6 @@
             throw new NotImplementedException();
         }
 
-        public ICallback Send(params object[] messages)
-        {
-            throw new NotImplementedException();
-        }
-
         public ICallback Send(object message)
         {
             throw new NotImplementedException();
@@ -96,17 +62,7 @@
             throw new NotImplementedException();
         }
 
-        public ICallback Send(string destination, params object[] messages)
-        {
-            throw new NotImplementedException();
-        }
-
         public ICallback Send(string destination, object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICallback Send(Address address, params object[] messages)
         {
             throw new NotImplementedException();
         }
@@ -126,17 +82,7 @@
             throw new NotImplementedException();
         }
 
-        public ICallback Send(string destination, string correlationId, params object[] messages)
-        {
-            throw new NotImplementedException();
-        }
-
         public ICallback Send(string destination, string correlationId, object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICallback Send(Address address, string correlationId, params object[] messages)
         {
             throw new NotImplementedException();
         }
@@ -152,11 +98,6 @@
         }
 
         public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages)
         {
             throw new NotImplementedException();
         }
@@ -201,20 +142,8 @@
         {
             get { return _deferProcessAt; }
         }
-        public ICallback Defer(DateTime processAt, params object[] messages)
-        {
-            Interlocked.Increment(ref _deferWasCalled);
-            _deferProcessAt = processAt;
-            _deferMessages = messages;
-            return null;
-        }
 
         public ICallback Defer(DateTime processAt, object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Reply(params object[] messages)
         {
             throw new NotImplementedException();
         }
@@ -264,19 +193,5 @@
             get { throw new NotImplementedException(); }
         }
 
-        public void Shutdown()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IBus Start(Action startupAction)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IBus Start()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

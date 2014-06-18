@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Linq;
     using Transports;
     using Unicast.Transport;
+    using Utils.Reflection;
 
     /// <summary>
     /// Extension methods to configure transport.
@@ -13,23 +14,15 @@ namespace NServiceBus
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="config"></param>
-        /// <param name="customizations"></param>
-        /// <returns></returns>
         public static Configure UseTransport<T>(this Configure config, Action<TransportConfiguration> customizations = null) where T : TransportDefinition
         {
             return UseTransport(config, typeof(T), customizations);
         }
 
-        
+
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="transportDefinitionType"></param>
-        /// <param name="customizations"></param>
-        /// <returns></returns>
         public static Configure UseTransport(this Configure config, Type transportDefinitionType, Action<TransportConfiguration> customizations = null)
         {
             config.Settings.SetDefault<TransportConnectionString>(TransportConnectionString.Default);
@@ -43,13 +36,13 @@ namespace NServiceBus
                     "We couldn't find a IConfigureTransport implementation for your selected transport: " +
                     transportDefinitionType.Name);
 
-         if (customizations != null)
+            if (customizations != null)
             {
                 customizations(new TransportConfiguration(config));
             }
 
-            ((IConfigureTransport)Activator.CreateInstance(transportConfigurerType)).Configure(config);
-
+            config.Settings.Set<TransportDefinition>(transportDefinitionType.Construct<TransportDefinition>());
+            config.Settings.Set("TransportConfigurer", transportConfigurerType);
 
             return config;
         }

@@ -11,7 +11,7 @@
     /// <summary>
     /// ObjectBuilder implementation for the StructureMap IoC-Container
     /// </summary>
-    public class StructureMapObjectBuilder : Common.IContainer
+    class StructureMapObjectBuilder : Common.IContainer
     {
         IContainer container;
         IDictionary<Type, Instance> configuredInstances = new Dictionary<Type, Instance>();
@@ -105,13 +105,13 @@
                      .LifecycleIs(lifecycle)
                      .Use(component);
 
-                x.EnableSetterInjectionFor(component);
+                StructureMapExtensions.EnableSetterInjectionFor(component);
 
                 foreach (var implementedInterface in GetAllInterfacesImplementedBy(component))
                 {
                     x.RegisterAdditionalInterfaceForPluginType(implementedInterface, component,lifecycle);
 
-                    x.EnableSetterInjectionFor(implementedInterface);
+                    StructureMapExtensions.EnableSetterInjectionFor(implementedInterface);
                 }
             });
 
@@ -142,12 +142,12 @@
                                       .LifecycleIs(lifecycle)
                                       .Use(componentFactory);
 
-                    x.EnableSetterInjectionFor(pluginType);
+                    StructureMapExtensions.EnableSetterInjectionFor(pluginType);
 
                     foreach (var implementedInterface in GetAllInterfacesImplementedBy(pluginType))
                     {
                         x.RegisterAdditionalInterfaceForPluginType(implementedInterface, pluginType, lifecycle);
-                        x.EnableSetterInjectionFor(implementedInterface);
+                        StructureMapExtensions.EnableSetterInjectionFor(implementedInterface);
                     }
                 }
                 );

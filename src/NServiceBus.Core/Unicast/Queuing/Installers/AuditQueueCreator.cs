@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast.Queuing.Installers
 
         public bool Enabled { get; set; }
 
-        public bool ShouldCreateQueue(Configure config)
+        public bool ShouldCreateQueue()
         {
             return Enabled;
         }

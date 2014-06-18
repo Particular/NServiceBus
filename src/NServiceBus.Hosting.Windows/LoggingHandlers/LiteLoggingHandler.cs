@@ -4,7 +4,7 @@
     /// <summary>
     /// Handles logging configuration for the lite profile.
     /// </summary>
-    public class LiteLoggingHandler : IConfigureLoggingForProfile<Lite>
+    class LiteLoggingHandler : IConfigureLoggingForProfile<Lite>
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {

@@ -6,7 +6,7 @@ namespace NServiceBus.Sagas.Finders
     /// <summary>
     /// Finds the given type of saga by looking it up based on the given property.
     /// </summary>
-    public class PropertySagaFinder<TSagaData, TMessage> : IFindSagas<TSagaData>.Using<TMessage>
+    class PropertySagaFinder<TSagaData, TMessage> : IFindSagas<TSagaData>.Using<TMessage>
         where TSagaData : IContainSagaData
     {
         /// <summary>

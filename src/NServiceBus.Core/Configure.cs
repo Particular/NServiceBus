@@ -13,37 +13,36 @@ namespace NServiceBus
     using Config.Conventions;
     using Features;
     using Hosting.Helpers;
-    using Installation;
     using Logging;
     using ObjectBuilder;
+    using ObjectBuilder.Autofac;
+    using ObjectBuilder.Common;
     using Pipeline;
     using Settings;
+    using Utils.Reflection;
 
     /// <summary>
     ///     Central configuration entry point.
     /// </summary>
-    public class Configure
+    public partial class Configure
     {
         /// <summary>
         ///     Protected constructor to enable creation only via the With method.
         /// </summary>
-        Configure(string endpointName, IList<Type> availableTypes, IConfigurationSource configurationSource)
+        Configure(SettingsHolder settings, IConfigurationSource configurationSource, IContainer container, Conventions conventions)
         {
-            Settings.SetDefault("EndpointName", endpointName);
-            Settings.SetDefault("TypesToScan", availableTypes);
-            Settings.SetDefault<IConfigurationSource>(configurationSource);
-        }
+            this.settings = settings;
+            LogManager.HasConfigBeenInitialised = true;
+            
+            RegisterContainerAdapter(container);
 
-        /// <summary>
-        ///     Provides static access to the configuration object.
-        /// </summary>
-        public static Configure Instance
-        {
-            get
-            {
-                //we can't check for null here since that would break the way we do extension methods (the must be on a instance)
-                return instance;
-            }
+            configurer.RegisterSingleton<Configure>(this);
+            configurer.RegisterSingleton<ReadOnlySettings>(settings);
+            configurer.RegisterSingleton<Conventions>(conventions);
+
+            settings.SetDefault<IConfigurationSource>(configurationSource);
+            settings.SetDefault<Conventions>(conventions);
+            settings.Set<PipelineModifications>(new PipelineModifications());
         }
 
         /// <summary>
@@ -51,16 +50,13 @@ namespace NServiceBus
         /// </summary>
         public SettingsHolder Settings
         {
-            get { return SettingsHolder.Instance; }
+            get { return settings; }
         }
 
 
         /// <summary>
-        ///     Gets/sets the builder.
+        ///     Gets the builder.
         /// </summary>
-        /// <remarks>
-        ///     Setting the builder should only be done by NServiceBus framework code.
-        /// </remarks>
         public IBuilder Builder
         {
             get
@@ -72,7 +68,6 @@ namespace NServiceBus
 
                 return builder;
             }
-            set { builder = value; }
         }
 
         /// <summary>
@@ -90,17 +85,6 @@ namespace NServiceBus
 
                 return configurer;
             }
-            set
-            {
-                configurer = value;
-                WireUpConfigSectionOverrides();
-                InvokeBeforeConfigurationInitializers();
-            }
-        }
-
-        public SerializationSettings Serialization
-        {
-            get { return serialization ?? (serialization = new SerializationSettings(this)); }
         }
 
         public PipelineSettings Pipeline
@@ -116,60 +100,33 @@ namespace NServiceBus
             get { return Settings.GetAvailableTypes(); }
         }
 
-
-        static ILog Logger
-        {
-            get { return LogManager.GetLogger<Configure>(); }
-        }
-
-        /// <summary>
-        ///     The name of this endpoint.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "config.Settings.EndpointName()")]
-        public string EndpointName
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        /// <summary>
-        ///     True if any of the <see cref="With()" /> has been called.
-        /// </summary>
-        static bool WithHasBeenCalled()
-        {
-            return instance != null;
-        }
-
-        /// <summary>
-        ///     True if a builder has been defined.
-        /// </summary>
-        internal static bool BuilderIsConfigured()
-        {
-            if (!WithHasBeenCalled())
-            {
-                return false;
-            }
-
-            return Instance.HasBuilder();
-        }
-
         bool HasBuilder()
         {
             return builder != null && configurer != null;
         }
 
+        void RegisterContainerAdapter(IContainer container)
+        {
+            if (builder != null)
+            {
+                throw new InvalidOperationException("Container adapter already specified");
+            }
+
+            var b = new CommonObjectBuilder { Container = container, Synchronized = settings.GetOrDefault<bool>("UseSyncronizationDomain") };
+
+            builder = b;
+            configurer = b;
+
+            Configurer.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(c => c.Container, container);
+        }
+
 
         void WireUpConfigSectionOverrides()
         {
-            if (configSectionOverridesInitialized)
-            {
-                return;
-            }
-
             TypesToScan
                 .Where(t => t.GetInterfaces().Any(IsGenericConfigSource))
                 .ToList().ForEach(t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
-            configSectionOverridesInitialized = true;
         }
 
         /// <summary>
@@ -192,7 +149,6 @@ namespace NServiceBus
 
         static Configure With(ConfigurationBuilder configurationBuilder)
         {
-            SettingsHolder.Instance.Reset();
             instance = configurationBuilder.BuildConfiguration();
 
             EndpointHelper.StackTraceToExamine = new StackTrace();
@@ -210,22 +166,10 @@ namespace NServiceBus
             return Builder.Build<IStartableBus>();
         }
 
-        void InvokeBeforeConfigurationInitializers()
-        {
-            if (beforeConfigurationInitializersCalled)
-            {
-                return;
-            }
-
-            ActivateAndInvoke<IWantToRunBeforeConfiguration>(t => t.Init(this));
-
-            beforeConfigurationInitializersCalled = true;
-        }
-
         /// <summary>
         ///     Finalizes the configuration by invoking all initialisers.
         /// </summary>
-        public void Initialize()
+        internal void Initialize()
         {
             if (initialized)
             {
@@ -237,36 +181,32 @@ namespace NServiceBus
                 this.DefaultBuilder();
             }
 
+            Address.InitializeLocalAddress(settings.EndpointName());
+
+            WireUpConfigSectionOverrides();
+
             featureActivator = new FeatureActivator(Settings);
 
             Configurer.RegisterSingleton<FeatureActivator>(featureActivator);
 
-            ForAllTypes<Feature>(t => featureActivator.Add((Feature) Activator.CreateInstance(t)));
+            ForAllTypes<Feature>(t => featureActivator.Add(t.Construct<Feature>()));
 
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            InvokeBeforeConfigurationInitializers();
-
             ActivateAndInvoke<INeedInitialization>(t => t.Init(this));
-
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run(this));
 
             //lockdown the settings
             Settings.PreventChanges();
 
-            ActivateAndInvoke<IFinalizeConfiguration>(t => t.FinalizeConfiguration(this));
-
             featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
             featureActivator.RegisterStartupTasks(Configurer);
 
             //this needs to be before the installers since they actually call .Initialize :(
             initialized = true;
-
-            ForAllTypes<INeedToInstallSomething>(t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
@@ -303,44 +243,6 @@ namespace NServiceBus
                 .GetScannableAssemblies()
                 .Assemblies;
         }
-
-
-        /// <summary>
-        ///     Configures the given type with the given lifecycle <see cref="DependencyLifecycle" />.
-        /// </summary>
-        public static IComponentConfig Component(Type type, DependencyLifecycle lifecycle)
-        {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component()");
-            }
-
-            return Instance.Configurer.ConfigureComponent(type, lifecycle);
-        }
-
-
-        /// <summary>
-        ///     Returns true if a component of type <typeparamref name="T" /> exists in the container.
-        /// </summary>
-        public static bool HasComponent<T>()
-        {
-            return HasComponent(typeof(T));
-        }
-
-
-        /// <summary>
-        ///     Returns true if a component of type <paramref name="componentType" /> exists in the container.
-        /// </summary>
-        public static bool HasComponent(Type componentType)
-        {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.HasComponent");
-            }
-
-            return Instance.Configurer.HasComponent(componentType);
-        }
-
 
         static IList<Type> GetAllowedTypes(params Assembly[] assemblies)
         {
@@ -382,7 +284,7 @@ namespace NServiceBus
                 var sw = new Stopwatch();
 
                 sw.Start();
-                var instanceToInvoke = (T) Activator.CreateInstance(t);
+                var instanceToInvoke = (T)Activator.CreateInstance(t);
                 action(instanceToInvoke);
                 sw.Stop();
 
@@ -401,7 +303,7 @@ namespace NServiceBus
 
             // ReSharper disable HeapView.SlowDelegateCreation
             foreach (var detail in details.OrderByDescending(d => d.Item2))
-                // ReSharper restore HeapView.SlowDelegateCreation
+            // ReSharper restore HeapView.SlowDelegateCreation
             {
                 detailsMessage.AppendLine(string.Format("{0} - {1:f4} s", detail.Item1.FullName, detail.Item2.TotalSeconds));
             }
@@ -409,12 +311,12 @@ namespace NServiceBus
 
             if (logAsWarn)
             {
-                Logger.Warn(message + detailsMessage);
+                logger.Warn(message + detailsMessage);
             }
             else
             {
-                Logger.Info(message);
-                Logger.Debug(detailsMessage.ToString());
+                logger.Info(message);
+                logger.Debug(detailsMessage.ToString());
             }
         }
 
@@ -434,69 +336,13 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
-        /// <summary>
-        ///     Sets the current configuration source.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.CustomConfigurationSource(myConfigSource))")]
-        // ReSharper disable UnusedParameter.Global
-        public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.AssembliesInDirectory(probeDirectory))")]
-        public static Configure With(string probeDirectory)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.ScanAssemblies(assemblies))")]
-        public static Configure With(IEnumerable<Assembly> assemblies)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.ScanAssemblies(assemblies));")]
-        public static Configure With(params Assembly[] assemblies)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.ScanAssemblies(assemblies))")]
-        public static Configure With(IEnumerable<Type> typesToScan)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.EndpointName(definesEndpointName))")]
-        public static Configure DefineEndpointName(Func<string> definesEndpointName)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        ///     Sets the function that specified the name of this endpoint
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "With(o => o.EndpointName(name))")]
-        public static Configure DefineEndpointName(string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        static bool configSectionOverridesInitialized;
-        static bool beforeConfigurationInitializersCalled;
-
-
-        public static Func<FileInfo, Assembly> LoadAssembly = s => Assembly.LoadFrom(s.FullName);
-
-        static Configure instance;
-        static bool initialized;
+        static ILog logger = LogManager.GetLogger<Configure>();
+        bool initialized;
         IBuilder builder;
         IConfigureComponents configurer;
         FeatureActivator featureActivator;
         PipelineSettings pipelineSettings;
-        SerializationSettings serialization;
-
+        SettingsHolder settings;
 
         public class ConfigurationBuilder
         {
@@ -506,78 +352,133 @@ namespace NServiceBus
             }
 
             /// <summary>
-            ///     Specifies the range of types that NServiceBus scans for handlers etc
+            ///     Specifies the range of types that NServiceBus scans for handlers etc.
             /// </summary>
-            /// <param name="typesToScan"></param>
-            public void TypesToScan(IEnumerable<Type> typesToScan)
+            public ConfigurationBuilder TypesToScan(IEnumerable<Type> typesToScan)
             {
                 scannedTypes = typesToScan.ToList();
+                return this;
             }
 
             /// <summary>
-            ///     The assemblies to include when scanning for types
+            ///     The assemblies to include when scanning for types.
             /// </summary>
-            /// <param name="assemblies"></param>
-            public void AssembliesToScan(IEnumerable<Assembly> assemblies)
+            public ConfigurationBuilder AssembliesToScan(IEnumerable<Assembly> assemblies)
             {
                 AssembliesToScan(assemblies.ToArray());
+                return this;
             }
 
             /// <summary>
-            ///     The assemblies to include when scanning for types
+            ///     The assemblies to include when scanning for types.
             /// </summary>
-            /// <param name="assemblies"></param>
-            public void AssembliesToScan(params Assembly[] assemblies)
+            public ConfigurationBuilder AssembliesToScan(params Assembly[] assemblies)
             {
                 scannedTypes = GetAllowedTypes(assemblies);
+                return this;
             }
 
 
             /// <summary>
-            ///     Specifies the directory where NServiceBus scans for types
+            ///     Specifies the directory where NServiceBus scans for types.
             /// </summary>
-            /// <param name="probeDirectory"></param>
-            public void ScanAssembliesInDirectory(string probeDirectory)
+            public ConfigurationBuilder ScanAssembliesInDirectory(string probeDirectory)
             {
                 directory = probeDirectory;
                 AssembliesToScan(GetAssembliesInDirectory(probeDirectory));
+                return this;
             }
 
 
             /// <summary>
-            ///     Overrides the default configuration source
+            ///     Overrides the default configuration source.
             /// </summary>
-            /// <param name="configurationSource"></param>
-            public void CustomConfigurationSource(IConfigurationSource configurationSource)
+            public ConfigurationBuilder CustomConfigurationSource(IConfigurationSource configurationSource)
             {
                 configurationSourceToUse = configurationSource;
+                return this;
             }
 
 
             /// <summary>
-            ///     Defines the name to use for this endpoint
+            ///     Defines the name to use for this endpoint.
             /// </summary>
-            /// <param name="name"></param>
-            public void EndpointName(string name)
+            public ConfigurationBuilder EndpointName(string name)
             {
                 EndpointName(() => name);
+                return this;
             }
 
             /// <summary>
-            ///     Defines the name to use for this endpoint
+            ///     Defines the name to use for this endpoint.
             /// </summary>
-            /// <param name="nameFunc"></param>
-            public void EndpointName(Func<string> nameFunc)
+            public ConfigurationBuilder EndpointName(Func<string> nameFunc)
             {
                 getEndpointNameAction = nameFunc;
+                return this;
             }
 
+            /// <summary>
+            ///     Defines the version of this endpoint.
+            /// </summary>
+            public ConfigurationBuilder EndpointVersion(Func<string> versionFunc)
+            {
+                getEndpointVersionAction = versionFunc;
+                return this;
+            }
+
+            /// <summary>
+            ///     Defines the conventions to use for this endpoint.
+            /// </summary>
+            public ConfigurationBuilder Conventions(Action<ConventionsBuilder> conventions)
+            {
+                conventions(conventionsBuilder);
+
+                return this;
+            }
+
+            /// <summary>
+            /// Defines a custom builder to use
+            /// </summary>
+            /// <typeparam name="T">The builder type</typeparam>
+            /// <returns></returns>
+            public ConfigurationBuilder UseContainer<T>() where T : IContainer
+            {
+                return UseContainer(typeof(T));
+            }
+
+
+
+            /// <summary>
+            /// Defines a custom builder to use
+            /// </summary>
+            /// <param name="builderType">The type of the builder</param>
+            /// <returns></returns>
+            public ConfigurationBuilder UseContainer(Type builderType)
+            {
+                UseContainer(builderType.Construct<IContainer>());
+
+                return this;
+            }
+
+            /// <summary>
+            /// Uses an already active instance of a builder
+            /// </summary>
+            /// <param name="builder">The instance to use</param>
+            /// <returns></returns>
+            public ConfigurationBuilder UseContainer(IContainer builder)
+            {
+                customBuilder = builder;
+
+                return this;
+            }
             /// <summary>
             ///     Creates the configuration object
             /// </summary>
-            /// <returns></returns>
             internal Configure BuildConfiguration()
             {
+                var version = getEndpointVersionAction();
+
                 endpointName = getEndpointNameAction();
 
                 if (scannedTypes == null)
@@ -602,18 +503,107 @@ namespace NServiceBus
                         scannedTypes = scannedTypes.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
                     }
                 }
-                return new Configure(endpointName, scannedTypes, configurationSourceToUse);
+                var builder = customBuilder ?? new AutofacObjectBuilder();
+                var settings = new SettingsHolder();
+                settings.SetDefault("EndpointName", endpointName);
+                settings.SetDefault("TypesToScan", scannedTypes);
+                settings.SetDefault("EndpointVersion", version);
+
+                return new Configure(settings, configurationSourceToUse, builder, conventionsBuilder.BuildConventions());
             }
 
-
+            IContainer customBuilder;
             IConfigurationSource configurationSourceToUse;
+            ConventionsBuilder conventionsBuilder = new ConventionsBuilder();
             string directory;
             string endpointName;
             Func<string> getEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
+            Func<string> getEndpointVersionAction = () => EndpointHelper.GetEndpointVersion();
             IList<Type> scannedTypes;
         }
 
+        /// <summary>
+        /// Conventions builder class.
+        /// </summary>
+        public class ConventionsBuilder
+        {
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a type is a message.
+            /// </summary>
+            public ConventionsBuilder DefiningMessagesAs(Func<Type, bool> definesMessageType)
+            {
+                this.definesMessageType = definesMessageType;
+                return this;
+            }
 
-        // ReSharper restore UnusedParameter.Global
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a type is a commands.
+            /// </summary>
+            public ConventionsBuilder DefiningCommandsAs(Func<Type, bool> definesCommandType)
+            {
+                this.definesCommandType = definesCommandType;
+                return this;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a type is a event.
+            /// </summary>
+            public ConventionsBuilder DefiningEventsAs(Func<Type, bool> definesEventType)
+            {
+                this.definesEventType = definesEventType;
+                return this;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a property should be encrypted or not.
+            /// </summary>
+            public ConventionsBuilder DefiningEncryptedPropertiesAs(Func<PropertyInfo, bool> definesEncryptedProperty)
+            {
+                this.definesEncryptedProperty = definesEncryptedProperty;
+                return this;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a property should be sent via the DataBus or not.
+            /// </summary>
+            public ConventionsBuilder DefiningDataBusPropertiesAs(Func<PropertyInfo, bool> definesDataBusProperty)
+            {
+                this.definesDataBusProperty = definesDataBusProperty;
+                return this;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a message has a time to be received.
+            /// </summary>
+            public ConventionsBuilder DefiningTimeToBeReceivedAs(Func<Type, TimeSpan> retrieveTimeToBeReceived)
+            {
+                this.retrieveTimeToBeReceived = retrieveTimeToBeReceived;
+                return this;
+            }
+
+            /// <summary>
+            ///     Sets the function to be used to evaluate whether a type is an express message or not.
+            /// </summary>
+            public ConventionsBuilder DefiningExpressMessagesAs(Func<Type, bool> definesExpressMessageType)
+            {
+                this.definesExpressMessageType = definesExpressMessageType;
+                return this;
+            }
+
+            internal Conventions BuildConventions()
+            {
+                var conventions = new Conventions(isCommandTypeAction: definesCommandType, isDataBusPropertyAction: definesDataBusProperty, isEncryptedPropertyAction: definesEncryptedProperty, isEventTypeAction: definesEventType, isExpressMessageAction: definesExpressMessageType, isMessageTypeAction: definesMessageType, timeToBeReceivedAction: retrieveTimeToBeReceived);
+           
+                return conventions;
+            }
+
+            Func<Type, bool> definesCommandType;
+            Func<PropertyInfo, bool> definesDataBusProperty;
+            Func<PropertyInfo, bool> definesEncryptedProperty;
+            Func<Type, bool> definesEventType;
+            Func<Type, bool> definesExpressMessageType;
+            Func<Type, bool> definesMessageType;
+            Func<Type, TimeSpan> retrieveTimeToBeReceived;
+        }
     }
 }

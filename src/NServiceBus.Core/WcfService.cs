@@ -11,6 +11,9 @@ namespace NServiceBus
                      ConcurrencyMode = ConcurrencyMode.Multiple)]
     public abstract class WcfService<TRequest, TResponse> : IWcfService<TRequest, TResponse>
     {
+        /// <summary>
+        /// Create an instance of <see cref="WcfService{TRequest,TResponse}"/>
+        /// </summary>
         protected WcfService()
         {
             bus = Configure.Instance.Builder.Build<IBus>();   

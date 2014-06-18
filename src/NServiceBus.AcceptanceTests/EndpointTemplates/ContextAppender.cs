@@ -3,23 +3,17 @@
     using System;
     using System.Diagnostics;
     using AcceptanceTesting;
-    using AcceptanceTesting.Support;
     using Logging;
 
     public class ContextAppender : ILoggerFactory, ILog
     {
-        public ContextAppender(ScenarioContext context, EndpointConfiguration endpointConfiguration)
+        public ContextAppender(ScenarioContext context)
         {
             this.context = context;
-            this.endpointConfiguration = endpointConfiguration;
         }
 
         void Append(Exception exception)
         {
-            if (endpointConfiguration.AllowExceptions)
-            {
-                return;
-            }
             lock (context)
             {
                 context.Exceptions += exception + "/n/r";
@@ -27,7 +21,7 @@
         }
 
         ScenarioContext context;
-        EndpointConfiguration endpointConfiguration;
+
         public ILog GetLogger(Type type)
         {
             return this;

@@ -4,7 +4,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Messaging;
     using System.Threading;
 
-    public class MsmqUnitOfWork : IDisposable
+    class MsmqUnitOfWork : IDisposable
     {
         public MessageQueueTransaction Transaction
         {

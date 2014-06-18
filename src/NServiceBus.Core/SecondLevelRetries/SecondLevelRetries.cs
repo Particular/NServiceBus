@@ -5,9 +5,12 @@ namespace NServiceBus.Features
     using Faults.Forwarder;
     using NServiceBus.SecondLevelRetries;
 
+    /// <summary>
+    /// Used to configure Second Level Retries.
+    /// </summary>
     public class SecondLevelRetries : Feature
     {
-        public SecondLevelRetries()
+        internal SecondLevelRetries()
         {
             EnableByDefault();
             Prerequisite(ShouldRun);
@@ -32,6 +35,9 @@ namespace NServiceBus.Features
             return retriesConfig.Enabled;
         }
 
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
             var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();

@@ -15,7 +15,7 @@ namespace NServiceBus.Transports.Msmq
     /// <summary>
     ///     Default implementation of <see cref="IDequeueMessages" /> for MSMQ.
     /// </summary>
-    public class MsmqDequeueStrategy : IDequeueMessages, IDisposable
+    class MsmqDequeueStrategy : IDequeueMessages, IDisposable
     {
         /// <summary>
         ///     Purges the queue on startup.
@@ -62,7 +62,7 @@ namespace NServiceBus.Transports.Msmq
                 Timeout = transactionSettings.TransactionTimeout
             };
 
-            queue = new MessageQueue(MsmqUtilities.GetFullPath(address), false, true, QueueAccessMode.Receive);
+            queue = new MessageQueue(NServiceBus.MsmqUtilities.GetFullPath(address), false, true, QueueAccessMode.Receive);
 
             if (transactionSettings.IsTransactional && !QueueIsTransactional())
             {
@@ -185,7 +185,7 @@ namespace NServiceBus.Transports.Msmq
                 Message message;
                 if (transactionSettings.IsTransactional)
                 {
-                    if (transactionSettings.DontUseDistributedTransactions)
+                    if (transactionSettings.SuppressDistributedTransactions)
                     {
                         using (var msmqTransaction = new MessageQueueTransaction())
                         {
@@ -294,7 +294,7 @@ namespace NServiceBus.Transports.Msmq
         {
             try
             {
-                return MsmqUtilities.Convert(message);
+                return NServiceBus.MsmqUtilities.Convert(message);
             }
             catch (Exception ex)
             {
@@ -347,7 +347,7 @@ namespace NServiceBus.Transports.Msmq
 
             circuitBreaker.Execute(
                 () =>
-                    Configure.Instance.RaiseCriticalError("Error in receiving messages.",
+                    ConfigureCriticalErrorAction.RaiseCriticalError("Error in receiving messages.",
                         new InvalidOperationException(errorException, messageQueueException)));
         }
 

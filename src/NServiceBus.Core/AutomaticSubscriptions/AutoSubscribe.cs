@@ -5,21 +5,27 @@
     using Logging;
     using Transports;
 
+    /// <summary>
+    /// Used to configure auto subscriptions.
+    /// </summary>
     public class AutoSubscribe : Feature
     {
-        public AutoSubscribe()
+        internal AutoSubscribe()
         {
             EnableByDefault();
 
             RegisterStartupTask<ApplySubscriptions>();
         }
 
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
 
             context.Container.ConfigureComponent<AutoSubscriptionStrategy>(DependencyLifecycle.InstancePerCall);
 
-            var transportDefinition = context.Settings.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
+            var transportDefinition = context.Settings.Get<TransportDefinition>();
 
             //if the transport has centralized pubsub we can auto-subscribe all events regardless if they have explicit routing or not
             if (transportDefinition != null && transportDefinition.HasSupportForCentralizedPubSub)
@@ -47,10 +53,12 @@
 
             public IBus Bus { get; set; }
 
+            public Conventions Conventions { get; set; }
+
             protected override void OnStart()
             {
                 foreach (var eventType in AutoSubscriptionStrategy.GetEventsToSubscribe()
-                    .Where(t => !MessageConventionExtensions.IsInSystemConventionList(t))) //never auto-subscribe system messages
+                    .Where(t => !Conventions.IsInSystemConventionList(t))) //never auto-subscribe system messages
                 {
                     Bus.Subscribe(eventType);
 

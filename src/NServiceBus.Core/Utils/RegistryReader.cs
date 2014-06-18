@@ -4,11 +4,11 @@
     using Logging;
     using Microsoft.Win32;
 
-    static class RegistryReader<T>
+    static class RegistryReader
     {
-        static ILog Logger = LogManager.GetLogger(typeof(RegistryReader<T>));
+        static ILog Logger = LogManager.GetLogger(typeof(RegistryReader));
 
-        public static T Read(string name, T defaultValue = default(T))
+        public static string Read(string name, string defaultValue = null)
         {
             try
             {              
@@ -22,27 +22,24 @@
             return defaultValue;
         }
 
-        static T ReadRegistryKeyValue(string keyName, object defaultValue)
+        static string ReadRegistryKeyValue(string keyName, string defaultValue)
         {
-            object value;
-
             if (Environment.Is64BitOperatingSystem)
             {
-                value = ReadRegistry(RegistryView.Registry32, keyName, defaultValue) ?? ReadRegistry(RegistryView.Registry64, keyName, defaultValue);
+                return ReadRegistry(RegistryView.Registry32, keyName, defaultValue) ?? ReadRegistry(RegistryView.Registry64, keyName, defaultValue);
             }
-            else
-            {
-                value = ReadRegistry(RegistryView.Default, keyName, defaultValue);
-            }
-
-            return (T)value;
+            return ReadRegistry(RegistryView.Default, keyName, defaultValue);
         }
 
-        static object ReadRegistry(RegistryView view, string keyName, object defaultValue)
+        static string ReadRegistry(RegistryView view, string keyName, string defaultValue)
         {
             using (var key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view).OpenSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
             {
-                return key == null ? defaultValue : key.GetValue(keyName, defaultValue);
+                if (key == null)
+                {
+                    return defaultValue;
+                }
+                return (string) key.GetValue(keyName, defaultValue);
             }
         }
     }

@@ -20,14 +20,14 @@
                         {
                             bus.Subscribe<IMyEvent>();
 
-                            if (context.HasSupportForCentralizedPubSub)
+                            if (context.HasNativePubSubSupport)
                                 context.Subscriber1Subscribed = true;
                         }))
                     .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
                         {
                             bus.Subscribe<MyEvent>();
 
-                            if (context.HasSupportForCentralizedPubSub)
+                            if (context.HasNativePubSubSupport)
                                 context.Subscriber2Subscribed = true;
                         }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
@@ -97,7 +97,7 @@
         }
         static void EnableNotificationsOnSubscribe(Context context)
         {
-            if (!context.HasSupportForCentralizedPubSub)
+            if (!context.HasNativePubSubSupport)
             {
                 SubscriptionBehavior.OnEndpointSubscribed(args =>
                 {

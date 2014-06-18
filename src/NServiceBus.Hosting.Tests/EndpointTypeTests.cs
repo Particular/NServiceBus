@@ -3,18 +3,18 @@ namespace NServiceBus.Hosting.Tests
     namespace EndpointTypeTests
     {
         using System;
+        using System.Diagnostics;
         using Windows;
         using Windows.Arguments;
         using NUnit.Framework;
 
-        public abstract class TestContext
+        abstract class TestContext
         {
             protected EndpointType EndpointType;
-            protected string TestValue;
         }
 
         [TestFixture]
-        public class OtherProperty_Getter_Tests : TestContext
+        class OtherProperty_Getter_Tests : TestContext
         {
             [TestFixtureSetUp]
             public void TestFixtureSetup()
@@ -25,24 +25,24 @@ namespace NServiceBus.Hosting.Tests
             [Test]
             public void the_assemblyQualifiedName_getter_should_not_blow_up()
             {
-                TestValue = EndpointType.AssemblyQualifiedName;
+                Trace.WriteLine(EndpointType.AssemblyQualifiedName);
             }
 
             [Test]
             public void the_endpointConfigurationFile_getter_should_not_blow_up()
             {
-                TestValue = EndpointType.EndpointConfigurationFile;
+                Trace.WriteLine(EndpointType.EndpointConfigurationFile);
             }
 
             [Test]
             public void the_endpointVersion_getter_should_not_blow_up()
             {
-                TestValue = EndpointType.EndpointVersion;
+                Trace.WriteLine(EndpointType.EndpointVersion);
             }
         }
 
         [TestFixture]
-        public class EndpointName_Getter_Tests : TestContext
+        class EndpointName_Getter_Tests : TestContext
         {
             HostArguments hostArguments;
 
@@ -100,7 +100,7 @@ namespace NServiceBus.Hosting.Tests
         }
 
         [TestFixture]
-        public class ServiceName_Getter_Tests : TestContext
+        class ServiceName_Getter_Tests : TestContext
         {
             HostArguments hostArguments;
 
@@ -141,15 +141,13 @@ namespace NServiceBus.Hosting.Tests
         [TestFixture]
         public class Constructor_Tests
         {
-            protected EndpointType EndpointType;
-
             [Test]
             [ExpectedException(typeof (InvalidOperationException),
                 ExpectedMessage = "Endpoint configuration type needs to have a default constructor",
                 MatchType = MessageMatch.StartsWith)]
             public void When_type_does_not_have_empty_public_constructor_it_should_blow_up()
             {
-                EndpointType = new EndpointType(typeof (TypeWithoutEmptyPublicConstructor));
+                 new EndpointType(typeof (TypeWithoutEmptyPublicConstructor));
             }
         }
 

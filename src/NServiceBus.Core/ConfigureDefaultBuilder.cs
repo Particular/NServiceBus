@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
-    using ObjectBuilder.Autofac;
-    using ObjectBuilder.Common.Config;
+    using System;
 
     /// <summary>
     /// Configuration extension for the default builder
@@ -9,15 +8,14 @@ namespace NServiceBus
     public static class ConfigureDefaultBuilder
     {
 
-        /// <summary>
-        /// Uses the default container merged into NServiceBus.Core.dll.
-        /// In this version, the container is the Spring Framework.
-        /// </summary>
+       [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Message = "Default builder will be used automatically")]
+// ReSharper disable once UnusedParameter.Global
         public static Configure DefaultBuilder(this Configure config)
         {
-            ConfigureCommon.With(config, new AutofacObjectBuilder());
-
-            return config;
+           throw new NotImplementedException();
         }
 
     }

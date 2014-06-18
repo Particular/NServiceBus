@@ -25,7 +25,16 @@ namespace NServiceBus
                 return configurationSource.GetConfiguration<T>();
             }
 
-            var sectionOverride = (IProvideConfiguration<T>)Activator.CreateInstance(sectionOverrideType);
+            IProvideConfiguration<T> sectionOverride;
+
+            if (HasConstructorThatAcceptsSettings(sectionOverrideType))
+            {
+                sectionOverride = (IProvideConfiguration<T>)Activator.CreateInstance(sectionOverrideType, new object[] { settings });
+            }
+            else
+            {
+                sectionOverride = (IProvideConfiguration<T>)Activator.CreateInstance(sectionOverrideType);
+            }
 
             return sectionOverride.GetConfiguration();
         }
@@ -33,8 +42,6 @@ namespace NServiceBus
         /// <summary>
         /// Gets the list of types available to this endpoint
         /// </summary>
-        /// <param name="settings"></param>
-        /// <returns></returns>
         public static IList<Type> GetAvailableTypes(this ReadOnlySettings settings)
         {
             return settings.Get<IList<Type>>("TypesToScan");
@@ -44,13 +51,16 @@ namespace NServiceBus
         /// <summary>
         /// Returns the name of this endpoint
         /// </summary>
-        /// <param name="settings"></param>
-        /// <returns></returns>
         public static string EndpointName(this ReadOnlySettings settings)
         {
             return settings.Get<string>("EndpointName");
         }
 
+
+        static bool HasConstructorThatAcceptsSettings(Type sectionOverrideType)
+        {
+            return sectionOverrideType.GetConstructor(new [] { typeof(ReadOnlySettings) }) != null;
+        }
 
     }
 }

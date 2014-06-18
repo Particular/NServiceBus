@@ -4,26 +4,25 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_receiving_a_message : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_handle_it()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            Scenario.Define<Context>()
                     .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
-                    .Done(c => context.OrderAckReceived == 1)
-                    .Run();
+                    .AllowExceptions()
+                    .Done(c => c.OrderAckReceived == 1)
+                    .Repeat(r=>r.For<AllOutboxCapableStorages>())
+                    .Run(TimeSpan.FromSeconds(20));
         }
 
         [Test]
         public void Should_discard_duplicates_using_the_outbox()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            Scenario.Define<Context>()
                     .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
                     {
                         var duplicateMessageId = Guid.NewGuid().ToString();
@@ -31,10 +30,11 @@
                         bus.SendLocal<PlaceOrder>(m => m.SetHeader(Headers.MessageId, duplicateMessageId));
                         bus.SendLocal(new PlaceOrder());
                     }))
-                    .Done(c => context.OrderAckReceived >= 2)
-                    .Run();
-
-            Assert.AreEqual(2, context.OrderAckReceived);
+                    .AllowExceptions()
+                    .Done(c => c.OrderAckReceived >= 2)
+                    .Repeat(r=>r.For<AllOutboxCapableStorages>())
+                    .Should(context => Assert.AreEqual(2, context.OrderAckReceived))
+                    .Run(TimeSpan.FromSeconds(20));
         }
 
         public class Context : ScenarioContext
@@ -46,8 +46,12 @@
         {
             public NonDtcReceivingEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableOutbox())
-                .AllowExceptions()
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.Settings.Set("DisableOutboxTransportCheck", true);
+
+                    c.EnableOutbox();
+                })
                 .AuditTo(Address.Parse("audit"));
             }
 

@@ -3,6 +3,7 @@
     using System;
     using Contexts;
     using InMemory.SagaPersister;
+    using Sagas;
     using NUnit.Framework;
     using Saga;
     using Sagas.Finders;
@@ -10,21 +11,28 @@
     class with_sagas : using_the_unicastBus
     {
         protected InMemorySagaPersister persister;
+        Conventions conventions;
 
         [SetUp]
         public new void SetUp()
         {
             persister = new InMemorySagaPersister();
             FuncBuilder.Register<ISagaPersister>(() => persister);
-
             Features.Sagas.Clear();
+
+            conventions = new Conventions();
         }
 
+        protected override void ApplyPipelineModifications()
+        {
+            pipelineModifications.Additions.Add(new SagaPersistenceBehavior.SagaPersistenceRegistration());
+        }
 
         protected void RegisterCustomFinder<T>() where T : IFinder
         {
-            Features.Sagas.ConfigureFinder(typeof(T));
+            Features.Sagas.ConfigureFinder(typeof(T), conventions);
         }
+
         protected void RegisterSaga<T>(object sagaEntity = null) where T : new()
         {
             var sagaEntityType = GetSagaEntityType<T>();
@@ -32,8 +40,8 @@
             var sagaHeaderIdFinder = typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType);
             FuncBuilder.Register(sagaHeaderIdFinder);
 
-            Features.Sagas.ConfigureSaga(typeof(T));
-            Features.Sagas.ConfigureFinder(sagaHeaderIdFinder);
+            Features.Sagas.ConfigureSaga(typeof(T), conventions);
+            Features.Sagas.ConfigureFinder(sagaHeaderIdFinder, conventions);
 
             if (Features.Sagas.SagaEntityToMessageToPropertyLookup.ContainsKey(sagaEntityType))
             {
@@ -41,7 +49,7 @@
                 {
                     var propertyFinder = typeof(PropertySagaFinder<,>).MakeGenericType(sagaEntityType, entityLookups.Key);
 
-                    Features.Sagas.ConfigureFinder(propertyFinder);
+                    Features.Sagas.ConfigureFinder(propertyFinder, conventions);
 
                     var propertyLookups = entityLookups.Value;
 

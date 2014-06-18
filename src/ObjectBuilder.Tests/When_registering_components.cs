@@ -51,6 +51,20 @@ namespace ObjectBuilder.Tests
         }
 
         [Test]
+        [Explicit]
+        public void A_registration_should_update_default_component_for_interface()
+        {
+
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerCall);
+                builder.Configure(typeof(SomeOtherClass), DependencyLifecycle.InstancePerCall);
+
+                Assert.IsInstanceOf<SomeOtherClass>(builder.Build(typeof(ISomeInterface)));
+            });
+        }
+
+        [Test]
         public void Register_singleton_should_be_supported()
         {
             ForAllBuilders(builder =>
@@ -100,6 +114,21 @@ namespace ObjectBuilder.Tests
                 Assert.True(component.SomeProperty);
 
                 Assert.True(component.AnotherProperty);
+            });
+        }
+
+        [Test]
+        public void Properties_configured_multiple_times_should_retain_only_the_last_configuration()
+        {
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(DuplicateClass), DependencyLifecycle.SingleInstance);
+                builder.ConfigureProperty(typeof(DuplicateClass), "SomeProperty", false);
+                builder.ConfigureProperty(typeof(DuplicateClass), "SomeProperty", true); // this should remove/override the previous property setting
+
+                var component = (DuplicateClass) builder.Build(typeof(DuplicateClass));
+
+                Assert.True(component.SomeProperty);
             });
         }
 

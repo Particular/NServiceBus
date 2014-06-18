@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using IdGeneration;
 
     /// <summary>
     ///     An envelope used by NServiceBus to package messages for transmission.
@@ -32,10 +31,8 @@ namespace NServiceBus
         /// <summary>
         ///     Creates a new TransportMessage with the given id and headers
         /// </summary>
-        public TransportMessage(string existingId, Dictionary<string, string> existingHeaders,Address replyToAddress = null)
+        public TransportMessage(string existingId, Dictionary<string, string> existingHeaders)
         {
-            ReplyToAddress = replyToAddress;
-
             if (existingHeaders == null)
             {
                 existingHeaders = new Dictionary<string, string>();
@@ -49,6 +46,15 @@ namespace NServiceBus
             {
                 Headers[NServiceBus.Headers.MessageId] = existingId;
             }
+        }
+
+        /// <summary>
+        ///     Creates a new TransportMessage with the given id and headers and reply to address
+        /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "5.1", RemoveInVersion = "6", Replacement = "headers[Headers.ReplyToAddress]=replyToAddress; var tm = new TransportMessage(id,headers)")]
+        public TransportMessage(string existingId, Dictionary<string, string> existingHeaders, Address replyToAddress):this(existingId,existingHeaders)
+        {
+            Headers[NServiceBus.Headers.ReplyToAddress] = replyToAddress.ToString();
         }
 
         /// <summary>
@@ -90,7 +96,20 @@ namespace NServiceBus
         /// <summary>
         ///     Gets/sets the reply-to address of the message bundle - replaces 'ReturnAddress'.
         /// </summary>
-        public Address ReplyToAddress { get; private set; }
+        public Address ReplyToAddress
+        {
+            get
+            {
+                string replyToAddress;
+
+                if (Headers.TryGetValue(NServiceBus.Headers.ReplyToAddress, out replyToAddress))
+                {
+                    return Address.Parse(replyToAddress);
+                }
+
+                return null;
+            }
+        }
 
         /// <summary>
         ///     Gets/sets whether or not the message is supposed to

@@ -3,12 +3,11 @@
     using System;
     using System.IO;
     using Arguments;
-    using Utils;
 
     /// <summary>
     ///     Representation of an Endpoint Type with additional descriptive properties.
     /// </summary>
-    public class EndpointType
+    class EndpointType
     {
         internal EndpointType(HostArguments arguments, Type type) : this(type)
         {

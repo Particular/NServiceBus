@@ -9,7 +9,7 @@ namespace NServiceBus.Sagas
     /// <summary>
     /// Class used to bridge the dependency between <see cref="Saga{T}"/> and <see cref="Configure"/>.
     /// </summary>
-    public class ConfigureHowToFindSagaWithMessageDispatcher : IConfigureHowToFindSagaWithMessage
+    class ConfigureHowToFindSagaWithMessageDispatcher : IConfigureHowToFindSagaWithMessage
     {
         void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
         {

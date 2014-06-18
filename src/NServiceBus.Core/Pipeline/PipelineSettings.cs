@@ -1,83 +1,83 @@
 namespace NServiceBus.Pipeline
 {
     using System;
-    using System.Collections.Generic;
-    using Settings;
 
+    /// <summary>
+    /// Manages the pipeline configuration.
+    /// </summary>
     public class PipelineSettings
     {
-        readonly Configure config;
+        internal PipelineSettings(Configure config)
+        {
+            this.config = config;
+        }
 
+        /// <summary>
+        /// Removes the specified step from the pipeline.
+        /// </summary>
+        /// <param name="idToRemove">The identifier of the step to remove.</param>
         public void Remove(string idToRemove)
         {
             // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
-            if (String.IsNullOrEmpty(idToRemove))
+            if (string.IsNullOrEmpty(idToRemove))
             {
                 throw new ArgumentNullException("idToRemove");
             }
 
-            var removals = config.Settings.Get<List<RemoveBehavior>>("Pipeline.Removals");
 
-            removals.Add(new RemoveBehavior(idToRemove));
+            config.Settings.Get<PipelineModifications>().Removals.Add(new RemoveBehavior(idToRemove));
         }
 
+        /// <summary>
+        /// Replaces an existing step behavior with a new one.
+        /// </summary>
+        /// <param name="idToReplace">The identifier of the step to replace.</param>
+        /// <param name="newBehavior">The new <see cref="IBehavior{TContext}"/> to use.</param>
+        /// <param name="description">The description of the new behavior.</param>
         public void Replace(string idToReplace, Type newBehavior, string description = null)
         {
-            if (newBehavior.IsAssignableFrom(iBehaviourType))
-            {
-                throw new ArgumentException("TBehavior needs to implement IBehavior<TContext>");
-            }
+            BehaviorTypeChecker.ThrowIfInvalid(newBehavior, "newBehavior");
 
-            if (String.IsNullOrEmpty(idToReplace))
+            if (string.IsNullOrEmpty(idToReplace))
             {
                 throw new ArgumentNullException("idToReplace");
             }
 
-            var replacements = config.Settings.Get<List<ReplaceBehavior>>("Pipeline.Replacements");
-
-            replacements.Add(new ReplaceBehavior(idToReplace, newBehavior, description));
+            config.Settings.Get<PipelineModifications>().Replacements.Add(new ReplaceBehavior(idToReplace, newBehavior, description));
         }
 
+        /// <summary>
+        /// Register a new step into the pipeline.
+        /// </summary>
+        /// <param name="id">The identifier of the new step to add.</param>
+        /// <param name="behavior">The <see cref="IBehavior{TContext}"/> to execute.</param>
+        /// <param name="description">The description of the behavior.</param>
         public void Register(string id, Type behavior, string description)
         {
-            if (behavior == null)
+            BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
+
+            if (string.IsNullOrEmpty(id))
             {
                 throw new ArgumentNullException("id");
             }
 
-            if (behavior.IsAssignableFrom(iBehaviourType))
-            {
-                throw new ArgumentException("Needs to implement IBehavior<TContext>", "behavior");
-            }
-
-            if (String.IsNullOrEmpty(id))
-            {
-                throw new ArgumentNullException("id");
-            }
-
-            if (String.IsNullOrEmpty(description))
+            if (string.IsNullOrEmpty(description))
             {
                 throw new ArgumentNullException("description");
             }
 
-            var additions = config.Settings.Get<List<RegisterBehavior>>("Pipeline.Additions");
-
-            additions.Add(RegisterBehavior.Create(id, behavior, description));
+            config.Settings.Get<PipelineModifications>().Additions.Add(RegisterBehavior.Create(id, behavior, description));
         }
 
+        /// <summary>
+        /// Register a new step into the pipeline.
+        /// </summary>
+        /// <typeparam name="T">The <see cref="RegisterBehavior"/> to use to perform the registration.</typeparam>
         public void Register<T>() where T : RegisterBehavior, new()
         {
-            var additions = SettingsHolder.Instance.Get<List<RegisterBehavior>>("Pipeline.Additions");
-
-            additions.Add(Activator.CreateInstance<T>());
+            config.Settings.Get<PipelineModifications>().Additions.Add(new T());
         }
 
-        static Type iBehaviourType = typeof(IBehavior<>);
-
-        public PipelineSettings(Configure config)
-        {
-            this.config = config;
-        
-        }
+        Configure config;
     }
 }

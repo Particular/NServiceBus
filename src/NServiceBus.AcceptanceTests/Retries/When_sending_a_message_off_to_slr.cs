@@ -8,6 +8,7 @@
     using AcceptanceTesting;
     using MessageMutator;
     using NUnit.Framework;
+    using Unicast.Messages;
 
     public class When_sending_a_message_off_to_slr : NServiceBusAcceptanceTest
     {
@@ -18,6 +19,7 @@
 
             Scenario.Define(context)
                     .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+                    .AllowExceptions()
                     .Done(c => c.SlrChecksum != default(byte))
                     .Run();
 
@@ -34,6 +36,7 @@
 
             Scenario.Define(context)
                     .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+                    .AllowExceptions()
                     .Done(c => c.SlrChecksum != default(byte))
                     .Run();
 
@@ -56,10 +59,9 @@
             {
                 EndpointSetup<DefaultServer>(c => c.Configurer.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance))
                     .WithConfig<TransportConfig>(c =>
-                        {
-                            c.MaxRetries = 0;
-                        })
-                        .AllowExceptions();
+                    {
+                        c.MaxRetries = 0;
+                    });
             }
 
             class BodyMutator : IMutateTransportMessages, INeedInitialization
@@ -87,7 +89,7 @@
                 }
 
 
-                public void MutateOutgoing(object message, TransportMessage transportMessage)
+                public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
                 {
                     transportMessage.Body[0]--;
                 }

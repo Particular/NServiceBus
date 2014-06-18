@@ -4,9 +4,9 @@ namespace NServiceBus.Scheduling
     using System.Collections.Concurrent;
     using System.Collections.Generic;
 
-    public class InMemoryScheduledTaskStorage : IScheduledTaskStorage
+    class InMemoryScheduledTaskStorage : IScheduledTaskStorage
     {
-        protected readonly IDictionary<Guid, ScheduledTask> scheduledTasks = new ConcurrentDictionary<Guid, ScheduledTask>();
+        IDictionary<Guid, ScheduledTask> scheduledTasks = new ConcurrentDictionary<Guid, ScheduledTask>();
 
         public void Add(ScheduledTask scheduledTask)
         {

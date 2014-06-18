@@ -47,7 +47,7 @@
 
             if (context.OutgoingLogicalMessage.MessageType != null)
             {
-                var messageDefinitions = MessageMetadataRegistry.GetMessageDefinition(context.OutgoingLogicalMessage.MessageType);
+                var messageDefinitions = MessageMetadataRegistry.GetMessageMetadata(context.OutgoingLogicalMessage.MessageType);
 
                 toSend.TimeToBeReceived = messageDefinitions.TimeToBeReceived;
                 toSend.Recoverable = messageDefinitions.Recoverable;

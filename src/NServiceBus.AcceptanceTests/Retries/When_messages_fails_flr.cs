@@ -16,6 +16,7 @@
         {
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<SLREndpoint>(b => b.Given((bus, context) => bus.SendLocal(new MessageToBeRetried { Id = context.Id })))
+                    .AllowExceptions(e => e.Message.Contains("Simulated exception"))
                     .Done(c => c.NumberOfTimesInvoked >= 2)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(context =>
@@ -23,7 +24,7 @@
                             Assert.GreaterOrEqual(1,context.NumberOfSlrRetriesPerformed, "The SLR should only do one retry");
                             Assert.GreaterOrEqual(context.TimeOfSecondAttempt - context.TimeOfFirstAttempt,SlrDelay , "The SLR should delay the retry");
                         })
-                    .Run(TimeSpan.FromSeconds(20));
+                    .Run();
         }
 
         public class Context : ScenarioContext
@@ -43,7 +44,6 @@
             public SLREndpoint()
             {
                 EndpointSetup<DefaultServer>()
-                    .AllowExceptions()
                     .WithConfig<TransportConfig>(c =>
                         {
                             c.MaxRetries = 0; //to skip the FLR

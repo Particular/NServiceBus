@@ -6,25 +6,6 @@ namespace NServiceBus.Settings
     using System.Transactions.Configuration;
     using Unicast.Transport;
 
-    class DefaultTransactionSettings : IWantToRunBeforeConfiguration
-    {
-        public void Init(Configure configure)
-        {
-            configure.Settings.SetDefault("Transactions.Enabled", true);
-        }
-    }
-
-    class DefaultTransactionAdvancedSettings : IWantToRunBeforeConfiguration
-    {
-        public void Init(Configure configure)
-        {
-            configure.Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
-            configure.Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
-            configure.Settings.SetDefault("Transactions.SuppressDistributedTransactions", false);
-            configure.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
-        }
-    }
-
     /// <summary>
     ///     Configuration class for Transaction settings.
     /// </summary>
@@ -84,7 +65,6 @@ namespace NServiceBus.Settings
             /// <summary>
             ///     Default constructor.
             /// </summary>
-            /// <param name="config"></param>
             public TransactionAdvancedSettings(Configure config)
             {
                 this.config = config;

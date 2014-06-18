@@ -15,6 +15,7 @@
 
             Scenario.Define<Context>()
                     .WithEndpoint<NonTransactionalEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
+                    .AllowExceptions()
                     .Done(c => c.TestComplete)
                     .Repeat(r => r.For<AllDtcTransports>()) 
                     .Should(c => Assert.False(c.MessageEnlistedInTheAmbientTxReceived, "The enlisted bus.Send should not commit"))
@@ -36,8 +37,7 @@
                 {
                     t.Disable();
                     t.Advanced(a => a.WrapHandlersExecutionInATransactionScope());
-                }))
-                .AllowExceptions();
+                }));
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

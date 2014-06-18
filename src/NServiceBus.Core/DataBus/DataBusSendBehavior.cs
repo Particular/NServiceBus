@@ -17,6 +17,7 @@
         public IDataBus DataBus { get; set; }
 
         public IDataBusSerializer DataBusSerializer { get; set; }
+        public Conventions Conventions { get; set; }
 
         public void Invoke(OutgoingContext context, Action next)
         {
@@ -77,7 +78,7 @@
             next();
         }
 
-        static IEnumerable<PropertyInfo> GetDataBusProperties(object message)
+        IEnumerable<PropertyInfo> GetDataBusProperties(object message)
         {
             var messageType = message.GetType();
 
@@ -87,7 +88,7 @@
             if (!cache.TryGetValue(messageType, out value))
             {
                 value = messageType.GetProperties()
-                    .Where(MessageConventionExtensions.IsDataBusProperty)
+                    .Where(Conventions.IsDataBusProperty)
                     .ToList();
 
                 cache[messageType] = value;
@@ -98,7 +99,6 @@
         }
 
         readonly static ConcurrentDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>();
-
 
         public class Registration : RegisterBehavior
         {

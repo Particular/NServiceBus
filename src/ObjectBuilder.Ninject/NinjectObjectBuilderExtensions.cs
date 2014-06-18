@@ -4,7 +4,7 @@
     using global::Ninject.Syntax;
     using Internal;
 
-    public static class NinjectObjectBuilderExtensions
+    static class NinjectObjectBuilderExtensions
     {
         const string ScopeName = "NinjectObjectBuilder";
 

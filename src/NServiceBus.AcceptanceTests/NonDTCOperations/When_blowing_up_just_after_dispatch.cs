@@ -6,23 +6,24 @@
     using NUnit.Framework;
     using Pipeline;
     using Pipeline.Contexts;
+    using ScenarioDescriptors;
 
     public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_still_release_the_outgoing_messages_to_the_transport()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+          
+            Scenario.Define<Context>()
                     .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
-                    .Done(c => context.OrderAckReceived == 1)
-                    .Run(TimeSpan.FromSeconds(10));
-
-            Assert.AreEqual(1, context.OrderAckReceived,"Order ack should have been received since outbox dispatch isn't part of the receive tx");
+                    .AllowExceptions()
+                    .Done(c => c.OrderAckReceived == 1)
+                    .Repeat(r=>r.For<AllOutboxCapableStorages>())
+                    .Should(context => Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received since outbox dispatch isn't part of the receive tx"))
+                    .Run(TimeSpan.FromSeconds(20));
         }
 
-      
+
 
         public class Context : ScenarioContext
         {
@@ -35,11 +36,12 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
+                    c.Settings.Set("DisableOutboxTransportCheck", true);
                     c.EnableOutbox();
                     c.Pipeline.Register<BlowUpAfterDispatchBehavior.Registration>();
                     c.Configurer.ConfigureComponent<BlowUpAfterDispatchBehavior>(DependencyLifecycle.InstancePerCall);
-                })
-                .AllowExceptions();
+                });
+
             }
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>
@@ -71,9 +73,9 @@
         class SendOrderAcknowledgement : IMessage { }
     }
 
-    public class BlowUpAfterDispatchBehavior:IBehavior<IncomingContext>
+    public class BlowUpAfterDispatchBehavior : IBehavior<IncomingContext>
     {
-        public class Registration:RegisterBehavior
+        public class Registration : RegisterBehavior
         {
             public Registration()
                 : base("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing")
@@ -101,7 +103,7 @@
             {
                 next();
             }
-            
+
 
             called = true;
 

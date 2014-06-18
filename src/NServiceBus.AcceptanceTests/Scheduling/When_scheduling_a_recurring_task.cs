@@ -38,8 +38,10 @@
                        .Action("MyTask", () =>
                        {
                            Console.Out.WriteLine("Task invoked");
+#pragma warning disable 0618
                            Configure.Instance.Builder.Build<Context>()
                                     .ScheduleActionInvoked = true;
+#pragma warning restore 0618
                        });
                 }
 

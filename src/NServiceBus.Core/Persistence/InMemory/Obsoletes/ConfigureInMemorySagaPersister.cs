@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using InMemory.SagaPersister;
     using Persistence;
 
     /// <summary>
@@ -14,8 +13,6 @@ namespace NServiceBus
         [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5.1", Replacement = "config.UsePersistence<Persistence.InMemory>()")]
         public static Configure InMemorySagaPersister(this Configure config)
         {
-            config.Configurer.ConfigureComponent<InMemorySagaPersister>(DependencyLifecycle.SingleInstance);
-
             return config.UsePersistence<Persistence.InMemory>();
         }
     }

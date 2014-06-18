@@ -17,7 +17,6 @@ namespace NServiceBus.SecondLevelRetries.Config
         /// <summary>
         /// Register a custom retry policy
         /// </summary>
-        /// <param name="customPolicy"></param>
         public void CustomRetryPolicy(Func<TransportMessage, TimeSpan> customPolicy)
         {
             config.Settings.Set("SecondLevelRetries.RetryPolicy", customPolicy);

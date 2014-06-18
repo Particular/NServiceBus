@@ -18,7 +18,9 @@
         /// </summary>
         public void Startup(Configure config)
         {
-            foreach (var serviceType in config.TypesToScan.Where(t => !t.IsAbstract && IsWcfService(t)))
+            var conventions = config.Builder.Build<Conventions>();
+
+            foreach (var serviceType in config.TypesToScan.Where(t => !t.IsAbstract && IsWcfService(t, conventions)))
             {
                 var host = new WcfServiceHost(serviceType);
 
@@ -55,12 +57,12 @@
             return typeof(IWcfService<,>).MakeGenericType(args);
         }
 
-        static bool IsWcfService(Type t)
+        static bool IsWcfService(Type t, Conventions conventions)
         {
             var args = t.GetGenericArguments();
             if (args.Length == 2)
             {
-                if (MessageConventionExtensions.IsMessageType(args[0]))
+                if (conventions.IsMessageType(args[0]))
                 {
                     var wcfType = typeof(WcfService<,>).MakeGenericType(args);
                     if (wcfType.IsAssignableFrom(t))
@@ -72,7 +74,7 @@
 
             if (t.BaseType != null)
             {
-                return IsWcfService(t.BaseType) && !t.IsAbstract;
+                return IsWcfService(t.BaseType, conventions) && !t.IsAbstract;
             }
 
             return false;

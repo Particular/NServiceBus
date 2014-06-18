@@ -13,9 +13,11 @@ namespace NServiceBus.Encryption
     /// <summary>
     /// Invokes the encryption service to encrypt/decrypt messages
     /// </summary>
-    public class EncryptionMessageMutator : IMessageMutator
+    class EncryptionMessageMutator : IMessageMutator
     {
         public IEncryptionService EncryptionService { get; set; }
+
+        public Conventions Conventions { get; set; }
 
         public object MutateOutgoing(object message)
         {
@@ -43,7 +45,7 @@ namespace NServiceBus.Encryption
             return false;
         }
 
-        static bool IsEncryptedMember(MemberInfo arg)
+        bool IsEncryptedMember(MemberInfo arg)
         {
             
             var propertyInfo = arg as PropertyInfo;
@@ -51,7 +53,7 @@ namespace NServiceBus.Encryption
             {
                 if (propertyInfo.GetIndexParameters().Length > 0)
                 {
-                    if (MessageConventionExtensions.IsEncryptedProperty(propertyInfo))
+                    if (Conventions.IsEncryptedProperty(propertyInfo))
                     {
                         throw new Exception("Cannot encrypt or decrypt indexed properties that return a WireEncryptedString.");
                     }
@@ -59,7 +61,7 @@ namespace NServiceBus.Encryption
                     return false;
                 }
 
-                return MessageConventionExtensions.IsEncryptedProperty(propertyInfo);
+                return Conventions.IsEncryptedProperty(propertyInfo);
             }
 
             var fieldInfo = arg as FieldInfo;

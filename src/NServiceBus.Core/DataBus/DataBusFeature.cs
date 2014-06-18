@@ -4,15 +4,21 @@ namespace NServiceBus.Features
     using System.Linq;
     using DataBus;
 
+    /// <summary>
+    /// Used to configure the databus. 
+    /// </summary>
     public class DataBusFeature : Feature
 	{
-        public DataBusFeature()
+        internal DataBusFeature()
         {
             EnableByDefault();
             Prerequisite(DataBusPropertiesFound);
             RegisterStartupTask<StorageInitializer>();
         }
 
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
             if (!context.Container.HasComponent<IDataBus>())
@@ -32,13 +38,14 @@ namespace NServiceBus.Features
         static bool DataBusPropertiesFound(FeatureConfigurationContext context)
         {
             var dataBusPropertyFound = false;
+            var conventions = context.Settings.Get<Conventions>();
 
             if (!context.Container.HasComponent<IDataBusSerializer>() && System.Diagnostics.Debugger.IsAttached)
             {
                 var properties = context.Settings.GetAvailableTypes()
-                    .Where(MessageConventionExtensions.IsMessageType)
+                    .Where(conventions.IsMessageType)
                     .SelectMany(messageType => messageType.GetProperties())
-                    .Where(MessageConventionExtensions.IsDataBusProperty);
+                    .Where(conventions.IsDataBusProperty);
 
                 foreach (var property in properties)
                 {
@@ -58,9 +65,9 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
             else
             {
                 dataBusPropertyFound = context.Settings.GetAvailableTypes()
-                    .Where(MessageConventionExtensions.IsMessageType)
+                    .Where(conventions.IsMessageType)
                     .SelectMany(messageType => messageType.GetProperties())
-                    .Any(MessageConventionExtensions.IsDataBusProperty);
+                    .Any(conventions.IsDataBusProperty);
             }
             return dataBusPropertyFound;
         }

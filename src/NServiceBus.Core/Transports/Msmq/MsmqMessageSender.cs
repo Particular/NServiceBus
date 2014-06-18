@@ -4,7 +4,6 @@ namespace NServiceBus.Transports.Msmq
     using System.Messaging;
     using System.Transactions;
     using Config;
-    using Settings;
     using Unicast;
     using Unicast.Queuing;
 
@@ -14,17 +13,17 @@ namespace NServiceBus.Transports.Msmq
 
         public MsmqUnitOfWork UnitOfWork { get; set; }
 
-
+        public bool SuppressDistributedTransactions { get; set; }
 
         public void Send(TransportMessage message, SendOptions sendOptions)
         {
             var address = sendOptions.Destination;
-            var queuePath = MsmqUtilities.GetFullPath(address);
+            var queuePath = NServiceBus.MsmqUtilities.GetFullPath(address);
             try
             {
                 using (var q = new MessageQueue(queuePath, false, Settings.UseConnectionCache, QueueAccessMode.Send))
                 {
-                    using (var toSend = MsmqUtilities.Convert(message))
+                    using (var toSend = NServiceBus.MsmqUtilities.Convert(message))
                     {
                         toSend.UseDeadLetterQueue = Settings.UseDeadLetterQueue;
                         toSend.UseJournalQueue = Settings.UseJournalQueue;
@@ -33,7 +32,7 @@ namespace NServiceBus.Transports.Msmq
                         
                         if (replyToAddress != null)
                         {
-                            toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(replyToAddress.ToString(), address.ToString()));
+                            toSend.ResponseQueue = new MessageQueue(NServiceBus.MsmqUtilities.GetReturnAddress(replyToAddress.ToString(), address.ToString()));
                         }
 
 
@@ -70,9 +69,9 @@ namespace NServiceBus.Transports.Msmq
         static void ThrowFailedToSendException(Address address, Exception ex)
         {
             if (address == null)
-                throw new FailedToSendMessageException("Failed to send message.", ex);
+                throw new Exception("Failed to send message.", ex);
 
-            throw new FailedToSendMessageException(
+            throw new Exception(
                 string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine), ex);
         }
 
@@ -83,7 +82,7 @@ namespace NServiceBus.Transports.Msmq
                 return MessageQueueTransactionType.None;
             }
 
-            if (SettingsHolder.Instance.Get<bool>("Transactions.SuppressDistributedTransactions"))
+            if (SuppressDistributedTransactions)
             {
                 return MessageQueueTransactionType.Single;
             }

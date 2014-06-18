@@ -5,7 +5,7 @@ namespace NServiceBus.Gateway.HeaderManagement
     using System.Linq;
     using Transports.Msmq;
 
-    public class HeaderMapper
+    class HeaderMapper
     {
         public static TransportMessage Map(IDictionary<string, string> from)
         {

@@ -8,6 +8,8 @@
         public OutboxMessage ExistingMessage { get; set; }
         public OutboxMessage StoredMessage { get; set; }
 
+        public bool WasDispatched { get; set; }
+
         public bool TryGet(string messageId, out OutboxMessage message)
         {
             message = null;
@@ -29,7 +31,7 @@
 
         public void SetAsDispatched(string messageId)
         {
-            //no op
+            WasDispatched = true;
         }
     }
 }

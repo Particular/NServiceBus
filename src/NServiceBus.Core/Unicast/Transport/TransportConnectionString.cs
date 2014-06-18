@@ -3,7 +3,7 @@
     using System;
     using System.Configuration;
 
-    public class TransportConnectionString
+    class TransportConnectionString
     {
         protected TransportConnectionString()
         {

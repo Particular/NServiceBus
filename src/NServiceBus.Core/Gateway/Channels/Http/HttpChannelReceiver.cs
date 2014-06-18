@@ -8,7 +8,6 @@ namespace NServiceBus.Gateway.Channels.Http
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Threading.Tasks.Schedulers;
     using System.Web;
     using HeaderManagement;
     using Logging;

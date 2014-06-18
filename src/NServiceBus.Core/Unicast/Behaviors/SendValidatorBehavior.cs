@@ -8,6 +8,8 @@
 
     class SendValidatorBehavior : IBehavior<OutgoingContext>
     {
+        public Conventions Conventions { get; set; }
+
         public void Invoke(OutgoingContext context, Action next)
         {
             if (!context.OutgoingLogicalMessage.IsControlMessage())
@@ -18,7 +20,7 @@
             next();
         }
 
-        static void VerifyBestPractices(OutgoingContext context)
+        void VerifyBestPractices(OutgoingContext context)
         {
             if (!context.DeliveryOptions.EnforceMessagingBestPractices)
             {
@@ -29,7 +31,7 @@
 
             if (sendOptions == null)
             {
-                MessagingBestPractices.AssertIsValidForPubSub(context.OutgoingLogicalMessage.MessageType);
+                MessagingBestPractices.AssertIsValidForPubSub(context.OutgoingLogicalMessage.MessageType, Conventions);
                 return;
             }
 
@@ -40,11 +42,11 @@
 
             if (sendOptions is ReplyOptions)
             {
-                MessagingBestPractices.AssertIsValidForReply(context.OutgoingLogicalMessage.MessageType);
+                MessagingBestPractices.AssertIsValidForReply(context.OutgoingLogicalMessage.MessageType, Conventions);
             }
             else
             {
-                MessagingBestPractices.AssertIsValidForSend(context.OutgoingLogicalMessage.MessageType);
+                MessagingBestPractices.AssertIsValidForSend(context.OutgoingLogicalMessage.MessageType, Conventions);
             }
         }
     }

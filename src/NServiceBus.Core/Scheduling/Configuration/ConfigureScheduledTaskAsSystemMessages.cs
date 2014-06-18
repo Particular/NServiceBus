@@ -1,10 +1,10 @@
 namespace NServiceBus.Scheduling.Configuration
 {
-    public class ConfigureScheduledTaskAsSystemMessages : IWantToRunBeforeConfiguration
+    class ConfigureScheduledTaskAsSystemMessages : INeedInitialization
     {
-        public void Init(Configure configure)
+        public void Init(Configure config)
         {
-            MessageConventionExtensions.AddSystemMessagesConventions(t => typeof(Messages.ScheduledTask).IsAssignableFrom(t));
+            config.Settings.Get<Conventions>().AddSystemMessagesConventions(t => typeof(Messages.ScheduledTask).IsAssignableFrom(t));
         }
     }
 }

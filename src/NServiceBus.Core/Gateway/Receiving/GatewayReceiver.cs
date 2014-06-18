@@ -6,11 +6,10 @@ namespace NServiceBus.Gateway.Receiving
     using Notifications;
     using Routing;
     using Satellites;
-    using Settings;
     using Transports;
     using Unicast;
 
-    public class GatewayReceiver : ISatellite
+    class GatewayReceiver : ISatellite
     {
         public GatewayReceiver()
         {
@@ -53,10 +52,10 @@ namespace NServiceBus.Gateway.Receiving
 
         public bool Disabled { get; set; }
 
+        public Address ReplyToAddress { get; set; }
+
         public void Start()
         {
-            replyToAddress = SettingsHolder.Instance.Get<Address>("Gateway.InputAddress");
-
             foreach (var receiveChannel in ChannelManager.GetReceiveChannels())
             {
                 var receiver = builder();
@@ -79,13 +78,11 @@ namespace NServiceBus.Gateway.Receiving
 
             MessageSender.Send(messageToSend, new SendOptions(destination)
             {
-                ReplyToAddress = replyToAddress
+                ReplyToAddress = ReplyToAddress
             });
         }
 
         static ILog Logger = LogManager.GetLogger<GatewayReceiver>();
         readonly ICollection<IReceiveMessagesFromSites> activeReceivers;
-
-        Address replyToAddress;
     }
 }

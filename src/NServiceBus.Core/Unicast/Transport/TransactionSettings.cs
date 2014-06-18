@@ -6,23 +6,23 @@
 
     public class TransactionSettings
     {
-        public TransactionSettings()
+        public TransactionSettings(ReadOnlySettings settings)
         {
             MaxRetries = 5;
-            IsTransactional = SettingsHolder.Instance.Get<bool>("Transactions.Enabled");
-            TransactionTimeout = SettingsHolder.Instance.Get<TimeSpan>("Transactions.DefaultTimeout");
-            IsolationLevel = SettingsHolder.Instance.Get<IsolationLevel>("Transactions.IsolationLevel");
-            DontUseDistributedTransactions = SettingsHolder.Instance.Get<bool>("Transactions.SuppressDistributedTransactions");
-            DoNotWrapHandlersExecutionInATransactionScope = SettingsHolder.Instance.Get<bool>("Transactions.DoNotWrapHandlersExecutionInATransactionScope");
+            IsTransactional = settings.Get<bool>("Transactions.Enabled");
+            TransactionTimeout = settings.Get<TimeSpan>("Transactions.DefaultTimeout");
+            IsolationLevel = settings.Get<IsolationLevel>("Transactions.IsolationLevel");
+            SuppressDistributedTransactions = settings.Get<bool>("Transactions.SuppressDistributedTransactions");
+            DoNotWrapHandlersExecutionInATransactionScope = settings.Get<bool>("Transactions.DoNotWrapHandlersExecutionInATransactionScope");
         }
 
-        protected TransactionSettings(bool isTransactional, TimeSpan transactionTimeout, IsolationLevel isolationLevel, int maxRetries, bool dontUseDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope)
+        protected TransactionSettings(bool isTransactional, TimeSpan transactionTimeout, IsolationLevel isolationLevel, int maxRetries, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope)
         {
             IsTransactional = isTransactional;
             TransactionTimeout = transactionTimeout;
             IsolationLevel = isolationLevel;
             MaxRetries = maxRetries;
-            DontUseDistributedTransactions = dontUseDistributedTransactions;
+            SuppressDistributedTransactions = suppressDistributedTransactions;
             DoNotWrapHandlersExecutionInATransactionScope = doNotWrapHandlersExecutionInATransactionScope;
         }
 
@@ -61,11 +61,10 @@
         /// </remarks>
         public int MaxRetries { get; set; }
 
-
         /// <summary>
         /// If true the transport won't enlist in distributed transactions
         /// </summary>
-        public bool DontUseDistributedTransactions { get; set; }
+        public bool SuppressDistributedTransactions { get; set; }
 
         /// <summary>
         /// Controls if the message handlers should be wrapped in a <see cref="TransactionScope"/>

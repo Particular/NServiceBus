@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using IdGeneration;
     using Logging;
     using Pipeline;
     using Pipeline.Contexts;
@@ -21,6 +20,13 @@
 
         public void Invoke(IncomingContext context, Action next)
         {
+            // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
+            if (context.PhysicalMessage.MessageIntent == MessageIntentEnum.Publish)
+            {
+                context.PhysicalMessage.Headers.Remove(Headers.SagaId);
+                context.PhysicalMessage.Headers.Remove(Headers.SagaType);
+            }
+
             var saga = context.MessageHandler.Instance as Saga;
             if (saga == null)
             {
@@ -69,6 +75,8 @@
                 return;
             }
 
+            LogSaga(sagaInstanceState, context);
+
             if (saga.Completed)
             {
                 if (!sagaInstanceState.IsNew)
@@ -93,6 +101,24 @@
                 {
                     SagaPersister.Update(saga.Entity);
                 }
+            }
+        }
+
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.1", Message = "Enriching the headers for saga related information has been moved to the SagaAudit plugin in ServiceControl.  Add a reference to the Saga audit plugin in your endpoint to get more information.")]
+        void LogSaga(ActiveSagaInstance saga, IncomingContext context)
+        {
+
+            var audit = string.Format("{0}:{1}", saga.SagaType.FullName, saga.Instance.Entity.Id);
+
+            string header;
+
+            if (context.IncomingLogicalMessage.Headers.TryGetValue(Headers.InvokedSagas, out header))
+            {
+                context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] += string.Format(";{0}", audit);
+            }
+            else
+            {
+                context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] = audit;
             }
         }
 
@@ -205,5 +231,14 @@
         IncomingContext currentContext;
 
         static ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();
+
+        public class SagaPersistenceRegistration : RegisterBehavior
+        {
+            public SagaPersistenceRegistration()
+                : base(WellKnownBehavior.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic")
+            {
+                InsertBefore(WellKnownBehavior.InvokeHandlers);
+            }
+        }
     }
 }

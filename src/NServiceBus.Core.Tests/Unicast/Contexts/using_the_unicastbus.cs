@@ -49,6 +49,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected MessageHandlerRegistry handlerRegistry;
         protected TransportDefinition transportDefinition;
+        protected SettingsHolder settings;
+        protected PipelineModifications pipelineModifications;
 
         PipelineExecutor pipelineFactory;
 
@@ -57,7 +59,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             var localAddress = "endpointA";
             MasterNodeAddress = new Address(localAddress, "MasterNode");
             Address.InitializeLocalAddress(localAddress);
-            
         }
 
         [SetUp]
@@ -66,26 +67,28 @@ namespace NServiceBus.Unicast.Tests.Contexts
             LicenseManager.InitializeLicense();
             transportDefinition = new Msmq();
             HandlerInvocationCache.Clear();
+         
+            settings = new SettingsHolder();
+            
+            settings.SetDefault("EndpointName", "TestEndpoint");
+            settings.SetDefault("Endpoint.SendOnly", false);
+            settings.SetDefault("MasterNode.Address", MasterNodeAddress);
+            pipelineModifications = new PipelineModifications();
+            settings.Set<PipelineModifications>(pipelineModifications);
 
-            SettingsHolder.Instance.Reset();
-            SettingsHolder.Instance.SetDefault("EndpointName", "TestEndpoint");
-            SettingsHolder.Instance.SetDefault("Endpoint.SendOnly", false);
-            SettingsHolder.Instance.SetDefault("MasterNode.Address", MasterNodeAddress);
-			SettingsHolder.Instance.SetDefault("Pipeline.Removals", new List<RemoveBehavior>());
-            SettingsHolder.Instance.SetDefault("Pipeline.Replacements", new List<ReplaceBehavior>());
-            SettingsHolder.Instance.SetDefault("Pipeline.Additions", new List<RegisterBehavior>());
+            ApplyPipelineModifications();
 
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
-            router = new StaticMessageRouter(KnownMessageTypes());
-            handlerRegistry = new MessageHandlerRegistry();
-            MessageMetadataRegistry = new MessageMetadataRegistry
-                {
-                    DefaultToNonPersistentMessages = false
-                };
 
-            MessageSerializer = new XmlMessageSerializer(MessageMapper);
-            //ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
+            FuncBuilder.Register<ReadOnlySettings>(()=>settings);
+
+            router = new StaticMessageRouter(KnownMessageTypes());
+            var conventions = new Conventions();
+            handlerRegistry = new MessageHandlerRegistry(conventions);
+            MessageMetadataRegistry = new MessageMetadataRegistry(false, conventions);
+            MessageSerializer = new XmlMessageSerializer(MessageMapper, conventions);
+
             gatewayAddress = MasterNodeAddress.SubScope("gateway");
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
@@ -96,12 +99,12 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
-            pipelineFactory = new PipelineExecutor(FuncBuilder);
+            pipelineFactory = new PipelineExecutor(settings, FuncBuilder);
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
 
-            FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory());
+            FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory(MessageMetadataRegistry, MessageMapper, pipelineFactory));
 
             FuncBuilder.Register<IManageSubscriptions>(() => subscriptionManager);
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
@@ -110,7 +113,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
             FuncBuilder.Register<IMessageMapper>(() => MessageMapper);
 
-            FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior
+            FuncBuilder.Register<DeserializeLogicalMessagesBehavior>(() => new DeserializeLogicalMessagesBehavior
                                                              {
                                                                  MessageSerializer = MessageSerializer,
                                                                  MessageMetadataRegistry = MessageMetadataRegistry,
@@ -138,23 +141,28 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             unicastBus = new UnicastBus
             {
-                //MasterNodeAddress = MasterNodeAddress,
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
                 Transport = Transport,
                 MessageMapper = MessageMapper,
                 SubscriptionManager = subscriptionManager,
-                MessageRouter = router
+                MessageRouter = router,
+                Settings = settings
             };
             bus = unicastBus;
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CausationMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
             FuncBuilder.Register<UnicastBus>(() => unicastBus);
+            FuncBuilder.Register<Conventions>(() => conventions);
             new HeaderBootstrapper
             {
                 Builder = FuncBuilder
             }.SetupHeaderActions();
+        }
+
+        protected virtual void ApplyPipelineModifications()
+        {
         }
 
         protected virtual IEnumerable<Type> KnownMessageTypes()
@@ -303,8 +311,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 }
             }
 
-
-
             ReceiveMessage(messageToReceive);
         }
 
@@ -319,7 +325,5 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 ResultingException = ex;
             }
         }
-
-
     }
 }

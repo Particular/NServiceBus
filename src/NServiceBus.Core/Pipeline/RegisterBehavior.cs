@@ -16,15 +16,7 @@ namespace NServiceBus.Pipeline
         /// <param name="description">A brief description of what this <see cref="IBehavior{TContext}"/> does.</param>
         protected RegisterBehavior(string id, Type behavior, string description)
         {
-            if (behavior == null)
-            {
-                throw new ArgumentNullException("id");
-            }
-
-            if (behavior.IsAssignableFrom(iBehaviourType))
-            {
-                throw new ArgumentException("Needs to implement IBehavior<TContext>", "behavior");
-            }
+            BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
             if (String.IsNullOrEmpty(id))
             {
@@ -136,27 +128,13 @@ namespace NServiceBus.Pipeline
         {
             return new DefaultRegisterBehavior(behavior, id, description);
         }
-
-        static Type iBehaviourType = typeof(IBehavior<>);
-
+        
         class DefaultRegisterBehavior : RegisterBehavior
         {
             public DefaultRegisterBehavior(Type behavior, string id, string description)
                 : base(id, behavior, description)
             {
             }
-        }
-    }
-
-    class Dependency
-    {
-        public string Id { get; private set; }
-        public bool Enforce { get; private set; }
-
-        public Dependency(string id, bool enforce)
-        {
-            Id = id;
-            Enforce = enforce;
         }
     }
 }

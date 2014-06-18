@@ -327,24 +327,9 @@
         }
     }
 
-    class CheckMessageIdHandler : IHandleMessages<EventMessage>
-    {
-        public static bool Called;
-
-        public void Handle(EventMessage message)
-        {
-            Called = true;
-        }
-    }
-
     class Handler1:IHandleMessages<EventMessage>
     {
         public static bool Called;
-
-        public void AHelperMethodThatTakesTheMessageAsArgument(EventMessage message)
-        {
-            
-        }
 
         public void Handle(EventMessage message)
         {
@@ -381,7 +366,6 @@
             Called = true;
         }
     }
-
 
     public class CatchAllHandler_IMessage : IHandleMessages<IMessage>
     {

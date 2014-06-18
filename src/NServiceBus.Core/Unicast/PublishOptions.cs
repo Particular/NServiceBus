@@ -15,7 +15,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The event type is required for a publish
         /// </summary>
-        /// <param name="eventType"></param>
         public PublishOptions(Type eventType)
         {
             EventType = eventType;

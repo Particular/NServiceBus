@@ -4,10 +4,7 @@
     using Config.ConfigurationSource;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using Faults.Forwarder;
     using NUnit.Framework;
-    using Unicast;
-    using Unicast.Transport;
 
     public class When_a_config_override_is_found : NServiceBusAcceptanceTest
     {
@@ -17,16 +14,7 @@
         public void Should_be_used_instead_of_pulling_the_settings_from_appconfig()
         {
             var context = Scenario.Define<Context>()
-                    .WithEndpoint<ConfigOverrideEndpoint>(b => b.When(c => c.EndpointsStarted, (bus, cc) =>
-                        {
-                            var unicastBus = (UnicastBus)bus;
-                            var transport = (TransportReceiver)unicastBus.Transport;
-                            var fm = (FaultManager)transport.FailureManager;
-
-                            cc.ErrorQueueUsedByTheEndpoint = fm.ErrorQueue;
-                            cc.IsDone = true;
-                        }))
-                    .Done(c => c.IsDone)
+                    .WithEndpoint<ConfigOverrideEndpoint>().Done(c =>c.ErrorQueueUsedByTheEndpoint != null)
                     .Run();
 
             Assert.AreEqual(CustomErrorQ, context.ErrorQueueUsedByTheEndpoint, "The error queue should have been changed");
@@ -42,9 +30,31 @@
 
         public class ConfigOverrideEndpoint : EndpointConfigurationBuilder
         {
+
             public ConfigOverrideEndpoint()
             {
                 EndpointSetup<DefaultServer>(c => c.MessageForwardingInCaseOfFault());
+            }
+
+            public class ErrorQueueExtractor:IWantToRunWhenBusStartsAndStops
+            {
+                Configure configure;
+                Context context;
+
+                public ErrorQueueExtractor(Configure configure, Context context)
+                {
+                    this.configure = configure;
+                    this.context = context;
+                }
+
+                public void Start()
+                {
+                    context.ErrorQueueUsedByTheEndpoint = Address.Parse(configure.Settings.GetConfigSection<MessageForwardingInCaseOfFaultConfig>().ErrorQueue);
+                }
+
+                public void Stop()
+                {
+                }
             }
 
             public class ConfigErrorQueue : IProvideConfiguration<MessageForwardingInCaseOfFaultConfig>

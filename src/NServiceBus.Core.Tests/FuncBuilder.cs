@@ -4,8 +4,9 @@
     using System.Collections.Generic;
     using System.Linq;
     using ObjectBuilder;
+    using ObjectBuilder.Common;
 
-    public class FuncBuilder : IBuilder
+    public class FuncBuilder : IBuilder,IContainer
     {
         readonly IList<Tuple<Type, Func<object>>> funcs = new List<Tuple<Type, Func<object>>>();
 
@@ -13,9 +14,9 @@
         {
 
         }
-        public void Register<T>()
+        public void Register<T>() where T : new()
         {
-            Register(typeof(T), ()=>Activator.CreateInstance<T>());
+            Register(typeof(T), ()=> new T());
         }
 
         public void Register(Type t)
@@ -75,6 +76,11 @@
             }
         }
 
+        public IContainer BuildChildContainer()
+        {
+            throw new NotImplementedException();
+        }
+
         public IBuilder CreateChildBuilder()
         {
             return this;
@@ -104,6 +110,31 @@
             return funcs.Where(f => f.Item1 == typeToBuild)
                 .Select(f => f.Item2())
                 .ToList();
+        }
+
+        public void Configure(Type component, DependencyLifecycle dependencyLifecycle)
+        {
+            Register(component);
+        }
+
+        public void Configure<T>(Func<T> component, DependencyLifecycle dependencyLifecycle)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ConfigureProperty(Type component, string property, object value)
+        {
+            
+        }
+
+        public void RegisterSingleton(Type lookupType, object instance)
+        {
+            Register(lookupType,()=>instance);
+        }
+
+        public bool HasComponent(Type componentType)
+        {
+            throw new NotImplementedException();
         }
 
         public void Release(object instance)

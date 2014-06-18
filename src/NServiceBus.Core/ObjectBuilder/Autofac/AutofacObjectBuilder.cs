@@ -11,11 +11,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
     ///<summary>
     /// Autofac implementation of <see cref="Common.IContainer"/>.
     ///</summary>
-#if MAKE_AutofacObjectBuilder_INTERNAL
     class AutofacObjectBuilder : Common.IContainer
-#else
-    public class AutofacObjectBuilder : Common.IContainer
-#endif
     {
         ILifetimeScope container;
 

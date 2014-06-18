@@ -1,4 +1,5 @@
-﻿namespace NServiceBus
+﻿// ReSharper disable UnusedParameter.Global
+namespace NServiceBus
 {
     using System;
 
@@ -53,12 +54,6 @@
         {
             SetHeaderAction(msg, key, value);
         }
-
-
-        /// <summary>
-        /// The <see cref="IBus"/> used by the extension methods for accessing headers.
-        /// </summary>
-        public static IBus Bus { get; set; }
 
         /// <summary>
         /// The object used to see whether headers requested are for the handled message.

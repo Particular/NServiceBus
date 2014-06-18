@@ -41,9 +41,6 @@
         {
             AllTransportsFilter.Run(t => t.HasSupportForDistributedTransactions.HasValue
                                          && !t.HasSupportForDistributedTransactions.Value, Remove);
-
-            // todo set HasSupportForDistributedTransactions to false on Rabbit MQ
-            AllTransportsFilter.Run(t => t.GetType().Name.Contains("RabbitMQ"), Remove);
         }
     }
 

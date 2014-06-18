@@ -3,26 +3,20 @@
     using Config;
     using Timeout.Core;
     using Timeout.Hosting.Windows;
-    using Transports;
 
     /// <summary>
-    /// This feature provides message deferral based on a external timeout manager.
+    /// Used to configure the timeout manager that provides message deferral.
     /// </summary>
     public class TimeoutManager : Feature
     {
-        public TimeoutManager()
+        internal TimeoutManager()
         {
+            DependsOn<TimeoutManagerBasedDeferral>();
             Prerequisite(ShouldRun);
         }
 
         bool ShouldRun(FeatureConfigurationContext context)
         {
-            //has the user already specified a custom deferral method
-            if (context.Container.HasComponent<IDeferMessages>())
-            {
-                return false;
-            }
-
             //if we have a master node configured we should use the Master Node timeout manager instead
             if (context.Settings.GetOrDefault<bool>("Distributor.Enabled"))
             {
@@ -40,6 +34,9 @@
             return true;
         }
 
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
             var endpointName = context.Settings.Get<string>("EndpointName");

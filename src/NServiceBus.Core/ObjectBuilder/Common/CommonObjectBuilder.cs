@@ -10,7 +10,7 @@ namespace NServiceBus.ObjectBuilder.Common
     /// Implementation of IBuilder, serving as a facade that container specific implementations
     /// of IContainer should run behind.
     /// </summary>
-    public class CommonObjectBuilder : IBuilder, IConfigureComponents
+    class CommonObjectBuilder : IBuilder, IConfigureComponents
     {
         /// <summary>
         /// The container that will be used to create objects and configure components.

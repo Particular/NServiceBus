@@ -3,9 +3,9 @@ namespace NServiceBus.DataBus
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
 
-    public class DefaultDataBusSerializer : IDataBusSerializer
+    class DefaultDataBusSerializer : IDataBusSerializer
 	{
-		private static readonly BinaryFormatter formatter = new BinaryFormatter();
+		static BinaryFormatter formatter = new BinaryFormatter();
       
 		public void Serialize(object databusProperty, Stream stream)
 		{

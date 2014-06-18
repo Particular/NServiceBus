@@ -32,12 +32,13 @@
                      )
                .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                {
-                   if (context.HasSupportForCentralizedPubSub)
+                   if (context.HasNativePubSubSupport)
                    {
                        context.SubscribedToPublisher1 = true;
                        context.SubscribedToPublisher2 = true;
                    }
                }))
+               .AllowExceptions(e => e.Message.Contains("Oracle.DataAccess.Client.OracleException: ORA-00001") || e.Message.Contains("System.Data.SqlClient.SqlException: Violation of PRIMARY KEY constraint"))
                .Done(c => c.GotTheEventFromPublisher1 && c.GotTheEventFromPublisher2)
                .Run();
 

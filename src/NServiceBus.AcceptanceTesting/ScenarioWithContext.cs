@@ -7,7 +7,7 @@ namespace NServiceBus.AcceptanceTesting
     using Customization;
     using Support;
 
-    public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext>, IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext
+    public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext>, IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext, new()
     {
         public ScenarioWithContext(Func<TContext> factory)
         {
@@ -26,7 +26,7 @@ namespace NServiceBus.AcceptanceTesting
 
             defineBehavior(builder);
 
-            behaviours.Add(builder.Build());
+            behaviors.Add(builder.Build());
 
             return this;
         }
@@ -61,7 +61,7 @@ namespace NServiceBus.AcceptanceTesting
             var sw = new Stopwatch();
 
             sw.Start();
-            ScenarioRunner.Run(runDescriptors, behaviours, shoulds, done, limitTestParallelismTo, reports);
+            ScenarioRunner.Run(runDescriptors, behaviors, shoulds, done, limitTestParallelismTo, reports, allowedExceptions);
 
             sw.Stop();
 
@@ -74,6 +74,17 @@ namespace NServiceBus.AcceptanceTesting
         {
             runDescriptorsBuilderAction = action;
 
+            return this;
+        }
+
+        public IScenarioWithEndpointBehavior<TContext> AllowExceptions(Func<Exception, bool> filter = null)
+        {
+            if (filter == null)
+            {
+                filter = exception => true;
+            }
+
+            allowedExceptions = filter;
             return this;
         }
 
@@ -110,12 +121,13 @@ namespace NServiceBus.AcceptanceTesting
 
         
         int limitTestParallelismTo;
-        readonly IList<EndpointBehavior> behaviours = new List<EndpointBehavior>();
+        readonly IList<EndpointBehavior> behaviors = new List<EndpointBehavior>();
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => builder.For(Conventions.DefaultRunDescriptor());
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
         public Func<ScenarioContext, bool> done = context => true;
 
-        Func<TContext> contextFactory = () => Activator.CreateInstance<TContext>();
+        Func<TContext> contextFactory = () => new TContext();
         Action<RunSummary> reports;
+        Func<Exception, bool> allowedExceptions = exception => false;
     }
 }

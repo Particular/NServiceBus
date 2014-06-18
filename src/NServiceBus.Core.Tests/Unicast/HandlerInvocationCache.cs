@@ -44,14 +44,8 @@
 
 		public class StubTimeoutHandler : IHandleTimeouts<StubTimeoutState>
 		{
-			public bool TimeoutCalled;
-			public StubTimeoutState HandledState;
-
-
 			public void Timeout(StubTimeoutState state)
 			{
-				TimeoutCalled = true;
-				HandledState = state;
 			}
 		}
 

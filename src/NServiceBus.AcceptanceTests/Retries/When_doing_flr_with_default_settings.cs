@@ -17,6 +17,7 @@
         {
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<RetryEndpoint>(b => b.Given((bus, context) => bus.SendLocal(new MessageToBeRetried{ Id = context.Id })))
+                    .AllowExceptions()
                     .Done(c => c.HandedOverToSlr || c.NumberOfTimesInvoked > X())
                     .Repeat(r => r.For<AllDtcTransports>())
                     .Should(c => Assert.AreEqual(X(), c.NumberOfTimesInvoked, string.Format("The FLR should by default retry {0} times", X())))
@@ -33,6 +34,7 @@
                             b.CustomConfig(c => c.Transactions(t=>t.Advanced(a => a.DisableDistributedTransactions())));
                             b.Given((bus, context) => bus.SendLocal(new MessageToBeRetried { Id = context.Id }));
                         })
+                    .AllowExceptions()
                     .Done(c => c.HandedOverToSlr || c.NumberOfTimesInvoked > X())
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.AreEqual(X(), c.NumberOfTimesInvoked, string.Format("The FLR should by default retry {0} times", X())))
@@ -53,6 +55,7 @@
                                 bus.SendLocal(new MessageToBeRetried { Id = context.Id, SecondMessage = true });
                             });
                     })
+                    .AllowExceptions()
                     .Done(c => c.SecondMessageReceived || c.NumberOfTimesInvoked > 1)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.AreEqual(1, c.NumberOfTimesInvoked, "No retries should be in use if transactions are off"))
@@ -77,8 +80,7 @@
             {
                 EndpointSetup<DefaultServer>(
                     c => c.Configurer.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance))
-                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1)
-                    .AllowExceptions();
+                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1);
             }
 
             class CustomFaultManager : IManageMessageFailures

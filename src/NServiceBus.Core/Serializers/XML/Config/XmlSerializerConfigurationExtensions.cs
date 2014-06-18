@@ -1,25 +1,32 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Features;
+    using Serialization;
     using Serializers.XML.Config;
     using Settings;
 
+    /// <summary>
+    /// XmlSerializer configuration extensions.
+    /// </summary>
     public static class XmlSerializerConfigurationExtensions
     {
         /// <summary>
         /// Enables the xml message serializer with the given settings
         /// </summary>
+        [ObsoleteEx(Replacement = "config.UseSerialization<Xml>(s=>s.XmlSettings(...))", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+// ReSharper disable UnusedParameter.Global
         public static Configure Xml(this SerializationSettings settings, Action<XmlSerializationSettings> customSettings = null)
+// ReSharper restore UnusedParameter.Global
         {
-            settings.Config.Features(f=>f.Enable<XmlSerialization>());
+           throw new NotImplementedException();
+        }
 
-            settings.Config.Settings.Set("SelectedSerializer", typeof(XmlSerialization));
-
-            if (customSettings != null)
-                customSettings(new XmlSerializationSettings());
-
-            return settings.Config;
+        /// <summary>
+        /// Enables the xml message serializer with the given settings
+        /// </summary>
+        public static void XmlSettings(this SerializationConfiguration config, Action<XmlSerializationSettings> customSettings)
+        {
+            customSettings(new XmlSerializationSettings(config.settings));
         }
     }
 }

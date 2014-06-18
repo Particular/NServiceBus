@@ -9,13 +9,13 @@
         IList<RunDescriptor> descriptors = new List<RunDescriptor>();
 
         readonly List<string> excludes = new List<string>();
-        public RunDescriptorsBuilder For<T>(params RunDescriptor[] runDescriptorsToExclude) where T : ScenarioDescriptor
+        public RunDescriptorsBuilder For<T>(params RunDescriptor[] runDescriptorsToExclude) where T : ScenarioDescriptor, new()
         {
             excludes.AddRange(runDescriptorsToExclude
                 .Where(r=>r != null)
                 .Select(r =>r.Key.ToLowerInvariant()).ToArray());
 
-            var sd = Activator.CreateInstance<T>() as ScenarioDescriptor;
+            var sd = new T();
 
             return For(sd.ToArray());
         }

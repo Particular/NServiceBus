@@ -4,13 +4,21 @@ namespace NServiceBus.Utils.Reflection
     using System.Collections;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Reflection;
 
     static class ExtensionMethods
     {
+        public static T Construct<T>(this Type type)
+        {
+            var defaultConstructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[] { }, null);
+            if (defaultConstructor != null)
+            {
+                return (T)defaultConstructor.Invoke(null); 
+            }
 
-        /// <summary>
-        /// Returns the enclosed generic type given that the type is GenericallyEquivalent.
-        /// </summary>
+            return (T)Activator.CreateInstance(type);
+        }
+
         public static Type GetGenericallyContainedType(this Type type, Type openGenericType, Type genericArg)
         {
             Type result = null;

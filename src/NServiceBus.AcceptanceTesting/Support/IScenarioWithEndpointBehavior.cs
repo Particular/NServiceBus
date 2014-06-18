@@ -15,6 +15,7 @@
 
         IAdvancedScenarioWithEndpointBehavior<TContext> Repeat(Action<RunDescriptorsBuilder> runtimeDescriptor);
 
+        IScenarioWithEndpointBehavior<TContext> AllowExceptions(Func<Exception,bool> filter = null);
     }
 
     public interface IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext

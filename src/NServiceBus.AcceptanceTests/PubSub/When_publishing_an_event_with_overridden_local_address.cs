@@ -26,7 +26,7 @@
                         {
                             bus.Subscribe<MyEvent>();
 
-                            if (context.HasSupportForCentralizedPubSub)
+                            if (context.HasNativePubSubSupport)
                                 context.Subscriber1Subscribed = true;
                         }))
                     .Done(c => c.Subscriber1GotTheEvent)
@@ -54,16 +54,12 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => c.Features(f=>f.Disable<AutoSubscribe>()))
-                    .AddMapping<MyEvent>(typeof(Publisher));
-            }
-
-            public class OverrideLocalAddress : IWantToRunBeforeConfiguration
-            {
-                public void Init(Configure configure)
+                EndpointSetup<DefaultServer>(c =>
                 {
                     Address.InitializeLocalAddress("myinputqueue");
-                }
+                    c.Features(f => f.Disable<AutoSubscribe>());
+                })
+                    .AddMapping<MyEvent>(typeof(Publisher));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

@@ -16,7 +16,7 @@
     /// <summary>
     /// Implementation of IBuilderInternal using the Ninject Framework container
     /// </summary>
-    public class NinjectObjectBuilder : IContainer
+    class NinjectObjectBuilder : IContainer
     {
         /// <summary>
         /// The kernel hold by this object builder.
@@ -184,6 +184,8 @@
 
             foreach (var binding in bindings)
             {
+                // if there is already a propertyvalue parameter for this binding then remove it
+                binding.Parameters.Remove(new PropertyValue(property, c => null));
                 binding.Parameters.Add(new PropertyValue(property, value));
             }
         }

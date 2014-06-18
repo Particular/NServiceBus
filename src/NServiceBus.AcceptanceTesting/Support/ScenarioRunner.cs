@@ -16,7 +16,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
     public class ScenarioRunner
     {
-        public static IEnumerable<RunSummary> Run(IList<RunDescriptor> runDescriptors, IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports)
+        public static IEnumerable<RunSummary> Run(IList<RunDescriptor> runDescriptors, IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports, Func<Exception, bool> allowedExceptions)
         {
             var totalRuns = runDescriptors.Count();
 
@@ -52,7 +52,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
                         Console.Out.WriteLine("{0} - Started @ {1}", runDescriptor.Key, DateTime.Now.ToString());
 
-                        var runResult = PerformTestRun(behaviorDescriptors, shoulds, runDescriptor, done);
+                        var runResult = PerformTestRun(behaviorDescriptors, shoulds, runDescriptor, done,allowedExceptions);
 
                         Console.Out.WriteLine("{0} - Finished @ {1}", runDescriptor.Key, DateTime.Now.ToString());
 
@@ -138,7 +138,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             }
         }
 
-        static RunResult PerformTestRun(IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
+        static RunResult PerformTestRun(IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done, Func<Exception, bool> allowedExceptions)
         {
             var runResult = new RunResult
                 {
@@ -159,10 +159,14 @@ namespace NServiceBus.AcceptanceTesting.Support
 
                     PerformScenarios(runDescriptor, runners, () =>
                     {
+                       
                         if (!string.IsNullOrEmpty(runDescriptor.ScenarioContext.Exceptions))
                         {
-                            Console.Out.WriteLine(runDescriptor.ScenarioContext.Exceptions);
-                            throw new Exception("Failures in endpoints");
+                            var ex = new Exception(runDescriptor.ScenarioContext.Exceptions);
+                            if (!allowedExceptions(ex))
+                            {
+                                throw new Exception("Failures in endpoints");
+                            }
                         }
                         return done(runDescriptor.ScenarioContext);
                     });

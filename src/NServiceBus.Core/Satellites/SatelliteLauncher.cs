@@ -9,9 +9,9 @@ namespace NServiceBus.Satellites
     using ObjectBuilder;
     using Unicast.Transport;
 
-    public class SatelliteLauncher
+    class SatelliteLauncher
     {
-        readonly IBuilder builder;
+        IBuilder builder;
 
         public SatelliteLauncher(IBuilder builder)
         {

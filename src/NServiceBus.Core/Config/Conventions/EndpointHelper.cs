@@ -5,7 +5,6 @@ namespace NServiceBus.Config.Conventions
     using System.Linq;
     using System.Reflection;
     using System.Web;
-    using Utils;
 
     /// <summary>
     /// The default name for a endpoint

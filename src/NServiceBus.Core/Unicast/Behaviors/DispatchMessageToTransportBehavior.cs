@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
-    using Logging;
     using Pipeline;
     using Pipeline.Contexts;
     using Queuing;
@@ -101,7 +100,5 @@
 
             MessagePublisher.Publish(messageToSend, publishOptions);
         }
-
-        static ILog Log = LogManager.GetLogger<DispatchMessageToTransportBehavior>();
     }
 }

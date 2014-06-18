@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using NServiceBus.InMemory.SagaPersister;
     using NUnit.Framework;
-    using Persistence;
 
     [TestFixture]
     class When_multiple_workers_retrieve_same_saga
@@ -34,7 +33,8 @@
             var returnedSaga2 = inMemorySagaPersister.Get<TestSaga>("Id", saga.Id);
 
             inMemorySagaPersister.Save(returnedSaga1);
-            Assert.Throws<ConcurrencyException>(() => inMemorySagaPersister.Save(returnedSaga2));
+            var exception = Assert.Throws<Exception>(() => inMemorySagaPersister.Save(returnedSaga2));
+            Assert.IsTrue(exception.Message.StartsWith(string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved by [Worker.", saga.Id)));
         }
 
         [Test]
@@ -48,13 +48,16 @@
             var returnedSaga2 = inMemorySagaPersister.Get<TestSaga>("Id", saga.Id);
 
             inMemorySagaPersister.Save(returnedSaga1);
-            Assert.Throws<ConcurrencyException>(() => inMemorySagaPersister.Save(returnedSaga2));
+            var exceptionFromSaga2 = Assert.Throws<Exception>(() => inMemorySagaPersister.Save(returnedSaga2));
+            Assert.IsTrue(exceptionFromSaga2.Message.StartsWith(string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved by [Worker.", saga.Id)));
 
             var returnedSaga3 = Task<TestSaga>.Factory.StartNew(() => inMemorySagaPersister.Get<TestSaga>("Id", saga.Id)).Result;
             var returnedSaga4 = inMemorySagaPersister.Get<TestSaga>(saga.Id);
 
             inMemorySagaPersister.Save(returnedSaga4);
-            Assert.Throws<ConcurrencyException>(() => inMemorySagaPersister.Save(returnedSaga3));
+
+            var exceptionFromSaga3 = Assert.Throws<Exception>(() => inMemorySagaPersister.Save(returnedSaga3));
+            Assert.IsTrue(exceptionFromSaga3.Message.StartsWith(string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved by [Worker.", saga.Id)));
         }
     }
 }

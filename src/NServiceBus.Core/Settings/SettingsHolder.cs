@@ -13,44 +13,31 @@ namespace NServiceBus.Settings
     /// </summary>
     public class SettingsHolder : ReadOnlySettings
     {
-        public static SettingsHolder Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = new SettingsHolder();
-                }
-                return instance;
-            }
-        }
-
-        static SettingsHolder instance;
-
-        /// <summary>
-        /// Gets the setting value.
-        /// </summary>
-        /// <typeparam name="T">The value of the setting.</typeparam>
-        /// <param name="key">The key of the setting to get.</param>
-        /// <returns>The setting value.</returns>
         public T Get<T>(string key)
         {
             return (T)Get(key);
         }
 
-        /// <summary>
-        /// Gets the setting value.
-        /// </summary>
-        /// <typeparam name="T">The value of the setting.</typeparam>
-        /// <returns>The setting value.</returns>
+        public bool TryGet<T>(string key, out T val)
+        {
+            val = default(T);
+
+            object tmp;
+            if (!Overrides.TryGetValue(key, out tmp) && !Defaults.TryGetValue(key, out tmp))
+                return false;
+
+            if (!(tmp is T))
+                return false;
+
+            val = (T)tmp;
+            return true;
+        }
+
         public T Get<T>()
         {
             return (T)Get(typeof(T).FullName);
         }
 
-        /// <summary>
-        /// Gets the setting value.
-        /// </summary>
         public object Get(string key)
         {
             object result;
@@ -78,6 +65,7 @@ namespace NServiceBus.Settings
 
             Overrides[key] = value;
         }
+
         /// <summary>
         /// Sets the value
         /// </summary>
@@ -134,14 +122,6 @@ namespace NServiceBus.Settings
             Defaults[key] = value;
         }
 
-        public void Reset()
-        {
-            locked = false;
-
-            Overrides.Clear();
-            Defaults.Clear();
-        }
-
         public T GetOrDefault<T>(string key)
         {
             object result;
@@ -160,18 +140,7 @@ namespace NServiceBus.Settings
 
         public bool HasSetting(string key)
         {
-
-            if (Overrides.ContainsKey(key))
-            {
-                return true;
-            }
-
-            if (Defaults.ContainsKey(key))
-            {
-                return true;
-            }
-
-            return false;
+            return Overrides.ContainsKey(key) || Defaults.ContainsKey(key);
         }
 
         public bool HasSetting<T>()

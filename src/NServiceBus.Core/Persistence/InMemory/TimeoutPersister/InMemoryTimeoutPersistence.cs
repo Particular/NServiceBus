@@ -2,13 +2,19 @@
 {
     using Features;
 
-    public class InMemoryTimeoutPersistence:Feature
+    /// <summary>
+    /// Used to configure in memory timeout persistence.
+    /// </summary>
+    public class InMemoryTimeoutPersistence : Feature
     {
-        public InMemoryTimeoutPersistence()
+        internal InMemoryTimeoutPersistence()
         {
             DependsOn<TimeoutManager>();
         }
 
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<InMemoryTimeoutPersister>(DependencyLifecycle.SingleInstance);

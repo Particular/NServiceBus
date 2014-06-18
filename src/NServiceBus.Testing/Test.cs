@@ -5,7 +5,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Config.ConfigurationSource;
     using DataBus.InMemory;
     using Features;
     using MessageInterfaces;
@@ -28,53 +27,59 @@
         /// <summary>
         ///     Initializes the testing infrastructure.
         /// </summary>
-        public static void Initialize()
+        public static void Initialize(Action<Configure.ConfigurationBuilder> customisations = null)
         {
-            InitializeInternal(Configure.With(o =>
+            if (customisations == null)
             {
-                o.EndpointName("UnitTests");
-                o.CustomConfigurationSource(testConfigurationSource);
-            }));
-        }
-
-        /// <summary>
-        ///     Initializes the testing infrastructure specifying which assemblies to scan.
-        /// </summary>
-        public static void Initialize(IEnumerable<Assembly> assemblies)
-        {
-            if (assemblies == null)
-            {
-                throw new ArgumentNullException("assemblies");
+                customisations = o => {};
             }
 
-            Initialize(assemblies.ToArray());
+            InitializeInternal(Configure.With(c =>
+            {
+                c.EndpointName("UnitTests");
+                c.CustomConfigurationSource(testConfigurationSource);
+                customisations(c);
+            }));
+        }
+        
+        // ReSharper disable UnusedParameter.Global
+
+        /// <summary>
+        ///     Initializes the testing infrastructure specifying which assemblies to scan.
+        /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Replacement = "Initialize(Action<Configure.ConfigurationBuilder> customisations)")]
+        public static void Initialize(IEnumerable<Assembly> assemblies)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
         ///     Initializes the testing infrastructure specifying which assemblies to scan.
         /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Replacement = "Initialize(Action<Configure.ConfigurationBuilder> customisations)")]
         public static void Initialize(params Assembly[] assemblies)
         {
-            InitializeInternal(Configure.With(o =>
-            {
-                o.EndpointName("UnitTests");
-                o.AssembliesToScan(assemblies);
-                o.CustomConfigurationSource(testConfigurationSource);
-            }));
+            throw new NotImplementedException();
         }
 
         /// <summary>
         ///     Initializes the testing infrastructure specifying which types to scan.
         /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Replacement = "Initialize(Action<Configure.ConfigurationBuilder> customisations)")]
         public static void Initialize(params Type[] types)
         {
-            InitializeInternal(Configure.With(c =>
-            {
-                c.EndpointName("UnitTests");
-                c.TypesToScan(types);
-                c.CustomConfigurationSource(testConfigurationSource);
-            }));
+            throw new NotImplementedException();
         }
+        // ReSharper restore UnusedParameter.Global
 
         static void InitializeInternal(Configure config)
         {
@@ -88,14 +93,14 @@
                 f.Disable<Sagas>();
                 f.Disable<Audit>();
             })
-            .DefaultBuilder()
+                .UseTransport<FakeTestTransport>()
                 .UsePersistence<InMemory>()
                 .InMemoryFaultManagement();
 
 
             config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
 
-            config.Initialize();
+            config.CreateBus();
 
 
             var mapper = config.Builder.Build<IMessageMapper>();
@@ -169,7 +174,6 @@
         public static Saga<T> Saga<T>(T saga) where T : Saga, new()
         {
             bus = new StubBus(messageCreator);
-            ExtensionMethods.Bus = bus;
 
             saga.Bus = Bus;
 
@@ -214,14 +218,12 @@
         public static Handler<T> Handler<T>(Func<IBus, T> handlerCreationCallback)
         {
             bus = new StubBus(messageCreator);
-            ExtensionMethods.Bus = bus;
 
             var handler = handlerCreationCallback.Invoke(bus);
 
             var isHandler = (from i in handler.GetType().GetInterfaces()
                              let args = i.GetGenericArguments()
                              where args.Length == 1
-                             where MessageConventionExtensions.IsMessageType(args[0])
                              where typeof(IHandleMessages<>).MakeGenericType(args[0]).IsAssignableFrom(i)
                              select i).Any();
 
@@ -230,9 +232,7 @@
                 throw new ArgumentException("The handler object created does not implement IHandleMessages<T>.", "handlerCreationCallback");
             }
 
-            var messageTypes = Configure.Instance.TypesToScan.Where(MessageConventionExtensions.IsMessageType).ToList();
-
-            return new Handler<T>(handler, bus, messageCreator, messageTypes);
+            return new Handler<T>(handler, bus);
         }
 
         /// <summary>
@@ -259,19 +259,5 @@
         static readonly TestConfigurationSource testConfigurationSource = new TestConfigurationSource();
         static readonly ConcurrentDictionary<object, ConcurrentDictionary<string, string>> messageHeaders = new ConcurrentDictionary<object, ConcurrentDictionary<string, string>>();
         static bool initialized;
-    }
-
-    /// <summary>
-    ///     Configuration source suitable for testing
-    /// </summary>
-    public class TestConfigurationSource : IConfigurationSource
-    {
-        /// <summary>
-        ///     Returns null for all types of T.
-        /// </summary>
-        public T GetConfiguration<T>() where T : class, new()
-        {
-            return null;
-        }
     }
 }

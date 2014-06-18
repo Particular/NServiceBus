@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast
+namespace NServiceBus
 {
     using System;
     using System.Globalization;
@@ -7,11 +7,12 @@ namespace NServiceBus.Unicast
     using System.Threading.Tasks;
     using System.Web;
     using System.Web.UI;
+    using Unicast;
 
     /// <summary>
-    /// Implementation of the ICallback interface for the unicast bus.
+    /// Implementation of the <see cref="ICallback"/> interface for the unicast bus.
     /// </summary>
-    public class Callback : ICallback
+    class Callback : ICallback
     {
         static readonly Type AsyncControllerType;
 

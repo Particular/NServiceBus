@@ -5,8 +5,6 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
     using System.Messaging;
     using System.Transactions;
     using Logging;
-    using Settings;
-    using Transports.Msmq;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using MessageType = Unicast.Subscriptions.MessageType;
 
@@ -14,8 +12,10 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
 	/// Provides functionality for managing message subscriptions
 	/// using MSMQ.
 	/// </summary>
-    public class MsmqSubscriptionStorage : ISubscriptionStorage
+    class MsmqSubscriptionStorage : ISubscriptionStorage
     {
+        public bool TransactionsEnabled { get; set; }
+
         void ISubscriptionStorage.Init()
         {
             var path = MsmqUtilities.GetFullPath(Queue);
@@ -32,7 +32,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
                 throw new ArgumentException(string.Format("There is a problem with the subscription storage queue {0}. See enclosed exception for details.", Queue), ex);
             }
 
-            if (!transactional && SettingsHolder.Instance.Get<bool>("Transactions.Enabled"))
+            if (!transactional && TransactionsEnabled)
                 throw new ArgumentException("Queue must be transactional (" + Queue + ").");
 
             var messageReadPropertyFilter = new MessagePropertyFilter {Id = true, Body = true, Label = true};
@@ -152,7 +152,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
         /// </summary>
 	    private MessageQueueTransactionType GetTransactionType()
 	    {
-            if (!SettingsHolder.Instance.Get<bool>("Transactions.Enabled"))
+            if (!TransactionsEnabled)
             {
                 return MessageQueueTransactionType.None;
             }

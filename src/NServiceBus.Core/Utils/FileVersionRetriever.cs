@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Utils
+﻿namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
@@ -7,7 +7,7 @@
     /// <summary>
     /// Helper class to retrieve File version.
     /// </summary>
-    public class FileVersionRetriever
+    class FileVersionRetriever
     {
         /// <summary>
         /// Retrieves a semver compliant version from a <see cref="Type"/>.

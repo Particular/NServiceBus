@@ -1,11 +1,11 @@
 namespace NServiceBus.Hosting.Tests
 {
+    using System;
     using NUnit.Framework;
     using Roles;
     using Roles.Handlers;
     using Transports;
     using Unicast;
-    using Unicast.Config;
 
     [TestFixture]
     public class With_transport_tests
@@ -15,7 +15,7 @@ namespace NServiceBus.Hosting.Tests
         [SetUp]
         public void SetUp()
         {
-            config= Configure.With(o =>
+            config = Configure.With(o =>
             {
                 o.EndpointName("myTests");
                 o.TypesToScan(new[]
@@ -23,8 +23,7 @@ namespace NServiceBus.Hosting.Tests
                     typeof(TransportRoleHandler),
                     typeof(MyTransportConfigurer)
                 });
-            })
-                     .DefaultBuilder();
+            });
 
             roleManager = new RoleManager(new[] { typeof(TransportRoleHandler).Assembly });
         }
@@ -36,22 +35,23 @@ namespace NServiceBus.Hosting.Tests
         {
             roleManager.ConfigureBusForEndpoint(new ConfigWithCustomTransport(), config);
 
-            Assert.True(MyTransportConfigurer.Called);
+            Assert.AreEqual(typeof(MyTransportConfigurer), config.Settings.Get<Type>("TransportConfigurer"));
+            Assert.IsInstanceOf<MyTestTransport>(config.Settings.Get<TransportDefinition>());
         }
 
         [Test]
         public void Should_default_to_msmq_if_no_other_transport_is_configured()
         {
-            var handler = new DefaultTransportForHost();
+            var handler = new EnableSelectedTransport();
             handler.Run(config);
 
-            Assert.True(config.Settings.Get<TransportDefinition>("NServiceBus.Transport.SelectedTransport") is Msmq);
+            Assert.True(config.Settings.Get<TransportDefinition>() is Msmq);
         }
 
         [Test]
         public void Should_used_configured_transport_if_one_is_configured()
         {
-            var handler = new DefaultTransportForHost();
+            var handler = new EnableSelectedTransport();
             config.Configurer.ConfigureComponent<MyTestTransportSender>(DependencyLifecycle.SingleInstance);
 
             handler.Run(config);
@@ -78,11 +78,8 @@ namespace NServiceBus.Hosting.Tests
 
     public class MyTransportConfigurer : IConfigureTransport<MyTestTransport>
     {
-        public static bool Called;
-
         public void Configure(Configure config)
         {
-            Called = true;
         }
     }
 }

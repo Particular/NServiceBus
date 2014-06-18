@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using NServiceBus.Encryption;
     using NUnit.Framework;
+    using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
     public class When_sending_a_message_using_the_default_convention : WireEncryptedStringContext
@@ -348,25 +349,31 @@
 
     public class WireEncryptedStringContext
     {
-        protected EncryptionMessageMutator mutator;
+        internal EncryptionMessageMutator mutator;
 
         protected string EncryptedBase64Value = "encrypted value";
         protected string MySecretMessage = "A secret";
+        protected Conventions conventions;
 
         [SetUp]
         public void BaseSetUp()
         {
-            mutator = new EncryptionMessageMutator
-                {
-                    EncryptionService = new FakeEncryptionService(new EncryptedValue
-                        {
-                            EncryptedBase64Value = EncryptedBase64Value,
-                            Base64Iv = "init_vector"
-                        })
-                };
+            conventions = BuildConventions();
 
-            MessageConventionExtensions.IsEncryptedPropertyAction =
-                property => typeof (WireEncryptedString).IsAssignableFrom(property.PropertyType);
+            mutator = new EncryptionMessageMutator
+            {
+                EncryptionService = new FakeEncryptionService(new EncryptedValue
+                {
+                    EncryptedBase64Value = EncryptedBase64Value,
+                    Base64Iv = "init_vector"
+                }),
+                Conventions = conventions
+            };
+        }
+
+        protected virtual Conventions BuildConventions()
+        {
+            return new Conventions(isEncryptedPropertyAction: property => typeof(WireEncryptedString).IsAssignableFrom(property.PropertyType));
         }
 
         protected WireEncryptedString Create()

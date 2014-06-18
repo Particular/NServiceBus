@@ -42,7 +42,6 @@ public class PubSubTestCase : TestCase
         TransportConfigOverride.MaximumConcurrencyLevel = NumberOfThreads;
 
         var config = Configure.With(o => o.EndpointName("PubSubPerformanceTest"))
-            .DefaultBuilder()
             .UseTransport<Msmq>()
             .InMemoryFaultManagement()
             .Features(f=>f.Disable<Audit>());
@@ -57,13 +56,10 @@ public class PubSubTestCase : TestCase
                 break;
         }
 
+        config.EnableInstallers();
         using (var bus = config.CreateBus())
         {
-
-
-            Configure.Instance.ForInstallationOn().Install();
-
-            var subscriptionStorage = Configure.Instance.Builder.Build<ISubscriptionStorage>();
+            var subscriptionStorage = config.Builder.Build<ISubscriptionStorage>();
 
             var testEventMessage = new MessageType(typeof(TestEvent));
 

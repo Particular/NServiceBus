@@ -37,13 +37,6 @@
             return this;
         }
 
-        public EndpointConfigurationBuilder AllowExceptions()
-        {
-            configuration.AllowExceptions = true;
-
-            return this;
-        }
-
         public EndpointConfigurationBuilder AddMapping<T>(Type endpoint)
         {
             configuration.EndpointMappings.Add(typeof(T),endpoint);
@@ -58,19 +51,18 @@
             return configuration;
         }
 
-        public EndpointConfigurationBuilder EndpointSetup<T>() where T : IEndpointSetupTemplate
+        public EndpointConfigurationBuilder EndpointSetup<T>() where T : IEndpointSetupTemplate, new()
         {
             return EndpointSetup<T>(c => { });
         }
 
-        public EndpointConfigurationBuilder EndpointSetup<T>(Action<Configure> configCustomization) where T: IEndpointSetupTemplate
+        public EndpointConfigurationBuilder EndpointSetup<T>(Action<Configure> configCustomization) where T: IEndpointSetupTemplate, new()
         {
             configuration.GetConfiguration = (settings,routingTable) =>
                 {
-                    var config = ((IEndpointSetupTemplate)Activator.CreateInstance<T>()).GetConfiguration(settings, configuration, new ScenarioConfigSource(configuration, routingTable));
-
+                    var endpointSetupTemplate = new T();
+                    var config = endpointSetupTemplate.GetConfiguration(settings, configuration, new ScenarioConfigSource(configuration, routingTable));
                     configCustomization(config);
-
                     return config;
                 };
 
@@ -85,9 +77,9 @@
        
         readonly EndpointConfiguration configuration = new EndpointConfiguration();
 
-        public EndpointConfigurationBuilder WithConfig<T>(Action<T> action)
+        public EndpointConfigurationBuilder WithConfig<T>(Action<T> action) where T : new()
         {
-            var config = Activator.CreateInstance<T>();
+            var config = new T();
 
             action(config);
 

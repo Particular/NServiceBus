@@ -10,7 +10,6 @@
     using Logging;
     using NServiceBus;
     using PubSub;
-    using Settings;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
@@ -18,27 +17,38 @@
         {
             var settings = runDescriptor.Settings;
 
-            LogManager.LoggerFactory = new ContextAppender(runDescriptor.ScenarioContext, endpointConfiguration);
+            LogManager.LoggerFactory = new ContextAppender(runDescriptor.ScenarioContext);
 
             var types = GetTypesToUse(endpointConfiguration);
-
-            SettingsHolder.Instance.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
 
             var config = Configure.With(o =>
                                          {
                                              o.EndpointName(endpointConfiguration.EndpointName);
                                              o.TypesToScan(types);
                                              o.CustomConfigurationSource(configSource);
+                                             
+                                             
+                                             string selectedBuilder;
+                                             if (settings.TryGetValue("Builder",out selectedBuilder))
+                                             {
+                                                 o.UseContainer(Type.GetType(selectedBuilder));
+                                             }
+                                           
                                          })
-                .DefineBuilder(settings.GetOrNull("Builder"))
-                .DefineSerializer(settings.GetOrNull("Serializer"))
                 .DefineTransport(settings)
                 .DefinePersistence(settings);
             
+            var serializer = settings.GetOrNull("Serializer");
+
+            if (serializer != null)
+            {
+                config.UseSerialization(Type.GetType(serializer));
+            }
+
             config.Settings.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             config.Pipeline.Register<SubscriptionBehavior.Registration>();
             config.Configurer.ConfigureComponent<SubscriptionBehavior>(DependencyLifecycle.InstancePerCall);
-           
+
             return config;
         }
 

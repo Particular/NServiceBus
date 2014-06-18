@@ -1,4 +1,4 @@
-namespace NServiceBus.Logging.Loggers
+namespace NServiceBus.Logging
 {
     using System;
 

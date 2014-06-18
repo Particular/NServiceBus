@@ -21,7 +21,7 @@ namespace NServiceBus
 			{
 				 return config;
 			}
-			if (config.Settings.Get<bool>("Endpoint.SendOnly"))
+			if (config.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
 			{
 				return config;
 			}
@@ -50,7 +50,7 @@ namespace NServiceBus
 			}
 
 			
-			var errorQueue = RegistryReader<string>.Read("ErrorQueue");
+			var errorQueue = RegistryReader.Read("ErrorQueue");
 			if (!string.IsNullOrWhiteSpace(errorQueue))
 			{
 				Logger.Debug("Error queue retrieved from registry settings.");

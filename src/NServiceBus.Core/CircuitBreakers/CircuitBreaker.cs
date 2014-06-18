@@ -6,7 +6,7 @@ namespace NServiceBus.CircuitBreakers
     /// <summary>
     /// A circuit breaker implementation.
     /// </summary>
-    public class CircuitBreaker : IDisposable
+    class CircuitBreaker : IDisposable
     {
         readonly int threshold;
         int firedTimes;

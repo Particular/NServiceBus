@@ -16,7 +16,8 @@ namespace NServiceBus.Logging
             loggerFactory = new DefaultLoggerFactory(defaultLogLevel, null);
         }
 
-        static ILoggerFactory loggerFactory;
+        static ILoggerFactory loggerFactory; 
+        internal static bool HasConfigBeenInitialised;
 
         /// <summary>
         /// An instance of <see cref="ILoggerFactory"/> that will be used to construct <see cref="ILog"/>s for static fields.
@@ -33,6 +34,12 @@ namespace NServiceBus.Logging
                     throw new ArgumentNullException("value");
 
                 loggerFactory = value;
+                if (!HasConfigBeenInitialised)
+                {
+                    return;
+                }
+                var log = loggerFactory.GetLogger(typeof(LogManager));
+                log.Warn("Logging has been configured after NServiceBus.Configure.With() has been called. To capture messages and errors that occur during configuration logging should be configured before before NServiceBus.Configure.With().");
             }
         }
 

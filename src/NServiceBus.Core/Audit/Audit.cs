@@ -8,15 +8,21 @@
     using Unicast.Queuing.Installers;
     using Utils;
 
+    /// <summary>
+    /// Enabled message auditing for this endpoint.
+    /// </summary>
     public class Audit : Feature
     {
         
-        public Audit()
+        internal Audit()
         {
             EnableByDefault();
             Prerequisite(config => GetConfiguredAuditQueue(config) != Address.Undefined);
         }
 
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
         protected override void Setup(FeatureConfigurationContext context)
         {
             // If Audit feature is enabled and the value not specified via config and instead specified in the registry:
@@ -29,8 +35,6 @@
 
 
             context.Pipeline.Register<AuditBehavior.Registration>();
-
-
 
             var auditQueue = GetConfiguredAuditQueue(context);
 
@@ -65,7 +69,7 @@
 
         Address ReadAuditQueueNameFromRegistry()
         {
-            var forwardQueue = RegistryReader<string>.Read("AuditQueue");
+            var forwardQueue = RegistryReader.Read("AuditQueue");
             if (string.IsNullOrWhiteSpace(forwardQueue))
             {
                 return Address.Undefined;

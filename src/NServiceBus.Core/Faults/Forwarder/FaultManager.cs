@@ -12,7 +12,7 @@ namespace NServiceBus.Faults.Forwarder
     /// Implementation of IManageMessageFailures by forwarding messages
     /// using ISendMessages.
     /// </summary>
-    public class FaultManager : IManageMessageFailures
+    class FaultManager : IManageMessageFailures
     {
         readonly IBuilder builder;
 

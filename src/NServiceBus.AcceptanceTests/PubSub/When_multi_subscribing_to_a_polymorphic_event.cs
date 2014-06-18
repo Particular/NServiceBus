@@ -43,12 +43,13 @@
                     bus.Subscribe<IMyEvent>();
                     bus.Subscribe<MyEvent2>();
 
-                    if (context.HasSupportForCentralizedPubSub)
+                    if (context.HasNativePubSubSupport)
                     {
                         context.SubscribedToIMyEvent = true;
                         context.SubscribedToMyEvent2 = true;
                     }
                 }))
+                .AllowExceptions(e => e.Message.Contains("Oracle.DataAccess.Client.OracleException: ORA-00001") || e.Message.Contains("System.Data.SqlClient.SqlException: Violation of PRIMARY KEY constraint"))
                 .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)
                 .Run();
 

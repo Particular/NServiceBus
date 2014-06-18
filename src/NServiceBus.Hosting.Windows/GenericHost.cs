@@ -1,14 +1,14 @@
-namespace NServiceBus.Hosting
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Helpers;
+    using Hosting.Helpers;
+    using Hosting.Profiles;
+    using Hosting.Roles;
+    using Hosting.Wcf;
     using Logging;
-    using Profiles;
-    using Roles;
-    using Wcf;
 
     class GenericHost
     {
@@ -24,6 +24,7 @@ namespace NServiceBus.Hosting
 
 
             endpointNameToUse = endpointName;
+            endpointVersionToUse = FileVersionRetriever.GetFileVersion(specifier.GetType());
 
             if (scannableAssembliesFullName == null || !scannableAssembliesFullName.Any())
             {
@@ -91,11 +92,11 @@ namespace NServiceBus.Hosting
         /// <summary>
         ///     When installing as windows service (/install), run infrastructure installers
         /// </summary>
-        public void Install()
+        public void Install(string username)
         {
             PerformConfiguration();
-            //HACK: to ensure the installer runner performs its installation
-            Configure.Instance.Initialize();
+            config.EnableInstallers(username);
+            config.CreateBus();
         }
 
         void PerformConfiguration()
@@ -111,7 +112,7 @@ namespace NServiceBus.Hosting
             {
                 try
                 {
-                    initialization.Init();
+                    config = initialization.Init();
                 }
                 catch (NullReferenceException ex)
                 {
@@ -129,9 +130,9 @@ namespace NServiceBus.Hosting
                 config = Configure.With(o =>
                 {
                     o.EndpointName(endpointNameToUse);
+                    o.EndpointVersion(() => endpointVersionToUse);
                     o.AssembliesToScan(assembliesToScan);
-                })
-                .DefaultBuilder();
+                });
             }
 
             ValidateThatIWantCustomInitIsOnlyUsedOnTheEndpointConfig();
@@ -159,5 +160,6 @@ namespace NServiceBus.Hosting
         readonly WcfManager wcfManager;
         IStartableBus bus;
         string endpointNameToUse;
+        string endpointVersionToUse;
     }
 }

@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
-    using Config;
     using Faults;
+    using Features;
     using Hosting.Profiles;
 
     class IntegrationProfileHandler : IHandleProfile<Integration>
@@ -12,8 +12,8 @@
             {
                 config.MessageForwardingInCaseOfFault();
             }
-         
-            WindowsInstallerRunner.RunInstallers = true;
+
+            config.Settings.EnableFeatureByDefault<InstallationSupport>();
         }
     }
 }

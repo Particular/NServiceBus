@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.AcceptanceTests.BasicMessaging
 {
     using System;
-    using System.Linq;
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
+    using UnitOfWork;
 
     public class When_handling_current_message_later : NServiceBusAcceptanceTest
     {
@@ -14,30 +14,15 @@
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.Send(Address.Local, new SomeMessage())))
+                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.SendLocal(new SomeMessage())))
                 .Done(c => c.Done)
-                .Run();
+                .Run(TimeSpan.FromSeconds(10));
 
-            Assert.That(context.AnotherMessageReceivedCount, Is.EqualTo(2), 
-                "First handler sends a message to self, which should result in AnotherMessage being dispatched twice");
-        }
-
-        [Test, Description("NOTE the double negation - we should probably modify this behavior somehow")]
-        public void Should_not_not_execute_subsequent_handlers()
-        {
-            var context = new Context();
-
-            Scenario.Define(context)
-                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.Send(Address.Local, new SomeMessage())))
-                .Done(c => c.Done)
-                .Run();
-
-            Assert.That(context.ThirdHandlerInvocationCount, Is.EqualTo(2), 
-                "Since calling HandleCurrentMessageLater does not discontinue message dispatch, the third handler should be called twice as well");
+            Assert.True(context.UoWCommited);
         }
 
         [Test]
-        public void Handlers_are_executed_in_the_right_order()
+        public void Should_not_execute_subsequent_handlers()
         {
             var context = new Context();
 
@@ -46,112 +31,80 @@
                 .Done(c => c.Done)
                 .Run();
 
-            var events = context.Events;
-            CollectionAssert
-                .AreEquivalent(new[]
-                               {
-                                   "FirstHandler:Executed",
-                                   "SecondHandler:Sending message to the back of the queue",
-                                   "ThirdHandler:Executed",
-                                   "FirstHandler:Executed",
-                                   "SecondHandler:Handling the message this time",
-                                   "ThirdHandler:Executed"
-                               },
-                    events);
+            Assert.That(context.FirstHandlerInvocationCount, Is.EqualTo(2));
+            Assert.That(context.SecondHandlerInvocationCount, Is.EqualTo(1));
         }
 
         public class Context : ScenarioContext
         {
-            public string[] Events { get; set; }
-            
-            public bool SomeMessageHasBeenRequeued { get; set; }
+            public bool Done { get; set; }
 
-            public bool Done
-            {
-                get { return ThirdHandlerInvocationCount >= 2 && AnotherMessageReceivedCount == 2; }
-            }
+            public int FirstHandlerInvocationCount { get; set; }
 
-            public int AnotherMessageReceivedCount { get; set; }
-            
-            public int ThirdHandlerInvocationCount { get; set; }
+            public int SecondHandlerInvocationCount { get; set; }
+            public bool UoWCommited { get; set; }
         }
-
-        [Serializable]
-        public class SomeMessage : IMessage { }
-
-        [Serializable]
-        public class AnotherMessage : IMessage { }
 
         public class MyEndpoint : EndpointConfigurationBuilder
         {
             public MyEndpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => c.Configurer.ConfigureComponent<CheckUnitOfWorkOutcome>(DependencyLifecycle.InstancePerCall));
             }
 
             class EnsureOrdering : ISpecifyMessageHandlerOrdering
             {
                 public void SpecifyOrder(Order order)
                 {
-                    order.Specify(First<FirstHandler>.Then<SecondHandler>().AndThen<ThirdHandler>());
+                    order.Specify(First<FirstHandler>.Then<SecondHandler>());
                 }
             }
 
-            class FirstHandler : IHandleMessages<SomeMessage>, IHandleMessages<AnotherMessage>
+            class CheckUnitOfWorkOutcome : IManageUnitsOfWork
+            {
+                public Context Context { get; set; }
+
+                public void Begin()
+                {
+
+                }
+
+                public void End(Exception ex = null)
+                {
+                    Context.UoWCommited = (ex == null);
+                }
+            }
+
+            class FirstHandler : IHandleMessages<SomeMessage>
             {
                 public Context Context { get; set; }
                 public IBus Bus { get; set; }
 
                 public void Handle(SomeMessage message)
                 {
-                    Context.RegisterEvent("FirstHandler:Executed");
-                    Bus.SendLocal(new AnotherMessage());
-                }
+                    Context.FirstHandlerInvocationCount++;
 
-                public void Handle(AnotherMessage message)
-                {
-                    Context.AnotherMessageReceivedCount++;
+                    if (Context.FirstHandlerInvocationCount == 1)
+                    {
+                        Bus.HandleCurrentMessageLater();
+                    }
                 }
             }
 
             class SecondHandler : IHandleMessages<SomeMessage>
             {
                 public Context Context { get; set; }
-                public IBus Bus { get; set; }
                 public void Handle(SomeMessage message)
                 {
-                    if (!Context.SomeMessageHasBeenRequeued)
-                    {
-                        Context.RegisterEvent("SecondHandler:Sending message to the back of the queue");
-                        Bus.HandleCurrentMessageLater();
-                        Context.SomeMessageHasBeenRequeued = true;
-                    }
-                    else
-                    {
-                        Context.RegisterEvent("SecondHandler:Handling the message this time");
-                    }
-                }
-            }
-
-            class ThirdHandler : IHandleMessages<SomeMessage>
-            {
-                public Context Context { get; set; }
-                public void Handle(SomeMessage message)
-                {
-                    Context.RegisterEvent("ThirdHandler:Executed");
-                    Context.ThirdHandlerInvocationCount++;
+                    Context.SecondHandlerInvocationCount++;
+                    Context.Done = true;
                 }
             }
         }
+        [Serializable]
+        public class SomeMessage : IMessage { }
+
+
     }
 
-    static class ContextEx
-    {
-        public static void RegisterEvent(this When_handling_current_message_later.Context context, string description)
-        {
-            context.Events = context.Events
-                .Concat(new[] {description})
-                .ToArray();
-        }
-    }
 }
