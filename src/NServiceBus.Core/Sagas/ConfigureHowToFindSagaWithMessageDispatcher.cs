@@ -40,7 +40,7 @@ namespace NServiceBus.Sagas
         }
     }
 
-    public class SagaToMessageMap
+    class SagaToMessageMap
     {
         public Func<object, object> MessageProp;
         public string SagaPropName;
