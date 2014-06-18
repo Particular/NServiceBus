@@ -42,13 +42,13 @@
                 public Context Context { get; set; }
                 public void Handle(StartSagaMessage message)
                 {
-                    Data.Key = message.Key;
+                    Data.KeyValue = message.Key;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<OtherMessage>(m => m.Part1 + "_"+m.Part2)
-                        .ToSaga(s => s.Key);
+                    mapper.ConfigureMapping<OtherMessage>(m => m.Part1 + "_" + m.Part2)
+                        .ToSaga(s => s.KeyValue);
                 }
 
                 public void Handle(OtherMessage message)
@@ -62,7 +62,7 @@
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }
                 public virtual string OriginalMessageId { get; set; }
-                public virtual string Key { get; set; }
+                public virtual string KeyValue { get; set; }
             }
         }
 
