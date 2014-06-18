@@ -16,7 +16,7 @@ namespace NServiceBus.Features
     /// <summary>
     ///   Used to configure the <see cref="Unicast.UnicastBus"/>
     /// </summary>
-    public class UnicastBus : Feature
+    class UnicastBus : Feature
     {
 
         internal UnicastBus()
