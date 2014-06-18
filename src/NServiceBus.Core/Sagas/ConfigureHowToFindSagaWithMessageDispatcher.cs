@@ -11,15 +11,20 @@ namespace NServiceBus.Sagas
     /// </summary>
     class ConfigureHowToFindSagaWithMessageDispatcher : IConfigureHowToFindSagaWithMessage
     {
-        void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty)
+        void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
         {
             var sagaProp = Reflect<TSagaEntity>.GetProperty(sagaEntityProperty, true);
-            var messageProp = Reflect<TMessage>.GetProperty(messageProperty, true);
-
+        
             ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
-            ThrowIfNotPropertyLambdaExpression(messageProperty, messageProp);
+            var compiledMessageExpression = messageExpression.Compile();
+            var messageFunc = new Func<object, object>(o => compiledMessageExpression((TMessage)o));
 
-            Features.Sagas.ConfigureHowToFindSagaWithMessage(typeof(TSagaEntity), sagaProp, typeof(TMessage), messageProp);
+            var sagaToMessageMap = new SagaToMessageMap
+            {
+                MessageProp = messageFunc,
+                SagaPropName = sagaProp.Name
+            };
+            Features.Sagas.ConfigureHowToFindSagaWithMessage(typeof(TSagaEntity), typeof(TMessage), sagaToMessageMap);
         }
 
         // ReSharper disable once UnusedParameter.Local
@@ -33,5 +38,11 @@ namespace NServiceBus.Sagas
                         expression.Body));
             }
         }
+    }
+
+    public class SagaToMessageMap
+    {
+        public Func<object, object> MessageProp;
+        public string SagaPropName;
     }
 }

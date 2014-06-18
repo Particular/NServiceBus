@@ -62,21 +62,21 @@
             CreateAdditionalFindersAsNecessary(context);
         }
 
-        internal static void ConfigureHowToFindSagaWithMessage(Type sagaType, PropertyInfo sagaProp, Type messageType, PropertyInfo messageProp)
+        internal static void ConfigureHowToFindSagaWithMessage(Type sagaType, Type messageType, SagaToMessageMap sagaToMessageMap)
         {
-            Dictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>> messageToProperties;
+            Dictionary<Type, SagaToMessageMap> messageToProperties;
             SagaEntityToMessageToPropertyLookup.TryGetValue(sagaType, out messageToProperties);
 
             if (messageToProperties == null)
             {
-                messageToProperties = new Dictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>();
+                messageToProperties = new Dictionary<Type, SagaToMessageMap>();
                 SagaEntityToMessageToPropertyLookup[sagaType] = messageToProperties;
             }
 
-            messageToProperties[messageType] = new KeyValuePair<PropertyInfo, PropertyInfo>(sagaProp, messageProp);
+            messageToProperties[messageType] = sagaToMessageMap;
         }
 
-        internal static readonly Dictionary<Type, Dictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>> SagaEntityToMessageToPropertyLookup = new Dictionary<Type, Dictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>>();
+        internal static readonly Dictionary<Type, Dictionary<Type, SagaToMessageMap>> SagaEntityToMessageToPropertyLookup = new Dictionary<Type, Dictionary<Type, SagaToMessageMap>>();
 
         void CreateAdditionalFindersAsNecessary(FeatureConfigurationContext context)
         {
@@ -84,8 +84,8 @@
             {
                 foreach (var messageType in sagaEntityPair.Value.Keys)
                 {
-                    var pair = sagaEntityPair.Value[messageType];
-                    CreatePropertyFinder(context,sagaEntityPair.Key, messageType, pair.Key, pair.Value);
+                    var sagaToMessageMap = sagaEntityPair.Value[messageType];
+                    CreatePropertyFinder(context, sagaEntityPair.Key, messageType, sagaToMessageMap);
                 }
             }
 
@@ -97,13 +97,12 @@
             }
         }
 
-        void CreatePropertyFinder(FeatureConfigurationContext context, Type sagaEntityType, Type messageType, PropertyInfo sagaProperty, PropertyInfo messageProperty)
+        void CreatePropertyFinder(FeatureConfigurationContext context, Type sagaEntityType, Type messageType, SagaToMessageMap sagaToMessageMap)
         {
             var finderType = typeof(PropertySagaFinder<,>).MakeGenericType(sagaEntityType, messageType);
 
             context.Container.ConfigureComponent(finderType, DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty("SagaProperty", sagaProperty)
-                .ConfigureProperty("MessageProperty", messageProperty);
+                .ConfigureProperty("SagaToMessageMap", sagaToMessageMap);
 
             ConfigureFinder(finderType, conventions);
         }

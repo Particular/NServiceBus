@@ -1,7 +1,6 @@
 namespace NServiceBus.Sagas.Finders
 {
     using System;
-    using System.Reflection;
     using Saga;
 
     /// <summary>
@@ -18,28 +17,25 @@ namespace NServiceBus.Sagas.Finders
         /// <summary>
         /// Property of the saga that will be used for lookup.
         /// </summary>
-        public PropertyInfo SagaProperty { get; set; }
+        public SagaToMessageMap SagaToMessageMap { get; set; }
         
-        /// <summary>
-        /// Property of the message whose value will be used for the lookup.
-        /// </summary>
-        public PropertyInfo MessageProperty { get; set; }
-
         /// <summary>
         /// Uses the saga persister to find the saga.
         /// </summary>
         public TSagaData FindBy(TMessage message)
         {
             if (SagaPersister == null)
-                throw new InvalidOperationException(
-                    "No saga persister configured. Please configure a saga persister if you want to use the nservicebus saga support");
+            {
+                throw new InvalidOperationException("No saga persister configured. Please configure a saga persister if you want to use the nservicebus saga support");
+            }
             
-            var propertyValue = MessageProperty.GetValue(message, null);
-            
-            if(SagaProperty.Name.ToLower() == "id")
+            var propertyValue = SagaToMessageMap.MessageProp(message);
+            if (SagaToMessageMap.SagaPropName.ToLower() == "id")
+            {
                 return SagaPersister.Get<TSagaData>((Guid)propertyValue);
+            }
 
-            return SagaPersister.Get<TSagaData>(SagaProperty.Name, propertyValue);
+            return SagaPersister.Get<TSagaData>(SagaToMessageMap.SagaPropName, propertyValue);
         }
     }
 }
