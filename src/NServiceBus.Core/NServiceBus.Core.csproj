@@ -544,7 +544,6 @@
       <DependentUpon>LicenseExpiredForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Unicast\BackwardCompatibility\MutateMessageContentTypeOfIncomingTransportMessages.cs" />
-    <Compile Include="Unicast\BackwardCompatibility\SetIsSagaMessageHeaderForV3XMessages.cs" />
     <Compile Include="Unicast\BuilderExtensions.cs" />
     <Compile Include="Unicast\BusAsyncResult.cs" />
     <Compile Include="Unicast\Callback.cs" />

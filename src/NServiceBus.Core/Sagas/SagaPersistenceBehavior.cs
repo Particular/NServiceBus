@@ -8,6 +8,7 @@
     using Pipeline.Contexts;
     using Saga;
     using Finders;
+    using Timeout;
     using Transports;
     using Unicast;
     using Unicast.Messages;
@@ -17,6 +18,13 @@
         public ISagaPersister SagaPersister { get; set; }
 
         public IDeferMessages MessageDeferrer { get; set; }
+
+        public object MutateIncoming(object message)
+        {
+            
+
+            return message;
+        }
 
         public void Invoke(IncomingContext context, Action next)
         {
@@ -33,7 +41,9 @@
                 next();
                 return;
             }
-            
+
+            MutateIncoming(saga);
+
             currentContext = context;
 
             var sagaInstanceState = new ActiveSagaInstance(saga);
@@ -135,7 +145,53 @@
 
         static bool IsTimeoutMessage(LogicalMessage message)
         {
-            return !string.IsNullOrEmpty(Headers.GetMessageHeader(message.Instance, Headers.IsSagaTimeoutMessage));
+            string isSagaTimeout;
+
+            if (message.Headers.TryGetValue(Headers.IsSagaTimeoutMessage, out isSagaTimeout))
+            {
+                return true;
+            }
+
+            string version;
+
+            if (!message.Headers.TryGetValue(Headers.NServiceBusVersion, out version))
+            {
+                return false;
+            }
+
+            if (!version.StartsWith("3"))
+            {
+                return false;
+            }
+
+            string sagaId;
+            if (message.Headers.TryGetValue(Headers.SagaId, out sagaId))
+            {
+                if (string.IsNullOrEmpty(sagaId))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+            string expire;
+            if (message.Headers.TryGetValue(TimeoutManagerHeaders.Expire, out expire))
+            {
+                if (string.IsNullOrEmpty(expire))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+            message.Headers[Headers.IsSagaTimeoutMessage] = Boolean.TrueString;
+            return true;
         }
 
         IContainSagaData TryLoadSagaEntity(Saga saga, LogicalMessage message)
