@@ -4,8 +4,6 @@ namespace EndpointTypeDeterminerTests
     using System.Collections.Generic;
     using System.Configuration;
     using System.Reflection;
-    using System.Reflection.Emit;
-    using NServiceBus;
     using NServiceBus.Hosting.Helpers;
     using NServiceBus.Hosting.Tests;
     using NServiceBus.Hosting.Tests.EndpointTypeTests;
@@ -105,42 +103,6 @@ namespace EndpointTypeDeterminerTests
         public void TestFixtureSetup()
         {
             AssemblyScanner = new AssemblyScanner();
-        }
-
-        void BuildTestEndpointAssembly(out Type endpointType)
-        {
-            var appDomain = AppDomain.CurrentDomain;
-            var assemblyName = new AssemblyName("MyDynamicAssembly");
-            var assemblyBuilder = appDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
-            var modBuilder = assemblyBuilder.DefineDynamicModule("DynModule");
-            var tb = modBuilder.DefineType("TestEndpoint", TypeAttributes.Public, typeof(Object),
-                new[]
-                {
-                    typeof(IConfigureThisEndpoint)
-                });
-            endpointType = tb.CreateType();
-        }
-
-        [Test]
-        public void when_endpoint_type_is_found_via_assembly_scanning_it_should_have_second_priority()
-        {
-            Type endpointTypeInAssembly;
-            BuildTestEndpointAssembly(out endpointTypeInAssembly);
-            AssemblyScanner = new AssemblyScanner
-            {
-                IncludeExesInScan = false,
-                IncludeAppDomainAssemblies = true,
-                AssembliesToInclude = new List<string>
-                {
-                    endpointTypeInAssembly.Assembly.GetName().Name
-                },
-            };
-
-            EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScanner, () => null);
-
-            RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationType().Type;
-
-            Assert.AreEqual(endpointTypeInAssembly, RetrievedEndpointType);
         }
 
         [Test]
