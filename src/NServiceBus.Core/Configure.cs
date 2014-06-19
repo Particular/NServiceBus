@@ -26,7 +26,7 @@ namespace NServiceBus
         /// <summary>
         ///     Protected constructor to enable creation only via the With method.
         /// </summary>
-        internal Configure(SettingsHolder settings, IConfigurationSource configurationSource, IContainer container, Conventions conventions)
+        internal Configure(SettingsHolder settings, IContainer container)
         {
             this.settings = settings;
             LogManager.HasConfigBeenInitialised = true;
@@ -35,10 +35,7 @@ namespace NServiceBus
 
             configurer.RegisterSingleton<Configure>(this);
             configurer.RegisterSingleton<ReadOnlySettings>(settings);
-            configurer.RegisterSingleton<Conventions>(conventions);
-
-            settings.SetDefault<IConfigurationSource>(configurationSource);
-            settings.SetDefault<Conventions>(conventions);
+            
             settings.Set<PipelineModifications>(new PipelineModifications());
         }
 

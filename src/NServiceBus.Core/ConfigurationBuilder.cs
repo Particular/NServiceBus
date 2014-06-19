@@ -175,13 +175,19 @@ namespace NServiceBus
                     scannedTypes = scannedTypes.Union(Configure.GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
                 }
             }
-            var builder = customBuilder ?? new AutofacObjectBuilder();
+            var container = customBuilder ?? new AutofacObjectBuilder();
             var settings = new SettingsHolder();
             settings.SetDefault("EndpointName", endpointName);
             settings.SetDefault("TypesToScan", scannedTypes);
             settings.SetDefault("EndpointVersion", version);
 
-            return new Configure(settings, configurationSourceToUse, builder, conventionsBuilder.BuildConventions());
+            var conventions = conventionsBuilder.BuildConventions();
+            container.RegisterSingleton(typeof(Conventions), conventions);
+
+            settings.SetDefault<IConfigurationSource>(configurationSourceToUse);
+            settings.SetDefault<Conventions>(conventions);
+
+            return new Configure(settings, container);
         }
 
         IContainer customBuilder;
