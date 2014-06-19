@@ -33,10 +33,16 @@ namespace NServiceBus.Hosting.Tests
 
     class ConfigurationWithTestRole : IConfigureThisEndpoint, TestRole
     {
+        public void Customize(ConfigurationBuilder builder)
+        {
+        }
     }
 
     class ConfigurationWithInheritedRole : IConfigureThisEndpoint, IInheritedRole
     {
+        public void Customize(ConfigurationBuilder builder)
+        {
+        }
     }
 
     public interface TestRole : IRole

@@ -7,6 +7,7 @@
     /// Implementors will be invoked before the endpoint starts up.
     /// Dependency injection is not provided for these types.
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "INeedInitialization and IConfigureThisEndpoint")]
     public interface IWantCustomInitialization
     {
         /// <summary>

@@ -69,6 +69,9 @@ namespace NServiceBus.Hosting.Tests
 
     public class ConfigWithCustomTransport : IConfigureThisEndpoint, AsA_Server, UsingTransport<MyTestTransport>
     {
+        public void Customize(ConfigurationBuilder builder)
+        {
+        }
     }
 
 

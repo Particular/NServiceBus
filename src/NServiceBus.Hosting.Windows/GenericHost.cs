@@ -107,49 +107,16 @@ namespace NServiceBus
                 loggingConfigurer.Configure(specifier);
             }
 
-            var initialization = specifier as IWantCustomInitialization;
-            if (initialization != null)
+            config = Configure.With(builder =>
             {
-                try
-                {
-                    config = initialization.Init();
-                }
-                catch (NullReferenceException ex)
-                {
-                    throw new NullReferenceException(
-                        "NServiceBus has detected a null reference in your initialization code." +
-                        " This could be due to trying to use NServiceBus.Configure before it was ready." +
-                        " One possible solution is to inherit from IWantCustomInitialization in a different class" +
-                        " than the one that inherits from IConfigureThisEndpoint, and put your code there.",
-                        ex);
-                }
-            }
+                builder.EndpointName(endpointNameToUse);
+                builder.EndpointVersion(() => endpointVersionToUse);
+                builder.AssembliesToScan(assembliesToScan);
 
-            if (config == null)
-            {
-                config = Configure.With(o =>
-                {
-                    o.EndpointName(endpointNameToUse);
-                    o.EndpointVersion(() => endpointVersionToUse);
-                    o.AssembliesToScan(assembliesToScan);
-                });
-            }
+                specifier.Customize(builder);
+            });
 
-            ValidateThatIWantCustomInitIsOnlyUsedOnTheEndpointConfig();
-
-            roleManager.ConfigureBusForEndpoint(specifier,config);
-        }
-
-        void ValidateThatIWantCustomInitIsOnlyUsedOnTheEndpointConfig()
-        {
-            var problems = config.TypesToScan.Where(t => typeof(IWantCustomInitialization).IsAssignableFrom(t) && !t.IsInterface && !typeof(IConfigureThisEndpoint).IsAssignableFrom(t)).ToList();
-
-            if (!problems.Any())
-            {
-                return;
-            }
-
-            throw new Exception("IWantCustomInitialization is only valid on the same class as ICOnfigureThisEndpoint. Please use INeedInitialization instead. Found types: " + string.Join(",",problems.Select(t=>t.FullName)));
+            roleManager.ConfigureBusForEndpoint(specifier, config);
         }
 
         readonly List<Assembly> assembliesToScan;

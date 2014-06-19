@@ -27,7 +27,7 @@
         /// <summary>
         ///     Initializes the testing infrastructure.
         /// </summary>
-        public static void Initialize(Action<Configure.ConfigurationBuilder> customisations = null)
+        public static void Initialize(Action<ConfigurationBuilder> customisations = null)
         {
             if (customisations == null)
             {
