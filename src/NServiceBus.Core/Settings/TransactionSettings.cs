@@ -41,6 +41,7 @@ namespace NServiceBus.Settings
         public TransactionSettings Disable()
         {
             config.Settings.Set("Transactions.Enabled", false);
+            config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
             return this;
         }
 
