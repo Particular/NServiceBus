@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using Config;
+    using Settings;
     using Timeout.Core;
     using Timeout.Hosting.Windows;
 
@@ -12,26 +13,15 @@
         internal TimeoutManager()
         {
             DependsOn<TimeoutManagerBasedDeferral>();
-            Prerequisite(ShouldRun);
-        }
-
-        bool ShouldRun(FeatureConfigurationContext context)
-        {
+            
+            //send only endpoints deosn't need a a timeout manager
+            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"));
+            
             //if we have a master node configured we should use the Master Node timeout manager instead
-            if (context.Settings.GetOrDefault<bool>("Distributor.Enabled"))
-            {
-                return false;
-            }
-
-            var unicastConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
+            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Distributor.Enabled"));
 
             //if the user has specified another TM we don't need to run our own
-            if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress))
-            {
-                return false;
-            }
-            
-            return true;
+            Prerequisite(context => HasAlternateTimeoutManagerBeenConfigured(context.Settings));
         }
 
         /// <summary>
@@ -53,6 +43,13 @@
 
             context.Container.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
+        }
+
+        bool HasAlternateTimeoutManagerBeenConfigured(ReadOnlySettings settings)
+        {
+            var unicastConfig = settings.GetConfigSection<UnicastBusConfig>();
+
+            return unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress);
         }
 
         public static Address InputAddress { get; private set; }

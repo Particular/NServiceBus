@@ -46,6 +46,7 @@ namespace NServiceBus.Settings
         /// <remarks>
         ///     Use this in endpoints whose only purpose is sending messages, websites are often a good example of send only endpoints.
         /// </remarks>
+        [ObsoleteEx(RemoveInVersion = "6",TreatAsErrorFromVersion = "5",Replacement = "This call can safely be removed since Configure.With().SendOnly(); performs the needed config")]
         public void AsSendOnly()
         {
             config.Settings.Set("Endpoint.SendOnly", true);
