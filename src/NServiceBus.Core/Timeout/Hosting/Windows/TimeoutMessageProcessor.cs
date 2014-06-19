@@ -16,9 +16,11 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public ISendMessages MessageSender { get; set; }
 
+        public Address InputAddress { get; set; }
+
         public DefaultTimeoutManager TimeoutManager { get; set; }
 
-        public Address InputAddress { get { return Features.TimeoutManager.InputAddress; } }
+        //public Address InputAddress { get { return Features.TimeoutManager.InputAddress; } }
 
         public bool Disabled { get; set; }
         public string EndpointName{ get; set; }

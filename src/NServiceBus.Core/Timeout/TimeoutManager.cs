@@ -21,7 +21,7 @@
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Distributor.Enabled"));
 
             //if the user has specified another TM we don't need to run our own
-            Prerequisite(context => HasAlternateTimeoutManagerBeenConfigured(context.Settings));
+            Prerequisite(context => !HasAlternateTimeoutManagerBeenConfigured(context.Settings));
         }
 
         /// <summary>
@@ -31,17 +31,21 @@
         {
             var endpointName = context.Settings.Get<string>("EndpointName");
 
-            DispatcherAddress = Address.Parse(endpointName).SubScope("TimeoutsDispatcher");
-            InputAddress = Address.Parse(endpointName).SubScope("Timeouts");
+            var dispatcherAddress = Address.Parse(endpointName).SubScope("TimeoutsDispatcher");
+            var inputAddress = Address.Parse(endpointName).SubScope("Timeouts");
 
 
             context.Container.ConfigureComponent<TimeoutMessageProcessor>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(t=>t.Disabled,false)
+                .ConfigureProperty(t => t.InputAddress, inputAddress)
                 .ConfigureProperty(t=>t.EndpointName,context.Settings.EndpointName());
-            context.Container.ConfigureComponent<TimeoutDispatcherProcessor>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(t => t.Disabled, false);
 
-            context.Container.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<TimeoutDispatcherProcessor>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(t => t.Disabled, false)
+                .ConfigureProperty(t=>t.InputAddress,dispatcherAddress);
+
+            context.Container.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(t=>t.DispatcherAddress,dispatcherAddress);
             context.Container.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
         }
 
@@ -51,8 +55,5 @@
 
             return unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress);
         }
-
-        public static Address InputAddress { get; private set; }
-        public static Address DispatcherAddress { get; private set; }
     }
 }

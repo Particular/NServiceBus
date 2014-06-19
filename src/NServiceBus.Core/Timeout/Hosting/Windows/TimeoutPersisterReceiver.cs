@@ -17,6 +17,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public int SecondsToSleepBetweenPolls { get; set; }
         public DefaultTimeoutManager TimeoutManager { get; set; }
 
+        public Address DispatcherAddress { get; set; }
+
         public void Dispose()
         {
             //Injected
@@ -87,7 +89,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                         startSlice = timeoutData.Item2;
                     }
 
-                    MessageSender.Send(CreateTransportMessage(timeoutData.Item1), new SendOptions(Features.TimeoutManager.DispatcherAddress) { ReplyToAddress = Features.TimeoutManager.DispatcherAddress });
+                    MessageSender.Send(CreateTransportMessage(timeoutData.Item1), new SendOptions(DispatcherAddress));
                 }
 
                 lock (lockObject)

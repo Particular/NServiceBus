@@ -2,7 +2,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Core;
-    using Features;
     using Satellites;
     using Transports;
     using Unicast.Transport;
@@ -20,13 +19,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         
         public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
       
-        public Address InputAddress
-        {
-            get
-            {
-                return TimeoutManager.DispatcherAddress;
-            }
-        }
+        public Address InputAddress { get; set; }
 
         public bool Disabled { get; set; }
 
