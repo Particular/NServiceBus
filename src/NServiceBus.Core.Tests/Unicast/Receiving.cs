@@ -5,6 +5,8 @@
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
+    using Timeout;
+    using Saga;
 
     [TestFixture]
     class When_receiving_a_regular_message : using_the_unicastBus
@@ -118,42 +120,55 @@
     }
 
     [TestFixture]
-    class When_receiving_a_v3_saga_timeout_message : using_the_unicastBus
+    class When_receiving_a_v3_saga_timeout_message : with_sagas
     {
         [Test,Explicit("John is fixing this")]
         public void Should_set_the_newV4_flag()
         {
-            throw new Exception("deblocking the build, please make this compile again");
-            //var timeoutMessage = Helpers.Helpers.Serialize(new SomeTimeout());
-            //var mutator = new SetIsSagaMessageHeaderForV3XMessages
-            //    {
-            //        Bus = new MyBus{CurrentMessageContext = new MessageContext(timeoutMessage)},
-            //    };
+            var sagaId = Guid.NewGuid();
 
-            //var headers = new Dictionary<string, string>();
+            RegisterSaga<MySaga>(new MySagaData
+            {
+                Id = sagaId
+            });
 
-            //ExtensionMethods.GetHeaderAction = (o, s) =>
-            //{
-            //    string v;
-            //    headers.TryGetValue(s, out v);
-            //    return v;
-            //};
+            ReceiveMessage(new MyTimeout(), new Dictionary<string, string>()
+            {
+                {Headers.NServiceBusVersion, "3.3.8"},
+                {Headers.SagaId, sagaId.ToString()},
+                {TimeoutManagerHeaders.Expire, "2013-06-20 03:41:00:188412 Z"}
+            });
 
-            //ExtensionMethods.SetHeaderAction = (o, s, v) =>
-            //{
-            //    headers[s] = v;
-            //};
-
-            //Headers.SetMessageHeader(timeoutMessage, Headers.NServiceBusVersion, "3.3.8");
-            //Headers.SetMessageHeader(timeoutMessage, Headers.SagaId, "ded93a22-1e4b-466a-818f-a1e300cfb9d6");
-            //Headers.SetMessageHeader(timeoutMessage, TimeoutManagerHeaders.Expire, "2013-06-20 03:41:00:188412 Z");
-
-            //mutator.MutateIncoming(timeoutMessage);
-
-            //Assert.True(timeoutMessage.Headers.ContainsKey(Headers.IsSagaTimeoutMessage));
-            //Assert.AreEqual(Boolean.TrueString, timeoutMessage.Headers[Headers.IsSagaTimeoutMessage]);
+            Assert.AreEqual(1, persister.CurrentSagaEntities.Count, "Existing saga should be found");
+            Assert.True(((MySagaData)persister.CurrentSagaEntities[sagaId].SagaEntity).TimeoutCalled, "Timeout method should be invoked");
         }
 
+        class MySaga : Saga<MySagaData>, IHandleTimeouts<MyTimeout>, IHandleMessages<MyTimeout>
+        {
+            public void Timeout(MyTimeout timeout)
+            {
+                Data.TimeoutCalled = true;
+            }
+
+
+            public void Handle(MyTimeout message)
+            {
+                Assert.Fail("Regular handler should not be invoked");
+            }
+
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+            {
+            }
+        }
+
+        class MySagaData : ContainSagaData
+        {
+            public bool TimeoutCalled { get; set; }
+        }
+
+        class MyTimeout : IMessage { }
+        
         class MyBus: IBus
         {
 
@@ -304,6 +319,8 @@
 
         class SomeTimeout{}
     }
+
+    
 
 
     class HandlerThatRepliesWithACommand : IHandleMessages<EventMessage>

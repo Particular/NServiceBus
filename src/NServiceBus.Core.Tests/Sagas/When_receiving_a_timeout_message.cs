@@ -2,7 +2,6 @@ namespace NServiceBus.Unicast.Tests
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using NUnit.Framework;
     using Saga;
 
@@ -22,8 +21,7 @@ namespace NServiceBus.Unicast.Tests
                     {Headers.IsSagaTimeoutMessage, true.ToString() }
                 });
 
-            Assert.AreEqual(1, persister.CurrentSagaEntities.Count(), "Existing saga should be found");
-
+            Assert.AreEqual(1, persister.CurrentSagaEntities.Count, "Existing saga should be found");
             Assert.True(((MySagaData)persister.CurrentSagaEntities[sagaId].SagaEntity).TimeoutCalled, "Timeout method should be invoked");
         }
 
@@ -35,10 +33,12 @@ namespace NServiceBus.Unicast.Tests
                 Data.TimeoutCalled = true;
             }
 
+            
             public void Handle(MyTimeout message)
             {
                 Assert.Fail("Regular handler should not be invoked");
             }
+            
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
             {
@@ -50,6 +50,6 @@ namespace NServiceBus.Unicast.Tests
             public bool TimeoutCalled { get; set; }
         }
 
-        class MyTimeout : IMessage { }
+        class MyTimeout:IMessage { }
     }
 }
