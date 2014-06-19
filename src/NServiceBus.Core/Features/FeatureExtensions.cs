@@ -2,7 +2,6 @@
 {
     using System;
     using Features;
-    using Settings;
 
     /// <summary>
     /// Configuration extention that allows users fine grained control over the features
@@ -11,59 +10,46 @@
     {
 
         /// <summary>
-        /// Provides fine grained control for features
+        /// Enables the given feature
         /// </summary>
-        public static Configure Features(this Configure config,Action<FeatureSettings> customizations)
+        public static Configure EnableFeature<T>(this Configure config) where T : Feature
         {
-            customizations(new FeatureSettings(config.Settings));
+            return config.EnableFeature(typeof(T));
+        }
+
+        /// <summary>
+        /// Enables the given feature
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="featureType">The feature to enable</param>
+        /// <returns></returns>
+        public static Configure EnableFeature(this Configure config, Type featureType)
+        {
+            config.Settings.Set(featureType.FullName, true);
 
             return config;
         }
 
         /// <summary>
-        /// Configuration actions available to features
+        /// Disables the given feature
         /// </summary>
-        public class FeatureSettings
+        public static Configure DisableFeature<T>(this Configure config) where T : Feature
         {
-            readonly SettingsHolder settings;
-
-            public FeatureSettings(SettingsHolder settings)
-            {
-                this.settings = settings;
-            }
-
-            /// <summary>
-            /// Enables the given feature
-            /// </summary>
-            public void Enable<T>() where T : Feature
-            {
-                Enable(typeof(T));
-            }
-
-            /// <summary>
-            /// Enables the given feature
-            /// </summary>
-            public void Enable(Type featureType)
-            {
-                settings.Set(featureType.FullName, true);
-            }
-
-            /// <summary>
-            /// Disables the given feature
-            /// </summary>
-            public void Disable<T>() where T : Feature
-            {
-                Disable(typeof(T));
-            }
-
-            /// <summary>
-            /// Disables the give feature
-            /// </summary>
-            public void Disable(Type featureType)
-            {
-                settings.Set(featureType.FullName, false);
-            }
-
+            return config.DisableFeature(typeof(T));
         }
+
+        /// <summary>
+        /// Enables the given feature
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="featureType">The feature to disable</param>
+        /// <returns></returns>
+        public static Configure DisableFeature(this Configure config, Type featureType)
+        {
+            config.Settings.Set(featureType.FullName, false);
+
+            return config;
+        }
+
     }
 }

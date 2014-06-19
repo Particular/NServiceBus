@@ -33,7 +33,7 @@
         {
             public Headquarters()
             {
-                EndpointSetup<DefaultServer>(c => c.Features(f=>f.Enable<Gateway>()))
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<Gateway>())
                     .WithConfig<GatewayConfig>(c =>
                         {
                             c.Sites = new SiteCollection
@@ -74,7 +74,7 @@
         {
             public SiteA()
             {
-                EndpointSetup<DefaultServer>(c => c.Features(f => f.Enable<Gateway>()))
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<Gateway>())
                         .WithConfig<GatewayConfig>(c =>
                         {
                             c.Channels = new ChannelCollection

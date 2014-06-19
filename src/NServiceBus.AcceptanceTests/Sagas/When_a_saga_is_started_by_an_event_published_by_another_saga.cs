@@ -96,7 +96,7 @@
         {
             public SagaThatPublishesAnEvent()
             {
-                EndpointSetup<DefaultServer>(c => c.Features(f => f.Disable<AutoSubscribe>()));
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>());
             }
 
             public class Saga1 : Saga<Saga1.Saga1Data>, IAmStartedByMessages<StartSaga>, IHandleTimeouts<Saga1.Timeout1>
@@ -140,7 +140,7 @@
         {
             public SagaThatIsStartedByTheEvent()
             {
-                EndpointSetup<DefaultServer>(c => c.Features(f => f.Disable<AutoSubscribe>()))
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
                     .AddMapping<SomethingHappenedEvent>(typeof(SagaThatPublishesAnEvent));
 
             }
@@ -183,7 +183,7 @@
         {
             public SagaThatIsStartedByABaseEvent()
             {
-                EndpointSetup<DefaultServer>(c => c.Features(f => f.Disable<AutoSubscribe>()))
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
                     .AddMapping<BaseEvent>(typeof(SagaThatPublishesAnEvent));
             }
 

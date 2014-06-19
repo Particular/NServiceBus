@@ -1,7 +1,6 @@
 namespace NServiceBus.Settings
 {
     using System;
-    using Features;
     using Persistence;
 
     /// <summary>
@@ -49,8 +48,7 @@ namespace NServiceBus.Settings
         [ObsoleteEx(RemoveInVersion = "6",TreatAsErrorFromVersion = "5",Replacement = "This call can safely be removed since Configure.With().SendOnly(); performs the needed config")]
         public void AsSendOnly()
         {
-            config.Settings.Set("Endpoint.SendOnly", true);
-            config.Features(f=>f.Disable<TimeoutManager>());
+            throw new NotImplementedException();
         }
 
         /// <summary>

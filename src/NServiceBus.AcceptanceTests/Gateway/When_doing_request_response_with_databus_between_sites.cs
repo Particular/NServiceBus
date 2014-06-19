@@ -50,7 +50,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                     {
-                        c.Features(f=>f.Enable<Features.Gateway>());
+                        c.EnableFeature<Features.Gateway>();
                         c.FileShareDataBus(@".\databus\siteA");
                     }).WithConfig<GatewayConfig>(c =>
                      {
@@ -98,7 +98,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.Features(f=>f.Enable<Features.Gateway>());
+                    c.EnableFeature<Features.Gateway>();
                     c.FileShareDataBus(@".\databus\siteB");
                 })
                    .WithConfig<GatewayConfig>(c =>

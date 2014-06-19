@@ -88,15 +88,11 @@
                 return;
             }
 
-            config.Features(f =>
-            {
-                f.Disable<Sagas>();
-                f.Disable<Audit>();
-            })
+            config.DisableFeature<Sagas>()
+                .DisableFeature<Audit>()
                 .UseTransport<FakeTestTransport>()
                 .UsePersistence<InMemory>()
                 .InMemoryFaultManagement();
-
 
             config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
 
