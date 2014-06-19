@@ -9,6 +9,7 @@
         /// Allows to override default settings.
         /// </summary>
         /// <param name="builder">Endpoint configuration builder.</param>
+// ReSharper disable once UnusedParameter.Global
         void Customize(ConfigurationBuilder builder);
     }
 }
