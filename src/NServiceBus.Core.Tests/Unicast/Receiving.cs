@@ -122,7 +122,7 @@
     [TestFixture]
     class When_receiving_a_v3_saga_timeout_message : with_sagas
     {
-        [Test,Explicit("John is fixing this")]
+        [Test]
         public void Should_set_the_newV4_flag()
         {
             var sagaId = Guid.NewGuid();
@@ -132,7 +132,7 @@
                 Id = sagaId
             });
 
-            ReceiveMessage(new MyTimeout(), new Dictionary<string, string>()
+            ReceiveMessage(new MyTimeout(), new Dictionary<string, string>
             {
                 {Headers.NServiceBusVersion, "3.3.8"},
                 {Headers.SagaId, sagaId.ToString()},
@@ -150,12 +150,10 @@
                 Data.TimeoutCalled = true;
             }
 
-
             public void Handle(MyTimeout message)
             {
                 Assert.Fail("Regular handler should not be invoked");
             }
-
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
             {
@@ -168,160 +166,8 @@
         }
 
         class MyTimeout : IMessage { }
-        
-        class MyBus: IBus
-        {
-
-            public void Publish<T>(T message)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Publish<T>()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Publish<T>(Action<T> messageConstructor)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Subscribe(Type messageType)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Subscribe<T>()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Unsubscribe(Type messageType)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Unsubscribe<T>()
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback SendLocal(object message)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback SendLocal<T>(Action<T> messageConstructor)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback Send(object message)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback Send<T>(Action<T> messageConstructor)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback Send(string destination, object message)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback Send(Address address, object message)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback Send<T>(string destination, Action<T> messageConstructor)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback Send<T>(Address address, Action<T> messageConstructor)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback Send(string destination, string correlationId, object message)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback Send(Address address, string correlationId, object message)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback Defer(TimeSpan delay, object message)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ICallback Defer(DateTime processAt, object message)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Reply(object message)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Reply<T>(Action<T> messageConstructor)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Return<T>(T errorEnum)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void HandleCurrentMessageLater()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void ForwardCurrentMessageTo(string destination)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void DoNotContinueDispatchingCurrentMessageToHandlers()
-            {
-                throw new NotImplementedException();
-            }
-
-            public IDictionary<string, string> OutgoingHeaders { get; private set; }
-            public IMessageContext CurrentMessageContext { get; set; }
-            public IInMemoryOperations InMemory { get; private set; }
-        }
-
-        class SomeTimeout{}
-    }
-
     
-
+    }
 
     class HandlerThatRepliesWithACommand : IHandleMessages<EventMessage>
     {
