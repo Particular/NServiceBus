@@ -23,7 +23,7 @@
                 a.DisableDistributedTransactions();
                 a.DoNotWrapHandlersExecutionInATransactionScope();
             }))
-            .Features(f => f.Enable<Features.Outbox>());
+            .EnableFeature<Features.Outbox>();
         }
     }
 }

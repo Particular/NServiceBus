@@ -61,12 +61,9 @@
         /// </summary>
         protected override void InternalConfigure(Configure config)
         {
-            config.Features(f =>
-            {
-                f.Enable<MsmqTransport>();
-                f.Enable<MessageDrivenSubscriptions>();
-                f.Enable<TimeoutManagerBasedDeferral>();
-            });
+            config.EnableFeature<MsmqTransport>();
+            config.EnableFeature<MessageDrivenSubscriptions>();
+            config.EnableFeature<TimeoutManagerBasedDeferral>();
 
             config.Settings.EnableFeatureByDefault<StorageDrivenPublishing>();
             config.Settings.EnableFeatureByDefault<TimeoutManager>();

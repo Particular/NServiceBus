@@ -16,7 +16,7 @@
 
             config.Settings.Set<ISerializationDefinition>(serializationDefinition);
 
-            config.Features(f => f.Enable(serializationDefinition.ProvidedByFeature));
+            config.EnableFeature(serializationDefinition.ProvidedByFeature);
         }
 
     }

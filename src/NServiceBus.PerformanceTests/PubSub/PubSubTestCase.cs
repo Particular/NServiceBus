@@ -44,7 +44,7 @@ public class PubSubTestCase : TestCase
         var config = Configure.With(o => o.EndpointName("PubSubPerformanceTest"))
             .UseTransport<Msmq>()
             .InMemoryFaultManagement()
-            .Features(f=>f.Disable<Audit>());
+            .DisableFeature<Audit>();
 
         switch (GetStorageType())
         {

@@ -19,7 +19,7 @@ namespace NServiceBus
             {
                 config.Settings.Set("installation.userName", username);
             }
-            config.Features(x => x.Enable<InstallationSupport>());
+            config.EnableFeature<InstallationSupport>();
             return config;
         }
     }

@@ -10,14 +10,11 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// </summary>
         public void ConfigureRole(IConfigureThisEndpoint specifier, Configure config)
         {
-            config.Features(f =>
-            {
-                f.Disable<SecondLevelRetries>();
-                f.Disable<StorageDrivenPublishing>();
-                f.Disable<TimeoutManager>();
-            })
-            .Transactions(t=>t.Disable())
-            .PurgeOnStartup(true);
+            config.DisableFeature<SecondLevelRetries>()
+                .DisableFeature<StorageDrivenPublishing>()
+                .DisableFeature<TimeoutManager>()
+                .Transactions(t=>t.Disable())
+                .PurgeOnStartup(true);
         }
     }
 }
