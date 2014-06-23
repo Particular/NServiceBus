@@ -6,12 +6,15 @@ namespace NServiceBus.Features
     using System.Transactions;
     using AutomaticSubscriptions;
     using Config;
+    using Faults;
     using Logging;
     using Pipeline;
     using Pipeline.Contexts;
+    using Transports;
     using Unicast.Behaviors;
     using Unicast.Messages;
     using Unicast.Routing;
+    using Unicast.Transport;
 
     /// <summary>
     ///   Used to configure the <see cref="Unicast.UnicastBus"/>
@@ -54,6 +57,30 @@ namespace NServiceBus.Features
             RegisterMessageOwnersAndBusAddress(context, knownMessages);
 
             ConfigureMessageRegistry(context, knownMessages);
+
+            SetTransportThresholds(context);
+        }
+
+        void SetTransportThresholds(FeatureConfigurationContext context)
+        {
+            var transportConfig = context.Settings.GetConfigSection<TransportConfig>();
+            var maximumThroughput = 0;
+            var maximumNumberOfRetries = 5;
+            var maximumConcurrencyLevel = 1;
+
+            if (transportConfig != null)
+            {
+                maximumNumberOfRetries = transportConfig.MaxRetries;
+                maximumThroughput = transportConfig.MaximumMessageThroughputPerSecond;
+                maximumConcurrencyLevel = transportConfig.MaximumConcurrencyLevel;
+            }
+
+            var transactionSettings = new TransactionSettings(context.Settings)
+            {
+                MaxRetries = maximumNumberOfRetries
+            };
+
+            context.Container.ConfigureComponent(b => new TransportReceiver(transactionSettings, maximumConcurrencyLevel, maximumThroughput, b.Build<IDequeueMessages>(), b.Build<IManageMessageFailures>(), context.Settings), DependencyLifecycle.InstancePerCall);
         }
 
         void ConfigureBehaviors(FeatureConfigurationContext context)
