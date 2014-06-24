@@ -43,7 +43,7 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Loads all handlers to be executed.
         /// </summary>
-        public const string LoadHandlers = "ExecuteHandlers";
+        public const string LoadHandlers = "LoadHandlers";
         /// <summary>
         /// Invokes the saga code.
         /// </summary>
