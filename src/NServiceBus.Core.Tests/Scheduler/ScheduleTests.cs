@@ -14,6 +14,7 @@
         private const string ACTION_NAME = "my action";
         private FuncBuilder _builder = new FuncBuilder();
         private FakeBus _bus = new FakeBus();
+        Schedule schedule;
 
         private readonly InMemoryScheduledTaskStorage _taskStorage = new InMemoryScheduledTaskStorage();        
 
@@ -25,26 +26,28 @@
             _builder.Register<IBus>(() => _bus);
             _builder.Register<IScheduledTaskStorage>(() => _taskStorage);
             _builder.Register<IScheduler>(() => new DefaultScheduler(_bus, _taskStorage));
+
+            schedule = new Schedule(_builder);
         }
 
         [Test]
         public void When_scheduling_an_action_with_a_name_the_task_should_get_that_name()
         {
-            Schedule.Every(TimeSpan.FromMinutes(5)).Action(ACTION_NAME, () => { });
+            schedule.Every(TimeSpan.FromMinutes(5), ACTION_NAME, () => { });
             Assert.That(EnsureThatNameExists(ACTION_NAME));
         }
 
         [Test]
         public void When_scheduling_an_action_without_a_name_the_task_should_get_the_DeclaringType_as_name()
         {
-            Schedule.Every(TimeSpan.FromMinutes(5)).Action(() => {  });
+            schedule.Every(TimeSpan.FromMinutes(5), () => {  });
             Assert.That(EnsureThatNameExists("ScheduleTests"));
         }
 
         [Test]
         public void Schedule_tasks_using_multiple_threads()
         {
-            Parallel.For(0, 20, i => Schedule.Every(TimeSpan.FromSeconds(1)).Action(() => { }));
+            Parallel.For(0, 20, i => schedule.Every(TimeSpan.FromSeconds(1), () => { }));
             
             _bus.DeferWasCalled = 0;
 
