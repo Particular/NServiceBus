@@ -2,6 +2,7 @@ namespace NServiceBus.Scheduling
 {
     using System;
 
+    [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The Schedule is now injectable, This won't be needed.")]
     public class ScheduledTask
     {
         public ScheduledTask()

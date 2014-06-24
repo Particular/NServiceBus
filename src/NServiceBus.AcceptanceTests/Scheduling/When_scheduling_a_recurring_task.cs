@@ -32,17 +32,18 @@
 
             class SetupScheduledAction : IWantToRunWhenBusStartsAndStops
             {
+                public Schedule Schedule { get; set; }
+
                 public void Start()
                 {
-                    Schedule.Every(TimeSpan.FromSeconds(5))
-                       .Action("MyTask", () =>
-                       {
-                           Console.Out.WriteLine("Task invoked");
+                    Schedule.Every(TimeSpan.FromSeconds(5), "MyTask", () =>
+                    {
+                        Console.Out.WriteLine("Task invoked");
 #pragma warning disable 0618
-                           Configure.Instance.Builder.Build<Context>()
-                                    .ScheduleActionInvoked = true;
+                        Configure.Instance.Builder.Build<Context>()
+                            .ScheduleActionInvoked = true;
 #pragma warning restore 0618
-                       });
+                    });
                 }
 
                 public void Stop()
