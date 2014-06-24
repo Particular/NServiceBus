@@ -45,7 +45,6 @@ namespace NServiceBus.Features
             context.Container.ConfigureComponent<Unicast.UnicastBus>(DependencyLifecycle.SingleInstance);
 
             ConfigureSubscriptionAuthorization(context);
-            RegisterMessageModules(context);
 
             context.Container.ConfigureComponent<PipelineExecutor>(DependencyLifecycle.SingleInstance);
             ConfigureBehaviors(context);
@@ -94,15 +93,6 @@ namespace NServiceBus.Features
         }
 
 
-        void RegisterMessageModules(FeatureConfigurationContext context)
-        {
-            // ReSharper disable HeapView.SlowDelegateCreation
-            context.Settings.GetAvailableTypes().Where(t => typeof(IMessageModule).IsAssignableFrom(t)
-                                                            && !(t.IsAbstract || t.IsInterface))
-                // ReSharper restore HeapView.SlowDelegateCreation
-                .ToList()
-                .ForEach(moduleType => context.Container.ConfigureComponent(moduleType, DependencyLifecycle.InstancePerCall));
-        }
 
         void ConfigureSubscriptionAuthorization(FeatureConfigurationContext context)
         {

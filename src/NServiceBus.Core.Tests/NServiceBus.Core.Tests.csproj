@@ -234,7 +234,6 @@
     <Compile Include="Unicast\Helpers\FakeSubscriptionStorage.cs" />
     <Compile Include="Unicast\Helpers\FakeTransport.cs" />
     <Compile Include="Unicast\Helpers\Helpers.cs" />
-    <Compile Include="Unicast\MessageModules.cs" />
     <Compile Include="Unicast\Messages\ANamespace\ASubNamespace\MessageD.cs" />
     <Compile Include="Unicast\Messages\ANamespace\MessageC.cs" />
     <Compile Include="Unicast\Messages\DefaultMessageRegistryTests.cs" />
