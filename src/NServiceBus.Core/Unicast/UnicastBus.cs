@@ -565,7 +565,6 @@ namespace NServiceBus.Unicast
                     Transport.StartedMessageProcessing += TransportStartedMessageProcessing;
                     Transport.TransportMessageReceived += TransportMessageReceived;
                     Transport.FinishedMessageProcessing += TransportFinishedMessageProcessing;
-                    Transport.FailedMessageProcessing += TransportFailedMessageProcessing;
                     Transport.Start(InputAddress);
                 }
 
@@ -737,7 +736,6 @@ namespace NServiceBus.Unicast
                 Transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
                 Transport.TransportMessageReceived -= TransportMessageReceived;
                 Transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
-                Transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
             }
 
             ExecuteIWantToRunAtStartupStopMethods();
@@ -759,17 +757,6 @@ namespace NServiceBus.Unicast
 
             PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage);
 
-#pragma warning disable 0618
-            modules = Builder.BuildAll<IMessageModule>().ToList();
-#pragma warning restore 0618
-
-            modules.ForEach(module =>
-            {
-                Log.Debug("Calling 'HandleBeginMessage' on " + module.GetType().FullName);
-                module.HandleBeginMessage(); //don't need to call others if one fails                                    
-            });
-
-            modules.Reverse();//make sure that the modules are called in reverse order when processing ends
         }
         void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
@@ -778,32 +765,7 @@ namespace NServiceBus.Unicast
 
         void TransportFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
         {
-            try
-            {
-                modules.ForEach(module =>
-                {
-                    Log.Debug("Calling 'HandleEndMessage' on " + module.GetType().FullName);
-                    module.HandleEndMessage();
-                });
-            }
-            finally
-            {
-                PipelineFactory.CompletePhysicalMessagePipelineContext();
-            }
-        }
-
-        void TransportFailedMessageProcessing(object sender, FailedMessageProcessingEventArgs e)
-        {
-            if (modules == null)
-            {
-                return;
-            }
-
-            modules.ForEach(module =>
-            {
-                Log.Debug("Calling 'HandleError' on " + module.GetType().FullName);
-                module.HandleError();
-            });
+            PipelineFactory.CompletePhysicalMessagePipelineContext();
         }
 
         /// <summary>
@@ -833,15 +795,6 @@ namespace NServiceBus.Unicast
         }
 
         Address inputAddress;
-
-
-#pragma warning disable 0618
-        /// <summary>
-        /// Thread-static list of message modules, needs to be initialized for every transport message
-        /// </summary>
-        [ThreadStatic]
-        static List<IMessageModule> modules;
-#pragma warning restore 0618
 
         /// <summary>
         /// Map of message identifiers to Async Results - useful for cleanup in case of timeouts.
