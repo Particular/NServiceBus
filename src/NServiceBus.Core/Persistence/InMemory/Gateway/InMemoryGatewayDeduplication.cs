@@ -18,7 +18,7 @@
             }
         }
 
-        private class MessageDataComparer : IEqualityComparer<GatewayMessage>
+        class MessageDataComparer : IEqualityComparer<GatewayMessage>
         {
             public bool Equals(GatewayMessage x, GatewayMessage y)
             {
@@ -44,6 +44,11 @@
                 items.ForEach(item => persistence.Remove(item));
             }
             return count;
+        }
+        class GatewayMessage
+        {
+            public string Id { get; set; }
+            public DateTime TimeReceived { get; set; }
         }
     }
 }

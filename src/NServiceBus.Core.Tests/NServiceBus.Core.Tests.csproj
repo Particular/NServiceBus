@@ -127,11 +127,9 @@
     <Compile Include="Sagas\When_receiving_a_message_that_is_not_set_to_start_a_saga.cs" />
     <Compile Include="Sagas\When_receiving_a_timeout_message.cs" />
     <Compile Include="Sagas\When_sending_messages_from_a_saga.cs" />
-    <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReaderTests.cs" />
     <Compile Include="GitFlowVersionTests.cs" />
     <Compile Include="StringStreamExtensions.cs" />
     <Compile Include="Fakes\FakeCentralizedPubSubTransportDefinition.cs" />
-    <Compile Include="Gateway\Receiving\HasherTests.cs" />
     <Compile Include="Licensing\LicenseExpiredFormDisplayerTests.cs" />
     <Compile Include="MessageConventionExtensionsTests.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
@@ -153,14 +151,6 @@
     <Compile Include="Fakes\FakeBus.cs" />
     <Compile Include="Fakes\FakeTransport.cs" />
     <Compile Include="FuncBuilder.cs" />
-    <Compile Include="Gateway\Config\When_routing_using_the_configuration_source.cs" />
-    <Compile Include="Gateway\FakeMessageSender.cs" />
-    <Compile Include="Gateway\FakeTransport.cs" />
-    <Compile Include="Gateway\HeaderManagement\When_receiving_a_message_from_another_site.cs" />
-    <Compile Include="Gateway\RegularMessage.cs" />
-    <Compile Include="Gateway\Routing\When_routing_a_reply_message.cs" />
-    <Compile Include="Gateway\Routing\When_routing_using_the_configuration_source.cs" />
-    <Compile Include="Installers\GatewayHttpListenerInstallerTests.cs" />
     <Compile Include="Installers\PerformanceMonitorUsersInstallerTests.cs" />
     <Compile Include="ExceptionTests.cs" />
     <Compile Include="MessageMapper\When_mapping_ienumerable_implementations.cs" />

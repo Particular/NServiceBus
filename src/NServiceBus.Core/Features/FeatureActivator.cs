@@ -58,7 +58,7 @@ namespace NServiceBus.Features
         /// <summary>
         /// Gets the list of <see cref="Feature"/>s that this <see cref="Feature"/> depends on.
         /// </summary>
-        public IList<List<Type>> Dependencies { get; internal set; }
+        public IList<List<string>> Dependencies { get; internal set; }
         
         /// <summary>
         /// Gets the <see cref="Feature"/> version.
@@ -101,12 +101,12 @@ namespace NServiceBus.Features
                     } 
                     else if (!diagnosticData.DependenciesAreMeet)
                     {
-                        statusText.AppendLine(string.Format("Did not meet one of the dependencies: {0}", String.Join(",", diagnosticData.Dependencies.Select(t => "[" + String.Join(",", t.Select(t1 => t1.Name)) + "]"))));
+                        statusText.AppendLine(string.Format("Did not meet one of the dependencies: {0}", String.Join(",", diagnosticData.Dependencies.Select(t => "[" + String.Join(",", t.Select(t1 => t1)) + "]"))));
                     }
                 }
                 else
                 {
-                    statusText.AppendLine(string.Format("Dependencies: {0}", diagnosticData.Dependencies.Count == 0 ? "None" : String.Join(",", diagnosticData.Dependencies.Select(t => "[" + String.Join(",", t.Select(t1 => t1.Name)) + "]"))));
+                    statusText.AppendLine(string.Format("Dependencies: {0}", diagnosticData.Dependencies.Count == 0 ? "None" : String.Join(",", diagnosticData.Dependencies.Select(t => "[" + String.Join(",", t.Select(t1 => t1)) + "]"))));
                     statusText.AppendLine(string.Format("Startup Tasks: {0}", diagnosticData.StartupTasks.Count == 0 ? "None" : String.Join(",", diagnosticData.StartupTasks.Select(t => t.Name))));
                 }
 
@@ -190,12 +190,12 @@ namespace NServiceBus.Features
                 return true;
             }
 
-            Func<List<Type>, bool> dependencyActivator = dependenciesTypes =>
+            Func<List<string>, bool> dependencyActivator = dependencies =>
                                  {
                                      var dependantFeaturesToActivate = new List<Tuple<Feature, FeatureDiagnosticData>>();
 
-                                     foreach (var dependency in dependenciesTypes.Select(dependencyType => featuresToActivate
-                                         .SingleOrDefault(f => f.Item1.GetType() == dependencyType))
+                                     foreach (var dependency in dependencies.Select(dependencyName => featuresToActivate
+                                         .SingleOrDefault(f => f.Item1.Name == dependencyName))
                                          .Where(dependency => dependency != null))
                                      {
                                          dependantFeaturesToActivate.Add(dependency);

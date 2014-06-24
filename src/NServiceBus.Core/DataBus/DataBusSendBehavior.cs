@@ -7,7 +7,6 @@
     using System.Linq;
     using System.Reflection;
     using System.Transactions;
-    using Gateway.HeaderManagement;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast.Transport;
@@ -71,7 +70,7 @@
                     }
 
                     //we use the headers to in order to allow the infrastructure (eg. the gateway) to modify the actual key
-                    context.OutgoingLogicalMessage.Headers[HeaderMapper.DATABUS_PREFIX + headerKey] = headerValue;
+                    context.OutgoingLogicalMessage.Headers["NServiceBus.DataBus." + headerKey] = headerValue;
                 }
             }
 

@@ -10,7 +10,7 @@
     {
         internal InMemoryGatewayPersistence()
         {
-            DependsOn<Gateway>();
+            DependsOn("Gateway");
         }
 
         /// <summary>
