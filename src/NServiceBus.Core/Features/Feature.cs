@@ -15,19 +15,10 @@
         /// </summary>
         protected Feature()
         {
-            name = GetType().Name;
-
-            if (name.EndsWith("Feature"))
-            {
-                var length = "Feature".Length;
-
-                if (name.Length > length)
-                {
-                    name = name.Substring(0, name.Length - length);
-                }
-            }
+            name = GetFeatureName(GetType());
         }
 
+    
         /// <summary>
         ///     Feature name.
         /// </summary>
@@ -47,7 +38,7 @@
         /// <summary>
         ///     The list of features that this feature is depending on
         /// </summary>
-        internal List<List<Type>> Dependencies
+        internal List<List<string>> Dependencies
         {
             get { return dependencies; }
         }
@@ -119,10 +110,18 @@
         /// <typeparam name="T">Feature that this feature depends on</typeparam>
         protected void DependsOn<T>() where T : Feature
         {
-            dependencies.Add(new List<Type>
-            {
-                typeof(T)
-            });
+            DependsOn(GetFeatureName(typeof(T)));
+        }
+
+        /// <summary>
+        ///     Registers this feature as depending on the given feature. This means that this feature won't be activated unless
+        ///     the dependant feature is active.
+        ///     This also causes this feature to be activated after the other feature.
+        /// </summary>
+        /// <param name="featureName">The name of the feature that this feature depends on</param>
+        protected void DependsOn(string featureName)
+        {
+            dependencies.Add(new List<string>{featureName});
         }
 
         /// <summary>
@@ -147,7 +146,7 @@
                 }
             }
 
-            dependencies.Add(new List<Type>(features));
+            dependencies.Add(new List<string>(features.Select(feature =>feature.Name)));
         }
 
         /// <summary>
@@ -185,9 +184,27 @@
             isActive = true;
         }
 
+        static string GetFeatureName(Type featureType)
+        {
+            var name = featureType.Name;
+
+            if (name.EndsWith("Feature"))
+            {
+                var length = "Feature".Length;
+
+                if (name.Length > length)
+                {
+                    name = name.Substring(0, name.Length - length);
+                }
+            }
+
+            return name;
+        }
+
+
         static Type featureType = typeof(Feature);
 
-        List<List<Type>> dependencies = new List<List<Type>>();
+        List<List<string>> dependencies = new List<List<string>>();
 
         bool isActive;
         bool isEnabledByDefault;

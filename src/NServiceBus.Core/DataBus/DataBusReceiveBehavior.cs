@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Reflection;
     using System.Transactions;
-    using Gateway.HeaderManagement;
     using Pipeline;
     using Pipeline.Contexts;
 
@@ -41,7 +40,7 @@
 
                 string dataBusKey;
 
-                if (!context.IncomingLogicalMessage.Headers.TryGetValue(HeaderMapper.DATABUS_PREFIX + headerKey, out dataBusKey))
+                if (!context.IncomingLogicalMessage.Headers.TryGetValue("NServiceBus.DataBus." + headerKey, out dataBusKey))
                 {
                     continue;
                 }

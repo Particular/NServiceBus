@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationBuilder.cs" />
+    <Compile Include="Gateway\IDeduplicateMessages.cs" />
     <Compile Include="Installation\InstallationSupport.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />
     <Compile Include="Obsoletes.cs" />
@@ -105,13 +106,9 @@
     <Compile Include="Configure_Obsolete.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
-    <Compile Include="Config\ChannelCollection.cs" />
-    <Compile Include="Config\ChannelConfig.cs" />
     <Compile Include="ContentTypes.cs" />
     <Compile Include="DataBusProperty.cs" />
     <Compile Include="Distributor\MasterNode\DefaultMasterNodeAddress.cs" />
-    <Compile Include="Config\SiteCollection.cs" />
-    <Compile Include="Config\SiteConfig.cs" />
     <Compile Include="DataBus\DataBusReceiveBehavior.cs" />
     <Compile Include="DataBus\DataBusSendBehavior.cs" />
     <Compile Include="Encryption\MemberInfoExtensions.cs" />
@@ -122,11 +119,6 @@
     <Compile Include="Features\FeatureExtensions.cs" />
     <Compile Include="Features\FeatureStartupTask.cs" />
     <Compile Include="Features\SettingsExtentions.cs" />
-    <Compile Include="Gateway\Channels\DataReceivedOnChannelArgs.cs" />
-    <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
-    <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReader.cs" />
-    <Compile Include="Gateway\Sending\CallType.cs" />
-    <Compile Include="Gateway\GatewayTransaction.cs" />
     <Compile Include="GitFlowVersion.cs" />
     <Compile Include="HandlerOrdering\First.cs" />
     <Compile Include="HandlerOrdering\ISpecifyMessageHandlerOrdering.cs" />
@@ -154,7 +146,6 @@
     <Compile Include="IMessageModule.cs" />
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="INeedInitialization.cs" />
-    <Compile Include="Gateway\GatewayHttpListenerInstaller.cs" />
     <Compile Include="Persistence\EnabledPersistences.cs" />
     <Compile Include="Persistence\Msmq\Msmq.cs" />
     <Compile Include="Persistence\Msmq\MsmqPersistence.cs" />
@@ -212,7 +203,6 @@
     <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionPersistence.cs" />
     <Compile Include="Persistence\InMemory\TimeoutPersister\InMemoryTimeoutPersistence.cs" />
     <Compile Include="Unicast\Monitoring\PerformanceMonitorUsersInstaller.cs" />
-    <Compile Include="Gateway\GatewayExtensions.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayDeduplication.cs" />
     <Compile Include="Persistence\PersistenceConfiguration.cs" />
     <Compile Include="Persistence\PersistenceDefinition.cs" />
@@ -306,12 +296,6 @@
     <Compile Include="ConfigureFileShareDataBus.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
     <Compile Include="Features\FeatureActivator.cs" />
-    <Compile Include="Gateway\Channels\ChannelTypeAttribute.cs" />
-    <Compile Include="Gateway\Deduplication\GatewayMessage.cs" />
-    <Compile Include="Gateway\Deduplication\IDeduplicateMessages.cs" />
-    <Compile Include="Gateway\HeaderManagement\DataBusHeaderManager.cs" />
-    <Compile Include="Gateway\Receiving\SingleCallChannelReceiver.cs" />
-    <Compile Include="Gateway\Sending\SingleCallChannelForwarder.cs" />
     <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerializerConfigurationExtensions.cs" />
@@ -327,7 +311,6 @@
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />
     <Compile Include="Unicast\Messages\DeserializeLogicalMessagesBehavior.cs" />
-    <Compile Include="Gateway\Gateway.cs" />
     <Compile Include="Hosting\Profiles\IHandleAnyProfile.cs" />
     <Compile Include="Persistence\InMemory\InMemoryPersistence.cs" />
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySagaPersister.cs" />
@@ -348,7 +331,6 @@
     <Compile Include="Config\ConfigurationSource\IConfigurationSource.cs" />
     <Compile Include="Config\Conventions\EndpointHelper.cs" />
     <Compile Include="Config\ConfigureExtensions.cs" />
-    <Compile Include="Config\GatewayConfig.cs" />
     <Compile Include="Config\IWantToRunWhenConfigurationIsComplete.cs" />
     <Compile Include="Logging\Logging.cs" />
     <Compile Include="Distributor\MasterNode\MasterNodeConfig.cs" />
@@ -399,39 +381,6 @@
     <Compile Include="Faults\Forwarder\FaultManager.cs" />
     <Compile Include="Faults\IManageMessageFailures.cs" />
     <Compile Include="Faults\InMemory\FaultManager.cs" />
-    <Compile Include="Gateway\Channels\Channel.cs" />
-    <Compile Include="Gateway\Channels\ChannelFactory.cs" />
-    <Compile Include="Gateway\Channels\Http\DefaultResponder.cs" />
-    <Compile Include="Gateway\Receiving\ChannelException.cs" />
-    <Compile Include="Gateway\Channels\Http\HttpChannelReceiver.cs" />
-    <Compile Include="Gateway\Channels\Http\HttpChannelSender.cs" />
-    <Compile Include="Gateway\Channels\Http\HttpHeaders.cs" />
-    <Compile Include="Gateway\Channels\Http\IHttpResponder.cs" />
-    <Compile Include="Gateway\Channels\IChannelReceiver.cs" />
-    <Compile Include="Gateway\Channels\IChannelSender.cs" />
-    <Compile Include="Gateway\HeaderManagement\GatewayHeaderManager.cs" />
-    <Compile Include="Gateway\HeaderManagement\GatewayHeaders.cs" />
-    <Compile Include="Gateway\HeaderManagement\HeaderMapper.cs" />
-    <Compile Include="Gateway\Notifications\IMessageNotifier.cs" />
-    <Compile Include="Gateway\Notifications\INotifyAboutMessages.cs" />
-    <Compile Include="Gateway\Notifications\MessageNotifier.cs" />
-    <Compile Include="Gateway\Notifications\MessageReceivedOnChannelArgs.cs" />
-    <Compile Include="Gateway\Receiving\ConfigurationBasedChannelManager.cs" />
-    <Compile Include="Gateway\Receiving\ConventionBasedChannelManager.cs" />
-    <Compile Include="Gateway\Receiving\GatewayReceiver.cs" />
-    <Compile Include="Gateway\Receiving\IManageReceiveChannels.cs" />
-    <Compile Include="Gateway\Receiving\IReceiveMessagesFromSites.cs" />
-    <Compile Include="Gateway\Routing\Endpoints\DefaultEndpointRouter.cs" />
-    <Compile Include="Gateway\Routing\IRouteMessagesToEndpoints.cs" />
-    <Compile Include="Gateway\Routing\IRouteMessagesToSites.cs" />
-    <Compile Include="Gateway\Routing\Site.cs" />
-    <Compile Include="Gateway\Routing\Sites\ConfigurationBasedSiteRouter.cs" />
-    <Compile Include="Gateway\Routing\Sites\KeyPrefixConventionSiteRouter.cs" />
-    <Compile Include="Gateway\Routing\Sites\OriginatingSiteHeaderRouter.cs" />
-    <Compile Include="Gateway\Sending\CallInfo.cs" />
-    <Compile Include="Gateway\Sending\GatewaySender.cs" />
-    <Compile Include="Gateway\Sending\IForwardMessagesToSites.cs" />
-    <Compile Include="Gateway\Utils\Hasher.cs" />
     <Compile Include="Hosting\Configuration\EndpointNameAttribute.cs" />
     <Compile Include="Hosting\Configuration\EndpointSLAAttribute.cs" />
     <Compile Include="Hosting\Configuration\IConfigureThisEndpoint.cs" />
@@ -526,7 +475,6 @@
     <Compile Include="Logging\SetLoggingLibrary.cs" />
     <Compile Include="Settings\EndpointSettings.cs" />
     <Compile Include="Settings\TransactionSettings.cs" />
-    <Compile Include="Gateway\Channels\Http\MTATaskScheduler.cs" />
     <Compile Include="Timeout\Core\DefaultTimeoutManager.cs" />
     <Compile Include="Timeout\Core\IPersistTimeouts.cs" />
     <Compile Include="Timeout\Core\TimeoutData.cs" />
