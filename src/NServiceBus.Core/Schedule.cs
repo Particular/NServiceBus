@@ -1,34 +1,47 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
+    using ObjectBuilder;
     using Scheduling;
 
-    public class Schedule
-    {        
-        IScheduler scheduler;
-        ScheduledTask scheduledTask;
+    /// <summary>
+    /// Scheduling capability to schedule a task (as an <see cref="System.Action"/>) to be executed repeatedly in a given interval.
+    /// </summary>
+    /// <remarks>This is a in-memory list of <see cref="System.Action"/>s.</remarks>
+    public partial class Schedule
+    {
+        IBuilder builder;
 
-        Schedule(TimeSpan timeSpan)
-        {            
-            scheduler = Configure.Instance.Builder.Build<IScheduler>();
-            scheduledTask = new ScheduledTask { Every = timeSpan };
-        }
-
-        public static Schedule Every(TimeSpan timeSpan)
+        /// <summary>
+        /// Builds a new instance of <see cref="Schedule"/>.
+        /// </summary>
+        /// <param name="builder">The <see cref="IBuilder"/>.</param>
+        public Schedule(IBuilder builder)
         {
-            return new Schedule(timeSpan);
+            this.builder = builder;
         }
 
-        public void Action(Action task)
-        {            
-            Action(task.Method.DeclaringType.Name, task);
-        }
-
-        public void Action(string name, Action task)
+        /// <summary>
+        /// Schedules a task to be executed repeatedly in a given interval.
+        /// </summary>
+        /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task"/>.</param>
+        /// <param name="task">The <see cref="System.Action"/> to execute.</param>
+        public void Every(TimeSpan timeSpan, Action task)
         {
-            scheduledTask.Task = task;
-            scheduledTask.Name = name;
-            scheduler.Schedule(scheduledTask);            
+            Every(timeSpan, task.Method.DeclaringType.Name, task);
         }
+
+        /// <summary>
+        /// Schedules a task to be executed repeatedly in a given interval.
+        /// </summary>
+        /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task"/>.</param>
+        /// <param name="task">The <see cref="System.Action"/> to execute.</param>
+        /// <param name="name">The name to use to when creating the <see cref="Thread"/>.</param>
+        public void Every(TimeSpan timeSpan, string name, Action task)
+        {
+            builder.Build<IScheduler>().Schedule(new ScheduledTask { Every = timeSpan, Name = name, Task = task });
+        }
+
     }
 }

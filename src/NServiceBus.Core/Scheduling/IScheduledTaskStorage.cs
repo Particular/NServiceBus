@@ -3,7 +3,7 @@ namespace NServiceBus.Scheduling
     using System;
     using System.Collections.Generic;
 
-    public interface IScheduledTaskStorage
+    interface IScheduledTaskStorage
     {
         void Add(ScheduledTask scheduledTask);
         ScheduledTask Get(Guid taskId);

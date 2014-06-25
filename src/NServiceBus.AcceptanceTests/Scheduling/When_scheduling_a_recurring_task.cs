@@ -4,6 +4,7 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
+    using ObjectBuilder;
     using ScenarioDescriptors;
 
     public class When_scheduling_a_recurring_task : NServiceBusAcceptanceTest
@@ -32,22 +33,20 @@
 
             class SetupScheduledAction : IWantToRunWhenBusStartsAndStops
             {
+                public Schedule Schedule { get; set; }
+                public IBuilder Builder { get; set; }
                 public void Start()
                 {
-                    Schedule.Every(TimeSpan.FromSeconds(5))
-                       .Action("MyTask", () =>
-                       {
-                           Console.Out.WriteLine("Task invoked");
-#pragma warning disable 0618
-                           Configure.Instance.Builder.Build<Context>()
-                                    .ScheduleActionInvoked = true;
-#pragma warning restore 0618
-                       });
+                    Schedule.Every(TimeSpan.FromSeconds(5), "MyTask", () =>
+                    {
+                        Console.Out.WriteLine("Task invoked");
+                        Builder.Build<Context>()
+                            .ScheduleActionInvoked = true;
+                    });
                 }
 
                 public void Stop()
                 {
-
                 }
             }
         }
