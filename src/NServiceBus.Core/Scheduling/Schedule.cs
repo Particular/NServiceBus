@@ -40,7 +40,7 @@ namespace NServiceBus
         /// <param name="name">The name to use to when creating the <see cref="Thread"/>.</param>
         public void Every(TimeSpan timeSpan, string name, Action task)
         {
-            builder.Build<DefaultScheduler>().Schedule(new ScheduledTask { Every = timeSpan, Name = name, Task = task });
+            builder.Build<DefaultScheduler>().Schedule(new TaskDefinition { Every = timeSpan, Name = name, Task = task });
         }
 
     }

@@ -151,8 +151,9 @@
     <Compile Include="Persistence\Msmq\MsmqPersistence.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
-    <Compile Include="Schedule_Obsolete.cs" />
+    <Compile Include="Scheduling\Schedule_Obsolete.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
+    <Compile Include="Scheduling\TaskDefinition.cs" />
     <Compile Include="Serialization\SerializationConfigExtensions.cs" />
     <Compile Include="Serialization\SerializationConfiguration.cs" />
     <Compile Include="Serialization\SerializationDefinition.cs" />
@@ -450,7 +451,7 @@
     <Compile Include="Satellites\ISatellite.cs" />
     <Compile Include="Satellites\SatellitesQueuesCreator.cs" />
     <Compile Include="Satellites\SatelliteLauncher.cs" />
-    <Compile Include="Schedule.cs" />
+    <Compile Include="Scheduling\Schedule.cs" />
     <Compile Include="Scheduling\DefaultScheduler.cs" />
     <Compile Include="Scheduling\InMemoryScheduledTaskStorage.cs" />
     <Compile Include="Scheduling\Messages\ScheduledTask.cs" />
