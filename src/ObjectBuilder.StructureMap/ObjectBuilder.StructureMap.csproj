@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigureStructureMapBuilder.cs" />
+    <Compile Include="StructureMap.cs" />
     <Compile Include="StructureMapExtensions.cs" />
     <Compile Include="StructureMapObjectBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

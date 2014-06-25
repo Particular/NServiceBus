@@ -8,13 +8,14 @@ namespace NServiceBus
     using System.Web;
     using Config.ConfigurationSource;
     using Config.Conventions;
+    using Container;
     using ObjectBuilder.Autofac;
     using ObjectBuilder.Common;
     using Settings;
     using Utils.Reflection;
 
     /// <summary>
-    /// Builder that construct the endpoint configuration.
+    ///     Builder that construct the endpoint configuration.
     /// </summary>
     public class ConfigurationBuilder
     {
@@ -110,31 +111,32 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Defines a custom builder to use
+        ///     Defines a custom builder to use
         /// </summary>
         /// <typeparam name="T">The builder type</typeparam>
         /// <returns></returns>
-        public ConfigurationBuilder UseContainer<T>() where T : IContainer
+        public ConfigurationBuilder UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
+            if (customizations != null)
+            {
+                customizations(new ContainerCustomizations(settings));
+            }
+
             return UseContainer(typeof(T));
         }
 
-
-
         /// <summary>
-        /// Defines a custom builder to use
+        ///     Defines a custom builder to use
         /// </summary>
-        /// <param name="builderType">The type of the builder</param>
+        /// <param name="definitionType">The type of the builder</param>
         /// <returns></returns>
-        public ConfigurationBuilder UseContainer(Type builderType)
+        public ConfigurationBuilder UseContainer(Type definitionType)
         {
-            UseContainer(builderType.Construct<IContainer>());
-
-            return this;
+            return UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(settings));
         }
 
         /// <summary>
-        /// Uses an already active instance of a builder
+        ///     Uses an already active instance of a builder
         /// </summary>
         /// <param name="builder">The instance to use</param>
         /// <returns></returns>
@@ -144,6 +146,7 @@ namespace NServiceBus
 
             return this;
         }
+
         /// <summary>
         ///     Creates the configuration object
         /// </summary>
@@ -176,7 +179,6 @@ namespace NServiceBus
                 }
             }
             var container = customBuilder ?? new AutofacObjectBuilder();
-            var settings = new SettingsHolder();
             settings.SetDefault("EndpointName", endpointName);
             settings.SetDefault("TypesToScan", scannedTypes);
             settings.SetDefault("EndpointVersion", version);
@@ -190,13 +192,14 @@ namespace NServiceBus
             return new Configure(settings, container);
         }
 
-        IContainer customBuilder;
         IConfigurationSource configurationSourceToUse;
         Configure.ConventionsBuilder conventionsBuilder = new Configure.ConventionsBuilder();
+        IContainer customBuilder;
         string directory;
         string endpointName;
         Func<string> getEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
         Func<string> getEndpointVersionAction = () => EndpointHelper.GetEndpointVersion();
         IList<Type> scannedTypes;
+        SettingsHolder settings = new SettingsHolder();
     }
 }
