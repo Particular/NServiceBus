@@ -9,7 +9,7 @@
     public static class WindsorExtensions
     {
         /// <summary>
-        /// Use the Windsor passing in a pre-configured container to be used by NServiceBus.
+        /// Use a pre-configured native Windsor container.
         /// </summary>
         /// <param name="customizations"></param>
         /// <param name="container">The existing container instance.</param>

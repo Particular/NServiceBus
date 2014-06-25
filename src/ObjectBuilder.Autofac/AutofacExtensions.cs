@@ -9,13 +9,13 @@ namespace NServiceBus
     public static class AutofacExtensions
     {
         /// <summary>
-        /// Use the Autofac passing in a pre-configured container to be used by NServiceBus.
+        /// Use the a pre-configured AutoFac lifetime scope.
         /// </summary>
         /// <param name="customizations"></param>
-        /// <param name="container">The existing container instance.</param>
-        public static void ExistingContainer(this ContainerCustomizations customizations, ILifetimeScope container)
+        /// <param name="lifetimeScope">The existing lifetime scope to use.</param>
+        public static void ExistingLifetimeScope(this ContainerCustomizations customizations, ILifetimeScope lifetimeScope)
         {
-            customizations.Settings.Set("ExistingContainer", container);
+            customizations.Settings.Set("ExistingLifetimeScope", lifetimeScope);
         }
     }
 }

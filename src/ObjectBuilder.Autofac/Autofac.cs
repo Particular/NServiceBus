@@ -17,11 +17,11 @@ namespace NServiceBus
         /// <returns>The new container wrapper.</returns>
         public override ObjectBuilder.Common.IContainer CreateContainer(ReadOnlySettings settings)
         {
-            ILifetimeScope existingContainer;
+            ILifetimeScope existingLifetimeScope;
 
-            if (settings.TryGet("ExistingContainer", out existingContainer))
+            if (settings.TryGet("ExistingLifetimeScope", out existingLifetimeScope))
             {
-                return new AutofacObjectBuilder(existingContainer);
+                return new AutofacObjectBuilder(existingLifetimeScope);
 
             }
 

@@ -61,10 +61,10 @@ namespace NServiceBus
     public static class StructureMapExtensions
     {
         /// <summary>
-        /// Use the Spring passing in a pre-configured container to be used by NServiceBus.
+        /// Use a pre-configured native StructureMap container to be used.
         /// </summary>
         /// <param name="customizations"></param>
-        /// <param name="container">The existing container instance.</param>
+        /// <param name="container">The existing native container instance.</param>
         public static void ExistingContainer(this ContainerCustomizations customizations, IContainer container)
         {
             customizations.Settings.Set("ExistingContainer", container);

@@ -10,14 +10,14 @@
     public static class SpringExtensions
     {
         /// <summary>
-        /// Use the Spring passing in a pre-configured container to be used by NServiceBus.
+        /// Use a pre-configured Spring application context
         /// </summary>
         /// <param name="customizations"></param>
-        /// <param name="container">The existing container instance.</param>
+        /// <param name="applicationContext">The existing application context.</param>
         [CLSCompliant(false)]
-        public static void ExistingContainer(this ContainerCustomizations customizations, GenericApplicationContext container)
+        public static void ExistingApplicationContext(this ContainerCustomizations customizations, GenericApplicationContext applicationContext)
         {
-            customizations.Settings.Set("ExistingContainer", container);
+            customizations.Settings.Set("ExistingContext", applicationContext);
         }
     }
 }

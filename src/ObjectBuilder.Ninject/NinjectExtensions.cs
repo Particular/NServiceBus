@@ -9,13 +9,13 @@
     public static class NinjectExtensions
     {
         /// <summary>
-        /// Use the Ninject passing in a pre-configured container to be used by NServiceBus.
+        /// Use a pre-configured Ninject kernel
         /// </summary>
         /// <param name="customizations"></param>
-        /// <param name="container">The existing container instance.</param>
-        public static void ExistingContainer(this ContainerCustomizations customizations, IKernel container)
+        /// <param name="kernel">The existing container instance.</param>
+        public static void ExistingKernel(this ContainerCustomizations customizations, IKernel kernel)
         {
-            customizations.Settings.Set("ExistingContainer", container);
+            customizations.Settings.Set("ExistingKernel", kernel);
         }
     }
 }

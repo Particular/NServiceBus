@@ -17,11 +17,11 @@ namespace NServiceBus
         /// <returns>The new container wrapper.</returns>
         public override ObjectBuilder.Common.IContainer CreateContainer(ReadOnlySettings settings)
         {
-            GenericApplicationContext existingContainer;
+            GenericApplicationContext existingContext;
 
-            if (settings.TryGet("ExistingContainer", out existingContainer))
+            if (settings.TryGet("ExistingContext", out existingContext))
             {
-                return new SpringObjectBuilder(existingContainer);
+                return new SpringObjectBuilder(existingContext);
 
             }
 

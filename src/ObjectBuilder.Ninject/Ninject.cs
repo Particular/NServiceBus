@@ -17,11 +17,11 @@
         /// <returns>The new container wrapper.</returns>
         public override ObjectBuilder.Common.IContainer CreateContainer(ReadOnlySettings settings)
         {
-            IKernel existingContainer;
+            IKernel existingKernel;
 
-            if (settings.TryGet("ExistingContainer", out existingContainer))
+            if (settings.TryGet("ExistingKernel", out existingKernel))
             {
-                return new NinjectObjectBuilder(existingContainer);
+                return new NinjectObjectBuilder(existingKernel);
 
             }
 
