@@ -13,7 +13,7 @@
         /// </summary>
         /// <param name="config">The extended Configure.</param>
         /// <returns>The Configure.</returns>
-        [Obsolete("Replace with Configure.With(c=>.UseContainer<NinjectObjectBuilder>())", true)]
+        [Obsolete("Replace with Configure.With(c=>.UseContainer<NServiceBus.Ninject>())", true)]
 // ReSharper disable UnusedParameter.Global
         public static Configure NinjectBuilder(this Configure config)
 // ReSharper restore UnusedParameter.Global
@@ -27,7 +27,7 @@
         /// <param name="config">The extended Configure.</param>
         /// <param name="kernel">The kernel.</param>
         /// <returns>The Configure.</returns>
-        [Obsolete("Replace with Configure.With(c=>.UseContainer(new NinjectObjectBuilder(container)))", true)]
+        [Obsolete("Replace with Configure.With(c => c.UseContainer<NServiceBus.Ninject>(b => b.ExistingKernel(kernel)))", true)]
 // ReSharper disable UnusedParameter.Global
         public static Configure NinjectBuilder(this Configure config, IKernel kernel)
 // ReSharper restore UnusedParameter.Global

@@ -8,7 +8,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
     /// <summary>
     /// Extensions to the StructureMap api
     /// </summary>
-    public static class StructureMapExtensions
+    static class StructureMapExtensions
     {
         /// <summary>
         /// Registers the given interface and redirects to the given pluginType when the interface is requested

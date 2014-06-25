@@ -13,7 +13,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The configuration context.</param>
         /// <returns>The configuration context.</returns>
-        [Obsolete("Replace with Configure.With(c=>.UseContainer<AutofacObjectBuilder>())", true)]
+        [Obsolete("Replace with Configure.With(c=>.UseContainer<NServiceBus.Autofac>())", true)]
 // ReSharper disable once UnusedParameter.Global
         public static Configure AutofacBuilder(this Configure config)
         {
@@ -26,7 +26,7 @@ namespace NServiceBus
         /// <param name="config">The configuration context.</param>
         /// <param name="rootScope">The root-most lifetime scope.</param>
         /// <returns>The configuration context.</returns>
-        [Obsolete("Replace with Configure.With(c=>.UseContainer(new AutofacObjectBuilder()))", true)]
+        [Obsolete("Replace with Configure.With(c => c.UseContainer<NServiceBus.Autofac>(b => b.ExistingLifetimeScope(rootScope)))", true)]
 // ReSharper disable UnusedParameter.Global
         public static Configure AutofacBuilder(this Configure config, ILifetimeScope rootScope)
 // ReSharper restore UnusedParameter.Global
