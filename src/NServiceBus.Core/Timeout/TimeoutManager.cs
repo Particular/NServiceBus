@@ -14,7 +14,7 @@
         {
             DependsOn<TimeoutManagerBasedDeferral>();
             
-            //send only endpoints deosn't need a a timeout manager
+            //send only endpoints doesn't need a a timeout manager
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"));
             
             //if we have a master node configured we should use the Master Node timeout manager instead

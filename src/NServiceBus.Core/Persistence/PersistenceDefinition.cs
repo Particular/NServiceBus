@@ -9,7 +9,7 @@
     public abstract class PersistenceDefinition
     {
         /// <summary>
-        /// Used be the storage definitions to declare what they suppoprt
+        /// Used be the storage definitions to declare what they support
         /// </summary>
         /// <param name="supported"></param>
         protected void Supports(params Storage[] supported)
