@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Tests.DataBus
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using NServiceBus.DataBus;
     using NServiceBus.DataBus.InMemory;
@@ -48,7 +49,7 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public void Should_throw_if_propertyType_is_not_serializable()
         {
-            if (!System.Diagnostics.Debugger.IsAttached)
+            if (!Debugger.IsAttached)
             {
                 Assert.Ignore("This only work in debug mode.");
             }
@@ -60,8 +61,8 @@ namespace NServiceBus.Core.Tests.DataBus
                 {
                     typeof(MessageWithNonSerializableDataBusProperty)
                 });
-            })
-                .DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"));
+                o.Conventions(c => c.DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus")));
+            });
 
             var feature = new DataBusFeature();
 
@@ -71,7 +72,7 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public void Should_not_throw_propertyType_is_not_serializable_if_a_IDataBusSerializer_is_already_registered()
         {
-            if (!System.Diagnostics.Debugger.IsAttached)
+            if (!Debugger.IsAttached)
             {
                 Assert.Ignore("This only work in debug mode.");
             }
@@ -83,8 +84,8 @@ namespace NServiceBus.Core.Tests.DataBus
                 {
                     typeof(MessageWithNonSerializableDataBusProperty)
                 });
-            })
-                .DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"));
+                o.Conventions(c => c.DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus")));
+            });
             
             config.Configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
 
