@@ -2,19 +2,8 @@ namespace NServiceBus
 {
     using System;
 
-    /// <summary>
-    /// Generates <see cref="System.Guid"/> values using a strategy suggested from http://www.informit.com/articles/article.asp?p=25862
-    /// </summary>
-    /// <remarks>
-    /// <p>
-    /// The <c>comb</c> algorithm is designed to make the use of <see cref="Guid"/>s as Primary Keys, Foreign Keys, 
-    /// and Indexes nearly as efficient as ints.
-    /// </p>
-    /// <p>
-    /// This code was modified based on Donald Mull's contributor to the
-    /// NHibernate source.
-    /// </p>
-    /// </remarks>
+    // Generates a Guid using http://www.informit.com/articles/article.asp?p=25862
+    // The Comb algorithm is designed to make the use of Guids as Primary Keys, Foreign Keys, and Indexes nearly as efficient as ints.
     static class CombGuid
     {
         /// <summary>
