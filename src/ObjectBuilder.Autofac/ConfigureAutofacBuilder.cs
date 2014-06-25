@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
     using System;
-    using Autofac;
+    using global::Autofac;
 
     /// <summary>
     /// Contains extension methods to <see cref="Configure"/>.
