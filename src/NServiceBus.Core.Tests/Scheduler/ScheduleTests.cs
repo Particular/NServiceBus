@@ -11,23 +11,23 @@
     [TestFixture]
     public class ScheduleTests
     {
-        private const string ACTION_NAME = "my action";
-        private FuncBuilder _builder = new FuncBuilder();
-        private FakeBus _bus = new FakeBus();
+        const string ACTION_NAME = "my action";
+        FuncBuilder builder = new FuncBuilder();
+        FakeBus bus = new FakeBus();
         Schedule schedule;
 
-        private readonly InMemoryScheduledTaskStorage _taskStorage = new InMemoryScheduledTaskStorage();        
+        InMemoryScheduledTaskStorage taskStorage = new InMemoryScheduledTaskStorage();        
 
         [SetUp]
         public void SetUp()
         {
-            Configure.With(o=>o.AssembliesToScan(new Assembly[0]).UseContainer(_builder));
+            Configure.With(o=>o.AssembliesToScan(new Assembly[0]).UseContainer(builder));
 
-            _builder.Register<IBus>(() => _bus);
-            _builder.Register<IScheduledTaskStorage>(() => _taskStorage);
-            _builder.Register<IScheduler>(() => new DefaultScheduler(_bus, _taskStorage));
+            builder.Register<IBus>(() => bus);
+            builder.Register<IScheduledTaskStorage>(() => taskStorage);
+            builder.Register<IScheduler>(() => new DefaultScheduler(bus, taskStorage));
 
-            schedule = new Schedule(_builder);
+            schedule = new Schedule(builder);
         }
 
         [Test]
@@ -49,18 +49,18 @@
         {
             Parallel.For(0, 20, i => schedule.Every(TimeSpan.FromSeconds(1), () => { }));
             
-            _bus.DeferWasCalled = 0;
+            bus.DeferWasCalled = 0;
 
-            Parallel.ForEach(_taskStorage.Tasks,
-                              t => new ScheduledTaskMessageHandler(new DefaultScheduler(_bus, _taskStorage)).Handle(
+            Parallel.ForEach(taskStorage.Tasks,
+                              t => new ScheduledTaskMessageHandler(new DefaultScheduler(bus, taskStorage)).Handle(
                                   new Messages.ScheduledTask { TaskId = t.Key }));
 
-            Assert.That(_bus.DeferWasCalled, Is.EqualTo(20));
+            Assert.That(bus.DeferWasCalled, Is.EqualTo(20));
         }
 
-        private bool EnsureThatNameExists(string name)
+        bool EnsureThatNameExists(string name)
         {
-            return _taskStorage.Tasks.Any(task => task.Value.Name.Equals(name));
+            return taskStorage.Tasks.Any(task => task.Value.Name.Equals(name));
         }
     }
 }
