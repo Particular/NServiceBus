@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using Castle.Windsor;
+    using Container;
 
     /// <summary>
     /// Windsor extension to pass an existing Windsor container instance.

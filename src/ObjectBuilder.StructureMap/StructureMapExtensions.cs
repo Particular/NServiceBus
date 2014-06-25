@@ -52,6 +52,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
 namespace NServiceBus
 {
+    using Container;
     using global::StructureMap;
 
     /// <summary>

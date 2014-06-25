@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using Container;
     using global::Spring.Context.Support;
 
     /// <summary>

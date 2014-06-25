@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using Container;
     using global::Autofac;
 
     /// <summary>

@@ -8,6 +8,7 @@ namespace NServiceBus
     using System.Web;
     using Config.ConfigurationSource;
     using Config.Conventions;
+    using Container;
     using ObjectBuilder.Autofac;
     using ObjectBuilder.Common;
     using Settings;
@@ -202,34 +203,5 @@ namespace NServiceBus
         Func<string> getEndpointVersionAction = () => EndpointHelper.GetEndpointVersion();
         IList<Type> scannedTypes;
         SettingsHolder settings = new SettingsHolder();
-    }
-
-    /// <summary>
-    ///     Container customization.
-    /// </summary>
-    public class ContainerCustomizations
-    {
-        internal ContainerCustomizations(SettingsHolder settings)
-        {
-            Settings = settings;
-        }
-
-        /// <summary>
-        ///     The settings instance to use to store an existing container instance.
-        /// </summary>
-        public SettingsHolder Settings { get; private set; }
-    }
-
-    /// <summary>
-    ///     Base class for container definitions.
-    /// </summary>
-    public abstract class ContainerDefinition
-    {
-        /// <summary>
-        ///     Implementers need to new up a new container.
-        /// </summary>
-        /// <param name="settings">The settings to check if an existing container exists.</param>
-        /// <returns>The new container wrapper.</returns>
-        public abstract IContainer CreateContainer(ReadOnlySettings settings);
     }
 }

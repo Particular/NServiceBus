@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using Castle.Windsor;
+    using Container;
     using ObjectBuilder.CastleWindsor;
     using Settings;
 
