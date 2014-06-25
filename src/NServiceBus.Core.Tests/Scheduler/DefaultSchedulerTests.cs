@@ -9,7 +9,7 @@
     {
         FakeBus bus = new FakeBus();
         InMemoryScheduledTaskStorage taskStorage = new InMemoryScheduledTaskStorage();
-        IScheduler scheduler;
+        DefaultScheduler scheduler;
 
         [SetUp]
         public void SetUp()

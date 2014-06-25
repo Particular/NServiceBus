@@ -6,7 +6,7 @@ namespace NServiceBus.Scheduling
     using System.Threading.Tasks;
     using Logging;
 
-    class DefaultScheduler : IScheduler
+    class DefaultScheduler 
     {
         static ILog logger = LogManager.GetLogger<DefaultScheduler>();
 

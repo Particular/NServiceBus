@@ -7,12 +7,11 @@
     [TestFixture]
     public class ScheduledTaskMessageHandlerTests
     {
-        private FakeBus _bus = new FakeBus();
-        private InMemoryScheduledTaskStorage _taskStorage = new InMemoryScheduledTaskStorage();
-        private IScheduler _scheduler;
-        private ScheduledTaskMessageHandler _handler;
-
-        private Guid _taskId;
+        FakeBus _bus = new FakeBus();
+        InMemoryScheduledTaskStorage _taskStorage = new InMemoryScheduledTaskStorage();
+        DefaultScheduler _scheduler;
+        ScheduledTaskMessageHandler _handler;
+        Guid _taskId;
 
         [SetUp]
         public void SetUp()

@@ -25,7 +25,7 @@
 
             builder.Register<IBus>(() => bus);
             builder.Register<InMemoryScheduledTaskStorage>(() => taskStorage);
-            builder.Register<IScheduler>(() => new DefaultScheduler(bus, taskStorage));
+            builder.Register<DefaultScheduler>(() => new DefaultScheduler(bus, taskStorage));
 
             schedule = new Schedule(builder);
         }
