@@ -25,7 +25,11 @@
                     {
                         context.SubscribedToMyEvent2 = true;
                     }
-                })).When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, bus => bus.Publish(new MyEvent1())))
+                })).When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, (bus, c) =>
+                {
+                    c.AddTrace("Publishing MyEvent1");
+                    bus.Publish(new MyEvent1());
+                }))
                 .WithEndpoint<Publisher2>(b => b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(args =>
                 {
                     if (args.MessageType.Contains(typeof(IMyEvent).Name))
@@ -96,6 +100,7 @@
 
                 public void Handle(IMyEvent messageThatIsEnlisted)
                 {
+                    Context.AddTrace(String.Format("Got event '{0}'", messageThatIsEnlisted));
                     if (messageThatIsEnlisted is MyEvent2)
                     {
                         Context.SubscriberGotMyEvent2 = true;
