@@ -8,7 +8,7 @@
     public class DefaultSchedulerTests
     {
         FakeBus bus = new FakeBus();
-        IScheduledTaskStorage taskStorage = new InMemoryScheduledTaskStorage();
+        InMemoryScheduledTaskStorage taskStorage = new InMemoryScheduledTaskStorage();
         IScheduler scheduler;
 
         [SetUp]

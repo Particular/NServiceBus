@@ -24,7 +24,7 @@
             Configure.With(o=>o.AssembliesToScan(new Assembly[0]).UseContainer(builder));
 
             builder.Register<IBus>(() => bus);
-            builder.Register<IScheduledTaskStorage>(() => taskStorage);
+            builder.Register<InMemoryScheduledTaskStorage>(() => taskStorage);
             builder.Register<IScheduler>(() => new DefaultScheduler(bus, taskStorage));
 
             schedule = new Schedule(builder);

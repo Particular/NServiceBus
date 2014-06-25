@@ -453,7 +453,6 @@
     <Compile Include="Schedule.cs" />
     <Compile Include="Scheduling\DefaultScheduler.cs" />
     <Compile Include="Scheduling\InMemoryScheduledTaskStorage.cs" />
-    <Compile Include="Scheduling\IScheduledTaskStorage.cs" />
     <Compile Include="Scheduling\IScheduler.cs" />
     <Compile Include="Scheduling\Messages\ScheduledTask.cs" />
     <Compile Include="Scheduling\ScheduledTask.cs" />

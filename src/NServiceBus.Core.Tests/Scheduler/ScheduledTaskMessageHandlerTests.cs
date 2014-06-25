@@ -8,7 +8,7 @@
     public class ScheduledTaskMessageHandlerTests
     {
         private FakeBus _bus = new FakeBus();
-        private IScheduledTaskStorage _taskStorage = new InMemoryScheduledTaskStorage();
+        private InMemoryScheduledTaskStorage _taskStorage = new InMemoryScheduledTaskStorage();
         private IScheduler _scheduler;
         private ScheduledTaskMessageHandler _handler;
 

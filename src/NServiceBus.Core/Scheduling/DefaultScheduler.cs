@@ -11,9 +11,9 @@ namespace NServiceBus.Scheduling
         static ILog logger = LogManager.GetLogger<DefaultScheduler>();
 
         IBus bus;
-        IScheduledTaskStorage scheduledTaskStorage;        
+        InMemoryScheduledTaskStorage scheduledTaskStorage;
 
-        public DefaultScheduler(IBus bus, IScheduledTaskStorage scheduledTaskStorage)
+        public DefaultScheduler(IBus bus, InMemoryScheduledTaskStorage scheduledTaskStorage)
         {
             this.bus = bus;
             this.scheduledTaskStorage = scheduledTaskStorage;
