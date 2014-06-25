@@ -115,7 +115,7 @@ namespace NServiceBus
         /// </summary>
         /// <typeparam name="T">The builder type</typeparam>
         /// <returns></returns>
-        public ConfigurationBuilder UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition
+        public ConfigurationBuilder UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
             if (customizations != null)
             {
@@ -132,9 +132,7 @@ namespace NServiceBus
         /// <returns></returns>
         public ConfigurationBuilder UseContainer(Type definitionType)
         {
-            customBuilder = definitionType.Construct<ContainerDefinition>().CreateContainer(settings);
-
-            return this;
+            return UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(settings));
         }
 
         /// <summary>
