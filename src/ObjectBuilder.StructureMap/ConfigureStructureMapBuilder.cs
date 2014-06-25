@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using StructureMap;
+    using ObjectBuilder.Common;
 
     /// <summary>
     /// Contains extension methods to <see cref="Configure"/>.

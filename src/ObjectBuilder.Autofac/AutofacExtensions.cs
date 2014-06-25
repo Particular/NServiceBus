@@ -3,7 +3,7 @@ namespace NServiceBus
     using global::Autofac;
 
     /// <summary>
-    /// Autofac extension to pass an exsiting Autofac container instance.
+    /// Autofac extension to pass an existing Autofac container instance.
     /// </summary>
     public static class AutofacExtensions
     {
@@ -11,10 +11,10 @@ namespace NServiceBus
         /// Use the Autofac passing in a pre-configured container to be used by NServiceBus.
         /// </summary>
         /// <param name="customizations"></param>
-        /// <param name="rootScope">The root-most lifetime scope.</param>
-        public static void ExistingContainer(this ContainerCustomizations customizations, ILifetimeScope rootScope)
+        /// <param name="container">The existing container instance.</param>
+        public static void ExistingContainer(this ContainerCustomizations customizations, ILifetimeScope container)
         {
-            customizations.Settings.Set("ExistingContainer", rootScope);
+            customizations.Settings.Set("ExistingContainer", container);
         }
     }
 }

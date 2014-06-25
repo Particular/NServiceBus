@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Ninject;
+    using global::Ninject;
 
     /// <summary>
     /// The static class which holds <see cref="NServiceBus"/> extensions methods.

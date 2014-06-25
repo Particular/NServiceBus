@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Spring.Context.Support;
+    using global::Spring.Context.Support;
 
     /// <summary>
     /// Contains extension methods to <see cref="Configure"/> for configuring the Spring container.
