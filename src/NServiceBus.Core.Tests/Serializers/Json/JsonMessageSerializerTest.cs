@@ -261,7 +261,7 @@ namespace NServiceBus.Serializers.Json.Tests
                 streamWriter.Flush();
                 stream.Position = 0;
 
-                var result = Serializer.Deserialize(stream);
+                var result = Serializer.Deserialize(stream, new[] { typeof(IA) });
                 Assert.IsNotEmpty(result);
                 Assert.That(result, Has.Length.EqualTo(2));
 
