@@ -31,7 +31,7 @@ namespace NServiceBus.Serializers.Json
             this.messageMapper = messageMapper;
         }
 
-        internal bool wrapMessagesInArray = false;
+        internal bool wrapMessagesInArray;
 
         /// <summary>
         /// Removes the wrapping array if serializing a single message 
