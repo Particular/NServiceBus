@@ -109,7 +109,6 @@ namespace NServiceBus.Config.Conventions
                 if (targetFrame != null)
                 {
                     entryType = targetFrame.GetMethod().ReflectedType;
-                    return;
                 }
             }
             finally
