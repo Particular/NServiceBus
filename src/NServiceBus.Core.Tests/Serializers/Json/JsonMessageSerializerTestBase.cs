@@ -90,12 +90,6 @@
 
             output.Position = 0;
 
-            var filename = string.Format("{0}.{1}.txt", GetType().Name, MethodBase.GetCurrentMethod().Name);
-
-            File.WriteAllBytes(filename, output.ToArray());
-
-            output.Position = 0;
-
             var result = Serializer.Deserialize(output);
 
             Assert.DoesNotThrow(() => output.Position = 0, "Stream should still be open");
