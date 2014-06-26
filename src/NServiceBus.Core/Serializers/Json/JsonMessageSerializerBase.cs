@@ -17,9 +17,9 @@ namespace NServiceBus.Serializers.Json
     /// </summary>
     public abstract class JsonMessageSerializerBase : IMessageSerializer
     {
-        private readonly IMessageMapper messageMapper;
+        IMessageMapper messageMapper;
 
-        readonly JsonSerializerSettings serializerSettings = new JsonSerializerSettings
+        JsonSerializerSettings serializerSettings = new JsonSerializerSettings
         {
             TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
             TypeNameHandling = TypeNameHandling.Auto,
@@ -30,7 +30,9 @@ namespace NServiceBus.Serializers.Json
         {
             this.messageMapper = messageMapper;
         }
-        
+
+        internal bool wrapMessagesInArray = false;
+
         /// <summary>
         /// Removes the wrapping array if serializing a single message 
         /// </summary>
@@ -49,7 +51,18 @@ namespace NServiceBus.Serializers.Json
 
             var jsonWriter = CreateJsonWriter(stream);
 
-            jsonSerializer.Serialize(jsonWriter, message);
+            if (wrapMessagesInArray)
+            {
+                var objects = new[]
+                {
+                    message
+                };
+                jsonSerializer.Serialize(jsonWriter, objects);
+            }
+            else
+            {
+                jsonSerializer.Serialize(jsonWriter, message);
+            }
 
             jsonWriter.Flush();
         }

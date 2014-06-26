@@ -16,6 +16,7 @@ namespace NServiceBus.Serializers.Json
         /// </summary>
         public BsonMessageSerializer(IMessageMapper messageMapper): base(messageMapper)
         {
+            wrapMessagesInArray = true;
         }
 
         protected override JsonWriter CreateJsonWriter(Stream stream)
