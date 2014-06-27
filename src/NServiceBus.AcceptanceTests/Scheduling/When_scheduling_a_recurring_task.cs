@@ -4,7 +4,6 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
-    using ObjectBuilder;
     using ScenarioDescriptors;
 
     public class When_scheduling_a_recurring_task : NServiceBusAcceptanceTest
@@ -14,14 +13,20 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<SchedulingEndpoint>()
-                    .Done(c => c.ScheduleActionInvoked)
+                    .Done(c => c.InvokedAt.HasValue)
                     .Repeat(r => r.For(Transports.Default))
-                  .Run();
+                    .Should(c =>
+                    {
+                        Assert.True(c.InvokedAt.HasValue);
+                        Assert.Greater(c.InvokedAt.Value - c.RequestedAt, TimeSpan.FromSeconds(5));
+                    })
+                  .Run(TimeSpan.FromSeconds(20));
         }
 
         public class Context : ScenarioContext
         {
-            public bool ScheduleActionInvoked { get; set; }
+            public DateTime? InvokedAt{ get; set; }
+            public DateTime RequestedAt{ get; set; }
         }
 
         public class SchedulingEndpoint : EndpointConfigurationBuilder
@@ -34,14 +39,14 @@
             class SetupScheduledAction : IWantToRunWhenBusStartsAndStops
             {
                 public Schedule Schedule { get; set; }
-                public IBuilder Builder { get; set; }
+                public Context Context { get; set; }
                 public void Start()
                 {
+                    Context.RequestedAt = DateTime.UtcNow;
+
                     Schedule.Every(TimeSpan.FromSeconds(5), "MyTask", () =>
                     {
-                        Console.Out.WriteLine("Task invoked");
-                        Builder.Build<Context>()
-                            .ScheduleActionInvoked = true;
+                        Context.InvokedAt = DateTime.UtcNow;
                     });
                 }
 
