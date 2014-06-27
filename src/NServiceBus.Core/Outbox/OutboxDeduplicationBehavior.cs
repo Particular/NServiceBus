@@ -83,10 +83,10 @@
         public class OutboxDeduplicationRegistration : RegisterBehavior
         {
             public OutboxDeduplicationRegistration()
-                : base("OutboxDeduplication", typeof(OutboxDeduplicationBehavior), "Deduplication for the outbox feature")
+                : base(Pipeline.PipelineStep.CreateCustom("OutboxDeduplication"), typeof(OutboxDeduplicationBehavior), "Deduplication for the outbox feature")
             {
-                InsertAfter(WellKnownBehavior.CreateChildContainer);
-                InsertBefore(WellKnownBehavior.ExecuteUnitOfWork);
+                InsertAfter(Pipeline.PipelineStep.CreateChildContainer);
+                InsertBefore(Pipeline.PipelineStep.ExecuteUnitOfWork);
             }
         }
     }

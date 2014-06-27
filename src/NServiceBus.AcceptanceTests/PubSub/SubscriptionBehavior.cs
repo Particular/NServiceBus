@@ -36,9 +36,9 @@
         internal class Registration : RegisterBehavior
         {
             public Registration()
-                : base("SubscriptionBehavior", typeof(SubscriptionBehavior), "So we can get subscription events")
+                : base(Pipeline.PipelineStep.CreateCustom("SubscriptionBehavior"), typeof(SubscriptionBehavior), "So we can get subscription events")
             {
-                InsertBefore(WellKnownBehavior.CreateChildContainer);
+                InsertBefore(Pipeline.PipelineStep.CreateChildContainer);
             }
         }
     }

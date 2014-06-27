@@ -78,7 +78,7 @@
         public class Registration : RegisterBehavior
         {
             public Registration()
-                : base("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing")
+                : base(Pipeline.PipelineStep.CreateCustom("BlowUpAfterDispatchBehavior"), typeof(BlowUpAfterDispatchBehavior), "For testing")
             {
                 InsertBefore("OutboxDeduplication");
             }

@@ -11,16 +11,16 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Initializes a new instance of the <see cref="RegisterBehavior"/> class.
         /// </summary>
-        /// <param name="id">The unique identifier for this <see cref="IBehavior{TContext}"/>.</param>
+        /// <param name="pipelineStep">The unique identifier for this <see cref="IBehavior{TContext}"/>.</param>
         /// <param name="behavior">The type of <see cref="IBehavior{TContext}"/> to register.</param>
         /// <param name="description">A brief description of what this <see cref="IBehavior{TContext}"/> does.</param>
-        protected RegisterBehavior(string id, Type behavior, string description)
+        protected RegisterBehavior(PipelineStep pipelineStep, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
-            if (String.IsNullOrEmpty(id))
+            if (String.IsNullOrEmpty(pipelineStep))
             {
-                throw new ArgumentNullException("id");
+                throw new ArgumentNullException("pipelineStep");
             }
 
             if (String.IsNullOrEmpty(description))
@@ -29,14 +29,14 @@ namespace NServiceBus.Pipeline
             }
 
             BehaviorType = behavior;
-            Id = id;
+            PipelineStep = pipelineStep;
             Description = description;
         }
 
         /// <summary>
         /// Gets the unique identifier for this <see cref="IBehavior{TContext}"/>.
         /// </summary>
-        public string Id { get; private set; }
+        public string PipelineStep { get; private set; }
         
         /// <summary>
         /// Gets the description for this registration.
@@ -124,15 +124,15 @@ namespace NServiceBus.Pipeline
             Afters.Add(new Dependency(id, true));
         }
 
-        internal static RegisterBehavior Create(string id, Type behavior, string description)
+        internal static RegisterBehavior Create(PipelineStep pipelineStep, Type behavior, string description)
         {
-            return new DefaultRegisterBehavior(behavior, id, description);
+            return new DefaultRegisterBehavior(behavior, pipelineStep, description);
         }
         
         class DefaultRegisterBehavior : RegisterBehavior
         {
-            public DefaultRegisterBehavior(Type behavior, string id, string description)
-                : base(id, behavior, description)
+            public DefaultRegisterBehavior(Type behavior, PipelineStep pipelineStep, string description)
+                : base(pipelineStep, behavior, description)
             {
             }
         }

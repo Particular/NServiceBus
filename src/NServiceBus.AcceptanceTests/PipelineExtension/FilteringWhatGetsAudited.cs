@@ -61,7 +61,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                 {
                     public void Init(Configure config)
                     {
-                        config.Pipeline.Register("SetFiltering", typeof(SetFiltering), "Filters audit entries");
+                        config.Pipeline.Register(PipelineStep.CreateCustom("SetFiltering"), typeof(SetFiltering), "Filters audit entries");
                     }
                 }
             }
@@ -96,7 +96,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                     public void Init(Configure config)
                     {
                         //we replace the default audit behavior with out own
-                        config.Pipeline.Replace(WellKnownBehavior.AuditProcessedMessage, typeof(FilteringAuditBehavior), "A new audit forwarder that has filtering");
+                        config.Pipeline.Replace(PipelineStep.AuditProcessedMessage, typeof(FilteringAuditBehavior), "A new audit forwarder that has filtering");
                     }
                 }
             }

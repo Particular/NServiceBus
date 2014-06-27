@@ -49,16 +49,16 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Register a new step into the pipeline.
         /// </summary>
-        /// <param name="id">The identifier of the new step to add.</param>
+        /// <param name="pipelineStep">The identifier of the new step to add.</param>
         /// <param name="behavior">The <see cref="IBehavior{TContext}"/> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
-        public void Register(string id, Type behavior, string description)
+        public void Register(PipelineStep pipelineStep, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
-            if (string.IsNullOrEmpty(id))
+            if (string.IsNullOrEmpty(pipelineStep))
             {
-                throw new ArgumentNullException("id");
+                throw new ArgumentNullException("pipelineStep");
             }
 
             if (string.IsNullOrEmpty(description))
@@ -66,7 +66,7 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("description");
             }
 
-            config.Settings.Get<PipelineModifications>().Additions.Add(RegisterBehavior.Create(id, behavior, description));
+            config.Settings.Get<PipelineModifications>().Additions.Add(RegisterBehavior.Create(pipelineStep, behavior, description));
         }
 
         /// <summary>
