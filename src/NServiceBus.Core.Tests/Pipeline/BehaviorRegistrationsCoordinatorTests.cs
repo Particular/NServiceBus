@@ -47,9 +47,9 @@ namespace NServiceBus.Core.Tests.Pipeline
 
             var model = coordinator.BuildRuntimeModel().ToList();
 
-            Assert.AreEqual("1", model[0].PipelineStep);
-            Assert.AreEqual("2", model[1].PipelineStep);
-            Assert.AreEqual("3", model[2].PipelineStep);
+            Assert.AreEqual("1", model[0].WellKnownStep);
+            Assert.AreEqual("2", model[1].WellKnownStep);
+            Assert.AreEqual("3", model[2].WellKnownStep);
         }
 
         [Test]
@@ -82,12 +82,12 @@ namespace NServiceBus.Core.Tests.Pipeline
             
             var model = coordinator.BuildRuntimeModel().ToList();
 
-            Assert.AreEqual("1", model[0].PipelineStep);
-            Assert.AreEqual("1.5", model[1].PipelineStep);
-            Assert.AreEqual("2", model[2].PipelineStep);
-            Assert.AreEqual("2.5", model[3].PipelineStep);
-            Assert.AreEqual("3", model[4].PipelineStep);
-            Assert.AreEqual("3.5", model[5].PipelineStep);
+            Assert.AreEqual("1", model[0].WellKnownStep);
+            Assert.AreEqual("1.5", model[1].WellKnownStep);
+            Assert.AreEqual("2", model[2].WellKnownStep);
+            Assert.AreEqual("2.5", model[3].WellKnownStep);
+            Assert.AreEqual("3", model[4].WellKnownStep);
+            Assert.AreEqual("3.5", model[5].WellKnownStep);
         }
 
         [Test]
@@ -102,11 +102,11 @@ namespace NServiceBus.Core.Tests.Pipeline
 
             var model = coordinator.BuildRuntimeModel().ToList();
 
-            Assert.AreEqual("1", model[0].PipelineStep);
-            Assert.AreEqual("1.5", model[1].PipelineStep);
-            Assert.AreEqual("2", model[2].PipelineStep);
-            Assert.AreEqual("2.5", model[3].PipelineStep);
-            Assert.AreEqual("3", model[4].PipelineStep);
+            Assert.AreEqual("1", model[0].WellKnownStep);
+            Assert.AreEqual("1.5", model[1].WellKnownStep);
+            Assert.AreEqual("2", model[2].WellKnownStep);
+            Assert.AreEqual("2.5", model[3].WellKnownStep);
+            Assert.AreEqual("3", model[4].WellKnownStep);
         }
 
         [Test]
@@ -122,12 +122,12 @@ namespace NServiceBus.Core.Tests.Pipeline
 
             var model = coordinator.BuildRuntimeModel().ToList();
 
-            Assert.AreEqual("1", model[0].PipelineStep);
-            Assert.AreEqual("1.5", model[1].PipelineStep);
-            Assert.AreEqual("2", model[2].PipelineStep);
-            Assert.AreEqual("2.5", model[3].PipelineStep);
-            Assert.AreEqual("3", model[4].PipelineStep);
-            Assert.AreEqual("3.5", model[5].PipelineStep);
+            Assert.AreEqual("1", model[0].WellKnownStep);
+            Assert.AreEqual("1.5", model[1].WellKnownStep);
+            Assert.AreEqual("2", model[2].WellKnownStep);
+            Assert.AreEqual("2.5", model[3].WellKnownStep);
+            Assert.AreEqual("3", model[4].WellKnownStep);
+            Assert.AreEqual("3.5", model[5].WellKnownStep);
         }
 
         [Test]
@@ -143,18 +143,18 @@ namespace NServiceBus.Core.Tests.Pipeline
 
             var model = coordinator.BuildRuntimeModel().ToList();
 
-            Assert.AreEqual("1", model[0].PipelineStep);
-            Assert.AreEqual("1.1", model[1].PipelineStep);
-            Assert.AreEqual("1.5", model[2].PipelineStep);
-            Assert.AreEqual("1.6", model[3].PipelineStep);
-            Assert.AreEqual("2", model[4].PipelineStep);
-            Assert.AreEqual("3", model[5].PipelineStep);
+            Assert.AreEqual("1", model[0].WellKnownStep);
+            Assert.AreEqual("1.1", model[1].WellKnownStep);
+            Assert.AreEqual("1.5", model[2].WellKnownStep);
+            Assert.AreEqual("1.6", model[3].WellKnownStep);
+            Assert.AreEqual("2", model[4].WellKnownStep);
+            Assert.AreEqual("3", model[5].WellKnownStep);
         }
 
         class MyCustomRegistration : RegisterBehavior
         {
             public MyCustomRegistration(string pipelineStep, string before, string after)
-                : base(NServiceBus.Pipeline.PipelineStep.CreateCustom(pipelineStep), typeof(FakeBehavior), pipelineStep)
+                : base(NServiceBus.Pipeline.WellKnownStep.CreateCustom(pipelineStep), typeof(FakeBehavior), pipelineStep)
             {
                 if (!String.IsNullOrEmpty(before))
                 {

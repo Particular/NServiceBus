@@ -13,9 +13,9 @@ namespace NServiceBus.Pipeline
             this.replacements = replacements;
         }
 
-        public void Register(PipelineStep pipelineStep, Type behavior, string description)
+        public void Register(WellKnownStep wellKnownStep, Type behavior, string description)
         {
-            additions.Add(RegisterBehavior.Create(pipelineStep, behavior, description));
+            additions.Add(RegisterBehavior.Create(wellKnownStep, behavior, description));
         }
 
         public void Register(RegisterBehavior rego)
@@ -40,9 +40,9 @@ namespace NServiceBus.Pipeline
             //Step 1: validate that additions are unique
             foreach (var metadata in additions)
             {
-                if (!registrations.ContainsKey(metadata.PipelineStep))
+                if (!registrations.ContainsKey(metadata.WellKnownStep))
                 {
-                    registrations.Add(metadata.PipelineStep, metadata);
+                    registrations.Add(metadata.WellKnownStep, metadata);
                     if (metadata.Afters != null)
                     {
                         listOfBeforeAndAfterIds.AddRange(metadata.Afters.Select(a=>a.Id));
@@ -55,7 +55,7 @@ namespace NServiceBus.Pipeline
                     continue;
                 }
 
-                var message = string.Format("Behavior registration with id '{0}' is already registered for '{1}'", metadata.PipelineStep, registrations[metadata.PipelineStep].BehaviorType);
+                var message = string.Format("Behavior registration with id '{0}' is already registered for '{1}'", metadata.WellKnownStep, registrations[metadata.WellKnownStep].BehaviorType);
                 throw new Exception(message);
             }
 
@@ -89,7 +89,7 @@ namespace NServiceBus.Pipeline
                     var add = additions.First(mr => (mr.Befores != null && mr.Befores.Select(b=>b.Id).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)) ||
                                                     (mr.Afters != null && mr.Afters.Select(b=>b.Id).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)));
 
-                    var message = string.Format("You cannot remove behavior registration with id '{0}', registration with id {1} depends on it!", metadata.RemoveId, add.PipelineStep);
+                    var message = string.Format("You cannot remove behavior registration with id '{0}', registration with id {1} depends on it!", metadata.RemoveId, add.WellKnownStep);
                     throw new Exception(message);
                 }
 
@@ -111,7 +111,7 @@ namespace NServiceBus.Pipeline
                 {
                     Rego = rego
                 };
-                nameToNodeDict[rego.PipelineStep] = node;
+                nameToNodeDict[rego.WellKnownStep] = node;
                 allNodes.Add(node);
             }
 
@@ -129,7 +129,7 @@ namespace NServiceBus.Pipeline
                         }
                         else
                         {
-                            var message = string.Format("Registration '{0}' specified in the insertbefore of the '{1}' behavior does not exist!", beforeReference.Id, node.Rego.PipelineStep);
+                            var message = string.Format("Registration '{0}' specified in the insertbefore of the '{1}' behavior does not exist!", beforeReference.Id, node.Rego.WellKnownStep);
 
                             if (!beforeReference.Enforce)
                             {
@@ -154,7 +154,7 @@ namespace NServiceBus.Pipeline
                         }
                         else
                         {
-                            var message = string.Format("Registration '{0}' specified in the insertafter of the '{1}' behavior does not exist!", afterReference.Id, node.Rego.PipelineStep);
+                            var message = string.Format("Registration '{0}' specified in the insertafter of the '{1}' behavior does not exist!", afterReference.Id, node.Rego.WellKnownStep);
 
                             if (!afterReference.Enforce)
                             {
@@ -221,7 +221,7 @@ namespace NServiceBus.Pipeline
 
         public void Register(string pipelineStep, Type behavior, string description)
         {
-            Register(PipelineStep.CreateCustom(pipelineStep), behavior, description);
+            Register(WellKnownStep.CreateCustom(pipelineStep), behavior, description);
         }
     }
 }

@@ -33,7 +33,7 @@
             {
                 public void Init(Configure config)
                 {
-                    config.Pipeline.Replace(PipelineStep.DeserializeMessages, typeof(MyRawMessageHandler));
+                    config.Pipeline.Replace(WellKnownStep.DeserializeMessages, typeof(MyRawMessageHandler));
                 }
             }
 

@@ -46,14 +46,20 @@ namespace NServiceBus.Pipeline
             config.Settings.Get<PipelineModifications>().Replacements.Add(new ReplaceBehavior(pipelineStep, newBehavior, description));
         }
 
-        public void Replace(PipelineStep pipelineStep, Type newBehavior, string description = null)
+        /// <summary>
+        /// <see cref="Replace(string,System.Type,string)"/>
+        /// </summary>
+        /// <param name="wellKnownStep">The identifier of the well known step to replace.</param>
+        /// <param name="newBehavior">The new <see cref="IBehavior{TContext}"/> to use.</param>
+        /// <param name="description">The description of the new behavior.</param>
+        public void Replace(WellKnownStep wellKnownStep, Type newBehavior, string description = null)
         {
-            if (pipelineStep == null)
+            if (wellKnownStep == null)
             {
-                throw new ArgumentNullException("pipelineStep");
+                throw new ArgumentNullException("wellKnownStep");
             }
 
-            Replace((string)pipelineStep, newBehavior, description);
+            Replace((string)wellKnownStep, newBehavior, description);
         }
         
         /// <summary>
@@ -79,15 +85,21 @@ namespace NServiceBus.Pipeline
             config.Settings.Get<PipelineModifications>().Additions.Add(RegisterBehavior.Create(pipelineStep, behavior, description));
         }
 
-        
-        public void Register(PipelineStep pipelineStep, Type behavior, string description)
+
+        /// <summary>
+        /// <see cref="Register(string,System.Type,string)"/>
+        /// </summary>
+        /// <param name="wellKnownStep">The identifier of the step to add.</param>
+        /// <param name="behavior">The <see cref="IBehavior{TContext}"/> to execute.</param>
+        /// <param name="description">The description of the behavior.</param>
+        public void Register(WellKnownStep wellKnownStep, Type behavior, string description)
         {
-            if (pipelineStep == null)
+            if (wellKnownStep == null)
             {
-                throw new ArgumentNullException("pipelineStep");
+                throw new ArgumentNullException("wellKnownStep");
             }
 
-            Register((string)pipelineStep, behavior, description);
+            Register((string)wellKnownStep, behavior, description);
         }
 
 

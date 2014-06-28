@@ -11,16 +11,16 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Initializes a new instance of the <see cref="RegisterBehavior"/> class.
         /// </summary>
-        /// <param name="pipelineStep">The unique identifier for this <see cref="IBehavior{TContext}"/>.</param>
+        /// <param name="wellKnownStep">The unique identifier for this <see cref="IBehavior{TContext}"/>.</param>
         /// <param name="behavior">The type of <see cref="IBehavior{TContext}"/> to register.</param>
         /// <param name="description">A brief description of what this <see cref="IBehavior{TContext}"/> does.</param>
-        protected RegisterBehavior(string pipelineStep, Type behavior, string description)
+        protected RegisterBehavior(string wellKnownStep, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
-            if (String.IsNullOrEmpty(pipelineStep))
+            if (String.IsNullOrEmpty(wellKnownStep))
             {
-                throw new ArgumentNullException("pipelineStep");
+                throw new ArgumentNullException("wellKnownStep");
             }
 
             if (String.IsNullOrEmpty(description))
@@ -29,14 +29,14 @@ namespace NServiceBus.Pipeline
             }
 
             BehaviorType = behavior;
-            PipelineStep = pipelineStep;
+            WellKnownStep = wellKnownStep;
             Description = description;
         }
 
         /// <summary>
         /// Gets the unique identifier for this <see cref="IBehavior{TContext}"/>.
         /// </summary>
-        public string PipelineStep { get; private set; }
+        public string WellKnownStep { get; private set; }
         
         /// <summary>
         /// Gets the description for this registration.
@@ -124,19 +124,19 @@ namespace NServiceBus.Pipeline
             Afters.Add(new Dependency(id, true));
         }
 
-        internal static RegisterBehavior Create(PipelineStep pipelineStep, Type behavior, string description)
+        internal static RegisterBehavior Create(WellKnownStep wellKnownStep, Type behavior, string description)
         {
-            return new DefaultRegisterBehavior(behavior, pipelineStep, description);
+            return new DefaultRegisterBehavior(behavior, wellKnownStep, description);
         }
         internal static RegisterBehavior Create(string pipelineStep, Type behavior, string description)
         {
-            return new DefaultRegisterBehavior(behavior, Pipeline.PipelineStep.CreateCustom(pipelineStep), description);
+            return new DefaultRegisterBehavior(behavior, Pipeline.WellKnownStep.CreateCustom(pipelineStep), description);
         }
         
         class DefaultRegisterBehavior : RegisterBehavior
         {
-            public DefaultRegisterBehavior(Type behavior, PipelineStep pipelineStep, string description)
-                : base(pipelineStep, behavior, description)
+            public DefaultRegisterBehavior(Type behavior, WellKnownStep wellKnownStep, string description)
+                : base(wellKnownStep, behavior, description)
             {
             }
         }

@@ -24,7 +24,7 @@ namespace NServiceBus.Licensing
             config.Configurer.ConfigureComponent<LicenseBehavior>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.LicenseExpired, expiredLicense);
 
-            config.Pipeline.Register(PipelineStep.CreateCustom("LicenseReminder"), typeof(LicenseBehavior), "Reminds users if license has expired");
+            config.Pipeline.Register(WellKnownStep.CreateCustom("LicenseReminder"), typeof(LicenseBehavior), "Reminds users if license has expired");
         }
 
         static ILog Logger = LogManager.GetLogger<LicenseInitializer>();
