@@ -78,7 +78,7 @@ The reason you need to do this is because we need to ensure that you have read a
 
             context.Pipeline.Register<OutboxDeduplicationBehavior.OutboxDeduplicationRegistration>();
             context.Pipeline.Register<OutboxRecordBehavior.OutboxRecorderRegistration>();
-            context.Pipeline.Replace(WellKnownBehavior.DispatchMessageToTransport, typeof(OutboxSendBehavior), "Sending behavior with a delay sending until all business transactions are committed to the outbox storage");
+            context.Pipeline.Replace(WellKnownStep.DispatchMessageToTransport, typeof(OutboxSendBehavior), "Sending behavior with a delay sending until all business transactions are committed to the outbox storage");
 
 
             context.Container.ConfigureComponent<OutboxDeduplicationBehavior>(DependencyLifecycle.InstancePerCall)

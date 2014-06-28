@@ -291,9 +291,9 @@
         public class SagaPersistenceRegistration : RegisterBehavior
         {
             public SagaPersistenceRegistration()
-                : base(WellKnownBehavior.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic")
+                : base(Pipeline.WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic")
             {
-                InsertBefore(WellKnownBehavior.InvokeHandlers);
+                InsertBefore(Pipeline.WellKnownStep.InvokeHandlers);
             }
         }
     }
