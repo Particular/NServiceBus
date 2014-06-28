@@ -82,6 +82,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationBuilder.cs" />
+    <Compile Include="Container\ContainerCustomizations.cs" />
+    <Compile Include="Container\ContainerDefinition.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
     <Compile Include="Installation\InstallationSupport.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />

@@ -8,7 +8,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
     /// <summary>
     /// Extensions to the StructureMap api
     /// </summary>
-    public static class StructureMapExtensions
+    static class StructureMapExtensions
     {
         /// <summary>
         /// Registers the given interface and redirects to the given pluginType when the interface is requested
@@ -47,5 +47,27 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             }
         }
 
+    }
+}
+
+namespace NServiceBus
+{
+    using Container;
+    using global::StructureMap;
+
+    /// <summary>
+    /// StructureMap extension to pass an existing StructureMap container instance.
+    /// </summary>
+    public static class StructureMapExtensions
+    {
+        /// <summary>
+        /// Use a pre-configured native StructureMap container to be used.
+        /// </summary>
+        /// <param name="customizations"></param>
+        /// <param name="container">The existing native container instance.</param>
+        public static void ExistingContainer(this ContainerCustomizations customizations, IContainer container)
+        {
+            customizations.Settings.Set("ExistingContainer", container);
+        }
     }
 }

@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using AcceptanceTesting.Support;
-    using ObjectBuilder.Common;
+    using Container;
 
     public static class Builders
     {
@@ -16,14 +16,13 @@
 
         static IEnumerable<RunDescriptor> GetAllAvailable()
         {
-            var builders = TypeScanner.GetAllTypesAssignableTo<IContainer>()
-                .Where(t => !t.Assembly.FullName.StartsWith("NServiceBus.Core") && //exclude the default builder
-                            t.Name.EndsWith("ObjectBuilder") ) //exclude the ninject child container 
+            var builders = TypeScanner.GetAllTypesAssignableTo<ContainerDefinition>()
+                .Where(t => !t.Assembly.FullName.StartsWith("NServiceBus.Core"))//exclude the default builder
                 .ToList();
 
-            return from builder in builders let name = builder.Name.Replace("ObjectBuilder", "") select (new RunDescriptor
+            return from builder in builders select (new RunDescriptor
             {
-                Key = name,
+                Key = builder.Name,
                 Settings = new Dictionary<string, string> { { "Builder", builder.AssemblyQualifiedName } }
             });
         }

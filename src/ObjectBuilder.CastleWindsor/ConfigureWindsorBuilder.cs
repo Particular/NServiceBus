@@ -11,7 +11,7 @@
         /// <summary>
         /// Use the Castle Windsor builder.
         /// </summary>
-        [Obsolete("Replace with Configure.With(c=>.UseContainer<CastleWindsorBuilder>())", true)]
+        [Obsolete("Replace with Configure.With(c=>.UseContainer<Windsor>())", true)]
 // ReSharper disable UnusedParameter.Global
         public static Configure CastleWindsorBuilder(this Configure config)
 // ReSharper restore UnusedParameter.Global
@@ -22,7 +22,7 @@
         /// <summary>
         /// Use the Castle Windsor builder passing in a pre-configured container to be used by nServiceBus.
         /// </summary>
-        [Obsolete("Replace with Configure.With(c=>.UseContainer(new CastleWindsorBuilder(container)))", true)]
+        [Obsolete("Replace with Configure.With(c => c.UseContainer<Windsor>(b => b.ExistingContainer(container)))", true)]
 // ReSharper disable UnusedParameter.Global
         public static Configure CastleWindsorBuilder(this Configure config, IWindsorContainer container)
 // ReSharper restore UnusedParameter.Global
