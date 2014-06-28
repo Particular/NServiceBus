@@ -69,7 +69,6 @@ namespace NServiceBus.Serializers.Json.Tests
         {
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
 
                 Serializer.Serialize(new SuperMessage {SomeProperty = "John"}, stream);
 
@@ -86,8 +85,6 @@ namespace NServiceBus.Serializers.Json.Tests
         {
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
                 Serializer.Serialize(new SimpleMessage(), stream);
 
                 stream.Position = 0;
@@ -102,8 +99,6 @@ namespace NServiceBus.Serializers.Json.Tests
         {
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
                 Serializer.Serialize(new SimpleMessage{SomeProperty = "test"}, stream);
 
                 stream.Position = 0;
@@ -119,8 +114,6 @@ namespace NServiceBus.Serializers.Json.Tests
         {
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
                 Serializer.Serialize(new SimpleMessage(), stream);
 
                 stream.Position = 0;
@@ -138,8 +131,6 @@ namespace NServiceBus.Serializers.Json.Tests
             
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
                 Serializer.Serialize(mapper.CreateInstance<ISuperMessageWithoutConcreteImpl>(), stream);
 
                 stream.Position = 0;
@@ -158,8 +149,6 @@ namespace NServiceBus.Serializers.Json.Tests
 
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
                 var msg = mapper.CreateInstance<ISuperMessageWithoutConcreteImpl>();
                 msg.SomeProperty = "test";
 
@@ -210,8 +199,6 @@ namespace NServiceBus.Serializers.Json.Tests
 
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
                 Serializer.Serialize(messageWithXDocument, stream);
 
                 stream.Position = 0;
@@ -226,8 +213,6 @@ namespace NServiceBus.Serializers.Json.Tests
 
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
                 Serializer.Serialize(messageWithXElement, stream);
 
                 stream.Position = 0;
@@ -276,7 +261,7 @@ namespace NServiceBus.Serializers.Json.Tests
                 streamWriter.Flush();
                 stream.Position = 0;
 
-                var result = Serializer.Deserialize(stream);
+                var result = Serializer.Deserialize(stream, new[] { typeof(IAImpl) });
                 Assert.IsNotEmpty(result);
                 Assert.That(result, Has.Length.EqualTo(2));
 

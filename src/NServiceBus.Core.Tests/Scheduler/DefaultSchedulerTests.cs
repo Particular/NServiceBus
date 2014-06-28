@@ -8,36 +8,35 @@
     public class DefaultSchedulerTests
     {
         FakeBus bus = new FakeBus();
-        IScheduledTaskStorage taskStorage = new InMemoryScheduledTaskStorage();
-        IScheduler scheduler;
+        DefaultScheduler scheduler;
 
         [SetUp]
         public void SetUp()
         {
-            scheduler = new DefaultScheduler(bus, taskStorage);
+            scheduler = new DefaultScheduler(bus);
         }
 
         [Test]
         public void When_scheduling_a_task_it_should_be_added_to_the_storage()
         {
-            var task = new ScheduledTask();
+            var task = new TaskDefinition();
             var taskId = task.Id;
             scheduler.Schedule(task);
 
-            Assert.That(taskStorage.Get(taskId).Id, Is.EqualTo(taskId));
+            Assert.IsTrue(scheduler.scheduledTasks.ContainsKey(taskId));
         }
 
         [Test]
         public void When_scheduling_a_task_defer_should_be_called()
         {
-            scheduler.Schedule(new ScheduledTask());
+            scheduler.Schedule(new TaskDefinition());
             Assert.That(bus.DeferWasCalled > 0);
         }
 
         [Test]
         public void When_starting_a_task_defer_should_be_called()
         {
-            var task = new ScheduledTask {Task = () => { }};
+            var task = new TaskDefinition {Task = () => { }};
             var taskId = task.Id;
 
             scheduler.Schedule(task);
@@ -53,7 +52,7 @@
         {
             var i = 1;
 
-            var task = new ScheduledTask { Task = () => { i++; } };
+            var task = new TaskDefinition { Task = () => { i++; } };
             var taskId = task.Id;
 
             scheduler.Schedule(task);            

@@ -240,12 +240,8 @@ namespace NServiceBus.Hosting.Helpers
                 const string bindingRedirects = @"<runtime>
     <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">
         <dependentAssembly>
-        <assemblyIdentity name=""NServiceBus.Core"" publicKeyToken=""9fc386479f8a226c"" culture=""neutral"" />
-        <bindingRedirect oldVersion=""0.0.0.0-{0}"" newVersion=""{0}"" />
-        </dependentAssembly>
-        <dependentAssembly>
-        <assemblyIdentity name=""NServiceBus"" publicKeyToken=""9fc386479f8a226c"" culture=""neutral"" />
-        <bindingRedirect oldVersion=""0.0.0.0-{0}"" newVersion=""{0}"" />
+            <assemblyIdentity name=""NServiceBus.Core"" publicKeyToken=""9fc386479f8a226c"" culture=""neutral"" />
+            <bindingRedirect oldVersion=""0.0.0.0-{0}"" newVersion=""{0}"" />
         </dependentAssembly>
     </assemblyBinding>
 </runtime>";

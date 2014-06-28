@@ -5,7 +5,7 @@ namespace NServiceBus
 
 
     /// <summary>
-    /// Adds an extention point to allow endpoint releated changes
+    /// Adds an extention point to allow endpoint related changes
     /// </summary>
     public static class EndpointSettingsExtensions
     {

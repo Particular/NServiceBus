@@ -2,9 +2,9 @@ namespace NServiceBus.Scheduling
 {
     class ScheduledTaskMessageHandler : IHandleMessages<Messages.ScheduledTask>
     {
-        IScheduler scheduler;
+        DefaultScheduler scheduler;
 
-        public ScheduledTaskMessageHandler(IScheduler scheduler)
+        public ScheduledTaskMessageHandler(DefaultScheduler scheduler)
         {
             this.scheduler = scheduler;
         }

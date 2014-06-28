@@ -19,8 +19,7 @@
         protected override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<JsonMessageSerializer>(DependencyLifecycle.SingleInstance)
-                 .ConfigureProperty(s => s.SkipArrayWrappingForSingleMessages, !context.Settings.GetOrDefault<bool>("SerializationSettings.WrapSingleMessages"));
+            context.Container.ConfigureComponent<JsonMessageSerializer>(DependencyLifecycle.SingleInstance);
         }
     }
 }

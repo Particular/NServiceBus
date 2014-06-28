@@ -19,9 +19,7 @@ namespace NServiceBus
         protected override void Setup(FeatureConfigurationContext context)
         {
             context.Settings.Get<Conventions>().AddSystemMessagesConventions(t => typeof(ScheduledTask).IsAssignableFrom(t));
-
-            context.Container.RegisterSingleton<IScheduledTaskStorage>(new InMemoryScheduledTaskStorage());
-            context.Container.ConfigureComponent<DefaultScheduler>(DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent<DefaultScheduler>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<Schedule>(DependencyLifecycle.SingleInstance);
         }
     }

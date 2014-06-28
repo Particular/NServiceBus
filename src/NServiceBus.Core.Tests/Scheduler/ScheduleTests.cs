@@ -16,16 +16,15 @@
         FakeBus bus = new FakeBus();
         Schedule schedule;
 
-        InMemoryScheduledTaskStorage taskStorage = new InMemoryScheduledTaskStorage();        
-
+        DefaultScheduler defaultScheduler ;
         [SetUp]
         public void SetUp()
         {
             Configure.With(o=>o.AssembliesToScan(new Assembly[0]).UseContainer(builder));
 
+            defaultScheduler = new DefaultScheduler(bus);
             builder.Register<IBus>(() => bus);
-            builder.Register<IScheduledTaskStorage>(() => taskStorage);
-            builder.Register<IScheduler>(() => new DefaultScheduler(bus, taskStorage));
+            builder.Register<DefaultScheduler>(() => defaultScheduler);
 
             schedule = new Schedule(builder);
         }
@@ -51,8 +50,8 @@
             
             bus.DeferWasCalled = 0;
 
-            Parallel.ForEach(taskStorage.Tasks,
-                              t => new ScheduledTaskMessageHandler(new DefaultScheduler(bus, taskStorage)).Handle(
+            Parallel.ForEach(defaultScheduler.scheduledTasks,
+                              t => new ScheduledTaskMessageHandler(defaultScheduler).Handle(
                                   new Messages.ScheduledTask { TaskId = t.Key }));
 
             Assert.That(bus.DeferWasCalled, Is.EqualTo(20));
@@ -60,7 +59,7 @@
 
         bool EnsureThatNameExists(string name)
         {
-            return taskStorage.Tasks.Any(task => task.Value.Name.Equals(name));
+            return defaultScheduler.scheduledTasks.Any(task => task.Value.Name.Equals(name));
         }
     }
 }

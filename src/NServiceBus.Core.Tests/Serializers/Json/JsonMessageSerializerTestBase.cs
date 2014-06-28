@@ -31,6 +31,13 @@
         int I { get; set; }
         B B { get; set; }
     }
+    public class IAImpl : IA
+    {
+        public byte[] Data { get; set; }
+        public string S { get; set; }
+        public int I { get; set; }
+        public B B { get; set; }
+    }
 
     public class B
     {
@@ -90,18 +97,9 @@
 
             output.Position = 0;
 
-            var filename = string.Format("{0}.{1}.txt", GetType().Name, MethodBase.GetCurrentMethod().Name);
-
-            File.WriteAllBytes(filename, output.ToArray());
-
-            output.Position = 0;
-
-            var result = Serializer.Deserialize(output);
+            var result = Serializer.Deserialize(output, new[] { typeof(A) });
 
             Assert.DoesNotThrow(() => output.Position = 0, "Stream should still be open");
-
-            Assert.IsNotEmpty(result);
-            Assert.That(result, Has.Length.EqualTo(1));
 
             Assert.That(result[0], Is.TypeOf(typeof(A)));
             var a = ((A)result[0]);
@@ -149,7 +147,7 @@
 
             output.Position = 0;
 
-            var result = Serializer.Deserialize(output);
+            var result = Serializer.Deserialize(output, new[] { typeof(IAImpl) });
 
             Assert.DoesNotThrow(() => output.Position = 0, "Stream should still be open");
 

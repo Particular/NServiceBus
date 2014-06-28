@@ -17,9 +17,9 @@ namespace NServiceBus.Serializers.Json
     /// </summary>
     public abstract class JsonMessageSerializerBase : IMessageSerializer
     {
-        private readonly IMessageMapper messageMapper;
+        IMessageMapper messageMapper;
 
-        readonly JsonSerializerSettings serializerSettings = new JsonSerializerSettings
+        JsonSerializerSettings serializerSettings = new JsonSerializerSettings
         {
             TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
             TypeNameHandling = TypeNameHandling.Auto,
@@ -30,11 +30,13 @@ namespace NServiceBus.Serializers.Json
         {
             this.messageMapper = messageMapper;
         }
-        
+
+        internal bool wrapMessagesInArray;
+
         /// <summary>
         /// Removes the wrapping array if serializing a single message 
         /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6.0", Message = "In version 5 multi-message sends was removed. So Wrapping messages is no longer required. It only remains for compatibility with 3.0 endpoints.")]
+        [ObsoleteEx(RemoveInVersion = "6.0", Message = "In version 5 multi-message sends was removed. So Wrapping messages is no longer required. If you are communicating with version 3 ensure you are on the latets 3.3.x.")]
         public bool SkipArrayWrappingForSingleMessages { get; set; }
 
         /// <summary>
@@ -49,13 +51,17 @@ namespace NServiceBus.Serializers.Json
 
             var jsonWriter = CreateJsonWriter(stream);
 
-            if (SkipArrayWrappingForSingleMessages)
+            if (wrapMessagesInArray)
             {
-                jsonSerializer.Serialize(jsonWriter, message);
+                var objects = new[]
+                {
+                    message
+                };
+                jsonSerializer.Serialize(jsonWriter, objects);
             }
             else
             {
-                jsonSerializer.Serialize(jsonWriter, new[] { message });
+                jsonSerializer.Serialize(jsonWriter, message);
             }
 
             jsonWriter.Flush();
@@ -67,7 +73,7 @@ namespace NServiceBus.Serializers.Json
         /// <param name="stream">Stream that contains messages.</param>
         /// <param name="messageTypes">The list of message types to deserialize. If null the types must be inferred from the serialized data.</param>
         /// <returns>Deserialized messages.</returns>
-        public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
+        public object[] Deserialize(Stream stream, IList<Type> messageTypes)
         {
             var settings = serializerSettings;
 
