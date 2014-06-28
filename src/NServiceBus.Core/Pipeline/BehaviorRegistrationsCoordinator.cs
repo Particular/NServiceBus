@@ -15,24 +15,24 @@ namespace NServiceBus.Pipeline
 
         public void Register(WellKnownStep wellKnownStep, Type behavior, string description)
         {
-            additions.Add(RegisterBehavior.Create(wellKnownStep, behavior, description));
+            additions.Add(RegisterStep.Create(wellKnownStep, behavior, description));
         }
 
-        public void Register(RegisterBehavior rego)
+        public void Register(RegisterStep rego)
         {
             additions.Add(rego);
         }
 
-        public IEnumerable<RegisterBehavior> BuildRuntimeModel()
+        public IEnumerable<RegisterStep> BuildRuntimeModel()
         {
             var registrations = CreateRegistrationsList();
 
             return Sort(registrations);
         }
 
-        IEnumerable<RegisterBehavior> CreateRegistrationsList()
+        IEnumerable<RegisterStep> CreateRegistrationsList()
         {
-            var registrations = new Dictionary<string, RegisterBehavior>(StringComparer.CurrentCultureIgnoreCase);
+            var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
             var listOfBeforeAndAfterIds = new List<string>();
 
             // Let's do some validation too
@@ -99,7 +99,7 @@ namespace NServiceBus.Pipeline
             return registrations.Values;
         }
 
-        static IEnumerable<RegisterBehavior> Sort(IEnumerable<RegisterBehavior> registrations)
+        static IEnumerable<RegisterStep> Sort(IEnumerable<RegisterStep> registrations)
         {
             // Step 1: create nodes for graph
             var nameToNodeDict = new Dictionary<string, Node>();
@@ -170,7 +170,7 @@ namespace NServiceBus.Pipeline
             }
 
             // Step 3: Perform Topological Sort
-            var output = new List<RegisterBehavior>();
+            var output = new List<RegisterStep>();
             foreach (var node in allNodes)
             {
                 node.Visit(output);
@@ -179,7 +179,7 @@ namespace NServiceBus.Pipeline
             return output;
         }
 
-        List<RegisterBehavior> additions = new List<RegisterBehavior>();
+        List<RegisterStep> additions = new List<RegisterStep>();
         List<RemoveBehavior> removals;
         List<ReplaceBehavior> replacements;
 
@@ -200,7 +200,7 @@ namespace NServiceBus.Pipeline
 
         class Node
         {
-            internal void Visit(ICollection<RegisterBehavior> output)
+            internal void Visit(ICollection<RegisterStep> output)
             {
                 if (visited)
                 {
@@ -214,14 +214,14 @@ namespace NServiceBus.Pipeline
                 output.Add(Rego);
             }
 
-            internal RegisterBehavior Rego;
+            internal RegisterStep Rego;
             internal List<Node> previous = new List<Node>();
             bool visited;
         }
 
         public void Register(string pipelineStep, Type behavior, string description)
         {
-            Register(WellKnownStep.CreateCustom(pipelineStep), behavior, description);
+            Register(WellKnownStep.Create(pipelineStep), behavior, description);
         }
     }
 }

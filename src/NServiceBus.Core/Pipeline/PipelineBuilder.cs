@@ -22,8 +22,8 @@
             RegisterAdditionalBehaviors(modifications.Additions);
 
             var model = coordinator.BuildRuntimeModel();
-            Incoming = new List<RegisterBehavior>();
-            Outgoing = new List<RegisterBehavior>();
+            Incoming = new List<RegisterStep>();
+            Outgoing = new List<RegisterStep>();
             var behaviorType = typeof(IBehavior<>);
             var outgoingContextType = typeof(OutgoingContext);
             var incomingContextType = typeof(IncomingContext);
@@ -42,10 +42,10 @@
             }
         }
 
-        public List<RegisterBehavior> Incoming { get; private set; }
-        public List<RegisterBehavior> Outgoing { get; private set; }
+        public List<RegisterStep> Incoming { get; private set; }
+        public List<RegisterStep> Outgoing { get; private set; }
 
-        void RegisterAdditionalBehaviors(List<RegisterBehavior> additions)
+        void RegisterAdditionalBehaviors(List<RegisterStep> additions)
         {
             foreach (var rego in additions)
             {

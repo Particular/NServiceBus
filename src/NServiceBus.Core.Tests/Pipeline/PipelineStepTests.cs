@@ -10,7 +10,7 @@
         public void Should_be_able_to_create_a_custom_pipeline_step_and_use_as_a_string()
         {
             const string customStepId = "custom";
-            var pipelineStep = WellKnownStep.CreateCustom(customStepId);
+            var pipelineStep = WellKnownStep.Create(customStepId);
             Assert.AreEqual(customStepId, (string)pipelineStep, "couldn't convert pipeline step into a string");
         }
 
@@ -18,14 +18,14 @@
         [ExpectedException]
         public void Should_not_allow_empty_string_for_a_custom_pipeline_step()
         {
-            WellKnownStep.CreateCustom(string.Empty);
+            WellKnownStep.Create(string.Empty);
         }
 
         [Test]
         [ExpectedException]
         public void Should_not_allow_null_for_a_custom_pipeline_step()
         {
-            WellKnownStep.CreateCustom(null);
+            WellKnownStep.Create(null);
         }
 
         [Test]

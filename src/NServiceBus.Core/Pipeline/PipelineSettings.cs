@@ -96,7 +96,7 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("description");
             }
 
-            config.Settings.Get<PipelineModifications>().Additions.Add(RegisterBehavior.Create(stepId, behavior, description));
+            config.Settings.Get<PipelineModifications>().Additions.Add(RegisterStep.Create(stepId, behavior, description));
         }
 
 
@@ -120,8 +120,8 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Register a new step into the pipeline.
         /// </summary>
-        /// <typeparam name="T">The <see cref="RegisterBehavior"/> to use to perform the registration.</typeparam>
-        public void Register<T>() where T : RegisterBehavior, new()
+        /// <typeparam name="T">The <see cref="RegisterStep"/> to use to perform the registration.</typeparam>
+        public void Register<T>() where T : RegisterStep, new()
         {
             config.Settings.Get<PipelineModifications>().Additions.Add(new T());
         }

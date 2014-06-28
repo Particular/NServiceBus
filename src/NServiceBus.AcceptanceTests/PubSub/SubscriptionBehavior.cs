@@ -33,7 +33,7 @@
             EndpointSubscribed = action;
         }
 
-        internal class Registration : RegisterBehavior
+        internal class Registration : RegisterStep
         {
             public Registration() : base("SubscriptionBehavior", typeof(SubscriptionBehavior), "So we can get subscription events")
             {

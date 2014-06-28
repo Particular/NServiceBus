@@ -4,17 +4,17 @@ namespace NServiceBus.Pipeline
     using System.Collections.Generic;
 
     /// <summary>
-    /// Basic <see cref="IBehavior{TContext}"/> registration class.
+    /// Base class to do an advance registration of a step.
     /// </summary>
-    public abstract class RegisterBehavior
+    public abstract class RegisterStep
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RegisterBehavior"/> class.
+        /// Initializes a new instance of the <see cref="RegisterStep"/> class.
         /// </summary>
         /// <param name="stepId">The unique identifier for this steps.</param>
         /// <param name="behavior">The type of <see cref="IBehavior{TContext}"/> to register.</param>
         /// <param name="description">A brief description of what this step does.</param>
-        protected RegisterBehavior(string stepId, Type behavior, string description)
+        protected RegisterStep(string stepId, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
@@ -42,6 +42,7 @@ namespace NServiceBus.Pipeline
         /// Gets the description for this registration.
         /// </summary>
         public string Description { get; internal set; }
+
         internal IList<Dependency> Befores { get; private set; }
         internal IList<Dependency> Afters { get; private set; }
         
@@ -51,9 +52,9 @@ namespace NServiceBus.Pipeline
         public Type BehaviorType { get; internal set; }
 
         /// <summary>
-        /// Instructs the pipeline to register this <see cref="IBehavior{TContext}"/> before the <paramref name="id"/> one. If the <paramref name="id"/> does not exist, this condition is ignored. 
+        /// Instructs the pipeline to register this step before the <paramref name="id"/> one. If the <paramref name="id"/> does not exist, this condition is ignored. 
         /// </summary>
-        /// <param name="id">The unique identifier of a different <see cref="IBehavior{TContext}"/> that we want to insert before.</param>
+        /// <param name="id">The unique identifier of the step that we want to insert before.</param>
         public void InsertBeforeIfExists(string id)
         {
             if (String.IsNullOrEmpty(id))
@@ -70,7 +71,7 @@ namespace NServiceBus.Pipeline
         }
 
         /// <summary>
-        /// Instructs the pipeline to register this <see cref="IBehavior{TContext}"/> before the <paramref name="id"/> one.
+        /// Instructs the pipeline to register this step before the <paramref name="id"/> one.
         /// </summary>
         public void InsertBefore(string id)
         {
@@ -88,9 +89,9 @@ namespace NServiceBus.Pipeline
         }
 
         /// <summary>
-        /// Instructs the pipeline to register this <see cref="IBehavior{TContext}"/> after the <paramref name="id"/> one. If the <paramref name="id"/> does not exist, this condition is ignored. 
+        /// Instructs the pipeline to register this step after the <paramref name="id"/> one. If the <paramref name="id"/> does not exist, this condition is ignored. 
         /// </summary>
-        /// <param name="id">The unique identifier of a different <see cref="IBehavior{TContext}"/> that we want to insert after.</param>
+        /// <param name="id">The unique identifier of the step that we want to insert after.</param>
         public void InsertAfterIfExists(string id)
         {
             if (String.IsNullOrEmpty(id))
@@ -107,7 +108,7 @@ namespace NServiceBus.Pipeline
         }
 
         /// <summary>
-        /// Instructs the pipeline to register this <see cref="IBehavior{TContext}"/> after the <paramref name="id"/> one.
+        /// Instructs the pipeline to register this step after the <paramref name="id"/> one.
         /// </summary>
         public void InsertAfter(string id)
         {
@@ -124,18 +125,18 @@ namespace NServiceBus.Pipeline
             Afters.Add(new Dependency(id, true));
         }
 
-        internal static RegisterBehavior Create(WellKnownStep wellKnownStep, Type behavior, string description)
+        internal static RegisterStep Create(WellKnownStep wellKnownStep, Type behavior, string description)
         {
-            return new DefaultRegisterBehavior(behavior, wellKnownStep, description);
+            return new DefaultRegisterStep(behavior, wellKnownStep, description);
         }
-        internal static RegisterBehavior Create(string pipelineStep, Type behavior, string description)
+        internal static RegisterStep Create(string pipelineStep, Type behavior, string description)
         {
-            return new DefaultRegisterBehavior(behavior, pipelineStep, description);
+            return new DefaultRegisterStep(behavior, pipelineStep, description);
         }
         
-        class DefaultRegisterBehavior : RegisterBehavior
+        class DefaultRegisterStep : RegisterStep
         {
-            public DefaultRegisterBehavior(Type behavior, string stepId, string description)
+            public DefaultRegisterStep(Type behavior, string stepId, string description)
                 : base(stepId, behavior, description)
             {
             }

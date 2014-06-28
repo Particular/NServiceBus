@@ -221,7 +221,7 @@
     <Compile Include="Pipeline\Dependency.cs" />
     <Compile Include="Pipeline\PipelineBuilder.cs" />
     <Compile Include="Pipeline\PipelineSettings.cs" />
-    <Compile Include="Pipeline\RegisterBehavior.cs" />
+    <Compile Include="Pipeline\RegisterStep.cs" />
     <Compile Include="Pipeline\RemoveBehavior.cs" />
     <Compile Include="Pipeline\ReplaceBehavior.cs" />
     <Compile Include="Pipeline\SnapshotRegion.cs" />

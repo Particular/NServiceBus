@@ -80,7 +80,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                     }
                 }
 
-                class MyExceptionFilteringRegistration : RegisterBehavior
+                class MyExceptionFilteringRegistration : RegisterStep
                 {
                     public MyExceptionFilteringRegistration() : base("ExceptionFiltering", typeof(MyExceptionFilteringBehavior), "Custom exception filtering")
                     {

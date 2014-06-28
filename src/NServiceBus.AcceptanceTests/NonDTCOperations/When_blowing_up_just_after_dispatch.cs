@@ -75,7 +75,7 @@
 
     public class BlowUpAfterDispatchBehavior : IBehavior<IncomingContext>
     {
-        public class Registration : RegisterBehavior
+        public class Registration : RegisterStep
         {
             public Registration() : base("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing")
             {

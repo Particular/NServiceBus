@@ -80,7 +80,7 @@
             }
         }
 
-        public class OutboxDeduplicationRegistration : RegisterBehavior
+        public class OutboxDeduplicationRegistration : RegisterStep
         {
             public OutboxDeduplicationRegistration()
                 : base("OutboxDeduplication", typeof(OutboxDeduplicationBehavior), "Deduplication for the outbox feature")

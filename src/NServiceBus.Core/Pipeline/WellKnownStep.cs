@@ -5,7 +5,7 @@ namespace NServiceBus.Pipeline
     using Unicast.Messages;
 
     /// <summary>
-    /// Well known <see cref="IBehavior{TContext}"/> types.
+    /// Well known steps.
     /// </summary>
     public class WellKnownStep
     {
@@ -20,7 +20,7 @@ namespace NServiceBus.Pipeline
             this.stepId = stepId;
         }
 
-        internal static WellKnownStep CreateCustom(string customStepId)
+        internal static WellKnownStep Create(string customStepId)
         {
             return new WellKnownStep(customStepId);
         }
@@ -29,7 +29,6 @@ namespace NServiceBus.Pipeline
         {
             return step.stepId;
         }
-
 
         /// <summary>
         /// Auditing

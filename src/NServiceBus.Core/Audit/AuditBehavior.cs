@@ -22,7 +22,7 @@
             MessageAuditer.Audit(new SendOptions(AuditQueue){TimeToBeReceived = TimeToBeReceivedOnForwardedMessages}, context.PhysicalMessage);
         }
 
-        public class Registration:RegisterBehavior
+        public class Registration:RegisterStep
         {
             public Registration()
                 : base(WellKnownStep.AuditProcessedMessage, typeof(AuditBehavior), "Send a copy of the successfully processed message to the configured audit queue")

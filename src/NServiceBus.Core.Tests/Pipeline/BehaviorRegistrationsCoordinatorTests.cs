@@ -151,7 +151,7 @@ namespace NServiceBus.Core.Tests.Pipeline
             Assert.AreEqual("3", model[5].StepId);
         }
 
-        class MyCustomRegistration : RegisterBehavior
+        class MyCustomRegistration : RegisterStep
         {
             public MyCustomRegistration(string pipelineStep, string before, string after)
                 : base(pipelineStep, typeof(FakeBehavior), pipelineStep)
