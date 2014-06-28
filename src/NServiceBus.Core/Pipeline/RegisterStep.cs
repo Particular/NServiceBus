@@ -52,6 +52,20 @@ namespace NServiceBus.Pipeline
         public Type BehaviorType { get; internal set; }
 
         /// <summary>
+        /// Instructs the pipeline to register this step before the <paramref name="step"/> one. If the <paramref name="step"/> does not exist, this condition is ignored. 
+        /// </summary>
+        /// <param name="step">The <see cref="WellKnownStep"/> that we want to insert before.</param>
+        public void InsertBeforeIfExists(WellKnownStep step)
+        {
+            if (step == null)
+            {
+                throw new ArgumentNullException("step");
+            }
+
+            InsertBeforeIfExists((string) step);
+        }
+
+        /// <summary>
         /// Instructs the pipeline to register this step before the <paramref name="id"/> one. If the <paramref name="id"/> does not exist, this condition is ignored. 
         /// </summary>
         /// <param name="id">The unique identifier of the step that we want to insert before.</param>
@@ -68,6 +82,19 @@ namespace NServiceBus.Pipeline
             }
 
             Befores.Add(new Dependency(id, false));
+        }
+
+        /// <summary>
+        /// Instructs the pipeline to register this step before the <paramref name="step"/> one.
+        /// </summary>
+        public void InsertBefore(WellKnownStep step)
+        {
+            if (step == null)
+            {
+                throw new ArgumentNullException("step");
+            }
+
+            InsertBefore((string)step);
         }
 
         /// <summary>
@@ -89,6 +116,20 @@ namespace NServiceBus.Pipeline
         }
 
         /// <summary>
+        /// Instructs the pipeline to register this step after the <paramref name="step"/> one. If the <paramref name="step"/> does not exist, this condition is ignored. 
+        /// </summary>
+        /// <param name="step">The unique identifier of the step that we want to insert after.</param>
+        public void InsertAfterIfExists(WellKnownStep step)
+        {
+            if (step == null)
+            {
+                throw new ArgumentNullException("step");
+            }
+
+            InsertAfterIfExists((string)step);
+        }
+
+        /// <summary>
         /// Instructs the pipeline to register this step after the <paramref name="id"/> one. If the <paramref name="id"/> does not exist, this condition is ignored. 
         /// </summary>
         /// <param name="id">The unique identifier of the step that we want to insert after.</param>
@@ -105,6 +146,19 @@ namespace NServiceBus.Pipeline
             }
 
             Afters.Add(new Dependency(id, false));
+        }
+
+        /// <summary>
+        /// Instructs the pipeline to register this step after the <paramref name="step"/> one.
+        /// </summary>
+        public void InsertAfter(WellKnownStep step)
+        {
+            if (step == null)
+            {
+                throw new ArgumentNullException("step");
+            }
+
+            InsertAfter((string)step);
         }
 
         /// <summary>
