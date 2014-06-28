@@ -75,12 +75,12 @@
             
         }
 
-        public class Registration : RegisterBehavior
+        public class Registration : RegisterStep
         {
             public Registration()
                 : base("ForwardMessageTo", typeof(ForwardBehavior), "Forwards message to the specified queue in the UnicastBus config section.")
             {
-                InsertBefore(WellKnownBehavior.ExecuteUnitOfWork);
+                InsertBefore(WellKnownStep.ExecuteUnitOfWork);
             }
         }
     }

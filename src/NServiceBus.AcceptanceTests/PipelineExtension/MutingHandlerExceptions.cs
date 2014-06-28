@@ -80,13 +80,12 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                     }
                 }
 
-                class MyExceptionFilteringRegistration : RegisterBehavior
+                class MyExceptionFilteringRegistration : RegisterStep
                 {
-                    public MyExceptionFilteringRegistration()
-                        : base("ExceptionFiltering", typeof(MyExceptionFilteringBehavior), "Custom exception filtering")
+                    public MyExceptionFilteringRegistration() : base("ExceptionFiltering", typeof(MyExceptionFilteringBehavior), "Custom exception filtering")
                     {
-                        InsertAfter(WellKnownBehavior.AuditProcessedMessage);
-                        InsertBefore(WellKnownBehavior.InvokeHandlers);
+                        InsertAfter(WellKnownStep.AuditProcessedMessage);
+                        InsertBefore(WellKnownStep.InvokeHandlers);
                     }
                 }
             }

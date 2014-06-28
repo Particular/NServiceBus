@@ -288,12 +288,12 @@
 
         static ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();
 
-        public class SagaPersistenceRegistration : RegisterBehavior
+        public class SagaPersistenceRegistration : RegisterStep
         {
             public SagaPersistenceRegistration()
-                : base(WellKnownBehavior.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic")
+                : base(WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic")
             {
-                InsertBefore(WellKnownBehavior.InvokeHandlers);
+                InsertBefore(WellKnownStep.InvokeHandlers);
             }
         }
     }

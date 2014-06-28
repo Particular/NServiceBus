@@ -86,12 +86,12 @@
 
         readonly static ConcurrentDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>();
 
-        public class Registration:RegisterBehavior
+        public class Registration:RegisterStep
         {    
             public Registration() : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message")
             {
-                InsertAfter(WellKnownBehavior.MutateIncomingMessages);
-                InsertBefore(WellKnownBehavior.InvokeHandlers);
+                InsertAfter(WellKnownStep.MutateIncomingMessages);
+                InsertBefore(WellKnownStep.InvokeHandlers);
             }
         }
     }

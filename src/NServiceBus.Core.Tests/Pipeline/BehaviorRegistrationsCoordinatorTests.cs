@@ -47,9 +47,9 @@ namespace NServiceBus.Core.Tests.Pipeline
 
             var model = coordinator.BuildRuntimeModel().ToList();
 
-            Assert.AreEqual("1", model[0].Id);
-            Assert.AreEqual("2", model[1].Id);
-            Assert.AreEqual("3", model[2].Id);
+            Assert.AreEqual("1", model[0].StepId);
+            Assert.AreEqual("2", model[1].StepId);
+            Assert.AreEqual("3", model[2].StepId);
         }
 
         [Test]
@@ -82,12 +82,12 @@ namespace NServiceBus.Core.Tests.Pipeline
             
             var model = coordinator.BuildRuntimeModel().ToList();
 
-            Assert.AreEqual("1", model[0].Id);
-            Assert.AreEqual("1.5", model[1].Id);
-            Assert.AreEqual("2", model[2].Id);
-            Assert.AreEqual("2.5", model[3].Id);
-            Assert.AreEqual("3", model[4].Id);
-            Assert.AreEqual("3.5", model[5].Id);
+            Assert.AreEqual("1", model[0].StepId);
+            Assert.AreEqual("1.5", model[1].StepId);
+            Assert.AreEqual("2", model[2].StepId);
+            Assert.AreEqual("2.5", model[3].StepId);
+            Assert.AreEqual("3", model[4].StepId);
+            Assert.AreEqual("3.5", model[5].StepId);
         }
 
         [Test]
@@ -102,11 +102,11 @@ namespace NServiceBus.Core.Tests.Pipeline
 
             var model = coordinator.BuildRuntimeModel().ToList();
 
-            Assert.AreEqual("1", model[0].Id);
-            Assert.AreEqual("1.5", model[1].Id);
-            Assert.AreEqual("2", model[2].Id);
-            Assert.AreEqual("2.5", model[3].Id);
-            Assert.AreEqual("3", model[4].Id);
+            Assert.AreEqual("1", model[0].StepId);
+            Assert.AreEqual("1.5", model[1].StepId);
+            Assert.AreEqual("2", model[2].StepId);
+            Assert.AreEqual("2.5", model[3].StepId);
+            Assert.AreEqual("3", model[4].StepId);
         }
 
         [Test]
@@ -122,12 +122,12 @@ namespace NServiceBus.Core.Tests.Pipeline
 
             var model = coordinator.BuildRuntimeModel().ToList();
 
-            Assert.AreEqual("1", model[0].Id);
-            Assert.AreEqual("1.5", model[1].Id);
-            Assert.AreEqual("2", model[2].Id);
-            Assert.AreEqual("2.5", model[3].Id);
-            Assert.AreEqual("3", model[4].Id);
-            Assert.AreEqual("3.5", model[5].Id);
+            Assert.AreEqual("1", model[0].StepId);
+            Assert.AreEqual("1.5", model[1].StepId);
+            Assert.AreEqual("2", model[2].StepId);
+            Assert.AreEqual("2.5", model[3].StepId);
+            Assert.AreEqual("3", model[4].StepId);
+            Assert.AreEqual("3.5", model[5].StepId);
         }
 
         [Test]
@@ -143,18 +143,18 @@ namespace NServiceBus.Core.Tests.Pipeline
 
             var model = coordinator.BuildRuntimeModel().ToList();
 
-            Assert.AreEqual("1", model[0].Id);
-            Assert.AreEqual("1.1", model[1].Id);
-            Assert.AreEqual("1.5", model[2].Id);
-            Assert.AreEqual("1.6", model[3].Id);
-            Assert.AreEqual("2", model[4].Id);
-            Assert.AreEqual("3", model[5].Id);
+            Assert.AreEqual("1", model[0].StepId);
+            Assert.AreEqual("1.1", model[1].StepId);
+            Assert.AreEqual("1.5", model[2].StepId);
+            Assert.AreEqual("1.6", model[3].StepId);
+            Assert.AreEqual("2", model[4].StepId);
+            Assert.AreEqual("3", model[5].StepId);
         }
 
-        class MyCustomRegistration : RegisterBehavior
+        class MyCustomRegistration : RegisterStep
         {
-            public MyCustomRegistration(string id, string before, string after)
-                : base(id, typeof(FakeBehavior), id)
+            public MyCustomRegistration(string pipelineStep, string before, string after)
+                : base(pipelineStep, typeof(FakeBehavior), pipelineStep)
             {
                 if (!String.IsNullOrEmpty(before))
                 {

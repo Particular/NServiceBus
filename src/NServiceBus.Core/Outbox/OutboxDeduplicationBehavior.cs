@@ -80,13 +80,13 @@
             }
         }
 
-        public class OutboxDeduplicationRegistration : RegisterBehavior
+        public class OutboxDeduplicationRegistration : RegisterStep
         {
             public OutboxDeduplicationRegistration()
                 : base("OutboxDeduplication", typeof(OutboxDeduplicationBehavior), "Deduplication for the outbox feature")
             {
-                InsertAfter(WellKnownBehavior.CreateChildContainer);
-                InsertBefore(WellKnownBehavior.ExecuteUnitOfWork);
+                InsertAfter(WellKnownStep.CreateChildContainer);
+                InsertBefore(WellKnownStep.ExecuteUnitOfWork);
             }
         }
     }

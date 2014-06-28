@@ -13,26 +13,26 @@ namespace NServiceBus.Pipeline
             this.replacements = replacements;
         }
 
-        public void Register(string id, Type behavior, string description)
+        public void Register(WellKnownStep wellKnownStep, Type behavior, string description)
         {
-            additions.Add(RegisterBehavior.Create(id, behavior, description));
+            additions.Add(RegisterStep.Create(wellKnownStep, behavior, description));
         }
 
-        public void Register(RegisterBehavior rego)
+        public void Register(RegisterStep rego)
         {
             additions.Add(rego);
         }
 
-        public IEnumerable<RegisterBehavior> BuildRuntimeModel()
+        public IEnumerable<RegisterStep> BuildRuntimeModel()
         {
             var registrations = CreateRegistrationsList();
 
             return Sort(registrations);
         }
 
-        IEnumerable<RegisterBehavior> CreateRegistrationsList()
+        IEnumerable<RegisterStep> CreateRegistrationsList()
         {
-            var registrations = new Dictionary<string, RegisterBehavior>(StringComparer.CurrentCultureIgnoreCase);
+            var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
             var listOfBeforeAndAfterIds = new List<string>();
 
             // Let's do some validation too
@@ -40,9 +40,9 @@ namespace NServiceBus.Pipeline
             //Step 1: validate that additions are unique
             foreach (var metadata in additions)
             {
-                if (!registrations.ContainsKey(metadata.Id))
+                if (!registrations.ContainsKey(metadata.StepId))
                 {
-                    registrations.Add(metadata.Id, metadata);
+                    registrations.Add(metadata.StepId, metadata);
                     if (metadata.Afters != null)
                     {
                         listOfBeforeAndAfterIds.AddRange(metadata.Afters.Select(a=>a.Id));
@@ -55,7 +55,7 @@ namespace NServiceBus.Pipeline
                     continue;
                 }
 
-                var message = string.Format("Behavior registration with id '{0}' is already registered for '{1}'", metadata.Id, registrations[metadata.Id].BehaviorType);
+                var message = string.Format("Behavior registration with id '{0}' is already registered for '{1}'", metadata.StepId, registrations[metadata.StepId].BehaviorType);
                 throw new Exception(message);
             }
 
@@ -89,7 +89,7 @@ namespace NServiceBus.Pipeline
                     var add = additions.First(mr => (mr.Befores != null && mr.Befores.Select(b=>b.Id).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)) ||
                                                     (mr.Afters != null && mr.Afters.Select(b=>b.Id).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)));
 
-                    var message = string.Format("You cannot remove behavior registration with id '{0}', registration with id {1} depends on it!", metadata.RemoveId, add.Id);
+                    var message = string.Format("You cannot remove behavior registration with id '{0}', registration with id {1} depends on it!", metadata.RemoveId, add.StepId);
                     throw new Exception(message);
                 }
 
@@ -99,7 +99,7 @@ namespace NServiceBus.Pipeline
             return registrations.Values;
         }
 
-        static IEnumerable<RegisterBehavior> Sort(IEnumerable<RegisterBehavior> registrations)
+        static IEnumerable<RegisterStep> Sort(IEnumerable<RegisterStep> registrations)
         {
             // Step 1: create nodes for graph
             var nameToNodeDict = new Dictionary<string, Node>();
@@ -111,7 +111,7 @@ namespace NServiceBus.Pipeline
                 {
                     Rego = rego
                 };
-                nameToNodeDict[rego.Id] = node;
+                nameToNodeDict[rego.StepId] = node;
                 allNodes.Add(node);
             }
 
@@ -129,7 +129,7 @@ namespace NServiceBus.Pipeline
                         }
                         else
                         {
-                            var message = string.Format("Registration '{0}' specified in the insertbefore of the '{1}' behavior does not exist!", beforeReference.Id, node.Rego.Id);
+                            var message = string.Format("Registration '{0}' specified in the insertbefore of the '{1}' behavior does not exist!", beforeReference.Id, node.Rego.StepId);
 
                             if (!beforeReference.Enforce)
                             {
@@ -154,7 +154,7 @@ namespace NServiceBus.Pipeline
                         }
                         else
                         {
-                            var message = string.Format("Registration '{0}' specified in the insertafter of the '{1}' behavior does not exist!", afterReference.Id, node.Rego.Id);
+                            var message = string.Format("Registration '{0}' specified in the insertafter of the '{1}' behavior does not exist!", afterReference.Id, node.Rego.StepId);
 
                             if (!afterReference.Enforce)
                             {
@@ -170,7 +170,7 @@ namespace NServiceBus.Pipeline
             }
 
             // Step 3: Perform Topological Sort
-            var output = new List<RegisterBehavior>();
+            var output = new List<RegisterStep>();
             foreach (var node in allNodes)
             {
                 node.Visit(output);
@@ -179,7 +179,7 @@ namespace NServiceBus.Pipeline
             return output;
         }
 
-        List<RegisterBehavior> additions = new List<RegisterBehavior>();
+        List<RegisterStep> additions = new List<RegisterStep>();
         List<RemoveBehavior> removals;
         List<ReplaceBehavior> replacements;
 
@@ -200,7 +200,7 @@ namespace NServiceBus.Pipeline
 
         class Node
         {
-            internal void Visit(ICollection<RegisterBehavior> output)
+            internal void Visit(ICollection<RegisterStep> output)
             {
                 if (visited)
                 {
@@ -214,9 +214,14 @@ namespace NServiceBus.Pipeline
                 output.Add(Rego);
             }
 
-            internal RegisterBehavior Rego;
+            internal RegisterStep Rego;
             internal List<Node> previous = new List<Node>();
             bool visited;
+        }
+
+        public void Register(string pipelineStep, Type behavior, string description)
+        {
+            Register(WellKnownStep.Create(pipelineStep), behavior, description);
         }
     }
 }

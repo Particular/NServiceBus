@@ -34,12 +34,12 @@
         /// <summary>
         /// The list of incoming steps registered.
         /// </summary>
-        public IList<RegisterBehavior> Incoming { get; private set; }
+        public IList<RegisterStep> Incoming { get; private set; }
         
         /// <summary>
         /// The list of outgoing steps registered.
         /// </summary>
-        public IList<RegisterBehavior> Outgoing { get; private set; }
+        public IList<RegisterStep> Outgoing { get; private set; }
 
         /// <summary>
         /// The current context being executed.
