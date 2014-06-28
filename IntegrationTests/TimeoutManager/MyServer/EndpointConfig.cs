@@ -6,12 +6,17 @@ namespace MyServer
     using NServiceBus;
     using NServiceBus.MessageMutator;
 
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server,INeedInitialization
+    public class EndpointConfig : IConfigureThisEndpoint,INeedInitialization
     {
         public void Init(Configure config)
         {
             config.UsePersistence<NServiceBus.Persistence.Legacy.Msmq>();
             config.UsePersistence<InMemory>();
+            
+        }
+
+        public void Customize(ConfigurationBuilder builder)
+        {
             
         }
     }
