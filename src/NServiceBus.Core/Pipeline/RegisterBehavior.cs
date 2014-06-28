@@ -14,7 +14,7 @@ namespace NServiceBus.Pipeline
         /// <param name="pipelineStep">The unique identifier for this <see cref="IBehavior{TContext}"/>.</param>
         /// <param name="behavior">The type of <see cref="IBehavior{TContext}"/> to register.</param>
         /// <param name="description">A brief description of what this <see cref="IBehavior{TContext}"/> does.</param>
-        protected RegisterBehavior(PipelineStep pipelineStep, Type behavior, string description)
+        protected RegisterBehavior(string pipelineStep, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
@@ -127,6 +127,10 @@ namespace NServiceBus.Pipeline
         internal static RegisterBehavior Create(PipelineStep pipelineStep, Type behavior, string description)
         {
             return new DefaultRegisterBehavior(behavior, pipelineStep, description);
+        }
+        internal static RegisterBehavior Create(string pipelineStep, Type behavior, string description)
+        {
+            return new DefaultRegisterBehavior(behavior, Pipeline.PipelineStep.CreateCustom(pipelineStep), description);
         }
         
         class DefaultRegisterBehavior : RegisterBehavior

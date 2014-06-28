@@ -61,7 +61,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                 {
                     public void Init(Configure config)
                     {
-                        config.Pipeline.Register(PipelineStep.CreateCustom("SetFiltering"), typeof(SetFiltering), "Filters audit entries");
+                        config.Pipeline.Register("SetFiltering", typeof(SetFiltering), "Filters audit entries");
                     }
                 }
             }

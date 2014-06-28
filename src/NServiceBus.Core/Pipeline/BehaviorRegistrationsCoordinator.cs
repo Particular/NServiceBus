@@ -218,5 +218,10 @@ namespace NServiceBus.Pipeline
             internal List<Node> previous = new List<Node>();
             bool visited;
         }
+
+        public void Register(string pipelineStep, Type behavior, string description)
+        {
+            Register(PipelineStep.CreateCustom(pipelineStep), behavior, description);
+        }
     }
 }

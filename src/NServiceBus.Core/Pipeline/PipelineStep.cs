@@ -20,7 +20,7 @@ namespace NServiceBus.Pipeline
             this.stepId = stepId;
         }
 
-        public static PipelineStep CreateCustom(string customStepId)
+        internal static PipelineStep CreateCustom(string customStepId)
         {
             return new PipelineStep(customStepId);
         }

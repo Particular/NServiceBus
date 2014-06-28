@@ -88,7 +88,7 @@
 
         public class Registration:RegisterBehavior
         {    
-            public Registration() : base(Pipeline.PipelineStep.CreateCustom("DataBusReceive"), typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message")
+            public Registration() : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message")
             {
                 InsertAfter(Pipeline.PipelineStep.MutateIncomingMessages);
                 InsertBefore(Pipeline.PipelineStep.InvokeHandlers);

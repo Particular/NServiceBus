@@ -31,28 +31,38 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Replaces an existing step behavior with a new one.
         /// </summary>
-        /// <param name="idToReplace">The identifier of the step to replace.</param>
+        /// <param name="pipelineStep">The identifier of the step to replace.</param>
         /// <param name="newBehavior">The new <see cref="IBehavior{TContext}"/> to use.</param>
         /// <param name="description">The description of the new behavior.</param>
-        public void Replace(string idToReplace, Type newBehavior, string description = null)
+        public void Replace(string pipelineStep, Type newBehavior, string description = null)
         {
             BehaviorTypeChecker.ThrowIfInvalid(newBehavior, "newBehavior");
 
-            if (string.IsNullOrEmpty(idToReplace))
+            if (string.IsNullOrEmpty(pipelineStep))
             {
-                throw new ArgumentNullException("idToReplace");
+                throw new ArgumentNullException("pipelineStep");
             }
 
-            config.Settings.Get<PipelineModifications>().Replacements.Add(new ReplaceBehavior(idToReplace, newBehavior, description));
+            config.Settings.Get<PipelineModifications>().Replacements.Add(new ReplaceBehavior(pipelineStep, newBehavior, description));
         }
 
+        public void Replace(PipelineStep pipelineStep, Type newBehavior, string description = null)
+        {
+            if (pipelineStep == null)
+            {
+                throw new ArgumentNullException("pipelineStep");
+            }
+
+            Replace((string)pipelineStep, newBehavior, description);
+        }
+        
         /// <summary>
         /// Register a new step into the pipeline.
         /// </summary>
         /// <param name="pipelineStep">The identifier of the new step to add.</param>
         /// <param name="behavior">The <see cref="IBehavior{TContext}"/> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
-        public void Register(PipelineStep pipelineStep, Type behavior, string description)
+        public void Register(string pipelineStep, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
@@ -68,6 +78,18 @@ namespace NServiceBus.Pipeline
 
             config.Settings.Get<PipelineModifications>().Additions.Add(RegisterBehavior.Create(pipelineStep, behavior, description));
         }
+
+        
+        public void Register(PipelineStep pipelineStep, Type behavior, string description)
+        {
+            if (pipelineStep == null)
+            {
+                throw new ArgumentNullException("pipelineStep");
+            }
+
+            Register((string)pipelineStep, behavior, description);
+        }
+
 
         /// <summary>
         /// Register a new step into the pipeline.

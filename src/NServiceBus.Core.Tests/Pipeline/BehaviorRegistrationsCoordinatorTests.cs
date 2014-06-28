@@ -24,16 +24,12 @@ namespace NServiceBus.Core.Tests.Pipeline
             coordinator = new BehaviorRegistrationsCoordinator(removals, replacements);
         }
 
-        static PipelineStep Step1 = PipelineStep.CreateCustom("1");
-        static PipelineStep Step2 = PipelineStep.CreateCustom("2");
-        static PipelineStep Step3 = PipelineStep.CreateCustom("3");
-
         [Test]
         public void Registrations_Count()
         {
-            coordinator.Register(Step1, typeof(FakeBehavior), "1");
-            coordinator.Register(Step2, typeof(FakeBehavior), "2");
-            coordinator.Register(Step3, typeof(FakeBehavior), "3");
+            coordinator.Register("1", typeof(FakeBehavior), "1");
+            coordinator.Register("2", typeof(FakeBehavior), "2");
+            coordinator.Register("3", typeof(FakeBehavior), "3");
 
             removals.Add(new RemoveBehavior("1"));
 
@@ -45,9 +41,9 @@ namespace NServiceBus.Core.Tests.Pipeline
         [Test]
         public void Registrations_Order()
         {
-            coordinator.Register(Step1, typeof(FakeBehavior), "1");
-            coordinator.Register(Step2, typeof(FakeBehavior), "2");
-            coordinator.Register(Step3, typeof(FakeBehavior), "3");
+            coordinator.Register("1", typeof(FakeBehavior), "1");
+            coordinator.Register("2", typeof(FakeBehavior), "2");
+            coordinator.Register("3", typeof(FakeBehavior), "3");
 
             var model = coordinator.BuildRuntimeModel().ToList();
 
@@ -59,9 +55,9 @@ namespace NServiceBus.Core.Tests.Pipeline
         [Test]
         public void Registrations_Replace()
         {
-            coordinator.Register(Step1, typeof(FakeBehavior), "1");
-            coordinator.Register(Step2, typeof(FakeBehavior), "2");
-            coordinator.Register(Step3, typeof(FakeBehavior), "3");
+            coordinator.Register("1", typeof(FakeBehavior), "1");
+            coordinator.Register("2", typeof(FakeBehavior), "2");
+            coordinator.Register("3", typeof(FakeBehavior), "3");
 
             replacements.Add(new ReplaceBehavior("1", typeof(ReplacedBehavior), "new"));
             replacements.Add(new ReplaceBehavior("2", typeof(ReplacedBehavior)));
@@ -76,9 +72,9 @@ namespace NServiceBus.Core.Tests.Pipeline
         [Test]
         public void Registrations_Order_with_befores_and_afters()
         {
-            coordinator.Register(Step1, typeof(FakeBehavior), "1");
-            coordinator.Register(Step2, typeof(FakeBehavior), "2");
-            coordinator.Register(Step3, typeof(FakeBehavior), "3");
+            coordinator.Register("1", typeof(FakeBehavior), "1");
+            coordinator.Register("2", typeof(FakeBehavior), "2");
+            coordinator.Register("3", typeof(FakeBehavior), "3");
 
             coordinator.Register(new MyCustomRegistration("1.5", "2", "1"));
             coordinator.Register(new MyCustomRegistration("2.5", "3", "2"));
@@ -97,9 +93,9 @@ namespace NServiceBus.Core.Tests.Pipeline
         [Test]
         public void Registrations_Order_with_befores_only()
         {
-            coordinator.Register(Step1, typeof(FakeBehavior), "1");
-            coordinator.Register(Step2, typeof(FakeBehavior), "2");
-            coordinator.Register(Step3, typeof(FakeBehavior), "3");
+            coordinator.Register("1", typeof(FakeBehavior), "1");
+            coordinator.Register("2", typeof(FakeBehavior), "2");
+            coordinator.Register("3", typeof(FakeBehavior), "3");
 
             coordinator.Register(new MyCustomRegistration("1.5", "2,3", null));
             coordinator.Register(new MyCustomRegistration("2.5", "3", null));
@@ -116,9 +112,9 @@ namespace NServiceBus.Core.Tests.Pipeline
         [Test]
         public void Registrations_Order_with_multi_afters()
         {
-            coordinator.Register(Step1, typeof(FakeBehavior), "1");
-            coordinator.Register(Step2, typeof(FakeBehavior), "2");
-            coordinator.Register(Step3, typeof(FakeBehavior), "3");
+            coordinator.Register("1", typeof(FakeBehavior), "1");
+            coordinator.Register("2", typeof(FakeBehavior), "2");
+            coordinator.Register("3", typeof(FakeBehavior), "3");
 
             coordinator.Register(new MyCustomRegistration("1.5", "2", "1"));
             coordinator.Register(new MyCustomRegistration("2.5", "3", "2,1"));
@@ -137,9 +133,9 @@ namespace NServiceBus.Core.Tests.Pipeline
         [Test]
         public void Registrations_Order_with_afters_only()
         {
-            coordinator.Register(Step1, typeof(FakeBehavior), "1");
-            coordinator.Register(Step2, typeof(FakeBehavior), "2");
-            coordinator.Register(Step3, typeof(FakeBehavior), "3");
+            coordinator.Register("1", typeof(FakeBehavior), "1");
+            coordinator.Register("2", typeof(FakeBehavior), "2");
+            coordinator.Register("3", typeof(FakeBehavior), "3");
 
             coordinator.Register(new MyCustomRegistration("1.5", "1.6", "1.1"));
             coordinator.Register(new MyCustomRegistration("1.6", "2", "1.5"));
