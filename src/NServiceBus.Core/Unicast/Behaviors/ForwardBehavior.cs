@@ -78,9 +78,9 @@
         public class Registration : RegisterBehavior
         {
             public Registration()
-                : base("ForwardMessageTo", typeof(ForwardBehavior), "Forwards message to the specified queue in the UnicastBus config section.")
+                : base(Pipeline.WellKnownStep.CreateCustom("ForwardMessageTo"), typeof(ForwardBehavior), "Forwards message to the specified queue in the UnicastBus config section.")
             {
-                InsertBefore(WellKnownBehavior.ExecuteUnitOfWork);
+                InsertBefore(Pipeline.WellKnownStep.ExecuteUnitOfWork);
             }
         }
     }

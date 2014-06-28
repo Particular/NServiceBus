@@ -25,10 +25,10 @@ namespace NServiceBus.Outbox
         public class OutboxRecorderRegistration : RegisterBehavior
         {
             public OutboxRecorderRegistration()
-                : base("OutboxRecorder", typeof(OutboxRecordBehavior), "Records all action to the outbox storage")
+                : base(Pipeline.WellKnownStep.CreateCustom("OutboxRecorder"), typeof(OutboxRecordBehavior), "Records all action to the outbox storage")
             {
-                InsertBefore(WellKnownBehavior.MutateIncomingTransportMessage);
-                InsertAfter(WellKnownBehavior.ExecuteUnitOfWork);
+                InsertBefore(Pipeline.WellKnownStep.MutateIncomingTransportMessage);
+                InsertAfter(Pipeline.WellKnownStep.ExecuteUnitOfWork);
             }
         }
     }

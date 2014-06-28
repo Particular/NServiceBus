@@ -31,34 +31,50 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Replaces an existing step behavior with a new one.
         /// </summary>
-        /// <param name="idToReplace">The identifier of the step to replace.</param>
+        /// <param name="pipelineStep">The identifier of the step to replace.</param>
         /// <param name="newBehavior">The new <see cref="IBehavior{TContext}"/> to use.</param>
         /// <param name="description">The description of the new behavior.</param>
-        public void Replace(string idToReplace, Type newBehavior, string description = null)
+        public void Replace(string pipelineStep, Type newBehavior, string description = null)
         {
             BehaviorTypeChecker.ThrowIfInvalid(newBehavior, "newBehavior");
 
-            if (string.IsNullOrEmpty(idToReplace))
+            if (string.IsNullOrEmpty(pipelineStep))
             {
-                throw new ArgumentNullException("idToReplace");
+                throw new ArgumentNullException("pipelineStep");
             }
 
-            config.Settings.Get<PipelineModifications>().Replacements.Add(new ReplaceBehavior(idToReplace, newBehavior, description));
+            config.Settings.Get<PipelineModifications>().Replacements.Add(new ReplaceBehavior(pipelineStep, newBehavior, description));
         }
 
         /// <summary>
+        /// <see cref="Replace(string,System.Type,string)"/>
+        /// </summary>
+        /// <param name="wellKnownStep">The identifier of the well known step to replace.</param>
+        /// <param name="newBehavior">The new <see cref="IBehavior{TContext}"/> to use.</param>
+        /// <param name="description">The description of the new behavior.</param>
+        public void Replace(WellKnownStep wellKnownStep, Type newBehavior, string description = null)
+        {
+            if (wellKnownStep == null)
+            {
+                throw new ArgumentNullException("wellKnownStep");
+            }
+
+            Replace((string)wellKnownStep, newBehavior, description);
+        }
+        
+        /// <summary>
         /// Register a new step into the pipeline.
         /// </summary>
-        /// <param name="id">The identifier of the new step to add.</param>
+        /// <param name="pipelineStep">The identifier of the new step to add.</param>
         /// <param name="behavior">The <see cref="IBehavior{TContext}"/> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
-        public void Register(string id, Type behavior, string description)
+        public void Register(string pipelineStep, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
-            if (string.IsNullOrEmpty(id))
+            if (string.IsNullOrEmpty(pipelineStep))
             {
-                throw new ArgumentNullException("id");
+                throw new ArgumentNullException("pipelineStep");
             }
 
             if (string.IsNullOrEmpty(description))
@@ -66,8 +82,26 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("description");
             }
 
-            config.Settings.Get<PipelineModifications>().Additions.Add(RegisterBehavior.Create(id, behavior, description));
+            config.Settings.Get<PipelineModifications>().Additions.Add(RegisterBehavior.Create(pipelineStep, behavior, description));
         }
+
+
+        /// <summary>
+        /// <see cref="Register(string,System.Type,string)"/>
+        /// </summary>
+        /// <param name="wellKnownStep">The identifier of the step to add.</param>
+        /// <param name="behavior">The <see cref="IBehavior{TContext}"/> to execute.</param>
+        /// <param name="description">The description of the behavior.</param>
+        public void Register(WellKnownStep wellKnownStep, Type behavior, string description)
+        {
+            if (wellKnownStep == null)
+            {
+                throw new ArgumentNullException("wellKnownStep");
+            }
+
+            Register((string)wellKnownStep, behavior, description);
+        }
+
 
         /// <summary>
         /// Register a new step into the pipeline.
