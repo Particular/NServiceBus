@@ -90,8 +90,8 @@
         {    
             public Registration() : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message")
             {
-                InsertAfter(Pipeline.WellKnownStep.MutateIncomingMessages);
-                InsertBefore(Pipeline.WellKnownStep.InvokeHandlers);
+                InsertAfter(WellKnownStep.MutateIncomingMessages);
+                InsertBefore(WellKnownStep.InvokeHandlers);
             }
         }
     }

@@ -28,7 +28,6 @@
             WellKnownStep.CreateCustom(null);
         }
 
-
         [Test]
         public void Should_be_able_to_convert_a_built_in_pipeline_step_to_a_string()
         {

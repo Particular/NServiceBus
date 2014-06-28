@@ -25,9 +25,9 @@
         public class Registration:RegisterBehavior
         {
             public Registration()
-                : base(Pipeline.WellKnownStep.AuditProcessedMessage, typeof(AuditBehavior), "Send a copy of the successfully processed message to the configured audit queue")
+                : base(WellKnownStep.AuditProcessedMessage, typeof(AuditBehavior), "Send a copy of the successfully processed message to the configured audit queue")
             {
-                InsertBefore(Pipeline.WellKnownStep.InvokeHandlers);
+                InsertBefore(WellKnownStep.InvokeHandlers);
             }
         }
     }

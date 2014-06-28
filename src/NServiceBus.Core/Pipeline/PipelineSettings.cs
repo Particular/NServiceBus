@@ -15,35 +15,49 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Removes the specified step from the pipeline.
         /// </summary>
-        /// <param name="idToRemove">The identifier of the step to remove.</param>
-        public void Remove(string idToRemove)
+        /// <param name="stepId">The identifier of the step to remove.</param>
+        public void Remove(string stepId)
         {
             // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
-            if (string.IsNullOrEmpty(idToRemove))
+            if (string.IsNullOrEmpty(stepId))
             {
-                throw new ArgumentNullException("idToRemove");
+                throw new ArgumentNullException("stepId");
             }
 
+            config.Settings.Get<PipelineModifications>().Removals.Add(new RemoveBehavior(stepId));
+        }
 
-            config.Settings.Get<PipelineModifications>().Removals.Add(new RemoveBehavior(idToRemove));
+        /// <summary>
+        /// Removes the specified step from the pipeline.
+        /// </summary>
+        /// <param name="wellKnownStep">The identifier of the well known step to remove.</param>
+        public void Remove(WellKnownStep wellKnownStep)
+        {
+            // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
+            if (wellKnownStep == null)
+            {
+                throw new ArgumentNullException("wellKnownStep");
+            }
+
+            Remove((string)wellKnownStep);
         }
 
         /// <summary>
         /// Replaces an existing step behavior with a new one.
         /// </summary>
-        /// <param name="pipelineStep">The identifier of the step to replace.</param>
+        /// <param name="stepId">The identifier of the step to replace its implementation.</param>
         /// <param name="newBehavior">The new <see cref="IBehavior{TContext}"/> to use.</param>
         /// <param name="description">The description of the new behavior.</param>
-        public void Replace(string pipelineStep, Type newBehavior, string description = null)
+        public void Replace(string stepId, Type newBehavior, string description = null)
         {
             BehaviorTypeChecker.ThrowIfInvalid(newBehavior, "newBehavior");
 
-            if (string.IsNullOrEmpty(pipelineStep))
+            if (string.IsNullOrEmpty(stepId))
             {
-                throw new ArgumentNullException("pipelineStep");
+                throw new ArgumentNullException("stepId");
             }
 
-            config.Settings.Get<PipelineModifications>().Replacements.Add(new ReplaceBehavior(pipelineStep, newBehavior, description));
+            config.Settings.Get<PipelineModifications>().Replacements.Add(new ReplaceBehavior(stepId, newBehavior, description));
         }
 
         /// <summary>
@@ -65,16 +79,16 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Register a new step into the pipeline.
         /// </summary>
-        /// <param name="pipelineStep">The identifier of the new step to add.</param>
+        /// <param name="stepId">The identifier of the new step to add.</param>
         /// <param name="behavior">The <see cref="IBehavior{TContext}"/> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
-        public void Register(string pipelineStep, Type behavior, string description)
+        public void Register(string stepId, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
-            if (string.IsNullOrEmpty(pipelineStep))
+            if (string.IsNullOrEmpty(stepId))
             {
-                throw new ArgumentNullException("pipelineStep");
+                throw new ArgumentNullException("stepId");
             }
 
             if (string.IsNullOrEmpty(description))
@@ -82,7 +96,7 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("description");
             }
 
-            config.Settings.Get<PipelineModifications>().Additions.Add(RegisterBehavior.Create(pipelineStep, behavior, description));
+            config.Settings.Get<PipelineModifications>().Additions.Add(RegisterBehavior.Create(stepId, behavior, description));
         }
 
 

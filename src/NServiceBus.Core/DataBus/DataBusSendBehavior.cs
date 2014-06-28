@@ -101,10 +101,10 @@
 
         public class Registration : RegisterBehavior
         {
-            public Registration(): base(Pipeline.WellKnownStep.CreateCustom("DataBusSend"), typeof(DataBusSendBehavior), "Saves the payload into the shared location")
+            public Registration(): base("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location")
             {
-                InsertAfter(Pipeline.WellKnownStep.MutateOutgoingMessages);
-                InsertBefore(Pipeline.WellKnownStep.CreatePhysicalMessage);
+                InsertAfter(WellKnownStep.MutateOutgoingMessages);
+                InsertBefore(WellKnownStep.CreatePhysicalMessage);
             }
         }
     }

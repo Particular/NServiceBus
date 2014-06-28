@@ -78,7 +78,7 @@
             coordinator.Register(WellKnownStep.MutateOutgoingTransportMessage, typeof(MutateOutgoingPhysicalMessageBehavior), "Executes IMutateOutgoingTransportMessages");
             if (LogManager.GetLogger("LogOutgoingMessage").IsDebugEnabled)
             {
-                coordinator.Register(WellKnownStep.CreateCustom("LogOutgoingMessage"), typeof(LogOutgoingMessageBehavior), "Logs the message contents before it is sent.");
+                coordinator.Register("LogOutgoingMessage", typeof(LogOutgoingMessageBehavior), "Logs the message contents before it is sent.");
             }
             coordinator.Register(WellKnownStep.DispatchMessageToTransport, typeof(DispatchMessageToTransportBehavior), "Dispatches messages to the transport");
         }
