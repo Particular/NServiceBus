@@ -4,12 +4,14 @@ using NServiceBus;
 
 namespace MyServer.Scheduling
 {
-    public class ScheduleATaskToRunAtStartUp //: IWantToRunWhenTheBusStarts 
+    public class ScheduleATaskToRunAtStartUp : IWantToRunWhenBusStartsAndStops 
     {
-        public void Run()
+        public Schedule Schedule { get; set; }
+        public void Start()
         {
-            Schedule.Every(TimeSpan.FromMinutes(5)).Action(() => Console.WriteLine("This task was schduled when the host started"));
-            Schedule.Every(TimeSpan.FromMinutes(3)).Action("Task with specified name",() =>
+            Schedule.Every(TimeSpan.FromMinutes(5),() => Console.WriteLine("This task was schduled when the host started"));
+
+            Schedule.Every(TimeSpan.FromMinutes(3),"Task with specified name",() =>
                                                                                           {
                                                                                               Thread.Sleep(60 * 1000);
                                                                                               Console.WriteLine("This task was schduled when the host started and given a name");
