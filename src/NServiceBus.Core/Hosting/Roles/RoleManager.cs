@@ -70,7 +70,7 @@
             }
             if (!roleFound)
             {
-                throw new Exception("Did you forget to specify the endpoint role? Please make sure you specify the endpoint role as either 'AsA_Client','AsA_Host','AsA_Publisher', 'AsA_Server' or some other custom 'IRole'.");
+                throw new Exception("Did you forget to specify the endpoint role? Please make sure you specify the endpoint role as either 'AsA_Client','AsA_Publisher', 'AsA_Server' or some other custom 'IRole'.");
             }
         }
 
