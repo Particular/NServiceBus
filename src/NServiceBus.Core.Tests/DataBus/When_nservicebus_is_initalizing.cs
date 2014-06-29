@@ -27,7 +27,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
 
-            Assert.True(feature.ShouldBeSetup(new FeatureConfigurationContext(config)));
+            Assert.True(feature.CheckPrerequisites(new FeatureConfigurationContext(config)).IsSatisfied);
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace NServiceBus.Core.Tests.DataBus
             });
             var feature = new DataBusFeature();
 
-            Assert.False(feature.ShouldBeSetup(new FeatureConfigurationContext(config)));
+            Assert.False(feature.CheckPrerequisites(new FeatureConfigurationContext(config)).IsSatisfied);
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             var feature = new DataBusFeature();
 
-            Assert.Throws<InvalidOperationException>(() => feature.ShouldBeSetup(new FeatureConfigurationContext(config)));
+            Assert.Throws<InvalidOperationException>(() => feature.CheckPrerequisites(new FeatureConfigurationContext(config)));
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             config.Configurer.ConfigureComponent<IDataBusSerializer>(() => new MyDataBusSerializer(), DependencyLifecycle.SingleInstance);
 
-            Assert.DoesNotThrow(() => feature.ShouldBeSetup(new FeatureConfigurationContext(config)));
+            Assert.DoesNotThrow(() => feature.CheckPrerequisites(new FeatureConfigurationContext(config)));
         }
 
         class MyDataBusSerializer : IDataBusSerializer

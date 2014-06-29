@@ -18,7 +18,7 @@
         /// <summary>
         /// Creates a new instance of the handler tester.
         /// </summary>
-        public Handler(T handler, StubBus bus)
+        internal Handler(T handler, StubBus bus)
         {
             this.handler = handler;
             this.bus = bus;

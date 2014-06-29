@@ -12,12 +12,11 @@
     /// Enabled message auditing for this endpoint.
     /// </summary>
     public class Audit : Feature
-    {
-        
+    {   
         internal Audit()
         {
             EnableByDefault();
-            Prerequisite(config => GetConfiguredAuditQueue(config) != Address.Undefined);
+            Prerequisite(config => GetConfiguredAuditQueue(config) != Address.Undefined,"No configured audit queue was found");
         }
 
         /// <summary>

@@ -12,7 +12,7 @@ namespace NServiceBus.Features
         internal DataBusFeature()
         {
             EnableByDefault();
-            Prerequisite(DataBusPropertiesFound);
+            Prerequisite(DataBusPropertiesFound,"No databus properties was found in available messages");
             RegisterStartupTask<StorageInitializer>();
         }
 

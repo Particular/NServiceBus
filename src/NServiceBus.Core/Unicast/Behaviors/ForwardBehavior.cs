@@ -12,9 +12,8 @@
     {
         public ForwardReceivedMessages()
         {
-           // Only enable if the configuration is defined in UnicastBus
-            Prerequisite(config => GetConfiguredForwardMessageQueue(config) != Address.Undefined);
-
+            // Only enable if the configuration is defined in UnicastBus
+            Prerequisite(config => GetConfiguredForwardMessageQueue(config) != Address.Undefined,"No forwarding address was defined in the unicastbus config");
         }
 
         protected override void Setup(FeatureConfigurationContext context)
@@ -31,7 +30,6 @@
             context.Container.ConfigureComponent<ForwardBehavior>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.ForwardReceivedMessagesTo, forwardReceivedMessagesQueue)
                 .ConfigureProperty(p => p.TimeToBeReceivedOnForwardedMessages, timeToBeReceived);
-
         }
 
         TimeSpan? GetConfiguredTimeToBeReceivedValue(FeatureConfigurationContext context)
@@ -52,9 +50,7 @@
             }
             return Address.Undefined;
         }
-
     }
-
 
     class ForwardBehavior : IBehavior<IncomingContext>
     {
@@ -72,7 +68,7 @@
             {
                 TimeToBeReceived = TimeToBeReceivedOnForwardedMessages
             }, context.PhysicalMessage);
-            
+
         }
 
         public class Registration : RegisterStep

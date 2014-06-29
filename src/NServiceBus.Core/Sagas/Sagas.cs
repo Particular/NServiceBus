@@ -25,7 +25,7 @@
                 s.Get<Conventions>().AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
             });
 
-            Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType));
+            Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas was found in scabbed types");
         }
 
         /// <summary>
