@@ -81,7 +81,7 @@
             if (typeof(T).IsValueType)
             {
                 result = default(T);
-                return true;
+                return false;
             }
 
             result = default(T);
@@ -145,6 +145,9 @@
             stash.Remove(key);
         }
 
+        /// <summary>
+        /// Access to the parent context
+        /// </summary>
         protected readonly BehaviorContext parentContext;
         dynamic chain;
 

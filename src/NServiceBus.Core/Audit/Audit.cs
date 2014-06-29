@@ -12,18 +12,17 @@
     /// Enabled message auditing for this endpoint.
     /// </summary>
     public class Audit : Feature
-    {
-        
+    {   
         internal Audit()
         {
             EnableByDefault();
-            Prerequisite(config => GetConfiguredAuditQueue(config) != Address.Undefined);
+            Prerequisite(config => GetConfiguredAuditQueue(config) != Address.Undefined,"No configured audit queue was found");
         }
 
         /// <summary>
         /// See <see cref="Feature.Setup"/>
         /// </summary>
-        protected override void Setup(FeatureConfigurationContext context)
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             // If Audit feature is enabled and the value not specified via config and instead specified in the registry:
             // Log a warning when running in the debugger to remind user to make sure the 

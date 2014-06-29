@@ -38,6 +38,9 @@ namespace NServiceBus.Unicast
             HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = hostInformation.HostId;
         }
 
+        /// <summary>
+        /// Provides access to the current host information
+        /// </summary>
         public HostInformation HostInformation
         {
             get { return hostInformation; }

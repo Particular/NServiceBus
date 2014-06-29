@@ -8,9 +8,12 @@ namespace NServiceBus
     /// </summary>
     public class TransportConfiguration
     {
+        /// <summary>
+        /// Access to the current config instance
+        /// </summary>
         public Configure Config { get; private set; }
 
-        public TransportConfiguration(Configure config)
+        internal TransportConfiguration(Configure config)
         {
             Config = config;
         }

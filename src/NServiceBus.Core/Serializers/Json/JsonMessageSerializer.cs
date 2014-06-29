@@ -19,34 +19,54 @@ namespace NServiceBus.Serializers.Json
         {
         }
 
-        protected override JsonWriter CreateJsonWriter(Stream stream)
+        /// <summary>
+        /// Creates the writer
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        protected internal override JsonWriter CreateJsonWriter(Stream stream)
         {
             var streamWriter = new StreamWriter(stream, Encoding.UTF8);
             return new JsonTextWriter(streamWriter) {Formatting = Formatting.None};
         }
 
-        protected override JsonReader CreateJsonReader(Stream stream)
+        /// <summary>
+        /// Creates the reader
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        protected internal override JsonReader CreateJsonReader(Stream stream)
         {
             var streamReader = new StreamReader(stream, Encoding.UTF8);
             return new JsonTextReader(streamReader);
         }
 
-        public T DeserializeObject<T>(string value)
-        {
-            return JsonConvert.DeserializeObject<T>(value);
-        }
-
+        /// <summary>
+        /// Non strongly typed deserialization
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public object DeserializeObject(string value, Type type)
         {
             return JsonConvert.DeserializeObject(value, type);
         }
 
+        /// <summary>
+        /// Serializes the given object to a json string
+        /// </summary>
+        /// <param name="value">The actual object</param>
+        /// <returns>The json string</returns>
         public string SerializeObject(object value)
         {
             return JsonConvert.SerializeObject(value);
         }
 
-        protected override string GetContentType()
+        /// <summary>
+        /// Returns the supported content type
+        /// </summary>
+        /// <returns></returns>
+        protected internal override string GetContentType()
         {
             return ContentTypes.Json;
         }

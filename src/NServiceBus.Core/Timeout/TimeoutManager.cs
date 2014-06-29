@@ -13,21 +13,18 @@
         internal TimeoutManager()
         {
             DependsOn<TimeoutManagerBasedDeferral>();
+           
+            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"),"Send only endpoints can't use the timeoutmanager since it requires receive capabilities");
             
-            //send only endpoints doesn't need a a timeout manager
-            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"));
-            
-            //if we have a master node configured we should use the Master Node timeout manager instead
-            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Distributor.Enabled"));
+            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Distributor.Enabled"),"This endpoint is a worker and will be using the timeoutmanager running at its masternode instead");
 
-            //if the user has specified another TM we don't need to run our own
-            Prerequisite(context => !HasAlternateTimeoutManagerBeenConfigured(context.Settings));
+            Prerequisite(context => !HasAlternateTimeoutManagerBeenConfigured(context.Settings),"A user configured timeoutmanager address has been found and this endpoint will send timeouts to that endpoint");
         }
 
         /// <summary>
         /// See <see cref="Feature.Setup"/>
         /// </summary>
-        protected override void Setup(FeatureConfigurationContext context)
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             var endpointName = context.Settings.Get<string>("EndpointName");
 

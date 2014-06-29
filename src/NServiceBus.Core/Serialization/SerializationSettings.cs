@@ -7,9 +7,12 @@ namespace NServiceBus.Settings
     /// </summary>
     public class SerializationSettings
     {
+        /// <summary>
+        /// Access to the current config instance
+        /// </summary>
         public  Configure Config;
 
-        public SerializationSettings(Configure config)
+        internal SerializationSettings(Configure config)
         {
             Config = config;
         }

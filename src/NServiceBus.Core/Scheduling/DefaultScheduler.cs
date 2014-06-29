@@ -1,19 +1,14 @@
 namespace NServiceBus.Scheduling
 {
     using System;
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
 
-    class DefaultScheduler 
+    class DefaultScheduler
     {
-        static ILog logger = LogManager.GetLogger<DefaultScheduler>();
-
-       internal Dictionary<Guid, TaskDefinition> scheduledTasks = new Dictionary<Guid, TaskDefinition>();
-        IBus bus;
-
         public DefaultScheduler(IBus bus)
         {
             this.bus = bus;
@@ -21,14 +16,14 @@ namespace NServiceBus.Scheduling
 
         public void Schedule(TaskDefinition taskDefinition)
         {
-            scheduledTasks[taskDefinition.Id] = taskDefinition;          
+            scheduledTasks[taskDefinition.Id] = taskDefinition;
             logger.DebugFormat("Task {0}/{1} scheduled with timeSpan {2}", taskDefinition.Name, taskDefinition.Id, taskDefinition.Every);
             DeferTask(taskDefinition);
         }
 
         public void Start(Guid taskId)
         {
-            TaskDefinition taskDefinition ;
+            TaskDefinition taskDefinition;
 
             if (!scheduledTasks.TryGetValue(taskId, out taskDefinition))
             {
@@ -43,38 +38,42 @@ namespace NServiceBus.Scheduling
         static void ExecuteTask(TaskDefinition taskDefinition)
         {
             logger.InfoFormat("Start executing scheduled task {0}", taskDefinition.Name);
-            var sw = new Stopwatch();            
+            var sw = new Stopwatch();
             sw.Start();
 
             Task.Factory
                 .StartNew(taskDefinition.Task, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default)
                 .ContinueWith(task =>
-                    {
-                        sw.Stop();
+                {
+                    sw.Stop();
 
-                        if (task.IsFaulted)
+                    if (task.IsFaulted)
+                    {
+                        task.Exception.Handle(ex =>
                         {
-                            task.Exception.Handle(ex =>
-                            {
-                                logger.Error(String.Format("Failed to execute scheduled task {0}", taskDefinition.Name), ex);
-                                return true;
-                            });
-                        }
-                        else
-                        {
-                            logger.InfoFormat("Scheduled task {0} run for {1}", taskDefinition.Name, sw.Elapsed.ToString());
-                        }
-                    });
+                            logger.Error(String.Format("Failed to execute scheduled task {0}", taskDefinition.Name), ex);
+                            return true;
+                        });
+                    }
+                    else
+                    {
+                        logger.InfoFormat("Scheduled task {0} run for {1}", taskDefinition.Name, sw.Elapsed.ToString());
+                    }
+                });
         }
 
         void DeferTask(TaskDefinition taskDefinition)
-        {            
+        {
             bus.Defer(taskDefinition.Every, new Messages.ScheduledTask
-                {
-                    TaskId = taskDefinition.Id,
-                    Name = taskDefinition.Name,
-                    Every = taskDefinition.Every
-                });
+            {
+                TaskId = taskDefinition.Id,
+                Name = taskDefinition.Name,
+                Every = taskDefinition.Every
+            });
         }
+
+        static ILog logger = LogManager.GetLogger<DefaultScheduler>();
+        IBus bus;
+        internal ConcurrentDictionary<Guid, TaskDefinition> scheduledTasks = new ConcurrentDictionary<Guid, TaskDefinition>();
     }
 }

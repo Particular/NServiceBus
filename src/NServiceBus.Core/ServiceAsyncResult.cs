@@ -3,11 +3,11 @@ namespace NServiceBus
     using System;
     using System.Threading;
 
-    public class ServiceAsyncResult : IAsyncResult
+    class ServiceAsyncResult : IAsyncResult
     {
-        private readonly object state;
-        private volatile bool completed;
-        private readonly ManualResetEvent sync;
+        readonly object state;
+        volatile bool completed;
+        readonly ManualResetEvent sync;
 
         /// <summary>
         /// Creates a new object storing the given state.

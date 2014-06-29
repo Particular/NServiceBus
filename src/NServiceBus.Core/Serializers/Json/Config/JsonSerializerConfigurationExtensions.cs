@@ -3,7 +3,9 @@
     using System;
     using Settings;
 
+#pragma warning disable 1591
     public static class JsonSerializerConfigurationExtensions
+#pragma warning restore 1591
     {
         /// <summary>
         /// Enables the json message serializer

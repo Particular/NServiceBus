@@ -43,8 +43,7 @@
                 throw new InvalidOperationException("Overwriting a previously set local address is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
         }
 
-
-        public static Address PublicReturnAddress { get; private set; }
+        internal static Address PublicReturnAddress { get; private set; }
 
         /// <summary>
         /// Sets the public return address of this endpoint.

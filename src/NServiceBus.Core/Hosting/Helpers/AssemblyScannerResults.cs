@@ -30,6 +30,9 @@
         /// </summary>
         public List<SkippedFile> SkippedFiles { get; private set; }
 
+        /// <summary>
+        /// True if errors where encountered during assembly scanning
+        /// </summary>
         public bool ErrorsThrownDuringScanning { get; internal set; }
     }
 }

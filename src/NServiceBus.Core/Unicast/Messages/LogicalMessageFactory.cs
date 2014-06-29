@@ -15,6 +15,12 @@ namespace NServiceBus.Unicast.Messages
         readonly IMessageMapper messageMapper;
         readonly PipelineExecutor pipelineExecutor;
 
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="messageMetadataRegistry"></param>
+        /// <param name="messageMapper"></param>
+        /// <param name="pipelineExecutor"></param>
         public LogicalMessageFactory(MessageMetadataRegistry messageMetadataRegistry, IMessageMapper messageMapper, PipelineExecutor pipelineExecutor)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;

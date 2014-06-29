@@ -10,7 +10,7 @@
     {
         readonly SettingsHolder settings;
 
-        public XmlSerializationSettings(SettingsHolder settings)
+        internal XmlSerializationSettings(SettingsHolder settings)
         {
             this.settings = settings;
         }

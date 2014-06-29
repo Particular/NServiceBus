@@ -13,17 +13,15 @@ namespace NServiceBus.Features
         internal SecondLevelRetries()
         {
             EnableByDefault();
-            Prerequisite(ShouldRun);
-        }
-
-        bool ShouldRun(FeatureConfigurationContext context)
-        {
+           
             // if we're not using the Fault Forwarder, we should act as if SLR is disabled
             //this will change when we make SLR a first class citizen
-            if (!context.Container.HasComponent<FaultManager>())
-            {
-                return false;
-            }
+            Prerequisite(c => c.Container.HasComponent<FaultManager>(), "A custom faultmanager was defined");
+            Prerequisite(IsEnabledInConfig, "SLR was disabled in config");
+        }
+
+        bool IsEnabledInConfig(FeatureConfigurationContext context)
+        {
             var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
 
             if (retriesConfig == null)
@@ -38,7 +36,7 @@ namespace NServiceBus.Features
         /// <summary>
         /// See <see cref="Feature.Setup"/>
         /// </summary>
-        protected override void Setup(FeatureConfigurationContext context)
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
 

@@ -1,8 +1,11 @@
 ﻿namespace NServiceBus.Persistence.Legacy
 {
+    /// <summary>
+    /// Used to enable Msmq persistence <see cref="IConfigurePersistence{T}"/>
+    /// </summary>
     public class Msmq : PersistenceDefinition
     {
-        public Msmq()
+        internal Msmq()
         {
             Supports(Storage.Subscriptions);
         }

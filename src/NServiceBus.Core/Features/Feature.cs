@@ -82,16 +82,26 @@
         /// <summary>
         ///     Called when the features is activated
         /// </summary>
-        protected abstract void Setup(FeatureConfigurationContext context);
+        protected internal abstract void Setup(FeatureConfigurationContext context);
 
         /// <summary>
         ///     Adds a setup prerequisite condition. If false this feature won't be setup
         ///     Prerequisites are only evaluated if the feature is enabled
         /// </summary>
         /// <param name="condition">Condition that must be met in order for this feature to be activated</param>
-        protected void Prerequisite(Func<FeatureConfigurationContext, bool> condition)
+        /// <param name="description">Explanation of what this prerequisite checks</param>
+        protected void Prerequisite(Func<FeatureConfigurationContext, bool> condition,string description)
         {
-            setupPrerequisites.Add(condition);
+            if (string.IsNullOrEmpty(description))
+            {
+                throw new ArgumentException("Description can't be empty", "description");
+            }
+
+            setupPrerequisites.Add(new SetupPrerequisite
+            {
+                Condition = condition,
+                Description = description
+            });
         }
 
         /// <summary>
@@ -171,11 +181,20 @@
             return string.Format("{0} [{1}]", Name, Version);
         }
 
-        internal bool ShouldBeSetup(FeatureConfigurationContext config)
+        internal PrerequisiteStatus CheckPrerequisites(FeatureConfigurationContext context)
         {
-            return setupPrerequisites.All(condition => condition(config));
-        }
+            var status = new PrerequisiteStatus();
 
+            foreach (var prerequisite in setupPrerequisites)
+            {
+                if (!prerequisite.Condition(context))
+                {
+                    status.ReportFailure(prerequisite.Description);
+                }
+            }
+
+            return status;
+        }
 
         internal void SetupFeature(FeatureConfigurationContext config)
         {
@@ -209,8 +228,14 @@
         bool isActive;
         bool isEnabledByDefault;
         string name;
-        List<Func<FeatureConfigurationContext, bool>> setupPrerequisites = new List<Func<FeatureConfigurationContext, bool>>();
+        List<SetupPrerequisite> setupPrerequisites = new List<SetupPrerequisite>();
         List<Type> startupTasks = new List<Type>();
         List<Action<SettingsHolder>> defaults = new List<Action<SettingsHolder>>();
+
+        class SetupPrerequisite
+        {
+            public string Description;
+            public Func<FeatureConfigurationContext, bool> Condition;
+        }
     }
 }

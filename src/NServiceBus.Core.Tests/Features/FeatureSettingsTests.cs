@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Features
 {
     using System;
+    using System.Linq;
     using NServiceBus.Features;
     using NUnit.Framework;
     using Settings;
@@ -25,6 +26,8 @@
 
             Assert.True(featureWithTrueCondition.IsActive);
             Assert.False(featureWithFalseCondition.IsActive);
+            Assert.AreEqual("The description",
+                featureSettings.Status.Single(s => s.Name == featureWithFalseCondition.Name).PrerequisiteStatus.Reasons.First());
         }
 
         [Test]
@@ -60,7 +63,7 @@
             public MyFeatureWithTrueActivationCondition()
             {
                 EnableByDefault();
-                Prerequisite(c => true);
+                Prerequisite(c => true,"Wont be used");
             }
         }
 
@@ -69,7 +72,7 @@
             public MyFeatureWithFalseActivationCondition()
             {
                 EnableByDefault();
-                Prerequisite(c => false);
+                Prerequisite(c => false,"The description");
             }
         }
 
@@ -85,7 +88,7 @@
 
         public Action<Feature> OnActivation;
 
-        protected override void Setup(FeatureConfigurationContext context)
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             if (OnActivation != null)
             {

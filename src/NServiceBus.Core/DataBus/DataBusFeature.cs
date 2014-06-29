@@ -12,14 +12,14 @@ namespace NServiceBus.Features
         internal DataBusFeature()
         {
             EnableByDefault();
-            Prerequisite(DataBusPropertiesFound);
+            Prerequisite(DataBusPropertiesFound,"No databus properties was found in available messages");
             RegisterStartupTask<StorageInitializer>();
         }
 
         /// <summary>
         /// See <see cref="Feature.Setup"/>
         /// </summary>
-        protected override void Setup(FeatureConfigurationContext context)
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             if (!context.Container.HasComponent<IDataBus>())
 			{

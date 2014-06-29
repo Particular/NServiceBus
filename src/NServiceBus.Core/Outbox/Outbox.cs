@@ -19,7 +19,7 @@
         {
             Defaults(s => s.SetDefault(TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5)));
 
-            Prerequisite(c => c.Settings.Get<bool>("Transactions.Enabled"));
+            Prerequisite(c => c.Settings.Get<bool>("Transactions.Enabled"),"Outbox isn't needed since the receive transactions has been turned off");
 
             Prerequisite(c =>
             {
@@ -29,10 +29,9 @@
                 }
 
                 return RequireOutboxConsent(c);
-            });
+            },"This transport requires outbox consent");
 
             RegisterStartupTask<DtcRunningWarning>();
-
         }
 
         static bool RequireOutboxConsent(FeatureConfigurationContext context)
@@ -69,7 +68,7 @@ The reason you need to do this is because we need to ensure that you have read a
         /// <summary>
         /// See <see cref="Feature.Setup"/>
         /// </summary>
-        protected override void Setup(FeatureConfigurationContext context)
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             if (!context.Settings.Get<EnabledPersistences>().HasSupportFor(Storage.Outbox))
             {

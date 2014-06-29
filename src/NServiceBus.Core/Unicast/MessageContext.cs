@@ -23,6 +23,9 @@ namespace NServiceBus.Unicast
             get { return transportMessage.Headers; }
         }
 
+        /// <summary>
+        /// The time at which the incoming message was sent
+        /// </summary>
         public DateTime TimeSent
         {
             get

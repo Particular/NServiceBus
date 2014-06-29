@@ -13,15 +13,34 @@ namespace NServiceBus.Settings
     /// </summary>
     public class SettingsHolder : ReadOnlySettings
     {
+        /// <summary>
+        /// Gets the given setting by key
+        /// </summary>
+        /// <typeparam name="T">The type of the value</typeparam>
+        /// <param name="key">The key</param>
+        /// <returns></returns>
         public T Get<T>(string key)
         {
             return (T)Get(key);
         }
 
+        /// <summary>
+        /// Tries to get the given value, key is the type fullname
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <param name="val">The returned value if present</param>
+        /// <returns>True if found</returns>
         public bool TryGet<T>(out T val)
         {
             return TryGet(typeof(T).FullName, out val);
         }
+        /// <summary>
+        /// Tries to get the given value by key
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <param name="key">The key</param>
+        /// <param name="val">Value if found</param>
+        /// <returns>True if key is found</returns>
         public bool TryGet<T>(string key, out T val)
         {
             val = default(T);
@@ -37,11 +56,21 @@ namespace NServiceBus.Settings
             return true;
         }
 
+        /// <summary>
+        /// Gets the given value, key is type fullname
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <returns>The value if found, throws if not</returns>
         public T Get<T>()
         {
             return (T)Get(typeof(T).FullName);
         }
 
+        /// <summary>
+        /// Gets the given value by key
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <returns>The value</returns>
         public object Get(string key)
         {
             object result;
@@ -79,6 +108,11 @@ namespace NServiceBus.Settings
         {
             Set(typeof(T).FullName, value);
         }
+        /// <summary>
+        /// Sets the given value, key is type fullname
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <param name="value">Action to store</param>
         public void Set<T>(Action value)
         {
             Set(typeof(T).FullName, value);
@@ -114,11 +148,21 @@ namespace NServiceBus.Settings
             SetDefault(typeof(T).FullName, value);
         }
 
+        /// <summary>
+        /// Sets the default value for the given setting
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <param name="value">The value to store as default</param>
         public void SetDefault<T>(Action value)
         {
             SetDefault(typeof(T).FullName, value);
         }
 
+        /// <summary>
+        /// Set the default value for the given key
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <param name="value">The value</param>
         public void SetDefault(string key, object value)
         {
             EnsureWriteEnabled(key);
@@ -130,11 +174,18 @@ namespace NServiceBus.Settings
         /// Gets the setting or default based on the typename
         /// </summary>
         /// <typeparam name="T">The setting to get</typeparam>
-        /// <returns></returns>
+        /// <returns>The actual value</returns>
         public T GetOrDefault<T>()
         {
             return GetOrDefault<T>(typeof(T).FullName);
         }
+
+        /// <summary>
+        /// Gets the value or its default
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <param name="key">The key</param>
+        /// <returns>The value</returns>
         public T GetOrDefault<T>(string key)
         {
             object result;
@@ -151,11 +202,21 @@ namespace NServiceBus.Settings
             return default(T);
         }
 
+        /// <summary>
+        /// True if there is a default or explicit value for the given key
+        /// </summary>
+        /// <param name="key">The Key</param>
+        /// <returns>True if found</returns>
         public bool HasSetting(string key)
         {
             return Overrides.ContainsKey(key) || Defaults.ContainsKey(key);
         }
 
+        /// <summary>
+        /// True if there is a setting for the given type
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <returns>True if found</returns>
         public bool HasSetting<T>()
         {
             var key = typeof(T).FullName;
@@ -166,7 +227,7 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Locks the settings to prevent further modifications
         /// </summary>
-        public void PreventChanges()
+        internal void PreventChanges()
         {
             locked = true;
         }
@@ -181,6 +242,11 @@ namespace NServiceBus.Settings
 
         bool locked;
 
+        /// <summary>
+        /// Applies property inject for the given type based on convention
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <param name="config"></param>
         public void ApplyTo<T>(IComponentConfig config)
         {
             var targetType = typeof(T);
