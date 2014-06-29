@@ -3,7 +3,9 @@
     using Features;
     using Settings;
 
+#pragma warning disable 1591
     public static class BinarySerializerConfigurationExtensions
+#pragma warning restore 1591
     {
         /// <summary>
         /// Enables the binary message serializer

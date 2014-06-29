@@ -11,6 +11,7 @@ namespace NServiceBus.ObjectBuilder.Common.Config
         RemoveInVersion = "6",
         TreatAsErrorFromVersion = "5",
         Replacement = "Configure.With(c=>.UseContainer<T>())")]
+#pragma warning disable 1591
 // ReSharper disable once UnusedParameter.Global
         public static Configure UsingContainer<T>(this Configure configure) where T : class, IContainer, new()
         {
@@ -28,4 +29,5 @@ namespace NServiceBus.ObjectBuilder.Common.Config
             throw new NotImplementedException();
         }
     }
+#pragma warning restore 1591
 }

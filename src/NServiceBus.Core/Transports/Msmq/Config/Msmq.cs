@@ -7,6 +7,9 @@ namespace NServiceBus
     /// </summary>
     public class Msmq : TransportDefinition
     {
+        /// <summary>
+        /// Ctor
+        /// </summary>
         public Msmq()
         {
             RequireOutboxConsent = true;

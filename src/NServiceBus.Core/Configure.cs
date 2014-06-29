@@ -81,6 +81,9 @@ namespace NServiceBus
             }
         }
 
+        /// <summary>
+        /// Access to the pipeline configuration
+        /// </summary>
         public PipelineSettings Pipeline
         {
             get { return pipelineSettings ?? (pipelineSettings = new PipelineSettings(this)); }

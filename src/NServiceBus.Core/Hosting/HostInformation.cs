@@ -7,9 +7,12 @@ namespace NServiceBus.Hosting
     using System.Text.RegularExpressions;
     using Utils;
 
+    /// <summary>
+    /// Provides a information about the process hosting this endpoint
+    /// </summary>
     public class HostInformation
     {
-        public static HostInformation CreateDefault()
+        internal static HostInformation CreateDefault()
         {
             var commandLine = Environment.CommandLine;
 
@@ -32,14 +35,22 @@ namespace NServiceBus.Hosting
 
             var hostId = DeterministicGuid.Create(fullPathToStartingExe, machineName);
 
-            return new HostInformation(hostId, machineName, String.Format("{0}", fullPathToStartingExe));
+            var hostInfo= new HostInformation(hostId, machineName);
+
+            hostInfo.Properties.Add("PathToExecutable", fullPathToStartingExe);
+
+            return hostInfo;
         }
 
-        public HostInformation(Guid hostId, string displayName, string displayInstanceIdentifier)
+        /// <summary>
+        /// Creates a new instance
+        /// </summary>
+        /// <param name="hostId">The id of the host</param>
+        /// <param name="displayName">The display name of the host</param>
+        public HostInformation(Guid hostId, string displayName)
         {
             HostId = hostId;
             DisplayName = displayName;
-            DisplayInstanceIdentifier = displayInstanceIdentifier;
 
             Properties = new Dictionary<string, string>
             {
@@ -49,9 +60,19 @@ namespace NServiceBus.Hosting
             };
         }
 
+        /// <summary>
+        /// The unique identifier for this host
+        /// </summary>
         public Guid HostId { get; private set; }
+
+        /// <summary>
+        /// The display name of this host
+        /// </summary>
         public string DisplayName { get; private set; }
-        public string DisplayInstanceIdentifier { get; private set; }
+        
+        /// <summary>
+        /// A set of properties for the host. This might vary from host to host
+        /// </summary>
         public Dictionary<string, string> Properties { get; private set; }
     }
 }

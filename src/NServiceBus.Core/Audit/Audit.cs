@@ -22,7 +22,7 @@
         /// <summary>
         /// See <see cref="Feature.Setup"/>
         /// </summary>
-        protected override void Setup(FeatureConfigurationContext context)
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             // If Audit feature is enabled and the value not specified via config and instead specified in the registry:
             // Log a warning when running in the debugger to remind user to make sure the 

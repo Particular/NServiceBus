@@ -8,15 +8,22 @@
     using Transports;
     using Queuing.Installers;
 
+    /// <summary>
+    /// Provides message forwarding capabilities
+    /// </summary>
     public class ForwardReceivedMessages : Feature
     {
-        public ForwardReceivedMessages()
+        internal ForwardReceivedMessages()
         {
             // Only enable if the configuration is defined in UnicastBus
             Prerequisite(config => GetConfiguredForwardMessageQueue(config) != Address.Undefined,"No forwarding address was defined in the unicastbus config");
         }
 
-        protected override void Setup(FeatureConfigurationContext context)
+        /// <summary>
+        /// Invoked if the feature is activated
+        /// </summary>
+        /// <param name="context">The feature context</param>
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Pipeline.Register<ForwardBehavior.Registration>();
 

@@ -68,7 +68,7 @@ The reason you need to do this is because we need to ensure that you have read a
         /// <summary>
         /// See <see cref="Feature.Setup"/>
         /// </summary>
-        protected override void Setup(FeatureConfigurationContext context)
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             if (!context.Settings.Get<EnabledPersistences>().HasSupportFor(Storage.Outbox))
             {

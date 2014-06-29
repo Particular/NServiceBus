@@ -3,6 +3,9 @@
     using System.Configuration;
     using Unicast.Transport;
 
+    /// <summary>
+    /// Settings that applies to the transport
+    /// </summary>
     public class TransportConfig : ConfigurationSection
     {
         /// <summary>

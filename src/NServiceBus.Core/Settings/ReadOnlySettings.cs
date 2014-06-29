@@ -66,6 +66,11 @@ namespace NServiceBus.Settings
         /// <returns>true if the <see cref="ReadOnlySettings"/> contains an element with the specified key; otherwise, false.</returns>
         bool HasSetting<T>();
         
+        /// <summary>
+        /// Setup property injection for the given type based on convention
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="config"></param>
         void ApplyTo<T>(IComponentConfig config);
     }
 }

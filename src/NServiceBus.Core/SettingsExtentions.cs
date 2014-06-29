@@ -6,6 +6,9 @@ namespace NServiceBus
     using Config.ConfigurationSource;
     using Settings;
 
+    /// <summary>
+    /// Provides extentions to the settings holder
+    /// </summary>
     public static class SettingsExtentions
     {
         /// <summary>

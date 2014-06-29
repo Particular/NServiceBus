@@ -67,7 +67,7 @@
             set { Set(value); }
         }
 
-        public const string IncomingPhysicalMessageKey = "NServiceBus.IncomingPhysicalMessage";
+        internal const string IncomingPhysicalMessageKey = "NServiceBus.IncomingPhysicalMessage";
         const string IncomingLogicalMessageKey = "NServiceBus.IncomingLogicalMessageKey";
     }
 }

@@ -841,6 +841,9 @@ namespace NServiceBus.Serializers.XML
             stream.Write(buffer, 0, buffer.Length);
         }
 
+        /// <summary>
+        /// Supported content type
+        /// </summary>
         public string ContentType { get { return ContentTypes.Xml; } }
 
 

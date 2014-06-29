@@ -8,7 +8,11 @@
     /// </summary>
     public class TimeoutManagerBasedDeferral:Feature
     {
-        protected override void Setup(FeatureConfigurationContext context)
+        /// <summary>
+        /// Invoked if the feature is activated
+        /// </summary>
+        /// <param name="context">The feature context</param>
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<TimeoutManagerDeferrer>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.TimeoutManagerAddress, GetTimeoutManagerAddress(context));

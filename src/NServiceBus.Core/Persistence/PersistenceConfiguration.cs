@@ -8,9 +8,12 @@
     /// </summary>
     public class PersistenceConfiguration
     {
+        /// <summary>
+        /// Access to the current config instance
+        /// </summary>
         public Configure Config { get; private set; }
 
-        public PersistenceConfiguration(Configure config)
+        internal PersistenceConfiguration(Configure config)
         {
             Config = config;
         }

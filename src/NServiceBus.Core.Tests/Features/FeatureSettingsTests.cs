@@ -88,7 +88,7 @@
 
         public Action<Feature> OnActivation;
 
-        protected override void Setup(FeatureConfigurationContext context)
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             if (OnActivation != null)
             {

@@ -82,7 +82,7 @@
         /// <summary>
         ///     Called when the features is activated
         /// </summary>
-        protected abstract void Setup(FeatureConfigurationContext context);
+        protected internal abstract void Setup(FeatureConfigurationContext context);
 
         /// <summary>
         ///     Adds a setup prerequisite condition. If false this feature won't be setup

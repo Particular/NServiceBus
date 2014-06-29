@@ -19,7 +19,7 @@
         /// <summary>
         /// <see cref="Feature.Setup"/>
         /// </summary>
-        protected override void Setup(FeatureConfigurationContext context)
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             new CheckMachineNameForComplianceWithDtcLimitation()
             .Check();

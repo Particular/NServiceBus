@@ -24,7 +24,7 @@
         /// <summary>
         /// See <see cref="Feature.Setup"/>
         /// </summary>
-        protected override void Setup(FeatureConfigurationContext context)
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             var endpointName = context.Settings.Get<string>("EndpointName");
 
