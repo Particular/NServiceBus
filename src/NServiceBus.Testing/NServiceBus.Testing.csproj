@@ -27,7 +27,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\NServiceBus.Testing.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <NoWarn>1591,1573,618</NoWarn>
+    <NoWarn>1573,618</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
@@ -66,6 +66,7 @@
     <Compile Include="FakeTestTransportConfigurer.cs" />
     <Compile Include="Handler.cs" />
     <Compile Include="InMemoryDataBus.cs" />
+    <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="Invocations.cs" />
     <Compile Include="MessageContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

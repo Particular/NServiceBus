@@ -36,6 +36,12 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>NServiceBus.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit\lib\nunit.framework.dll</HintPath>
@@ -63,6 +69,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="NServiceBus.snk" />
     <None Include="ripple.dependencies.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
