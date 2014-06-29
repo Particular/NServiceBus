@@ -38,6 +38,31 @@ namespace NServiceBus.Core.Tests.Pipeline
             Assert.AreEqual(2, model.Count());
         }
 
+        [Test, ExpectedException]
+        public void Should_only_accept_unique_registrations()
+        {
+            coordinator.Register("1", typeof(FakeBehavior), "behavior 1");
+            coordinator.Register("1", typeof(FakeBehavior), "again behavior 1");
+
+            coordinator.BuildRuntimeModel();
+        }
+
+        [Test, ExpectedException]
+        public void Should_not_be_able_to_register_a_behavior_before_an_unregistered_one()
+        {
+            coordinator.Register(new MyCustomRegistration("2", "1", null));
+
+            coordinator.BuildRuntimeModel();
+        }
+
+        [Test, ExpectedException]
+        public void Should_not_be_able_to_register_a_behavior_after_an_unregistered_one()
+        {
+            coordinator.Register(new MyCustomRegistration("2", null, "1"));
+
+            coordinator.BuildRuntimeModel();
+        }
+
         [Test]
         public void Registrations_Order()
         {
