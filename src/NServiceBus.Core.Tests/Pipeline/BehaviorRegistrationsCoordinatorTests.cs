@@ -179,7 +179,7 @@ namespace NServiceBus.Core.Tests.Pipeline
         class MyCustomRegistration : RegisterBehavior
         {
             public MyCustomRegistration(string pipelineStep, string before, string after)
-                : base(NServiceBus.Pipeline.WellKnownStep.CreateCustom(pipelineStep), typeof(FakeBehavior), pipelineStep)
+                : base(WellKnownStep.CreateCustom(pipelineStep), typeof(FakeBehavior), pipelineStep)
             {
                 if (!String.IsNullOrEmpty(before))
                 {
