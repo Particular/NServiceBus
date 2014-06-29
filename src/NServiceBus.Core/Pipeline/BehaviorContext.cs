@@ -81,7 +81,7 @@
             if (typeof(T).IsValueType)
             {
                 result = default(T);
-                return true;
+                return false;
             }
 
             result = default(T);
