@@ -145,6 +145,9 @@
             stash.Remove(key);
         }
 
+        /// <summary>
+        /// Access to the parent context
+        /// </summary>
         protected readonly BehaviorContext parentContext;
         dynamic chain;
 

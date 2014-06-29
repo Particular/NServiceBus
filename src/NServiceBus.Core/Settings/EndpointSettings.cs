@@ -12,7 +12,7 @@ namespace NServiceBus.Settings
 
         readonly EndpointAdvancedSettings endpointAdvancedSettings;
 
-        public EndpointSettings(Configure config)
+        internal EndpointSettings(Configure config)
         {
             this.config = config;
 
@@ -67,7 +67,7 @@ namespace NServiceBus.Settings
         {
             readonly Configure config;
 
-            public EndpointAdvancedSettings(Configure config)
+            internal EndpointAdvancedSettings(Configure config)
             {
                 this.config = config;
             }

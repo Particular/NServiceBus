@@ -5,6 +5,10 @@ namespace NServiceBus.Transports
     /// </summary>
     public interface IConfigureTransport
     {
+        /// <summary>
+        /// Performs the configuration if selected
+        /// </summary>
+        /// <param name="config"></param>
         void Configure(Configure config);
     }
 

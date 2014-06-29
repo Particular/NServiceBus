@@ -31,7 +31,7 @@
         /// <summary>
         /// See <see cref="Feature.Setup"/>
         /// </summary>
-        protected override void Setup(FeatureConfigurationContext context)
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             conventions = context.Settings.Get<Conventions>();
             // Register the Saga related behavior for incoming messages

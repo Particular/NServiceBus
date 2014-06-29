@@ -3,8 +3,14 @@ namespace NServiceBus.Config
     using System;
     using System.Configuration;
 
+    /// <summary>
+    /// Configuration options for the SLR feature
+    /// </summary>
     public class SecondLevelRetriesConfig : ConfigurationSection
     {
+        /// <summary>
+        /// True if SLR should be used
+        /// </summary>
         [ConfigurationProperty("Enabled", IsRequired = false,DefaultValue = true)]
         public bool Enabled
         {
@@ -18,6 +24,9 @@ namespace NServiceBus.Config
             }
         }
 
+        /// <summary>
+        /// Sets the time to increase the delay between retries
+        /// </summary>
         [ConfigurationProperty("TimeIncrease", IsRequired = false,DefaultValue = "00:00:10")]
         public TimeSpan TimeIncrease
         {
@@ -39,6 +48,9 @@ namespace NServiceBus.Config
             }
         }
 
+        /// <summary>
+        /// Sets the number of retries to do before aborting and sending the message to the error queue
+        /// </summary>
         [ConfigurationProperty("NumberOfRetries", IsRequired = false,DefaultValue=3)]
         public int NumberOfRetries
         {

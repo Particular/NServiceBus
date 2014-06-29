@@ -42,7 +42,7 @@ namespace NServiceBus
             return (TResponse)Enum.ToObject(typeof(TResponse), completionResult.ErrorCode);
         }
 
-        private static void ProxyCallback(AsyncCallback callback, ServiceAsyncResult result, IAsyncResult busResult)
+        static void ProxyCallback(AsyncCallback callback, ServiceAsyncResult result, IAsyncResult busResult)
         {
             var completionResult = (CompletionResult)busResult.AsyncState;
 

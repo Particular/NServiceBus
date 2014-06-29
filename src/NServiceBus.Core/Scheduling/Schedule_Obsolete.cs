@@ -6,6 +6,7 @@ namespace NServiceBus
     public partial class Schedule
     {
         [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "Inject Schedule")]
+#pragma warning disable 1591
         public static Schedule Every(TimeSpan timeSpan)
         {
             throw new NotImplementedException("Api has been obsolete.");
@@ -20,7 +21,10 @@ namespace NServiceBus
         [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Replacement = "Schedule.Every(TimeSpan timeSpan, string name, Action task)")]
         public void Action(string name, Action task)
         {
-            throw new NotImplementedException("Api has been obsolete.");       
+            throw new NotImplementedException("Api has been obsolete.");
         }
+
+#pragma warning restore 1591
+
     }
 }

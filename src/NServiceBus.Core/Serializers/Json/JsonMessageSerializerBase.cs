@@ -26,7 +26,11 @@ namespace NServiceBus.Serializers.Json
             Converters = { new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.RoundtripKind }, new XContainerConverter() }
         };
 
-        protected JsonMessageSerializerBase(IMessageMapper messageMapper)
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="messageMapper"></param>
+        protected internal JsonMessageSerializerBase(IMessageMapper messageMapper)
         {
             this.messageMapper = messageMapper;
         }
@@ -119,10 +123,24 @@ namespace NServiceBus.Serializers.Json
         /// </summary>
         public string ContentType { get { return GetContentType(); } }
 
-        protected abstract string GetContentType();
+        /// <summary>
+        /// Returns the supported content type
+        /// </summary>
+        /// <returns></returns>
+        protected internal abstract string GetContentType();
 
-        protected abstract JsonWriter CreateJsonWriter(Stream stream);
+        /// <summary>
+        /// Creates a suit
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        protected internal abstract JsonWriter CreateJsonWriter(Stream stream);
 
-        protected abstract JsonReader CreateJsonReader(Stream stream);
+        /// <summary>
+        /// Creates a suitable json reader
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        protected internal abstract JsonReader CreateJsonReader(Stream stream);
     }
 }

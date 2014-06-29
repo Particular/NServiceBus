@@ -4,9 +4,12 @@
     using System.Transactions;
     using Settings;
 
+    /// <summary>
+    /// Settings relates to transactions
+    /// </summary>
     public class TransactionSettings
     {
-        public TransactionSettings(ReadOnlySettings settings)
+        internal TransactionSettings(ReadOnlySettings settings)
         {
             MaxRetries = 5;
             IsTransactional = settings.Get<bool>("Transactions.Enabled");
@@ -16,7 +19,7 @@
             DoNotWrapHandlersExecutionInATransactionScope = settings.Get<bool>("Transactions.DoNotWrapHandlersExecutionInATransactionScope");
         }
 
-        protected TransactionSettings(bool isTransactional, TimeSpan transactionTimeout, IsolationLevel isolationLevel, int maxRetries, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope)
+        internal TransactionSettings(bool isTransactional, TimeSpan transactionTimeout, IsolationLevel isolationLevel, int maxRetries, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope)
         {
             IsTransactional = isTransactional;
             TransactionTimeout = transactionTimeout;
@@ -26,7 +29,7 @@
             DoNotWrapHandlersExecutionInATransactionScope = doNotWrapHandlersExecutionInATransactionScope;
         }
 
-        public static TransactionSettings Default
+        internal static TransactionSettings Default
         {
             get
             {

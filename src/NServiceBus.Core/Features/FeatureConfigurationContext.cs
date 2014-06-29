@@ -11,7 +11,7 @@
     {
         readonly Configure config;
 
-        public FeatureConfigurationContext(Configure config)
+        internal FeatureConfigurationContext(Configure config)
         {
             this.config = config;            
         }

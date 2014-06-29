@@ -11,6 +11,9 @@ namespace NServiceBus
     using ObjectBuilder;
     using Settings;
 
+    /// <summary>
+    /// Provides support for running installers
+    /// </summary>
     public class InstallationSupport : Feature
     {
         internal InstallationSupport()
@@ -21,7 +24,11 @@ namespace NServiceBus
             }
         }
 
-        protected override void Setup(FeatureConfigurationContext context)
+        /// <summary>
+        /// Invoked if the feature is activated
+        /// </summary>
+        /// <param name="context">The feature context</param>
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             foreach (var installerType in GetInstallerTypes(context))
             {

@@ -13,11 +13,18 @@ namespace NServiceBus.Hosting.Helpers
     /// </summary>
     public class AssemblyScanner
     {
+        /// <summary>
+        /// Creates a new scanner that will scan the base directory of the current appdomain
+        /// </summary>
         public AssemblyScanner()
             : this(AppDomain.CurrentDomain.BaseDirectory)
         {
         }
 
+        /// <summary>
+        /// Creates a scanner for the given directory
+        /// </summary>
+        /// <param name="baseDirectoryToScan"></param>
         public AssemblyScanner(string baseDirectoryToScan)
         {
             ThrowExceptions = true;
@@ -27,6 +34,9 @@ namespace NServiceBus.Hosting.Helpers
             this.baseDirectoryToScan = baseDirectoryToScan;
         }
 
+        /// <summary>
+        /// Tells the scanner to only include assemblies that reference one of the given assemblies
+        /// </summary>
         public List<Assembly> MustReferenceAtLeastOneAssembly { get; private set; }
 
         
@@ -58,6 +68,9 @@ namespace NServiceBus.Hosting.Helpers
             return results;
         }
 
+        /// <summary>
+        /// Determines if the scanner should throw exceptions or not
+        /// </summary>
         public bool ThrowExceptions { get; set; }
 
         void ScanAssembly(string assemblyPath, AssemblyScannerResults results)

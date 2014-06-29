@@ -8,6 +8,9 @@ namespace NServiceBus
     using Unicast;
 
 
+    /// <summary>
+    /// Provides configuration options to tune handler ordering
+    /// </summary>
     public static class LoadMessageHandlersExtentions
     {
         /// <summary>
@@ -108,7 +111,7 @@ namespace NServiceBus
             return config;
         }
 
-        public static bool IsMessageHandler(Type type)
+        internal static bool IsMessageHandler(Type type)
         {
             if (type.IsAbstract || type.IsGenericTypeDefinition)
             {

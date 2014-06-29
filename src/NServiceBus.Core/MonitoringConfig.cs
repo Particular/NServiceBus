@@ -2,6 +2,9 @@ namespace NServiceBus
 {
     using System;
 
+    /// <summary>
+    /// Provide configuration options for monitoring related settings
+    /// </summary>
     public static class MonitoringConfig
     {
         /// <summary>

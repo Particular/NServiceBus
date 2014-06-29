@@ -14,7 +14,7 @@ namespace NServiceBus.Settings
         readonly Configure config;
         TransactionAdvancedSettings transactionAdvancedSettings;
 
-        public TransactionSettings(Configure config)
+        internal TransactionSettings(Configure config)
         {
             this.config = config;
             transactionAdvancedSettings = new TransactionAdvancedSettings(config);

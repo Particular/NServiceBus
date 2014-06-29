@@ -82,7 +82,7 @@
         static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
         readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
 
-        public MessageHandlerRegistry(Conventions conventions)
+        internal MessageHandlerRegistry(Conventions conventions)
         {
             this.conventions = conventions;
         }

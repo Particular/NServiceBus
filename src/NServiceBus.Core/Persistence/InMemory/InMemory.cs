@@ -1,8 +1,11 @@
 ﻿namespace NServiceBus.Persistence
 {
+    /// <summary>
+    /// Used to enable InMemory persistence <see cref="IConfigurePersistence{T}"/>
+    /// </summary>
     public class InMemory : PersistenceDefinition
     {
-        public InMemory()
+        internal InMemory()
         {
             Supports(Storage.GatewayDeduplication);
             Supports(Storage.Timeouts);

@@ -3,7 +3,10 @@ namespace NServiceBus
     using System;
     using SecondLevelRetries.Config;
 
-    public static class FeatureSettingsExtensions
+    /// <summary>
+    /// Provides config options for the SLR feature
+    /// </summary>
+    public static class SecondLevelRetriesConfigExtensions
     {
         /// <summary>
         /// Allows for customization of the second level retries

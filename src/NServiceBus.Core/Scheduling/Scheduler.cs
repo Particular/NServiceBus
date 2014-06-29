@@ -15,8 +15,11 @@ namespace NServiceBus
 
             EnableByDefault();
         }
-
-        protected override void Setup(FeatureConfigurationContext context)
+        /// <summary>
+        /// Invoked if the feature is activated
+        /// </summary>
+        /// <param name="context">The feature context</param>
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Settings.Get<Conventions>().AddSystemMessagesConventions(t => typeof(ScheduledTask).IsAssignableFrom(t));
             context.Container.ConfigureComponent<DefaultScheduler>(DependencyLifecycle.SingleInstance);

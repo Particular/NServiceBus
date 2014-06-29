@@ -10,7 +10,11 @@
     /// </summary>
     public class MsmqSubscriptionPersistence:Feature
     {
-        protected override void Setup(FeatureConfigurationContext context)
+        /// <summary>
+        /// Invoked if the feature is activated
+        /// </summary>
+        /// <param name="context">The feature context</param>
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             var queueName = context.Settings.GetOrDefault<string>("MsmqSubscriptionPersistence.QueueName");
 

@@ -12,7 +12,7 @@
         /// <summary>
         /// See <see cref="Feature.Setup"/>
         /// </summary>
-        protected override void Setup(FeatureConfigurationContext context)
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<Unicast.Publishing.StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
         }
