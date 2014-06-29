@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Pipeline
 {
+    using System;
     using System.Collections.Generic;
     using Contexts;
     using MessageMutator;
@@ -24,22 +25,22 @@
             var model = coordinator.BuildRuntimeModel();
             Incoming = new List<RegisterBehavior>();
             Outgoing = new List<RegisterBehavior>();
-            var behaviorType = typeof(IBehavior<>);
-            var outgoingContextType = typeof(OutgoingContext);
-            var incomingContextType = typeof(IncomingContext);
+            Func<RegisterBehavior, bool> incomingRegisterBehavior = rb => typeof(IBehavior<IncomingContext>).IsAssignableFrom(rb.BehaviorType);
+            Func<RegisterBehavior, bool> outgoingRegisterBehavior = rb => typeof(IBehavior<OutgoingContext>).IsAssignableFrom(rb.BehaviorType);
 
             foreach (var rego in model)
             {
-                if (behaviorType.MakeGenericType(incomingContextType).IsAssignableFrom(rego.BehaviorType))
+                if (incomingRegisterBehavior(rego))
                 {
                     Incoming.Add(rego);
                 }
 
-                if (behaviorType.MakeGenericType(outgoingContextType).IsAssignableFrom(rego.BehaviorType))
+                if (outgoingRegisterBehavior(rego))
                 {
                     Outgoing.Add(rego);
                 }
             }
+
         }
 
         public List<RegisterBehavior> Incoming { get; private set; }

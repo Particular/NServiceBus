@@ -130,7 +130,7 @@ namespace NServiceBus.Pipeline
         }
         internal static RegisterBehavior Create(string pipelineStep, Type behavior, string description)
         {
-            return new DefaultRegisterBehavior(behavior, Pipeline.WellKnownStep.CreateCustom(pipelineStep), description);
+            return new DefaultRegisterBehavior(behavior, WellKnownStep.CreateCustom(pipelineStep), description);
         }
         
         class DefaultRegisterBehavior : RegisterBehavior
