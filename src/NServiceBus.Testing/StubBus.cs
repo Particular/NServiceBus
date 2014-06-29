@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class StubBus : IBus
+    class StubBus : IBus
     {
         IMessageCreator messageCreator;
         Dictionary<string, string> outgoingHeaders = new Dictionary<string, string>();

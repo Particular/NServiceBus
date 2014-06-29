@@ -4,12 +4,9 @@
     using System.Collections.Generic;
     using System.IO;
 
-    /// <summary>
-    /// In memory implementation of <see cref="IDataBus"/>.
-    /// </summary>
-    public class InMemoryDataBus : IDataBus
+    class InMemoryDataBus : IDataBus
     {
-        private readonly IDictionary<string, Entry> storage = new Dictionary<string, Entry>();
+        readonly IDictionary<string, Entry> storage = new Dictionary<string, Entry>();
 
         /// <summary>
         /// Gets a data item from the bus.
