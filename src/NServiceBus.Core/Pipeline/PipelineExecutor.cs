@@ -10,12 +10,12 @@
     using Unicast.Messages;
 
     /// <summary>
-    /// Orchestrates the execution of a pipeline.
+    ///     Orchestrates the execution of a pipeline.
     /// </summary>
     public class PipelineExecutor : IDisposable
     {
         /// <summary>
-        /// Create a new instance of <see cref="PipelineExecutor"/>.
+        ///     Create a new instance of <see cref="PipelineExecutor" />.
         /// </summary>
         /// <param name="settings">The settings to read data from.</param>
         /// <param name="builder">The builder.</param>
@@ -32,17 +32,49 @@
         }
 
         /// <summary>
-        /// The list of incoming steps registered.
+        ///     The list of incoming steps registered.
         /// </summary>
         public IList<RegisterStep> Incoming { get; private set; }
-        
+
         /// <summary>
-        /// The list of outgoing steps registered.
+        ///     The list of outgoing steps registered.
         /// </summary>
         public IList<RegisterStep> Outgoing { get; private set; }
 
         /// <summary>
-        /// The current context being executed.
+        ///     Running instances.
+        /// </summary>
+        public IObservable<StepStarted> StepStarted
+        {
+            get { return stepStarted; }
+        }
+
+        /// <summary>
+        ///     Step ended
+        /// </summary>
+        public IObservable<StepEnded> StepEnded
+        {
+            get { return stepEnded; }
+        }
+
+        /// <summary>
+        ///     Running instances.
+        /// </summary>
+        public IObservable<PipeStarted> PipeStarted
+        {
+            get { return pipeStarted; }
+        }
+
+        /// <summary>
+        ///     Step ended
+        /// </summary>
+        public IObservable<PipeEnded> PipeEnded
+        {
+            get { return pipeEnded; }
+        }
+
+        /// <summary>
+        ///     The current context being executed.
         /// </summary>
         public BehaviorContext CurrentContext
         {
@@ -62,7 +94,16 @@
         }
 
         /// <summary>
-        /// Invokes a chain of behaviors. 
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
+        public void Dispose()
+        {
+            //Injected
+        }
+
+        /// <summary>
+        ///     Invokes a chain of behaviors.
         /// </summary>
         /// <typeparam name="TContext">The context to use.</typeparam>
         /// <param name="behaviors">The behaviors to execute in the specified order.</param>
@@ -72,15 +113,6 @@
             var pipeline = new BehaviorChain<TContext>(behaviors, context);
 
             Execute(pipeline, context);
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        /// <filterpriority>2</filterpriority>
-        public void Dispose()
-        {
-            //Injected
         }
 
         internal void PreparePhysicalMessagePipelineContext(TransportMessage message)
@@ -114,6 +146,26 @@
             return context;
         }
 
+        internal void InvokeStepStarted(StepStarted step)
+        {
+            stepStarted.Add(step);
+        }
+
+        internal void InvokeStepEnded(StepEnded step)
+        {
+            stepEnded.Add(step);
+        }
+
+        internal void InvokePipeStarted(PipeStarted pipe)
+        {
+            pipeStarted.Add(pipe);
+        }
+
+        internal void InvokePipeEnded(PipeEnded pipe)
+        {
+            pipeEnded.Add(pipe);
+        }
+
         void DisposeManaged()
         {
             contextStacker.Dispose();
@@ -133,8 +185,12 @@
         }
 
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
-        IBuilder rootBuilder;
         IEnumerable<Type> incomingBehaviors;
         IEnumerable<Type> outgoingBehaviors;
+        ObservableList<PipeEnded> pipeEnded = new ObservableList<PipeEnded>();
+        ObservableList<PipeStarted> pipeStarted = new ObservableList<PipeStarted>();
+        IBuilder rootBuilder;
+        ObservableList<StepEnded> stepEnded = new ObservableList<StepEnded>();
+        ObservableList<StepStarted> stepStarted = new ObservableList<StepStarted>();
     }
 }
