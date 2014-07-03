@@ -11,7 +11,7 @@ namespace NServiceBus
     {
         internal Scheduler()
         {
-            DependsOn<TimeoutManagerBasedDeferral>();
+            Prerequisite(c => !c.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Scheduler cannot be used from a sendonly endpoint");
 
             EnableByDefault();
         }
