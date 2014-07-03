@@ -110,7 +110,7 @@
         /// <summary>
         /// True if the given message are configure to start the saga
         /// </summary>
-        internal static bool ShouldMessageStartSaga(Type sagaType, Type messageType)
+        internal static bool IsAStartSagaMessage(Type sagaType, Type messageType)
         {
             List<Type> messageTypes;
             SagaTypeToMessageTypesRequiringSagaStartLookup.TryGetValue(sagaType, out messageTypes);

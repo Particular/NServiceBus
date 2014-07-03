@@ -56,15 +56,16 @@
             if (loadedEntity == null)
             {
                 //if this message are not allowed to start the saga
-                if (!Features.Sagas.ShouldMessageStartSaga(sagaInstanceState.SagaType, context.IncomingLogicalMessage.MessageType))
+                if (!Features.Sagas.IsAStartSagaMessage(sagaInstanceState.SagaType, context.IncomingLogicalMessage.MessageType))
                 {
                     sagaInstanceState.MarkAsNotFound();
 
                     InvokeSagaNotFoundHandlers();
-                    return;
                 }
-
-                sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaInstanceState.SagaType));
+                else
+                {
+                    sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaInstanceState.SagaType));
+                }
             }
             else
             {
@@ -294,6 +295,7 @@
                 : base(WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic")
             {
                 InsertBefore(WellKnownStep.InvokeHandlers);
+                InsertAfter("SetCurrentMessageBeingHandled");
             }
         }
     }
