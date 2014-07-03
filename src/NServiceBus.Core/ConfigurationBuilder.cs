@@ -147,6 +147,15 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Sets the public return address of this endpoint.
+        /// </summary>
+        /// <param name="address">The public address.</param>
+        public void OverridePublicReturnAddress(Address address)
+        {
+            publicReturnAddress = address;
+        }
+
+        /// <summary>
         ///     Creates the configuration object
         /// </summary>
         internal Configure BuildConfiguration()
@@ -177,6 +186,11 @@ namespace NServiceBus
             UseTransportExtensions.SetupTransport(this);
             var container = customBuilder ?? new AutofacObjectBuilder();
             RegisterEndpointWideDefaults();
+
+            if (publicReturnAddress != null)
+            {
+                settings.SetDefault("PublicReturnAddress", publicReturnAddress);
+            }
 
             var conventions = conventionsBuilder.BuildConventions();
             container.RegisterSingleton(typeof(Conventions), conventions);
@@ -235,5 +249,6 @@ namespace NServiceBus
         string endpointName;
         string endpointVersion;
         IList<Type> scannedTypes;
+        Address publicReturnAddress;
     }
 }

@@ -22,13 +22,10 @@
         /// </summary>
         public static readonly Address Self = new Address("__self", "localhost");
 
-        
-
         /// <summary>
         /// Get the address of this endpoint.
         /// </summary>
         public static Address Local { get; private set; }
-
 
         /// <summary>
         /// Sets the address of this endpoint.
@@ -37,24 +34,20 @@
         public static void InitializeLocalAddress(string queue)
         {
             Local = Parse(queue);
-            PublicReturnAddress = Local;
 
             if (preventChanges)
                 throw new InvalidOperationException("Overwriting a previously set local address is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
         }
 
-        internal static Address PublicReturnAddress { get; private set; }
-
         /// <summary>
         /// Sets the public return address of this endpoint.
         /// </summary>
         /// <param name="address">The public address.</param>
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "Configure.With(o => o.OverridePublicReturnAddress(address))")]
+// ReSharper disable once UnusedParameter.Global
         public static void OverridePublicReturnAddress(Address address)
         {
-            PublicReturnAddress = address;
-
-            if (preventChanges)
-                throw new InvalidOperationException("Overwriting a previously set public return address is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
+            throw new InvalidOperationException();
         }
 
         /// <summary>

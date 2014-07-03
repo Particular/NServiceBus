@@ -12,6 +12,8 @@
         public ISendMessages MessageSender { get; set; }
         public ISubscriptionStorage SubscriptionStorage { get; set; }
 
+        public Configure Configure { get; set; }
+
         public void Subscribe(Type eventType, Address publisherAddress)
         {
             if (publisherAddress == Address.Undefined)
@@ -40,8 +42,10 @@
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
 
-
-            MessageSender.Send(subscriptionMessage, new SendOptions(publisherAddress) { ReplyToAddress = Address.PublicReturnAddress });
+            MessageSender.Send(subscriptionMessage, new SendOptions(publisherAddress)
+            {
+                ReplyToAddress = Configure.PublicReturnAddress
+            });
         }
 
         static TransportMessage CreateControlMessage(Type eventType)
@@ -56,7 +60,10 @@
         {
             try
             {
-                MessageSender.Send(subscriptionMessage, new SendOptions(destination){ReplyToAddress =  Address.PublicReturnAddress});
+                MessageSender.Send(subscriptionMessage, new SendOptions(destination)
+                {
+                    ReplyToAddress = Configure.PublicReturnAddress
+                });
             }
             catch (QueueNotFoundException ex)
             {

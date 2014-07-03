@@ -164,6 +164,19 @@ namespace NServiceBus
                 .ToList().ForEach(action);
         }
 
+        internal Address PublicReturnAddress
+        {
+            get
+            {
+                if (!Settings.HasSetting("PublicReturnAddress"))
+                {
+                    return Address.Local;
+                }
+
+                return Settings.Get<Address>("PublicReturnAddress");
+            }
+        }
+
         internal static IList<Type> GetAllowedTypes(params Assembly[] assemblies)
         {
             var types = new List<Type>();
