@@ -140,6 +140,19 @@ namespace NServiceBus.Features
             }
         }
 
+        public void StopFeatures(IBuilder builder)
+        {
+            foreach (var feature in features.Where(f => f.Feature.IsActive))
+            {
+                foreach (var taskType in feature.Feature.StartupTasks)
+                {
+                    var task = (FeatureStartupTask)builder.Build(taskType);
+
+                    task.PerformStop();
+                }
+            }
+        }
+
         static bool ActivateFeature(FeatureState feature, List<FeatureState> featuresToActivate, FeatureConfigurationContext context)
         {
             if (feature.Feature.IsActive)
@@ -197,6 +210,7 @@ namespace NServiceBus.Features
         }
 
         readonly SettingsHolder settings;
+
         readonly List<FeatureState> features = new List<FeatureState>();
 
         class FeatureState
@@ -226,6 +240,7 @@ namespace NServiceBus.Features
 
             public void Stop()
             {
+                FeatureActivator.StopFeatures(Builder);
             }
         }
     }

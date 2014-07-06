@@ -71,6 +71,7 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
             }
             return dataBusPropertyFound;
         }
+
         class StorageInitializer:FeatureStartupTask
         {
             public IDataBus DataBus { get; set; }
