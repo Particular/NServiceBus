@@ -127,7 +127,6 @@ namespace NServiceBus
                 return;
             }
 
-            Address.InitializeLocalAddress(Settings.EndpointName());
 
             WireUpConfigSectionOverrides();
 

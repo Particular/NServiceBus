@@ -59,7 +59,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             var localAddress = "endpointA";
             MasterNodeAddress = new Address(localAddress, "MasterNode");
-            Address.InitializeLocalAddress(localAddress);
         }
 
         [SetUp]
