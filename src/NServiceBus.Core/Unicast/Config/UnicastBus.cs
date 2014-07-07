@@ -30,7 +30,15 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<Unicast.UnicastBus>(DependencyLifecycle.SingleInstance);
+            var defaultAddress = Address.Parse(context.Settings.EndpointName());
+            
+            if (context.Settings.HasSetting("NServiceBus.LocalAddress"))
+            {
+                defaultAddress = Address.Parse(context.Settings.Get<string>("NServiceBus.LocalAddress"));
+            }
+
+            context.Container.ConfigureComponent<Unicast.UnicastBus>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(u => u.InputAddress, defaultAddress);
 
             ConfigureSubscriptionAuthorization(context);
 

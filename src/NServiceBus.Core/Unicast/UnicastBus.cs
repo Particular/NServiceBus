@@ -63,7 +63,6 @@ namespace NServiceBus.Unicast
         public ReadOnlySettings Settings { get; set; }
 
         /// <summary>
-        /// Should be used by programmer, not administrator.
         /// Sets an <see cref="ITransport"/> implementation to use as the
         /// listening endpoint for the bus.
         /// </summary>
@@ -80,7 +79,6 @@ namespace NServiceBus.Unicast
         public ISendMessages MessageSender { get; set; }
 
         /// <summary>
-        /// Should be used by programmer, not administrator.
         /// Sets <see cref="IBuilder"/> implementation that will be used to 
         /// dynamically instantiate and execute message handlers.
         /// </summary>
@@ -96,7 +94,6 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Should be used by programmer, not administrator.
         /// Sets whether or not the return address of a received message 
         /// should be propagated when the message is forwarded. This field is
         /// used primarily for the Distributor.
@@ -625,24 +622,16 @@ namespace NServiceBus.Unicast
         public bool DoNotStartTransport { get; set; }
 
         /// <summary>
-        /// The address this bus will use as it's main input
+        /// The address of this endpoint.
         /// </summary>
-        public Address InputAddress
-        {
-            get
-            {
-                if (inputAddress == null)
-                    inputAddress = Address.Local;
-
-                return inputAddress;
-            }
-            set { inputAddress = value; }
-        }
+        public Address InputAddress { get; set; }
 
         void AssertHasLocalAddress()
         {
             if (Address.Local == null)
+            {
                 throw new InvalidOperationException("Cannot start subscriber without a queue configured. Please specify the LocalAddress property of UnicastBusConfig.");
+            }
         }
 
         /// <summary>
@@ -776,8 +765,6 @@ namespace NServiceBus.Unicast
 
             return destination;
         }
-
-        Address inputAddress;
 
         /// <summary>
         /// Map of message identifiers to Async Results - useful for cleanup in case of timeouts.
