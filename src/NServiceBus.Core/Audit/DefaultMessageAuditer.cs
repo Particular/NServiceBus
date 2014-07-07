@@ -24,10 +24,8 @@ namespace NServiceBus.Transports
 
             messageToForward.Headers[Headers.OriginatingEndpoint] = EndpointName;
             messageToForward.Headers[Headers.OriginatingHostId] = UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N");
-            messageToForward.Headers["NServiceBus.ProcessingMachine"] = RuntimeEnvironment.MachineName;
+            messageToForward.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
             messageToForward.Headers[Headers.ProcessingEndpoint] = EndpointName;
-
-
 
             if (transportMessage.ReplyToAddress != null)
             {

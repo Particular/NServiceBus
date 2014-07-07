@@ -4,6 +4,7 @@
     using Pipeline;
     using Pipeline.Contexts;
     using Queuing;
+    using Support;
     using Transports;
 
     class DispatchMessageToTransportBehavior : IBehavior<OutgoingContext>
@@ -32,6 +33,8 @@
             {
                 messageDescription = enclosedMessageTypes;
             }
+
+            messageToSend.Headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
 
             try
             {
