@@ -159,13 +159,13 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Provides an instance to a startable bus.
+        ///     Provides an instance to a <see cref="IBus"/>.
         /// </summary>
-        public IStartableBus CreateBus()
+        public IBus CreateBus()
         {
             Initialize();
 
-            return Builder.Build<IStartableBus>();
+            return Builder.Build<IBus>();
         }
 
         /// <summary>

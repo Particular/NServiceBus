@@ -216,7 +216,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected void StartBus()
         {
-            ((IStartableBus)bus).Start();
+            bus.Start();
         }
 
         protected void AssertSubscription(Predicate<TransportMessage> condition, Address addressOfPublishingEndpoint)

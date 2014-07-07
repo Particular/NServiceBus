@@ -125,7 +125,7 @@ namespace NServiceBus
         Configure config;
         readonly IConfigureThisEndpoint specifier;
         readonly WcfManager wcfManager;
-        IStartableBus bus;
+        IBus bus;
         string endpointNameToUse;
         string endpointVersionToUse;
     }
