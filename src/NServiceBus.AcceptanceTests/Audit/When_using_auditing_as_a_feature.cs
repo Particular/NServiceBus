@@ -28,7 +28,7 @@ namespace NServiceBus.AcceptanceTests.Audit
             Scenario.Define(context)
             .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandlingComplete)
+            .Done(c => c.IsMessageHandlingComplete && context.IsMessageHandledByTheAuditEndpoint)
             .Run();
 
             Assert.IsTrue(context.IsMessageHandledByTheAuditEndpoint);
