@@ -11,7 +11,7 @@
         {
             next();
             var subscriptionMessageType = GetSubscriptionMessageTypeFrom(context.PhysicalMessage);
-            if (EndpointSubscribed != null)
+            if (EndpointSubscribed != null && subscriptionMessageType != null)
             {
                 EndpointSubscribed(new SubscriptionEventArgs
                 {
