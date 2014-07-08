@@ -36,27 +36,40 @@
         [Test]
         public void Should_ignore_messages_afterwards()
         {
-            Scenario.Define(() => new Context {Id = Guid.NewGuid()})
-                      .WithEndpoint<SagaEndpoint>(b =>
-                      {
-                          b.Given((bus, context) => bus.SendLocal(new StartSagaMessage { SomeId = context.Id }));
-                          b.When(context => context.StartSagaMessageReceived, (bus, context) => bus.SendLocal(new CompleteSagaMessage { SomeId = context.Id }));
-                          b.When(context => context.SagaCompleted, (bus, context) => bus.SendLocal(new AnotherMessage { SomeId = context.Id }));
-                      })
-                    .Done(c => c.AnotherMessageReceived)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.False(c.SagaReceivedAnotherMessage,"AnotherMessage should not be delivered to the saga after completion"))
-                    .Run();
+            var context = new Context
+            {
+                Id = Guid.NewGuid()
+            };
+
+            Scenario.Define(context)
+                .WithEndpoint<SagaEndpoint>(b =>
+                {
+                    b.Given((bus, c) => bus.SendLocal(new StartSagaMessage
+                    {
+                        SomeId = c.Id
+                    }));
+                    b.When(c => c.StartSagaMessageReceived, (bus, c) => bus.SendLocal(new CompleteSagaMessage
+                    {
+                        SomeId = c.Id
+                    }));
+                    b.When(c => c.SagaCompleted, (bus, c) => bus.SendLocal(new AnotherMessage
+                    {
+                        SomeId = c.Id
+                    }));
+                })
+                .Done(c => c.AnotherMessageReceived)
+                .Repeat(r => r.For(Transports.Default))
+                .Run();
+
+            Assert.True(context.AnotherMessageReceived, "AnotherMessage should have been delivered to the handler outside the saga");
+            Assert.False(context.SagaReceivedAnotherMessage, "AnotherMessage should not be delivered to the saga after completion");
         }
 
         public class Context : ScenarioContext
         {
             public Guid Id { get; set; }
-
             public bool StartSagaMessageReceived { get; set; }
-
             public bool SagaCompleted { get; set; }
-
             public bool AnotherMessageReceived { get; set; }
             public bool SagaReceivedAnotherMessage { get; set; }
         }
@@ -81,16 +94,6 @@
                     Context.StartSagaMessageReceived = true;
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
-                {
-                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                        .ToSaga(s=>s.SomeId);
-                    mapper.ConfigureMapping<CompleteSagaMessage>(m => m.SomeId)
-                        .ToSaga(s => s.SomeId);
-                    mapper.ConfigureMapping<AnotherMessage>(m => m.SomeId)
-                        .ToSaga(s => s.SomeId);
-                }
-
                 public void Handle(CompleteSagaMessage message)
                 {
                     Context.AddTrace("CompleteSagaMessage received");
@@ -104,6 +107,15 @@
                     Context.SagaReceivedAnotherMessage = true;
                 }
 
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+                {
+                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
+                        .ToSaga(s=>s.SomeId);
+                    mapper.ConfigureMapping<CompleteSagaMessage>(m => m.SomeId)
+                        .ToSaga(s => s.SomeId);
+                    mapper.ConfigureMapping<AnotherMessage>(m => m.SomeId)
+                        .ToSaga(s => s.SomeId);
+                }
             }
 
             public class TestSagaData : IContainSagaData
