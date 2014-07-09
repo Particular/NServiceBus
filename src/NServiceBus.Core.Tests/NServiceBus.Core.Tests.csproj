@@ -84,6 +84,7 @@
     <Compile Include="AutomaticSubscriptions\When_starting_an_endpoint_containing_a_saga.cs" />
     <Compile Include="AutomaticSubscriptions\When_starting_an_endpoint_with_autosubscribe_turned_on.cs" />
     <Compile Include="Config\TestConfigurationSection.cs" />
+    <Compile Include="Config\When_calling_Configure_With_from_IConfigureThisEndpoint.cs" />
     <Compile Include="Config\When_finding_assemblies_to_scan_with_expressions.cs" />
     <Compile Include="Config\When_loading_types.cs" />
     <Compile Include="Config\When_no_custom_configuration_source_is_specified.cs" />
