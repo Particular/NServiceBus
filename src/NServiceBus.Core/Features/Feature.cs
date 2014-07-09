@@ -85,11 +85,11 @@
         protected internal abstract void Setup(FeatureConfigurationContext context);
 
         /// <summary>
-        ///     Adds a setup prerequisite condition. If false this feature won't be setup
-        ///     Prerequisites are only evaluated if the feature is enabled
+        ///     Adds a setup prerequisite condition. If false this feature won't be setup.
+        ///     Prerequisites are only evaluated if the feature is enabled.
         /// </summary>
-        /// <param name="condition">Condition that must be met in order for this feature to be activated</param>
-        /// <param name="description">Explanation of what this prerequisite checks</param>
+        /// <param name="condition">Condition that must be met in order for this feature to be activated.</param>
+        /// <param name="description">Explanation of what this prerequisite checks.</param>
         protected void Prerequisite(Func<FeatureConfigurationContext, bool> condition,string description)
         {
             if (string.IsNullOrEmpty(description))
@@ -117,7 +117,7 @@
         ///     the dependant feature is active.
         ///     This also causes this feature to be activated after the other feature.
         /// </summary>
-        /// <typeparam name="T">Feature that this feature depends on</typeparam>
+        /// <typeparam name="T">Feature that this feature depends on.</typeparam>
         protected void DependsOn<T>() where T : Feature
         {
             DependsOn(GetFeatureName(typeof(T)));
@@ -128,7 +128,7 @@
         ///     the dependant feature is active.
         ///     This also causes this feature to be activated after the other feature.
         /// </summary>
-        /// <param name="featureName">The name of the feature that this feature depends on</param>
+        /// <param name="featureName">The name of the feature that this feature depends on.</param>
         protected void DependsOn(string featureName)
         {
             dependencies.Add(new List<string>{featureName});
@@ -156,7 +156,24 @@
                 }
             }
 
-            dependencies.Add(new List<string>(features.Select(feature =>feature.Name)));
+            dependencies.Add(new List<string>(features.Select(GetFeatureName)));
+        }
+
+        /// <summary>
+        ///     Register this feature as depending on at least on of the given features. This means that this feature won't be
+        ///     activated unless at least one of the provided features in the list is active.
+        ///     This also causes this feature to be activated after the other features.
+        /// </summary>
+        /// <param name="featureNames">The name of the features that this feature depends on.</param>
+        protected void DependsOnAtLeastOne(params string[] featureNames)
+        {
+            if (featureNames == null)
+            {
+                throw new ArgumentNullException("featureNames");
+            }
+
+
+            dependencies.Add(new List<string>(featureNames));
         }
 
         /// <summary>
@@ -209,11 +226,9 @@
 
             if (name.EndsWith("Feature"))
             {
-                var length = "Feature".Length;
-
-                if (name.Length > length)
+                if (name.Length > featureStringLength)
                 {
-                    name = name.Substring(0, name.Length - length);
+                    name = name.Substring(0, name.Length - featureStringLength);
                 }
             }
 
@@ -222,6 +237,7 @@
 
 
         static Type featureType = typeof(Feature);
+        static int featureStringLength = "Feature".Length;
 
         List<List<string>> dependencies = new List<List<string>>();
 
