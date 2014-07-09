@@ -92,6 +92,7 @@
     <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_not_expired.cs" />
     <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_expired.cs" />
     <Compile Include="BasicMessaging\When_Deferring_a_message.cs" />
+    <Compile Include="Configuration\When_IWantToRunWhenBusStartsAndStops_Start_throws.cs" />
     <Compile Include="Configuration\When__startup_is_complete.cs" />
     <Compile Include="HostInformation\When_a_message_is_received.cs" />
     <Compile Include="MessageMutators\Issue_1980.cs" />
