@@ -168,7 +168,13 @@
         {
             unchecked
             {
-                return ((queueLowerCased != null ? queueLowerCased.GetHashCode() : 0) * 397) ^ (machineLowerCased != null ? machineLowerCased.GetHashCode() : 0);
+                var hashCode = ((queueLowerCased != null ? queueLowerCased.GetHashCode() : 0) * 397);
+
+                if (!ignoreMachineName)
+                {
+                    hashCode ^= (machineLowerCased != null ? machineLowerCased.GetHashCode() : 0);
+                }
+                return hashCode;
             }
         }
 
