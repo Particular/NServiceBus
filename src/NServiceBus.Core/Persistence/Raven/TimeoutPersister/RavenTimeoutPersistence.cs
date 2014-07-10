@@ -93,7 +93,8 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                         );
                 }
 
-                if (stats.IsStale) SeenStaleResults = true;
+                if (stats.IsStale)
+                    SeenStaleResults = true;
 
                 // Set next execution to be now if we haven't consumed the entire thing or received stale results.
                 // Delay the next execution a bit if we results weren't stale and we got the full chunk.
