@@ -124,12 +124,12 @@
             }.Initialize();
             persister = new RavenTimeoutPersistence(new StoreAccessor(documentStore))
             {
-                TriggerCleanupEvery = TimeSpan.FromHours(1), // Make sure cleanup doesn't run automatically
+                TriggerCleanupEvery = TimeSpan.FromDays(1), // Make sure cleanup doesn't run automatically
             };
 
             var startSlice = DateTime.UtcNow.AddYears(-10);
             // avoid cleanup from running during the test by making it register as being run
-            Assert.AreEqual(0, persister.GetCleanupChunk(startSlice).Count()); // TODO remove and make sure this doesn't deadlock
+            Assert.AreEqual(0, persister.GetCleanupChunk(startSlice).Count());
             Assert.IsFalse(persister.SeenStaleResults);
 
             const int insertsPerThread = 10000;
