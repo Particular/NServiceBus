@@ -14,9 +14,50 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
     {
         readonly IDocumentStore store;
 
-        public RavenTimeoutPersistence(StoreAccessor  storeAccessor)
+        public TimeSpan CleanupGapFromTimeslice { get; set; }
+        public TimeSpan TriggerCleanupEvery { get; set; }
+
+        public bool SeenStaleResults { get; private set; }
+        DateTime lastCleanupTime = DateTime.MinValue;
+
+        public RavenTimeoutPersistence(StoreAccessor storeAccessor)
         {
             store = storeAccessor.Store;
+            TriggerCleanupEvery = TimeSpan.FromMinutes(2);
+            CleanupGapFromTimeslice = TimeSpan.FromMinutes(1);
+        }
+
+        private static IRavenQueryable<TimeoutData> GetChunkQuery(IDocumentSession session)
+        {
+            session.Advanced.AllowNonAuthoritativeInformation = true;
+            return session.Query<TimeoutData>()
+                .OrderBy(t => t.Time)
+                .Where(
+                    t =>
+                        t.OwningTimeoutManager == String.Empty ||
+                        t.OwningTimeoutManager == Configure.EndpointName);
+        }
+
+        public IEnumerable<Tuple<string, DateTime>> GetCleanupChunk(DateTime startSlice)
+        {
+            using (var session = OpenSession())
+            {
+                var chunk = GetChunkQuery(session)
+                    .Where(t => t.Time <= startSlice.Subtract(CleanupGapFromTimeslice))
+                    .Select(t => new
+                    {
+                        t.Id,
+                        t.Time
+                    })
+                    .Take(1024)
+                    .ToList()
+                    .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time));
+
+                lastCleanupTime = DateTime.UtcNow;
+                SeenStaleResults = false;
+
+                return chunk;
+            }
         }
 
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
@@ -24,70 +65,49 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
             try
             {
                 var now = DateTime.UtcNow;
-                var skip = 0;
                 var results = new List<Tuple<string, DateTime>>();
-                var numberOfRequestsExecutedSoFar = 0;
+
+                // Allow for occasionally cleaning up old timeouts for edge cases where timeouts have been
+                // added after startSlice have been set to a later timout and we might have missed them
+                // because of stale indexes.
+                if (SeenStaleResults && (lastCleanupTime.Add(TriggerCleanupEvery) > now || lastCleanupTime == DateTime.MinValue))
+                {                    
+                    results.AddRange(GetCleanupChunk(startSlice));
+                }
+
                 RavenQueryStatistics stats;
-
-                do
-                {
-                    using (var session = OpenSession())
-                    {
-                        session.Advanced.AllowNonAuthoritativeInformation = true;
-
-                        var query = session.Query<TimeoutData>()
-                            .Where(
-                                t =>
-                                    t.OwningTimeoutManager == String.Empty ||
-                                    t.OwningTimeoutManager == Configure.EndpointName)
-                            .Where(
-                                t => 
-                                    t.Time > startSlice && 
-                                    t.Time <= now)
-                            .OrderBy(t => t.Time)
-                            .Select(t => new {t.Id, t.Time})
-                            .Statistics(out stats);
-                        do
-                        {
-                            results.AddRange(query
-                                                 .Skip(skip)
-                                                 .Take(1024)
-                                                 .ToList()
-                                                 .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time)));
-
-                            skip += 1024;
-                        } while (skip < stats.TotalResults &&
-                                 ++numberOfRequestsExecutedSoFar < session.Advanced.MaxNumberOfRequestsPerSession);
-                    }
-                } while (skip < stats.TotalResults);
-
                 using (var session = OpenSession())
                 {
-                    session.Advanced.AllowNonAuthoritativeInformation = true;
+                    var query = GetChunkQuery(session)
+                        .Where(t => t.Time > startSlice && t.Time <= now)
+                        .Statistics(out stats)
+                        .Select(t => new
+                        {
+                            t.Id,
+                            t.Time
+                        })
+                        .Take(1024);
 
-                    //Retrieve next time we need to run query
-                    var startOfNextChunk =
-                        session.Query<TimeoutData>()
-                            .Where(
-                                t =>
-                                t.OwningTimeoutManager == String.Empty ||
-                                t.OwningTimeoutManager == Configure.EndpointName)
-                            .Where(t => t.Time > now)
-                            .OrderBy(t => t.Time)
-                            .Select(t => new {t.Id, t.Time})
-                            .FirstOrDefault();
-
-                    if (startOfNextChunk != null)
-                    {
-                        nextTimeToRunQuery = startOfNextChunk.Time;
-                    }
-                    else
-                    {
-                        nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10);
-                    }
-
-                    return results;
+                    results.AddRange(query.ToList()
+                        .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time))
+                        );
                 }
+
+                if (stats.IsStale)
+                    SeenStaleResults = true;
+
+                // Set next execution to be now if we haven't consumed the entire thing or received stale results.
+                // Delay the next execution a bit if we results weren't stale and we got the full chunk.
+                if (stats.TotalResults > 1024 || stats.IsStale)
+                {
+                    nextTimeToRunQuery = now;
+                }
+                else
+                {
+                    nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10);
+                }
+
+                return results;
             }
             catch (WebException ex)
             {
