@@ -5,7 +5,7 @@
     [TestFixture]
     public class AddressTests
     {
-        [Test]
+        [Test, Explicit("We can't run this test in CI because Address uses statics and setting this flag will make other tests fail. And the flag can't be unset!")]
         public void HashCode_ignores_machine_name()
         {
             Address.IgnoreMachineName();
