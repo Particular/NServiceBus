@@ -15,8 +15,7 @@
     [TestFixture]
     public class RavenTimeoutPersisterTests
     {
-        [TestCase]
-        [Repeat(200)]
+        [TestCase, Repeat(200)]
         public void Should_not_skip_timeouts()
         {
             var startSlice = DateTime.UtcNow.AddYears(-10);
@@ -96,13 +95,13 @@
                 Trace.WriteLine("** Haven't seen stale results **");
             }
 
-            Assert.AreEqual(expected.Count, found);
-
             using (var session = documentStore.OpenSession())
             {
                 var results = session.Query<TimeoutData>().ToList();
                 Assert.AreEqual(0, results.Count);
             }
+
+            Assert.AreEqual(expected.Count, found);            
         }
 
         [TestCase]
