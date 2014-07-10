@@ -17,14 +17,47 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
         public TimeSpan CleanupGapFromTimeslice { get; set; }
         public TimeSpan TriggerCleanupEvery { get; set; }
 
+        public bool SeenStaleResults { get; private set; }
         DateTime lastCleanupTime = DateTime.MinValue;
-        bool seenStaleResults;
 
         public RavenTimeoutPersistence(StoreAccessor storeAccessor)
         {
             store = storeAccessor.Store;
             TriggerCleanupEvery = TimeSpan.FromMinutes(2);
             CleanupGapFromTimeslice = TimeSpan.FromMinutes(1);
+        }
+
+        private static IRavenQueryable<TimeoutData> GetChunkQuery(IDocumentSession session)
+        {
+            session.Advanced.AllowNonAuthoritativeInformation = true;
+            return session.Query<TimeoutData>()
+                .OrderBy(t => t.Time)
+                .Where(
+                    t =>
+                        t.OwningTimeoutManager == String.Empty ||
+                        t.OwningTimeoutManager == Configure.EndpointName);
+        }
+
+        public IEnumerable<Tuple<string, DateTime>> GetCleanupChunk(DateTime startSlice)
+        {
+            using (var session = OpenSession())
+            {
+                var chunk = GetChunkQuery(session)
+                    .Where(t => t.Time <= startSlice.Subtract(CleanupGapFromTimeslice))
+                    .Select(t => new
+                    {
+                        t.Id,
+                        t.Time
+                    })
+                    .Take(1024)
+                    .ToList()
+                    .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time));
+
+                lastCleanupTime = DateTime.UtcNow;
+                SeenStaleResults = false;
+
+                return chunk;
+            }
         }
 
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
@@ -37,68 +70,33 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                 // Allow for occasionally cleaning up old timeouts for edge cases where timeouts have been
                 // added after startSlice have been set to a later timout and we might have missed them
                 // because of stale indexes.
-                if (seenStaleResults && (lastCleanupTime.Add(TriggerCleanupEvery) > now || lastCleanupTime == DateTime.MinValue))
-                {
-                    using (var session = OpenSession())
-                    {
-                        session.Advanced.AllowNonAuthoritativeInformation = true;
-
-                        var query = session.Query<TimeoutData>()
-                            .OrderBy(t => t.Time)
-                            .Where(
-                                t =>
-                                    t.OwningTimeoutManager == String.Empty ||
-                                    t.OwningTimeoutManager == Configure.EndpointName)
-                            .Where(t => t.Time <= startSlice.Subtract(CleanupGapFromTimeslice))
-                            ;
-
-                        results.AddRange(query
-                            .Select(t => new
-                            {
-                                t.Id,
-                                t.Time
-                            })
-                            .Take(1024)
-                            .ToList()
-                            .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time))
-                            );
-                    }
-
-                    lastCleanupTime = DateTime.UtcNow;
-                    seenStaleResults = false;
+                if (SeenStaleResults && (lastCleanupTime.Add(TriggerCleanupEvery) > now || lastCleanupTime == DateTime.MinValue))
+                {                    
+                    results.AddRange(GetCleanupChunk(startSlice));
                 }
 
                 RavenQueryStatistics stats;
                 using (var session = OpenSession())
                 {
-                    session.Advanced.AllowNonAuthoritativeInformation = true;
-
-                    var query = session.Query<TimeoutData>()
-                        .OrderBy(t => t.Time)
-                        .Where(
-                            t =>
-                                t.OwningTimeoutManager == String.Empty ||
-                                t.OwningTimeoutManager == Configure.EndpointName)
+                    var query = GetChunkQuery(session)
                         .Where(t => t.Time > startSlice && t.Time <= now)
                         .Statistics(out stats)
-                        ;
-
-                    results.AddRange(query
                         .Select(t => new
-                                     {
-                                         t.Id,
-                                         t.Time
-                                     })
-                        .Take(1024)
-                        .ToList()
+                        {
+                            t.Id,
+                            t.Time
+                        })
+                        .Take(1024);
+
+                    results.AddRange(query.ToList()
                         .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time))
                         );
                 }
 
-                if (stats.IsStale) seenStaleResults = true;
+                if (stats.IsStale) SeenStaleResults = true;
 
-                // Next execution is either now if we haven't consumed the entire thing, or delayed
-                // a bit if we ded
+                // Set next execution to be now if we haven't consumed the entire thing or received stale results.
+                // Delay the next execution a bit if we results weren't stale and we got the full chunk.
                 if (stats.TotalResults > 1024 || stats.IsStale)
                 {
                     nextTimeToRunQuery = now;
