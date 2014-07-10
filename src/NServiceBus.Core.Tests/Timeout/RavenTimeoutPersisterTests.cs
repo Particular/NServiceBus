@@ -30,7 +30,6 @@
             new Thread(() =>
                        {
                            var sagaId = Guid.NewGuid();
-                           var ids = new HashSet<string>();
                            for (var i = 0; i < 10000; i++)
                            {
                                var td = new TimeoutData
@@ -42,7 +41,6 @@
                                         };
                                persister.Add(td);
                                expected.Add(new Tuple<string, DateTime>(td.Id, td.Time));
-                               Assert.True(ids.Add(td.Id));
                                lastExpectedTimeout = (td.Time > lastExpectedTimeout) ? td.Time : lastExpectedTimeout;
                                //Trace.WriteLine("Added timeout for " + td.Time);
                            }
