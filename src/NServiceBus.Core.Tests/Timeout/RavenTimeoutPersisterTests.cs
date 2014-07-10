@@ -23,9 +23,18 @@
             Assert.AreEqual(0, persister.GetCleanupChunk(startSlice).Count());
             Assert.IsFalse(persister.SeenStaleResults);
 
-            var expected = new List<Tuple<string, DateTime>>();            
+            var expected = new List<Tuple<string, DateTime>>();
             var lastExpectedTimeout = DateTime.UtcNow;
             var finishedAdding = false;
+
+            documentStore = new EmbeddableDocumentStore
+            {
+                RunInMemory = true
+            }.Initialize();
+            persister = new RavenTimeoutPersistence(new StoreAccessor(documentStore))
+            {
+                TriggerCleanupEvery = TimeSpan.FromHours(1), // Make sure cleanup doesn't run automatically
+            };
             new Thread(() =>
                        {
                            var sagaId = Guid.NewGuid();
@@ -101,7 +110,7 @@
                 Assert.AreEqual(0, results.Count);
             }
 
-            Assert.AreEqual(expected.Count, found);            
+            Assert.AreEqual(expected.Count, found);
         }
 
         [TestCase]
@@ -197,24 +206,11 @@
         IDocumentStore documentStore;
         RavenTimeoutPersistence persister;
 
-        [SetUp]
-        public void SetUp()
-        {
-            documentStore = new EmbeddableDocumentStore
-                            {
-                                RunInMemory = true
-                            }.Initialize();
-
-            persister = new RavenTimeoutPersistence(new StoreAccessor(documentStore))
-                        {
-                            TriggerCleanupEvery = TimeSpan.FromHours(1), // Make sure cleanup doesn't run automatically
-                        };
-        }
-
         [TearDown]
         public void TearDown()
         {
-            documentStore.Dispose();
+            if (documentStore != null)
+                documentStore.Dispose();
         }
 
         static void WaitForIndexing(IDocumentStore store, string db = null, TimeSpan? timeout = null)
