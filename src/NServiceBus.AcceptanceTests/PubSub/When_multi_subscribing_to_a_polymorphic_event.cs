@@ -41,7 +41,11 @@
                     {
                         context.SubscribedToMyEvent2 = true;
                     }
-                })).When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, bus => bus.Publish(new MyEvent2())))
+                })).When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, (bus, c) =>
+                {
+                    c.AddTrace("Publishing MyEvent2");
+                    bus.Publish(new MyEvent2());
+                }))
                 .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                 {
                     bus.Subscribe<IMyEvent>();
