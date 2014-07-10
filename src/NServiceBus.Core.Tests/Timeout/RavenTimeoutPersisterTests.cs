@@ -10,6 +10,7 @@
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
     using Raven.Client;
+    using Raven.Client.Document;
     using Raven.Client.Embedded;
 
     [TestFixture]
@@ -114,18 +115,34 @@
             Assert.AreEqual(expected.Count, found);
         }
 
-        [TestCase]
-        [Ignore("Deadlocks")]
+        [TestCase, Repeat(200)]
         public void Should_not_skip_timeouts_also_with_multiple_clients_adding_timeouts()
         {
-            var expected = new List<Tuple<string, DateTime>>();
-            var lastTimeout = DateTime.UtcNow;
+            documentStore = new DocumentStore
+            {
+                Url = "http://localhost:8080"
+            }.Initialize();
+            persister = new RavenTimeoutPersistence(new StoreAccessor(documentStore))
+            {
+                TriggerCleanupEvery = TimeSpan.FromHours(1), // Make sure cleanup doesn't run automatically
+            };
+
+            var startSlice = DateTime.UtcNow.AddYears(-10);
+            // avoid cleanup from running during the test by making it register as being run
+            Assert.AreEqual(0, persister.GetCleanupChunk(startSlice).Count()); // TODO remove and make sure this doesn't deadlock
+            Assert.IsFalse(persister.SeenStaleResults);
+
+            const int insertsPerThread = 10000;
+            var expected1 = new List<Tuple<string, DateTime>>();
+            var expected2 = new List<Tuple<string, DateTime>>();
+            var lastExpectedTimeout = DateTime.UtcNow;
             var finishedAdding1 = false;
             var finishedAdding2 = false;
+
             new Thread(() =>
             {
                 var sagaId = Guid.NewGuid();
-                for (var i = 0; i < 10000; i++)
+                for (var i = 0; i < insertsPerThread; i++)
                 {
                     var td = new TimeoutData
                     {
@@ -135,8 +152,8 @@
                         OwningTimeoutManager = string.Empty,
                     };
                     persister.Add(td);
-                    expected.Add(new Tuple<string, DateTime>(td.Id, td.Time));
-                    lastTimeout = (td.Time > lastTimeout) ? td.Time : lastTimeout;
+                    expected1.Add(new Tuple<string, DateTime>(td.Id, td.Time));
+                    lastExpectedTimeout = (td.Time > lastExpectedTimeout) ? td.Time : lastExpectedTimeout;
                     //Trace.WriteLine("Added timeout for " + td.Time);
                 }
                 finishedAdding1 = true;
@@ -145,26 +162,26 @@
 
             new Thread(() =>
             {
-                using (var store = new EmbeddableDocumentStore
+                using (var store = new DocumentStore
                 {
-                    RunInMemory = true
+                    Url = "http://localhost:8080"
                 }.Initialize())
                 {
                     var persister2 = new RavenTimeoutPersistence(new StoreAccessor(store));
 
                     var sagaId = Guid.NewGuid();
-                    for (var i = 0; i < 10000; i++)
+                    for (var i = 0; i < insertsPerThread; i++)
                     {
                         var td = new TimeoutData
                         {
                             SagaId = sagaId,
                             Destination = new Address("queue", "machine"),
-                            Time = DateTime.UtcNow.AddSeconds(1 + RandomProvider.GetThreadRandom().Next(1, 20)),
+                            Time = DateTime.UtcNow.AddSeconds(RandomProvider.GetThreadRandom().Next(1, 20)),
                             OwningTimeoutManager = string.Empty,
                         };
                         persister2.Add(td);
-                        expected.Add(new Tuple<string, DateTime>(td.Id, td.Time));
-                        lastTimeout = (td.Time > lastTimeout) ? td.Time : lastTimeout;
+                        expected2.Add(new Tuple<string, DateTime>(td.Id, td.Time));
+                        lastExpectedTimeout = (td.Time > lastExpectedTimeout) ? td.Time : lastExpectedTimeout;
                         //Trace.WriteLine("Added timeout for " + td.Time);
                     }
                 }
@@ -174,34 +191,59 @@
 
             // Mimic the behavior of the TimeoutPersister coordinator
             var found = 0;
-            var startSlice = DateTime.UtcNow.AddYears(-10);
-            while (!finishedAdding1 || !finishedAdding2 || startSlice < lastTimeout)
+            TimeoutData tempTd;
+            while (!finishedAdding1 || !finishedAdding2 || startSlice < lastExpectedTimeout)
             {
+                Trace.WriteLine("Querying for timeouts starting at " + startSlice + " with last known added timeout at " + lastExpectedTimeout);
                 DateTime nextRetrieval;
                 var timeoutDatas = persister.GetNextChunk(startSlice, out nextRetrieval);
-                Trace.WriteLine("Querying for timeouts starting at " + startSlice + " with last known added timeout at " + lastTimeout);
                 foreach (var timeoutData in timeoutDatas)
                 {
                     if (startSlice < timeoutData.Item2)
                     {
                         startSlice = timeoutData.Item2;
                     }
-                    found++;
 
-                    TimeoutData td;
-                    Assert.IsTrue(persister.TryRemove(timeoutData.Item1, out td));
+                    Trace.WriteLine("Deleting " + timeoutData.Item1);
+                    //Assert.IsTrue(persister.TryRemove(timeoutData.Item1, out tempTd)); // Raven returns duplicates, so we can't assert on this here
+                    if (persister.TryRemove(timeoutData.Item1, out tempTd))
+                        found++;
                 }
             }
 
-            Assert.AreEqual(expected.Count, found);
-
             WaitForIndexing(documentStore);
+
+            // If the persister reports stale results have been seen at one point during its normal operation,
+            // we need to perform manual cleaup.
+            if (persister.SeenStaleResults)
+            {
+                while (true)
+                {
+                    var chunkToCleanup = persister.GetCleanupChunk(DateTime.UtcNow.Add(persister.CleanupGapFromTimeslice)).ToArray();
+                    Trace.WriteLine("Cleanup: got a chunk of size " + chunkToCleanup.Length);
+                    if (chunkToCleanup.Length == 0) break;
+
+                    found += chunkToCleanup.Length;
+                    foreach (var tuple in chunkToCleanup)
+                    {
+                        Assert.IsTrue(persister.TryRemove(tuple.Item1, out tempTd));
+                    }
+
+                    WaitForIndexing(documentStore);
+                }
+            }
+            else
+            {
+                Trace.WriteLine("** Haven't seen stale results **");
+            }
 
             using (var session = documentStore.OpenSession())
             {
                 var results = session.Query<TimeoutData>().ToList();
                 Assert.AreEqual(0, results.Count);
             }
+
+            Assert.AreEqual(expected1.Count + expected2.Count, found);
         }
 
         IDocumentStore documentStore;
@@ -223,7 +265,7 @@
             Assert.True(spinUntil);
         }
 
-        public static class RandomProvider
+        static class RandomProvider
         {
             private static int seed = Environment.TickCount;
 
