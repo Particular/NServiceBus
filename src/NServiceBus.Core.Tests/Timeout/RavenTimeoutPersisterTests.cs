@@ -18,6 +18,15 @@
         [TestCase, Repeat(200)]
         public void Should_not_skip_timeouts()
         {
+            documentStore = new EmbeddableDocumentStore
+            {
+                RunInMemory = true
+            }.Initialize();
+            persister = new RavenTimeoutPersistence(new StoreAccessor(documentStore))
+            {
+                TriggerCleanupEvery = TimeSpan.FromHours(1), // Make sure cleanup doesn't run automatically
+            };
+
             var startSlice = DateTime.UtcNow.AddYears(-10);
             // avoid cleanup from running during the test by making it register as being run
             Assert.AreEqual(0, persister.GetCleanupChunk(startSlice).Count());
@@ -27,14 +36,6 @@
             var lastExpectedTimeout = DateTime.UtcNow;
             var finishedAdding = false;
 
-            documentStore = new EmbeddableDocumentStore
-            {
-                RunInMemory = true
-            }.Initialize();
-            persister = new RavenTimeoutPersistence(new StoreAccessor(documentStore))
-            {
-                TriggerCleanupEvery = TimeSpan.FromHours(1), // Make sure cleanup doesn't run automatically
-            };
             new Thread(() =>
                        {
                            var sagaId = Guid.NewGuid();
