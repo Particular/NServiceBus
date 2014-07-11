@@ -118,9 +118,11 @@
         [TestCase, Repeat(200)]
         public void Should_not_skip_timeouts_also_with_multiple_clients_adding_timeouts()
         {
+            var db = Guid.NewGuid().ToString();
             documentStore = new DocumentStore
             {
-                Url = "http://localhost:8080"
+                Url = "http://localhost:8080",
+                DefaultDatabase = db,
             }.Initialize();
             persister = new RavenTimeoutPersistence(new StoreAccessor(documentStore))
             {
@@ -164,7 +166,8 @@
             {
                 using (var store = new DocumentStore
                 {
-                    Url = "http://localhost:8080"
+                    Url = "http://localhost:8080",
+                    DefaultDatabase = db,
                 }.Initialize())
                 {
                     var persister2 = new RavenTimeoutPersistence(new StoreAccessor(store));
