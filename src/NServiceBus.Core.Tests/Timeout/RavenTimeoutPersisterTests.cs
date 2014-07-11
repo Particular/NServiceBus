@@ -21,7 +21,7 @@
         {
             documentStore = new EmbeddableDocumentStore
             {
-                RunInMemory = true
+                RunInMemory = true,
             }.Initialize();
             persister = new RavenTimeoutPersistence(new StoreAccessor(documentStore))
             {
@@ -63,7 +63,7 @@
             TimeoutData tempTd;
             while (!finishedAdding || startSlice < lastExpectedTimeout)
             {
-                Console.WriteLine("Querying for timeouts starting at " + startSlice + " with last known added timeout at " + lastExpectedTimeout);
+                //Console.WriteLine("Querying for timeouts starting at " + startSlice + " with last known added timeout at " + lastExpectedTimeout);
                 DateTime nextRetrieval;
                 var timeoutDatas = persister.GetNextChunk(startSlice, out nextRetrieval);
                 foreach (var timeoutData in timeoutDatas)
@@ -73,7 +73,7 @@
                         startSlice = timeoutData.Item2;
                     }
 
-                    Console.WriteLine("Deleting " + timeoutData.Item1);
+                    //Console.WriteLine("Deleting " + timeoutData.Item1);
                     //Assert.IsTrue(persister.TryRemove(timeoutData.Item1, out tempTd)); // Raven returns duplicates, so we can't assert on this here
                     if (persister.TryRemove(timeoutData.Item1, out tempTd))
                         found++;
@@ -197,7 +197,7 @@
             TimeoutData tempTd;
             while (!finishedAdding1 || !finishedAdding2 || startSlice < lastExpectedTimeout)
             {
-                Console.WriteLine("Querying for timeouts starting at " + startSlice + " with last known added timeout at " + lastExpectedTimeout);
+                //Console.WriteLine("Querying for timeouts starting at " + startSlice + " with last known added timeout at " + lastExpectedTimeout);
                 DateTime nextRetrieval;
                 var timeoutDatas = persister.GetNextChunk(startSlice, out nextRetrieval);
                 foreach (var timeoutData in timeoutDatas)
@@ -207,7 +207,7 @@
                         startSlice = timeoutData.Item2;
                     }
 
-                    Trace.WriteLine("Deleting " + timeoutData.Item1);
+                    //Console.WriteLine("Deleting " + timeoutData.Item1);
                     //Assert.IsTrue(persister.TryRemove(timeoutData.Item1, out tempTd)); // Raven returns duplicates, so we can't assert on this here
                     if (persister.TryRemove(timeoutData.Item1, out tempTd))
                         found++;

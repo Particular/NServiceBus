@@ -2,6 +2,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Net;
     using System.Text;
@@ -95,6 +96,9 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
 
                 if (stats.IsStale)
                     SeenStaleResults = true;
+
+                if (results.Count == 0 && !stats.IsStale)
+                    Console.WriteLine("**** Results:0 and !Stale ***");
 
                 // Set next execution to be now if we haven't consumed the entire thing or received stale results.
                 // Delay the next execution a bit if we results weren't stale and we got the full chunk.
