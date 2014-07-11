@@ -522,8 +522,8 @@ namespace NServiceBus
         TreatAsErrorFromVersion = "5")]
     public static class ConfigureTimeoutManager
     {
-        //TODO: add a better message/replacement
         [ObsoleteEx(
+            Replacement = "configure.DisableFeature<TimeoutManager>()",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure DisableTimeoutManager(this Configure config)
