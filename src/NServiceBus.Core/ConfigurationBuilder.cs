@@ -94,6 +94,15 @@ namespace NServiceBus
         /// <summary>
         ///     Defines the version of this endpoint.
         /// </summary>
+        public ConfigurationBuilder EndpointVersion(string version)
+        {
+            EndpointVersion(() => version);
+            return this;
+        }
+
+        /// <summary>
+        ///     Defines the version of this endpoint.
+        /// </summary>
         public ConfigurationBuilder EndpointVersion(Func<string> versionFunc)
         {
             getEndpointVersionAction = versionFunc;
