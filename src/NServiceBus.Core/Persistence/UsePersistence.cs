@@ -13,7 +13,7 @@
         /// <summary>
         /// Configures the given persistence to be used
         /// </summary>
-        /// <typeparam name="T">The persistence definition eg InMemory , NHibernate etc</typeparam>
+        /// <typeparam name="T">The persistence definition eg <see cref="InMemory"/>, NHibernate etc</typeparam>
         /// <param name="config">The configuration object since this is an extention method</param>
         /// <param name="customizations">Any customizations needed</param>
         /// <returns></returns>
@@ -26,7 +26,7 @@
         ///  Configures the given persistence to be used
         /// </summary>
         /// <param name="config">The configuration object since this is an extention method</param>
-        /// <param name="definitionType">The persistence definition eg InMemory , NHibernate etc</param>
+        /// <param name="definitionType">The persistence definition eg <see cref="InMemory"/>, NHibernate etc</param>
         /// <param name="customizations">Any customizations needed</param>
         /// <returns></returns>
         public static Configure UsePersistence(this Configure config, Type definitionType, Action<PersistenceConfiguration> customizations = null)
