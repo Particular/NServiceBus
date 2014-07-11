@@ -87,7 +87,7 @@
             {
                 while (true)
                 {
-                    var chunkToCleanup = persister.GetCleanupChunk(DateTime.UtcNow.Add(persister.CleanupGapFromTimeslice).Add(persister.CleanupGapFromTimeslice)).ToArray();
+                    var chunkToCleanup = persister.GetCleanupChunk(DateTime.UtcNow.AddDays(1)).ToArray();
                     Console.WriteLine("Cleanup: got a chunk of size " + chunkToCleanup.Length);
                     if (chunkToCleanup.Length == 0) break;
 
@@ -221,7 +221,7 @@
             {
                 while (true)
                 {
-                    var chunkToCleanup = persister.GetCleanupChunk(DateTime.UtcNow.Add(persister.CleanupGapFromTimeslice).Add(persister.CleanupGapFromTimeslice)).ToArray();
+                    var chunkToCleanup = persister.GetCleanupChunk(DateTime.UtcNow.AddDays(1)).ToArray();
                     Console.WriteLine("Cleanup: got a chunk of size " + chunkToCleanup.Length);
                     if (chunkToCleanup.Length == 0) break;
 
