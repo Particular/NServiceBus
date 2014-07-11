@@ -55,7 +55,7 @@
                                //Trace.WriteLine("Added timeout for " + td.Time);
                            }
                            finishedAdding = true;
-                           Trace.WriteLine("*** Finished adding ***");
+                           Console.WriteLine("*** Finished adding ***");
                        }).Start();
 
             // Mimic the behavior of the TimeoutPersister coordinator
@@ -63,7 +63,7 @@
             TimeoutData tempTd;
             while (!finishedAdding || startSlice < lastExpectedTimeout)
             {
-                Trace.WriteLine("Querying for timeouts starting at " + startSlice + " with last known added timeout at " + lastExpectedTimeout);
+                Console.WriteLine("Querying for timeouts starting at " + startSlice + " with last known added timeout at " + lastExpectedTimeout);
                 DateTime nextRetrieval;
                 var timeoutDatas = persister.GetNextChunk(startSlice, out nextRetrieval);
                 foreach (var timeoutData in timeoutDatas)
@@ -73,7 +73,7 @@
                         startSlice = timeoutData.Item2;
                     }
 
-                    Trace.WriteLine("Deleting " + timeoutData.Item1);
+                    Console.WriteLine("Deleting " + timeoutData.Item1);
                     //Assert.IsTrue(persister.TryRemove(timeoutData.Item1, out tempTd)); // Raven returns duplicates, so we can't assert on this here
                     if (persister.TryRemove(timeoutData.Item1, out tempTd))
                         found++;
@@ -89,7 +89,7 @@
                 while (true)
                 {
                     var chunkToCleanup = persister.GetCleanupChunk(DateTime.UtcNow.Add(persister.CleanupGapFromTimeslice)).ToArray();
-                    Trace.WriteLine("Cleanup: got a chunk of size " + chunkToCleanup.Length);
+                    Console.WriteLine("Cleanup: got a chunk of size " + chunkToCleanup.Length);
                     if (chunkToCleanup.Length == 0) break;
 
                     found += chunkToCleanup.Length;
@@ -103,7 +103,7 @@
             }
             else
             {
-                Trace.WriteLine("** Haven't seen stale results **");
+                Console.WriteLine("** Haven't seen stale results **");
             }
 
             using (var session = documentStore.OpenSession())
@@ -159,7 +159,7 @@
                     //Trace.WriteLine("Added timeout for " + td.Time);
                 }
                 finishedAdding1 = true;
-                Trace.WriteLine("*** Finished adding ***");
+                Console.WriteLine("*** Finished adding ***");
             }).Start();
 
             new Thread(() =>
@@ -189,7 +189,7 @@
                     }
                 }
                 finishedAdding2 = true;
-                Trace.WriteLine("*** Finished adding via a second client connection ***");
+                Console.WriteLine("*** Finished adding via a second client connection ***");
             }).Start();
 
             // Mimic the behavior of the TimeoutPersister coordinator
@@ -197,7 +197,7 @@
             TimeoutData tempTd;
             while (!finishedAdding1 || !finishedAdding2 || startSlice < lastExpectedTimeout)
             {
-                Trace.WriteLine("Querying for timeouts starting at " + startSlice + " with last known added timeout at " + lastExpectedTimeout);
+                Console.WriteLine("Querying for timeouts starting at " + startSlice + " with last known added timeout at " + lastExpectedTimeout);
                 DateTime nextRetrieval;
                 var timeoutDatas = persister.GetNextChunk(startSlice, out nextRetrieval);
                 foreach (var timeoutData in timeoutDatas)
@@ -223,7 +223,7 @@
                 while (true)
                 {
                     var chunkToCleanup = persister.GetCleanupChunk(DateTime.UtcNow.Add(persister.CleanupGapFromTimeslice)).ToArray();
-                    Trace.WriteLine("Cleanup: got a chunk of size " + chunkToCleanup.Length);
+                    Console.WriteLine("Cleanup: got a chunk of size " + chunkToCleanup.Length);
                     if (chunkToCleanup.Length == 0) break;
 
                     found += chunkToCleanup.Length;
@@ -237,7 +237,7 @@
             }
             else
             {
-                Trace.WriteLine("** Haven't seen stale results **");
+                Console.WriteLine("** Haven't seen stale results **");
             }
 
             using (var session = documentStore.OpenSession())
