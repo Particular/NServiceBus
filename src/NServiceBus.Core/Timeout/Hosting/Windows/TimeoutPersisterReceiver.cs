@@ -52,7 +52,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 {
                     t.Exception.Handle(ex =>
                     {
-                        Logger.Warn("Failed to fetch timeouts from the timeout storage");
+                        Logger.Warn("Failed to fetch timeouts from the timeout storage", ex);
                         circuitBreaker.Failure(ex);
                         return true;
                     });
