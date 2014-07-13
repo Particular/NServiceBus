@@ -10,7 +10,6 @@
     using NUnit.Framework;
     using Raven.Client;
     using Raven.Client.Document;
-    using Raven.Client.Embedded;
 
     [TestFixture]
     public class RavenTimeoutPersisterTests
@@ -18,9 +17,11 @@
         [TestCase, Repeat(200)]
         public void Should_not_skip_timeouts()
         {
-            documentStore = new EmbeddableDocumentStore
+            var db = Guid.NewGuid().ToString();
+            documentStore = new DocumentStore
             {
-                RunInMemory = true,
+                Url = "http://localhost:8080",
+                DefaultDatabase = db,
             }.Initialize();
             persister = new RavenTimeoutPersistence(new StoreAccessor(documentStore))
             {
