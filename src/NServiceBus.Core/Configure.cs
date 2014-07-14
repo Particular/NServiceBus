@@ -181,7 +181,7 @@ namespace NServiceBus
 
             if (targetFrame != null)
             {
-                throw new InvalidOperationException("Do not call Configure.With from IConfigureThisEndpoint.Customize. Instead use the ""builder"" argument passed to the Customize method. To customize other options not available from the builder, implement the INeedInitialization interface. Configure.With() is only useful in self hosting scenarios.");
+                throw new InvalidOperationException("Do not call Configure.With from IConfigureThisEndpoint.Customize. Instead use the \"builder\" argument passed to the Customize method. To customize other options not available from the builder, implement the INeedInitialization interface. Configure.With() is only useful in self hosting scenarios.");
             }
         }
 
