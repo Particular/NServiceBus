@@ -155,7 +155,34 @@ namespace NServiceBus
 
             EndpointHelper.StackTraceToExamine = new StackTrace();
 
+            if (Debugger.IsAttached)
+            {
+                EnsureThisCodeIsNotBeingCalledFromIConfigureThisEndpoint();
+            }
+
             return instance;
+        }
+
+        static void EnsureThisCodeIsNotBeingCalledFromIConfigureThisEndpoint()
+        {
+            var stackFrames = EndpointHelper.StackTraceToExamine.GetFrames();
+            if (stackFrames == null)
+            {
+                return;
+            }
+
+            var targetFrame =
+                stackFrames.FirstOrDefault(
+                    f =>
+                    {
+                        var methodBase = f.GetMethod();
+                        return typeof(IConfigureThisEndpoint).IsAssignableFrom(methodBase.DeclaringType) && methodBase.Name == "Customize";
+                    });
+
+            if (targetFrame != null)
+            {
+                throw new InvalidOperationException("Do not call Configure.With from IConfigureThisEndpoint.Customize. Instead use the \"builder\" argument passed to the Customize method. To customize other options not available from the builder, implement the INeedInitialization interface. Configure.With() is only useful in self hosting scenarios.");
+            }
         }
 
         /// <summary>
