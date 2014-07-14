@@ -84,8 +84,8 @@
 
             // If the persister reports stale results have been seen at one point during its normal operation,
             // we need to perform manual cleaup.
-            if (persister.SeenStaleResults)
-            {
+//            if (persister.SeenStaleResults)
+//            {
                 while (true)
                 {
                     var chunkToCleanup = persister.GetCleanupChunk(DateTime.UtcNow.AddDays(1)).ToArray();
@@ -100,11 +100,11 @@
 
                     WaitForIndexing(documentStore);
                 }
-            }
-            else
-            {
-                Console.WriteLine("** Haven't seen stale results **");
-            }
+//            }
+//            else
+//            {
+//                Console.WriteLine("** Haven't seen stale results **");
+//            }
 
             using (var session = documentStore.OpenSession())
             {
@@ -218,8 +218,8 @@
 
             // If the persister reports stale results have been seen at one point during its normal operation,
             // we need to perform manual cleaup.
-            if (persister.SeenStaleResults)
-            {
+//            if (persister.SeenStaleResults)
+//            {
                 while (true)
                 {
                     var chunkToCleanup = persister.GetCleanupChunk(DateTime.UtcNow.AddDays(1)).ToArray();
@@ -234,11 +234,11 @@
 
                     WaitForIndexing(documentStore);
                 }
-            }
-            else
-            {
-                Console.WriteLine("** Haven't seen stale results **");
-            }
+//            }
+//            else
+//            {
+//                Console.WriteLine("** Haven't seen stale results **");
+//            }
 
             using (var session = documentStore.OpenSession())
             {
