@@ -16,8 +16,6 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
 
         public TimeSpan CleanupGapFromTimeslice { get; set; }
         public TimeSpan TriggerCleanupEvery { get; set; }
-
-        public bool SeenStaleResults { get; private set; }
         DateTime lastCleanupTime = DateTime.MinValue;
 
         public RavenTimeoutPersistence(StoreAccessor storeAccessor)
@@ -54,7 +52,6 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                     .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time));
 
                 lastCleanupTime = DateTime.UtcNow;
-                SeenStaleResults = false;
 
                 return chunk;
             }
@@ -70,7 +67,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                 // Allow for occasionally cleaning up old timeouts for edge cases where timeouts have been
                 // added after startSlice have been set to a later timout and we might have missed them
                 // because of stale indexes.
-                if (SeenStaleResults && (lastCleanupTime.Add(TriggerCleanupEvery) > now || lastCleanupTime == DateTime.MinValue))
+                if (lastCleanupTime.Add(TriggerCleanupEvery) > now || lastCleanupTime == DateTime.MinValue)
                 {                    
                     results.AddRange(GetCleanupChunk(startSlice));
                 }
@@ -92,9 +89,6 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                         .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time))
                         );
                 }
-
-                if (stats.IsStale)
-                    SeenStaleResults = true;
 
                 // Set next execution to be now if we haven't consumed the entire thing or received stale results.
                 // Delay the next execution a bit if we results weren't stale and we got the full chunk.

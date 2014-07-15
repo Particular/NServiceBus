@@ -31,7 +31,6 @@
             var startSlice = DateTime.UtcNow.AddYears(-10);
             // avoid cleanup from running during the test by making it register as being run
             Assert.AreEqual(0, persister.GetCleanupChunk(startSlice).Count());
-            Assert.IsFalse(persister.SeenStaleResults);
 
             var expected = new List<Tuple<string, DateTime>>();
             var lastExpectedTimeout = DateTime.UtcNow;
@@ -84,27 +83,20 @@
 
             // If the persister reports stale results have been seen at one point during its normal operation,
             // we need to perform manual cleaup.
-//            if (persister.SeenStaleResults)
-//            {
-                while (true)
+            while (true)
+            {
+                var chunkToCleanup = persister.GetCleanupChunk(DateTime.UtcNow.AddDays(1)).ToArray();
+                Console.WriteLine("Cleanup: got a chunk of size " + chunkToCleanup.Length);
+                if (chunkToCleanup.Length == 0) break;
+
+                found += chunkToCleanup.Length;
+                foreach (var tuple in chunkToCleanup)
                 {
-                    var chunkToCleanup = persister.GetCleanupChunk(DateTime.UtcNow.AddDays(1)).ToArray();
-                    Console.WriteLine("Cleanup: got a chunk of size " + chunkToCleanup.Length);
-                    if (chunkToCleanup.Length == 0) break;
-
-                    found += chunkToCleanup.Length;
-                    foreach (var tuple in chunkToCleanup)
-                    {
-                        Assert.IsTrue(persister.TryRemove(tuple.Item1, out tempTd));
-                    }
-
-                    WaitForIndexing(documentStore);
+                    Assert.IsTrue(persister.TryRemove(tuple.Item1, out tempTd));
                 }
-//            }
-//            else
-//            {
-//                Console.WriteLine("** Haven't seen stale results **");
-//            }
+
+                WaitForIndexing(documentStore);
+            }
 
             using (var session = documentStore.OpenSession())
             {
@@ -132,7 +124,6 @@
             var startSlice = DateTime.UtcNow.AddYears(-10);
             // avoid cleanup from running during the test by making it register as being run
             Assert.AreEqual(0, persister.GetCleanupChunk(startSlice).Count());
-            Assert.IsFalse(persister.SeenStaleResults);
 
             const int insertsPerThread = 10000;
             var expected1 = new List<Tuple<string, DateTime>>();
@@ -218,27 +209,20 @@
 
             // If the persister reports stale results have been seen at one point during its normal operation,
             // we need to perform manual cleaup.
-//            if (persister.SeenStaleResults)
-//            {
-                while (true)
+            while (true)
+            {
+                var chunkToCleanup = persister.GetCleanupChunk(DateTime.UtcNow.AddDays(1)).ToArray();
+                Console.WriteLine("Cleanup: got a chunk of size " + chunkToCleanup.Length);
+                if (chunkToCleanup.Length == 0) break;
+
+                found += chunkToCleanup.Length;
+                foreach (var tuple in chunkToCleanup)
                 {
-                    var chunkToCleanup = persister.GetCleanupChunk(DateTime.UtcNow.AddDays(1)).ToArray();
-                    Console.WriteLine("Cleanup: got a chunk of size " + chunkToCleanup.Length);
-                    if (chunkToCleanup.Length == 0) break;
-
-                    found += chunkToCleanup.Length;
-                    foreach (var tuple in chunkToCleanup)
-                    {
-                        Assert.IsTrue(persister.TryRemove(tuple.Item1, out tempTd));
-                    }
-
-                    WaitForIndexing(documentStore);
+                    Assert.IsTrue(persister.TryRemove(tuple.Item1, out tempTd));
                 }
-//            }
-//            else
-//            {
-//                Console.WriteLine("** Haven't seen stale results **");
-//            }
+
+                WaitForIndexing(documentStore);
+            }
 
             using (var session = documentStore.OpenSession())
             {
