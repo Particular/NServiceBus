@@ -16,14 +16,14 @@ namespace NServiceBus
                 return;
             }
 
-            var arr = configType.GetCustomAttributes(typeof(EndpointSLAAttribute), false);
+            var arr = configType.GetCustomAttributes(typeof(Hosting.EndpointSLAAttribute), false);
             if (arr.Length != 1)
             {
                 return;
             }
-                
 
-            var slaString = ((EndpointSLAAttribute)arr.First()).SLA;
+
+            var slaString = ((Hosting.EndpointSLAAttribute)arr.First()).SLA;
 
             TimeSpan sla;
 

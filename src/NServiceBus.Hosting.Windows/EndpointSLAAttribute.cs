@@ -1,11 +1,10 @@
-namespace NServiceBus
+namespace NServiceBus.Hosting
 {
     using System;
 
     /// <summary>
     /// Defines the SLA for this endpoint. Needs to be set on the endpoint configuration class
     /// </summary>
-    [ObsoleteEx(Replacement = "NServiceBus.Hosting.EndpointSLAAttribute in the NServiceBus.Host assembly",TreatAsErrorFromVersion = "5.0")]
     public sealed class EndpointSLAAttribute : Attribute
     {
         /// <summary>

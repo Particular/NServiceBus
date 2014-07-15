@@ -85,6 +85,8 @@
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
+    <Compile Include="Hosting\Configuration\EndpointNameAttribute.cs" />
+    <Compile Include="Hosting\Configuration\EndpointSLAAttribute.cs" />
     <Compile Include="Installation\InstallationSupport.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />
     <Compile Include="Obsoletes.cs" />
@@ -130,7 +132,6 @@
     <Compile Include="Hosting\Configuration\IConfigureLoggingForProfile.cs" />
     <Compile Include="Hosting\Configuration\IWantCustomLogging.cs" />
     <Compile Include="Hosting\Configuration\IWantTheListOfActiveProfiles.cs" />
-    <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
     <Compile Include="Hosting\HostInformation.cs" />
@@ -386,8 +387,6 @@
     <Compile Include="Faults\Forwarder\FaultManager.cs" />
     <Compile Include="Faults\IManageMessageFailures.cs" />
     <Compile Include="Faults\InMemory\FaultManager.cs" />
-    <Compile Include="Hosting\Configuration\EndpointNameAttribute.cs" />
-    <Compile Include="Hosting\Configuration\EndpointSLAAttribute.cs" />
     <Compile Include="Hosting\Configuration\IConfigureThisEndpoint.cs" />
     <Compile Include="Hosting\Configuration\IWantCustomInitialization.cs" />
     <Compile Include="Hosting\Helpers\AssemblyListExtensions.cs" />
