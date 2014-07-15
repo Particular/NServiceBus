@@ -45,13 +45,12 @@
                                         {
                                             SagaId = sagaId,
                                             Destination = new Address("queue", "machine"),
-                                            Time = DateTime.UtcNow.AddSeconds(RandomProvider.GetThreadRandom().Next(1, 20)),
+                                            Time = DateTime.UtcNow.AddSeconds(RandomProvider.GetThreadRandom().Next(5, 20)),
                                             OwningTimeoutManager = string.Empty,
                                         };
                                persister.Add(td);
                                expected.Add(new Tuple<string, DateTime>(td.Id, td.Time));
                                lastExpectedTimeout = (td.Time > lastExpectedTimeout) ? td.Time : lastExpectedTimeout;
-                               //Trace.WriteLine("Added timeout for " + td.Time);
                            }
                            finishedAdding = true;
                            Console.WriteLine("*** Finished adding ***");
@@ -62,7 +61,6 @@
             TimeoutData tempTd;
             while (!finishedAdding || startSlice < lastExpectedTimeout)
             {
-                //Console.WriteLine("Querying for timeouts starting at " + startSlice + " with last known added timeout at " + lastExpectedTimeout);
                 DateTime nextRetrieval;
                 var timeoutDatas = persister.GetNextChunk(startSlice, out nextRetrieval);
                 foreach (var timeoutData in timeoutDatas)
@@ -72,10 +70,8 @@
                         startSlice = timeoutData.Item2;
                     }
 
-                    //Console.WriteLine("Deleting " + timeoutData.Item1);
-                    //Assert.IsTrue(persister.TryRemove(timeoutData.Item1, out tempTd)); // Raven returns duplicates, so we can't assert on this here
-                    if (persister.TryRemove(timeoutData.Item1, out tempTd))
-                        found++;
+                    Assert.IsTrue(persister.TryRemove(timeoutData.Item1, out tempTd));
+                    found++;
                 }
             }
 
@@ -147,7 +143,6 @@
                     persister.Add(td);
                     expected1.Add(new Tuple<string, DateTime>(td.Id, td.Time));
                     lastExpectedTimeout = (td.Time > lastExpectedTimeout) ? td.Time : lastExpectedTimeout;
-                    //Trace.WriteLine("Added timeout for " + td.Time);
                 }
                 finishedAdding1 = true;
                 Console.WriteLine("*** Finished adding ***");
@@ -176,7 +171,6 @@
                         persister2.Add(td);
                         expected2.Add(new Tuple<string, DateTime>(td.Id, td.Time));
                         lastExpectedTimeout = (td.Time > lastExpectedTimeout) ? td.Time : lastExpectedTimeout;
-                        //Trace.WriteLine("Added timeout for " + td.Time);
                     }
                 }
                 finishedAdding2 = true;
@@ -188,7 +182,6 @@
             TimeoutData tempTd;
             while (!finishedAdding1 || !finishedAdding2 || startSlice < lastExpectedTimeout)
             {
-                //Console.WriteLine("Querying for timeouts starting at " + startSlice + " with last known added timeout at " + lastExpectedTimeout);
                 DateTime nextRetrieval;
                 var timeoutDatas = persister.GetNextChunk(startSlice, out nextRetrieval);
                 foreach (var timeoutData in timeoutDatas)
@@ -198,10 +191,8 @@
                         startSlice = timeoutData.Item2;
                     }
 
-                    //Console.WriteLine("Deleting " + timeoutData.Item1);
-                    //Assert.IsTrue(persister.TryRemove(timeoutData.Item1, out tempTd)); // Raven returns duplicates, so we can't assert on this here
-                    if (persister.TryRemove(timeoutData.Item1, out tempTd))
-                        found++;
+                    Assert.IsTrue(persister.TryRemove(timeoutData.Item1, out tempTd)); // Raven returns duplicates, so we can't assert on this here
+                    found++;
                 }
             }
 
