@@ -213,6 +213,16 @@
             get { throw new NotImplementedException(); }
         }
 
+        public void Start()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Shutdown()
+        {
+            throw new NotImplementedException();
+        }
+
         public T CreateInstance<T>()
         {
             return messageCreator.CreateInstance<T>();
@@ -283,6 +293,11 @@
                 {
                     {"Value", delayOrProcessAt}
                 }, message);
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
 }

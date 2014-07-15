@@ -193,5 +193,19 @@
             get { throw new NotImplementedException(); }
         }
 
+        public void Start()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Shutdown()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

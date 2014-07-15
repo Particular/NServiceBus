@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Defines a bus to be used with NServiceBus.
     /// </summary>
-    public interface IBus
+    public interface IBus: IDisposable
     {
         /// <summary>
         /// Publish the message to subscribers.
@@ -212,5 +212,15 @@ namespace NServiceBus
         /// </summary>
         [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Message = "Removed to reduce complexity and API confusion. See http://docs.particular.net/nservicebus/inmemoryremoval for more information.")]
         IInMemoryOperations InMemory { get; }
+
+        /// <summary>
+        /// Starts the bus.
+        /// </summary>
+        void Start();
+
+        /// <summary>
+        /// Performs the shutdown of the current <see cref="IBus"/>.
+        /// </summary>
+        void Shutdown();
     }
 }
