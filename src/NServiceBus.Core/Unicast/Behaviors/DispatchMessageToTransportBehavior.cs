@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using NServiceBus.Settings;
     using Pipeline;
     using Pipeline.Contexts;
     using Queuing;
@@ -15,7 +16,7 @@
 
         public IDeferMessages MessageDeferral { get; set; }
 
-        public Configure Configure { get; set; }
+        public ReadOnlySettings Settings { get; set; }
 
 
         public void Invoke(OutgoingContext context, Action next)
@@ -37,7 +38,7 @@
             }
 
             messageToSend.Headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
-            messageToSend.Headers.Add(Headers.OriginatingEndpoint, Configure.Settings.EndpointName());
+            messageToSend.Headers.Add(Headers.OriginatingEndpoint, Settings.EndpointName());
             messageToSend.Headers.Add(Headers.OriginatingHostId, UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N"));
           
             try
