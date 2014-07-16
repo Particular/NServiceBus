@@ -12,7 +12,7 @@ namespace NServiceBus.Timeout.Tests
     [TestFixture]
     public class When_fetching_timeouts_from_storage_with_raven : When_fetching_timeouts_from_storage
     {
-        protected IDocumentStore store;
+        private IDocumentStore store;
 
         protected override IPersistTimeouts CreateTimeoutPersister()
         {
@@ -138,21 +138,11 @@ namespace NServiceBus.Timeout.Tests
             });
 
             DateTime nextTimeToRunQuery;
-            var ravenPersiter = persister as RavenTimeoutPersistence;
-            if (ravenPersiter != null)
-            {
-                RavenTimeoutPersisterTests.WaitForIndexing(ravenPersiter.store);
-                persister.GetNextChunk(DateTime.UtcNow.AddYears(-3), out nextTimeToRunQuery);
-
-                Assert.LessOrEqual(nextTimeToRunQuery.Ticks, DateTime.UtcNow.AddMinutes(10).Ticks);
-            }
-
             persister.GetNextChunk(DateTime.UtcNow.AddYears(-3), out nextTimeToRunQuery);
 
             var totalMilliseconds = (expected - nextTimeToRunQuery).Duration().TotalMilliseconds;
 
-            if (ravenPersiter == null)
-                Assert.Less(totalMilliseconds, 200);
+            Assert.True(totalMilliseconds < 200);
         }
 
         protected List<Tuple<string, DateTime>> GetNextChunk()
