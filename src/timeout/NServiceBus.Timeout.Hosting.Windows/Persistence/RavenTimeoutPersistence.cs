@@ -97,7 +97,6 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                     results.AddRange(GetCleanupChunk(startSlice));
                 }
 
-                DateTime beginningOfNextChunk;
                 RavenQueryStatistics stats;
                 using (var session = OpenSession())
                 {
@@ -113,23 +112,28 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                     results.AddRange(query
                         .ToList()
                         .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time)));
-
-                    beginningOfNextChunk = GetChunkQuery(session)
-                        .Where(t => t.Time > now)
-                        .Take(1)
-                        .Select(t => t.Time)
-                        .FirstOrDefault();
                 }
-
-                nextTimeToRunQuery = (beginningOfNextChunk == default(DateTime))
-                    ? nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10)
-                    : beginningOfNextChunk.ToUniversalTime();
 
                 // Set next execution to be now if we haven't consumed the entire thing or received stale results.
                 // Delay the next execution a bit if we results weren't stale and we got the full chunk.
                 if (stats.TotalResults > 1024 || stats.IsStale)
                 {
                     nextTimeToRunQuery = now;
+                }
+                else
+                {
+                    using (var session = OpenSession())
+                    {
+                        var beginningOfNextChunk = GetChunkQuery(session)
+                        .Where(t => t.Time > now)
+                        .Take(1)
+                        .Select(t => t.Time)
+                        .FirstOrDefault();
+
+                        nextTimeToRunQuery = (beginningOfNextChunk == default(DateTime))
+                            ? nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10)
+                            : beginningOfNextChunk.ToUniversalTime();
+                    }
                 }
 
                 return results;
