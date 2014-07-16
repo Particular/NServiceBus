@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicMessaging\When_handling_incoming_messages_headers_should_be_shared.cs" />
+    <Compile Include="BasicMessaging\When_sending_a_message_ensure_proper_headers.cs" />
     <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_not_expired.cs" />
     <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_expired.cs" />
     <Compile Include="BasicMessaging\When_Deferring_a_message.cs" />
