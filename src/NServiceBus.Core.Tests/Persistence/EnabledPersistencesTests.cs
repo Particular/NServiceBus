@@ -51,9 +51,9 @@
             selected.ClaimStorages(typeof(PersitenceA), new List<Storage> { Storage.Sagas});
             selected.AddWildcardRegistration(typeof(PersitenceB), new List<Storage>{Storage.Sagas,Storage.Timeouts});
 
-            Assert.False(selected.GetEnabled().Single(p => p.PersitenceType == typeof(PersitenceB)).StoragesToEnable.Contains(Storage.Sagas));
-            Assert.True(selected.GetEnabled().Single(p => p.PersitenceType == typeof(PersitenceB)).StoragesToEnable.Contains(Storage.Timeouts));
-            Assert.True(selected.GetEnabled().Single(p => p.PersitenceType == typeof(PersitenceA)).StoragesToEnable.Contains(Storage.Sagas));
+            Assert.False(selected.GetEnabled().Single(p => p.PersistenceType == typeof(PersitenceB)).StoragesToEnable.Contains(Storage.Sagas));
+            Assert.True(selected.GetEnabled().Single(p => p.PersistenceType == typeof(PersitenceB)).StoragesToEnable.Contains(Storage.Timeouts));
+            Assert.True(selected.GetEnabled().Single(p => p.PersistenceType == typeof(PersitenceA)).StoragesToEnable.Contains(Storage.Sagas));
         }
 
         [Test]

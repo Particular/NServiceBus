@@ -26,9 +26,9 @@
             {
                 foreach (var storageToEnable in distinctStoragesToEnable)
                 {
-                    if (selectedPersistence.PersitenceType != definitionType && selectedPersistence.StoragesToEnable.Contains(storageToEnable))
+                    if (selectedPersistence.PersistenceType != definitionType && selectedPersistence.StoragesToEnable.Contains(storageToEnable))
                     {
-                        throw new Exception(string.Format("Failed to enable storage for {0} provided by persistence {1} since its already been enabled for persistence {2}", storageToEnable, definitionType.Name, selectedPersistence.PersitenceType.Name));
+                        throw new Exception(string.Format("Failed to enable storage for {0} provided by persistence {1} since its already been enabled for persistence {2}", storageToEnable, definitionType.Name, selectedPersistence.PersistenceType.Name));
                     }
                 }
 
@@ -50,7 +50,7 @@
             {
                 selection[definitionType] = new EnabledPersistence
                 {
-                    PersitenceType = definitionType,
+                    PersistenceType = definitionType,
                     StoragesToEnable = distinctStoragesToEnable
                 };
             }
@@ -67,7 +67,7 @@
 
         public class EnabledPersistence
         {
-            public Type PersitenceType;
+            public Type PersistenceType;
             public List<Storage> StoragesToEnable = new List<Storage>();
         }
 

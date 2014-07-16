@@ -13,7 +13,7 @@
 
             foreach (var selectedPersistence in config.Settings.Get<EnabledPersistences>().GetEnabled())
             {
-                var definitionType = selectedPersistence.PersitenceType;
+                var definitionType = selectedPersistence.PersistenceType;
 
                 var type = config.TypesToScan.SingleOrDefault(t => typeof(IConfigurePersistence<>).MakeGenericType(definitionType).IsAssignableFrom(t));
 

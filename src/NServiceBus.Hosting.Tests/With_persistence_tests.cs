@@ -27,6 +27,7 @@ namespace NServiceBus.Hosting.Tests
                     typeof(MyPersistenceConfigurer)
                 });
             });
+            config.UsePersistence<InMemory>();
 
             roleManager = new RoleManager(new[] { typeof(PersistenceRoleHandler).Assembly });
         }
@@ -38,7 +39,7 @@ namespace NServiceBus.Hosting.Tests
         {
             roleManager.ConfigureBusForEndpoint(new ConfigWithCustomPersistence(), config);
 
-            Assert.True(config.Settings.Get<EnabledPersistences>().GetEnabled().First().PersitenceType == typeof(MyTestPersistence));
+            Assert.True(config.Settings.Get<EnabledPersistences>().GetEnabled().Any(t => t.PersistenceType == typeof(MyTestPersistence)));
         }
 
         [Test]
@@ -47,7 +48,7 @@ namespace NServiceBus.Hosting.Tests
             var handler = new EnableSelectedPersistences();
             handler.Run(config);
 
-            Assert.True(config.Settings.Get<EnabledPersistences>().GetEnabled().First().PersitenceType == typeof(InMemory));
+            Assert.True(config.Settings.Get<EnabledPersistences>().GetEnabled().First().PersistenceType == typeof(InMemory));
         }
 
         [Test]
