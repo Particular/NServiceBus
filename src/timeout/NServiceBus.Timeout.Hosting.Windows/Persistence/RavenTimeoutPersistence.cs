@@ -13,10 +13,10 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
     public class RavenTimeoutPersistence : IPersistTimeouts
     {
         readonly IDocumentStore store;
-
+        DateTime lastCleanupTime = DateTime.MinValue;
+        
         public TimeSpan CleanupGapFromTimeslice { get; set; }
         public TimeSpan TriggerCleanupEvery { get; set; }
-        DateTime lastCleanupTime = DateTime.MinValue;
 
         public RavenTimeoutPersistence(IDocumentStore store)
         {
