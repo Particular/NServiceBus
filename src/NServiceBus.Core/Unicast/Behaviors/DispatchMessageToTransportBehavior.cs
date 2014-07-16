@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
-    using NServiceBus.Settings;
+    using Settings;
     using Pipeline;
     using Pipeline.Contexts;
     using Queuing;
