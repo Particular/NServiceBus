@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     class When_sending_a_message_ensure_proper_headers
@@ -11,7 +11,10 @@
         [Test]
         public void Should_have_proper_headers_for_the_originating_endpoint()
         {
-            var context = new Context() {Id = Guid.NewGuid()};
+            var context = new Context
+            {
+                Id = Guid.NewGuid()
+            };
 
             Scenario.Define(context)
                                 .WithEndpoint<Sender>(b => b.Given((bus, ctx) => bus.Send<MyMessage>(m =>
