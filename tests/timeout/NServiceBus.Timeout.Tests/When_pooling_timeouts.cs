@@ -26,7 +26,7 @@ namespace NServiceBus.Timeout.Tests
             store.Conventions.MaxNumberOfRequestsPerSession = 10;
             store.Initialize();
 
-            return new RavenTimeoutPersistence(store);
+            return new RavenTimeoutPersistence(store){CleanupGapFromTimeslice = TimeSpan.FromSeconds(1), TriggerCleanupEvery = TimeSpan.MinValue};
         }
 
         [TearDown]

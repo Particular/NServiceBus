@@ -7,6 +7,8 @@ using NServiceBus.Timeout.Hosting.Windows.Persistence;
 using NUnit.Framework;
 using Raven.Client;
 using Raven.Client.Document;
+using Raven.Client.Embedded;
+using Raven.Database;
 
 namespace NServiceBus.Timeout.Tests
 {
@@ -237,7 +239,7 @@ namespace NServiceBus.Timeout.Tests
                 documentStore.Dispose();
         }
 
-        static void WaitForIndexing(IDocumentStore store, string db = null, TimeSpan? timeout = null)
+        public static void WaitForIndexing(IDocumentStore store, string db = null, TimeSpan? timeout = null)
         {
             var databaseCommands = store.DatabaseCommands;
             if (db != null)

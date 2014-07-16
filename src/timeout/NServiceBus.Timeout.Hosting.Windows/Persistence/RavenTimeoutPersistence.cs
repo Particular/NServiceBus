@@ -12,7 +12,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 
     public class RavenTimeoutPersistence : IPersistTimeouts
     {
-        readonly IDocumentStore store;
+        public readonly IDocumentStore store;
 
         public TimeSpan CleanupGapFromTimeslice { get; set; }
         public TimeSpan TriggerCleanupEvery { get; set; }
@@ -92,7 +92,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                 // Allow for occasionally cleaning up old timeouts for edge cases where timeouts have been
                 // added after startSlice have been set to a later timout and we might have missed them
                 // because of stale indexes.
-                if (lastCleanupTime.Add(TriggerCleanupEvery) > now || lastCleanupTime == DateTime.MinValue)
+                if (TriggerCleanupEvery == TimeSpan.MinValue || lastCleanupTime == DateTime.MinValue || lastCleanupTime.Add(TriggerCleanupEvery) > now)
                 {
                     results.AddRange(GetCleanupChunk(startSlice));
                 }
