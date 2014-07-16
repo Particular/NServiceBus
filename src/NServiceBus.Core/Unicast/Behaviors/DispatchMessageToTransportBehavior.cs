@@ -15,6 +15,8 @@
 
         public IDeferMessages MessageDeferral { get; set; }
 
+        public Configure Configure { get; set; }
+
 
         public void Invoke(OutgoingContext context, Action next)
         {
@@ -35,7 +37,9 @@
             }
 
             messageToSend.Headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
-
+            messageToSend.Headers.Add(Headers.OriginatingEndpoint, Configure.Settings.EndpointName());
+            messageToSend.Headers.Add(Headers.OriginatingHostId, UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N"));
+          
             try
             {
                 if(deliveryOptions is PublishOptions)

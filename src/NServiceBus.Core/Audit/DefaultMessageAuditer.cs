@@ -22,8 +22,6 @@ namespace NServiceBus.Transports
                 TimeToBeReceived = sendOptions.TimeToBeReceived.HasValue ? sendOptions.TimeToBeReceived.Value : transportMessage.TimeToBeReceived
             };
 
-            messageToForward.Headers[Headers.OriginatingEndpoint] = EndpointName;
-            messageToForward.Headers[Headers.OriginatingHostId] = UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N");
             messageToForward.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
             messageToForward.Headers[Headers.ProcessingEndpoint] = EndpointName;
 
