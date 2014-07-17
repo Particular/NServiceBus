@@ -108,6 +108,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RavenTimeoutPersisterTests.cs" />
     <Compile Include="When_receiving_timeouts.cs" />
     <Compile Include="When_pooling_timeouts.cs" />
     <Compile Include="FakeMessageSender.cs" />
