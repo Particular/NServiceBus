@@ -106,16 +106,11 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                     {
                         session.Advanced.AllowNonAuthoritativeInformation = true;
 
-                        var query = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
-                            .Where(
-                                t =>
-                                    t.OwningTimeoutManager == String.Empty ||
-                                    t.OwningTimeoutManager == Configure.EndpointName)
+                        var query = GetChunkQuery(session)
                             .Where(
                                 t =>
                                     t.Time > startSlice &&
                                     t.Time <= now)
-                            .OrderBy(t => t.Time)
                             .Select(t => new { t.Id, t.Time })
                             .Statistics(out stats);
                         do
