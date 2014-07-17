@@ -119,7 +119,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                         .FirstOrDefault();
 
                         nextTimeToRunQuery = (beginningOfNextChunk == default(DateTime))
-                            ? nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10)
+                            ? DateTime.UtcNow.AddMinutes(10)
                             : beginningOfNextChunk.ToUniversalTime();
                     }
                 }
