@@ -34,6 +34,18 @@ namespace NServiceBus.Timeout.Tests
         {
             store.Dispose();
         }
+
+        [Test]
+        public void Should_retrieve_all_timeout_messages_that_expired_even_if_it_needs_to_page()
+        {
+            expected = 1024 + 5;
+
+            Enumerable.Range(1, expected).ToList().ForEach(i => persister.Add(CreateData(DateTime.UtcNow.AddSeconds(-5))));
+
+            StartAndStopReceiver(5);
+
+            WaitForMessagesThenAssert(5);
+        }
     }
 
     [TestFixture]
@@ -50,7 +62,7 @@ namespace NServiceBus.Timeout.Tests
         private IManageTimeouts manager;
         private FakeMessageSender messageSender;
         readonly Random rand = new Random();
-        private int expected;
+        protected int expected;
 
         protected IPersistTimeouts persister;
         protected TimeoutPersisterReceiver receiver;
@@ -182,14 +194,14 @@ namespace NServiceBus.Timeout.Tests
             Enumerable.Range(1, total).ToList().ForEach(i => manager.PushTimeout(CreateData(time)));
         }
 
-        private void StartAndStopReceiver(int secondsToWaitBeforeCallingStop = 1)
+        protected void StartAndStopReceiver(int secondsToWaitBeforeCallingStop = 1)
         {
             receiver.Start();
             Thread.Sleep(TimeSpan.FromSeconds(secondsToWaitBeforeCallingStop));
             receiver.Stop();
         }
 
-        private static TimeoutData CreateData(DateTime time)
+        protected static TimeoutData CreateData(DateTime time)
         {
             return new TimeoutData
                 {
@@ -199,7 +211,7 @@ namespace NServiceBus.Timeout.Tests
                 };
         }
 
-        private void WaitForMessagesThenAssert(int maxSecondsToWait)
+        protected void WaitForMessagesThenAssert(int maxSecondsToWait)
         {
             var maxTime = DateTime.Now.AddSeconds(maxSecondsToWait);
 

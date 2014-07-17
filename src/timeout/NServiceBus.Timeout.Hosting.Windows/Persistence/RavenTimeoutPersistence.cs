@@ -97,26 +97,44 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                     results.AddRange(GetCleanupChunk(startSlice));
                 }
 
+                var skip = 0;
+                var numberOfRequestsExecutedSoFar = 0;
                 RavenQueryStatistics stats;
-                using (var session = OpenSession())
+                do
                 {
-                    var query = GetChunkQuery(session)
-                        .Where(
-                            t =>
-                                t.Time > startSlice &&
-                                t.Time <= now)
-                        .Select(t => new { t.Id, t.Time })
-                        .Statistics(out stats)
-                        .Take(1024);
+                    using (var session = OpenSession())
+                    {
+                        session.Advanced.AllowNonAuthoritativeInformation = true;
 
-                    results.AddRange(query
-                        .ToList()
-                        .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time)));
-                }
+                        var query = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
+                            .Where(
+                                t =>
+                                    t.OwningTimeoutManager == String.Empty ||
+                                    t.OwningTimeoutManager == Configure.EndpointName)
+                            .Where(
+                                t =>
+                                    t.Time > startSlice &&
+                                    t.Time <= now)
+                            .OrderBy(t => t.Time)
+                            .Select(t => new { t.Id, t.Time })
+                            .Statistics(out stats);
+                        do
+                        {
+                            results.AddRange(query
+                                                 .Skip(skip)
+                                                 .Take(1024)
+                                                 .ToList()
+                                                 .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time)));
 
-                // Set next execution to be now if we haven't consumed the entire thing or received stale results.
+                            skip += 1024;
+                        } while (skip < stats.TotalResults &&
+                                 ++numberOfRequestsExecutedSoFar < session.Advanced.MaxNumberOfRequestsPerSession);
+                    }
+                } while (skip < stats.TotalResults);
+
+                // Set next execution to be now if we received stale results.
                 // Delay the next execution a bit if we results weren't stale and we got the full chunk.
-                if (stats.TotalResults > 1024 || stats.IsStale)
+                if (stats.IsStale)
                 {
                     nextTimeToRunQuery = now;
                 }
@@ -125,13 +143,13 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                     using (var session = OpenSession())
                     {
                         var beginningOfNextChunk = GetChunkQuery(session)
-                        .Where(t => t.Time > now)
-                        .Take(1)
-                        .Select(t => t.Time)
-                        .FirstOrDefault();
+                            .Where(t => t.Time > now)
+                            .Take(1)
+                            .Select(t => t.Time)
+                            .FirstOrDefault();
 
                         nextTimeToRunQuery = (beginningOfNextChunk == default(DateTime))
-                            ? nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10)
+                            ? DateTime.UtcNow.AddMinutes(10)
                             : beginningOfNextChunk.ToUniversalTime();
                     }
                 }
