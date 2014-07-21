@@ -178,5 +178,5 @@
       Projects="$(ProjectPath)" 
       Properties="SolutionDir=$(SolutionDir);Configuration=$(ConfigurationName);Platform=x86"/>
   </Target>
-  <Import Project="$(SolutionDir)..\BuildSupport\GitVersion\build\GitVersionTask.targets" />
+  <Import Project="$(SolutionDir)..\BuildSupport\GitVersionTask\build\GitVersionTask.targets" />
 </Project>
