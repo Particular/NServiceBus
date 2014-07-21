@@ -10,9 +10,9 @@ namespace NServiceBus.Licensing
         {
             var attribute = (dynamic)Assembly.GetExecutingAssembly()
                 .GetCustomAttributes(false)
-                .First(x => x.GetType().Name == "TimestampAttribute");
+                .First(x => x.GetType().Name == "ReleaseDateAttribute");
 
-            return UniversalDateParser.Parse((string)attribute.Timestamp);
+            return UniversalDateParser.Parse((string)attribute.OriginalDate);
         }
     }
 }
