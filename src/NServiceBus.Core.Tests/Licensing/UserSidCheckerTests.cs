@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Licensing
 {
-    using NServiceBus.Licensing;
     using NUnit.Framework;
+    using Particular.Licensing;
 
     [TestFixture]
     public class UserSidCheckerTests
