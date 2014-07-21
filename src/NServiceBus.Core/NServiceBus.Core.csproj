@@ -655,6 +655,5 @@
     <Delete Files="@(TempFiles)" />
     <RemoveDir Directories="$(TargetDir)temp\" />
   </Target>
-  <Import Project="$(SolutionDir)..\BuildSupport\Timestamp\build\Timestamp.targets" />
-  <Import Project="$(SolutionDir)..\BuildSupport\GitFlowVersion\build\GitFlowVersionTask.targets" />
+  <Import Project="$(SolutionDir)..\BuildSupport\GitVersionTask\build\GitVersionTask.targets" />
 </Project>
