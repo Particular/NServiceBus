@@ -7,7 +7,7 @@ namespace NServiceBus
         static GitFlowVersion()
         {
             var assembly = typeof(GitFlowVersion).Assembly;
-            var gitFlowVersionInformationType = assembly.GetType("NServiceBus.Core.GitFlowVersionInformation", true);
+            var gitFlowVersionInformationType = assembly.GetType("GitVersionInformation", true);
             var fieldInfo = gitFlowVersionInformationType.GetField("AssemblyFileVersion");
             var assemblyFileVersion = Version.Parse((string)fieldInfo.GetValue(null));
             MajorMinor = assemblyFileVersion.ToString(2);

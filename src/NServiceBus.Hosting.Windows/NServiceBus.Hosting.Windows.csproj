@@ -180,5 +180,5 @@
   <Target Name="Build32BitVersion">
     <MSBuild Condition=" '$(Platform)' != 'x86' " Projects="$(ProjectPath)" Properties="SolutionDir=$(SolutionDir);Configuration=$(ConfigurationName);Platform=x86" />
   </Target>
-  <Import Project="$(SolutionDir)..\BuildSupport\GitFlowVersion\build\GitFlowVersionTask.targets" />
+  <Import Project="$(SolutionDir)..\BuildSupport\GitVersionTask\build\GitVersionTask.targets" />
 </Project>
