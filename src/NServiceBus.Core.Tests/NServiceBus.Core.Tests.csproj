@@ -192,6 +192,7 @@
     <Compile Include="Serializers\XML\SerializingEnumerableTests.cs" />
     <Compile Include="Serializers\XML\SomeEnum.cs" />
     <Compile Include="Timeout\FakeMessageSender.cs" />
+    <Compile Include="Timeout\RavenTimeoutPersisterTests.cs" />
     <Compile Include="Timeout\When_fetching_timeouts_from_storage.cs" />
     <Compile Include="Timeout\When_pooling_timeouts.cs" />
     <Compile Include="Timeout\When_receiving_timeouts.cs" />
