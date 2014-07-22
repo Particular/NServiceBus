@@ -13,6 +13,6 @@
         /// <summary>
         /// Perform initialization logic.
         /// </summary>
-        Configure Init();
+        void Init();
     }
 }
