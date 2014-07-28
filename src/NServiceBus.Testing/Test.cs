@@ -151,13 +151,17 @@
             var saga = (T)Activator.CreateInstance(typeof(T));
 
             var prop = typeof(T).GetProperty("Data");
-            var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
 
-            saga.Entity = sagaData;
-
-            if (saga.Entity != null)
+            if (prop != null)
             {
-                saga.Entity.Id = sagaId;
+                var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
+
+                saga.Entity = sagaData;
+
+                if (saga.Entity != null)
+                {
+                    saga.Entity.Id = sagaId;
+                }
             }
 
             return Saga(saga);

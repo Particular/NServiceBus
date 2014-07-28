@@ -19,12 +19,19 @@ namespace NServiceBus.Testing
         {
             this.saga = saga;
             this.bus = bus;
+
             if (saga.Entity == null)
             {
                 var prop = typeof(T).GetProperty("Data");
+                if (prop == null)
+                {
+                    return;
+                }
+
                 var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
                 saga.Entity = sagaData;
             }
+
             saga.Entity.OriginalMessageId = Guid.NewGuid().ToString();
             saga.Entity.Originator = "client";
         }
