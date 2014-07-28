@@ -108,7 +108,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public IManageSubscriptions SubscriptionManager { get; set; }
 
-
         /// <summary>
         /// <see cref="IBus.Publish{T}(Action{T})"/>
         /// </summary>
@@ -116,7 +115,6 @@ namespace NServiceBus.Unicast
         {
             Publish(messageMapper.CreateInstance(messageConstructor));
         }
-
 
         /// <summary>
         /// <see cref="IBus.Publish{T}()"/>
@@ -126,15 +124,14 @@ namespace NServiceBus.Unicast
             Publish(messageMapper.CreateInstance<T>());
         }
 
-
         /// <summary>
         /// <see cref="IBus.Publish{T}(T)"/>
         /// </summary>
         public virtual void Publish<T>(T message)
         {
-            var options = new PublishOptions(typeof(T));
-
-            InvokeSendPipeline(options, LogicalMessageFactory.Create(message));
+            var logicalMessage = LogicalMessageFactory.Create(message);
+            var options = new PublishOptions(logicalMessage.MessageType);
+            InvokeSendPipeline(options, logicalMessage);
         }
 
         /// <summary>
