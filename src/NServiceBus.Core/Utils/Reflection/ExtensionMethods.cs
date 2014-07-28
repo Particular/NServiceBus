@@ -90,7 +90,7 @@ namespace NServiceBus.Utils.Reflection
                 }
 
                 if (args.Length == 2)
-                    if (typeof(KeyValuePair<,>).MakeGenericType(args) == t)
+                    if (typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t)
                         result = "NServiceBus." + result;
 
                 lock(TypeToNameLookup)  

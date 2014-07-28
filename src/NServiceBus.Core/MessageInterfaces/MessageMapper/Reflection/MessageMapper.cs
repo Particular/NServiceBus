@@ -130,7 +130,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             var args = t.GetGenericArguments();
             if (args.Length == 2)
             {
-                if (typeof(KeyValuePair<,>).MakeGenericType(args) == t)
+                if (typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t)
                 {
                     return t.SerializationFriendlyName();
                 }

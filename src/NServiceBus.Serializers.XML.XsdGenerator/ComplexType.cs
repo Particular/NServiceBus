@@ -104,7 +104,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             var args = t.GetGenericArguments();
             if (args.Length != 2)
                 return false;
-            return (typeof(KeyValuePair<,>).MakeGenericType(args) == t);
+            return (typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t);
         }
 
         private static bool IsInList(PropertyInfo prop, ICollection<PropertyInfo> propsToIgnore)

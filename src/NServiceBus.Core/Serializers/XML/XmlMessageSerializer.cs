@@ -138,12 +138,12 @@ namespace NServiceBus.Serializers.XML
             var args = t.GetGenericArguments();
             if (args.Length == 2)
             {
-                isKeyValuePair = (typeof(KeyValuePair<,>).MakeGenericType(args) == t);
+                isKeyValuePair = (typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t);
             }
 
             if (args.Length == 1 && args[0].IsValueType)
             {
-                if (args[0].GetGenericArguments().Any() || typeof(Nullable<>).MakeGenericType(args) == t)
+                if (args[0].GetGenericArguments().Any() || typeof(Nullable<>).MakeGenericType(args[0]) == t)
                 {
                     InitType(args[0]);
 
@@ -232,7 +232,7 @@ namespace NServiceBus.Serializers.XML
 
                 if (args.Length == 2)
                 {
-                    if (typeof(IDictionary<,>).MakeGenericType(args) == prop.PropertyType)
+                    if (typeof(IDictionary<,>).MakeGenericType(args[0], args[1]) == prop.PropertyType)
                     {
                         throw new NotSupportedException("IDictionary<T, K> is not a supported property type for serialization, use Dictionary<T,K> instead. Type: " + t.FullName + " Property: " + prop.Name + ". Consider using a concrete Dictionary<T, K> instead, where T and K cannot be of type 'System.Object'");
                     }
@@ -725,7 +725,7 @@ namespace NServiceBus.Serializers.XML
                         continue;
                     }
 
-                    if (typeof(IDictionary<,>).MakeGenericType(args).IsAssignableFrom(type))
+                    if (typeof(IDictionary<,>).MakeGenericType(args[0], args[1]).IsAssignableFrom(type))
                     {
                         keyType = args[0];
                         valueType = args[1];

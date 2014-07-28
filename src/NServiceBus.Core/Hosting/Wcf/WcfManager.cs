@@ -54,7 +54,7 @@
         {
             var args = t.BaseType.GetGenericArguments();
 
-            return typeof(IWcfService<,>).MakeGenericType(args);
+            return typeof(IWcfService<,>).MakeGenericType(args[0], args[1]);
         }
 
         static bool IsWcfService(Type t, Conventions conventions)
@@ -64,7 +64,7 @@
             {
                 if (conventions.IsMessageType(args[0]))
                 {
-                    var wcfType = typeof(WcfService<,>).MakeGenericType(args);
+                    var wcfType = typeof(WcfService<,>).MakeGenericType(args[0], args[1]);
                     if (wcfType.IsAssignableFrom(t))
                     {
                         return true;
