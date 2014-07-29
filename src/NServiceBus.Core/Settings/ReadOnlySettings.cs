@@ -27,7 +27,6 @@ namespace NServiceBus.Settings
         /// </summary>
         /// <typeparam name="T">The type to get, fullname will be used as key</typeparam>
         /// <param name="val">The value if present</param>
-        /// <returns></returns>
         bool TryGet<T>(out T val);
 
         /// <summary>

@@ -21,7 +21,6 @@
         /// True if supplied storage is supported
         /// </summary>
         /// <param name="storage"></param>
-        /// <returns></returns>
         public bool HasSupportFor(Storage storage)
         {
             return SupportedStorages.Contains(storage);

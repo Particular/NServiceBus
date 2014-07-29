@@ -123,7 +123,6 @@ namespace NServiceBus
         ///     Defines a custom builder to use
         /// </summary>
         /// <typeparam name="T">The builder type</typeparam>
-        /// <returns></returns>
         public ConfigurationBuilder UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
             if (customizations != null)
@@ -138,7 +137,6 @@ namespace NServiceBus
         ///     Defines a custom builder to use
         /// </summary>
         /// <param name="definitionType">The type of the builder</param>
-        /// <returns></returns>
         public ConfigurationBuilder UseContainer(Type definitionType)
         {
             return UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(settings));
@@ -148,7 +146,6 @@ namespace NServiceBus
         ///     Uses an already active instance of a builder
         /// </summary>
         /// <param name="builder">The instance to use</param>
-        /// <returns></returns>
         public ConfigurationBuilder UseContainer(IContainer builder)
         {
             customBuilder = builder;

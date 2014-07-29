@@ -78,7 +78,6 @@ namespace NServiceBus.Unicast.Messages
         /// Creates a new control <see cref="LogicalMessage"/>.
         /// </summary>
         /// <param name="headers">Any additional headers</param>
-        /// <returns></returns>
         public LogicalMessage CreateControl(Dictionary<string, string> headers)
         {
             if (headers == null)

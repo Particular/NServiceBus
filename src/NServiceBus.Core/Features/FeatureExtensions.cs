@@ -22,7 +22,6 @@
         /// </summary>
         /// <param name="config"></param>
         /// <param name="featureType">The feature to enable</param>
-        /// <returns></returns>
         public static Configure EnableFeature(this Configure config, Type featureType)
         {
             config.Settings.Set(featureType.FullName, true);
@@ -43,7 +42,6 @@
         /// </summary>
         /// <param name="config"></param>
         /// <param name="featureType">The feature to disable</param>
-        /// <returns></returns>
         public static Configure DisableFeature(this Configure config, Type featureType)
         {
             config.Settings.Set(featureType.FullName, false);

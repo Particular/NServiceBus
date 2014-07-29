@@ -18,7 +18,6 @@ namespace NServiceBus.Settings
         /// </summary>
         /// <typeparam name="T">The type of the value</typeparam>
         /// <param name="key">The key</param>
-        /// <returns></returns>
         public T Get<T>(string key)
         {
             return (T)Get(key);
