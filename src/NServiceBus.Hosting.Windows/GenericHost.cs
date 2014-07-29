@@ -119,12 +119,12 @@ namespace NServiceBus
             roleManager.ConfigureBusForEndpoint(specifier, config);
         }
 
-        readonly List<Assembly> assembliesToScan;
-        readonly ProfileManager profileManager;
-        readonly RoleManager roleManager;
+        List<Assembly> assembliesToScan;
+        ProfileManager profileManager;
+        RoleManager roleManager;
         Configure config;
-        readonly IConfigureThisEndpoint specifier;
-        readonly WcfManager wcfManager;
+        IConfigureThisEndpoint specifier;
+        WcfManager wcfManager;
         IStartableBus bus;
         string endpointNameToUse;
         string endpointVersionToUse;
