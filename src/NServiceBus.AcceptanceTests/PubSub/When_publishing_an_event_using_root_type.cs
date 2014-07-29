@@ -10,7 +10,6 @@
     public class When_publishing_an_event_using_root_type : NServiceBusAcceptanceTest
     {
         [Test]
-        [Explicit]
         public void Event_should_be_published_using_instance_type()
         {
             Scenario.Define<Context>()
