@@ -16,6 +16,7 @@
             Scenario.Define(rootContext)
                 .WithEndpoint<Publisher1>(b => b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(args =>
                 {
+                    context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
                     if (args.MessageType.Contains(typeof(IMyEvent).Name))
                     {
                         context.SubscribedToIMyEvent = true;
@@ -32,6 +33,7 @@
                 }))
                 .WithEndpoint<Publisher2>(b => b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(args =>
                 {
+                    context.AddTrace("Publisher2 OnEndpointSubscribed " + args.MessageType);
                     if (args.MessageType.Contains(typeof(IMyEvent).Name))
                     {
                         context.SubscribedToIMyEvent = true;
@@ -48,6 +50,7 @@
                 }))
                 .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                 {
+                    context.AddTrace("Subscriber1 subscribing to both events");
                     bus.Subscribe<IMyEvent>();
                     bus.Subscribe<MyEvent2>();
 
