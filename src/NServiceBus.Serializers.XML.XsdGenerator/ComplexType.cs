@@ -59,14 +59,16 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
                         baseType = type.BaseType;
 
                 if (type.IsInterface)
+                {
                     foreach(var i in type.GetInterfaces())
-                        if (i == typeof(IMessage))
-                            continue;
-                        else
+                    {
+                        if (i != typeof(IMessage))
                         {
                             baseType = i;
                             break;
                         }
+                    }
+                }
 
                 var propsToIgnore = new List<PropertyInfo>();
 
