@@ -15,17 +15,15 @@
         /// </summary>
         protected Feature()
         {
-            name = GetFeatureName(GetType());
+            StartupTasks = new List<Type>();
+            Dependencies = new List<List<string>>();
+            Name = GetFeatureName(GetType());
         }
 
-    
         /// <summary>
         ///     Feature name.
         /// </summary>
-        public string Name
-        {
-            get { return name; }
-        }
+        public string Name { get; private set; }
 
         /// <summary>
         ///     The version for this feature
@@ -38,32 +36,19 @@
         /// <summary>
         ///     The list of features that this feature is depending on
         /// </summary>
-        internal List<List<string>> Dependencies
-        {
-            get { return dependencies; }
-        }
+        internal List<List<string>> Dependencies { get; private set; }
 
         /// <summary>
         ///     Tells if this feature is enabled by default
         /// </summary>
-        public bool IsEnabledByDefault
-        {
-            get { return isEnabledByDefault; }
-        }
-
+        public bool IsEnabledByDefault { get; private set; }
 
         /// <summary>
         ///     Indicates that the feature is active
         /// </summary>
-        public bool IsActive
-        {
-            get { return isActive; }
-        }
+        public bool IsActive { get; private set; }
 
-        internal List<Type> StartupTasks
-        {
-            get { return startupTasks; }
-        }
+        internal List<Type> StartupTasks { get; private set; }
 
         /// <summary>
         /// Registers default settings
@@ -109,7 +94,7 @@
         /// </summary>
         protected void EnableByDefault()
         {
-            isEnabledByDefault = true;
+            IsEnabledByDefault = true;
         }
 
         /// <summary>
@@ -131,7 +116,7 @@
         /// <param name="featureName">The name of the feature that this feature depends on.</param>
         protected void DependsOn(string featureName)
         {
-            dependencies.Add(new List<string>{featureName});
+            Dependencies.Add(new List<string>{featureName});
         }
 
         /// <summary>
@@ -150,13 +135,13 @@
 
             foreach (var feature in features)
             {
-                if (!feature.IsSubclassOf(featureType))
+                if (!feature.IsSubclassOf(baseFeatureType))
                 {
                     throw new ArgumentException(string.Format("A Feature can only depend on another Feature. '{0}' is not a Feature", feature.FullName), "features");
                 }
             }
 
-            dependencies.Add(new List<string>(features.Select(GetFeatureName)));
+            Dependencies.Add(new List<string>(features.Select(GetFeatureName)));
         }
 
         /// <summary>
@@ -172,8 +157,7 @@
                 throw new ArgumentNullException("featureNames");
             }
 
-
-            dependencies.Add(new List<string>(featureNames));
+            Dependencies.Add(new List<string>(featureNames));
         }
 
         /// <summary>
@@ -182,9 +166,8 @@
         /// <typeparam name="T">A <see cref="FeatureStartupTask" />.</typeparam>
         protected void RegisterStartupTask<T>() where T : FeatureStartupTask
         {
-            startupTasks.Add(typeof(T));
+            StartupTasks.Add(typeof(T));
         }
-
 
         /// <summary>
         ///     Returns a string that represents the current object.
@@ -217,7 +200,7 @@
         {
             Setup(config);
 
-            isActive = true;
+            IsActive = true;
         }
 
         static string GetFeatureName(Type featureType)
@@ -235,17 +218,9 @@
             return name;
         }
 
-
-        static Type featureType = typeof(Feature);
+        static Type baseFeatureType = typeof(Feature);
         static int featureStringLength = "Feature".Length;
-
-        List<List<string>> dependencies = new List<List<string>>();
-
-        bool isActive;
-        bool isEnabledByDefault;
-        string name;
         List<SetupPrerequisite> setupPrerequisites = new List<SetupPrerequisite>();
-        List<Type> startupTasks = new List<Type>();
         List<Action<SettingsHolder>> defaults = new List<Action<SettingsHolder>>();
 
         class SetupPrerequisite
