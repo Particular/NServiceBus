@@ -100,6 +100,7 @@
     <Compile Include="MessageMutators\When_outgoing_mutator_replaces_message_instance.cs" />
     <Compile Include="MessageMutators\When_defining_outgoing_message_mutators.cs" />
     <Compile Include="PubSub\When_publishing_an_event_using_root_type.cs" />
+    <Compile Include="Sagas\When_an_endpoint_replies_to_a_message_published_by_a_saga.cs" />
     <Compile Include="ScenarioDescriptors\AllOutboxCapableStorages.cs" />
     <Compile Include="NonDTCOperations\When_blowing_up_just_after_dispatch.cs" />
     <Compile Include="PipelineExtension\MutingHandlerExceptions.cs" />
