@@ -1,4 +1,4 @@
-using System;
+using System;   
 using NServiceBus.Unicast.Distributor;
 using System.Messaging;
 using NServiceBus.Utils;
@@ -46,15 +46,15 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         {
             try
             {
-                lock(lockobject)
-                {
-                    var m = storageQueue.Receive(TimeSpan.Zero, MessageQueueTransactionType.Automatic);
-
-                    if(m == null)
-                        return null;
-
-                    return MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue);
-                }
+                Message m;
+                lock (lockobject)
+                    m = storageQueue.Receive(TimeSpan.Zero, MessageQueueTransactionType.Automatic);
+                
+                if(m == null)
+                    return null;
+                
+                return MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue);
+                
             }
             catch(Exception)
             {
@@ -69,13 +69,10 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         {
             var path = MsmqUtilities.GetFullPath(StorageQueueAddress);
 
-            lock(lockobject)
-            {
-                storageQueue = new MessageQueue(path);
-
-                if(!storageQueue.Transactional)
+            storageQueue = new MessageQueue(path);
+            
+            if(!storageQueue.Transactional)
                     throw new Exception("Queue must be transactional.");
-            }
         }
 
         /// <summary>
