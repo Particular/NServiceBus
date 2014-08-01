@@ -31,7 +31,7 @@ namespace NServiceBus.Transports
             }
 
             // Send the newly created transport message to the queue
-            MessageSender.Send(messageToForward, new SendOptions(sendOptions.Destination) { ReplyToAddress = Address.Local });
+            MessageSender.Send(messageToForward, new SendOptions(sendOptions.Destination) { ReplyToAddress = Address.PublicReturnAddress });
         }
 
         class Initialization : INeedInitialization

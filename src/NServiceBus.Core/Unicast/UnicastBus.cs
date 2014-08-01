@@ -246,7 +246,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply(object message)
         {
-            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress,GetCorrelationId()); 
+            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId()); 
             
             SendMessage(options, LogicalMessageFactory.Create(message));
         }
@@ -514,7 +514,7 @@ namespace NServiceBus.Unicast
         {
             if (sendOptions.ReplyToAddress == null && !SendOnlyMode)
             {
-                sendOptions.ReplyToAddress = Address.Local;
+                sendOptions.ReplyToAddress = Address.PublicReturnAddress;
             }
 
             if (PropagateReturnAddressOnSend && CurrentMessageContext != null)
