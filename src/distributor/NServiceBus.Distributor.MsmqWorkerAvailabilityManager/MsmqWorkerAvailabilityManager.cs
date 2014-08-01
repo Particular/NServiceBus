@@ -1,4 +1,4 @@
-using System;
+using System;   
 using NServiceBus.Unicast.Distributor;
 using System.Messaging;
 using NServiceBus.Utils;
@@ -12,7 +12,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
     public class MsmqWorkerAvailabilityManager : IWorkerAvailabilityManager
     {
         MessageQueue storageQueue;
-
+        object lockobject = new object();
         /// <summary>
         /// Sets the path to the queue that will be used for storing
         /// worker availability.
@@ -29,11 +29,13 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         /// </param>
         public void ClearAvailabilityForWorker(Address address)
         {
-            var existing = storageQueue.GetAllMessages();
-
-            foreach (var m in existing)
-                if (MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue) == address)
-                    storageQueue.ReceiveById(m.Id, MessageQueueTransactionType.Automatic);
+            lock(lockobject)
+            {
+                var existing = storageQueue.GetAllMessages();
+                foreach(var m in existing)
+                    if(MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue) == address)
+                        storageQueue.ReceiveById(m.Id, MessageQueueTransactionType.Automatic);
+            }
         }
 
         /// <summary>
@@ -44,14 +46,17 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         {
             try
             {
-                var m = storageQueue.Receive(TimeSpan.Zero, MessageQueueTransactionType.Automatic);
-
-                if (m == null)
+                Message m;
+                lock (lockobject)
+                    m = storageQueue.Receive(TimeSpan.Zero, MessageQueueTransactionType.Automatic);
+                
+                if(m == null)
                     return null;
-
+                
                 return MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue);
+                
             }
-            catch (Exception)
+            catch(Exception)
             {
                 return null;
             }
@@ -65,9 +70,9 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
             var path = MsmqUtilities.GetFullPath(StorageQueueAddress);
 
             storageQueue = new MessageQueue(path);
-
-            if (!storageQueue.Transactional)
-                throw new Exception("Queue must be transactional.");
+            
+            if(!storageQueue.Transactional)
+                    throw new Exception("Queue must be transactional.");
         }
 
         /// <summary>
@@ -79,11 +84,14 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         /// <param name="capacity">The number of messages that this worker is ready to process</param>
         public void WorkerAvailable(Address address, int capacity)
         {
-            for (var i = 0; i < capacity; i++)
-                storageQueue.Send(new Message
-                              {
-                                  ResponseQueue = new MessageQueue(MsmqUtilities.GetFullPath(address))
-                              }, MessageQueueTransactionType.Automatic);
+            lock(lockobject)
+            {
+                for(var i = 0; i < capacity; i++)
+                    storageQueue.Send(new Message
+                    {
+                        ResponseQueue = new MessageQueue(MsmqUtilities.GetFullPath(address))
+                    }, MessageQueueTransactionType.Automatic);
+            }
         }
     }
 }
