@@ -4,7 +4,6 @@
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
-    using NServiceBus.DataBus.FileShare;
     using NUnit.Framework;
 
     [TestFixture]

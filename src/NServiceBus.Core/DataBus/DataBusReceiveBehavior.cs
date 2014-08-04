@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.DataBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Reflection;
     using System.Transactions;
+    using NServiceBus.DataBus;
     using Pipeline;
     using Pipeline.Contexts;
 

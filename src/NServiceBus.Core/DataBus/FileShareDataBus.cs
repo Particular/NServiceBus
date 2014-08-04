@@ -1,15 +1,16 @@
-namespace NServiceBus.DataBus.FileShare
+namespace NServiceBus
 {
     using System;
     using System.IO;
     using Logging;
+    using NServiceBus.DataBus;
 
     /// <summary>
     /// File share implementation of <see cref="IDataBus"/>.
     /// </summary>
     class FileShareDataBus : IDataBus
 	{
-		readonly string basePath;
+		string basePath;
         static ILog logger = LogManager.GetLogger<FileShareDataBus>();
 
 		/// <summary>
@@ -75,7 +76,6 @@ namespace NServiceBus.DataBus.FileShare
         public void Start()
 		{
 			logger.Info("File share data bus started. Location: " + basePath);
-
 			//TODO: Implement a clean up thread
 		}
 
