@@ -1,6 +1,5 @@
-﻿namespace NServiceBus.InMemory.Gateway
+﻿namespace NServiceBus.Features
 {
-    using Features;
     using NServiceBus.Gateway.Deduplication;
 
     /// <summary>

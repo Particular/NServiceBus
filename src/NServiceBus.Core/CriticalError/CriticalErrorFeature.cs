@@ -1,7 +1,6 @@
-namespace NServiceBus
+namespace NServiceBus.Features
 {
     using System;
-    using NServiceBus.Features;
 
     /// <summary>
     /// Controls what happens when a critical error occurs.

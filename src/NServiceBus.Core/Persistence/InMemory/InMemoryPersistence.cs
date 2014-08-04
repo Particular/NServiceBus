@@ -2,11 +2,6 @@
 {
     using System.Collections.Generic;
     using Features;
-    using NServiceBus.InMemory.Gateway;
-    using NServiceBus.InMemory.Outbox;
-    using NServiceBus.InMemory.SagaPersister;
-    using NServiceBus.InMemory.SubscriptionStorage;
-    using NServiceBus.InMemory.TimeoutPersister;
 
     class InMemoryPersistence:IConfigurePersistence<InMemory>
     {

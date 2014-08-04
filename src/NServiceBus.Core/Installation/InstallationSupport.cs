@@ -1,4 +1,4 @@
-namespace NServiceBus
+namespace NServiceBus.Features
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,6 @@ namespace NServiceBus
     using System.Linq;
     using System.Security.Principal;
     using Config;
-    using Features;
     using Installation;
     using ObjectBuilder;
     using Settings;

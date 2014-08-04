@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using Config;
     using Installation;
+    using NServiceBus.Features;
 
     /// <summary>
     /// Convenience methods for configuring how instances of  <see cref="INeedToInstallSomething"/>s are run.

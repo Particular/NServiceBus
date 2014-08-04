@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.InMemory.Outbox
+﻿namespace NServiceBus.Features
 {
     using System;
     using System.Threading;
-    using Features;
+    using NServiceBus.InMemory.Outbox;
 
     /// <summary>
     /// Used to configure in memory outbox persistence.

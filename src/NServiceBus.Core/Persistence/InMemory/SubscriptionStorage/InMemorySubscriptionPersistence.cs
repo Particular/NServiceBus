@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.InMemory.SubscriptionStorage
+﻿namespace NServiceBus.Features
 {
-    using Features;
+    using NServiceBus.InMemory.SubscriptionStorage;
+
     /// <summary>
     /// Used to configure in memory subscription persistence.
     /// </summary>
@@ -10,7 +11,6 @@
         {
             DependsOn<MessageDrivenSubscriptions>();
         }
-
 
         /// <summary>
         /// See <see cref="Feature.Setup"/>
