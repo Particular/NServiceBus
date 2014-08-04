@@ -166,7 +166,7 @@ namespace NServiceBus.Unicast.Transport
 
             FailureManager.Init(returnAddressForFailures);
 
-            firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager);
+            firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager, CriticalError);
 
             InitializePerformanceCounters();
 
@@ -471,5 +471,7 @@ namespace NServiceBus.Unicast.Transport
         /// The <see cref="TransactionSettings"/> being used.
         /// </summary>
         public TransactionSettings TransactionSettings { get; private set; }
+
+        internal CriticalError CriticalError { get; set; }
     }
 }

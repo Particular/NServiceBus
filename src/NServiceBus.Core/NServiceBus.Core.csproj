@@ -82,6 +82,9 @@
     <Compile Include="ConfigurationBuilder.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />
+    <Compile Include="CriticalError\ConfigureCriticalErrorAction_Obsolete.cs" />
+    <Compile Include="CriticalError\CriticalErrorFeature.cs" />
+    <Compile Include="CriticalError\CriticalError.cs" />
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
@@ -294,7 +297,7 @@
     <Compile Include="Pipeline\BehaviorChain.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
     <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer.cs" />
-    <Compile Include="ConfigureCriticalErrorAction.cs" />
+    <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
     <Compile Include="ConfigureDefaultBuilder.cs" />
     <Compile Include="Distributor\ConfigureDistributor.cs" />
     <Compile Include="ConfigureFaultsForwarder.cs" />

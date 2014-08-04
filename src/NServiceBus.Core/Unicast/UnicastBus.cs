@@ -70,6 +70,11 @@ namespace NServiceBus.Unicast
         public ITransport Transport { get; set; }
 
         /// <summary>
+        /// Critical error handling
+        /// </summary>
+        public CriticalError CriticalError { get; set; }
+
+        /// <summary>
         /// Message queue used to send messages.
         /// </summary>
         public ISendMessages MessageSender { get; set; }
@@ -583,7 +588,7 @@ namespace NServiceBus.Unicast
                     thingsRanAtStartup.Add(toRun);
                     Log.DebugFormat("Started {0}.", toRun.GetType().AssemblyQualifiedName);
                 },
-                ex => ConfigureCriticalErrorAction.RaiseCriticalError("Startup task failed to complete.", ex),
+                ex => CriticalError.Raise("Startup task failed to complete.", ex),
                 startCompletedEvent);
 
             return this;

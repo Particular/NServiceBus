@@ -53,15 +53,20 @@
 
         public EndpointConfigurationBuilder EndpointSetup<T>() where T : IEndpointSetupTemplate, new()
         {
-            return EndpointSetup<T>(c => { });
+            return EndpointSetup<T>(c => { }, _ => { });
         }
 
-        public EndpointConfigurationBuilder EndpointSetup<T>(Action<Configure> configCustomization) where T: IEndpointSetupTemplate, new()
+        public EndpointConfigurationBuilder EndpointSetup<T>(Action<Configure> configCustomization, Action<ConfigurationBuilder> configurationBuilderCustomization = null) where T : IEndpointSetupTemplate, new()
         {
+            if (configurationBuilderCustomization == null)
+            {
+                configurationBuilderCustomization = builder => { };
+            }
             configuration.GetConfiguration = (settings,routingTable) =>
                 {
                     var endpointSetupTemplate = new T();
-                    var config = endpointSetupTemplate.GetConfiguration(settings, configuration, new ScenarioConfigSource(configuration, routingTable));
+                    var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
+                    var config = endpointSetupTemplate.GetConfiguration(settings, configuration, scenarioConfigSource, configurationBuilderCustomization);
                     configCustomization(config);
                     return config;
                 };

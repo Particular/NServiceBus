@@ -13,7 +13,7 @@
 
     public class DefaultServer : IEndpointSetupTemplate
     {
-        public Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource)
+        public Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource, Action<ConfigurationBuilder> configurationBuilderCustomization)
         {
             var settings = runDescriptor.Settings;
 
@@ -22,22 +22,23 @@
             var types = GetTypesToUse(endpointConfiguration);
 
             var config = Configure.With(o =>
-                                         {
-                                             o.EndpointName(endpointConfiguration.EndpointName);
-                                             o.TypesToScan(types);
-                                             o.CustomConfigurationSource(configSource);
-                                             
-                                             
-                                             string selectedBuilder;
-                                             if (settings.TryGetValue("Builder",out selectedBuilder))
-                                             {
-                                                 o.UseContainer(Type.GetType(selectedBuilder));
-                                             }
-                                           
-                                         })
+            {
+                configurationBuilderCustomization(o);
+                o.EndpointName(endpointConfiguration.EndpointName);
+                o.TypesToScan(types);
+                o.CustomConfigurationSource(configSource);
+
+
+                string selectedBuilder;
+                if (settings.TryGetValue("Builder", out selectedBuilder))
+                {
+                    o.UseContainer(Type.GetType(selectedBuilder));
+                }
+
+            })
                 .DefineTransport(settings)
                 .DefinePersistence(settings);
-            
+
             var serializer = settings.GetOrNull("Serializer");
 
             if (serializer != null)
