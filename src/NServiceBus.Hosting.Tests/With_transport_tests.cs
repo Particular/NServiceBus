@@ -55,7 +55,12 @@ namespace NServiceBus.Hosting.Tests
         {
         }
     }
-
+    class SecondConfigureThisEndpoint : IConfigureThisEndpoint
+    {
+        public void Customize(ConfigurationBuilder builder)
+        {
+        }
+    }
 
     public class MyTestTransport : TransportDefinition
     {
