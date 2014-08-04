@@ -8,14 +8,14 @@
     {
         ConcurrentDictionary<string, Tuple<int, Exception>> failuresPerMessage = new ConcurrentDictionary<string, Tuple<int, Exception>>();
         IManageMessageFailures failureManager;
-        CriticalError criticalErrorHandler;
+        CriticalError criticalError;
         int maxRetries;
 
-        public FirstLevelRetries(int maxRetries, IManageMessageFailures failureManager, CriticalError criticalErrorHandler)
+        public FirstLevelRetries(int maxRetries, IManageMessageFailures failureManager, CriticalError criticalError)
         {
             this.maxRetries = maxRetries;
             this.failureManager = failureManager;
-            this.criticalErrorHandler = criticalErrorHandler;
+            this.criticalError = criticalError;
         }
 
         public bool HasMaxRetriesForMessageBeenReached(TransportMessage message)
@@ -74,7 +74,7 @@
             }
             catch (Exception ex)
             {
-                criticalErrorHandler.Raise(String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
+                criticalError.Raise(String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
 
                 throw;
             }

@@ -16,7 +16,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public ISendMessages MessageSender { get; set; }
         public int SecondsToSleepBetweenPolls { get; set; }
         public DefaultTimeoutManager TimeoutManager { get; set; }
-        public CriticalError CriticalErrorHandler { get; set; }
+        public CriticalError CriticalError { get; set; }
         public Address DispatcherAddress { get; set; }
 
         public void Dispose()
@@ -29,7 +29,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             circuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity", TimeSpan.FromMinutes(2),
                 ex =>
-                    CriticalErrorHandler.Raise("Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
+                    CriticalError.Raise("Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
 
             TimeoutManager.TimeoutPushed = TimeoutsManagerOnTimeoutPushed;
 
