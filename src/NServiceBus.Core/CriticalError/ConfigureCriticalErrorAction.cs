@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     ///     Allow override critical error action
     /// </summary>
-    public static class ConfigureCriticalErrorAction
+    public static partial class ConfigureCriticalErrorAction
     {
 
         /// <summary>

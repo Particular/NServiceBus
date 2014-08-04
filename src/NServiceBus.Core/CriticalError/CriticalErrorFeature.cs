@@ -15,27 +15,17 @@ namespace NServiceBus
         {
             EnableByDefault();
         }
+
+
         /// <summary>
         /// <see cref="Feature.Setup"/>.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            Action<string, Exception> onCriticalErrorAction;
-            if (!context.Settings.TryGet("onCriticalErrorAction", out onCriticalErrorAction))
-            {
-                onCriticalErrorAction = (errorMessage, exception) =>
-                {
-                    if (!Configure.BuilderIsConfigured())
-                        return;
-
-                    if (!Configure.Instance.Configurer.HasComponent<IBus>())
-                        return;
-
-                    Configure.Instance.Builder.Build<IStartableBus>()
-                        .Shutdown();
-                };
-            }
-            context.Container.ConfigureComponent(() => new CriticalErrorHandler(onCriticalErrorAction), DependencyLifecycle.SingleInstance);
+            Action<string, Exception> errorAction;
+            context.Settings.TryGet("onCriticalErrorAction", out errorAction);
+            context.Container.ConfigureComponent(builder => new CriticalError(errorAction, builder.Build<Configure>()), DependencyLifecycle.SingleInstance);
         }
+
     }
 }

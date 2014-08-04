@@ -69,7 +69,10 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ITransport Transport { get; set; }
 
-
+        /// <summary>
+        /// Critical error handling
+        /// </summary>
+        public CriticalError CriticalError { get; set; }
 
         /// <summary>
         /// Message queue used to send messages.
@@ -576,10 +579,7 @@ namespace NServiceBus.Unicast
 
             satelliteLauncher = new SatelliteLauncher(Builder);
             satelliteLauncher.Start();
-            var criticalErrorHandler = new CriticalErrorHandler((s, exception) =>
-            {
-                throw exception;
-            });
+
             ProcessStartupItems(
                 Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList(),
                 toRun =>
@@ -588,7 +588,7 @@ namespace NServiceBus.Unicast
                     thingsRanAtStartup.Add(toRun);
                     Log.DebugFormat("Started {0}.", toRun.GetType().AssemblyQualifiedName);
                 },
-                ex => criticalErrorHandler.Handler("Startup task failed to complete.", ex),
+                ex => CriticalError.Raise("Startup task failed to complete.", ex),
                 startCompletedEvent);
 
             return this;

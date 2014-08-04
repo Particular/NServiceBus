@@ -472,6 +472,6 @@ namespace NServiceBus.Unicast.Transport
         /// </summary>
         public TransactionSettings TransactionSettings { get; private set; }
 
-        internal CriticalErrorHandler CriticalErrorHandler { get; set; }
+        internal CriticalError CriticalErrorHandler { get; set; }
     }
 }
