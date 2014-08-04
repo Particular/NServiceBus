@@ -1,7 +1,8 @@
-namespace NServiceBus.DataBus
+namespace NServiceBus
 {
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+    using NServiceBus.DataBus;
 
     class DefaultDataBusSerializer : IDataBusSerializer
 	{
