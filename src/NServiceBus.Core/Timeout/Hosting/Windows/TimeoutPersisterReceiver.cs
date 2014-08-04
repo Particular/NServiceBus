@@ -16,7 +16,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public ISendMessages MessageSender { get; set; }
         public int SecondsToSleepBetweenPolls { get; set; }
         public DefaultTimeoutManager TimeoutManager { get; set; }
-
+        public CriticalErrorHandler CriticalErrorHandler { get; set; }
         public Address DispatcherAddress { get; set; }
 
         public void Dispose()
@@ -26,6 +26,11 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Start()
         {
+
+            circuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity", TimeSpan.FromMinutes(2),
+                ex =>
+                    CriticalErrorHandler.Handler("Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
+
             TimeoutManager.TimeoutPushed = TimeoutsManagerOnTimeoutPushed;
 
             SecondsToSleepBetweenPolls = 1;
@@ -63,7 +68,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         void Poll(object obj)
         {
-            var cancellationToken = (CancellationToken) obj;
+            var cancellationToken = (CancellationToken)obj;
 
             var startSlice = DateTime.UtcNow.AddYears(-10);
 
@@ -73,7 +78,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 if (nextRetrieval > DateTime.UtcNow)
                 {
-                    Thread.Sleep(SecondsToSleepBetweenPolls*1000);
+                    Thread.Sleep(SecondsToSleepBetweenPolls * 1000);
                     continue;
                 }
 
@@ -149,16 +154,13 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         static ILog Logger = LogManager.GetLogger<TimeoutPersisterReceiver>();
 
-        RepeatedFailuresOverTimeCircuitBreaker circuitBreaker =
-            new RepeatedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity", TimeSpan.FromMinutes(2),
-                ex =>
-                    ConfigureCriticalErrorAction.RaiseCriticalError(
-                        "Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
+        RepeatedFailuresOverTimeCircuitBreaker circuitBreaker;
 
         readonly object lockObject = new object();
         ManualResetEvent resetEvent = new ManualResetEvent(true);
         DateTime nextRetrieval = DateTime.UtcNow;
         volatile bool timeoutPushed;
         CancellationTokenSource tokenSource;
+
     }
 }

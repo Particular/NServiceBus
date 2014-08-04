@@ -206,6 +206,7 @@ namespace NServiceBus
         Func<string> getEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
         Func<string> getEndpointVersionAction = () => EndpointHelper.GetEndpointVersion();
         IList<Type> scannedTypes;
-        SettingsHolder settings = new SettingsHolder();
+        internal SettingsHolder settings = new SettingsHolder();
     }
+
 }

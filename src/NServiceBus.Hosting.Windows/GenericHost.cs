@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Threading;
     using Hosting.Helpers;
     using Hosting.Profiles;
     using Hosting.Roles;
@@ -112,13 +113,22 @@ namespace NServiceBus
                 builder.EndpointName(endpointNameToUse);
                 builder.EndpointVersion(() => endpointVersionToUse);
                 builder.AssembliesToScan(assembliesToScan);
-
+                builder.DefineCriticalErrorAction(OnCriticalError);
                 specifier.Customize(builder);
             });
 
             roleManager.ConfigureBusForEndpoint(specifier, config);
         }
-
+        // Windows hosting behavior when critical error occurs is suicide.
+        void OnCriticalError(string errorMessage, Exception exception)
+        {
+            if (Environment.UserInteractive)
+            {
+                Thread.Sleep(10000); // so that user can see on their screen the problem
+            }
+            
+            Environment.FailFast(String.Format("The following critical error was encountered by NServiceBus:\n{0}\nNServiceBus is shutting down.", errorMessage), exception);
+        }
         List<Assembly> assembliesToScan;
         ProfileManager profileManager;
         RoleManager roleManager;

@@ -6,14 +6,16 @@
 
     class FirstLevelRetries
     {
-        private readonly ConcurrentDictionary<string, Tuple<int, Exception>> failuresPerMessage = new ConcurrentDictionary<string, Tuple<int, Exception>>();
-        private readonly IManageMessageFailures failureManager;
-        private readonly int maxRetries;
+        ConcurrentDictionary<string, Tuple<int, Exception>> failuresPerMessage = new ConcurrentDictionary<string, Tuple<int, Exception>>();
+        IManageMessageFailures failureManager;
+        CriticalErrorHandler criticalErrorHandler;
+        int maxRetries;
 
-        public FirstLevelRetries(int maxRetries, IManageMessageFailures failureManager)
+        public FirstLevelRetries(int maxRetries, IManageMessageFailures failureManager, CriticalErrorHandler criticalErrorHandler)
         {
             this.maxRetries = maxRetries;
             this.failureManager = failureManager;
+            this.criticalErrorHandler = criticalErrorHandler;
         }
 
         public bool HasMaxRetriesForMessageBeenReached(TransportMessage message)
@@ -72,7 +74,7 @@
             }
             catch (Exception ex)
             {
-                ConfigureCriticalErrorAction.RaiseCriticalError(String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
+                criticalErrorHandler.Handler(String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
 
                 throw;
             }

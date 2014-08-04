@@ -26,6 +26,7 @@ namespace NServiceBus.Transports.Msmq
         ///     Msmq unit of work to be used in non DTC mode <see cref="MsmqUnitOfWork" />.
         /// </summary>
         public MsmqUnitOfWork UnitOfWork { get; set; }
+        public CriticalErrorHandler CriticalErrorHandler { get; set; }
 
         /// <summary>
         ///     Initializes the <see cref="IDequeueMessages" />.
@@ -345,10 +346,7 @@ namespace NServiceBus.Transports.Msmq
                         queue.FormatName, GetUserName());
             }
 
-            circuitBreaker.Execute(
-                () =>
-                    ConfigureCriticalErrorAction.RaiseCriticalError("Error in receiving messages.",
-                        new InvalidOperationException(errorException, messageQueueException)));
+            circuitBreaker.Execute(() => CriticalErrorHandler.Handler("Error in receiving messages.",new InvalidOperationException(errorException, messageQueueException)));
         }
 
         static string GetUserName()
