@@ -402,9 +402,6 @@
     <Compile Include="Hosting\Profiles\IProfile.cs" />
     <Compile Include="Hosting\Profiles\ProfileActivator.cs" />
     <Compile Include="Hosting\Profiles\ProfileManager.cs" />
-    <Compile Include="Hosting\Roles\IConfigureRole.cs" />
-    <Compile Include="Hosting\Roles\IRole.cs" />
-    <Compile Include="Hosting\Roles\RoleManager.cs" />
     <Compile Include="Hosting\Wcf\WcfManager.cs">
       <SubType>Code</SubType>
     </Compile>

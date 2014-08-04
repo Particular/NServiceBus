@@ -2,38 +2,18 @@ namespace NServiceBus.Hosting.Tests
 {
     using System;
     using NUnit.Framework;
-    using Roles;
-    using Roles.Handlers;
     using Transports;
     using Unicast;
 
     [TestFixture]
     public class With_transport_tests
     {
-        Configure config;
-
-        [SetUp]
-        public void SetUp()
-        {
-            config = Configure.With(o =>
-            {
-                o.EndpointName("myTests");
-                o.TypesToScan(new[]
-                {
-                    typeof(TransportRoleHandler),
-                    typeof(MyTransportConfigurer)
-                });
-            });
-
-            roleManager = new RoleManager(new[] { typeof(TransportRoleHandler).Assembly });
-        }
-
-        RoleManager roleManager;
 
         [Test]
         public void Should_configure_requested_transport()
         {
-            roleManager.ConfigureBusForEndpoint(new ConfigWithCustomTransport(), config);
+            var config = Configure.With(o => o.EndpointName("myTests"));
+            RoleManager.ConfigureBusForEndpoint(new ConfigWithCustomTransport(), config);
 
             Assert.AreEqual(typeof(MyTransportConfigurer), config.Settings.Get<Type>("TransportConfigurer"));
             Assert.IsInstanceOf<MyTestTransport>(config.Settings.Get<TransportDefinition>());
@@ -42,6 +22,7 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void Should_default_to_msmq_if_no_other_transport_is_configured()
         {
+            var config = Configure.With(o => o.EndpointName("myTests"));
             var handler = new EnableSelectedTransport();
             handler.Run(config);
 
@@ -51,6 +32,7 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void Should_used_configured_transport_if_one_is_configured()
         {
+            var config = Configure.With(o => o.EndpointName("myTests"));
             var handler = new EnableSelectedTransport();
             config.Configurer.ConfigureComponent<MyTestTransportSender>(DependencyLifecycle.SingleInstance);
 
@@ -73,7 +55,12 @@ namespace NServiceBus.Hosting.Tests
         {
         }
     }
-
+    class SecondConfigureThisEndpoint : IConfigureThisEndpoint
+    {
+        public void Customize(ConfigurationBuilder builder)
+        {
+        }
+    }
 
     public class MyTestTransport : TransportDefinition
     {

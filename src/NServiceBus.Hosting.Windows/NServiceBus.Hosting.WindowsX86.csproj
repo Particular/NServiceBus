@@ -108,12 +108,7 @@
     <Compile Include="Profiles\Handlers\LiteProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\PerformanceCountersProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\ProductionProfileHandler.cs" />
-    <Compile Include="Roles\Handlers\ClientRoleHandler.cs" />
-    <Compile Include="Roles\Handlers\PersistenceRoleHandler.cs" />
-    <Compile Include="Roles\Handlers\PublisherRoleHandler.cs" />
-    <Compile Include="Roles\Handlers\ServerRoleHandler.cs" />
-    <Compile Include="Roles\Handlers\TransportRoleHandler.cs" />
-    <Compile Include="Roles\UsingPersistence.cs" />
+    <Compile Include="Roles\RoleManager.cs" />
     <Compile Include="Roles\UsingTransport.cs" />
     <Compile Include="WindowsHost.cs" />
     <Compile Include="Profiles\Integration.cs" />
