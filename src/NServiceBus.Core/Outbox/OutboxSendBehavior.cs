@@ -7,8 +7,6 @@ namespace NServiceBus.Outbox
 
     class OutboxSendBehavior : IBehavior<OutgoingContext>
     {
-        public IOutboxStorage OutboxStorage { get; set; }
-
         public DispatchMessageToTransportBehavior DispatchMessageToTransportBehavior { get; set; }
 
         public void Invoke(OutgoingContext context, Action next)
