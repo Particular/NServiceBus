@@ -7,7 +7,6 @@ namespace NServiceBus
     using System.Threading;
     using Hosting.Helpers;
     using Hosting.Profiles;
-    using Hosting.Roles;
     using Hosting.Wcf;
     using Logging;
 
@@ -46,7 +45,6 @@ namespace NServiceBus
             ProfileActivator.ProfileManager = profileManager;
 
             wcfManager = new WcfManager();
-            roleManager = new RoleManager(assembliesToScan);
         }
 
         /// <summary>
@@ -117,7 +115,7 @@ namespace NServiceBus
                 specifier.Customize(builder);
             });
 
-            roleManager.ConfigureBusForEndpoint(specifier, config);
+            RoleManager.ConfigureBusForEndpoint(specifier, config);
         }
         // Windows hosting behavior when critical error occurs is suicide.
         void OnCriticalError(string errorMessage, Exception exception)
@@ -131,7 +129,6 @@ namespace NServiceBus
         }
         List<Assembly> assembliesToScan;
         ProfileManager profileManager;
-        RoleManager roleManager;
         Configure config;
         IConfigureThisEndpoint specifier;
         WcfManager wcfManager;

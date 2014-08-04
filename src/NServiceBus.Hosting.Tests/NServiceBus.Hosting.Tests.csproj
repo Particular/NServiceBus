@@ -59,8 +59,6 @@
     <Compile Include="EndpointTypeDeterminerTests.cs" />
     <Compile Include="EndpointTypeTests.cs" />
     <Compile Include="ProfileManagerTests.cs" />
-    <Compile Include="RoleManagerTests.cs" />
-    <Compile Include="With_persistence_tests.cs" />
     <Compile Include="With_transport_tests.cs" />
   </ItemGroup>
   <ItemGroup>
