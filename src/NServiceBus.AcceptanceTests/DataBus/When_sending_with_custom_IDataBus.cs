@@ -26,7 +26,6 @@
                     .Should(c => Assert.AreEqual(PayloadToSend, c.ReceivedPayload, "The large payload should be marshalled correctly using the databus"))
                     .Run();
             File.Delete(MyDataBus.GetTempPath());
-            
         }
 
         public class Context : ScenarioContext

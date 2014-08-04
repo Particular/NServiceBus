@@ -85,6 +85,7 @@
     <Compile Include="CriticalError\ConfigureCriticalErrorAction_Obsolete.cs" />
     <Compile Include="CriticalError\CriticalErrorFeature.cs" />
     <Compile Include="CriticalError\CriticalError.cs" />
+    <Compile Include="DataBus\ConfigureFileShareDataBus_Obsolete.cs" />
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
