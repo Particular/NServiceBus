@@ -40,9 +40,9 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
-        static bool WithHasBeenCalled()
+        public static bool WithHasBeenCalled()
         {
-            return instance != null;
+            throw new NotImplementedException();
         }
 
         [ObsoleteEx(
@@ -54,17 +54,12 @@ namespace NServiceBus
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        ///     True if a builder has been defined.
-        /// </summary>
-        internal static bool BuilderIsConfigured()
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static bool BuilderIsConfigured()
         {
-            if (!WithHasBeenCalled())
-            {
-                return false;
-            }
-
-            return Instance.HasBuilder();
+            throw new NotImplementedException();
         }
 
         [ObsoleteEx(

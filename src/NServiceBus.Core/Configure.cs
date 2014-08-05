@@ -205,11 +205,6 @@ namespace NServiceBus
                 return;
             }
 
-            if (!HasBuilder())
-            {
-                this.DefaultBuilder();
-            }
-
             Address.InitializeLocalAddress(settings.EndpointName());
 
             WireUpConfigSectionOverrides();
