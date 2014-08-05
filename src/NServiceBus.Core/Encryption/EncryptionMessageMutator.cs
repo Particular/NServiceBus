@@ -12,10 +12,14 @@ namespace NServiceBus.Encryption
 
     class EncryptionMessageMutator : IMessageMutator
     {
-        
-        public IEncryptionService EncryptionService { get; set; }
+        IEncryptionService encryptionService;
+        Conventions conventions;
 
-        public Conventions Conventions { get; set; }
+        public EncryptionMessageMutator(IEncryptionService encryptionService, Conventions conventions)
+        {
+            this.encryptionService = encryptionService;
+            this.conventions = conventions;
+        }
 
         public object MutateOutgoing(object message)
         {
@@ -50,7 +54,7 @@ namespace NServiceBus.Encryption
             {
                 if (propertyInfo.GetIndexParameters().Length > 0)
                 {
-                    if (Conventions.IsEncryptedProperty(propertyInfo))
+                    if (conventions.IsEncryptedProperty(propertyInfo))
                     {
                         throw new Exception("Cannot encrypt or decrypt indexed properties that return a WireEncryptedString.");
                     }
@@ -58,7 +62,7 @@ namespace NServiceBus.Encryption
                     return false;
                 }
 
-                return Conventions.IsEncryptedProperty(propertyInfo);
+                return conventions.IsEncryptedProperty(propertyInfo);
             }
 
             var fieldInfo = arg as FieldInfo;
@@ -136,11 +140,6 @@ namespace NServiceBus.Encryption
                 return;
             }
 
-            if (EncryptionService == null)
-            {
-                throw new Exception(String.Format("Cannot encrypt field {0} because no encryption service was configured.",member.Name));
-            }
-
             var wireEncryptedString = valueToEncrypt as WireEncryptedString;
             if (wireEncryptedString != null)
             {
@@ -168,11 +167,6 @@ namespace NServiceBus.Encryption
                 return;
             }
 
-            if (EncryptionService == null)
-            {
-                throw new Exception(String.Format("Cannot decrypt field {0} because no encryption service was configured.", property.Name));
-            }
-
             var wireEncryptedString = encryptedValue as WireEncryptedString;
             if (wireEncryptedString != null)
             {
@@ -197,7 +191,7 @@ namespace NServiceBus.Encryption
 
             var parts = stringToDecrypt.Split(new[] { '@' }, StringSplitOptions.None);
 
-            return EncryptionService.Decrypt(new EncryptedValue
+            return encryptionService.Decrypt(new EncryptedValue
             {
                 EncryptedBase64Value = parts[0],
                 Base64Iv = parts[1]
@@ -211,7 +205,7 @@ namespace NServiceBus.Encryption
                 throw new Exception("Encrypted property is missing encryption data");
             }
 
-            encryptedValue.Value = EncryptionService.Decrypt(encryptedValue.EncryptedValue);
+            encryptedValue.Value = encryptionService.Decrypt(encryptedValue.EncryptedValue);
         }
 
         string EncryptUserSpecifiedProperty(object valueToEncrypt)
@@ -223,14 +217,14 @@ namespace NServiceBus.Encryption
                 throw new Exception("Only string properties is supported for convention based encryption, please check your convention");
             }
 
-            var encryptedValue = EncryptionService.Encrypt(stringToEncrypt);
+            var encryptedValue = encryptionService.Encrypt(stringToEncrypt);
 
             return string.Format("{0}@{1}", encryptedValue.EncryptedBase64Value, encryptedValue.Base64Iv);
         }
 
         void EncryptWireEncryptedString(WireEncryptedString wireEncryptedString)
         {
-            wireEncryptedString.EncryptedValue = EncryptionService.Encrypt(wireEncryptedString.Value);
+            wireEncryptedString.EncryptedValue = encryptionService.Encrypt(wireEncryptedString.Value);
             wireEncryptedString.Value = null;
 
         }
