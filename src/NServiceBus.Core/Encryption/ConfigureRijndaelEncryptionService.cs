@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Text;
     using Config;
     using Encryption.Rijndael;
     using NServiceBus.Encryption;
@@ -47,7 +46,7 @@ namespace NServiceBus
 
         static IEncryptionService BuildRijndaelEncryptionService(string encryptionKey)
         {
-            return new RijndaelEncryptionService(Encoding.ASCII.GetBytes(encryptionKey));
+            return new RijndaelEncryptionService(encryptionKey);
         }
 
         /// <summary>

@@ -29,14 +29,15 @@ namespace NServiceBus.Encryption.Rijndael
     using System;
     using System.IO;
     using System.Security.Cryptography;
+    using System.Text;
 
     class RijndaelEncryptionService : IEncryptionService
     {
         byte[] key;
 
-        public RijndaelEncryptionService(byte[] key)
+        public RijndaelEncryptionService(string key)
         {
-            this.key = key;
+            this.key = Encoding.ASCII.GetBytes(key);
         }
 
         public string Decrypt(EncryptedValue encryptedValue)

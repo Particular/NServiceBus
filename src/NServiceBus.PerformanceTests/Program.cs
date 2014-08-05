@@ -3,7 +3,6 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
@@ -135,7 +134,7 @@
 
         private static void SetupRijndaelTestEncryptionService()
         {
-            var encryptionService = new RijndaelEncryptionService(Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
+            var encryptionService = new RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
             config.Configurer.RegisterSingleton<IEncryptionService>(encryptionService);
         }
 
