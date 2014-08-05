@@ -97,9 +97,6 @@
     <Compile Include="..\NServiceBus.Hosting.Profiles\IWantTheListOfActiveProfiles.cs">
       <Link>App_Packages\NServiceBus.Hosting.Profiles\IWantTheListOfActiveProfiles.cs</Link>
     </Compile>
-    <Compile Include="..\NServiceBus.Hosting.Profiles\ProfileActivator.cs">
-      <Link>App_Packages\NServiceBus.Hosting.Profiles\ProfileActivator.cs</Link>
-    </Compile>
     <Compile Include="..\NServiceBus.Hosting.Profiles\ProfileManager.cs">
       <Link>App_Packages\NServiceBus.Hosting.Profiles\ProfileManager.cs</Link>
     </Compile>

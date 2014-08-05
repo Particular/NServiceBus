@@ -14,6 +14,12 @@
         /// <summary>
         /// Called when a given profile is activated.
         /// </summary>
+        void ProfileActivated(ConfigurationBuilder config);
+        
+        /// <summary>
+        /// Called when a given profile is activated.
+        /// </summary>
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "ProfileActivated(ConfigurationBuilder config)")]
         void ProfileActivated(Configure config);
     }
 }

@@ -42,7 +42,6 @@ namespace NServiceBus
             }
 
             profileManager = new ProfileManager(assembliesToScan, args, defaultProfiles);
-            ProfileActivator.ProfileManager = profileManager;
 
             wcfManager = new WcfManager();
         }
@@ -114,6 +113,7 @@ namespace NServiceBus
                 builder.DefineCriticalErrorAction(OnCriticalError);
                 specifier.Customize(builder);
                 RoleManager.TweakConfigurationBuilder(specifier, builder);
+                profileManager.ActivateProfileHandlers(builder);
             });
 
             RoleManager.TweakConfig(specifier, config);

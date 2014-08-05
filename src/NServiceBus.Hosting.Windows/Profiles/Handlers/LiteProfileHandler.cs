@@ -7,6 +7,10 @@
 
     class LiteProfileHandler : IHandleProfile<Lite>
     {
+        public void ProfileActivated(ConfigurationBuilder config)
+        {
+        }
+
         public void ProfileActivated(Configure config)
         {
             if (!config.Configurer.HasComponent<IManageMessageFailures>())

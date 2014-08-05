@@ -7,6 +7,11 @@
     /// </summary>
     class PerformanceCountersProfileHandler : IHandleProfile<PerformanceCounters>
     {
+        public void ProfileActivated(ConfigurationBuilder config)
+        {
+            
+        }
+
         public void ProfileActivated(Configure config)
         {
             config.EnablePerformanceCounters();
