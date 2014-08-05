@@ -1,12 +1,30 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Linq;
     using NServiceBus.Features;
 
     class RoleManager
     {
 
-        public static void ConfigureBusForEndpoint(IConfigureThisEndpoint specifier,Configure config)
+        public static void TweakConfigurationBuilder(IConfigureThisEndpoint specifier, ConfigurationBuilder config)
+        {
+            if (specifier is AsA_Server)
+            {
+            }
+            else if (specifier is AsA_Client)
+            {
+                config.PurgeOnStartup(true); 
+            }
+
+            Type transportDefinitionType;
+            if (TryGetTransportDefinitionType(specifier, out transportDefinitionType))
+            {
+             //   config.UseTransport(transportDefinitionType);
+            }
+        }
+
+        public static void TweakConfig(IConfigureThisEndpoint specifier,Configure config)
         {
             if (specifier is AsA_Server)
             {
@@ -17,23 +35,30 @@
                 config.DisableFeature<Features.SecondLevelRetries>()
                     .DisableFeature<StorageDrivenPublishing>()
                     .DisableFeature<TimeoutManager>()
-                    .Transactions(t => t.Disable())
-                    .PurgeOnStartup(true); 
+                    .Transactions(t => t.Disable());
             }
 
-            var transportType = specifier.GetType()
-                .GetInterfaces()
-                .Where(x=>x.IsGenericType)
-                .SingleOrDefault(x => x.GetGenericTypeDefinition() == typeof(UsingTransport<>));
-            if (transportType == null)
+            Type transportDefinitionType;
+            if (TryGetTransportDefinitionType(specifier, out transportDefinitionType))
             {
-                return;
+                config.UseTransport(transportDefinitionType);
             }
-            var transportDefinitionType = transportType.GetGenericArguments().First();
-
-            config.UseTransport(transportDefinitionType);
         }
 
+        static bool TryGetTransportDefinitionType(IConfigureThisEndpoint specifier, out Type transportDefinitionType)
+        {
+            var transportType= specifier.GetType()
+                .GetInterfaces()
+                .Where(x => x.IsGenericType)
+                .SingleOrDefault(x => x.GetGenericTypeDefinition() == typeof(UsingTransport<>));
+            if (transportType != null)
+            {
+                transportDefinitionType = transportType.GetGenericArguments().First();
+                return true;
+            }
+            transportDefinitionType = null;
+            return false;
+        }
     }
 
 

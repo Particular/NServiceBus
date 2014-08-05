@@ -113,9 +113,10 @@ namespace NServiceBus
                 builder.AssembliesToScan(assembliesToScan);
                 builder.DefineCriticalErrorAction(OnCriticalError);
                 specifier.Customize(builder);
+                RoleManager.TweakConfigurationBuilder(specifier, builder);
             });
 
-            RoleManager.ConfigureBusForEndpoint(specifier, config);
+            RoleManager.TweakConfig(specifier, config);
         }
         // Windows hosting behavior when critical error occurs is suicide.
         void OnCriticalError(string errorMessage, Exception exception)

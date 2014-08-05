@@ -13,7 +13,7 @@ namespace NServiceBus.Hosting.Tests
         public void Should_configure_requested_transport()
         {
             var config = Configure.With(o => o.EndpointName("myTests"));
-            RoleManager.ConfigureBusForEndpoint(new ConfigWithCustomTransport(), config);
+            RoleManager.TweakConfig(new ConfigWithCustomTransport(), config);
 
             Assert.AreEqual(typeof(MyTransportConfigurer), config.Settings.Get<Type>("TransportConfigurer"));
             Assert.IsInstanceOf<MyTestTransport>(config.Settings.Get<TransportDefinition>());
