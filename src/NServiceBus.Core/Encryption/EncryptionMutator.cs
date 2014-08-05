@@ -7,15 +7,14 @@ namespace NServiceBus.Encryption
     using System.Linq;
     using System.Reflection;
     using Logging;
-    using MessageMutator;
     using Utils.Reflection;
 
-    class EncryptionMessageMutator : IMessageMutator
+    class EncryptionMutator
     {
         IEncryptionService encryptionService;
         Conventions conventions;
 
-        public EncryptionMessageMutator(IEncryptionService encryptionService, Conventions conventions)
+        public EncryptionMutator(IEncryptionService encryptionService, Conventions conventions)
         {
             this.encryptionService = encryptionService;
             this.conventions = conventions;
@@ -228,7 +227,8 @@ namespace NServiceBus.Encryption
             wireEncryptedString.Value = null;
 
         }
-        static IEnumerable<MemberInfo> GetFieldsAndProperties(object target)
+        
+        IEnumerable<MemberInfo> GetFieldsAndProperties(object target)
         {
             if (target == null)
             {
@@ -250,7 +250,7 @@ namespace NServiceBus.Encryption
 
         HashSet<object> visitedMembers = new HashSet<object>();
 
-        static ConcurrentDictionary<Type, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<MemberInfo>>();
+        ConcurrentDictionary<Type, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<MemberInfo>>();
 
         static ILog Log = LogManager.GetLogger<IEncryptionService>();
     }

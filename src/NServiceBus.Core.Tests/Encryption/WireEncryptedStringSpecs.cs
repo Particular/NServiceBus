@@ -283,7 +283,7 @@
 
     public class WireEncryptedStringContext
     {
-        internal EncryptionMessageMutator mutator;
+        internal EncryptionMutator mutator;
 
         protected string EncryptedBase64Value = "encrypted value";
         protected string MySecretMessage = "A secret";
@@ -300,7 +300,7 @@
                 Base64Iv = "init_vector"
             };
             var fakeEncryptionService = new FakeEncryptionService(encryptedValue);
-            mutator = new EncryptionMessageMutator(fakeEncryptionService,conventions);
+            mutator = new EncryptionMutator(fakeEncryptionService, conventions);
         }
 
         protected virtual Conventions BuildConventions()

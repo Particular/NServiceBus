@@ -86,6 +86,8 @@
     <Compile Include="CriticalError\CriticalErrorFeature.cs" />
     <Compile Include="CriticalError\CriticalError.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus_Obsolete.cs" />
+    <Compile Include="Encryption\DecryptBehavior.cs" />
+    <Compile Include="Encryption\EncryptBehavior.cs" />
     <Compile Include="Encryption\EncryptedValue.cs" />
     <Compile Include="Encryption\EncryptionFeature.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionService_Obsolete.cs" />
@@ -386,7 +388,7 @@
     <Compile Include="DataBus\IDatabusSerializer.cs" />
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DependencyLifecycle.cs" />
-    <Compile Include="Encryption\EncryptionMessageMutator.cs" />
+    <Compile Include="Encryption\EncryptionMutator.cs" />
     <Compile Include="Encryption\IEncryptionService.cs" />
     <Compile Include="Encryption\EncryptionService.cs" />
     <Compile Include="Faults\FaultsHeaderKeys.cs" />

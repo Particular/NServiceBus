@@ -18,8 +18,12 @@
             if (context.Settings.GetEncryptionServiceConstructor(out func))
             {
                 context.Container.ConfigureComponent(func, DependencyLifecycle.SingleInstance);
-                context.Container.ConfigureComponent<EncryptionMessageMutator>(DependencyLifecycle.InstancePerCall);
+                context.Container.ConfigureComponent<EncryptionMutator>(DependencyLifecycle.SingleInstance);
+
+                context.Pipeline.Register<EncryptBehavior.EncryptRegistration>();
+                context.Pipeline.Register<DecryptBehavior.DecryptRegistration>();
             }
         }
     }
 }
+
