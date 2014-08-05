@@ -29,30 +29,23 @@ namespace NServiceBus.Encryption.Rijndael
     using System;
     using System.IO;
     using System.Security.Cryptography;
-    using Logging;
+    using System.Text;
 
-    /// <summary>
-    /// Implementation of the encryption capability using Rijndael. allowable under the Apache 2.0 license.
-    /// </summary>
-    public class EncryptionService : IEncryptionService
+    class RijndaelEncryptionService : IEncryptionService
     {
-        /// <summary>
-        /// Symmetric key used for encryption.
-        /// </summary>
-        public byte[] Key { get; set; }
+        byte[] key;
 
-        string IEncryptionService.Decrypt(EncryptedValue encryptedValue)
+        public RijndaelEncryptionService(string key)
         {
-            if (Key == null)
-            {
-                Logger.Warn("Cannot decrypt because a Key was not configured. Please specify 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
-                return encryptedValue.EncryptedBase64Value;
-            }
+            this.key = Encoding.ASCII.GetBytes(key);
+        }
 
+        public string Decrypt(EncryptedValue encryptedValue)
+        {
             var encrypted = Convert.FromBase64String(encryptedValue.EncryptedBase64Value);
             using (var rijndael = new RijndaelManaged())
             {
-                rijndael.Key = Key;
+                rijndael.Key = key;
                 rijndael.IV = Convert.FromBase64String(encryptedValue.Base64Iv);
                 rijndael.Mode = CipherMode.CBC;
 
@@ -66,14 +59,11 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
-        EncryptedValue IEncryptionService.Encrypt(string value)
+        public EncryptedValue Encrypt(string value)
         {
-            if (Key == null)
-                throw new InvalidOperationException("Cannot encrypt because a Key was not configured. Please specify 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
-
             using (var rijndael = new RijndaelManaged())
             {
-                rijndael.Key = Key;
+                rijndael.Key = key;
                 rijndael.Mode = CipherMode.CBC;
                 rijndael.GenerateIV();
 
@@ -95,6 +85,5 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
-        static ILog Logger = LogManager.GetLogger<EncryptionService>();
     }
 }

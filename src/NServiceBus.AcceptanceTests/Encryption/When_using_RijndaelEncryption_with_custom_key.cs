@@ -2,14 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using Config;
-    using Config.ConfigurationSource;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_using_encryption : NServiceBusAcceptanceTest
+    public class When_using_RijndaelEncryption_with_custom_key : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_decrypted_message()
@@ -59,7 +57,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.RijndaelEncryptionService());
+                EndpointSetup<DefaultServer>(c => { }, builder => builder.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
             }
 
             public class Handler : IHandleMessages<MessageWithSecretData>
@@ -104,14 +102,5 @@
             public WireEncryptedString Secret { get; set; }
         }
 
-        public class ConfigureEncryption: IProvideConfiguration<RijndaelEncryptionServiceConfig>
-        {
-            RijndaelEncryptionServiceConfig rijndaelEncryptionServiceConfig = new RijndaelEncryptionServiceConfig { Key = "gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6" };
-
-            public RijndaelEncryptionServiceConfig GetConfiguration()
-            {
-                return rijndaelEncryptionServiceConfig;
-            }
-        }
     }
 }
