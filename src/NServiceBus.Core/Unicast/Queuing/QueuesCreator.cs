@@ -1,3 +1,4 @@
+
 namespace NServiceBus.Unicast.Queuing
 {
     using System;
@@ -17,7 +18,7 @@ namespace NServiceBus.Unicast.Queuing
                 return;
             }
 
-            if (ConfigureQueueCreation.DontCreateQueues)
+            if (!config.Settings.GetCreateQueues())
             {
                 return;
             }
@@ -28,7 +29,7 @@ namespace NServiceBus.Unicast.Queuing
             {
                 if (wantQueueCreatedInstance.Address == null)
                 {
-                    throw new InvalidOperationException(string.Format("IWantQueueCreated implementation {0} returned a null address",wantQueueCreatedInstance.GetType().FullName));
+                    throw new InvalidOperationException(string.Format("IWantQueueCreated implementation {0} returned a null address", wantQueueCreatedInstance.GetType().FullName));
                 }
 
                 QueueCreator.CreateQueueIfNecessary(wantQueueCreatedInstance.Address, identity);
