@@ -38,6 +38,7 @@
             {
                 c.EndpointName("UnitTests");
                 c.CustomConfigurationSource(testConfigurationSource);
+                c.InMemoryFaultManagement();
                 customisations(c);
             }));
         }
@@ -91,8 +92,7 @@
             config.DisableFeature<Sagas>()
                 .DisableFeature<Audit>()
                 .UseTransport<FakeTestTransport>()
-                .UsePersistence<InMemory>()
-                .InMemoryFaultManagement();
+                .UsePersistence<InMemory>();
 
             config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
 

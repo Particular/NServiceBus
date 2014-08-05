@@ -53,7 +53,7 @@
             if (suppressDTC)
                 endpointName += ".SuppressDTC";
 
-            config = Configure.With(o => o.EndpointName(endpointName))
+            config = Configure.With(o => o.EndpointName(endpointName).InMemoryFaultManagement())
                 .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
                 .UsePersistence<InMemory>()
                 .DisableFeature<Audit>();
@@ -106,7 +106,7 @@
             }
 
             config.EnableInstallers();
-            using (var startableBus = config.InMemoryFaultManagement().CreateBus())
+            using (var startableBus = config.CreateBus())
             {
                 if (saga)
                 {
