@@ -10,9 +10,6 @@ namespace NServiceBus.Encryption
     using MessageMutator;
     using Utils.Reflection;
 
-    /// <summary>
-    /// Invokes the encryption service to encrypt/decrypt messages
-    /// </summary>
     class EncryptionMessageMutator : IMessageMutator
     {
         
@@ -48,7 +45,6 @@ namespace NServiceBus.Encryption
 
         bool IsEncryptedMember(MemberInfo arg)
         {
-            
             var propertyInfo = arg as PropertyInfo;
             if (propertyInfo != null)
             {

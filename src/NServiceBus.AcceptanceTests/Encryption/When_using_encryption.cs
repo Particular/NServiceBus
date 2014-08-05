@@ -59,7 +59,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.RijndaelEncryptionService());
+                EndpointSetup<DefaultServer>(c => { },builder => builder.RijndaelEncryptionService());
             }
 
             public class Handler : IHandleMessages<MessageWithSecretData>

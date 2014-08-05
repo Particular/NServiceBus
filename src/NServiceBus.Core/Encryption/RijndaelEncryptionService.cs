@@ -34,9 +34,9 @@ namespace NServiceBus.Encryption.Rijndael
     {
         byte[] key;
 
-        public RijndaelEncryptionService(byte[] Key)
+        public RijndaelEncryptionService(byte[] key)
         {
-            key = Key;
+            this.key = key;
         }
 
         public string Decrypt(EncryptedValue encryptedValue)
