@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Transactions;
     using System.Web;
     using Config.ConfigurationSource;
     using Config.Conventions;
@@ -158,8 +159,6 @@ namespace NServiceBus
         /// </summary>
         internal Configure BuildConfiguration()
         {
-            var version = getEndpointVersionAction();
-
             endpointName = getEndpointNameAction();
 
             if (scannedTypes == null)
@@ -185,17 +184,29 @@ namespace NServiceBus
                 }
             }
             var container = customBuilder ?? new AutofacObjectBuilder();
-            settings.SetDefault("EndpointName", endpointName);
-            settings.SetDefault("TypesToScan", scannedTypes);
-            settings.SetDefault("EndpointVersion", version);
+            RegisterEndpointWideDefaults();
 
             var conventions = conventionsBuilder.BuildConventions();
             container.RegisterSingleton(typeof(Conventions), conventions);
 
-            settings.SetDefault<IConfigurationSource>(configurationSourceToUse);
             settings.SetDefault<Conventions>(conventions);
 
             return new Configure(settings, container);
+        }
+
+        void RegisterEndpointWideDefaults()
+        {
+            settings.SetDefault("EndpointName", endpointName);
+            settings.SetDefault("TypesToScan", scannedTypes);
+            settings.SetDefault("EndpointVersion", getEndpointVersionAction());
+            settings.SetDefault("Endpoint.SendOnly", false);
+            settings.SetDefault("Endpoint.DurableMessages", true);
+            settings.SetDefault("Transactions.Enabled", true);
+            settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
+            settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
+            settings.SetDefault("Transactions.SuppressDistributedTransactions", false);
+            settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
+            settings.SetDefault<IConfigurationSource>(configurationSourceToUse);
         }
 
         IConfigurationSource configurationSourceToUse;

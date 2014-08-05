@@ -3,7 +3,6 @@ namespace NServiceBus.Features
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Transactions;
     using AutomaticSubscriptions;
     using Config;
     using Faults;
@@ -25,16 +24,6 @@ namespace NServiceBus.Features
         internal UnicastBus()
         {
             EnableByDefault();
-            Defaults(s =>
-            {
-               s.SetDefault("Endpoint.SendOnly", false);
-               s.SetDefault("Endpoint.DurableMessages", true);
-               s.SetDefault("Transactions.Enabled", true);
-               s.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
-               s.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
-               s.SetDefault("Transactions.SuppressDistributedTransactions", false);
-               s.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
-            });
         }
 
         /// <summary>
