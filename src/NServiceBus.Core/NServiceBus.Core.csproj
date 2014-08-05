@@ -167,6 +167,7 @@
     <Compile Include="Serializers\Json\Bson.cs" />
     <Compile Include="Serializers\Json\Json.cs" />
     <Compile Include="Serializers\XML\Config\Xml.cs" />
+    <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Transport\Config\EnableSelectedTransport.cs" />
     <Compile Include="Utils\ElevateChecker.cs" />
     <Compile Include="IStartableBus.cs" />
@@ -331,7 +332,7 @@
     <Compile Include="Transports\Msmq\Config\ConfigureMsmqMessageQueue.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\ConfigureMsmqSubscriptionStorage.cs" />
     <Compile Include="ConfigureQueueCreation.cs" />
-    <Compile Include="ConfigurePurging.cs" />
+    <Compile Include="Transports\ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer.cs" />
