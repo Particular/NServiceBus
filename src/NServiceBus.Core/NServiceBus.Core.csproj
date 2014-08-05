@@ -403,12 +403,6 @@
     <Compile Include="Hosting\Profiles\IProfile.cs" />
     <Compile Include="Hosting\Profiles\ProfileActivator.cs" />
     <Compile Include="Hosting\Profiles\ProfileManager.cs" />
-    <Compile Include="Hosting\Wcf\WcfManager.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Hosting\Wcf\WcfServiceHost.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="IExcludesBuilder.cs" />
     <Compile Include="IIncludesBuilder.cs" />
     <Compile Include="Impersonation\Windows\WindowsIdentityEnricher.cs" />

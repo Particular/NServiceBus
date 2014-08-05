@@ -10,7 +10,7 @@
     /// <summary>
     ///     Enable users to expose messages as WCF services
     /// </summary>
-    public class WcfManager
+    class WcfManager
     {
         /// <summary>
         ///     Starts a <see cref="ServiceHost" /> for each found service. Defaults to <see cref="BasicHttpBinding" /> if
