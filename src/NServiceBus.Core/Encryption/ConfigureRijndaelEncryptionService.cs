@@ -5,7 +5,6 @@ namespace NServiceBus
     using Config;
     using Encryption.Rijndael;
     using NServiceBus.Encryption;
-    using NServiceBus.Features;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Settings;
 
@@ -56,7 +55,6 @@ namespace NServiceBus
         /// </summary>
         public static ConfigurationBuilder RegisterEncryptionService(this ConfigurationBuilder config, Func<IBuilder, IEncryptionService> func)
         {
-            config.settings.EnableFeatureByDefault<EncryptionFeature>();
             config.settings.Set("EncryptionServiceConstructor", func);
             return config;
         }

@@ -225,7 +225,6 @@ namespace NServiceBus.Encryption
         {
             wireEncryptedString.EncryptedValue = encryptionService.Encrypt(wireEncryptedString.Value);
             wireEncryptedString.Value = null;
-
         }
 
         static IEnumerable<MemberInfo> GetFieldsAndProperties(object target)
