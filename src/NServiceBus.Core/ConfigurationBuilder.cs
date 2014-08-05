@@ -80,16 +80,7 @@ namespace NServiceBus
         /// </summary>
         public ConfigurationBuilder EndpointName(string name)
         {
-            EndpointName(() => name);
-            return this;
-        }
-
-        /// <summary>
-        ///     Defines the name to use for this endpoint.
-        /// </summary>
-        public ConfigurationBuilder EndpointName(Func<string> nameFunc)
-        {
-            getEndpointNameAction = nameFunc;
+            endpointName = name;
             return this;
         }
 
@@ -98,16 +89,7 @@ namespace NServiceBus
         /// </summary>
         public ConfigurationBuilder EndpointVersion(string version)
         {
-            EndpointVersion(() => version);
-            return this;
-        }
-
-        /// <summary>
-        ///     Defines the version of this endpoint.
-        /// </summary>
-        public ConfigurationBuilder EndpointVersion(Func<string> versionFunc)
-        {
-            getEndpointVersionAction = versionFunc;
+            endpointVersion = version;
             return this;
         }
 
@@ -197,28 +179,19 @@ namespace NServiceBus
         {
             var endpointHelper = new EndpointHelper(new StackTrace());
 
-            string version;
-            if (getEndpointVersionAction == null)
+            if (endpointVersion == null)
             {
-                version = endpointHelper.GetEndpointVersion();
-            }
-            else
-            {
-                version = getEndpointVersionAction();
+                endpointVersion = endpointHelper.GetEndpointVersion();
             }
 
-            string endpointName;
-            if (getEndpointNameAction == null)
+            if (endpointName == null)
             {
                 endpointName = endpointHelper.GetDefaultEndpointName();
             }
-            else
-            {
-                endpointName = getEndpointNameAction();
-            }
+            
             settings.SetDefault("EndpointName", endpointName);
             settings.SetDefault("TypesToScan", scannedTypes);
-            settings.SetDefault("EndpointVersion", version);
+            settings.SetDefault("EndpointVersion", endpointVersion);
             settings.SetDefault("Endpoint.SendOnly", false);
             settings.SetDefault("Endpoint.DurableMessages", true);
             settings.SetDefault("Transactions.Enabled", true);
@@ -233,8 +206,8 @@ namespace NServiceBus
         Configure.ConventionsBuilder conventionsBuilder = new Configure.ConventionsBuilder();
         IContainer customBuilder;
         string directory;
-        Func<string> getEndpointNameAction;
-        Func<string> getEndpointVersionAction;
+        string endpointName;
+        string endpointVersion;
         IList<Type> scannedTypes;
         internal SettingsHolder settings = new SettingsHolder();
     }
