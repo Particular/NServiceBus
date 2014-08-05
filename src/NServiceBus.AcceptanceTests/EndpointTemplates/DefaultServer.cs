@@ -27,14 +27,13 @@
                 o.EndpointName(endpointConfiguration.EndpointName);
                 o.TypesToScan(types);
                 o.CustomConfigurationSource(configSource);
-
+                o.EnableInstallers();
 
                 string selectedBuilder;
                 if (settings.TryGetValue("Builder", out selectedBuilder))
                 {
                     o.UseContainer(Type.GetType(selectedBuilder));
                 }
-
             })
                 .DefineTransport(settings)
                 .DefinePersistence(settings);

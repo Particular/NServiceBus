@@ -98,6 +98,7 @@
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
     <Compile Include="Installation\InstallationSupport.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />
+    <Compile Include="Installation\InstallConfigExtensions_obsolete.cs" />
     <Compile Include="Obsoletes.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />

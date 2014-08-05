@@ -17,9 +17,17 @@ namespace NServiceBus.Features
     {
         internal InstallationSupport()
         {
-            if (Debugger.IsAttached)
+            EnableByDefault();
+            
+            if (!Debugger.IsAttached)
             {
-                EnableByDefault();
+                Prerequisite(context =>
+                {
+                    bool enabled;
+                    context.Settings.TryGet("installation.enable", out enabled);
+
+                    return enabled;
+                }, "EnableInstallers was not invoked.");       
             }
         }
 
@@ -74,5 +82,4 @@ namespace NServiceBus.Features
             }
         }
     }
-
 }
