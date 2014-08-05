@@ -31,17 +31,14 @@ namespace NServiceBus.Encryption.Rijndael
     using System.Security.Cryptography;
     using Logging;
 
-    /// <summary>
-    /// Implementation of the encryption capability using Rijndael. allowable under the Apache 2.0 license.
-    /// </summary>
-    public class EncryptionService : IEncryptionService
+    class RijndaelEncryptionService : IEncryptionService
     {
         /// <summary>
         /// Symmetric key used for encryption.
         /// </summary>
         public byte[] Key { get; set; }
 
-        string IEncryptionService.Decrypt(EncryptedValue encryptedValue)
+        public string Decrypt(EncryptedValue encryptedValue)
         {
             if (Key == null)
             {
@@ -66,7 +63,7 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
-        EncryptedValue IEncryptionService.Encrypt(string value)
+        public EncryptedValue Encrypt(string value)
         {
             if (Key == null)
                 throw new InvalidOperationException("Cannot encrypt because a Key was not configured. Please specify 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
@@ -95,6 +92,6 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
-        static ILog Logger = LogManager.GetLogger<EncryptionService>();
+        static ILog Logger = LogManager.GetLogger<RijndaelEncryptionService>();
     }
 }

@@ -86,6 +86,7 @@
     <Compile Include="CriticalError\CriticalErrorFeature.cs" />
     <Compile Include="CriticalError\CriticalError.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus_Obsolete.cs" />
+    <Compile Include="Encryption\RijndaelEncryptionService.cs" />
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
@@ -334,7 +335,7 @@
     <Compile Include="ConfigureQueueCreation.cs" />
     <Compile Include="Transports\ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />
-    <Compile Include="ConfigureRijndaelEncryptionService.cs" />
+    <Compile Include="Encryption\ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer.cs" />
     <Compile Include="Config\Advanced\ConfigureSettingLocalAddressNameAction.cs" />
     <Compile Include="Config\ConfigurationSource\DefaultConfigurationSource.cs" />
@@ -385,7 +386,7 @@
     <Compile Include="Encryption\Bootstrapper.cs" />
     <Compile Include="Encryption\EncryptionMessageMutator.cs" />
     <Compile Include="Encryption\IEncryptionService.cs" />
-    <Compile Include="Encryption\Rijndael\EncryptionService.cs" />
+    <Compile Include="Encryption\EncryptionService.cs" />
     <Compile Include="Faults\FaultsHeaderKeys.cs" />
     <Compile Include="Faults\Forwarder\Config\FaultsQueueCreator.cs" />
     <Compile Include="Faults\Forwarder\FaultManager.cs" />

@@ -133,7 +133,7 @@
 
         private static void SetupRijndaelTestEncryptionService()
         {
-            var encryptConfig = config.Configurer.ConfigureComponent<NServiceBus.Encryption.Rijndael.EncryptionService>(DependencyLifecycle.SingleInstance);
+            var encryptConfig = config.Configurer.ConfigureComponent<NServiceBus.Encryption.Rijndael.RijndaelEncryptionService>(DependencyLifecycle.SingleInstance);
             encryptConfig.ConfigureProperty(s => s.Key, Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
         }
 
