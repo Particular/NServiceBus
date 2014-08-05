@@ -15,6 +15,7 @@ namespace NServiceBus.Encryption
     /// </summary>
     class EncryptionMessageMutator : IMessageMutator
     {
+        
         public IEncryptionService EncryptionService { get; set; }
 
         public Conventions Conventions { get; set; }

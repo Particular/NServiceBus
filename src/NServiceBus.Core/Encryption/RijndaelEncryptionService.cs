@@ -29,27 +29,22 @@ namespace NServiceBus.Encryption.Rijndael
     using System;
     using System.IO;
     using System.Security.Cryptography;
-    using Logging;
 
     class RijndaelEncryptionService : IEncryptionService
     {
-        /// <summary>
-        /// Symmetric key used for encryption.
-        /// </summary>
-        public byte[] Key { get; set; }
+        byte[] key;
+
+        public RijndaelEncryptionService(byte[] Key)
+        {
+            key = Key;
+        }
 
         public string Decrypt(EncryptedValue encryptedValue)
         {
-            if (Key == null)
-            {
-                Logger.Warn("Cannot decrypt because a Key was not configured. Please specify 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
-                return encryptedValue.EncryptedBase64Value;
-            }
-
             var encrypted = Convert.FromBase64String(encryptedValue.EncryptedBase64Value);
             using (var rijndael = new RijndaelManaged())
             {
-                rijndael.Key = Key;
+                rijndael.Key = key;
                 rijndael.IV = Convert.FromBase64String(encryptedValue.Base64Iv);
                 rijndael.Mode = CipherMode.CBC;
 
@@ -65,12 +60,9 @@ namespace NServiceBus.Encryption.Rijndael
 
         public EncryptedValue Encrypt(string value)
         {
-            if (Key == null)
-                throw new InvalidOperationException("Cannot encrypt because a Key was not configured. Please specify 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
-
             using (var rijndael = new RijndaelManaged())
             {
-                rijndael.Key = Key;
+                rijndael.Key = key;
                 rijndael.Mode = CipherMode.CBC;
                 rijndael.GenerateIV();
 
@@ -92,6 +84,5 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
-        static ILog Logger = LogManager.GetLogger<RijndaelEncryptionService>();
     }
 }

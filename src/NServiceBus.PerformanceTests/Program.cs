@@ -8,6 +8,8 @@
     using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus;
+    using NServiceBus.Encryption;
+    using NServiceBus.Encryption.Rijndael;
     using NServiceBus.Features;
     using Encryption;
     using NServiceBus.Persistence;
@@ -133,8 +135,8 @@
 
         private static void SetupRijndaelTestEncryptionService()
         {
-            var encryptConfig = config.Configurer.ConfigureComponent<NServiceBus.Encryption.Rijndael.RijndaelEncryptionService>(DependencyLifecycle.SingleInstance);
-            encryptConfig.ConfigureProperty(s => s.Key, Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
+            var encryptionService = new RijndaelEncryptionService(Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
+            config.Configurer.RegisterSingleton<IEncryptionService>(encryptionService);
         }
 
         static void DumpSetting(string[] args)
