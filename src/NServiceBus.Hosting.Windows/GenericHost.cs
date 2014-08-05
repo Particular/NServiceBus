@@ -109,7 +109,7 @@ namespace NServiceBus
             config = Configure.With(builder =>
             {
                 builder.EndpointName(endpointNameToUse);
-                builder.EndpointVersion(() => endpointVersionToUse);
+                builder.EndpointVersion(endpointVersionToUse);
                 builder.AssembliesToScan(assembliesToScan);
                 builder.DefineCriticalErrorAction(OnCriticalError);
                 specifier.Customize(builder);
