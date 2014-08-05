@@ -4,14 +4,12 @@ namespace NServiceBus.Hosting.Profiles
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Helpers;
     using Logging;
-    using Utils.Reflection;
 
     /// <summary>
     /// Scans and loads profile handlers from the given assemblies
     /// </summary>
-    public class ProfileManager
+    class ProfileManager
     {
         IEnumerable<Assembly> assembliesToScan;
         internal List<Type> activeProfiles;
@@ -23,7 +21,7 @@ namespace NServiceBus.Hosting.Profiles
         {
             this.assembliesToScan = assembliesToScan;
 
-            var existingProfiles = assembliesToScan.AllTypesAssignableTo<IProfile>();
+            var existingProfiles = AllTypesAssignableTo<IProfile>(assembliesToScan);
             var profilesFromArguments = args
                 .Select(arg => existingProfiles.SingleOrDefault(profileType => profileType.FullName.ToLower() == arg.ToLower()))
                 .Where(t => t != null)
@@ -94,7 +92,7 @@ namespace NServiceBus.Hosting.Profiles
 
             foreach (var option in options)
             {
-                var p = option.GetGenericallyContainedType(openGenericType, typeof(IProfile));
+                var p = GetGenericallyContainedType(option, openGenericType, typeof(IProfile));
                 if (p == profile)
                 {
                     yield return option;
@@ -125,7 +123,7 @@ namespace NServiceBus.Hosting.Profiles
                                  HandlerTypes = instantiableHandlers
                                      .Where(handlerType =>
                                             {
-                                                var handledProfile = handlerType.GetGenericallyContainedType(typeof(IHandleProfile<>), typeof(IProfile));
+                                                var handledProfile = GetGenericallyContainedType(handlerType, typeof(IHandleProfile<>), typeof(IProfile));
                                                 return handledProfile != null && handledProfile.IsAssignableFrom(p);
                                             })
                                      .ToList()
@@ -160,6 +158,47 @@ namespace NServiceBus.Hosting.Profiles
             }
         }
 
+        static IEnumerable<Type> AllTypesAssignableTo<T>(IEnumerable<Assembly> assemblies)
+        {
+            var type = typeof(T);
+            return assemblies.Where(a => IsReferencedByOrEquals(type.Assembly, a))
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(t => t != type && type.IsAssignableFrom(t));
+        }
+
+        static bool IsReferencedByOrEquals(Assembly referenceAssembly, Assembly targetAssembly)
+        {
+            var name = referenceAssembly.GetName().Name;
+            return targetAssembly.GetName().Name == name || targetAssembly.GetReferencedAssemblies().Any(y => y.Name == name);
+        }
+
+        static Type GetGenericallyContainedType(Type type, Type openGenericType, Type genericArg)
+        {
+            Type result = null;
+            LoopAndAct(type, openGenericType, genericArg, t => result = t);
+
+            return result;
+        }
+
+        static void LoopAndAct(Type type, Type openGenericType, Type genericArg, Action<Type> act)
+        {
+            foreach (var i in type.GetInterfaces())
+            {
+                var args = i.GetGenericArguments();
+
+                if (args.Length != 1)
+                {
+                    continue;
+                }
+
+                if (genericArg.IsAssignableFrom(args[0])
+                    && openGenericType.MakeGenericType(args[0]) == i)
+                {
+                    act(args[0]);
+                    break;
+                }
+            }
+        }
 
         static ILog Logger = LogManager.GetLogger<ProfileManager>();
     }

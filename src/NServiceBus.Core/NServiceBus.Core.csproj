@@ -131,9 +131,7 @@
     <Compile Include="HandlerOrdering\Order.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="Hosting\Configuration\IConfigureLogging.cs" />
-    <Compile Include="Hosting\Configuration\IConfigureLoggingForProfile.cs" />
     <Compile Include="Hosting\Configuration\IWantCustomLogging.cs" />
-    <Compile Include="Hosting\Configuration\IWantTheListOfActiveProfiles.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
@@ -321,7 +319,6 @@
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />
     <Compile Include="Unicast\Messages\DeserializeLogicalMessagesBehavior.cs" />
-    <Compile Include="Hosting\Profiles\IHandleAnyProfile.cs" />
     <Compile Include="Persistence\InMemory\InMemoryPersistence.cs" />
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySagaPersister.cs" />
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySubscriptionStorage.cs" />
@@ -399,10 +396,6 @@
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
-    <Compile Include="Hosting\Profiles\IHandleProfile.cs" />
-    <Compile Include="Hosting\Profiles\IProfile.cs" />
-    <Compile Include="Hosting\Profiles\ProfileActivator.cs" />
-    <Compile Include="Hosting\Profiles\ProfileManager.cs" />
     <Compile Include="Hosting\Wcf\WcfManager.cs">
       <SubType>Code</SubType>
     </Compile>

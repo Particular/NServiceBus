@@ -84,6 +84,27 @@
     <Compile Include="..\NServiceBus.Core\Utils\FileVersionRetriever.cs">
       <Link>FileVersionRetriever.cs</Link>
     </Compile>
+    <Compile Include="..\NServiceBus.Hosting.Profiles\IConfigureLoggingForProfile.cs">
+      <Link>App_Packages\NServiceBus.Hosting.Profiles\IConfigureLoggingForProfile.cs</Link>
+    </Compile>
+    <Compile Include="..\NServiceBus.Hosting.Profiles\IHandleAnyProfile.cs">
+      <Link>App_Packages\NServiceBus.Hosting.Profiles\IHandleAnyProfile.cs</Link>
+    </Compile>
+    <Compile Include="..\NServiceBus.Hosting.Profiles\IHandleProfile.cs">
+      <Link>App_Packages\NServiceBus.Hosting.Profiles\IHandleProfile.cs</Link>
+    </Compile>
+    <Compile Include="..\NServiceBus.Hosting.Profiles\IProfile.cs">
+      <Link>App_Packages\NServiceBus.Hosting.Profiles\IProfile.cs</Link>
+    </Compile>
+    <Compile Include="..\NServiceBus.Hosting.Profiles\IWantTheListOfActiveProfiles.cs">
+      <Link>App_Packages\NServiceBus.Hosting.Profiles\IWantTheListOfActiveProfiles.cs</Link>
+    </Compile>
+    <Compile Include="..\NServiceBus.Hosting.Profiles\ProfileActivator.cs">
+      <Link>App_Packages\NServiceBus.Hosting.Profiles\ProfileActivator.cs</Link>
+    </Compile>
+    <Compile Include="..\NServiceBus.Hosting.Profiles\ProfileManager.cs">
+      <Link>App_Packages\NServiceBus.Hosting.Profiles\ProfileManager.cs</Link>
+    </Compile>
     <Compile Include="EndpointType.cs" />
     <Compile Include="EndpointTypeDeterminer.cs" />
     <Compile Include="GenericHost.cs" />
