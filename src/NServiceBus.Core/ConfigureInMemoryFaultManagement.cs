@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using Faults.InMemory;
+    using NServiceBus.Features;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure
@@ -10,11 +10,9 @@ namespace NServiceBus
         /// <summary>
         /// Use in-memory fault management.
         /// </summary>
-        public static Configure InMemoryFaultManagement(this Configure config)
+        public static ConfigurationBuilder DiscardFailedMessagesInsteadOfSendingToErrorQueue(this ConfigurationBuilder config)
         {
-            config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.SingleInstance);
-
-            return config;
+            return config.EnableFeature<InMemoryFaultManager>();
         }
     }
 }

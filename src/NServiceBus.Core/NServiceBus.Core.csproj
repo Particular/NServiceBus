@@ -81,6 +81,7 @@
   <ItemGroup>
     <Compile Include="ConfigurationBuilder.cs" />
     <Compile Include="ConfigureQueueCreation_Obsolete.cs" />
+    <Compile Include="ConfigureInMemoryFaultManagement_obsolete.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction_Obsolete.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="Encryption\EncryptionFeature.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionService_Obsolete.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
+    <Compile Include="Faults\InMemory\InMemoryFaultManager.cs" />
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />

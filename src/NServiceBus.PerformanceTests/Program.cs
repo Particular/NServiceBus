@@ -55,7 +55,8 @@
                 endpointName += ".SuppressDTC";
 
             config = Configure.With(o => o.EndpointName(endpointName)
-                                          .EnableInstallers())
+									      .EnableInstallers()
+                                          .DiscardFailedMessagesInsteadOfSendingToErrorQueue())
                 .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
                 .UsePersistence<InMemory>()
                 .DisableFeature<Audit>();
@@ -107,7 +108,7 @@
                     throw new InvalidOperationException("Illegal transport " + args[2]);
             }
 
-            using (var startableBus = config.InMemoryFaultManagement().CreateBus())
+            using (var startableBus = config.CreateBus())
             {
                 if (saga)
                 {

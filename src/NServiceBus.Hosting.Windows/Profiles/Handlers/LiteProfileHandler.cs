@@ -15,7 +15,7 @@
         {
             if (!config.Configurer.HasComponent<IManageMessageFailures>())
             {
-                config.InMemoryFaultManagement();
+                //config.InMemoryFaultManagement();
             }
 
             config.Settings.EnableFeatureByDefault<InstallationSupport>();
