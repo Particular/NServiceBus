@@ -227,8 +227,8 @@ namespace NServiceBus.Encryption
             wireEncryptedString.Value = null;
 
         }
-        
-        IEnumerable<MemberInfo> GetFieldsAndProperties(object target)
+
+        static IEnumerable<MemberInfo> GetFieldsAndProperties(object target)
         {
             if (target == null)
             {
@@ -250,7 +250,7 @@ namespace NServiceBus.Encryption
 
         HashSet<object> visitedMembers = new HashSet<object>();
 
-        ConcurrentDictionary<Type, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<MemberInfo>>();
+        static ConcurrentDictionary<Type, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<MemberInfo>>();
 
         static ILog Log = LogManager.GetLogger<IEncryptionService>();
     }
