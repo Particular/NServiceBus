@@ -109,6 +109,8 @@
     <Compile Include="Profiles\Handlers\PerformanceCountersProfileHandler.cs" />
     <Compile Include="Roles\RoleManager.cs" />
     <Compile Include="Roles\UsingTransport.cs" />
+    <Compile Include="Wcf\WcfManager.cs" />
+    <Compile Include="Wcf\WcfServiceHost.cs" />
     <Compile Include="WindowsHost.cs" />
     <Compile Include="Profiles\Integration.cs" />
     <Compile Include="Profiles\Lite.cs" />
