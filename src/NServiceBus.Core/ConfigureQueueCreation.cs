@@ -1,26 +1,32 @@
 namespace NServiceBus
 {
-    using System.ComponentModel;
+    using NServiceBus.Settings;
 
     /// <summary>
-    /// Contains extension methods to NServiceBus.Configure.
+    /// Contains extension methods for <see cref="ConfigurationBuilder"/> that expose Queue creation settings.
     /// </summary>
-    public static class ConfigureQueueCreation
+    public static partial class ConfigureQueueCreation
     {
         /// <summary>
         /// If queues configured do not exist, will cause them not to be created on startup.
         /// </summary>
-        public static Configure DoNotCreateQueues(this Configure config)
+        public static ConfigurationBuilder DoNotCreateQueues(this ConfigurationBuilder config)
         {
-            DontCreateQueues = true;
-
+            config.settings.Set("Transport.CreateQueues", false);
             return config;
         }
 
         /// <summary>
         /// Gets whether or not queues should be created
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
-        public static bool DontCreateQueues { get; private set; }
+        internal static bool GetCreateQueues(this ReadOnlySettings settings)
+        {
+            bool createQueues;
+            if (settings.TryGet("Transport.CreateQueues", out createQueues))
+            {
+                return createQueues;
+            }
+            return true;
+        }
     }
 }

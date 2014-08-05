@@ -80,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationBuilder.cs" />
+    <Compile Include="ConfigureQueueCreation_Obsolete.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction_Obsolete.cs" />

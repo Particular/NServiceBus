@@ -1,3 +1,4 @@
+
 namespace NServiceBus.Satellites
 {
     using System.Linq;
@@ -15,7 +16,7 @@ namespace NServiceBus.Satellites
                 return;
             }
 
-            if (ConfigureQueueCreation.DontCreateQueues)
+            if (!config.Settings.GetCreateQueues())
             {
                 return;
             }
