@@ -41,7 +41,7 @@ public class PubSubTestCase : TestCase
     {
         TransportConfigOverride.MaximumConcurrencyLevel = NumberOfThreads;
 
-        var config = Configure.With(o => o.EndpointName("PubSubPerformanceTest").InMemoryFaultManagement())
+        var config = Configure.With(o => o.EndpointName("PubSubPerformanceTest").DiscardFailedMessagesInsteadOfSendingToErrorQueue())
             .UseTransport<Msmq>()
             .DisableFeature<Audit>();
 

@@ -38,7 +38,7 @@
             {
                 c.EndpointName("UnitTests");
                 c.CustomConfigurationSource(testConfigurationSource);
-                c.InMemoryFaultManagement();
+                c.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
                 customisations(c);
             }));
         }

@@ -10,7 +10,7 @@ namespace NServiceBus
         /// <summary>
         /// Use in-memory fault management.
         /// </summary>
-        public static ConfigurationBuilder InMemoryFaultManagement(this ConfigurationBuilder config)
+        public static ConfigurationBuilder DiscardFailedMessagesInsteadOfSendingToErrorQueue(this ConfigurationBuilder config)
         {
             return config.EnableFeature<InMemoryFaultManager>();
         }

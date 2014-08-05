@@ -10,7 +10,7 @@ namespace NServiceBus
         /// <summary>
         /// Use in-memory fault management.
         /// </summary>
-        [ObsoleteEx(Replacement = "Configure.With(c => c.InMemoryFaultManagement())", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Configure.With(c => c.DiscardFailedMessagesInsteadOfSendingToErrorQueue())", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure InMemoryFaultManagement(this Configure config)
         {
             throw new InvalidOperationException();

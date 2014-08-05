@@ -53,7 +53,7 @@
             if (suppressDTC)
                 endpointName += ".SuppressDTC";
 
-            config = Configure.With(o => o.EndpointName(endpointName).InMemoryFaultManagement())
+            config = Configure.With(o => o.EndpointName(endpointName).DiscardFailedMessagesInsteadOfSendingToErrorQueue())
                 .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
                 .UsePersistence<InMemory>()
                 .DisableFeature<Audit>();
