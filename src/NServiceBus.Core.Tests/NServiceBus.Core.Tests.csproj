@@ -94,7 +94,6 @@
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="AttributeTests.cs" />
-    <Compile Include="Encryption\ConfigureRijndaelEncryptionServiceTests.cs" />
     <Compile Include="ModuleInitializer.cs" />
     <Compile Include="Features\FeatureDependencyTests.cs" />
     <Compile Include="Features\FeatureSettingsTests.cs" />
