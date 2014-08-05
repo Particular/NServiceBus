@@ -80,12 +80,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationBuilder.cs" />
+    <Compile Include="ConfigureInMemoryFaultManagement_obsolete.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction_Obsolete.cs" />
     <Compile Include="CriticalError\CriticalErrorFeature.cs" />
     <Compile Include="CriticalError\CriticalError.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus_Obsolete.cs" />
+    <Compile Include="Faults\InMemory\InMemoryFaultManager.cs" />
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
