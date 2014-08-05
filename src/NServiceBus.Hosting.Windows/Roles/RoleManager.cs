@@ -16,12 +16,6 @@
             {
                 config.PurgeOnStartup(true); 
             }
-
-            Type transportDefinitionType;
-            if (TryGetTransportDefinitionType(specifier, out transportDefinitionType))
-            {
-             //   config.UseTransport(transportDefinitionType);
-            }
         }
 
         public static void TweakConfig(IConfigureThisEndpoint specifier,Configure config)
