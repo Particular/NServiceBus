@@ -41,7 +41,8 @@ public class PubSubTestCase : TestCase
     {
         TransportConfigOverride.MaximumConcurrencyLevel = NumberOfThreads;
 
-        var config = Configure.With(o => o.EndpointName("PubSubPerformanceTest"))
+        var config = Configure.With(o => o.EndpointName("PubSubPerformanceTest")
+                                          .EnableInstallers())
             .UseTransport<Msmq>()
             .InMemoryFaultManagement()
             .DisableFeature<Audit>();
@@ -56,7 +57,6 @@ public class PubSubTestCase : TestCase
                 break;
         }
 
-        config.EnableInstallers();
         using (var bus = config.CreateBus())
         {
             var subscriptionStorage = config.Builder.Build<ISubscriptionStorage>();

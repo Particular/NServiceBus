@@ -93,12 +93,11 @@ namespace NServiceBus
         /// </summary>
         public void Install(string username)
         {
-            PerformConfiguration();
-            config.EnableInstallers(username);
+            PerformConfiguration(builder => builder.EnableInstallers(username));
             config.CreateBus();
         }
 
-        void PerformConfiguration()
+        void PerformConfiguration(Action<ConfigurationBuilder> moreConfiguration = null)
         {
             var loggingConfigurers = profileManager.GetLoggingConfigurer();
             foreach (var loggingConfigurer in loggingConfigurers)
@@ -112,11 +111,18 @@ namespace NServiceBus
                 builder.EndpointVersion(() => endpointVersionToUse);
                 builder.AssembliesToScan(assembliesToScan);
                 builder.DefineCriticalErrorAction(OnCriticalError);
+
+                if (moreConfiguration != null)
+                {
+                    moreConfiguration(builder);
+                }
+
                 specifier.Customize(builder);
             });
 
             RoleManager.ConfigureBusForEndpoint(specifier, config);
         }
+
         // Windows hosting behavior when critical error occurs is suicide.
         void OnCriticalError(string errorMessage, Exception exception)
         {

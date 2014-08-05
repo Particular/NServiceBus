@@ -53,14 +53,14 @@
 
         public EndpointConfigurationBuilder EndpointSetup<T>() where T : IEndpointSetupTemplate, new()
         {
-            return EndpointSetup<T>(c => { }, _ => { });
+            return EndpointSetup<T>(c => { });
         }
 
         public EndpointConfigurationBuilder EndpointSetup<T>(Action<Configure> configCustomization, Action<ConfigurationBuilder> configurationBuilderCustomization = null) where T : IEndpointSetupTemplate, new()
         {
             if (configurationBuilderCustomization == null)
             {
-                configurationBuilderCustomization = builder => { };
+                configurationBuilderCustomization = b => { };
             }
             configuration.GetConfiguration = (settings,routingTable) =>
                 {

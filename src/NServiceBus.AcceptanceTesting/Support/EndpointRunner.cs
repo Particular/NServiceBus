@@ -48,7 +48,6 @@
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(config));
 
-                config.EnableInstallers();
                 bus = config.CreateBus();
 
                 var transportDefinition = config.Settings.Get<TransportDefinition>();
