@@ -87,11 +87,6 @@ namespace NServiceBus.Features
                 settings.EnableFeatureByDefault(feature.GetType());
             }
 
-            foreach (var defaultSetting in feature.RegisteredDefaults)
-            {
-                defaultSetting(settings);
-            }
-
             features.Add(new FeatureState(feature, new FeatureDiagnosticData
             {
                 EnabledByDefault = feature.IsEnabledByDefault,
@@ -105,8 +100,15 @@ namespace NServiceBus.Features
         public void SetupFeatures(FeatureConfigurationContext context)
         {
             var featuresToActivate = features.Where(featureState => IsEnabled(featureState.Feature.GetType()) && 
-                MeetsActivationCondition(featureState.Feature,featureState.Diagnostics, context))
+                MeetsActivationCondition(featureState.Feature, featureState.Diagnostics, context))
                 .ToList();
+
+            foreach (var defaultSetting in featuresToActivate.SelectMany(feature => feature.Feature.RegisteredDefaults))
+            {
+                defaultSetting(settings);
+            }
+
+            settings.PreventChanges();
 
             foreach (var feature in featuresToActivate)
             {

@@ -228,9 +228,6 @@ namespace NServiceBus
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run(this));
 
-            //lockdown the settings
-            Settings.PreventChanges();
-
             featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
             featureActivator.RegisterStartupTasks(Configurer);
 
