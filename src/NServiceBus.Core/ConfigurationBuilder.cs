@@ -2,14 +2,15 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Transactions;
     using System.Web;
     using Config.ConfigurationSource;
-    using Config.Conventions;
     using Container;
+    using NServiceBus.Config.Conventions;
     using ObjectBuilder.Autofac;
     using ObjectBuilder.Common;
     using Settings;
@@ -159,8 +160,6 @@ namespace NServiceBus
         /// </summary>
         internal Configure BuildConfiguration()
         {
-            endpointName = getEndpointNameAction();
-
             if (scannedTypes == null)
             {
                 var directoryToScan = AppDomain.CurrentDomain.BaseDirectory;
@@ -196,9 +195,30 @@ namespace NServiceBus
 
         void RegisterEndpointWideDefaults()
         {
+            var endpointHelper = new EndpointHelper(new StackTrace());
+
+            string version;
+            if (getEndpointVersionAction == null)
+            {
+                version = endpointHelper.GetEndpointVersion();
+            }
+            else
+            {
+                version = getEndpointVersionAction();
+            }
+
+            string endpointName;
+            if (getEndpointNameAction == null)
+            {
+                endpointName = endpointHelper.GetDefaultEndpointName();
+            }
+            else
+            {
+                endpointName = getEndpointNameAction();
+            }
             settings.SetDefault("EndpointName", endpointName);
             settings.SetDefault("TypesToScan", scannedTypes);
-            settings.SetDefault("EndpointVersion", getEndpointVersionAction());
+            settings.SetDefault("EndpointVersion", version);
             settings.SetDefault("Endpoint.SendOnly", false);
             settings.SetDefault("Endpoint.DurableMessages", true);
             settings.SetDefault("Transactions.Enabled", true);
@@ -213,9 +233,8 @@ namespace NServiceBus
         Configure.ConventionsBuilder conventionsBuilder = new Configure.ConventionsBuilder();
         IContainer customBuilder;
         string directory;
-        string endpointName;
-        Func<string> getEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
-        Func<string> getEndpointVersionAction = () => EndpointHelper.GetEndpointVersion();
+        Func<string> getEndpointNameAction;
+        Func<string> getEndpointVersionAction;
         IList<Type> scannedTypes;
         internal SettingsHolder settings = new SettingsHolder();
     }
