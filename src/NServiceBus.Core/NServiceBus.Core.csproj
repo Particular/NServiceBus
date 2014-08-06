@@ -102,6 +102,7 @@
     <Compile Include="Installation\InstallationSupport.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />
     <Compile Include="Installation\InstallConfigExtensions_obsolete.cs" />
+    <Compile Include="Licensing\ConfigureLicenseExtensions_Obsolete.cs" />
     <Compile Include="Obsoletes.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />
@@ -309,7 +310,7 @@
     <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
     <Compile Include="ConfigureDefaultBuilder_Obsolete.cs" />
-    <Compile Include="Distributor\ConfigureDistributor.cs" />
+    <Compile Include="Distributor\ConfigureDistributor_Obsolete.cs" />
     <Compile Include="ConfigureFaultsForwarder.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
@@ -333,7 +334,7 @@
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySagaPersister.cs" />
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySubscriptionStorage.cs" />
     <Compile Include="Serializers\Json\Config\ConfigureJsonSerializer.cs" />
-    <Compile Include="Distributor\MasterNode\ConfigureMasterNode.cs" />
+    <Compile Include="Distributor\MasterNode\ConfigureMasterNode_Obsolete.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
     <Compile Include="Timeout\TimeoutManager.cs" />
     <Compile Include="Transports\Msmq\Config\ConfigureMsmqMessageQueue.cs" />
