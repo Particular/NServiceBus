@@ -1,21 +1,16 @@
+#pragma warning disable 1591
+// ReSharper disable UnusedParameter.Global
 namespace NServiceBus
 {
     using System;
     using System.Reflection;
-    // ReSharper disable UnusedParameter.Global
     
-    /// <summary>
-    /// Static extension methods to Configure.
-    /// </summary>
     [ObsoleteEx(
         RemoveInVersion = "6",
         TreatAsErrorFromVersion = "5",
         Replacement = "Configure.With(b=> b.Conventions(c=> c.DefiningMessagesAs(definesMessageType)))")]
     public static class MessageConventions
     {
-        /// <summary>
-        /// Sets the function to be used to evaluate whether a type is a message.
-        /// </summary>
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
@@ -26,9 +21,6 @@ namespace NServiceBus
 
         }
 
-        /// <summary>
-        /// Sets the function to be used to evaluate whether a type is a commands.
-        /// </summary>
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
@@ -39,9 +31,6 @@ namespace NServiceBus
 
         }
 
-        /// <summary>
-        /// Sets the function to be used to evaluate whether a type is a event.
-        /// </summary>
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
@@ -52,9 +41,6 @@ namespace NServiceBus
 
         }
 
-        /// <summary>
-        /// Sets the function to be used to evaluate whether a property should be encrypted or not.
-        /// </summary>
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
@@ -65,9 +51,6 @@ namespace NServiceBus
 
         }
 
-        /// <summary>
-        /// Sets the function to be used to evaluate whether a property should be sent via the DataBus or not.
-        /// </summary>
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
@@ -78,9 +61,6 @@ namespace NServiceBus
 
         }
 
-        /// <summary>
-        /// Sets the function to be used to evaluate whether a message has a time to be received.
-        /// </summary>
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
@@ -91,9 +71,6 @@ namespace NServiceBus
 
         }
 
-        /// <summary>
-        /// Sets the function to be used to evaluate whether a type is an express message or not.
-        /// </summary>
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
@@ -103,6 +80,5 @@ namespace NServiceBus
             throw new NotImplementedException();
         }
     }
-    // ReSharper restore UnusedParameter.Global
 
 }
