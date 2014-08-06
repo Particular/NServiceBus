@@ -1,5 +1,6 @@
 namespace NServiceBus.AcceptanceTests
 {
+    using System.Threading;
     using AcceptanceTesting.Customization;
     using NUnit.Framework;
 
@@ -18,7 +19,7 @@ namespace NServiceBus.AcceptanceTests
                     var baseNs = typeof (NServiceBusAcceptanceTest).Namespace;
                     var testName = GetType().Name;
                     return t.FullName.Replace(baseNs + ".", "").Replace(testName + "+", "")
-                            + "." + System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(testName).Replace("_", "");
+                            + "." + Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(testName).Replace("_", "");
                 };
 
             Conventions.DefaultRunDescriptor = () => ScenarioDescriptors.Transports.Default;

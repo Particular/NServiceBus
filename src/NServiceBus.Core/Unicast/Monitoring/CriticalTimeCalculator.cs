@@ -49,8 +49,6 @@ namespace NServiceBus.Unicast.Monitoring
             maxDelta = (processingEnded - processingStarted).Add(TimeSpan.FromSeconds(1));
         }
 
-
-
         void ClearPerfCounter(object state)
         {
             var delta = DateTime.UtcNow - timeOfLastCounter;
