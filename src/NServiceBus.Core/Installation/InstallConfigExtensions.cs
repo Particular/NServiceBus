@@ -30,7 +30,7 @@ namespace NServiceBus
         internal static string GetInstallationUserName(this ReadOnlySettings settings)
         {
             string username;
-            if (!settings.TryGet("installation.userName", out username))
+            if (settings.TryGet("installation.userName", out username))
             {
                 return username;
             }
