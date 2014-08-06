@@ -4,9 +4,6 @@ namespace NServiceBus.Unicast.Queuing.Installers
     {
         public Address AuditQueue { get; set; }
 
-        /// <summary>
-        /// Address of queue the implementer requires.
-        /// </summary>
         public Address Address
         {
             get { return AuditQueue; }
