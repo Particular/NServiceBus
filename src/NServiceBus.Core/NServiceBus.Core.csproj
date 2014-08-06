@@ -92,7 +92,7 @@
     <Compile Include="Encryption\DecryptBehavior.cs" />
     <Compile Include="Encryption\EncryptBehavior.cs" />
     <Compile Include="Encryption\EncryptedValue.cs" />
-    <Compile Include="Encryption\EncryptionFeature.cs" />
+    <Compile Include="Encryption\Encryptor.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionService_Obsolete.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
     <Compile Include="Faults\InMemory\InMemoryFaultManager.cs" />

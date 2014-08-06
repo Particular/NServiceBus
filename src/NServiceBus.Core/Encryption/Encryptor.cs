@@ -12,11 +12,11 @@
     /// <summary>
     /// Used to configure encryption.
     /// </summary>
-    public class EncryptionFeature:Feature
+    public class Encryptor:Feature
     {
         Func<IBuilder, IEncryptionService> serviceConstructor;
 
-        internal EncryptionFeature()
+        internal Encryptor()
         {
             EnableByDefault();
             Prerequisite(VerifyPrerequisite, "No encryption properties was found in available messages");
@@ -72,7 +72,7 @@ Perhaps you forgot to define your encryption message conventions or to define me
             context.Pipeline.Register<EncryptBehavior.EncryptRegistration>();
             context.Pipeline.Register<DecryptBehavior.DecryptRegistration>();
         }
-        static ILog log = LogManager.GetLogger<EncryptionFeature>();
+        static ILog log = LogManager.GetLogger<Encryptor>();
     }
 }
 
