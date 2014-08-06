@@ -31,7 +31,11 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(configure => { }, builder => builder.EnablePerformanceCounters(new TimeSpan(0, 0, 0, 0, 1)))
+                EndpointSetup<DefaultServer>(configure => { }, builder =>
+                {
+                    builder.EnablePerformanceCounters(new TimeSpan(0, 0, 0, 0, 1));
+                    builder.EnableInstallers();
+                })
                     .AddMapping<MyMessage>(typeof(Receiver));
             }
         }
@@ -40,7 +44,11 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(configure => { }, builder => builder.EnablePerformanceCounters(new TimeSpan(0, 0, 0, 0, 1)));
+                EndpointSetup<DefaultServer>(configure => { }, builder =>
+                {
+                    builder.EnablePerformanceCounters(new TimeSpan(0, 0, 0, 0, 1));
+                    builder.EnableInstallers();
+                });
             }
         }
 
