@@ -39,6 +39,8 @@
                 c.EndpointName("UnitTests");
                 c.CustomConfigurationSource(testConfigurationSource);
                 c.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+                c.DisableFeature<Sagas>();
+                c.DisableFeature<Audit>();
                 customisations(c);
             }));
         }
@@ -89,8 +91,7 @@
                 return;
             }
 
-            config.DisableFeature<Sagas>()
-                .DisableFeature<Audit>()
+            config
                 .UseTransport<FakeTestTransport>()
                 .UsePersistence<InMemory>();
 

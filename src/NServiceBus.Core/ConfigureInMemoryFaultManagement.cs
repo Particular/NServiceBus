@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using NServiceBus.Faults.Forwarder;
     using NServiceBus.Features;
 
     /// <summary>
@@ -12,7 +13,8 @@ namespace NServiceBus
         /// </summary>
         public static ConfigurationBuilder DiscardFailedMessagesInsteadOfSendingToErrorQueue(this ConfigurationBuilder config)
         {
-            return config.EnableFeature<InMemoryFaultManager>();
+            return config.EnableFeature<InMemoryFaultManager>()
+                         .DisableFeature<ForwarderFaultManager>();
         }
     }
 }
