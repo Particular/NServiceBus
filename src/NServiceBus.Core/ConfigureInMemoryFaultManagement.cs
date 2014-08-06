@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure
     /// </summary>
-    public static class ConfigureInMemoryFaultManagement
+    public static partial class ConfigureInMemoryFaultManagement
     {
         /// <summary>
         /// Use in-memory fault management.

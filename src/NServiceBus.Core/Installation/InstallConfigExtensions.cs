@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Convenience methods for configuring how instances of  <see cref="INeedToInstallSomething"/>s are run.
     /// </summary>
-    public static class InstallConfigExtensions
+    public static partial class InstallConfigExtensions
     {
         /// <summary>
         /// Enable all <see cref="INeedToInstallSomething"/> to run when <see cref="IWantToRunWhenConfigurationIsComplete"/>.
