@@ -428,7 +428,7 @@
     <Compile Include="MessageInterfaces\IMessageMapper.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\MessageMapper.cs" />
     <Compile Include="MessageMutator\IMutateTransportMessages.cs" />
-    <Compile Include="MonitoringConfig.cs" />
+    <Compile Include="Unicast\Monitoring\MonitoringConfig.cs" />
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />
