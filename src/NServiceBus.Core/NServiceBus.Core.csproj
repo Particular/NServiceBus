@@ -487,7 +487,7 @@
     <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutPersisterReceiver.cs" />
     <Compile Include="Timeout\Core\TimeoutManagerHeaders.cs" />
-    <Compile Include="TransactionalConfigManager.cs" />
+    <Compile Include="TransactionalConfigManager_Obsolete.cs" />
     <Compile Include="TransportMessage.cs" />
     <Compile Include="Licensing\LicenseExpiredForm.cs">
       <SubType>Form</SubType>
