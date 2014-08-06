@@ -21,7 +21,7 @@ namespace NServiceBus
                 if (typeof(First<>).MakeGenericType(args[0]).IsAssignableFrom(typeof(TFirst)))
                 {
                     config.settings.Set("LoadMessageHandlers.Order.Types", new[] { args[0] });
-                    
+                    return config;
                 }
             }
 
