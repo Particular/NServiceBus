@@ -311,11 +311,11 @@
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
-    <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer.cs" />
+    <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer_Obsolete.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
     <Compile Include="ConfigureDefaultBuilder_Obsolete.cs" />
     <Compile Include="Distributor\ConfigureDistributor_Obsolete.cs" />
-    <Compile Include="ConfigureFaultsForwarder.cs" />
+    <Compile Include="ConfigureFaultsForwarder_Obsolete.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
     <Compile Include="Features\FeatureActivator.cs" />
@@ -341,8 +341,8 @@
     <Compile Include="Distributor\MasterNode\ConfigureMasterNode_Obsolete.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
     <Compile Include="Timeout\TimeoutManager.cs" />
-    <Compile Include="Transports\Msmq\Config\ConfigureMsmqMessageQueue.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\ConfigureMsmqSubscriptionStorage.cs" />
+    <Compile Include="Transports\Msmq\Config\ConfigureMsmqMessageQueue_Obsolete.cs" />
+    <Compile Include="Persistence\Msmq\SubscriptionStorage\ConfigureMsmqSubscriptionStorage_Obsolete.cs" />
     <Compile Include="ConfigureQueueCreation.cs" />
     <Compile Include="Transports\ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />
@@ -436,7 +436,7 @@
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />
-    <Compile Include="ObjectBuilder\Common\Config\ConfigureContainer.cs" />
+    <Compile Include="ObjectBuilder\Common\ConfigureContainer_Obsolete.cs" />
     <Compile Include="ObjectBuilder\Common\IContainer.cs" />
     <Compile Include="ObjectBuilder\Common\SynchronizedInvoker.cs" />
     <Compile Include="ObjectBuilder\IBuilder.cs" />
