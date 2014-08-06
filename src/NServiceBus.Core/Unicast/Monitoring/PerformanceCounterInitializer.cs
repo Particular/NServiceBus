@@ -30,7 +30,7 @@ namespace NServiceBus.Unicast.Monitoring
 
             criticalTimeCalculator.Initialize(criticalTimeCounter);
 
-            config.Configurer.RegisterSingleton<CriticalTimeCalculator>(criticalTimeCalculator);
+            config.Configurer.RegisterSingleton(criticalTimeCalculator);
         }
 
         static void SetupSLABreachCounter(Configure config)
@@ -45,7 +45,7 @@ namespace NServiceBus.Unicast.Monitoring
 
             timeToSLABreachCalculator.Initialize(endpointSla, slaBreachCounter);
 
-            config.Configurer.RegisterSingleton<EstimatedTimeToSLABreachCalculator>(timeToSLABreachCalculator);
+            config.Configurer.RegisterSingleton(timeToSLABreachCalculator);
         }
 
         static PerformanceCounter InstantiateCounter(Configure config, string counterName)

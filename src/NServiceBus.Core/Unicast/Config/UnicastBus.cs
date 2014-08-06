@@ -107,7 +107,7 @@ namespace NServiceBus.Features
                 router.SubscribeToPlainMessages = context.Settings.Get<bool>(key);
             }
 
-            context.Container.RegisterSingleton<StaticMessageRouter>(router);
+            context.Container.RegisterSingleton(router);
 
             if (unicastConfig == null)
             {
@@ -156,7 +156,7 @@ namespace NServiceBus.Features
 
             knownMessages.ForEach(messageRegistry.RegisterMessageType);
 
-            context.Container.RegisterSingleton<MessageMetadataRegistry>(messageRegistry);
+            context.Container.RegisterSingleton(messageRegistry);
             context.Container.ConfigureComponent<LogicalMessageFactory>(DependencyLifecycle.SingleInstance);
 
             if (!Logger.IsInfoEnabled)

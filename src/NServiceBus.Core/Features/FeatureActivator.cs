@@ -115,7 +115,7 @@ namespace NServiceBus.Features
                 ActivateFeature(feature, featuresToActivate, context);
             }
 
-            context.Container.RegisterSingleton<FeaturesReport>(new FeaturesReport(features.Select(t=>t.Diagnostics)));
+            context.Container.RegisterSingleton(new FeaturesReport(features.Select(t=>t.Diagnostics)));
         }
 
         public void RegisterStartupTasks(IConfigureComponents container)

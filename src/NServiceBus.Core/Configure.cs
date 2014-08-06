@@ -32,7 +32,7 @@ namespace NServiceBus
             
             RegisterContainerAdapter(container);
 
-            configurer.RegisterSingleton<Configure>(this);
+            configurer.RegisterSingleton(this);
             configurer.RegisterSingleton<ReadOnlySettings>(settings);
             
             settings.Set<PipelineModifications>(new PipelineModifications());
@@ -181,7 +181,7 @@ namespace NServiceBus
 
             featureActivator = new FeatureActivator(Settings);
 
-            Configurer.RegisterSingleton<FeatureActivator>(featureActivator);
+            Configurer.RegisterSingleton(featureActivator);
 
             ForAllTypes<Feature>(t => featureActivator.Add( t.Construct<Feature>()));
 
