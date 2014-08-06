@@ -5,17 +5,9 @@ namespace NServiceBus.Settings
     /// <summary>
     /// Settings related to message serialization
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "6.0")]
     public class SerializationSettings
     {
-        /// <summary>
-        /// Access to the current config instance
-        /// </summary>
-        public ConfigurationBuilder Config { get; set; }
-
-        internal SerializationSettings(ConfigurationBuilder config)
-        {
-            Config = config;
-        }
 
         /// <summary>
         /// Tells the framework to always wrap out going messages as if there was multiple messages being sent
