@@ -177,6 +177,8 @@
     <Compile Include="Serializers\Json\Json.cs" />
     <Compile Include="Serializers\XML\Config\Xml.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
+    <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
+    <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
     <Compile Include="Unicast\Transport\Config\EnableSelectedTransport.cs" />
     <Compile Include="Utils\ElevateChecker.cs" />
     <Compile Include="IStartableBus.cs" />
