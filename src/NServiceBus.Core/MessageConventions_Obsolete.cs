@@ -7,6 +7,10 @@ namespace NServiceBus
     /// <summary>
     /// Static extension methods to Configure.
     /// </summary>
+    [ObsoleteEx(
+        RemoveInVersion = "6",
+        TreatAsErrorFromVersion = "5",
+        Replacement = "Configure.With(b=> b.Conventions(c=> c.DefiningMessagesAs(definesMessageType)))")]
     public static class MessageConventions
     {
         /// <summary>
@@ -16,7 +20,6 @@ namespace NServiceBus
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
             Replacement = "Configure.With(b=> b.Conventions(c=> c.DefiningMessagesAs(definesMessageType)))")]
-
         public static Configure DefiningMessagesAs(this Configure config, Func<Type, bool> definesMessageType)
         {
             throw new NotImplementedException();

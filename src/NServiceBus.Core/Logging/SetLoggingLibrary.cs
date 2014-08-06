@@ -1,3 +1,4 @@
+#pragma warning disable 1591
 // ReSharper disable UnusedParameter.Global
 namespace NServiceBus
 {
@@ -8,7 +9,6 @@ namespace NServiceBus
         RemoveInVersion = "6.0",
         TreatAsErrorFromVersion = "5.0",
         Message = "Log4Net and Nlog integration has been moved to a stand alone nugets, 'NServiceBus.Log4Net' and 'NServiceBus.NLog'.")]
-#pragma warning disable 1591
     public static class SetLoggingLibrary
     {
 
@@ -91,8 +91,6 @@ namespace NServiceBus
         {
             throw new NotImplementedException();
         }
-
    
     }
-#pragma warning restore 1591
 }

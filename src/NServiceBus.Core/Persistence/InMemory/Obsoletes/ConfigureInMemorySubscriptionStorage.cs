@@ -5,6 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5.1", Replacement = "config.UsePersistence<Persistence.InMemory>()")]
     public static class ConfigureInMemorySubscriptionStorage
     {
         /// <summary>

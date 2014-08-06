@@ -82,6 +82,7 @@
     <Compile Include="ConfigurationBuilder.cs" />
     <Compile Include="ConfigureQueueCreation_Obsolete.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement_obsolete.cs" />
+    <Compile Include="Config\MsmqConnectionStringBuilder.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction_Obsolete.cs" />
@@ -308,7 +309,7 @@
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
     <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
-    <Compile Include="ConfigureDefaultBuilder.cs" />
+    <Compile Include="ConfigureDefaultBuilder_Obsolete.cs" />
     <Compile Include="Distributor\ConfigureDistributor.cs" />
     <Compile Include="ConfigureFaultsForwarder.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus.cs" />
@@ -343,7 +344,7 @@
     <Compile Include="Features\Feature.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer.cs" />
-    <Compile Include="Config\Advanced\ConfigureSettingLocalAddressNameAction.cs" />
+    <Compile Include="Config\Advanced\ConfigureSettingLocalAddressNameAction_Obsolete.cs" />
     <Compile Include="Config\ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Config\ConfigurationSource\IConfigurationSource.cs" />
     <Compile Include="Config\Conventions\EndpointHelper.cs" />
@@ -422,7 +423,7 @@
     <Compile Include="SecondLevelRetries\Helpers\TransportMessageHelpers.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetriesProcessor.cs" />
     <Compile Include="SecondLevelRetries\Helpers\SecondLevelRetriesHeaders.cs" />
-    <Compile Include="MessageConventions.cs" />
+    <Compile Include="MessageConventions_Obsolete.cs" />
     <Compile Include="MessageHeaders\HeaderBootstrapper.cs" />
     <Compile Include="MessageInterfaces\IMessageMapper.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\MessageMapper.cs" />

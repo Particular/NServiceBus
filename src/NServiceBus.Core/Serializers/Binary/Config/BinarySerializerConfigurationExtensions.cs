@@ -3,9 +3,10 @@
     using Features;
     using Settings;
 
-#pragma warning disable 1591
+    /// <summary>
+    /// Allows <see cref="BinarySerialization"/>  to be configured.
+    /// </summary>
     public static class BinarySerializerConfigurationExtensions
-#pragma warning restore 1591
     {
         /// <summary>
         /// Enables the binary message serializer
