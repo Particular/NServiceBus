@@ -11,7 +11,7 @@
         /// <summary>
         /// Configures the given serializer to be used
         /// </summary>
-        /// <typeparam name="T">The serializer definition eg JSON, XML etc</typeparam>
+        /// <typeparam name="T">The serializer definition eg <see cref="Json"/>, <see cref="Xml"/> etc</typeparam>
         /// <param name="config"></param>
         /// <param name="customizations">Any serializer customizations needed for the specified serializer</param>
         public static Configure UseSerialization<T>(this Configure config, Action<SerializationConfiguration> customizations = null) where T : ISerializationDefinition
@@ -23,7 +23,7 @@
         /// Configures the given serializer to be used
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="definitionType">The serializer definition eg JSON, XML etc</param>
+        /// <param name="definitionType">The serializer definition eg J<see cref="Json"/>, <see cref="Xml"/> etc</param>
         /// <param name="customizations">Any serializer customizations needed for the specified serializer</param>
         public static Configure UseSerialization(this Configure config, Type definitionType, Action<SerializationConfiguration> customizations = null)
         {
