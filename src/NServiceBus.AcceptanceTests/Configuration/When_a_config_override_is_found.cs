@@ -33,7 +33,7 @@
 
             public ConfigOverrideEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.MessageForwardingInCaseOfFault());
+                EndpointSetup<DefaultServer>();
             }
 
             public class ErrorQueueExtractor:IWantToRunWhenBusStartsAndStops
