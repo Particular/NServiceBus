@@ -193,7 +193,6 @@ namespace NServiceBus
             settings.SetDefault("TypesToScan", scannedTypes);
             settings.SetDefault("EndpointVersion", endpointVersion);
             settings.SetDefault("Endpoint.SendOnly", false);
-            settings.SetDefault("Endpoint.DurableMessages", true);
             settings.SetDefault("Transactions.Enabled", true);
             settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
             settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);

@@ -177,6 +177,7 @@
     <Compile Include="Serializers\Json\Bson.cs" />
     <Compile Include="Serializers\Json\Json.cs" />
     <Compile Include="Serializers\XML\Config\Xml.cs" />
+    <Compile Include="Settings\DurableMessagesConfig.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
@@ -262,7 +263,6 @@
     <Compile Include="Saga\UniqueAttribute.cs" />
     <Compile Include="Serialization\IMessageSerializer.cs" />
     <Compile Include="SettingsExtentions.cs" />
-    <Compile Include="Settings\EndpointSettingsExtensions.cs" />
     <Compile Include="Settings\ReadOnlySettings.cs" />
     <Compile Include="Settings\ScaleOutExtentions.cs" />
     <Compile Include="Settings\TransactionSettingsExtentions.cs" />
@@ -476,7 +476,6 @@
     <Compile Include="Serializers\XML\XmlSanitizingStream.cs" />
     <Compile Include="ServiceAsyncResult.cs" />
     <Compile Include="Logging\SetLoggingLibrary_Obsolete.cs" />
-    <Compile Include="Settings\EndpointSettings.cs" />
     <Compile Include="Settings\TransactionSettings.cs" />
     <Compile Include="Timeout\Core\DefaultTimeoutManager.cs" />
     <Compile Include="Timeout\Core\IPersistTimeouts.cs" />
