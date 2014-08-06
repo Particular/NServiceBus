@@ -472,7 +472,7 @@
     <Compile Include="Serializers\XML\XmlMessageSerializer.cs" />
     <Compile Include="Serializers\XML\XmlSanitizingStream.cs" />
     <Compile Include="ServiceAsyncResult.cs" />
-    <Compile Include="Logging\SetLoggingLibrary.cs" />
+    <Compile Include="Logging\SetLoggingLibrary_Obsolete.cs" />
     <Compile Include="Settings\EndpointSettings.cs" />
     <Compile Include="Settings\TransactionSettings.cs" />
     <Compile Include="Timeout\Core\DefaultTimeoutManager.cs" />
@@ -564,9 +564,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Unicast\Monitoring\Config\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="Resources\NServiceBus_Logo-  white.png" />
     <None Include="Resources\NServiceBus.png" />
