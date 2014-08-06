@@ -141,8 +141,7 @@
     <Compile Include="HandlerOrdering\ISpecifyMessageHandlerOrdering.cs" />
     <Compile Include="HandlerOrdering\Order.cs" />
     <Compile Include="Headers.cs" />
-    <Compile Include="Hosting\Configuration\IConfigureLogging.cs" />
-    <Compile Include="Hosting\Configuration\IWantCustomLogging.cs" />
+    <Compile Include="Hosting\Configuration\Logging_Obsolete.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />

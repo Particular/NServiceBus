@@ -1,14 +1,15 @@
 ﻿namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
+    using NServiceBus.Hosting.Profiles;
 
     /// <summary>
-    /// Handles logging configuration for the production profile
+    /// Handles logging configuration for the <see cref="Production"/> profile.
     /// </summary>
     class ProductionLoggingHandler : IConfigureLoggingForProfile<Production>
     {
-        void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
+        public void Configure(IConfigureThisEndpoint specifier)
         {
+            
         }
-
     }
 }
