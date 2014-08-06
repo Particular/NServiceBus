@@ -77,32 +77,33 @@
                 {
                     o.Transactions(t => t.Advanced(settings => settings.DisableDistributedTransactions()));
                 }
+
+                switch (args[2].ToLower())
+                {
+                    case "xml":
+                        o.UseSerialization<Xml>();
+                        break;
+
+                    case "json":
+                        o.UseSerialization<Json>();
+                        break;
+
+                    case "bson":
+                        o.UseSerialization<Bson>();
+                        break;
+
+                    case "bin":
+                        o.UseSerialization<Binary>();
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("Illegal serialization format " + args[2]);
+                }
             })
                 .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
                 .UsePersistence<InMemory>()
                 .DisableFeature<Audit>();
 
-            switch (args[2].ToLower())
-            {
-                case "xml":
-                    config.UseSerialization<Xml>();
-                    break;
-
-                case "json":
-                    config.UseSerialization<Json>();
-                    break;
-
-                case "bson":
-                    config.UseSerialization<Bson>();
-                    break;
-
-                case "bin":
-                    config.UseSerialization<Binary>();
-                    break;
-
-                default:
-                    throw new InvalidOperationException("Illegal serialization format " + args[2]);
-            }
 
             if (volatileMode)
             {

@@ -11,6 +11,8 @@
         
         internal JsonSerialization()
         {
+            EnableByDefault();
+            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "JsonSerialization not enable since serialization definition not detected.");
         }
 
         /// <summary>

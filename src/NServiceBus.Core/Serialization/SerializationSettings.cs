@@ -10,9 +10,9 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Access to the current config instance
         /// </summary>
-        public  Configure Config;
+        public ConfigurationBuilder Config { get; set; }
 
-        internal SerializationSettings(Configure config)
+        internal SerializationSettings(ConfigurationBuilder config)
         {
             Config = config;
         }

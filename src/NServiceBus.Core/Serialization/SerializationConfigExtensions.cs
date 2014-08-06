@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using NServiceBus.Settings;
     using Serialization;
 
     /// <summary>
@@ -14,7 +15,7 @@
         /// <typeparam name="T">The serializer definition eg <see cref="Json"/>, <see cref="Xml"/> etc</typeparam>
         /// <param name="config"></param>
         /// <param name="customizations">Any serializer customizations needed for the specified serializer</param>
-        public static Configure UseSerialization<T>(this Configure config, Action<SerializationConfiguration> customizations = null) where T : ISerializationDefinition
+        public static ConfigurationBuilder UseSerialization<T>(this ConfigurationBuilder config, Action<SerializationConfiguration> customizations = null) where T : ISerializationDefinition
         {
             return UseSerialization(config, typeof(T), customizations);
         }
@@ -25,16 +26,27 @@
         /// <param name="config"></param>
         /// <param name="definitionType">The serializer definition eg J<see cref="Json"/>, <see cref="Xml"/> etc</param>
         /// <param name="customizations">Any serializer customizations needed for the specified serializer</param>
-        public static Configure UseSerialization(this Configure config, Type definitionType, Action<SerializationConfiguration> customizations = null)
+        public static ConfigurationBuilder UseSerialization(this ConfigurationBuilder config, Type definitionType, Action<SerializationConfiguration> customizations = null)
         {
             if (customizations != null)
             {
-                customizations(new SerializationConfiguration(config.Settings));
+                customizations(new SerializationConfiguration(config.settings));
             }
 
-            config.Settings.Set("SelectedSerializer", definitionType);
+            config.settings.Set("SelectedSerializer", definitionType);
 
             return config;
+        }
+
+
+        internal static Type GetSelectedSerializerType(this ReadOnlySettings settings)
+        {
+            Type selectedSerializer;
+            if (settings.TryGet("SelectedSerializer", out selectedSerializer))
+            {
+                return selectedSerializer;
+            }
+            return typeof(Xml);
         }
     }
 }

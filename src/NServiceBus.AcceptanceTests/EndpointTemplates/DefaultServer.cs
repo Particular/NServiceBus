@@ -34,16 +34,16 @@
                 {
                     o.UseContainer(Type.GetType(selectedBuilder));
                 }
+                var serializer = settings.GetOrNull("Serializer");
+
+                if (serializer != null)
+                {
+                    o.UseSerialization(Type.GetType(serializer));
+                }
             })
                 .DefineTransport(settings)
                 .DefinePersistence(settings);
 
-            var serializer = settings.GetOrNull("Serializer");
-
-            if (serializer != null)
-            {
-                config.UseSerialization(Type.GetType(serializer));
-            }
 
             config.Settings.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             config.Pipeline.Register<SubscriptionBehavior.Registration>();

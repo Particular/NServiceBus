@@ -174,6 +174,7 @@
     <Compile Include="Serialization\SerializationDefinition.cs" />
     <Compile Include="Serializers\Binary\Binary.cs" />
     <Compile Include="Serializers\Json\Bson.cs" />
+    <Compile Include="Serializers\SerializationFeatureHelper.cs" />
     <Compile Include="Serializers\Json\Json.cs" />
     <Compile Include="Serializers\XML\Config\Xml.cs" />
     <Compile Include="Settings\DurableMessagesConfig.cs" />
@@ -321,11 +322,10 @@
     <Compile Include="Features\FeatureActivator.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesConfigExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
-    <Compile Include="Serializers\Binary\Config\BinarySerializerConfigurationExtensions.cs" />
+    <Compile Include="Serializers\Binary\Config\BinarySerializerConfigurationExtensions_Obsolete.cs" />
     <Compile Include="Serializers\Json\Config\BsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
-    <Compile Include="Serialization\EnableSelectedSerializer.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationSettings.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializerConfigurationExtensions.cs" />
