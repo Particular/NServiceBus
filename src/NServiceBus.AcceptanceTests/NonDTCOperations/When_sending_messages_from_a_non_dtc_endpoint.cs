@@ -28,11 +28,8 @@
         {
             public NonDtcSalesEndpoint()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.Settings.Set("DisableOutboxTransportCheck", true);
-                    c.EnableOutbox();
-                });
+                EndpointSetup<DefaultServer>(c => c.Settings.Set("DisableOutboxTransportCheck", true),
+                builder => builder.EnableOutbox());
             }
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>

@@ -33,7 +33,7 @@
         {
             public NonTransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Transactions(t =>
+                EndpointSetup<DefaultServer>(configure => { }, c => c.Transactions(t =>
                 {
                     t.Disable();
                     t.Advanced(a => a.WrapHandlersExecutionInATransactionScope());
