@@ -152,7 +152,7 @@ namespace NServiceBus.Features
         }
         void ConfigureMessageRegistry(FeatureConfigurationContext context, List<Type> knownMessages)
         {
-            var messageRegistry = new MessageMetadataRegistry(!context.Settings.Get<bool>("Endpoint.DurableMessages"), context.Settings.Get<Conventions>());
+            var messageRegistry = new MessageMetadataRegistry(!context.Settings.GetDurableMessagesEnabled(), context.Settings.Get<Conventions>());
 
             knownMessages.ForEach(messageRegistry.RegisterMessageType);
 

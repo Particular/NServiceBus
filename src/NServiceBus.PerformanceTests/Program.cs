@@ -54,9 +54,17 @@
             if (suppressDTC)
                 endpointName += ".SuppressDTC";
 
-            config = Configure.With(o => o.EndpointName(endpointName)
-									      .EnableInstallers()
-                                          .DiscardFailedMessagesInsteadOfSendingToErrorQueue())
+            config = Configure.With(o =>
+            {
+                o.EndpointName(endpointName)
+                    .EnableInstallers()
+                    .DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+
+                if (volatileMode)
+                {
+                    o.DisableDurableMessages();
+                }
+            })
                 .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
                 .UsePersistence<InMemory>()
                 .DisableFeature<Audit>();
@@ -85,7 +93,17 @@
 
             if (volatileMode)
             {
-                config.Endpoint(e=>e.AsVolatile());
+                config.UsePersistence<InMemory>();
+
+                config.Transactions(t =>
+                {
+                    t.Disable();
+                    t.Advanced(a =>
+                    {
+                        a.DoNotWrapHandlersExecutionInATransactionScope();
+                        a.DisableDistributedTransactions();
+                    });
+                });
             }
 
             if (suppressDTC)
