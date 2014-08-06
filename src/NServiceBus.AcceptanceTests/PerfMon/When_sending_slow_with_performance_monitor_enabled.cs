@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.PerformanceMonitoring
 {
     using System;
+    using System.Diagnostics;
     using System.Threading;
     using EndpointTemplates;
     using AcceptanceTesting;
@@ -10,6 +11,7 @@
     public class When_sending_slow_with_performance_monitor_enabled : NServiceBusAcceptanceTest
     {
         [Test]
+        [Explicit]
         public void Should_receive_the_message()
         {
             var context = new Context();

@@ -10,6 +10,7 @@
     public class When_sending_with_performance_monitor_enabled : NServiceBusAcceptanceTest
     {
         [Test]
+        [Explicit]
         public void Should_receive_the_message()
         {
             var context = new Context();
@@ -31,7 +32,11 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(configure => { }, builder => builder.EnablePerformanceCounters(TimeSpan.FromMinutes(10)))
+                EndpointSetup<DefaultServer>(configure => { }, builder =>
+                {
+                    builder.EnablePerformanceCounters(TimeSpan.FromMinutes(10));
+                    builder.EnableInstallers();
+                })
                     .AddMapping<MyMessage>(typeof(Receiver));
             }
         }
@@ -40,7 +45,11 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(configure => { }, builder => builder.EnablePerformanceCounters(TimeSpan.FromMinutes(10)));
+                EndpointSetup<DefaultServer>(configure => { }, builder =>
+                {
+                    builder.EnablePerformanceCounters(TimeSpan.FromMinutes(10));
+                    builder.EnableInstallers();
+                });
             }
         }
 
