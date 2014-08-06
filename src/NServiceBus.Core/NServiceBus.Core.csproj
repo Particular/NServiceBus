@@ -337,7 +337,7 @@
     <Compile Include="Persistence\InMemory\InMemoryPersistence.cs" />
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySagaPersister.cs" />
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySubscriptionStorage.cs" />
-    <Compile Include="Serializers\Json\Config\ConfigureJsonSerializer.cs" />
+    <Compile Include="Serializers\Json\Config\ConfigureJsonSerializer_Obsolete.cs" />
     <Compile Include="Distributor\MasterNode\ConfigureMasterNode_Obsolete.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
     <Compile Include="Timeout\TimeoutManager.cs" />
@@ -347,7 +347,7 @@
     <Compile Include="Transports\ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionService.cs" />
-    <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer.cs" />
+    <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer_Obsolete.cs" />
     <Compile Include="Config\Advanced\ConfigureSettingLocalAddressNameAction_Obsolete.cs" />
     <Compile Include="Config\ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Config\ConfigurationSource\IConfigurationSource.cs" />
