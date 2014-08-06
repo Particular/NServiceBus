@@ -14,6 +14,12 @@ namespace NServiceBus.Unicast.Monitoring
         DateTime timeOfLastCounter;
         Timer timer;
 
+        public CriticalTimeCalculator(PerformanceCounter counter)
+        {
+            this.counter = counter;
+            timer = new Timer(ClearPerfCounter, null, 0, 2000);
+        }
+
         public void Dispose()
         {
             //Injected at compile time
@@ -43,15 +49,6 @@ namespace NServiceBus.Unicast.Monitoring
             maxDelta = (processingEnded - processingStarted).Add(TimeSpan.FromSeconds(1));
         }
 
-
-        /// <summary>
-        ///     Verified that the counter exists
-        /// </summary>
-        public void Initialize(PerformanceCounter cnt)
-        {
-            counter = cnt;
-            timer = new Timer(ClearPerfCounter, null, 0, 2000);
-        }
 
 
         void ClearPerfCounter(object state)

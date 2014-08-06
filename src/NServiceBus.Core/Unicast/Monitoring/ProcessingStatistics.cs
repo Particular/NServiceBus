@@ -6,59 +6,50 @@ namespace NServiceBus.Unicast.Monitoring
     /// <summary>
     /// Stores the start and end times for statistic purposes
     /// </summary>
-    class ProcessingStatistics : IManageUnitsOfWork, INeedInitialization
+    class ProcessingStatistics : IManageUnitsOfWork
     {
-        /// <summary>
-        /// Needs the bus to set the headers
-        /// </summary>
-        public IBus Bus { get; set; }
+        CriticalTimeCalculator criticalTimeCounter;
+        IBus bus;
+        EstimatedTimeToSLABreachCalculator estimatedTimeToSLABreachCalculator;
 
-        /// <summary>
-        /// Performance counter for critical time. 
-        /// </summary>
-        public CriticalTimeCalculator CriticalTimeCounter { get; set; }
-
-
-        /// <summary>
-        /// Counter that displays the estimated time left to a SLA breach
-        /// </summary>
-        public EstimatedTimeToSLABreachCalculator EstimatedTimeToSLABreachCalculator { get; set; }
+        public ProcessingStatistics(CriticalTimeCalculator criticalTimeCounter, IBus bus, EstimatedTimeToSLABreachCalculator estimatedTimeToSLABreachCalculator)
+        {
+            this.criticalTimeCounter = criticalTimeCounter;
+            this.bus = bus;
+            this.estimatedTimeToSLABreachCalculator = estimatedTimeToSLABreachCalculator;
+        }
 
         public void Begin()
         {
-            Bus.CurrentMessageContext.Headers[Headers.ProcessingStarted] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+            bus.CurrentMessageContext.Headers[Headers.ProcessingStarted] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
         }
 
         public void End(Exception ex = null)
         {
             var now = DateTime.UtcNow;
 
-            Bus.CurrentMessageContext.Headers[Headers.ProcessingEnded] = DateTimeExtensions.ToWireFormattedString(now);
+            bus.CurrentMessageContext.Headers[Headers.ProcessingEnded] = DateTimeExtensions.ToWireFormattedString(now);
 
             string timeSent;
-            if (Bus.CurrentMessageContext.Headers.TryGetValue(Headers.TimeSent, out timeSent))
+            if (bus.CurrentMessageContext.Headers.TryGetValue(Headers.TimeSent, out timeSent))
             {
-                UpdateCounters(DateTimeExtensions.ToUtcDateTime(timeSent), DateTimeExtensions.ToUtcDateTime(Bus.CurrentMessageContext.Headers[Headers.ProcessingStarted]), now);
+                UpdateCounters(DateTimeExtensions.ToUtcDateTime(timeSent), DateTimeExtensions.ToUtcDateTime(bus.CurrentMessageContext.Headers[Headers.ProcessingStarted]), now);
             }
         }
 
         void UpdateCounters(DateTime timeSent, DateTime processingStarted, DateTime processingEnded)
         {
-            if (CriticalTimeCounter != null)
+            if (criticalTimeCounter != null)
             {
-                CriticalTimeCounter.Update(timeSent, processingStarted,processingEnded);
+                criticalTimeCounter.Update(timeSent, processingStarted,processingEnded);
             }
 
 
-            if (EstimatedTimeToSLABreachCalculator != null)
+            if (estimatedTimeToSLABreachCalculator != null)
             {
-                EstimatedTimeToSLABreachCalculator.Update(timeSent, processingStarted, processingEnded);
+                estimatedTimeToSLABreachCalculator.Update(timeSent, processingStarted, processingEnded);
             }
         }
 
-        public void Init(Configure config)
-        {
-            config.Configurer.ConfigureComponent<ProcessingStatistics>(DependencyLifecycle.InstancePerUnitOfWork);
-        }
     }
 }

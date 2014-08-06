@@ -14,6 +14,10 @@ namespace NServiceBus.Installation
 
         public void Install(string identity, Configure config)
         {
+            if (!config.Settings.GetPerformanceCountersEnabled())
+            {
+                return;
+            }
             //did not use DirectoryEntry to avoid a ref to the DirectoryServices.dll
             try
             {

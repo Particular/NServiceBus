@@ -9,12 +9,11 @@
     {
         public void ProfileActivated(ConfigurationBuilder config)
         {
-            
+            config.EnablePerformanceCounters();
         }
 
         public void ProfileActivated(Configure config)
         {
-            config.EnablePerformanceCounters();
         }
     }
 }

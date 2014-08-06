@@ -8,6 +8,7 @@ namespace NServiceBus.Unicast.Monitoring
     /// </summary>
     class CausationMutator : IMutateOutgoingTransportMessages, INeedInitialization
     {
+
         /// <summary>
         /// The bus is needed to get access to the current message id
         /// </summary>
