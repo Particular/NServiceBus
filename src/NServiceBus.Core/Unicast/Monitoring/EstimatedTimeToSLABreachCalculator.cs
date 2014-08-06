@@ -8,6 +8,14 @@ namespace NServiceBus.Unicast.Monitoring
 
     class EstimatedTimeToSLABreachCalculator : IDisposable
     {
+        
+        public EstimatedTimeToSLABreachCalculator(TimeSpan sla, PerformanceCounter slaBreachCounter)
+        {
+            endpointSLA = sla;
+            counter = slaBreachCounter;
+
+            timer = new Timer(RemoveOldDataPoints, null, 0, 2000);
+        }
 
         public void Dispose()
         {
@@ -26,17 +34,7 @@ namespace NServiceBus.Unicast.Monitoring
             }
         }
 
-        /// <summary>
-        ///     Verified that the counter exists
-        /// </summary>
-        public void Initialize(TimeSpan sla, PerformanceCounter slaBreachCounter)
-        {
-            endpointSLA = sla;
-            counter = slaBreachCounter;
-
-            timer = new Timer(RemoveOldDataPoints, null, 0, 2000);
-        }
-
+        
 
         /// <summary>
         ///     Updates the counter based on the passed times

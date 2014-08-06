@@ -144,7 +144,6 @@
     <Compile Include="HandlerOrdering\Order.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="Hosting\Configuration\Logging_Obsolete.cs" />
-    <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
     <Compile Include="Hosting\HostInformation.cs" />
@@ -181,6 +180,8 @@
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
+    <Compile Include="Unicast\Monitoring\MonitoringConfig_Obsolete.cs" />
+    <Compile Include="Unicast\Monitoring\PerformanceMonitoring.cs" />
     <Compile Include="Unicast\Transport\Config\EnableSelectedTransport.cs" />
     <Compile Include="Utils\ElevateChecker.cs" />
     <Compile Include="IStartableBus.cs" />
@@ -402,7 +403,7 @@
     <Compile Include="Faults\IManageMessageFailures.cs" />
     <Compile Include="Faults\InMemory\FaultManager.cs" />
     <Compile Include="Hosting\Configuration\EndpointNameAttribute.cs" />
-    <Compile Include="Hosting\Configuration\EndpointSLAAttribute.cs" />
+    <Compile Include="Unicast\Monitoring\EndpointSLAAttribute.cs" />
     <Compile Include="Hosting\Configuration\IConfigureThisEndpoint.cs" />
     <Compile Include="Hosting\Configuration\IWantCustomInitialization.cs" />
     <Compile Include="Hosting\Helpers\AssemblyListExtensions.cs" />
@@ -514,9 +515,8 @@
     <Compile Include="Unicast\MessagingBestPractices.cs" />
     <Compile Include="Unicast\Monitoring\CriticalTimeCalculator.cs" />
     <Compile Include="Unicast\Monitoring\EstimatedTimeToSLABreachCalculator.cs" />
-    <Compile Include="Unicast\Monitoring\PerformanceCounterInitializer.cs" />
     <Compile Include="Unicast\Monitoring\ProcessingStatistics.cs" />
-    <Compile Include="Unicast\Monitoring\CausationMutator.cs" />
+    <Compile Include="Audit\CausationMutator.cs" />
     <Compile Include="Unicast\Publishing\StorageDrivenPublisher.cs" />
     <Compile Include="Unicast\Queuing\Installers\EndpointInputQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\Installers\AuditQueueCreator.cs" />

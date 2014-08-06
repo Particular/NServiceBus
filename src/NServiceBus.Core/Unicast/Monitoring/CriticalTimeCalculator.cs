@@ -14,6 +14,13 @@ namespace NServiceBus.Unicast.Monitoring
         DateTime timeOfLastCounter;
         Timer timer;
 
+
+        public CriticalTimeCalculator(PerformanceCounter cnt)
+        {
+            counter = cnt;
+            timer = new Timer(ClearPerfCounter, null, 0, 2000);
+        }
+
         public void Dispose()
         {
             //Injected at compile time
@@ -44,14 +51,6 @@ namespace NServiceBus.Unicast.Monitoring
         }
 
 
-        /// <summary>
-        ///     Verified that the counter exists
-        /// </summary>
-        public void Initialize(PerformanceCounter cnt)
-        {
-            counter = cnt;
-            timer = new Timer(ClearPerfCounter, null, 0, 2000);
-        }
 
 
         void ClearPerfCounter(object state)

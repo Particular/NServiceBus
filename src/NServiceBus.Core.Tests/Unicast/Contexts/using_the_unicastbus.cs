@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Runtime.Serialization;
     using System.Threading;
     using Behaviors;
     using Core.Tests;
@@ -42,7 +43,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected XmlMessageSerializer MessageSerializer;
         protected FuncBuilder FuncBuilder;
         public static Address MasterNodeAddress;
-        protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
+        protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = (EstimatedTimeToSLABreachCalculator) FormatterServices.GetUninitializedObject(typeof(EstimatedTimeToSLABreachCalculator));
         protected MessageMetadataRegistry MessageMetadataRegistry;
         protected SubscriptionManager subscriptionManager;
         protected StaticMessageRouter router;
