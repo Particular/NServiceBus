@@ -42,7 +42,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected XmlMessageSerializer MessageSerializer;
         protected FuncBuilder FuncBuilder;
         public static Address MasterNodeAddress;
-        protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
+        protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator(TimeSpan.Zero,null);
         protected MessageMetadataRegistry MessageMetadataRegistry;
         protected SubscriptionManager subscriptionManager;
         protected StaticMessageRouter router;

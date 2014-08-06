@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
+    using System;
     using Contexts;
     using Monitoring;
     using NUnit.Framework;
@@ -12,7 +13,7 @@
         [Test]
         public void Should_set_the_processing_headers()
         {
-            FuncBuilder.Register<IManageUnitsOfWork>(() => new ProcessingStatistics{Bus = bus});
+            FuncBuilder.Register<IManageUnitsOfWork>(() => new ProcessingStatistics(new CriticalTimeCalculator(null), bus, new EstimatedTimeToSLABreachCalculator(TimeSpan.Zero, null) ));
 
             var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
 
