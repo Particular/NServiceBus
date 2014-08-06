@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.PerformanceMonitoring
 {
     using System;
-    using System.Diagnostics;
     using System.Threading;
     using EndpointTemplates;
     using AcceptanceTesting;

@@ -13,6 +13,12 @@ namespace NServiceBus.Features
 
         internal PerformanceMonitoring()
         {
+            Prerequisite(ValidatePerfMonEnabled, "Verifies the user has enabled performance monitoring.");
+        }
+
+        bool ValidatePerfMonEnabled(FeatureConfigurationContext context)
+        {
+            return context.Settings.GetPerformanceCountersEnabled();
         }
 
         /// <summary>
@@ -20,6 +26,7 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            PerformanceMonitorUsersInstaller.Install(context.Settings.GetInstallationUserName());
             SetupCriticalTimePerformanceCounter(context);
             SetupSLABreachCounter(context);
             context.Container.ConfigureComponent<ProcessingStatistics>(DependencyLifecycle.InstancePerUnitOfWork);

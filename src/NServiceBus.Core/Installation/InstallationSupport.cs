@@ -4,7 +4,6 @@ namespace NServiceBus.Features
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Security.Principal;
     using Config;
     using Installation;
     using ObjectBuilder;
@@ -62,19 +61,9 @@ namespace NServiceBus.Features
                 this.configure = configure;
             }
 
-            string GetUsername()
-            {
-                var username = readOnlySettings.GetOrDefault<string>("installation.userName");
-                if (username == null)
-                {
-                    return WindowsIdentity.GetCurrent().Name;
-                }
-                return username;
-            }
-
             public void Run(Configure config)
             {
-                var username = GetUsername();
+                var username = readOnlySettings.GetInstallationUserName();
                 foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
                 {
                     installer.Install(username, configure);
