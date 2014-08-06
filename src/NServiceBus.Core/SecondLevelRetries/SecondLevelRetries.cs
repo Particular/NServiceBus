@@ -13,10 +13,8 @@ namespace NServiceBus.Features
         internal SecondLevelRetries()
         {
             EnableByDefault();
-           
-            // if we're not using the Fault Forwarder, we should act as if SLR is disabled
-            //this will change when we make SLR a first class citizen
-            Prerequisite(c => c.Container.HasComponent<FaultManager>(), "A custom faultmanager was defined");
+            DependsOn<ForwarderFaultManager>();
+
             Prerequisite(IsEnabledInConfig, "SLR was disabled in config");
         }
 
