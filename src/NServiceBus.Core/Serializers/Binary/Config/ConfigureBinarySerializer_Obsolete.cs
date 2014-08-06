@@ -1,4 +1,4 @@
-#pragma warning restore 1591
+#pragma warning disable 1591
 // ReSharper disable UnusedParameter.Global
 
 namespace NServiceBus
