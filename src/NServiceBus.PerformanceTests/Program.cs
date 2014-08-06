@@ -63,6 +63,19 @@
                 if (volatileMode)
                 {
                     o.DisableDurableMessages();
+                    o.Transactions(t =>
+                    {
+                        t.Disable();
+                        t.Advanced(a =>
+                        {
+                            a.DoNotWrapHandlersExecutionInATransactionScope();
+                            a.DisableDistributedTransactions();
+                        });
+                    });
+                }
+                if (suppressDTC)
+                {
+                    o.Transactions(t => t.Advanced(settings => settings.DisableDistributedTransactions()));
                 }
             })
                 .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
@@ -95,21 +108,8 @@
             {
                 config.UsePersistence<InMemory>();
 
-                config.Transactions(t =>
-                {
-                    t.Disable();
-                    t.Advanced(a =>
-                    {
-                        a.DoNotWrapHandlersExecutionInATransactionScope();
-                        a.DisableDistributedTransactions();
-                    });
-                });
             }
 
-            if (suppressDTC)
-            {
-                config.Transactions(t=>t.Advanced(settings => settings.DisableDistributedTransactions()));
-            }
 
             if (encryption)
             {

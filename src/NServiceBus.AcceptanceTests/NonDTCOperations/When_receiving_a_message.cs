@@ -46,12 +46,9 @@
         {
             public NonDtcReceivingEndpoint()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.Settings.Set("DisableOutboxTransportCheck", true);
-
-                    c.EnableOutbox();
-                })
+                EndpointSetup<DefaultServer>(
+                    c => c.Settings.Set("DisableOutboxTransportCheck", true),
+                    builder => builder.EnableOutbox())
                 .AuditTo(Address.Parse("audit"));
             }
 

@@ -39,7 +39,7 @@
         {
             public NonDTCEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Transactions(t=>t.Advanced(a =>
+                EndpointSetup<DefaultServer>(configure => { },c => c.Transactions(t=>t.Advanced(a =>
                     {
                         a.DisableDistributedTransactions();
                         a.WrapHandlersExecutionInATransactionScope();

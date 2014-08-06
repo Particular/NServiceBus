@@ -13,7 +13,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config"><see cref="Configure"/> instance.</param>
         /// <param name="customizations">The user supplied config actions.</param>
-        public static Configure Transactions(this Configure config, Action<TransactionSettings> customizations)
+        public static ConfigurationBuilder Transactions(this ConfigurationBuilder config, Action<TransactionSettings> customizations)
         {
             customizations(new TransactionSettings(config));
             return config;

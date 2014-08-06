@@ -37,10 +37,10 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.Settings.Set("DisableOutboxTransportCheck", true);
-                    c.EnableOutbox();
                     c.Pipeline.Register<BlowUpAfterDispatchBehavior.Registration>();
                     c.Configurer.ConfigureComponent<BlowUpAfterDispatchBehavior>(DependencyLifecycle.InstancePerCall);
-                });
+                },
+                builder => builder.EnableOutbox());
 
             }
 
