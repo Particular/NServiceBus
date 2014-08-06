@@ -1,19 +1,18 @@
-namespace NServiceBus
+namespace NServiceBus.Installation
 {
     using System;
     using System.Diagnostics;
     using System.IO;
     using Logging;
-    using NServiceBus.Installation;
 
     /// <summary>
     /// Add the identity to the 'Performance Monitor Users' local group 
     /// </summary>
-    static class PerformanceMonitorUsersInstaller 
+    class PerformanceMonitorUsersInstaller : INeedToInstallSomething
     {
-        static ILog logger = LogManager.GetLogger(typeof(PerformanceMonitorUsersInstaller));
+        static ILog logger = LogManager.GetLogger<PerformanceMonitorUsersInstaller>();
 
-        public static void Install(string identity)
+        public void Install(string identity, Configure config)
         {
             //did not use DirectoryEntry to avoid a ref to the DirectoryServices.dll
             try
@@ -37,7 +36,7 @@ net localgroup ""Performance Monitor Users"" ""{0}"" /add", identity);
         }
 
 
-        static void StartProcess(string identity)
+        void StartProcess(string identity)
         {
             //net localgroup "Performance Monitor Users" "{user account}" /add
             var startInfo = new ProcessStartInfo
@@ -78,12 +77,12 @@ net localgroup ""Performance Monitor Users"" ""{0}"" /add", identity, error);
             }
         }
 
-        static bool IsAlreadyAMemberError(string error)
+        bool IsAlreadyAMemberError(string error)
         {
             return error.Contains("1378");
         }
 
-        static bool IsGroupDoesNotExistError(string error)
+        bool IsGroupDoesNotExistError(string error)
         {
             //required since 'Performance Monitor Users' does not exist on all windows OS.
             return error.Contains("1376");

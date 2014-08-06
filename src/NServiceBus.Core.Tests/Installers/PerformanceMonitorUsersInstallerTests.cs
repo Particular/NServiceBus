@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Installers
 {
+    using NServiceBus.Installation;
     using NUnit.Framework;
 
     [TestFixture]
@@ -9,7 +10,8 @@
         [Explicit]
         public void Integration()
         {
-            PerformanceMonitorUsersInstaller.Install(@"location\username");
+            var installer = new PerformanceMonitorUsersInstaller();
+            installer.Install(@"location\username", null);
         }
     }
 }
