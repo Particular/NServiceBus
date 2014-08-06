@@ -22,6 +22,7 @@
         /// Called when a given profile is activated.
         /// </summary>
         [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "ProfileActivated(ConfigurationBuilder config)")]
+// ReSharper disable once UnusedParameter.Global
         void ProfileActivated(Configure config);
     }
 }
