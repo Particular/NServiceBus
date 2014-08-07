@@ -48,7 +48,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => { }, builder => builder.EnableSla(new TimeSpan(0, 0, 0, 0, 1)));
+                EndpointSetup<DefaultServer>(c => { }, builder => builder.EnableSLACounter(new TimeSpan(0, 0, 0, 0, 1)));
             }
         }
 

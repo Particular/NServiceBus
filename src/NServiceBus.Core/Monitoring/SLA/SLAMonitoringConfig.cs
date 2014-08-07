@@ -11,16 +11,16 @@ namespace NServiceBus
         /// <summary>
         /// Enables the NServiceBus specific performance counters with a specific EndpointSLA.
         /// </summary>
-        public static ConfigurationBuilder EnableSla(this ConfigurationBuilder config, TimeSpan sla)
+        public static ConfigurationBuilder EnableSLACounter(this ConfigurationBuilder config, TimeSpan sla)
         {
             config.settings.Set(SLAMonitoring.EndpointSLAKey, sla);
-            EnableSla(config);
+            EnableSLACounter(config);
             return config;
         }
         /// <summary>
         /// Enables the NServiceBus specific performance counters with a specific EndpointSLA.
         /// </summary>
-        public static ConfigurationBuilder EnableSla(this ConfigurationBuilder config)
+        public static ConfigurationBuilder EnableSLACounter(this ConfigurationBuilder config)
         {
             config.EnableFeature<SLAMonitoring>();
             return config;
