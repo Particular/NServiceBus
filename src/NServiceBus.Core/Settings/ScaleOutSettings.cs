@@ -5,9 +5,9 @@ namespace NServiceBus.Settings
     /// </summary>
     public class ScaleOutSettings
     {
-        readonly Configure config;
+        ConfigurationBuilder config;
 
-        internal ScaleOutSettings(Configure config)
+        internal ScaleOutSettings(ConfigurationBuilder config)
         {
             this.config = config;
         }
@@ -20,7 +20,7 @@ namespace NServiceBus.Settings
         /// </summary>
         public void UseSingleBrokerQueue()
         {
-            config.Settings.Set("ScaleOut.UseSingleBrokerQueue", true);
+            config.settings.Set("ScaleOut.UseSingleBrokerQueue", true);
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace NServiceBus.Settings
         /// </summary>
         public void UseUniqueBrokerQueuePerMachine()
         {
-            config.Settings.Set("ScaleOut.UseSingleBrokerQueue", false);
+            config.settings.Set("ScaleOut.UseSingleBrokerQueue", false);
         }
     }
 }

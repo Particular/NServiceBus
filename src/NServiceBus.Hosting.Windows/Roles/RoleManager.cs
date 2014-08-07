@@ -11,6 +11,7 @@
         {
             if (specifier is AsA_Server)
             {
+                config.ScaleOut(s => s.UseSingleBrokerQueue());
             }
             else if (specifier is AsA_Client)
             {
@@ -23,7 +24,6 @@
         {
             if (specifier is AsA_Server)
             {
-                config.ScaleOut(s => s.UseSingleBrokerQueue());
             }
             else if (specifier is AsA_Client)
             {
