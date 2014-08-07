@@ -103,11 +103,6 @@ namespace NServiceBus
 
         void RegisterContainerAdapter(IContainer container)
         {
-            if (builder != null)
-            {
-                throw new InvalidOperationException("Container adapter already specified");
-            }
-
             var b = new CommonObjectBuilder { Container = container, Synchronized = settings.GetOrDefault<bool>("UseSyncronizationDomain") };
 
             builder = b;
