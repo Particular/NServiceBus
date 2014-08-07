@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.ServiceModel;
+    using NServiceBus.Hosting.Wcf;
     using Unicast;
 
     /// <summary>
@@ -16,7 +17,7 @@ namespace NServiceBus
         /// </summary>
         protected WcfService()
         {
-            bus = Configure.Instance.Builder.Build<IBus>();   
+            bus = WcfManager.Configure.Builder.Build<IBus>();   
         }
 
         static WcfService()
