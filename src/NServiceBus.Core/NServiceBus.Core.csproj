@@ -104,6 +104,10 @@
     <Compile Include="Installation\InstallConfigExtensions.cs" />
     <Compile Include="Installation\InstallConfigExtensions_obsolete.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions_Obsolete.cs" />
+    <Compile Include="Monitoring\PerformanceCounterHelper.cs" />
+    <Compile Include="Monitoring\CriticalTime\CriticalTimeMonitoringConfig.cs" />
+    <Compile Include="Monitoring\CriticalTime\CriticalTimeMonitoring.cs" />
+    <Compile Include="Monitoring\SLA\SLAMonitoringConfig.cs" />
     <Compile Include="Obsoletes.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />
@@ -181,8 +185,11 @@
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
-    <Compile Include="Unicast\Monitoring\MonitoringConfig_Obsolete.cs" />
-    <Compile Include="Unicast\Monitoring\PerformanceMonitoring.cs" />
+    <Compile Include="Monitoring\SLA\SLABehavior.cs" />
+    <Compile Include="Monitoring\CriticalTime\CriticalTimeBehavior.cs" />
+    <Compile Include="Monitoring\MonitoringConfig_Obsolete.cs" />
+    <Compile Include="Monitoring\SLA\SLAMonitoring.cs" />
+    <Compile Include="Monitoring\ProcessingStatisticsBehavior.cs" />
     <Compile Include="Unicast\Transport\Config\EnableSelectedTransport.cs" />
     <Compile Include="Utils\ElevateChecker.cs" />
     <Compile Include="IStartableBus.cs" />
@@ -227,7 +234,7 @@
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersistence.cs" />
     <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionPersistence.cs" />
     <Compile Include="Persistence\InMemory\TimeoutPersister\InMemoryTimeoutPersistence.cs" />
-    <Compile Include="Unicast\Monitoring\PerformanceMonitorUsersInstaller.cs" />
+    <Compile Include="Monitoring\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayDeduplication.cs" />
     <Compile Include="Persistence\PersistenceConfiguration.cs" />
     <Compile Include="Persistence\PersistenceDefinition.cs" />
@@ -403,7 +410,7 @@
     <Compile Include="Faults\IManageMessageFailures.cs" />
     <Compile Include="Faults\InMemory\FaultManager.cs" />
     <Compile Include="Hosting\Configuration\EndpointNameAttribute.cs" />
-    <Compile Include="Unicast\Monitoring\EndpointSLAAttribute.cs" />
+    <Compile Include="Monitoring\SLA\EndpointSLAAttribute.cs" />
     <Compile Include="Hosting\Configuration\IConfigureThisEndpoint.cs" />
     <Compile Include="Hosting\Configuration\IWantCustomInitialization.cs" />
     <Compile Include="Hosting\Helpers\AssemblyListExtensions.cs" />
@@ -432,7 +439,6 @@
     <Compile Include="MessageInterfaces\IMessageMapper.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\MessageMapper.cs" />
     <Compile Include="MessageMutator\IMutateTransportMessages.cs" />
-    <Compile Include="Unicast\Monitoring\MonitoringConfig.cs" />
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />
@@ -513,9 +519,8 @@
     <Compile Include="Unicast\Messages\MessageMetadataRegistry.cs" />
     <Compile Include="Unicast\Messages\MessageMetadata.cs" />
     <Compile Include="Unicast\MessagingBestPractices.cs" />
-    <Compile Include="Unicast\Monitoring\CriticalTimeCalculator.cs" />
-    <Compile Include="Unicast\Monitoring\EstimatedTimeToSLABreachCalculator.cs" />
-    <Compile Include="Unicast\Monitoring\ProcessingStatistics.cs" />
+    <Compile Include="Monitoring\CriticalTime\CriticalTimeCalculator.cs" />
+    <Compile Include="Monitoring\SLA\EstimatedTimeToSLABreachCalculator.cs" />
     <Compile Include="Audit\CausationMutator.cs" />
     <Compile Include="Unicast\Publishing\StorageDrivenPublisher.cs" />
     <Compile Include="Unicast\Queuing\Installers\EndpointInputQueueCreator.cs" />

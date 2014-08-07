@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Installers
 {
-    using NServiceBus.Installation;
     using NUnit.Framework;
 
     [TestFixture]

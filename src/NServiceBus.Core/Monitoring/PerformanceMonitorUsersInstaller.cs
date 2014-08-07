@@ -1,9 +1,10 @@
-namespace NServiceBus.Installation
+namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
     using System.IO;
     using Logging;
+    using NServiceBus.Installation;
 
     /// <summary>
     /// Add the identity to the 'Performance Monitor Users' local group 

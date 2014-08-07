@@ -79,7 +79,12 @@
                 }
             }
 
-            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited> { public void Handle(MessageToBeAudited message) { } }
+            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+            {
+                public void Handle(MessageToBeAudited message)
+                {
+                }
+            }
         }
 
         class AuditSpyEndpoint : EndpointConfigurationBuilder
@@ -106,7 +111,12 @@
                 }
             }
 
-            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited> { public void Handle(MessageToBeAudited message) { } }
+            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+            {
+                public void Handle(MessageToBeAudited message)
+                {
+                }
+            }
         }
 
         public static byte Checksum(byte[] data)

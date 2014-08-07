@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast.Monitoring
+namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
@@ -38,20 +38,15 @@ namespace NServiceBus.Unicast.Monitoring
             }
         }
 
-        /// <summary>
-        ///     Updates the counter based on the passed times
-        /// </summary>
         public void Update(DateTime sent, DateTime processingStarted, DateTime processingEnded)
         {
             counter.RawValue = Convert.ToInt32((processingEnded - sent).TotalSeconds);
 
             timeOfLastCounter = processingEnded;
 
-            maxDelta = (processingEnded - processingStarted).Add(TimeSpan.FromSeconds(1));
+            var timeTaken = processingEnded - processingStarted;
+            maxDelta = timeTaken.Add(TimeSpan.FromSeconds(1));
         }
-
-
-
 
         void ClearPerfCounter(object state)
         {

@@ -88,6 +88,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Audit\When_using_audit_message_is_received.cs" />
     <Compile Include="BasicMessaging\When_handling_incoming_messages_headers_should_be_shared.cs" />
     <Compile Include="BasicMessaging\When_sending_a_message_ensure_proper_headers.cs" />
     <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_not_expired.cs" />
@@ -104,8 +105,10 @@
     <Compile Include="MessageMutators\Issue_1980.cs" />
     <Compile Include="MessageMutators\When_outgoing_mutator_replaces_message_instance.cs" />
     <Compile Include="MessageMutators\When_defining_outgoing_message_mutators.cs" />
-    <Compile Include="PerfMon\When_sending_with_performance_monitor_enabled.cs" />
-    <Compile Include="PerfMon\When_sending_slow_with_performance_monitor_enabled.cs" />
+    <Compile Include="PerfMon\CriticalTime\When_sending_slow_with_CriticalTime_enabled.cs" />
+    <Compile Include="PerfMon\CriticalTime\When_sending_with_CriticalTime_enabled.cs" />
+    <Compile Include="PerfMon\SLA\When_sending_slow_with_SLA_enabled.cs" />
+    <Compile Include="PerfMon\SLA\When_sending_with_SLA_enabled.cs" />
     <Compile Include="PubSub\When_publishing_an_event_using_root_type.cs" />
     <Compile Include="Retries\When_doing_flr_with_dtc_on.cs" />
     <Compile Include="Retries\When_doing_flr_with_native_transactions.cs" />
