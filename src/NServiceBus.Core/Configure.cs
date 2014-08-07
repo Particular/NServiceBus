@@ -96,14 +96,9 @@ namespace NServiceBus
             get { return Settings.GetAvailableTypes(); }
         }
 
-        bool HasBuilder()
-        {
-            return builder != null && configurer != null;
-        }
-
         void RegisterContainerAdapter(IContainer container)
         {
-            var b = new CommonObjectBuilder { Container = container, Synchronized = settings.GetOrDefault<bool>("UseSyncronizationDomain") };
+            var b = new CommonObjectBuilder { Container = container, Synchronized = settings.GetOrDefault<bool>("UseSynchronizationDomain") };
 
             builder = b;
             configurer = b;
