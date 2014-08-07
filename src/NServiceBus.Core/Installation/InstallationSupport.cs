@@ -4,6 +4,7 @@ namespace NServiceBus.Features
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Security.Principal;
     using Config;
     using Installation;
     using ObjectBuilder;
@@ -14,19 +15,13 @@ namespace NServiceBus.Features
     /// </summary>
     public class InstallationSupport : Feature
     {
+        internal const string UsernameKey = "installation.username";  
+
         internal InstallationSupport()
         {
-            EnableByDefault();
-            
-            if (!Debugger.IsAttached)
+            if (Debugger.IsAttached)
             {
-                Prerequisite(context =>
-                {
-                    bool enabled;
-                    context.Settings.TryGet("installation.enable", out enabled);
-
-                    return enabled;
-                }, "EnableInstallers was not invoked.");       
+                EnableByDefault();
             }
         }
 
@@ -61,9 +56,20 @@ namespace NServiceBus.Features
                 this.configure = configure;
             }
 
+            string GetInstallationUserName(ReadOnlySettings settings)
+            {
+                string username;
+                if (settings.TryGet(UsernameKey, out username))
+                {
+                    return username;
+                }
+
+                return WindowsIdentity.GetCurrent().Name;
+            }
+
             public void Run(Configure config)
             {
-                var username = readOnlySettings.GetInstallationUserName();
+                var username = GetInstallationUserName(readOnlySettings);
                 foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
                 {
                     installer.Install(username, configure);

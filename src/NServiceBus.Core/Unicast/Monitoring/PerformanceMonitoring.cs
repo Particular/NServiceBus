@@ -10,16 +10,11 @@ namespace NServiceBus.Features
     /// </summary>
     public class PerformanceMonitoring : Feature
     {
+        internal const string EndpointSLAKey = "EndpointSLA";
 
         internal PerformanceMonitoring()
         {
-            Prerequisite(ValidatePerfMonEnabled, "Verifies the user has enabled performance monitoring.");
             DependsOn<InstallationSupport>();
-        }
-
-        bool ValidatePerfMonEnabled(FeatureConfigurationContext context)
-        {
-            return context.Settings.GetPerformanceCountersEnabled();
         }
 
         /// <summary>
@@ -54,7 +49,7 @@ namespace NServiceBus.Features
 
         static bool TryGetSla(FeatureConfigurationContext context, out TimeSpan endpointSla)
         {
-            if (context.Settings.TryGetEndpointSLA(out endpointSla))
+            if (context.Settings.TryGet(EndpointSLAKey, out endpointSla))
             {
                 return true;
             }

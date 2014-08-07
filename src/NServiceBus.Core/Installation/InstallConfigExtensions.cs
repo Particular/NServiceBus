@@ -1,9 +1,8 @@
 namespace NServiceBus
 {
-    using System.Security.Principal;
     using Config;
     using Installation;
-    using NServiceBus.Settings;
+    using NServiceBus.Features;
 
     /// <summary>
     /// Convenience methods for configuring how instances of  <see cref="INeedToInstallSomething"/>s are run.
@@ -19,22 +18,12 @@ namespace NServiceBus
         {
             if (username != null)
             {
-                config.settings.Set("installation.userName", username);
+                config.settings.Set(InstallationSupport.UsernameKey, username);
             }
 
-            config.settings.Set("installation.enable", true);
+            config.EnableFeature<InstallationSupport>();
 
             return config;
-        }
-
-        internal static string GetInstallationUserName(this ReadOnlySettings settings)
-        {
-            string username;
-            if (settings.TryGet("installation.userName", out username))
-            {
-                return username;
-            }
-            return WindowsIdentity.GetCurrent().Name;
         }
     }
 }
