@@ -11,16 +11,12 @@
         public EndpointBehavior(Type builderType)
         {
             EndpointBuilderType = builderType;
-            CustomConfig = new List<Action<Configure>>();
         }
 
         public Type EndpointBuilderType { get; private set; }
 
         public List<IGivenDefinition> Givens { get; set; }
         public List<IWhenDefinition> Whens { get; set; }
-
-        public List<Action<Configure>> CustomConfig { get; set; }
-
         public string AppConfig { get; set; }
     }
 

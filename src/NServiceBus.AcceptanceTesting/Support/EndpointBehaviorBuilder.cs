@@ -50,13 +50,6 @@
             return this;
         }
 
-        public EndpointBehaviorBuilder<TContext> CustomConfig(Action<Configure> action)
-        {
-            behavior.CustomConfig.Add(action);
-
-            return this;
-        }
-
         public EndpointBehaviorBuilder<TContext> AppConfig(string appConfigPath)
         {
             behavior.AppConfig = appConfigPath;

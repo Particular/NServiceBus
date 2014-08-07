@@ -46,8 +46,6 @@
                 config.Configurer.RegisterSingleton(scenarioContext.GetType(), scenarioContext);
                 scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
 
-                endpointBehavior.CustomConfig.ForEach(customAction => customAction(config));
-
                 bus = config.CreateBus();
 
                 var transportDefinition = config.Settings.Get<TransportDefinition>();
