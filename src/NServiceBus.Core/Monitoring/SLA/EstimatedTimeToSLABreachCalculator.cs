@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast.Monitoring
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -34,11 +34,6 @@ namespace NServiceBus.Unicast.Monitoring
             }
         }
 
-        
-
-        /// <summary>
-        ///     Updates the counter based on the passed times
-        /// </summary>
         public void Update(DateTime sent, DateTime processingStarted, DateTime processingEnded)
         {
             var dataPoint = new DataPoint
@@ -140,7 +135,7 @@ namespace NServiceBus.Unicast.Monitoring
         }
 
         const int MaxDataPoints = 10;
-        readonly List<DataPoint> dataPoints = new List<DataPoint>();
+        List<DataPoint> dataPoints = new List<DataPoint>();
         PerformanceCounter counter;
         TimeSpan endpointSLA;
         Timer timer;

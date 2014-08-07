@@ -18,8 +18,12 @@
         public void Invoke(IncomingContext context, Action next)
         {
             next();
-           
-            MessageAuditer.Audit(new SendOptions(AuditQueue){TimeToBeReceived = TimeToBeReceivedOnForwardedMessages}, context.PhysicalMessage);
+
+            var sendOptions = new SendOptions(AuditQueue)
+            {
+                TimeToBeReceived = TimeToBeReceivedOnForwardedMessages
+            };
+            MessageAuditer.Audit(sendOptions, context.PhysicalMessage);
         }
 
         public class Registration:RegisterStep
@@ -27,7 +31,7 @@
             public Registration()
                 : base(WellKnownStep.AuditProcessedMessage, typeof(AuditBehavior), "Send a copy of the successfully processed message to the configured audit queue")
             {
-                InsertBefore(WellKnownStep.InvokeHandlers);
+                InsertBefore("ProcessingStatistics");
             }
         }
     }

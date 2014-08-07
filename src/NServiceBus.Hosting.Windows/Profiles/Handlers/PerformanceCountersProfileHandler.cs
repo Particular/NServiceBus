@@ -9,7 +9,8 @@
     {
         public void ProfileActivated(ConfigurationBuilder config)
         {
-            config.EnablePerformanceCounters();   
+            config.EnableCriticalTime();   
+            config.EnableSla();   
         }
 
         public void ProfileActivated(Configure config)
