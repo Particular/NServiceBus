@@ -423,7 +423,6 @@
     <Compile Include="Installation\INeedToInstallSomething.cs" />
     <Compile Include="IWantToRunBeforeConfiguration.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
-    <Compile Include="IWcfService.cs" />
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />
@@ -481,7 +480,6 @@
     <Compile Include="Serializers\XML\Config\MessageTypesInitializer.cs" />
     <Compile Include="Serializers\XML\XmlMessageSerializer.cs" />
     <Compile Include="Serializers\XML\XmlSanitizingStream.cs" />
-    <Compile Include="ServiceAsyncResult.cs" />
     <Compile Include="Logging\SetLoggingLibrary_Obsolete.cs" />
     <Compile Include="Settings\TransactionSettings.cs" />
     <Compile Include="Timeout\Core\DefaultTimeoutManager.cs" />
@@ -563,7 +561,6 @@
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
     <Compile Include="Utils\Reflection\Reflect.cs" />
     <Compile Include="Utils\RegistryReader.cs" />
-    <Compile Include="WcfService.cs" />
     <Compile Include="Encryption\WireEncryptedString.cs" />
   </ItemGroup>
   <ItemGroup>

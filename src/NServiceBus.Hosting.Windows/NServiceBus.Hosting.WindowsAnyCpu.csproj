@@ -125,7 +125,10 @@
     <Compile Include="Roles\RoleManager.cs" />
     <Compile Include="Roles\UsingTransport.cs" />
     <Compile Include="InstallWindowsHost.cs" />
+    <Compile Include="Wcf\IWcfService.cs" />
+    <Compile Include="Wcf\ServiceAsyncResult.cs" />
     <Compile Include="Wcf\WcfManager.cs" />
+    <Compile Include="Wcf\WcfService.cs" />
     <Compile Include="Wcf\WcfServiceHost.cs" />
     <Compile Include="WindowsHost.cs" />
     <Compile Include="Profiles\Integration.cs" />
