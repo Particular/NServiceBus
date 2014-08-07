@@ -118,7 +118,7 @@ namespace NServiceBus
             Replacement = "configure.Configurer.HasComponent")]
         public static bool HasComponent<T>()
         {
-            return HasComponent(typeof(T));
+            throw new NotImplementedException(); 
         }
 
         [ObsoleteEx(
@@ -128,12 +128,7 @@ namespace NServiceBus
     Replacement = "configure.Configurer.HasComponent")]
         public static bool HasComponent(Type componentType)
         {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.HasComponent");
-            }
-
-            return Instance.Configurer.HasComponent(componentType);
+            throw new NotImplementedException(); 
         }
 
         [ObsoleteEx(
