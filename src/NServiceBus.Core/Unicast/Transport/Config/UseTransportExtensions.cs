@@ -1,10 +1,7 @@
 namespace NServiceBus
 {
     using System;
-    using System.Linq;
     using Transports;
-    using Unicast.Transport;
-    using Utils.Reflection;
 
     /// <summary>
     /// Extension methods to configure transport.
@@ -14,37 +11,24 @@ namespace NServiceBus
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
+// ReSharper disable UnusedParameter.Global
+        [ObsoleteEx(Replacement = "Configure.With(c => c.UseTransport<T>(customizations", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure UseTransport<T>(this Configure config, Action<TransportConfiguration> customizations = null) where T : TransportDefinition
+// ReSharper restore UnusedParameter.Global
         {
-            return UseTransport(config, typeof(T), customizations);
+            throw new InvalidOperationException();
         }
 
 
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
+// ReSharper disable UnusedParameter.Global
+        [ObsoleteEx(Replacement = "Configure.With(c => c.UseTransport(transportDefinitionType, customizations)", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure UseTransport(this Configure config, Type transportDefinitionType, Action<TransportConfiguration> customizations = null)
+// ReSharper restore UnusedParameter.Global
         {
-            config.Settings.SetDefault<TransportConnectionString>(TransportConnectionString.Default);
-
-            var transportConfigurerType =
-               config.TypesToScan.SingleOrDefault(
-                   t => typeof(IConfigureTransport<>).MakeGenericType(transportDefinitionType).IsAssignableFrom(t));
-
-            if (transportConfigurerType == null)
-                throw new InvalidOperationException(
-                    "We couldn't find a IConfigureTransport implementation for your selected transport: " +
-                    transportDefinitionType.Name);
-
-            if (customizations != null)
-            {
-                customizations(new TransportConfiguration(config));
-            }
-
-            config.Settings.Set<TransportDefinition>(transportDefinitionType.Construct<TransportDefinition>());
-            config.Settings.Set("TransportConfigurer", transportConfigurerType);
-
-            return config;
+            throw new InvalidOperationException();
         }
     }
 }

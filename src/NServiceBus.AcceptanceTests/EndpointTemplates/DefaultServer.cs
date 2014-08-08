@@ -28,6 +28,7 @@
                 o.TypesToScan(types);
                 o.CustomConfigurationSource(configSource);
                 o.EnableInstallers();
+                o.DefineTransport(settings);
 
                 string selectedBuilder;
                 if (settings.TryGetValue("Builder", out selectedBuilder))
@@ -41,9 +42,7 @@
                     o.UseSerialization(Type.GetType(serializer));
                 }
             })
-                .DefineTransport(settings)
-                .DefinePersistence(settings);
-
+            .DefinePersistence(settings);
 
             config.Settings.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             config.Pipeline.Register<SubscriptionBehavior.Registration>();

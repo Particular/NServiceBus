@@ -22,7 +22,6 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-
             context.Container.ConfigureComponent<AutoSubscriptionStrategy>(DependencyLifecycle.InstancePerCall);
 
             var transportDefinition = context.Settings.Get<TransportDefinition>();

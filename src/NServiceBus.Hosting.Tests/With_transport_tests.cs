@@ -1,6 +1,5 @@
 namespace NServiceBus.Hosting.Tests
 {
-    using System;
     using NUnit.Framework;
     using Transports;
     using Unicast;
@@ -8,14 +7,11 @@ namespace NServiceBus.Hosting.Tests
     [TestFixture]
     public class With_transport_tests
     {
-
         [Test]
         public void Should_configure_requested_transport()
         {
             var config = Configure.With(o => o.EndpointName("myTests"));
-            RoleManager.TweakConfig(new ConfigWithCustomTransport(), config);
 
-            Assert.AreEqual(typeof(MyTransportConfigurer), config.Settings.Get<Type>("TransportConfigurer"));
             Assert.IsInstanceOf<MyTestTransport>(config.Settings.Get<TransportDefinition>());
         }
 
@@ -23,9 +19,7 @@ namespace NServiceBus.Hosting.Tests
         public void Should_default_to_msmq_if_no_other_transport_is_configured()
         {
             var config = Configure.With(o => o.EndpointName("myTests"));
-            var handler = new EnableSelectedTransport();
-            handler.Run(config);
-
+            
             Assert.True(config.Settings.Get<TransportDefinition>() is Msmq);
         }
 
@@ -33,10 +27,7 @@ namespace NServiceBus.Hosting.Tests
         public void Should_used_configured_transport_if_one_is_configured()
         {
             var config = Configure.With(o => o.EndpointName("myTests"));
-            var handler = new EnableSelectedTransport();
             config.Configurer.ConfigureComponent<MyTestTransportSender>(DependencyLifecycle.SingleInstance);
-
-            handler.Run(config);
 
             Assert.IsInstanceOf<MyTestTransportSender>(config.Builder.Build<ISendMessages>());
         }
@@ -64,12 +55,5 @@ namespace NServiceBus.Hosting.Tests
 
     public class MyTestTransport : TransportDefinition
     {
-    }
-
-    public class MyTransportConfigurer : IConfigureTransport<MyTestTransport>
-    {
-        public void Configure(Configure config)
-        {
-        }
     }
 }

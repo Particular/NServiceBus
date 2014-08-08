@@ -6,7 +6,6 @@
 
     class RoleManager
     {
-
         public static void TweakConfigurationBuilder(IConfigureThisEndpoint specifier, ConfigurationBuilder config)
         {
             if (specifier is AsA_Server)
@@ -16,17 +15,8 @@
             else if (specifier is AsA_Client)
             {
                 config.PurgeOnStartup(true)
-                    .Transactions(settings => settings.Disable()); 
-            }
-        }
+                    .Transactions(settings => settings.Disable());
 
-        public static void TweakConfig(IConfigureThisEndpoint specifier,Configure config)
-        {
-            if (specifier is AsA_Server)
-            {
-            }
-            else if (specifier is AsA_Client)
-            {
                 config.DisableFeature<Features.SecondLevelRetries>()
                     .DisableFeature<StorageDrivenPublishing>()
                     .DisableFeature<TimeoutManager>();

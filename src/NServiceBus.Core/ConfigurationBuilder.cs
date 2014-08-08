@@ -11,6 +11,7 @@ namespace NServiceBus
     using Config.ConfigurationSource;
     using Container;
     using NServiceBus.Config.Conventions;
+    using NServiceBus.Transports;
     using ObjectBuilder.Autofac;
     using ObjectBuilder.Common;
     using Settings;
@@ -24,6 +25,29 @@ namespace NServiceBus
         internal ConfigurationBuilder()
         {
             configurationSourceToUse = new DefaultConfigurationSource();
+        }
+
+        /// <summary>
+        /// Configures NServiceBus to use the given transport.
+        /// </summary>
+        public ConfigurationBuilder UseTransport<T>(Action<TransportConfiguration> customizations = null) where T : TransportDefinition
+        {
+            return UseTransport(typeof(T), customizations);
+        }
+
+        /// <summary>
+        /// Configures NServiceBus to use the given transport.
+        /// </summary>
+        public ConfigurationBuilder UseTransport(Type transportDefinitionType, Action<TransportConfiguration> customizations = null)
+        {
+            this.transportDefinitionType = transportDefinitionType;
+
+            if (customizations != null)
+            {
+                customizations(new TransportConfiguration(settings));
+            }
+            
+            return this;
         }
 
         /// <summary>
@@ -164,6 +188,12 @@ namespace NServiceBus
                     scannedTypes = scannedTypes.Union(Configure.GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
                 }
             }
+
+            var transportDefinition = transportDefinitionType.Construct<TransportDefinition>();
+            settings.Set<TransportDefinition>(transportDefinition);
+
+            transportDefinition.Configure(this);
+            
             var container = customBuilder ?? new AutofacObjectBuilder();
             RegisterEndpointWideDefaults();
 
@@ -188,7 +218,7 @@ namespace NServiceBus
             {
                 endpointName = endpointHelper.GetDefaultEndpointName();
             }
-            
+
             settings.SetDefault("EndpointName", endpointName);
             settings.SetDefault("TypesToScan", scannedTypes);
             settings.SetDefault("EndpointVersion", endpointVersion);
@@ -209,6 +239,7 @@ namespace NServiceBus
         string endpointVersion;
         IList<Type> scannedTypes;
         internal SettingsHolder settings = new SettingsHolder();
+        Type transportDefinitionType = typeof(Msmq);
     }
 
 }

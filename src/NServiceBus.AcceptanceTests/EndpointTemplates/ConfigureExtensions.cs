@@ -17,7 +17,7 @@
             return dictionary[key];
         }
 
-        public static Configure DefineTransport(this Configure config, IDictionary<string, string> settings)
+        public static ConfigurationBuilder DefineTransport(this ConfigurationBuilder config, IDictionary<string, string> settings)
         {
             if (!settings.ContainsKey("Transport"))
             {
