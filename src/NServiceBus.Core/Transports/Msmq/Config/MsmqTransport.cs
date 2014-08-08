@@ -9,7 +9,7 @@
     /// <summary>
     /// Used to configure the MSMQ transport.
     /// </summary>
-    public class MsmqTransport : ConfigureTransport<Msmq>
+    public class MsmqTransport : ConfigureTransport
     {
         internal MsmqTransport()
         {
@@ -17,16 +17,16 @@
         }
 
         /// <summary>
-        /// <see cref="Feature.Setup"/>
+        /// Initializes a new instance of <see cref="ConfigureTransport"/>.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected override void Configure(FeatureConfigurationContext context, string connectionString)
         {
             new CheckMachineNameForComplianceWithDtcLimitation()
             .Check();
             context.Container.ConfigureComponent<CorrelationIdMutatorForBackwardsCompatibilityWithV3>(DependencyLifecycle.InstancePerCall);
             context.Container.ConfigureComponent<MsmqUnitOfWork>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.PurgeOnStartup, context.Settings.GetPurgeOnStartup());
+                .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.GetPurgeOnStartup(context.Settings));
 
             var cfg = context.Settings.GetConfigSection<MsmqMessageQueueConfig>();
 
@@ -40,8 +40,6 @@
             }
             else
             {
-                var connectionString = context.Settings.Get<string>("NServiceBus.Transport.ConnectionString");
-
                 if (connectionString != null)
                 {
                     settings = new MsmqConnectionStringBuilder(connectionString).RetrieveSettings();
@@ -57,20 +55,7 @@
         }
 
         /// <summary>
-        /// <see cref="ConfigureTransport{T}.InternalConfigure"/>
-        /// </summary>
-        protected override void InternalConfigure(Configure config)
-        {
-            config.EnableFeature<MsmqTransport>();
-            config.EnableFeature<MessageDrivenSubscriptions>();
-            config.EnableFeature<TimeoutManagerBasedDeferral>();
-
-            config.Settings.EnableFeatureByDefault<StorageDrivenPublishing>();
-            config.Settings.EnableFeatureByDefault<TimeoutManager>();
-        }
-
-        /// <summary>
-        /// <see cref="ConfigureTransport{T}.ExampleConnectionStringForErrorMessage"/>
+        /// <see cref="ConfigureTransport.ExampleConnectionStringForErrorMessage"/>
         /// </summary>
         protected override string ExampleConnectionStringForErrorMessage
         {
@@ -78,7 +63,7 @@
         }
 
         /// <summary>
-        /// <see cref="ConfigureTransport{T}.RequiresConnectionString"/>
+        /// <see cref="ConfigureTransport.RequiresConnectionString"/>
         /// </summary>
         protected override bool RequiresConnectionString
         {

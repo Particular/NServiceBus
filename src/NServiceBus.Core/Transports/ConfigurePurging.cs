@@ -22,7 +22,7 @@ namespace NServiceBus
         /// <summary>
         /// Retrieves the current stored value for Transport.PurgeOnStartup stored in <paramref name="settings"/>.
         /// </summary>
-        public static bool GetPurgeOnStartup(this ReadOnlySettings settings)
+        public static bool GetPurgeOnStartup(ReadOnlySettings settings)
         {
             bool purgeOnStartup;
             if (settings.TryGet("Transport.PurgeOnStartup", out purgeOnStartup))

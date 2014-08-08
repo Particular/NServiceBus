@@ -122,8 +122,6 @@ namespace NServiceBus
                 RoleManager.TweakConfigurationBuilder(specifier, builder);
                 profileManager.ActivateProfileHandlers(builder);
             });
-
-            RoleManager.TweakConfig(specifier, config);
         }
 
         // Windows hosting behavior when critical error occurs is suicide.

@@ -20,7 +20,6 @@ namespace NServiceBus.Features
     /// </summary>
     class UnicastBus : Feature
     {
-
         internal UnicastBus()
         {
             EnableByDefault();

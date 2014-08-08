@@ -7,33 +7,38 @@ namespace NServiceBus.Transports
     /// <summary>
     /// Base class for configuring <see cref="TransportDefinition"/> features.
     /// </summary>
-    /// <typeparam name="T">The <see cref="TransportDefinition"/> to configure.</typeparam>
-    public abstract class ConfigureTransport<T> : Feature, IConfigureTransport<T> where T : TransportDefinition, new()
+    public abstract class ConfigureTransport : Feature
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="ConfigureTransport{T}"/>.
+        /// Default constructor.
         /// </summary>
-        public void Configure(Configure config)
+        protected ConfigureTransport()
         {
-            var connectionString = config.Settings.Get<TransportConnectionString>().GetConnectionStringOrNull();
-
-
-            if (connectionString == null && RequiresConnectionString)
-            {
-                throw new InvalidOperationException(String.Format(Message, GetConfigFileIfExists(), typeof(T).Name, ExampleConnectionStringForErrorMessage));
-            }
-
-            config.Settings.Set("NServiceBus.Transport.ConnectionString", connectionString);
-
-            var selectedTransportDefinition = config.Settings.Get<TransportDefinition>();
-            config.Configurer.RegisterSingleton(selectedTransportDefinition);
-            InternalConfigure(config);
+            Defaults(s => s.SetDefault<TransportConnectionString>(TransportConnectionString.Default));
         }
 
         /// <summary>
-        /// Gives implementations access to the <see cref="Configure"/> instance at construction time.
+        /// <see cref="Feature.Setup"/>
         /// </summary>
-        protected abstract void InternalConfigure(Configure config);
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            var connectionString = context.Settings.Get<TransportConnectionString>().GetConnectionStringOrNull();
+            var selectedTransportDefinition = context.Settings.Get<TransportDefinition>();
+
+            if (connectionString == null && RequiresConnectionString)
+            {
+                throw new InvalidOperationException(String.Format(Message, GetConfigFileIfExists(), selectedTransportDefinition.GetType().Name, ExampleConnectionStringForErrorMessage));
+            }
+
+            context.Container.RegisterSingleton(selectedTransportDefinition);
+
+            Configure(context, connectionString);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="ConfigureTransport"/>.
+        /// </summary>
+        protected abstract void Configure(FeatureConfigurationContext context, string connectionString);
 
         /// <summary>
         /// Used by implementations to provide an example connection string that till be used for the possible exception thrown if the <see cref="RequiresConnectionString"/> requirement is not met.

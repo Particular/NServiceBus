@@ -58,7 +58,9 @@
             {
                 o.EndpointName(endpointName)
                     .EnableInstallers()
-                    .DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+                    .DiscardFailedMessagesInsteadOfSendingToErrorQueue()
+                    .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
+                    .DisableFeature<Audit>();
 
                 if (volatileMode)
                 {
@@ -73,6 +75,17 @@
                         });
                     });
                 }
+
+                switch (args[3].ToLower())
+                {
+                    case "msmq":
+                        o.UseTransport<Msmq>();
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("Illegal transport " + args[2]);
+                }
+
                 if (suppressDTC)
                 {
                     o.Transactions(t => t.Advanced(settings => settings.DisableDistributedTransactions()));
@@ -100,9 +113,7 @@
                         throw new InvalidOperationException("Illegal serialization format " + args[2]);
                 }
             })
-                .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
-                .UsePersistence<InMemory>()
-                .DisableFeature<Audit>();
+            .UsePersistence<InMemory>();
 
 
             if (volatileMode)
@@ -111,20 +122,9 @@
 
             }
 
-
             if (encryption)
             {
                 SetupRijndaelTestEncryptionService();
-            }
-
-            switch (args[3].ToLower())
-            {
-                case "msmq":
-                    config.UseTransport<Msmq>();
-                    break;
-
-                default:
-                    throw new InvalidOperationException("Illegal transport " + args[2]);
             }
 
             using (var startableBus = config.CreateBus())
@@ -145,7 +145,6 @@
 
                 while (Interlocked.Read(ref Statistics.NumberOfMessages) < numberOfMessages)
                     Thread.Sleep(1000);
-
 
                 DumpSetting(args);
                 Statistics.Dump();

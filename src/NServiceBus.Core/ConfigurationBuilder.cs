@@ -164,6 +164,9 @@ namespace NServiceBus
                     scannedTypes = scannedTypes.Union(Configure.GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
                 }
             }
+
+            UseTransportExtensions.SetupTransport(this);
+            
             var container = customBuilder ?? new AutofacObjectBuilder();
             RegisterEndpointWideDefaults();
 
@@ -188,7 +191,7 @@ namespace NServiceBus
             {
                 endpointName = endpointHelper.GetDefaultEndpointName();
             }
-            
+
             settings.SetDefault("EndpointName", endpointName);
             settings.SetDefault("TypesToScan", scannedTypes);
             settings.SetDefault("EndpointVersion", endpointVersion);
