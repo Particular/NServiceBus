@@ -41,8 +41,8 @@
                 {
                     o.UseSerialization(Type.GetType(serializer));
                 }
-            })
-            .DefinePersistence(settings);
+                o.DefinePersistence(settings);
+            });
 
             config.Settings.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             config.Pipeline.Register<SubscriptionBehavior.Registration>();

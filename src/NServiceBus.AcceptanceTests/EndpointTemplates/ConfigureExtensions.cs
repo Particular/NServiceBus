@@ -29,7 +29,7 @@
             return config.UseTransport(transportType, c => c.ConnectionString(settings["Transport.ConnectionString"]));
         }
 
-        public static Configure DefinePersistence(this Configure config, IDictionary<string, string> settings)
+        public static ConfigurationBuilder DefinePersistence(this ConfigurationBuilder config, IDictionary<string, string> settings)
         {
             if (!settings.ContainsKey("Persistence"))
             {

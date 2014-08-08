@@ -9,11 +9,11 @@
     {
         internal InMemory()
         {
-            Supports(Storage.Sagas, settings => settings.EnableFeatureByDefault<InMemorySagaPersistence>());
-            Supports(Storage.Timeouts, settings => settings.EnableFeatureByDefault<InMemoryTimeoutPersistence>());
-            Supports(Storage.Subscriptions, settings => settings.EnableFeatureByDefault<InMemorySubscriptionPersistence>());
-            Supports(Storage.Outbox, settings => settings.EnableFeatureByDefault<InMemoryOutboxPersistence>());
-            Supports(Storage.GatewayDeduplication, settings => settings.EnableFeatureByDefault<InMemoryGatewayPersistence>());
+            Supports(Storage.Sagas, s => s.EnableFeatureByDefault<InMemorySagaPersistence>());
+            Supports(Storage.Timeouts, s => s.EnableFeatureByDefault<InMemoryTimeoutPersistence>());
+            Supports(Storage.Subscriptions, s => s.EnableFeatureByDefault<InMemorySubscriptionPersistence>());
+            Supports(Storage.Outbox, s => s.EnableFeatureByDefault<InMemoryOutboxPersistence>());
+            Supports(Storage.GatewayDeduplication, s => s.EnableFeatureByDefault<InMemoryGatewayPersistence>());
         }
         
     }

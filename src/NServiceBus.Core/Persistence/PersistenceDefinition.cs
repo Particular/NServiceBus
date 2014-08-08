@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using NServiceBus.Settings;
 
     /// <summary>
@@ -29,14 +30,24 @@
             return StorageToActionMap.ContainsKey(storage);
         }
 
-        internal IEnumerable<Storage> SupportedStorages
+        internal void ApplyActionForStorage(Storage storage, SettingsHolder settings)
         {
-            get { return StorageToActionMap.Keys; }
+            var actionForStorage = StorageToActionMap[storage];
+            actionForStorage(settings);
         }
 
-        internal Action<SettingsHolder> GetActionForStorage(Storage storage)
+        internal List<Storage> GetSupportedStorages(SettingsHolder settings, Action<PersistenceConfiguration> customizations)
         {
-             return StorageToActionMap[storage]; 
+            if (customizations != null)
+            {
+                var persistenceConfiguration = new PersistenceConfiguration(settings);
+                customizations(persistenceConfiguration);
+                if (persistenceConfiguration.SpecificStorages.Any())
+                {
+                    return persistenceConfiguration.SpecificStorages;
+                }
+            }
+            return StorageToActionMap.Keys.ToList();
         }
 
         Dictionary<Storage, Action<SettingsHolder>> StorageToActionMap = new Dictionary<Storage, Action<SettingsHolder>>();
