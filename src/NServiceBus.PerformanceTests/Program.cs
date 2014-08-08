@@ -170,9 +170,7 @@
 
         static void SeedSagaMessages(int numberOfMessages, string inputQueue, int concurrency)
         {
-#pragma warning disable 0618
-            var bus = Configure.Instance.Builder.Build<IBus>();
-#pragma warning restore 0618
+            var bus = config.Builder.Build<IBus>();
 
             for (var i = 0; i < numberOfMessages / concurrency; i++)
             {
