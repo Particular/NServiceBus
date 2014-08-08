@@ -9,11 +9,14 @@ namespace NServiceBus
     /// </summary>
     public class TransportConfiguration
     {
-        SettingsHolder settings;
+        /// <summary>
+        /// Access to the current <see cref="SettingsHolder"/> instance.
+        /// </summary>
+        public SettingsHolder Settings { get; private set; }
 
         internal TransportConfiguration(SettingsHolder settings)
         {
-            this.settings = settings;
+            Settings = settings;
         }
 
         /// <summary>
@@ -21,7 +24,7 @@ namespace NServiceBus
         /// </summary>
         public void ConnectionString(string connectionString)
         {
-            settings.Set<TransportConnectionString>(new TransportConnectionString(() => connectionString));
+            Settings.Set<TransportConnectionString>(new TransportConnectionString(() => connectionString));
         }
 
         /// <summary>
@@ -29,7 +32,7 @@ namespace NServiceBus
         /// </summary>
         public void ConnectionStringName(string name)
         {
-            settings.Set<TransportConnectionString>(new TransportConnectionString(name));
+            Settings.Set<TransportConnectionString>(new TransportConnectionString(name));
         }
 
         /// <summary>
@@ -37,7 +40,7 @@ namespace NServiceBus
         /// </summary>
         public void ConnectionString(Func<string> connectionString)
         {
-            settings.Set<TransportConnectionString>(new TransportConnectionString(connectionString));
+            Settings.Set<TransportConnectionString>(new TransportConnectionString(connectionString));
         }
     }
 }
