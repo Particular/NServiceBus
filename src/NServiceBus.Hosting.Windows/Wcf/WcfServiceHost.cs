@@ -21,11 +21,10 @@ namespace NServiceBus.Hosting.Wcf
 
         }
 
-
         /// <summary>
         /// Adds the given endpoint unless its already configured in app.config
         /// </summary>
-        public void AddDefaultEndpoint(Type contractType,Binding binding,string address)
+        public void AddDefaultEndpoint(Type contractType, Binding binding, string address)
         {
             var serviceModel = ServiceModelSectionGroup.GetSectionGroup(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None));
             

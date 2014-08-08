@@ -12,15 +12,14 @@
     /// </summary>
     class WcfManager
     {
-
         internal static Configure Configure;
+
         /// <summary>
         ///     Starts a <see cref="ServiceHost" /> for each found service. Defaults to <see cref="BasicHttpBinding" /> if
         ///     no user specified binding is found
         /// </summary>
         public void Startup(Configure config)
         {
-
             Configure = config;
             var conventions = config.Builder.Build<Conventions>();
 
