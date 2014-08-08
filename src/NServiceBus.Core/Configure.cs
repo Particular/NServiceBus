@@ -27,66 +27,38 @@ namespace NServiceBus
         /// </summary>
         internal Configure(SettingsHolder settings, IContainer container)
         {
-            this.settings = settings;
+            Settings = settings;
             LogManager.HasConfigBeenInitialised = true;
             
             RegisterContainerAdapter(container);
 
-            configurer.RegisterSingleton(this);
-            configurer.RegisterSingleton<ReadOnlySettings>(settings);
+            Configurer.RegisterSingleton(this);
+            Configurer.RegisterSingleton<ReadOnlySettings>(settings);
             
             settings.Set<PipelineModifications>(new PipelineModifications());
+            Pipeline = new PipelineSettings(this);
         }
 
         /// <summary>
         ///     Provides access to the settings holder
         /// </summary>
-        public SettingsHolder Settings
-        {
-            get { return settings; }
-        }
-
+        public SettingsHolder Settings { get; private set; }
 
         /// <summary>
         ///     Gets the builder.
         /// </summary>
-        public IBuilder Builder
-        {
-            get
-            {
-                if (builder == null)
-                {
-                    throw new InvalidOperationException("You can't access Configure.Instance.Builder before calling specifying a builder. Please add a call to Configure.DefaultBuilder() or any of the other supported builders to set one up");
-                }
-
-                return builder;
-            }
-        }
+        public IBuilder Builder { get; private set; }
 
         /// <summary>
         ///     Gets/sets the object used to configure components.
         ///     This object should eventually reference the same container as the Builder.
         /// </summary>
-        public IConfigureComponents Configurer
-        {
-            get
-            {
-                if (configurer == null)
-                {
-                    throw new InvalidOperationException("You can't access Configure.Instance.Configurer before calling specifying a builder. Please add a call to Configure.DefaultBuilder() or any of the other supported builders to set one up");
-                }
-
-                return configurer;
-            }
-        }
+        public IConfigureComponents Configurer { get; private set; }
 
         /// <summary>
         /// Access to the pipeline configuration
         /// </summary>
-        public PipelineSettings Pipeline
-        {
-            get { return pipelineSettings ?? (pipelineSettings = new PipelineSettings(this)); }
-        }
+        public PipelineSettings Pipeline { get; private set; }
 
         /// <summary>
         ///     Returns types in assemblies found in the current directory.
@@ -98,10 +70,10 @@ namespace NServiceBus
 
         void RegisterContainerAdapter(IContainer container)
         {
-            var b = new CommonObjectBuilder { Container = container, Synchronized = settings.GetOrDefault<bool>("UseSynchronizationDomain") };
+            var b = new CommonObjectBuilder { Container = container, Synchronized = Settings.GetOrDefault<bool>("UseSynchronizationDomain") };
 
-            builder = b;
-            configurer = b;
+            Builder = b;
+            Configurer = b;
 
             Configurer.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(c => c.Container, container);
@@ -112,7 +84,7 @@ namespace NServiceBus
         {
             TypesToScan
                 .Where(t => t.GetInterfaces().Any(IsGenericConfigSource))
-                .ToList().ForEach(t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+                .ToList().ForEach(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
         }
 
         /// <summary>
@@ -158,7 +130,7 @@ namespace NServiceBus
                 return;
             }
 
-            Address.InitializeLocalAddress(settings.EndpointName());
+            Address.InitializeLocalAddress(Settings.EndpointName());
 
             WireUpConfigSectionOverrides();
 
@@ -312,11 +284,7 @@ namespace NServiceBus
 
         static ILog logger = LogManager.GetLogger<Configure>();
         bool initialized;
-        IBuilder builder;
-        IConfigureComponents configurer;
         FeatureActivator featureActivator;
-        PipelineSettings pipelineSettings;
-        SettingsHolder settings;
 
         /// <summary>
         /// Conventions builder class.
@@ -388,9 +356,7 @@ namespace NServiceBus
 
             internal Conventions BuildConventions()
             {
-                var conventions = new Conventions(isCommandTypeAction: definesCommandType, isDataBusPropertyAction: definesDataBusProperty, isEncryptedPropertyAction: definesEncryptedProperty, isEventTypeAction: definesEventType, isExpressMessageAction: definesExpressMessageType, isMessageTypeAction: definesMessageType, timeToBeReceivedAction: retrieveTimeToBeReceived);
-           
-                return conventions;
+                return new Conventions(isCommandTypeAction: definesCommandType, isDataBusPropertyAction: definesDataBusProperty, isEncryptedPropertyAction: definesEncryptedProperty, isEventTypeAction: definesEventType, isExpressMessageAction: definesExpressMessageType, isMessageTypeAction: definesMessageType, timeToBeReceivedAction: retrieveTimeToBeReceived);
             }
 
             Func<Type, bool> definesCommandType;

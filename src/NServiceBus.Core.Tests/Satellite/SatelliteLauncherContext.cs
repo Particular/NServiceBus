@@ -28,7 +28,7 @@
 
             Transport = new TransportReceiver(new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, 5, false,false), 1, 0, FakeReceiver, InMemoryFaultManager, new SettingsHolder());
 
-            Configure.With(o =>
+            var configure = Configure.With(o =>
             {
                 o.EndpointName("xyz");
                 o.AssembliesToScan(new Assembly[0]);
@@ -39,7 +39,7 @@
             Builder.Register<TransportReceiver>(() => Transport);
 
             var configurer = new SatelliteConfigurer();
-            configurer.Init(Configure.Instance);
+            configurer.Init(configure);
 
             var launcher = new SatelliteLauncher(Builder);
 
