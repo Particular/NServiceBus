@@ -16,7 +16,6 @@ namespace NServiceBus
     using NServiceBus.ObjectBuilder.Common;
     using NServiceBus.Settings;
     using NServiceBus.Utils.Reflection;
-    using NServiceBus.Persistence;
 
     /// <summary>
     ///     Builder that construct the endpoint configuration.
@@ -167,7 +166,6 @@ namespace NServiceBus
             }
 
             UseTransportExtensions.SetupTransport(this);
-            PersistenceConfig.SetupPersistence(this);
             var container = customBuilder ?? new AutofacObjectBuilder();
             RegisterEndpointWideDefaults();
 
