@@ -16,14 +16,13 @@ namespace NServiceBus
 
         [ObsoleteEx(
             RemoveInVersion = "6",
-            TreatAsErrorFromVersion = "5.1",
+            TreatAsErrorFromVersion = "5.0",
             Message = "Configure is now instance based. For usages before the container is configured an instance of Configure is passed in. For usages after the container is configured then an instance of Configure can be extracted from the container.")]
         public static Configure Instance
         {
             get
             {
-                //we can't check for null here since that would break the way we do extension methods (the must be on a instance)
-                return instance;
+                throw new NotImplementedException();
             }
         }
 
@@ -196,9 +195,7 @@ namespace NServiceBus
         {
             throw new NotImplementedException();
         }
-
-        static Configure instance;
-
+        
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",

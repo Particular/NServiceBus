@@ -135,15 +135,8 @@ namespace NServiceBus
 
             customizations(options);
 
-            return With(options);
+            return options.BuildConfiguration();
         }
-
-        static Configure With(ConfigurationBuilder configurationBuilder)
-        {
-            instance = configurationBuilder.BuildConfiguration();
-            return instance;
-        }
-
 
         /// <summary>
         ///     Provides an instance to a startable bus.

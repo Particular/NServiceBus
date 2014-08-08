@@ -94,6 +94,8 @@ namespace NServiceBus
         {
             PerformConfiguration(builder => builder.EnableInstallers(username));
             config.CreateBus();
+
+            config.Builder.Dispose();
         }
 
         void PerformConfiguration(Action<ConfigurationBuilder> moreConfiguration = null)
