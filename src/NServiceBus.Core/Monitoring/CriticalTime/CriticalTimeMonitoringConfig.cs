@@ -11,7 +11,7 @@ namespace NServiceBus
         /// <summary>
         /// Enables the NServiceBus specific performance counters.
         /// </summary>
-        public static ConfigurationBuilder EnableCriticalTimeCounter(this ConfigurationBuilder config)
+        public static ConfigurationBuilder EnableCriticalTimePerformanceCounter(this ConfigurationBuilder config)
         {
             config.EnableFeature<CriticalTimeMonitoring>();
             return config;
