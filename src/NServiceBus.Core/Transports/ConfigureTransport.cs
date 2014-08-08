@@ -7,8 +7,7 @@ namespace NServiceBus.Transports
     /// <summary>
     /// Base class for configuring <see cref="TransportDefinition"/> features.
     /// </summary>
-    /// <typeparam name="T">The <see cref="TransportDefinition"/> to configure.</typeparam>
-    public abstract class ConfigureTransport<T> : Feature where T : TransportDefinition, new()
+    public abstract class ConfigureTransport : Feature
     {
         /// <summary>
         /// Default constructor.
@@ -24,20 +23,20 @@ namespace NServiceBus.Transports
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var connectionString = context.Settings.Get<TransportConnectionString>().GetConnectionStringOrNull();
+            var selectedTransportDefinition = context.Settings.Get<TransportDefinition>();
 
             if (connectionString == null && RequiresConnectionString)
             {
-                throw new InvalidOperationException(String.Format(Message, GetConfigFileIfExists(), typeof(T).Name, ExampleConnectionStringForErrorMessage));
+                throw new InvalidOperationException(String.Format(Message, GetConfigFileIfExists(), selectedTransportDefinition.GetType().Name, ExampleConnectionStringForErrorMessage));
             }
 
-            var selectedTransportDefinition = context.Settings.Get<TransportDefinition>();
             context.Container.RegisterSingleton(selectedTransportDefinition);
 
             Configure(context, connectionString);
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="ConfigureTransport{T}"/>.
+        /// Initializes a new instance of <see cref="ConfigureTransport"/>.
         /// </summary>
         protected abstract void Configure(FeatureConfigurationContext context, string connectionString);
 

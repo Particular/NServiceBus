@@ -9,7 +9,7 @@
     /// <summary>
     /// Used to configure the MSMQ transport.
     /// </summary>
-    public class MsmqTransport : ConfigureTransport<Msmq>
+    public class MsmqTransport : ConfigureTransport
     {
         internal MsmqTransport()
         {
@@ -17,7 +17,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="ConfigureTransport{T}"/>.
+        /// Initializes a new instance of <see cref="ConfigureTransport"/>.
         /// </summary>
         protected override void Configure(FeatureConfigurationContext context, string connectionString)
         {
@@ -55,7 +55,7 @@
         }
 
         /// <summary>
-        /// <see cref="ConfigureTransport{T}.ExampleConnectionStringForErrorMessage"/>
+        /// <see cref="ConfigureTransport.ExampleConnectionStringForErrorMessage"/>
         /// </summary>
         protected override string ExampleConnectionStringForErrorMessage
         {
@@ -63,7 +63,7 @@
         }
 
         /// <summary>
-        /// <see cref="ConfigureTransport{T}.RequiresConnectionString"/>
+        /// <see cref="ConfigureTransport.RequiresConnectionString"/>
         /// </summary>
         protected override bool RequiresConnectionString
         {
