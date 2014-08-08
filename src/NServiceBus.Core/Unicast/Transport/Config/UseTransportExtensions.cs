@@ -1,34 +1,56 @@
 namespace NServiceBus
 {
     using System;
+    using NServiceBus.Utils.Reflection;
     using Transports;
 
     /// <summary>
     /// Extension methods to configure transport.
     /// </summary>
-    public static class UseTransportExtensions
+    public static partial class UseTransportExtensions
     {
+
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-// ReSharper disable UnusedParameter.Global
-        [ObsoleteEx(Replacement = "Configure.With(c => c.UseTransport<T>(customizations", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
-        public static Configure UseTransport<T>(this Configure config, Action<TransportConfiguration> customizations = null) where T : TransportDefinition
-// ReSharper restore UnusedParameter.Global
+        public static ConfigurationBuilder UseTransport<T>(this ConfigurationBuilder configurationBuilder, Action<TransportConfiguration> customizations = null) where T : TransportDefinition, new()
         {
-            throw new InvalidOperationException();
+            return configurationBuilder.UseTransport(typeof(T), customizations);
         }
 
-
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-// ReSharper disable UnusedParameter.Global
-        [ObsoleteEx(Replacement = "Configure.With(c => c.UseTransport(transportDefinitionType, customizations)", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
-        public static Configure UseTransport(this Configure config, Type transportDefinitionType, Action<TransportConfiguration> customizations = null)
-// ReSharper restore UnusedParameter.Global
+        public static ConfigurationBuilder UseTransport(this ConfigurationBuilder configurationBuilder, Type transportDefinitionType, Action<TransportConfiguration> customizations = null)
         {
-            throw new InvalidOperationException();
+            configurationBuilder.settings.Set("transportDefinitionType", transportDefinitionType);
+            configurationBuilder.settings.Set("transportCustomizations", customizations);
+
+            return configurationBuilder;
+        }
+
+        internal static void SetupTransport(ConfigurationBuilder configurationBuilder)
+        {
+            var transportDefinition = GetTransportDefinition(configurationBuilder);
+            configurationBuilder.settings.Set<TransportDefinition>(transportDefinition);
+            transportDefinition.Configure(configurationBuilder);
+        }
+
+        static TransportDefinition GetTransportDefinition(ConfigurationBuilder configurationBuilder)
+        {
+            Type transportDefinitionType;
+            if (!configurationBuilder.settings.TryGet("transportDefinitionType", out transportDefinitionType))
+            {
+                return new Msmq();
+            }
+
+            var customizations = configurationBuilder.settings.Get<Action<TransportConfiguration>>("transportCustomizations");
+            if (customizations != null)
+            {
+                customizations(new TransportConfiguration(configurationBuilder.settings));
+            }
+
+            return transportDefinitionType.Construct<TransportDefinition>();
         }
     }
 }
