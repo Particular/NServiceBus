@@ -85,6 +85,7 @@
     <Compile Include="Config\MsmqConnectionStringBuilder.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />
+    <Compile Include="ConventionsBuilder.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction_Obsolete.cs" />
     <Compile Include="CriticalError\CriticalErrorFeature.cs" />
     <Compile Include="CriticalError\CriticalError.cs" />

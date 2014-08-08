@@ -216,18 +216,7 @@ namespace NServiceBus
         {
             get { throw new NotImplementedException(); }
         }
-
-        //public static Func<string> DefineEndpointVersionRetriever;
-
-        //public static IConfigurationSource ConfigurationSource{get;set;}
-
-        //public static Endpoint Endpoint
-        //{
-        //    get
-        //    {
-        //    }
-        //}
-
+        
         [ObsoleteEx(
           Message = "This has been converted to extension methods",
           RemoveInVersion = "6",
@@ -241,13 +230,6 @@ namespace NServiceBus
             }
         }
 
-        //public static SerializationSettings Serialization
-        //{
-        //    get
-        //    {
-        //    }
-        //}
-
         [ObsoleteEx(
             Message = "This has been converted to an extension method",
             RemoveInVersion = "6",
@@ -260,22 +242,7 @@ namespace NServiceBus
                 throw new NotImplementedException();
             }
         }
-
-        //public static TransportSettings Transports
-        //{
-        //    get
-        //    {
-        //    }
-        //}
-
-        //public static IList<Type> TypesToScan
-        //{
-        //    get;
-        //    private set;
-        //}
-
     }
-
 }
 
 namespace NServiceBus.Features

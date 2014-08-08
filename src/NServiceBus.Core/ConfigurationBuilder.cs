@@ -8,13 +8,14 @@ namespace NServiceBus
     using System.Reflection;
     using System.Transactions;
     using System.Web;
-    using Config.ConfigurationSource;
-    using Container;
+    using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Config.Conventions;
-    using ObjectBuilder.Autofac;
-    using ObjectBuilder.Common;
-    using Settings;
-    using Utils.Reflection;
+    using NServiceBus.Container;
+    using NServiceBus.Hosting.Helpers;
+    using NServiceBus.ObjectBuilder.Autofac;
+    using NServiceBus.ObjectBuilder.Common;
+    using NServiceBus.Settings;
+    using NServiceBus.Utils.Reflection;
 
     /// <summary>
     ///     Builder that construct the endpoint configuration.
@@ -60,10 +61,9 @@ namespace NServiceBus
         public ConfigurationBuilder ScanAssembliesInDirectory(string probeDirectory)
         {
             directory = probeDirectory;
-            AssembliesToScan(Configure.GetAssembliesInDirectory(probeDirectory));
+            AssembliesToScan(GetAssembliesInDirectory(probeDirectory));
             return this;
         }
-
 
         /// <summary>
         ///     Overrides the default configuration source.
@@ -96,7 +96,7 @@ namespace NServiceBus
         /// <summary>
         ///     Defines the conventions to use for this endpoint.
         /// </summary>
-        public ConfigurationBuilder Conventions(Action<Configure.ConventionsBuilder> conventions)
+        public ConfigurationBuilder Conventions(Action<ConventionsBuilder> conventions)
         {
             conventions(conventionsBuilder);
 
@@ -166,7 +166,7 @@ namespace NServiceBus
             }
 
             UseTransportExtensions.SetupTransport(this);
-            
+
             var container = customBuilder ?? new AutofacObjectBuilder();
             RegisterEndpointWideDefaults();
 
@@ -176,6 +176,19 @@ namespace NServiceBus
             settings.SetDefault<Conventions>(conventions);
 
             return new Configure(settings, container);
+        }
+
+        IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
+        {
+            var assemblyScanner = new AssemblyScanner(path);
+            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
+            if (assembliesToSkip != null)
+            {
+                assemblyScanner.AssembliesToSkip = assembliesToSkip.ToList();
+            }
+            return assemblyScanner
+                .GetScannableAssemblies()
+                .Assemblies;
         }
 
         void RegisterEndpointWideDefaults()
@@ -205,7 +218,7 @@ namespace NServiceBus
         }
 
         IConfigurationSource configurationSourceToUse;
-        Configure.ConventionsBuilder conventionsBuilder = new Configure.ConventionsBuilder();
+        ConventionsBuilder conventionsBuilder = new ConventionsBuilder();
         IContainer customBuilder;
         string directory;
         string endpointName;
@@ -213,5 +226,4 @@ namespace NServiceBus
         IList<Type> scannedTypes;
         internal SettingsHolder settings = new SettingsHolder();
     }
-
 }

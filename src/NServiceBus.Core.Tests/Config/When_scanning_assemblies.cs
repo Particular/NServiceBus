@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Tests.Config
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using NServiceBus.Hosting.Helpers;
     using NUnit.Framework;
 
     [TestFixture]
@@ -14,7 +15,7 @@ namespace NServiceBus.Core.Tests.Config
         [SetUp]
         public void SetUp()
         {
-            foundAssemblies = Configure.GetAssembliesInDirectory(AppDomain.CurrentDomain.BaseDirectory)
+            foundAssemblies = GetAssembliesInDirectory(AppDomain.CurrentDomain.BaseDirectory)
                 .ToList();
         }
 
@@ -39,6 +40,19 @@ namespace NServiceBus.Core.Tests.Config
         {
             CollectionAssert.AreEquivalent(new String[0],
                 foundAssemblies.Where(a => a.FullName.ToLower().StartsWith("nhibernate")).ToArray());
+        }
+
+        IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
+        {
+            var assemblyScanner = new AssemblyScanner(path);
+            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
+            if (assembliesToSkip != null)
+            {
+                assemblyScanner.AssembliesToSkip = assembliesToSkip.ToList();
+            }
+            return assemblyScanner
+                .GetScannableAssemblies()
+                .Assemblies;
         }
     }
 }
