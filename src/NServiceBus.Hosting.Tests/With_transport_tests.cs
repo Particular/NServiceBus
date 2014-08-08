@@ -10,7 +10,8 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void Should_configure_requested_transport()
         {
-            var config = Configure.With(o => o.EndpointName("myTests"));
+            var config = Configure.With(o => o.EndpointName("myTests")
+                .UseTransport<MyTestTransport>());
 
             Assert.IsInstanceOf<MyTestTransport>(config.Settings.Get<TransportDefinition>());
         }
@@ -21,15 +22,6 @@ namespace NServiceBus.Hosting.Tests
             var config = Configure.With(o => o.EndpointName("myTests"));
             
             Assert.True(config.Settings.Get<TransportDefinition>() is Msmq);
-        }
-
-        [Test]
-        public void Should_used_configured_transport_if_one_is_configured()
-        {
-            var config = Configure.With(o => o.EndpointName("myTests"));
-            config.Configurer.ConfigureComponent<MyTestTransportSender>(DependencyLifecycle.SingleInstance);
-
-            Assert.IsInstanceOf<MyTestTransportSender>(config.Builder.Build<ISendMessages>());
         }
     }
 
