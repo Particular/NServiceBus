@@ -170,7 +170,6 @@
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="Persistence\EnabledPersistences.cs" />
     <Compile Include="Persistence\Msmq\Msmq.cs" />
-    <Compile Include="Persistence\Msmq\MsmqPersistence.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
     <Compile Include="Persistence\Storage.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
@@ -229,7 +228,6 @@
     <Compile Include="Outbox\TransportOperation.cs" />
     <Compile Include="Outbox\TransportOperationConverter.cs" />
     <Compile Include="Persistence\EnableSelectedPersistences.cs" />
-    <Compile Include="Persistence\IConfigurePersistence.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayPersistence.cs" />
     <Compile Include="Persistence\InMemory\InMemory.cs" />
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemoryTimeoutPersister.cs" />
@@ -345,7 +343,6 @@
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />
     <Compile Include="Unicast\Messages\DeserializeLogicalMessagesBehavior.cs" />
-    <Compile Include="Persistence\InMemory\InMemoryPersistence.cs" />
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySagaPersister.cs" />
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySubscriptionStorage.cs" />
     <Compile Include="Serializers\Json\Config\ConfigureJsonSerializer_Obsolete.cs" />

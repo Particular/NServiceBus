@@ -1,7 +1,8 @@
 ﻿namespace NServiceBus.Persistence
 {
+    using System;
     using System.Collections.Generic;
-    using System.Linq;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Base class for persistence definitions
@@ -11,22 +12,34 @@
         /// <summary>
         /// Used be the storage definitions to declare what they support
         /// </summary>
-        /// <param name="supported"></param>
-        protected void Supports(params Storage[] supported)
+        protected void Supports(Storage storage, Action<SettingsHolder> action)
         {
-            supportedStorages.AddRange(supported.ToList());
+            if (StorageToActionMap.ContainsKey(storage))
+            {
+                throw new Exception(string.Format("Action for {0} already defined.", storage));
+            }
+            StorageToActionMap[storage] = action;
         }
 
         /// <summary>
         /// True if supplied storage is supported
         /// </summary>
-        /// <param name="storage"></param>
         public bool HasSupportFor(Storage storage)
         {
-            return SupportedStorages.Contains(storage);
+            return StorageToActionMap.ContainsKey(storage);
         }
-        internal IEnumerable<Storage> SupportedStorages { get { return supportedStorages.Distinct(); } }
- 
-        List<Storage> supportedStorages = new List<Storage>();
+
+        internal IEnumerable<Storage> SupportedStorages
+        {
+            get { return StorageToActionMap.Keys; }
+        }
+
+        internal Action<SettingsHolder> GetActionForStorage(Storage storage)
+        {
+             return StorageToActionMap[storage]; 
+        }
+
+        Dictionary<Storage, Action<SettingsHolder>> StorageToActionMap = new Dictionary<Storage, Action<SettingsHolder>>();
+
     }
 }

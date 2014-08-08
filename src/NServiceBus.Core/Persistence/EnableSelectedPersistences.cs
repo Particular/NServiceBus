@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.Persistence
 {
     using System;
-    using System.Linq;
     using System.Windows.Forms;
     using Logging;
+    using NServiceBus.Utils.Reflection;
 
     class EnableSelectedPersistences:IWantToRunBeforeConfigurationIsFinalized
     {
@@ -15,19 +15,16 @@
             {
                 var definitionType = selectedPersistence.PersistenceType;
 
-                var type = config.TypesToScan.SingleOrDefault(t => typeof(IConfigurePersistence<>).MakeGenericType(definitionType).IsAssignableFrom(t));
+                var persistenceDefinition = selectedPersistence.PersistenceType.Construct<PersistenceDefinition>();
 
-                if (type == null)
+                foreach (var storage in selectedPersistence.StoragesToEnable)
                 {
-                    throw new InvalidOperationException("We couldn't find a IConfigurePersistence implementation for your selected persistence: " + definitionType.Name);
+                    var action = persistenceDefinition.GetActionForStorage(storage);
+                    action(config.Settings);
                 }
 
                 Logger.InfoFormat("Activating persistence {0} to provide {1} storage(s)", definitionType.Name, string.Join(",", selectedPersistence.StoragesToEnable));
-
-                ((IConfigurePersistence)Activator.CreateInstance(type)).Enable(config, selectedPersistence.StoragesToEnable);
             }
-
-          
         }
 
         static void DefaultToInMemoryIfNeeded(Configure config)
