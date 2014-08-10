@@ -19,6 +19,11 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            if (context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
+            {
+                return;
+            }
+
             SetupSLABreachCounter(context);
 
             context.Pipeline.Register<SLABehavior.Registration>();

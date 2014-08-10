@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Transport
         /// <param name="receiver">The <see cref="IDequeueMessages"/> instance to use.</param>
         /// <param name="manageMessageFailures">The <see cref="IManageMessageFailures"/> instance to use.</param>
         /// <param name="settings">The current settings</param>
-        public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures,ReadOnlySettings settings)
+        public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures, ReadOnlySettings settings)
         {
             this.settings = settings;
             TransactionSettings = transactionSettings;

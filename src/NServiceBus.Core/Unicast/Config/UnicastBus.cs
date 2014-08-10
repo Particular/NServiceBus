@@ -38,12 +38,17 @@ namespace NServiceBus.Features
             ConfigureBehaviors(context);
 
             var knownMessages = context.Settings.GetAvailableTypes()
-            .Where(context.Settings.Get<Conventions>().IsMessageType)
-            .ToList();
+                .Where(context.Settings.Get<Conventions>().IsMessageType)
+                .ToList();
 
             RegisterMessageOwnersAndBusAddress(context, knownMessages);
 
             ConfigureMessageRegistry(context, knownMessages);
+
+            if (context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
+            {
+                return;
+            }
 
             SetTransportThresholds(context);
         }
