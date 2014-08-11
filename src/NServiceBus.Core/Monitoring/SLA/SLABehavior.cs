@@ -16,16 +16,15 @@
         public void Invoke(IncomingContext context, Action next)
         {
             next();
-            string timeSentString;
-            var headers = context.PhysicalMessage.Headers;
-            if (headers.TryGetValue(Headers.TimeSent, out timeSentString))
-            {
-                var timeSent = DateTimeExtensions.ToUtcDateTime(timeSentString);
-                var processingStarted = DateTimeExtensions.ToUtcDateTime(headers[Headers.ProcessingStarted]);
-                var processingEnded = DateTimeExtensions.ToUtcDateTime(headers[Headers.ProcessingEnded]);
 
-                breachCalculator.Update(timeSent, processingStarted, processingEnded);
+            DateTime timeSent;
+
+            if (!context.TryGet("IncomingMessage.TimeSent", out timeSent))
+            {
+                return;
             }
+
+            breachCalculator.Update(timeSent, context.Get<DateTime>("IncomingMessage.ProcessingStarted"), context.Get<DateTime>("IncomingMessage.ProcessingEnded"));
         }
 
         public class Registration:RegisterStep

@@ -8,16 +8,23 @@
     {
         public void Invoke(IncomingContext context, Action next)
         {
-            //since the audit captures the physical message headers then lets place them there
+            string timeSentString;
             var headers = context.PhysicalMessage.Headers;
-            headers[Headers.ProcessingStarted] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+
+            if (headers.TryGetValue(Headers.TimeSent, out timeSentString))
+            {
+                context.Set("IncomingMessage.TimeSent", DateTimeExtensions.ToUtcDateTime(timeSentString));
+            }
+
+            context.Set("IncomingMessage.ProcessingStarted", DateTime.UtcNow);
+
             try
             {
                 next();
             }
             finally
             {
-                headers[Headers.ProcessingEnded] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+                context.Set("IncomingMessage.ProcessingEnded", DateTime.UtcNow);
             }
         }
     }
