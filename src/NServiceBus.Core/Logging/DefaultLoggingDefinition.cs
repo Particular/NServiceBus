@@ -24,7 +24,7 @@ namespace NServiceBus.Logging
         public override ILoggerFactory GetLoggingFactory()
         {
             var loggerFactory = new DefaultLoggerFactory(level, directory);
-            var message = string.Format("Logging to {0} with level {1}", directory, level);
+            var message = string.Format("Logging to '{0}' with level {1}", directory, level);
             loggerFactory.Write(GetType().Name,LogLevel.Info,message);
             return loggerFactory;
         }
@@ -40,7 +40,7 @@ namespace NServiceBus.Logging
             return this;
         }
 
-        public string directory { get; set; }
+        string directory;
 
         /// <summary>
         /// The directory to log files to.
