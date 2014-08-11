@@ -17,12 +17,16 @@ namespace NServiceBus.Logging
             directory = FindDefaultLoggingDirectory();
             level = LogLevelReader.GetDefaultLogLevel();
         }
+
         /// <summary>
         /// <see cref="LoggingFactoryDefinition.GetLoggingFactory"/>.
         /// </summary>
         public override ILoggerFactory GetLoggingFactory()
         {
-            return new DefaultLoggerFactory(level, directory);            
+            var loggerFactory = new DefaultLoggerFactory(level, directory);
+            var message = string.Format("Logging to {0} with level {1}", directory, level);
+            loggerFactory.Write(GetType().Name,LogLevel.Info,message);
+            return loggerFactory;
         }
 
         LogLevel level;
@@ -43,9 +47,10 @@ namespace NServiceBus.Logging
         /// </summary>
         public DefaultFactory Directory(string directory)
         {
-            if (System.IO.Directory.Exists(directory))
+            if (!System.IO.Directory.Exists(directory))
             {
-                throw new Exception(string.Format("Could not find logging directory: {0}", directory));
+                var message = string.Format("Could not find logging directory: {0}", directory);
+                throw new Exception(message);
             }
             this.directory = directory;
             return this;
