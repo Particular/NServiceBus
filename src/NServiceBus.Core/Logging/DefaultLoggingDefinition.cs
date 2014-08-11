@@ -1,6 +1,7 @@
 namespace NServiceBus.Logging
 {
     using System;
+    using System.IO;
     using System.Web;
 
     /// <summary>
@@ -49,8 +50,8 @@ namespace NServiceBus.Logging
         {
             if (!System.IO.Directory.Exists(directory))
             {
-                var message = string.Format("Could not find logging directory: {0}", directory);
-                throw new Exception(message);
+                var message = string.Format("Could not find logging directory: '{0}'", directory);
+                throw new DirectoryNotFoundException(message);
             }
             this.directory = directory;
             return this;
