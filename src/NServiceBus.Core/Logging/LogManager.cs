@@ -21,7 +21,7 @@ namespace NServiceBus.Logging
         /// <summary>
         /// Used to inject an instance of <see cref="ILoggerFactory"/> into <see cref="LogManager"/>.
         /// </summary>
-        public static void Use<T>(Action<LoggingFactoryDefinition> customizations = null) where T : LoggingFactoryDefinition, new()
+        public static void Use<T>(Action<T> customizations = null) where T : LoggingFactoryDefinition, new()
         {
             var loggingDefinition = new T();
             if (customizations != null)
