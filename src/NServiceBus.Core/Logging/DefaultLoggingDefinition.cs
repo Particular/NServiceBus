@@ -1,7 +1,6 @@
 namespace NServiceBus.Logging
 {
     using System;
-    using System.IO;
     using System.Web;
 
     /// <summary>
@@ -15,24 +14,42 @@ namespace NServiceBus.Logging
         /// </summary>
         public DefaultFactory()
         {
-            LoggingDirectory = FindDefaultLoggingDirectory();
-            LogLevel = LogLevelReader.GetDefaultLogLevel();
+            directory = FindDefaultLoggingDirectory();
+            level = LogLevelReader.GetDefaultLogLevel();
         }
-        /// <summary>
-        /// The directory to log files to.
-        /// </summary>
-        public string LoggingDirectory { get; set; }
         /// <summary>
         /// <see cref="LoggingFactoryDefinition.GetLoggingFactory"/>.
         /// </summary>
         public override ILoggerFactory GetLoggingFactory()
         {
-            return new DefaultLoggerFactory(LogLevel, LoggingDirectory);            
+            return new DefaultLoggerFactory(level, directory);            
         }
+
+        LogLevel level;
+
         /// <summary>
-        /// Controls the logging level.
+        /// Controls the <see cref="LogLevel"/>.
         /// </summary>
-        public LogLevel LogLevel { get; set; }
+        public DefaultFactory Level(LogLevel level)
+        {
+            this.level = level;
+            return this;
+        }
+
+        public string directory { get; set; }
+
+        /// <summary>
+        /// The directory to log files to.
+        /// </summary>
+        public DefaultFactory Directory(string directory)
+        {
+            if (System.IO.Directory.Exists(directory))
+            {
+                throw new Exception(string.Format("Could not find logging directory: {0}", directory));
+            }
+            this.directory = directory;
+            return this;
+        }
 
         static string FindDefaultLoggingDirectory()
         {
@@ -40,7 +57,7 @@ namespace NServiceBus.Logging
             if (HttpContext.Current != null)
             {
                 var appDataPath = HttpContext.Current.Server.MapPath("~/App_Data/");
-                if (Directory.Exists(appDataPath))
+                if (System.IO.Directory.Exists(appDataPath))
                 {
                     return appDataPath;
                 }
