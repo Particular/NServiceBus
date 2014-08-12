@@ -40,23 +40,24 @@
             }
 
 
-            class MyTransportMessageMutator:IMutateOutgoingTransportMessages,INeedInitialization
+            class MyTransportMessageMutator : IMutateOutgoingTransportMessages, IConfigureBus
             {
 
                 public Context Context { get; set; }
+
                 public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
                 {
                     Context.OutgoingMessageLogicalMessageReceived = logicalMessage != null;
                     transportMessage.Headers["TransportMutatorCalled"] = true.ToString();
                 }
 
-                public void Init(Configure config)
+                public void Customize(ConfigurationBuilder builder)
                 {
-                    config.Configurer.ConfigureComponent<MyTransportMessageMutator>(DependencyLifecycle.InstancePerCall);
+                    builder.RegisterComponents(c => c.ConfigureComponent<MyTransportMessageMutator>(DependencyLifecycle.InstancePerCall));
                 }
             }
 
-            class MyMessageMutator : IMutateOutgoingMessages, INeedInitialization
+            class MyMessageMutator : IMutateOutgoingMessages, IConfigureBus
             {
 
              
@@ -67,9 +68,9 @@
                     return message;
                 }
 
-                public void Init(Configure config)
+                public void Customize(ConfigurationBuilder builder)
                 {
-                    config.Configurer.ConfigureComponent<MyMessageMutator>(DependencyLifecycle.InstancePerCall);
+                    builder.RegisterComponents(c => c.ConfigureComponent<MyMessageMutator>(DependencyLifecycle.InstancePerCall));
                 }
 
             }

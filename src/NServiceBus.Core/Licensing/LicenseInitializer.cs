@@ -17,7 +17,7 @@ namespace NServiceBus.Licensing
             catch (Exception ex)
             {
                 //we only log here to prevent licensing issue to abort startup and cause production outages
-                Logger.Fatal("Failed to initialize the license",ex);
+                Logger.Fatal("Failed to initialize the license", ex);
             }
             
             config.Configurer.ConfigureComponent<LicenseBehavior>(DependencyLifecycle.InstancePerCall)

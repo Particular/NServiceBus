@@ -101,6 +101,7 @@
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
+    <Compile Include="IConfigureBus.cs" />
     <Compile Include="Installation\InstallationSupport.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />
     <Compile Include="Installation\InstallConfigExtensions_obsolete.cs" />

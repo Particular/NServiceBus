@@ -6,7 +6,7 @@ namespace NServiceBus.Unicast.Monitoring
     /// <summary>
     /// Mutator to set the related to header
     /// </summary>
-    class CausationMutator : IMutateOutgoingTransportMessages, INeedInitialization
+    class CausationMutator : IMutateOutgoingTransportMessages, IConfigureBus
     {
         /// <summary>
         /// The bus is needed to get access to the current message id
@@ -40,9 +40,9 @@ namespace NServiceBus.Unicast.Monitoring
         /// <summary>
         /// Initializes 
         /// </summary>
-        public void Init(Configure config)
+        public void Customize(ConfigurationBuilder builder)
         {
-            config.Configurer.ConfigureComponent<CausationMutator>(DependencyLifecycle.InstancePerCall);
+            builder.RegisterComponents(c => c.ConfigureComponent<CausationMutator>(DependencyLifecycle.InstancePerCall));
         }
     }
 }

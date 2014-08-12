@@ -25,12 +25,13 @@ namespace NServiceBus
         /// <summary>
         ///     Protected constructor to enable creation only via the With method.
         /// </summary>
-        internal Configure(SettingsHolder settings, IContainer container)
+        internal Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations)
         {
             Settings = settings;
             LogManager.HasConfigBeenInitialised = true;
 
             RegisterContainerAdapter(container);
+            RunUserRegistrations(registrations);
 
             Configurer.RegisterSingleton(this);
             Configurer.RegisterSingleton<ReadOnlySettings>(settings);
@@ -66,6 +67,14 @@ namespace NServiceBus
         public IList<Type> TypesToScan
         {
             get { return Settings.GetAvailableTypes(); }
+        }
+
+        void RunUserRegistrations(List<Action<IConfigureComponents>> registrations)
+        {
+            foreach (var registration in registrations)
+            {
+                registration(Configurer);
+            }
         }
 
         void RegisterContainerAdapter(IContainer container)
@@ -142,13 +151,11 @@ namespace NServiceBus
 
             Configurer.RegisterSingleton(featureActivator);
 
-            ForAllTypes<Feature>(t => featureActivator.Add(t.Construct<Feature>()));
+            ForAllTypes<Feature>(TypesToScan, t => featureActivator.Add(t.Construct<Feature>()));
 
-            ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            ForAllTypes<IWantToRunWhenConfigurationIsComplete>(TypesToScan, t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            ForAllTypes<IWantToRunWhenBusStartsAndStops>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
-            ActivateAndInvoke<INeedInitialization>(t => t.Init(this));
+            ForAllTypes<IWantToRunWhenBusStartsAndStops>(TypesToScan, t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run(this));
 
@@ -163,14 +170,13 @@ namespace NServiceBus
                 .ForEach(o => o.Run(this));
         }
 
-
         /// <summary>
         ///     Applies the given action to all the scanned types that can be assigned to <typeparamref name="T" />.
         /// </summary>
-        internal void ForAllTypes<T>(Action<Type> action) where T : class
+        internal static void ForAllTypes<T>(IList<Type> types, Action<Type> action) where T : class
         {
             // ReSharper disable HeapView.SlowDelegateCreation
-            TypesToScan.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
+            types.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 // ReSharper restore HeapView.SlowDelegateCreation
                 .ToList().ForEach(action);
         }
@@ -210,7 +216,7 @@ namespace NServiceBus
 
             var details = new List<Tuple<Type, TimeSpan>>();
 
-            ForAllTypes<T>(t =>
+            ForAllTypes<T>(TypesToScan, t =>
             {
                 var sw = new Stopwatch();
 

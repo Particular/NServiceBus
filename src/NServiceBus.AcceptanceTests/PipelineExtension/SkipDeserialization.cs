@@ -29,7 +29,7 @@
             }
 
             //first we override the default "extraction" behavior
-            class MyOverride : INeedInitialization
+            class MyOverride : IConfigureBus
             {
                 public void Init(Configure config)
                 {

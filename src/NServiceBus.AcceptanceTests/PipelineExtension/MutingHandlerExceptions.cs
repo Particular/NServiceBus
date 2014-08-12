@@ -70,7 +70,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                 }
 
                 //here we inject our behavior
-                class MyExceptionFilteringOverride : INeedInitialization
+                class MyExceptionFilteringOverride : IConfigureBus
                 {
                     public void Init(Configure config)
                     {

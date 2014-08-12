@@ -52,7 +52,7 @@
                     .AuditTo<AuditSpyEndpoint>();
             }
 
-            class BodyMutator : IMutateIncomingTransportMessages, INeedInitialization
+            class BodyMutator : IMutateIncomingTransportMessages, IConfigureBus
             {
                 public Context Context { get; set; }
 
@@ -73,9 +73,9 @@
                     transportMessage.Body = modifiedBody;
                 }
 
-                public void Init(Configure config)
+                public void Customize(ConfigurationBuilder builder)
                 {
-                    config.Configurer.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall);
+                    builder.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                 }
             }
 
@@ -94,7 +94,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class BodySpy : IMutateIncomingTransportMessages, INeedInitialization
+            class BodySpy : IMutateIncomingTransportMessages, IConfigureBus
             {
                 public Context Context { get; set; }
 
@@ -105,9 +105,9 @@
                     Context.HasDiagnosticLicensingHeaders = transportMessage.Headers.TryGetValue(Headers.HasLicenseExpired, out licenseExpired);
                 }
 
-                public void Init(Configure config)
+                public void Customize(ConfigurationBuilder builder)
                 {
-                    config.Configurer.ConfigureComponent<BodySpy>(DependencyLifecycle.InstancePerCall);
+                    builder.RegisterComponents(c => c.ConfigureComponent<BodySpy>(DependencyLifecycle.InstancePerCall));
                 }
             }
 

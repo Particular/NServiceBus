@@ -57,7 +57,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                     }
                 }
 
-                class AuditFilteringOverride : INeedInitialization
+                class AuditFilteringOverride : IConfigureBus
                 {
                     public void Init(Configure config)
                     {

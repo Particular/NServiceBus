@@ -12,6 +12,7 @@ namespace NServiceBus
     using NServiceBus.Config.Conventions;
     using NServiceBus.Container;
     using NServiceBus.Hosting.Helpers;
+    using NServiceBus.ObjectBuilder;
     using NServiceBus.ObjectBuilder.Autofac;
     using NServiceBus.ObjectBuilder.Common;
     using NServiceBus.Settings;
@@ -25,6 +26,15 @@ namespace NServiceBus
         internal ConfigurationBuilder()
         {
             configurationSourceToUse = new DefaultConfigurationSource();
+        }
+
+        /// <summary>
+        ///     Used to configure components in the container.
+        /// </summary>
+        public ConfigurationBuilder RegisterComponents(Action<IConfigureComponents> registration)
+        {
+            registrations.Add(registration);
+            return this;
         }
 
         /// <summary>
@@ -175,7 +185,7 @@ namespace NServiceBus
 
             settings.SetDefault<Conventions>(conventions);
 
-            return new Configure(settings, container);
+            return new Configure(settings, container, registrations);
         }
 
         IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
@@ -219,6 +229,7 @@ namespace NServiceBus
 
         IConfigurationSource configurationSourceToUse;
         ConventionsBuilder conventionsBuilder = new ConventionsBuilder();
+        List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         IContainer customBuilder;
         string directory;
         string endpointName;

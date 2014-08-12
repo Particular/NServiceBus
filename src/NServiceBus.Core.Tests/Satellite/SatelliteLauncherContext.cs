@@ -39,7 +39,7 @@
             Builder.Register<TransportReceiver>(() => Transport);
 
             var configurer = new SatelliteConfigurer();
-            configurer.Init(configure);
+            configurer.Customize(configure);
 
             var launcher = new SatelliteLauncher(Builder);
 

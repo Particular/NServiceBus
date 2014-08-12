@@ -64,7 +64,7 @@
                     });
             }
 
-            class BodyMutator : IMutateTransportMessages, INeedInitialization
+            class BodyMutator : IMutateTransportMessages, IConfigureBus
             {
                 public Context Context { get; set; }
 
@@ -94,9 +94,9 @@
                     transportMessage.Body[0]--;
                 }
 
-                public void Init(Configure config)
+                public void Customize(ConfigurationBuilder builder)
                 {
-                    config.Configurer.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall);
+                    builder.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                 }
             }
 
