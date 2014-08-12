@@ -62,7 +62,7 @@
             {
                 configurationBuilderCustomization = b => { };
             }
-            configuration.GetConfiguration = (settings,routingTable) =>
+            configuration.GetConfiguration = (settings, routingTable) =>
                 {
                     var endpointSetupTemplate = new T();
                     var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);

@@ -48,9 +48,9 @@
                 RecordSuccess();
         }
 
-        public void Init(Configure config)
+        public void Customize(ConfigurationBuilder builder)
         {
-            config.Configurer.ConfigureComponent<StatisticsUoW>(DependencyLifecycle.InstancePerUnitOfWork);
+            builder.RegisterComponents(c => c.ConfigureComponent<StatisticsUoW>(DependencyLifecycle.InstancePerUnitOfWork));
         }
     }
 }

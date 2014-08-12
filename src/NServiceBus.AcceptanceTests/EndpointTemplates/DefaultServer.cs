@@ -29,6 +29,12 @@
                 o.CustomConfigurationSource(configSource);
                 o.EnableInstallers();
                 o.DefineTransport(settings);
+                o.Pipeline.Register<SubscriptionBehavior.Registration>();
+                o.RegisterComponents(r =>
+                {
+                    r.ConfigureComponent<SubscriptionBehavior>(DependencyLifecycle.InstancePerCall);
+                    r.RegisterSingleton(runDescriptor.ScenarioContext.GetType(), runDescriptor.ScenarioContext);
+                });
 
                 string selectedBuilder;
                 if (settings.TryGetValue("Builder", out selectedBuilder))
@@ -45,8 +51,6 @@
             });
 
             config.Settings.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
-            config.Pipeline.Register<SubscriptionBehavior.Registration>();
-            config.Configurer.ConfigureComponent<SubscriptionBehavior>(DependencyLifecycle.InstancePerCall);
 
             return config;
         }

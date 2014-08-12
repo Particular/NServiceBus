@@ -21,9 +21,9 @@
             }
         }
 
-        public void Init(Configure config)
+        public void Customize(ConfigurationBuilder builder)
         {
-            config.Configurer.ConfigureComponent<MutateMessageContentTypeOfIncomingTransportMessages>(DependencyLifecycle.InstancePerCall);
+            builder.RegisterComponents(c => c.ConfigureComponent<MutateMessageContentTypeOfIncomingTransportMessages>(DependencyLifecycle.InstancePerCall));
         }
     }
 }

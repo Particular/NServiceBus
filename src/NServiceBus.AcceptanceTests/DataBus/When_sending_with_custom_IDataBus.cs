@@ -38,8 +38,8 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c => c.Configurer.RegisterSingleton<IDataBus>(new MyDataBus()))
-                    .AddMapping<MyMessageWithLargePayload>(typeof (Receiver));
+                EndpointSetup<DefaultServer>(c => { }, b => b.RegisterComponents(r => r.RegisterSingleton<IDataBus>(new MyDataBus())))
+                    .AddMapping<MyMessageWithLargePayload>(typeof(Receiver));
             }
         }
 
@@ -47,7 +47,7 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(c => c.Configurer.RegisterSingleton<IDataBus>(new MyDataBus()));
+                EndpointSetup<DefaultServer>(c => { }, b => b.RegisterComponents(r => r.RegisterSingleton<IDataBus>(new MyDataBus())));
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessageWithLargePayload>

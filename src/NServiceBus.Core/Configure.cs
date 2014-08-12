@@ -2,10 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
-    using System.Text;
     using NServiceBus.Config;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Features;
@@ -25,18 +23,18 @@ namespace NServiceBus
         /// <summary>
         ///     Protected constructor to enable creation only via the With method.
         /// </summary>
-        internal Configure(SettingsHolder settings, IContainer container)
+        internal Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipeline)
         {
             Settings = settings;
+            this.pipeline = pipeline;
+
             LogManager.HasConfigBeenInitialised = true;
 
             RegisterContainerAdapter(container);
+            RunUserRegistrations(registrations);
 
-            Configurer.RegisterSingleton(this);
-            Configurer.RegisterSingleton<ReadOnlySettings>(settings);
-
-            settings.Set<PipelineModifications>(new PipelineModifications());
-            Pipeline = new PipelineSettings(this);
+            configurer.RegisterSingleton(this);
+            configurer.RegisterSingleton<ReadOnlySettings>(settings);
         }
 
         /// <summary>
@@ -50,22 +48,19 @@ namespace NServiceBus
         public IBuilder Builder { get; private set; }
 
         /// <summary>
-        ///     Gets/sets the object used to configure components.
-        ///     This object should eventually reference the same container as the Builder.
-        /// </summary>
-        public IConfigureComponents Configurer { get; private set; }
-
-        /// <summary>
-        ///     Access to the pipeline configuration
-        /// </summary>
-        public PipelineSettings Pipeline { get; private set; }
-
-        /// <summary>
         ///     Returns types in assemblies found in the current directory.
         /// </summary>
         public IList<Type> TypesToScan
         {
             get { return Settings.GetAvailableTypes(); }
+        }
+
+        void RunUserRegistrations(List<Action<IConfigureComponents>> registrations)
+        {
+            foreach (var registration in registrations)
+            {
+                registration(configurer);
+            }
         }
 
         void RegisterContainerAdapter(IContainer container)
@@ -77,9 +72,9 @@ namespace NServiceBus
             };
 
             Builder = b;
-            Configurer = b;
+            configurer = b;
 
-            Configurer.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
+            configurer.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(c => c.Container, container);
         }
 
@@ -88,7 +83,7 @@ namespace NServiceBus
         {
             TypesToScan
                 .Where(t => t.GetInterfaces().Any(IsGenericConfigSource))
-                .ToList().ForEach(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+                .ToList().ForEach(t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
         }
 
         /// <summary>
@@ -127,7 +122,7 @@ namespace NServiceBus
         /// <summary>
         ///     Finalizes the configuration by invoking all initialisers.
         /// </summary>
-        internal void Initialize()
+        void Initialize()
         {
             if (initialized)
             {
@@ -140,37 +135,33 @@ namespace NServiceBus
 
             featureActivator = new FeatureActivator(Settings);
 
-            Configurer.RegisterSingleton(featureActivator);
+            configurer.RegisterSingleton(featureActivator);
 
-            ForAllTypes<Feature>(t => featureActivator.Add(t.Construct<Feature>()));
+            ForAllTypes<Feature>(TypesToScan, t => featureActivator.Add(t.Construct<Feature>()));
 
-            ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            ForAllTypes<IWantToRunWhenConfigurationIsComplete>(TypesToScan, t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            ForAllTypes<IWantToRunWhenBusStartsAndStops>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            ForAllTypes<IWantToRunWhenBusStartsAndStops>(TypesToScan, t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            ActivateAndInvoke<INeedInitialization>(t => t.Init(this));
-
-            ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run(this));
+            ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(TypesToScan, t => t.Run(this));
 
             featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
-            featureActivator.RegisterStartupTasks(Configurer);
-
-            //this needs to be before the installers since they actually call .Initialize :(
-            initialized = true;
+            featureActivator.RegisterStartupTasks(configurer);
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
                 .ForEach(o => o.Run(this));
-        }
 
+            initialized = true;
+        }
 
         /// <summary>
         ///     Applies the given action to all the scanned types that can be assigned to <typeparamref name="T" />.
         /// </summary>
-        internal void ForAllTypes<T>(Action<Type> action) where T : class
+        internal static void ForAllTypes<T>(IList<Type> types, Action<Type> action) where T : class
         {
             // ReSharper disable HeapView.SlowDelegateCreation
-            TypesToScan.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
+            types.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 // ReSharper restore HeapView.SlowDelegateCreation
                 .ToList().ForEach(action);
         }
@@ -197,58 +188,13 @@ namespace NServiceBus
             return types;
         }
 
-        void ActivateAndInvoke<T>(Action<T> action, TimeSpan? thresholdForWarning = null) where T : class
+        internal static void ActivateAndInvoke<T>(IList<Type> types, Action<T> action) where T : class
         {
-            if (!thresholdForWarning.HasValue)
+            ForAllTypes<T>(types, t =>
             {
-                thresholdForWarning = TimeSpan.FromSeconds(5);
-            }
-
-            var totalTime = new Stopwatch();
-
-            totalTime.Start();
-
-            var details = new List<Tuple<Type, TimeSpan>>();
-
-            ForAllTypes<T>(t =>
-            {
-                var sw = new Stopwatch();
-
-                sw.Start();
                 var instanceToInvoke = (T) Activator.CreateInstance(t);
                 action(instanceToInvoke);
-                sw.Stop();
-
-                details.Add(new Tuple<Type, TimeSpan>(t, sw.Elapsed));
             });
-
-            totalTime.Stop();
-
-            var message = string.Format("Invocation of {0} completed in {1:f2} s", typeof(T).FullName, totalTime.Elapsed.TotalSeconds);
-
-            var logAsWarn = details.Any(d => d.Item2 > thresholdForWarning);
-
-            var detailsMessage = new StringBuilder();
-
-            detailsMessage.AppendLine(" - Details:");
-
-            // ReSharper disable HeapView.SlowDelegateCreation
-            foreach (var detail in details.OrderByDescending(d => d.Item2))
-                // ReSharper restore HeapView.SlowDelegateCreation
-            {
-                detailsMessage.AppendLine(string.Format("{0} - {1:f4} s", detail.Item1.FullName, detail.Item2.TotalSeconds));
-            }
-
-
-            if (logAsWarn)
-            {
-                logger.Warn(message + detailsMessage);
-            }
-            else
-            {
-                logger.Info(message);
-                logger.Debug(detailsMessage.ToString());
-            }
         }
 
         static bool IsGenericConfigSource(Type t)
@@ -267,8 +213,11 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
+        internal IConfigureComponents configurer;
+
         FeatureActivator featureActivator;
         bool initialized;
         ILog logger = LogManager.GetLogger<Configure>();
+        internal PipelineSettings pipeline;
     }
 }

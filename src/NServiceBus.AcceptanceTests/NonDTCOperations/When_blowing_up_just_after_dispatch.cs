@@ -34,14 +34,13 @@
         {
             public NonDtcReceivingEndpoint()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.Settings.Set("DisableOutboxTransportCheck", true);
-                    c.Pipeline.Register<BlowUpAfterDispatchBehavior.Registration>();
-                    c.Configurer.ConfigureComponent<BlowUpAfterDispatchBehavior>(DependencyLifecycle.InstancePerCall);
-                },
-                builder => builder.EnableOutbox());
-
+                EndpointSetup<DefaultServer>(c => c.Settings.Set("DisableOutboxTransportCheck", true),
+                    b =>
+                    {
+                        b.EnableOutbox();
+                        b.Pipeline.Register<BlowUpAfterDispatchBehavior.Registration>();
+                        b.RegisterComponents(r => r.ConfigureComponent<BlowUpAfterDispatchBehavior>(DependencyLifecycle.InstancePerCall));
+                    });
             }
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>

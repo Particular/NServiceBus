@@ -5,6 +5,7 @@ namespace NServiceBus.Unicast.Queuing
     using System.Linq;
     using Installation;
     using Logging;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using Transports;
 
     class QueuesCreator : INeedInitialization, INeedToInstallSomething
@@ -37,9 +38,10 @@ namespace NServiceBus.Unicast.Queuing
             }
         }
 
-        public void Init(Configure config)
+        public void Customize(ConfigurationBuilder builder)
         {
-            config.ForAllTypes<IWantQueueCreated>(type => config.Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall));
+            Configure.ForAllTypes<IWantQueueCreated>(builder.GetSettings().GetAvailableTypes(),
+                type => builder.RegisterComponents(c => c.ConfigureComponent(type, DependencyLifecycle.InstancePerCall)));
         }
 
         static ILog Logger = LogManager.GetLogger<QueuesCreator>();

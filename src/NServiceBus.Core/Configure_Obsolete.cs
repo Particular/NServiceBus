@@ -13,6 +13,23 @@ namespace NServiceBus
 
     public partial class Configure
     {
+        /// <summary>
+        /// Gets/sets the object used to configure components.
+        /// This object should eventually reference the same container as the Builder.
+        /// </summary>
+        [ObsoleteEx(Replacement = "Configure.With(c => c.RegisterComponent(r => r... ))", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        public IConfigureComponents Configurer
+        {
+            get
+            {
+                throw new InvalidOperationException();
+            }
+            // ReSharper disable ValueParameterNotUsed
+            set
+            // ReSharper restore ValueParameterNotUsed
+            {
+            }
+        }
 
         [ObsoleteEx(
             RemoveInVersion = "6",

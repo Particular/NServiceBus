@@ -8,7 +8,6 @@
     using DataBus.InMemory;
     using Features;
     using MessageInterfaces;
-    using Persistence;
     using Saga;
 
     /// <summary>
@@ -42,7 +41,13 @@
                 c.DisableFeature<Sagas>();
                 c.DisableFeature<Audit>();
                 c.UseTransport<FakeTestTransport>();
-                c.UsePersistence<InMemory>();
+                c.RegisterComponents(r =>
+                {
+                    r.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
+                    r.ConfigureComponent<FakeQueueCreator>(DependencyLifecycle.InstancePerCall);
+                    r.ConfigureComponent<FakeDequer>(DependencyLifecycle.InstancePerCall);
+                    r.ConfigureComponent<FakeSender>(DependencyLifecycle.InstancePerCall);
+                });
                 customisations(c);
             }));
         }
@@ -94,11 +99,6 @@
             }
 
 
-            config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<FakeQueueCreator>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<FakeDequer>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<FakeSender>(DependencyLifecycle.InstancePerCall);
-            
             config.CreateBus();
 
             var mapper = config.Builder.Build<IMessageMapper>();

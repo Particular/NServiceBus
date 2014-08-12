@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Threading;
     using NServiceBus.Logging;
+    using NServiceBus.ObjectBuilder;
 
     /// <summary>
     /// A holder for that exposes access to the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(Configure,Action{string,Exception})"/>.
@@ -27,7 +28,8 @@ namespace NServiceBus
 
         void DefaultCriticalErrorHandling()
         {
-            if (!configure.Configurer.HasComponent<IBus>())
+            var components = configure.Builder.Build<IConfigureComponents>();
+            if (!components.HasComponent<IBus>())
             {
                 return;
             }

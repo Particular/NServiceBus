@@ -3,7 +3,7 @@ namespace NServiceBus.Transports
     using Support;
     using Unicast;
 
-    class DefaultMessageAuditer:IAuditMessages
+    class DefaultMessageAuditer : IAuditMessages
     {
         public ISendMessages MessageSender { get; set; }
 
@@ -31,15 +31,18 @@ namespace NServiceBus.Transports
             }
 
             // Send the newly created transport message to the queue
-            MessageSender.Send(messageToForward, new SendOptions(sendOptions.Destination) { ReplyToAddress = Address.PublicReturnAddress });
+            MessageSender.Send(messageToForward, new SendOptions(sendOptions.Destination)
+            {
+                ReplyToAddress = Address.PublicReturnAddress
+            });
         }
 
         class Initialization : INeedInitialization
         {
-            public void Init(Configure config)
+            public void Customize(ConfigurationBuilder builder)
             {
-                config.Configurer.ConfigureComponent<DefaultMessageAuditer>(DependencyLifecycle.InstancePerCall)
-                    .ConfigureProperty(t=>t.EndpointName,config.Settings.EndpointName());
+                builder.RegisterComponents(c => c.ConfigureComponent<DefaultMessageAuditer>(DependencyLifecycle.InstancePerCall)
+                    .ConfigureProperty(t => t.EndpointName, builder.settings.EndpointName()));
             }
         }
     }
