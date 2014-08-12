@@ -23,6 +23,11 @@
             {
                 TimeToBeReceived = TimeToBeReceivedOnForwardedMessages
             };
+
+            //set audit related headers
+            context.PhysicalMessage.Headers[Headers.ProcessingStarted] = DateTimeExtensions.ToWireFormattedString(context.Get<DateTime>("IncomingMessage.ProcessingStarted"));
+            context.PhysicalMessage.Headers[Headers.ProcessingEnded] = DateTimeExtensions.ToWireFormattedString(context.Get<DateTime>("IncomingMessage.ProcessingEnded"));
+
             MessageAuditer.Audit(sendOptions, context.PhysicalMessage);
         }
 
