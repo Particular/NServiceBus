@@ -48,9 +48,10 @@ namespace NServiceBus
             {
                 throw new InvalidOperationException();
             }
+// ReSharper disable ValueParameterNotUsed
             set
+// ReSharper restore ValueParameterNotUsed
             {
-                throw new InvalidOperationException();
             }
         }
 
