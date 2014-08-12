@@ -7,7 +7,7 @@ namespace NServiceBus.Saga
     {
     }
 
-    [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "NServiceBus.Saga.Saga")]
+    [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "NServiceBus.Saga.Saga<T>")]
     public interface ISaga<T>
     {
     }
