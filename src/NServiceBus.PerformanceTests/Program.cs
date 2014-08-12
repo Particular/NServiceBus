@@ -74,6 +74,7 @@
                             a.DisableDistributedTransactions();
                         });
                     });
+                    o.UsePersistence<InMemory>();
                 }
 
                 switch (args[3].ToLower())
@@ -112,15 +113,10 @@
                     default:
                         throw new InvalidOperationException("Illegal serialization format " + args[2]);
                 }
-            })
-            .UsePersistence<InMemory>();
+                o.UsePersistence<InMemory>();
+            });
 
 
-            if (volatileMode)
-            {
-                config.UsePersistence<InMemory>();
-
-            }
 
             if (encryption)
             {

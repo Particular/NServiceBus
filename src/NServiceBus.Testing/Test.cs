@@ -42,6 +42,7 @@
                 c.DisableFeature<Sagas>();
                 c.DisableFeature<Audit>();
                 c.UseTransport<FakeTestTransport>();
+                c.UsePersistence<InMemory>();
                 customisations(c);
             }));
         }
@@ -92,7 +93,6 @@
                 return;
             }
 
-            config.UsePersistence<InMemory>();
 
             config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<FakeQueueCreator>(DependencyLifecycle.InstancePerCall);

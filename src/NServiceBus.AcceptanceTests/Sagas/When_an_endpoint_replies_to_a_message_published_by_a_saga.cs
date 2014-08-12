@@ -48,7 +48,7 @@
         {
             public EndpointThatHandlesAMessageFromSagaAndReplies()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(_ => { }, c => c.DisableFeature<AutoSubscribe>())
                     .AddMapping<DidSomething>(typeof (EndpointThatHostsASaga))
                     .WithConfig<TransportConfig>(c =>
                     {

@@ -102,7 +102,6 @@
     <Compile Include="Features\FeatureTests.cs" />
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
     <Compile Include="Logging\RollingLoggerTests.cs" />
-    <Compile Include="Outbox\OutboxFeatureTests.cs" />
     <Compile Include="Outbox\OutboxRecordBehaviorTests.cs" />
     <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniqueProperties.cs" />
     <Compile Include="Persistence\InMemory\AnotherSimpleSageEntity.cs" />
@@ -121,7 +120,6 @@
     <Compile Include="Persistence\InMemory\When_saga_not_found_return_default.cs" />
     <Compile Include="Persistence\InMemory\When_updating_a_saga_with_the_same_unique_property_as_another_saga.cs" />
     <Compile Include="Persistence\InMemory\When_updating_a_saga_with_the_same_unique_property_value.cs" />
-    <Compile Include="Persistence\EnabledPersistencesTests.cs" />
     <Compile Include="Pipeline\PipelineStepTests.cs" />
     <Compile Include="Pipeline\BehaviorChainTests.cs" />
     <Compile Include="Pipeline\BehaviorRegistrationsCoordinatorTests.cs" />

@@ -1,7 +1,9 @@
 ﻿namespace NServiceBus.Persistence
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Base class for persistence definitions
@@ -11,50 +13,44 @@
         /// <summary>
         /// Used be the storage definitions to declare what they support
         /// </summary>
-        /// <param name="supported"></param>
-        protected void Supports(params Storage[] supported)
+        protected void Supports(Storage storage, Action<SettingsHolder> action)
         {
-            supportedStorages.AddRange(supported.ToList());
+            if (StorageToActionMap.ContainsKey(storage))
+            {
+                throw new Exception(string.Format("Action for {0} already defined.", storage));
+            }
+            StorageToActionMap[storage] = action;
         }
 
         /// <summary>
         /// True if supplied storage is supported
         /// </summary>
-        /// <param name="storage"></param>
         public bool HasSupportFor(Storage storage)
         {
-            return SupportedStorages.Contains(storage);
+            return StorageToActionMap.ContainsKey(storage);
         }
 
-        internal IEnumerable<Storage> SupportedStorages { get { return supportedStorages.Distinct(); } }
- 
-        List<Storage> supportedStorages = new List<Storage>();
-    }
+        internal void ApplyActionForStorage(Storage storage, SettingsHolder settings)
+        {
+            var actionForStorage = StorageToActionMap[storage];
+            actionForStorage(settings);
+        }
 
-    /// <summary>
-    /// The storage needs of NServiceBus
-    /// </summary>
-    public enum Storage
-    {
-        /// <summary>
-        /// Storage for timeouts
-        /// </summary>
-        Timeouts = 1,
-        /// <summary>
-        /// Storage for subscriptions
-        /// </summary>
-        Subscriptions = 2,
-        /// <summary>
-        /// Storage for sagas
-        /// </summary>
-        Sagas = 3,
-        /// <summary>
-        /// Storage for gateway deduplication
-        /// </summary>
-        GatewayDeduplication = 4,
-        /// <summary>
-        /// Storage for the outbox
-        /// </summary>
-        Outbox = 5,
+        internal List<Storage> GetSupportedStorages(SettingsHolder settings, Action<PersistenceConfiguration> customizations)
+        {
+            if (customizations != null)
+            {
+                var persistenceConfiguration = new PersistenceConfiguration(settings);
+                customizations(persistenceConfiguration);
+                if (persistenceConfiguration.SpecificStorages.Any())
+                {
+                    return persistenceConfiguration.SpecificStorages;
+                }
+            }
+            return StorageToActionMap.Keys.ToList();
+        }
+
+        Dictionary<Storage, Action<SettingsHolder>> StorageToActionMap = new Dictionary<Storage, Action<SettingsHolder>>();
+
     }
 }

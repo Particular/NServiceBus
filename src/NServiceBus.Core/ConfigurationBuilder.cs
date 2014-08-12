@@ -166,7 +166,6 @@ namespace NServiceBus
             }
 
             UseTransportExtensions.SetupTransport(this);
-
             var container = customBuilder ?? new AutofacObjectBuilder();
             RegisterEndpointWideDefaults();
 
