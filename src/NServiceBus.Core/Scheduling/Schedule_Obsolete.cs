@@ -6,7 +6,11 @@ namespace NServiceBus
 
     public partial class Schedule
     {
-        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "Inject Schedule")]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "5.0", 
+            RemoveInVersion = "6.0", 
+            Replacement = "The non-static version of Schedule.Every()", 
+            Message = "Inject an instance of Schedule to your class and then call the non static members.")]
         public static Schedule Every(TimeSpan timeSpan)
         {
             throw new NotImplementedException("Api has been obsolete.");
