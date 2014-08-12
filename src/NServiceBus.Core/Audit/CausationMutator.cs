@@ -6,7 +6,7 @@ namespace NServiceBus.Unicast.Monitoring
     /// <summary>
     /// Mutator to set the related to header
     /// </summary>
-    class CausationMutator : IMutateOutgoingTransportMessages, IConfigureBus
+    class CausationMutator : IMutateOutgoingTransportMessages, INeedInitialization
     {
         /// <summary>
         /// The bus is needed to get access to the current message id

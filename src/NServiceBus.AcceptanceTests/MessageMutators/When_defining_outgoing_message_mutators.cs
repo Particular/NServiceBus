@@ -40,7 +40,7 @@
             }
 
 
-            class MyTransportMessageMutator : IMutateOutgoingTransportMessages, IConfigureBus
+            class MyTransportMessageMutator : IMutateOutgoingTransportMessages, INeedInitialization
             {
 
                 public Context Context { get; set; }
@@ -57,7 +57,7 @@
                 }
             }
 
-            class MyMessageMutator : IMutateOutgoingMessages, IConfigureBus
+            class MyMessageMutator : IMutateOutgoingMessages, INeedInitialization
             {
 
              

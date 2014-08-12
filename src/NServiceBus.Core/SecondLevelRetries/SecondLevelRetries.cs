@@ -18,19 +18,6 @@ namespace NServiceBus.Features
             Prerequisite(IsEnabledInConfig, "SLR was disabled in config");
         }
 
-        bool IsEnabledInConfig(FeatureConfigurationContext context)
-        {
-            var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
-
-            if (retriesConfig == null)
-                return true;
-
-            if (retriesConfig.NumberOfRetries == 0)
-                return false;
-
-            return retriesConfig.Enabled;
-        }
-
         /// <summary>
         /// See <see cref="Feature.Setup"/>
         /// </summary>
@@ -60,6 +47,19 @@ namespace NServiceBus.Features
             context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.InputAddress, processorAddress);
             context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.RetryPolicy, context.Settings.GetOrDefault<Func<TransportMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy") ?? DefaultRetryPolicy.RetryPolicy);
             context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, useRemoteRetryProcessor); 
+        }
+
+        bool IsEnabledInConfig(FeatureConfigurationContext context)
+        {
+            var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
+
+            if (retriesConfig == null)
+                return true;
+
+            if (retriesConfig.NumberOfRetries == 0)
+                return false;
+
+            return retriesConfig.Enabled;
         }
 
         static void SetUpRetryPolicy(SecondLevelRetriesConfig retriesConfig)

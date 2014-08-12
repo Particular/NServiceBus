@@ -70,13 +70,12 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                 }
 
                 //here we inject our behavior
-                class MyExceptionFilteringOverride : IConfigureBus
+                class MyExceptionFilteringOverride : INeedInitialization
                 {
-                    public void Init(Configure config)
+                    public void Customize(ConfigurationBuilder builder)
                     {
-                        //add our behavior to the pipeline just before NSB actually calls the handlers
+                        builder.Pipeline.Register<MyExceptionFilteringRegistration>();
 
-                        config.Pipeline.Register<MyExceptionFilteringRegistration>();
                     }
                 }
 

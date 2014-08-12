@@ -35,7 +35,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class GetValueOfIncomingCorrelationId : IMutateIncomingTransportMessages, IConfigureBus
+            class GetValueOfIncomingCorrelationId : IMutateIncomingTransportMessages, INeedInitialization
             {
                 public Context Context { get; set; }
 

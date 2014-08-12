@@ -44,10 +44,12 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(
-                    c => c.Configurer.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance),
-                    builder => builder.Transactions(t => t.Disable()))
-                        
+                EndpointSetup<DefaultServer>(c => { },
+                    b =>
+                    {
+                        b.Transactions(t => t.Disable());
+                        b.RegisterComponents(r => r.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance));
+                    })
                     .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1);
             }
 

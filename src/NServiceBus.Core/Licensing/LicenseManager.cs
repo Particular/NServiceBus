@@ -81,7 +81,6 @@ namespace NServiceBus.Licensing
                 return;
             }
 
-
             LicenseVerifier.Verify(licenseText);
 
             var foundLicense = LicenseDeserializer.Deserialize(licenseText);

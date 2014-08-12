@@ -52,7 +52,7 @@
                     .AuditTo<AuditSpyEndpoint>();
             }
 
-            class BodyMutator : IMutateIncomingTransportMessages, IConfigureBus
+            class BodyMutator : IMutateIncomingTransportMessages, INeedInitialization
             {
                 public Context Context { get; set; }
 
@@ -94,7 +94,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class BodySpy : IMutateIncomingTransportMessages, IConfigureBus
+            class BodySpy : IMutateIncomingTransportMessages, INeedInitialization
             {
                 public Context Context { get; set; }
 

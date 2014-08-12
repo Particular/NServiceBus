@@ -42,6 +42,13 @@
                 c.DisableFeature<Sagas>();
                 c.DisableFeature<Audit>();
                 c.UseTransport<FakeTestTransport>();
+                c.RegisterComponents(r =>
+                {
+                    r.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
+                    r.ConfigureComponent<FakeQueueCreator>(DependencyLifecycle.InstancePerCall);
+                    r.ConfigureComponent<FakeDequer>(DependencyLifecycle.InstancePerCall);
+                    r.ConfigureComponent<FakeSender>(DependencyLifecycle.InstancePerCall);
+                });
                 customisations(c);
             }));
         }
@@ -94,11 +101,6 @@
 
             config.UsePersistence<InMemory>();
 
-            config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<FakeQueueCreator>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<FakeDequer>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<FakeSender>(DependencyLifecycle.InstancePerCall);
-            
             config.CreateBus();
 
             var mapper = config.Builder.Build<IMessageMapper>();

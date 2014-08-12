@@ -1,15 +1,14 @@
 ﻿namespace NServiceBus
 {
     /// <summary>
-    /// Implementers will be called after NServiceBus.Configure.With completes and a container
-    /// has been set. 
+    /// Indicate that the implementing class will specify configuration.
     /// </summary>
-    [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "IConfigureBus")]
     public interface INeedInitialization
     {
         /// <summary>
-        /// Implementers will include custom initialization code here.
+        /// Allows to override default settings.
         /// </summary>
-        void Init();
+        /// <param name="builder">Endpoint configuration builder.</param>
+        void Customize(ConfigurationBuilder builder);
     }
 }

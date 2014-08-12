@@ -2,10 +2,16 @@ namespace NServiceBus.Licensing
 {
     using System;
     using Logging;
+    using NServiceBus.Features;
 
-    class LicenseInitializer : INeedInitialization
+    class LicenseReminder : Feature
     {
-        public void Init(Configure config)
+        public LicenseReminder()
+        {
+            EnableByDefault();
+        }
+
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             var expiredLicense = true;
             try
@@ -19,13 +25,13 @@ namespace NServiceBus.Licensing
                 //we only log here to prevent licensing issue to abort startup and cause production outages
                 Logger.Fatal("Failed to initialize the license", ex);
             }
-            
-            config.Configurer.ConfigureComponent<LicenseBehavior>(DependencyLifecycle.InstancePerCall)
+
+            context.Container.ConfigureComponent<LicenseBehavior>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.LicenseExpired, expiredLicense);
 
-            config.Pipeline.Register("LicenseReminder", typeof(LicenseBehavior), "Reminds users if license has expired");
+            context.Pipeline.Register("LicenseReminder", typeof(LicenseBehavior), "Reminds users if license has expired");
         }
 
-        static ILog Logger = LogManager.GetLogger<LicenseInitializer>();
+        static ILog Logger = LogManager.GetLogger<LicenseReminder>();
     }
 }

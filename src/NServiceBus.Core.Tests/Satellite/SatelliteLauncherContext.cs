@@ -5,7 +5,6 @@
     using System.Transactions;
     using Fakes;
     using Faults;
-    using NServiceBus.Config;
     using NUnit.Framework;
     using Satellites;
     using Settings;
@@ -28,7 +27,7 @@
 
             Transport = new TransportReceiver(new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, 5, false,false), 1, 0, FakeReceiver, InMemoryFaultManager, new SettingsHolder());
 
-            var configure = Configure.With(o =>
+            Configure.With(o =>
             {
                 o.EndpointName("xyz");
                 o.AssembliesToScan(new Assembly[0]);
@@ -38,8 +37,8 @@
             Builder.Register<IManageMessageFailures>(() => InMemoryFaultManager);
             Builder.Register<TransportReceiver>(() => Transport);
 
-            var configurer = new SatelliteConfigurer();
-            configurer.Customize(configure);
+            //var configurer = new SatelliteConfigurer();
+            //configurer.Customize(configure);
 
             var launcher = new SatelliteLauncher(Builder);
 

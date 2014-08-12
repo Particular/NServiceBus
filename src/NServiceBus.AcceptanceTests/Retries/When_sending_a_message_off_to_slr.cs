@@ -57,14 +57,15 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Configurer.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance))
+                EndpointSetup<DefaultServer>(c => { },
+                    b => b.RegisterComponents(r => r.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance)))
                     .WithConfig<TransportConfig>(c =>
                     {
                         c.MaxRetries = 0;
                     });
             }
 
-            class BodyMutator : IMutateTransportMessages, IConfigureBus
+            class BodyMutator : IMutateTransportMessages, INeedInitialization
             {
                 public Context Context { get; set; }
 

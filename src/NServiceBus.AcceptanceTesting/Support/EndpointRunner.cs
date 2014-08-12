@@ -43,7 +43,6 @@
                 //apply custom config settings
                 config = configuration.GetConfiguration(run, routingTable);
 
-                config.Configurer.RegisterSingleton(scenarioContext.GetType(), scenarioContext);
                 scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(config));

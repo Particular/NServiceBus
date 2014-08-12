@@ -8,7 +8,7 @@ namespace NServiceBus.Unicast.Queuing
     using NServiceBus.Configuration.AdvanceExtensibility;
     using Transports;
 
-    class QueuesCreator : IConfigureBus, INeedToInstallSomething
+    class QueuesCreator : INeedInitialization, INeedToInstallSomething
     {
         public ICreateQueues QueueCreator { get; set; }
 

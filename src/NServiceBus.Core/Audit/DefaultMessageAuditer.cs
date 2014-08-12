@@ -37,7 +37,7 @@ namespace NServiceBus.Transports
             });
         }
 
-        class Initialization : IConfigureBus
+        class Initialization : INeedInitialization
         {
             public void Customize(ConfigurationBuilder builder)
             {

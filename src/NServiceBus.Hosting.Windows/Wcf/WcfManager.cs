@@ -6,6 +6,7 @@
     using System.ServiceModel;
     using System.ServiceModel.Channels;
     using Logging;
+    using NServiceBus.ObjectBuilder;
 
     /// <summary>
     ///     Enable users to expose messages as WCF services
@@ -22,6 +23,7 @@
         {
             Configure = config;
             var conventions = config.Builder.Build<Conventions>();
+            var components = config.Builder.Build<IConfigureComponents>();
 
             foreach (var serviceType in config.TypesToScan.Where(t => !t.IsAbstract && IsWcfService(t, conventions)))
             {
@@ -29,14 +31,14 @@
 
                 Binding binding = new BasicHttpBinding();
 
-                if (config.Configurer.HasComponent<Binding>())
+                if (components.HasComponent<Binding>())
                 {
                     binding = config.Builder.Build<Binding>();
                 }
 
                 host.AddDefaultEndpoint(GetContractType(serviceType),
                     binding
-                    , "");
+                    , String.Empty);
 
                 hosts.Add(host);
 
