@@ -26,20 +26,33 @@ namespace NServiceBus
         internal Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipeline)
         {
             Settings = settings;
-            Pipeline = pipeline;
+            this.pipeline = pipeline;
 
             LogManager.HasConfigBeenInitialised = true;
 
             RegisterContainerAdapter(container);
             RunUserRegistrations(registrations);
 
-            Configurer.RegisterSingleton(this);
-            Configurer.RegisterSingleton<ReadOnlySettings>(settings);
+            configurer.RegisterSingleton(this);
+            configurer.RegisterSingleton<ReadOnlySettings>(settings);
         }
 
-        internal PipelineSettings Pipeline { get; private set; }
-
-        internal IConfigureComponents Configurer { get; private set; }
+        /// <summary>
+        /// Gets/sets the object used to configure components.
+        /// This object should eventually reference the same container as the Builder.
+        /// </summary>
+        [ObsoleteEx(Replacement = "Configure.With(c => c.RegisterComponent(r => r... ))", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        public IConfigureComponents Configurer
+        {
+            get
+            {
+                throw new InvalidOperationException();
+            }
+            set
+            {
+                throw new InvalidOperationException();
+            }
+        }
 
         /// <summary>
         ///     Provides access to the settings holder
@@ -63,7 +76,7 @@ namespace NServiceBus
         {
             foreach (var registration in registrations)
             {
-                registration(Configurer);
+                registration(configurer);
             }
         }
 
@@ -76,9 +89,9 @@ namespace NServiceBus
             };
 
             Builder = b;
-            Configurer = b;
+            configurer = b;
 
-            Configurer.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
+            configurer.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(c => c.Container, container);
         }
 
@@ -87,7 +100,7 @@ namespace NServiceBus
         {
             TypesToScan
                 .Where(t => t.GetInterfaces().Any(IsGenericConfigSource))
-                .ToList().ForEach(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+                .ToList().ForEach(t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
         }
 
         /// <summary>
@@ -139,18 +152,18 @@ namespace NServiceBus
 
             featureActivator = new FeatureActivator(Settings);
 
-            Configurer.RegisterSingleton(featureActivator);
+            configurer.RegisterSingleton(featureActivator);
 
             ForAllTypes<Feature>(TypesToScan, t => featureActivator.Add(t.Construct<Feature>()));
 
-            ForAllTypes<IWantToRunWhenConfigurationIsComplete>(TypesToScan, t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            ForAllTypes<IWantToRunWhenConfigurationIsComplete>(TypesToScan, t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            ForAllTypes<IWantToRunWhenBusStartsAndStops>(TypesToScan, t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            ForAllTypes<IWantToRunWhenBusStartsAndStops>(TypesToScan, t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(TypesToScan, t => t.Run(this));
 
             featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
-            featureActivator.RegisterStartupTasks(Configurer);
+            featureActivator.RegisterStartupTasks(configurer);
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
@@ -198,7 +211,6 @@ namespace NServiceBus
             {
                 var instanceToInvoke = (T) Activator.CreateInstance(t);
                 action(instanceToInvoke);
-
             });
         }
 
@@ -218,8 +230,11 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
+        internal IConfigureComponents configurer;
+
         FeatureActivator featureActivator;
         bool initialized;
         ILog logger = LogManager.GetLogger<Configure>();
+        internal PipelineSettings pipeline;
     }
 }

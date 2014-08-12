@@ -154,7 +154,7 @@
         private static void SetupRijndaelTestEncryptionService()
         {
             var encryptionService = new RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-            config.Configurer.RegisterSingleton<IEncryptionService>(encryptionService);
+            config.configurer.RegisterSingleton<IEncryptionService>(encryptionService);
         }
 
         static void DumpSetting(string[] args)

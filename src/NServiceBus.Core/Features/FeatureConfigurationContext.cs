@@ -24,11 +24,11 @@
         /// <summary>
         /// Access to the container to allow for registrations
         /// </summary>
-        public IConfigureComponents Container { get { return config.Configurer; } }
+        public IConfigureComponents Container { get { return config.configurer; } }
         
         /// <summary>
         /// Access to the pipeline in order to customize it
         /// </summary>
-        public PipelineSettings Pipeline { get { return config.Pipeline; } }
+        public PipelineSettings Pipeline { get { return config.pipeline; } }
     }
 }

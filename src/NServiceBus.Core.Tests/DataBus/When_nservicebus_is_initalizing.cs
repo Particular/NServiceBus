@@ -25,7 +25,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             var feature = new DataBusFeature();
 
-            config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
+            config.configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
 
             Assert.True(feature.CheckPrerequisites(new FeatureConfigurationContext(config)).IsSatisfied);
         }
@@ -87,11 +87,11 @@ namespace NServiceBus.Core.Tests.DataBus
                 o.Conventions(c => c.DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus")));
             });
             
-            config.Configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
+            config.configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
 
             var feature = new DataBusFeature();
 
-            config.Configurer.ConfigureComponent<IDataBusSerializer>(() => new MyDataBusSerializer(), DependencyLifecycle.SingleInstance);
+            config.configurer.ConfigureComponent<IDataBusSerializer>(() => new MyDataBusSerializer(), DependencyLifecycle.SingleInstance);
 
             Assert.DoesNotThrow(() => feature.CheckPrerequisites(new FeatureConfigurationContext(config)));
         }
