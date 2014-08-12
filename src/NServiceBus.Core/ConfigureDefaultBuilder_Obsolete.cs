@@ -7,14 +7,14 @@ namespace NServiceBus
     [ObsoleteEx(
         RemoveInVersion = "6",
         TreatAsErrorFromVersion = "5",
-        Message = "Default builder will be used automatically")]
+        Message = "Default builder will be used automatically. It is safe to remove this code.")]
     public static class ConfigureDefaultBuilder
     {
 
        [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Message = "Default builder will be used automatically")]
+            Message = "Default builder will be used automatically. It is safe to remove this code.")]
         public static Configure DefaultBuilder(this Configure config)
         {
            throw new NotImplementedException();
