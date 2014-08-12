@@ -1,6 +1,9 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Text;
+    using Serialization;
+    using Serializers.Json;
     using Settings;
 
 #pragma warning disable 1591
@@ -27,6 +30,20 @@
 // ReSharper restore UnusedParameter.Global
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Configures the encoding of JSON stream
+        /// </summary>
+        /// <param name="config">The configuration object</param>
+        /// <param name="encoding">Encoding to use for serialization and deserialization</param>
+        public static void JsonEncoding(this SerializationConfiguration config, Encoding encoding)
+        {
+            if (encoding == null)
+            {
+                throw new ArgumentNullException("encoding");
+            }
+            config.settings.SetProperty<JsonMessageSerializer>(s => s.Encoding, encoding);
         }
     }
 }
