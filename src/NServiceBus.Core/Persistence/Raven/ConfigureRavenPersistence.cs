@@ -308,7 +308,7 @@ namespace NServiceBus
                 return;
             }
 
-            if (!ravenBuildInfo.IsVersion2OrHigher())
+            if (!ravenBuildInfo.IsVersion2O())
             {
                 throw new InvalidOperationException(string.Format(WrongRavenVersionMessage, ravenBuildInfo));
             }
@@ -340,7 +340,7 @@ sb.AppendLine("Reason: " + exception);
         static Action<IDocumentStore> customisationCallback = store => { };
 
         const string WrongRavenVersionMessage =
-@"The RavenDB server you have specified is detected to be {0}. NServiceBus requires RavenDB version 2 or higher to operate correctly. Please update your RavenDB server.
+@"The RavenDB server you have specified is detected to be {0}. NServiceBus requires RavenDB version 2.0 to operate correctly. Please update your RavenDB server.
 
 Further instructions can be found at:http://particular.net/articles/using-ravendb-in-nservicebus-installing";
 
@@ -368,9 +368,9 @@ Further instructions can be found at:http://particular.net/articles/using-ravend
 
             public string BuildVersion { get; set; }
 
-            public bool IsVersion2OrHigher()
+            public bool IsVersion2O()
             {
-                return !string.IsNullOrEmpty(ProductVersion) && !ProductVersion.StartsWith("1");
+                return !string.IsNullOrEmpty(ProductVersion) && ProductVersion.StartsWith("2.0");
             }
 
             public override string ToString()
