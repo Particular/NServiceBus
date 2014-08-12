@@ -7,7 +7,7 @@ namespace NServiceBus
     public static partial class ConfigureLicenseExtensions
     {
 
-        [ObsoleteEx(Replacement = "Configure.With(c=>.LicensePath())", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Configure.With(c=>.License())", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure License(this Configure config, string licenseText)
         {
             throw new NotImplementedException();
