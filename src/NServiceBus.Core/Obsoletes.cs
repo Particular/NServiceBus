@@ -287,7 +287,7 @@ namespace NServiceBus.Timeout.Core
 namespace NServiceBus.Installation.Environments
 {
     [ObsoleteEx(
-        Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them", 
+        Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and Configure.With(builder => builder.EnableInstallers()); to execute them", 
         RemoveInVersion = "6", 
         TreatAsErrorFromVersion = "5")]
     public class Windows 
@@ -296,7 +296,7 @@ namespace NServiceBus.Installation.Environments
 }
 namespace NServiceBus.Installation
 {
-    [ObsoleteEx(Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them",
+    [ObsoleteEx(Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and Configure.With(builder => builder.EnableInstallers()); to execute them",
         RemoveInVersion = "6", TreatAsErrorFromVersion = "5")]
     public interface IEnvironment 
     {
@@ -305,7 +305,7 @@ namespace NServiceBus.Installation
 namespace NServiceBus.Installation
 {
     [ObsoleteEx(
-        Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them",
+        Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and Configure.With(builder => builder.EnableInstallers()); to execute them",
         RemoveInVersion = "6", 
         TreatAsErrorFromVersion = "5")]
     public class INeedToInstallSomething<T>
@@ -314,7 +314,7 @@ namespace NServiceBus.Installation
 }
 namespace NServiceBus
 {
-    [ObsoleteEx(Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them", 
+    [ObsoleteEx(Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and Configure.With(builder => builder.EnableInstallers()); to execute them", 
         RemoveInVersion = "6", TreatAsErrorFromVersion = "5")]
     public class Installer<T>
     {
@@ -324,16 +324,14 @@ namespace NServiceBus
 namespace NServiceBus
 {
     [ObsoleteEx(
-        Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them",
-        Replacement = "configure.EnableInstallers().CreateBus();", 
+        Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and Configure.With(builder => builder.EnableInstallers()); to execute them",
         RemoveInVersion = "6",
         TreatAsErrorFromVersion = "5")]
     public static class Install
     {
 
         [ObsoleteEx(
-            Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them",
-            Replacement = "configure.EnableInstallers().CreateBus();",
+            Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and Configure.With(builder => builder.EnableInstallers()); to execute them",
             RemoveInVersion = "6", 
             TreatAsErrorFromVersion = "5")]
         public static Installer<T> ForInstallationOn<T>(this Configure config)
@@ -342,8 +340,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them",
-            Replacement = "configure.EnableInstallers().CreateBus();",
+            Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and Configure.With(builder => builder.EnableInstallers()); to execute them",
             RemoveInVersion = "6", 
             TreatAsErrorFromVersion = "5")]
         public static Installer<T> ForInstallationOn<T>(this Configure config, string username)
@@ -359,13 +356,13 @@ namespace NServiceBus
     using System;
 
     [ObsoleteEx(
-        Replacement = "var configure = Configure.With(x => x.EndpointName(\"MyEndpointName\"));",
+        Replacement = "Configure.With(x => x.EndpointName(myEndpointName));",
         RemoveInVersion = "6",
         TreatAsErrorFromVersion = "5")]
     public static class EndpointConventions
     {
         [ObsoleteEx(
-            Replacement = "var configure = Configure.With(x => x.EndpointName(\"MyEndpointName\"));",
+            Replacement = "var configure = Configure.With(x => x.EndpointName(myEndpointName));",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure DefineEndpointName(this Configure config, Func<string> definesEndpointName)
@@ -374,7 +371,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Replacement = "var configure = Configure.With(x => x.EndpointName(\"MyEndpointName\"));",
+            Replacement = "var configure = Configure.With(x => x.EndpointName(myEndpointName));",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure DefineEndpointName(this Configure config, string name)
@@ -663,7 +660,7 @@ namespace NServiceBus
     {
 
         [ObsoleteEx(
-            Replacement = "configure.UseTransport<T>(Action<TransportConfiguration>)",
+            Replacement = "Configure.With(b => b.UseTransport<T>(Action<TransportConfiguration>)",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure UseTransport<T>(this Configure config, Func<string> definesConnectionString)
@@ -672,7 +669,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Replacement = "configure.UseTransport(Type, Action<TransportConfiguration>)",
+            Replacement = "Configure.With(b => b.UseTransport(Type, Action<TransportConfiguration>)",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure UseTransport(this Configure config, Type transportDefinitionType, Func<string> definesConnectionString)
