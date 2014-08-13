@@ -8,6 +8,7 @@
     using DataBus.InMemory;
     using Features;
     using MessageInterfaces;
+    using NServiceBus.Persistence;
     using Saga;
 
     /// <summary>
@@ -41,6 +42,7 @@
                 c.DisableFeature<Sagas>();
                 c.DisableFeature<Audit>();
                 c.UseTransport<FakeTestTransport>();
+                c.UsePersistence<InMemory>();
                 c.RegisterEncryptionService(b => new FakeEncryptor());
                 c.RegisterComponents(r =>
                 {
