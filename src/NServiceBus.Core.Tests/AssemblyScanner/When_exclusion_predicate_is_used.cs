@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
-    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using Hosting.Helpers;
     using NUnit.Framework;
 
@@ -16,7 +16,7 @@
         [SetUp]
         public void Context()
         {
-            var testDllDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestDlls");
+            var testDllDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestDlls");
             results = new AssemblyScanner(testDllDirectory)
                 {
                     AssembliesToSkip = new List<string>
