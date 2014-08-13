@@ -299,10 +299,10 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
         }
 
-        protected void ReceiveMessage<T>(T message, IDictionary<string, string> headers = null)
+        protected void ReceiveMessage<T>(T message, IDictionary<string, string> headers = null, MessageMapper mapper = null)
         {
             RegisterMessageType<T>();
-            var messageToReceive = Helpers.Serialize(message);
+            var messageToReceive = Helpers.Serialize(message, mapper: mapper);
 
             if (headers != null)
             {

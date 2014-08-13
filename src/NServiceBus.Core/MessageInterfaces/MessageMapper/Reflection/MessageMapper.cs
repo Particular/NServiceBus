@@ -17,16 +17,24 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
     public class MessageMapper : IMessageMapper
     {
         /// <summary>
+        /// df
+        /// </summary>
+        public MessageMapper()
+        {
+            Console.Out.WriteLine("Called");    
+        }
+
+        /// <summary>
         /// Scans the given types generating concrete classes for interfaces.
         /// </summary>
         public void Initialize(IEnumerable<Type> types)
         {
-            var typesToList = types.ToList();
-
-            if (types == null || !typesToList.Any())
+            if (types == null || !types.Any())
             {
                 return;
             }
+
+            var typesToList = types.ToList();
 
             var name = typesToList.First().Namespace + SUFFIX;
 

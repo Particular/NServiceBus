@@ -19,7 +19,7 @@ namespace NServiceBus.Unicast.Tests
 
             RegisterSaga<MySaga2>(new MySagaData2 { Id = sagaId2, PropertyThatCorrelatesToMessage = correlationId });
 
-            ReceiveMessage(new MessageThatHitsExistingSaga { PropertyThatCorrelatesToSaga = correlationId });
+            ReceiveMessage(new MessageThatHitsExistingSaga { PropertyThatCorrelatesToSaga = correlationId }, mapper: MessageMapper);
 
             Assert.AreEqual(2, persister.CurrentSagaEntities.Count(), "Existing saga should be found");
 

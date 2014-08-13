@@ -262,11 +262,11 @@
         }
 
         static string defaultMachine = RuntimeEnvironment.MachineName;
-        static bool preventChanges;
+        //HACK: to reset this flag because Tests reuse the same AppDomain
+        internal static bool preventChanges;
 
         readonly string queueLowerCased;
         readonly string machineLowerCased;
         static bool ignoreMachineName;
-
     }
 }

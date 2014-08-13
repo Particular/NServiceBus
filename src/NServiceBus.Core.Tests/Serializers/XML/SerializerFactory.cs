@@ -8,10 +8,14 @@ namespace NServiceBus.Serializers.XML.Test
 
     public class SerializerFactory
     {
-         public static XmlMessageSerializer Create<T>()
+         public static XmlMessageSerializer Create<T>(MessageMapper mapper = null)
          {
              var types = new List<Type> {typeof (T)};
-             var mapper = new MessageMapper();
+             if (mapper == null)
+             {
+                 mapper = new MessageMapper();
+             }
+
              mapper.Initialize(types);
              var serializer = new XmlMessageSerializer(mapper, new Conventions());
 

@@ -303,8 +303,8 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void TestMultipleInterfacesDuplicatedProperty()
         {
-            IMessageMapper mapper = new MessageMapper();
-            var serializer = SerializerFactory.Create<IThird>();
+            var mapper = new MessageMapper();
+            var serializer = SerializerFactory.Create<IThird>(mapper);
             var msgBeforeSerialization = mapper.CreateInstance<IThird>(x => x.FirstName = "Danny");
 
             var count = 0;
@@ -370,8 +370,8 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void TestInterfaces()
         {
-            IMessageMapper mapper = new MessageMapper();
-            var serializer = SerializerFactory.Create<IM2>();
+            var mapper = new MessageMapper();
+            var serializer = SerializerFactory.Create<IM2>(mapper);
 
 
             var o = mapper.CreateInstance<IM2>();
