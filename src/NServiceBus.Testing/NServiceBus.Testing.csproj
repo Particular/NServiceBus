@@ -52,6 +52,7 @@
     <None Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
     </None>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Obsolete">
       <HintPath>..\packages\Obsolete.Fody\Lib\NET35\Obsolete.dll</HintPath>
     </Reference>
