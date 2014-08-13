@@ -278,6 +278,17 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
+        /// Initializes the given message type and checks all the expectations previously set up,
+        /// and then clears them for continued testing.
+        /// </summary>
+        public Saga<T> WhenHandling<TMessage>(Action<TMessage> initializeMessage = null)
+        {
+            var msg = bus.CreateInstance(initializeMessage);
+
+            return When(_ => ((dynamic)saga).Handle(msg));
+        }
+
+        /// <summary>
         /// Uses the given delegate to invoke the saga, checking all the expectations previously set up,
         /// and then clearing them for continued testing.
         /// </summary>

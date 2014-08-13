@@ -37,6 +37,14 @@
         }
 
         [Test]
+        public void SagaThatIsStartedWithInterface()
+        {
+            Test.Saga<MySagaWithInterface>()
+                .ExpectSend<Command>()
+                .WhenHandling<StartsSagaWithInterface>(m => m.Foo = "Hello");
+        }
+
+        [Test]
         public void SagaThatDoesAReply()
         {
             Test.Saga<SagaThatDoesAReply>()
@@ -166,6 +174,27 @@
     {
     }
 
+    public class MySagaWithInterface : Saga<MySagaWithInterface.MySagaDataWithInterface>,
+        IAmStartedByMessages<StartsSagaWithInterface>
+    {
+        public class MySagaDataWithInterface : ContainSagaData
+        {
+            
+        }
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaDataWithInterface> mapper)
+        {
+        }
+
+        public void Handle(StartsSagaWithInterface message)
+        {
+            if (message.Foo == "Hello")
+            {
+                Bus.Send<Command>(null);
+            }
+        }
+    }
+
     public class MySaga : Saga<MySagaData>,
                           IAmStartedByMessages<StartsSaga>,
                           IHandleTimeouts<StartsSaga>
@@ -194,6 +223,11 @@
         public Guid Id { get; set; }
         public string Originator { get; set; }
         public string OriginalMessageId { get; set; }
+    }
+
+    public interface StartsSagaWithInterface: IEvent
+    {
+        string Foo { get; set; }
     }
 
     public class StartsSaga : ICommand
