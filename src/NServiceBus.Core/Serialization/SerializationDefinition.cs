@@ -1,31 +1,30 @@
 ﻿namespace NServiceBus.Serialization
 {
     using System;
-    using Features;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Implemented by serializers to provide their capabilities
     /// </summary>
-    /// <typeparam name="T">The type of serialization to provide</typeparam>
-    public abstract class SerializationDefinition<T> : ISerializationDefinition where T : Feature
+    public abstract class SerializationDefinition
     {
         /// <summary>
-        /// The feature to enable when this serializer is selected
+        /// Initializes a new instance of <see cref="SerializationDefinition"/>.
         /// </summary>
-        public Type ProvidedByFeature
+        protected SerializationDefinition(SettingsHolder settings)
         {
-            get { return typeof(T); }
+            Settings = settings;
         }
-    }
 
-    /// <summary>
-    /// Implemented by serializers to provide their capabilities
-    /// </summary>
-    public interface ISerializationDefinition
-    {
         /// <summary>
         /// The feature to enable when this serializer is selected
         /// </summary>
-        Type ProvidedByFeature { get; }
+        internal abstract Type ProvidedByFeature();
+
+        /// <summary>
+        /// Get the current <see cref="SettingsHolder"/> this <see cref="SerializationDefinition"/> wraps.
+        /// </summary>
+        protected SettingsHolder Settings { get; private set; }
     }
+
 }

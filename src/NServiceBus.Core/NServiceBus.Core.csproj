@@ -180,13 +180,13 @@
     <Compile Include="Scheduling\Scheduler.cs" />
     <Compile Include="Scheduling\TaskDefinition.cs" />
     <Compile Include="Serialization\SerializationConfigExtensions.cs" />
-    <Compile Include="Serialization\SerializationConfiguration.cs" />
     <Compile Include="Serialization\SerializationDefinition.cs" />
     <Compile Include="Serializers\Binary\Binary.cs" />
     <Compile Include="Serializers\Json\Bson.cs" />
     <Compile Include="Serializers\SerializationFeatureHelper.cs" />
     <Compile Include="Serializers\Json\Json.cs" />
     <Compile Include="Serializers\XML\Config\Xml.cs" />
+    <Compile Include="Serializers\XML\Config\XmlSerializationSettings_Obsolete.cs" />
     <Compile Include="Settings\DurableMessagesConfig.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
@@ -338,8 +338,7 @@
     <Compile Include="Serializers\Json\Config\JsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
-    <Compile Include="Serializers\XML\Config\XmlSerializationSettings.cs" />
-    <Compile Include="Serializers\XML\Config\XmlSerializerConfigurationExtensions.cs" />
+    <Compile Include="Serializers\XML\Config\XmlSerializerConfigurationExtensions_Obsolete.cs" />
     <Compile Include="Serialization\SerializationSettings.cs" />
     <Compile Include="Transports\Msmq\CorrelationIdMutatorForBackwardsCompatibilityWithV3.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
