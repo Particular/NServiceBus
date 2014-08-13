@@ -3,14 +3,8 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class Issue_933
+    public class Issue_933 : BaseTests
     {
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
-        {
-            Test.Initialize();
-        }
-
         [Test]
         public void SendMessageWithMultiIncomingHeaders()
         {

@@ -51,6 +51,7 @@
     <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseTests.cs" />
     <Compile Include="Issue508.cs" />
     <Compile Include="InvocationTests.cs" />
     <Compile Include="Issue_933.cs" />

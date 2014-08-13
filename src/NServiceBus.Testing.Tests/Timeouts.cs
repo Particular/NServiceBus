@@ -5,14 +5,8 @@
     using Saga;
 
     [TestFixture]
-    public class Timeouts
+    public class Timeouts : BaseTests
     {
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
-        {
-            Test.Initialize();
-        }
-
         [Test]
         public void Should_assert_30_style_timeouts_being_set()
         {

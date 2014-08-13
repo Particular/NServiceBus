@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FakeDequer.cs" />
+    <Compile Include="FakeEncryptor.cs" />
     <Compile Include="FakeQueueCreator.cs" />
     <Compile Include="FakeSender.cs" />
     <Compile Include="FakeTestTransport.cs" />

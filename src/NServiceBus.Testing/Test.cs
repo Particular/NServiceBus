@@ -41,6 +41,7 @@
                 c.DisableFeature<Sagas>();
                 c.DisableFeature<Audit>();
                 c.UseTransport<FakeTestTransport>();
+                c.RegisterEncryptionService(b => new FakeEncryptor());
                 c.RegisterComponents(r =>
                 {
                     r.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
@@ -98,15 +99,10 @@
                 return;
             }
 
-
             config.CreateBus();
 
             var mapper = config.Builder.Build<IMessageMapper>();
-            if (mapper == null)
-            {
-                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
-            }
-
+            
             messageCreator = mapper;
             ExtensionMethods.GetHeaderAction = (msg, key) =>
             {

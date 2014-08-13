@@ -426,11 +426,11 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             return FormatterServices.GetUninitializedObject(mapped);
         }
 
-        static readonly string SUFFIX = "__impl";
-        static readonly Dictionary<Type, Type> interfaceToConcreteTypeMapping = new Dictionary<Type, Type>();
-        static readonly Dictionary<Type, Type> concreteToInterfaceTypeMapping = new Dictionary<Type, Type>();
-        static readonly Dictionary<string, Type> nameToType = new Dictionary<string, Type>();
-        static readonly Dictionary<Type, ConstructorInfo> typeToConstructor = new Dictionary<Type, ConstructorInfo>();
-        static ILog Logger = LogManager.GetLogger<MessageMapper>();
+        readonly string SUFFIX = "__impl";
+        readonly Dictionary<Type, Type> interfaceToConcreteTypeMapping = new Dictionary<Type, Type>();
+        readonly Dictionary<Type, Type> concreteToInterfaceTypeMapping = new Dictionary<Type, Type>();
+        readonly Dictionary<string, Type> nameToType = new Dictionary<string, Type>();
+        readonly Dictionary<Type, ConstructorInfo> typeToConstructor = new Dictionary<Type, ConstructorInfo>();
+        ILog Logger = LogManager.GetLogger<MessageMapper>();
     }
 }

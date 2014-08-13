@@ -5,14 +5,8 @@
     using Saga;
 
     [TestFixture]
-    class SagaTests
+    class SagaTests : BaseTests
     {
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
-        {
-            Test.Initialize();
-        }
-
         [Test]
         public void MySaga()
         {
