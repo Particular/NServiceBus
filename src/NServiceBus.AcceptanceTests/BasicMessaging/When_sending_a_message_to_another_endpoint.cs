@@ -63,7 +63,11 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(configure => { }, builder => builder.UseSerialization<Json>(xml =>
+                {
+                    xml.DontWrapRawXml()
+                        .Namespace("Sdfsdf");
+                }));
             }
         }
 
