@@ -64,12 +64,12 @@
         {
             if (SystemInformation.UserInteractive)
             {
-                const string warningMessage = "No persistence has been selected, NServiceBus will now use InMemory persistence. We recommend that you change the persistence before deploying to production. To do this,  please add a call to config.UsePersistence<T>() where T can be any of the supported persistence options supported. http://docs.particular.net/nservicebus/persistence-in-nservicebus.";
+                const string warningMessage = "No persistence has been selected, NServiceBus will now use InMemory persistence. We recommend that you change the persistence before deploying to production. To do this, please add a call to builder.UsePersistence<T>() where T can be any of the supported persistence options. See http://docs.particular.net/nservicebus/persistence-in-nservicebus.";
                 Logger.Warn(warningMessage);
             }
             else
             {
-                const string errorMessage = "No persistence has been selected, please add a call to config.UsePersistence<T>() where T can be any of the supported persistence options supported. http://docs.particular.net/nservicebus/persistence-in-nservicebus";
+                const string errorMessage = "No persistence has been selected, please add a call to builder.UsePersistence<T>() where T can be any of the supported persistence options. See http://docs.particular.net/nservicebus/persistence-in-nservicebus";
                 throw new Exception(errorMessage);
             }
         }

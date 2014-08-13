@@ -82,7 +82,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
 
-            FuncBuilder.Register<ReadOnlySettings>(()=>settings);
+            FuncBuilder.Register<ReadOnlySettings>(() => settings);
 
             router = new StaticMessageRouter(KnownMessageTypes());
             var conventions = new Conventions();
