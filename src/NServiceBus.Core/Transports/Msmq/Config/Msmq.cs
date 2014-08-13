@@ -25,8 +25,8 @@ namespace NServiceBus
             config.EnableFeature<MessageDrivenSubscriptions>();
             config.EnableFeature<TimeoutManagerBasedDeferral>();
 
-            config.settings.EnableFeatureByDefault<StorageDrivenPublishing>();
-            config.settings.EnableFeatureByDefault<TimeoutManager>();
+            config.Settings.EnableFeatureByDefault<StorageDrivenPublishing>();
+            config.Settings.EnableFeatureByDefault<TimeoutManager>();
         }
     }
 }

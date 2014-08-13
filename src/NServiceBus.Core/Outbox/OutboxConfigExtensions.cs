@@ -15,7 +15,7 @@
         {
             if (customizations != null)
             {
-                customizations(new OutboxSettings(config.settings));
+                customizations(new OutboxSettings(config.Settings));
             }
 
             config.Transactions(t => t.Advanced(a =>

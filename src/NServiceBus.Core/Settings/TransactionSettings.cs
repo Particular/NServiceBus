@@ -28,7 +28,7 @@ namespace NServiceBus.Settings
         /// </remarks>
         public TransactionSettings Enable()
         {
-            config.settings.Set("Transactions.Enabled", true);
+            config.Settings.Set("Transactions.Enabled", true);
             return this;
         }
 
@@ -40,8 +40,8 @@ namespace NServiceBus.Settings
         /// </remarks>
         public TransactionSettings Disable()
         {
-            config.settings.Set("Transactions.Enabled", false);
-            config.settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
+            config.Settings.Set("Transactions.Enabled", false);
+            config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
             return this;
         }
 
@@ -78,7 +78,7 @@ namespace NServiceBus.Settings
             /// <param name="isolationLevel">A <see cref="IsolationLevel" /> enumeration that specifies the isolation level of the transaction.</param>
             public TransactionAdvancedSettings IsolationLevel(IsolationLevel isolationLevel)
             {
-                config.settings.Set("Transactions.IsolationLevel", isolationLevel);
+                config.Settings.Set("Transactions.IsolationLevel", isolationLevel);
 
                 return this;
             }
@@ -88,8 +88,8 @@ namespace NServiceBus.Settings
             /// </summary>
             public TransactionAdvancedSettings DisableDistributedTransactions()
             {
-                config.settings.Set("Transactions.SuppressDistributedTransactions", true);
-                config.settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
+                config.Settings.Set("Transactions.SuppressDistributedTransactions", true);
+                config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
                 return this;
             }
 
@@ -98,7 +98,7 @@ namespace NServiceBus.Settings
             /// </summary>
             public TransactionAdvancedSettings EnableDistributedTransactions()
             {
-                config.settings.Set("Transactions.SuppressDistributedTransactions", false);
+                config.Settings.Set("Transactions.SuppressDistributedTransactions", false);
                 return this;
             }
 
@@ -107,7 +107,7 @@ namespace NServiceBus.Settings
             /// </summary>
             public TransactionAdvancedSettings DoNotWrapHandlersExecutionInATransactionScope()
             {
-                config.settings.Set("Transactions.DoNotWrapHandlersExecutionInATransactionScope", true);
+                config.Settings.Set("Transactions.DoNotWrapHandlersExecutionInATransactionScope", true);
                 return this;
             }
 
@@ -116,7 +116,7 @@ namespace NServiceBus.Settings
             /// </summary>
             public TransactionAdvancedSettings WrapHandlersExecutionInATransactionScope()
             {
-                config.settings.Set("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
+                config.Settings.Set("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
                 return this;
             }
 
@@ -132,7 +132,7 @@ namespace NServiceBus.Settings
                         "Timeout requested is longer than the maximum value for this machine. Please override using the maxTimeout setting of the system.transactions section in machine.config");
                 }
 
-                config.settings.Set("Transactions.DefaultTimeout", defaultTimeout);
+                config.Settings.Set("Transactions.DefaultTimeout", defaultTimeout);
                 return this;
             }
 

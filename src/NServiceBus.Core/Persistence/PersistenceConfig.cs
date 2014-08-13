@@ -28,7 +28,7 @@
         /// <param name="customizations">Any customizations needed</param>
         public static void UsePersistence(this ConfigurationBuilder config, Type definitionType, Action<PersistenceConfiguration> customizations = null)
         {
-            var settings = config.settings;
+            var settings = config.Settings;
             List<EnabledPersistence> definitions;
             if (!settings.TryGet("PersistenceDefinitions", out definitions))
             {

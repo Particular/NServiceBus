@@ -12,38 +12,39 @@
         /// <summary>
         /// Configures the given serializer to be used
         /// </summary>
-        /// <typeparam name="T">The serializer definition eg <see cref="Json"/>, <see cref="Xml"/> etc</typeparam>
+        /// <typeparam name="T">The serializer definition eg <see cref="Json"/>, <see cref="Xml"/>, etc</typeparam>
         /// <param name="config"></param>
-        /// <param name="customizations">Any serializer customizations needed for the specified serializer</param>
-        public static void UseSerialization<T>(this ConfigurationBuilder config, Action<SerializationConfiguration> customizations = null) where T : ISerializationDefinition
+        public static SerializationExtentions<T> UseSerialization<T>(this ConfigurationBuilder config) where T : SerializationDefinition
         {
-            UseSerialization(config, typeof(T), customizations);
+            var type = typeof(SerializationExtentions<>).MakeGenericType(typeof(T));
+            var extension = (SerializationExtentions<T>)Activator.CreateInstance(type, config.Settings);
+
+            config.UseSerialization(typeof(T));
+
+            return extension;
         }
 
         /// <summary>
         /// Configures the given serializer to be used
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="definitionType">The serializer definition eg J<see cref="Json"/>, <see cref="Xml"/> etc</param>
-        /// <param name="customizations">Any serializer customizations needed for the specified serializer</param>
-        public static void UseSerialization(this ConfigurationBuilder config, Type definitionType, Action<SerializationConfiguration> customizations = null)
+        /// <param name="definitionType">The serializer definition eg <see cref="Json"/>, <see cref="Xml"/> etc</param>
+        public static void UseSerialization(this ConfigurationBuilder config, Type definitionType)
         {
-            if (customizations != null)
-            {
-                customizations(new SerializationConfiguration(config.settings));
-            }
+            var definition = (SerializationDefinition)Activator.CreateInstance(definitionType);
 
-            config.settings.Set("SelectedSerializer", definitionType);
+            config.Settings.Set("SelectedSerializer", definition);
         }
 
-        internal static Type GetSelectedSerializerType(this ReadOnlySettings settings)
+        internal static SerializationDefinition GetSelectedSerializer(this ReadOnlySettings settings)
         {
-            Type selectedSerializer;
+            SerializationDefinition selectedSerializer;
             if (settings.TryGet("SelectedSerializer", out selectedSerializer))
             {
                 return selectedSerializer;
             }
-            return typeof(Xml);
+
+            return new Xml();
         }
     }
 }

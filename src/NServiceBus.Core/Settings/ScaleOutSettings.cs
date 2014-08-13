@@ -20,7 +20,7 @@ namespace NServiceBus.Settings
         /// </summary>
         public void UseSingleBrokerQueue()
         {
-            config.settings.Set("ScaleOut.UseSingleBrokerQueue", true);
+            config.Settings.Set("ScaleOut.UseSingleBrokerQueue", true);
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace NServiceBus.Settings
         /// </summary>
         public void UseUniqueBrokerQueuePerMachine()
         {
-            config.settings.Set("ScaleOut.UseSingleBrokerQueue", false);
+            config.Settings.Set("ScaleOut.UseSingleBrokerQueue", false);
         }
     }
 }

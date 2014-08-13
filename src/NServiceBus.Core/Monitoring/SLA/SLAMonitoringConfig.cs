@@ -13,7 +13,7 @@ namespace NServiceBus
         /// </summary>
         public static void EnableSLAPerformanceCounter(this ConfigurationBuilder config, TimeSpan sla)
         {
-            config.settings.Set(SLAMonitoring.EndpointSLAKey, sla);
+            config.Settings.Set(SLAMonitoring.EndpointSLAKey, sla);
             EnableSLAPerformanceCounter(config);
         }
         /// <summary>

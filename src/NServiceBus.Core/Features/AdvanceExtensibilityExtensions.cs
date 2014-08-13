@@ -10,9 +10,9 @@
         /// <summary>
         /// Gives access to the <see cref="SettingsHolder"/> for extensibility.
         /// </summary>
-        public static SettingsHolder GetSettings(this ConfigurationBuilder config)
+        public static SettingsHolder GetSettings(this ExposeSettings config)
         {
-            return config.settings;
+            return config.Settings;
         }
     }
 }

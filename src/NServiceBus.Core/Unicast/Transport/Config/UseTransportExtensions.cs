@@ -30,22 +30,22 @@ namespace NServiceBus
         internal static void SetupTransport(ConfigurationBuilder configurationBuilder)
         {
             var transportDefinition = GetTransportDefinition(configurationBuilder);
-            configurationBuilder.settings.Set<TransportDefinition>(transportDefinition);
+            configurationBuilder.Settings.Set<TransportDefinition>(transportDefinition);
             transportDefinition.Configure(configurationBuilder);
         }
 
         static TransportDefinition GetTransportDefinition(ConfigurationBuilder configurationBuilder)
         {
             Type transportDefinitionType;
-            if (!configurationBuilder.settings.TryGet("transportDefinitionType", out transportDefinitionType))
+            if (!configurationBuilder.Settings.TryGet("transportDefinitionType", out transportDefinitionType))
             {
                 return new Msmq();
             }
 
-            var customizations = configurationBuilder.settings.Get<Action<TransportConfiguration>>("transportCustomizations");
+            var customizations = configurationBuilder.Settings.Get<Action<TransportConfiguration>>("transportCustomizations");
             if (customizations != null)
             {
-                customizations(new TransportConfiguration(configurationBuilder.settings));
+                customizations(new TransportConfiguration(configurationBuilder.Settings));
             }
 
             return transportDefinitionType.Construct<TransportDefinition>();
