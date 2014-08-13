@@ -1,10 +1,9 @@
 namespace NServiceBus.Config
 {
     using System.Configuration;
-    using Encryption.Rijndael;
 
     /// <summary>
-    /// Used to configure <see cref="EncryptionService"/>.
+    /// Used to configure Rijndael encryption service.
     /// </summary>
     public class RijndaelEncryptionServiceConfig : ConfigurationSection
     {
@@ -23,5 +22,22 @@ namespace NServiceBus.Config
                 this["Key"] = value;
             }
         }
+
+        /// <summary>
+        /// Contains the encryption keys to use.
+        /// </summary>
+        [ConfigurationProperty("ExpiredKeys", IsRequired = false)]
+        public RijndaelExpiredKeyCollection ExpiredKeys
+        {
+            get
+            {
+                return this["ExpiredKeys"] as RijndaelExpiredKeyCollection;
+            }
+            set
+            {
+                this["ExpiredKeys"] = value;
+            }
+        }
+
     }
 }

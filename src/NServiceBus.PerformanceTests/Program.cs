@@ -149,7 +149,7 @@
 
         private static void SetupRijndaelTestEncryptionService()
         {
-            var encryptionService = new RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
+            var encryptionService = new RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6", new List<string>());
             config.configurer.RegisterSingleton<IEncryptionService>(encryptionService);
         }
 

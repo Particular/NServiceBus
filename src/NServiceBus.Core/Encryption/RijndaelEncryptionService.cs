@@ -27,35 +27,63 @@
 namespace NServiceBus.Encryption.Rijndael
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
 
     class RijndaelEncryptionService : IEncryptionService
     {
-        byte[] key;
 
-        public RijndaelEncryptionService(string key)
+        byte[] encryptionKey;
+        List<byte[]> decryptionKeys;
+
+        public RijndaelEncryptionService(string encryptionKey, List<string> expiredKeys)
         {
-            this.key = Encoding.ASCII.GetBytes(key);
+            this.encryptionKey = Encoding.ASCII.GetBytes(encryptionKey);
+            VerifyEncryptionKey(this.encryptionKey);
+            var expiredKeyBytes = expiredKeys.Select(key => Encoding.ASCII.GetBytes(key)).ToList();
+            VerifyExpiredKeys(expiredKeyBytes);
+            decryptionKeys = new List<byte[]>{this.encryptionKey};
+            decryptionKeys.AddRange(expiredKeyBytes);
         }
+
 
         public string Decrypt(EncryptedValue encryptedValue)
         {
             var encrypted = Convert.FromBase64String(encryptedValue.EncryptedBase64Value);
+            var cryptographicExceptions = new List<CryptographicException>();
             using (var rijndael = new RijndaelManaged())
             {
-                rijndael.Key = key;
                 rijndael.IV = Convert.FromBase64String(encryptedValue.Base64Iv);
                 rijndael.Mode = CipherMode.CBC;
 
-                using (var decryptor = rijndael.CreateDecryptor())
-                using (var memoryStream = new MemoryStream(encrypted))
-                using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
-                using (var reader = new StreamReader(cryptoStream))
+                foreach (var key in decryptionKeys)
                 {
-                    return reader.ReadToEnd();
+                    rijndael.Key = key;
+                    try
+                    {
+                        return Decrypt(rijndael, encrypted);
+                    }
+                    catch (CryptographicException exception)
+                    {
+                        cryptographicExceptions.Add(exception);
+                    }
                 }
+            }
+            var message = string.Format("Could not decrypt message. Tried {0} keys.", decryptionKeys.Count);
+            throw new AggregateException(message, cryptographicExceptions);
+        }
+
+        static string Decrypt(RijndaelManaged rijndael, byte[] encrypted)
+        {
+            using (var decryptor = rijndael.CreateDecryptor())
+            using (var memoryStream = new MemoryStream(encrypted))
+            using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
+            using (var reader = new StreamReader(cryptoStream))
+            {
+                return reader.ReadToEnd();
             }
         }
 
@@ -63,7 +91,7 @@ namespace NServiceBus.Encryption.Rijndael
         {
             using (var rijndael = new RijndaelManaged())
             {
-                rijndael.Key = key;
+                rijndael.Key = encryptionKey;
                 rijndael.Mode = CipherMode.CBC;
                 rijndael.GenerateIV();
 
@@ -85,5 +113,37 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
+        static void VerifyExpiredKeys(List<byte[]> keys)
+        {
+            for (var index = 0; index < keys.Count; index++)
+            {
+                var key = keys[index];
+                if (IsValidKey(key))
+                {
+                    continue;
+                }
+                var message = string.Format("The expired key at index {0} has an invalid length of {1} bytes.", index, key.Length);
+                throw new Exception(message);
+            }
+        }
+
+        static void VerifyEncryptionKey(byte[] key)
+        {
+            if (IsValidKey(key))
+            {
+                return;
+            }
+            var message = string.Format("The encryption key has an invalid length of {0} bytes.", key.Length);
+            throw new Exception(message);
+        }
+
+        static bool IsValidKey(byte[] key)
+        {
+            using (var rijndael = new RijndaelManaged())
+            {
+                var bitLength = key.Length*8;
+                return rijndael.ValidKeySize(bitLength);
+            }
+        }
     }
 }
