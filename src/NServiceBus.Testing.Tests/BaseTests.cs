@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Testing.Tests
 {
+    using System;
     using System.IO;
     using System.Reflection;
     using NUnit.Framework;
@@ -9,7 +10,12 @@
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            Test.Initialize(b => b.ScanAssembliesInDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)));
+            var codeBase = Assembly.GetExecutingAssembly().CodeBase;
+            var uri = new UriBuilder(codeBase);
+            var path = Uri.UnescapeDataString(uri.Path);
+            var directoryName = Path.GetDirectoryName(path);
+
+            Test.Initialize(b => b.ScanAssembliesInDirectory(directoryName));
         }
     }
 }
