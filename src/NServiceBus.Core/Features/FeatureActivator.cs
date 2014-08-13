@@ -99,8 +99,7 @@ namespace NServiceBus.Features
 
         public void SetupFeatures(FeatureConfigurationContext context)
         {
-            var featuresToActivate = features.Where(featureState => IsEnabled(featureState.Feature.GetType()) && 
-                MeetsActivationCondition(featureState.Feature, featureState.Diagnostics, context))
+            var featuresToActivate = features.Where(featureState => IsEnabled(featureState.Feature.GetType()))
                 .ToList();
 
             foreach (var defaultSetting in featuresToActivate.SelectMany(feature => feature.Feature.RegisteredDefaults))
@@ -155,9 +154,9 @@ namespace NServiceBus.Features
             }
         }
 
-        static bool ActivateFeature(FeatureState feature, List<FeatureState> featuresToActivate, FeatureConfigurationContext context)
+        static bool ActivateFeature(FeatureState featureState, List<FeatureState> featuresToActivate, FeatureConfigurationContext context)
         {
-            if (feature.Feature.IsActive)
+            if (featureState.Feature.IsActive)
             {
                 return true;
             }
@@ -177,16 +176,22 @@ namespace NServiceBus.Features
                                      return hasAllUpstreamDepsBeenActivated;
                                  };
 
-            if (feature.Feature.Dependencies.All(dependencyActivator))
+            if (featureState.Feature.Dependencies.All(dependencyActivator))
             {
-                feature.Feature.SetupFeature(context);
-                feature.Diagnostics.Active = true;
-                feature.Diagnostics.DependenciesAreMeet = true;
+                featureState.Diagnostics.DependenciesAreMeet = true;
 
+                if (!HasAllPrerequisitesSatisfied(featureState.Feature, featureState.Diagnostics, context))
+                {
+                    return false;
+                }
+
+                featureState.Feature.SetupFeature(context);
+                featureState.Diagnostics.Active = true;
+             
                 return true;
             }
 
-            feature.Diagnostics.DependenciesAreMeet = false;
+            featureState.Diagnostics.DependenciesAreMeet = false;
 
             return false;
         }
@@ -196,7 +201,7 @@ namespace NServiceBus.Features
             return settings.GetOrDefault<bool>(featureType.FullName);
         }
 
-        bool MeetsActivationCondition(Feature feature,FeatureDiagnosticData diagnosticData, FeatureConfigurationContext context)
+        static bool HasAllPrerequisitesSatisfied(Feature feature,FeatureDiagnosticData diagnosticData, FeatureConfigurationContext context)
         {
             diagnosticData.PrerequisiteStatus = feature.CheckPrerequisites(context);
 
