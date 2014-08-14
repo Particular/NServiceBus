@@ -57,7 +57,7 @@
                 o.EndpointName(endpointName);
                 o.EnableInstallers();
                 o.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
-                o.UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"));
+                o.UseTransport<Msmq>().ConnectionString("deadLetter=false;journal=false");
                 o.DisableFeature<Audit>();
 
                 if (volatileMode)

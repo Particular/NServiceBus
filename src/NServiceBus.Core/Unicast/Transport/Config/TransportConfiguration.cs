@@ -1,46 +1,42 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Settings;
-    using Unicast.Transport;
 
     /// <summary>
     /// Configuration options common for all transports
     /// </summary>
     public class TransportConfiguration
     {
-        /// <summary>
-        /// Access to the current <see cref="SettingsHolder"/> instance.
-        /// </summary>
-        public SettingsHolder Settings { get; private set; }
-
-        internal TransportConfiguration(SettingsHolder settings)
-        {
-            Settings = settings;
-        }
+        // ReSharper disable UnusedParameter.Global
 
         /// <summary>
         /// Configures the transport to use the given string as the connection string
         /// </summary>
+        [ObsoleteEx(Replacement = "Configure.With(c => c.UseTransport<T>().ConnectionString(connectionString)", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+
         public void ConnectionString(string connectionString)
+
         {
-            Settings.Set<TransportConnectionString>(new TransportConnectionString(() => connectionString));
+            throw new InvalidOperationException();
         }
 
         /// <summary>
         /// Configures the transport to use the connection string with the given name
         /// </summary>
+        [ObsoleteEx(Replacement = "Configure.With(c => c.UseTransport<T>().ConnectionStringName(name)", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public void ConnectionStringName(string name)
         {
-            Settings.Set<TransportConnectionString>(new TransportConnectionString(name));
+            throw new InvalidOperationException();
         }
 
         /// <summary>
         /// Configures the transport to use the given func as the connection string
         /// </summary>
+        [ObsoleteEx(Replacement = "Configure.With(c => c.UseTransport<T>().ConnectionString(connectionString)", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public void ConnectionString(Func<string> connectionString)
         {
-            Settings.Set<TransportConnectionString>(new TransportConnectionString(connectionString));
+            throw new InvalidOperationException();
         }
+        // ReSharper restore UnusedParameter.Global
     }
 }

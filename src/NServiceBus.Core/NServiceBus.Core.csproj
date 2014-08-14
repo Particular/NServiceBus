@@ -201,6 +201,8 @@
     <Compile Include="Monitoring\MonitoringConfig_Obsolete.cs" />
     <Compile Include="Monitoring\SLA\SLAMonitoring.cs" />
     <Compile Include="Monitoring\ProcessingStatisticsBehavior.cs" />
+    <Compile Include="Unicast\Transport\Config\TransportConfiguration.cs" />
+    <Compile Include="Unicast\Transport\Config\TransportExtentions.cs" />
     <Compile Include="Unicast\Transport\Config\UseTransportExtensions_Obsolete.cs" />
     <Compile Include="Utils\ElevateChecker.cs" />
     <Compile Include="IStartableBus.cs" />
@@ -320,7 +322,6 @@
     <Compile Include="Unicast\SendOptions.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubscriptionManager.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageInitializer.cs" />
-    <Compile Include="Unicast\Transport\Config\TransportConfiguration.cs" />
     <Compile Include="Unicast\Transport\TransportMessageExtensions.cs" />
     <Compile Include="Unicast\UnicastBus_Obsolete.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
