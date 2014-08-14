@@ -9,7 +9,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_using_RijndaelEncryption_with_config : NServiceBusAcceptanceTest
+    public class When_using_Rijndael_with_config : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_decrypted_message()
@@ -106,11 +106,12 @@
 
         public class ConfigureEncryption: IProvideConfiguration<RijndaelEncryptionServiceConfig>
         {
-            RijndaelEncryptionServiceConfig rijndaelEncryptionServiceConfig = new RijndaelEncryptionServiceConfig { Key = "gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6" };
-
             public RijndaelEncryptionServiceConfig GetConfiguration()
             {
-                return rijndaelEncryptionServiceConfig;
+                return new RijndaelEncryptionServiceConfig
+                {
+                    Key = "gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"
+                };
             }
         }
     }

@@ -99,8 +99,9 @@
     <Compile Include="CriticalError\When_registering_a_custom_criticalErrorHandler.cs" />
     <Compile Include="DataBus\When_sending_with_custom_IDataBus.cs" />
     <Compile Include="DuableMessaging\When_sending_a_message_to_another_endpoint.cs" />
-    <Compile Include="Encryption\When_using_RijndaelEncryption_with_custom_key.cs" />
-    <Compile Include="Encryption\When_using_RijndaelEncryption_with_config.cs" />
+    <Compile Include="Encryption\When_using_Rijndael_with_multikey.cs" />
+    <Compile Include="Encryption\When_using_Rijndael_with_custom.cs" />
+    <Compile Include="Encryption\When_using_Rijndael_with_config.cs" />
     <Compile Include="HostInformation\When_a_message_is_received.cs" />
     <Compile Include="MessageMutators\Issue_1980.cs" />
     <Compile Include="MessageMutators\When_outgoing_mutator_replaces_message_instance.cs" />

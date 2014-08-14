@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_using_RijndaelEncryption_with_custom_key : NServiceBusAcceptanceTest
+    public class When_using_Rijndael_with_custom : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_decrypted_message()

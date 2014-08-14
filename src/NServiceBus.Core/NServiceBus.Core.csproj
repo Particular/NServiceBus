@@ -95,6 +95,8 @@
     <Compile Include="Encryption\EncryptedValue.cs" />
     <Compile Include="Encryption\Encryptor.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionService_Obsolete.cs" />
+    <Compile Include="Encryption\RijndaelExpiredKey.cs" />
+    <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
     <Compile Include="Faults\Forwarder\ForwarderFaultManager.cs" />
     <Compile Include="Faults\InMemory\InMemoryFaultManager.cs" />
@@ -390,7 +392,7 @@
     <Compile Include="Transports\Msmq\MsmqUnitOfWork.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Config\MsmqSubscriptionStorageConfig.cs" />
-    <Compile Include="Config\RijndaelEncryptionServiceConfig.cs" />
+    <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Config\SatelliteConfigurer.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesConfig.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetries.cs" />
