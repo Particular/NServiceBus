@@ -11,19 +11,17 @@ namespace NServiceBus
         /// <summary>
         /// Configures messages to be guaranteed to be delivered in the event of a computer failure or network problem.
         /// </summary>
-        public static ConfigurationBuilder EnableDurableMessages(this ConfigurationBuilder config)
+        public static void EnableDurableMessages(this ConfigurationBuilder config)
         {
             config.settings.Set("Endpoint.DurableMessages", true);
-            return config;
         }
 
         /// <summary>
         /// Configures messages that are not guaranteed to be delivered in the event of a computer failure or network problem.
         /// </summary>
-        public static ConfigurationBuilder DisableDurableMessages(this ConfigurationBuilder config)
+        public static void DisableDurableMessages(this ConfigurationBuilder config)
         {
             config.settings.Set("Endpoint.DurableMessages", false);
-            return config;
         }
 
         internal static bool GetDurableMessagesEnabled(this ReadOnlySettings settings)

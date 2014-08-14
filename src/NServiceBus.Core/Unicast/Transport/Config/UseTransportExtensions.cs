@@ -13,20 +13,18 @@ namespace NServiceBus
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        public static ConfigurationBuilder UseTransport<T>(this ConfigurationBuilder configurationBuilder, Action<TransportConfiguration> customizations = null) where T : TransportDefinition, new()
+        public static void UseTransport<T>(this ConfigurationBuilder configurationBuilder, Action<TransportConfiguration> customizations = null) where T : TransportDefinition, new()
         {
-            return configurationBuilder.UseTransport(typeof(T), customizations);
+            configurationBuilder.UseTransport(typeof(T), customizations);
         }
 
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        public static ConfigurationBuilder UseTransport(this ConfigurationBuilder configurationBuilder, Type transportDefinitionType, Action<TransportConfiguration> customizations = null)
+        public static void UseTransport(this ConfigurationBuilder configurationBuilder, Type transportDefinitionType, Action<TransportConfiguration> customizations = null)
         {
             configurationBuilder.settings.Set("transportDefinitionType", transportDefinitionType);
             configurationBuilder.settings.Set("transportCustomizations", customizations);
-
-            return configurationBuilder;
         }
 
         internal static void SetupTransport(ConfigurationBuilder configurationBuilder)

@@ -54,11 +54,11 @@
 
             config = Configure.With(o =>
             {
-                o.EndpointName(endpointName)
-                    .EnableInstallers()
-                    .DiscardFailedMessagesInsteadOfSendingToErrorQueue()
-                    .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
-                    .DisableFeature<Audit>();
+                o.EndpointName(endpointName);
+                o.EnableInstallers();
+                o.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+                o.UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"));
+                o.DisableFeature<Audit>();
 
                 if (volatileMode)
                 {

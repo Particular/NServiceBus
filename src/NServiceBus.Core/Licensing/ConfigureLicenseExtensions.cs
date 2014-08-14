@@ -17,7 +17,9 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The current <see cref="ConfigurationBuilder"/>.</param>
         /// <param name="licenseText">The license text.</param>
-        public static ConfigurationBuilder License(this ConfigurationBuilder config, string licenseText)
+// ReSharper disable UnusedParameter.Global
+        public static void License(this ConfigurationBuilder config, string licenseText)
+// ReSharper restore UnusedParameter.Global
         {
             if (string.IsNullOrWhiteSpace(licenseText))
             {
@@ -25,8 +27,6 @@ namespace NServiceBus
             }
             Logger.Info(@"Using license supplied via fluent API.");
             LicenseManager.InitializeLicenseText(licenseText);
-
-            return config;
         }
 
 
@@ -35,7 +35,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The current <see cref="ConfigurationBuilder"/>.</param>
         /// <param name="licenseFile">A relative or absolute path to the license file.</param>
-        public static ConfigurationBuilder LicensePath(this ConfigurationBuilder config, string licenseFile)
+        public static void LicensePath(this ConfigurationBuilder config, string licenseFile)
         {
             if (!File.Exists(licenseFile))
             {
@@ -44,7 +44,7 @@ namespace NServiceBus
 
             var licenseText = NonLockingFileReader.ReadAllTextWithoutLocking(licenseFile);
             
-            return config.License(licenseText);
+            config.License(licenseText);
         }
     }
 }

@@ -17,7 +17,7 @@
             return dictionary[key];
         }
 
-        public static ConfigurationBuilder DefineTransport(this ConfigurationBuilder config, IDictionary<string, string> settings)
+        public static void DefineTransport(this ConfigurationBuilder config, IDictionary<string, string> settings)
         {
             if (!settings.ContainsKey("Transport"))
             {
@@ -26,10 +26,10 @@
 
             var transportType = Type.GetType(settings["Transport"]);
 
-            return config.UseTransport(transportType, c => c.ConnectionString(settings["Transport.ConnectionString"]));
+            config.UseTransport(transportType, c => c.ConnectionString(settings["Transport.ConnectionString"]));
         }
 
-        public static ConfigurationBuilder DefinePersistence(this ConfigurationBuilder config, IDictionary<string, string> settings)
+        public static void DefinePersistence(this ConfigurationBuilder config, IDictionary<string, string> settings)
         {
             if (!settings.ContainsKey("Persistence"))
             {
@@ -52,7 +52,7 @@
                 dc.Configure(config);
             }
 
-            return config.UsePersistence(persistenceType);
+            config.UsePersistence(persistenceType);
         }
     }
 }

@@ -11,19 +11,19 @@
         /// <summary>
         /// Enables the outbox feature
         /// </summary>
-        public static ConfigurationBuilder EnableOutbox(this ConfigurationBuilder config, Action<OutboxSettings> customizations = null)
+        public static void EnableOutbox(this ConfigurationBuilder config, Action<OutboxSettings> customizations = null)
         {
             if (customizations != null)
             {
                 customizations(new OutboxSettings(config.settings));
             }
 
-            return config.Transactions(t => t.Advanced(a =>
+            config.Transactions(t => t.Advanced(a =>
             {
                 a.DisableDistributedTransactions();
                 a.DoNotWrapHandlersExecutionInATransactionScope();
-            }))
-            .EnableFeature<Features.Outbox>();
+            }));
+            config.EnableFeature<Features.Outbox>();
         }
     }
 }
