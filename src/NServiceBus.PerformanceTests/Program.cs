@@ -7,8 +7,6 @@
     using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus;
-    using NServiceBus.Encryption;
-    using NServiceBus.Encryption.Rijndael;
     using NServiceBus.Features;
     using Encryption;
     using NServiceBus.Persistence;
@@ -114,14 +112,12 @@
                         throw new InvalidOperationException("Illegal serialization format " + args[2]);
                 }
                 o.UsePersistence<InMemory>();
+
+                if (encryption)
+                {
+                    o.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
+                }
             });
-
-
-
-            if (encryption)
-            {
-                SetupRijndaelTestEncryptionService();
-            }
 
             using (var startableBus = config.CreateBus())
             {
@@ -145,12 +141,6 @@
                 DumpSetting(args);
                 Statistics.Dump();
             }
-        }
-
-        private static void SetupRijndaelTestEncryptionService()
-        {
-            var encryptionService = new RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6", new List<string>());
-            config.configurer.RegisterSingleton<IEncryptionService>(encryptionService);
         }
 
         static void DumpSetting(string[] args)
