@@ -176,7 +176,6 @@
     <Compile Include="Persistence\Msmq\Msmq.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
     <Compile Include="Persistence\PersistenceStartup.cs" />
-    <Compile Include="Persistence\PersistenceConfig_Obsolete.cs" />
     <Compile Include="Persistence\Storage.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
     <Compile Include="Scheduling\Schedule_Obsolete.cs" />

@@ -6,7 +6,7 @@
     /// <summary>
     /// Enables users to select persistence by calling .UsePersistence()
     /// </summary>
-    public static partial class PersistenceConfig
+    public static class PersistenceConfig
     {
 
         /// <summary>
