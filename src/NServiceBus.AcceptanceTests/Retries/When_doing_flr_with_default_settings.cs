@@ -47,7 +47,7 @@
                 EndpointSetup<DefaultServer>(c => { },
                     b =>
                     {
-                        b.Transactions(false);
+                        b.Transactions().Disable();
                         b.RegisterComponents(r => r.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance));
                     })
                     .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1);

@@ -17,6 +17,20 @@ namespace NServiceBus.Settings
             maxTimeout = GetMaxTimeout();
         }
 
+        
+        /// <summary>
+        ///     Configures the <see cref="ITransport" /> not to not use any transactions
+        /// </summary>
+        public TransactionSettings Disable()
+        {
+            config.Settings.Set("Transactions.Enabled", false);
+            config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
+            config.Settings.SetDefault("Transactions.SuppressDistributedTransactions", true);
+
+            return this;
+        }
+
+              
         /// <summary>
         ///     Sets the isolation level of the transaction.
         /// </summary>

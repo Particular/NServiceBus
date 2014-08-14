@@ -11,11 +11,8 @@ namespace NServiceBus
         /// Entry point for transaction related configuration
         /// </summary>
         /// <param name="config"><see cref="Configure"/> instance.</param>
-        /// <param name="enabled"><code>true</code> to enable transaction, otherwise <code>false</code>.</param>
-        public static TransactionSettings Transactions(this ConfigurationBuilder config, bool enabled = true)
+        public static TransactionSettings Transactions(this ConfigurationBuilder config)
         {
-            config.Settings.Set("Transactions.Enabled", enabled);
-            config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", !enabled);
             return new TransactionSettings(config);
         }
     }

@@ -63,7 +63,6 @@
                 if (volatileMode)
                 {
                     o.DisableDurableMessages();
-                    o.Transactions(false).DoNotWrapHandlersExecutionInATransactionScope().DisableDistributedTransactions();
                     o.UsePersistence<InMemory>();
                 }
 
