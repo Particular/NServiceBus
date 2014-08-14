@@ -116,7 +116,7 @@ namespace NServiceBus
         /// </summary>
         public static void RegisterEncryptionService(this ConfigurationBuilder config, Func<IBuilder, IEncryptionService> func)
         {
-            config.settings.Set("EncryptionServiceConstructor", func);
+            config.Settings.Set("EncryptionServiceConstructor", func);
         }
 
         internal static bool GetEncryptionServiceConstructor(this ReadOnlySettings settings, out Func<IBuilder, IEncryptionService> func)

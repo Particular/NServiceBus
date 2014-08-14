@@ -14,7 +14,7 @@ namespace NServiceBus
         /// <returns>The configuration.</returns>
         public static void FileShareDataBus(this ConfigurationBuilder config, string basePath)
         {
-            config.settings.Set("FileShareDataBusPath", basePath);
+            config.Settings.Set("FileShareDataBusPath", basePath);
         }
 
     }

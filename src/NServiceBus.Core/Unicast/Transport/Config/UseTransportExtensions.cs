@@ -23,8 +23,8 @@ namespace NServiceBus
         /// </summary>
         public static void UseTransport(this ConfigurationBuilder configurationBuilder, Type transportDefinitionType, Action<TransportConfiguration> customizations = null)
         {
-            configurationBuilder.settings.Set("transportDefinitionType", transportDefinitionType);
-            configurationBuilder.settings.Set("transportCustomizations", customizations);
+            configurationBuilder.Settings.Set("transportDefinitionType", transportDefinitionType);
+            configurationBuilder.Settings.Set("transportCustomizations", customizations);
         }
 
         internal static void SetupTransport(ConfigurationBuilder configurationBuilder)

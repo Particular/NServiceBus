@@ -29,7 +29,7 @@ namespace NServiceBus
         /// </remarks>
         public static void SendOnly(this ConfigurationBuilder config)
         {
-            config.settings.Set("Endpoint.SendOnly", true);
+            config.Settings.Set("Endpoint.SendOnly", true);
         }
     }
 }

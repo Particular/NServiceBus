@@ -23,7 +23,7 @@
         /// <param name="featureType">The feature to enable</param>
         public static void EnableFeature(this ConfigurationBuilder config, Type featureType)
         {
-            config.settings.Set(featureType.FullName, true);
+            config.Settings.Set(featureType.FullName, true);
         }
 
         /// <summary>
@@ -41,7 +41,7 @@
         /// <param name="featureType">The feature to disable</param>
         public static void DisableFeature(this ConfigurationBuilder config, Type featureType)
         {
-            config.settings.Set(featureType.FullName, false);
+            config.Settings.Set(featureType.FullName, false);
         }
     }
 }

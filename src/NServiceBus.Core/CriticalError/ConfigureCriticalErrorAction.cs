@@ -16,7 +16,7 @@ namespace NServiceBus
         /// <param name="onCriticalError">Assigns the action to perform on critical error.</param>
         public static void DefineCriticalErrorAction(this ConfigurationBuilder configurationBuilder, Action<string, Exception> onCriticalError)
         {
-            configurationBuilder.settings.Set("onCriticalErrorAction", onCriticalError);
+            configurationBuilder.Settings.Set("onCriticalErrorAction", onCriticalError);
         }
 
     }

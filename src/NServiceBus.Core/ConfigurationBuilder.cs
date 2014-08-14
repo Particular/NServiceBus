@@ -132,7 +132,7 @@ namespace NServiceBus
         /// <param name="definitionType">The type of the builder</param>
         public void UseContainer(Type definitionType)
         {
-            UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(settings));
+            UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(Settings));
         }
 
         /// <summary>

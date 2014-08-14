@@ -35,7 +35,7 @@ namespace NServiceBus
         /// </summary>
         public static void LoadMessageHandlers<T>(this ConfigurationBuilder config, First<T> order)
         {
-            config.settings.Set("LoadMessageHandlers.Order.Types", order.Types);
+            config.Settings.Set("LoadMessageHandlers.Order.Types", order.Types);
         }
     }
 }

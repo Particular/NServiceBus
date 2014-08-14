@@ -12,7 +12,7 @@ namespace NServiceBus
         /// </summary>
         public static void DoNotCreateQueues(this ConfigurationBuilder config)
         {
-            config.settings.Set("Transport.CreateQueues", false);
+            config.Settings.Set("Transport.CreateQueues", false);
         }
 
         /// <summary>

@@ -4,11 +4,10 @@ namespace NServiceBus
 {
     using System;
     using System.Text;
-    using Serialization;
+    using NServiceBus.Serialization;
     using Serializers.Json;
     using Settings;
 
-        [ObsoleteEx(Replacement = "Configure.With(b => b.UseSerialization<Json>())", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
     public static class JsonSerializerConfigurationExtensions
     {
         [ObsoleteEx(Replacement = "Configure.With(b => b.UseSerialization<Json>())", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
@@ -28,13 +27,13 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The configuration object</param>
         /// <param name="encoding">Encoding to use for serialization and deserialization</param>
-        public static void JsonEncoding(this SerializationConfiguration config, Encoding encoding)
+        public static void Encoding(this SerializationExtentions<Json> config, Encoding encoding)
         {
             if (encoding == null)
             {
                 throw new ArgumentNullException("encoding");
             }
-            config.settings.SetProperty<JsonMessageSerializer>(s => s.Encoding, encoding);
+            config.Settings.SetProperty<JsonMessageSerializer>(s => s.Encoding, encoding);
         }
     }
 }

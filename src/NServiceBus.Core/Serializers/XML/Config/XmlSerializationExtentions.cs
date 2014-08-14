@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System.Configuration;
-    using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Serialization;
     using NServiceBus.Serializers.XML;
 
@@ -39,36 +38,36 @@
         ///       </Root>
         /// </MyMessage>
         /// </code>
-        public static SerializationExtentions<Xml> DontWrapRawXml(this SerializationExtentions<Xml> f)
+        public static SerializationExtentions<Xml> DontWrapRawXml(this SerializationExtentions<Xml> config)
         {
-            f.GetSettings().SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
+            config.Settings.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
 
-            return f;
+            return config;
         }
         /// <summary>
         /// Configures the serializer to use a custom namespace. (http://tempuri.net) is the default.
         /// <para>If the provided namespace ends with trailing forward slashes, those will be removed on the fly.</para>
         /// </summary>
-        public static SerializationExtentions<Xml> Namespace(this SerializationExtentions<Xml> f, string namespaceToUse)
+        public static SerializationExtentions<Xml> Namespace(this SerializationExtentions<Xml> config, string namespaceToUse)
         {
             if (string.IsNullOrEmpty(namespaceToUse))
             {
                 throw new ConfigurationErrorsException("Can't use a null or empty string as the xml namespace");
             }
 
-            f.GetSettings().SetProperty<XmlMessageSerializer>(s => s.Namespace, namespaceToUse);
+            config.Settings.SetProperty<XmlMessageSerializer>(s => s.Namespace, namespaceToUse);
 
-            return f;
+            return config;
         }
 
         /// <summary>
         /// Tells the serializer to sanitize the input data from illegal characters
         /// </summary>
-        public static SerializationExtentions<Xml> SanitizeInput(this SerializationExtentions<Xml> f)
+        public static SerializationExtentions<Xml> SanitizeInput(this SerializationExtentions<Xml> config)
         {
-            f.GetSettings().SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);
+            config.Settings.SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);
 
-            return f;
+            return config;
         }
     }
 }
