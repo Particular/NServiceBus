@@ -150,7 +150,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "var configure = Configure.Configure.With(o => o.CustomConfigurationSource(myConfigSource))")]
+            Replacement = "Configure.With(o => o.CustomConfigurationSource(myConfigSource))")]
         public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
         {
             throw new NotImplementedException();
@@ -228,7 +228,7 @@ namespace NServiceBus
         [ObsoleteEx(
            RemoveInVersion = "6",
            TreatAsErrorFromVersion = "5",
-           Replacement = "Configure.With(b => b.UseSerialization<Binary>(c => MyCustomConfig(c)))")]
+           Replacement = "Configure.With(b => b.UseSerialization<Binary>())")]
         public static SerializationSettings Serialization
         {
             get { throw new NotImplementedException(); }
@@ -238,7 +238,7 @@ namespace NServiceBus
           Message = "This has been converted to extension methods",
           RemoveInVersion = "6",
           TreatAsErrorFromVersion = "5",
-          Replacement = "configure.EnableFeature<T>() or configure.DisableFeature<T>()")]
+          Replacement = "Configure.With(b => b.EnableFeature<T>() or b.DisableFeature<T>())")]
         public static FeatureSettings Features
         {
             get
@@ -251,7 +251,7 @@ namespace NServiceBus
             Message = "This has been converted to an extension method",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "Configure.With(b => b.Transactions(t => t.Disable()))")]
+            Replacement = "Configure.With(b => b.Transactions())")]
         public static TransactionSettings Transactions
         {
             get
@@ -264,13 +264,11 @@ namespace NServiceBus
 
 namespace NServiceBus.Features
 {
-
-
     [ObsoleteEx(
           Message = "This has been converted to extension methods",
           RemoveInVersion = "6",
           TreatAsErrorFromVersion = "5",
-          Replacement = "configure.EnableFeature<T>() or configure.DisableFeature<T>()")]
+          Replacement = "Configure.With(b => b.EnableFeature<T>() or b.DisableFeature<T>())")]
     public class FeatureSettings
     {
     }

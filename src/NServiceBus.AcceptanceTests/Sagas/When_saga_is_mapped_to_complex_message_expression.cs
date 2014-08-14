@@ -35,8 +35,7 @@
             {
                 EndpointSetup<DefaultServer>(
                     c=>{},
-                    builder => builder.Transactions(t => t.Advanced(a => a.DoNotWrapHandlersExecutionInATransactionScope()))
-                    );
+                    builder => builder.Transactions().DoNotWrapHandlersExecutionInATransactionScope());
             }
 
             public class TestSaga : Saga<TestSagaData>,

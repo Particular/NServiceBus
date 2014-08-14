@@ -63,15 +63,7 @@
                 if (volatileMode)
                 {
                     o.DisableDurableMessages();
-                    o.Transactions(t =>
-                    {
-                        t.Disable();
-                        t.Advanced(a =>
-                        {
-                            a.DoNotWrapHandlersExecutionInATransactionScope();
-                            a.DisableDistributedTransactions();
-                        });
-                    });
+                    o.Transactions(false).DoNotWrapHandlersExecutionInATransactionScope().DisableDistributedTransactions();
                     o.UsePersistence<InMemory>();
                 }
 
@@ -87,7 +79,7 @@
 
                 if (suppressDTC)
                 {
-                    o.Transactions(t => t.Advanced(settings => settings.DisableDistributedTransactions()));
+                    o.Transactions().DisableDistributedTransactions();
                 }
 
                 switch (args[2].ToLower())

@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using Settings;
 
     /// <summary>
@@ -12,10 +11,12 @@ namespace NServiceBus
         /// Entry point for transaction related configuration
         /// </summary>
         /// <param name="config"><see cref="Configure"/> instance.</param>
-        /// <param name="customizations">The user supplied config actions.</param>
-        public static void Transactions(this ConfigurationBuilder config, Action<TransactionSettings> customizations)
+        /// <param name="enabled"><code>true</code> to enable transaction, otherwise <code>false</code>.</param>
+        public static TransactionSettings Transactions(this ConfigurationBuilder config, bool enabled = true)
         {
-            customizations(new TransactionSettings(config));
+            config.Settings.Set("Transactions.Enabled", enabled);
+            config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", !enabled);
+            return new TransactionSettings(config);
         }
     }
 }

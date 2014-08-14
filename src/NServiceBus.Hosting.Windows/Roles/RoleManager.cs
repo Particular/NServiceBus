@@ -15,7 +15,7 @@
             else if (specifier is AsA_Client)
             {
                 config.PurgeOnStartup(true);
-                config.Transactions(settings => settings.Disable());
+                config.Transactions(false);
 
                 config.DisableFeature<Features.SecondLevelRetries>();
                 config.DisableFeature<StorageDrivenPublishing>();
