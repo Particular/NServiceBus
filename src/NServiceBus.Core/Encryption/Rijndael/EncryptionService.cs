@@ -29,6 +29,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace NServiceBus.Encryption.Rijndael
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Security.Cryptography;
     using Logging;
@@ -43,6 +44,11 @@ namespace NServiceBus.Encryption.Rijndael
         /// </summary>
         public byte[] Key { get; set; }
 
+        /// <summary>
+        /// Expired keys that are being phased out but still used for decryption
+        /// </summary>
+        public List<byte[]> ExpiredKeys { get; set; }
+
         string IEncryptionService.Decrypt(EncryptedValue encryptedValue)
         {
             if (Key == null)
@@ -51,20 +57,42 @@ namespace NServiceBus.Encryption.Rijndael
                 return encryptedValue.EncryptedBase64Value;
             }
 
+            var decryptionKeys = new List<byte[]>{Key};
+            if (ExpiredKeys != null)
+            {
+                decryptionKeys.AddRange(ExpiredKeys);
+            }
             var encrypted = Convert.FromBase64String(encryptedValue.EncryptedBase64Value);
+            var cryptographicExceptions = new List<CryptographicException>();
             using (var rijndael = new RijndaelManaged())
             {
-                rijndael.Key = Key;
                 rijndael.IV = Convert.FromBase64String(encryptedValue.Base64Iv);
                 rijndael.Mode = CipherMode.CBC;
 
-                using (var decryptor = rijndael.CreateDecryptor())
-                using (var memoryStream = new MemoryStream(encrypted))
-                using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
-                using (var reader = new StreamReader(cryptoStream))
+                foreach (var key in decryptionKeys)
                 {
-                    return reader.ReadToEnd();
+                    rijndael.Key = key;
+                    try
+                    {
+                        return Decrypt(rijndael, encrypted);
+                    }
+                    catch (CryptographicException exception)
+                    {
+                        cryptographicExceptions.Add(exception);
+                    }
                 }
+            }
+            var message = string.Format("Could not decrypt message. Tried {0} keys.", decryptionKeys.Count);
+            throw new AggregateException(message, cryptographicExceptions);
+        }
+        static string Decrypt(RijndaelManaged rijndael, byte[] encrypted)
+        {
+            using (var decryptor = rijndael.CreateDecryptor())
+            using (var memoryStream = new MemoryStream(encrypted))
+            using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
+            using (var reader = new StreamReader(cryptoStream))
+            {
+                return reader.ReadToEnd();
             }
         }
 
