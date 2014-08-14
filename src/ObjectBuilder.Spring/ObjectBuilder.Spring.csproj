@@ -62,7 +62,7 @@
   <ItemGroup>
     <Compile Include="ArbitraryFuncDelegatingFactoryObject.cs" />
     <Compile Include="ComponentConfig.cs" />
-    <Compile Include="ConfigureSpringBuilder.cs" />
+    <Compile Include="ConfigureSpringBuilder_Obsolete.cs" />
     <Compile Include="Spring.cs" />
     <Compile Include="SpringExtensions.cs" />
     <Compile Include="SpringObjectBuilder.cs" />

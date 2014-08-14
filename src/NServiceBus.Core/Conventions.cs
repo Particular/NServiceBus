@@ -143,6 +143,7 @@
             if (!IsSystemMessageActions.Contains(definesMessageType))
             {
                 IsSystemMessageActions.Add(definesMessageType);
+                MessagesConventionCache.Reset();
             }
         }
 
@@ -297,6 +298,11 @@
                 cache[type] = result;
 
                 return result;
+            }
+
+            public void Reset()
+            {
+                cache.Clear();
             }
 
             IDictionary<Type, bool> cache = new ConcurrentDictionary<Type, bool>();

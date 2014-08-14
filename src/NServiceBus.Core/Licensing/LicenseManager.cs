@@ -60,7 +60,7 @@ namespace NServiceBus.Licensing
             }
             else
             {
-                var message = string.Format("Trial for Particular Service Platform is still active, trial expires on {0}. Configuring NServiceBus to run in trial mode.", trialLicense.ExpirationDate.Value.ToLocalTime().ToShortDateString());
+                var message = string.Format("Trial for Particular Service Platform is still active, trial expires on {0}.", trialLicense.ExpirationDate.Value.ToLocalTime().ToShortDateString());
                 Logger.Info(message);
             }
 
@@ -80,7 +80,6 @@ namespace NServiceBus.Licensing
                 license = GetTrialLicense();
                 return;
             }
-
 
             LicenseVerifier.Verify(licenseText);
 

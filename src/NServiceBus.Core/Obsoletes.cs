@@ -287,7 +287,7 @@ namespace NServiceBus.Timeout.Core
 namespace NServiceBus.Installation.Environments
 {
     [ObsoleteEx(
-        Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them", 
+        Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and Configure.With(builder => builder.EnableInstallers()); to execute them", 
         RemoveInVersion = "6", 
         TreatAsErrorFromVersion = "5")]
     public class Windows 
@@ -296,7 +296,7 @@ namespace NServiceBus.Installation.Environments
 }
 namespace NServiceBus.Installation
 {
-    [ObsoleteEx(Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them",
+    [ObsoleteEx(Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and Configure.With(builder => builder.EnableInstallers()); to execute them",
         RemoveInVersion = "6", TreatAsErrorFromVersion = "5")]
     public interface IEnvironment 
     {
@@ -305,7 +305,7 @@ namespace NServiceBus.Installation
 namespace NServiceBus.Installation
 {
     [ObsoleteEx(
-        Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them",
+        Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and Configure.With(builder => builder.EnableInstallers()); to execute them",
         RemoveInVersion = "6", 
         TreatAsErrorFromVersion = "5")]
     public class INeedToInstallSomething<T>
@@ -314,7 +314,7 @@ namespace NServiceBus.Installation
 }
 namespace NServiceBus
 {
-    [ObsoleteEx(Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them", 
+    [ObsoleteEx(Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and Configure.With(builder => builder.EnableInstallers()); to execute them", 
         RemoveInVersion = "6", TreatAsErrorFromVersion = "5")]
     public class Installer<T>
     {
@@ -324,16 +324,14 @@ namespace NServiceBus
 namespace NServiceBus
 {
     [ObsoleteEx(
-        Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them",
-        Replacement = "configure.EnableInstallers().CreateBus();", 
+        Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and Configure.With(builder => builder.EnableInstallers()); to execute them",
         RemoveInVersion = "6",
         TreatAsErrorFromVersion = "5")]
     public static class Install
     {
 
         [ObsoleteEx(
-            Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them",
-            Replacement = "configure.EnableInstallers().CreateBus();",
+            Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and Configure.With(builder => builder.EnableInstallers()); to execute them",
             RemoveInVersion = "6", 
             TreatAsErrorFromVersion = "5")]
         public static Installer<T> ForInstallationOn<T>(this Configure config)
@@ -342,8 +340,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and configure.EnableInstallers(); to execute them",
-            Replacement = "configure.EnableInstallers().CreateBus();",
+            Message = "IEnvironment is no longer required instead use the non generic INeedToInstallSomething and Configure.With(builder => builder.EnableInstallers()); to execute them",
             RemoveInVersion = "6", 
             TreatAsErrorFromVersion = "5")]
         public static Installer<T> ForInstallationOn<T>(this Configure config, string username)
@@ -359,13 +356,13 @@ namespace NServiceBus
     using System;
 
     [ObsoleteEx(
-        Replacement = "var configure = Configure.With(x => x.EndpointName(\"MyEndpointName\"));",
+        Replacement = "Configure.With(x => x.EndpointName(myEndpointName));",
         RemoveInVersion = "6",
         TreatAsErrorFromVersion = "5")]
     public static class EndpointConventions
     {
         [ObsoleteEx(
-            Replacement = "var configure = Configure.With(x => x.EndpointName(\"MyEndpointName\"));",
+            Replacement = "var configure = Configure.With(x => x.EndpointName(myEndpointName));",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure DefineEndpointName(this Configure config, Func<string> definesEndpointName)
@@ -374,7 +371,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Replacement = "var configure = Configure.With(x => x.EndpointName(\"MyEndpointName\"));",
+            Replacement = "var configure = Configure.With(x => x.EndpointName(myEndpointName));",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure DefineEndpointName(this Configure config, string name)
@@ -404,7 +401,8 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Replacement = "Configure.With().UsePersistence<RavenDB>(c => c.SetMessageToDatabaseMappingConvention(convention));",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure MessageToDatabaseMappingConvention(this Configure config, Func<IMessageContext, string> convention)
@@ -413,7 +411,8 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Replacement = "Configure.With().UsePersistence<RavenDB>();",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistence(this Configure config)
@@ -422,7 +421,8 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Replacement = "Configure.With().UsePersistence<RavenDB>(c => c.ConnectionString(connectionStringName));",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistence(this Configure config, string connectionStringName)
@@ -431,7 +431,13 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Replacement = 
+@"Configure.With().UsePersistence<RavenDB>(c =>
+{
+    c.SetDefaultDocumentStore(documentStore);
+    c.ConnectionString(connectionStringName);
+});",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
@@ -440,7 +446,8 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Replacement = "Configure.With().UsePersistence<RavenDB>(c => c.ConnectionString(connectionStringName));",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString)
@@ -449,7 +456,13 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Replacement =
+@"Configure.With().UsePersistence<RavenDB>(c =>
+{
+    c.SetDefaultDocumentStore(documentStore);
+    c.ConnectionString(connectionStringName);
+});",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString, string database)
@@ -459,7 +472,8 @@ namespace NServiceBus
 
 
         [ObsoleteEx(
-            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Replacement = "Configure.With().UsePersistence<RavenDB>(c => c.SetDefaultDocumentStore(documentStore));",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistenceWithStore(this Configure config, object documentStore)
@@ -468,7 +482,8 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Replacement = "Configure.With().UsePersistence<RavenDB>();",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static void RegisterDefaults()
@@ -486,7 +501,8 @@ namespace NServiceBus
     public static class ConfigureRavenSagaPersister
     {
         [ObsoleteEx(
-            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Replacement = "Configure.With().UsePersistence<RavenDB>();",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenSagaPersister(this Configure config)
@@ -505,7 +521,8 @@ namespace NServiceBus
     public static class ConfigureRavenSubscriptionStorage
     {
         [ObsoleteEx(
-            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Replacement = "Configure.With().UsePersistence<RavenDB>(c => c.For(Storage.Subscriptions));",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenSubscriptionStorage(this Configure config)
@@ -522,8 +539,8 @@ namespace NServiceBus
         TreatAsErrorFromVersion = "5")]
     public static class ConfigureTimeoutManager
     {
-        //TODO: add a better message/replacement
         [ObsoleteEx(
+            Replacement = "configure.DisableFeature<TimeoutManager>()",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure DisableTimeoutManager(this Configure config)
@@ -533,7 +550,7 @@ namespace NServiceBus
 
 
         [ObsoleteEx(
-            Replacement = "InMemory timeout persistence is now the default.",
+            Message = "InMemory timeout persistence is now the default and hence this call is redundant.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure UseInMemoryTimeoutPersister(this Configure config)
@@ -542,7 +559,8 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Replacement = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
+            Replacement = "Configure.With().UsePersistence<RavenDB>(c => c.For(Storage.Timeouts));",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure UseRavenTimeoutPersister(this Configure config)
@@ -570,6 +588,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
+            Message = "UnicastBus is now the default and hence calling this method is redundant.",
             Replacement = "configure.CreateBus();",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
@@ -641,7 +660,7 @@ namespace NServiceBus
     {
 
         [ObsoleteEx(
-            Replacement = "configure.UseTransport<T>(Action<TransportConfiguration>)",
+            Replacement = "Configure.With(b => b.UseTransport<T>(Action<TransportConfiguration>)",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure UseTransport<T>(this Configure config, Func<string> definesConnectionString)
@@ -650,7 +669,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Replacement = "configure.UseTransport(Type, Action<TransportConfiguration>)",
+            Replacement = "Configure.With(b => b.UseTransport(Type, Action<TransportConfiguration>)",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure UseTransport(this Configure config, Type transportDefinitionType, Func<string> definesConnectionString)

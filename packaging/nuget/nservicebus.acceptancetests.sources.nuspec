@@ -17,6 +17,6 @@
     <dependencies/>
   </metadata>
   <files>
-    <file src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs" target="content\" />
+    <file src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs" target="content\App_Packages\NServiceBus.AcceptanceTests" />
   </files>
 </package>

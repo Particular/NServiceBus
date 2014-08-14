@@ -2,17 +2,22 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Transactions;
     using System.Web;
-    using Config.ConfigurationSource;
-    using Config.Conventions;
-    using Container;
-    using ObjectBuilder.Autofac;
-    using ObjectBuilder.Common;
-    using Settings;
-    using Utils.Reflection;
+    using NServiceBus.Config.ConfigurationSource;
+    using NServiceBus.Config.Conventions;
+    using NServiceBus.Container;
+    using NServiceBus.Hosting.Helpers;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.ObjectBuilder.Autofac;
+    using NServiceBus.ObjectBuilder.Common;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Settings;
+    using NServiceBus.Utils.Reflection;
 
     /// <summary>
     ///     Builder that construct the endpoint configuration.
@@ -22,129 +27,120 @@ namespace NServiceBus
         internal ConfigurationBuilder()
         {
             configurationSourceToUse = new DefaultConfigurationSource();
+            settings.Set<PipelineModifications>(new PipelineModifications());
+            Pipeline = new PipelineSettings(this);
+        }
+
+        /// <summary>
+        ///     Access to the pipeline configuration
+        /// </summary>
+        public PipelineSettings Pipeline { get; private set; }
+
+        /// <summary>
+        ///     Used to configure components in the container.
+        /// </summary>
+        public void RegisterComponents(Action<IConfigureComponents> registration)
+        {
+            registrations.Add(registration);
         }
 
         /// <summary>
         ///     Specifies the range of types that NServiceBus scans for handlers etc.
         /// </summary>
-        public ConfigurationBuilder TypesToScan(IEnumerable<Type> typesToScan)
+        public void TypesToScan(IEnumerable<Type> typesToScan)
         {
             scannedTypes = typesToScan.ToList();
-            return this;
         }
 
         /// <summary>
         ///     The assemblies to include when scanning for types.
         /// </summary>
-        public ConfigurationBuilder AssembliesToScan(IEnumerable<Assembly> assemblies)
+        public void AssembliesToScan(IEnumerable<Assembly> assemblies)
         {
             AssembliesToScan(assemblies.ToArray());
-            return this;
         }
 
         /// <summary>
         ///     The assemblies to include when scanning for types.
         /// </summary>
-        public ConfigurationBuilder AssembliesToScan(params Assembly[] assemblies)
+        public void AssembliesToScan(params Assembly[] assemblies)
         {
             scannedTypes = Configure.GetAllowedTypes(assemblies);
-            return this;
         }
 
 
         /// <summary>
         ///     Specifies the directory where NServiceBus scans for types.
         /// </summary>
-        public ConfigurationBuilder ScanAssembliesInDirectory(string probeDirectory)
+        public void ScanAssembliesInDirectory(string probeDirectory)
         {
             directory = probeDirectory;
-            AssembliesToScan(Configure.GetAssembliesInDirectory(probeDirectory));
-            return this;
+            AssembliesToScan(GetAssembliesInDirectory(probeDirectory));
         }
-
 
         /// <summary>
         ///     Overrides the default configuration source.
         /// </summary>
-        public ConfigurationBuilder CustomConfigurationSource(IConfigurationSource configurationSource)
+        public void CustomConfigurationSource(IConfigurationSource configurationSource)
         {
             configurationSourceToUse = configurationSource;
-            return this;
         }
 
 
         /// <summary>
         ///     Defines the name to use for this endpoint.
         /// </summary>
-        public ConfigurationBuilder EndpointName(string name)
+        public void EndpointName(string name)
         {
-            EndpointName(() => name);
-            return this;
-        }
-
-        /// <summary>
-        ///     Defines the name to use for this endpoint.
-        /// </summary>
-        public ConfigurationBuilder EndpointName(Func<string> nameFunc)
-        {
-            getEndpointNameAction = nameFunc;
-            return this;
+            endpointName = name;
         }
 
         /// <summary>
         ///     Defines the version of this endpoint.
         /// </summary>
-        public ConfigurationBuilder EndpointVersion(Func<string> versionFunc)
+        public void EndpointVersion(string version)
         {
-            getEndpointVersionAction = versionFunc;
-            return this;
+            endpointVersion = version;
         }
 
         /// <summary>
         ///     Defines the conventions to use for this endpoint.
         /// </summary>
-        public ConfigurationBuilder Conventions(Action<Configure.ConventionsBuilder> conventions)
+        public void Conventions(Action<ConventionsBuilder> conventions)
         {
             conventions(conventionsBuilder);
-
-            return this;
         }
 
         /// <summary>
         ///     Defines a custom builder to use
         /// </summary>
         /// <typeparam name="T">The builder type</typeparam>
-        /// <returns></returns>
-        public ConfigurationBuilder UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
+        public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
             if (customizations != null)
             {
                 customizations(new ContainerCustomizations(settings));
             }
 
-            return UseContainer(typeof(T));
+            UseContainer(typeof(T));
         }
 
         /// <summary>
         ///     Defines a custom builder to use
         /// </summary>
         /// <param name="definitionType">The type of the builder</param>
-        /// <returns></returns>
-        public ConfigurationBuilder UseContainer(Type definitionType)
+        public void UseContainer(Type definitionType)
         {
-            return UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(settings));
+            UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(settings));
         }
 
         /// <summary>
         ///     Uses an already active instance of a builder
         /// </summary>
         /// <param name="builder">The instance to use</param>
-        /// <returns></returns>
-        public ConfigurationBuilder UseContainer(IContainer builder)
+        public void UseContainer(IContainer builder)
         {
             customBuilder = builder;
-
-            return this;
         }
 
         /// <summary>
@@ -152,10 +148,6 @@ namespace NServiceBus
         /// </summary>
         internal Configure BuildConfiguration()
         {
-            var version = getEndpointVersionAction();
-
-            endpointName = getEndpointNameAction();
-
             if (scannedTypes == null)
             {
                 var directoryToScan = AppDomain.CurrentDomain.BaseDirectory;
@@ -178,28 +170,68 @@ namespace NServiceBus
                     scannedTypes = scannedTypes.Union(Configure.GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
                 }
             }
+
+            UseTransportExtensions.SetupTransport(this);
             var container = customBuilder ?? new AutofacObjectBuilder();
-            settings.SetDefault("EndpointName", endpointName);
-            settings.SetDefault("TypesToScan", scannedTypes);
-            settings.SetDefault("EndpointVersion", version);
+            RegisterEndpointWideDefaults();
 
             var conventions = conventionsBuilder.BuildConventions();
             container.RegisterSingleton(typeof(Conventions), conventions);
 
-            settings.SetDefault<IConfigurationSource>(configurationSourceToUse);
             settings.SetDefault<Conventions>(conventions);
 
-            return new Configure(settings, container);
+            Configure.ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
+
+            return new Configure(settings, container, registrations, Pipeline);
+        }
+
+        IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
+        {
+            var assemblyScanner = new AssemblyScanner(path);
+            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
+            if (assembliesToSkip != null)
+            {
+                assemblyScanner.AssembliesToSkip = assembliesToSkip.ToList();
+            }
+            return assemblyScanner
+                .GetScannableAssemblies()
+                .Assemblies;
+        }
+
+        void RegisterEndpointWideDefaults()
+        {
+            var endpointHelper = new EndpointHelper(new StackTrace());
+
+            if (endpointVersion == null)
+            {
+                endpointVersion = endpointHelper.GetEndpointVersion();
+            }
+
+            if (endpointName == null)
+            {
+                endpointName = endpointHelper.GetDefaultEndpointName();
+            }
+
+            settings.SetDefault("EndpointName", endpointName);
+            settings.SetDefault("TypesToScan", scannedTypes);
+            settings.SetDefault("EndpointVersion", endpointVersion);
+            settings.SetDefault("Endpoint.SendOnly", false);
+            settings.SetDefault("Transactions.Enabled", true);
+            settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
+            settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
+            settings.SetDefault("Transactions.SuppressDistributedTransactions", false);
+            settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
+            settings.SetDefault<IConfigurationSource>(configurationSourceToUse);
         }
 
         IConfigurationSource configurationSourceToUse;
-        Configure.ConventionsBuilder conventionsBuilder = new Configure.ConventionsBuilder();
+        ConventionsBuilder conventionsBuilder = new ConventionsBuilder();
+        List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         IContainer customBuilder;
         string directory;
         string endpointName;
-        Func<string> getEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
-        Func<string> getEndpointVersionAction = () => EndpointHelper.GetEndpointVersion();
+        string endpointVersion;
         IList<Type> scannedTypes;
-        SettingsHolder settings = new SettingsHolder();
+        internal SettingsHolder settings = new SettingsHolder();
     }
 }

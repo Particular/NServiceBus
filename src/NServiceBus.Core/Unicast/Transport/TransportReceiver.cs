@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Transport
         /// <param name="receiver">The <see cref="IDequeueMessages"/> instance to use.</param>
         /// <param name="manageMessageFailures">The <see cref="IManageMessageFailures"/> instance to use.</param>
         /// <param name="settings">The current settings</param>
-        public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures,ReadOnlySettings settings)
+        public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures, ReadOnlySettings settings)
         {
             this.settings = settings;
             TransactionSettings = transactionSettings;
@@ -166,7 +166,7 @@ namespace NServiceBus.Unicast.Transport
 
             FailureManager.Init(returnAddressForFailures);
 
-            firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager);
+            firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager, CriticalError);
 
             InitializePerformanceCounters();
 
@@ -471,5 +471,7 @@ namespace NServiceBus.Unicast.Transport
         /// The <see cref="TransactionSettings"/> being used.
         /// </summary>
         public TransactionSettings TransactionSettings { get; private set; }
+
+        internal CriticalError CriticalError { get; set; }
     }
 }

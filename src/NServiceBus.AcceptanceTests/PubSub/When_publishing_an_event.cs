@@ -1,9 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.PubSub
 {
     using System;
+    using System.Collections.Generic;
     using EndpointTemplates;
     using AcceptanceTesting;
     using Features;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -47,12 +50,24 @@
                         b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
                         {
                             if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                            {
                                 context.Subscriber1Subscribed = true;
+                                context.AddTrace("Subscriber1 is now subscribed");
+                            }
+
 
                             if (s.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
+                            {
+                                context.AddTrace("Subscriber2 is now subscribed");
                                 context.Subscriber2Subscribed = true;
+                            }
+                                
                         }))
-                        .When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.Publish(new MyEvent()))
+                        .When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (bus, c) =>
+                        {
+                            c.AddTrace("Both subscribers is subscribed, going to publish MyEvent");
+                            bus.Publish(new MyEvent());
+                        })
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                         {
@@ -60,6 +75,11 @@
                             if (context.HasNativePubSubSupport)
                             {
                                 context.Subscriber1Subscribed = true;
+                                context.AddTrace("Subscriber1 is now subscribed (at least we have asked the broker to be subscribed)");
+                            }
+                            else
+                            {
+                                context.AddTrace("Subscriber1 has now asked to be subscribed to MyEvent");
                             }
                         }))
                       .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
@@ -69,6 +89,11 @@
                           if (context.HasNativePubSubSupport)
                           {
                               context.Subscriber2Subscribed = true;
+                              context.AddTrace("Subscriber2 is now subscribed (at least we have asked the broker to be subscribed)");
+                          }
+                          else
+                          {
+                              context.AddTrace("Subscriber2 has now asked to be subscribed to MyEvent");
                           }
                       }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
@@ -96,7 +121,32 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => { }, b => b.Pipeline.Register<SubscriptionTracer.Registration>());
+            }
+
+            class SubscriptionTracer:IBehavior<OutgoingContext>
+            {
+                public Context Context { get; set; }
+                public void Invoke(OutgoingContext context, Action next)
+                {
+                    next();
+
+                    List<Address> subscribers;
+
+                    if (context.TryGet("SubscribersForEvent",out  subscribers))
+                    {
+                        Context.AddTrace(string.Format("Subscribers for {0} : {1}",context.OutgoingLogicalMessage.MessageType.Name,string.Join(";",subscribers)));
+                    }
+                }
+
+                public class Registration: RegisterStep
+                {
+                    public Registration()
+                        : base("SubscriptionTracer", typeof(SubscriptionTracer), "Traces the list of found subscribers")
+                    {
+                        InsertBefore(WellKnownStep.DispatchMessageToTransport);
+                    }
+                }
             }
         }
 
@@ -104,7 +154,7 @@
         {
             public Subscriber3()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(_ => { }, c => c.DisableFeature<AutoSubscribe>())
                     .AddMapping<IFoo>(typeof(Publisher));
             }
 
@@ -123,7 +173,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(_ => { }, c => c.DisableFeature<AutoSubscribe>())
                     .AddMapping<MyEvent>(typeof(Publisher));
             }
 
@@ -142,7 +192,7 @@
         {
             public Subscriber2()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(_ => { }, c => c.DisableFeature<AutoSubscribe>())
                         .AddMapping<MyEvent>(typeof(Publisher));
             }
 

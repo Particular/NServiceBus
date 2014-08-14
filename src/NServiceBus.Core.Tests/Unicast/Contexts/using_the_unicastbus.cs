@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Runtime.Serialization;
     using System.Threading;
     using Behaviors;
     using Core.Tests;
@@ -42,7 +43,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected XmlMessageSerializer MessageSerializer;
         protected FuncBuilder FuncBuilder;
         public static Address MasterNodeAddress;
-        protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
+        protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = (EstimatedTimeToSLABreachCalculator) FormatterServices.GetUninitializedObject(typeof(EstimatedTimeToSLABreachCalculator));
         protected MessageMetadataRegistry MessageMetadataRegistry;
         protected SubscriptionManager subscriptionManager;
         protected StaticMessageRouter router;
@@ -81,7 +82,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
 
-            FuncBuilder.Register<ReadOnlySettings>(()=>settings);
+            FuncBuilder.Register<ReadOnlySettings>(() => settings);
 
             router = new StaticMessageRouter(KnownMessageTypes());
             var conventions = new Conventions();
@@ -298,10 +299,10 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
         }
 
-        protected void ReceiveMessage<T>(T message, IDictionary<string, string> headers = null)
+        protected void ReceiveMessage<T>(T message, IDictionary<string, string> headers = null, MessageMapper mapper = null)
         {
             RegisterMessageType<T>();
-            var messageToReceive = Helpers.Serialize(message);
+            var messageToReceive = Helpers.Serialize(message, mapper: mapper);
 
             if (headers != null)
             {

@@ -1,50 +1,54 @@
 namespace NServiceBus
 {
     using System;
-    using System.Linq;
+    using NServiceBus.Utils.Reflection;
     using Transports;
-    using Unicast.Transport;
-    using Utils.Reflection;
 
     /// <summary>
     /// Extension methods to configure transport.
     /// </summary>
-    public static class UseTransportExtensions
+    public static partial class UseTransportExtensions
     {
+
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        public static Configure UseTransport<T>(this Configure config, Action<TransportConfiguration> customizations = null) where T : TransportDefinition
+        public static void UseTransport<T>(this ConfigurationBuilder configurationBuilder, Action<TransportConfiguration> customizations = null) where T : TransportDefinition, new()
         {
-            return UseTransport(config, typeof(T), customizations);
+            configurationBuilder.UseTransport(typeof(T), customizations);
         }
 
-
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        public static Configure UseTransport(this Configure config, Type transportDefinitionType, Action<TransportConfiguration> customizations = null)
+        public static void UseTransport(this ConfigurationBuilder configurationBuilder, Type transportDefinitionType, Action<TransportConfiguration> customizations = null)
         {
-            config.Settings.SetDefault<TransportConnectionString>(TransportConnectionString.Default);
+            configurationBuilder.settings.Set("transportDefinitionType", transportDefinitionType);
+            configurationBuilder.settings.Set("transportCustomizations", customizations);
+        }
 
-            var transportConfigurerType =
-               config.TypesToScan.SingleOrDefault(
-                   t => typeof(IConfigureTransport<>).MakeGenericType(transportDefinitionType).IsAssignableFrom(t));
+        internal static void SetupTransport(ConfigurationBuilder configurationBuilder)
+        {
+            var transportDefinition = GetTransportDefinition(configurationBuilder);
+            configurationBuilder.settings.Set<TransportDefinition>(transportDefinition);
+            transportDefinition.Configure(configurationBuilder);
+        }
 
-            if (transportConfigurerType == null)
-                throw new InvalidOperationException(
-                    "We couldn't find a IConfigureTransport implementation for your selected transport: " +
-                    transportDefinitionType.Name);
-
-            if (customizations != null)
+        static TransportDefinition GetTransportDefinition(ConfigurationBuilder configurationBuilder)
+        {
+            Type transportDefinitionType;
+            if (!configurationBuilder.settings.TryGet("transportDefinitionType", out transportDefinitionType))
             {
-                customizations(new TransportConfiguration(config));
+                return new Msmq();
             }
 
-            config.Settings.Set<TransportDefinition>(transportDefinitionType.Construct<TransportDefinition>());
-            config.Settings.Set("TransportConfigurer", transportConfigurerType);
+            var customizations = configurationBuilder.settings.Get<Action<TransportConfiguration>>("transportCustomizations");
+            if (customizations != null)
+            {
+                customizations(new TransportConfiguration(configurationBuilder.settings));
+            }
 
-            return config;
+            return transportDefinitionType.Construct<TransportDefinition>();
         }
     }
 }

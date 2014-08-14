@@ -1,9 +1,11 @@
+
 namespace NServiceBus.Unicast.Queuing
 {
     using System;
     using System.Linq;
     using Installation;
     using Logging;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using Transports;
 
     class QueuesCreator : INeedInitialization, INeedToInstallSomething
@@ -17,7 +19,7 @@ namespace NServiceBus.Unicast.Queuing
                 return;
             }
 
-            if (ConfigureQueueCreation.DontCreateQueues)
+            if (!config.Settings.GetCreateQueues())
             {
                 return;
             }
@@ -28,7 +30,7 @@ namespace NServiceBus.Unicast.Queuing
             {
                 if (wantQueueCreatedInstance.Address == null)
                 {
-                    throw new InvalidOperationException(string.Format("IWantQueueCreated implementation {0} returned a null address",wantQueueCreatedInstance.GetType().FullName));
+                    throw new InvalidOperationException(string.Format("IWantQueueCreated implementation {0} returned a null address", wantQueueCreatedInstance.GetType().FullName));
                 }
 
                 QueueCreator.CreateQueueIfNecessary(wantQueueCreatedInstance.Address, identity);
@@ -36,9 +38,10 @@ namespace NServiceBus.Unicast.Queuing
             }
         }
 
-        public void Init(Configure config)
+        public void Customize(ConfigurationBuilder builder)
         {
-            config.ForAllTypes<IWantQueueCreated>(type => config.Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall));
+            Configure.ForAllTypes<IWantQueueCreated>(builder.GetSettings().GetAvailableTypes(),
+                type => builder.RegisterComponents(c => c.ConfigureComponent(type, DependencyLifecycle.InstancePerCall)));
         }
 
         static ILog Logger = LogManager.GetLogger<QueuesCreator>();

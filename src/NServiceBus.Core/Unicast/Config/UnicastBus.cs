@@ -3,7 +3,6 @@ namespace NServiceBus.Features
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Transactions;
     using AutomaticSubscriptions;
     using Config;
     using Faults;
@@ -21,20 +20,9 @@ namespace NServiceBus.Features
     /// </summary>
     class UnicastBus : Feature
     {
-
         internal UnicastBus()
         {
             EnableByDefault();
-            Defaults(s =>
-            {
-               s.SetDefault("Endpoint.SendOnly", false);
-               s.SetDefault("Endpoint.DurableMessages", true);
-               s.SetDefault("Transactions.Enabled", true);
-               s.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
-               s.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
-               s.SetDefault("Transactions.SuppressDistributedTransactions", false);
-               s.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
-            });
         }
 
         /// <summary>
@@ -50,12 +38,17 @@ namespace NServiceBus.Features
             ConfigureBehaviors(context);
 
             var knownMessages = context.Settings.GetAvailableTypes()
-            .Where(context.Settings.Get<Conventions>().IsMessageType)
-            .ToList();
+                .Where(context.Settings.Get<Conventions>().IsMessageType)
+                .ToList();
 
             RegisterMessageOwnersAndBusAddress(context, knownMessages);
 
             ConfigureMessageRegistry(context, knownMessages);
+
+            if (context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
+            {
+                return;
+            }
 
             SetTransportThresholds(context);
         }
@@ -79,7 +72,10 @@ namespace NServiceBus.Features
                 MaxRetries = maximumNumberOfRetries
             };
 
-            context.Container.ConfigureComponent(b => new TransportReceiver(transactionSettings, maximumConcurrencyLevel, maximumThroughput, b.Build<IDequeueMessages>(), b.Build<IManageMessageFailures>(), context.Settings), DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent(b => new TransportReceiver(transactionSettings, maximumConcurrencyLevel, maximumThroughput, b.Build<IDequeueMessages>(), b.Build<IManageMessageFailures>(), context.Settings)
+            {
+              CriticalError =  b.Build<CriticalError>()
+            }, DependencyLifecycle.InstancePerCall);
         }
 
         void ConfigureBehaviors(FeatureConfigurationContext context)
@@ -115,7 +111,7 @@ namespace NServiceBus.Features
                 router.SubscribeToPlainMessages = context.Settings.Get<bool>(key);
             }
 
-            context.Container.RegisterSingleton<StaticMessageRouter>(router);
+            context.Container.RegisterSingleton(router);
 
             if (unicastConfig == null)
             {
@@ -160,11 +156,11 @@ namespace NServiceBus.Features
         }
         void ConfigureMessageRegistry(FeatureConfigurationContext context, List<Type> knownMessages)
         {
-            var messageRegistry = new MessageMetadataRegistry(!context.Settings.Get<bool>("Endpoint.DurableMessages"), context.Settings.Get<Conventions>());
+            var messageRegistry = new MessageMetadataRegistry(!context.Settings.GetDurableMessagesEnabled(), context.Settings.Get<Conventions>());
 
             knownMessages.ForEach(messageRegistry.RegisterMessageType);
 
-            context.Container.RegisterSingleton<MessageMetadataRegistry>(messageRegistry);
+            context.Container.RegisterSingleton(messageRegistry);
             context.Container.ConfigureComponent<LogicalMessageFactory>(DependencyLifecycle.SingleInstance);
 
             if (!Logger.IsInfoEnabled)

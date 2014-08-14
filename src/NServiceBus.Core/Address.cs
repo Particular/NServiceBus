@@ -168,7 +168,13 @@
         {
             unchecked
             {
-                return ((queueLowerCased != null ? queueLowerCased.GetHashCode() : 0) * 397) ^ (machineLowerCased != null ? machineLowerCased.GetHashCode() : 0);
+                var hashCode = ((queueLowerCased != null ? queueLowerCased.GetHashCode() : 0) * 397);
+
+                if (!ignoreMachineName)
+                {
+                    hashCode ^= (machineLowerCased != null ? machineLowerCased.GetHashCode() : 0);
+                }
+                return hashCode;
             }
         }
 
@@ -256,11 +262,11 @@
         }
 
         static string defaultMachine = RuntimeEnvironment.MachineName;
-        static bool preventChanges;
+        //HACK: to reset this flag because Tests reuse the same AppDomain
+        internal static bool preventChanges;
 
         readonly string queueLowerCased;
         readonly string machineLowerCased;
         static bool ignoreMachineName;
-
     }
 }

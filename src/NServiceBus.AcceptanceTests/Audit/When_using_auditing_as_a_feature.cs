@@ -28,7 +28,7 @@ namespace NServiceBus.AcceptanceTests.Audit
             Scenario.Define(context)
             .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandlingComplete)
+            .Done(c => c.IsMessageHandlingComplete && context.IsMessageHandledByTheAuditEndpoint)
             .Run();
 
             Assert.IsTrue(context.IsMessageHandledByTheAuditEndpoint);
@@ -48,7 +48,7 @@ namespace NServiceBus.AcceptanceTests.Audit
                 // Although the AuditTo seems strange here, this test tries to fake the scenario where
                 // even though the user has specified audit config, because auditing is explicitly turned
                 // off, no messages should be audited.
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<Features.Audit>())
+                EndpointSetup<DefaultServer>(configure => { },c => c.DisableFeature<Features.Audit>())
                     .AuditTo<EndpointThatHandlesAuditMessages>();
 
             }

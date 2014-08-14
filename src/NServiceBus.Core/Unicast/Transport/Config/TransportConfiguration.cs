@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using NServiceBus.Settings;
     using Unicast.Transport;
 
     /// <summary>
@@ -9,13 +10,13 @@ namespace NServiceBus
     public class TransportConfiguration
     {
         /// <summary>
-        /// Access to the current config instance
+        /// Access to the current <see cref="SettingsHolder"/> instance.
         /// </summary>
-        public Configure Config { get; private set; }
+        public SettingsHolder Settings { get; private set; }
 
-        internal TransportConfiguration(Configure config)
+        internal TransportConfiguration(SettingsHolder settings)
         {
-            Config = config;
+            Settings = settings;
         }
 
         /// <summary>
@@ -23,7 +24,7 @@ namespace NServiceBus
         /// </summary>
         public void ConnectionString(string connectionString)
         {
-            Config.Settings.Set<TransportConnectionString>(new TransportConnectionString(()=>connectionString));
+            Settings.Set<TransportConnectionString>(new TransportConnectionString(() => connectionString));
         }
 
         /// <summary>
@@ -31,7 +32,7 @@ namespace NServiceBus
         /// </summary>
         public void ConnectionStringName(string name)
         {
-            Config.Settings.Set<TransportConnectionString>(new TransportConnectionString(name));
+            Settings.Set<TransportConnectionString>(new TransportConnectionString(name));
         }
 
         /// <summary>
@@ -39,7 +40,7 @@ namespace NServiceBus
         /// </summary>
         public void ConnectionString(Func<string> connectionString)
         {
-            Config.Settings.Set<TransportConnectionString>(new TransportConnectionString(connectionString));
+            Settings.Set<TransportConnectionString>(new TransportConnectionString(connectionString));
         }
     }
 }

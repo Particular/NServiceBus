@@ -42,7 +42,6 @@ namespace NServiceBus.CircuitBreakers
         /// <summary>
         /// Tell the CB that it should disarm
         /// </summary>
-        /// <returns></returns>
         public bool Success()
         {
             var newValue = Interlocked.Exchange(ref failureCount, 0);

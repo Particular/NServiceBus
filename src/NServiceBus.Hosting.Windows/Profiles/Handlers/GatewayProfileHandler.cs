@@ -6,6 +6,11 @@
     [ObsoleteEx(RemoveInVersion = "6.0")]
     class GatewayProfileHandler : IHandleProfile<MultiSite>
     {
+        public void ProfileActivated(ConfigurationBuilder config)
+        {
+            throw new Exception("MultiSite Profile is obsolete as Gateway is a feature now, you can use Feature.Enable<Gateway> to turn it on.");
+        }
+
         public void ProfileActivated(Configure config)
         {
             throw new Exception("MultiSite Profile is obsolete as Gateway is a feature now, you can use Feature.Enable<Gateway> to turn it on.");

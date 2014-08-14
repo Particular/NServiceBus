@@ -5,9 +5,9 @@ namespace NServiceBus.AutomaticSubscriptions.Config
     /// </summary>
     public class AutoSubscribeSettings
     {
-        readonly Configure config;
+        ConfigurationBuilder config;
 
-        internal AutoSubscribeSettings(Configure config)
+        internal AutoSubscribeSettings(ConfigurationBuilder config)
         {
             this.config = config;
         }
@@ -17,7 +17,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         /// </summary>
         public void DoNotAutoSubscribeSagas()
         {
-            config.Settings.SetProperty<AutoSubscriptionStrategy>(c => c.DoNotAutoSubscribeSagas, true);
+            config.settings.SetProperty<AutoSubscriptionStrategy>(c => c.DoNotAutoSubscribeSagas, true);
         }
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         /// </summary>
         public void DoNotRequireExplicitRouting()
         {
-            config.Settings.SetProperty<AutoSubscriptionStrategy>(c => c.DoNotRequireExplicitRouting, true); 
+            config.settings.SetProperty<AutoSubscriptionStrategy>(c => c.DoNotRequireExplicitRouting, true); 
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         /// </summary>
         public void AutoSubscribePlainMessages()
         {
-            config.Settings.SetProperty<AutoSubscriptionStrategy>(c => c.SubscribePlainMessages, true);
+            config.settings.SetProperty<AutoSubscriptionStrategy>(c => c.SubscribePlainMessages, true);
         }
     }
 }

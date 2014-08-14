@@ -75,7 +75,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(_ => { }, c => c.EnableFeature<AutoSubscribe>())
                     .AddMapping<DerivedEvent1>(typeof(Publisher1))
                     .AddMapping<DerivedEvent2>(typeof(Publisher2));
             }

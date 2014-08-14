@@ -19,13 +19,6 @@
 
         public IDeferMessages MessageDeferrer { get; set; }
 
-        public object MutateIncoming(object message)
-        {
-            
-
-            return message;
-        }
-
         public void Invoke(IncomingContext context, Action next)
         {
             // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
@@ -42,8 +35,6 @@
                 return;
             }
 
-            MutateIncoming(saga);
-
             currentContext = context;
 
             var sagaInstanceState = new ActiveSagaInstance(saga);
@@ -56,15 +47,16 @@
             if (loadedEntity == null)
             {
                 //if this message are not allowed to start the saga
-                if (!Features.Sagas.ShouldMessageStartSaga(sagaInstanceState.SagaType, context.IncomingLogicalMessage.MessageType))
+                if (!Features.Sagas.IsAStartSagaMessage(sagaInstanceState.SagaType, context.IncomingLogicalMessage.MessageType))
                 {
                     sagaInstanceState.MarkAsNotFound();
 
                     InvokeSagaNotFoundHandlers();
-                    return;
                 }
-
-                sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaInstanceState.SagaType));
+                else
+                {
+                    sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaInstanceState.SagaType));
+                }
             }
             else
             {
@@ -294,6 +286,7 @@
                 : base(WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic")
             {
                 InsertBefore(WellKnownStep.InvokeHandlers);
+                InsertAfter("SetCurrentMessageBeingHandled");
             }
         }
     }

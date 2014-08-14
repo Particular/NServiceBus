@@ -1,19 +1,17 @@
+#pragma warning disable 1591
+// ReSharper disable UnusedParameter.Global
+
 namespace NServiceBus
 {
-    using Persistence;
+    using System;
 
-    /// <summary>
-    /// Contains extension methods to NServiceBus.Configure for the in memory saga persister.
-    /// </summary>
+    [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5.0", Replacement = "config.UsePersistence<Persistence.InMemory>()")]
     public static class ConfigureInMemorySagaPersister
     {
-        /// <summary>
-        /// Use the in memory saga persister implementation.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5.1", Replacement = "config.UsePersistence<Persistence.InMemory>()")]
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5.0", Replacement = "config.UsePersistence<Persistence.InMemory>()")]
         public static Configure InMemorySagaPersister(this Configure config)
         {
-            return config.UsePersistence<Persistence.InMemory>();
+            throw new InvalidOperationException();
         }
     }
 }

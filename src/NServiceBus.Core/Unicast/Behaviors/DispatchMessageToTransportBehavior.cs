@@ -1,9 +1,11 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using Settings;
     using Pipeline;
     using Pipeline.Contexts;
     using Queuing;
+    using Support;
     using Transports;
 
     class DispatchMessageToTransportBehavior : IBehavior<OutgoingContext>
@@ -13,6 +15,8 @@
         public IPublishMessages MessagePublisher { get; set; }
 
         public IDeferMessages MessageDeferral { get; set; }
+
+        public ReadOnlySettings Settings { get; set; }
 
 
         public void Invoke(OutgoingContext context, Action next)
@@ -33,6 +37,10 @@
                 messageDescription = enclosedMessageTypes;
             }
 
+            messageToSend.Headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
+            messageToSend.Headers.Add(Headers.OriginatingEndpoint, Settings.EndpointName());
+            messageToSend.Headers.Add(Headers.OriginatingHostId, UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N"));
+          
             try
             {
                 if(deliveryOptions is PublishOptions)

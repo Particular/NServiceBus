@@ -20,7 +20,11 @@
         [SetUp]
         public void SetUp()
         {
-            Configure.With(o=>o.AssembliesToScan(new Assembly[0]).UseContainer(builder));
+            Configure.With(o =>
+            {
+                o.AssembliesToScan(new Assembly[0]);
+                o.UseContainer(builder);
+            });
 
             defaultScheduler = new DefaultScheduler(bus);
             builder.Register<IBus>(() => bus);

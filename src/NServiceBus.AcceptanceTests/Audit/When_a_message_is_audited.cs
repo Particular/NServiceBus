@@ -73,13 +73,18 @@
                     transportMessage.Body = modifiedBody;
                 }
 
-                public void Init(Configure config)
+                public void Customize(ConfigurationBuilder builder)
                 {
-                    config.Configurer.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall);
+                    builder.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                 }
             }
 
-            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited> { public void Handle(MessageToBeAudited message) { } }
+            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+            {
+                public void Handle(MessageToBeAudited message)
+                {
+                }
+            }
         }
 
         class AuditSpyEndpoint : EndpointConfigurationBuilder
@@ -100,13 +105,18 @@
                     Context.HasDiagnosticLicensingHeaders = transportMessage.Headers.TryGetValue(Headers.HasLicenseExpired, out licenseExpired);
                 }
 
-                public void Init(Configure config)
+                public void Customize(ConfigurationBuilder builder)
                 {
-                    config.Configurer.ConfigureComponent<BodySpy>(DependencyLifecycle.InstancePerCall);
+                    builder.RegisterComponents(c => c.ConfigureComponent<BodySpy>(DependencyLifecycle.InstancePerCall));
                 }
             }
 
-            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited> { public void Handle(MessageToBeAudited message) { } }
+            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+            {
+                public void Handle(MessageToBeAudited message)
+                {
+                }
+            }
         }
 
         public static byte Checksum(byte[] data)

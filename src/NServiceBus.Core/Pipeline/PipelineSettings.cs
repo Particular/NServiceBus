@@ -7,7 +7,7 @@ namespace NServiceBus.Pipeline
     /// </summary>
     public class PipelineSettings
     {
-        internal PipelineSettings(Configure config)
+        internal PipelineSettings(ConfigurationBuilder config)
         {
             this.config = config;
         }
@@ -24,7 +24,7 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("stepId");
             }
 
-            config.Settings.Get<PipelineModifications>().Removals.Add(new RemoveBehavior(stepId));
+            config.settings.Get<PipelineModifications>().Removals.Add(new RemoveBehavior(stepId));
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("stepId");
             }
 
-            config.Settings.Get<PipelineModifications>().Replacements.Add(new ReplaceBehavior(stepId, newBehavior, description));
+            config.settings.Get<PipelineModifications>().Replacements.Add(new ReplaceBehavior(stepId, newBehavior, description));
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace NServiceBus.Pipeline
                 throw new ArgumentNullException("description");
             }
 
-            config.Settings.Get<PipelineModifications>().Additions.Add(RegisterStep.Create(stepId, behavior, description));
+            config.settings.Get<PipelineModifications>().Additions.Add(RegisterStep.Create(stepId, behavior, description));
         }
 
 
@@ -123,9 +123,9 @@ namespace NServiceBus.Pipeline
         /// <typeparam name="T">The <see cref="RegisterStep"/> to use to perform the registration.</typeparam>
         public void Register<T>() where T : RegisterStep, new()
         {
-            config.Settings.Get<PipelineModifications>().Additions.Add(new T());
+            config.settings.Get<PipelineModifications>().Additions.Add(new T());
         }
 
-        Configure config;
+        ConfigurationBuilder config;
     }
 }

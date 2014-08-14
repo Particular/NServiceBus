@@ -281,75 +281,9 @@
         }
     }
 
-
-
-    [TestFixture]
-    public class When_sending_a_encrypted_message_without_a_encryption_service_configured : WireEncryptedStringContext
-    {
-        [Test]
-        public void Should_throw_an_exception()
-        {
-            mutator.EncryptionService = null;
-            var exception = Assert.Throws<Exception>(() => mutator.MutateOutgoing(new Customer { Secret = "x" }));
-            Assert.AreEqual("Cannot encrypt field Secret because no encryption service was configured.", exception.Message);
-        }
-    }
-
-    [TestFixture]
-    public class When_receiving_a_encrypted_message_without_a_encryption_service_configured : WireEncryptedStringContext
-    {
-        [Test]
-        public void Should_throw_an_exception()
-        {
-            mutator.EncryptionService = null;
-
-            var exception = Assert.Throws<Exception>(() => mutator.MutateIncoming(new Customer { Secret = "x" }));
-            Assert.AreEqual("Cannot decrypt field Secret because no encryption service was configured.", exception.Message);
-        }
-    }
-
-    [TestFixture]
-    public class When_sending_a_non_encrypted_message_without_a_encryption_service_configured :
-        WireEncryptedStringContext
-    {
-        [Test]
-        public void Should_not_throw_an_exception()
-        {
-            mutator.EncryptionService = null;
-
-            Assert.DoesNotThrow(() => mutator.MutateOutgoing(new NonSecureMessage()));
-        }
-    }
-
-    [TestFixture]
-    public class When_receiving_a_non_encrypted_message_without_a_encryption_service_configured :
-        WireEncryptedStringContext
-    {
-        [Test]
-        public void Should_not_throw_an_exception()
-        {
-            mutator.EncryptionService = null;
-
-            Assert.DoesNotThrow(() => mutator.MutateIncoming(new NonSecureMessage()));
-        }
-    }
-
-    [TestFixture]
-    public class When_sending_a_message_with_a_large_payload :
-        WireEncryptedStringContext
-    {
-        [Test]
-        public void Should_not_throw_an_exception()
-        {
-            mutator.EncryptionService = null;
-
-            Assert.DoesNotThrow(() => mutator.MutateOutgoing(new MessageWithLargePayload{LargeByteArray = new byte[1000000]}));
-        }
-    }
-
     public class WireEncryptedStringContext
     {
-        internal EncryptionMessageMutator mutator;
+        internal EncryptionMutator mutator;
 
         protected string EncryptedBase64Value = "encrypted value";
         protected string MySecretMessage = "A secret";
@@ -360,15 +294,13 @@
         {
             conventions = BuildConventions();
 
-            mutator = new EncryptionMessageMutator
+            var encryptedValue = new EncryptedValue
             {
-                EncryptionService = new FakeEncryptionService(new EncryptedValue
-                {
-                    EncryptedBase64Value = EncryptedBase64Value,
-                    Base64Iv = "init_vector"
-                }),
-                Conventions = conventions
+                EncryptedBase64Value = EncryptedBase64Value,
+                Base64Iv = "init_vector"
             };
+            var fakeEncryptionService = new FakeEncryptionService(encryptedValue);
+            mutator = new EncryptionMutator(fakeEncryptionService, conventions);
         }
 
         protected virtual Conventions BuildConventions()

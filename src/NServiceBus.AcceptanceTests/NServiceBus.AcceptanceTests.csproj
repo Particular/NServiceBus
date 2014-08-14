@@ -88,15 +88,32 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Audit\When_using_audit_message_is_received.cs" />
     <Compile Include="BasicMessaging\When_handling_incoming_messages_headers_should_be_shared.cs" />
+    <Compile Include="BasicMessaging\When_sending_a_message_ensure_proper_headers.cs" />
     <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_not_expired.cs" />
     <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_expired.cs" />
     <Compile Include="BasicMessaging\When_Deferring_a_message.cs" />
+    <Compile Include="Configuration\When_IWantToRunWhenBusStartsAndStops_Start_throws.cs" />
     <Compile Include="Configuration\When__startup_is_complete.cs" />
+    <Compile Include="CriticalError\When_registering_a_custom_criticalErrorHandler.cs" />
+    <Compile Include="DataBus\When_sending_with_custom_IDataBus.cs" />
+    <Compile Include="DuableMessaging\When_sending_a_message_to_another_endpoint.cs" />
+    <Compile Include="Encryption\When_using_Rijndael_with_multikey.cs" />
+    <Compile Include="Encryption\When_using_Rijndael_with_custom.cs" />
+    <Compile Include="Encryption\When_using_Rijndael_with_config.cs" />
     <Compile Include="HostInformation\When_a_message_is_received.cs" />
     <Compile Include="MessageMutators\Issue_1980.cs" />
     <Compile Include="MessageMutators\When_outgoing_mutator_replaces_message_instance.cs" />
     <Compile Include="MessageMutators\When_defining_outgoing_message_mutators.cs" />
+    <Compile Include="PerfMon\CriticalTime\When_sending_slow_with_CriticalTime_enabled.cs" />
+    <Compile Include="PerfMon\CriticalTime\When_sending_with_CriticalTime_enabled.cs" />
+    <Compile Include="PerfMon\SLA\When_sending_slow_with_SLA_enabled.cs" />
+    <Compile Include="PerfMon\SLA\When_sending_with_SLA_enabled.cs" />
+    <Compile Include="PubSub\When_publishing_an_event_using_root_type.cs" />
+    <Compile Include="Retries\When_doing_flr_with_dtc_on.cs" />
+    <Compile Include="Retries\When_doing_flr_with_native_transactions.cs" />
+    <Compile Include="Sagas\When_an_endpoint_replies_to_a_message_published_by_a_saga.cs" />
     <Compile Include="ScenarioDescriptors\AllOutboxCapableStorages.cs" />
     <Compile Include="NonDTCOperations\When_blowing_up_just_after_dispatch.cs" />
     <Compile Include="PipelineExtension\MutingHandlerExceptions.cs" />
@@ -111,7 +128,7 @@
     <Compile Include="BasicMessaging\When_using_a_custom_correlation_id.cs" />
     <Compile Include="BasicMessaging\When_using_callbacks_in_a_scaleout_scenario.cs" />
     <Compile Include="Configuration\When_a_config_override_is_found.cs" />
-    <Compile Include="Encryption\When_using_encryption.cs" />
+    <Compile Include="Encryption\When_using_encryption_with_custom_service.cs" />
     <Compile Include="EndpointTemplates\ContextAppender.cs" />
     <Compile Include="NonDTCOperations\When_sending_messages_from_a_non_dtc_endpoint.cs" />
     <Compile Include="NonDTCOperations\When_receiving_a_message.cs" />

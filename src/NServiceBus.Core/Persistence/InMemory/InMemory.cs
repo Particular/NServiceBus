@@ -1,17 +1,20 @@
 ﻿namespace NServiceBus.Persistence
 {
+    using NServiceBus.Features;
+
     /// <summary>
-    /// Used to enable InMemory persistence <see cref="IConfigurePersistence{T}"/>
+    /// Used to enable InMemory persistence.
     /// </summary>
     public class InMemory : PersistenceDefinition
     {
         internal InMemory()
         {
-            Supports(Storage.GatewayDeduplication);
-            Supports(Storage.Timeouts);
-            Supports(Storage.Sagas);
-            Supports(Storage.Subscriptions);
-            Supports(Storage.Outbox);
+            Supports(Storage.Sagas, s => s.EnableFeatureByDefault<InMemorySagaPersistence>());
+            Supports(Storage.Timeouts, s => s.EnableFeatureByDefault<InMemoryTimeoutPersistence>());
+            Supports(Storage.Subscriptions, s => s.EnableFeatureByDefault<InMemorySubscriptionPersistence>());
+            Supports(Storage.Outbox, s => s.EnableFeatureByDefault<InMemoryOutboxPersistence>());
+            Supports(Storage.GatewayDeduplication, s => s.EnableFeatureByDefault<InMemoryGatewayPersistence>());
         }
+        
     }
 }

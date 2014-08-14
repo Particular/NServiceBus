@@ -84,6 +84,24 @@
     <Compile Include="..\NServiceBus.Core\Utils\FileVersionRetriever.cs">
       <Link>FileVersionRetriever.cs</Link>
     </Compile>
+    <Compile Include="..\NServiceBus.Hosting.Profiles\IConfigureLoggingForProfile.cs">
+      <Link>App_Packages\NServiceBus.Hosting.Profiles\IConfigureLoggingForProfile.cs</Link>
+    </Compile>
+    <Compile Include="..\NServiceBus.Hosting.Profiles\IHandleAnyProfile.cs">
+      <Link>App_Packages\NServiceBus.Hosting.Profiles\IHandleAnyProfile.cs</Link>
+    </Compile>
+    <Compile Include="..\NServiceBus.Hosting.Profiles\IHandleProfile.cs">
+      <Link>App_Packages\NServiceBus.Hosting.Profiles\IHandleProfile.cs</Link>
+    </Compile>
+    <Compile Include="..\NServiceBus.Hosting.Profiles\IProfile.cs">
+      <Link>App_Packages\NServiceBus.Hosting.Profiles\IProfile.cs</Link>
+    </Compile>
+    <Compile Include="..\NServiceBus.Hosting.Profiles\IWantTheListOfActiveProfiles.cs">
+      <Link>App_Packages\NServiceBus.Hosting.Profiles\IWantTheListOfActiveProfiles.cs</Link>
+    </Compile>
+    <Compile Include="..\NServiceBus.Hosting.Profiles\ProfileManager.cs">
+      <Link>App_Packages\NServiceBus.Hosting.Profiles\ProfileManager.cs</Link>
+    </Compile>
     <Compile Include="EndpointType.cs" />
     <Compile Include="EndpointTypeDeterminer.cs" />
     <Compile Include="GenericHost.cs" />
@@ -107,12 +125,13 @@
     <Compile Include="Profiles\Handlers\IntegrationProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\LiteProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\PerformanceCountersProfileHandler.cs" />
-    <Compile Include="Profiles\Handlers\ProductionProfileHandler.cs" />
-    <Compile Include="Roles\Handlers\ClientRoleHandler.cs" />
-    <Compile Include="Roles\Handlers\PublisherRoleHandler.cs" />
-    <Compile Include="Roles\Handlers\ServerRoleHandler.cs" />
-    <Compile Include="Roles\Handlers\TransportRoleHandler.cs" />
+    <Compile Include="Roles\RoleManager.cs" />
     <Compile Include="Roles\UsingTransport.cs" />
+    <Compile Include="Wcf\IWcfService.cs" />
+    <Compile Include="Wcf\ServiceAsyncResult.cs" />
+    <Compile Include="Wcf\WcfManager.cs" />
+    <Compile Include="Wcf\WcfService.cs" />
+    <Compile Include="Wcf\WcfServiceHost.cs" />
     <Compile Include="WindowsHost.cs" />
     <Compile Include="Profiles\Integration.cs" />
     <Compile Include="Profiles\Lite.cs" />

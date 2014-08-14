@@ -22,10 +22,16 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             if (!context.Container.HasComponent<IDataBus>())
-			{
-			    throw new InvalidOperationException("Messages containing databus properties found, please configure a databus!");
-			}
+            {
+                string basePath;
+                if (!context.Settings.TryGet("FileShareDataBusPath", out basePath))
+                {
+                    throw new InvalidOperationException("Messages containing databus properties found, please configure a databus using the ConfigureFileShareDataBus.FileShareDataBus extension method for ConfigurationBuilder.");
+                }
+                var dataBus = new FileShareDataBus(basePath);
 
+                context.Container.RegisterSingleton<IDataBus>(dataBus);
+            }
             if (!context.Container.HasComponent<IDataBusSerializer>())
             {
                 context.Container.ConfigureComponent<DefaultDataBusSerializer>(DependencyLifecycle.SingleInstance);
@@ -71,6 +77,7 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
             }
             return dataBusPropertyFound;
         }
+
         class StorageInitializer:FeatureStartupTask
         {
             public IDataBus DataBus { get; set; }

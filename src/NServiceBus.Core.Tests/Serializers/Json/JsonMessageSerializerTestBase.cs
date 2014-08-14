@@ -93,6 +93,10 @@
 
             var output = new MemoryStream();
 
+            MessageMapper = new MessageMapper();
+            MessageMapper.Initialize(new[] { typeof(IA), typeof(A) });
+            Serializer = new JsonMessageSerializer(MessageMapper);
+
             Serializer.Serialize(obj, output);
 
             output.Position = 0;
@@ -136,6 +140,10 @@
               );
 
             new Random().NextBytes(obj.Data);
+
+            MessageMapper = new MessageMapper();
+            MessageMapper.Initialize(new[] { typeof(IA), typeof(IAImpl) });
+            Serializer = new JsonMessageSerializer(MessageMapper);
 
             Serializer.Serialize(obj, output);
 

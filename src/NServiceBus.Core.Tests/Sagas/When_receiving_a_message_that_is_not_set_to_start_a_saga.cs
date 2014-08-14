@@ -20,7 +20,7 @@ namespace NServiceBus.Unicast.Tests
                 return new SagaNotFoundHandler();
             });
 
-            ReceiveMessage(new MessageThatMissesSaga());
+            ReceiveMessage(new MessageThatMissesSaga(), mapper: MessageMapper);
 
             Assert.True(invoked, "Not found handler should be invoked");
 

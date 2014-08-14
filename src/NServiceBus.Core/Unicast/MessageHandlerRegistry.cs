@@ -3,14 +3,18 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Logging;
+    using NServiceBus.Logging;
+    using NServiceBus.Saga;
 
     /// <summary>
     ///     Maintains the message handlers for this endpoint
     /// </summary>
     public class MessageHandlerRegistry : IMessageHandlerRegistry
     {
-        readonly Conventions conventions;
+        internal MessageHandlerRegistry(Conventions conventions)
+        {
+            this.conventions = conventions;
+        }
 
         /// <summary>
         ///     Gets the list of <see cref="IHandleMessages{T}" /> <see cref="Type" />s for the given
@@ -18,9 +22,14 @@
         /// </summary>
         public IEnumerable<Type> GetHandlerTypes(Type messageType)
         {
+            if (!conventions.IsMessageType(messageType))
+            {
+                return Enumerable.Empty<Type>();
+            }
+
             return from keyValue in handlerList
-                   where keyValue.Value.Any(msgTypeHandled => msgTypeHandled.IsAssignableFrom(messageType))
-                   select keyValue.Key;
+                where keyValue.Value.Any(msgTypeHandled => msgTypeHandled.IsAssignableFrom(messageType))
+                select keyValue.Key;
         }
 
         /// <summary>
@@ -29,9 +38,9 @@
         public IEnumerable<Type> GetMessageTypes()
         {
             return from handlers in handlerList.Values
-                   from typeHandled in handlers
-                   where conventions.IsMessageType(typeHandled)
-                   select typeHandled;
+                from typeHandled in handlers
+                where conventions.IsMessageType(typeHandled)
+                select typeHandled;
         }
 
         /// <summary>
@@ -45,7 +54,6 @@
             }
 
             var messageTypesThisHandlerHandles = GetMessageTypesIfIsMessageHandler(handlerType).ToList();
-
 
             foreach (var messageType in messageTypesThisHandlerHandles)
             {
@@ -74,17 +82,14 @@
                 where t.IsGenericType
                 let potentialMessageType = t.GetGenericArguments()[0]
                 where
-                    conventions.IsMessageType(potentialMessageType) ||
-                    typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
+                    typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                    typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
                 select potentialMessageType;
         }
 
         static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
-        readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
 
-        internal MessageHandlerRegistry(Conventions conventions)
-        {
-            this.conventions = conventions;
-        }
+        readonly Conventions conventions;
+        readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
     }
 }

@@ -4,9 +4,9 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Threading;
     using Hosting.Helpers;
     using Hosting.Profiles;
-    using Hosting.Roles;
     using Hosting.Wcf;
     using Logging;
 
@@ -42,10 +42,8 @@ namespace NServiceBus
             }
 
             profileManager = new ProfileManager(assembliesToScan, args, defaultProfiles);
-            ProfileActivator.ProfileManager = profileManager;
 
             wcfManager = new WcfManager();
-            roleManager = new RoleManager(assembliesToScan);
         }
 
         /// <summary>
@@ -94,12 +92,13 @@ namespace NServiceBus
         /// </summary>
         public void Install(string username)
         {
-            PerformConfiguration();
-            config.EnableInstallers(username);
+            PerformConfiguration(builder => builder.EnableInstallers(username));
             config.CreateBus();
+
+            config.Builder.Dispose();
         }
 
-        void PerformConfiguration()
+        void PerformConfiguration(Action<ConfigurationBuilder> moreConfiguration = null)
         {
             var loggingConfigurers = profileManager.GetLoggingConfigurer();
             foreach (var loggingConfigurer in loggingConfigurers)
@@ -110,21 +109,36 @@ namespace NServiceBus
             config = Configure.With(builder =>
             {
                 builder.EndpointName(endpointNameToUse);
-                builder.EndpointVersion(() => endpointVersionToUse);
+                builder.EndpointVersion(endpointVersionToUse);
                 builder.AssembliesToScan(assembliesToScan);
+                builder.DefineCriticalErrorAction(OnCriticalError);
+
+                if (moreConfiguration != null)
+                {
+                    moreConfiguration(builder);
+                }
 
                 specifier.Customize(builder);
+                RoleManager.TweakConfigurationBuilder(specifier, builder);
+                profileManager.ActivateProfileHandlers(builder);
             });
-
-            roleManager.ConfigureBusForEndpoint(specifier, config);
         }
 
-        readonly List<Assembly> assembliesToScan;
-        readonly ProfileManager profileManager;
-        readonly RoleManager roleManager;
+        // Windows hosting behavior when critical error occurs is suicide.
+        void OnCriticalError(string errorMessage, Exception exception)
+        {
+            if (Environment.UserInteractive)
+            {
+                Thread.Sleep(10000); // so that user can see on their screen the problem
+            }
+            
+            Environment.FailFast(String.Format("The following critical error was encountered by NServiceBus:\n{0}\nNServiceBus is shutting down.", errorMessage), exception);
+        }
+        List<Assembly> assembliesToScan;
+        ProfileManager profileManager;
         Configure config;
-        readonly IConfigureThisEndpoint specifier;
-        readonly WcfManager wcfManager;
+        IConfigureThisEndpoint specifier;
+        WcfManager wcfManager;
         IStartableBus bus;
         string endpointNameToUse;
         string endpointVersionToUse;

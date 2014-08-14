@@ -13,7 +13,7 @@
 
     public class DefaultServer : IEndpointSetupTemplate
     {
-        public Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource)
+        public Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource, Action<ConfigurationBuilder> configurationBuilderCustomization)
         {
             var settings = runDescriptor.Settings;
 
@@ -22,32 +22,35 @@
             var types = GetTypesToUse(endpointConfiguration);
 
             var config = Configure.With(o =>
-                                         {
-                                             o.EndpointName(endpointConfiguration.EndpointName);
-                                             o.TypesToScan(types);
-                                             o.CustomConfigurationSource(configSource);
-                                             
-                                             
-                                             string selectedBuilder;
-                                             if (settings.TryGetValue("Builder",out selectedBuilder))
-                                             {
-                                                 o.UseContainer(Type.GetType(selectedBuilder));
-                                             }
-                                           
-                                         })
-                .DefineTransport(settings)
-                .DefinePersistence(settings);
-            
-            var serializer = settings.GetOrNull("Serializer");
-
-            if (serializer != null)
             {
-                config.UseSerialization(Type.GetType(serializer));
-            }
+                configurationBuilderCustomization(o);
+                o.EndpointName(endpointConfiguration.EndpointName);
+                o.TypesToScan(types);
+                o.CustomConfigurationSource(configSource);
+                o.EnableInstallers();
+                o.DefineTransport(settings);
+                o.Pipeline.Register<SubscriptionBehavior.Registration>();
+                o.RegisterComponents(r =>
+                {
+                    r.ConfigureComponent<SubscriptionBehavior>(DependencyLifecycle.InstancePerCall);
+                    r.RegisterSingleton(runDescriptor.ScenarioContext.GetType(), runDescriptor.ScenarioContext);
+                });
+
+                string selectedBuilder;
+                if (settings.TryGetValue("Builder", out selectedBuilder))
+                {
+                    o.UseContainer(Type.GetType(selectedBuilder));
+                }
+                var serializer = settings.GetOrNull("Serializer");
+
+                if (serializer != null)
+                {
+                    o.UseSerialization(Type.GetType(serializer));
+                }
+                o.DefinePersistence(settings);
+            });
 
             config.Settings.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
-            config.Pipeline.Register<SubscriptionBehavior.Registration>();
-            config.Configurer.ConfigureComponent<SubscriptionBehavior>(DependencyLifecycle.InstancePerCall);
 
             return config;
         }

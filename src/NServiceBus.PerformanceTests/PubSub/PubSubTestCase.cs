@@ -41,22 +41,26 @@ public class PubSubTestCase : TestCase
     {
         TransportConfigOverride.MaximumConcurrencyLevel = NumberOfThreads;
 
-        var config = Configure.With(o => o.EndpointName("PubSubPerformanceTest"))
-            .UseTransport<Msmq>()
-            .InMemoryFaultManagement()
-            .DisableFeature<Audit>();
-
-        switch (GetStorageType())
+        var config = Configure.With(o =>
         {
-            case "inmemory":
-                config.UsePersistence<InMemory>();
-                break;
-            case "msmq":
-                config.UsePersistence<NServiceBus.Persistence.Legacy.Msmq>();
-                break;
-        }
+            o.EndpointName("PubSubPerformanceTest");
+            o.EnableInstallers();
+            o.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+            o.UseTransport<Msmq>();
+            o.DisableFeature<Audit>();
 
-        config.EnableInstallers();
+            switch (GetStorageType())
+            {
+                case "inmemory":
+                    o.UsePersistence<InMemory>();
+                    break;
+                case "msmq":
+                    o.UsePersistence<NServiceBus.Persistence.Legacy.Msmq>();
+                    break;
+            }
+        });
+
+
         using (var bus = config.CreateBus())
         {
             var subscriptionStorage = config.Builder.Build<ISubscriptionStorage>();

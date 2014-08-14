@@ -52,6 +52,7 @@
     <None Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
     </None>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Obsolete">
       <HintPath>..\packages\Obsolete.Fody\Lib\NET35\Obsolete.dll</HintPath>
     </Reference>
@@ -62,6 +63,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FakeDequer.cs" />
+    <Compile Include="FakeEncryptor.cs" />
+    <Compile Include="FakeQueueCreator.cs" />
+    <Compile Include="FakeSender.cs" />
     <Compile Include="FakeTestTransport.cs" />
     <Compile Include="FakeTestTransportConfigurer.cs" />
     <Compile Include="Handler.cs" />

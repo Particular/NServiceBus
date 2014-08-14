@@ -1,4 +1,4 @@
-namespace NServiceBus
+namespace NServiceBus.Features
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,6 @@ namespace NServiceBus
     using System.Linq;
     using System.Security.Principal;
     using Config;
-    using Features;
     using Installation;
     using ObjectBuilder;
     using Settings;
@@ -16,6 +15,8 @@ namespace NServiceBus
     /// </summary>
     public class InstallationSupport : Feature
     {
+        internal const string UsernameKey = "installation.username";  
+
         internal InstallationSupport()
         {
             if (Debugger.IsAttached)
@@ -55,19 +56,20 @@ namespace NServiceBus
                 this.configure = configure;
             }
 
-            string GetUsername()
+            string GetInstallationUserName(ReadOnlySettings settings)
             {
-                var username = readOnlySettings.GetOrDefault<string>("installation.userName");
-                if (username == null)
+                string username;
+                if (settings.TryGet(UsernameKey, out username))
                 {
-                    return WindowsIdentity.GetCurrent().Name;
+                    return username;
                 }
-                return username;
+
+                return WindowsIdentity.GetCurrent().Name;
             }
 
             public void Run(Configure config)
             {
-                var username = GetUsername();
+                var username = GetInstallationUserName(readOnlySettings);
                 foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
                 {
                     installer.Install(username, configure);
@@ -75,5 +77,4 @@ namespace NServiceBus
             }
         }
     }
-
 }

@@ -5,6 +5,7 @@ namespace NServiceBus.Unicast
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Principal;
+    using System.Threading;
     using System.Threading.Tasks;
     using Hosting;
     using Licensing;
@@ -69,6 +70,11 @@ namespace NServiceBus.Unicast
         public ITransport Transport { get; set; }
 
         /// <summary>
+        /// Critical error handling
+        /// </summary>
+        public CriticalError CriticalError { get; set; }
+
+        /// <summary>
         /// Message queue used to send messages.
         /// </summary>
         public ISendMessages MessageSender { get; set; }
@@ -107,7 +113,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public IManageSubscriptions SubscriptionManager { get; set; }
 
-
         /// <summary>
         /// <see cref="IBus.Publish{T}(Action{T})"/>
         /// </summary>
@@ -115,7 +120,6 @@ namespace NServiceBus.Unicast
         {
             Publish(messageMapper.CreateInstance(messageConstructor));
         }
-
 
         /// <summary>
         /// <see cref="IBus.Publish{T}()"/>
@@ -125,15 +129,14 @@ namespace NServiceBus.Unicast
             Publish(messageMapper.CreateInstance<T>());
         }
 
-
         /// <summary>
         /// <see cref="IBus.Publish{T}(T)"/>
         /// </summary>
         public virtual void Publish<T>(T message)
         {
-            var options = new PublishOptions(typeof(T));
-
-            InvokeSendPipeline(options, LogicalMessageFactory.Create(message));
+            var logicalMessage = LogicalMessageFactory.Create(message);
+            var options = new PublishOptions(logicalMessage.MessageType);
+            InvokeSendPipeline(options, logicalMessage);
         }
 
         /// <summary>
@@ -248,7 +251,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply(object message)
         {
-            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress,GetCorrelationId()); 
+            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId()); 
             
             SendMessage(options, LogicalMessageFactory.Create(message));
         }
@@ -516,7 +519,7 @@ namespace NServiceBus.Unicast
         {
             if (sendOptions.ReplyToAddress == null && !SendOnlyMode)
             {
-                sendOptions.ReplyToAddress = Address.Local;
+                sendOptions.ReplyToAddress = Address.PublicReturnAddress;
             }
 
             if (PropagateReturnAddressOnSend && CurrentMessageContext != null)
@@ -577,66 +580,43 @@ namespace NServiceBus.Unicast
             satelliteLauncher = new SatelliteLauncher(Builder);
             satelliteLauncher.Start();
 
-            thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
-
-            thingsToRunAtStartupTask = thingsToRunAtStartup.Select(toRun => Task.Factory.StartNew(() =>
-            {
-                var name = toRun.GetType().AssemblyQualifiedName;
-
-                try
+            ProcessStartupItems(
+                Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList(),
+                toRun =>
                 {
                     toRun.Start();
-                    Log.DebugFormat("Started {0}.", name);
-                }
-                catch (Exception ex)
-                {
-                    ConfigureCriticalErrorAction.RaiseCriticalError(String.Format("{0} could not be started.", name), ex);
-                }
-            }, TaskCreationOptions.LongRunning)).ToArray();
+                    thingsRanAtStartup.Add(toRun);
+                    Log.DebugFormat("Started {0}.", toRun.GetType().AssemblyQualifiedName);
+                },
+                ex => CriticalError.Raise("Startup task failed to complete.", ex),
+                startCompletedEvent);
 
             return this;
         }
 
         void ExecuteIWantToRunAtStartupStopMethods()
         {
-            if (thingsToRunAtStartup == null)
+            Log.Debug("Ensuring IWantToRunWhenBusStartsAndStops.Start has been called.");
+            startCompletedEvent.WaitOne();
+            Log.Debug("All IWantToRunWhenBusStartsAndStops.Start have completed now.");
+
+            var tasksToStop = Interlocked.Exchange(ref thingsRanAtStartup, new ConcurrentBag<IWantToRunWhenBusStartsAndStops>());
+            if (!tasksToStop.Any())
             {
                 return;
             }
 
-            //Ensure Start has been called on all thingsToRunAtStartup
-            Log.DebugFormat("Ensuring IWantToRunAtStartup.Start has been called.");
-            Task.WaitAll(thingsToRunAtStartupTask);
-            Log.DebugFormat("All IWantToRunAtStartup.Start should have completed now.");
-
-            var mapTaskToThingsToRunAtStartup = new ConcurrentDictionary<int, string>();
-
-            var tasks = thingsToRunAtStartup.Select(toRun =>
-            {
-                var name = toRun.GetType().AssemblyQualifiedName;
-
-                var task = new Task(() =>
+            ProcessStartupItems(
+                tasksToStop,
+                toRun =>
                 {
-                    try
-                    {
-                        toRun.Stop();
-                        Log.DebugFormat("Stopped {0}.", name);
-                    }
-                    catch (Exception ex)
-                    {
-                        ConfigureCriticalErrorAction.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
-                    }
-                }, TaskCreationOptions.LongRunning);
+                    toRun.Stop();
+                    Log.DebugFormat("Stopped {0}.", toRun.GetType().AssemblyQualifiedName);
+                },
+                ex => Log.Fatal("Startup task failed to stop.", ex),
+                stopCompletedEvent);
 
-                mapTaskToThingsToRunAtStartup.TryAdd(task.Id, name);
-
-                task.Start();
-
-                return task;
-
-            }).ToArray();
-
-            Task.WaitAll(tasks);
+            stopCompletedEvent.WaitOne();
         }
 
         /// <summary>
@@ -824,10 +804,11 @@ namespace NServiceBus.Unicast
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();
 
-        IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
+        ConcurrentBag<IWantToRunWhenBusStartsAndStops> thingsRanAtStartup = new ConcurrentBag<IWantToRunWhenBusStartsAndStops>();
+        ManualResetEvent startCompletedEvent = new ManualResetEvent(false);
+        ManualResetEvent stopCompletedEvent = new ManualResetEvent(true);
 
         IMessageMapper messageMapper;
-        Task[] thingsToRunAtStartupTask = new Task[0];
         SatelliteLauncher satelliteLauncher;
 
         Dictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
@@ -856,6 +837,22 @@ namespace NServiceBus.Unicast
             {
                 return Builder.Build<TransportDefinition>();
             }
+        }
+
+        static void ProcessStartupItems<T>(IEnumerable<T> items, Action<T> iteration, Action<Exception> inCaseOfFault, EventWaitHandle eventToSet)
+        {
+            eventToSet.Reset();
+
+            Task.Factory.StartNew(() =>
+            {
+                Parallel.ForEach(items, iteration);
+                eventToSet.Set();
+            }, TaskCreationOptions.LongRunning | TaskCreationOptions.PreferFairness)
+            .ContinueWith(task =>
+            {
+                eventToSet.Set();
+                inCaseOfFault(task.Exception);
+            }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.LongRunning);
         }
     }
 }

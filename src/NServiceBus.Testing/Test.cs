@@ -8,7 +8,7 @@
     using DataBus.InMemory;
     using Features;
     using MessageInterfaces;
-    using Persistence;
+    using NServiceBus.Persistence;
     using Saga;
 
     /// <summary>
@@ -38,6 +38,19 @@
             {
                 c.EndpointName("UnitTests");
                 c.CustomConfigurationSource(testConfigurationSource);
+                c.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+                c.DisableFeature<Sagas>();
+                c.DisableFeature<Audit>();
+                c.UseTransport<FakeTestTransport>();
+                c.UsePersistence<InMemory>();
+                c.RegisterEncryptionService(b => new FakeEncryptor());
+                c.RegisterComponents(r =>
+                {
+                    r.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
+                    r.ConfigureComponent<FakeQueueCreator>(DependencyLifecycle.InstancePerCall);
+                    r.ConfigureComponent<FakeDequer>(DependencyLifecycle.InstancePerCall);
+                    r.ConfigureComponent<FakeSender>(DependencyLifecycle.InstancePerCall);
+                });
                 customisations(c);
             }));
         }
@@ -88,23 +101,10 @@
                 return;
             }
 
-            config.DisableFeature<Sagas>()
-                .DisableFeature<Audit>()
-                .UseTransport<FakeTestTransport>()
-                .UsePersistence<InMemory>()
-                .InMemoryFaultManagement();
-
-            config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
-
             config.CreateBus();
 
-
             var mapper = config.Builder.Build<IMessageMapper>();
-            if (mapper == null)
-            {
-                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
-            }
-
+            
             messageCreator = mapper;
             ExtensionMethods.GetHeaderAction = (msg, key) =>
             {
@@ -151,13 +151,17 @@
             var saga = (T)Activator.CreateInstance(typeof(T));
 
             var prop = typeof(T).GetProperty("Data");
-            var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
 
-            saga.Entity = sagaData;
-
-            if (saga.Entity != null)
+            if (prop != null)
             {
-                saga.Entity.Id = sagaId;
+                var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
+
+                saga.Entity = sagaData;
+
+                if (saga.Entity != null)
+                {
+                    saga.Entity.Id = sagaId;
+                }
             }
 
             return Saga(saga);

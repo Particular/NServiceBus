@@ -3,7 +3,6 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
@@ -53,60 +52,74 @@
             if (suppressDTC)
                 endpointName += ".SuppressDTC";
 
-            config = Configure.With(o => o.EndpointName(endpointName))
-                .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
-                .UsePersistence<InMemory>()
-                .DisableFeature<Audit>();
-
-            switch (args[2].ToLower())
+            config = Configure.With(o =>
             {
-                case "xml":
-                    config.UseSerialization<Xml>();
-                    break;
+                o.EndpointName(endpointName);
+                o.EnableInstallers();
+                o.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+                o.UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"));
+                o.DisableFeature<Audit>();
 
-                case "json":
-                    config.UseSerialization<Json>();
-                    break;
+                if (volatileMode)
+                {
+                    o.DisableDurableMessages();
+                    o.Transactions(t =>
+                    {
+                        t.Disable();
+                        t.Advanced(a =>
+                        {
+                            a.DoNotWrapHandlersExecutionInATransactionScope();
+                            a.DisableDistributedTransactions();
+                        });
+                    });
+                    o.UsePersistence<InMemory>();
+                }
 
-                case "bson":
-                    config.UseSerialization<Bson>();
-                    break;
+                switch (args[3].ToLower())
+                {
+                    case "msmq":
+                        o.UseTransport<Msmq>();
+                        break;
 
-                case "bin":
-                    config.UseSerialization<Binary>();
-                    break;
+                    default:
+                        throw new InvalidOperationException("Illegal transport " + args[2]);
+                }
 
-                default:
-                    throw new InvalidOperationException("Illegal serialization format " + args[2]);
-            }
+                if (suppressDTC)
+                {
+                    o.Transactions(t => t.Advanced(settings => settings.DisableDistributedTransactions()));
+                }
 
-            if (volatileMode)
-            {
-                config.Endpoint(e=>e.AsVolatile());
-            }
+                switch (args[2].ToLower())
+                {
+                    case "xml":
+                        o.UseSerialization<Xml>();
+                        break;
 
-            if (suppressDTC)
-            {
-                config.Transactions(t=>t.Advanced(settings => settings.DisableDistributedTransactions()));
-            }
+                    case "json":
+                        o.UseSerialization<Json>();
+                        break;
 
-            if (encryption)
-            {
-                SetupRijndaelTestEncryptionService();
-            }
+                    case "bson":
+                        o.UseSerialization<Bson>();
+                        break;
 
-            switch (args[3].ToLower())
-            {
-                case "msmq":
-                    config.UseTransport<Msmq>();
-                    break;
+                    case "bin":
+                        o.UseSerialization<Binary>();
+                        break;
 
-                default:
-                    throw new InvalidOperationException("Illegal transport " + args[2]);
-            }
+                    default:
+                        throw new InvalidOperationException("Illegal serialization format " + args[2]);
+                }
+                o.UsePersistence<InMemory>();
 
-            config.EnableInstallers();
-            using (var startableBus = config.InMemoryFaultManagement().CreateBus())
+                if (encryption)
+                {
+                    o.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
+                }
+            });
+
+            using (var startableBus = config.CreateBus())
             {
                 if (saga)
                 {
@@ -125,16 +138,9 @@
                 while (Interlocked.Read(ref Statistics.NumberOfMessages) < numberOfMessages)
                     Thread.Sleep(1000);
 
-
                 DumpSetting(args);
                 Statistics.Dump();
             }
-        }
-
-        private static void SetupRijndaelTestEncryptionService()
-        {
-            var encryptConfig = config.Configurer.ConfigureComponent<NServiceBus.Encryption.Rijndael.EncryptionService>(DependencyLifecycle.SingleInstance);
-            encryptConfig.ConfigureProperty(s => s.Key, Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
         }
 
         static void DumpSetting(string[] args)
@@ -149,9 +155,7 @@
 
         static void SeedSagaMessages(int numberOfMessages, string inputQueue, int concurrency)
         {
-#pragma warning disable 0618
-            var bus = Configure.Instance.Builder.Build<IBus>();
-#pragma warning restore 0618
+            var bus = config.Builder.Build<IBus>();
 
             for (var i = 0; i < numberOfMessages / concurrency; i++)
             {

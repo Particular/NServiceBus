@@ -18,13 +18,6 @@
         {
             EnableByDefault();
 
-            Defaults(s =>
-            {
-                var sagas = s.GetAvailableTypes().Where(IsSagaType).ToList();
-
-                s.Get<Conventions>().AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
-            });
-
             Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas was found in scabbed types");
         }
 
@@ -34,6 +27,10 @@
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             conventions = context.Settings.Get<Conventions>();
+
+            var sagas = context.Settings.GetAvailableTypes().Where(IsSagaType).ToList();
+            conventions.AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
+            
             // Register the Saga related behavior for incoming messages
             context.Pipeline.Register<SagaPersistenceBehavior.SagaPersistenceRegistration>();
 
@@ -110,7 +107,7 @@
         /// <summary>
         /// True if the given message are configure to start the saga
         /// </summary>
-        internal static bool ShouldMessageStartSaga(Type sagaType, Type messageType)
+        internal static bool IsAStartSagaMessage(Type sagaType, Type messageType)
         {
             List<Type> messageTypes;
             SagaTypeToMessageTypesRequiringSagaStartLookup.TryGetValue(sagaType, out messageTypes);

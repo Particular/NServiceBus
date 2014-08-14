@@ -9,13 +9,15 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
     class ManageMessageFailuresWithoutSlr : IManageMessageFailures
     {
+        ISendMessages messageSender;
         static ILog Logger = LogManager.GetLogger<ManageMessageFailuresWithoutSlr>();
 
-        private Address localAddress;
-        private readonly Address errorQueue;
+        Address localAddress;
+        Address errorQueue;
 
-        public ManageMessageFailuresWithoutSlr(IManageMessageFailures mainFailureManager)
+        public ManageMessageFailuresWithoutSlr(IManageMessageFailures mainFailureManager, ISendMessages messageSender)
         {
+            this.messageSender = messageSender;
             var mainTransportFailureManager = mainFailureManager as Faults.Forwarder.FaultManager;
             if (mainTransportFailureManager != null)
             {
@@ -44,9 +46,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             SetExceptionHeaders(message, e, reason);
             try
             {
-                var sender = Configure.Instance.Builder.Build<ISendMessages>();
-
-                sender.Send(message, new SendOptions(errorQueue));
+                messageSender.Send(message, new SendOptions(errorQueue));
             }
             catch (Exception exception)
             {

@@ -12,12 +12,24 @@ namespace NServiceBus.Logging
     {
         static LogManager()
         {
-            var defaultLogLevel = LogLevelReader.GetDefaultLogLevel();
-            loggerFactory = new DefaultLoggerFactory(defaultLogLevel, null);
+            Use<DefaultFactory>();
         }
 
         static ILoggerFactory loggerFactory; 
         internal static bool HasConfigBeenInitialised;
+
+        /// <summary>
+        /// Used to inject an instance of <see cref="ILoggerFactory"/> into <see cref="LogManager"/>.
+        /// </summary>
+        public static void Use<T>(Action<T> customizations = null) where T : LoggingFactoryDefinition, new()
+        {
+            var loggingDefinition = new T();
+            if (customizations != null)
+            {
+                customizations(loggingDefinition);
+            }
+            LoggerFactory = loggingDefinition.GetLoggingFactory();
+        }
 
         /// <summary>
         /// An instance of <see cref="ILoggerFactory"/> that will be used to construct <see cref="ILog"/>s for static fields.
@@ -42,20 +54,6 @@ namespace NServiceBus.Logging
                 log.Warn("Logging has been configured after NServiceBus.Configure.With() has been called. To capture messages and errors that occur during configuration logging should be configured before before NServiceBus.Configure.With().");
             }
         }
-
-        /// <summary>
-        /// Sets the <see cref="LoggerFactory"/> to be an instance of the internal default logger.
-        /// </summary>
-        /// <remarks>If <see cref="LoggerFactory"/> is already defined calling this method will replace it.</remarks>
-        /// <param name="level">The minimum <see cref="System.LogLevel"/> threshold to use.</param>
-        /// <param name="loggingDirectory">The target directory to log to.</param>
-        public static void ConfigureDefaults(LogLevel level = LogLevel.Info, string loggingDirectory = null)
-        {
-            level = LogLevelReader.GetDefaultLogLevel(level);
-            LoggerFactory = new DefaultLoggerFactory(level, loggingDirectory);
-        }
-
-        //TODO: perhaps add method for null logging
 
         /// <summary>
         /// Construct a <see cref="ILog"/> using <typeparamref name="T"/> as the name.

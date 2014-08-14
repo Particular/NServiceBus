@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast.Tests
         {
             RegisterSaga<MySaga>();
 
-            ReceiveMessage(new MessageThatStartsSaga());
+            ReceiveMessage(new MessageThatStartsSaga(), mapper: MessageMapper);
 
             Assert.AreEqual(0, persister.CurrentSagaEntities.Count(), "No saga should be stored");
         }
@@ -26,7 +26,7 @@ namespace NServiceBus.Unicast.Tests
 
             RegisterSaga<MySaga>(new MySagaData { Id = sagaId });
 
-            ReceiveMessage(new MessageThatStartsSaga(), new Dictionary<string, string> { { Headers.SagaId, sagaId.ToString() } });
+            ReceiveMessage(new MessageThatStartsSaga(), new Dictionary<string, string> { { Headers.SagaId, sagaId.ToString() } }, mapper: MessageMapper);
 
             Assert.AreEqual(0, persister.CurrentSagaEntities.Count(), "No saga should be stored");
         }

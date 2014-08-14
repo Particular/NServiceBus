@@ -16,6 +16,7 @@
             Scenario.Define(rootContext)
                 .WithEndpoint<Publisher1>(b => b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(args =>
                 {
+                    context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
                     if (args.MessageType.Contains(typeof(IMyEvent).Name))
                     {
                         context.SubscribedToIMyEvent = true;
@@ -32,6 +33,7 @@
                 }))
                 .WithEndpoint<Publisher2>(b => b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(args =>
                 {
+                    context.AddTrace("Publisher2 OnEndpointSubscribed " + args.MessageType);
                     if (args.MessageType.Contains(typeof(IMyEvent).Name))
                     {
                         context.SubscribedToIMyEvent = true;
@@ -41,9 +43,14 @@
                     {
                         context.SubscribedToMyEvent2 = true;
                     }
-                })).When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, bus => bus.Publish(new MyEvent2())))
+                })).When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, (bus, c) =>
+                {
+                    c.AddTrace("Publishing MyEvent2");
+                    bus.Publish(new MyEvent2());
+                }))
                 .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                 {
+                    context.AddTrace("Subscriber1 subscribing to both events");
                     bus.Subscribe<IMyEvent>();
                     bus.Subscribe<MyEvent2>();
 
@@ -89,7 +96,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(_ => { },c => c.DisableFeature<AutoSubscribe>())
                     .AddMapping<IMyEvent>(typeof(Publisher1))
                     .AddMapping<MyEvent2>(typeof(Publisher2));
             }

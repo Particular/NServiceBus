@@ -13,24 +13,9 @@ namespace NServiceBus.Features
         internal SecondLevelRetries()
         {
             EnableByDefault();
-           
-            // if we're not using the Fault Forwarder, we should act as if SLR is disabled
-            //this will change when we make SLR a first class citizen
-            Prerequisite(c => c.Container.HasComponent<FaultManager>(), "A custom faultmanager was defined");
+            DependsOn<ForwarderFaultManager>();
+
             Prerequisite(IsEnabledInConfig, "SLR was disabled in config");
-        }
-
-        bool IsEnabledInConfig(FeatureConfigurationContext context)
-        {
-            var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
-
-            if (retriesConfig == null)
-                return true;
-
-            if (retriesConfig.NumberOfRetries == 0)
-                return false;
-
-            return retriesConfig.Enabled;
         }
 
         /// <summary>
@@ -38,6 +23,11 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            if (context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
+            {
+                return;
+            }
+
             var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
 
             SetUpRetryPolicy(retriesConfig);
@@ -57,6 +47,19 @@ namespace NServiceBus.Features
             context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.InputAddress, processorAddress);
             context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.RetryPolicy, context.Settings.GetOrDefault<Func<TransportMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy") ?? DefaultRetryPolicy.RetryPolicy);
             context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, useRemoteRetryProcessor); 
+        }
+
+        bool IsEnabledInConfig(FeatureConfigurationContext context)
+        {
+            var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
+
+            if (retriesConfig == null)
+                return true;
+
+            if (retriesConfig.NumberOfRetries == 0)
+                return false;
+
+            return retriesConfig.Enabled;
         }
 
         static void SetUpRetryPolicy(SecondLevelRetriesConfig retriesConfig)

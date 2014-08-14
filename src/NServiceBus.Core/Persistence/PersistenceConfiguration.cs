@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Provides a hook for extention methods in order to provide custom configuration methods
@@ -11,11 +12,11 @@
         /// <summary>
         /// Access to the current config instance
         /// </summary>
-        public Configure Config { get; private set; }
+        public SettingsHolder Settings { get; private set; }
 
-        internal PersistenceConfiguration(Configure config)
+        internal PersistenceConfiguration(SettingsHolder settings)
         {
-            Config = config;
+            Settings = settings;
         }
 
         /// <summary>

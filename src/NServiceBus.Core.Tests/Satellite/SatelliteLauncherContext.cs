@@ -1,9 +1,10 @@
 ﻿namespace NServiceBus.Core.Tests.Satellite
 {
+    using System;
     using System.Reflection;
+    using System.Transactions;
     using Fakes;
     using Faults;
-    using NServiceBus.Config;
     using NUnit.Framework;
     using Satellites;
     using Settings;
@@ -24,7 +25,7 @@
             InMemoryFaultManager = new Faults.InMemory.FaultManager();
             FakeReceiver = new FakeReceiver();
 
-            Transport = new TransportReceiver(TransactionSettings.Default, 1, 0, FakeReceiver, InMemoryFaultManager, new SettingsHolder());
+            Transport = new TransportReceiver(new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, 5, false,false), 1, 0, FakeReceiver, InMemoryFaultManager, new SettingsHolder());
 
             Configure.With(o =>
             {
@@ -36,8 +37,8 @@
             Builder.Register<IManageMessageFailures>(() => InMemoryFaultManager);
             Builder.Register<TransportReceiver>(() => Transport);
 
-            var configurer = new SatelliteConfigurer();
-            configurer.Init(Configure.Instance);
+            //var configurer = new SatelliteConfigurer();
+            //configurer.Customize(configure);
 
             var launcher = new SatelliteLauncher(Builder);
 

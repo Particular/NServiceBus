@@ -191,7 +191,6 @@ namespace NServiceBus.Config
         /// Comparison support
         /// </summary>
         /// <param name="other"></param>
-        /// <returns></returns>
         public int CompareTo(MessageEndpointMapping other)
         {
             if (!String.IsNullOrWhiteSpace(TypeFullName) || HaveMessagesMappingWithType(this))
