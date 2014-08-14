@@ -9,7 +9,6 @@
 
     class PersistenceStartup : IWantToRunBeforeConfigurationIsFinalized
     {
-
         static ILog Logger = LogManager.GetLogger(typeof(PersistenceStartup));
 
         public void Run(Configure config)
@@ -24,12 +23,14 @@
             }
 
             definitions.Reverse();
+
             var availableStorages = Reflect<Storage>.GetEnumValues();
             var resultingSupportedStorages = new List<Storage>();
+
             foreach (var definition in definitions)
             {
                 var persistenceDefinition = definition.DefinitionType.Construct<PersistenceDefinition>();
-                var supportedStorages = persistenceDefinition.GetSupportedStorages(settings, definition.Customizations);
+                var supportedStorages = persistenceDefinition.GetSupportedStorages(definition.SelectedStorages);
                 foreach (var storage in supportedStorages)
                 {
                     if (availableStorages.Contains(storage))
@@ -45,6 +46,7 @@
                     }
                 }
             }
+
             SetResultingSupportedStorages(settings, resultingSupportedStorages);
         }
 
@@ -84,6 +86,5 @@
             return settings.Get<List<Storage>>("ResultingSupportedStorages")
                 .Contains(storages);
         }
-
     }
 }

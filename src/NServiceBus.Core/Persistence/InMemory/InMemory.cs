@@ -15,6 +15,5 @@
             Supports(Storage.Outbox, s => s.EnableFeatureByDefault<InMemoryOutboxPersistence>());
             Supports(Storage.GatewayDeduplication, s => s.EnableFeatureByDefault<InMemoryGatewayPersistence>());
         }
-        
     }
 }

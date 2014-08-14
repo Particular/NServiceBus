@@ -175,6 +175,7 @@
     <Compile Include="Persistence\EnabledPersistence.cs" />
     <Compile Include="Persistence\Msmq\Msmq.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
+    <Compile Include="Persistence\PersistenceExtentions.cs" />
     <Compile Include="Persistence\PersistenceStartup.cs" />
     <Compile Include="Persistence\Storage.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
@@ -244,7 +245,6 @@
     <Compile Include="Persistence\InMemory\TimeoutPersister\InMemoryTimeoutPersistence.cs" />
     <Compile Include="Monitoring\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayDeduplication.cs" />
-    <Compile Include="Persistence\PersistenceConfiguration.cs" />
     <Compile Include="Persistence\PersistenceDefinition.cs" />
     <Compile Include="Persistence\PersistenceConfig.cs" />
     <Compile Include="Pipeline\BehaviorContext.cs" />
