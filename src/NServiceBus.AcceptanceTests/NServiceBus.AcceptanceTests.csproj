@@ -125,6 +125,8 @@
     <Compile Include="EndpointTemplates\ContextAppender.cs" />
     <Compile Include="Gateway\When_doing_request_return.cs" />
     <Compile Include="Gateway\When_doing_request_response_between_sites.cs" />
+    <Compile Include="Encryption\When_using_encryption_with_custom_service.cs" />
+    <Compile Include="Encryption\When_using_encryption_with_multikey.cs" />
     <Compile Include="Gateway\When_sending_a_message_via_the_gateway.cs" />
     <Compile Include="Gateway\When_doing_request_response_with_databus_between_sites.cs" />
     <Compile Include="Gateway\When_sending_a_message_to_another_site.cs" />
