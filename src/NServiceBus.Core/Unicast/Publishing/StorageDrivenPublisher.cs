@@ -38,6 +38,8 @@
                 return;
             }
 
+            PipelineExecutor.CurrentContext.Set("SubscribersForEvent", subscribers);
+
             foreach (var subscriber in subscribers)
             {
                 //this is unicast so we give the message a unique ID
