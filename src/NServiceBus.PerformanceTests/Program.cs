@@ -112,11 +112,7 @@
                         throw new InvalidOperationException("Illegal serialization format " + args[2]);
                 }
                 o.UsePersistence<InMemory>();
-
-                if (encryption)
-                {
-                    o.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-                }
+                o.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
             });
 
             using (var startableBus = config.CreateBus())
