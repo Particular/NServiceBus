@@ -17,9 +17,9 @@ namespace NServiceBus
         /// <summary>
         /// Use 256 bit AES encryption based on the Rijndael cipher. 
         /// </summary>
-        public static ConfigurationBuilder RijndaelEncryptionService(this ConfigurationBuilder config)
+        public static void RijndaelEncryptionService(this ConfigurationBuilder config)
         {
-            return RegisterEncryptionService(config, context =>
+            RegisterEncryptionService(config, context =>
             {
                 var section = context.Build<Configure>()
                     .Settings
@@ -71,12 +71,13 @@ namespace NServiceBus
         /// <summary>
         /// Use 256 bit AES encryption based on the Rijndael cipher. 
         /// </summary>
-        public static ConfigurationBuilder RijndaelEncryptionService(this ConfigurationBuilder config, string encryptionKey, List<string> expiredKeys = null)
+        public static void RijndaelEncryptionService(this ConfigurationBuilder config, string encryptionKey, List<string> expiredKeys = null)
         {
             if (string.IsNullOrWhiteSpace(encryptionKey))
             {
                 throw new ArgumentNullException("encryptionKey");
             }
+
             if (expiredKeys == null)
             {
                 expiredKeys = new List<string>();
@@ -85,7 +86,8 @@ namespace NServiceBus
             {
                 VerifyKeys(expiredKeys);   
             }
-            return RegisterEncryptionService(config, context => BuildRijndaelEncryptionService(encryptionKey, expiredKeys));
+
+            RegisterEncryptionService(config, context => BuildRijndaelEncryptionService(encryptionKey, expiredKeys));
         }
 
         internal static void VerifyKeys(List<string> expiredKeys)
@@ -112,10 +114,9 @@ namespace NServiceBus
         /// <summary>
         /// Register a custom <see cref="IEncryptionService"/> to be used for message encryption.
         /// </summary>
-        public static ConfigurationBuilder RegisterEncryptionService(this ConfigurationBuilder config, Func<IBuilder, IEncryptionService> func)
+        public static void RegisterEncryptionService(this ConfigurationBuilder config, Func<IBuilder, IEncryptionService> func)
         {
             config.settings.Set("EncryptionServiceConstructor", func);
-            return config;
         }
 
         internal static bool GetEncryptionServiceConstructor(this ReadOnlySettings settings, out Func<IBuilder, IEncryptionService> func)
