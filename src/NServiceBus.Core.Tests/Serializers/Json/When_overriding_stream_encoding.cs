@@ -13,8 +13,11 @@ namespace NServiceBus.Serializers.Json.Tests
         [SetUp]
         public void SetUp()
         {
-            configure = Configure.With(o => o.TypesToScan(new Type[0]))
-                .UseSerialization<NServiceBus.Json>(c => c.JsonEncoding(Encoding.UTF7));
+            configure = Configure.With(o =>
+            {
+                o.TypesToScan(new Type[0]);
+                o.UseSerialization<NServiceBus.Json>(c => c.JsonEncoding(Encoding.UTF7));
+            });
 
             var context = new FeatureConfigurationContext(configure);
             new JsonSerialization().SetupFeature(context);
