@@ -14,7 +14,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The instance of <see cref="ConfigurationBuilder"/> to apply these settings to.</param>
         /// <param name="username">The username to pass to <see cref="INeedToInstallSomething.Install"/></param>
-        public static ConfigurationBuilder EnableInstallers(this ConfigurationBuilder config, string username = null)
+        public static void EnableInstallers(this ConfigurationBuilder config, string username = null)
         {
             if (username != null)
             {
@@ -22,8 +22,6 @@ namespace NServiceBus
             }
 
             config.EnableFeature<InstallationSupport>();
-
-            return config;
         }
     }
 }

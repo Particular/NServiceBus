@@ -39,120 +39,108 @@ namespace NServiceBus
         /// <summary>
         ///     Used to configure components in the container.
         /// </summary>
-        public ConfigurationBuilder RegisterComponents(Action<IConfigureComponents> registration)
+        public void RegisterComponents(Action<IConfigureComponents> registration)
         {
             registrations.Add(registration);
-            return this;
         }
 
         /// <summary>
         ///     Specifies the range of types that NServiceBus scans for handlers etc.
         /// </summary>
-        public ConfigurationBuilder TypesToScan(IEnumerable<Type> typesToScan)
+        public void TypesToScan(IEnumerable<Type> typesToScan)
         {
             scannedTypes = typesToScan.ToList();
-            return this;
         }
 
         /// <summary>
         ///     The assemblies to include when scanning for types.
         /// </summary>
-        public ConfigurationBuilder AssembliesToScan(IEnumerable<Assembly> assemblies)
+        public void AssembliesToScan(IEnumerable<Assembly> assemblies)
         {
             AssembliesToScan(assemblies.ToArray());
-            return this;
         }
 
         /// <summary>
         ///     The assemblies to include when scanning for types.
         /// </summary>
-        public ConfigurationBuilder AssembliesToScan(params Assembly[] assemblies)
+        public void AssembliesToScan(params Assembly[] assemblies)
         {
             scannedTypes = Configure.GetAllowedTypes(assemblies);
-            return this;
         }
 
 
         /// <summary>
         ///     Specifies the directory where NServiceBus scans for types.
         /// </summary>
-        public ConfigurationBuilder ScanAssembliesInDirectory(string probeDirectory)
+        public void ScanAssembliesInDirectory(string probeDirectory)
         {
             directory = probeDirectory;
             AssembliesToScan(GetAssembliesInDirectory(probeDirectory));
-            return this;
         }
 
         /// <summary>
         ///     Overrides the default configuration source.
         /// </summary>
-        public ConfigurationBuilder CustomConfigurationSource(IConfigurationSource configurationSource)
+        public void CustomConfigurationSource(IConfigurationSource configurationSource)
         {
             configurationSourceToUse = configurationSource;
-            return this;
         }
 
 
         /// <summary>
         ///     Defines the name to use for this endpoint.
         /// </summary>
-        public ConfigurationBuilder EndpointName(string name)
+        public void EndpointName(string name)
         {
             endpointName = name;
-            return this;
         }
 
         /// <summary>
         ///     Defines the version of this endpoint.
         /// </summary>
-        public ConfigurationBuilder EndpointVersion(string version)
+        public void EndpointVersion(string version)
         {
             endpointVersion = version;
-            return this;
         }
 
         /// <summary>
         ///     Defines the conventions to use for this endpoint.
         /// </summary>
-        public ConfigurationBuilder Conventions(Action<ConventionsBuilder> conventions)
+        public void Conventions(Action<ConventionsBuilder> conventions)
         {
             conventions(conventionsBuilder);
-
-            return this;
         }
 
         /// <summary>
         ///     Defines a custom builder to use
         /// </summary>
         /// <typeparam name="T">The builder type</typeparam>
-        public ConfigurationBuilder UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
+        public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
             if (customizations != null)
             {
                 customizations(new ContainerCustomizations(settings));
             }
 
-            return UseContainer(typeof(T));
+            UseContainer(typeof(T));
         }
 
         /// <summary>
         ///     Defines a custom builder to use
         /// </summary>
         /// <param name="definitionType">The type of the builder</param>
-        public ConfigurationBuilder UseContainer(Type definitionType)
+        public void UseContainer(Type definitionType)
         {
-            return UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(settings));
+            UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(settings));
         }
 
         /// <summary>
         ///     Uses an already active instance of a builder
         /// </summary>
         /// <param name="builder">The instance to use</param>
-        public ConfigurationBuilder UseContainer(IContainer builder)
+        public void UseContainer(IContainer builder)
         {
             customBuilder = builder;
-
-            return this;
         }
 
         /// <summary>

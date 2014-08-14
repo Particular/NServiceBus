@@ -10,10 +10,9 @@ namespace NServiceBus
         /// <summary>
         /// If queues configured do not exist, will cause them not to be created on startup.
         /// </summary>
-        public static ConfigurationBuilder DoNotCreateQueues(this ConfigurationBuilder config)
+        public static void DoNotCreateQueues(this ConfigurationBuilder config)
         {
             config.settings.Set("Transport.CreateQueues", false);
-            return config;
         }
 
         /// <summary>

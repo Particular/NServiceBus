@@ -13,7 +13,7 @@ namespace NServiceBus
         ///     before all others.
         ///     Use First{T} to indicate the type to load from.
         /// </summary>
-        public static ConfigurationBuilder LoadMessageHandlers<TFirst>(this ConfigurationBuilder config)
+        public static void LoadMessageHandlers<TFirst>(this ConfigurationBuilder config)
         {
             var args = typeof(TFirst).GetGenericArguments();
             if (args.Length == 1)
@@ -21,7 +21,7 @@ namespace NServiceBus
                 if (typeof(First<>).MakeGenericType(args[0]).IsAssignableFrom(typeof(TFirst)))
                 {
                     config.settings.Set("LoadMessageHandlers.Order.Types", new[] { args[0] });
-                    return config;
+                    return;
                 }
             }
 
@@ -33,10 +33,9 @@ namespace NServiceBus
         ///     and specifies that the handlers in the given 'order' are to
         ///     run before all others and in the order specified.
         /// </summary>
-        public static ConfigurationBuilder LoadMessageHandlers<T>(this ConfigurationBuilder config, First<T> order)
+        public static void LoadMessageHandlers<T>(this ConfigurationBuilder config, First<T> order)
         {
             config.settings.Set("LoadMessageHandlers.Order.Types", order.Types);
-            return config;
         }
     }
 }

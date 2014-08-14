@@ -43,11 +43,11 @@ public class PubSubTestCase : TestCase
 
         var config = Configure.With(o =>
         {
-            o.EndpointName("PubSubPerformanceTest")
-                .EnableInstallers()
-                .DiscardFailedMessagesInsteadOfSendingToErrorQueue()
-                .UseTransport<Msmq>()
-                .DisableFeature<Audit>();
+            o.EndpointName("PubSubPerformanceTest");
+            o.EnableInstallers();
+            o.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+            o.UseTransport<Msmq>();
+            o.DisableFeature<Audit>();
 
             switch (GetStorageType())
             {

@@ -15,9 +15,9 @@
         /// <typeparam name="T">The persistence definition eg <see cref="InMemory"/>, NHibernate etc</typeparam>
         /// <param name="config">The configuration object since this is an extention method</param>
         /// <param name="customizations">Any customizations needed</param>
-        public static ConfigurationBuilder UsePersistence<T>(this ConfigurationBuilder config, Action<PersistenceConfiguration> customizations = null) where T : PersistenceDefinition
+        public static void UsePersistence<T>(this ConfigurationBuilder config, Action<PersistenceConfiguration> customizations = null) where T : PersistenceDefinition
         {
-            return UsePersistence(config, typeof(T), customizations);
+            UsePersistence(config, typeof(T), customizations);
         }
 
         /// <summary>
@@ -26,7 +26,7 @@
         /// <param name="config">The configuration object since this is an extention method</param>
         /// <param name="definitionType">The persistence definition eg <see cref="InMemory"/>, NHibernate etc</param>
         /// <param name="customizations">Any customizations needed</param>
-        public static ConfigurationBuilder UsePersistence(this ConfigurationBuilder config, Type definitionType, Action<PersistenceConfiguration> customizations = null)
+        public static void UsePersistence(this ConfigurationBuilder config, Type definitionType, Action<PersistenceConfiguration> customizations = null)
         {
             var settings = config.settings;
             List<EnabledPersistence> definitions;
@@ -41,9 +41,6 @@
                 DefinitionType = definitionType,
                 Customizations = customizations
             });
-            return config;
         }
-
-        
     }
 }

@@ -10,8 +10,11 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void Should_configure_requested_transport()
         {
-            var config = Configure.With(o => o.EndpointName("myTests")
-                .UseTransport<MyTestTransport>());
+            var config = Configure.With(o =>
+            {
+                o.EndpointName("myTests");
+                o.UseTransport<MyTestTransport>();
+            });
 
             Assert.IsInstanceOf<MyTestTransport>(config.Settings.Get<TransportDefinition>());
         }

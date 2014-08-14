@@ -12,10 +12,9 @@ namespace NServiceBus
         /// <param name="config">The configuration.</param>
         /// <param name="basePath">The location to which to write serialized properties for the databus.</param>
         /// <returns>The configuration.</returns>
-        public static ConfigurationBuilder FileShareDataBus(this ConfigurationBuilder config, string basePath)
+        public static void FileShareDataBus(this ConfigurationBuilder config, string basePath)
         {
             config.settings.Set("FileShareDataBusPath", basePath);
-            return config;
         }
 
     }

@@ -13,10 +13,9 @@ namespace NServiceBus
         /// Setting this to true may make sense for certain smart-client applications, 
         /// but rarely for server applications.
         /// </summary>
-        public static ConfigurationBuilder PurgeOnStartup(this ConfigurationBuilder config, bool value)
+        public static void PurgeOnStartup(this ConfigurationBuilder config, bool value)
         {
             config.settings.Set("Transport.PurgeOnStartup", value);
-            return config;
         }
 
         /// <summary>
@@ -31,6 +30,5 @@ namespace NServiceBus
             }
             return false;
         }
-
     }
 }

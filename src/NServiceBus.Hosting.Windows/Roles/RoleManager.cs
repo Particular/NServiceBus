@@ -14,12 +14,12 @@
             }
             else if (specifier is AsA_Client)
             {
-                config.PurgeOnStartup(true)
-                    .Transactions(settings => settings.Disable());
+                config.PurgeOnStartup(true);
+                config.Transactions(settings => settings.Disable());
 
-                config.DisableFeature<Features.SecondLevelRetries>()
-                    .DisableFeature<StorageDrivenPublishing>()
-                    .DisableFeature<TimeoutManager>();
+                config.DisableFeature<Features.SecondLevelRetries>();
+                config.DisableFeature<StorageDrivenPublishing>();
+                config.DisableFeature<TimeoutManager>();
             }
 
             Type transportDefinitionType;
