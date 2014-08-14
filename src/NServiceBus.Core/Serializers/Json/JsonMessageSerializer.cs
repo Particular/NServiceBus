@@ -11,6 +11,8 @@ namespace NServiceBus.Serializers.Json
     /// </summary>
     public class JsonMessageSerializer : JsonMessageSerializerBase
     {
+        private Encoding encoding = Encoding.UTF8;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -25,7 +27,7 @@ namespace NServiceBus.Serializers.Json
         /// <param name="stream"></param>
         protected internal override JsonWriter CreateJsonWriter(Stream stream)
         {
-            var streamWriter = new StreamWriter(stream, Encoding.UTF8);
+            var streamWriter = new StreamWriter(stream, Encoding);
             return new JsonTextWriter(streamWriter) {Formatting = Formatting.None};
         }
 
@@ -35,7 +37,7 @@ namespace NServiceBus.Serializers.Json
         /// <param name="stream"></param>
         protected internal override JsonReader CreateJsonReader(Stream stream)
         {
-            var streamReader = new StreamReader(stream, Encoding.UTF8);
+            var streamReader = new StreamReader(stream, Encoding);
             return new JsonTextReader(streamReader);
         }
 
@@ -65,6 +67,22 @@ namespace NServiceBus.Serializers.Json
         protected internal override string GetContentType()
         {
             return ContentTypes.Json;
+        }
+
+        /// <summary>
+        /// Gets or sets the stream encoding
+        /// </summary>
+        public Encoding Encoding
+        {
+            get { return encoding; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                encoding = value;
+            }
         }
     }
 }

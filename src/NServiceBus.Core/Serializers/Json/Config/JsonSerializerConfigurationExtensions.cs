@@ -3,6 +3,9 @@
 namespace NServiceBus
 {
     using System;
+    using System.Text;
+    using Serialization;
+    using Serializers.Json;
     using Settings;
 
         [ObsoleteEx(Replacement = "Configure.With(b => b.UseSerialization<Json>())", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
@@ -18,6 +21,20 @@ namespace NServiceBus
         public static Configure Bson(this SerializationSettings settings)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Configures the encoding of JSON stream
+        /// </summary>
+        /// <param name="config">The configuration object</param>
+        /// <param name="encoding">Encoding to use for serialization and deserialization</param>
+        public static void JsonEncoding(this SerializationConfiguration config, Encoding encoding)
+        {
+            if (encoding == null)
+            {
+                throw new ArgumentNullException("encoding");
+            }
+            config.settings.SetProperty<JsonMessageSerializer>(s => s.Encoding, encoding);
         }
     }
 }
