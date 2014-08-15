@@ -15,7 +15,7 @@
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<SagaEndpoint>(b =>
                         {
-                            b.Given((bus, context) => bus.SendLocal(new StartSagaMessage {SomeId = context.Id}));
+                            b.Given((bus, context) => bus.SendLocal(new StartSagaMessage { SomeId = context.Id }));
                             b.When(context => context.StartSagaMessageReceived, (bus, context) =>
                             {
                                 context.AddTrace("CompleteSagaMessage sent");
@@ -48,10 +48,14 @@
                     {
                         SomeId = c.Id
                     }));
-                    b.When(c => c.StartSagaMessageReceived, (bus, c) => bus.SendLocal(new CompleteSagaMessage
+                    b.When(c => c.StartSagaMessageReceived, (bus, c) =>
                     {
-                        SomeId = c.Id
-                    }));
+                        c.AddTrace("CompleteSagaMessage sent");
+                        bus.SendLocal(new CompleteSagaMessage
+                        {
+                            SomeId = c.Id
+                        });
+                    });
                     b.When(c => c.SagaCompleted, (bus, c) => bus.SendLocal(new AnotherMessage
                     {
                         SomeId = c.Id
@@ -59,10 +63,12 @@
                 })
                 .Done(c => c.AnotherMessageReceived)
                 .Repeat(r => r.For(Transports.Default))
-                .Run();
+                .Run(TimeSpan.FromSeconds(20));
 
             Assert.True(context.AnotherMessageReceived, "AnotherMessage should have been delivered to the handler outside the saga");
             Assert.False(context.SagaReceivedAnotherMessage, "AnotherMessage should not be delivered to the saga after completion");
+
+            Console.Out.WriteLine(context.Trace);
         }
 
         public class Context : ScenarioContext
@@ -78,10 +84,14 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => {}, b => b.LoadMessageHandlers<First<TestSaga>>());
+                EndpointSetup<DefaultServer>(c => { }, b => b.LoadMessageHandlers<First<TestSaga>>());
             }
 
-            public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleMessages<CompleteSagaMessage>, IHandleMessages<AnotherMessage>
+            public class TestSaga : Saga<TestSagaData>, 
+                IAmStartedByMessages<StartSagaMessage>, 
+                IHandleMessages<CompleteSagaMessage>, 
+                IHandleMessages<AnotherMessage>,
+                IHandleSagaNotFound
             {
                 public Context Context { get; set; }
 
@@ -110,11 +120,21 @@
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                        .ToSaga(s=>s.SomeId);
+                        .ToSaga(s => s.SomeId);
                     mapper.ConfigureMapping<CompleteSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                     mapper.ConfigureMapping<AnotherMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
+                }
+
+                public void Handle(object message)
+                {
+                    if (message is AnotherMessage)
+                    {
+                        return;
+                    }
+
+                    throw new Exception("Unexpected 'saga not found' for message: " + message.GetType().Name);
                 }
             }
 
