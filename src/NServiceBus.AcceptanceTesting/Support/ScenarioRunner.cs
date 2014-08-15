@@ -122,25 +122,28 @@ namespace NServiceBus.AcceptanceTesting.Support
             if (runResult.Failed)
             {
                 Console.Out.WriteLine("Test failed: {0}", runResult.Exception);
-
-                Console.Out.WriteLine("Context:");
-
-                foreach (var prop in runResult.ScenarioContext.GetType().GetProperties())
-                {
-                    if (prop.Name == "Trace") continue;
-
-                    Console.Out.WriteLine("{0} = {1}", prop.Name, prop.GetValue(runResult.ScenarioContext, null));
-                }
-
-                Console.Out.WriteLine("Trace:");
-                Console.Out.WriteLine(runResult.ScenarioContext.Trace);
             }
             else
             {
                 Console.Out.WriteLine("Result: Successful - Duration: {0}", runResult.TotalTime);
-                Console.Out.WriteLine("------------------------------------------------------");
-
             }
+
+            //dump trace and context regardless since asserts outside the should could stoll fail the test
+            Console.WriteLine(""); 
+            Console.Out.WriteLine("Context:");
+
+            foreach (var prop in runResult.ScenarioContext.GetType().GetProperties())
+            {
+                if (prop.Name == "Trace") continue;
+
+                Console.Out.WriteLine("{0} = {1}", prop.Name, prop.GetValue(runResult.ScenarioContext, null));
+            }
+
+            Console.WriteLine(""); 
+            Console.Out.WriteLine("Trace:");
+            Console.Out.WriteLine(runResult.ScenarioContext.Trace);
+
+            Console.Out.WriteLine("------------------------------------------------------");
         }
 
         static RunResult PerformTestRun(IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done, Func<Exception, bool> allowedExceptions)

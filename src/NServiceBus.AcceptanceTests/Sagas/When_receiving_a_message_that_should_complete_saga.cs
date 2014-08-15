@@ -67,8 +67,6 @@
 
             Assert.True(context.AnotherMessageReceived, "AnotherMessage should have been delivered to the handler outside the saga");
             Assert.False(context.SagaReceivedAnotherMessage, "AnotherMessage should not be delivered to the saga after completion");
-
-            Console.Out.WriteLine(context.Trace);
         }
 
         public class Context : ScenarioContext
