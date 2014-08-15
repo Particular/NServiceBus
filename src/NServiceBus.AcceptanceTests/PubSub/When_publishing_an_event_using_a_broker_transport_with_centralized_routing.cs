@@ -46,7 +46,7 @@
         {
             public CentralizedPublisher()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>();
             }
         }
 

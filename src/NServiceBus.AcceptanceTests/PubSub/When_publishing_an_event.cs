@@ -1,12 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.PubSub
 {
     using System;
-    using System.Collections.Generic;
     using EndpointTemplates;
     using AcceptanceTesting;
     using Features;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -104,7 +101,7 @@
                         Assert.True(c.Subscriber2GotTheEvent);
                     })
 
-                    .Run();
+                    .Run(TimeSpan.FromSeconds(10));
         }
 
         public class Context : ScenarioContext
@@ -121,34 +118,11 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultServer>(c => { }, b => b.Pipeline.Register<SubscriptionTracer.Registration>());
-            }
-
-            class SubscriptionTracer:IBehavior<OutgoingContext>
-            {
-                public Context Context { get; set; }
-                public void Invoke(OutgoingContext context, Action next)
-                {
-                    next();
-
-                    List<Address> subscribers;
-
-                    if (context.TryGet("SubscribersForEvent",out  subscribers))
-                    {
-                        Context.AddTrace(string.Format("Subscribers for {0} : {1}",context.OutgoingLogicalMessage.MessageType.Name,string.Join(";",subscribers)));
-                    }
-                }
-
-                public class Registration: RegisterStep
-                {
-                    public Registration()
-                        : base("SubscriptionTracer", typeof(SubscriptionTracer), "Traces the list of found subscribers")
-                    {
-                        InsertBefore(WellKnownStep.DispatchMessageToTransport);
-                    }
-                }
+                EndpointSetup<DefaultPublisher>();
             }
         }
+
+     
 
         public class Subscriber3 : EndpointConfigurationBuilder
         {
@@ -167,6 +141,7 @@
                     Context.Subscriber3GotTheEvent = true;
                 }
             }
+
         }
 
         public class Subscriber1 : EndpointConfigurationBuilder

@@ -46,7 +46,7 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>();
             }
         }
 

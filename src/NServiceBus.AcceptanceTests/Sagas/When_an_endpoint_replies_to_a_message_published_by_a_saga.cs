@@ -75,7 +75,7 @@
         {
             public EndpointThatHostsASaga()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>();
             }
 
             public class Saga2 : Saga<Saga2.MySaga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<DidSomethingResponse>

@@ -47,7 +47,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
         {
             public EndpointThatHandlesAMessageAndPublishesEvent()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>();
             }
 
             class OpenGroupCommandHandler : IHandleMessages<OpenGroupCommand>

@@ -102,6 +102,7 @@
     <Compile Include="Encryption\When_using_Rijndael_with_multikey.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_custom.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_config.cs" />
+    <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
     <Compile Include="HostInformation\When_a_message_is_received.cs" />
     <Compile Include="MessageMutators\Issue_1980.cs" />
     <Compile Include="MessageMutators\When_outgoing_mutator_replaces_message_instance.cs" />

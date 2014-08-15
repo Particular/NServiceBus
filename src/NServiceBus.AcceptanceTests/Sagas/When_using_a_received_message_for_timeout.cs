@@ -51,7 +51,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultPublisher>()
                     .AddMapping<SomeEvent>(typeof (SagaEndpoint));
             }
 

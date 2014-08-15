@@ -57,7 +57,7 @@
         {
             public V2Publisher()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>();
 
             }
         }
