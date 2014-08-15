@@ -36,22 +36,13 @@
     /// </summary>
     public class PersistenceExtentions : ExposeSettings
     {
-        readonly Type definitionType;
+        readonly EnabledPersistence enabledPersistence;
 
         /// <summary>
         /// Default constructor.
         /// </summary>
         public PersistenceExtentions(Type definitionType, SettingsHolder settings)
             : base(settings)
-        {
-            this.definitionType = definitionType;
-        }
-
-        /// <summary>
-        /// Defines the list of specific storage needs this persistence should provide
-        /// </summary>
-        /// <param name="specificStorages">The list of storage needs</param>
-        public PersistenceExtentions For(params Storage[] specificStorages)
         {
             List<EnabledPersistence> definitions;
             if (!Settings.TryGet("PersistenceDefinitions", out definitions))
@@ -60,11 +51,26 @@
                 Settings.Set("PersistenceDefinitions", definitions);
             }
 
-            definitions.Add(new EnabledPersistence
+            enabledPersistence = new EnabledPersistence
             {
                 DefinitionType = definitionType,
-                SelectedStorages = specificStorages
-            });
+                SelectedStorages = new List<Storage>(),
+            };
+            definitions.Add(enabledPersistence);
+        }
+
+        /// <summary>
+        /// Defines the list of specific storage needs this persistence should provide
+        /// </summary>
+        /// <param name="specificStorages">The list of storage needs</param>
+        public PersistenceExtentions For(params Storage[] specificStorages)
+        {
+            if (specificStorages == null || specificStorages.Length == 0)
+            {
+                throw new ArgumentException("Please make sure you specify at least one Storage.");
+            }
+
+            enabledPersistence.SelectedStorages.AddRange(specificStorages);
 
             return this;
         }

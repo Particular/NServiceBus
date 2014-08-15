@@ -36,14 +36,14 @@
             actionForStorage(settings);
         }
 
-        internal Storage[] GetSupportedStorages(Storage[] selectedStorages)
+        internal List<Storage> GetSupportedStorages(List<Storage> selectedStorages)
         {
-            if (selectedStorages.Length > 0)
+            if (selectedStorages.Count > 0)
             {
                 return selectedStorages;
             }
 
-            return StorageToActionMap.Keys.ToArray();
+            return StorageToActionMap.Keys.ToList();
         }
 
         Dictionary<Storage, Action<SettingsHolder>> StorageToActionMap = new Dictionary<Storage, Action<SettingsHolder>>();
