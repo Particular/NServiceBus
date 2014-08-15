@@ -18,7 +18,7 @@ namespace NServiceBus
         {
             if (username != null)
             {
-                config.settings.Set(InstallationSupport.UsernameKey, username);
+                config.Settings.Set(InstallationSupport.UsernameKey, username);
             }
 
             config.EnableFeature<InstallationSupport>();

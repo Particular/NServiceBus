@@ -57,21 +57,12 @@
                 o.EndpointName(endpointName);
                 o.EnableInstallers();
                 o.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
-                o.UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"));
+                o.UseTransport<Msmq>().ConnectionString("deadLetter=false;journal=false");
                 o.DisableFeature<Audit>();
 
                 if (volatileMode)
                 {
                     o.DisableDurableMessages();
-                    o.Transactions(t =>
-                    {
-                        t.Disable();
-                        t.Advanced(a =>
-                        {
-                            a.DoNotWrapHandlersExecutionInATransactionScope();
-                            a.DisableDistributedTransactions();
-                        });
-                    });
                     o.UsePersistence<InMemory>();
                 }
 
@@ -87,7 +78,7 @@
 
                 if (suppressDTC)
                 {
-                    o.Transactions(t => t.Advanced(settings => settings.DisableDistributedTransactions()));
+                    o.Transactions().DisableDistributedTransactions();
                 }
 
                 switch (args[2].ToLower())

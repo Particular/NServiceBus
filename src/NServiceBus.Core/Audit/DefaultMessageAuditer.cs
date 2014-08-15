@@ -42,7 +42,7 @@ namespace NServiceBus.Transports
             public void Customize(ConfigurationBuilder builder)
             {
                 builder.RegisterComponents(c => c.ConfigureComponent<DefaultMessageAuditer>(DependencyLifecycle.InstancePerCall)
-                    .ConfigureProperty(t => t.EndpointName, builder.settings.EndpointName()));
+                    .ConfigureProperty(t => t.EndpointName, builder.Settings.EndpointName()));
             }
         }
     }

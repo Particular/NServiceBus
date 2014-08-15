@@ -33,11 +33,7 @@
         {
             public NonTransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>(configure => { }, c => c.Transactions(t =>
-                {
-                    t.Disable();
-                    t.Advanced(a => a.WrapHandlersExecutionInATransactionScope());
-                }));
+                EndpointSetup<DefaultServer>(configure => { }, c => c.Transactions().Disable().WrapHandlersExecutionInATransactionScope());
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

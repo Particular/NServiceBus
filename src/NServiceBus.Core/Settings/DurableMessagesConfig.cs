@@ -13,7 +13,7 @@ namespace NServiceBus
         /// </summary>
         public static void EnableDurableMessages(this ConfigurationBuilder config)
         {
-            config.settings.Set("Endpoint.DurableMessages", true);
+            config.Settings.Set("Endpoint.DurableMessages", true);
         }
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace NServiceBus
         /// </summary>
         public static void DisableDurableMessages(this ConfigurationBuilder config)
         {
-            config.settings.Set("Endpoint.DurableMessages", false);
+            config.Settings.Set("Endpoint.DurableMessages", false);
         }
 
         internal static bool GetDurableMessagesEnabled(this ReadOnlySettings settings)

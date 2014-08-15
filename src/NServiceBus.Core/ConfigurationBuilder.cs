@@ -10,6 +10,7 @@ namespace NServiceBus
     using System.Web;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Config.Conventions;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Container;
     using NServiceBus.Hosting.Helpers;
     using NServiceBus.ObjectBuilder;
@@ -22,12 +23,12 @@ namespace NServiceBus
     /// <summary>
     ///     Builder that construct the endpoint configuration.
     /// </summary>
-    public class ConfigurationBuilder
+    public class ConfigurationBuilder : ExposeSettings
     {
-        internal ConfigurationBuilder()
+        internal ConfigurationBuilder() : base(new SettingsHolder())
         {
             configurationSourceToUse = new DefaultConfigurationSource();
-            settings.Set<PipelineModifications>(new PipelineModifications());
+            Settings.Set<PipelineModifications>(new PipelineModifications());
             Pipeline = new PipelineSettings(this);
         }
 
@@ -119,7 +120,7 @@ namespace NServiceBus
         {
             if (customizations != null)
             {
-                customizations(new ContainerCustomizations(settings));
+                customizations(new ContainerCustomizations(Settings));
             }
 
             UseContainer(typeof(T));
@@ -131,7 +132,7 @@ namespace NServiceBus
         /// <param name="definitionType">The type of the builder</param>
         public void UseContainer(Type definitionType)
         {
-            UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(settings));
+            UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(Settings));
         }
 
         /// <summary>
@@ -178,11 +179,11 @@ namespace NServiceBus
             var conventions = conventionsBuilder.BuildConventions();
             container.RegisterSingleton(typeof(Conventions), conventions);
 
-            settings.SetDefault<Conventions>(conventions);
+            Settings.SetDefault<Conventions>(conventions);
 
             Configure.ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 
-            return new Configure(settings, container, registrations, Pipeline);
+            return new Configure(Settings, container, registrations, Pipeline);
         }
 
         IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
@@ -212,16 +213,16 @@ namespace NServiceBus
                 endpointName = endpointHelper.GetDefaultEndpointName();
             }
 
-            settings.SetDefault("EndpointName", endpointName);
-            settings.SetDefault("TypesToScan", scannedTypes);
-            settings.SetDefault("EndpointVersion", endpointVersion);
-            settings.SetDefault("Endpoint.SendOnly", false);
-            settings.SetDefault("Transactions.Enabled", true);
-            settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
-            settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
-            settings.SetDefault("Transactions.SuppressDistributedTransactions", false);
-            settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
-            settings.SetDefault<IConfigurationSource>(configurationSourceToUse);
+            Settings.SetDefault("EndpointName", endpointName);
+            Settings.SetDefault("TypesToScan", scannedTypes);
+            Settings.SetDefault("EndpointVersion", endpointVersion);
+            Settings.SetDefault("Endpoint.SendOnly", false);
+            Settings.SetDefault("Transactions.Enabled", true);
+            Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
+            Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
+            Settings.SetDefault("Transactions.SuppressDistributedTransactions", false);
+            Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
+            Settings.SetDefault<IConfigurationSource>(configurationSourceToUse);
         }
 
         IConfigurationSource configurationSourceToUse;
@@ -232,6 +233,5 @@ namespace NServiceBus
         string endpointName;
         string endpointVersion;
         IList<Type> scannedTypes;
-        internal SettingsHolder settings = new SettingsHolder();
     }
 }

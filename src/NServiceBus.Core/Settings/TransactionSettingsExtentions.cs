@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using Settings;
 
     /// <summary>
@@ -12,10 +11,9 @@ namespace NServiceBus
         /// Entry point for transaction related configuration
         /// </summary>
         /// <param name="config"><see cref="Configure"/> instance.</param>
-        /// <param name="customizations">The user supplied config actions.</param>
-        public static void Transactions(this ConfigurationBuilder config, Action<TransactionSettings> customizations)
+        public static TransactionSettings Transactions(this ConfigurationBuilder config)
         {
-            customizations(new TransactionSettings(config));
+            return new TransactionSettings(config);
         }
     }
 }

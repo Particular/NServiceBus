@@ -1,10 +1,11 @@
 ﻿namespace NServiceBus.Persistence
 {
     using System;
+    using System.Collections.Generic;
 
     class EnabledPersistence
     {
         public Type DefinitionType;
-        public Action<PersistenceConfiguration> Customizations;
+        public List<Storage> SelectedStorages { get; set; }
     }
 }

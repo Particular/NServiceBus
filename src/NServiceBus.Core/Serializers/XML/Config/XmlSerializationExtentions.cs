@@ -1,20 +1,14 @@
-﻿namespace NServiceBus.Serializers.XML.Config
+﻿namespace NServiceBus
 {
     using System.Configuration;
-    using Settings;
+    using NServiceBus.Serialization;
+    using NServiceBus.Serializers.XML;
 
     /// <summary>
-    /// Settings for the xml message serializer
+    /// Custom extentions for the <see cref="Xml"/> serializer.
     /// </summary>
-    public class XmlSerializationSettings
+    public static class XmlSerializationExtentions
     {
-        readonly SettingsHolder settings;
-
-        internal XmlSerializationSettings(SettingsHolder settings)
-        {
-            this.settings = settings;
-        }
-
         /// <summary>
         /// Tells the serializer to not wrap properties which have either XDocument or XElement with a "PropertyName" element.
         /// By default the xml serializer serializes the following message
@@ -44,35 +38,36 @@
         ///       </Root>
         /// </MyMessage>
         /// </code>
-        public XmlSerializationSettings DontWrapRawXml()
+        public static SerializationExtentions<Xml> DontWrapRawXml(this SerializationExtentions<Xml> config)
         {
-            settings.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
+            config.Settings.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
 
-            return this;
+            return config;
         }
-
         /// <summary>
         /// Configures the serializer to use a custom namespace. (http://tempuri.net) is the default.
         /// <para>If the provided namespace ends with trailing forward slashes, those will be removed on the fly.</para>
         /// </summary>
-        public XmlSerializationSettings Namespace(string namespaceToUse)
+        public static SerializationExtentions<Xml> Namespace(this SerializationExtentions<Xml> config, string namespaceToUse)
         {
-            if(string.IsNullOrEmpty(namespaceToUse))
+            if (string.IsNullOrEmpty(namespaceToUse))
+            {
                 throw new ConfigurationErrorsException("Can't use a null or empty string as the xml namespace");
+            }
 
-            settings.SetProperty<XmlMessageSerializer>(s => s.Namespace, namespaceToUse);
+            config.Settings.SetProperty<XmlMessageSerializer>(s => s.Namespace, namespaceToUse);
 
-            return this;
+            return config;
         }
 
         /// <summary>
         /// Tells the serializer to sanitize the input data from illegal characters
         /// </summary>
-        public XmlSerializationSettings SanitizeInput()
+        public static SerializationExtentions<Xml> SanitizeInput(this SerializationExtentions<Xml> config)
         {
-            settings.SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);
+            config.Settings.SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);
 
-            return this;
+            return config;
         }
     }
 }

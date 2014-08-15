@@ -6,7 +6,7 @@ namespace NServiceBus.Config
     {
         public void Customize(ConfigurationBuilder builder)
         {
-            Configure.ForAllTypes<ISatellite>(builder.settings.GetAvailableTypes(), t => builder.RegisterComponents(c => c.ConfigureComponent(t, DependencyLifecycle.SingleInstance)));
+            Configure.ForAllTypes<ISatellite>(builder.Settings.GetAvailableTypes(), t => builder.RegisterComponents(c => c.ConfigureComponent(t, DependencyLifecycle.SingleInstance)));
         }
     }
 }

@@ -36,21 +36,16 @@
             actionForStorage(settings);
         }
 
-        internal List<Storage> GetSupportedStorages(SettingsHolder settings, Action<PersistenceConfiguration> customizations)
+        internal List<Storage> GetSupportedStorages(List<Storage> selectedStorages)
         {
-            if (customizations != null)
+            if (selectedStorages.Count > 0)
             {
-                var persistenceConfiguration = new PersistenceConfiguration(settings);
-                customizations(persistenceConfiguration);
-                if (persistenceConfiguration.SpecificStorages.Any())
-                {
-                    return persistenceConfiguration.SpecificStorages;
-                }
+                return selectedStorages;
             }
+
             return StorageToActionMap.Keys.ToList();
         }
 
         Dictionary<Storage, Action<SettingsHolder>> StorageToActionMap = new Dictionary<Storage, Action<SettingsHolder>>();
-
     }
 }
