@@ -11,7 +11,7 @@ namespace rootnamespace
     {
         public void Customize(ConfigurationBuilder builder)
         {
-
+            builder.UsePersistence<PLEASE_SELECT_ONE>();
         }
     }
 }

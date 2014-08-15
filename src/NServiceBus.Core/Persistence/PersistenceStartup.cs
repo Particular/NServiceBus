@@ -2,13 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Windows.Forms;
     using NServiceBus.Logging;
     using NServiceBus.Settings;
     using Utils.Reflection;
 
     class PersistenceStartup : IWantToRunBeforeConfigurationIsFinalized
     {
+        const string errorMessage = "No persistence has been selected, please add a call to builder.UsePersistence<T>() where T can be any of the supported persistence options. See http://docs.particular.net/nservicebus/persistence-in-nservicebus for more information about the supported storage capabilities of each persistence.";
+
         static ILog Logger = LogManager.GetLogger(typeof(PersistenceStartup));
 
         public void Run(Configure config)
@@ -18,8 +19,7 @@
             List<EnabledPersistence> definitions;
             if (!settings.TryGet("PersistenceDefinitions", out definitions))
             {
-                DefaultToInMemory(settings);
-                return;
+                throw new Exception(errorMessage);
             }
 
             definitions.Reverse();
@@ -47,38 +47,7 @@
                 }
             }
 
-            SetResultingSupportedStorages(settings, resultingSupportedStorages);
-        }
-
-        static void DefaultToInMemory(SettingsHolder settings)
-        {
-            ThrowOrLogForInMemory();
-            var inMemory = new InMemory();
-            var allStorages = Reflect<Storage>.GetEnumValues();
-            foreach (var storage in allStorages)
-            {
-                inMemory.ApplyActionForStorage(storage, settings);
-            }
-            SetResultingSupportedStorages(settings,allStorages);
-        }
-
-        static void ThrowOrLogForInMemory()
-        {
-            if (SystemInformation.UserInteractive)
-            {
-                const string warningMessage = "No persistence has been selected, NServiceBus will now use InMemory persistence. We recommend that you change the persistence before deploying to production. To do this, please add a call to builder.UsePersistence<T>() where T can be any of the supported persistence options. See http://docs.particular.net/nservicebus/persistence-in-nservicebus.";
-                Logger.Warn(warningMessage);
-            }
-            else
-            {
-                const string errorMessage = "No persistence has been selected, please add a call to builder.UsePersistence<T>() where T can be any of the supported persistence options. See http://docs.particular.net/nservicebus/persistence-in-nservicebus";
-                throw new Exception(errorMessage);
-            }
-        }
-
-        static void SetResultingSupportedStorages(SettingsHolder settings, List<Storage> supportedStorages)
-        {
-            settings.Set("ResultingSupportedStorages", supportedStorages);
+            settings.Set("ResultingSupportedStorages", resultingSupportedStorages);
         }
 
         internal static bool HasSupportFor(ReadOnlySettings settings, Storage storages)
