@@ -80,7 +80,7 @@
         {
             public Publisher1()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>();
             }
         }
 
@@ -88,7 +88,7 @@
         {
             public Publisher2()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>();
             }
         }
 

@@ -9,23 +9,38 @@
     using Hosting.Helpers;
     using Logging;
     using NServiceBus;
+    using NServiceBus.AcceptanceTesting;
     using PubSub;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
+        readonly List<Type> typesToInclude;
+
+        public DefaultServer()
+        {
+            typesToInclude = new List<Type>();
+        }
+
+        public DefaultServer(List<Type> typesToInclude)
+        {
+            this.typesToInclude = typesToInclude;
+        }
+
         public Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource, Action<ConfigurationBuilder> configurationBuilderCustomization)
         {
             var settings = runDescriptor.Settings;
 
             LogManager.LoggerFactory = new ContextAppender(runDescriptor.ScenarioContext);
 
-            var types = GetTypesToUse(endpointConfiguration);
+            var types = GetTypesScopedByTestClass(endpointConfiguration);
+
+            typesToInclude.AddRange(types);
 
             var config = Configure.With(o =>
             {
                 configurationBuilderCustomization(o);
                 o.EndpointName(endpointConfiguration.EndpointName);
-                o.TypesToScan(types);
+                o.TypesToScan(typesToInclude);
                 o.CustomConfigurationSource(configSource);
                 o.EnableInstallers();
                 o.DefineTransport(settings);
@@ -34,6 +49,7 @@
                 {
                     r.ConfigureComponent<SubscriptionBehavior>(DependencyLifecycle.InstancePerCall);
                     r.RegisterSingleton(runDescriptor.ScenarioContext.GetType(), runDescriptor.ScenarioContext);
+                    r.RegisterSingleton(typeof(ScenarioContext), runDescriptor.ScenarioContext);
                 });
 
                 string selectedBuilder;
@@ -55,7 +71,7 @@
             return config;
         }
 
-        static IEnumerable<Type> GetTypesToUse(EndpointConfiguration endpointConfiguration)
+        static IEnumerable<Type> GetTypesScopedByTestClass(EndpointConfiguration endpointConfiguration)
         {
             var assemblies = new AssemblyScanner().GetScannableAssemblies();
 

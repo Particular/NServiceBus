@@ -50,7 +50,7 @@
         {
             public MessageDrivenPublisher()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultPublisher>()
                     .AddMapping<EventHandledByLocalEndpoint>(typeof(MessageDrivenPublisher)); //an explicit mapping is needed
             }
 

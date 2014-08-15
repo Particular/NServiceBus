@@ -63,7 +63,7 @@
                 })
                 .Done(c => c.AnotherMessageReceived)
                 .Repeat(r => r.For(Transports.Default))
-                .Run(TimeSpan.FromSeconds(20));
+                .Run();
 
             Assert.True(context.AnotherMessageReceived, "AnotherMessage should have been delivered to the handler outside the saga");
             Assert.False(context.SagaReceivedAnotherMessage, "AnotherMessage should not be delivered to the saga after completion");
