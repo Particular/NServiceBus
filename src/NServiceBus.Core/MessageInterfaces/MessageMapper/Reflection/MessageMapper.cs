@@ -17,14 +17,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
     public class MessageMapper : IMessageMapper
     {
         /// <summary>
-        /// df
-        /// </summary>
-        public MessageMapper()
-        {
-            Console.Out.WriteLine("Called");    
-        }
-
-        /// <summary>
         /// Scans the given types generating concrete classes for interfaces.
         /// </summary>
         public void Initialize(IEnumerable<Type> types)
