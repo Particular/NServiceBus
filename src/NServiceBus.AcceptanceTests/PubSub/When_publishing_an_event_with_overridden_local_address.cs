@@ -54,7 +54,11 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => Address.InitializeLocalAddress("myinputqueue"),builder => builder.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => { }, builder =>
+                {
+                    builder.DisableFeature<AutoSubscribe>();
+                    builder.OverrideLocalAddress("myinputqueue");
+                })
                     .AddMapping<MyEvent>(typeof(Publisher));
             }
 

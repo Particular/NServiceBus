@@ -14,6 +14,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
+    using NServiceBus.ObjectBuilder;
     using NUnit.Framework;
     using Pipeline;
     using Publishing;
@@ -97,7 +98,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 {
                     MessageSender = messageSender,
                     SubscriptionStorage = subscriptionStorage,
-                    Configure = new Configure(settings, FuncBuilder)
+                    Configure = new Configure(settings, FuncBuilder, new List<Action<IConfigureComponents>>(), new PipelineSettings(null))
                 };
 
             pipelineFactory = new PipelineExecutor(settings, FuncBuilder);

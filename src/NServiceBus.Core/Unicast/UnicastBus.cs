@@ -79,6 +79,11 @@ namespace NServiceBus.Unicast
         public ISendMessages MessageSender { get; set; }
 
         /// <summary>
+        /// Configuration.
+        /// </summary>
+        public Configure Configure { get; set; }
+
+        /// <summary>
         /// Sets <see cref="IBuilder"/> implementation that will be used to 
         /// dynamically instantiate and execute message handlers.
         /// </summary>
@@ -516,7 +521,7 @@ namespace NServiceBus.Unicast
         {
             if (sendOptions.ReplyToAddress == null && !SendOnlyMode)
             {
-                sendOptions.ReplyToAddress = Address.PublicReturnAddress;
+                sendOptions.ReplyToAddress = Configure.PublicReturnAddress;
             }
 
             if (PropagateReturnAddressOnSend && CurrentMessageContext != null)

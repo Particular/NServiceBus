@@ -15,6 +15,13 @@ namespace NServiceBus.Transports
         protected ConfigureTransport()
         {
             Defaults(s => s.SetDefault<TransportConnectionString>(TransportConnectionString.Default));
+            Defaults(s =>
+            {
+                if (!String.IsNullOrEmpty(localAddress) && !s.HasSetting("NServiceBus.LocalAddress"))
+                {
+                    s.Set("NServiceBus.LocalAddress", localAddress);
+                }
+            });
         }
 
         /// <summary>
@@ -36,6 +43,15 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
+        ///     Sets the address of this endpoint.
+        /// </summary>
+        /// <param name="address">The queue name.</param>
+        protected void LocalAddress(string address)
+        {
+            localAddress = address;
+        }
+
+        /// <summary>
         /// Initializes a new instance of <see cref="ConfigureTransport"/>.
         /// </summary>
         protected abstract void Configure(FeatureConfigurationContext context, string connectionString);
@@ -54,11 +70,12 @@ namespace NServiceBus.Transports
             get { return true; }
         }
 
-
         static string GetConfigFileIfExists()
         {
             return AppDomain.CurrentDomain.SetupInformation.ConfigurationFile ?? "App.config";
         }
+
+        string localAddress;
 
         const string Message =
             @"No default connection string found in your config file ({0}) for the {1} Transport.

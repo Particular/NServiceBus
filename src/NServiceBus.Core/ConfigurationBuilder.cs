@@ -156,6 +156,15 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Sets the address of this endpoint.
+        /// </summary>
+        /// <param name="queue">The queue name.</param>
+        public void OverrideLocalAddress(string queue)
+        {
+            Settings.Set("NServiceBus.LocalAddress", queue);
+        }
+
+        /// <summary>
         ///     Creates the configuration object
         /// </summary>
         internal Configure BuildConfiguration()
@@ -189,7 +198,7 @@ namespace NServiceBus
 
             if (publicReturnAddress != null)
             {
-                settings.SetDefault("PublicReturnAddress", publicReturnAddress);
+                Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
             }
 
             var conventions = conventionsBuilder.BuildConventions();

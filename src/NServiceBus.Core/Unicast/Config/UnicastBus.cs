@@ -23,6 +23,8 @@ namespace NServiceBus.Features
         internal UnicastBus()
         {
             EnableByDefault();
+
+            Defaults(s => s.SetDefault("NServiceBus.LocalAddress", s.EndpointName()));
         }
 
         /// <summary>
@@ -30,12 +32,7 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var defaultAddress = Address.Parse(context.Settings.EndpointName());
-            
-            if (context.Settings.HasSetting("NServiceBus.LocalAddress"))
-            {
-                defaultAddress = Address.Parse(context.Settings.Get<string>("NServiceBus.LocalAddress"));
-            }
+            var defaultAddress = Address.Parse(context.Settings.Get<string>("NServiceBus.LocalAddress"));
 
             context.Container.ConfigureComponent<Unicast.UnicastBus>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(u => u.InputAddress, defaultAddress);
