@@ -34,11 +34,7 @@
                 .WithEndpoint<Publisher2>(b => b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(args =>
                 {
                     context.AddTrace("Publisher2 OnEndpointSubscribed " + args.MessageType);
-                    if (args.MessageType.Contains(typeof(IMyEvent).Name))
-                    {
-                        context.SubscribedToIMyEvent = true;
-                    }
-
+                    
                     if (args.MessageType.Contains(typeof(MyEvent2).Name))
                     {
                         context.SubscribedToMyEvent2 = true;
