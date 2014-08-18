@@ -36,45 +36,43 @@ namespace NServiceBus.Encryption.Rijndael
             {
                 decryptionKeys.AddRange(ExpiredKeys);
             }
-            var encrypted = Convert.FromBase64String(encryptedValue.EncryptedBase64Value);
             var cryptographicExceptions = new List<CryptographicException>();
-            using (var rijndael = new RijndaelManaged())
-            {
-                rijndael.IV = Convert.FromBase64String(encryptedValue.Base64Iv);
-                rijndael.Mode = CipherMode.CBC;
 
-                foreach (var key in decryptionKeys)
+            foreach (var key in decryptionKeys)
+            {
+                try
                 {
-                    rijndael.Key = key;
-                    try
-                    {
-                        return Decrypt(rijndael, encrypted);
-                    }
-                    catch (CryptographicException exception)
-                    {
-                        cryptographicExceptions.Add(exception);
-                    }
+                    return Decrypt(encryptedValue, key);
+                }
+                catch (CryptographicException exception)
+                {
+                    cryptographicExceptions.Add(exception);
                 }
             }
             var message = string.Format("Could not decrypt message. Tried {0} keys.", decryptionKeys.Count);
             throw new AggregateException(message, cryptographicExceptions);
         }
-        static string Decrypt(RijndaelManaged rijndael, byte[] encrypted)
+
+        static string Decrypt(EncryptedValue encryptedValue, byte[] key)
         {
-            using (var decryptor = rijndael.CreateDecryptor())
-            using (var memoryStream = new MemoryStream(encrypted))
-            using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
-            using (var reader = new StreamReader(cryptoStream))
+            using (var rijndael = new RijndaelManaged())
             {
-                return reader.ReadToEnd();
+                var encrypted = Convert.FromBase64String(encryptedValue.EncryptedBase64Value);
+                rijndael.IV = Convert.FromBase64String(encryptedValue.Base64Iv);
+                rijndael.Mode = CipherMode.CBC;
+                rijndael.Key = key;
+                using (var decryptor = rijndael.CreateDecryptor())
+                using (var memoryStream = new MemoryStream(encrypted))
+                using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
+                using (var reader = new StreamReader(cryptoStream))
+                {
+                    return reader.ReadToEnd();
+                }
             }
         }
 
         EncryptedValue IEncryptionService.Encrypt(string value)
         {
-            if (Key == null)
-                throw new InvalidOperationException("Cannot encrypt because a Key was not configured. Please specify 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
-
             using (var rijndael = new RijndaelManaged())
             {
                 rijndael.Key = Key;
@@ -103,22 +101,12 @@ namespace NServiceBus.Encryption.Rijndael
         {
             for (var index = 0; index < ExpiredKeys.Count; index++)
             {
-                var key = ExpiredKeys[index];
+                var decryption = ExpiredKeys[index];
                 CryptographicException exception = null;
-                var encryptedValue = ((IEncryptionService)this).Encrypt("a");
-
-                var encrypted = Convert.FromBase64String(encryptedValue.EncryptedBase64Value);
+                var encryptedValue = ((IEncryptionService) this).Encrypt("a");
                 try
                 {
-                    using (var rijndael = new RijndaelManaged())
-                    {
-                        rijndael.Key = Key;
-                        rijndael.Mode = CipherMode.CBC;
-                        rijndael.GenerateIV();
-
-
-                        Decrypt(rijndael, encrypted);
-                    }
+                    Decrypt(encryptedValue, decryption);
                 }
                 catch (CryptographicException cryptographicException)
                 {

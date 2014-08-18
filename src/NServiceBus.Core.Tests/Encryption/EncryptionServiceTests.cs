@@ -80,10 +80,11 @@ namespace NServiceBus.Core.Tests.Encryption
         [Test]
         public void Should_throw_when_encrypt_and_decrypt_keys_are_too_similar()
         {
+            var key = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
             var service = new EncryptionService
             {
-                Key = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"),
-                ExpiredKeys = new List<string> {"gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"}.Select(s => Encoding.ASCII.GetBytes(s)).ToList() //note that we use the same key to get the code to throw
+                Key = key,
+                ExpiredKeys = new List<byte[]>{ key } //note that we use the same key to get the code to throw
             };
             var exception = Assert.Throws<Exception>(service.VerifyKeysAreNotTooSimilar);
 
