@@ -21,7 +21,7 @@
                     .Done(c => c.DidSagaReplyMessageGetCorrelated)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.DidSagaReplyMessageGetCorrelated))
-                    .Run(new RunSettings { UseSeparateAppdomains = true });
+                    .Run(new RunSettings { UseSeparateAppDomains = true });
         }
 
         public class Context : ScenarioContext

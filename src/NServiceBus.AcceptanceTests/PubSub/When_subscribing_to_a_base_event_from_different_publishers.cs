@@ -41,7 +41,7 @@
                }))
                .AllowExceptions(e => e.Message.Contains("Oracle.DataAccess.Client.OracleException: ORA-00001") || e.Message.Contains("System.Data.SqlClient.SqlException: Violation of PRIMARY KEY constraint"))
                .Done(c => c.GotTheEventFromPublisher1 && c.GotTheEventFromPublisher2)
-               .Run(new RunSettings{UseSeparateAppdomains = true});
+               .Run(new RunSettings{UseSeparateAppDomains = true});
 
             Assert.True(cc.GotTheEventFromPublisher1);
             Assert.True(cc.GotTheEventFromPublisher2);

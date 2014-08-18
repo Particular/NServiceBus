@@ -5,6 +5,6 @@ namespace NServiceBus.AcceptanceTesting.Support
     public class RunSettings
     {
         public TimeSpan? TestExecutionTimeout;
-        public bool UseSeparateAppdomains;
+        public bool UseSeparateAppDomains;
     }
 }

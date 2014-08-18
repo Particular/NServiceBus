@@ -33,7 +33,7 @@
                             Assert.AreEqual("StaticHeaderValue",c.ReceivedHeaders["MyStaticHeader"], "Static headers should be attached to outgoing messages");
                             Assert.AreEqual("MyHeaderValue", c.MyHeader, "Static headers should be attached to outgoing messages");
                         })
-                    .Run(new RunSettings{UseSeparateAppdomains = true});
+                    .Run(new RunSettings{UseSeparateAppDomains = true});
         }
 
         public class Context : ScenarioContext
