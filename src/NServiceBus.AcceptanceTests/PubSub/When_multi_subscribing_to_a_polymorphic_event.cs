@@ -19,14 +19,10 @@
                     context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
                     if (args.MessageType.Contains(typeof(IMyEvent).Name))
                     {
-                        context.SubscribedToIMyEvent = true;
+                        context.Publisher1HasASubscriberForIMyEvent = true;
                     }
 
-                    if (args.MessageType.Contains(typeof(MyEvent2).Name))
-                    {
-                        context.SubscribedToMyEvent2 = true;
-                    }
-                })).When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, (bus, c) =>
+                })).When(c => c.Publisher1HasASubscriberForIMyEvent, (bus, c) =>
                 {
                     c.AddTrace("Publishing MyEvent1");
                     bus.Publish(new MyEvent1());
@@ -37,9 +33,9 @@
                     
                     if (args.MessageType.Contains(typeof(MyEvent2).Name))
                     {
-                        context.SubscribedToMyEvent2 = true;
+                        context.Publisher2HasDetectedASubscriberForEvent2 = true;
                     }
-                })).When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, (bus, c) =>
+                })).When(c =>c.Publisher2HasDetectedASubscriberForEvent2, (bus, c) =>
                 {
                     c.AddTrace("Publishing MyEvent2");
                     bus.Publish(new MyEvent2());
@@ -52,8 +48,8 @@
 
                     if (context.HasNativePubSubSupport)
                     {
-                        context.SubscribedToIMyEvent = true;
-                        context.SubscribedToMyEvent2 = true;
+                        context.Publisher1HasASubscriberForIMyEvent = true;
+                        context.Publisher2HasDetectedASubscriberForEvent2 = true;
                     }
                 }))
                 .AllowExceptions(e => e.Message.Contains("Oracle.DataAccess.Client.OracleException: ORA-00001") || e.Message.Contains("System.Data.SqlClient.SqlException: Violation of PRIMARY KEY constraint"))
@@ -68,8 +64,10 @@
         {
             public bool SubscriberGotIMyEvent { get; set; }
             public bool SubscriberGotMyEvent2 { get; set; }
-            public bool SubscribedToIMyEvent { get; set; }
-            public bool SubscribedToMyEvent2 { get; set; }
+            public bool Publisher1HasASubscriberForIMyEvent { get; set; }
+            public bool Publisher2HasDetectedASubscriberForEvent2 { get; set; }
+
+            
         }
 
         public class Publisher1 : EndpointConfigurationBuilder
