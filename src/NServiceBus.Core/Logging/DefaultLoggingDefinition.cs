@@ -3,6 +3,7 @@ namespace NServiceBus.Logging
     using System;
     using System.IO;
     using System.Web;
+    using IODirectory=System.IO.Directory;
 
     /// <summary>
     /// The default <see cref="LoggingFactoryDefinition"/>.
@@ -22,7 +23,7 @@ namespace NServiceBus.Logging
         /// <summary>
         /// <see cref="LoggingFactoryDefinition.GetLoggingFactory"/>.
         /// </summary>
-        public override ILoggerFactory GetLoggingFactory()
+        protected internal override ILoggerFactory GetLoggingFactory()
         {
             var loggerFactory = new DefaultLoggerFactory(level, directory);
             var message = string.Format("Logging to '{0}' with level {1}", directory, level);
@@ -35,10 +36,9 @@ namespace NServiceBus.Logging
         /// <summary>
         /// Controls the <see cref="LogLevel"/>.
         /// </summary>
-        public DefaultFactory Level(LogLevel level)
+        public void Level(LogLevel level)
         {
             this.level = level;
-            return this;
         }
 
         string directory;
@@ -46,15 +46,14 @@ namespace NServiceBus.Logging
         /// <summary>
         /// The directory to log files to.
         /// </summary>
-        public DefaultFactory Directory(string directory)
+        public void Directory(string directory)
         {
-            if (!System.IO.Directory.Exists(directory))
+            if (!IODirectory.Exists(directory))
             {
                 var message = string.Format("Could not find logging directory: '{0}'", directory);
                 throw new DirectoryNotFoundException(message);
             }
             this.directory = directory;
-            return this;
         }
 
         static string FindDefaultLoggingDirectory()
@@ -63,7 +62,7 @@ namespace NServiceBus.Logging
             if (HttpContext.Current != null)
             {
                 var appDataPath = HttpContext.Current.Server.MapPath("~/App_Data/");
-                if (System.IO.Directory.Exists(appDataPath))
+                if (IODirectory.Exists(appDataPath))
                 {
                     return appDataPath;
                 }

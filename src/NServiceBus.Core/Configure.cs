@@ -27,9 +27,7 @@ namespace NServiceBus
         {
             Settings = settings;
             this.pipeline = pipeline;
-
-            LogManager.HasConfigBeenInitialised = true;
-
+            
             RegisterContainerAdapter(container);
             RunUserRegistrations(registrations);
 

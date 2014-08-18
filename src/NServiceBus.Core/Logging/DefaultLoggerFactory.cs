@@ -25,8 +25,6 @@ namespace NServiceBus.Logging
             isFatalEnabled = LogLevel.Fatal >= filterLevel;
         }
 
-
-
         public ILog GetLogger(Type type)
         {
             return GetLogger(type.FullName);

@@ -15,20 +15,26 @@ namespace NServiceBus.Logging
             Use<DefaultFactory>();
         }
 
-        static ILoggerFactory loggerFactory; 
+        static Lazy<ILoggerFactory> loggerFactory; 
         internal static bool HasConfigBeenInitialised;
 
         /// <summary>
         /// Used to inject an instance of <see cref="ILoggerFactory"/> into <see cref="LogManager"/>.
         /// </summary>
-        public static void Use<T>(Action<T> customizations = null) where T : LoggingFactoryDefinition, new()
+        public static T Use<T>() where T : LoggingFactoryDefinition, new()
         {
             var loggingDefinition = new T();
-            if (customizations != null)
+            var hasConfigBeenInitialised = HasConfigBeenInitialised;
+            loggerFactory = new Lazy<ILoggerFactory>(() =>
             {
-                customizations(loggingDefinition);
-            }
-            LoggerFactory = loggingDefinition.GetLoggingFactory();
+                var loggingFactory = loggingDefinition.GetLoggingFactory();
+                if (hasConfigBeenInitialised)
+                {
+                    LogWarning(loggingFactory);
+                }
+                return loggingFactory;
+            }); 
+            return loggingDefinition;
         }
 
         /// <summary>
@@ -37,22 +43,25 @@ namespace NServiceBus.Logging
         /// <remarks>
         /// Replace this instance at application statup to redirect log event to your custom logging library.
         /// </remarks>
-        public static ILoggerFactory LoggerFactory
+        public static void UseFactory(ILoggerFactory loggerFactory)
         {
-            get { return loggerFactory; }
-            set
+            if (loggerFactory == null)
             {
-                if (value == null)
-                    throw new ArgumentNullException("value");
-
-                loggerFactory = value;
-                if (!HasConfigBeenInitialised)
-                {
-                    return;
-                }
-                var log = loggerFactory.GetLogger(typeof(LogManager));
-                log.Warn("Logging has been configured after NServiceBus.Configure.With() has been called. To capture messages and errors that occur during configuration logging should be configured before before NServiceBus.Configure.With().");
+                throw new ArgumentNullException("loggerFactory");
             }
+
+            if (HasConfigBeenInitialised)
+            {
+                LogWarning(loggerFactory);
+            }
+
+            LogManager.loggerFactory = new Lazy<ILoggerFactory>(() => loggerFactory);
+        }
+
+        static void LogWarning(ILoggerFactory loggerFactory)
+        {
+            var logger = loggerFactory.GetLogger(typeof(LogManager));
+            logger.Warn("Logging has been configured after NServiceBus.Configure.With() has been called. To capture messages and errors that occur during configuration logging should be configured before before NServiceBus.Configure.With().");
         }
 
         /// <summary>
@@ -68,7 +77,7 @@ namespace NServiceBus.Logging
         /// </summary>
         public static ILog GetLogger(Type type)
         {
-            return loggerFactory.GetLogger(type);
+            return loggerFactory.Value.GetLogger(type);
         }
 
         /// <summary>
@@ -76,7 +85,7 @@ namespace NServiceBus.Logging
         /// </summary>
         public static ILog GetLogger(string name)
         {
-            return loggerFactory.GetLogger(name);
+            return loggerFactory.Value.GetLogger(name);
         }
     }
 }

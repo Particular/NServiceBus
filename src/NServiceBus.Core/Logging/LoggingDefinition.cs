@@ -5,10 +5,10 @@ namespace NServiceBus.Logging
     /// </summary>
     public abstract class LoggingFactoryDefinition
     {
-        
         /// <summary>
         /// Constructs an instance of <see cref="ILoggerFactory"/> for use by <see cref="LogManager.Use{T}"/>
         /// </summary>
-        public abstract ILoggerFactory GetLoggingFactory();
+        protected internal abstract ILoggerFactory GetLoggingFactory();
+
     }
 }
