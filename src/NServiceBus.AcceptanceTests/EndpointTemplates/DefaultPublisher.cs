@@ -33,6 +33,15 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
                 {
                     Context.AddTrace(string.Format("Subscribers for {0} : {1}", context.OutgoingLogicalMessage.MessageType.Name, string.Join(";", subscribers)));
                 }
+
+                bool nosubscribers;
+
+                if (context.TryGet("NoSubscribersFoundForMessage", out nosubscribers) && nosubscribers)
+                {
+                    Context.AddTrace(string.Format("No Subscribers found for message {0}", context.OutgoingLogicalMessage.MessageType.Name));
+                }
+
+
             }
 
             public class Registration : RegisterStep
