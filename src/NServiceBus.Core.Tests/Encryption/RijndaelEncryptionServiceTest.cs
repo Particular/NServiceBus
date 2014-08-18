@@ -54,6 +54,12 @@
                 Assert.IsInstanceOf<CryptographicException>(inner);
             }
         }
+        [Test]
+        public void Should_throw_when_encrypt_and_decrypt_keys_are_too_similar()
+        {
+            var exception = Assert.Throws<Exception>(() => new RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6", new List<string> { "gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6" }));
+            Assert.AreEqual("The new Encryption Key is too similar to the Expired Key at index 0. This can cause issues when decrypting data. To fix this issue please ensure the new encryption key is not too similar to the existing Expired Keys.", exception.Message);
+        }
 
         [Test]
         public void Should_throw_for_invalid_key()

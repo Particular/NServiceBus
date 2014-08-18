@@ -45,45 +45,71 @@ namespace NServiceBus.Encryption.Rijndael
             VerifyEncryptionKey(this.encryptionKey);
             var expiredKeyBytes = expiredKeys.Select(key => Encoding.ASCII.GetBytes(key)).ToList();
             VerifyExpiredKeys(expiredKeyBytes);
+            VerifyKeysAreNotTooSimilar(expiredKeyBytes);
+
             decryptionKeys = new List<byte[]>{this.encryptionKey};
             decryptionKeys.AddRange(expiredKeyBytes);
+
+        }
+
+        void VerifyKeysAreNotTooSimilar(List<byte[]> expiredKeyBytes)
+        {
+            for (var index = 0; index < expiredKeyBytes.Count; index++)
+            {
+                var decryption = expiredKeyBytes[index];
+                CryptographicException exception = null;
+                var encryptedValue = Encrypt("a");
+                try
+                {
+                    Decrypt(encryptedValue, decryption);
+                }
+                catch (CryptographicException cryptographicException)
+                {
+                    exception = cryptographicException;
+                }
+                if (exception == null)
+                {
+                    var message = string.Format("The new Encryption Key is too similar to the Expired Key at index {0}. This can cause issues when decrypting data. To fix this issue please ensure the new encryption key is not too similar to the existing Expired Keys.", index);
+                    throw new Exception(message);
+                }
+            }
         }
 
 
         public string Decrypt(EncryptedValue encryptedValue)
         {
-            var encrypted = Convert.FromBase64String(encryptedValue.EncryptedBase64Value);
             var cryptographicExceptions = new List<CryptographicException>();
-            using (var rijndael = new RijndaelManaged())
-            {
-                rijndael.IV = Convert.FromBase64String(encryptedValue.Base64Iv);
-                rijndael.Mode = CipherMode.CBC;
 
-                foreach (var key in decryptionKeys)
+            foreach (var key in decryptionKeys)
+            {
+                try
                 {
-                    rijndael.Key = key;
-                    try
-                    {
-                        return Decrypt(rijndael, encrypted);
-                    }
-                    catch (CryptographicException exception)
-                    {
-                        cryptographicExceptions.Add(exception);
-                    }
+                    return Decrypt(encryptedValue, key);
+                }
+                catch (CryptographicException exception)
+                {
+                    cryptographicExceptions.Add(exception);
                 }
             }
             var message = string.Format("Could not decrypt message. Tried {0} keys.", decryptionKeys.Count);
             throw new AggregateException(message, cryptographicExceptions);
         }
 
-        static string Decrypt(RijndaelManaged rijndael, byte[] encrypted)
+        static string Decrypt(EncryptedValue encryptedValue, byte[] key)
         {
-            using (var decryptor = rijndael.CreateDecryptor())
-            using (var memoryStream = new MemoryStream(encrypted))
-            using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
-            using (var reader = new StreamReader(cryptoStream))
+            using (var rijndael = new RijndaelManaged())
             {
-                return reader.ReadToEnd();
+                var encrypted = Convert.FromBase64String(encryptedValue.EncryptedBase64Value);
+                rijndael.IV = Convert.FromBase64String(encryptedValue.Base64Iv);
+                rijndael.Mode = CipherMode.CBC;
+                rijndael.Key = key;
+                using (var decryptor = rijndael.CreateDecryptor())
+                using (var memoryStream = new MemoryStream(encrypted))
+                using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
+                using (var reader = new StreamReader(cryptoStream))
+                {
+                    return reader.ReadToEnd();
+                }
             }
         }
 
