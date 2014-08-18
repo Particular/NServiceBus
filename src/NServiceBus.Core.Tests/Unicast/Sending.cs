@@ -93,7 +93,7 @@
             RegisterMessageType<TestMessage>();
             bus.Send(new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<SendOptions>.Matches(o=>o.ReplyToAddress == Address.Local)));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<SendOptions>.Matches(o => o.ReplyToAddress == configure.LocalAddress)));
         }
 
         [Test]
@@ -138,8 +138,8 @@
         [Test]
         public void Should_be_persistent_if_any_of_the_messages_is_persistent()
         {
-            RegisterMessageType<NonPersistentMessage>(Address.Local);
-            RegisterMessageType<PersistentMessage>(Address.Local);
+            RegisterMessageType<NonPersistentMessage>(configure.LocalAddress);
+            RegisterMessageType<PersistentMessage>(configure.LocalAddress);
             bus.Send(new NonPersistentMessage());
             bus.Send(new PersistentMessage());
 
@@ -150,8 +150,8 @@
         [Test]
         public void Should_use_the_lowest_time_to_be_received()
         {
-            RegisterMessageType<NonPersistentMessage>(Address.Local);
-            RegisterMessageType<PersistentMessage>(Address.Local);
+            RegisterMessageType<NonPersistentMessage>(configure.LocalAddress);
+            RegisterMessageType<PersistentMessage>(configure.LocalAddress);
             bus.Send(new NonPersistentMessage());
             bus.Send(new PersistentMessage());
 

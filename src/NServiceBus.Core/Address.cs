@@ -25,7 +25,11 @@
         /// <summary>
         /// Get the address of this endpoint.
         /// </summary>
-        public static Address Local { get; private set; }
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "config.LocalAddress")]
+        public static Address Local
+        {
+            get { throw new InvalidOperationException(); }
+        }
 
         /// <summary>
         /// Sets the address of this endpoint.
@@ -250,7 +254,6 @@
                 return false;
 
             return other.queueLowerCased.Equals(queueLowerCased);
-
         }
 
         static string defaultMachine = RuntimeEnvironment.MachineName;

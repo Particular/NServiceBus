@@ -25,9 +25,11 @@ namespace NServiceBus.Unicast.Transport
         /// <param name="receiver">The <see cref="IDequeueMessages"/> instance to use.</param>
         /// <param name="manageMessageFailures">The <see cref="IManageMessageFailures"/> instance to use.</param>
         /// <param name="settings">The current settings</param>
-        public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures, ReadOnlySettings settings)
+        /// <param name="config">Configure instance</param>
+        public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures, ReadOnlySettings settings, Configure config)
         {
             this.settings = settings;
+            this.config = config;
             TransactionSettings = transactionSettings;
             MaximumConcurrencyLevel = maximumConcurrencyLevel;
             MaximumMessageThroughputPerSecond = maximumThroughput;
@@ -156,7 +158,7 @@ namespace NServiceBus.Unicast.Transport
             var workerRunsOnThisEndpoint = settings.GetOrDefault<bool>("Worker.Enabled");
 
             if (workerRunsOnThisEndpoint
-                && (returnAddressForFailures.Queue.ToLower().EndsWith(".worker") || address == Address.Local))
+                && (returnAddressForFailures.Queue.ToLower().EndsWith(".worker") || address == config.LocalAddress))
                 //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
             {
                 returnAddressForFailures = settings.Get<Address>("MasterNode.Address");
@@ -465,6 +467,7 @@ namespace NServiceBus.Unicast.Transport
         Address receiveAddress;
         ThroughputLimiter throughputLimiter;
         readonly ReadOnlySettings settings;
+        readonly Configure config;
 
 
         /// <summary>

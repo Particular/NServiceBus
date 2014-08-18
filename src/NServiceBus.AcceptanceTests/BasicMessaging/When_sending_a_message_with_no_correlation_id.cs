@@ -14,7 +14,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<CorrelationEndpoint>(b => b.Given(bus => bus.Send(Address.Local, new MyRequest())))
+                    .WithEndpoint<CorrelationEndpoint>(b => b.Given(bus => bus.SendLocal(new MyRequest())))
                     .Done(c => c.GotRequest)
                     .Run();
 

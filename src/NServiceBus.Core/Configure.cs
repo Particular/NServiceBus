@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using NServiceBus.Config;
@@ -118,6 +119,18 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Returns the queue name of this endpoint.
+        /// </summary>
+        public Address LocalAddress
+        {
+            get
+            {
+                Debug.Assert(localAddress != null);
+                return localAddress;                
+            }
+        }
+
+        /// <summary>
         ///     Finalizes the configuration by invoking all initialisers.
         /// </summary>
         void Initialize()
@@ -126,7 +139,6 @@ namespace NServiceBus
             {
                 return;
             }
-
 
             WireUpConfigSectionOverrides();
 
@@ -144,6 +156,8 @@ namespace NServiceBus
 
             featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
             featureActivator.RegisterStartupTasks(configurer);
+
+            localAddress = Address.Parse(Settings.Get<string>("NServiceBus.LocalAddress"));
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
@@ -169,7 +183,7 @@ namespace NServiceBus
             {
                 if (!Settings.HasSetting("PublicReturnAddress"))
                 {
-                    return Address.Local;
+                    return LocalAddress;
                 }
 
                 return Settings.Get<Address>("PublicReturnAddress");
@@ -227,7 +241,9 @@ namespace NServiceBus
 
         FeatureActivator featureActivator;
         bool initialized;
-        ILog logger = LogManager.GetLogger<Configure>();
         internal PipelineSettings pipeline;
+
+        //HACK: Set by the tests
+        internal Address localAddress;
     }
 }

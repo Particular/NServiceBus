@@ -15,10 +15,12 @@ namespace NServiceBus.Faults.Forwarder
     class FaultManager : IManageMessageFailures
     {
         readonly IBuilder builder;
+        readonly Configure config;
 
-        public FaultManager(IBuilder builder)
+        public FaultManager(IBuilder builder, Configure config)
         {
             this.builder = builder;
+            this.config = config;
         }
 
         void IManageMessageFailures.SerializationFailedForMessage(TransportMessage message, Exception e)
@@ -112,8 +114,8 @@ namespace NServiceBus.Faults.Forwarder
             message.Headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage();
             message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
             message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.ToString();
-       
-            var failedQ = localAddress ?? Address.Local;
+
+            var failedQ = localAddress ?? config.LocalAddress;
 
             message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
             message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);

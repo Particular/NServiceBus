@@ -10,14 +10,16 @@ namespace NServiceBus.Timeout.Hosting.Windows
     class ManageMessageFailuresWithoutSlr : IManageMessageFailures
     {
         ISendMessages messageSender;
+        readonly Configure config;
         static ILog Logger = LogManager.GetLogger<ManageMessageFailuresWithoutSlr>();
 
         Address localAddress;
         Address errorQueue;
 
-        public ManageMessageFailuresWithoutSlr(IManageMessageFailures mainFailureManager, ISendMessages messageSender)
+        public ManageMessageFailuresWithoutSlr(IManageMessageFailures mainFailureManager, ISendMessages messageSender, Configure config)
         {
             this.messageSender = messageSender;
+            this.config = config;
             var mainTransportFailureManager = mainFailureManager as Faults.Forwarder.FaultManager;
             if (mainTransportFailureManager != null)
             {
@@ -86,7 +88,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
             message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
 
-            var failedQ = localAddress ?? Address.Local;
+            var failedQ = localAddress ?? config.LocalAddress;
 
             message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
             message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);

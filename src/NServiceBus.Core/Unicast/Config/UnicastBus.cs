@@ -77,7 +77,7 @@ namespace NServiceBus.Features
                 MaxRetries = maximumNumberOfRetries
             };
 
-            context.Container.ConfigureComponent(b => new TransportReceiver(transactionSettings, maximumConcurrencyLevel, maximumThroughput, b.Build<IDequeueMessages>(), b.Build<IManageMessageFailures>(), context.Settings)
+            context.Container.ConfigureComponent(b => new TransportReceiver(transactionSettings, maximumConcurrencyLevel, maximumThroughput, b.Build<IDequeueMessages>(), b.Build<IManageMessageFailures>(), context.Settings, b.Build<Configure>())
             {
               CriticalError =  b.Build<CriticalError>()
             }, DependencyLifecycle.InstancePerCall);

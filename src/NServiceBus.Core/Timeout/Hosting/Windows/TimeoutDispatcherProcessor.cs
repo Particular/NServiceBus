@@ -16,8 +16,10 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public ISendMessages MessageSender { get; set; }
 
         public IPersistTimeouts TimeoutsPersister { get; set; }
-        
+
         public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
+
+        public Configure Configure { get; set; }
       
         public Address InputAddress { get; set; }
 
@@ -30,7 +32,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
             {
-                MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions());
+                MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions(Configure.LocalAddress));
             }
 
             return true;
@@ -52,7 +54,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 //TODO: The line below needs to change when we refactor the slr to be:
                 // transport.DisableSLR() or similar
-                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager, MessageSender);
+                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager, MessageSender, Configure);
             };
         }
     }

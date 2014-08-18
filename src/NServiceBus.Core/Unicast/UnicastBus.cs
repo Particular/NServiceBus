@@ -318,7 +318,7 @@ namespace NServiceBus.Unicast
             }
             else
             {
-                MessageSender.Send(MessageBeingProcessed, new SendOptions(Address.Local));
+                MessageSender.Send(MessageBeingProcessed, new SendOptions(Configure.LocalAddress));
             }
 
             PipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled = true;
@@ -352,7 +352,7 @@ namespace NServiceBus.Unicast
             {
                 return SendMessage(new SendOptions(Settings.Get<Address>("MasterNode.Address")), LogicalMessageFactory.Create(message));
             }
-            return SendMessage(new SendOptions(Address.Local), LogicalMessageFactory.Create(message));
+            return SendMessage(new SendOptions(Configure.LocalAddress), LogicalMessageFactory.Create(message));
         }
 
         /// <summary>
@@ -485,7 +485,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback Defer(TimeSpan delay, object message)
         {
-            var options = new SendOptions(Address.Local)
+            var options = new SendOptions(Configure.LocalAddress)
             {
                 DelayDeliveryWith = delay,
                 EnforceMessagingBestPractices = false
@@ -499,7 +499,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback Defer(DateTime processAt, object message)
         {
-            var options = new SendOptions(Address.Local)
+            var options = new SendOptions(Configure.LocalAddress)
             {
                 DeliverAt = processAt,
                 EnforceMessagingBestPractices = false
@@ -633,7 +633,7 @@ namespace NServiceBus.Unicast
 
         void AssertHasLocalAddress()
         {
-            if (Address.Local == null)
+            if (Configure.LocalAddress == null)
             {
                 throw new InvalidOperationException("Cannot start subscriber without a queue configured. Please specify the LocalAddress property of UnicastBusConfig.");
             }
