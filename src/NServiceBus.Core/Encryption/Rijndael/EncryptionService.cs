@@ -31,7 +31,7 @@ namespace NServiceBus.Encryption.Rijndael
                 return encryptedValue.EncryptedBase64Value;
             }
 
-            var decryptionKeys = new List<byte[]>{Key};
+            var decryptionKeys = new List<byte[]> { Key };
             if (ExpiredKeys != null)
             {
                 decryptionKeys.AddRange(ExpiredKeys);
@@ -99,6 +99,39 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (EncryptionService));
+        internal void VerifyKeysAreNotTooSimilar()
+        {
+            for (var index = 0; index < ExpiredKeys.Count; index++)
+            {
+                var key = ExpiredKeys[index];
+                CryptographicException exception = null;
+                var encryptedValue = ((IEncryptionService)this).Encrypt("a");
+
+                var encrypted = Convert.FromBase64String(encryptedValue.EncryptedBase64Value);
+                try
+                {
+                    using (var rijndael = new RijndaelManaged())
+                    {
+                        rijndael.Key = Key;
+                        rijndael.Mode = CipherMode.CBC;
+                        rijndael.GenerateIV();
+
+
+                        Decrypt(rijndael, encrypted);
+                    }
+                }
+                catch (CryptographicException cryptographicException)
+                {
+                    exception = cryptographicException;
+                }
+                if (exception == null)
+                {
+                    var message = string.Format("The new Encryption Key is too similar to the Expired Key at index {0}. This can cause issues when decrypting data. To fix this issue please ensure the new encryption key is not too similar to the existing Expired Keys.", index);
+                    throw new Exception(message);
+                }
+            }
+        }
+
+        static readonly ILog Logger = LogManager.GetLogger(typeof(EncryptionService));
     }
 }
