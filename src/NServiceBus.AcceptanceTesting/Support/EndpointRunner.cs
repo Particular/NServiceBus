@@ -2,15 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.Remoting.Lifetime;
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Support;
     using Transports;
 
-    [Serializable]
-    public class EndpointRunner : MarshalByRefObject
+    public class EndpointRunner
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
         readonly SemaphoreSlim contextChanged = new SemaphoreSlim(0);
@@ -142,25 +140,12 @@
             }
         }
 
-        public override object InitializeLifetimeService()
-        {
-            var lease = (ILease)base.InitializeLifetimeService();
-            if (lease.CurrentState == LeaseState.Initial)
-            {
-                lease.InitialLeaseTime = TimeSpan.FromMinutes(2);
-                lease.SponsorshipTimeout = TimeSpan.FromMinutes(2);
-                lease.RenewOnCallTime = TimeSpan.FromSeconds(2);
-            }
-            return lease;
-        }
-
         public string Name()
         {
-            return AppDomain.CurrentDomain.FriendlyName;
+            return configuration.EndpointName;
         }
 
-        [Serializable]
-        public class Result : MarshalByRefObject
+        public class Result
         {
             public Exception Exception { get; set; }
 

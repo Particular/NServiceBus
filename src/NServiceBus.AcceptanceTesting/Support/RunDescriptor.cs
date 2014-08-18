@@ -4,8 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    [Serializable]
-    public class RunDescriptor : MarshalByRefObject
+    public class RunDescriptor
     {
         protected bool Equals(RunDescriptor other)
         {
