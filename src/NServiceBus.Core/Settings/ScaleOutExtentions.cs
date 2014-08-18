@@ -12,9 +12,9 @@ namespace NServiceBus
         /// <summary>
         ///     Allows the user to control how the current endpoint behaves when scaled out.
         /// </summary>
-        public static void ScaleOut(this ConfigurationBuilder config, Action<ScaleOutSettings> customScaleOutSettings)
+        public static ScaleOutSettings ScaleOut(this ConfigurationBuilder config)
         {
-            customScaleOutSettings(new ScaleOutSettings(config));
+            return new ScaleOutSettings(config);
         }
 
 #pragma warning disable 1591

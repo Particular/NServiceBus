@@ -51,7 +51,7 @@
         {
             public Client()
             {
-                EndpointSetup<DefaultServer>(c => { },c => c.ScaleOut(s => s.UseUniqueBrokerQueuePerMachine()))
+                EndpointSetup<DefaultServer>(c => { },c => c.ScaleOut().UseUniqueBrokerQueuePerMachine())
                     .AddMapping<MyRequest>(typeof(Server));
             }
 
