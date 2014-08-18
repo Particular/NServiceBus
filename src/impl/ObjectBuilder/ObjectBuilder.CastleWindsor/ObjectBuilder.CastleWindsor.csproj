@@ -119,5 +119,4 @@
   <PropertyGroup>
     <notused>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\containers\"</notused>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)Tools\Pepita\PepitaGet.targets" />
 </Project>

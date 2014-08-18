@@ -108,5 +108,4 @@
   <PropertyGroup>
     <notused>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\..\..\build\tools\ReturnToSourceQueue\"</notused>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)Tools\Pepita\PepitaGet.targets" />
 </Project>
