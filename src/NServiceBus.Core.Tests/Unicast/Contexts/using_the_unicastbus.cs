@@ -95,9 +95,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             subscriptionStorage = new FakeSubscriptionStorage();
-            configure = new Configure(settings, FuncBuilder, new List<Action<IConfigureComponents>>(), new PipelineSettings(null));
-            configure.localAddress = Address.Parse("TestEndpoint");
-            
+            configure = new Configure(settings, FuncBuilder, new List<Action<IConfigureComponents>>(), new PipelineSettings(null))
+            {
+                localAddress = Address.Parse("TestEndpoint")
+            };
+
             subscriptionManager = new SubscriptionManager
                 {
                     MessageSender = messageSender,
