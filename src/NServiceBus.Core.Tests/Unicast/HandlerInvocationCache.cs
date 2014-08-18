@@ -11,20 +11,21 @@
 		[Test]
 		public void RunNew()
 		{
-			HandlerInvocationCache.CacheMethodForHandler( typeof(StubMessageHandler), typeof (StubMessage));
-            HandlerInvocationCache.CacheMethodForHandler(typeof(StubTimeoutHandler), typeof(StubTimeoutState));
+            var cache = new MessageHandlerRegistry(new Conventions());
+            cache.CacheMethodForHandler(typeof(StubMessageHandler), typeof(StubMessage));
+            cache.CacheMethodForHandler(typeof(StubTimeoutHandler), typeof(StubTimeoutState));
 			var handler1 = new StubMessageHandler();
             var handler2 = new StubTimeoutHandler();
 			var stubMessage1 = new StubMessage();
 			var stubMessage2 = new StubTimeoutState();
-			HandlerInvocationCache.InvokeHandle(handler1, stubMessage1);
-			HandlerInvocationCache.InvokeHandle(handler2, stubMessage2);
+            cache.InvokeHandle(handler1, stubMessage1);
+            cache.InvokeHandle(handler2, stubMessage2);
 
 			var startNew = Stopwatch.StartNew();
 			for (var i = 0; i < 100000; i++)
 			{
-				HandlerInvocationCache.InvokeHandle(handler1, stubMessage1);
-				HandlerInvocationCache.InvokeHandle(handler2, stubMessage2);
+                cache.InvokeHandle(handler1, stubMessage1);
+                cache.InvokeHandle(handler2, stubMessage2);
 			}
 			startNew.Stop();
 			Trace.WriteLine(startNew.ElapsedMilliseconds);
@@ -60,19 +61,23 @@
 		[Test]
 		public void Should_invoke_handle_method()
 		{
-			HandlerInvocationCache.CacheMethodForHandler(typeof (StubHandler), typeof (StubMessage));
+            var cache = new MessageHandlerRegistry(new Conventions());
+
+            cache.CacheMethodForHandler(typeof(StubHandler), typeof(StubMessage));
 			var handler = new StubHandler();
-			HandlerInvocationCache.InvokeHandle(handler, new StubMessage());
+            cache.InvokeHandle(handler, new StubMessage());
 			Assert.IsTrue(handler.HandleCalled);
 		}
 
 		[Test]
 		public void Should_have_passed_through_correct_message()
 		{
-			HandlerInvocationCache.CacheMethodForHandler(typeof (StubHandler), typeof (StubMessage));
+            var cache = new MessageHandlerRegistry(new Conventions());
+
+            cache.CacheMethodForHandler(typeof(StubHandler), typeof(StubMessage));
 			var handler = new StubHandler();
 			var stubMessage = new StubMessage();
-			HandlerInvocationCache.InvokeHandle(handler, stubMessage);
+            cache.InvokeHandle(handler, stubMessage);
 			Assert.AreEqual(stubMessage, handler.HandledMessage);
 		}
 
@@ -99,19 +104,23 @@
 		[Test]
 		public void Should_invoke_timeout_method()
 		{
-			HandlerInvocationCache.CacheMethodForHandler(typeof(StubHandler), typeof(StubTimeoutState));
+            var cache = new MessageHandlerRegistry(new Conventions());
+
+            cache.CacheMethodForHandler(typeof(StubHandler), typeof(StubTimeoutState));
 			var handler = new StubHandler();
-			HandlerInvocationCache.InvokeTimeout(handler, new StubTimeoutState());
+            cache.InvokeTimeout(handler, new StubTimeoutState());
 			Assert.IsTrue(handler.TimeoutCalled);
 		}
 
 		[Test]
 		public void Should_have_passed_through_correct_state()
 		{
-			HandlerInvocationCache.CacheMethodForHandler(typeof(StubHandler), typeof(StubTimeoutState));
+            var cache = new MessageHandlerRegistry(new Conventions());
+
+            cache.CacheMethodForHandler(typeof(StubHandler), typeof(StubTimeoutState));
 			var handler = new StubHandler();
 			var stubState = new StubTimeoutState();
-			HandlerInvocationCache.InvokeTimeout(handler, stubState);
+            cache.InvokeTimeout(handler, stubState);
 			Assert.AreEqual(stubState, handler.HandledState);
 		}
 
