@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Linq;
     using System.Text;
     using Config;
+    using Encryption;
     using Encryption.Rijndael;
     using Logging;
 
@@ -23,7 +24,7 @@ namespace NServiceBus
             if (section == null)
                 Logger.Warn("Could not find configuration section for Rijndael Encryption Service.");
 
-            var encryptConfig = config.Configurer.ConfigureComponent<EncryptionService>(DependencyLifecycle.SingleInstance);
+            var encryptionService = new EncryptionService();
 
             if (section != null)
             {
@@ -32,9 +33,14 @@ namespace NServiceBus
                     throw new Exception("The RijndaelEncryptionServiceConfig has an empty 'Key' attribute.");
                 }
                 var expiredKeys = ExtractExpiredKeysFromConfigSection(section);
-                encryptConfig.ConfigureProperty(s => s.Key, Encoding.ASCII.GetBytes(section.Key));
-                encryptConfig.ConfigureProperty(s => s.ExpiredKeys, expiredKeys.Select(x=>Encoding.ASCII.GetBytes(x)).ToList());
+
+                encryptionService.Key = Encoding.ASCII.GetBytes(section.Key);
+                encryptionService.ExpiredKeys = expiredKeys.Select(x => Encoding.ASCII.GetBytes(x)).ToList();
             }
+
+            encryptionService.VerifyKeysAreNotTooSimilar();
+
+            config.Configurer.RegisterSingleton<IEncryptionService>(encryptionService);
 
             return config;
         }
