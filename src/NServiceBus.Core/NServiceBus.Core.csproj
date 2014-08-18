@@ -432,8 +432,6 @@
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />
-    <Compile Include="Logging\NullLogger.cs" />
-    <Compile Include="Logging\NullLoggerFactory.cs" />
     <Compile Include="Logging\LogManager.cs" />
     <Compile Include="SecondLevelRetries\DefaultRetryPolicy.cs" />
     <Compile Include="SecondLevelRetries\Helpers\TransportMessageHelpers.cs" />
