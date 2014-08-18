@@ -305,7 +305,10 @@
 
         protected virtual Conventions BuildConventions()
         {
-            return new Conventions(isEncryptedPropertyAction: property => typeof(WireEncryptedString).IsAssignableFrom(property.PropertyType));
+            return new Conventions
+            {
+                IsEncryptedPropertyAction = property => typeof(WireEncryptedString).IsAssignableFrom(property.PropertyType)
+            };
         }
 
         protected WireEncryptedString Create()

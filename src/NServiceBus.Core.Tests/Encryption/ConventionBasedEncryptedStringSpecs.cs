@@ -62,7 +62,10 @@
     {
         protected override Conventions BuildConventions()
         {
-            return new Conventions(isEncryptedPropertyAction: p => p.Name.StartsWith("Encrypted"));
+            return new Conventions
+            {
+                IsEncryptedPropertyAction= p => p.Name.StartsWith("Encrypted")
+            };
         }
     }
 

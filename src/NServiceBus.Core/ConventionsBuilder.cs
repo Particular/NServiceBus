@@ -13,7 +13,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningMessagesAs(Func<Type, bool> definesMessageType)
         {
-            this.definesMessageType = definesMessageType;
+            Conventions.IsMessageTypeAction = definesMessageType;
             return this;
         }
 
@@ -22,7 +22,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningCommandsAs(Func<Type, bool> definesCommandType)
         {
-            this.definesCommandType = definesCommandType;
+            Conventions.IsCommandTypeAction = definesCommandType;
             return this;
         }
 
@@ -31,7 +31,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningEventsAs(Func<Type, bool> definesEventType)
         {
-            this.definesEventType = definesEventType;
+            Conventions.IsEventTypeAction = definesEventType;
             return this;
         }
 
@@ -40,7 +40,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningEncryptedPropertiesAs(Func<PropertyInfo, bool> definesEncryptedProperty)
         {
-            this.definesEncryptedProperty = definesEncryptedProperty;
+            Conventions.IsEncryptedPropertyAction = definesEncryptedProperty;
             return this;
         }
 
@@ -49,7 +49,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningDataBusPropertiesAs(Func<PropertyInfo, bool> definesDataBusProperty)
         {
-            this.definesDataBusProperty = definesDataBusProperty;
+            Conventions.IsDataBusPropertyAction = definesDataBusProperty;
             return this;
         }
 
@@ -58,7 +58,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningTimeToBeReceivedAs(Func<Type, TimeSpan> retrieveTimeToBeReceived)
         {
-            this.retrieveTimeToBeReceived = retrieveTimeToBeReceived;
+            Conventions.TimeToBeReceivedAction = retrieveTimeToBeReceived;
             return this;
         }
 
@@ -67,21 +67,10 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningExpressMessagesAs(Func<Type, bool> definesExpressMessageType)
         {
-            this.definesExpressMessageType = definesExpressMessageType;
+            Conventions.IsExpressMessageAction = definesExpressMessageType;
             return this;
         }
 
-        internal Conventions BuildConventions()
-        {
-            return new Conventions(isCommandTypeAction: definesCommandType, isDataBusPropertyAction: definesDataBusProperty, isEncryptedPropertyAction: definesEncryptedProperty, isEventTypeAction: definesEventType, isExpressMessageAction: definesExpressMessageType, isMessageTypeAction: definesMessageType, timeToBeReceivedAction: retrieveTimeToBeReceived);
-        }
-
-        Func<Type, bool> definesCommandType;
-        Func<PropertyInfo, bool> definesDataBusProperty;
-        Func<PropertyInfo, bool> definesEncryptedProperty;
-        Func<Type, bool> definesEventType;
-        Func<Type, bool> definesExpressMessageType;
-        Func<Type, bool> definesMessageType;
-        Func<Type, TimeSpan> retrieveTimeToBeReceived;
+        internal Conventions Conventions = new Conventions();
     }
 }

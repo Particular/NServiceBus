@@ -107,9 +107,9 @@ namespace NServiceBus
         /// <summary>
         ///     Defines the conventions to use for this endpoint.
         /// </summary>
-        public void Conventions(Action<ConventionsBuilder> conventions)
+        public ConventionsBuilder Conventions()
         {
-            conventions(conventionsBuilder);
+            return conventionsBuilder;
         }
 
         /// <summary>
@@ -176,10 +176,9 @@ namespace NServiceBus
             var container = customBuilder ?? new AutofacObjectBuilder();
             RegisterEndpointWideDefaults();
 
-            var conventions = conventionsBuilder.BuildConventions();
-            container.RegisterSingleton(typeof(Conventions), conventions);
+            container.RegisterSingleton(typeof(Conventions), conventionsBuilder.Conventions);
 
-            Settings.SetDefault<Conventions>(conventions);
+            Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
 
             Configure.ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 

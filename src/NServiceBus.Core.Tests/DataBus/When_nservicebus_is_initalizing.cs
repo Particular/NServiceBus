@@ -61,7 +61,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 {
                     typeof(MessageWithNonSerializableDataBusProperty)
                 });
-                o.Conventions(c => c.DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus")));
+                o.Conventions().DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"));
             });
 
             var feature = new DataBusFeature();
@@ -84,7 +84,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 {
                     typeof(MessageWithNonSerializableDataBusProperty)
                 });
-                o.Conventions(c => c.DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus")));
+                o.Conventions().DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"));
             });
             
             config.configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
