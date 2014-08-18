@@ -3,6 +3,7 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
     using Saga;
     using ScenarioDescriptors;
@@ -20,7 +21,7 @@
                     .Done(c => c.DidSagaReplyMessageGetCorrelated)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.DidSagaReplyMessageGetCorrelated))
-                    .Run();
+                    .Run(new RunSettings { UseSeparateAppdomains = true });
         }
 
         public class Context : ScenarioContext

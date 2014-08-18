@@ -5,7 +5,8 @@
     using System.Diagnostics;
     using System.Threading;
 
-    public class EndpointBehavior
+    [Serializable]
+    public class EndpointBehavior : MarshalByRefObject
     {
         public EndpointBehavior(Type builderType)
         {
@@ -19,8 +20,10 @@
         public List<IWhenDefinition> Whens { get; set; }
 
         public List<Action<Configure>> CustomConfig { get; set; }
+        public string AppConfig { get; set; }
     }
 
+    [Serializable]
     public class GivenDefinition<TContext> : IGivenDefinition where TContext : ScenarioContext
     {
         public GivenDefinition(Action<IBus> action)
@@ -46,6 +49,7 @@
 
     }
 
+    [Serializable]
     public class WhenDefinition<TContext> : IWhenDefinition where TContext : ScenarioContext
     {
         public WhenDefinition(Predicate<TContext> condition, Action<IBus> action)

@@ -68,6 +68,7 @@
     <Compile Include="Support\RunDescriptorsBuilder.cs" />
     <Compile Include="Scenario.cs" />
     <Compile Include="EndpointConfigurationBuilder.cs" />
+    <Compile Include="Support\RunSettings.cs" />
     <Compile Include="Support\ScenarioConfigSource.cs" />
     <Compile Include="Support\ScenarioDescriptor.cs" />
     <Compile Include="Support\ScenarioException.cs" />
