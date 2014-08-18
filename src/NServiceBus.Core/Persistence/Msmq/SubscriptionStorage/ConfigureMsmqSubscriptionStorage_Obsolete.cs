@@ -5,22 +5,22 @@ namespace NServiceBus
 {
     using System;
 
-    [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "config.UsePersistence<Msmq>()")]
+    [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "Configure.With(c=>c.UsePersistence<Msmq>()")]
     public static class ConfigureMsmqSubscriptionStorage
     {
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "config.UsePersistence<Msmq>()")]
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "Configure.With(c=>c.UsePersistence<Msmq>()")]
         public static Configure MsmqSubscriptionStorage(this Configure config)
         {
             throw new NotImplementedException();
         }
 
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "config.UsePersistence<Msmq>(c=>c.QueueName('SomeName'))")]
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "Configure.With(c=>c.UsePersistence<Msmq>(c=>c.QueueName('SomeName'))")]
         public static Configure MsmqSubscriptionStorage(this Configure config, string endpointName)
         {
             throw new NotImplementedException();
         }
 
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "config.UsePersistence<Msmq>(c=>c.QueueName('SomeName'))")]
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "Configure.With(c=>c.UsePersistence<Msmq>(c=>c.QueueName('SomeName'))")]
         public static Address Queue { get; set; }
     }
 }

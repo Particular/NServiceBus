@@ -15,11 +15,19 @@ namespace NServiceBus.Saga
     public interface IPersistSagas
     {
     }
-    [ObsoleteEx(Message = "Since ISaga has been merged into the abstract class Saga this interface is no longer required.",RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "NServiceBus.Saga.Saga")]
+    [ObsoleteEx(
+        Message = "Since ISaga has been merged into the abstract class Saga this interface is no longer required.",
+        RemoveInVersion = "6", 
+        TreatAsErrorFromVersion = "5",
+        Replacement = "NServiceBus.Saga.Saga")]
     public interface IConfigurable
     {
     }
-    [ObsoleteEx(Message = "Since ISaga has been merged into the abstract class Saga this interface is no longer required.", RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Replacement = "NServiceBus.Saga.Saga.Completed")]
+    [ObsoleteEx(
+        Message = "Since ISaga has been merged into the abstract class Saga this interface is no longer required.", 
+        RemoveInVersion = "6", 
+        TreatAsErrorFromVersion = "5",
+        Replacement = "NServiceBus.Saga.Saga.Completed")]
     public interface HasCompleted
     {
     }
