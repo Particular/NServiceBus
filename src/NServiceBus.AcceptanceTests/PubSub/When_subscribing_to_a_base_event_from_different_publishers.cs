@@ -4,6 +4,7 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using Features;
+    using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
 
     public class When_subscribing_to_a_base_event_from_different_publishers : NServiceBusAcceptanceTest
@@ -40,7 +41,7 @@
                }))
                .AllowExceptions(e => e.Message.Contains("Oracle.DataAccess.Client.OracleException: ORA-00001") || e.Message.Contains("System.Data.SqlClient.SqlException: Violation of PRIMARY KEY constraint"))
                .Done(c => c.GotTheEventFromPublisher1 && c.GotTheEventFromPublisher2)
-               .Run();
+               .Run(new RunSettings{UseSeparateAppdomains = true});
 
             Assert.True(cc.GotTheEventFromPublisher1);
             Assert.True(cc.GotTheEventFromPublisher2);
