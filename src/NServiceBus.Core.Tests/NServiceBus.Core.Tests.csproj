@@ -135,11 +135,13 @@
     <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_null_properties.cs" />
     <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_outgoing_messages.cs" />
     <Compile Include="DataBus\When_nservicebus_is_initalizing.cs" />
+    <Compile Include="Encryption\ConfigureRijndaelEncryptionServiceTests.cs" />
     <Compile Include="Encryption\ConventionBasedEncryptedStringSpecs.cs" />
     <Compile Include="Encryption\FakeEncryptionService.cs" />
     <Compile Include="Encryption\Issue_701.cs" />
     <Compile Include="Encryption\Issue_949.cs" />
     <Compile Include="Encryption\Mailing_list_complex_dto.cs" />
+    <Compile Include="Encryption\EncryptionServiceTests.cs" />
     <Compile Include="Encryption\WireEncryptedStringSpecs.cs" />
     <Compile Include="Fakes\FakeBus.cs" />
     <Compile Include="Fakes\FakeTransport.cs" />
