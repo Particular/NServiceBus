@@ -35,33 +35,34 @@
 
             typesToInclude.AddRange(types);
 
-            var config = Configure.With(o =>
+            var builder = new ConfigurationBuilder();
+
+            configurationBuilderCustomization(builder);
+            builder.EndpointName(endpointConfiguration.EndpointName);
+            builder.TypesToScan(typesToInclude);
+            builder.CustomConfigurationSource(configSource);
+            builder.EnableInstallers();
+            builder.DefineTransport(settings);
+            builder.RegisterComponents(r =>
             {
-                configurationBuilderCustomization(o);
-                o.EndpointName(endpointConfiguration.EndpointName);
-                o.TypesToScan(typesToInclude);
-                o.CustomConfigurationSource(configSource);
-                o.EnableInstallers();
-                o.DefineTransport(settings);
-                o.RegisterComponents(r =>
-                {
-                    r.RegisterSingleton(runDescriptor.ScenarioContext.GetType(), runDescriptor.ScenarioContext);
-                    r.RegisterSingleton(typeof(ScenarioContext), runDescriptor.ScenarioContext);
-                });
-
-                string selectedBuilder;
-                if (settings.TryGetValue("Builder", out selectedBuilder))
-                {
-                    o.UseContainer(Type.GetType(selectedBuilder));
-                }
-                var serializer = settings.GetOrNull("Serializer");
-
-                if (serializer != null)
-                {
-                    o.UseSerialization(Type.GetType(serializer));
-                }
-                o.DefinePersistence(settings);
+                r.RegisterSingleton(runDescriptor.ScenarioContext.GetType(), runDescriptor.ScenarioContext);
+                r.RegisterSingleton(typeof(ScenarioContext), runDescriptor.ScenarioContext);
             });
+
+            string selectedBuilder;
+            if (settings.TryGetValue("Builder", out selectedBuilder))
+            {
+                builder.UseContainer(Type.GetType(selectedBuilder));
+            }
+            var serializer = settings.GetOrNull("Serializer");
+
+            if (serializer != null)
+            {
+                builder.UseSerialization(Type.GetType(serializer));
+            }
+            builder.DefinePersistence(settings);
+
+            var config = Configure.With(builder);
 
             config.Settings.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
 

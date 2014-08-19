@@ -14,7 +14,11 @@ namespace NServiceBus.Core.Tests.Config
         [SetUp]
         public void SetUp()
         {
-            var configure = Configure.With(o => o.AssembliesToScan(Assembly.GetExecutingAssembly()));
+            var builder = new ConfigurationBuilder();
+
+            builder.AssembliesToScan(Assembly.GetExecutingAssembly());
+
+            var configure = Configure.With(builder);
             loadedTypes = configure.TypesToScan.ToList();
         }
 

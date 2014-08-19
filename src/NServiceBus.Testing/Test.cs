@@ -33,25 +33,26 @@
                 customisations = o => {};
             }
 
-            InitializeInternal(Configure.With(c =>
+            var builder = new ConfigurationBuilder();
+
+            builder.EndpointName("UnitTests");
+            builder.CustomConfigurationSource(testConfigurationSource);
+            builder.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+            builder.DisableFeature<Sagas>();
+            builder.DisableFeature<Audit>();
+            builder.UseTransport<FakeTestTransport>();
+            builder.UsePersistence<InMemory>();
+            builder.RegisterEncryptionService(b => new FakeEncryptor());
+            builder.RegisterComponents(r =>
             {
-                c.EndpointName("UnitTests");
-                c.CustomConfigurationSource(testConfigurationSource);
-                c.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
-                c.DisableFeature<Sagas>();
-                c.DisableFeature<Audit>();
-                c.UseTransport<FakeTestTransport>();
-                c.UsePersistence<InMemory>();
-                c.RegisterEncryptionService(b => new FakeEncryptor());
-                c.RegisterComponents(r =>
-                {
-                    r.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
-                    r.ConfigureComponent<FakeQueueCreator>(DependencyLifecycle.InstancePerCall);
-                    r.ConfigureComponent<FakeDequer>(DependencyLifecycle.InstancePerCall);
-                    r.ConfigureComponent<FakeSender>(DependencyLifecycle.InstancePerCall);
-                });
-                customisations(c);
-            }));
+                r.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
+                r.ConfigureComponent<FakeQueueCreator>(DependencyLifecycle.InstancePerCall);
+                r.ConfigureComponent<FakeDequer>(DependencyLifecycle.InstancePerCall);
+                r.ConfigureComponent<FakeSender>(DependencyLifecycle.InstancePerCall);
+            });
+            customisations(builder);
+
+            InitializeInternal(Configure.With(builder));
         }
         
         // ReSharper disable UnusedParameter.Global

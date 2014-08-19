@@ -15,13 +15,14 @@ namespace NServiceBus.Core.Tests.Config
         public void SetUp()
         {
             userConfigurationSource = new UserConfigurationSource();
-            config = Configure.With(o =>
-            {
-                o.TypesToScan(new Type[]
+
+            var builder = new ConfigurationBuilder();
+            builder.TypesToScan(new Type[]
                 {
                 });
-                o.CustomConfigurationSource(userConfigurationSource);
-            });
+            builder.CustomConfigurationSource(userConfigurationSource);
+
+            config = Configure.With(builder);
         }
 
       

@@ -26,7 +26,10 @@ namespace NServiceBus
     /// </summary>
     public class ConfigurationBuilder : ExposeSettings
     {
-        internal ConfigurationBuilder() : base(new SettingsHolder())
+        /// <summary>
+        /// Initializes a fresh instance of the builder
+        /// </summary>
+        public ConfigurationBuilder() : base(new SettingsHolder())
         {
             LogManager.HasConfigBeenInitialised = true;
             configurationSourceToUse = new DefaultConfigurationSource();

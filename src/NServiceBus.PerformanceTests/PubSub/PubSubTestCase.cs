@@ -41,24 +41,25 @@ public class PubSubTestCase : TestCase
     {
         TransportConfigOverride.MaximumConcurrencyLevel = NumberOfThreads;
 
-        var config = Configure.With(o =>
-        {
-            o.EndpointName("PubSubPerformanceTest");
-            o.EnableInstallers();
-            o.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
-            o.UseTransport<Msmq>();
-            o.DisableFeature<Audit>();
+        var builder = new ConfigurationBuilder();
 
-            switch (GetStorageType())
-            {
-                case "inmemory":
-                    o.UsePersistence<InMemory>();
-                    break;
-                case "msmq":
-                    o.UsePersistence<NServiceBus.Persistence.Legacy.Msmq>();
-                    break;
-            }
-        });
+        builder.EndpointName("PubSubPerformanceTest");
+        builder.EnableInstallers();
+        builder.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+        builder.UseTransport<Msmq>();
+        builder.DisableFeature<Audit>();
+
+        switch (GetStorageType())
+        {
+            case "inmemory":
+                builder.UsePersistence<InMemory>();
+                break;
+            case "msmq":
+                builder.UsePersistence<NServiceBus.Persistence.Legacy.Msmq>();
+                break;
+        }
+
+        var config = Configure.With(builder);
 
 
         using (var bus = config.CreateBus())

@@ -10,11 +10,11 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void Should_configure_requested_transport()
         {
-            var config = Configure.With(o =>
-            {
-                o.EndpointName("myTests");
-                o.UseTransport<MyTestTransport>();
-            });
+            var builder = new ConfigurationBuilder();
+
+            builder.EndpointName("myTests");
+            builder.UseTransport<MyTestTransport>();
+            var config = Configure.With(builder);
 
             Assert.IsInstanceOf<MyTestTransport>(config.Settings.Get<TransportDefinition>());
         }
@@ -22,7 +22,10 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void Should_default_to_msmq_if_no_other_transport_is_configured()
         {
-            var config = Configure.With(o => o.EndpointName("myTests"));
+            var builder = new ConfigurationBuilder();
+            builder.EndpointName("myTests");
+
+            var config = Configure.With(builder);
             
             Assert.True(config.Settings.Get<TransportDefinition>() is Msmq);
         }

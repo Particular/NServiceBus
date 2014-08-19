@@ -12,7 +12,7 @@
     public class ScheduleTests
     {
         const string ACTION_NAME = "my action";
-        FuncBuilder builder = new FuncBuilder();
+        FuncBuilder container = new FuncBuilder();
         FakeBus bus = new FakeBus();
         Schedule schedule;
 
@@ -20,17 +20,17 @@
         [SetUp]
         public void SetUp()
         {
-            Configure.With(o =>
-            {
-                o.AssembliesToScan(new Assembly[0]);
-                o.UseContainer(builder);
-            });
+            var builder = new ConfigurationBuilder();
+            builder.AssembliesToScan(new Assembly[0]);
+            builder.UseContainer(container);
+
+            Configure.With(builder);
 
             defaultScheduler = new DefaultScheduler(bus);
-            builder.Register<IBus>(() => bus);
-            builder.Register<DefaultScheduler>(() => defaultScheduler);
+            container.Register<IBus>(() => bus);
+            container.Register<DefaultScheduler>(() => defaultScheduler);
 
-            schedule = new Schedule(builder);
+            schedule = new Schedule(container);
         }
 
         [Test]

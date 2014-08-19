@@ -90,22 +90,18 @@ namespace NServiceBus
         /// </summary>
         public static Configure With()
         {
-            return With(o => { });
+            return With(new ConfigurationBuilder());
         }
 
 
         /// <summary>
         ///     Initializes the endpoint configuration with the specified customizations.
         /// </summary>
-        /// <param name="customizations">The customizations builder.</param>
+        /// <param name="builder">The configuration builder.</param>
         /// <returns>A new endpoint configuration.</returns>
-        public static Configure With(Action<ConfigurationBuilder> customizations)
+        public static Configure With(ConfigurationBuilder builder)
         {
-            var options = new ConfigurationBuilder();
-
-            customizations(options);
-
-            return options.BuildConfiguration();
+            return builder.BuildConfiguration();
         }
 
         /// <summary>

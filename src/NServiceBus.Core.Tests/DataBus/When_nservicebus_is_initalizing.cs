@@ -14,14 +14,12 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public void Databus_should_be_activated_if_a_databus_property_is_found()
         {
-            var config = Configure.With(o =>
-            {
-                o.EndpointName("xyz");
-                o.TypesToScan(new[]
-                {
-                    typeof(MessageWithDataBusProperty)
-                });
-            });
+            var builder = new ConfigurationBuilder();
+
+            builder.EndpointName("xyz");
+            builder.TypesToScan(new[]{typeof(MessageWithDataBusProperty)});
+
+            var config = Configure.With(builder);
 
             var feature = new DataBusFeature();
 
@@ -33,14 +31,13 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public void Databus_should_not_be_activated_if_no_databus_property_is_found()
         {
-            var config = Configure.With(o =>
-            {
-                o.EndpointName("xyz");
-                o.TypesToScan(new[]
-                {
-                    typeof(MessageWithoutDataBusProperty)
-                });
-            });
+            var builder = new ConfigurationBuilder();
+
+            builder.EndpointName("xyz");
+            builder.TypesToScan(new[] { typeof(MessageWithoutDataBusProperty) });
+
+            var config = Configure.With(builder);
+
             var feature = new DataBusFeature();
 
             Assert.False(feature.CheckPrerequisites(new FeatureConfigurationContext(config)).IsSatisfied);
@@ -54,15 +51,15 @@ namespace NServiceBus.Core.Tests.DataBus
                 Assert.Ignore("This only work in debug mode.");
             }
 
-            var config = Configure.With(o =>
-            {
-                o.EndpointName("xyz");
-                o.TypesToScan(new[]
+            var builder = new ConfigurationBuilder();
+            builder.EndpointName("xyz");
+            builder.TypesToScan(new[]
                 {
                     typeof(MessageWithNonSerializableDataBusProperty)
                 });
-                o.Conventions().DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"));
-            });
+            builder.Conventions().DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"));
+            
+            var config = Configure.With(builder);
 
             var feature = new DataBusFeature();
 
@@ -77,15 +74,15 @@ namespace NServiceBus.Core.Tests.DataBus
                 Assert.Ignore("This only work in debug mode.");
             }
 
-            var config = Configure.With(o =>
-            {
-                o.EndpointName("xyz");
-                o.TypesToScan(new[]
+            var builder = new ConfigurationBuilder();
+            builder.EndpointName("xyz");
+            builder.TypesToScan(new[]
                 {
                     typeof(MessageWithNonSerializableDataBusProperty)
                 });
-                o.Conventions().DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"));
-            });
+            builder.Conventions().DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"));
+
+            var config = Configure.With(builder);
             
             config.configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
 
