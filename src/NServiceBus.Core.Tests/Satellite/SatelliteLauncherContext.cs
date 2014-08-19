@@ -25,13 +25,14 @@
             InMemoryFaultManager = new Faults.InMemory.FaultManager();
             FakeReceiver = new FakeReceiver();
 
-            Transport = new TransportReceiver(new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, 5, false,false), 1, 0, FakeReceiver, InMemoryFaultManager, new SettingsHolder());
 
-            Configure.With(o =>
+            var config = Configure.With(o =>
             {
                 o.EndpointName("xyz");
                 o.AssembliesToScan(new Assembly[0]);
             });
+
+            Transport = new TransportReceiver(new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, 5, false, false), 1, 0, FakeReceiver, InMemoryFaultManager, new SettingsHolder(),  config);
 
             RegisterTypes();
             Builder.Register<IManageMessageFailures>(() => InMemoryFaultManager);

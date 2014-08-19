@@ -16,33 +16,27 @@
         public void Should_start_the_saga_and_request_a_timeout()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<SagaThatPublishesAnEvent>(b =>
-                                                            b.Given(
-                                                                (bus, context) =>
-                                                                SubscriptionBehavior.OnEndpointSubscribed(s =>
-                                                                    {
-                                                                        if (s.SubscriberReturnAddress.Queue.Contains("SagaThatIsStartedByTheEvent"))
-                                                                        {
-                                                                            context.IsEventSubscriptionReceived = true;
-                                                                        }
-                                                                    }))
-                                                             .When(c => c.IsEventSubscriptionReceived,
-                                                                   bus =>
-                                                                   bus.SendLocal(new StartSaga {DataId = Guid.NewGuid()}))
+                .WithEndpoint<SagaThatPublishesAnEvent>(b =>
+                    b.When(c => c.IsEventSubscriptionReceived,
+                            bus =>
+                                bus.SendLocal(new StartSaga
+                                {
+                                    DataId = Guid.NewGuid()
+                                }))
                 )
-                    .WithEndpoint<SagaThatIsStartedByTheEvent>(
-                        b => b.Given((bus, context) =>
-                        {
-                            bus.Subscribe<SomethingHappenedEvent>();
+                .WithEndpoint<SagaThatIsStartedByTheEvent>(
+                    b => b.Given((bus, context) =>
+                    {
+                        bus.Subscribe<SomethingHappenedEvent>();
 
-                            if (context.HasNativePubSubSupport)
-                                context.IsEventSubscriptionReceived = true;
-                        }))
+                        if (context.HasNativePubSubSupport)
+                            context.IsEventSubscriptionReceived = true;
+                    }))
 
-                    .Done(c => c.DidSaga1Complete && c.DidSaga2Complete)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.True(c.DidSaga1Complete && c.DidSaga2Complete))
-                    .Run();
+                .Done(c => c.DidSaga1Complete && c.DidSaga2Complete)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c => Assert.True(c.DidSaga1Complete && c.DidSaga2Complete))
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -52,38 +46,27 @@
             public bool IsEventSubscriptionReceived { get; set; }
         }
 
-
         [Test]
-        [Ignore("Not stable")]
         public void Should_start_the_saga_when_set_up_to_start_for_the_base_event()
         {
             Scenario.Define<SagaContext>()
-                 .WithEndpoint<SagaThatPublishesAnEvent>(b =>
-                                                         b.Given(
-                                                             (bus, context) =>
-                                                             SubscriptionBehavior.OnEndpointSubscribed(s =>
-                                                             {
-                                                                 if (s.SubscriberReturnAddress.Queue.Contains("SagaThatIsStartedByABaseEvent"))
-                                                                 {
-                                                                     context.IsEventSubscriptionReceived = true;
-                                                                 }
-                                                             }))
-                                                          .When(c => c.IsEventSubscriptionReceived,
-                                                                bus =>
-                                                                bus.Publish<SomethingHappenedEvent>(m=> { m.DataId = Guid.NewGuid(); }))
-             )
-                 .WithEndpoint<SagaThatIsStartedByABaseEvent>(
-                     b => b.Given((bus, context) =>
-                     {
-                         bus.Subscribe<BaseEvent>();
+                .WithEndpoint<Publisher>(b =>
+                    b.When(c => c.IsEventSubscriptionReceived,
+                        bus =>
+                            bus.Publish<SomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); }))
+                )
+                .WithEndpoint<SagaThatIsStartedByABaseEvent>(
+                    b => b.Given((bus, context) =>
+                    {
+                        bus.Subscribe<BaseEvent>();
 
-                         if (context.HasNativePubSubSupport)
-                              context.IsEventSubscriptionReceived = true;
-                     }))
-                 .Done(c => c.DidSagaComplete)
-                 .Repeat(r => r.For(Transports.Default))
-                 .Should(c => Assert.True(c.DidSagaComplete))
-                 .Run();
+                        if (context.HasNativePubSubSupport)
+                            context.IsEventSubscriptionReceived = true;
+                    }))
+                .Done(c => c.DidSagaComplete)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c => Assert.True(c.DidSagaComplete))
+                .Run();
         }
 
         public class SagaContext : ScenarioContext
@@ -92,11 +75,31 @@
             public bool DidSagaComplete { get; set; }
         }
 
+        public class Publisher : EndpointConfigurationBuilder
+        {
+            public Publisher()
+            {
+                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<SagaContext>((s, context) =>
+                {
+                    if (s.SubscriberReturnAddress.Queue.Contains("SagaThatIsStartedByABaseEvent"))
+                    {
+                        context.IsEventSubscriptionReceived = true;
+                    }
+                }));
+            }
+        }
+
         public class SagaThatPublishesAnEvent : EndpointConfigurationBuilder
         {
             public SagaThatPublishesAnEvent()
             {
-                EndpointSetup<DefaultPublisher>(_ => { }, c => c.DisableFeature<AutoSubscribe>());
+                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    if (s.SubscriberReturnAddress.Queue.Contains("SagaThatIsStartedByTheEvent"))
+                    {
+                        context.IsEventSubscriptionReceived = true;
+                    }
+                }));
             }
 
             public class Saga1 : Saga<Saga1.Saga1Data>, IAmStartedByMessages<StartSaga>, IHandleTimeouts<Saga1.Timeout1>
@@ -140,7 +143,7 @@
         {
             public SagaThatIsStartedByTheEvent()
             {
-                EndpointSetup<DefaultPublisher>(_ => { }, c => c.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(_ => { }, c => c.DisableFeature<AutoSubscribe>())
                     .AddMapping<SomethingHappenedEvent>(typeof(SagaThatPublishesAnEvent));
 
             }
@@ -184,7 +187,7 @@
             public SagaThatIsStartedByABaseEvent()
             {
                 EndpointSetup<DefaultServer>(_ => { }, c => c.DisableFeature<AutoSubscribe>())
-                    .AddMapping<BaseEvent>(typeof(SagaThatPublishesAnEvent));
+                    .AddMapping<BaseEvent>(typeof(Publisher));
             }
 
             public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaData>, IAmStartedByMessages<BaseEvent>

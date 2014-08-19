@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Testing
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -106,32 +105,7 @@
             var mapper = config.Builder.Build<IMessageMapper>();
             
             messageCreator = mapper;
-            ExtensionMethods.GetHeaderAction = (msg, key) =>
-            {
-                ConcurrentDictionary<string, string> kv;
-                if (messageHeaders.TryGetValue(msg, out kv))
-                {
-                    string val;
-                    if (kv.TryGetValue(key, out val))
-                    {
-                        return val;
-                    }
-                }
-
-                return null;
-            };
-            ExtensionMethods.SetHeaderAction = (msg, key, val) =>
-                messageHeaders.AddOrUpdate(msg,
-                    o => new ConcurrentDictionary<string, string>(new[]
-                    {
-                        new KeyValuePair<string, string>(key, val)
-                    }),
-                    (o, dictionary) =>
-                    {
-                        dictionary.AddOrUpdate(key, val, (s, s1) => val);
-                        return dictionary;
-                    });
-
+            
             initialized = true;
         }
 
@@ -257,7 +231,6 @@
 
         static IMessageCreator messageCreator;
         static readonly TestConfigurationSource testConfigurationSource = new TestConfigurationSource();
-        static readonly ConcurrentDictionary<object, ConcurrentDictionary<string, string>> messageHeaders = new ConcurrentDictionary<object, ConcurrentDictionary<string, string>>();
         static bool initialized;
     }
 }

@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using NServiceBus.Config;
@@ -118,6 +119,18 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Returns the queue name of this endpoint.
+        /// </summary>
+        public Address LocalAddress
+        {
+            get
+            {
+                Debug.Assert(localAddress != null);
+                return localAddress;                
+            }
+        }
+
+        /// <summary>
         ///     Finalizes the configuration by invoking all initialisers.
         /// </summary>
         void Initialize()
@@ -126,8 +139,6 @@ namespace NServiceBus
             {
                 return;
             }
-
-            Address.InitializeLocalAddress(Settings.EndpointName());
 
             WireUpConfigSectionOverrides();
 
@@ -146,6 +157,8 @@ namespace NServiceBus
             featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
             featureActivator.RegisterStartupTasks(configurer);
 
+            localAddress = Address.Parse(Settings.Get<string>("NServiceBus.LocalAddress"));
+
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
                 .ForEach(o => o.Run(this));
@@ -162,6 +175,19 @@ namespace NServiceBus
             types.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 // ReSharper restore HeapView.SlowDelegateCreation
                 .ToList().ForEach(action);
+        }
+
+        internal Address PublicReturnAddress
+        {
+            get
+            {
+                if (!Settings.HasSetting("PublicReturnAddress"))
+                {
+                    return LocalAddress;
+                }
+
+                return Settings.Get<Address>("PublicReturnAddress");
+            }
         }
 
         internal static IList<Type> GetAllowedTypes(params Assembly[] assemblies)
@@ -215,7 +241,9 @@ namespace NServiceBus
 
         FeatureActivator featureActivator;
         bool initialized;
-        ILog logger = LogManager.GetLogger<Configure>();
         internal PipelineSettings pipeline;
+
+        //HACK: Set by the tests
+        internal Address localAddress;
     }
 }

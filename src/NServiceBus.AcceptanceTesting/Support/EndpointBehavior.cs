@@ -20,7 +20,6 @@
         public List<IWhenDefinition> Whens { get; set; }
 
         public List<Action<Configure>> CustomConfig { get; set; }
-
         public string AppConfig { get; set; }
     }
 

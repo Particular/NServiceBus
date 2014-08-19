@@ -93,7 +93,7 @@
             RegisterMessageType<TestMessage>();
             bus.Send(new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<SendOptions>.Matches(o=>o.ReplyToAddress == Address.Local)));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<SendOptions>.Matches(o => o.ReplyToAddress == configure.LocalAddress)));
         }
 
         [Test]
@@ -111,7 +111,7 @@
             RegisterMessageType<TestMessage>();
 
 
-            bus.Send<TestMessage>(m => m.SetHeader(Headers.ConversationId, "my order id"));
+            bus.Send<TestMessage>(m => bus.SetMessageHeader(m, Headers.ConversationId, "my order id"));
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Headers.ConversationId] == "my order id"), Arg<SendOptions>.Is.Anything));
         }
@@ -123,7 +123,7 @@
 
             //todo - add a way to set the context from out tests
 
-            unicastBus.PropagateReturnAddressOnSend = true;
+            bus.PropagateReturnAddressOnSend = true;
             RegisterMessageType<TestMessage>();
             bus.Send(new TestMessage());
 
@@ -138,8 +138,8 @@
         [Test]
         public void Should_be_persistent_if_any_of_the_messages_is_persistent()
         {
-            RegisterMessageType<NonPersistentMessage>(Address.Local);
-            RegisterMessageType<PersistentMessage>(Address.Local);
+            RegisterMessageType<NonPersistentMessage>(configure.LocalAddress);
+            RegisterMessageType<PersistentMessage>(configure.LocalAddress);
             bus.Send(new NonPersistentMessage());
             bus.Send(new PersistentMessage());
 
@@ -150,8 +150,8 @@
         [Test]
         public void Should_use_the_lowest_time_to_be_received()
         {
-            RegisterMessageType<NonPersistentMessage>(Address.Local);
-            RegisterMessageType<PersistentMessage>(Address.Local);
+            RegisterMessageType<NonPersistentMessage>(configure.LocalAddress);
+            RegisterMessageType<PersistentMessage>(configure.LocalAddress);
             bus.Send(new NonPersistentMessage());
             bus.Send(new PersistentMessage());
 

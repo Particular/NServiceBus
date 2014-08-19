@@ -15,20 +15,10 @@
 
             Scenario.Define(cc)
                .WithEndpoint<Publisher1>(b =>
-                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
-                        {
-                            if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
-                                context.SubscribedToPublisher1 = true;
-                        }))
-                        .When(c => c.SubscribedToPublisher1, bus => bus.Publish(new DerivedEvent1()))
+                        b.When(c => c.SubscribedToPublisher1, bus => bus.Publish(new DerivedEvent1()))
                      )
                 .WithEndpoint<Publisher2>(b =>
-                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
-                        {
-                            if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
-                                context.SubscribedToPublisher2 = true;
-                        }))
-                        .When(c => c.SubscribedToPublisher2, bus => bus.Publish(new DerivedEvent2()))
+                        b.When(c => c.SubscribedToPublisher2, bus => bus.Publish(new DerivedEvent2()))
                      )
                .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                {
@@ -52,14 +42,20 @@
             public bool GotTheEventFromPublisher2 { get; set; }
             public bool SubscribedToPublisher1 { get; set; }
             public bool SubscribedToPublisher2 { get; set; }
-
         }
 
         public class Publisher1 : EndpointConfigurationBuilder
         {
             public Publisher1()
             {
-                EndpointSetup<DefaultPublisher>();
+                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    context.AddTrace("Publisher1 SubscriberReturnAddress=" + s.SubscriberReturnAddress.Queue);
+                    if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                    {
+                        context.SubscribedToPublisher1 = true;
+                    }
+                }));
             }
         }
 
@@ -67,7 +63,15 @@
         {
             public Publisher2()
             {
-                EndpointSetup<DefaultPublisher>();
+                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    context.AddTrace("Publisher2 SubscriberReturnAddress=" + s.SubscriberReturnAddress.Queue);
+
+                    if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                    {
+                        context.SubscribedToPublisher2 = true;
+                    }
+                }));
             }
         }
 

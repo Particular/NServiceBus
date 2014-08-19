@@ -131,9 +131,9 @@ namespace NServiceBus.Saga
 
         void SetTimeoutHeaders(object toSend)
         {
-            Headers.SetMessageHeader(toSend, Headers.SagaId, Entity.Id.ToString());
-            Headers.SetMessageHeader(toSend, Headers.IsSagaTimeoutMessage, Boolean.TrueString);
-            Headers.SetMessageHeader(toSend, Headers.SagaType, GetType().AssemblyQualifiedName);
+            Bus.SetMessageHeader(toSend, Headers.SagaId, Entity.Id.ToString());
+            Bus.SetMessageHeader(toSend, Headers.IsSagaTimeoutMessage, Boolean.TrueString);
+            Bus.SetMessageHeader(toSend, Headers.SagaType, GetType().AssemblyQualifiedName);
         }
 
         /// <summary>

@@ -23,6 +23,8 @@ namespace NServiceBus.Features
         internal UnicastBus()
         {
             EnableByDefault();
+
+            Defaults(s => s.SetDefault("NServiceBus.LocalAddress", s.EndpointName()));
         }
 
         /// <summary>
@@ -30,7 +32,10 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<Unicast.UnicastBus>(DependencyLifecycle.SingleInstance);
+            var defaultAddress = Address.Parse(context.Settings.Get<string>("NServiceBus.LocalAddress"));
+
+            context.Container.ConfigureComponent<Unicast.UnicastBus>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(u => u.InputAddress, defaultAddress);
 
             ConfigureSubscriptionAuthorization(context);
 
@@ -72,7 +77,7 @@ namespace NServiceBus.Features
                 MaxRetries = maximumNumberOfRetries
             };
 
-            context.Container.ConfigureComponent(b => new TransportReceiver(transactionSettings, maximumConcurrencyLevel, maximumThroughput, b.Build<IDequeueMessages>(), b.Build<IManageMessageFailures>(), context.Settings)
+            context.Container.ConfigureComponent(b => new TransportReceiver(transactionSettings, maximumConcurrencyLevel, maximumThroughput, b.Build<IDequeueMessages>(), b.Build<IManageMessageFailures>(), context.Settings, b.Build<Configure>())
             {
               CriticalError =  b.Build<CriticalError>()
             }, DependencyLifecycle.InstancePerCall);

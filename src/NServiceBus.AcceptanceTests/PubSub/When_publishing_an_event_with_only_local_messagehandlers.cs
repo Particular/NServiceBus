@@ -12,18 +12,12 @@
         public void Should_trigger_the_catch_all_handler_for_message_driven_subscriptions()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<MessageDrivenPublisher>(b =>
-                                             b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
-                                                 {
-                                                     context.LocalEndpointSubscribed = true;
-                                                 }))
-                                              .When(c => c.LocalEndpointSubscribed, bus => bus.Publish(new EventHandledByLocalEndpoint()))
-                )
-                    .Done(c => c.CatchAllHandlerGotTheMessage)
-                    .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                    .Should(c => Assert.True(c.CatchAllHandlerGotTheMessage))
-
-                    .Run();
+                .WithEndpoint<MessageDrivenPublisher>(b =>
+                    b.When(c => c.LocalEndpointSubscribed, bus => bus.Publish(new EventHandledByLocalEndpoint())))
+                .Done(c => c.CatchAllHandlerGotTheMessage)
+                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
+                .Should(c => Assert.True(c.CatchAllHandlerGotTheMessage))
+                .Run();
         }
 
         [Test]
@@ -34,13 +28,11 @@
                     .Done(c => c.CatchAllHandlerGotTheMessage)
                     .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())
                     .Should(c => Assert.True(c.CatchAllHandlerGotTheMessage))
-
                     .Run();
         }
 
         public class Context : ScenarioContext
         {
-            
             public bool CatchAllHandlerGotTheMessage { get; set; }
 
             public bool LocalEndpointSubscribed { get; set; }
@@ -50,8 +42,11 @@
         {
             public MessageDrivenPublisher()
             {
-                EndpointSetup<DefaultPublisher>()
-                    .AddMapping<EventHandledByLocalEndpoint>(typeof(MessageDrivenPublisher)); //an explicit mapping is needed
+                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    context.LocalEndpointSubscribed = true;
+                }))
+                .AddMapping<EventHandledByLocalEndpoint>(typeof(MessageDrivenPublisher)); //an explicit mapping is needed
             }
 
             class CatchAllHandler:IHandleMessages<IEvent> //not enough for auto subscribe to work
@@ -65,7 +60,6 @@
 
             class DummyHandler : IHandleMessages<EventHandledByLocalEndpoint> //explicit handler for the event is needed
             {
-                public Context Context { get; set; }
                 public void Handle(EventHandledByLocalEndpoint message)
                 {
                 }
@@ -76,7 +70,7 @@
         {
             public CentralizedStoragePublisher()
             {
-                EndpointSetup<DefaultServer>(c => { },builder => builder.AutoSubscribe().DoNotRequireExplicitRouting());
+                EndpointSetup<DefaultServer>(c => { }, builder => builder.AutoSubscribe().DoNotRequireExplicitRouting());
             }
 
             class CatchAllHandler : IHandleMessages<IEvent> 

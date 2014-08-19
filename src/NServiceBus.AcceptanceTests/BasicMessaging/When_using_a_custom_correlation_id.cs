@@ -16,7 +16,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<CorrelationEndpoint>(b => b.Given(bus => bus.Send(Address.Local, CorrelationId, new MyRequest())))
+                    .WithEndpoint<CorrelationEndpoint>(b => b.Given(bus => bus.SendLocal(new SendMessageWithCorrelation())))
                     .Done(c => c.GotRequest)
                     .Run();
 
@@ -52,6 +52,17 @@
                 }
             }
 
+            public class SendMessageWithCorrelationHandler : IHandleMessages<SendMessageWithCorrelation>
+            {
+                public IBus Bus { get; set; }
+                public Configure Configure { get; set; }
+
+                public void Handle(SendMessageWithCorrelation message)
+                {
+                    Bus.Send(Configure.LocalAddress, CorrelationId, new MyRequest());
+                }
+            }
+
             public class MyResponseHandler : IHandleMessages<MyRequest>
             {
                 public Context Context { get; set; }
@@ -65,6 +76,10 @@
             }
         }
 
+         [Serializable]
+        public class SendMessageWithCorrelation : IMessage
+        {
+        }
 
         [Serializable]
         public class MyRequest : IMessage

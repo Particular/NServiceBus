@@ -13,13 +13,13 @@ namespace NServiceBus.Core.Tests.Timeout
         [SetUp]
         public void Setup()
         {
-            Address.InitializeLocalAddress("MyEndpoint");
-
-
             messageSender = new FakeMessageSender();
+            var configure = Configure.With();
+            configure.localAddress = new Address("sdad","asda");
             manager = new DefaultTimeoutManager
                 {
                     MessageSender = messageSender,
+                    Configure = configure
                 };
         }
 

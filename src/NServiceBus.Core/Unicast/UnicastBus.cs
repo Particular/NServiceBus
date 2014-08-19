@@ -24,7 +24,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public partial class UnicastBus : IStartableBus, IInMemoryOperations
+    public partial class UnicastBus : IStartableBus, IInMemoryOperations, IManageMessageHeaders
     {
         HostInformation hostInformation = HostInformation.CreateDefault();
 
@@ -37,7 +37,102 @@ namespace NServiceBus.Unicast
         public UnicastBus()
         {
             HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = hostInformation.HostId;
+
+            SetupHeaderActions();
         }
+
+        void SetupHeaderActions()
+        {
+            SetHeaderAction = (message, key, value) =>
+            {
+                //are we in the process of sending a logical message
+                var outgoingLogicalMessageContext = PipelineFactory.CurrentContext as OutgoingContext;
+
+                if (outgoingLogicalMessageContext != null && outgoingLogicalMessageContext.OutgoingLogicalMessage.Instance == message)
+                {
+                    outgoingLogicalMessageContext.OutgoingLogicalMessage.Headers[key] = value;
+                }
+
+                Dictionary<object, Dictionary<string, string>> outgoingHeaders;
+
+                if (!PipelineFactory.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
+                {
+                    outgoingHeaders = new Dictionary<object, Dictionary<string, string>>();
+
+                    PipelineFactory.CurrentContext.Set("NServiceBus.OutgoingHeaders", outgoingHeaders);
+                }
+
+                Dictionary<string, string> outgoingHeadersForThisMessage;
+
+                if (!outgoingHeaders.TryGetValue(message, out outgoingHeadersForThisMessage))
+                {
+                    outgoingHeadersForThisMessage = new Dictionary<string, string>();
+                    outgoingHeaders[message] = outgoingHeadersForThisMessage;
+                }
+
+                outgoingHeadersForThisMessage[key] = value;
+            };
+
+            GetHeaderAction = (message, key) =>
+            {
+                if (message == ExtensionMethods.CurrentMessageBeingHandled)
+                {
+                    LogicalMessage messageBeingReceived;
+
+                    //first try to get the header from the current logical message
+                    if (PipelineFactory.CurrentContext.TryGet(out messageBeingReceived))
+                    {
+                        string value;
+
+                        messageBeingReceived.Headers.TryGetValue(key, out value);
+
+                        return value;
+                    }
+
+                    //falling back to get the headers from the physical message
+                    // when we remove the multi message feature we can remove this and instead
+                    // share the same header collection btw physical and logical message
+                    if (CurrentMessageContext != null)
+                    {
+                        string value;
+                        if (CurrentMessageContext.Headers.TryGetValue(key, out value))
+                        {
+                            return value;
+                        }
+                    }
+                    return null;
+                }
+
+                Dictionary<object, Dictionary<string, string>> outgoingHeaders;
+
+                if (!PipelineFactory.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
+                {
+                    return null;
+                }
+                Dictionary<string, string> outgoingHeadersForThisMessage;
+
+                if (!outgoingHeaders.TryGetValue(message, out outgoingHeadersForThisMessage))
+                {
+                    return null;
+                }
+
+                string headerValue;
+
+                outgoingHeadersForThisMessage.TryGetValue(key, out headerValue);
+
+                return headerValue;
+            };
+        }
+
+        /// <summary>
+        /// The <see cref="Action{T1,T2,T3}"/> used to set the header in the bus.SetMessageHeader(msg, key, value) method.
+        /// </summary>
+        public Action<object, string, string> SetHeaderAction { get; internal set; }
+
+        /// <summary>
+        /// The <see cref="Func{T1,T2,TResult}"/> used to get the header value in the bus.GetMessageHeader(msg, key) method.
+        /// </summary>
+        public Func<object, string, string> GetHeaderAction { get; internal set; }
 
         /// <summary>
         /// Provides access to the current host information
@@ -63,7 +158,6 @@ namespace NServiceBus.Unicast
         public ReadOnlySettings Settings { get; set; }
 
         /// <summary>
-        /// Should be used by programmer, not administrator.
         /// Sets an <see cref="ITransport"/> implementation to use as the
         /// listening endpoint for the bus.
         /// </summary>
@@ -80,7 +174,11 @@ namespace NServiceBus.Unicast
         public ISendMessages MessageSender { get; set; }
 
         /// <summary>
-        /// Should be used by programmer, not administrator.
+        /// Configuration.
+        /// </summary>
+        public Configure Configure { get; set; }
+
+        /// <summary>
         /// Sets <see cref="IBuilder"/> implementation that will be used to 
         /// dynamically instantiate and execute message handlers.
         /// </summary>
@@ -96,7 +194,6 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Should be used by programmer, not administrator.
         /// Sets whether or not the return address of a received message 
         /// should be propagated when the message is forwarded. This field is
         /// used primarily for the Distributor.
@@ -316,7 +413,7 @@ namespace NServiceBus.Unicast
             }
             else
             {
-                MessageSender.Send(MessageBeingProcessed, new SendOptions(Address.Local));
+                MessageSender.Send(MessageBeingProcessed, new SendOptions(Configure.LocalAddress));
             }
 
             PipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled = true;
@@ -350,7 +447,7 @@ namespace NServiceBus.Unicast
             {
                 return SendMessage(new SendOptions(Settings.Get<Address>("MasterNode.Address")), LogicalMessageFactory.Create(message));
             }
-            return SendMessage(new SendOptions(Address.Local), LogicalMessageFactory.Create(message));
+            return SendMessage(new SendOptions(Configure.LocalAddress), LogicalMessageFactory.Create(message));
         }
 
         /// <summary>
@@ -473,7 +570,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
         {
-            Headers.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
+            this.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
 
             return SendMessage(new SendOptions(Settings.Get<Address>("MasterNode.Address").SubScope("gateway")), LogicalMessageFactory.Create(message));
         }
@@ -483,7 +580,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback Defer(TimeSpan delay, object message)
         {
-            var options = new SendOptions(Address.Local)
+            var options = new SendOptions(Configure.LocalAddress)
             {
                 DelayDeliveryWith = delay,
                 EnforceMessagingBestPractices = false
@@ -497,7 +594,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback Defer(DateTime processAt, object message)
         {
-            var options = new SendOptions(Address.Local)
+            var options = new SendOptions(Configure.LocalAddress)
             {
                 DeliverAt = processAt,
                 EnforceMessagingBestPractices = false
@@ -519,7 +616,7 @@ namespace NServiceBus.Unicast
         {
             if (sendOptions.ReplyToAddress == null && !SendOnlyMode)
             {
-                sendOptions.ReplyToAddress = Address.PublicReturnAddress;
+                sendOptions.ReplyToAddress = Configure.PublicReturnAddress;
             }
 
             if (PropagateReturnAddressOnSend && CurrentMessageContext != null)
@@ -625,24 +722,16 @@ namespace NServiceBus.Unicast
         public bool DoNotStartTransport { get; set; }
 
         /// <summary>
-        /// The address this bus will use as it's main input
+        /// The address of this endpoint.
         /// </summary>
-        public Address InputAddress
-        {
-            get
-            {
-                if (inputAddress == null)
-                    inputAddress = Address.Local;
-
-                return inputAddress;
-            }
-            set { inputAddress = value; }
-        }
+        public Address InputAddress { get; set; }
 
         void AssertHasLocalAddress()
         {
-            if (Address.Local == null)
+            if (Configure.LocalAddress == null)
+            {
                 throw new InvalidOperationException("Cannot start subscriber without a queue configured. Please specify the LocalAddress property of UnicastBusConfig.");
+            }
         }
 
         /// <summary>
@@ -776,8 +865,6 @@ namespace NServiceBus.Unicast
 
             return destination;
         }
-
-        Address inputAddress;
 
         /// <summary>
         /// Map of message identifiers to Async Results - useful for cleanup in case of timeouts.

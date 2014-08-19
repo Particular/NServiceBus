@@ -7,6 +7,8 @@ namespace NServiceBus.Transports
     {
         public ISendMessages MessageSender { get; set; }
 
+        public Configure Configure { get; set; }
+
         public string EndpointName { get; set; }
 
         public void Audit(SendOptions sendOptions, TransportMessage transportMessage)
@@ -33,7 +35,7 @@ namespace NServiceBus.Transports
             // Send the newly created transport message to the queue
             MessageSender.Send(messageToForward, new SendOptions(sendOptions.Destination)
             {
-                ReplyToAddress = Address.PublicReturnAddress
+                ReplyToAddress = Configure.PublicReturnAddress
             });
         }
 

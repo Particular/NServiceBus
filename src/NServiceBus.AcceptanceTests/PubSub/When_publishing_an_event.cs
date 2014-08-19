@@ -13,15 +13,8 @@
         public void Issue_1851()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b =>
-                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
-                        {
-                            if (s.SubscriberReturnAddress.Queue.Contains("Subscriber3"))
-                            {
-                                context.Subscriber3Subscribed = true;
-                            }
-                        }))
-                        .When(c => c.Subscriber3Subscribed, bus => bus.Publish<IFoo>())
+                    .WithEndpoint<Publisher3>(b =>
+                        b.When(c => c.Subscriber3Subscribed, bus => bus.Publish<IFoo>())
                      )
                     .WithEndpoint<Subscriber3>(b => b.Given((bus, context) =>
                     {
@@ -44,23 +37,7 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
-                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
-                        {
-                            if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
-                            {
-                                context.Subscriber1Subscribed = true;
-                                context.AddTrace("Subscriber1 is now subscribed");
-                            }
-
-
-                            if (s.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
-                            {
-                                context.AddTrace("Subscriber2 is now subscribed");
-                                context.Subscriber2Subscribed = true;
-                            }
-                                
-                        }))
-                        .When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (bus, c) =>
+                        b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (bus, c) =>
                         {
                             c.AddTrace("Both subscribers is subscribed, going to publish MyEvent");
                             bus.Publish(new MyEvent());
@@ -118,18 +95,48 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>();
+                EndpointSetup<DefaultPublisher>(c => { }, b =>
+                {
+                    b.OnEndpointSubscribed<Context>((s, context) =>
+                    {
+                        if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                        {
+                            context.Subscriber1Subscribed = true;
+                            context.AddTrace("Subscriber1 is now subscribed");
+                        }
+
+
+                        if (s.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
+                        {
+                            context.AddTrace("Subscriber2 is now subscribed");
+                            context.Subscriber2Subscribed = true;
+                        }
+                    });
+                    b.DisableFeature<AutoSubscribe>();
+                });
             }
         }
 
-     
+        public class Publisher3 : EndpointConfigurationBuilder
+        {
+            public Publisher3()
+            {
+                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    if (s.SubscriberReturnAddress.Queue.Contains("Subscriber3"))
+                    {
+                        context.Subscriber3Subscribed = true;
+                    }
+                }));
+            }
+        }
 
         public class Subscriber3 : EndpointConfigurationBuilder
         {
             public Subscriber3()
             {
                 EndpointSetup<DefaultServer>(_ => { }, c => c.DisableFeature<AutoSubscribe>())
-                    .AddMapping<IFoo>(typeof(Publisher));
+                    .AddMapping<IFoo>(typeof(Publisher3));
             }
 
             public class MyEventHandler : IHandleMessages<IFoo>

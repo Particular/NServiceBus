@@ -17,5 +17,19 @@
         /// Lists all message type for which we have handlers
         /// </summary>
         IEnumerable<Type> GetMessageTypes();
+
+        /// <summary>
+        /// Invokes the handle method of the given handler passing the message
+        /// </summary>
+        /// <param name="handler">The handler instance.</param>
+        /// <param name="message">The message instance.</param>
+        void InvokeHandle(object handler, object message);
+
+        /// <summary>
+        /// Invokes the timeout method of the given handler passing the message
+        /// </summary>
+        /// <param name="handler">The handler instance.</param>
+        /// <param name="state">The message instance.</param>
+        void InvokeTimeout(object handler, object state);
     }
 }

@@ -57,14 +57,6 @@
             return this;
         }
 
-        public EndpointBehaviorBuilder<TContext> AppConfig(string appConfigPath)
-        {
-            behavior.AppConfig = appConfigPath;
-
-            return this;
-        }
-
-
         public EndpointBehavior Build()
         {
             return behavior;

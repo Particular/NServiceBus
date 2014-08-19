@@ -105,6 +105,7 @@
     <Compile Include="Features\ExposeSettings.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
+    <Compile Include="IManageMessageHeaders.cs" />
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="Installation\InstallationSupport.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />
@@ -437,7 +438,6 @@
     <Compile Include="SecondLevelRetries\SecondLevelRetriesProcessor.cs" />
     <Compile Include="SecondLevelRetries\Helpers\SecondLevelRetriesHeaders.cs" />
     <Compile Include="MessageConventions_Obsolete.cs" />
-    <Compile Include="MessageHeaders\HeaderBootstrapper.cs" />
     <Compile Include="MessageInterfaces\IMessageMapper.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\MessageMapper.cs" />
     <Compile Include="MessageMutator\IMutateTransportMessages.cs" />
@@ -508,7 +508,6 @@
     <Compile Include="Unicast\Callback.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions.cs" />
     <Compile Include="Timeout\Core\TimeoutManagerDeferrer.cs" />
-    <Compile Include="Unicast\HandlerInvocationCache.cs" />
     <Compile Include="Unicast\MessagesEventArgs.cs" />
     <Compile Include="Unicast\Queuing\Installers\ForwardReceivedMessagesToQueueCreator.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageDrivenPublishing.cs" />
@@ -571,7 +570,9 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="MessageHeaders\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="Resources\NServiceBus_Logo-  white.png" />
     <None Include="Resources\NServiceBus.png" />

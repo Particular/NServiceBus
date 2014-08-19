@@ -10,7 +10,7 @@
     using Transports;
 
     [Serializable]
-    public class EndpointRunner : MarshalByRefObject
+    public class EndpointRunner:MarshalByRefObject
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
         readonly SemaphoreSlim contextChanged = new SemaphoreSlim(0);
@@ -22,12 +22,14 @@
         Task executeWhens;
         ScenarioContext scenarioContext;
         bool stopped;
+        RunDescriptor runDescriptor;
 
         public Result Initialize(RunDescriptor run, EndpointBehavior endpointBehavior,
             IDictionary<Type, string> routingTable, string endpointName)
         {
             try
             {
+                runDescriptor = run;
                 behavior = endpointBehavior;
                 scenarioContext = run.ScenarioContext;
                 configuration =
@@ -142,6 +144,16 @@
             }
         }
 
+        public string Name()
+        {
+            if (runDescriptor.UseSeparateAppdomains)
+            {
+                return AppDomain.CurrentDomain.FriendlyName;
+            }
+
+            return configuration.EndpointName;
+        }
+
         public override object InitializeLifetimeService()
         {
             var lease = (ILease)base.InitializeLifetimeService();
@@ -154,13 +166,8 @@
             return lease;
         }
 
-        public string Name()
-        {
-            return AppDomain.CurrentDomain.FriendlyName;
-        }
-
         [Serializable]
-        public class Result : MarshalByRefObject
+        public class Result
         {
             public Exception Exception { get; set; }
 

@@ -16,26 +16,24 @@
         public void Should_be_able_to_reply_to_a_message_published_by_a_saga()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<EndpointThatHostsASaga>
-                    (b =>
-                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
-                        {
-                            context.Subscribed = true;
-                        }))
-                        .When(c => c.Subscribed, bus => bus.SendLocal(new StartSaga { DataId = Guid.NewGuid() }))
-                     )
-                    .WithEndpoint<EndpointThatHandlesAMessageFromSagaAndReplies>(b => b.Given((bus, context) =>
+                .WithEndpoint<EndpointThatHostsASaga>
+                (b => b.When(c => c.Subscribed, bus => bus.SendLocal(new StartSaga
+                {
+                    DataId = Guid.NewGuid()
+                }))
+                )
+                .WithEndpoint<EndpointThatHandlesAMessageFromSagaAndReplies>(b => b.Given((bus, context) =>
+                {
+                    bus.Subscribe<DidSomething>();
+                    if (context.HasNativePubSubSupport)
                     {
-                        bus.Subscribe<DidSomething>();
-                        if (context.HasNativePubSubSupport)
-                        {
-                            context.Subscribed = true;
-                        }
-                    }))
-                    .Done(c => c.DidSagaReplyMessageGetCorrelated)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.True(c.DidSagaReplyMessageGetCorrelated))
-                    .Run();
+                        context.Subscribed = true;
+                    }
+                }))
+                .Done(c => c.DidSagaReplyMessageGetCorrelated)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c => Assert.True(c.DidSagaReplyMessageGetCorrelated))
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -48,8 +46,8 @@
         {
             public EndpointThatHandlesAMessageFromSagaAndReplies()
             {
-                EndpointSetup<DefaultServer>(_ => { }, c => c.DisableFeature<AutoSubscribe>())
-                    .AddMapping<DidSomething>(typeof (EndpointThatHostsASaga))
+                EndpointSetup<DefaultServer>(_ => { }, b => b.DisableFeature<AutoSubscribe>())
+                    .AddMapping<DidSomething>(typeof(EndpointThatHostsASaga))
                     .WithConfig<TransportConfig>(c =>
                     {
                         c.MaxRetries = 0;
@@ -75,7 +73,10 @@
         {
             public EndpointThatHostsASaga()
             {
-                EndpointSetup<DefaultPublisher>();
+                EndpointSetup<DefaultPublisher>(_ => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    context.Subscribed = true;
+                }));
             }
 
             public class Saga2 : Saga<Saga2.MySaga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<DidSomethingResponse>

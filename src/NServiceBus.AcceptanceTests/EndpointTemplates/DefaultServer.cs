@@ -10,7 +10,6 @@
     using Logging;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
-    using PubSub;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
@@ -44,10 +43,8 @@
                 o.CustomConfigurationSource(configSource);
                 o.EnableInstallers();
                 o.DefineTransport(settings);
-                o.Pipeline.Register<SubscriptionBehavior.Registration>();
                 o.RegisterComponents(r =>
                 {
-                    r.ConfigureComponent<SubscriptionBehavior>(DependencyLifecycle.InstancePerCall);
                     r.RegisterSingleton(runDescriptor.ScenarioContext.GetType(), runDescriptor.ScenarioContext);
                     r.RegisterSingleton(typeof(ScenarioContext), runDescriptor.ScenarioContext);
                 });

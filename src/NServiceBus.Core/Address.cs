@@ -22,39 +22,35 @@
         /// </summary>
         public static readonly Address Self = new Address("__self", "localhost");
 
-        
-
         /// <summary>
         /// Get the address of this endpoint.
         /// </summary>
-        public static Address Local { get; private set; }
-
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "config.LocalAddress")]
+        public static Address Local
+        {
+            get { throw new InvalidOperationException(); }
+        }
 
         /// <summary>
         /// Sets the address of this endpoint.
         /// </summary>
         /// <param name="queue">The queue name.</param>
-        public static void InitializeLocalAddress(string queue)
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "ConfigureTransport<T>.LocalAddress(queue)")]
+// ReSharper disable once UnusedParameter.Global
+         public static void InitializeLocalAddress(string queue)
         {
-            Local = Parse(queue);
-            PublicReturnAddress = Local;
-
-            if (preventChanges)
-                throw new InvalidOperationException("Overwriting a previously set local address is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
+            throw new InvalidOperationException();
         }
-
-        internal static Address PublicReturnAddress { get; private set; }
 
         /// <summary>
         /// Sets the public return address of this endpoint.
         /// </summary>
         /// <param name="address">The public address.</param>
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "Configure.With(o => o.OverridePublicReturnAddress(address))")]
+// ReSharper disable once UnusedParameter.Global
         public static void OverridePublicReturnAddress(Address address)
         {
-            PublicReturnAddress = address;
-
-            if (preventChanges)
-                throw new InvalidOperationException("Overwriting a previously set public return address is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
+            throw new InvalidOperationException();
         }
 
         /// <summary>
@@ -75,6 +71,14 @@
         public static void IgnoreMachineName()
         {
             ignoreMachineName = true;
+        }
+
+        /// <summary>
+        /// Prevents changes to all addresses.
+        /// </summary>
+        public static void PreventChanges()
+        {
+            preventChanges = true;
         }
 
         /// <summary>
@@ -190,14 +194,6 @@
         }
 
         /// <summary>
-        /// Prevents changes to all addresses.
-        /// </summary>
-        public static void PreventChanges()
-        {
-            preventChanges = true;
-        }
-
-        /// <summary>
         /// The (lowercase) name of the queue not including the name of the machine or location depending on the address mode.
         /// </summary>
         public string Queue { get; private set; }
@@ -258,7 +254,6 @@
                 return false;
 
             return other.queueLowerCased.Equals(queueLowerCased);
-
         }
 
         static string defaultMachine = RuntimeEnvironment.MachineName;

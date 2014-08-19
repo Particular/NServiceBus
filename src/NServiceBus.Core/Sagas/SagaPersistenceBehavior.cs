@@ -4,13 +4,13 @@
     using System.Collections.Generic;
     using System.Linq;
     using Logging;
+    using NServiceBus.Unicast;
     using Pipeline;
     using Pipeline.Contexts;
     using Saga;
     using Finders;
     using Timeout;
     using Transports;
-    using Unicast;
     using Unicast.Messages;
 
     class SagaPersistenceBehavior : IBehavior<IncomingContext>
@@ -18,6 +18,8 @@
         public ISagaPersister SagaPersister { get; set; }
 
         public IDeferMessages MessageDeferrer { get; set; }
+
+        public IMessageHandlerRegistry MessageHandlerRegistry { get; set; }
 
         public void Invoke(IncomingContext context, Action next)
         {
@@ -66,7 +68,7 @@
 
             if (IsTimeoutMessage(context.IncomingLogicalMessage))
             {
-                context.MessageHandler.Invocation = HandlerInvocationCache.InvokeTimeout;
+                context.MessageHandler.Invocation = MessageHandlerRegistry.InvokeTimeout;
             }
 
 

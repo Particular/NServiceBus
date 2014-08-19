@@ -504,7 +504,7 @@ namespace NServiceBus.Serializers.XML
             return result;
         }
 
-        static PropertyInfo GetProperty(Type t, string name)
+        PropertyInfo GetProperty(Type t, string name)
         {
             IEnumerable<PropertyInfo> props;
             typeToProperties.TryGetValue(t, out props);
@@ -1316,11 +1316,11 @@ namespace NServiceBus.Serializers.XML
 
         const string BASETYPE = "baseType";
 
-        static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
-        static readonly Dictionary<Type, IEnumerable<FieldInfo>> typeToFields = new Dictionary<Type, IEnumerable<FieldInfo>>();
-        static readonly Dictionary<Type, Type> typesToCreateForArrays = new Dictionary<Type, Type>();
-        static readonly Dictionary<Type, Type> typesToCreateForEnumerables = new Dictionary<Type, Type>();
-        static readonly List<Type> typesBeingInitialized = new List<Type>();
+        readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
+        readonly Dictionary<Type, IEnumerable<FieldInfo>> typeToFields = new Dictionary<Type, IEnumerable<FieldInfo>>();
+        readonly Dictionary<Type, Type> typesToCreateForArrays = new Dictionary<Type, Type>();
+        readonly Dictionary<Type, Type> typesToCreateForEnumerables = new Dictionary<Type, Type>();
+        readonly List<Type> typesBeingInitialized = new List<Type>();
 
         [ThreadStatic]
         static string defaultNameSpace;

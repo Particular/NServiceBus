@@ -81,11 +81,11 @@ namespace NServiceBus.Timeout.Core
         }
 
         /// <summary>
-        /// Transforms the timeout to send options
+        /// Transforms the timeout to send options.
         /// </summary>
-        public SendOptions ToSendOptions()
+        /// <param name="replyToAddress">The reply address to use for outgoing messages</param>
+        public SendOptions ToSendOptions(Address replyToAddress)
         {
-            var replyToAddress = Address.Local;
             if (Headers != null)
             {
                 string originalReplyToAddressValue;
