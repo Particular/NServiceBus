@@ -81,6 +81,7 @@
             {
                 EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<SagaContext>((s, context) =>
                 {
+                    context.AddTrace("Subscription received for " + s.SubscriberReturnAddress.Queue);
                     if (s.SubscriberReturnAddress.Queue.Contains("SagaThatIsStartedByABaseEvent"))
                     {
                         context.IsEventSubscriptionReceived = true;
