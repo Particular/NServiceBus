@@ -11,7 +11,9 @@
 		public void Ensure_timestamp_is_embedded()
 		{
 		    var dateTime = TimestampReader.GetBuildTimestamp();
-            Assert.AreEqual(DateTime.UtcNow.Date,dateTime.Date);
+
+            // the OriginalDate from ReleaseDateAttribute date should be less than now
+            Assert.LessOrEqual(dateTime.Date, DateTime.UtcNow);
 		}
 	}
 }
