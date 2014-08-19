@@ -1,6 +1,7 @@
 namespace NServiceBus.Encryption.Rijndael
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Security.Cryptography;
     using Logging;
@@ -17,6 +18,11 @@ namespace NServiceBus.Encryption.Rijndael
         /// </summary>
         public byte[] Key { get; set; }
 
+        /// <summary>
+        /// Expired keys that are being phased out but still used for decryption
+        /// </summary>
+        public List<byte[]> ExpiredKeys { get; set; }
+
         string IEncryptionService.Decrypt(EncryptedValue encryptedValue)
         {
             if (Key == null)
@@ -25,13 +31,36 @@ namespace NServiceBus.Encryption.Rijndael
                 return encryptedValue.EncryptedBase64Value;
             }
 
-            var encrypted = Convert.FromBase64String(encryptedValue.EncryptedBase64Value);
+            var decryptionKeys = new List<byte[]> { Key };
+            if (ExpiredKeys != null)
+            {
+                decryptionKeys.AddRange(ExpiredKeys);
+            }
+            var cryptographicExceptions = new List<CryptographicException>();
+
+            foreach (var key in decryptionKeys)
+            {
+                try
+                {
+                    return Decrypt(encryptedValue, key);
+                }
+                catch (CryptographicException exception)
+                {
+                    cryptographicExceptions.Add(exception);
+                }
+            }
+            var message = string.Format("Could not decrypt message. Tried {0} keys.", decryptionKeys.Count);
+            throw new AggregateException(message, cryptographicExceptions);
+        }
+
+        static string Decrypt(EncryptedValue encryptedValue, byte[] key)
+        {
             using (var rijndael = new RijndaelManaged())
             {
-                rijndael.Key = Key;
+                var encrypted = Convert.FromBase64String(encryptedValue.EncryptedBase64Value);
                 rijndael.IV = Convert.FromBase64String(encryptedValue.Base64Iv);
                 rijndael.Mode = CipherMode.CBC;
-
+                rijndael.Key = key;
                 using (var decryptor = rijndael.CreateDecryptor())
                 using (var memoryStream = new MemoryStream(encrypted))
                 using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
@@ -71,6 +100,29 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (EncryptionService));
+        internal void VerifyKeysAreNotTooSimilar()
+        {
+            for (var index = 0; index < ExpiredKeys.Count; index++)
+            {
+                var decryption = ExpiredKeys[index];
+                CryptographicException exception = null;
+                var encryptedValue = ((IEncryptionService)this).Encrypt("a");
+                try
+                {
+                    Decrypt(encryptedValue, decryption);
+                }
+                catch (CryptographicException cryptographicException)
+                {
+                    exception = cryptographicException;
+                }
+                if (exception == null)
+                {
+                    var message = string.Format("The new Encryption Key is too similar to the Expired Key at index {0}. This can cause issues when decrypting data. To fix this issue please ensure the new encryption key is not too similar to the existing Expired Keys.", index);
+                    throw new Exception(message);
+                }
+            }
+        }
+
+        static readonly ILog Logger = LogManager.GetLogger(typeof(EncryptionService));
     }
 }
