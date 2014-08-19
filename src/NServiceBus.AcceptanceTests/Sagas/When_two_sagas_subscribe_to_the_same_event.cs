@@ -4,6 +4,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
     using PubSub;
     using Saga;
@@ -17,7 +18,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
         {
             Scenario.Define<Context>()
                     .WithEndpoint<EndpointThatHostsTwoSagas>(b =>
-                        b.When(c => true, bus => bus.SendLocal(new StartSaga2
+                        b.When(c => c.Subscribed, bus => bus.SendLocal(new StartSaga2
                         {
                             DataId = Guid.NewGuid()
                         }))
@@ -40,7 +41,10 @@ namespace NServiceBus.AcceptanceTests.Sagas
         {
             public EndpointThatHandlesAMessageAndPublishesEvent()
             {
-                EndpointSetup<DefaultPublisher>();
+                EndpointSetup<DefaultPublisher>(_ => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    context.Subscribed = true;
+                }));
             }
 
             class OpenGroupCommandHandler : IHandleMessages<OpenGroupCommand>
@@ -59,13 +63,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
         {
             public EndpointThatHostsTwoSagas()
             {
-                EndpointSetup<DefaultServer>(_=>{}, b => b.OnEndpointSubscribed<Context>((s, context) =>
-                {
-                    if (s.SubscriberReturnAddress.Queue.Contains("Saga1"))
-                    {
-                        context.Subscribed = true;
-                    }
-                }))
+                EndpointSetup<DefaultServer>()
                     .AddMapping<OpenGroupCommand>(typeof(EndpointThatHandlesAMessageAndPublishesEvent))
                     .AddMapping<GroupPendingEvent>(typeof(EndpointThatHandlesAMessageAndPublishesEvent));
             }
@@ -78,13 +76,13 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 {
                     Data.DataId = message.DataId;
                     Console.Out.WriteLine("Saga1 received GroupPendingEvent for DataId: {0}", message.DataId);
-                    Context.DidSaga1EventHandlerGetInvoked = true;
                     Bus.SendLocal(new CompleteSaga1Now { DataId = message.DataId });
                 }
 
                 public void Handle(CompleteSaga1Now message)
                 {
                     Console.Out.WriteLine("Saga1 received CompleteSaga1Now for DataId:{0} and MarkAsComplete", message.DataId);
+                    Context.DidSaga1EventHandlerGetInvoked = true;
 
                     MarkAsComplete();
                 }
@@ -133,7 +131,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     [Unique]
                     public virtual  Guid DataId { get; set; }
                 }
-
             }
         }
 
