@@ -7,9 +7,9 @@ namespace NServiceBus.SecondLevelRetries.Config
     /// </summary>
     public class SecondLevelRetriesSettings
     {
-        readonly Configure config;
+        readonly ConfigurationBuilder config;
 
-        internal SecondLevelRetriesSettings(Configure config)
+        internal SecondLevelRetriesSettings(ConfigurationBuilder config)
         {
             this.config = config;
         }
