@@ -32,7 +32,6 @@
                         if (context.HasNativePubSubSupport)
                             context.IsEventSubscriptionReceived = true;
                     }))
-
                 .Done(c => c.DidSaga1Complete && c.DidSaga2Complete)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c => Assert.True(c.DidSaga1Complete && c.DidSaga2Complete))
@@ -82,10 +81,7 @@
                 EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<SagaContext>((s, context) =>
                 {
                     context.AddTrace("Subscription received for " + s.SubscriberReturnAddress.Queue);
-                    if (s.SubscriberReturnAddress.Queue.Contains("SagaThatIsStartedByABaseEvent"))
-                    {
-                        context.IsEventSubscriptionReceived = true;
-                    }
+                    context.IsEventSubscriptionReceived = true;
                 }));
             }
         }
@@ -96,10 +92,7 @@
             {
                 EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
-                    if (s.SubscriberReturnAddress.Queue.Contains("SagaThatIsStartedByTheEvent"))
-                    {
-                        context.IsEventSubscriptionReceived = true;
-                    }
+                    context.IsEventSubscriptionReceived = true;
                 }));
             }
 
