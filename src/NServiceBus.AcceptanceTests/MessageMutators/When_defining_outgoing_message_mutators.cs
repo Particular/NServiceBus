@@ -59,11 +59,11 @@
 
             class MyMessageMutator : IMutateOutgoingMessages, INeedInitialization
             {
-
+                public IBus Bus { get; set; }
              
                 public object MutateOutgoing(object message)
                 {
-                    Headers.SetMessageHeader(message,"MessageMutatorCalled","true");
+                    Bus.SetMessageHeader(message, "MessageMutatorCalled", "true");
 
                     return message;
                 }

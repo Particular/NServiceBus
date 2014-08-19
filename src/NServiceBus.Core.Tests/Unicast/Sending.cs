@@ -111,7 +111,7 @@
             RegisterMessageType<TestMessage>();
 
 
-            bus.Send<TestMessage>(m => m.SetHeader(Headers.ConversationId, "my order id"));
+            bus.Send<TestMessage>(m => bus.SetMessageHeader(m, Headers.ConversationId, "my order id"));
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Headers.ConversationId] == "my order id"), Arg<SendOptions>.Is.Anything));
         }
@@ -123,7 +123,7 @@
 
             //todo - add a way to set the context from out tests
 
-            unicastBus.PropagateReturnAddressOnSend = true;
+            bus.PropagateReturnAddressOnSend = true;
             RegisterMessageType<TestMessage>();
             bus.Send(new TestMessage());
 

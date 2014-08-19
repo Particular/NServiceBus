@@ -24,7 +24,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public partial class UnicastBus : IStartableBus, IInMemoryOperations
+    public partial class UnicastBus : IStartableBus, IInMemoryOperations, IManageMessageHeaders
     {
         HostInformation hostInformation = HostInformation.CreateDefault();
 
@@ -37,7 +37,102 @@ namespace NServiceBus.Unicast
         public UnicastBus()
         {
             HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = hostInformation.HostId;
+
+            SetupHeaderActions();
         }
+
+        void SetupHeaderActions()
+        {
+            SetHeaderAction = (message, key, value) =>
+            {
+                //are we in the process of sending a logical message
+                var outgoingLogicalMessageContext = PipelineFactory.CurrentContext as OutgoingContext;
+
+                if (outgoingLogicalMessageContext != null && outgoingLogicalMessageContext.OutgoingLogicalMessage.Instance == message)
+                {
+                    outgoingLogicalMessageContext.OutgoingLogicalMessage.Headers[key] = value;
+                }
+
+                Dictionary<object, Dictionary<string, string>> outgoingHeaders;
+
+                if (!PipelineFactory.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
+                {
+                    outgoingHeaders = new Dictionary<object, Dictionary<string, string>>();
+
+                    PipelineFactory.CurrentContext.Set("NServiceBus.OutgoingHeaders", outgoingHeaders);
+                }
+
+                Dictionary<string, string> outgoingHeadersForThisMessage;
+
+                if (!outgoingHeaders.TryGetValue(message, out outgoingHeadersForThisMessage))
+                {
+                    outgoingHeadersForThisMessage = new Dictionary<string, string>();
+                    outgoingHeaders[message] = outgoingHeadersForThisMessage;
+                }
+
+                outgoingHeadersForThisMessage[key] = value;
+            };
+
+            GetHeaderAction = (message, key) =>
+            {
+                if (message == ExtensionMethods.CurrentMessageBeingHandled)
+                {
+                    LogicalMessage messageBeingReceived;
+
+                    //first try to get the header from the current logical message
+                    if (PipelineFactory.CurrentContext.TryGet(out messageBeingReceived))
+                    {
+                        string value;
+
+                        messageBeingReceived.Headers.TryGetValue(key, out value);
+
+                        return value;
+                    }
+
+                    //falling back to get the headers from the physical message
+                    // when we remove the multi message feature we can remove this and instead
+                    // share the same header collection btw physical and logical message
+                    if (CurrentMessageContext != null)
+                    {
+                        string value;
+                        if (CurrentMessageContext.Headers.TryGetValue(key, out value))
+                        {
+                            return value;
+                        }
+                    }
+                    return null;
+                }
+
+                Dictionary<object, Dictionary<string, string>> outgoingHeaders;
+
+                if (!PipelineFactory.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
+                {
+                    return null;
+                }
+                Dictionary<string, string> outgoingHeadersForThisMessage;
+
+                if (!outgoingHeaders.TryGetValue(message, out outgoingHeadersForThisMessage))
+                {
+                    return null;
+                }
+
+                string headerValue;
+
+                outgoingHeadersForThisMessage.TryGetValue(key, out headerValue);
+
+                return headerValue;
+            };
+        }
+
+        /// <summary>
+        /// The <see cref="Action{T1,T2,T3}"/> used to set the header in the bus.SetMessageHeader(msg, key, value) method.
+        /// </summary>
+        public Action<object, string, string> SetHeaderAction { get; internal set; }
+
+        /// <summary>
+        /// The <see cref="Func{T1,T2,TResult}"/> used to get the header value in the bus.GetMessageHeader(msg, key) method.
+        /// </summary>
+        public Func<object, string, string> GetHeaderAction { get; internal set; }
 
         /// <summary>
         /// Provides access to the current host information
@@ -475,7 +570,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
         {
-            Headers.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
+            this.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
 
             return SendMessage(new SendOptions(Settings.Get<Address>("MasterNode.Address").SubScope("gateway")), LogicalMessageFactory.Create(message));
         }

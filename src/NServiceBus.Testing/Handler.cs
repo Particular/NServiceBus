@@ -245,7 +245,9 @@
             bus.CurrentMessageContext = context;
 
             foreach (var keyValuePair in incomingHeaders)
-                ExtensionMethods.SetHeaderAction(message, keyValuePair.Key, keyValuePair.Value);
+            {
+                bus.SetHeaderAction(message, keyValuePair.Key, keyValuePair.Value);
+            }
 
             ExtensionMethods.CurrentMessageBeingHandled = message;
 

@@ -9,7 +9,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Core.Tests;
     using Helpers;
     using Licensing;
-    using MessageHeaders;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
@@ -33,7 +32,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     {
         protected UnicastBus bus;
 
-        protected UnicastBus unicastBus;
         protected ISendMessages messageSender;
         protected FakeSubscriptionStorage subscriptionStorage;
 
@@ -146,7 +144,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IDeferMessages>(() => deferrer);
             FuncBuilder.Register<IPublishMessages>(() => messagePublisher);
 
-            unicastBus = new UnicastBus
+            bus = new UnicastBus
             {
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
@@ -157,17 +155,12 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 Settings = settings,
                 Configure = configure,
             };
-            bus = unicastBus;
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CausationMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
-            FuncBuilder.Register<UnicastBus>(() => unicastBus);
+            FuncBuilder.Register<UnicastBus>(() => bus);
             FuncBuilder.Register<Conventions>(() => conventions);
             FuncBuilder.Register<Configure>(() => configure);
-            new HeaderBootstrapper
-            {
-                Builder = FuncBuilder
-            }.SetupHeaderActions();
         }
 
         protected virtual void ApplyPipelineModifications()
@@ -287,14 +280,14 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             try
             {
-                ExtensionMethods.GetHeaderAction = (o, s) =>
+                bus.GetHeaderAction = (o, s) =>
                 {
                     string v;
                     transportMessage.Headers.TryGetValue(s, out v);
                     return v;
                 };
 
-                ExtensionMethods.SetHeaderAction = (o, s, v) => { transportMessage.Headers[s] = v; };
+                bus.SetHeaderAction = (o, s, v) => { transportMessage.Headers[s] = v; };
 
                 Transport.FakeMessageBeingProcessed(transportMessage);
 
