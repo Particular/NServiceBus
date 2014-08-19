@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyListExtensions\AllTypesAssignableToTests.cs" />
+    <Compile Include="AssemblyListExtensions\AssemblyListExtensions.cs" />
     <Compile Include="AssemblyListExtensions\WhereConcreteTests.cs" />
     <Compile Include="AssemblyPathHelper.cs" />
     <Compile Include="EndpointTypeDeterminerTests.cs" />

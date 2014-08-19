@@ -419,7 +419,6 @@
     <Compile Include="Monitoring\SLA\EndpointSLAAttribute.cs" />
     <Compile Include="Hosting\Configuration\IConfigureThisEndpoint.cs" />
     <Compile Include="Hosting\Configuration\IWantCustomInitialization.cs" />
-    <Compile Include="Hosting\Helpers\AssemblyListExtensions.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
