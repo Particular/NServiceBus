@@ -14,14 +14,7 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
-                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
-                        {
-                            if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
-                            {
-                                context.Subscriber1Subscribed = true;
-                            }
-                        }))
-                        .When(c => c.Subscriber1Subscribed, bus =>
+                        b.When(c => c.Subscriber1Subscribed, bus =>
                         {
                             IMyEvent message = new EventMessage();
 
@@ -52,7 +45,13 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>();
+                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                    {
+                        context.Subscriber1Subscribed = true;
+                    }
+                }));
             }
         }
         

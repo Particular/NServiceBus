@@ -40,8 +40,6 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
                 {
                     Context.AddTrace(string.Format("No Subscribers found for message {0}", context.OutgoingLogicalMessage.MessageType.Name));
                 }
-
-
             }
 
             public class Registration : RegisterStep

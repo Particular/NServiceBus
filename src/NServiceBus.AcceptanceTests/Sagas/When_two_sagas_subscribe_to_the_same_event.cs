@@ -17,14 +17,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
         {
             Scenario.Define<Context>()
                     .WithEndpoint<EndpointThatHostsTwoSagas>(b =>
-                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
-                        {
-                            if (s.SubscriberReturnAddress.Queue.Contains("Saga1"))
-                            {
-                                context.Subscribed = true;
-                            }
-                        }))
-                        .When(c => true, bus => bus.SendLocal(new StartSaga2
+                        b.When(c => true, bus => bus.SendLocal(new StartSaga2
                         {
                             DataId = Guid.NewGuid()
                         }))
@@ -66,7 +59,13 @@ namespace NServiceBus.AcceptanceTests.Sagas
         {
             public EndpointThatHostsTwoSagas()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(_=>{}, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    if (s.SubscriberReturnAddress.Queue.Contains("Saga1"))
+                    {
+                        context.Subscribed = true;
+                    }
+                }))
                     .AddMapping<OpenGroupCommand>(typeof(EndpointThatHandlesAMessageAndPublishesEvent))
                     .AddMapping<GroupPendingEvent>(typeof(EndpointThatHandlesAMessageAndPublishesEvent));
             }

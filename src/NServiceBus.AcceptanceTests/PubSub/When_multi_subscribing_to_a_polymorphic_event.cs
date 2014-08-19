@@ -15,28 +15,12 @@
             var rootContext = new Context();
 
             Scenario.Define(rootContext)
-                .WithEndpoint<Publisher1>(b => b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(args =>
-                {
-                    context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
-                    if (args.MessageType.Contains(typeof(IMyEvent).Name))
-                    {
-                        context.Publisher1HasASubscriberForIMyEvent = true;
-                    }
-
-                })).When(c => c.Publisher1HasASubscriberForIMyEvent, (bus, c) =>
+                .WithEndpoint<Publisher1>(b => b.When(c => c.Publisher1HasASubscriberForIMyEvent, (bus, c) =>
                 {
                     c.AddTrace("Publishing MyEvent1");
                     bus.Publish(new MyEvent1());
                 }))
-                .WithEndpoint<Publisher2>(b => b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(args =>
-                {
-                    context.AddTrace("Publisher2 OnEndpointSubscribed " + args.MessageType);
-                    
-                    if (args.MessageType.Contains(typeof(MyEvent2).Name))
-                    {
-                        context.Publisher2HasDetectedASubscriberForEvent2 = true;
-                    }
-                })).When(c =>c.Publisher2HasDetectedASubscriberForEvent2, (bus, c) =>
+                .WithEndpoint<Publisher2>(b => b.When(c => c.Publisher2HasDetectedASubscriberForEvent2, (bus, c) =>
                 {
                     c.AddTrace("Publishing MyEvent2");
                     bus.Publish(new MyEvent2());
@@ -55,7 +39,10 @@
                 }))
                 .AllowExceptions(e => e.Message.Contains("Oracle.DataAccess.Client.OracleException: ORA-00001") || e.Message.Contains("System.Data.SqlClient.SqlException: Violation of PRIMARY KEY constraint"))
                 .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)
-                .Run(new RunSettings{UseSeparateAppDomains = true});
+                .Run(new RunSettings
+                {
+                    UseSeparateAppDomains = true
+                });
 
             Assert.True(rootContext.SubscriberGotIMyEvent);
             Assert.True(rootContext.SubscriberGotMyEvent2);
@@ -67,15 +54,20 @@
             public bool SubscriberGotMyEvent2 { get; set; }
             public bool Publisher1HasASubscriberForIMyEvent { get; set; }
             public bool Publisher2HasDetectedASubscriberForEvent2 { get; set; }
-
-            
         }
 
         public class Publisher1 : EndpointConfigurationBuilder
         {
             public Publisher1()
             {
-                EndpointSetup<DefaultPublisher>();
+                EndpointSetup<DefaultPublisher>(c=>{}, b => b.OnEndpointSubscribed<Context>((args, context) =>
+                {
+                    context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
+                    if (args.MessageType.Contains(typeof(IMyEvent).Name))
+                    {
+                        context.Publisher1HasASubscriberForIMyEvent = true;
+                    }
+                }));
             }
         }
 
@@ -83,7 +75,15 @@
         {
             public Publisher2()
             {
-                EndpointSetup<DefaultPublisher>();
+                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<Context>((args, context) =>
+                {
+                    context.AddTrace("Publisher2 OnEndpointSubscribed " + args.MessageType);
+
+                    if (args.MessageType.Contains(typeof(MyEvent2).Name))
+                    {
+                        context.Publisher2HasDetectedASubscriberForEvent2 = true;
+                    }
+                }));
             }
         }
 
@@ -114,7 +114,6 @@
                 }
             }
         }
-
         
         [Serializable]
         public class MyEvent1 : IMyEvent
