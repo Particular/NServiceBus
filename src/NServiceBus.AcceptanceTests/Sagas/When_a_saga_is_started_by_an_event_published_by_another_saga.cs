@@ -4,7 +4,6 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using Features;
-    using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
     using PubSub;
     using Saga;
@@ -37,10 +36,7 @@
                 .Done(c => c.DidSaga1Complete && c.DidSaga2Complete)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c => Assert.True(c.DidSaga1Complete && c.DidSaga2Complete))
-                .Run(new RunSettings
-                {
-                    UseSeparateAppDomains = true
-                });
+                .Run();
         }
 
         public class Context : ScenarioContext

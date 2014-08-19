@@ -64,7 +64,7 @@ namespace NServiceBus.AcceptanceTesting
             {
                 runDescriptor.ScenarioContext = contextFactory();
                 runDescriptor.TestExecutionTimeout = settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
-                runDescriptor.UseSeparateAppdomains = false;//settings.UseSeparateAppDomains;
+                runDescriptor.UseSeparateAppdomains = settings.UseSeparateAppDomains;
             }
 
             var sw = new Stopwatch();

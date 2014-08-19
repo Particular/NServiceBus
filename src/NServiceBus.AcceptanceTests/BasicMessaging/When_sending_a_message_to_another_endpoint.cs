@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -33,7 +32,7 @@
                             Assert.AreEqual("StaticHeaderValue",c.ReceivedHeaders["MyStaticHeader"], "Static headers should be attached to outgoing messages");
                             Assert.AreEqual("MyHeaderValue", c.MyHeader, "Static headers should be attached to outgoing messages");
                         })
-                    .Run(new RunSettings{UseSeparateAppDomains = true});
+                    .Run();
         }
 
         public class Context : ScenarioContext
