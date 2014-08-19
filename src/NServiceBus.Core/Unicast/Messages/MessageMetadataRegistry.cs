@@ -79,7 +79,10 @@
                 .OrderByDescending(PlaceInMessageHierarchy)
                 .ToList();
 
-            var metadata = new MessageMetadata(messageType, !conventions.IsExpressMessageType(messageType) && !defaultToNonPersistentMessages, conventions.TimeToBeReceivedAction(messageType), new[]
+            var timeToBeReceived = conventions.GetTimeToBeReceived(messageType);
+            var isExpressMessageType = conventions.IsExpressMessageType(messageType);
+            var recoverable = !isExpressMessageType && !defaultToNonPersistentMessages;
+            var metadata = new MessageMetadata(messageType, recoverable, timeToBeReceived, new[]
             {
                 messageType
             }.Concat(parentMessages));

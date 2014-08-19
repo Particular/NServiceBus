@@ -11,102 +11,14 @@
     /// </summary>
     public class Conventions
     {
-        internal Conventions(Func<Type, TimeSpan> timeToBeReceivedAction = null, Func<Type, bool> isMessageTypeAction = null, Func<Type, bool> isExpressMessageAction = null, Func<Type, bool> isEventTypeAction = null, Func<Type, bool> isCommandTypeAction = null, Func<PropertyInfo, bool> isDataBusPropertyAction = null, Func<PropertyInfo, bool> isEncryptedPropertyAction = null)
-        {
-            if (isCommandTypeAction != null)
-            {
-                this.isCommandTypeAction = isCommandTypeAction;
-            }
-            if (isDataBusPropertyAction != null)
-            {
-                this.isDataBusPropertyAction = isDataBusPropertyAction;
-            }
-            if (isEncryptedPropertyAction != null)
-            {
-                this.isEncryptedPropertyAction = isEncryptedPropertyAction;
-            }
-            if (isEventTypeAction != null)
-            {
-                this.isEventTypeAction = isEventTypeAction;
-            }
-            if (isExpressMessageAction != null)
-            {
-                this.isExpressMessageAction = isExpressMessageAction;
-            }
-            if (isMessageTypeAction != null)
-            {
-                this.isMessageTypeAction = isMessageTypeAction;
-            }
-            if (timeToBeReceivedAction != null)
-            {
-                this.timeToBeReceivedAction = timeToBeReceivedAction;
-            }
-        }
-
         /// <summary>
-        ///     The function used to determine whether a type is a command type.
+        ///     Returns the time to be received for a give <paramref name="messageType"/>.
         /// </summary>
-        public Func<Type, bool> IsCommandTypeAction
+        public TimeSpan GetTimeToBeReceived(Type messageType)
         {
-            get { return isCommandTypeAction; }
+            return TimeToBeReceivedAction(messageType);
         }
-
-        /// <summary>
-        ///     The function used to determine whether a property should be treated as a databus property.
-        /// </summary>
-        public Func<PropertyInfo, bool> IsDataBusPropertyAction
-        {
-            get { return isDataBusPropertyAction; }
-        }
-
-        /// <summary>
-        ///     The function used to determine whether a property should be encrypted
-        /// </summary>
-        public Func<PropertyInfo, bool> IsEncryptedPropertyAction
-        {
-            get { return isEncryptedPropertyAction; }
-        }
-
-        /// <summary>
-        ///     The function used to determine whether a type is a event type.
-        /// </summary>
-        public Func<Type, bool> IsEventTypeAction
-        {
-            get { return isEventTypeAction; }
-        }
-
-        /// <summary>
-        ///     The function used to determine if a type is an express message (the message should not be written to disk).
-        /// </summary>
-        public Func<Type, bool> IsExpressMessageAction
-        {
-            get { return isExpressMessageAction; }
-        }
-
-        /// <summary>
-        ///     The function used to determine whether a type is a message type.
-        /// </summary>
-        public Func<Type, bool> IsMessageTypeAction
-        {
-            get { return isMessageTypeAction; }
-        }
-
-        /// <summary>
-        ///     The function to evaluate whether the message has a time to be received or not ( <see cref="TimeSpan.MaxValue" />).
-        /// </summary>
-        public Func<Type, TimeSpan> TimeToBeReceivedAction
-        {
-            get { return timeToBeReceivedAction; }
-        }
-
-        /// <summary>
-        ///     Returns true if the given object is a message.
-        /// </summary>
-        public bool IsMessage(object o)
-        {
-            return IsMessageType(o.GetType());
-        }
-
+        
         /// <summary>
         ///     Returns true if the given type is a message type.
         /// </summary>
@@ -148,14 +60,6 @@
         }
 
         /// <summary>
-        ///     Returns true if the given object is a command.
-        /// </summary>
-        public bool IsCommand(object o)
-        {
-            return IsCommandType(o.GetType());
-        }
-
-        /// <summary>
         ///     Returns true if the given type is a command type.
         /// </summary>
         public bool IsCommandType(Type t)
@@ -168,14 +72,6 @@
             {
                 throw new Exception("Failed to evaluate Command convention. See inner exception for details.", ex);
             }
-        }
-
-        /// <summary>
-        ///     Returns true if the given message should not be written to disk when sent.
-        /// </summary>
-        public bool IsExpressMessage(object o)
-        {
-            return IsExpressMessageType(o.GetType());
         }
 
         /// <summary>
@@ -225,14 +121,6 @@
         }
 
         /// <summary>
-        ///     Returns true if the given object is a event.
-        /// </summary>
-        public bool IsEvent(object o)
-        {
-            return IsEventType(o.GetType());
-        }
-
-        /// <summary>
         ///     Returns true if the given type is a event type.
         /// </summary>
         public bool IsEventType(Type t)
@@ -247,33 +135,30 @@
             }
         }
 
-        readonly ConventionCache CommandsConventionCache = new ConventionCache();
-        readonly ConventionCache EventsConventionCache = new ConventionCache();
-        readonly ConventionCache ExpressConventionCache = new ConventionCache();
-        readonly ConventionCache MessagesConventionCache = new ConventionCache();
+        ConventionCache CommandsConventionCache = new ConventionCache();
+        ConventionCache EventsConventionCache = new ConventionCache();
+        ConventionCache ExpressConventionCache = new ConventionCache();
+        ConventionCache MessagesConventionCache = new ConventionCache();
 
-        /// <summary>
-        ///     Contains list of System messages' conventions
-        /// </summary>
         List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
 
-        Func<Type, bool> isCommandTypeAction = t => typeof(ICommand).IsAssignableFrom(t) && typeof(ICommand) != t;
+        internal Func<Type, bool> IsCommandTypeAction = t => typeof(ICommand).IsAssignableFrom(t) && typeof(ICommand) != t;
 
-        Func<PropertyInfo, bool> isDataBusPropertyAction = property => typeof(IDataBusProperty).IsAssignableFrom(property.PropertyType) && typeof(IDataBusProperty) != property.PropertyType;
+        internal Func<PropertyInfo, bool> IsDataBusPropertyAction = p => typeof(IDataBusProperty).IsAssignableFrom(p.PropertyType) && typeof(IDataBusProperty) != p.PropertyType;
 
-        Func<PropertyInfo, bool> isEncryptedPropertyAction = property => typeof(WireEncryptedString).IsAssignableFrom(property.PropertyType);
+        internal Func<PropertyInfo, bool> IsEncryptedPropertyAction = p => typeof(WireEncryptedString).IsAssignableFrom(p.PropertyType);
 
-        Func<Type, bool> isEventTypeAction = t => typeof(IEvent).IsAssignableFrom(t) && typeof(IEvent) != t;
+        internal Func<Type, bool> IsEventTypeAction = t => typeof(IEvent).IsAssignableFrom(t) && typeof(IEvent) != t;
 
-        Func<Type, bool> isExpressMessageAction = t => t.GetCustomAttributes(typeof(ExpressAttribute), true)
+        internal Func<Type, bool> IsExpressMessageAction = t => t.GetCustomAttributes(typeof(ExpressAttribute), true)
             .Any();
 
-        Func<Type, bool> isMessageTypeAction = t => typeof(IMessage).IsAssignableFrom(t) &&
+        internal Func<Type, bool> IsMessageTypeAction = t => typeof(IMessage).IsAssignableFrom(t) &&
                                                     typeof(IMessage) != t &&
                                                     typeof(IEvent) != t &&
                                                     typeof(ICommand) != t;
 
-        Func<Type, TimeSpan> timeToBeReceivedAction = t =>
+        internal Func<Type, TimeSpan> TimeToBeReceivedAction = t =>
         {
             var attributes = t.GetCustomAttributes(typeof(TimeToBeReceivedAttribute), true)
                 .Select(s => s as TimeToBeReceivedAttribute)
@@ -286,18 +171,7 @@
         {
             public bool ApplyConvention(Type type, Func<Type, bool> action)
             {
-                bool result;
-
-                if (cache.TryGetValue(type, out result))
-                {
-                    return result;
-                }
-
-                result = action(type);
-
-                cache[type] = result;
-
-                return result;
+                return cache.GetOrAdd(type, action);
             }
 
             public void Reset()
@@ -305,7 +179,7 @@
                 cache.Clear();
             }
 
-            IDictionary<Type, bool> cache = new ConcurrentDictionary<Type, bool>();
+            ConcurrentDictionary<Type, bool> cache = new ConcurrentDictionary<Type, bool>();
         }
     }
 }
