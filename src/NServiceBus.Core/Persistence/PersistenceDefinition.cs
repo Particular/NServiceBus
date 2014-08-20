@@ -15,11 +15,19 @@
         /// </summary>
         protected void Supports(Storage storage, Action<SettingsHolder> action)
         {
-            if (StorageToActionMap.ContainsKey(storage))
+            if (storageToActionMap.ContainsKey(storage))
             {
                 throw new Exception(string.Format("Action for {0} already defined.", storage));
             }
-            StorageToActionMap[storage] = action;
+            storageToActionMap[storage] = action;
+        }
+
+        /// <summary>
+        /// Used be the storage definitions to declare what they support
+        /// </summary>
+        protected void Defaults(Action<SettingsHolder> action)
+        {
+            defaults.Add(action);
         }
 
         /// <summary>
@@ -27,13 +35,21 @@
         /// </summary>
         public bool HasSupportFor(Storage storage)
         {
-            return StorageToActionMap.ContainsKey(storage);
+            return storageToActionMap.ContainsKey(storage);
         }
 
         internal void ApplyActionForStorage(Storage storage, SettingsHolder settings)
         {
-            var actionForStorage = StorageToActionMap[storage];
+            var actionForStorage = storageToActionMap[storage];
             actionForStorage(settings);
+        }
+
+        internal void ApplyDefaults(SettingsHolder settings)
+        {
+            foreach (var @default in defaults)
+            {
+                @default(settings);
+            }
         }
 
         internal List<Storage> GetSupportedStorages(List<Storage> selectedStorages)
@@ -43,9 +59,10 @@
                 return selectedStorages;
             }
 
-            return StorageToActionMap.Keys.ToList();
+            return storageToActionMap.Keys.ToList();
         }
 
-        Dictionary<Storage, Action<SettingsHolder>> StorageToActionMap = new Dictionary<Storage, Action<SettingsHolder>>();
+        List<Action<SettingsHolder>> defaults = new List<Action<SettingsHolder>>();
+        Dictionary<Storage, Action<SettingsHolder>> storageToActionMap = new Dictionary<Storage, Action<SettingsHolder>>();
     }
 }

@@ -9,7 +9,6 @@
     /// </summary>
     public class XmlSerialization : Feature
     {
-        
         internal XmlSerialization()
         {
             EnableByDefault();

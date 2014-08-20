@@ -31,6 +31,9 @@
             {
                 var persistenceDefinition = definition.DefinitionType.Construct<PersistenceDefinition>();
                 var supportedStorages = persistenceDefinition.GetSupportedStorages(definition.SelectedStorages);
+
+                persistenceDefinition.ApplyDefaults(settings);
+
                 foreach (var storage in supportedStorages)
                 {
                     if (availableStorages.Contains(storage))
