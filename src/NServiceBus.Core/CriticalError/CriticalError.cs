@@ -16,7 +16,12 @@ namespace NServiceBus
         Action<string, Exception> onCriticalErrorAction;
         Configure configure;
 
-        internal CriticalError(Action<string, Exception> onCriticalErrorAction, Configure configure)
+        /// <summary>
+        /// Creates an instance of <see cref="CriticalError"/>
+        /// </summary>
+        /// <param name="onCriticalErrorAction">The action to execute when a critical error is triggered.</param>
+        /// <param name="configure">The <see cref="Configure"/> instance.</param>
+        public CriticalError(Action<string, Exception> onCriticalErrorAction, Configure configure)
         {
             if (configure == null)
             {
