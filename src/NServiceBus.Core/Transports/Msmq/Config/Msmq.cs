@@ -19,7 +19,7 @@ namespace NServiceBus
         /// <summary>
         /// Gives implementations access to the <see cref="ConfigurationBuilder"/> instance at configuration time.
         /// </summary>
-        public override void Configure(ConfigurationBuilder config)
+        protected internal override void Configure(ConfigurationBuilder config)
         {
             config.EnableFeature<MsmqTransport>();
             config.EnableFeature<MessageDrivenSubscriptions>();

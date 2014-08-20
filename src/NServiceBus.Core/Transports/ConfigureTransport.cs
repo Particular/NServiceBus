@@ -10,7 +10,7 @@ namespace NServiceBus.Transports
     public abstract class ConfigureTransport : Feature
     {
         /// <summary>
-        /// Default constructor.
+        ///  Initializes a new instance of <see cref="ConfigureTransport"/>.
         /// </summary>
         protected ConfigureTransport()
         {
@@ -52,7 +52,7 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="ConfigureTransport"/>.
+        /// Gives the chance to implementers to set themselves up.
         /// </summary>
         protected abstract void Configure(FeatureConfigurationContext context, string connectionString);
 

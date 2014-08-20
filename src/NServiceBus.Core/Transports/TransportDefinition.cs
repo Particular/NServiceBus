@@ -28,7 +28,7 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Gives implementations access to the <see cref="ConfigurationBuilder"/> instance at configuration time.
         /// </summary>
-        public virtual void Configure(ConfigurationBuilder config)
+        protected internal virtual void Configure(ConfigurationBuilder config)
         {
             
         }
