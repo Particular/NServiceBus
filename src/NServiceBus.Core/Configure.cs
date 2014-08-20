@@ -109,16 +109,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Provides an instance to a startable bus.
-        /// </summary>
-        public IStartableBus CreateBus()
-        {
-            Initialize();
-
-            return Builder.Build<IStartableBus>();
-        }
-
-        /// <summary>
         /// Returns the queue name of this endpoint.
         /// </summary>
         public Address LocalAddress
@@ -135,11 +125,6 @@ namespace NServiceBus
         /// </summary>
         void Initialize()
         {
-            if (initialized)
-            {
-                return;
-            }
-
             WireUpConfigSectionOverrides();
 
             featureActivator = new FeatureActivator(Settings);
@@ -165,8 +150,6 @@ namespace NServiceBus
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
                 .ForEach(o => o.Run(this));
-
-            initialized = true;
         }
 
         /// <summary>
@@ -243,7 +226,7 @@ namespace NServiceBus
         internal IConfigureComponents configurer;
 
         FeatureActivator featureActivator;
-        bool initialized;
+        
         internal PipelineSettings pipeline;
 
         //HACK: Set by the tests

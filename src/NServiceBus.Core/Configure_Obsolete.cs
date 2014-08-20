@@ -72,6 +72,18 @@ namespace NServiceBus
 
         [ObsoleteEx(
             RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Replacement = "Not needed, can safely be removed")]
+        public IStartableBus CreateBus()
+        {
+            Initialize();
+
+            return Builder.Build<IStartableBus>();
+        }
+
+
+        [ObsoleteEx(
+            RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static bool BuilderIsConfigured()
         {
