@@ -59,39 +59,13 @@ public class PubSubTestCase : TestCase
                 break;
         }
 
-        var config = Configure.With(builder);
-
-
-        using (var bus = config.CreateBus())
+        
+        using (var bus = Configure.With(builder))
         {
-            var subscriptionStorage = config.Builder.Build<ISubscriptionStorage>();
-
-            var testEventMessage = new MessageType(typeof(TestEvent));
+            var subscriptionStorage = ((NServiceBus.Unicast.UnicastBus) bus).Builder.Build<ISubscriptionStorage>();
 
 
-            subscriptionStorage.Init();
-
-
-            var creator = new MsmqQueueCreator
-            {
-                Settings = new MsmqSettings { UseTransactionalQueues = true }
-            };
-
-            for (var i = 0; i < GetNumberOfSubscribers(); i++)
-            {
-                var subscriberAddress = Address.Parse("PubSubPerformanceTest.Subscriber" + i);
-                creator.CreateQueueIfNecessary(subscriberAddress, null);
-
-                using (var tx = new TransactionScope())
-                {
-                    subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
-                        {
-                            testEventMessage
-                        });
-
-                    tx.Complete();
-                }
-            }
+            PrimeSubscriptionStorage(subscriptionStorage);
 
             Parallel.For(
           0,
@@ -110,6 +84,39 @@ public class PubSubTestCase : TestCase
             Statistics.Dump();
         }
 
+    }
+
+    void PrimeSubscriptionStorage(ISubscriptionStorage subscriptionStorage)
+    {
+        var testEventMessage = new MessageType(typeof(TestEvent));
+
+
+        subscriptionStorage.Init();
+
+
+        var creator = new MsmqQueueCreator
+        {
+            Settings = new MsmqSettings
+            {
+                UseTransactionalQueues = true
+            }
+        };
+
+        for (var i = 0; i < GetNumberOfSubscribers(); i++)
+        {
+            var subscriberAddress = Address.Parse("PubSubPerformanceTest.Subscriber" + i);
+            creator.CreateQueueIfNecessary(subscriberAddress, null);
+
+            using (var tx = new TransactionScope())
+            {
+                subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
+                {
+                    testEventMessage
+                });
+
+                tx.Complete();
+            }
+        }
     }
 }
 

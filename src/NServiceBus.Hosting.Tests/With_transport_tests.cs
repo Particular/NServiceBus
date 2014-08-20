@@ -14,7 +14,8 @@ namespace NServiceBus.Hosting.Tests
 
             builder.EndpointName("myTests");
             builder.UseTransport<MyTestTransport>();
-            var config = Configure.With(builder);
+
+            var config = builder.BuildConfiguration();
 
             Assert.IsInstanceOf<MyTestTransport>(config.Settings.Get<TransportDefinition>());
         }
@@ -25,9 +26,7 @@ namespace NServiceBus.Hosting.Tests
             var builder = new ConfigurationBuilder();
             builder.EndpointName("myTests");
 
-            var config = Configure.With(builder);
-            
-            Assert.True(config.Settings.Get<TransportDefinition>() is Msmq);
+            Assert.True(builder.BuildConfiguration().Settings.Get<TransportDefinition>() is Msmq);
         }
     }
 

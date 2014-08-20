@@ -25,7 +25,7 @@
             this.typesToInclude = typesToInclude;
         }
 
-        public Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource, Action<ConfigurationBuilder> configurationBuilderCustomization)
+        public ConfigurationBuilder GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource, Action<ConfigurationBuilder> configurationBuilderCustomization)
         {
             var settings = runDescriptor.Settings;
 
@@ -37,7 +37,6 @@
 
             var builder = new ConfigurationBuilder();
 
-            configurationBuilderCustomization(builder);
             builder.EndpointName(endpointConfiguration.EndpointName);
             builder.TypesToScan(typesToInclude);
             builder.CustomConfigurationSource(configSource);
@@ -61,12 +60,11 @@
                 builder.UseSerialization(Type.GetType(serializer));
             }
             builder.DefinePersistence(settings);
+            builder.Settings.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
+            configurationBuilderCustomization(builder);
 
-            var config = Configure.With(builder);
 
-            config.Settings.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
-
-            return config;
+            return builder;
         }
 
         static IEnumerable<Type> GetTypesScopedByTestClass(EndpointConfiguration endpointConfiguration)

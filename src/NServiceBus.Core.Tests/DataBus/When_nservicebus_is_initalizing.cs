@@ -18,14 +18,11 @@ namespace NServiceBus.Core.Tests.DataBus
 
             builder.EndpointName("xyz");
             builder.TypesToScan(new[]{typeof(MessageWithDataBusProperty)});
+            builder.RegisterComponents(c => c.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance));
+            
+            var config = builder.BuildConfiguration();
 
-            var config = Configure.With(builder);
-
-            var feature = new DataBusFeature();
-
-            config.configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
-
-            Assert.True(feature.CheckPrerequisites(new FeatureConfigurationContext(config)).IsSatisfied);
+            Assert.True(new DataBusFeature().CheckPrerequisites(new FeatureConfigurationContext(config)).IsSatisfied);
         }
 
         [Test]
@@ -36,11 +33,9 @@ namespace NServiceBus.Core.Tests.DataBus
             builder.EndpointName("xyz");
             builder.TypesToScan(new[] { typeof(MessageWithoutDataBusProperty) });
 
-            var config = Configure.With(builder);
-
             var feature = new DataBusFeature();
 
-            Assert.False(feature.CheckPrerequisites(new FeatureConfigurationContext(config)).IsSatisfied);
+            Assert.False(feature.CheckPrerequisites(new FeatureConfigurationContext(builder.BuildConfiguration())).IsSatisfied);
         }
 
         [Test]
@@ -59,11 +54,9 @@ namespace NServiceBus.Core.Tests.DataBus
                 });
             builder.Conventions().DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"));
             
-            var config = Configure.With(builder);
-
             var feature = new DataBusFeature();
 
-            Assert.Throws<InvalidOperationException>(() => feature.CheckPrerequisites(new FeatureConfigurationContext(config)));
+            Assert.Throws<InvalidOperationException>(() => feature.CheckPrerequisites(new FeatureConfigurationContext(builder.BuildConfiguration())));
         }
 
         [Test]
@@ -81,14 +74,14 @@ namespace NServiceBus.Core.Tests.DataBus
                     typeof(MessageWithNonSerializableDataBusProperty)
                 });
             builder.Conventions().DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"));
+            builder.RegisterComponents(c =>
+            {
+                c.RegisterSingleton<IDataBus>(new InMemoryDataBus());
+                c.ConfigureComponent<IDataBusSerializer>(() => new MyDataBusSerializer(), DependencyLifecycle.SingleInstance);
+            });
 
-            var config = Configure.With(builder);
-            
-            config.configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
-
+            var config = builder.BuildConfiguration();
             var feature = new DataBusFeature();
-
-            config.configurer.ConfigureComponent<IDataBusSerializer>(() => new MyDataBusSerializer(), DependencyLifecycle.SingleInstance);
 
             Assert.DoesNotThrow(() => feature.CheckPrerequisites(new FeatureConfigurationContext(config)));
         }

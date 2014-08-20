@@ -15,8 +15,6 @@
     
     class Program
     {
-        static Configure config;
-
         static void Main(string[] args)
         {
             var testCaseToRun = args[0];
@@ -105,18 +103,17 @@
             builder.UsePersistence<InMemory>();
             builder.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
             
-            config = Configure.With(builder);
 
-            using (var startableBus = config.CreateBus())
+            using (var startableBus = Configure.With(builder))
             {
                 if (saga)
                 {
-                    SeedSagaMessages(numberOfMessages, endpointName, concurrency);
+                    SeedSagaMessages(startableBus,numberOfMessages, endpointName, concurrency);
                 }
                 else
                 {
-                    Statistics.SendTimeNoTx = SeedInputQueue(numberOfMessages / 2, endpointName, numberOfThreads, false, twoPhaseCommit, encryption);
-                    Statistics.SendTimeWithTx = SeedInputQueue(numberOfMessages / 2, endpointName, numberOfThreads, true, twoPhaseCommit, encryption);
+                    Statistics.SendTimeNoTx = SeedInputQueue(startableBus,numberOfMessages / 2, endpointName, numberOfThreads, false, twoPhaseCommit, encryption);
+                    Statistics.SendTimeWithTx = SeedInputQueue(startableBus,numberOfMessages / 2, endpointName, numberOfThreads, true, twoPhaseCommit, encryption);
                 }
 
                 Statistics.StartTime = DateTime.Now;
@@ -141,10 +138,8 @@
                                   args[5]);
         }
 
-        static void SeedSagaMessages(int numberOfMessages, string inputQueue, int concurrency)
+        static void SeedSagaMessages(IBus bus,int numberOfMessages, string inputQueue, int concurrency)
         {
-            var bus = config.Builder.Build<IBus>();
-
             for (var i = 0; i < numberOfMessages / concurrency; i++)
             {
 
@@ -159,12 +154,11 @@
 
         }
 
-        static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
+        static TimeSpan SeedInputQueue(IBus bus,int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
         {
             var sw = new Stopwatch();
 
-            var bus = config.Builder.Build<IBus>();
-
+         
             sw.Start();
             Parallel.For(
                 0,

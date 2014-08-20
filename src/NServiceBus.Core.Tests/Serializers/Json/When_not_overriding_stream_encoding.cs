@@ -8,26 +8,21 @@ namespace NServiceBus.Serializers.Json.Tests
     [TestFixture]
     public class When_not_overriding_stream_encoding
     {
-        Configure configure;
-
-        [SetUp]
-        public void SetUp()
+     
+        [Test]
+        public void Should_construct_serializer_that_uses_default_encoding()
         {
             var builder = new ConfigurationBuilder();
 
             builder.TypesToScan(new Type[0]);
             builder.UseSerialization<NServiceBus.Json>();
 
-            configure = Configure.With(builder);
+            var config = builder.BuildConfiguration();
 
-            var context = new FeatureConfigurationContext(configure);
+            var context = new FeatureConfigurationContext(config);
             new JsonSerialization().SetupFeature(context);
-        }
-
-        [Test]
-        public void Should_construct_serializer_that_uses_default_encoding()
-        {
-            var serializer = configure.Builder.Build<JsonMessageSerializer>();
+   
+            var serializer = config.Builder.Build<JsonMessageSerializer>();
             Assert.AreSame(Encoding.UTF8, serializer.Encoding);
         }
     }

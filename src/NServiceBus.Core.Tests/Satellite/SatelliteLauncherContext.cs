@@ -29,10 +29,8 @@
 
             configurationBuilder.EndpointName("xyz");
             configurationBuilder.AssembliesToScan(new Assembly[0]);
-       
-            var config = Configure.With(configurationBuilder);
 
-            Transport = new TransportReceiver(new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, 5, false, false), 1, 0, FakeReceiver, InMemoryFaultManager, new SettingsHolder(),  config);
+            Transport = new TransportReceiver(new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, 5, false, false), 1, 0, FakeReceiver, InMemoryFaultManager, new SettingsHolder(), configurationBuilder.BuildConfiguration());
 
             RegisterTypes();
             Builder.Register<IManageMessageFailures>(() => InMemoryFaultManager);

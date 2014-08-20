@@ -9,14 +9,14 @@ namespace NServiceBus
     using Hosting.Profiles;
     using Hosting.Wcf;
     using Logging;
+    using NServiceBus.Unicast;
 
     class GenericHost
     {
         public GenericHost(IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles, string endpointName, IEnumerable<string> scannableAssembliesFullName = null)
         {
             this.specifier = specifier;
-            config = null;
-
+         
             if (String.IsNullOrEmpty(endpointName))
             {
                 endpointName = specifier.GetType().Namespace ?? specifier.GetType().Assembly.GetName().Name;
@@ -55,14 +55,12 @@ namespace NServiceBus
             {
                 PerformConfiguration();
 
-                bus = config.CreateBus();
-
-                if (bus != null && !config.Settings.Get<bool>("Endpoint.SendOnly"))
+                if (bus != null && !bus.Settings.Get<bool>("Endpoint.SendOnly"))
                 {
                     bus.Start();
                 }
 
-                wcfManager.Startup(config);
+                wcfManager.Startup(bus);
             }
             catch (Exception ex)
             {
@@ -93,9 +91,8 @@ namespace NServiceBus
         public void Install(string username)
         {
             PerformConfiguration(builder => builder.EnableInstallers(username));
-            config.CreateBus();
-
-            config.Builder.Dispose();
+          
+            bus.Builder.Dispose();
         }
 
         void PerformConfiguration(Action<ConfigurationBuilder> moreConfiguration = null)
@@ -122,7 +119,7 @@ namespace NServiceBus
             RoleManager.TweakConfigurationBuilder(specifier, builder);
             profileManager.ActivateProfileHandlers(builder);
 
-            config = Configure.With(builder);
+            bus = (UnicastBus)Configure.With(builder);
         }
 
         // Windows hosting behavior when critical error occurs is suicide.
@@ -137,10 +134,9 @@ namespace NServiceBus
         }
         List<Assembly> assembliesToScan;
         ProfileManager profileManager;
-        Configure config;
         IConfigureThisEndpoint specifier;
         WcfManager wcfManager;
-        IStartableBus bus;
+        UnicastBus bus;
         string endpointNameToUse;
         string endpointVersionToUse;
     }

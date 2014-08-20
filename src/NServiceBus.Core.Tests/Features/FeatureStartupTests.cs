@@ -19,10 +19,12 @@
 
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With()));
+            var builder = new FakeBuilder(typeof(FeatureWithStartupTask.Runner));
 
-            featureSettings.StartFeatures(new FakeBuilder(typeof(FeatureWithStartupTask.Runner)));
-            featureSettings.StopFeatures(new FakeBuilder(typeof(FeatureWithStartupTask.Runner)));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+
+            featureSettings.StartFeatures(builder);
+            featureSettings.StopFeatures(builder);
 
             Assert.True(FeatureWithStartupTask.Runner.Started);
             Assert.True(FeatureWithStartupTask.Runner.Stopped);

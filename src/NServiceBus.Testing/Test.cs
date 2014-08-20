@@ -8,6 +8,7 @@
     using Features;
     using MessageInterfaces;
     using NServiceBus.Persistence;
+    using NServiceBus.Unicast;
     using Saga;
 
     /// <summary>
@@ -52,7 +53,20 @@
             });
             customisations(builder);
 
-            InitializeInternal(Configure.With(builder));
+            //InitializeInternal(Configure.With(builder));
+
+            if (initialized)
+            {
+                return;
+            }
+
+            var bus = Configure.With(builder);
+
+            var mapper = ((UnicastBus)bus).Builder.Build<IMessageMapper>();
+
+            messageCreator = mapper;
+
+            initialized = true;
         }
         
         // ReSharper disable UnusedParameter.Global
@@ -94,21 +108,7 @@
         }
         // ReSharper restore UnusedParameter.Global
 
-        static void InitializeInternal(Configure config)
-        {
-            if (initialized)
-            {
-                return;
-            }
-
-            config.CreateBus();
-
-            var mapper = config.Builder.Build<IMessageMapper>();
-            
-            messageCreator = mapper;
-            
-            initialized = true;
-        }
+     
 
         /// <summary>
         ///     Begin the test script for a saga of type T.

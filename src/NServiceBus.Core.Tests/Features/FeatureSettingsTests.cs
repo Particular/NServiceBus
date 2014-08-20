@@ -21,7 +21,7 @@
             featureSettings.Add(featureWithFalseCondition);
 
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With()));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
 
             Assert.True(featureWithTrueCondition.IsActive);
             Assert.False(featureWithFalseCondition.IsActive);
@@ -37,7 +37,7 @@
 
             featureSettings.Add(new MyFeatureWithDefaults());
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With()));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
 
             Assert.True(settings.HasSetting("Test1"));
         }
@@ -51,7 +51,7 @@
             featureSettings.Add(new MyFeatureWithDefaultsNotActive());
             featureSettings.Add(new MyFeatureWithDefaultsNotActiveDueToUnsatisfiedPrerequisite());
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(Configure.With()));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
 
             Assert.False(settings.HasSetting("Test1"));
             Assert.False(settings.HasSetting("Test2"));

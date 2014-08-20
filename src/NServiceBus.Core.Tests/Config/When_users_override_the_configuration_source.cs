@@ -22,7 +22,7 @@ namespace NServiceBus.Core.Tests.Config
                 });
             builder.CustomConfigurationSource(userConfigurationSource);
 
-            config = Configure.With(builder);
+            config = builder.BuildConfiguration();
         }
 
       

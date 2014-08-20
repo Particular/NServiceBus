@@ -66,9 +66,7 @@
                 {
                     var endpointSetupTemplate = new T();
                     var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
-                    var config = endpointSetupTemplate.GetConfiguration(settings, configuration, scenarioConfigSource, configurationBuilderCustomization);
-                    configCustomization(config);
-                    return config;
+                    return endpointSetupTemplate.GetConfiguration(settings, configuration, scenarioConfigSource, configurationBuilderCustomization);
                 };
 
             return this;

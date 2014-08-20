@@ -97,7 +97,7 @@ namespace NServiceBus.Features
             }));
         }
 
-        public void SetupFeatures(FeatureConfigurationContext context)
+        public FeaturesReport SetupFeatures(FeatureConfigurationContext context)
         {
             var featuresToActivate = features.Where(featureState => IsEnabled(featureState.Feature.GetType()))
                 .ToList();
@@ -114,7 +114,7 @@ namespace NServiceBus.Features
                 ActivateFeature(feature, featuresToActivate, context);
             }
 
-            context.Container.RegisterSingleton(new FeaturesReport(features.Select(t=>t.Diagnostics)));
+            return new FeaturesReport(features.Select(t => t.Diagnostics));
         }
 
         public void RegisterStartupTasks(IConfigureComponents container)

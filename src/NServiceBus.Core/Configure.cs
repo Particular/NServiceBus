@@ -88,7 +88,7 @@ namespace NServiceBus
         /// <summary>
         ///     Creates a new configuration object scanning assemblies in the regular runtime directory.
         /// </summary>
-        public static Configure With()
+        public static IStartableBus With()
         {
             return With(new ConfigurationBuilder());
         }
@@ -99,9 +99,13 @@ namespace NServiceBus
         /// </summary>
         /// <param name="builder">The configuration builder.</param>
         /// <returns>A new endpoint configuration.</returns>
-        public static Configure With(ConfigurationBuilder builder)
+        public static IStartableBus With(ConfigurationBuilder builder)
         {
-            return builder.BuildConfiguration();
+            var config = builder.BuildConfiguration();
+
+            config.Initialize();
+
+            return config.Builder.Build<IStartableBus>();
         }
 
         /// <summary>
@@ -150,7 +154,10 @@ namespace NServiceBus
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(TypesToScan, t => t.Run(this));
 
-            featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
+            var featureStats = featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
+
+            configurer.RegisterSingleton(featureStats);
+
             featureActivator.RegisterStartupTasks(configurer);
 
             localAddress = Address.Parse(Settings.Get<string>("NServiceBus.LocalAddress"));

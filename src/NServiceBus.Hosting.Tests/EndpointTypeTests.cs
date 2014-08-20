@@ -57,13 +57,7 @@ namespace NServiceBus.Hosting.Tests
 
             [Test]
             public void when_endpointName_attribute_exists_it_should_have_first_priority()
-            {
-                var builder = new ConfigurationBuilder();
-                
-                builder.EndpointName("EndpointNameFromConfiguration");
-
-                Configure.With(builder);
-                
+            {                
                 EndpointType = new EndpointType(hostArguments, typeof (TestEndpointTypeWithEndpointNameAttribute));
 
                 Assert.AreEqual("EndpointNameFromAttribute", EndpointType.EndpointName);

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq;
-    using System.Reflection;
     using System.Threading.Tasks;
     using Core.Tests;
     using Core.Tests.Fakes;
@@ -20,12 +19,6 @@
         [SetUp]
         public void SetUp()
         {
-            var builder = new ConfigurationBuilder();
-            builder.AssembliesToScan(new Assembly[0]);
-            builder.UseContainer(container);
-
-            Configure.With(builder);
-
             defaultScheduler = new DefaultScheduler(bus);
             container.Register<IBus>(() => bus);
             container.Register<DefaultScheduler>(() => defaultScheduler);

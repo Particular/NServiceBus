@@ -13,19 +13,18 @@
     /// </summary>
     class WcfManager
     {
-        internal static Configure Configure;
-
+        internal static IBus Bus;
         /// <summary>
         ///     Starts a <see cref="ServiceHost" /> for each found service. Defaults to <see cref="BasicHttpBinding" /> if
         ///     no user specified binding is found
         /// </summary>
-        public void Startup(Configure config)
+        public void Startup(Unicast.UnicastBus bus)
         {
-            Configure = config;
-            var conventions = config.Builder.Build<Conventions>();
-            var components = config.Builder.Build<IConfigureComponents>();
+            Bus = bus;
+            var conventions = bus.Builder.Build<Conventions>();
+            var components = bus.Builder.Build<IConfigureComponents>();
 
-            foreach (var serviceType in config.TypesToScan.Where(t => !t.IsAbstract && IsWcfService(t, conventions)))
+            foreach (var serviceType in bus.Settings.GetAvailableTypes().Where(t => !t.IsAbstract && IsWcfService(t, conventions)))
             {
                 var host = new WcfServiceHost(serviceType);
 
@@ -33,7 +32,7 @@
 
                 if (components.HasComponent<Binding>())
                 {
-                    binding = config.Builder.Build<Binding>();
+                    binding = bus.Builder.Build<Binding>();
                 }
 
                 host.AddDefaultEndpoint(GetContractType(serviceType),

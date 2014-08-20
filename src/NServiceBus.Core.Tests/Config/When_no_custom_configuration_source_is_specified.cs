@@ -1,6 +1,5 @@
 namespace NServiceBus.Core.Tests.Config
 {
-    using System;
     using NUnit.Framework;
 
     [TestFixture]
@@ -9,15 +8,10 @@ namespace NServiceBus.Core.Tests.Config
         [Test]
         public void The_default_configuration_source_should_be_default()
         {
-            var builder = new ConfigurationBuilder();
+            var config = new ConfigurationBuilder().BuildConfiguration();
 
-            builder.TypesToScan(new Type[]{});
-
-            var config = Configure.With(builder);
-
-            var configSection = config.Settings.GetConfigSection<TestConfigurationSection>();
-
-            Assert.AreEqual(configSection.TestSetting, "test");
+            
+            Assert.AreEqual(config.Settings.GetConfigSection<TestConfigurationSection>().TestSetting, "test");
         }
     }
 }

@@ -7,25 +7,21 @@ namespace NServiceBus.Core.Tests.Timeout
     [TestFixture]
     public class When_receiving_timeouts
     {
-        FakeMessageSender messageSender;
-        DefaultTimeoutManager manager;
-
-        [SetUp]
-        public void Setup()
-        {
-            messageSender = new FakeMessageSender();
-            var configure = Configure.With();
-            configure.localAddress = new Address("sdad","asda");
-            manager = new DefaultTimeoutManager
-                {
-                    MessageSender = messageSender,
-                    Configure = configure
-                };
-        }
-
+        
         [Test]
         public void Should_dispatch_timeout_if_is_due_now()
         {
+           var  messageSender = new FakeMessageSender();
+
+            var configure = new ConfigurationBuilder().BuildConfiguration();
+
+            configure.localAddress = new Address("sdad", "asda");
+            var manager = new DefaultTimeoutManager
+            {
+                MessageSender = messageSender,
+                Configure = configure
+            };
+
             manager.PushTimeout(new TimeoutData
                 {
                     Time = DateTime.UtcNow,
