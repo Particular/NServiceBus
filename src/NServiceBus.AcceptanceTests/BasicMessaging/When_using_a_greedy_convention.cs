@@ -9,7 +9,6 @@
     public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
     {
         [Test]
-        [Explicit]
         public void Should_receive_the_message()
         {
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
@@ -39,13 +38,13 @@
 
             static bool MessageConvention(Type t)
             {
-
-                return t.Namespace != null && t.Namespace.EndsWith(".Messages");
+                return t.Namespace != null && 
+                    (t.Namespace.EndsWith(".Messages") ||  (t == typeof(MyMessage)));
             }
         }
 
         [Serializable]
-        public class MyMessage : ICommand
+        public class MyMessage
         {
             public Guid Id { get; set; }
         }
