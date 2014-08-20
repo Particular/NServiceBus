@@ -10,6 +10,7 @@
     using Logging;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
+    using NServiceBus.Configuration.AdvanceExtensibility;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
@@ -60,7 +61,8 @@
                 builder.UseSerialization(Type.GetType(serializer));
             }
             builder.DefinePersistence(settings);
-            builder.Settings.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
+
+            builder.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             configurationBuilderCustomization(builder);
 
 

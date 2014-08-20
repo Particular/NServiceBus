@@ -120,9 +120,6 @@ namespace NServiceBus
             }
         }
 
-        /// <summary>
-        ///     Finalizes the configuration by invoking all initialisers.
-        /// </summary>
         void Initialize()
         {
             WireUpConfigSectionOverrides();
