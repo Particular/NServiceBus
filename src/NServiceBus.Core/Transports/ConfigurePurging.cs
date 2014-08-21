@@ -1,7 +1,5 @@
 namespace NServiceBus
 {
-    using NServiceBus.Settings;
-
     /// <summary>
     /// Configures purging
     /// </summary>
@@ -19,12 +17,12 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Retrieves the current stored value for Transport.PurgeOnStartup stored in <paramref name="settings"/>.
+        /// Retrieves whether to purge the queues at startup or not.
         /// </summary>
-        public static bool GetPurgeOnStartup(ReadOnlySettings settings)
+        public static bool PurgeOnStartup(this Configure config)
         {
             bool purgeOnStartup;
-            if (settings.TryGet("Transport.PurgeOnStartup", out purgeOnStartup))
+            if (config.Settings.TryGet("Transport.PurgeOnStartup", out purgeOnStartup))
             {
                 return purgeOnStartup;
             }

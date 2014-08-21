@@ -82,7 +82,6 @@ namespace NServiceBus.Hosting.Profiles
 // ReSharper restore HeapView.SlowDelegateCreation
         }
 
-
         IEnumerable<Type> FindConfigurerForProfile(Type openGenericType, Type profile, List<Type> options)
         {
             if (profile == typeof (object) || profile == null)
