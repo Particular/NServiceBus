@@ -3,6 +3,7 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using NUnit.Framework;
     using Pipeline;
     using Pipeline.Contexts;
@@ -34,9 +35,10 @@
         {
             public NonDtcReceivingEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Settings.Set("DisableOutboxTransportCheck", true),
+                EndpointSetup<DefaultServer>(c =>{},
                     b =>
                     {
+                        b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableOutbox();
                         b.Pipeline.Register<BlowUpAfterDispatchBehavior.Registration>();
                         b.RegisterComponents(r => r.ConfigureComponent<BlowUpAfterDispatchBehavior>(DependencyLifecycle.InstancePerCall));

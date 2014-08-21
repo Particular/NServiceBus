@@ -3,6 +3,7 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -15,7 +16,7 @@
                     .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
                     .AllowExceptions()
                     .Done(c => c.OrderAckReceived == 1)
-                    .Repeat(r=>r.For<AllOutboxCapableStorages>())
+                    .Repeat(r => r.For<AllOutboxCapableStorages>())
                     .Run(TimeSpan.FromSeconds(20));
         }
 
@@ -32,7 +33,7 @@
                     }))
                     .AllowExceptions()
                     .Done(c => c.OrderAckReceived >= 2)
-                    .Repeat(r=>r.For<AllOutboxCapableStorages>())
+                    .Repeat(r => r.For<AllOutboxCapableStorages>())
                     .Should(context => Assert.AreEqual(2, context.OrderAckReceived))
                     .Run(TimeSpan.FromSeconds(20));
         }
@@ -47,8 +48,12 @@
             public NonDtcReceivingEndpoint()
             {
                 EndpointSetup<DefaultServer>(
-                    c => c.Settings.Set("DisableOutboxTransportCheck", true),
-                    builder => builder.EnableOutbox())
+                    c => {},
+                    b =>
+                    {
+                        b.GetSettings().Set("DisableOutboxTransportCheck", true);
+                        b.EnableOutbox();
+                    })
                 .AuditTo(Address.Parse("audit"));
             }
 
