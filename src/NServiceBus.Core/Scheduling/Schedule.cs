@@ -37,10 +37,16 @@ namespace NServiceBus
         /// </summary>
         /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task"/>.</param>
         /// <param name="task">The <see cref="System.Action"/> to execute.</param>
-        /// <param name="name">The name to use to when creating the <see cref="Thread"/>.</param>
+        /// <param name="name">The name to use used for logging inside the new <see cref="Thread"/>.</param>
         public void Every(TimeSpan timeSpan, string name, Action task)
         {
-            builder.Build<DefaultScheduler>().Schedule(new TaskDefinition { Every = timeSpan, Name = name, Task = task });
+            builder.Build<DefaultScheduler>()
+                .Schedule(new TaskDefinition
+                {
+                    Every = timeSpan, 
+                    Name = name, 
+                    Task = task
+                });
         }
 
     }
