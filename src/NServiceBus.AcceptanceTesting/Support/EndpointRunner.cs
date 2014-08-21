@@ -43,14 +43,14 @@
                 }
 
                 //apply custom config settings
-                var builder = configuration.GetConfiguration(run, routingTable);
+                var busConfiguration = configuration.GetConfiguration(run, routingTable);
 
                 scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
 
                 //todo remove
                 //endpointBehavior.CustomConfig.ForEach(customAction => customAction(config));
 
-                bus = Configure.With(builder);
+                bus = Bus.Create(busConfiguration);
 
                 var transportDefinition = ((UnicastBus)bus).Settings.Get<TransportDefinition>();
 

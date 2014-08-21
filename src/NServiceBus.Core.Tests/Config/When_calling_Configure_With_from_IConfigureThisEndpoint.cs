@@ -17,11 +17,11 @@ namespace NServiceBus.Core.Tests.Config
         }
         public class Foo : IConfigureThisEndpoint
         {
-            public void Customize(BusConfiguration builder)
+            public void Customize(BusConfiguration configuration)
             {   
-                builder.TypesToScan(new Type[]{});
-             
-                Configure.With(builder);
+                configuration.TypesToScan(new Type[]{});
+
+                Bus.Create(configuration);
             }
         }
     }

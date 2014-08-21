@@ -146,7 +146,7 @@ namespace NServiceBus
             Replacement = "configure.Configurer.HasComponent")]
         public static bool HasComponent<T>()
         {
-            throw new NotImplementedException(); 
+            throw new NotImplementedException();
         }
 
         [ObsoleteEx(
@@ -156,7 +156,7 @@ namespace NServiceBus
     Replacement = "configure.Configurer.HasComponent")]
         public static bool HasComponent(Type componentType)
         {
-            throw new NotImplementedException(); 
+            throw new NotImplementedException();
         }
 
         [ObsoleteEx(
@@ -168,10 +168,22 @@ namespace NServiceBus
             throw new NotImplementedException();
         }
 
+
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "Configure.With(b => b.ScanAssembliesInDirectory(directoryToProbe))")]
+            Replacement = "Bus.Create(new BusConfiguration())")]
+        public static Configure With()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Replacement = @"var config = new BusConfig();
+config.ScanAssembliesInDirectory(directoryToProbe);
+Bus.Create(config);")]
         public static Configure With(string probeDirectory)
         {
             throw new NotImplementedException();
@@ -180,7 +192,9 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "Configure.With(b => b.AssembliesToScan(listOfAssemblies))")]
+            Replacement = @"var config = new BusConfig();
+config.AssembliesToScan(listOfAssemblies);
+Bus.Create(config);")]
         public static Configure With(IEnumerable<Assembly> assemblies)
         {
             throw new NotImplementedException();
@@ -189,7 +203,9 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "Configure.With(b => b.AssembliesToScan(listOfAssemblies))")]
+            Replacement = @"var config = new BusConfig();
+config.AssembliesToScan(listOfAssemblies);
+Bus.Create(config);")]
         public static Configure With(params Assembly[] assemblies)
         {
             throw new NotImplementedException();
@@ -198,7 +214,9 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "Configure.With(b => b.TypesToScan(listOfTypes));")]
+                        Replacement = @"var config = new BusConfig();
+config.TypesToScan(listOfTypes);
+Bus.Create(config);")]
         public static Configure With(IEnumerable<Type> typesToScan)
         {
             throw new NotImplementedException();
@@ -224,7 +242,7 @@ namespace NServiceBus
         {
             throw new NotImplementedException();
         }
-        
+
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
@@ -245,7 +263,7 @@ namespace NServiceBus
         {
             get { throw new NotImplementedException(); }
         }
-        
+
         [ObsoleteEx(
           Message = "This has been converted to extension methods",
           RemoveInVersion = "6",

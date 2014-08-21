@@ -103,23 +103,23 @@ namespace NServiceBus
                 loggingConfigurer.Configure(specifier);
             }
 
-            var builder = new BusConfiguration();
+            var configuration = new BusConfiguration();
 
-            builder.EndpointName(endpointNameToUse);
-            builder.EndpointVersion(endpointVersionToUse);
-            builder.AssembliesToScan(assembliesToScan);
-            builder.DefineCriticalErrorAction(OnCriticalError);
+            configuration.EndpointName(endpointNameToUse);
+            configuration.EndpointVersion(endpointVersionToUse);
+            configuration.AssembliesToScan(assembliesToScan);
+            configuration.DefineCriticalErrorAction(OnCriticalError);
 
             if (moreConfiguration != null)
             {
-                moreConfiguration(builder);
+                moreConfiguration(configuration);
             }
 
-            specifier.Customize(builder);
-            RoleManager.TweakConfigurationBuilder(specifier, builder);
-            profileManager.ActivateProfileHandlers(builder);
+            specifier.Customize(configuration);
+            RoleManager.TweakConfigurationBuilder(specifier, configuration);
+            profileManager.ActivateProfileHandlers(configuration);
 
-            bus = (UnicastBus)Configure.With(builder);
+            bus = (UnicastBus) Bus.Create(configuration);
         }
 
         // Windows hosting behavior when critical error occurs is suicide.

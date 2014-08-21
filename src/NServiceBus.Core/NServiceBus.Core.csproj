@@ -79,6 +79,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bus.cs" />
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="ConfigureQueueCreation_Obsolete.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement_obsolete.cs" />

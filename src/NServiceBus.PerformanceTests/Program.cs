@@ -50,24 +50,24 @@
             if (suppressDTC)
                 endpointName += ".SuppressDTC";
 
-            var builder = new BusConfiguration();
+            var configuration = new BusConfiguration();
 
-            builder.EndpointName(endpointName);
-            builder.EnableInstallers();
-            builder.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
-            builder.UseTransport<Msmq>().ConnectionString("deadLetter=false;journal=false");
-            builder.DisableFeature<Audit>();
+            configuration.EndpointName(endpointName);
+            configuration.EnableInstallers();
+            configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+            configuration.UseTransport<Msmq>().ConnectionString("deadLetter=false;journal=false");
+            configuration.DisableFeature<Audit>();
 
             if (volatileMode)
             {
-                builder.DisableDurableMessages();
-                builder.UsePersistence<InMemory>();
+                configuration.DisableDurableMessages();
+                configuration.UsePersistence<InMemory>();
             }
 
             switch (args[3].ToLower())
             {
                 case "msmq":
-                    builder.UseTransport<Msmq>();
+                    configuration.UseTransport<Msmq>();
                     break;
 
                 default:
@@ -76,35 +76,35 @@
 
             if (suppressDTC)
             {
-                builder.Transactions().DisableDistributedTransactions();
+                configuration.Transactions().DisableDistributedTransactions();
             }
 
             switch (args[2].ToLower())
             {
                 case "xml":
-                    builder.UseSerialization<Xml>();
+                    configuration.UseSerialization<Xml>();
                     break;
 
                 case "json":
-                    builder.UseSerialization<Json>();
+                    configuration.UseSerialization<Json>();
                     break;
 
                 case "bson":
-                    builder.UseSerialization<Bson>();
+                    configuration.UseSerialization<Bson>();
                     break;
 
                 case "bin":
-                    builder.UseSerialization<Binary>();
+                    configuration.UseSerialization<Binary>();
                     break;
 
                 default:
                     throw new InvalidOperationException("Illegal serialization format " + args[2]);
             }
-            builder.UsePersistence<InMemory>();
-            builder.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
+            configuration.UsePersistence<InMemory>();
+            configuration.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
             
 
-            using (var startableBus = Configure.With(builder))
+            using (var startableBus = Bus.Create(configuration))
             {
                 if (saga)
                 {

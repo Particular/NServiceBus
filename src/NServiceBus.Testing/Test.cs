@@ -34,33 +34,31 @@
                 customisations = o => {};
             }
 
-            var builder = new BusConfiguration();
+            var configuration = new BusConfiguration();
 
-            builder.EndpointName("UnitTests");
-            builder.CustomConfigurationSource(testConfigurationSource);
-            builder.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
-            builder.DisableFeature<Sagas>();
-            builder.DisableFeature<Audit>();
-            builder.UseTransport<FakeTestTransport>();
-            builder.UsePersistence<InMemory>();
-            builder.RegisterEncryptionService(b => new FakeEncryptor());
-            builder.RegisterComponents(r =>
+            configuration.EndpointName("UnitTests");
+            configuration.CustomConfigurationSource(testConfigurationSource);
+            configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+            configuration.DisableFeature<Sagas>();
+            configuration.DisableFeature<Audit>();
+            configuration.UseTransport<FakeTestTransport>();
+            configuration.UsePersistence<InMemory>();
+            configuration.RegisterEncryptionService(b => new FakeEncryptor());
+            configuration.RegisterComponents(r =>
             {
                 r.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
                 r.ConfigureComponent<FakeQueueCreator>(DependencyLifecycle.InstancePerCall);
                 r.ConfigureComponent<FakeDequer>(DependencyLifecycle.InstancePerCall);
                 r.ConfigureComponent<FakeSender>(DependencyLifecycle.InstancePerCall);
             });
-            customisations(builder);
-
-            //InitializeInternal(Configure.With(builder));
+            customisations(configuration);
 
             if (initialized)
             {
                 return;
             }
 
-            var bus = Configure.With(builder);
+            var bus = NServiceBus.Bus.Create(configuration);
 
             var mapper = ((UnicastBus)bus).Builder.Build<IMessageMapper>();
 

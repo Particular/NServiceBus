@@ -39,13 +39,13 @@ namespace NServiceBus.Hosting.Tests
 
     public class ConfigWithCustomTransport : IConfigureThisEndpoint, AsA_Server, UsingTransport<MyTestTransport>
     {
-        public void Customize(BusConfiguration builder)
+        public void Customize(BusConfiguration configuration)
         {
         }
     }
     class SecondConfigureThisEndpoint : IConfigureThisEndpoint
     {
-        public void Customize(BusConfiguration builder)
+        public void Customize(BusConfiguration configuration)
         {
         }
     }

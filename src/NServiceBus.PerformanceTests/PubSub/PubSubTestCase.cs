@@ -41,26 +41,26 @@ public class PubSubTestCase : TestCase
     {
         TransportConfigOverride.MaximumConcurrencyLevel = NumberOfThreads;
 
-        var builder = new BusConfiguration();
+        var configuration = new BusConfiguration();
 
-        builder.EndpointName("PubSubPerformanceTest");
-        builder.EnableInstallers();
-        builder.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
-        builder.UseTransport<Msmq>();
-        builder.DisableFeature<Audit>();
+        configuration.EndpointName("PubSubPerformanceTest");
+        configuration.EnableInstallers();
+        configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+        configuration.UseTransport<Msmq>();
+        configuration.DisableFeature<Audit>();
 
         switch (GetStorageType())
         {
             case "inmemory":
-                builder.UsePersistence<InMemory>();
+                configuration.UsePersistence<InMemory>();
                 break;
             case "msmq":
-                builder.UsePersistence<NServiceBus.Persistence.Legacy.Msmq>();
+                configuration.UsePersistence<NServiceBus.Persistence.Legacy.Msmq>();
                 break;
         }
 
         
-        using (var bus = Configure.With(builder))
+        using (var bus = Bus.Create(configuration))
         {
             var subscriptionStorage = ((NServiceBus.Unicast.UnicastBus) bus).Builder.Build<ISubscriptionStorage>();
 

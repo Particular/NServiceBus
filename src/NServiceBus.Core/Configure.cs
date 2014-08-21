@@ -85,29 +85,7 @@ namespace NServiceBus
                 .ToList().ForEach(t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
         }
 
-        /// <summary>
-        ///     Creates a new configuration object scanning assemblies in the regular runtime directory.
-        /// </summary>
-        public static IStartableBus With()
-        {
-            return With(new BusConfiguration());
-        }
-
-
-        /// <summary>
-        ///     Initializes the endpoint configuration with the specified customizations.
-        /// </summary>
-        /// <param name="builder">The configuration builder.</param>
-        /// <returns>A new endpoint configuration.</returns>
-        public static IStartableBus With(BusConfiguration builder)
-        {
-            var config = builder.BuildConfiguration();
-
-            config.Initialize();
-
-            return config.Builder.Build<IStartableBus>();
-        }
-
+       
         /// <summary>
         /// Returns the queue name of this endpoint.
         /// </summary>
@@ -120,7 +98,7 @@ namespace NServiceBus
             }
         }
 
-        void Initialize()
+        internal void Initialize()
         {
             WireUpConfigSectionOverrides();
 
