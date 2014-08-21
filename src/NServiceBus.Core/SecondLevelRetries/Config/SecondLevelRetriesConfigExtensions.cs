@@ -22,7 +22,7 @@ namespace NServiceBus
         /// <summary>
         /// Allows for customization of the second level retries
         /// </summary>
-        public static SecondLevelRetriesSettings SecondLevelRetries(this ConfigurationBuilder config)
+        public static SecondLevelRetriesSettings SecondLevelRetries(this BusConfiguration config)
         {
             return new SecondLevelRetriesSettings(config);
         }

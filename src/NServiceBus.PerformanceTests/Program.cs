@@ -50,7 +50,7 @@
             if (suppressDTC)
                 endpointName += ".SuppressDTC";
 
-            var builder = new ConfigurationBuilder();
+            var builder = new BusConfiguration();
 
             builder.EndpointName(endpointName);
             builder.EnableInstallers();

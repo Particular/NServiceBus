@@ -12,9 +12,9 @@ namespace NServiceBus
         /// <summary>
         /// Enable all <see cref="INeedToInstallSomething"/> to run when <see cref="IWantToRunWhenConfigurationIsComplete"/>.
         /// </summary>
-        /// <param name="config">The instance of <see cref="ConfigurationBuilder"/> to apply these settings to.</param>
+        /// <param name="config">The instance of <see cref="BusConfiguration"/> to apply these settings to.</param>
         /// <param name="username">The username to pass to <see cref="INeedToInstallSomething.Install"/></param>
-        public static void EnableInstallers(this ConfigurationBuilder config, string username = null)
+        public static void EnableInstallers(this BusConfiguration config, string username = null)
         {
             if (username != null)
             {

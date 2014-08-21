@@ -10,7 +10,7 @@
         /// <summary>
         /// Enables the outbox feature
         /// </summary>
-        public static OutboxSettings EnableOutbox(this ConfigurationBuilder config)
+        public static OutboxSettings EnableOutbox(this BusConfiguration config)
         {
             var outboxSettings = new OutboxSettings(config.Settings);
             config.Transactions()

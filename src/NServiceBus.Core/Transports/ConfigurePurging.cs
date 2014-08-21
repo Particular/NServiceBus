@@ -13,7 +13,7 @@ namespace NServiceBus
         /// Setting this to true may make sense for certain smart-client applications, 
         /// but rarely for server applications.
         /// </summary>
-        public static void PurgeOnStartup(this ConfigurationBuilder config, bool value)
+        public static void PurgeOnStartup(this BusConfiguration config, bool value)
         {
             config.Settings.Set("Transport.PurgeOnStartup", value);
         }

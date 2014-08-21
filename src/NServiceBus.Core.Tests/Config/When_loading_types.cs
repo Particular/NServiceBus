@@ -11,7 +11,7 @@ namespace NServiceBus.Core.Tests.Config
         [Test]
         public void Should_always_include_the_core_nservicebus_types()
         {
-             var builder = new ConfigurationBuilder();
+             var builder = new BusConfiguration();
 
             builder.AssembliesToScan(Assembly.GetExecutingAssembly());
 

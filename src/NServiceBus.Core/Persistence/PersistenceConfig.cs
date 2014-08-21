@@ -12,7 +12,7 @@
         /// </summary>
         /// <typeparam name="T">The persistence definition eg <see cref="InMemory"/>, NHibernate etc</typeparam>
         /// <param name="config">The configuration object since this is an extention method</param>
-        public static PersistenceExtentions<T> UsePersistence<T>(this ConfigurationBuilder config) where T : PersistenceDefinition
+        public static PersistenceExtentions<T> UsePersistence<T>(this BusConfiguration config) where T : PersistenceDefinition
         {
             var type = typeof(PersistenceExtentions<>).MakeGenericType(typeof(T));
             var extension = (PersistenceExtentions<T>)Activator.CreateInstance(type, config.Settings);
@@ -27,7 +27,7 @@
         /// </summary>
         /// <param name="config">The configuration object since this is an extention method</param>
         /// <param name="definitionType">The persistence definition eg <see cref="InMemory"/>, NHibernate etc</param>
-        public static PersistenceExtentions UsePersistence(this ConfigurationBuilder config, Type definitionType)
+        public static PersistenceExtentions UsePersistence(this BusConfiguration config, Type definitionType)
         {
             return new PersistenceExtentions(definitionType, config.Settings);
         }

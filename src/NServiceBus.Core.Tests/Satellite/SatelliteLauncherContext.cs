@@ -25,7 +25,7 @@
             InMemoryFaultManager = new Faults.InMemory.FaultManager();
             FakeReceiver = new FakeReceiver();
 
-            var configurationBuilder = new ConfigurationBuilder();
+            var configurationBuilder = new BusConfiguration();
 
             configurationBuilder.EndpointName("xyz");
             configurationBuilder.AssembliesToScan(new Assembly[0]);

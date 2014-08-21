@@ -16,7 +16,7 @@ namespace NServiceBus.Core.Tests.Config
         {
             userConfigurationSource = new UserConfigurationSource();
 
-            var builder = new ConfigurationBuilder();
+            var builder = new BusConfiguration();
             builder.TypesToScan(new Type[]
                 {
                 });

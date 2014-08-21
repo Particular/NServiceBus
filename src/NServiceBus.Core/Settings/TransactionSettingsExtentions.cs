@@ -11,7 +11,7 @@ namespace NServiceBus
         /// Entry point for transaction related configuration
         /// </summary>
         /// <param name="config"><see cref="Configure"/> instance.</param>
-        public static TransactionSettings Transactions(this ConfigurationBuilder config)
+        public static TransactionSettings Transactions(this BusConfiguration config)
         {
             return new TransactionSettings(config);
         }

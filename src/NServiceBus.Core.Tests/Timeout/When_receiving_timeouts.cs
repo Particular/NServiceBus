@@ -13,7 +13,7 @@ namespace NServiceBus.Core.Tests.Timeout
         {
            var  messageSender = new FakeMessageSender();
 
-            var configure = new ConfigurationBuilder().BuildConfiguration();
+            var configure = new BusConfiguration().BuildConfiguration();
 
             configure.localAddress = new Address("sdad", "asda");
             var manager = new DefaultTimeoutManager

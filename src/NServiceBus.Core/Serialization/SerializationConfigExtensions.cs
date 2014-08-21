@@ -14,7 +14,7 @@
         /// </summary>
         /// <typeparam name="T">The serializer definition eg <see cref="Json"/>, <see cref="Xml"/>, etc</typeparam>
         /// <param name="config"></param>
-        public static SerializationExtentions<T> UseSerialization<T>(this ConfigurationBuilder config) where T : SerializationDefinition
+        public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config) where T : SerializationDefinition
         {
             var type = typeof(SerializationExtentions<>).MakeGenericType(typeof(T));
             var extension = (SerializationExtentions<T>)Activator.CreateInstance(type, config.Settings);
@@ -29,7 +29,7 @@
         /// </summary>
         /// <param name="config"></param>
         /// <param name="definitionType">The serializer definition eg <see cref="Json"/>, <see cref="Xml"/> etc</param>
-        public static void UseSerialization(this ConfigurationBuilder config, Type definitionType)
+        public static void UseSerialization(this BusConfiguration config, Type definitionType)
         {
             var definition = (SerializationDefinition)Activator.CreateInstance(definitionType);
 

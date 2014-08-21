@@ -27,7 +27,7 @@ namespace NServiceBus
         /// <remarks>
         ///     Use this in endpoints whose only purpose is sending messages, websites are often a good example of send only endpoints.
         /// </remarks>
-        public static void SendOnly(this ConfigurationBuilder config)
+        public static void SendOnly(this BusConfiguration config)
         {
             config.Settings.Set("Endpoint.SendOnly", true);
         }

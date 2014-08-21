@@ -17,7 +17,7 @@
             return dictionary[key];
         }
 
-        public static void DefineTransport(this ConfigurationBuilder builder, IDictionary<string, string> settings)
+        public static void DefineTransport(this BusConfiguration builder, IDictionary<string, string> settings)
         {
             if (!settings.ContainsKey("Transport"))
             {
@@ -29,7 +29,7 @@
             builder.UseTransport(transportType).ConnectionString(settings["Transport.ConnectionString"]);
         }
 
-        public static void DefinePersistence(this ConfigurationBuilder config, IDictionary<string, string> settings)
+        public static void DefinePersistence(this BusConfiguration config, IDictionary<string, string> settings)
         {
             if (!settings.ContainsKey("Persistence"))
             {

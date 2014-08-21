@@ -109,7 +109,7 @@ namespace NServiceBus.Hosting.Profiles
         /// <summary>
         /// Activates the profile handlers that handle the previously identified active profiles. 
         /// </summary>
-        public void ActivateProfileHandlers(ConfigurationBuilder config)
+        public void ActivateProfileHandlers(BusConfiguration config)
         {
             var instantiableHandlers = assembliesToScan
                 .SelectMany(a => a.GetTypes())

@@ -8,7 +8,7 @@ namespace NServiceBus.Core.Tests.Config
         [Test]
         public void The_default_configuration_source_should_be_default()
         {
-            var config = new ConfigurationBuilder().BuildConfiguration();
+            var config = new BusConfiguration().BuildConfiguration();
 
             
             Assert.AreEqual(config.Settings.GetConfigSection<TestConfigurationSection>().TestSetting, "test");

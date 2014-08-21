@@ -27,14 +27,14 @@
         /// <summary>
         ///     Initializes the testing infrastructure.
         /// </summary>
-        public static void Initialize(Action<ConfigurationBuilder> customisations = null)
+        public static void Initialize(Action<BusConfiguration> customisations = null)
         {
             if (customisations == null)
             {
                 customisations = o => {};
             }
 
-            var builder = new ConfigurationBuilder();
+            var builder = new BusConfiguration();
 
             builder.EndpointName("UnitTests");
             builder.CustomConfigurationSource(testConfigurationSource);

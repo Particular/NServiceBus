@@ -26,9 +26,9 @@ namespace NServiceBus.Transports
         public bool RequireOutboxConsent { get; set; }
 
         /// <summary>
-        /// Gives implementations access to the <see cref="ConfigurationBuilder"/> instance at configuration time.
+        /// Gives implementations access to the <see cref="BusConfiguration"/> instance at configuration time.
         /// </summary>
-        protected internal virtual void Configure(ConfigurationBuilder config)
+        protected internal virtual void Configure(BusConfiguration config)
         {
             
         }

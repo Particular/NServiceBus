@@ -95,7 +95,7 @@ namespace NServiceBus
             bus.Builder.Dispose();
         }
 
-        void PerformConfiguration(Action<ConfigurationBuilder> moreConfiguration = null)
+        void PerformConfiguration(Action<BusConfiguration> moreConfiguration = null)
         {
             var loggingConfigurers = profileManager.GetLoggingConfigurer();
             foreach (var loggingConfigurer in loggingConfigurers)
@@ -103,7 +103,7 @@ namespace NServiceBus
                 loggingConfigurer.Configure(specifier);
             }
 
-            var builder = new ConfigurationBuilder();
+            var builder = new BusConfiguration();
 
             builder.EndpointName(endpointNameToUse);
             builder.EndpointVersion(endpointVersionToUse);

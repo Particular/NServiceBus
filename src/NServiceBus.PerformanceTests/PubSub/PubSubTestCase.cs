@@ -41,7 +41,7 @@ public class PubSubTestCase : TestCase
     {
         TransportConfigOverride.MaximumConcurrencyLevel = NumberOfThreads;
 
-        var builder = new ConfigurationBuilder();
+        var builder = new BusConfiguration();
 
         builder.EndpointName("PubSubPerformanceTest");
         builder.EnableInstallers();

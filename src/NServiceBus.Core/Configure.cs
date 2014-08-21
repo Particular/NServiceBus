@@ -90,7 +90,7 @@ namespace NServiceBus
         /// </summary>
         public static IStartableBus With()
         {
-            return With(new ConfigurationBuilder());
+            return With(new BusConfiguration());
         }
 
 
@@ -99,7 +99,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="builder">The configuration builder.</param>
         /// <returns>A new endpoint configuration.</returns>
-        public static IStartableBus With(ConfigurationBuilder builder)
+        public static IStartableBus With(BusConfiguration builder)
         {
             var config = builder.BuildConfiguration();
 

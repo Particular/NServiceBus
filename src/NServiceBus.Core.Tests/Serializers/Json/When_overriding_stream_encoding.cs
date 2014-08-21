@@ -11,7 +11,7 @@ namespace NServiceBus.Serializers.Json.Tests
         [Test]
         public void Should_construct_serializer_that_uses_requested_encoding()
         {
-            var builder = new ConfigurationBuilder();
+            var builder = new BusConfiguration();
 
             builder.TypesToScan(new Type[0]);
             builder.UseSerialization<NServiceBus.Json>().Encoding(Encoding.UTF7);

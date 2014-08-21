@@ -67,7 +67,7 @@ namespace NServiceBus.Hosting.Tests
             [Ignore("this hasn't been implemented yet as far as i can tell")]
             public void when_endpointName_is_provided_via_configuration_it_should_have_second_priority()
             {
-                var builder = new ConfigurationBuilder();
+                var builder = new BusConfiguration();
 
                 builder.EndpointName("EndpointNameFromConfiguration");
 

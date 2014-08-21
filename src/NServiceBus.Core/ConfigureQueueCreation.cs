@@ -3,14 +3,14 @@ namespace NServiceBus
     using NServiceBus.Settings;
 
     /// <summary>
-    /// Contains extension methods for <see cref="ConfigurationBuilder"/> that expose Queue creation settings.
+    /// Contains extension methods for <see cref="BusConfiguration"/> that expose Queue creation settings.
     /// </summary>
     public static partial class ConfigureQueueCreation
     {
         /// <summary>
         /// If queues configured do not exist, will cause them not to be created on startup.
         /// </summary>
-        public static void DoNotCreateQueues(this ConfigurationBuilder config)
+        public static void DoNotCreateQueues(this BusConfiguration config)
         {
             config.Settings.Set("Transport.CreateQueues", false);
         }

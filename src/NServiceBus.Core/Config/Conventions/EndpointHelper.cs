@@ -125,7 +125,7 @@ namespace NServiceBus.Config.Conventions
                                 f =>
                                 {
                                     var declaringType = f.GetMethod().DeclaringType;
-                                    return declaringType != typeof(Configure) && declaringType != typeof(ConfigurationBuilder);
+                                    return declaringType != typeof(Configure) && declaringType != typeof(BusConfiguration);
                                 });
                     }
                 }

@@ -41,7 +41,7 @@ namespace NServiceBus.Transports
 
         class Initialization : INeedInitialization
         {
-            public void Customize(ConfigurationBuilder builder)
+            public void Customize(BusConfiguration builder)
             {
                 builder.RegisterComponents(c => c.ConfigureComponent<DefaultMessageAuditer>(DependencyLifecycle.InstancePerCall)
                     .ConfigureProperty(t => t.EndpointName, builder.Settings.EndpointName()));

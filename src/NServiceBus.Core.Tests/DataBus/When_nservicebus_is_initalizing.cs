@@ -14,7 +14,7 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public void Databus_should_be_activated_if_a_databus_property_is_found()
         {
-            var builder = new ConfigurationBuilder();
+            var builder = new BusConfiguration();
 
             builder.EndpointName("xyz");
             builder.TypesToScan(new[]{typeof(MessageWithDataBusProperty)});
@@ -28,7 +28,7 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public void Databus_should_not_be_activated_if_no_databus_property_is_found()
         {
-            var builder = new ConfigurationBuilder();
+            var builder = new BusConfiguration();
 
             builder.EndpointName("xyz");
             builder.TypesToScan(new[] { typeof(MessageWithoutDataBusProperty) });
@@ -46,7 +46,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 Assert.Ignore("This only work in debug mode.");
             }
 
-            var builder = new ConfigurationBuilder();
+            var builder = new BusConfiguration();
             builder.EndpointName("xyz");
             builder.TypesToScan(new[]
                 {
@@ -67,7 +67,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 Assert.Ignore("This only work in debug mode.");
             }
 
-            var builder = new ConfigurationBuilder();
+            var builder = new BusConfiguration();
             builder.EndpointName("xyz");
             builder.TypesToScan(new[]
                 {

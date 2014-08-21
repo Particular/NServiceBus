@@ -10,7 +10,7 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void Should_configure_requested_transport()
         {
-            var builder = new ConfigurationBuilder();
+            var builder = new BusConfiguration();
 
             builder.EndpointName("myTests");
             builder.UseTransport<MyTestTransport>();
@@ -23,7 +23,7 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void Should_default_to_msmq_if_no_other_transport_is_configured()
         {
-            var builder = new ConfigurationBuilder();
+            var builder = new BusConfiguration();
             builder.EndpointName("myTests");
 
             Assert.True(builder.BuildConfiguration().Settings.Get<TransportDefinition>() is Msmq);
@@ -39,13 +39,13 @@ namespace NServiceBus.Hosting.Tests
 
     public class ConfigWithCustomTransport : IConfigureThisEndpoint, AsA_Server, UsingTransport<MyTestTransport>
     {
-        public void Customize(ConfigurationBuilder builder)
+        public void Customize(BusConfiguration builder)
         {
         }
     }
     class SecondConfigureThisEndpoint : IConfigureThisEndpoint
     {
-        public void Customize(ConfigurationBuilder builder)
+        public void Customize(BusConfiguration builder)
         {
         }
     }

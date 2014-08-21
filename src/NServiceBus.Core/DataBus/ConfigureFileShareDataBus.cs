@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     
     /// <summary>
-    /// Contains extension methods to <see cref="ConfigurationBuilder"/> for the file share data bus
+    /// Contains extension methods to <see cref="BusConfiguration"/> for the file share data bus
     /// </summary>
     public static partial class ConfigureFileShareDataBus
     {
@@ -12,7 +12,7 @@ namespace NServiceBus
         /// <param name="config">The configuration.</param>
         /// <param name="basePath">The location to which to write serialized properties for the databus.</param>
         /// <returns>The configuration.</returns>
-        public static void FileShareDataBus(this ConfigurationBuilder config, string basePath)
+        public static void FileShareDataBus(this BusConfiguration config, string basePath)
         {
             config.Settings.Set("FileShareDataBusPath", basePath);
         }
