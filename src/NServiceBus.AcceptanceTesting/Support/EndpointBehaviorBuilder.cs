@@ -50,7 +50,7 @@
             return this;
         }
 
-        public EndpointBehaviorBuilder<TContext> CustomConfig(Action<Configure> action)
+        public EndpointBehaviorBuilder<TContext> CustomConfig(Action<BusConfiguration> action)
         {
             behavior.CustomConfig.Add(action);
 

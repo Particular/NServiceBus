@@ -47,8 +47,7 @@
 
                 scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
 
-                //todo remove
-                //endpointBehavior.CustomConfig.ForEach(customAction => customAction(config));
+                endpointBehavior.CustomConfig.ForEach(customAction => customAction(busConfiguration));
 
                 bus = Bus.Create(busConfiguration);
 
