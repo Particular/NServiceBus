@@ -49,7 +49,7 @@
         {
             public MyEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => { }, b => b.RegisterComponents(r => r.ConfigureComponent<CheckUnitOfWorkOutcome>(DependencyLifecycle.InstancePerCall)));
+                EndpointSetup<DefaultServer>(b => b.RegisterComponents(r => r.ConfigureComponent<CheckUnitOfWorkOutcome>(DependencyLifecycle.InstancePerCall)));
             }
 
             class EnsureOrdering : ISpecifyMessageHandlerOrdering

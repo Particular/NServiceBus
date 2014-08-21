@@ -30,7 +30,7 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(configure => {},builder => builder.DisableDurableMessages())
+                EndpointSetup<DefaultServer>(builder => builder.DisableDurableMessages())
                     .AddMapping<MyMessage>(typeof(Receiver));
             }
         }
@@ -39,7 +39,7 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(configure => { }, builder => builder.DisableDurableMessages());
+                EndpointSetup<DefaultServer>(builder => builder.DisableDurableMessages());
             }
         }
 

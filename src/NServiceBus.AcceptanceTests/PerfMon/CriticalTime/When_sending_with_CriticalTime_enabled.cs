@@ -47,7 +47,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => { }, builder => builder.EnableCriticalTimePerformanceCounter());
+                EndpointSetup<DefaultServer>(builder => builder.EnableCriticalTimePerformanceCounter());
             }
         }
 

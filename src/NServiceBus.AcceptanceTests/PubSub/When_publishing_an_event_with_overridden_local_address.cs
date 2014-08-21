@@ -40,7 +40,7 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
                     if (s.SubscriberReturnAddress.Queue.Contains("myinputqueue"))
                     {
@@ -54,7 +54,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => { }, builder =>
+                EndpointSetup<DefaultServer>(builder =>
                 {
                     builder.DisableFeature<AutoSubscribe>();
                     builder.OverrideLocalAddress("myinputqueue");

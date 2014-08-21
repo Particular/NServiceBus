@@ -34,7 +34,7 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c => { }, builder => builder.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"))
+                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"))
                     .AddMapping<MessageWithSecretData>(typeof(Receiver));
             }
 
@@ -48,7 +48,7 @@
                 {
                     "gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"
                 };
-                EndpointSetup<DefaultServer>(c => { }, builder => builder.RijndaelEncryptionService("adDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6", expiredKeys));
+                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("adDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6", expiredKeys));
             }
 
             public class Handler : IHandleMessages<MessageWithSecretData>

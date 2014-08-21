@@ -48,7 +48,7 @@
             public NonDtcReceivingEndpoint()
             {
                 EndpointSetup<DefaultServer>(
-                    c => {},
+                    
                     b =>
                     {
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);

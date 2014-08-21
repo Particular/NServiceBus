@@ -78,7 +78,7 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<SagaContext>((s, context) =>
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<SagaContext>((s, context) =>
                 {
                     context.AddTrace("Subscription received for " + s.SubscriberReturnAddress.Queue);
                     context.IsEventSubscriptionReceived = true;
@@ -90,7 +90,7 @@
         {
             public SagaThatPublishesAnEvent()
             {
-                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
                     context.IsEventSubscriptionReceived = true;
                 }));
@@ -137,7 +137,7 @@
         {
             public SagaThatIsStartedByTheEvent()
             {
-                EndpointSetup<DefaultServer>(_ => { }, c => c.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
                     .AddMapping<SomethingHappenedEvent>(typeof(SagaThatPublishesAnEvent));
 
             }
@@ -180,7 +180,7 @@
         {
             public SagaThatIsStartedByABaseEvent()
             {
-                EndpointSetup<DefaultServer>(_ => { }, c => c.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
                     .AddMapping<BaseEvent>(typeof(Publisher));
             }
 

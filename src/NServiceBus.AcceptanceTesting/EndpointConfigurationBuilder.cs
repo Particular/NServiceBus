@@ -56,7 +56,7 @@
             return EndpointSetup<T>(c => { });
         }
 
-        public EndpointConfigurationBuilder EndpointSetup<T>(Action<Configure> configCustomization, Action<ConfigurationBuilder> configurationBuilderCustomization = null) where T : IEndpointSetupTemplate, new()
+        public EndpointConfigurationBuilder EndpointSetup<T>(Action<ConfigurationBuilder> configurationBuilderCustomization = null) where T : IEndpointSetupTemplate, new()
         {
             if (configurationBuilderCustomization == null)
             {

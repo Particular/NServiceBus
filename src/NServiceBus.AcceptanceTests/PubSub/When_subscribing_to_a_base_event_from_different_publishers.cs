@@ -48,7 +48,7 @@
         {
             public Publisher1()
             {
-                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
                     context.AddTrace("Publisher1 SubscriberReturnAddress=" + s.SubscriberReturnAddress.Queue);
                     if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
@@ -63,7 +63,7 @@
         {
             public Publisher2()
             {
-                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
                     context.AddTrace("Publisher2 SubscriberReturnAddress=" + s.SubscriberReturnAddress.Queue);
 
@@ -79,7 +79,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(_ => { }, c => c.EnableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<AutoSubscribe>())
                     .AddMapping<DerivedEvent1>(typeof(Publisher1))
                     .AddMapping<DerivedEvent2>(typeof(Publisher2));
             }

@@ -48,7 +48,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => { }, builder => builder.EnableSLAPerformanceCounter(new TimeSpan(0, 0, 0, 0, 1)));
+                EndpointSetup<DefaultServer>(builder => builder.EnableSLAPerformanceCounter(new TimeSpan(0, 0, 0, 0, 1)));
             }
         }
 

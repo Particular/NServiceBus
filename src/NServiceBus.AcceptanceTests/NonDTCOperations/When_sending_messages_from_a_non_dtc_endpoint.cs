@@ -29,7 +29,7 @@
         {
             public NonDtcSalesEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => {},
+                EndpointSetup<DefaultServer>(
                     b =>
                     {
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);

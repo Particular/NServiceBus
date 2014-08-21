@@ -82,7 +82,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => { }, b => b.LoadMessageHandlers<First<TestSaga>>());
+                EndpointSetup<DefaultServer>(b => b.LoadMessageHandlers<First<TestSaga>>());
             }
 
             public class TestSaga : Saga<TestSagaData>, 
