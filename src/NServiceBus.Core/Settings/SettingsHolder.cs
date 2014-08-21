@@ -224,6 +224,28 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
+        /// True if there is a explicit value for the given key
+        /// </summary>
+        /// <param name="key">The Key</param>
+        /// <returns>True if found</returns>
+        public bool HasExplicitValue(string key)
+        {
+            return Overrides.ContainsKey(key);
+        }
+
+        /// <summary>
+        /// True if there is a explicit value for the given type
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <returns>True if found</returns>
+        public bool HasExplicitValue<T>()
+        {
+            var key = typeof(T).FullName;
+
+            return HasExplicitValue(key);
+        }
+
+        /// <summary>
         /// Locks the settings to prevent further modifications
         /// </summary>
         internal void PreventChanges()
