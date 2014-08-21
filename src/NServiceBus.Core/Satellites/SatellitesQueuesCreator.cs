@@ -16,7 +16,7 @@ namespace NServiceBus.Satellites
                 return;
             }
 
-            if (!config.Settings.GetCreateQueues())
+            if (!config.CreateQueues())
             {
                 return;
             }

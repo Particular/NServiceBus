@@ -1,7 +1,5 @@
 namespace NServiceBus
 {
-    using NServiceBus.Settings;
-
     /// <summary>
     /// Contains extension methods for <see cref="ConfigurationBuilder"/> that expose Queue creation settings.
     /// </summary>
@@ -16,12 +14,12 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Gets whether or not queues should be created
+        /// Gets whether or not queues should be created.
         /// </summary>
-        internal static bool GetCreateQueues(this ReadOnlySettings settings)
+        public static bool CreateQueues(this Configure config)
         {
             bool createQueues;
-            if (settings.TryGet("Transport.CreateQueues", out createQueues))
+            if (config.Settings.TryGet("Transport.CreateQueues", out createQueues))
             {
                 return createQueues;
             }
