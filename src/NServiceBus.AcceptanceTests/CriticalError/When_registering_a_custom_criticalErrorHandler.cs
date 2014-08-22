@@ -39,7 +39,7 @@
             public static Context Context { get; set; }
             public EndpointWithLocalCallback()
             {
-                EndpointSetup<DefaultServer>(configure => {},builder => builder.DefineCriticalErrorAction((s, exception) =>
+                EndpointSetup<DefaultServer>(builder => builder.DefineCriticalErrorAction((s, exception) =>
                 {
                     var aggregateException = (AggregateException) exception;
                     aggregateException = (AggregateException)aggregateException.InnerExceptions.First();

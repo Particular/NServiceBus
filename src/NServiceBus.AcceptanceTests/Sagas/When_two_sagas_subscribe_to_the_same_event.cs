@@ -40,7 +40,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
         {
             public EndpointThatHandlesAMessageAndPublishesEvent()
             {
-                EndpointSetup<DefaultPublisher>(_ => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
                     context.Subscribed = true;
                 }));

@@ -12,11 +12,11 @@ namespace NServiceBus
         /// <summary>
         ///     Sets the function to be used when critical error occurs.
         /// </summary>
-        /// <param name="configurationBuilder">The <see cref="ConfigurationBuilder"/> to extend.</param>
+        /// <param name="busConfiguration">The <see cref="BusConfiguration"/> to extend.</param>
         /// <param name="onCriticalError">Assigns the action to perform on critical error.</param>
-        public static void DefineCriticalErrorAction(this ConfigurationBuilder configurationBuilder, Action<string, Exception> onCriticalError)
+        public static void DefineCriticalErrorAction(this BusConfiguration busConfiguration, Action<string, Exception> onCriticalError)
         {
-            configurationBuilder.Settings.Set("onCriticalErrorAction", onCriticalError);
+            busConfiguration.Settings.Set("onCriticalErrorAction", onCriticalError);
         }
 
     }

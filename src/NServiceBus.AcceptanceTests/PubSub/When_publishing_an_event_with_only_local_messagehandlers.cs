@@ -42,7 +42,7 @@
         {
             public MessageDrivenPublisher()
             {
-                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<Context>((s, context) =>
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
                     context.LocalEndpointSubscribed = true;
                 }))
@@ -70,7 +70,7 @@
         {
             public CentralizedStoragePublisher()
             {
-                EndpointSetup<DefaultServer>(c => { }, builder => builder.AutoSubscribe().DoNotRequireExplicitRouting());
+                EndpointSetup<DefaultServer>(builder => builder.AutoSubscribe().DoNotRequireExplicitRouting());
             }
 
             class CatchAllHandler : IHandleMessages<IEvent> 

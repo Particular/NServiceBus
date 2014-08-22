@@ -5,9 +5,9 @@ namespace NServiceBus.Settings
     /// </summary>
     public class ScaleOutSettings
     {
-        ConfigurationBuilder config;
+        BusConfiguration config;
 
-        internal ScaleOutSettings(ConfigurationBuilder config)
+        internal ScaleOutSettings(BusConfiguration config)
         {
             this.config = config;
         }

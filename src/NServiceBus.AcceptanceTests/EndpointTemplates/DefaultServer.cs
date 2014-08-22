@@ -10,6 +10,7 @@
     using Logging;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
+    using NServiceBus.Configuration.AdvanceExtensibility;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
@@ -25,7 +26,7 @@
             this.typesToInclude = typesToInclude;
         }
 
-        public Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource, Action<ConfigurationBuilder> configurationBuilderCustomization)
+        public BusConfiguration GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource, Action<BusConfiguration> configurationBuilderCustomization)
         {
             var settings = runDescriptor.Settings;
 
@@ -35,37 +36,37 @@
 
             typesToInclude.AddRange(types);
 
-            var config = Configure.With(o =>
+            var builder = new BusConfiguration();
+
+            builder.EndpointName(endpointConfiguration.EndpointName);
+            builder.TypesToScan(typesToInclude);
+            builder.CustomConfigurationSource(configSource);
+            builder.EnableInstallers();
+            builder.DefineTransport(settings);
+            builder.RegisterComponents(r =>
             {
-                configurationBuilderCustomization(o);
-                o.EndpointName(endpointConfiguration.EndpointName);
-                o.TypesToScan(typesToInclude);
-                o.CustomConfigurationSource(configSource);
-                o.EnableInstallers();
-                o.DefineTransport(settings);
-                o.RegisterComponents(r =>
-                {
-                    r.RegisterSingleton(runDescriptor.ScenarioContext.GetType(), runDescriptor.ScenarioContext);
-                    r.RegisterSingleton(typeof(ScenarioContext), runDescriptor.ScenarioContext);
-                });
-
-                string selectedBuilder;
-                if (settings.TryGetValue("Builder", out selectedBuilder))
-                {
-                    o.UseContainer(Type.GetType(selectedBuilder));
-                }
-                var serializer = settings.GetOrNull("Serializer");
-
-                if (serializer != null)
-                {
-                    o.UseSerialization(Type.GetType(serializer));
-                }
-                o.DefinePersistence(settings);
+                r.RegisterSingleton(runDescriptor.ScenarioContext.GetType(), runDescriptor.ScenarioContext);
+                r.RegisterSingleton(typeof(ScenarioContext), runDescriptor.ScenarioContext);
             });
 
-            config.Settings.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
+            string selectedBuilder;
+            if (settings.TryGetValue("Builder", out selectedBuilder))
+            {
+                builder.UseContainer(Type.GetType(selectedBuilder));
+            }
+            var serializer = settings.GetOrNull("Serializer");
 
-            return config;
+            if (serializer != null)
+            {
+                builder.UseSerialization(Type.GetType(serializer));
+            }
+            builder.DefinePersistence(settings);
+
+            builder.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
+            configurationBuilderCustomization(builder);
+
+
+            return builder;
         }
 
         static IEnumerable<Type> GetTypesScopedByTestClass(EndpointConfiguration endpointConfiguration)

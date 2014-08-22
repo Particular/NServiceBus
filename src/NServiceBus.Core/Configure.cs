@@ -85,39 +85,7 @@ namespace NServiceBus
                 .ToList().ForEach(t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
         }
 
-        /// <summary>
-        ///     Creates a new configuration object scanning assemblies in the regular runtime directory.
-        /// </summary>
-        public static Configure With()
-        {
-            return With(o => { });
-        }
-
-
-        /// <summary>
-        ///     Initializes the endpoint configuration with the specified customizations.
-        /// </summary>
-        /// <param name="customizations">The customizations builder.</param>
-        /// <returns>A new endpoint configuration.</returns>
-        public static Configure With(Action<ConfigurationBuilder> customizations)
-        {
-            var options = new ConfigurationBuilder();
-
-            customizations(options);
-
-            return options.BuildConfiguration();
-        }
-
-        /// <summary>
-        ///     Provides an instance to a startable bus.
-        /// </summary>
-        public IStartableBus CreateBus()
-        {
-            Initialize();
-
-            return Builder.Build<IStartableBus>();
-        }
-
+       
         /// <summary>
         /// Returns the queue name of this endpoint.
         /// </summary>
@@ -130,16 +98,8 @@ namespace NServiceBus
             }
         }
 
-        /// <summary>
-        ///     Finalizes the configuration by invoking all initialisers.
-        /// </summary>
-        void Initialize()
+        internal void Initialize()
         {
-            if (initialized)
-            {
-                return;
-            }
-
             WireUpConfigSectionOverrides();
 
             featureActivator = new FeatureActivator(Settings);
@@ -154,7 +114,10 @@ namespace NServiceBus
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(TypesToScan, t => t.Run(this));
 
-            featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
+            var featureStats = featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
+
+            configurer.RegisterSingleton(featureStats);
+
             featureActivator.RegisterStartupTasks(configurer);
 
             localAddress = Address.Parse(Settings.Get<string>("NServiceBus.LocalAddress"));
@@ -162,8 +125,6 @@ namespace NServiceBus
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
                 .ForEach(o => o.Run(this));
-
-            initialized = true;
         }
 
         /// <summary>
@@ -240,7 +201,7 @@ namespace NServiceBus
         internal IConfigureComponents configurer;
 
         FeatureActivator featureActivator;
-        bool initialized;
+        
         internal PipelineSettings pipeline;
 
         //HACK: Set by the tests

@@ -38,7 +38,7 @@ namespace NServiceBus.Unicast.Queuing
             }
         }
 
-        public void Customize(ConfigurationBuilder builder)
+        public void Customize(BusConfiguration builder)
         {
             Configure.ForAllTypes<IWantQueueCreated>(builder.GetSettings().GetAvailableTypes(),
                 type => builder.RegisterComponents(c => c.ConfigureComponent(type, DependencyLifecycle.InstancePerCall)));

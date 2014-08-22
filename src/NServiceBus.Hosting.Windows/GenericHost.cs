@@ -9,14 +9,14 @@ namespace NServiceBus
     using Hosting.Profiles;
     using Hosting.Wcf;
     using Logging;
+    using NServiceBus.Unicast;
 
     class GenericHost
     {
         public GenericHost(IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles, string endpointName, IEnumerable<string> scannableAssembliesFullName = null)
         {
             this.specifier = specifier;
-            config = null;
-
+         
             if (String.IsNullOrEmpty(endpointName))
             {
                 endpointName = specifier.GetType().Namespace ?? specifier.GetType().Assembly.GetName().Name;
@@ -55,14 +55,12 @@ namespace NServiceBus
             {
                 PerformConfiguration();
 
-                bus = config.CreateBus();
-
-                if (bus != null && !config.Settings.Get<bool>("Endpoint.SendOnly"))
+                if (bus != null && !bus.Settings.Get<bool>("Endpoint.SendOnly"))
                 {
                     bus.Start();
                 }
 
-                wcfManager.Startup(config);
+                wcfManager.Startup(bus);
             }
             catch (Exception ex)
             {
@@ -93,12 +91,11 @@ namespace NServiceBus
         public void Install(string username)
         {
             PerformConfiguration(builder => builder.EnableInstallers(username));
-            config.CreateBus();
-
-            config.Builder.Dispose();
+          
+            bus.Builder.Dispose();
         }
 
-        void PerformConfiguration(Action<ConfigurationBuilder> moreConfiguration = null)
+        void PerformConfiguration(Action<BusConfiguration> moreConfiguration = null)
         {
             var loggingConfigurers = profileManager.GetLoggingConfigurer();
             foreach (var loggingConfigurer in loggingConfigurers)
@@ -106,22 +103,23 @@ namespace NServiceBus
                 loggingConfigurer.Configure(specifier);
             }
 
-            config = Configure.With(builder =>
+            var configuration = new BusConfiguration();
+
+            configuration.EndpointName(endpointNameToUse);
+            configuration.EndpointVersion(endpointVersionToUse);
+            configuration.AssembliesToScan(assembliesToScan);
+            configuration.DefineCriticalErrorAction(OnCriticalError);
+
+            if (moreConfiguration != null)
             {
-                builder.EndpointName(endpointNameToUse);
-                builder.EndpointVersion(endpointVersionToUse);
-                builder.AssembliesToScan(assembliesToScan);
-                builder.DefineCriticalErrorAction(OnCriticalError);
+                moreConfiguration(configuration);
+            }
 
-                if (moreConfiguration != null)
-                {
-                    moreConfiguration(builder);
-                }
+            specifier.Customize(configuration);
+            RoleManager.TweakConfigurationBuilder(specifier, configuration);
+            profileManager.ActivateProfileHandlers(configuration);
 
-                specifier.Customize(builder);
-                RoleManager.TweakConfigurationBuilder(specifier, builder);
-                profileManager.ActivateProfileHandlers(builder);
-            });
+            bus = (UnicastBus) Bus.Create(configuration);
         }
 
         // Windows hosting behavior when critical error occurs is suicide.
@@ -136,10 +134,9 @@ namespace NServiceBus
         }
         List<Assembly> assembliesToScan;
         ProfileManager profileManager;
-        Configure config;
         IConfigureThisEndpoint specifier;
         WcfManager wcfManager;
-        IStartableBus bus;
+        UnicastBus bus;
         string endpointNameToUse;
         string endpointVersionToUse;
     }

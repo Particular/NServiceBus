@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Support;
+    using NServiceBus.Unicast;
     using Transports;
 
     [Serializable]
@@ -17,7 +18,6 @@
         readonly IList<Guid> executedWhens = new List<Guid>();
         EndpointBehavior behavior;
         IStartableBus bus;
-        Configure config;
         EndpointConfiguration configuration;
         Task executeWhens;
         ScenarioContext scenarioContext;
@@ -43,15 +43,15 @@
                 }
 
                 //apply custom config settings
-                config = configuration.GetConfiguration(run, routingTable);
+                var busConfiguration = configuration.GetConfiguration(run, routingTable);
 
                 scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
 
-                endpointBehavior.CustomConfig.ForEach(customAction => customAction(config));
+                endpointBehavior.CustomConfig.ForEach(customAction => customAction(busConfiguration));
 
-                bus = config.CreateBus();
+                bus = Bus.Create(busConfiguration);
 
-                var transportDefinition = config.Settings.Get<TransportDefinition>();
+                var transportDefinition = ((UnicastBus)bus).Settings.Get<TransportDefinition>();
 
                 scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
 

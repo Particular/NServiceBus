@@ -21,7 +21,7 @@
             }
         }
 
-        public void Customize(ConfigurationBuilder builder)
+        public void Customize(BusConfiguration builder)
         {
             builder.RegisterComponents(c => c.ConfigureComponent<MutateMessageContentTypeOfIncomingTransportMessages>(DependencyLifecycle.InstancePerCall));
         }

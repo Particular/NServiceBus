@@ -11,7 +11,7 @@ namespace NServiceBus.Settings
     /// </summary>
     public class TransactionSettings
     {
-        internal TransactionSettings(ConfigurationBuilder config)
+        internal TransactionSettings(BusConfiguration config)
         {
             this.config = config;
             maxTimeout = GetMaxTimeout();
@@ -134,7 +134,7 @@ namespace NServiceBus.Settings
             return maxTimeout;
         }
 
-        ConfigurationBuilder config;
+        BusConfiguration config;
         TimeSpan maxTimeout;
     }
 }

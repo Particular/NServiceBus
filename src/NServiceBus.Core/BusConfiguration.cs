@@ -22,11 +22,14 @@ namespace NServiceBus
     using NServiceBus.Utils.Reflection;
 
     /// <summary>
-    ///     Builder that construct the endpoint configuration.
+    ///     Configuration used to create a bus instance
     /// </summary>
-    public class ConfigurationBuilder : ExposeSettings
+    public class BusConfiguration : ExposeSettings
     {
-        internal ConfigurationBuilder() : base(new SettingsHolder())
+        /// <summary>
+        /// Initializes a fresh instance of the builder
+        /// </summary>
+        public BusConfiguration() : base(new SettingsHolder())
         {
             LogManager.HasConfigBeenInitialised = true;
             configurationSourceToUse = new DefaultConfigurationSource();

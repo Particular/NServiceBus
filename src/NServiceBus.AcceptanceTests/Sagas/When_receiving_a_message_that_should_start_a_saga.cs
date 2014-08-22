@@ -55,7 +55,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => { }, b => b.LoadMessageHandlers<First<InterceptingHandler>>());
+                EndpointSetup<DefaultServer>(b => b.LoadMessageHandlers<First<InterceptingHandler>>());
             }
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>

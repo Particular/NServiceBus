@@ -31,7 +31,7 @@
             //first we override the default "extraction" behavior
             class MyOverride : INeedInitialization
             {
-                public void Customize(ConfigurationBuilder builder)
+                public void Customize(BusConfiguration builder)
                 {
                     builder.Pipeline.Replace(WellKnownStep.DeserializeMessages, typeof(MyRawMessageHandler));
                 }

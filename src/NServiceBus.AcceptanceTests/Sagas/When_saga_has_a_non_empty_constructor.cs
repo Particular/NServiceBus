@@ -36,7 +36,7 @@
             public SagaEndpoint()
             {
                 EndpointSetup<DefaultServer>(
-                    c=>{},
+                    
                     builder => builder.Transactions().DoNotWrapHandlersExecutionInATransactionScope());
             }
 

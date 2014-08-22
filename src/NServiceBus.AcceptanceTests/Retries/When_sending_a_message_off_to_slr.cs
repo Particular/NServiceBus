@@ -57,7 +57,7 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => { },
+                EndpointSetup<DefaultServer>(
                     b => b.RegisterComponents(r => r.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance)))
                     .WithConfig<TransportConfig>(c =>
                     {
@@ -95,7 +95,7 @@
                     transportMessage.Body[0]--;
                 }
 
-                public void Customize(ConfigurationBuilder builder)
+                public void Customize(BusConfiguration builder)
                 {
                     builder.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                 }

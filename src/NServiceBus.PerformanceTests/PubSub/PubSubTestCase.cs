@@ -41,56 +41,31 @@ public class PubSubTestCase : TestCase
     {
         TransportConfigOverride.MaximumConcurrencyLevel = NumberOfThreads;
 
-        var config = Configure.With(o =>
+        var configuration = new BusConfiguration();
+
+        configuration.EndpointName("PubSubPerformanceTest");
+        configuration.EnableInstallers();
+        configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+        configuration.UseTransport<Msmq>();
+        configuration.DisableFeature<Audit>();
+
+        switch (GetStorageType())
         {
-            o.EndpointName("PubSubPerformanceTest");
-            o.EnableInstallers();
-            o.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
-            o.UseTransport<Msmq>();
-            o.DisableFeature<Audit>();
+            case "inmemory":
+                configuration.UsePersistence<InMemory>();
+                break;
+            case "msmq":
+                configuration.UsePersistence<NServiceBus.Persistence.Legacy.Msmq>();
+                break;
+        }
 
-            switch (GetStorageType())
-            {
-                case "inmemory":
-                    o.UsePersistence<InMemory>();
-                    break;
-                case "msmq":
-                    o.UsePersistence<NServiceBus.Persistence.Legacy.Msmq>();
-                    break;
-            }
-        });
-
-
-        using (var bus = config.CreateBus())
+        
+        using (var bus = Bus.Create(configuration))
         {
-            var subscriptionStorage = config.Builder.Build<ISubscriptionStorage>();
-
-            var testEventMessage = new MessageType(typeof(TestEvent));
+            var subscriptionStorage = ((NServiceBus.Unicast.UnicastBus) bus).Builder.Build<ISubscriptionStorage>();
 
 
-            subscriptionStorage.Init();
-
-
-            var creator = new MsmqQueueCreator
-            {
-                Settings = new MsmqSettings { UseTransactionalQueues = true }
-            };
-
-            for (var i = 0; i < GetNumberOfSubscribers(); i++)
-            {
-                var subscriberAddress = Address.Parse("PubSubPerformanceTest.Subscriber" + i);
-                creator.CreateQueueIfNecessary(subscriberAddress, null);
-
-                using (var tx = new TransactionScope())
-                {
-                    subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
-                        {
-                            testEventMessage
-                        });
-
-                    tx.Complete();
-                }
-            }
+            PrimeSubscriptionStorage(subscriptionStorage);
 
             Parallel.For(
           0,
@@ -109,6 +84,39 @@ public class PubSubTestCase : TestCase
             Statistics.Dump();
         }
 
+    }
+
+    void PrimeSubscriptionStorage(ISubscriptionStorage subscriptionStorage)
+    {
+        var testEventMessage = new MessageType(typeof(TestEvent));
+
+
+        subscriptionStorage.Init();
+
+
+        var creator = new MsmqQueueCreator
+        {
+            Settings = new MsmqSettings
+            {
+                UseTransactionalQueues = true
+            }
+        };
+
+        for (var i = 0; i < GetNumberOfSubscribers(); i++)
+        {
+            var subscriberAddress = Address.Parse("PubSubPerformanceTest.Subscriber" + i);
+            creator.CreateQueueIfNecessary(subscriberAddress, null);
+
+            using (var tx = new TransactionScope())
+            {
+                subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
+                {
+                    testEventMessage
+                });
+
+                tx.Complete();
+            }
+        }
     }
 }
 

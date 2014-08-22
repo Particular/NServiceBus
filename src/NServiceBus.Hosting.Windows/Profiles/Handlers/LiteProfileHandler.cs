@@ -7,7 +7,7 @@
 
     class LiteProfileHandler : IHandleProfile<Lite>
     {
-        public void ProfileActivated(ConfigurationBuilder config)
+        public void ProfileActivated(BusConfiguration config)
         {
             config.GetSettings().EnableFeatureByDefault<InstallationSupport>();
             //if (!config.Configurer.HasComponent<IManageMessageFailures>()) //TODO: Not sure how to handle this yet

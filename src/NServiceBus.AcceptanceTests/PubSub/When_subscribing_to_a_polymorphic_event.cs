@@ -53,7 +53,7 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(_ => { }, b => b.OnEndpointSubscribed<Context>((args, context) =>
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) =>
                 {
                     if (args.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
                     {
@@ -72,7 +72,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(_ => { }, c => c.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
                     .AddMapping<IMyEvent>(typeof(Publisher));
             }
 
@@ -91,7 +91,7 @@
         {
             public Subscriber2()
             {
-                EndpointSetup<DefaultServer>(_ => { }, c => c.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
                         .AddMapping<MyEvent>(typeof(Publisher));
             }
 

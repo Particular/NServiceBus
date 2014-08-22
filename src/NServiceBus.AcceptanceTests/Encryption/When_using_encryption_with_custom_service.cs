@@ -59,7 +59,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => { },builder => builder.RegisterEncryptionService(_ => new MyEncryptionService()));
+                EndpointSetup<DefaultServer>(builder => builder.RegisterEncryptionService(_ => new MyEncryptionService()));
             }
 
             public class Handler : IHandleMessages<MessageWithSecretData>

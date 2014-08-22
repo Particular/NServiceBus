@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq;
-    using System.Reflection;
     using System.Threading.Tasks;
     using Core.Tests;
     using Core.Tests.Fakes;
@@ -12,7 +11,7 @@
     public class ScheduleTests
     {
         const string ACTION_NAME = "my action";
-        FuncBuilder builder = new FuncBuilder();
+        FuncBuilder container = new FuncBuilder();
         FakeBus bus = new FakeBus();
         Schedule schedule;
 
@@ -20,17 +19,11 @@
         [SetUp]
         public void SetUp()
         {
-            Configure.With(o =>
-            {
-                o.AssembliesToScan(new Assembly[0]);
-                o.UseContainer(builder);
-            });
-
             defaultScheduler = new DefaultScheduler(bus);
-            builder.Register<IBus>(() => bus);
-            builder.Register<DefaultScheduler>(() => defaultScheduler);
+            container.Register<IBus>(() => bus);
+            container.Register<DefaultScheduler>(() => defaultScheduler);
 
-            schedule = new Schedule(builder);
+            schedule = new Schedule(container);
         }
 
         [Test]

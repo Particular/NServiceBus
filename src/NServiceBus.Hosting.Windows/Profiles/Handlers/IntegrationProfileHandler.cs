@@ -6,7 +6,7 @@
 
     class IntegrationProfileHandler : IHandleProfile<Integration>
     {
-        public void ProfileActivated(ConfigurationBuilder config)
+        public void ProfileActivated(BusConfiguration config)
         {
             config.GetSettings().EnableFeatureByDefault<InstallationSupport>();
         }

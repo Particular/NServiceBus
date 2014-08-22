@@ -10,7 +10,7 @@ namespace NServiceBus
         /// <summary>
         /// Use this method to change how auto subscribe works
         /// </summary>
-        public static AutoSubscribeSettings AutoSubscribe(this ConfigurationBuilder config)
+        public static AutoSubscribeSettings AutoSubscribe(this BusConfiguration config)
         {
             return new AutoSubscribeSettings(config);
         }

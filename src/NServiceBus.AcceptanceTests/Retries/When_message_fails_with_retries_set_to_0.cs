@@ -37,7 +37,7 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => { },
+                EndpointSetup<DefaultServer>(
                     b => b.RegisterComponents(r => r.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance)))
                     .WithConfig<TransportConfig>(c =>
                     {

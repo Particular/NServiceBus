@@ -41,7 +41,7 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => { },
+                EndpointSetup<DefaultServer>(
                     b =>
                     {
                         b.Transactions().DisableDistributedTransactions();

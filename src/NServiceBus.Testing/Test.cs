@@ -8,6 +8,7 @@
     using Features;
     using MessageInterfaces;
     using NServiceBus.Persistence;
+    using NServiceBus.Unicast;
     using Saga;
 
     /// <summary>
@@ -26,32 +27,44 @@
         /// <summary>
         ///     Initializes the testing infrastructure.
         /// </summary>
-        public static void Initialize(Action<ConfigurationBuilder> customisations = null)
+        public static void Initialize(Action<BusConfiguration> customisations = null)
         {
             if (customisations == null)
             {
                 customisations = o => {};
             }
 
-            InitializeInternal(Configure.With(c =>
+            var configuration = new BusConfiguration();
+
+            configuration.EndpointName("UnitTests");
+            configuration.CustomConfigurationSource(testConfigurationSource);
+            configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+            configuration.DisableFeature<Sagas>();
+            configuration.DisableFeature<Audit>();
+            configuration.UseTransport<FakeTestTransport>();
+            configuration.UsePersistence<InMemory>();
+            configuration.RegisterEncryptionService(b => new FakeEncryptor());
+            configuration.RegisterComponents(r =>
             {
-                c.EndpointName("UnitTests");
-                c.CustomConfigurationSource(testConfigurationSource);
-                c.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
-                c.DisableFeature<Sagas>();
-                c.DisableFeature<Audit>();
-                c.UseTransport<FakeTestTransport>();
-                c.UsePersistence<InMemory>();
-                c.RegisterEncryptionService(b => new FakeEncryptor());
-                c.RegisterComponents(r =>
-                {
-                    r.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
-                    r.ConfigureComponent<FakeQueueCreator>(DependencyLifecycle.InstancePerCall);
-                    r.ConfigureComponent<FakeDequer>(DependencyLifecycle.InstancePerCall);
-                    r.ConfigureComponent<FakeSender>(DependencyLifecycle.InstancePerCall);
-                });
-                customisations(c);
-            }));
+                r.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
+                r.ConfigureComponent<FakeQueueCreator>(DependencyLifecycle.InstancePerCall);
+                r.ConfigureComponent<FakeDequer>(DependencyLifecycle.InstancePerCall);
+                r.ConfigureComponent<FakeSender>(DependencyLifecycle.InstancePerCall);
+            });
+            customisations(configuration);
+
+            if (initialized)
+            {
+                return;
+            }
+
+            var bus = NServiceBus.Bus.Create(configuration);
+
+            var mapper = ((UnicastBus)bus).Builder.Build<IMessageMapper>();
+
+            messageCreator = mapper;
+
+            initialized = true;
         }
         
         // ReSharper disable UnusedParameter.Global
@@ -93,21 +106,7 @@
         }
         // ReSharper restore UnusedParameter.Global
 
-        static void InitializeInternal(Configure config)
-        {
-            if (initialized)
-            {
-                return;
-            }
-
-            config.CreateBus();
-
-            var mapper = config.Builder.Build<IMessageMapper>();
-            
-            messageCreator = mapper;
-            
-            initialized = true;
-        }
+     
 
         /// <summary>
         ///     Begin the test script for a saga of type T.

@@ -56,7 +56,7 @@
         {
             public Publisher1()
             {
-                EndpointSetup<DefaultPublisher>(c=>{}, b => b.OnEndpointSubscribed<Context>((args, context) =>
+                EndpointSetup<DefaultPublisher>( b => b.OnEndpointSubscribed<Context>((args, context) =>
                 {
                     context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
                     if (args.MessageType.Contains(typeof(IMyEvent).Name))
@@ -71,7 +71,7 @@
         {
             public Publisher2()
             {
-                EndpointSetup<DefaultPublisher>(c => { }, b => b.OnEndpointSubscribed<Context>((args, context) =>
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) =>
                 {
                     context.AddTrace("Publisher2 OnEndpointSubscribed " + args.MessageType);
 
@@ -87,7 +87,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(_ => { },c => c.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
                     .AddMapping<IMyEvent>(typeof(Publisher1))
                     .AddMapping<MyEvent2>(typeof(Publisher2));
             }

@@ -15,8 +15,6 @@
     
     class Program
     {
-        static Configure config;
-
         static void Main(string[] args)
         {
             var testCaseToRun = args[0];
@@ -52,70 +50,70 @@
             if (suppressDTC)
                 endpointName += ".SuppressDTC";
 
-            config = Configure.With(o =>
+            var configuration = new BusConfiguration();
+
+            configuration.EndpointName(endpointName);
+            configuration.EnableInstallers();
+            configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+            configuration.UseTransport<Msmq>().ConnectionString("deadLetter=false;journal=false");
+            configuration.DisableFeature<Audit>();
+
+            if (volatileMode)
             {
-                o.EndpointName(endpointName);
-                o.EnableInstallers();
-                o.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
-                o.UseTransport<Msmq>().ConnectionString("deadLetter=false;journal=false");
-                o.DisableFeature<Audit>();
+                configuration.DisableDurableMessages();
+                configuration.UsePersistence<InMemory>();
+            }
 
-                if (volatileMode)
-                {
-                    o.DisableDurableMessages();
-                    o.UsePersistence<InMemory>();
-                }
+            switch (args[3].ToLower())
+            {
+                case "msmq":
+                    configuration.UseTransport<Msmq>();
+                    break;
 
-                switch (args[3].ToLower())
-                {
-                    case "msmq":
-                        o.UseTransport<Msmq>();
-                        break;
+                default:
+                    throw new InvalidOperationException("Illegal transport " + args[2]);
+            }
 
-                    default:
-                        throw new InvalidOperationException("Illegal transport " + args[2]);
-                }
+            if (suppressDTC)
+            {
+                configuration.Transactions().DisableDistributedTransactions();
+            }
 
-                if (suppressDTC)
-                {
-                    o.Transactions().DisableDistributedTransactions();
-                }
+            switch (args[2].ToLower())
+            {
+                case "xml":
+                    configuration.UseSerialization<Xml>();
+                    break;
 
-                switch (args[2].ToLower())
-                {
-                    case "xml":
-                        o.UseSerialization<Xml>();
-                        break;
+                case "json":
+                    configuration.UseSerialization<Json>();
+                    break;
 
-                    case "json":
-                        o.UseSerialization<Json>();
-                        break;
+                case "bson":
+                    configuration.UseSerialization<Bson>();
+                    break;
 
-                    case "bson":
-                        o.UseSerialization<Bson>();
-                        break;
+                case "bin":
+                    configuration.UseSerialization<Binary>();
+                    break;
 
-                    case "bin":
-                        o.UseSerialization<Binary>();
-                        break;
+                default:
+                    throw new InvalidOperationException("Illegal serialization format " + args[2]);
+            }
+            configuration.UsePersistence<InMemory>();
+            configuration.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
+            
 
-                    default:
-                        throw new InvalidOperationException("Illegal serialization format " + args[2]);
-                }
-                o.UsePersistence<InMemory>();
-                o.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-            });
-
-            using (var startableBus = config.CreateBus())
+            using (var startableBus = Bus.Create(configuration))
             {
                 if (saga)
                 {
-                    SeedSagaMessages(numberOfMessages, endpointName, concurrency);
+                    SeedSagaMessages(startableBus,numberOfMessages, endpointName, concurrency);
                 }
                 else
                 {
-                    Statistics.SendTimeNoTx = SeedInputQueue(numberOfMessages / 2, endpointName, numberOfThreads, false, twoPhaseCommit, encryption);
-                    Statistics.SendTimeWithTx = SeedInputQueue(numberOfMessages / 2, endpointName, numberOfThreads, true, twoPhaseCommit, encryption);
+                    Statistics.SendTimeNoTx = SeedInputQueue(startableBus,numberOfMessages / 2, endpointName, numberOfThreads, false, twoPhaseCommit, encryption);
+                    Statistics.SendTimeWithTx = SeedInputQueue(startableBus,numberOfMessages / 2, endpointName, numberOfThreads, true, twoPhaseCommit, encryption);
                 }
 
                 Statistics.StartTime = DateTime.Now;
@@ -140,10 +138,8 @@
                                   args[5]);
         }
 
-        static void SeedSagaMessages(int numberOfMessages, string inputQueue, int concurrency)
+        static void SeedSagaMessages(IBus bus,int numberOfMessages, string inputQueue, int concurrency)
         {
-            var bus = config.Builder.Build<IBus>();
-
             for (var i = 0; i < numberOfMessages / concurrency; i++)
             {
 
@@ -158,12 +154,11 @@
 
         }
 
-        static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
+        static TimeSpan SeedInputQueue(IBus bus,int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
         {
             var sw = new Stopwatch();
 
-            var bus = config.Builder.Build<IBus>();
-
+         
             sw.Start();
             Parallel.For(
                 0,
