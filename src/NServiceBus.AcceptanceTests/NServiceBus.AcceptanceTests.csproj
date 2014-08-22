@@ -100,16 +100,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicMessaging\When_using_a_greedy_convention.cs" />
-    <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_not_expired.cs" />
-    <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_expired.cs" />
-    <Compile Include="BasicMessaging\When_Deferring_a_message.cs" />
-    <Compile Include="BusStartStop\When_bus_start_raises_an_inmemory_message.cs" />
-    <Compile Include="HostInformation\When_a_message_is_received.cs" />
-    <Compile Include="MessageMutators\Issue_1980.cs" />
-    <Compile Include="MessageMutators\When_outgoing_mutator_replaces_message_instance.cs" />
-    <Compile Include="MessageMutators\When_defining_outgoing_message_mutators.cs" />
-    <Compile Include="PipelineExtension\MutingHandlerExceptions.cs" />
-    <Compile Include="PipelineExtension\FilteringWhatGetsAudited.cs" />
     <Compile Include="Audit\When_using_auditing_as_a_feature.cs" />
     <Compile Include="Audit\When_a_message_is_audited.cs" />
     <Compile Include="BasicMessaging\When_sending_a_message_with_no_correlation_id.cs" />
