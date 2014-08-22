@@ -88,4 +88,23 @@ namespace NServiceBus
             return this;
         }
     }
+
+    /// <summary>
+    /// Allows you to read which transport connectionstring has been set
+    /// </summary>
+    public static class ConfigureTransportConnectionString
+    {
+        /// <summary>
+        /// Gets the transport connectionstring.
+        /// </summary>
+        public static string TransportConnectionString(this Configure config)
+        {
+            TransportConnectionString conn;
+            if (config.Settings.TryGet(out conn))
+            {
+                return conn.GetConnectionStringOrNull();
+            }
+            return null;
+        }
+    }
 }
