@@ -24,7 +24,7 @@ namespace NServiceBus
             config.Settings.Set("Endpoint.DurableMessages", false);
         }
 
-        internal static bool GetDurableMessagesEnabled(this ReadOnlySettings settings)
+        internal static bool GetDurableMessagesEnabled(ReadOnlySettings settings)
         {
             bool durableMessagesEnabled;
             if (settings.TryGet("Endpoint.DurableMessages", out durableMessagesEnabled))
@@ -32,6 +32,14 @@ namespace NServiceBus
                 return durableMessagesEnabled;
             }
             return true;
+        }
+
+        /// <summary>
+        /// Returns whether durable messages are on or off.
+        /// </summary>
+        public static bool DurableMessagesEnabled(this Configure config)
+        {
+            return GetDurableMessagesEnabled(config.Settings);
         }
     }
 }

@@ -134,7 +134,6 @@ namespace NServiceBus.Features
                 context.Container.ConfigureProperty<ForwardBehavior>(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
             }
 
-
             var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()
                 .OrderByDescending(m => m)
                 .ToList();
@@ -161,7 +160,7 @@ namespace NServiceBus.Features
         }
         void ConfigureMessageRegistry(FeatureConfigurationContext context, List<Type> knownMessages)
         {
-            var messageRegistry = new MessageMetadataRegistry(!context.Settings.GetDurableMessagesEnabled(), context.Settings.Get<Conventions>());
+            var messageRegistry = new MessageMetadataRegistry(!DurableMessagesConfig.GetDurableMessagesEnabled(context.Settings), context.Settings.Get<Conventions>());
 
             knownMessages.ForEach(messageRegistry.RegisterMessageType);
 
