@@ -3,7 +3,7 @@ namespace ReturnToSourceQueue
     using System;
     using System.Linq;
     using System.Net;
-    using NServiceBus;
+    using NServiceBus.Msmq;
     using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
 
     class Program
@@ -40,7 +40,7 @@ namespace ReturnToSourceQueue
                 script = false;
             }
 
-            var errorQueueAddress = Address.Parse(inputQueue);
+            var errorQueueAddress = MsmqAddress.Parse(inputQueue);
 
             if(!IsLocalIpAddress(errorQueueAddress.Machine))
             {

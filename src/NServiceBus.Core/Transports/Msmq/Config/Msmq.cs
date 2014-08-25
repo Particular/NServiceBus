@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using NServiceBus.Features;
+    using NServiceBus.Msmq;
     using Transports;
 
     /// <summary>
@@ -34,7 +35,7 @@ namespace NServiceBus
         /// </summary>
         public override string GetSubScope(string address, string qualifier)
         {
-            return Address.Parse(address).SubScope(qualifier).ToString();
+            return MsmqAddress.Parse(address).SubScope(qualifier).ToString();
         }
     }
 }

@@ -6,6 +6,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
     using System.Transactions;
     using Logging;
     using Msmq.SubscriptionStorage;
+    using NServiceBus.Msmq;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using MessageType = Unicast.Subscriptions.MessageType;
 
@@ -44,7 +45,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 
             foreach (var m in q.GetAllMessages())
             {
-                var subscriber = Address.Parse(m.Label);
+                var subscriber = MsmqAddress.Parse(m.Label);
                 var messageTypeString = m.Body as string;
                 var messageType = new MessageType(messageTypeString); //this will parse both 2.6 and 3.0 type strings
 
@@ -80,7 +81,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 
         void ISubscriptionStorage.Subscribe(string address, IEnumerable<MessageType> messageTypes)
         {
-            var parsedAddress = Address.Parse(address);
+            var parsedAddress = MsmqAddress.Parse(address);
             lock (locker)
             {
                 foreach (var messageType in messageTypes)
@@ -108,7 +109,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 
         void ISubscriptionStorage.Unsubscribe(string address, IEnumerable<MessageType> messageTypes)
         {
-            var parsedAddress = Address.Parse(address);
+            var parsedAddress = MsmqAddress.Parse(address);
             lock (locker)
             {
                 foreach (var e in entries.ToArray())
@@ -131,7 +132,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         /// <summary>
 		/// Adds a message to the subscription store.
 		/// </summary>
-        public void Add(Address subscriber, MessageType messageType)
+        public void Add(MsmqAddress subscriber, MessageType messageType)
         {
 		    var toSend = new Message {Formatter = q.Formatter, Recoverable = true, Label = subscriber.ToString(), Body = messageType.TypeName +  ", Version=" + messageType.Version};
 
@@ -143,7 +144,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 		/// <summary>
 		/// Removes a message from the subscription store.
 		/// </summary>
-        public void Remove(Address subscriber, MessageType messageType)
+        public void Remove(MsmqAddress subscriber, MessageType messageType)
         {
             var messageId = RemoveFromLookup(subscriber, messageType);
 
@@ -189,7 +190,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 		/// Sets the address of the queue where subscription messages will be stored.
 		/// For a local queue, just use its name - msmq specific info isn't needed.
 		/// </summary>
-        public Address Queue
+        public MsmqAddress Queue
         {
             get; set;
         }
@@ -199,7 +200,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 		/// Adds a message to the lookup to find message from
 		/// subscriber, to message type, to message id
 		/// </summary>
-        private void AddToLookup(Address subscriber, MessageType typeName, string messageId)
+        private void AddToLookup(MsmqAddress subscriber, MessageType typeName, string messageId)
         {
 		    lock (lookup)
 		    {
@@ -216,7 +217,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 		    }
         }
 
-		string RemoveFromLookup(Address subscriber, MessageType typeName)
+        string RemoveFromLookup(MsmqAddress subscriber, MessageType typeName)
 		{
 			string messageId = null;
 			lock (lookup)
@@ -243,7 +244,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         /// <summary>
         /// lookup from subscriber, to message type, to message id
         /// </summary>
-        readonly Dictionary<Address, Dictionary<MessageType, string>> lookup = new Dictionary<Address, Dictionary<MessageType, string>>();
+        readonly Dictionary<MsmqAddress, Dictionary<MessageType, string>> lookup = new Dictionary<MsmqAddress, Dictionary<MessageType, string>>();
 
         readonly List<Entry> entries = new List<Entry>();
         readonly object locker = new object();

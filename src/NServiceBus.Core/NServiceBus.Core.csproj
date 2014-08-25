@@ -196,6 +196,8 @@
     <Compile Include="Serializers\XML\Config\XmlSerializationSettings_Obsolete.cs" />
     <Compile Include="Settings\DurableMessagesConfig.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
+    <Compile Include="Transports\Msmq\Config\MsmqBusExtensions.cs" />
+    <Compile Include="Transports\Msmq\Config\MsmqAddress.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
     <Compile Include="Monitoring\SLA\SLABehavior.cs" />

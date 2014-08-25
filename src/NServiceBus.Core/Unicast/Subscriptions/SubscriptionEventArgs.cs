@@ -1,20 +1,13 @@
+#pragma warning disable 1591
 namespace NServiceBus.Unicast.Subscriptions
 {
     using System;
 
-    /// <summary>
-    /// Contains which client subscribed to which message
-    /// </summary>
+   [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
     public class SubscriptionEventArgs : EventArgs
     {
-        /// <summary>
-        /// The address of the subscriber.
-        /// </summary>
         public Address SubscriberReturnAddress { get; set; }
 
-        /// <summary>
-        /// The type of message the client subscribed to.
-        /// </summary>
         public string MessageType { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Tests.Transport
 {
     using System;
+    using NServiceBus.Msmq;
     using NUnit.Framework;
     using Transports.Msmq;
 
@@ -10,7 +11,7 @@ namespace NServiceBus.Core.Tests.Transport
         [Test]
         public void Should_be_replaced_by_a_deterministic_guid ()
         {
-            var address = Address.Parse("WhenSpecifyingAQueuNameWithTotalLengthIncludingMachineNameAndPrivateIdentifierExceeding114Chars@MyMachine");
+            var address = MsmqAddress.Parse("WhenSpecifyingAQueuNameWithTotalLengthIncludingMachineNameAndPrivateIdentifierExceeding114Chars@MyMachine");
 
             var path = MsmqQueueCreator.GetFullPathWithoutPrefix(address);
             var queueName = path.Replace(@"MyMachine\private$\", "");

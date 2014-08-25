@@ -8,6 +8,7 @@ namespace NServiceBus.Unicast.Transport
     using Faults;
     using Logging;
     using Monitoring;
+    using NServiceBus.Msmq;
     using Settings;
     using Transports;
 
@@ -163,7 +164,7 @@ namespace NServiceBus.Unicast.Transport
                 //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
                 if (selectedTransportDefinition is MsmqTransport)
                 {
-                    var parsedReturnAddressForFailures = Address.Parse(returnAddressForFailures);
+                    var parsedReturnAddressForFailures = MsmqAddress.Parse(returnAddressForFailures);
                     if ((parsedReturnAddressForFailures.Queue.ToLower().EndsWith(".worker") || address == config.LocalAddress))
                     {
                         returnAddressForFailures = settings.Get<string>("MasterNode.Address");

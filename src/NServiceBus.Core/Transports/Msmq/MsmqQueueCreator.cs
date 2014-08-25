@@ -5,6 +5,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Security.Principal;
     using Config;
     using Logging;
+    using NServiceBus.Msmq;
     using Support;
 
     class MsmqQueueCreator : ICreateQueues
@@ -30,7 +31,7 @@ namespace NServiceBus.Transports.Msmq
             if (address == null)
                 return;
 
-            var parsedAddress = Address.Parse(address);
+            var parsedAddress = MsmqAddress.Parse(address);
             var q = GetFullPathWithoutPrefix(parsedAddress);
 
             var isRemote = parsedAddress.Machine.ToLower() != RuntimeEnvironment.MachineName.ToLower();
@@ -103,7 +104,7 @@ namespace NServiceBus.Transports.Msmq
         /// Returns the full path without Format or direct os
         /// from an address.
         /// </summary>
-        public static string GetFullPathWithoutPrefix(Address address)
+        public static string GetFullPathWithoutPrefix(MsmqAddress address)
         {
             var queueName = address.Queue;
             var msmqTotalQueueName = address.Machine + NServiceBus.MsmqUtilities.PRIVATE + queueName;

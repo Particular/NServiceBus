@@ -9,6 +9,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Transactions;
     using CircuitBreakers;
     using Logging;
+    using NServiceBus.Msmq;
     using Support;
     using Unicast.Transport;
 
@@ -43,7 +44,7 @@ namespace NServiceBus.Transports.Msmq
                 throw new ArgumentException("Input queue must be specified");
             }
 
-            var parsedAddress = Address.Parse(address);
+            var parsedAddress = MsmqAddress.Parse(address);
             if (!parsedAddress.Machine.Equals(RuntimeEnvironment.MachineName, StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException(

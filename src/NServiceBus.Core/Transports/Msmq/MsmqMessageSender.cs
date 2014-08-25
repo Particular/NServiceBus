@@ -4,6 +4,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Messaging;
     using System.Transactions;
     using Config;
+    using NServiceBus.Msmq;
     using Unicast;
     using Unicast.Queuing;
 
@@ -17,7 +18,7 @@ namespace NServiceBus.Transports.Msmq
 
         public void Send(TransportMessage message, SendOptions sendOptions)
         {
-            var parsedAddress = Address.Parse(sendOptions.Destination);
+            var parsedAddress = MsmqAddress.Parse(sendOptions.Destination);
             var queuePath = NServiceBus.MsmqUtilities.GetFullPath(parsedAddress);
             try
             {
