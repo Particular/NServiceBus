@@ -271,7 +271,7 @@
 
                 if (physicalMessage.ReplyToAddress != null)
                 {
-                    sagaEntity.Originator = physicalMessage.ReplyToAddress.ToString();
+                    sagaEntity.Originator = physicalMessage.ReplyToAddress;
                 }
             }
 

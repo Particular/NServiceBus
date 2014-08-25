@@ -105,7 +105,7 @@ public class PubSubTestCase : TestCase
 
         for (var i = 0; i < GetNumberOfSubscribers(); i++)
         {
-            var subscriberAddress = Address.Parse("PubSubPerformanceTest.Subscriber" + i);
+            var subscriberAddress = "PubSubPerformanceTest.Subscriber" + i;
             creator.CreateQueueIfNecessary(subscriberAddress, null);
 
             using (var tx = new TransactionScope())

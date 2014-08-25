@@ -11,7 +11,7 @@ namespace NServiceBus.Unicast.Transport
 		/// <summary>
 		/// Starts the transport listening for messages on the given local address.
 		/// </summary>
-		void Start(Address localAddress);
+		void Start(string localAddress);
 
 		/// <summary>
 		/// Gets the maximum concurrency level this <see cref="ITransport"/> is able to support.

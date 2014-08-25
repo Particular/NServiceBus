@@ -126,11 +126,11 @@
     class ExpectedDeferMessageInvocation<M, D> : ExpectedMessageAndValueInvocation<DeferMessageInvocation<M, D>, M, D> { }
     class DeferMessageInvocation<M, D> : MessageAndValueInvocation<M, D> { }
 
-    class ExpectedSendToDestinationInvocation<M> : ExpectedMessageAndValueInvocation<SendToDestinationInvocation<M>, M, Address> { }
+    class ExpectedSendToDestinationInvocation<M> : ExpectedMessageAndValueInvocation<SendToDestinationInvocation<M>, M, string> { }
 
-    class SendToDestinationInvocation<M> : MessageAndValueInvocation<M, Address>
+    class SendToDestinationInvocation<M> : MessageAndValueInvocation<M, string>
     {
-        public Address Address { get { return Value; } set { Value = value; } }
+        public string Address { get { return Value; } set { Value = value; } }
     }
 
     class ExpectedSendToSitesInvocation<M> : ExpectedMessageAndValueInvocation<SendToSitesInvocation<M>, M, IEnumerable<string>> { }
@@ -194,7 +194,7 @@
 
     class ExpectedReplyToOriginatorInvocation<M> : ExpectedInvocation<ReplyToOriginatorInvocation<M>>
     {
-        public Func<M, Address, string, bool> Check { get; set; }
+        public Func<M, string, string, bool> Check { get; set; }
 
         protected override bool Validate(ReplyToOriginatorInvocation<M> invocation)
         {
@@ -210,7 +210,7 @@
 
     class ReplyToOriginatorInvocation<T> : MessageInvocation<T>
     {
-        public Address Address { get; set; }
+        public string Address { get; set; }
         public string CorrelationId { get; set; }
     }
 }

@@ -2,9 +2,9 @@ namespace NServiceBus.Unicast.Queuing.Installers
 {
     class AuditQueueCreator : IWantQueueCreated
     {
-        public Address AuditQueue { get; set; }
+        public string AuditQueue { get; set; }
 
-        public Address Address
+        public string Address
         {
             get { return AuditQueue; }
         }

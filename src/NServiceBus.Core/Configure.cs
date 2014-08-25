@@ -89,7 +89,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns the queue name of this endpoint.
         /// </summary>
-        public Address LocalAddress
+        public string LocalAddress
         {
             get
             {
@@ -120,7 +120,7 @@ namespace NServiceBus
 
             featureActivator.RegisterStartupTasks(configurer);
 
-            localAddress = Address.Parse(Settings.Get<string>("NServiceBus.LocalAddress"));
+            localAddress = Settings.Get<string>("NServiceBus.LocalAddress");
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList()
@@ -138,7 +138,7 @@ namespace NServiceBus
                 .ToList().ForEach(action);
         }
 
-        internal Address PublicReturnAddress
+        internal string PublicReturnAddress
         {
             get
             {
@@ -147,7 +147,7 @@ namespace NServiceBus
                     return LocalAddress;
                 }
 
-                return Settings.Get<Address>("PublicReturnAddress");
+                return Settings.Get<string>("PublicReturnAddress");
             }
         }
 
@@ -205,6 +205,6 @@ namespace NServiceBus
         internal PipelineSettings pipeline;
 
         //HACK: Set by the tests
-        internal Address localAddress;
+        internal string localAddress;
     }
 }

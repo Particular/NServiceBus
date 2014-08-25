@@ -17,7 +17,7 @@
             return this;
         }
 
-        public EndpointConfigurationBuilder AuditTo(Address addressOfAuditQueue)
+        public EndpointConfigurationBuilder AuditTo(string addressOfAuditQueue)
         {
             configuration.AddressOfAuditQueue = addressOfAuditQueue;
             return this;

@@ -112,7 +112,7 @@
         /// <summary>
         /// Check that the handler sends the given message type to the appropriate destination.
         /// </summary>
-        public Handler<T> ExpectSendToDestination<TMessage>(Func<TMessage, Address, bool> check)
+        public Handler<T> ExpectSendToDestination<TMessage>(Func<TMessage, string, bool> check)
         {
             expectedInvocations.Add(new ExpectedSendToDestinationInvocation<TMessage> { Check = check });
             return this;

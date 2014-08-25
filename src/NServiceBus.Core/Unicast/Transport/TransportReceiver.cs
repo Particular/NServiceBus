@@ -144,7 +144,7 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// Starts the transport listening for messages on the given local address.
         /// </summary>
-        public void Start(Address address)
+        public void Start(string address)
         {
             if (isStarted)
             {
@@ -157,13 +157,20 @@ namespace NServiceBus.Unicast.Transport
 
             var workerRunsOnThisEndpoint = settings.GetOrDefault<bool>("Worker.Enabled");
 
-            if (workerRunsOnThisEndpoint
-                && (returnAddressForFailures.Queue.ToLower().EndsWith(".worker") || address == config.LocalAddress))
-                //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
+            if (workerRunsOnThisEndpoint)
             {
-                returnAddressForFailures = settings.Get<Address>("MasterNode.Address");
+                var selectedTransportDefinition = settings.Get<TransportDefinition>();
+                //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
+                if (selectedTransportDefinition is MsmqTransport)
+                {
+                    var parsedReturnAddressForFailures = Address.Parse(returnAddressForFailures);
+                    if ((parsedReturnAddressForFailures.Queue.ToLower().EndsWith(".worker") || address == config.LocalAddress))
+                    {
+                        returnAddressForFailures = settings.Get<string>("MasterNode.Address");
 
-                Logger.InfoFormat("Worker started, failures will be redirected to {0}", returnAddressForFailures);
+                        Logger.InfoFormat("Worker started, failures will be redirected to {0}", returnAddressForFailures);
+                    }
+                }
             }
 
             FailureManager.Init(returnAddressForFailures);
@@ -464,7 +471,7 @@ namespace NServiceBus.Unicast.Transport
         ReceivePerformanceDiagnostics currentReceivePerformanceDiagnostics;
         FirstLevelRetries firstLevelRetries;
         bool isStarted;
-        Address receiveAddress;
+        string receiveAddress;
         ThroughputLimiter throughputLimiter;
         readonly ReadOnlySettings settings;
         readonly Configure config;

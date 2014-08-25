@@ -27,7 +27,7 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
             {
                 next();
 
-                List<Address> subscribers;
+                List<string> subscribers;
 
                 if (context.TryGet("SubscribersForEvent", out  subscribers))
                 {

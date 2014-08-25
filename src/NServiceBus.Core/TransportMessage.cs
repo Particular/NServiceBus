@@ -96,7 +96,7 @@ namespace NServiceBus
         /// <summary>
         ///     Gets/sets the reply-to address of the message bundle - replaces 'ReturnAddress'.
         /// </summary>
-        public Address ReplyToAddress
+        public string ReplyToAddress
         {
             get
             {
@@ -104,7 +104,7 @@ namespace NServiceBus
 
                 if (Headers.TryGetValue(NServiceBus.Headers.ReplyToAddress, out replyToAddress))
                 {
-                    return Address.Parse(replyToAddress);
+                    return replyToAddress;
                 }
 
                 return null;

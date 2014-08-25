@@ -276,16 +276,11 @@ namespace NServiceBus.Unicast
 
             foreach (var destination in addresses)
             {
-                if (Address.Self == destination)
-                {
-                    throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
-                }
-
                 SubscriptionManager.Subscribe(messageType, destination);
             }
         }
 
-        List<Address> GetAtLeastOneAddressForMessageType(Type messageType)
+        List<string> GetAtLeastOneAddressForMessageType(Type messageType)
         {
             var addresses = GetAddressForMessageType(messageType)
                 .Distinct()
@@ -409,7 +404,7 @@ namespace NServiceBus.Unicast
             //if we're a worker, send to the distributor data bus
             if (Settings.GetOrDefault<bool>("Worker.Enabled"))
             {
-                MessageSender.Send(MessageBeingProcessed, new SendOptions(Settings.Get<Address>("MasterNode.Address")));
+                MessageSender.Send(MessageBeingProcessed, new SendOptions(Settings.Get<string>("MasterNode.Address")));
             }
             else
             {
@@ -445,7 +440,7 @@ namespace NServiceBus.Unicast
             //if we're a worker, send to the distributor data bus
             if (Settings.GetOrDefault<bool>("Worker.Enabled"))
             {
-                return SendMessage(new SendOptions(Settings.Get<Address>("MasterNode.Address")), LogicalMessageFactory.Create(message));
+                return SendMessage(new SendOptions(Settings.Get<string>("MasterNode.Address")), LogicalMessageFactory.Create(message));
             }
             return SendMessage(new SendOptions(Configure.LocalAddress), LogicalMessageFactory.Create(message));
         }
@@ -469,7 +464,7 @@ namespace NServiceBus.Unicast
             return SendMessage(new SendOptions(destination), LogicalMessageFactory.Create(message));
         }
 
-        Address GetDestinationForSend(object message)
+        string GetDestinationForSend(object message)
         {
             var destinations = GetAtLeastOneAddressForMessageType(message.GetType());
 
@@ -490,14 +485,6 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send{T}(Address,Action{T})"/>
-        /// </summary>
-        public ICallback Send<T>(Address address, Action<T> messageConstructor)
-        {
-            return SendMessage(new SendOptions(address), LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
-        }
-
-        /// <summary>
         /// <see cref="IBus.Send(string,object)"/>
         /// </summary>
         public ICallback Send(string destination, object message)
@@ -506,32 +493,11 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send(Address,object)"/>
-        /// </summary>
-        public ICallback Send(Address address, object message)
-        {
-            return SendMessage(new SendOptions(address), LogicalMessageFactory.Create(message));
-        }
-
-        /// <summary>
         /// <see cref="IBus.Send{T}(string,string,Action{T})"/>
         /// </summary>
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
             var options = new SendOptions(destination)
-            {
-                CorrelationId = correlationId
-            };
-
-            return SendMessage(options, LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
-        }
-
-        /// <summary>
-        /// <see cref="IBus.Send{T}(Address,string,Action{T})"/>
-        /// </summary>
-        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
-        {
-            var options = new SendOptions(address)
             {
                 CorrelationId = correlationId
             };
@@ -553,26 +519,16 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send(Address,string,object)"/>
-        /// </summary>
-        public ICallback Send(Address address, string correlationId, object message)
-        {
-            var options = new SendOptions(address)
-            {
-                CorrelationId = correlationId
-            };
-
-            return SendMessage(options, LogicalMessageFactory.Create(message));
-        }
-
-        /// <summary>
         /// <see cref="IBus.SendToSites"/>
         /// </summary>
         public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
         {
             this.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
 
-            return SendMessage(new SendOptions(Settings.Get<Address>("MasterNode.Address").SubScope("gateway")), LogicalMessageFactory.Create(message));
+            var selectedTransportDefinition = Settings.Get<TransportDefinition>();
+            var masterNodeAddress = Settings.Get<string>("MasterNode.Address");
+            var subScope = selectedTransportDefinition.GetSubScope(masterNodeAddress, "gateway");
+            return SendMessage(new SendOptions(subScope), LogicalMessageFactory.Create(message));
         }
 
         /// <summary>
@@ -722,7 +678,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The address of this endpoint.
         /// </summary>
-        public Address InputAddress { get; set; }
+        public string InputAddress { get; set; }
 
         void AssertHasLocalAddress()
         {
@@ -843,7 +799,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="messageType">The message type to get the destination for.</param>
         /// <returns>The address of the destination associated with the message type.</returns>
-        List<Address> GetAddressForMessageType(Type messageType)
+        List<string> GetAddressForMessageType(Type messageType)
         {
             var destination = MessageRouter.GetDestinationFor(messageType);
 

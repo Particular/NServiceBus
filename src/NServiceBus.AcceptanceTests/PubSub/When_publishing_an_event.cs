@@ -99,14 +99,14 @@
                 {
                     b.OnEndpointSubscribed<Context>((s, context) =>
                     {
-                        if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                        if (s.SubscriberReturnAddress.Contains("Subscriber1"))
                         {
                             context.Subscriber1Subscribed = true;
                             context.AddTrace("Subscriber1 is now subscribed");
                         }
 
 
-                        if (s.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
+                        if (s.SubscriberReturnAddress.Contains("Subscriber2"))
                         {
                             context.AddTrace("Subscriber2 is now subscribed");
                             context.Subscriber2Subscribed = true;
@@ -123,7 +123,7 @@
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
-                    if (s.SubscriberReturnAddress.Queue.Contains("Subscriber3"))
+                    if (s.SubscriberReturnAddress.Contains("Subscriber3"))
                     {
                         context.Subscriber3Subscribed = true;
                     }

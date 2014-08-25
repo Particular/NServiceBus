@@ -18,7 +18,7 @@
         }
 
 
-        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
+        public void Init(string address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
         {
             InputAddress = address;
             TryProcessMessage = tryProcessMessage;
@@ -39,6 +39,6 @@
 
         public bool IsStarted { get; set; }
 
-        public Address InputAddress { get; set; }
+        public string InputAddress { get; set; }
     }
 }

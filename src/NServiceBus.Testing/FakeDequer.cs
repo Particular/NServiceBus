@@ -6,7 +6,7 @@ namespace NServiceBus.Testing
 
     class FakeDequer : IDequeueMessages
     {
-        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
+        public void Init(string address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
         {
 
         }

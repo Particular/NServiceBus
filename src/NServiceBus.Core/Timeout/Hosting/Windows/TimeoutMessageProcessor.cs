@@ -16,7 +16,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public ISendMessages MessageSender { get; set; }
 
-        public Address InputAddress { get; set; }
+        public string InputAddress { get; set; }
 
         public DefaultTimeoutManager TimeoutManager { get; set; }
 
@@ -64,7 +64,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             var timeoutId = message.Headers[TimeoutIdToDispatchHeader];
 
-            var destination = Address.Parse(message.Headers[TimeoutDestinationHeader]);
+            var destination = message.Headers[TimeoutDestinationHeader];
 
             //clear headers 
             message.Headers.Remove(TimeoutIdToDispatchHeader);
@@ -73,7 +73,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             string routeExpiredTimeoutTo;
             if (message.Headers.TryGetValue(TimeoutManagerHeaders.RouteExpiredTimeoutTo, out routeExpiredTimeoutTo))
             {
-                destination = Address.Parse(routeExpiredTimeoutTo);
+                destination = routeExpiredTimeoutTo;
             }
 
             TimeoutManager.RemoveTimeout(timeoutId);
@@ -110,7 +110,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 string routeExpiredTimeoutTo;
                 if (message.Headers.TryGetValue(TimeoutManagerHeaders.RouteExpiredTimeoutTo, out routeExpiredTimeoutTo))
                 {
-                    destination = Address.Parse(routeExpiredTimeoutTo);
+                    destination = routeExpiredTimeoutTo;
                 }
                 
                 var data = new TimeoutData
@@ -126,7 +126,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 //add a temp header so that we can make sure to restore the ReplyToAddress
                 if (message.ReplyToAddress != null)
                 {
-                    data.Headers[TimeoutData.OriginalReplyToAddress] = message.ReplyToAddress.ToString();
+                    data.Headers[TimeoutData.OriginalReplyToAddress] = message.ReplyToAddress;
                 }
 
                 TimeoutManager.PushTimeout(data);

@@ -11,14 +11,14 @@ namespace NServiceBus.InMemory.SubscriptionStorage
     /// </summary>
     class InMemorySubscriptionStorage : ISubscriptionStorage
     {
-        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<MessageType> messageTypes)
+        void ISubscriptionStorage.Subscribe(string address, IEnumerable<MessageType> messageTypes)
         {
             messageTypes.ToList().ForEach(m =>
             {
-                List<Address> list;
+                List<string> list;
                 if (!storage.TryGetValue(m, out list))
                 {
-                  storage[m] = list = new List<Address>();
+                    storage[m] = list = new List<string>();
                 }
 
                 if (!list.Contains(address))
@@ -28,11 +28,11 @@ namespace NServiceBus.InMemory.SubscriptionStorage
             });
         }
 
-        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<MessageType> messageTypes)
+        void ISubscriptionStorage.Unsubscribe(string address, IEnumerable<MessageType> messageTypes)
         {
             messageTypes.ToList().ForEach(m =>
             {
-                List<Address> list;
+                List<string> list;
                 if (storage.TryGetValue(m, out list))
                 {
                     list.Remove(address);
@@ -41,12 +41,12 @@ namespace NServiceBus.InMemory.SubscriptionStorage
         }
 
 
-        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
+        IEnumerable<string> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
-            var result = new List<Address>();
+            var result = new List<string>();
             messageTypes.ToList().ForEach(m =>
             {
-                List<Address> list;
+                List<string> list;
                 if (storage.TryGetValue(m, out list))
                 {
                     result.AddRange(list);
@@ -60,6 +60,6 @@ namespace NServiceBus.InMemory.SubscriptionStorage
         {
         }
 
-        readonly ConcurrentDictionary<MessageType, List<Address>> storage = new ConcurrentDictionary<MessageType, List<Address>>();
+        readonly ConcurrentDictionary<MessageType, List<string>> storage = new ConcurrentDictionary<MessageType, List<string>>();
     }
 }

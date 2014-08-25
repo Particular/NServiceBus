@@ -54,7 +54,7 @@
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableOutbox();
                     })
-                .AuditTo(Address.Parse("audit"));
+                .AuditTo("audit");
             }
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>

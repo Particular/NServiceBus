@@ -115,7 +115,7 @@
                     Context.SlrChecksum = Checksum(message.Body);
                 }
 
-                public void Init(Address address)
+                public void Init(string address)
                 {
 
                 }

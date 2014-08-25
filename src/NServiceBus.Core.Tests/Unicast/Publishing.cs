@@ -23,8 +23,8 @@
         [Test]
         public void Should_send_a_message_to_each_subscriber()
         {
-            var subscriber1 = new Address("sub1", ".");
-            var subscriber2 = new Address("sub2", ".");
+            var subscriber1 = "sub1";
+            var subscriber2 = "sub2";
 
             RegisterMessageType<EventMessage>();
             subscriptionStorage.FakeSubscribe<EventMessage>(subscriber1);

@@ -15,8 +15,8 @@
         }
 
         public bool IsStarted { get; set; }
-        public Address InputAddress { get; set; }
-        public void Start(Address localAddress)
+        public string InputAddress { get; set; }
+        public void Start(string localAddress)
         {
             IsStarted = true;
             InputAddress = localAddress;

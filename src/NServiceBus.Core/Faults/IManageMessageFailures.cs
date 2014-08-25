@@ -21,6 +21,6 @@ namespace NServiceBus.Faults
         /// Initializes the fault manager
         /// </summary>
         /// <param name="address">The address of the message source</param>
-        void Init(Address address);
+        void Init(string address);
     }
 }

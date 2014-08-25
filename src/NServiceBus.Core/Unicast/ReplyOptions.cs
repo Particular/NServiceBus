@@ -10,7 +10,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Both a destination and a correlation id is required when replying
         /// </summary>
-        public ReplyOptions(Address destination, string correlationId):base(destination)
+        public ReplyOptions(string destination, string correlationId):base(destination)
         {
             if (destination == null)
             {

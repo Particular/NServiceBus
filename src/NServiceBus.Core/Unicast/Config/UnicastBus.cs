@@ -32,7 +32,7 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var defaultAddress = Address.Parse(context.Settings.Get<string>("NServiceBus.LocalAddress"));
+            var defaultAddress = context.Settings.Get<string>("NServiceBus.LocalAddress");
 
             context.Container.ConfigureComponent<Unicast.UnicastBus>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(u => u.InputAddress, defaultAddress);
@@ -125,7 +125,7 @@ namespace NServiceBus.Features
 
             if (!string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
             {
-                var forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
+                var forwardAddress = unicastConfig.ForwardReceivedMessagesTo;
                 context.Container.ConfigureProperty<ForwardBehavior>(b => b.ForwardReceivedMessagesTo, forwardAddress);
             }
 

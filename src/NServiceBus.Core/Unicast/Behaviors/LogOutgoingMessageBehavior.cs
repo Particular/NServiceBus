@@ -14,7 +14,7 @@
 
             if (options != null && log.IsDebugEnabled && context.OutgoingLogicalMessage != null)
             {
-                var destination = options.Destination.ToString();
+                var destination = options.Destination;
 
                 log.DebugFormat("Sending message '{0}' with id '{1}' to destination '{2}'.\n" +
                                 "ToString() of the message yields: {3}\n" +

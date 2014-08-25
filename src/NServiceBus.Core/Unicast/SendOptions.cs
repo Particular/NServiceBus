@@ -13,20 +13,11 @@ namespace NServiceBus.Unicast
         /// Creates an instance of <see cref="SendOptions"/>.
         /// </summary>
         /// <param name="destination">Address where to send this message</param>
-        public SendOptions(Address destination)
+        public SendOptions(string destination)
         {
             Destination = destination;
         }
-
-        /// <summary>
-        /// Creates an instance of <see cref="SendOptions"/>.
-        /// </summary>
-        /// <param name="destination">Address where to send this message</param>
-        public SendOptions(string destination)
-            : this(Address.Parse(destination))
-        {
-        }
-
+        
         /// <summary>
         /// The correlation id to be used on the message. Mostly used when doing Bus.Reply
         /// </summary>
@@ -57,7 +48,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Address where to send this message
         /// </summary>
-        public Address Destination { get; set; }
+        public string Destination { get; set; }
 
         /// <summary>
         /// The TTR to use for this message

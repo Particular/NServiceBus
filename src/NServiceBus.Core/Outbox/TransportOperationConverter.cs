@@ -40,7 +40,7 @@ namespace NServiceBus.Outbox
                 }
 
                 result["CorrelationId"] = sendOptions.CorrelationId;
-                result["Destination"] = sendOptions.Destination.ToString();
+                result["Destination"] = sendOptions.Destination;
             }
             else
             {
@@ -57,7 +57,7 @@ namespace NServiceBus.Outbox
 
             if (options.ReplyToAddress != null)
             {
-                result["ReplyToAddress"] = options.ReplyToAddress.ToString();                
+                result["ReplyToAddress"] = options.ReplyToAddress;                
             }
 
             result["Operation"] = operation;
@@ -75,7 +75,7 @@ namespace NServiceBus.Outbox
                 case "publish":
                     return new PublishOptions(Type.GetType(options["EventType"]))
                     {
-                        ReplyToAddress = Address.Parse(options["ReplyToAddress"])
+                        ReplyToAddress = options["ReplyToAddress"]
                     };
 
                 case "send":
@@ -87,9 +87,9 @@ namespace NServiceBus.Outbox
                     return sendOptions;
 
                 case "reply":
-                    var replyOptions = new ReplyOptions(Address.Parse(options["Destination"]), options["CorrelationId"])
+                    var replyOptions = new ReplyOptions(options["Destination"], options["CorrelationId"])
                     {
-                        ReplyToAddress = Address.Parse(options["ReplyToAddress"])
+                        ReplyToAddress = options["ReplyToAddress"]
                     };
                     ApplySendOptionSettings(replyOptions, options);
 
@@ -126,7 +126,7 @@ namespace NServiceBus.Outbox
             string replyToAddress;
             if (options.TryGetValue("ReplyToAddress", out replyToAddress))
             {
-                sendOptions.ReplyToAddress = Address.Parse(replyToAddress);
+                sendOptions.ReplyToAddress = replyToAddress;
             }
 
 

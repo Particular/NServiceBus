@@ -35,7 +35,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected ISendMessages messageSender;
         protected FakeSubscriptionStorage subscriptionStorage;
 
-        protected Address gatewayAddress;
         protected MessageMapper MessageMapper = new MessageMapper();
 
         protected FakeTransport Transport;
@@ -88,13 +87,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
             MessageMetadataRegistry = new MessageMetadataRegistry(false, conventions);
             MessageSerializer = new XmlMessageSerializer(MessageMapper, conventions);
 
-            gatewayAddress = MasterNodeAddress.SubScope("gateway");
-
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             subscriptionStorage = new FakeSubscriptionStorage();
             configure = new Configure(settings, FuncBuilder, new List<Action<IConfigureComponents>>(), new PipelineSettings(null))
             {
-                localAddress = Address.Parse("TestEndpoint")
+                localAddress = "TestEndpoint"
             };
 
             subscriptionManager = new SubscriptionManager
@@ -137,7 +134,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             var deferrer = new TimeoutManagerDeferrer
             {
                 MessageSender = messageSender,
-                TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts"),
+                TimeoutManagerAddress = "Timeouts",
                 Configure = configure,
             };
 
@@ -172,7 +169,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             return new Collection<Type>();
         }
 
-        protected void VerifyThatMessageWasSentTo(Address destination)
+        protected void VerifyThatMessageWasSentTo(string destination)
         {
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<SendOptions>.Matches(o => o.Destination == destination)));
         }
@@ -199,15 +196,15 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             router.RegisterMessageRoute(typeof(T), configure.LocalAddress);
         }
-        protected Address RegisterMessageType<T>()
+        protected string RegisterMessageType<T>()
         {
-            var address = new Address(typeof(T).Name, "localhost");
+            var address = typeof(T).Name +"localhost";
             RegisterMessageType<T>(address);
 
             return address;
         }
 
-        protected void RegisterMessageType<T>(Address address)
+        protected void RegisterMessageType<T>(string address)
         {
             MessageMapper.Initialize(new[] { typeof(T) });
             MessageSerializer.Initialize(new[] { typeof(T) });
@@ -221,7 +218,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             ((IStartableBus)bus).Start();
         }
 
-        protected void AssertSubscription(Predicate<TransportMessage> condition, Address addressOfPublishingEndpoint)
+        protected void AssertSubscription(Predicate<TransportMessage> condition, string addressOfPublishingEndpoint)
         {
             try
             {
@@ -238,7 +235,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
         }
 
-        protected void AssertSubscription<T>(Address addressOfPublishingEndpoint)
+        protected void AssertSubscription<T>(string addressOfPublishingEndpoint)
         {
             try
             {

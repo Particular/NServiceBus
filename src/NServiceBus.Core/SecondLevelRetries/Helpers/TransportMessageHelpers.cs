@@ -5,7 +5,7 @@ namespace NServiceBus.SecondLevelRetries.Helpers
 
     static class TransportMessageHelpers
     {
-        public static Address GetAddressOfFaultingEndpoint(TransportMessage message)
+        public static string GetAddressOfFaultingEndpoint(TransportMessage message)
         {
             var failedQ = GetHeader(message, FaultsHeaderKeys.FailedQ);
             if (string.IsNullOrEmpty(failedQ))
@@ -13,7 +13,7 @@ namespace NServiceBus.SecondLevelRetries.Helpers
                 throw new Exception("Could not find address");
             }
 
-            return Address.Parse(failedQ);
+            return failedQ;
         }
 
         public static string GetHeader(TransportMessage message, string key)

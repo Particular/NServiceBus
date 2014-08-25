@@ -43,7 +43,7 @@
 
             var subscriberAddress = transportMessage.ReplyToAddress;
 
-            if (subscriberAddress == null || subscriberAddress == Address.Undefined)
+            if (subscriberAddress == null)
             {
                 throw new InvalidOperationException("Subscription message arrived without a valid ReplyToAddress");
             }
@@ -66,7 +66,7 @@
 
             if (transportMessage.MessageIntent == MessageIntentEnum.Subscribe)
             {
-                if (!SubscriptionAuthorizer.AuthorizeSubscribe(messageTypeString, subscriberAddress.ToString(), transportMessage.Headers))
+                if (!SubscriptionAuthorizer.AuthorizeSubscribe(messageTypeString, subscriberAddress, transportMessage.Headers))
                 {
                     Logger.Debug(string.Format("Subscription request from {0} on message type {1} was refused.", subscriberAddress, messageTypeString));
                 }
@@ -86,7 +86,7 @@
             }
 
 
-            if (!SubscriptionAuthorizer.AuthorizeUnsubscribe(messageTypeString, subscriberAddress.ToString(), transportMessage.Headers))
+            if (!SubscriptionAuthorizer.AuthorizeUnsubscribe(messageTypeString, subscriberAddress, transportMessage.Headers))
             {
                 Logger.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", subscriberAddress, messageTypeString));
                 return;

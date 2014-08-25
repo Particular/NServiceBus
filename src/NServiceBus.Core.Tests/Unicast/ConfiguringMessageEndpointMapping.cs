@@ -22,9 +22,9 @@ namespace NServiceBus.Unicast.Tests
 
     public class Configuring_message_endpoint_mapping
     {
-        public IDictionary<Type, Address> Configure(Action<MessageEndpointMapping> setupMapping)
+        public IDictionary<Type, string> Configure(Action<MessageEndpointMapping> setupMapping)
         {
-            var mappings = new Dictionary<Type, Address>();
+            var mappings = new Dictionary<Type, string>();
 
             var mapping = new MessageEndpointMapping{ Endpoint = "SomeEndpoint" };
 

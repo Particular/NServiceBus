@@ -64,7 +64,7 @@
                     Context.HandedOverToSlr = true;
                 }
 
-                public void Init(Address address)
+                public void Init(string address)
                 {
 
                 }

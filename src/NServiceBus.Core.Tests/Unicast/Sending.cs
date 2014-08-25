@@ -29,39 +29,7 @@
         }
     }
 
-    [TestFixture]
-    class When_sending_a_event_message_to_sites : using_the_unicastBus
-    {
-        [Test]
-        public void Should_get_an_error_messages()
-        {
-            RegisterMessageType<EventMessage>();
-            Assert.Throws<InvalidOperationException>(() => bus.SendToSites(new[] { "KeyA" }, new EventMessage()));
-        }
-    }
-
-    [TestFixture]
-    class When_sending_messages_to_sites : using_the_unicastBus
-    {
-        [Test]
-        public void The_destination_sites_header_should_be_set_to_the_given_siteKeys()
-        {
-            RegisterMessageType<TestMessage>();
-            bus.SendToSites(new[] { "SiteA,SiteB" }, new TestMessage());
-
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers.ContainsKey(Headers.DestinationSites)), Arg<SendOptions>.Is.Anything));
-        }
-
-        [Test]
-        public void The_gateway_address_should_be_generated_based_on_the_master_node()
-        {
-            RegisterMessageType<TestMessage>();
-            bus.SendToSites(new[] { "SiteA,SiteB" }, new TestMessage());
-
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<SendOptions>.Matches(o => o.Destination == gatewayAddress)));
-        }
-    }
-
+    
     [TestFixture]
     class When_sending_any_message : using_the_unicastBus
     {
@@ -119,7 +87,7 @@
         [Test, Ignore("Needs refactoring to make testing possible")]
         public void Should_propagate_the_incoming_replyTo_address_if_requested()
         {
-            var addressOfIncomingMessage = Address.Parse("Incoming");
+            var addressOfIncomingMessage = "Incoming";
 
             //todo - add a way to set the context from out tests
 

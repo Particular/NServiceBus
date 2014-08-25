@@ -60,7 +60,7 @@
                     Context.HeadersOfTheFailedMessage = message.Headers;
                 }
 
-                public void Init(Address address)
+                public void Init(string address)
                 {
                     
                 }

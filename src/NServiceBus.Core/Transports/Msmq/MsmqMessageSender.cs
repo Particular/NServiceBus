@@ -17,8 +17,8 @@ namespace NServiceBus.Transports.Msmq
 
         public void Send(TransportMessage message, SendOptions sendOptions)
         {
-            var address = sendOptions.Destination;
-            var queuePath = NServiceBus.MsmqUtilities.GetFullPath(address);
+            var parsedAddress = Address.Parse(sendOptions.Destination);
+            var queuePath = NServiceBus.MsmqUtilities.GetFullPath(parsedAddress);
             try
             {
                 using (var q = new MessageQueue(queuePath, false, Settings.UseConnectionCache, QueueAccessMode.Send))
@@ -32,7 +32,7 @@ namespace NServiceBus.Transports.Msmq
                         
                         if (replyToAddress != null)
                         {
-                            toSend.ResponseQueue = new MessageQueue(NServiceBus.MsmqUtilities.GetReturnAddress(replyToAddress.ToString(), address.ToString()));
+                            toSend.ResponseQueue = new MessageQueue(NServiceBus.MsmqUtilities.GetReturnAddress(replyToAddress, sendOptions.Destination));
                         }
 
 
@@ -51,28 +51,28 @@ namespace NServiceBus.Transports.Msmq
             {
                 if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
                 {
-                    var msg = address == null
+                    var msg = sendOptions.Destination == null
                                      ? "Failed to send message. Target address is null."
-                                     : string.Format("Failed to send message to address: [{0}]", address);
+                                     : string.Format("Failed to send message to address: [{0}]", sendOptions.Destination);
 
-                    throw new QueueNotFoundException(address, msg, ex);
+                    throw new QueueNotFoundException(sendOptions.Destination, msg, ex);
                 }
 
-                ThrowFailedToSendException(address, ex);
+                ThrowFailedToSendException(sendOptions.Destination, ex);
             }
             catch (Exception ex)
             {
-                ThrowFailedToSendException(address, ex);
+                ThrowFailedToSendException(sendOptions.Destination, ex);
             }
         }
 
-        static void ThrowFailedToSendException(Address address, Exception ex)
+        static void ThrowFailedToSendException(string address, Exception ex)
         {
             if (address == null)
                 throw new Exception("Failed to send message.", ex);
 
             throw new Exception(
-                string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine), ex);
+                string.Format("Failed to send message to address: {0}", address), ex);
         }
 
         MessageQueueTransactionType GetTransactionTypeForSend()

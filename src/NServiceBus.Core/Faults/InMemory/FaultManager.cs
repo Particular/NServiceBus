@@ -22,7 +22,7 @@ namespace NServiceBus.Faults.InMemory
         /// Initializes the fault manager
         /// </summary>
         /// <param name="address">The address of the message source</param>
-        public void Init(Address address)
+        public void Init(string address)
         {
             
         }

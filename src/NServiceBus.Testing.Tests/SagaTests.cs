@@ -92,7 +92,7 @@
             decimal total = 100;
 
             Test.Saga<DiscountPolicy>()
-                .ExpectSendToDestination<ProcessOrder>((m, a) => m.Total == total && a.Queue == "remote.orderQueue")
+                .ExpectSendToDestination<ProcessOrder>((m, a) => m.Total == total && a == "remote.orderQueue")
                 .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
                 .When(s => s.Handle(new SubmitOrder {Total = total, IsRemoteOrder = true}));
         }
@@ -106,7 +106,7 @@
                 .ExpectSendToDestination<ProcessOrder>((m, a) => 
                 {
                     Assert.That(() => m.Total, Is.EqualTo(total));
-                    Assert.That(() => a.Queue, Is.EqualTo("remote.orderQueue"));
+                    Assert.That(() => a, Is.EqualTo("remote.orderQueue"));
                 })
                 .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
                 .When(s => s.Handle(new SubmitOrder { Total = total, IsRemoteOrder = true }));

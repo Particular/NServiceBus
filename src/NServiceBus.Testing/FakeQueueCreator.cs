@@ -4,7 +4,7 @@ namespace NServiceBus.Testing
 
     class FakeQueueCreator : ICreateQueues
     {
-        public void CreateQueueIfNecessary(Address address, string account)
+        public void CreateQueueIfNecessary(string address, string account)
         {
             //no-op
         }

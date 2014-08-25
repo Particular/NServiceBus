@@ -172,7 +172,7 @@ namespace NServiceBus.Testing
         /// <summary>
         /// Check that the saga sends the given message type to the appropriate destination.
         /// </summary>
-        public Saga<T> ExpectSendToDestination<TMessage>(Func<TMessage, Address, bool> check)
+        public Saga<T> ExpectSendToDestination<TMessage>(Func<TMessage, string, bool> check)
         {
             expectedInvocations.Add(new ExpectedSendToDestinationInvocation<TMessage> { Check = check });
 
@@ -183,7 +183,7 @@ namespace NServiceBus.Testing
         /// Check that the saga sends the given message type to the appropriate destination.
         /// </summary>
         /// <param name="check">An action that performs assertions on the message.</param>
-        public Saga<T> ExpectSendToDestination<TMessage>(Action<TMessage, Address> check)
+        public Saga<T> ExpectSendToDestination<TMessage>(Action<TMessage, string> check)
         {
             return ExpectSendToDestination(CheckActionToFunc(check));
         }
@@ -197,7 +197,7 @@ namespace NServiceBus.Testing
                 {
                     Check = (msg, address, correlationId) =>
                     {
-                        if (address != Address.Parse(saga.Entity.Originator))
+                        if (address != saga.Entity.Originator)
                         {
                             throw new Exception(
                                 "Expected ReplyToOriginator. Messages were sent to " +

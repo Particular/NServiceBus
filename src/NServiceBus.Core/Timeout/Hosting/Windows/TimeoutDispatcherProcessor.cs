@@ -20,8 +20,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
 
         public Configure Configure { get; set; }
-      
-        public Address InputAddress { get; set; }
+
+        public string InputAddress { get; set; }
 
         public bool Disabled { get; set; }
 

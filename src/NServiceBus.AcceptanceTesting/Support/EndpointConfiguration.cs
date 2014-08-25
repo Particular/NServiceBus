@@ -33,7 +33,7 @@
 
         public Type BuilderType { get; set; }
 
-        public Address AddressOfAuditQueue { get; set; }
+        public string AddressOfAuditQueue { get; set; }
 
         public IDictionary<Type, object> UserDefinedConfigSections { get; private set; }
 

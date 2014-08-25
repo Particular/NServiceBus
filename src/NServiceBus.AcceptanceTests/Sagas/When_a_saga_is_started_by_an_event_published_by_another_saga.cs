@@ -80,7 +80,7 @@
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<SagaContext>((s, context) =>
                 {
-                    context.AddTrace("Subscription received for " + s.SubscriberReturnAddress.Queue);
+                    context.AddTrace("Subscription received for " + s.SubscriberReturnAddress);
                     context.IsEventSubscriptionReceived = true;
                 }));
             }

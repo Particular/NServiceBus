@@ -96,7 +96,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// Uses the configuration properties to configure the endpoint mapping
         /// </summary>
-        public void Configure(Action<Type, Address> mapTypeToEndpoint)
+        public void Configure(Action<Type, string> mapTypeToEndpoint)
         {
             if (!string.IsNullOrWhiteSpace(Messages))
             {
@@ -104,7 +104,6 @@ namespace NServiceBus.Config
                 return;
             }
 
-            var address = Address.Parse(Endpoint);
             var assemblyName = AssemblyName;
             var ns = Namespace;
             var typeFullName = TypeFullName;
@@ -123,7 +122,7 @@ namespace NServiceBus.Config
                     if (t == null)
                         throw new ArgumentException(string.Format("Could not process message endpoint mapping. Cannot find the type '{0}' in the assembly '{1}'. Ensure that you are using the full name for the type.", typeFullName, assemblyName));
 
-                    mapTypeToEndpoint(t, address);
+                    mapTypeToEndpoint(t, Endpoint);
 
                     return;
                 }
@@ -143,12 +142,11 @@ namespace NServiceBus.Config
                 messageTypes = messageTypes.Where(t => !string.IsNullOrWhiteSpace(t.Namespace) && t.Namespace.Equals(ns, StringComparison.InvariantCultureIgnoreCase));
 
             foreach (var t in messageTypes)
-                mapTypeToEndpoint(t, address);
+                mapTypeToEndpoint(t, Endpoint);
         }
 
-        void ConfigureEndpointMappingUsingMessagesProperty(Action<Type, Address> mapTypeToEndpoint)
+        void ConfigureEndpointMappingUsingMessagesProperty(Action<Type, string> mapTypeToEndpoint)
         {
-            var address = Address.Parse(Endpoint);
             var messages = Messages;
 
             try
@@ -156,7 +154,7 @@ namespace NServiceBus.Config
                 var messageType = Type.GetType(messages, false);
                 if (messageType != null)
                 {
-                    mapTypeToEndpoint(messageType, address);
+                    mapTypeToEndpoint(messageType, Endpoint);
                     return;
                 }
             }
@@ -172,7 +170,7 @@ namespace NServiceBus.Config
             var messagesAssembly = GetMessageAssembly(messages);
 
             foreach (var t in messagesAssembly.GetTypes())
-                mapTypeToEndpoint(t, address);
+                mapTypeToEndpoint(t, Endpoint);
         }
 
         private static Assembly GetMessageAssembly(string assemblyName)

@@ -153,7 +153,7 @@ namespace NServiceBus
         /// Sets the public return address of this endpoint.
         /// </summary>
         /// <param name="address">The public address.</param>
-        public void OverridePublicReturnAddress(Address address)
+        public void OverridePublicReturnAddress(string address)
         {
             publicReturnAddress = address;
         }
@@ -260,6 +260,6 @@ namespace NServiceBus
         string endpointName;
         string endpointVersion;
         IList<Type> scannedTypes;
-        Address publicReturnAddress;
+        string publicReturnAddress;
     }
 }

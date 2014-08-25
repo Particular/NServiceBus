@@ -12,7 +12,7 @@
             return true;
         }
 
-        public Address InputAddress { get; set; }
+        public string InputAddress { get; set; }
         public bool Disabled { get; set; }
 
         public virtual void Start()
@@ -32,7 +32,7 @@
     {
         public SatelliteWithQueue()
         {
-            InputAddress = new Address("input", "machineName");
+            InputAddress = "input@machineName";
         }
     }
 

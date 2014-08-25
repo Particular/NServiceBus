@@ -8,19 +8,19 @@ namespace NServiceBus.Unicast.Tests.Helpers
     public class FakeSubscriptionStorage : ISubscriptionStorage
     {
 
-        public void Subscribe(Address address, IEnumerable<MessageType> messageTypes)
+        public void Subscribe(string address, IEnumerable<MessageType> messageTypes)
         {
             messageTypes.ToList().ForEach(messageType =>
                                               {
                                                   if (!storage.ContainsKey(messageType))
-                                                      storage[messageType] = new List<Address>();
+                                                      storage[messageType] = new List<string>();
 
                                                   if (!storage[messageType].Contains(address))
                                                       storage[messageType].Add(address);
                                               });
         }
 
-        public void Unsubscribe(Address address, IEnumerable<MessageType> messageTypes)
+        public void Unsubscribe(string address, IEnumerable<MessageType> messageTypes)
         {
             messageTypes.ToList().ForEach(messageType =>
                                               {
@@ -30,9 +30,9 @@ namespace NServiceBus.Unicast.Tests.Helpers
         }
 
 
-        public IEnumerable<Address> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
+        public IEnumerable<string> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
-            var result = new List<Address>();
+            var result = new List<string>();
             messageTypes.ToList().ForEach(m =>
                                               {
                                                   if (storage.ContainsKey(m))
@@ -41,7 +41,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
 
             return result;
         }
-        public void FakeSubscribe<T>(Address address)
+        public void FakeSubscribe<T>(string address)
         {
             ((ISubscriptionStorage)this).Subscribe(address, new[] { new MessageType(typeof(T)) });
         }
@@ -50,6 +50,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
         {
         }
 
-        readonly Dictionary<MessageType, List<Address>> storage = new Dictionary<MessageType, List<Address>>();
+        readonly Dictionary<MessageType, List<string>> storage = new Dictionary<MessageType, List<string>>();
     }
 }

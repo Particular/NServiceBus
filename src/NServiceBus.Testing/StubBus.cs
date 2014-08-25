@@ -78,49 +78,28 @@
 
         public ICallback Send(object message)
         {
-            return Send(Address.Undefined, message);
+            return Send(null, message);
         }
 
         public ICallback Send<T>(Action<T> messageConstructor)
         {
-            return Send(string.Empty, messageCreator.CreateInstance(messageConstructor));
+            return Send(null, messageCreator.CreateInstance(messageConstructor));
         }
-
-        public ICallback Send(string destination, object message)
-        {
-            if (destination == string.Empty)
-                return Send(Address.Undefined, message);
-
-            return Send(Address.Parse(destination), message);
-        }
-
-        public ICallback Send(Address address, object message)
+        
+        public ICallback Send(string address, object message)
         {
             return Send(address, String.Empty, message);
         }
 
-        public ICallback Send<T>(string destination, Action<T> messageConstructor)
-        {
-            return Send(destination, messageCreator.CreateInstance(messageConstructor));
-        }
 
-        public ICallback Send<T>(Address address, Action<T> messageConstructor)
+        public ICallback Send<T>(string address, Action<T> messageConstructor)
         {
             return Send(address, messageCreator.CreateInstance(messageConstructor));
         }
 
-
-        public ICallback Send(string destination, string correlationId, object message)
+        public ICallback Send(string address, string correlationId, object message)
         {
-            if (destination == string.Empty)
-                return Send(Address.Undefined, correlationId, message);
-
-            return Send(Address.Parse(destination), correlationId, message);
-        }
-
-        public ICallback Send(Address address, string correlationId, object message)
-        {
-            if (address != Address.Undefined && correlationId != string.Empty)
+            if (address != null && correlationId != string.Empty)
             {
                 var d = new Dictionary<string, object>
                     {
@@ -130,7 +109,7 @@
                 return ProcessInvocation(typeof(ReplyToOriginatorInvocation<>), d, message);
             }
 
-            if (address != Address.Undefined && correlationId == string.Empty)
+            if (address != null && correlationId == string.Empty)
                 return ProcessInvocation(typeof(SendToDestinationInvocation<>), new Dictionary<string, object>
                     {
                         {"Address", address}
@@ -139,12 +118,7 @@
             return ProcessInvocation(typeof(SendInvocation<>), message);
         }
 
-        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
-        {
-            return Send(destination, correlationId, messageCreator.CreateInstance(messageConstructor));
-        }
-
-        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
+        public ICallback Send<T>(string address, string correlationId, Action<T> messageConstructor)
         {
             return Send(address, correlationId, messageCreator.CreateInstance(messageConstructor));
         }

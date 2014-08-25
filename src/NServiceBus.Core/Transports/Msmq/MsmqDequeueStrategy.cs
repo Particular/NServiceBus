@@ -31,7 +31,7 @@ namespace NServiceBus.Transports.Msmq
         ///     Needs to be called by <see cref="IDequeueMessages" /> after the message has been
         ///     processed regardless if the outcome was successful or not.
         /// </param>
-        public void Init(Address address, TransactionSettings settings, Func<TransportMessage, bool> tryProcessMessage,
+        public void Init(string address, TransactionSettings settings, Func<TransportMessage, bool> tryProcessMessage,
             Action<TransportMessage, Exception> endProcessMessage)
         {
             this.tryProcessMessage = tryProcessMessage;
@@ -43,7 +43,8 @@ namespace NServiceBus.Transports.Msmq
                 throw new ArgumentException("Input queue must be specified");
             }
 
-            if (!address.Machine.Equals(RuntimeEnvironment.MachineName, StringComparison.OrdinalIgnoreCase))
+            var parsedAddress = Address.Parse(address);
+            if (!parsedAddress.Machine.Equals(RuntimeEnvironment.MachineName, StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException(
                     string.Format("Input queue [{0}] must be on the same machine as this process [{1}].",
@@ -56,7 +57,7 @@ namespace NServiceBus.Transports.Msmq
                 Timeout = transactionSettings.TransactionTimeout
             };
 
-            queue = new MessageQueue(NServiceBus.MsmqUtilities.GetFullPath(address), false, true, QueueAccessMode.Receive);
+            queue = new MessageQueue(NServiceBus.MsmqUtilities.GetFullPath(parsedAddress), false, true, QueueAccessMode.Receive);
 
             if (transactionSettings.IsTransactional && !QueueIsTransactional())
             {

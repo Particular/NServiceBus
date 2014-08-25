@@ -9,5 +9,10 @@
             HasNativePubSubSupport = true;
             HasSupportForCentralizedPubSub = true;
         }
+
+        public override string GetSubScope(string address, string qualifier)
+        {
+            return address + "." + qualifier;
+        }
     }
 }

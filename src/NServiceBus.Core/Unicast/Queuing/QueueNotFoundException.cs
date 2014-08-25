@@ -11,7 +11,7 @@ namespace NServiceBus.Unicast.Queuing
         /// <summary>
         /// The queue address
         /// </summary>
-        public Address Queue { get; set; }
+        public string Queue { get; set; }
 
         /// <summary>
         /// Ctor
@@ -23,10 +23,7 @@ namespace NServiceBus.Unicast.Queuing
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="queue"></param>
-        /// <param name="message"></param>
-        /// <param name="inner"></param>
-        public QueueNotFoundException(Address queue, string message, Exception inner) : base( message, inner )
+        public QueueNotFoundException(string queue, string message, Exception inner) : base( message, inner )
         {
             Queue = queue;
         }
@@ -41,7 +38,7 @@ namespace NServiceBus.Unicast.Queuing
             System.Runtime.Serialization.StreamingContext context) : base(info, context)
         {
             if (info != null)
-                Queue = Address.Parse(info.GetString("Queue"));
+                Queue = info.GetString("Queue");
         }
 
         /// <summary>
@@ -55,7 +52,7 @@ namespace NServiceBus.Unicast.Queuing
         {
             base.GetObjectData(info, context);
 
-            info.AddValue("Queue", Queue.ToString());
+            info.AddValue("Queue", Queue);
         }
     }
 }

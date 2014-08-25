@@ -35,7 +35,7 @@
                 return;
             }
 
-            if (sendOptions.Destination == Address.Undefined)
+            if (sendOptions.Destination == null)
             {
                 throw new InvalidOperationException("No destination specified for message: " + context.OutgoingLogicalMessage.MessageType);
             }

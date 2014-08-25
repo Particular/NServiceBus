@@ -54,16 +54,16 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         }
 
 
-        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
+        IEnumerable<string> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
-            var result = new List<Address>();
+            var result = new List<string>();
 
             lock (locker)
                 foreach (var e in entries)
                     foreach (var m in messageTypes)
                         if (e.MessageType == m)
-                            if (!result.Contains(e.Subscriber))
-                                result.Add(e.Subscriber);
+                            if (!result.Contains(e.Subscriber.ToString()))
+                                result.Add(e.Subscriber.ToString());
 
             return result;
         }
@@ -78,15 +78,16 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         }
 
 
-        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<MessageType> messageTypes)
+        void ISubscriptionStorage.Subscribe(string address, IEnumerable<MessageType> messageTypes)
         {
+            var parsedAddress = Address.Parse(address);
             lock (locker)
             {
                 foreach (var messageType in messageTypes)
                 {
                     var found = false;
                     foreach (var e in entries)
-                        if (e.MessageType == messageType && e.Subscriber == address)
+                        if (e.MessageType == messageType && e.Subscriber == parsedAddress)
                         {
                             found = true;
                             break;
@@ -94,9 +95,9 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 
                     if (!found)
                     {
-                        Add(address, messageType);
+                        Add(parsedAddress, messageType);
 
-                        entries.Add(new Entry { MessageType = messageType, Subscriber = address });
+                        entries.Add(new Entry { MessageType = messageType, Subscriber = parsedAddress });
 
                         log.Debug("Subscriber " + address + " added for message " + messageType + ".");
                     }
@@ -104,25 +105,30 @@ namespace NServiceBus.Persistence.SubscriptionStorage
             }
         }
 
-       
-        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<MessageType> messageTypes)
+
+        void ISubscriptionStorage.Unsubscribe(string address, IEnumerable<MessageType> messageTypes)
         {
+            var parsedAddress = Address.Parse(address);
             lock (locker)
             {
                 foreach (var e in entries.ToArray())
+                {
                     foreach (var messageType in messageTypes)
-                        if (e.MessageType == messageType && e.Subscriber == address)
+                    {
+                        if (e.MessageType == messageType && e.Subscriber == parsedAddress)
                         {
-                            Remove(address, messageType);
+                            Remove(parsedAddress, messageType);
 
                             entries.Remove(e);
 
                             log.Debug("Subscriber " + address + " removed for message " + messageType + ".");
                         }
+                    }
+                }
             }
         }
 
-		/// <summary>
+        /// <summary>
 		/// Adds a message to the subscription store.
 		/// </summary>
         public void Add(Address subscriber, MessageType messageType)

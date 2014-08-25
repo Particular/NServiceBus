@@ -8,7 +8,7 @@
 
     public class When_a_config_override_is_found : NServiceBusAcceptanceTest
     {
-        static Address CustomErrorQ = Address.Parse("MyErrorQ");
+        static string CustomErrorQ = "MyErrorQ";
 
         [Test]
         public void Should_be_used_instead_of_pulling_the_settings_from_appconfig()
@@ -25,7 +25,7 @@
         {
             public bool IsDone { get; set; }
 
-            public Address ErrorQueueUsedByTheEndpoint { get; set; }
+            public string ErrorQueueUsedByTheEndpoint { get; set; }
         }
 
         public class ConfigOverrideEndpoint : EndpointConfigurationBuilder
@@ -49,7 +49,7 @@
 
                 public void Start()
                 {
-                    context.ErrorQueueUsedByTheEndpoint = Address.Parse(configure.Settings.GetConfigSection<MessageForwardingInCaseOfFaultConfig>().ErrorQueue);
+                    context.ErrorQueueUsedByTheEndpoint = configure.Settings.GetConfigSection<MessageForwardingInCaseOfFaultConfig>().ErrorQueue;
                 }
 
                 public void Stop()
@@ -64,7 +64,7 @@
 
                     return new MessageForwardingInCaseOfFaultConfig
                     {
-                        ErrorQueue = CustomErrorQ.ToString()
+                        ErrorQueue = CustomErrorQ
                     };
                 }
             }

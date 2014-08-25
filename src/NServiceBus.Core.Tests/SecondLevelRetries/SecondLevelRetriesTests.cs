@@ -16,10 +16,10 @@
         SecondLevelRetriesProcessor satellite = new SecondLevelRetriesProcessor();
         FakeMessageSender messageSender = new FakeMessageSender();
         FakeMessageDeferrer deferrer = new FakeMessageDeferrer();
-        Address ERROR_QUEUE = new Address("error","localhost");
-        Address RETRIES_QUEUE = new Address("retries", "localhost");
-        Address ORIGINAL_QUEUE = new Address("org", "hostname");
-        Address CLIENT_QUEUE = Address.Parse("clientQ@myMachine");
+        string ERROR_QUEUE = "error@localhost";
+        string RETRIES_QUEUE = "retries@localhost";
+        string ORIGINAL_QUEUE = "org@hostname";
+        string CLIENT_QUEUE = "clientQ@myMachine";
 
         TransportMessage message;
 
@@ -34,7 +34,7 @@
 
             satellite.RetryPolicy = DefaultRetryPolicy.RetryPolicy;
 
-            message = new TransportMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>{{Headers.ReplyToAddress,CLIENT_QUEUE.ToString()}});
+            message = new TransportMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>{{Headers.ReplyToAddress,CLIENT_QUEUE}});
         }
 
         [Test]
@@ -137,7 +137,7 @@
         [Test]
         public void Message_should_be_routed_to_the_failing_endpoint_when_the_time_is_up()
         {
-            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, ORIGINAL_QUEUE.ToString());
+            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, ORIGINAL_QUEUE);
             satellite.RetryPolicy = _ => TimeSpan.FromSeconds(1);
 
             satellite.Handle(message);
@@ -148,7 +148,7 @@
 
     class FakeMessageDeferrer : IDeferMessages
     {
-        public Address MessageRoutedTo { get; set; }
+        public string MessageRoutedTo { get; set; }
 
         public TransportMessage DeferredMessage { get; set; }
 
@@ -166,7 +166,7 @@
 
     class FakeMessageSender : ISendMessages
     {
-        public Address MessageSentTo { get; set; }
+        public string MessageSentTo { get; set; }
 
         public void Send(TransportMessage message, SendOptions sendOptions)
         {

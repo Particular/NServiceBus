@@ -16,7 +16,7 @@
         internal ForwardReceivedMessages()
         {
             // Only enable if the configuration is defined in UnicastBus
-            Prerequisite(config => GetConfiguredForwardMessageQueue(config) != Address.Undefined,"No forwarding address was defined in the unicastbus config");
+            Prerequisite(config => GetConfiguredForwardMessageQueue(config) != null,"No forwarding address was defined in the unicastbus config");
         }
 
         /// <summary>
@@ -48,14 +48,14 @@
             }
             return TimeSpan.MaxValue;
         }
-        Address GetConfiguredForwardMessageQueue(FeatureConfigurationContext context)
+        string GetConfiguredForwardMessageQueue(FeatureConfigurationContext context)
         {
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
             if (unicastBusConfig != null && !string.IsNullOrWhiteSpace(unicastBusConfig.ForwardReceivedMessagesTo))
             {
-                return Address.Parse(unicastBusConfig.ForwardReceivedMessagesTo);
+                return unicastBusConfig.ForwardReceivedMessagesTo;
             }
-            return Address.Undefined;
+            return null;
         }
     }
 
@@ -63,7 +63,7 @@
     {
         public IAuditMessages MessageAuditer { get; set; }
 
-        public Address ForwardReceivedMessagesTo { get; set; }
+        public string ForwardReceivedMessagesTo { get; set; }
 
         public TimeSpan? TimeToBeReceivedOnForwardedMessages { get; set; }
 

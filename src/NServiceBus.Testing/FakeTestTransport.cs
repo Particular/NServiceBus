@@ -4,5 +4,9 @@ namespace NServiceBus.Testing
 
     class FakeTestTransport : TransportDefinition
     {
+        public override string GetSubScope(string address, string qualifier)
+        {
+            return address + "." + qualifier;
+        }
     }
 }

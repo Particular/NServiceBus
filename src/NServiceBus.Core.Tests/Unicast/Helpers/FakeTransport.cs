@@ -9,8 +9,8 @@ namespace NServiceBus.Unicast.Tests.Helpers
         {
            
         }
-        
-        public void Start(Address localAddress)
+
+        public void Start(string localAddress)
         {
         }
 

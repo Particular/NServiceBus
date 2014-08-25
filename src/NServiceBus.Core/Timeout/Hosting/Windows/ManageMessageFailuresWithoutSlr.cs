@@ -13,8 +13,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
         readonly Configure config;
         static ILog Logger = LogManager.GetLogger<ManageMessageFailuresWithoutSlr>();
 
-        Address localAddress;
-        Address errorQueue;
+        string localAddress;
+        string errorQueue;
 
         public ManageMessageFailuresWithoutSlr(IManageMessageFailures mainFailureManager, ISendMessages messageSender, Configure config)
         {
@@ -70,7 +70,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
         }
 
-        public void Init(Address address)
+        public void Init(string address)
         {
             localAddress = address;
         }
@@ -90,7 +90,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             var failedQ = localAddress ?? config.LocalAddress;
 
-            message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
+            message.Headers[FaultsHeaderKeys.FailedQ] = failedQ;
             message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
         }
     }

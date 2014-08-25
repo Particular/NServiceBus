@@ -20,7 +20,7 @@ namespace NServiceBus.SecondLevelRetries
         public IDeferMessages MessageDeferrer { get; set; }
         public FaultManager FaultManager { get; set; }
         public Func<TransportMessage, TimeSpan> RetryPolicy { get; set; }
-        public Address InputAddress { get; set; }
+        public string InputAddress { get; set; }
 
         public bool Disabled
         {

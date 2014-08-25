@@ -11,7 +11,7 @@
         [Test]
         public void Should_use_a_convention_to_set_the_address()
         {
-            var conventionBasedAddressToTimeoutManager = MasterNodeAddress.SubScope("Timeouts");
+            var conventionBasedAddressToTimeoutManager = "Timeouts";
 
             RegisterMessageType<DeferredMessage>();
             bus.Defer(TimeSpan.FromDays(1),new DeferredMessage());

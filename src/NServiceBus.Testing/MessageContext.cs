@@ -8,11 +8,11 @@
         public string Id { get; set; }
         public string ReturnAddress
         {
-            get { return ReplyToAddress.ToString();  }
-            set { ReplyToAddress = Address.Parse(value);  }
+            get { return ReplyToAddress;  }
+            set { ReplyToAddress = value;  }
         }
 
-        public Address ReplyToAddress { get; set; }
+        public string ReplyToAddress { get; set; }
 
         public DateTime TimeSent { get; set; }
         public IDictionary<string, string> Headers { get; set; }

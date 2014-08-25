@@ -8,7 +8,7 @@ namespace NServiceBus.Unicast.Tests
     [TestFixture]
     class When_subscribing_to_messages : using_the_unicastBus
     {
-        readonly Address addressToOwnerOfTestMessage = new Address("TestMessageOwner", "localhost");
+        readonly string addressToOwnerOfTestMessage = "TestMessageOwner@localhost";
         /// <summary>
         /// Set Up
         /// </summary>

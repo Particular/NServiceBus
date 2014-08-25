@@ -8,15 +8,15 @@ namespace NServiceBus.Unicast.Transport.Monitoring
     {
         const string CategoryName = "NServiceBus";
         static ILog Logger = LogManager.GetLogger<ReceivePerformanceDiagnostics>();
-        readonly Address receiveAddress;
+        string endpointName;
         bool enabled;
         PerformanceCounter failureRateCounter;
         PerformanceCounter successRateCounter;
         PerformanceCounter throughputCounter;
 
-        public ReceivePerformanceDiagnostics(Address receiveAddress)
+        public ReceivePerformanceDiagnostics(string endpointName)
         {
-            this.receiveAddress = receiveAddress;
+            this.endpointName = endpointName;
         }
 
 
@@ -94,19 +94,19 @@ namespace NServiceBus.Unicast.Transport.Monitoring
         {
             try
             {
-                counter = new PerformanceCounter(CategoryName, counterName, receiveAddress.Queue, false);
+                counter = new PerformanceCounter(CategoryName, counterName, endpointName, false);
                 //access the counter type to force a exception to be thrown if the counter doesn't exists
                 // ReSharper disable once UnusedVariable
-                var t = counter.CounterType; 
+                var t = counter.CounterType;
             }
             catch (Exception)
             {
                 Logger.InfoFormat(
-                    "NServiceBus performance counter for {1} is not set up correctly, no statistics will be emitted for the {0} queue. Execute the Install-NServiceBusPerformanceCounters cmdlet to create the counter.",
-                    receiveAddress.Queue, counterName);
+                    "NServiceBus performance counter for {1} is not set up correctly, no statistics will be emitted for the {0} endpoint. Execute the Install-NServiceBusPerformanceCounters cmdlet to create the counter.",
+                    endpointName, counterName);
                 return false;
             }
-            Logger.DebugFormat("'{0}' counter initialized for '{1}'", counterName, receiveAddress);
+            Logger.DebugFormat("'{0}' counter initialized for '{1}'", counterName, endpointName);
             return true;
         }
     }

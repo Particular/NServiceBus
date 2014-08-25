@@ -52,5 +52,9 @@ namespace NServiceBus.Hosting.Tests
 
     public class MyTestTransport : TransportDefinition
     {
+        public override string GetSubScope(string address, string qualifier)
+        {
+            return address + "." + qualifier;
+        }
     }
 }

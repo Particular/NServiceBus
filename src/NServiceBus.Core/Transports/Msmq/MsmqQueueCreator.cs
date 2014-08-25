@@ -25,14 +25,15 @@ namespace NServiceBus.Transports.Msmq
         ///</summary>
         ///<param name="address">Queue path to create</param>
         ///<param name="account">The account to be given permissions to the queue</param>
-        public void CreateQueueIfNecessary(Address address, string account)
+        public void CreateQueueIfNecessary(string address, string account)
         {
             if (address == null)
                 return;
 
-            var q = GetFullPathWithoutPrefix(address);
+            var parsedAddress = Address.Parse(address);
+            var q = GetFullPathWithoutPrefix(parsedAddress);
 
-            var isRemote = address.Machine.ToLower() != RuntimeEnvironment.MachineName.ToLower();
+            var isRemote = parsedAddress.Machine.ToLower() != RuntimeEnvironment.MachineName.ToLower();
             if (isRemote)
             {
                 Logger.Debug("Queue is on remote machine.");

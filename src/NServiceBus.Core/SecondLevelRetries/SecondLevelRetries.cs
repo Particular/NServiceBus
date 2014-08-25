@@ -4,6 +4,7 @@ namespace NServiceBus.Features
     using Config;
     using Faults.Forwarder;
     using NServiceBus.SecondLevelRetries;
+    using NServiceBus.Transports;
 
     /// <summary>
     /// Used to configure Second Level Retries.
@@ -32,15 +33,15 @@ namespace NServiceBus.Features
 
             SetUpRetryPolicy(retriesConfig);
 
-            var endpointName = context.Settings.Get<string>("EndpointName");
 
+            var selectedTransportDefinition = context.Settings.Get<TransportDefinition>();
 
-            var processorAddress = Address.Parse(endpointName).SubScope("Retries");
+            var processorAddress = selectedTransportDefinition.GetSubScope(context.Settings.EndpointName(), "Retries");
 
             var useRemoteRetryProcessor = context.Settings.HasSetting("SecondLevelRetries.AddressOfRetryProcessor");
             if (useRemoteRetryProcessor)
             {
-                processorAddress = context.Settings.Get<Address>("SecondLevelRetries.AddressOfRetryProcessor");
+                processorAddress = context.Settings.Get<string>("SecondLevelRetries.AddressOfRetryProcessor");
             }
 
             context.Container.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, processorAddress);

@@ -12,7 +12,7 @@
         public void Should_limit_the_throughput_to_the_set_limit()
         {
             TransportReceiver.ChangeMaximumMessageThroughputPerSecond(ThroughputLimit);
-            TransportReceiver.Start(Address.Parse("mytest"));
+            TransportReceiver.Start("mytest");
 
             ThreadPool.QueueUserWorkItem(Receive10);
 

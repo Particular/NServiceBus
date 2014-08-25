@@ -33,7 +33,7 @@ namespace NServiceBus.Faults.Forwarder
             SendFailureMessage(message, e);
         }
 
-        void IManageMessageFailures.Init(Address address)
+        void IManageMessageFailures.Init(string address)
         {
             localAddress = address;
         }
@@ -117,21 +117,21 @@ namespace NServiceBus.Faults.Forwarder
 
             var failedQ = localAddress ?? config.LocalAddress;
 
-            message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
+            message.Headers[FaultsHeaderKeys.FailedQ] = failedQ;
             message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
         }
 
         /// <summary>
         /// Endpoint to which message failures are forwarded
         /// </summary>
-        public Address ErrorQueue { get; set; }
+        public string ErrorQueue { get; set; }
 
         /// <summary>
         /// The address of the Second Level Retries input queue when SLR is enabled
         /// </summary>
-        public Address RetriesErrorQueue { get; set; }
+        public string RetriesErrorQueue { get; set; }
 
-        Address localAddress;
+        string localAddress;
         static ILog Logger = LogManager.GetLogger<FaultManager>();
     }
 }
