@@ -60,9 +60,6 @@
         public static void OverrideDefaultMachine(string machineName)
         {
             defaultMachine = machineName;
-
-            if (preventChanges)
-                throw new InvalidOperationException("Overwriting a previously set default machine name is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
         }
 
         /// <summary>
@@ -71,14 +68,6 @@
         public static void IgnoreMachineName()
         {
             ignoreMachineName = true;
-        }
-
-        /// <summary>
-        /// Prevents changes to all addresses.
-        /// </summary>
-        public static void PreventChanges()
-        {
-            preventChanges = true;
         }
 
         /// <summary>
@@ -257,8 +246,6 @@
         }
 
         static string defaultMachine = RuntimeEnvironment.MachineName;
-        //HACK: to reset this flag because Tests reuse the same AppDomain
-        internal static bool preventChanges;
 
         readonly string queueLowerCased;
         readonly string machineLowerCased;

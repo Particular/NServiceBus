@@ -15,7 +15,6 @@
             var path = Uri.UnescapeDataString(uri.Path);
             var directoryName = Path.GetDirectoryName(path);
 
-            Address.preventChanges = false;
             Test.Initialize(b => b.ScanAssembliesInDirectory(directoryName));
         }
     }

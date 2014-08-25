@@ -71,7 +71,6 @@
     <Compile Include="FakeTestTransportConfigurer.cs" />
     <Compile Include="Handler.cs" />
     <Compile Include="InMemoryDataBus.cs" />
-    <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="Invocations.cs" />
     <Compile Include="MessageContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

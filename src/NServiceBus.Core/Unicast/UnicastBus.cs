@@ -659,8 +659,6 @@ namespace NServiceBus.Unicast
                     return this;
                 }
 
-                Address.PreventChanges();
-
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
                 if (!DoNotStartTransport)

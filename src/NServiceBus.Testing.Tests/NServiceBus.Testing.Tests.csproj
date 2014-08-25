@@ -37,7 +37,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
@@ -51,6 +51,9 @@
     <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\NServiceBus.Testing\Invocations.cs">
+      <Link>Invocations.cs</Link>
+    </Compile>
     <Compile Include="BaseTests.cs" />
     <Compile Include="Issue508.cs" />
     <Compile Include="InvocationTests.cs" />
