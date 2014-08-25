@@ -22,9 +22,9 @@ namespace NServiceBus
     public partial class Configure
     {
         /// <summary>
-        ///     Protected constructor to enable creation only via the With method.
+        ///     Creates a new instance of <see cref="Configure"/>.
         /// </summary>
-        internal Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipeline)
+        public Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipeline)
         {
             Settings = settings;
             this.pipeline = pipeline;
