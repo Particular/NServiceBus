@@ -13,8 +13,18 @@ namespace NServiceBus
     class PerformanceMonitorUsersInstaller : INeedToInstallSomething
     {
         static ILog logger = LogManager.GetLogger<PerformanceMonitorUsersInstaller>();
-        static string BuiltinPerformanceMonitoringUsersName = new SecurityIdentifier(WellKnownSidType.BuiltinPerformanceMonitoringUsersSid, null).Translate(typeof(NTAccount)).ToString();
-        
+        static string builtinPerformanceMonitoringUsersName;
+
+        static PerformanceMonitorUsersInstaller()
+        {
+            builtinPerformanceMonitoringUsersName = new SecurityIdentifier(WellKnownSidType.BuiltinPerformanceMonitoringUsersSid, null).Translate(typeof(NTAccount)).ToString();
+            var parts = builtinPerformanceMonitoringUsersName.Split('\\');
+
+            if (parts.Length == 2)
+            {
+                builtinPerformanceMonitoringUsersName = parts[1];
+            }
+        }
         public void Install(string identity, Configure config)
         {
             //did not use DirectoryEntry to avoid a ref to the DirectoryServices.dll
@@ -23,7 +33,7 @@ namespace NServiceBus
                 if (!ElevateChecker.IsCurrentUserElevated())
                 {
                     logger.InfoFormat(@"Did not attempt to add user '{0}' to group '{1}' since process is not running with elevate privileges. Processing will continue. To manually perform this action run the following command from an admin console:
-net localgroup ""{1}"" ""{0}"" /add", identity, BuiltinPerformanceMonitoringUsersName);
+net localgroup ""{1}"" ""{0}"" /add", identity, builtinPerformanceMonitoringUsersName);
                     return;
                 }
                 StartProcess(identity);
@@ -33,7 +43,7 @@ net localgroup ""{1}"" ""{0}"" /add", identity, BuiltinPerformanceMonitoringUser
                 var message = string.Format(
                     @"Failed adding user '{0}' to group '{1}' due to an Exception. 
 To help diagnose the problem try running the following command from an admin console:
-net localgroup ""{1}"" ""{0}"" /add", identity, BuiltinPerformanceMonitoringUsersName);
+net localgroup ""{1}"" ""{0}"" /add", identity, builtinPerformanceMonitoringUsersName);
                 logger.Warn(message, win32Exception);
             }
         }
@@ -47,7 +57,7 @@ net localgroup ""{1}"" ""{0}"" /add", identity, BuiltinPerformanceMonitoringUser
                                 CreateNoWindow = true,
                                 UseShellExecute = false,
                                 RedirectStandardError = true,
-                                Arguments = string.Format("localgroup \"{1}\" \"{0}\" /add", identity, BuiltinPerformanceMonitoringUsersName),
+                                Arguments = string.Format("localgroup \"{1}\" \"{0}\" /add", identity, builtinPerformanceMonitoringUsersName),
                                 FileName = "net",
                                 WorkingDirectory = Path.GetTempPath()
                             };
@@ -57,25 +67,25 @@ net localgroup ""{1}"" ""{0}"" /add", identity, BuiltinPerformanceMonitoringUser
 
                 if (process.ExitCode == 0)
                 {
-                    logger.Info(string.Format("Added user '{0}' to group '{1}'.", identity, BuiltinPerformanceMonitoringUsersName));
+                    logger.Info(string.Format("Added user '{0}' to group '{1}'.", identity, builtinPerformanceMonitoringUsersName));
                     return;
                 }
                 var error = process.StandardError.ReadToEnd();
                 if (IsAlreadyAMemberError(error))
                 {
-                    logger.Info(string.Format("Skipped adding user '{0}' to group '{1}' because the user is already in group.", identity, BuiltinPerformanceMonitoringUsersName));
+                    logger.Info(string.Format("Skipped adding user '{0}' to group '{1}' because the user is already in group.", identity, builtinPerformanceMonitoringUsersName));
                     return;
                 }
                 if (IsGroupDoesNotExistError(error))
                 {
-                    logger.Info(string.Format("Skipped adding user '{0}' to group '{1}' because the group does not exist.", identity, BuiltinPerformanceMonitoringUsersName));
+                    logger.Info(string.Format("Skipped adding user '{0}' to group '{1}' because the group does not exist.", identity, builtinPerformanceMonitoringUsersName));
                     return;
                 }
                 var message = string.Format(
                     @"Failed to add user '{0}' to group '{2}'. 
 Error: {1}
 To help diagnose the problem try running the following command from an admin console:
-net localgroup ""{2}"" ""{0}"" /add", identity, error, BuiltinPerformanceMonitoringUsersName);
+net localgroup ""{2}"" ""{0}"" /add", identity, error, builtinPerformanceMonitoringUsersName);
                 logger.Info(message);
             }
         }
