@@ -10,8 +10,6 @@
 
     public class When_doing_flr_with_default_settings : NServiceBusAcceptanceTest
     {
-        public static Func<int> X = () => 5;
-            
         [Test]
         public void Should_not_do_any_retries_if_transactions_are_off()
         {
