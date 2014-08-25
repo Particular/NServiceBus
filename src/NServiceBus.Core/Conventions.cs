@@ -3,8 +3,10 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
+    using NServiceBus.Utils.Reflection;
 
     /// <summary>
     ///     Message convention definitions.
@@ -27,10 +29,20 @@
             try
             {
                 return MessagesConventionCache.ApplyConvention(t,
-                    type => IsMessageTypeAction(type) ||
-                            IsCommandTypeAction(type) ||
-                            IsEventTypeAction(type) ||
-                            IsInSystemConventionList(type));
+                    type =>
+                    {
+                        if (IsInSystemConventionList(type))
+                        {
+                            return true;
+                        }
+                        if (type.IsFromParticularAssembly())
+                        {
+                            return false;
+                        }
+                        return IsMessageTypeAction(type) ||
+                               IsCommandTypeAction(type) ||
+                               IsEventTypeAction(type);
+                    });
             }
             catch (Exception ex)
             {
@@ -66,7 +78,14 @@
         {
             try
             {
-                return CommandsConventionCache.ApplyConvention(t, type => IsCommandTypeAction(type));
+                return CommandsConventionCache.ApplyConvention(t, type =>
+                {
+                    if (type.IsFromParticularAssembly())
+                    {
+                        return false;
+                    }
+                    return IsCommandTypeAction(type);
+                });
             }
             catch (Exception ex)
             {
@@ -81,7 +100,14 @@
         {
             try
             {
-                return ExpressConventionCache.ApplyConvention(t, type => IsExpressMessageAction(type));
+                return ExpressConventionCache.ApplyConvention(t, type =>
+                {
+                    if (type.IsFromParticularAssembly())
+                    {
+                        return false;
+                    }
+                    return IsExpressMessageAction(type);
+                });
             }
             catch (Exception ex)
             {
@@ -127,7 +153,14 @@
         {
             try
             {
-                return EventsConventionCache.ApplyConvention(t, type => IsEventTypeAction(type));
+               return EventsConventionCache.ApplyConvention(t, type =>
+                {
+                    if (type.IsFromParticularAssembly())
+                    {
+                        return false;
+                    }
+                    return IsEventTypeAction(type);
+                });
             }
             catch (Exception ex)
             {

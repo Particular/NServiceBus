@@ -4,10 +4,13 @@ namespace NServiceBus.Utils.Reflection
     using System.Collections;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
 
     static class ExtensionMethods
     {
+
+
         public static T Construct<T>(this Type type)
         {
             var defaultConstructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[] { }, null);
@@ -108,5 +111,16 @@ namespace NServiceBus.Utils.Reflection
         }
 
         static Dictionary<Type, string> TypeToNameLookup = new Dictionary<Type, string>();
+
+
+
+        static byte[] nsbPublicKeyToken= typeof(ExtensionMethods).Assembly.GetName().GetPublicKeyToken();
+
+        public static bool IsFromParticularAssembly(this Type type)
+        {
+            return type.Assembly.GetName()
+                .GetPublicKeyToken()
+                .SequenceEqual(nsbPublicKeyToken);
+        }
     }
 }

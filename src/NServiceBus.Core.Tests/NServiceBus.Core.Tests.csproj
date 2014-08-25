@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <FodyPath>..\packages\Fody</FodyPath>
-    <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>Test.snk</AssemblyOriginatorKeyFile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -138,7 +138,7 @@
     <Compile Include="StringStreamExtensions.cs" />
     <Compile Include="Fakes\FakeCentralizedPubSubTransportDefinition.cs" />
     <Compile Include="Licensing\LicenseExpiredFormDisplayerTests.cs" />
-    <Compile Include="MessageConventionExtensionsTests.cs" />
+    <Compile Include="ConventionsTests.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
     <Compile Include="DataBus\MessageWithDataBusProperty.cs" />
     <Compile Include="DataBus\MessageWithExplicitTimeToLive.cs" />
@@ -256,6 +256,7 @@
     <None Include="ripple.dependencies.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Test.snk" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">

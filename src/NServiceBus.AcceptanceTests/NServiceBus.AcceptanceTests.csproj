@@ -35,12 +35,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
@@ -89,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audit\When_using_audit_message_is_received.cs" />
+    <Compile Include="BasicMessaging\When_using_a_greedy_convention.cs" />
     <Compile Include="BasicMessaging\When_handling_incoming_messages_headers_should_be_shared.cs" />
     <Compile Include="BasicMessaging\When_sending_a_message_ensure_proper_headers.cs" />
     <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_not_expired.cs" />
