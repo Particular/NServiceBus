@@ -19,34 +19,6 @@ namespace NServiceBus.Utils.Reflection
             return (T)Activator.CreateInstance(type);
         }
 
-        public static Type GetGenericallyContainedType(this Type type, Type openGenericType, Type genericArg)
-        {
-            Type result = null;
-            LoopAndAct(type, openGenericType, genericArg, t => result = t);
-
-            return result;
-        }
-
-        static void LoopAndAct(Type type, Type openGenericType, Type genericArg, Action<Type> act)
-        {
-            foreach (var i in type.GetInterfaces())
-            {
-                var args = i.GetGenericArguments();
-
-                if (args.Length != 1)
-                {
-                    continue;
-                }
-
-                if (genericArg.IsAssignableFrom(args[0])
-                    && openGenericType.MakeGenericType(args[0]) == i)
-                {
-                    act(args[0]);
-                    break;
-                }
-            }
-        }
-
         /// <summary>
         /// Returns true if the type can be serialized as is.
         /// </summary>
@@ -105,7 +77,7 @@ namespace NServiceBus.Utils.Reflection
             return t.Name;
         }
 
-        private static readonly byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
+        static byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
 
         static bool IsClrType(byte[] a1)
         {
@@ -113,7 +85,7 @@ namespace NServiceBus.Utils.Reflection
             return structuralEquatable.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
         }
 
-        private static readonly ConcurrentDictionary<Type, bool> IsSystemTypeCache = new ConcurrentDictionary<Type, bool>();
+        static ConcurrentDictionary<Type, bool> IsSystemTypeCache = new ConcurrentDictionary<Type, bool>();
 
         public static bool IsSystemType(this Type type)
         {
@@ -135,6 +107,6 @@ namespace NServiceBus.Utils.Reflection
                    type == typeof(IEvent);
         }
 
-        private static readonly IDictionary<Type, string> TypeToNameLookup = new Dictionary<Type, string>();
+        static Dictionary<Type, string> TypeToNameLookup = new Dictionary<Type, string>();
     }
 }
