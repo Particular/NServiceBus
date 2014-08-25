@@ -7,7 +7,7 @@ namespace NServiceBus
     /// <summary>
     /// Defines the capabilities of the JSON serializer
     /// </summary>
-    public class Json : SerializationDefinition
+    public class JsonSerializer : SerializationDefinition
     {
         /// <summary>
         /// <see cref="SerializationDefinition.ProvidedByFeature"/>

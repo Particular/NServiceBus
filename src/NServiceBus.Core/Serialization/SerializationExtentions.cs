@@ -6,7 +6,7 @@
     /// <summary>
     /// This class provides implementers of serializers with an extension mechanism for custom settings via extention methods.
     /// </summary>
-    /// <typeparam name="T">The serializer definition eg <see cref="Json"/>, <see cref="Xml"/>, etc</typeparam>
+    /// <typeparam name="T">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/>, etc</typeparam>
     public class SerializationExtentions<T> : ExposeSettings where T : SerializationDefinition
     {
         /// <summary>

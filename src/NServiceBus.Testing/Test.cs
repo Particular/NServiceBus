@@ -42,7 +42,7 @@
             configuration.DisableFeature<Sagas>();
             configuration.DisableFeature<Audit>();
             configuration.UseTransport<FakeTestTransport>();
-            configuration.UsePersistence<InMemory>();
+            configuration.UsePersistence<InMemoryPersistence>();
             configuration.RegisterEncryptionService(b => new FakeEncryptor());
             configuration.RegisterComponents(r =>
             {

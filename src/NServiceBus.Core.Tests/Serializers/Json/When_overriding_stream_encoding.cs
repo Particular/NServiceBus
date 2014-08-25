@@ -14,7 +14,7 @@ namespace NServiceBus.Serializers.Json.Tests
             var builder = new BusConfiguration();
 
             builder.TypesToScan(new Type[0]);
-            builder.UseSerialization<NServiceBus.Json>().Encoding(Encoding.UTF7);
+            builder.UseSerialization<JsonSerializer>().Encoding(Encoding.UTF7);
 
             var config = builder.BuildConfiguration();
 

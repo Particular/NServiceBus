@@ -12,7 +12,7 @@
         /// <summary>
         /// Configures the given serializer to be used
         /// </summary>
-        /// <typeparam name="T">The serializer definition eg <see cref="Json"/>, <see cref="Xml"/>, etc</typeparam>
+        /// <typeparam name="T">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/>, etc</typeparam>
         /// <param name="config"></param>
         public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config) where T : SerializationDefinition
         {
@@ -28,7 +28,7 @@
         /// Configures the given serializer to be used
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="definitionType">The serializer definition eg <see cref="Json"/>, <see cref="Xml"/> etc</param>
+        /// <param name="definitionType">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/> etc</param>
         public static void UseSerialization(this BusConfiguration config, Type definitionType)
         {
             var definition = (SerializationDefinition)Activator.CreateInstance(definitionType);
@@ -44,7 +44,7 @@
                 return selectedSerializer;
             }
 
-            return new Xml();
+            return new XmlSerializer();
         }
     }
 }

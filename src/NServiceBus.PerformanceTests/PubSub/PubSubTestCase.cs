@@ -12,6 +12,7 @@ using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
 using PublishTestMessages;
 using Runner;
+using MsmqTransport = NServiceBus.MsmqTransport;
 
 public class PubSubTestCase : TestCase
 {
@@ -46,16 +47,16 @@ public class PubSubTestCase : TestCase
         configuration.EndpointName("PubSubPerformanceTest");
         configuration.EnableInstallers();
         configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
-        configuration.UseTransport<Msmq>();
+        configuration.UseTransport<MsmqTransport>();
         configuration.DisableFeature<Audit>();
 
         switch (GetStorageType())
         {
             case "inmemory":
-                configuration.UsePersistence<InMemory>();
+                configuration.UsePersistence<InMemoryPersistence>();
                 break;
             case "msmq":
-                configuration.UsePersistence<NServiceBus.Persistence.Legacy.Msmq>();
+                configuration.UsePersistence<NServiceBus.Persistence.Legacy.MsmqPersistence>();
                 break;
         }
 

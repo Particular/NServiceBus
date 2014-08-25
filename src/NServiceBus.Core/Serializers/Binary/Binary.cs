@@ -7,7 +7,7 @@ namespace NServiceBus
     /// <summary>
     /// Defines the capabilities of the Binary serializer
     /// </summary>
-    public class Binary : SerializationDefinition
+    public class BinarySerializer : SerializationDefinition
     {
         /// <summary>
         /// <see cref="SerializationDefinition.ProvidedByFeature"/>

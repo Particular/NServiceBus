@@ -44,7 +44,7 @@ namespace NServiceBus
             Type transportDefinitionType;
             if (!busConfiguration.Settings.TryGet("transportDefinitionType", out transportDefinitionType))
             {
-                return new Msmq();
+                return new MsmqTransport();
             }
 
             return transportDefinitionType.Construct<TransportDefinition>();

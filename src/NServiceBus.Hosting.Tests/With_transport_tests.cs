@@ -26,7 +26,7 @@ namespace NServiceBus.Hosting.Tests
             var builder = new BusConfiguration();
             builder.EndpointName("myTests");
 
-            Assert.True(builder.BuildConfiguration().Settings.Get<TransportDefinition>() is Msmq);
+            Assert.True(builder.BuildConfiguration().Settings.Get<TransportDefinition>() is MsmqTransport);
         }
     }
 

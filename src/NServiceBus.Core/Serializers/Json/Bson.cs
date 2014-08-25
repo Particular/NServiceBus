@@ -7,7 +7,7 @@ namespace NServiceBus
     /// <summary>
     /// Defines the capabilities of the BSON serializer
     /// </summary>
-    public class Bson : SerializationDefinition
+    public class BsonSerializer : SerializationDefinition
     {
         /// <summary>
         /// <see cref="SerializationDefinition.ProvidedByFeature"/>

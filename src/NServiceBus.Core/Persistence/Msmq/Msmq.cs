@@ -6,9 +6,9 @@
     /// <summary>
     /// Used to enable Msmq persistence.
     /// </summary>
-    public class Msmq : PersistenceDefinition
+    public class MsmqPersistence : PersistenceDefinition
     {
-        internal Msmq()
+        internal MsmqPersistence()
         {
             Supports(Storage.Subscriptions, s => s.EnableFeatureByDefault<MsmqSubscriptionPersistence>());
         }

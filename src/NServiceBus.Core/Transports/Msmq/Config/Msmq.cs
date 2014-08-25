@@ -6,12 +6,12 @@ namespace NServiceBus
     /// <summary>
     /// Transport definition for MSMQ
     /// </summary>
-    public class Msmq : TransportDefinition
+    public class MsmqTransport : TransportDefinition
     {
         /// <summary>
         /// Ctor
         /// </summary>
-        public Msmq()
+        public MsmqTransport()
         {
             RequireOutboxConsent = true;
         }
@@ -21,7 +21,7 @@ namespace NServiceBus
         /// </summary>
         protected internal override void Configure(BusConfiguration config)
         {
-            config.EnableFeature<MsmqTransport>();
+            config.EnableFeature<Features.MsmqTransport>();
             config.EnableFeature<MessageDrivenSubscriptions>();
             config.EnableFeature<TimeoutManagerBasedDeferral>();
 

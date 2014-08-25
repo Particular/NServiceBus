@@ -65,7 +65,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         public void SetUp()
         {
             LicenseManager.InitializeLicense();
-            transportDefinition = new Msmq();
+            transportDefinition = new MsmqTransport();
             
             settings = new SettingsHolder();
 

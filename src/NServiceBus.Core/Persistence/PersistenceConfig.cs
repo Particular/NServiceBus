@@ -10,7 +10,7 @@
         /// <summary>
         /// Configures the given persistence to be used
         /// </summary>
-        /// <typeparam name="T">The persistence definition eg <see cref="InMemory"/>, NHibernate etc</typeparam>
+        /// <typeparam name="T">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc</typeparam>
         /// <param name="config">The configuration object since this is an extention method</param>
         public static PersistenceExtentions<T> UsePersistence<T>(this BusConfiguration config) where T : PersistenceDefinition
         {
@@ -26,7 +26,7 @@
         ///  Configures the given persistence to be used
         /// </summary>
         /// <param name="config">The configuration object since this is an extention method</param>
-        /// <param name="definitionType">The persistence definition eg <see cref="InMemory"/>, NHibernate etc</param>
+        /// <param name="definitionType">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc</param>
         public static PersistenceExtentions UsePersistence(this BusConfiguration config, Type definitionType)
         {
             return new PersistenceExtentions(definitionType, config.Settings);

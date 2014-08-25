@@ -12,7 +12,8 @@
     using NServiceBus.Persistence;
     using Saga;
     using System;
-    
+    using MsmqTransport = NServiceBus.MsmqTransport;
+
     class Program
     {
         static void Main(string[] args)
@@ -55,19 +56,19 @@
             configuration.EndpointName(endpointName);
             configuration.EnableInstallers();
             configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
-            configuration.UseTransport<Msmq>().ConnectionString("deadLetter=false;journal=false");
+            configuration.UseTransport<MsmqTransport>().ConnectionString("deadLetter=false;journal=false");
             configuration.DisableFeature<Audit>();
 
             if (volatileMode)
             {
                 configuration.DisableDurableMessages();
-                configuration.UsePersistence<InMemory>();
+                configuration.UsePersistence<InMemoryPersistence>();
             }
 
             switch (args[3].ToLower())
             {
                 case "msmq":
-                    configuration.UseTransport<Msmq>();
+                    configuration.UseTransport<MsmqTransport>();
                     break;
 
                 default:
@@ -82,25 +83,25 @@
             switch (args[2].ToLower())
             {
                 case "xml":
-                    configuration.UseSerialization<Xml>();
+                    configuration.UseSerialization<XmlSerializer>();
                     break;
 
                 case "json":
-                    configuration.UseSerialization<Json>();
+                    configuration.UseSerialization<JsonSerializer>();
                     break;
 
                 case "bson":
-                    configuration.UseSerialization<Bson>();
+                    configuration.UseSerialization<BsonSerializer>();
                     break;
 
                 case "bin":
-                    configuration.UseSerialization<Binary>();
+                    configuration.UseSerialization<BinarySerializer>();
                     break;
 
                 default:
                     throw new InvalidOperationException("Illegal serialization format " + args[2]);
             }
-            configuration.UsePersistence<InMemory>();
+            configuration.UsePersistence<InMemoryPersistence>();
             configuration.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
             
 

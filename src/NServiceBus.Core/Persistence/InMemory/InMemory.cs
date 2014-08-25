@@ -5,9 +5,9 @@
     /// <summary>
     /// Used to enable InMemory persistence.
     /// </summary>
-    public class InMemory : PersistenceDefinition
+    public class InMemoryPersistence : PersistenceDefinition
     {
-        internal InMemory()
+        internal InMemoryPersistence()
         {
             Supports(Storage.Sagas, s => s.EnableFeatureByDefault<InMemorySagaPersistence>());
             Supports(Storage.Timeouts, s => s.EnableFeatureByDefault<InMemoryTimeoutPersistence>());

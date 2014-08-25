@@ -7,7 +7,7 @@
     /// <summary>
     /// Defines the capabilities of the XML serializer
     /// </summary>
-    public class Xml : SerializationDefinition
+    public class XmlSerializer : SerializationDefinition
     {
         internal override Type ProvidedByFeature()
         {

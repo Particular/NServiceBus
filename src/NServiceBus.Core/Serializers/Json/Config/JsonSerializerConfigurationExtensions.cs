@@ -27,7 +27,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The configuration object</param>
         /// <param name="encoding">Encoding to use for serialization and deserialization</param>
-        public static void Encoding(this SerializationExtentions<Json> config, Encoding encoding)
+        public static void Encoding(this SerializationExtentions<JsonSerializer> config, Encoding encoding)
         {
             if (encoding == null)
             {

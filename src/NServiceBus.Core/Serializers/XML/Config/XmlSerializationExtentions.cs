@@ -5,7 +5,7 @@
     using NServiceBus.Serializers.XML;
 
     /// <summary>
-    /// Custom extentions for the <see cref="Xml"/> serializer.
+    /// Custom extentions for the <see cref="XmlSerializer"/> serializer.
     /// </summary>
     public static class XmlSerializationExtentions
     {
@@ -38,7 +38,7 @@
         ///       </Root>
         /// </MyMessage>
         /// </code>
-        public static SerializationExtentions<Xml> DontWrapRawXml(this SerializationExtentions<Xml> config)
+        public static SerializationExtentions<XmlSerializer> DontWrapRawXml(this SerializationExtentions<XmlSerializer> config)
         {
             config.Settings.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
 
@@ -48,7 +48,7 @@
         /// Configures the serializer to use a custom namespace. (http://tempuri.net) is the default.
         /// <para>If the provided namespace ends with trailing forward slashes, those will be removed on the fly.</para>
         /// </summary>
-        public static SerializationExtentions<Xml> Namespace(this SerializationExtentions<Xml> config, string namespaceToUse)
+        public static SerializationExtentions<XmlSerializer> Namespace(this SerializationExtentions<XmlSerializer> config, string namespaceToUse)
         {
             if (string.IsNullOrEmpty(namespaceToUse))
             {
@@ -63,7 +63,7 @@
         /// <summary>
         /// Tells the serializer to sanitize the input data from illegal characters
         /// </summary>
-        public static SerializationExtentions<Xml> SanitizeInput(this SerializationExtentions<Xml> config)
+        public static SerializationExtentions<XmlSerializer> SanitizeInput(this SerializationExtentions<XmlSerializer> config)
         {
             config.Settings.SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);
 
