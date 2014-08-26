@@ -39,7 +39,7 @@
             var persistenceType = Type.GetType(settings["Persistence"]);
 
 
-            var typeName = "Configure" + persistenceType.Name + "Persistence";
+            var typeName = "Configure" + persistenceType.Name;
 
             var configurerType = Type.GetType(typeName, false);
 
