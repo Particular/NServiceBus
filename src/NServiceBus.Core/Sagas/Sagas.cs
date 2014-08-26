@@ -18,6 +18,17 @@
         {
             EnableByDefault();
 
+            Defaults(s =>
+            {
+                conventions = s.Get<Conventions>();
+
+                var sagas = s.GetAvailableTypes().Where(IsSagaType).ToList();
+                if (sagas.Count > 0)
+                {
+                    conventions.AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
+                }
+            });
+
             Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas was found in scabbed types");
         }
 
@@ -26,11 +37,6 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            conventions = context.Settings.Get<Conventions>();
-
-            var sagas = context.Settings.GetAvailableTypes().Where(IsSagaType).ToList();
-            conventions.AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
-            
             // Register the Saga related behavior for incoming messages
             context.Pipeline.Register<SagaPersistenceBehavior.SagaPersistenceRegistration>();
 
