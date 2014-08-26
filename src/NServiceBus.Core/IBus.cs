@@ -1,12 +1,11 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Defines a bus to be used with NServiceBus.
     /// </summary>
-    public interface IBus:ISendOnlyBus
+    public interface IBus : ISendOnlyBus
     {
         /// <summary>
         /// Subscribes to receive published messages of the specified type.
@@ -93,8 +92,6 @@ namespace NServiceBus
         /// handlers.
         /// </summary>
         void DoNotContinueDispatchingCurrentMessageToHandlers();
-
-
 
         /// <summary>
         /// Gets the message context containing the Id, return address, and headers
