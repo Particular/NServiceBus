@@ -35,7 +35,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected ISendMessages messageSender;
         protected FakeSubscriptionStorage subscriptionStorage;
 
-        protected Address gatewayAddress;
         protected MessageMapper MessageMapper = new MessageMapper();
 
         protected FakeTransport Transport;
@@ -87,8 +86,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             handlerRegistry = new MessageHandlerRegistry(conventions);
             MessageMetadataRegistry = new MessageMetadataRegistry(false, conventions);
             MessageSerializer = new XmlMessageSerializer(MessageMapper, conventions);
-
-            gatewayAddress = MasterNodeAddress.SubScope("gateway");
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             subscriptionStorage = new FakeSubscriptionStorage();
