@@ -4,6 +4,7 @@
     using System.Net;
     using System.Runtime.Serialization;
     using System.Security;
+    using NServiceBus.Msmq;
     using Support;
 
     ///<summary>
@@ -110,6 +111,14 @@
             queueLowerCased = queueName.ToLower();
             Machine = machineName ?? defaultMachine;
             machineLowerCased = Machine.ToLower();
+        }
+
+        /// <summary>
+        /// Converts the current <see cref="Address"/> too a <see cref="MsmqAddress"/>.
+        /// </summary>
+        public static implicit operator MsmqAddress(Address address)
+        {
+            return new MsmqAddress(address.Queue, address.Machine);
         }
 
         /// <summary>
