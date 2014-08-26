@@ -141,12 +141,6 @@ namespace NServiceBus
         ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor);
 
         /// <summary>
-        /// Sends the message to all sites with matching site keys registered with the gateway.
-        /// The gateway is assumed to be located at the master node. 
-        /// </summary>
-        ICallback SendToSites(IEnumerable<string> siteKeys, object message);
-
-        /// <summary>
         /// Defers the processing of the message for the given delay. This feature is using the timeout manager so make sure that you enable timeouts
         /// </summary>
         ICallback Defer(TimeSpan delay, object message);

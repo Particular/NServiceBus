@@ -566,16 +566,6 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.SendToSites"/>
-        /// </summary>
-        public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
-        {
-            this.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
-
-            return SendMessage(new SendOptions(Settings.Get<Address>("MasterNode.Address").SubScope("gateway")), LogicalMessageFactory.Create(message));
-        }
-
-        /// <summary>
         /// <see cref="IBus.Defer(System.TimeSpan,object)"/>
         /// </summary>
         public ICallback Defer(TimeSpan delay, object message)
