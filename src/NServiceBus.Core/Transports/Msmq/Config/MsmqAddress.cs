@@ -18,7 +18,7 @@ namespace NServiceBus.Msmq
         {
             if (string.IsNullOrEmpty(destination))
             {
-                throw new ArgumentException("Invalid destination address specified", "destination");
+                throw new ArgumentNullException("destination");
             }
 
             var arr = destination.Split('@');
@@ -26,7 +26,7 @@ namespace NServiceBus.Msmq
             var queue = arr[0];
             if (String.IsNullOrWhiteSpace(queue))
             {
-                throw new ArgumentException("Invalid destination address specified", "destination");
+                throw new ArgumentException("No destination address specified", "destination");
             }
             var machine = GetMachineName(arr);
 
@@ -37,9 +37,14 @@ namespace NServiceBus.Msmq
         {
             if (arr.Length == 2)
             {
-                if (arr[1] != "." && arr[1].ToLower() != "localhost" && arr[1] != IPAddress.Loopback.ToString())
+                var machineName = arr[1];
+                if (machineName != "." && machineName.ToLower() != "localhost" && machineName != IPAddress.Loopback.ToString())
                 {
-                    return arr[1];
+                    if (String.IsNullOrWhiteSpace(machineName))
+                    {
+                        throw new ArgumentException("No machineName specified", "destination");
+                    }
+                    return machineName;
                 }
             }
             return RuntimeEnvironment.MachineName;
@@ -151,9 +156,8 @@ namespace NServiceBus.Msmq
         {
             unchecked
             {
-                var hashCode = ((Queue != null ? Queue.ToLowerInvariant().GetHashCode() : 0) * 397);
-
-                hashCode ^= (Machine != null ? Machine.ToLowerInvariant().GetHashCode() : 0);
+                var hashCode = Queue.ToLowerInvariant().GetHashCode() * 397;
+                hashCode ^= Machine.ToLowerInvariant().GetHashCode();
                 return hashCode;
             }
         }
