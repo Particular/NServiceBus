@@ -111,6 +111,7 @@
     <Compile Include="Installation\InstallationSupport.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />
     <Compile Include="Installation\InstallConfigExtensions_obsolete.cs" />
+    <Compile Include="ISendOnlyBus.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions_Obsolete.cs" />
     <Compile Include="Logging\DefaultLoggingDefinition.cs" />
     <Compile Include="Logging\LoggingDefinition.cs" />

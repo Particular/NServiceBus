@@ -211,7 +211,7 @@ namespace NServiceBus.Unicast
         public IManageSubscriptions SubscriptionManager { get; set; }
 
         /// <summary>
-        /// <see cref="IBus.Publish{T}(Action{T})"/>
+        /// <see cref="ISendOnlyBus.Publish{T}(Action{T})"/>
         /// </summary>
         public void Publish<T>(Action<T> messageConstructor)
         {
@@ -219,7 +219,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Publish{T}()"/>
+        /// <see cref="ISendOnlyBus.Publish{T}()"/>
         /// </summary>
         public virtual void Publish<T>()
         {
@@ -227,7 +227,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Publish{T}(T)"/>
+        /// <see cref="ISendOnlyBus.Publish{T}(T)"/>
         /// </summary>
         public virtual void Publish<T>(T message)
         {
@@ -438,7 +438,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send(object)"/>
+        /// <see cref="ISendOnlyBus.Send(object)"/>
         /// </summary>
         public ICallback SendLocal(object message)
         {
@@ -451,7 +451,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send{T}(Action{T})"/>
+        /// <see cref="ISendOnlyBus.Send{T}(Action{T})"/>
         /// </summary>
         public ICallback Send<T>(Action<T> messageConstructor)
         {
@@ -461,7 +461,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send(object)"/>
+        /// <see cref="ISendOnlyBus.Send(object)"/>
         /// </summary>
         public ICallback Send(object message)
         {
@@ -482,7 +482,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send{T}(string,Action{T})"/>
+        /// <see cref="ISendOnlyBus.Send{T}(string,Action{T})"/>
         /// </summary>
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
@@ -490,7 +490,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send{T}(Address,Action{T})"/>
+        /// <see cref="ISendOnlyBus.Send{T}(Address,Action{T})"/>
         /// </summary>
         public ICallback Send<T>(Address address, Action<T> messageConstructor)
         {
@@ -498,7 +498,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send(string,object)"/>
+        /// <see cref="ISendOnlyBus.Send(string,object)"/>
         /// </summary>
         public ICallback Send(string destination, object message)
         {
@@ -506,7 +506,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send(Address,object)"/>
+        /// <see cref="ISendOnlyBus.Send(Address,object)"/>
         /// </summary>
         public ICallback Send(Address address, object message)
         {
@@ -514,7 +514,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send{T}(string,string,Action{T})"/>
+        /// <see cref="ISendOnlyBus.Send{T}(string,string,Action{T})"/>
         /// </summary>
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
@@ -527,7 +527,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send{T}(Address,string,Action{T})"/>
+        /// <see cref="ISendOnlyBus.Send{T}(Address,string,Action{T})"/>
         /// </summary>
         public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
         {
@@ -540,7 +540,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send(string,string,object)"/>
+        /// <see cref="ISendOnlyBus.Send(string,string,object)"/>
         /// </summary>
         public ICallback Send(string destination, string correlationId, object message)
         {
@@ -553,7 +553,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send(Address,string,object)"/>
+        /// <see cref="ISendOnlyBus.Send(Address,string,object)"/>
         /// </summary>
         public ICallback Send(Address address, string correlationId, object message)
         {
@@ -755,7 +755,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.OutgoingHeaders"/>
+        /// <see cref="ISendOnlyBus.OutgoingHeaders"/>
         /// </summary>
         public IDictionary<string, string> OutgoingHeaders
         {
