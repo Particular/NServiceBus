@@ -100,7 +100,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 }
                 public class RequestingSagaData : ContainSagaData
                 {
-                    public Guid CorrelationIdSoThatResponseCanFindTheCorrectInstance { get; set; } //wont be needed in the future
+                    public virtual Guid CorrelationIdSoThatResponseCanFindTheCorrectInstance { get; set; } //wont be needed in the future
                 }
 
             }
@@ -142,7 +142,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 public class RespondingSagaData : ContainSagaData
                 {
-                    public Guid CorrelationIdFromRequestingSaga { get; set; }
+                    public virtual Guid CorrelationIdFromRequestingSaga { get; set; }
                 }
 
 
@@ -166,8 +166,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
                         SomeCorrelationId = Data.CorrelationIdFromRequestingSaga //wont be needed in the future
                     });
                 }
-
-            
             }
         }
 
