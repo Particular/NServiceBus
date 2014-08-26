@@ -11,9 +11,9 @@
     <AssemblyName>NServiceBus.Core.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SignAssembly>true</SignAssembly>
     <FodyPath>..\packages\Fody</FodyPath>
-    <AssemblyOriginatorKeyFile>Test.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\Test.snk</AssemblyOriginatorKeyFile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -256,7 +256,6 @@
     <None Include="ripple.dependencies.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Test.snk" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
