@@ -21,7 +21,7 @@ namespace NServiceBus
         /// </summary>
         protected internal override void Configure(BusConfiguration config)
         {
-            config.EnableFeature<Features.MsmqTransport>();
+            config.EnableFeature<Features.MsmqTransportConfigurator>();
             config.EnableFeature<MessageDrivenSubscriptions>();
             config.EnableFeature<TimeoutManagerBasedDeferral>();
 

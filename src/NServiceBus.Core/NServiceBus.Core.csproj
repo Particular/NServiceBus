@@ -349,7 +349,7 @@
     <Compile Include="Serialization\SerializationSettings.cs" />
     <Compile Include="Transports\Msmq\CorrelationIdMutatorForBackwardsCompatibilityWithV3.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
-    <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />
+    <Compile Include="Transports\Msmq\Config\MsmqTransportConfigurator.cs" />
     <Compile Include="Unicast\Messages\DeserializeLogicalMessagesBehavior.cs" />
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySagaPersister.cs" />
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySubscriptionStorage.cs" />

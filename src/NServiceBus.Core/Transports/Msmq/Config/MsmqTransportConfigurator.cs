@@ -9,9 +9,9 @@
     /// <summary>
     /// Used to configure the MSMQ transport.
     /// </summary>
-    public class MsmqTransport : ConfigureTransport
+    public class MsmqTransportConfigurator : ConfigureTransport
     {
-        internal MsmqTransport()
+        internal MsmqTransportConfigurator()
         {
             
         }
@@ -69,7 +69,7 @@
             get { return false; }
         }
 
-        static ILog Logger = LogManager.GetLogger<MsmqTransport>();
+        static ILog Logger = LogManager.GetLogger<MsmqTransportConfigurator>();
 
         const string Message =
             @"
