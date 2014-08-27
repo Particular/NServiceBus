@@ -8,7 +8,7 @@
 
     public static class Transports
     {
-        public static IEnumerable<RunDescriptor> AllAvailable
+        internal static IEnumerable<RunDescriptor> AllAvailable
         {
             get
             {

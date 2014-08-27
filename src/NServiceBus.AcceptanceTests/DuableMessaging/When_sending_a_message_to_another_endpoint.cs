@@ -16,7 +16,7 @@
                     .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.Send(new MyMessage())))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
-                    .Repeat(r =>r.For(Transports.AllAvailable.ToArray()))
+                    .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
                     .Run();
         }
