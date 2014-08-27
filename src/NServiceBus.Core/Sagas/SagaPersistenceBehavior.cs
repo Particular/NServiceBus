@@ -53,7 +53,7 @@
                 {
                     sagaInstanceState.MarkAsNotFound();
 
-                    InvokeSagaNotFoundHandlers();
+                    InvokeSagaNotFoundHandlers(sagaInstanceState.SagaType);
                 }
                 else
                 {
@@ -126,9 +126,9 @@
             }
         }
 
-        void InvokeSagaNotFoundHandlers()
+        void InvokeSagaNotFoundHandlers(Type sagaType)
         {
-            logger.InfoFormat("Could not find a saga for the message type {0}. Going to invoke SagaNotFoundHandlers.", currentContext.IncomingLogicalMessage.MessageType.FullName);
+            logger.InfoFormat("Could not find a saga of type '{0}' for the message type '{1}'. Going to invoke SagaNotFoundHandlers.", sagaType.FullName, currentContext.IncomingLogicalMessage.MessageType.FullName);
 
             foreach (var handler in currentContext.Builder.BuildAll<IHandleSagaNotFound>())
             {
