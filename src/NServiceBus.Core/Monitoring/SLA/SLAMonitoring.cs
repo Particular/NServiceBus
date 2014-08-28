@@ -24,31 +24,37 @@ namespace NServiceBus.Features
                 return;
             }
 
-            SetupSLABreachCounter(context);
+            TimeSpan endpointSla;
+            if (!TryGetSLA(context, out endpointSla))
+            {
+                return;
+            }
+
+            SetupSLABreachCounter(context, endpointSla);
 
             context.Pipeline.Register<SLABehavior.Registration>();
         }
 
-        static void SetupSLABreachCounter(FeatureConfigurationContext context)
+        static void SetupSLABreachCounter(FeatureConfigurationContext context, TimeSpan endpointSla)
         {
-            var endpointSla = GetSla(context);
             var slaBreachCounter = PerformanceCounterHelper.InstantiateCounter("SLA violation countdown", context.Settings.EndpointName());
             var timeToSLABreachCalculator = new EstimatedTimeToSLABreachCalculator(endpointSla, slaBreachCounter);
             context.Container.RegisterSingleton(timeToSLABreachCalculator);
         }
 
-        static TimeSpan GetSla(FeatureConfigurationContext context)
+        static bool TryGetSLA(FeatureConfigurationContext context, out TimeSpan endpointSla)
         {
-            TimeSpan endpointSla;
             if (context.Settings.TryGet(EndpointSLAKey, out endpointSla))
             {
-                return endpointSla;
+                return true;
             }
+
             if (TryGetSlaFromAttribute(context, out endpointSla))
             {
-                return endpointSla;
+                return true;
             }
-            throw new Exception("Could not extract SLA from settings or attribute. Please either call ConfigurationBuilder.EnableSla or add a EndpointSLAAttribute to your IConfigureThisEndpoint.");
+
+            return false;
         }
 
         static bool TryGetSlaFromAttribute(FeatureConfigurationContext config, out TimeSpan sla)
