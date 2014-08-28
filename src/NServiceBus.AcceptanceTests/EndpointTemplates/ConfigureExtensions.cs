@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using Persistence;
     using ScenarioDescriptors;
 
     public static class ConfigureExtensions

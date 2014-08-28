@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.DuableMessaging
 {
-    using System.Linq;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;

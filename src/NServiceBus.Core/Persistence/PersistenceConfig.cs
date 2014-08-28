@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.Persistence
+﻿namespace NServiceBus
 {
     using System;
+    using NServiceBus.Persistence;
 
     /// <summary>
     /// Enables users to select persistence by calling .UsePersistence()
