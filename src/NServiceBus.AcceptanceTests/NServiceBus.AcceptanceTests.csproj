@@ -110,6 +110,7 @@
     <Compile Include="Retries\When_doing_flr_with_dtc_on.cs" />
     <Compile Include="Retries\When_doing_flr_with_native_transactions.cs" />
     <Compile Include="Sagas\When_an_endpoint_replies_to_a_message_published_by_a_saga.cs" />
+    <Compile Include="Sagas\When_a_saga_is_started_by_a_base_event_published_by_another_saga.cs" />
     <Compile Include="ScenarioDescriptors\AllOutboxCapableStorages.cs" />
     <Compile Include="NonDTCOperations\When_blowing_up_just_after_dispatch.cs" />
     <Compile Include="PipelineExtension\MutingHandlerExceptions.cs" />
