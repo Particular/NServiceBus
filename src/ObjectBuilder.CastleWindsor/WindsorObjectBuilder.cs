@@ -116,11 +116,8 @@
                 throw new InvalidOperationException(message);
             }
 
-            var propertyInfo = component.GetProperty(property);
-
-            registration.AddProperty(
-                new PropertySet(propertyInfo, 
-                    new DependencyModel(property, value.GetType(), false, true, value )));
+            var dependency = Property.ForKey(property).Eq(value);
+            registration.CustomDependencies[dependency.Key] = dependency.Value;
         }
 
         void IContainer.RegisterSingleton(Type lookupType, object instance)
