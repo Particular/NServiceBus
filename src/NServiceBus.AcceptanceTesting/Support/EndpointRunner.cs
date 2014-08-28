@@ -59,12 +59,9 @@
                 {
                     while (!stopped)
                     {
-                        if (!contextChanged.Wait(TimeSpan.FromSeconds(5)))
                         //we spin around each 5s since the callback mechanism seems to be shaky
-                        {
-                            continue;
-                        }
-
+                        contextChanged.Wait(TimeSpan.FromSeconds(5));
+                       
                         lock (behavior)
                         {
                             foreach (var when in behavior.Whens)
@@ -76,6 +73,7 @@
 
                                 if (when.ExecuteAction(scenarioContext, bus))
                                 {
+
                                     executedWhens.Add(when.Id);
                                 }
                             }
