@@ -9,9 +9,9 @@ namespace rootnamespace
 	*/
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Server
     {
-        public void Customize(ConfigurationBuilder builder)
+        public void Customize(BusConfiguration configuration)
         {
-            builder.UsePersistence<PLEASE_SELECT_ONE>();
+            configuration.UsePersistence<PLEASE_SELECT_ONE>();
         }
     }
 }
