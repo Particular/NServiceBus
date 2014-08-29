@@ -49,6 +49,7 @@
                 dynamic dc = configurer;
 
                 dc.Configure(config);
+                return;
             }
 
             config.UsePersistence(persistenceType);
