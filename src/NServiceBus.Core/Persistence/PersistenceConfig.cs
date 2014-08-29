@@ -18,8 +18,6 @@
             var type = typeof(PersistenceExtentions<>).MakeGenericType(typeof(T));
             var extension = (PersistenceExtentions<T>)Activator.CreateInstance(type, config.Settings);
 
-            config.UsePersistence(typeof(T));
-
             return extension;
         }
 

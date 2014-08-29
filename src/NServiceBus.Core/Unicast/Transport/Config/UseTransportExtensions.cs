@@ -17,7 +17,7 @@ namespace NServiceBus
             var type = typeof(TransportExtentions<>).MakeGenericType(typeof(T));
             var extension = (TransportExtentions<T>)Activator.CreateInstance(type, busConfiguration.Settings);
 
-            busConfiguration.UseTransport(typeof(T));
+            busConfiguration.Settings.Set("transportDefinitionType", typeof(T));
 
             return extension;
         }
