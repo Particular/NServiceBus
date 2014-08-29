@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audit\When_using_audit_message_is_received.cs" />
+    <Compile Include="BasicMessaging\When_sending_from_a_send_only.cs" />
     <Compile Include="BasicMessaging\When_using_a_greedy_convention.cs" />
     <Compile Include="BasicMessaging\When_handling_incoming_messages_headers_should_be_shared.cs" />
     <Compile Include="BasicMessaging\When_sending_a_message_ensure_proper_headers.cs" />

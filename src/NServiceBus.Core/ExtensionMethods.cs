@@ -34,7 +34,7 @@ namespace NServiceBus
         /// <param name="msg">The message to add a header to.</param>
         /// <param name="key">The header key.</param>
         /// <param name="value">The value to assign to the header.</param>
-        public static void SetMessageHeader(this IBus bus, object msg, string key, string value)
+        public static void SetMessageHeader(this ISendOnlyBus bus, object msg, string key, string value)
         {
             var manageMessageHeaders = bus as IManageMessageHeaders;
             if (manageMessageHeaders != null)
