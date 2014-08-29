@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Provides the subset of bus operations that is applicable for a send only bus
     /// </summary>
-    public interface ISendOnlyBus
+    public interface ISendOnlyBus: IDisposable
     {
         /// <summary>
         /// Publish the message to subscribers.

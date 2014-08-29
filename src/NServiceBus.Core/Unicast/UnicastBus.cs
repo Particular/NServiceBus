@@ -773,14 +773,6 @@ namespace NServiceBus.Unicast
             }
         }
 
-        /// <summary>
-        /// Shits down the bus and stops processing messages.
-        /// </summary>
-        public void Shutdown()
-        {
-            InnerShutdown();
-        }
-
         void InnerShutdown()
         {
             if (!started)

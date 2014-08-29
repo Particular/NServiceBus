@@ -40,7 +40,7 @@ namespace NServiceBus
             }
 
             configure.Builder.Build<IStartableBus>()
-                .Shutdown();
+                .Dispose();
         }
 
         /// <summary>

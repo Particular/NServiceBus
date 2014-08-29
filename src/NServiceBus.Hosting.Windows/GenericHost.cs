@@ -78,7 +78,6 @@ namespace NServiceBus
 
             if (bus != null)
             {
-                bus.Shutdown();
                 bus.Dispose();
 
                 bus = null;
@@ -92,7 +91,7 @@ namespace NServiceBus
         {
             PerformConfiguration(builder => builder.EnableInstallers(username));
           
-            bus.Builder.Dispose();
+            bus.Dispose();
         }
 
         void PerformConfiguration(Action<BusConfiguration> moreConfiguration = null)
