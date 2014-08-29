@@ -58,6 +58,8 @@
     <Compile Include="Support\EndpointBehaviorBuilder.cs" />
     <Compile Include="Support\EndpointConfiguration.cs" />
     <Compile Include="Support\EndpointRunner.cs" />
+    <Compile Include="Support\GivenDefinition.cs" />
+    <Compile Include="Support\IBusAdapter.cs" />
     <Compile Include="Support\IEndpointSetupTemplate.cs" />
     <Compile Include="Support\IScenarioWithEndpointBehavior.cs" />
     <Compile Include="Support\RunDescriptor.cs" />

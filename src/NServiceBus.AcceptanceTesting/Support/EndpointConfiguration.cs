@@ -42,6 +42,7 @@
         public string CustomEndpointName { get; set; }
 
         public Type AuditEndpoint { get; set; }
+        public bool SendOnly { get; set; }
 
         string endpointName;
     }

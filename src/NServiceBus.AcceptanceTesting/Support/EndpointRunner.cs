@@ -11,13 +11,14 @@
     using Transports;
 
     [Serializable]
-    public class EndpointRunner:MarshalByRefObject
+    public class EndpointRunner : MarshalByRefObject
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
         readonly SemaphoreSlim contextChanged = new SemaphoreSlim(0);
         readonly IList<Guid> executedWhens = new List<Guid>();
         EndpointBehavior behavior;
         IStartableBus bus;
+        ISendOnlyBus sendOnlyBus;
         EndpointConfiguration configuration;
         Task executeWhens;
         ScenarioContext scenarioContext;
@@ -49,11 +50,18 @@
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(busConfiguration));
 
-                bus = Bus.Create(busConfiguration);
+                if (configuration.SendOnly)
+                {
+                    sendOnlyBus = Bus.CreateSendOnly(busConfiguration);
+                }
+                else
+                {
+                    bus = Bus.Create(busConfiguration);
+                    var transportDefinition = ((UnicastBus)bus).Settings.Get<TransportDefinition>();
 
-                var transportDefinition = ((UnicastBus)bus).Settings.Get<TransportDefinition>();
+                    scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
+                }
 
-                scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
 
                 executeWhens = Task.Factory.StartNew(() =>
                 {
@@ -61,7 +69,7 @@
                     {
                         //we spin around each 5s since the callback mechanism seems to be shaky
                         contextChanged.Wait(TimeSpan.FromSeconds(5));
-                       
+
                         lock (behavior)
                         {
                             foreach (var when in behavior.Whens)
@@ -73,7 +81,6 @@
 
                                 if (when.ExecuteAction(scenarioContext, bus))
                                 {
-
                                     executedWhens.Add(when.Id);
                                 }
                             }
@@ -103,11 +110,21 @@
                 {
                     var action = given.GetAction(scenarioContext);
 
-                    action(bus);
+                    if (configuration.SendOnly)
+                    {
+                        action(new IBusAdapter(sendOnlyBus));
+                    }
+                    else
+                    {
+
+                        action(bus);
+                    }
                 }
 
-                bus.Start();
-
+                if (!configuration.SendOnly)
+                {
+                    bus.Start();
+                }
 
                 return Result.Success();
             }
@@ -130,7 +147,15 @@
                 executeWhens.Wait();
                 contextChanged.Dispose();
 
-                bus.Dispose();
+                if (configuration.SendOnly)
+                {
+                    sendOnlyBus.Dispose();
+                }
+                else
+                {
+                    bus.Dispose();
+
+                }
 
                 return Result.Success();
             }

@@ -4,23 +4,26 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_sending_from_a_send_only : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_the_message()
         {
-            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
-                    .WithEndpoint<Sender>(b => b.Given((bus, context) => bus.Send(new MyMessage
+            var context = new Context
+            {
+                Id = Guid.NewGuid()
+            };
+            Scenario.Define(context)
+                    .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.Send(new MyMessage
                     {
-                        Id = context.Id
+                        Id = c.Id
                     })))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
-                    .Repeat(r =>r.For(Serializers.Json))
-                    .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
                     .Run();
+
+            Assert.True(context.WasCalled, "The message handler should be called");
         }
 
         public class Context : ScenarioContext
@@ -34,7 +37,8 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c => c.SendOnly())
+                EndpointSetup<DefaultServer>()
+                    .SendOnly()
                     .AddMapping<MyMessage>(typeof(Receiver));
             }
         }
