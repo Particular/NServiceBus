@@ -2,7 +2,6 @@
 {
     using global::Ninject.Extensions.NamedScope;
     using global::Ninject.Syntax;
-    using Internal;
 
     static class NinjectObjectBuilderExtensions
     {
