@@ -38,15 +38,17 @@
         ///       </Root>
         /// </MyMessage>
         /// </code>
-        public static void DontWrapRawXml(this SerializationExtentions<XmlSerializer> config)
+        public static SerializationExtentions<XmlSerializer> DontWrapRawXml(this SerializationExtentions<XmlSerializer> config)
         {
             config.Settings.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
+
+            return config;
         }
         /// <summary>
         /// Configures the serializer to use a custom namespace. (http://tempuri.net) is the default.
         /// <para>If the provided namespace ends with trailing forward slashes, those will be removed on the fly.</para>
         /// </summary>
-        public static void Namespace(this SerializationExtentions<XmlSerializer> config, string namespaceToUse)
+        public static SerializationExtentions<XmlSerializer> Namespace(this SerializationExtentions<XmlSerializer> config, string namespaceToUse)
         {
             if (string.IsNullOrEmpty(namespaceToUse))
             {
@@ -54,14 +56,18 @@
             }
 
             config.Settings.SetProperty<XmlMessageSerializer>(s => s.Namespace, namespaceToUse);
+
+            return config;
         }
 
         /// <summary>
         /// Tells the serializer to sanitize the input data from illegal characters
         /// </summary>
-        public static void SanitizeInput(this SerializationExtentions<XmlSerializer> config)
+        public static SerializationExtentions<XmlSerializer> SanitizeInput(this SerializationExtentions<XmlSerializer> config)
         {
             config.Settings.SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);
+
+            return config;
         }
     }
 }
