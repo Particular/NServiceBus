@@ -16,7 +16,7 @@
         /// <returns>The binding</returns>
         public static IBindingInNamedWithOrOnSyntax<T> WhenInUnitOfWork<T>(this IBindingWhenSyntax<T> syntax)
         {
-            return syntax.WhenAnyAnchestorNamed(ScopeName);
+            return syntax.WhenAnyAncestorNamed(ScopeName);
         }
 
         /// <summary>
