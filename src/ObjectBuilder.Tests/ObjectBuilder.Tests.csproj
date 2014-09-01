@@ -69,9 +69,6 @@
     <Reference Include="Spring.Core">
       <HintPath>..\packages\Spring.Core\lib\net40\Spring.Core.dll</HintPath>
     </Reference>
-    <Reference Include="StructureMap">
-      <HintPath>..\packages\structuremap\lib\net40\StructureMap.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -112,10 +109,6 @@
     <ProjectReference Include="..\ObjectBuilder.Spring\ObjectBuilder.Spring.csproj">
       <Project>{734d30cf-4376-488a-a6b4-1033fed93660}</Project>
       <Name>ObjectBuilder.Spring</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ObjectBuilder.StructureMap\ObjectBuilder.StructureMap.csproj">
-      <Project>{c05e5b87-eb74-4a3f-b4fc-afdd28570850}</Project>
-      <Name>ObjectBuilder.StructureMap</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

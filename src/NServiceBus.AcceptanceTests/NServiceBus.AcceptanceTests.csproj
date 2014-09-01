@@ -67,9 +67,6 @@
     <Reference Include="Spring.Core">
       <HintPath>..\packages\Spring.Core\lib\net40\Spring.Core.dll</HintPath>
     </Reference>
-    <Reference Include="StructureMap">
-      <HintPath>..\packages\structuremap\lib\net40\StructureMap.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
@@ -203,10 +200,6 @@
     <ProjectReference Include="..\ObjectBuilder.Spring\ObjectBuilder.Spring.csproj">
       <Project>{734d30cf-4376-488a-a6b4-1033fed93660}</Project>
       <Name>ObjectBuilder.Spring</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ObjectBuilder.StructureMap\ObjectBuilder.StructureMap.csproj">
-      <Project>{c05e5b87-eb74-4a3f-b4fc-afdd28570850}</Project>
-      <Name>ObjectBuilder.StructureMap</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
