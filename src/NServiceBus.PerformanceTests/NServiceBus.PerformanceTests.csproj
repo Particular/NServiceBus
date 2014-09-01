@@ -40,6 +40,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GitVersionCore">
+      <HintPath>..\packages\GitVersion.1.2.0\Lib\Net45\GitVersionCore.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
@@ -67,6 +70,7 @@
     <Compile Include="TwoPhaseCommitEnlistment.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="TestSuites\Mutators.ps1" />
     <None Include="TestSuites\Sagas-Concurrency.ps1" />
     <None Include="TestSuites\SqlServer.ps1" />
