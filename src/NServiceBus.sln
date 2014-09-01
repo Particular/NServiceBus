@@ -23,6 +23,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{EF5E77D7-74B1-422D-B34E-AED35E19249E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Core", "NServiceBus.Core\NServiceBus.Core.csproj", "{DD48B2D0-E996-412D-9157-821ED8B17A9D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5E51EFBF-329F-4D3A-B86E-CC111697746F} = {5E51EFBF-329F-4D3A-B86E-CC111697746F}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hosting", "Hosting", "{5F77E8FE-0DCB-4E91-8F91-D3C9E767F5EF}"
 EndProject
