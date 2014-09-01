@@ -15,10 +15,6 @@ namespace NServiceBus.Config.Conventions
         public EndpointHelper(StackTrace stackTraceToExamine)
         {
             this.stackTraceToExamine = stackTraceToExamine;
-            if (Debugger.IsAttached)
-            {
-                EnsureThisCodeIsNotBeingCalledFromIConfigureThisEndpoint();
-            }
         }
 
         /// <summary>
@@ -61,30 +57,6 @@ namespace NServiceBus.Config.Conventions
             throw new InvalidOperationException(
                     "No version of the endpoint could not be retrieved using the default convention, please specify your own convention using Configure.DefineEndpointVersionRetriever()");
         }
-
-
-        public void EnsureThisCodeIsNotBeingCalledFromIConfigureThisEndpoint()
-        {
-            var stackFrames = stackTraceToExamine.GetFrames();
-            if (stackFrames == null)
-            {
-                return;
-            }
-
-            var targetFrame =
-                stackFrames.FirstOrDefault(
-                    f =>
-                    {
-                        var methodBase = f.GetMethod();
-                        return typeof(IConfigureThisEndpoint).IsAssignableFrom(methodBase.DeclaringType) && methodBase.Name == "Customize";
-                    });
-
-            if (targetFrame != null)
-            {
-                throw new InvalidOperationException("Do not call Configure.With from IConfigureThisEndpoint.Customize. Instead use the \"builder\" argument passed to the Customize method. To customize other options not available from the builder, implement the INeedInitialization interface. Configure.With() is only useful in self hosting scenarios.");
-            }
-        }
-
 
         void Initialize()
         {
