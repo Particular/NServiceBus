@@ -36,43 +36,14 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autofac">
-      <HintPath>..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="Castle.Core">
-      <HintPath>..\packages\Castle.Core\lib\net40-client\Castle.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Castle.Windsor">
-      <HintPath>..\packages\Castle.Windsor\lib\net40\Castle.Windsor.dll</HintPath>
-    </Reference>
-    <Reference Include="Common.Logging">
-      <HintPath>..\packages\Common.Logging\lib\1.0\Common.Logging.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Practices.ServiceLocation">
-      <HintPath>..\packages\CommonServiceLocator\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
-    </Reference>
-    <Reference Include="Ninject">
-      <HintPath>..\packages\Ninject\lib\net40\Ninject.dll</HintPath>
-    </Reference>
-    <Reference Include="Ninject.Extensions.ContextPreservation">
-      <HintPath>..\packages\Ninject.Extensions.ContextPreservation\lib\net40\Ninject.Extensions.ContextPreservation.dll</HintPath>
-    </Reference>
-    <Reference Include="Ninject.Extensions.NamedScope">
-      <HintPath>..\packages\Ninject.Extensions.NamedScope\lib\net40\Ninject.Extensions.NamedScope.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Spring.Core">
-      <HintPath>..\packages\Spring.Core\lib\net40\Spring.Core.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
@@ -162,7 +133,6 @@
     <Compile Include="Sagas\When_using_contain_saga_data.cs" />
     <Compile Include="ScenarioDescriptors\Builders.cs" />
     <Compile Include="ScenarioDescriptors\AllTransports.cs" />
-    <Compile Include="ScenarioDescriptors\AllBuilders.cs" />
     <Compile Include="ScenarioDescriptors\AllSerializers.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
     <Compile Include="ScenarioDescriptors\Persistence.cs" />
@@ -185,22 +155,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ObjectBuilder.Autofac\ObjectBuilder.Autofac.csproj">
-      <Project>{73ec4ebe-826d-4a0a-8837-51d3458fc2a8}</Project>
-      <Name>ObjectBuilder.Autofac</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ObjectBuilder.CastleWindsor\ObjectBuilder.CastleWindsor.csproj">
-      <Project>{9a9a0bd5-ac37-4b90-b90f-fd1c1395febd}</Project>
-      <Name>ObjectBuilder.CastleWindsor</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ObjectBuilder.Ninject\ObjectBuilder.Ninject.csproj">
-      <Project>{c35ae1c7-c785-4629-a73d-977e0325d8b0}</Project>
-      <Name>ObjectBuilder.Ninject</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ObjectBuilder.Spring\ObjectBuilder.Spring.csproj">
-      <Project>{734d30cf-4376-488a-a6b4-1033fed93660}</Project>
-      <Name>ObjectBuilder.Spring</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
