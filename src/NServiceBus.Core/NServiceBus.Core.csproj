@@ -13,7 +13,6 @@
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
-    <FodyPath>..\packages\Fody</FodyPath>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -46,20 +45,22 @@
       <SubType>Designer</SubType>
     </None>
     <Reference Include="Autofac">
-      <HintPath>..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
+      <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="Interop.MSMQ">
       <HintPath>..\..\lib\Interop.MSMQ.dll</HintPath>
     </Reference>
     <Reference Include="Janitor">
-      <HintPath>..\packages\Janitor.Fody\Lib\portable-net4+sl4+wp7+win8+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
+      <HintPath>..\packages\Janitor.Fody.1.1.0.0\Lib\portable-net4+sl5+wp8+win8+wpa81+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.5.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Obsolete">
-      <HintPath>..\packages\Obsolete.Fody\Lib\NET35\Obsolete.dll</HintPath>
+      <HintPath>..\packages\Obsolete.Fody.3.1.0.0\Lib\NET35\Obsolete.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -79,6 +80,15 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Packages\Particular.Licensing\License.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\LicenseDeserializer.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\LicenseExpirationChecker.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\LicenseVerifier.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\RegistryLicenseStore.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\ReleaseDateReader.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\TrialStartDateStore.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\UniversalDateParser.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
     <Compile Include="Bus.cs" />
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="ConfigureQueueCreation_Obsolete.cs" />
@@ -123,15 +133,6 @@
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />
     <Compile Include="AllAssemblies.cs" />
-    <Compile Include="App_Packages\Particular.Licensing\License.cs" />
-    <Compile Include="App_Packages\Particular.Licensing\LicenseDeserializer.cs" />
-    <Compile Include="App_Packages\Particular.Licensing\LicenseExpirationChecker.cs" />
-    <Compile Include="App_Packages\Particular.Licensing\LicenseVerifier.cs" />
-    <Compile Include="App_Packages\Particular.Licensing\RegistryLicenseStore.cs" />
-    <Compile Include="App_Packages\Particular.Licensing\ReleaseDateReader.cs" />
-    <Compile Include="App_Packages\Particular.Licensing\TrialStartDateStore.cs" />
-    <Compile Include="App_Packages\Particular.Licensing\UniversalDateParser.cs" />
-    <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
     <Compile Include="Audit\Audit.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscribe.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettingsExtensions.cs" />
@@ -568,6 +569,7 @@
     <Compile Include="Encryption\WireEncryptedString.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="ripple.dependencies.config">
       <SubType>Designer</SubType>
     </None>
@@ -596,8 +598,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="Fody.targets" />
-  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
     <MakeDir Directories="$(TargetDir)temp\" />
     <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetDir)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)Interop.MSMQ.dll&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
@@ -608,5 +608,11 @@
     <Delete Files="@(TempFiles)" />
     <RemoveDir Directories="$(TargetDir)temp\" />
   </Target>
-  <Import Project="$(SolutionDir)..\BuildSupport\GitVersionTask\Build\GitVersionTask.targets" />
+  <Import Project="..\packages\Fody.1.25.0\build\Fody.targets" Condition="Exists('..\packages\Fody.1.25.0\build\Fody.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Fody.1.25.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.25.0\build\Fody.targets'))" />
+  </Target>
 </Project>
