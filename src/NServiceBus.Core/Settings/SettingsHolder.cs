@@ -224,7 +224,7 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        /// True if there is a explicit value for the given key
+        /// True if there is an explicit value for the given key
         /// </summary>
         /// <param name="key">The Key</param>
         /// <returns>True if found</returns>
@@ -234,7 +234,7 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        /// True if there is a explicit value for the given type
+        /// True if there is an explicit value for the given type
         /// </summary>
         /// <typeparam name="T">The type</typeparam>
         /// <returns>True if found</returns>

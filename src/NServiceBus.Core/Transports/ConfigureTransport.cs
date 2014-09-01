@@ -17,7 +17,7 @@ namespace NServiceBus.Transports
             Defaults(s => s.SetDefault<TransportConnectionString>(TransportConnectionString.Default));
             Defaults(s =>
             {
-                if (!String.IsNullOrEmpty(localAddress) && !s.HasSetting("NServiceBus.LocalAddress"))
+                if (!String.IsNullOrEmpty(localAddress) && !s.HasExplicitValue("NServiceBus.LocalAddress"))
                 {
                     s.Set("NServiceBus.LocalAddress", localAddress);
                 }
