@@ -26,23 +26,21 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var endpointName = context.Settings.Get<string>("EndpointName");
-
-            var dispatcherAddress = Address.Parse(endpointName).SubScope("TimeoutsDispatcher");
-            var inputAddress = Address.Parse(endpointName).SubScope("Timeouts");
-
+            var localAddress = context.Settings.LocalAddress();
+            var dispatcherAddress = localAddress.SubScope("TimeoutsDispatcher");
+            var inputAddress = localAddress.SubScope("Timeouts");
 
             context.Container.ConfigureComponent<TimeoutMessageProcessor>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(t=>t.Disabled,false)
+                .ConfigureProperty(t => t.Disabled, false)
                 .ConfigureProperty(t => t.InputAddress, inputAddress)
-                .ConfigureProperty(t=>t.EndpointName,context.Settings.EndpointName());
+                .ConfigureProperty(t => t.EndpointName, context.Settings.EndpointName());
 
             context.Container.ConfigureComponent<TimeoutDispatcherProcessor>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(t => t.Disabled, false)
-                .ConfigureProperty(t=>t.InputAddress,dispatcherAddress);
+                .ConfigureProperty(t => t.InputAddress, dispatcherAddress);
 
             context.Container.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(t=>t.DispatcherAddress,dispatcherAddress);
+                .ConfigureProperty(t => t.DispatcherAddress, dispatcherAddress);
             context.Container.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
         }
 

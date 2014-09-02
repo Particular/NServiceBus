@@ -15,6 +15,8 @@ namespace NServiceBus.Features
             EnableByDefault();
             DependsOn<ForwarderFaultManager>();
 
+            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't use SLR since it requires receive capabilities");
+
             Prerequisite(IsEnabledInConfig, "SLR was disabled in config");
         }
 
@@ -23,21 +25,13 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
-            {
-                return;
-            }
-
             var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
 
             SetUpRetryPolicy(retriesConfig);
 
-            var endpointName = context.Settings.Get<string>("EndpointName");
-
-
-            var processorAddress = Address.Parse(endpointName).SubScope("Retries");
-
+            var processorAddress = context.Settings.LocalAddress().SubScope("Retries");
             var useRemoteRetryProcessor = context.Settings.HasSetting("SecondLevelRetries.AddressOfRetryProcessor");
+            
             if (useRemoteRetryProcessor)
             {
                 processorAddress = context.Settings.Get<Address>("SecondLevelRetries.AddressOfRetryProcessor");
