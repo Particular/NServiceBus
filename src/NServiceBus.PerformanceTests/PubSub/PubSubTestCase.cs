@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Transactions;
 using NServiceBus;
 using NServiceBus.Features;
-using NServiceBus.Persistence;
 using NServiceBus.Transports.Msmq;
 using NServiceBus.Transports.Msmq.Config;
 using NServiceBus.Unicast.Subscriptions;

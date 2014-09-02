@@ -7,7 +7,6 @@
     using DataBus.InMemory;
     using Features;
     using MessageInterfaces;
-    using NServiceBus.Persistence;
     using NServiceBus.Unicast;
     using Saga;
 

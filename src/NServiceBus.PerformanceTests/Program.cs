@@ -9,7 +9,6 @@
     using NServiceBus;
     using NServiceBus.Features;
     using Encryption;
-    using NServiceBus.Persistence;
     using Saga;
     using System;
     using MsmqTransport = NServiceBus.MsmqTransport;
