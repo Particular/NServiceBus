@@ -73,9 +73,9 @@
                     transportMessage.Body = modifiedBody;
                 }
 
-                public void Customize(BusConfiguration builder)
+                public void Customize(BusConfiguration configuration)
                 {
-                    builder.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
+                    configuration.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                 }
             }
 
@@ -105,9 +105,9 @@
                     Context.HasDiagnosticLicensingHeaders = transportMessage.Headers.TryGetValue(Headers.HasLicenseExpired, out licenseExpired);
                 }
 
-                public void Customize(BusConfiguration builder)
+                public void Customize(BusConfiguration configuration)
                 {
-                    builder.RegisterComponents(c => c.ConfigureComponent<BodySpy>(DependencyLifecycle.InstancePerCall));
+                    configuration.RegisterComponents(c => c.ConfigureComponent<BodySpy>(DependencyLifecycle.InstancePerCall));
                 }
             }
 

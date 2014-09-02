@@ -2,9 +2,9 @@ namespace NServiceBus.Impersonation.Windows
 {
     class ConfigureWindowsIdentityEnricher : INeedInitialization
     {
-        public void Customize(BusConfiguration builder)
+        public void Customize(BusConfiguration configuration)
         {
-            builder.RegisterComponents(r=> r.ConfigureComponent<WindowsIdentityEnricher>(DependencyLifecycle.SingleInstance));
+            configuration.RegisterComponents(r=> r.ConfigureComponent<WindowsIdentityEnricher>(DependencyLifecycle.SingleInstance));
         }
     }
 }

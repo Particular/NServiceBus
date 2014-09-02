@@ -45,9 +45,9 @@
                     Context.MessageIdReceived = transportMessage.Id;
                 }
 
-                public void Customize(BusConfiguration builder)
+                public void Customize(BusConfiguration configuration)
                 {
-                    builder.RegisterComponents(c => c.ConfigureComponent<GetValueOfIncomingCorrelationId>(DependencyLifecycle.InstancePerCall));
+                    configuration.RegisterComponents(c => c.ConfigureComponent<GetValueOfIncomingCorrelationId>(DependencyLifecycle.InstancePerCall));
                 }
             }
 

@@ -95,9 +95,9 @@
                     transportMessage.Body[0]--;
                 }
 
-                public void Customize(BusConfiguration builder)
+                public void Customize(BusConfiguration configuration)
                 {
-                    builder.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
+                    configuration.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                 }
             }
 

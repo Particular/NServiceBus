@@ -38,10 +38,10 @@ namespace NServiceBus.Unicast.Queuing
             }
         }
 
-        public void Customize(BusConfiguration builder)
+        public void Customize(BusConfiguration configuration)
         {
-            Configure.ForAllTypes<IWantQueueCreated>(builder.GetSettings().GetAvailableTypes(),
-                type => builder.RegisterComponents(c => c.ConfigureComponent(type, DependencyLifecycle.InstancePerCall)));
+            Configure.ForAllTypes<IWantQueueCreated>(configuration.GetSettings().GetAvailableTypes(),
+                type => configuration.RegisterComponents(c => c.ConfigureComponent(type, DependencyLifecycle.InstancePerCall)));
         }
 
         static ILog Logger = LogManager.GetLogger<QueuesCreator>();

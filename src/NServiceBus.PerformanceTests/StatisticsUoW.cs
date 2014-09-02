@@ -48,9 +48,9 @@
                 RecordSuccess();
         }
 
-        public void Customize(BusConfiguration builder)
+        public void Customize(BusConfiguration configuration)
         {
-            builder.RegisterComponents(c => c.ConfigureComponent<StatisticsUoW>(DependencyLifecycle.InstancePerUnitOfWork));
+            configuration.RegisterComponents(c => c.ConfigureComponent<StatisticsUoW>(DependencyLifecycle.InstancePerUnitOfWork));
         }
     }
 }

@@ -40,9 +40,9 @@ namespace NServiceBus.Unicast.Monitoring
         /// <summary>
         /// Initializes 
         /// </summary>
-        public void Customize(BusConfiguration builder)
+        public void Customize(BusConfiguration configuration)
         {
-            builder.RegisterComponents(c => c.ConfigureComponent<CausationMutator>(DependencyLifecycle.InstancePerCall));
+            configuration.RegisterComponents(c => c.ConfigureComponent<CausationMutator>(DependencyLifecycle.InstancePerCall));
         }
     }
 }

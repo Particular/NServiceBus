@@ -51,9 +51,9 @@
                     transportMessage.Headers["TransportMutatorCalled"] = true.ToString();
                 }
 
-                public void Customize(BusConfiguration builder)
+                public void Customize(BusConfiguration configuration)
                 {
-                    builder.RegisterComponents(c => c.ConfigureComponent<MyTransportMessageMutator>(DependencyLifecycle.InstancePerCall));
+                    configuration.RegisterComponents(c => c.ConfigureComponent<MyTransportMessageMutator>(DependencyLifecycle.InstancePerCall));
                 }
             }
 
@@ -68,9 +68,9 @@
                     return message;
                 }
 
-                public void Customize(BusConfiguration builder)
+                public void Customize(BusConfiguration configuration)
                 {
-                    builder.RegisterComponents(c => c.ConfigureComponent<MyMessageMutator>(DependencyLifecycle.InstancePerCall));
+                    configuration.RegisterComponents(c => c.ConfigureComponent<MyMessageMutator>(DependencyLifecycle.InstancePerCall));
                 }
 
             }

@@ -8,7 +8,7 @@
         /// <summary>
         /// Allows to override default settings.
         /// </summary>
-        /// <param name="builder">Endpoint configuration builder.</param>
-        void Customize(BusConfiguration builder);
+        /// <param name="configuration">Endpoint configuration builder.</param>
+        void Customize(BusConfiguration configuration);
     }
 }

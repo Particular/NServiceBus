@@ -4,9 +4,9 @@ namespace NServiceBus.Config
 
     class SatelliteConfigurer : INeedInitialization
     {
-        public void Customize(BusConfiguration builder)
+        public void Customize(BusConfiguration configuration)
         {
-            Configure.ForAllTypes<ISatellite>(builder.Settings.GetAvailableTypes(), t => builder.RegisterComponents(c => c.ConfigureComponent(t, DependencyLifecycle.SingleInstance)));
+            Configure.ForAllTypes<ISatellite>(configuration.Settings.GetAvailableTypes(), t => configuration.RegisterComponents(c => c.ConfigureComponent(t, DependencyLifecycle.SingleInstance)));
         }
     }
 }
