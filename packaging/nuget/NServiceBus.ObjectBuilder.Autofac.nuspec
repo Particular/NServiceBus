@@ -15,7 +15,7 @@
     <copyright>Copyright 2010-2014 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
-      <dependency id="NServiceBus" version="[5.0.0, 6.0.0)" />
+      <dependency id="NServiceBus" version="$version$" />
       <dependency id="Autofac" version="[3.5.2, 4.0.0)" />
     </dependencies>
   </metadata>
