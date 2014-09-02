@@ -25,7 +25,7 @@
         /// <summary>
         /// Get the address of this endpoint.
         /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "config.LocalAddress")]
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "Please inject an instance of Configure and call Configure.LocalAddress instead")]
         public static Address Local
         {
             get { throw new InvalidOperationException(); }
