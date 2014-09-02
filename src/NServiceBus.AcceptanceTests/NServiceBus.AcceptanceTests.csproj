@@ -62,7 +62,7 @@
     <Compile Include="Configuration\When__startup_is_complete.cs" />
     <Compile Include="CriticalError\When_registering_a_custom_criticalErrorHandler.cs" />
     <Compile Include="DataBus\When_sending_with_custom_IDataBus.cs" />
-    <Compile Include="DuableMessaging\When_sending_a_message_to_another_endpoint.cs" />
+    <Compile Include="DurableMessaging\When_sending_a_message_to_another_endpoint.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_multikey.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_custom.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_config.cs" />

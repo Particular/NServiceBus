@@ -54,5 +54,38 @@
 
             config.UsePersistence(persistenceType);
         }
+
+        public static void DefineBuilder(this BusConfiguration config, IDictionary<string, string> settings)
+        {
+            if (!settings.ContainsKey("Builder"))
+            {
+                var builderDescriptor = Builders.Default;
+
+                if (builderDescriptor == null)
+                {
+                    return; //go with the default builder
+                }
+
+                settings = builderDescriptor.Settings;
+            }
+
+            var builderType = Type.GetType(settings["Builder"]);
+
+
+            var typeName = "Configure" + builderType.Name;
+
+            var configurerType = Type.GetType(typeName, false);
+
+            if (configurerType != null)
+            {
+                var configurer = Activator.CreateInstance(configurerType);
+
+                dynamic dc = configurer;
+
+                dc.Configure(config);
+            }
+
+            config.UseContainer(builderType);
+        }
     }
 }
