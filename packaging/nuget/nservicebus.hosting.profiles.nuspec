@@ -3,7 +3,7 @@
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>NServiceBus.Hosting.Profiles.Sources</id>
     <title>Source only package containing the NServiceBus host profiles code</title>
-    <version>4.0.0-alpha0</version>
+    <version>$version$</version>
     <authors>NServiceBus Ltd</authors>
     <owners>Udi Dahan, Andreas Ohlund, John Simons</owners>
     <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
@@ -14,7 +14,9 @@
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2010-2014 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
-    <dependencies/>
+    <dependencies>
+	  <dependency id="Obsolete.Fody" />
+    </dependencies>
   </metadata>
   <files>
     <file src="..\..\src\NServiceBus.Hosting.Profiles\**\*.cs" target="content\App_Packages\NServiceBus.Hosting.Profiles" />
