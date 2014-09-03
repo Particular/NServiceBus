@@ -17,7 +17,7 @@ namespace NServiceBus.SecondLevelRetries
                 return TimeSpan.MinValue;
             }
 
-            var numberOfRetries = TransportMessageHelpers.GetNumberOfRetries(message);
+            var numberOfRetries = TransportMessageHeaderHelper.GetNumberOfRetries(message);
 
             var timeToIncreaseInTicks = TimeIncrease.Ticks*(numberOfRetries + 1);
             var timeIncrease = TimeSpan.FromTicks(timeToIncreaseInTicks);
@@ -27,7 +27,7 @@ namespace NServiceBus.SecondLevelRetries
 
         static bool HasReachedMaxTime(TransportMessage message)
         {
-            var timestampHeader = TransportMessageHelpers.GetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp);
+            var timestampHeader = TransportMessageHeaderHelper.GetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp);
 
             if (String.IsNullOrEmpty(timestampHeader))
             {

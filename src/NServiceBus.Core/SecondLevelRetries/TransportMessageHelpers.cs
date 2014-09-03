@@ -3,7 +3,7 @@ namespace NServiceBus.SecondLevelRetries.Helpers
     using System;
     using Faults;
 
-    static class TransportMessageHelpers
+    static class TransportMessageHeaderHelper
     {
         public static Address GetAddressOfFaultingEndpoint(TransportMessage message)
         {

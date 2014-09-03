@@ -65,7 +65,7 @@ namespace NServiceBus.Faults.Forwarder
                 }
                 else
                 {
-                    var retryAttempt = TransportMessageHelpers.GetNumberOfRetries(message) + 1;
+                    var retryAttempt = TransportMessageHeaderHelper.GetNumberOfRetries(message) + 1;
 
                     Logger.WarnFormat("Message with '{0}' id has failed FLR and will be handed over to SLR for retry attempt {1}.", message.Id, retryAttempt);
                 }
@@ -99,7 +99,7 @@ namespace NServiceBus.Faults.Forwarder
 
             // if the reply to address == ErrorQueue and RealErrorQueue is not null, the
             // SecondLevelRetries sat is running and the error happened within that sat.            
-            return TransportMessageHelpers.GetAddressOfFaultingEndpoint(message) == RetriesErrorQueue;
+            return TransportMessageHeaderHelper.GetAddressOfFaultingEndpoint(message) == RetriesErrorQueue;
         }
 
         void SetExceptionHeaders(TransportMessage message, Exception e)
