@@ -6,7 +6,7 @@ namespace NServiceBus.Serializers.XML.Test
     using System.Xml;
     using MessageInterfaces.MessageMapper.Reflection;
 
-    public class SerializerFactory
+    class SerializerFactory
     {
          public static XmlMessageSerializer Create<T>(MessageMapper mapper = null)
          {
@@ -61,7 +61,7 @@ namespace NServiceBus.Serializers.XML.Test
 
     }
 
-    public class Serializer
+    class Serializer
     {
         string xmlResult;
         XmlDocument xmlDocument;

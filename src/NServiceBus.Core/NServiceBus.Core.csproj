@@ -331,7 +331,7 @@
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />
-    <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
+    <Compile Include="Serializers\Binary\BinarySerialization.cs" />
     <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer_Obsolete.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
     <Compile Include="ConfigureDefaultBuilder_Obsolete.cs" />
@@ -343,8 +343,8 @@
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesConfigExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerializerConfigurationExtensions_Obsolete.cs" />
-    <Compile Include="Serializers\Json\Config\BsonSerialization.cs" />
-    <Compile Include="Serializers\Json\Config\JsonSerialization.cs" />
+    <Compile Include="Serializers\Json\BsonSerialization.cs" />
+    <Compile Include="Serializers\Json\JsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializerConfigurationExtensions_Obsolete.cs" />

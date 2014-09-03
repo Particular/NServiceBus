@@ -4,21 +4,13 @@
     using ObjectBuilder;
     using Serializers.Json;
 
-    /// <summary>
-    /// Uses JSON as the message serialization.
-    /// </summary>
-    public class JsonSerialization : Feature
+    class JsonSerialization : Feature
     {
-        
-        internal JsonSerialization()
+        public JsonSerialization()
         {
             EnableByDefault();
             Prerequisite(this.ShouldSerializationFeatureBeEnabled, "JsonSerialization not enable since serialization definition not detected.");
         }
-
-        /// <summary>
-        /// See <see cref="Feature.Setup"/>
-        /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);

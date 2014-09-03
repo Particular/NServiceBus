@@ -2,20 +2,15 @@
 {
     using Serializers.Binary;
 
-    /// <summary>
-    /// Uses Binary as the message serialization.
-    /// </summary>
-    public class BinarySerialization : Feature
+    class BinarySerialization : Feature
     {
         
-        internal BinarySerialization()
+        public BinarySerialization()
         {
             EnableByDefault();
             Prerequisite(this.ShouldSerializationFeatureBeEnabled, "BinarySerialization not enable since serialization definition not detected.");
         }
-        /// <summary>
-        /// See <see cref="Feature.Setup"/>
-        /// </summary>
+
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<SimpleMessageMapper>(DependencyLifecycle.SingleInstance);

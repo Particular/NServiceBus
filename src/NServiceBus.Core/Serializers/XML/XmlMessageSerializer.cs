@@ -16,16 +16,14 @@ namespace NServiceBus.Serializers.XML
     using Serialization;
     using Utils.Reflection;
 
-    /// <summary>
-    /// Implementation of the message serializer over XML supporting interface-based messages.
-    /// </summary>
-    public class XmlMessageSerializer : IMessageSerializer
+    class XmlMessageSerializer : IMessageSerializer
     {
         readonly IMessageMapper mapper;
         readonly Conventions conventions;
         IList<Type> messageTypes;
 
         string nameSpace = "http://tempuri.net";
+    
         /// <summary>
         /// The namespace to place in outgoing XML.
         /// <para>If the provided namespace ends with trailing forward slashes, those will be removed on the fly.</para>
