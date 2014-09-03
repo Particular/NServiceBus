@@ -4,10 +4,7 @@ namespace NServiceBus.Serializers.Binary
     using System.Collections.Generic;
     using MessageInterfaces;
 
-    /// <summary>
-    /// Simple implementation of message mapper for binary serialization.
-    /// </summary>
-    public class SimpleMessageMapper : IMessageMapper
+    class SimpleMessageMapper : IMessageMapper
     {
         T IMessageCreator.CreateInstance<T>()
         {

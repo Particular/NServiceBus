@@ -5,7 +5,7 @@
     /// <summary>
     /// Uses Binary as the message serialization.
     /// </summary>
-    public class BinarySerialization : Feature
+    class BinarySerialization : Feature
     {
         
         internal BinarySerialization()
