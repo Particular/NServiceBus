@@ -7,7 +7,7 @@ namespace NServiceBus
     public static partial class ConfigureCriticalErrorAction
     {
 
-        [ObsoleteEx(Replacement = "Configure.With(c=>c.DefineCriticalErrorAction())", RemoveInVersion = "6.0",TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Use configuration.DefineCriticalErrorAction(), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure DefineCriticalErrorAction(this Configure config, Action<string, Exception> onCriticalError)
         {
             throw new NotImplementedException();

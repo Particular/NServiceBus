@@ -12,13 +12,13 @@ namespace NServiceBus
             throw new InvalidOperationException();
         }
 
-        [ObsoleteEx(Replacement = "Configure.With(c => c.LoadMessageHandlers<TFirst>)", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Use configuration.LoadMessageHandlers<TFirst>, where configuration is an instance of type BusConfiguration)", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure LoadMessageHandlers<TFirst>(this Configure config)
         {
             throw new InvalidOperationException();
         }
 
-        [ObsoleteEx(Replacement = "Configure.With(c => c.LoadMessageHandlers<T>)", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Use configuration.LoadMessageHandlers<T>, where configuration is an instance of type BusConfiguration)", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure LoadMessageHandlers<T>(this Configure config, First<T> order)
         {
             throw new InvalidOperationException();

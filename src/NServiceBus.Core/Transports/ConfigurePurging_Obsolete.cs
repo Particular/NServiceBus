@@ -12,7 +12,7 @@ namespace NServiceBus
         /// Setting this to true may make sense for certain smart-client applications, 
         /// but rarely for server applications.
         /// </summary>
-        [ObsoleteEx(Replacement = "Configure.With(c=>c.PurgeOnStartup())", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Use configuration.PurgeOnStartup()), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure PurgeOnStartup(this Configure config, bool value)
         {
             throw new NotImplementedException();

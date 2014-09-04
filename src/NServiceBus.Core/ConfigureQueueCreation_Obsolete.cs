@@ -7,7 +7,7 @@ namespace NServiceBus
     public static partial class ConfigureQueueCreation
     {
 
-        [ObsoleteEx(Replacement = "Configure.With(c => c.DoNotCreateQueues())", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Use configuration.DoNotCreateQueues(), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure DoNotCreateQueues(this Configure config)
         {
             throw new NotImplementedException();

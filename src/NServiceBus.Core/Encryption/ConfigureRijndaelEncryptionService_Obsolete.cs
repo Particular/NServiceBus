@@ -6,7 +6,7 @@ namespace NServiceBus
 
     public static partial class ConfigureRijndaelEncryptionService
     {
-        [ObsoleteEx(Replacement = "Configure.With(c=>c.RijndaelEncryptionService())", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Use configuration.RijndaelEncryptionService(), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure RijndaelEncryptionService(this Configure config)
         {
             throw new NotImplementedException();

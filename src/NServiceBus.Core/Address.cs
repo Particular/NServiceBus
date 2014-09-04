@@ -46,7 +46,7 @@
         /// Sets the public return address of this endpoint.
         /// </summary>
         /// <param name="address">The public address.</param>
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "Configure.With(o => o.OverridePublicReturnAddress(address))")]
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "Use configuration.OverridePublicReturnAddress(address), where configuration is an instance of type BusConfiguration")]
 // ReSharper disable once UnusedParameter.Global
         public static void OverridePublicReturnAddress(Address address)
         {
