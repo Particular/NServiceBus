@@ -2,6 +2,7 @@ namespace NServiceBus.Transports
 {
     using System;
     using Features;
+    using NServiceBus.Settings;
     using Unicast.Transport;
 
     /// <summary>
@@ -17,6 +18,7 @@ namespace NServiceBus.Transports
             Defaults(s => s.SetDefault<TransportConnectionString>(TransportConnectionString.Default));
             Defaults(s =>
             {
+                var localAddress = GetLocalAddress(s);
                 if (!String.IsNullOrEmpty(localAddress) && !s.HasExplicitValue("NServiceBus.LocalAddress"))
                 {
                     s.Set("NServiceBus.LocalAddress", localAddress);
@@ -45,10 +47,10 @@ namespace NServiceBus.Transports
         /// <summary>
         ///     Sets the address of this endpoint.
         /// </summary>
-        /// <param name="address">The queue name.</param>
-        protected void LocalAddress(string address)
+        /// <param name="settingsHolder"></param>
+        protected virtual string GetLocalAddress(SettingsHolder settingsHolder)
         {
-            localAddress = address;
+            return null;
         }
 
         /// <summary>
@@ -74,8 +76,6 @@ namespace NServiceBus.Transports
         {
             return AppDomain.CurrentDomain.SetupInformation.ConfigurationFile ?? "App.config";
         }
-
-        string localAddress;
 
         const string Message =
             @"No default connection string found in your config file ({0}) for the {1} Transport.
