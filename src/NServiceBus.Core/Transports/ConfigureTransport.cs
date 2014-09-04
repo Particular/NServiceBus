@@ -45,10 +45,11 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        ///     Sets the address of this endpoint.
+        ///  Allows the transport to control the local address of the endpoint if needed
         /// </summary>
-        /// <param name="settingsHolder"></param>
-        protected virtual string GetLocalAddress(SettingsHolder settingsHolder)
+        /// <param name="settings">The current settings in read only mode</param>
+// ReSharper disable once UnusedParameter.Global
+        protected virtual string GetLocalAddress(ReadOnlySettings settings)
         {
             return null;
         }
