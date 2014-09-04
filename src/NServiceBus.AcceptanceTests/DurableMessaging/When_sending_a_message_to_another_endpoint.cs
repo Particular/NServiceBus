@@ -29,7 +29,11 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(builder => builder.DisableDurableMessages())
+                EndpointSetup<DefaultServer>(builder =>
+                {
+                    builder.DisableDurableMessages();
+                    builder.DiscardFailedMessagesInsteadOfSendingToErrorQueue(); // to avoid creating the error q, it might blow up for brokers (rabbitmq)
+                })
                     .AddMapping<MyMessage>(typeof(Receiver));
             }
         }
@@ -38,7 +42,11 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(builder => builder.DisableDurableMessages());
+                EndpointSetup<DefaultServer>(builder =>
+                {
+                    builder.DisableDurableMessages();
+                    builder.DiscardFailedMessagesInsteadOfSendingToErrorQueue(); // to avoid creating the error q, it might blow up for brokers (rabbitmq)
+                });
             }
         }
 
