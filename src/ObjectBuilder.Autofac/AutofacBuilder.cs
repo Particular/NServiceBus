@@ -1,14 +1,14 @@
-﻿namespace NServiceBus
+namespace NServiceBus
 {
     using Container;
-    using global::Ninject;
-    using ObjectBuilder.Ninject;
+    using global::Autofac;
+    using ObjectBuilder.Autofac;
     using Settings;
 
     /// <summary>
-    /// Ninject Container
+    /// Autofac Container
     /// </summary>
-    public class Ninject : ContainerDefinition
+    public class AutofacBuilder : ContainerDefinition
     {
         /// <summary>
         ///     Implementers need to new up a new container.
@@ -17,15 +17,15 @@
         /// <returns>The new container wrapper.</returns>
         public override ObjectBuilder.Common.IContainer CreateContainer(ReadOnlySettings settings)
         {
-            IKernel existingKernel;
+            ILifetimeScope existingLifetimeScope;
 
-            if (settings.TryGet("ExistingKernel", out existingKernel))
+            if (settings.TryGet("ExistingLifetimeScope", out existingLifetimeScope))
             {
-                return new NinjectObjectBuilder(existingKernel);
+                return new AutofacObjectBuilder(existingLifetimeScope);
 
             }
 
-            return new NinjectObjectBuilder();
+            return new AutofacObjectBuilder();
         }
     }
 }

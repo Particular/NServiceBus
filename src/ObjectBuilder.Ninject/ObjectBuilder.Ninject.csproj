@@ -71,7 +71,7 @@
     <Compile Include="Internal\IObjectBuilderPropertyHeuristic.cs" />
     <Compile Include="Internal\NinjectChildContainer.cs" />
     <Compile Include="Internal\ObjectBuilderPropertyHeuristic.cs" />
-    <Compile Include="Ninject.cs" />
+    <Compile Include="NinjectBuilder.cs" />
     <Compile Include="NinjectExtensions.cs" />
     <Compile Include="NinjectObjectBuilder.cs" />
     <Compile Include="Internal\NinjectWhenExtensions.cs" />

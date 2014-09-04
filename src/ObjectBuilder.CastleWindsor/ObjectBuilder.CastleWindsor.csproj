@@ -72,7 +72,7 @@
     <Compile Include="ConfigureWindsorBuilder_Obsolete.cs" />
     <Compile Include="ExternalInstanceActivatorWithDecommissionConcern.cs" />
     <Compile Include="NoOpInterpreter.cs" />
-    <Compile Include="Windsor.cs" />
+    <Compile Include="WindsorBuilder.cs" />
     <Compile Include="WindsorExtensions.cs" />
     <Compile Include="WindsorObjectBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

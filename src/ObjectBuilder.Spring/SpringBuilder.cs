@@ -8,7 +8,7 @@ namespace NServiceBus
     /// <summary>
     /// Spring Container
     /// </summary>
-    public class Spring : ContainerDefinition
+    public class SpringBuilder : ContainerDefinition
     {
         /// <summary>
         ///     Implementers need to new up a new container.

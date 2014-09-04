@@ -8,7 +8,7 @@
     /// <summary>
     /// Windsor Container
     /// </summary>
-    public class Windsor : ContainerDefinition
+    public class WindsorBuilder : ContainerDefinition
     {
         /// <summary>
         ///     Implementers need to new up a new container.
