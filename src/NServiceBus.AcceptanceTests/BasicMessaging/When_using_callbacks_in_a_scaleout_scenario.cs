@@ -3,6 +3,7 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
     using ScenarioDescriptors;
     using Support;
@@ -12,16 +13,16 @@
         [Test]
         public void Each_client_should_have_a_unique_input_queue_to_avoid_processing_each_others_callbacks()
         {
-            Scenario.Define(() => new Context{Id = Guid.NewGuid()})
-                    .WithEndpoint<Client>(b => b.CustomConfig(c=>RuntimeEnvironment.MachineNameAction = () => "ClientA")
+            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
+                    .WithEndpoint<Client>(b => b.CustomConfig(c => RuntimeEnvironment.MachineNameAction = () => "ClientA")
                         .Given((bus, context) => bus.Send(new MyRequest { Id = context.Id, Client = RuntimeEnvironment.MachineName })
                                                         .Register(r => context.CallbackAFired = true)))
-                    .WithEndpoint<Client>(b => b.CustomConfig(c=>RuntimeEnvironment.MachineNameAction = () => "ClientB")
+                    .WithEndpoint<Client>(b => b.CustomConfig(c => RuntimeEnvironment.MachineNameAction = () => "ClientB")
                         .Given((bus, context) => bus.Send(new MyRequest { Id = context.Id, Client = RuntimeEnvironment.MachineName })
                          .Register(r => context.CallbackBFired = true)))
                     .WithEndpoint<Server>()
                     .Done(c => c.ClientAGotResponse && c.ClientBGotResponse)
-                    .Repeat(r =>r.For<AllBrokerTransports>()
+                    .Repeat(r => r.For<AllBrokerTransports>()
                     )
                     .Should(c =>
                         {
@@ -29,7 +30,7 @@
                             Assert.True(c.CallbackBFired, "Callback on ClientB should fire");
                             Assert.False(c.ResponseEndedUpAtTheWrongClient, "One of the responses ended up at the wrong client");
                         })
-                    .Run();
+                      .Run(new RunSettings { UseSeparateAppDomains = true });
         }
 
         public class Context : ScenarioContext
@@ -98,7 +99,7 @@
                         return;
 
 
-                    Bus.Reply(new MyResponse { Id = request.Id,Client = request.Client });
+                    Bus.Reply(new MyResponse { Id = request.Id, Client = request.Client });
                 }
             }
         }
@@ -120,6 +121,6 @@
         }
 
 
-    
+
     }
 }
