@@ -6,14 +6,13 @@ namespace NServiceBus
 
     [ObsoleteEx(
         RemoveInVersion = "6",
-        TreatAsErrorFromVersion = "5",
-        Message = "See http://docs.particular.net/nservicebus/how-to-specify-your-input-queue-name for how to configure the queue name.")]
+        TreatAsErrorFromVersion = "5")]
     public static class ConfigureSettingLocalAddressNameAction
     {
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Message = "See http://docs.particular.net/nservicebus/how-to-specify-your-input-queue-name for how to configure the queue name.")]
+            Message = "Queue name is controlled by the endpoint name. The endpoint name can be configured using a EndpointNameAttribute, by passing a serviceName parameter to the host or calling BusConfiguration.EndpointName in the fluent API")]
         public static Configure DefineLocalAddressNameFunc(this Configure config, Func<string> setLocalAddressNameFunc)
         {
             throw new NotImplementedException();

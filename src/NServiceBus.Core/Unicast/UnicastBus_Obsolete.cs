@@ -6,13 +6,13 @@ namespace NServiceBus.Unicast
 
     public partial class UnicastBus
     {
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Message = "InMemory.Raise has been removed from the core please see http://docs.particular.net/nservicebus/inmemoryremoval")]
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Message = "InMemory.Raise has been removed from the core.")]
         public void Raise<T>(Action<T> messageConstructor)
         {
             ThrowInMemoryException();
         }
 
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Message = "InMemory.Raise has been removed from the core please see http://docs.particular.net/nservicebus/inmemoryremoval")]
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Message = "InMemory.Raise has been removed from the core.")]
         public void Raise<T>(T @event)
         {
             ThrowInMemoryException();
@@ -20,10 +20,10 @@ namespace NServiceBus.Unicast
 
         static void ThrowInMemoryException()
         {
-            throw new Exception("InMemory.Raise has been removed from the core please see http://docs.particular.net/nservicebus/inmemoryremoval");
+            throw new Exception("InMemory.Raise has been removed from the core.");
         }
 
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Message = "InMemory has been removed from the core please see http://docs.particular.net/nservicebus/inmemoryremoval")]
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Message = "InMemory has been removed from the core.")]
         public IInMemoryOperations InMemory
         {
             get

@@ -8,7 +8,7 @@
 
     class PersistenceStartup : IWantToRunBeforeConfigurationIsFinalized
     {
-        const string errorMessage = "No persistence has been selected, please add a call to builder.UsePersistence<T>() where T can be any of the supported persistence options. See http://docs.particular.net/nservicebus/persistence-in-nservicebus for more information about the supported storage capabilities of each persistence.";
+        const string errorMessage = "No persistence has been selected, please add a call to builder.UsePersistence<T>() where T can be any of the supported persistence option.";
 
         static ILog Logger = LogManager.GetLogger(typeof(PersistenceStartup));
 

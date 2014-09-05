@@ -22,7 +22,7 @@
         {
             if (SubscriptionStorage == null)
             {
-                throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Please see: http://docs.particular.net/nservicebus/publish-subscribe-configuration'");
+                throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured.");
             }
                 
             var eventTypesToPublish = MessageMetadataRegistry.GetMessageMetadata(publishOptions.EventType.FullName)
