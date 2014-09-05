@@ -23,7 +23,16 @@ namespace NServiceBus.Persistence
     }
 }
 
-
+namespace NServiceBus.Unicast.Transport
+{
+    [ObsoleteEx(
+        Message = "Since the case where this exception was thrown should not be handled by consumers of the API it has been removed",
+        RemoveInVersion = "6",
+        TreatAsErrorFromVersion = "5")]
+    public class TransportMessageHandlingFailedException : Exception
+    {
+    }
+}
 
 namespace NServiceBus.Unicast.Queuing
 {

@@ -554,7 +554,6 @@
     <Compile Include="Unicast\Transport\TransactionSettings.cs" />
     <Compile Include="Unicast\Transport\TransportMessageAvailableEventArgs.cs" />
     <Compile Include="Unicast\Transport\TransportConnectionString.cs" />
-    <Compile Include="Unicast\Transport\TransportMessageHandlingFailedException.cs" />
     <Compile Include="Unicast\Transport\TransportMessageReceivedEventArgs.cs" />
     <Compile Include="Unicast\UnicastBus.cs" />
     <Compile Include="UnitOfWork\IManageUnitsOfWork.cs" />
