@@ -422,7 +422,7 @@ namespace NServiceBus
 
         [ObsoleteEx(
             Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
-            Replacement = "Configure.With().UsePersistence<RavenDB>(c => c.ConnectionString(connectionStringName));",
+            Replacement = "Install the nuget package. Use configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...), where configuration is an instance of type BusConfiguration",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistence(this Configure config, string connectionStringName)
@@ -432,12 +432,7 @@ namespace NServiceBus
 
         [ObsoleteEx(
             Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
-            Replacement = 
-@"Configure.With().UsePersistence<RavenDB>(c =>
-{
-    c.SetDefaultDocumentStore(documentStore);
-    c.ConnectionString(connectionStringName);
-});",
+            Replacement = "Install the nuget package. Use configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...), where configuration is an instance of type BusConfiguration",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
@@ -447,7 +442,7 @@ namespace NServiceBus
 
         [ObsoleteEx(
             Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
-            Replacement = "Configure.With().UsePersistence<RavenDB>(c => c.ConnectionString(connectionStringName));",
+            Replacement = "Install the nuget package. Use configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...), where configuration is an instance of type BusConfiguration",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString)
@@ -457,12 +452,7 @@ namespace NServiceBus
 
         [ObsoleteEx(
             Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
-            Replacement =
-@"Configure.With().UsePersistence<RavenDB>(c =>
-{
-    c.SetDefaultDocumentStore(documentStore);
-    c.ConnectionString(connectionStringName);
-});",
+            Replacement = "Install the nuget package. Use configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...), where configuration is an instance of type BusConfiguration",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString, string database)
@@ -502,7 +492,7 @@ namespace NServiceBus
     {
         [ObsoleteEx(
             Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'.",
-            Replacement = "Install the nuget package. Use configuration.UsePersistence<RavenDBPersistence>(), where configuration is an instance of type BusConfiguration",
+            Replacement = "Install the nuget package. Use configuration.UsePersistence<RavenDBPersistence>().For(Storage.Sagas), where configuration is an instance of type BusConfiguration",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenSagaPersister(this Configure config)
