@@ -30,7 +30,7 @@
                 return false;
             }
 
-            if (transportMessage.MessageIntent != MessageIntentEnum.Reply)
+            if (transportMessage.CorrelationId == transportMessage.Id)
             {
                 return false;
             }
