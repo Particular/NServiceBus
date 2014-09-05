@@ -58,7 +58,7 @@
             }
         }
 
-        class BodyMutator : IMutateIncomingTransportMessages
+        class BodyMutator : IMutateIncomingTransportMessages, INeedInitialization
         {
             public Context Context { get; set; }
 
@@ -66,6 +66,11 @@
             {
                 //early versions of did not have a Reply MessageIntent when Bus.Return is called 
                 transportMessage.MessageIntent = MessageIntentEnum.Send;
+            }
+
+            public void Customize(BusConfiguration configuration)
+            {
+                configuration.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
             }
         }
 
