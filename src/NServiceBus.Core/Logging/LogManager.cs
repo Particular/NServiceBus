@@ -16,7 +16,6 @@ namespace NServiceBus.Logging
         }
 
         static Lazy<ILoggerFactory> loggerFactory; 
-        internal static bool HasConfigBeenInitialised;
 
         /// <summary>
         /// Used to inject an instance of <see cref="ILoggerFactory"/> into <see cref="LogManager"/>.
@@ -24,16 +23,9 @@ namespace NServiceBus.Logging
         public static T Use<T>() where T : LoggingFactoryDefinition, new()
         {
             var loggingDefinition = new T();
-            var hasConfigBeenInitialised = HasConfigBeenInitialised;
-            loggerFactory = new Lazy<ILoggerFactory>(() =>
-            {
-                var loggingFactory = loggingDefinition.GetLoggingFactory();
-                if (hasConfigBeenInitialised)
-                {
-                    LogWarning(loggingFactory);
-                }
-                return loggingFactory;
-            }); 
+
+            loggerFactory = new Lazy<ILoggerFactory>(loggingDefinition.GetLoggingFactory); 
+            
             return loggingDefinition;
         }
 
@@ -50,18 +42,7 @@ namespace NServiceBus.Logging
                 throw new ArgumentNullException("loggerFactory");
             }
 
-            if (HasConfigBeenInitialised)
-            {
-                LogWarning(loggerFactory);
-            }
-
             LogManager.loggerFactory = new Lazy<ILoggerFactory>(() => loggerFactory);
-        }
-
-        static void LogWarning(ILoggerFactory loggerFactory)
-        {
-            var logger = loggerFactory.GetLogger(typeof(LogManager));
-            logger.Warn("Logging has been configured after NServiceBus.Configure.With() has been called. To capture messages and errors that occur during configuration logging should be configured before before NServiceBus.Configure.With().");
         }
 
         /// <summary>
