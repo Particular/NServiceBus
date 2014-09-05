@@ -10,7 +10,7 @@ namespace NServiceBus
         /// <summary>
         /// Use in-memory fault management.
         /// </summary>
-        [ObsoleteEx(Replacement = "Configure.With(c => c.DiscardFailedMessagesInsteadOfSendingToErrorQueue())", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Use configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue(), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         // ReSharper disable UnusedParameter.Global
         public static Configure InMemoryFaultManagement(this Configure config)
         {

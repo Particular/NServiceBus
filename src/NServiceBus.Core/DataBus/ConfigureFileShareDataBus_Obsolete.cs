@@ -7,7 +7,7 @@ namespace NServiceBus
     public static partial class ConfigureFileShareDataBus
     {
 
-        [ObsoleteEx(Replacement = "Configure.With(c=>c.FileShareDataBus(basePath))", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Use configuration.FileShareDataBus(basePath), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure FileShareDataBus(this Configure config, string basePath)
         {
             throw new NotImplementedException();

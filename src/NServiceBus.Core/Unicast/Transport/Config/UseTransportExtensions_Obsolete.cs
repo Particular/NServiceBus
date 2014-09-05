@@ -7,13 +7,13 @@ namespace NServiceBus
 
     public static partial class UseTransportExtensions
     {
-        [ObsoleteEx(Replacement = "Configure.With(c => c.UseTransport<T>()", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Use configuration.UseTransport<T>(), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure UseTransport<T>(this Configure config, Action<TransportConfiguration> customizations = null) where T : TransportDefinition
         {
             throw new InvalidOperationException();
         }
 
-        [ObsoleteEx(Replacement = "Configure.With(c => c.UseTransport(transportDefinitionType)", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Use configuration.UseTransport(transportDefinitionType), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure UseTransport(this Configure config, Type transportDefinitionType, Action<TransportConfiguration> customizations = null)
         {
             throw new InvalidOperationException();

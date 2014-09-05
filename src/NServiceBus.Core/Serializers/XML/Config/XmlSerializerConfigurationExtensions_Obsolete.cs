@@ -13,7 +13,7 @@
         /// Enables the xml message serializer with the given settings
         /// </summary>
         [ObsoleteEx(
-            Replacement = "Configure.With(b => b.UseSerialization<Xml>(c => c.XmlSettings()))", 
+            Replacement = "Use configuration.UseSerialization<XmlSerializer>(), where configuration is an instance of type BusConfiguration", 
             RemoveInVersion = "6.0", 
             TreatAsErrorFromVersion = "5.0")]
 // ReSharper disable UnusedParameter.Global

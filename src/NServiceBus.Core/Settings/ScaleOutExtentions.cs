@@ -18,7 +18,7 @@ namespace NServiceBus
 
 #pragma warning disable 1591
         // ReSharper disable UnusedParameter.Global
-        [ObsoleteEx(Replacement = "Configure.With(b => b.ScaleOut(s => s.UseSingleBrokerQueue()))", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Use configuration.ScaleOut().UseSingleBrokerQueue(), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure ScaleOut(this Configure config, Action<ScaleOutSettings> customScaleOutSettings)
         {
             throw new NotImplementedException();

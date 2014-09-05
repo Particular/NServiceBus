@@ -17,7 +17,7 @@ namespace NServiceBus
         /// Gets/sets the object used to configure components.
         /// This object should eventually reference the same container as the Builder.
         /// </summary>
-        [ObsoleteEx(Replacement = "Configure.With(c => c.RegisterComponent(r => r... ))", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Use configuration.RegisterComponents(c => c.ConfigureComponent... )), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public IConfigureComponents Configurer
         {
             get
@@ -46,7 +46,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "Configure.With(b => b.EndpointName('MyEndpoint'))")]
+            Replacement = "Use configuration.EndpointName('MyEndpoint'), where configuration is an instance of type BusConfiguration")]
         public static string EndpointName
         {
             get { throw new NotImplementedException(); }
@@ -162,7 +162,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "Configure.With(o => o.CustomConfigurationSource(myConfigSource))")]
+            Replacement = "Use configuration.CustomConfigurationSource(myConfigSource), where configuration is an instance of type BusConfiguration")]
         public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
         {
             throw new NotImplementedException();
@@ -225,7 +225,7 @@ Bus.Create(config);")]
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "Configure.With(o => o.EndpointName(myEndpointName))")]
+            Replacement = "Use configuration.EndpointName(myEndpointName), where configuration is an instance of type BusConfiguration")]
         public static Configure DefineEndpointName(Func<string> definesEndpointName)
         {
             throw new NotImplementedException();
@@ -237,7 +237,7 @@ Bus.Create(config);")]
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "Configure.With(o => o.EndpointName(myEndpointName))")]
+            Replacement = "Use configuration.EndpointName(myEndpointName), where configuration is an instance of type BusConfiguration")]
         public static Configure DefineEndpointName(string name)
         {
             throw new NotImplementedException();
@@ -252,13 +252,13 @@ Bus.Create(config);")]
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "Configure.With(b => b.EndpointName(myEndpointName));")]
+            Replacement = "Use configuration.EndpointName(myEndpointName), where configuration is an instance of type BusConfiguration")]
         public static Func<string> GetEndpointNameAction;
 
         [ObsoleteEx(
            RemoveInVersion = "6",
            TreatAsErrorFromVersion = "5",
-           Replacement = "Configure.With(b => b.UseSerialization<Binary>())")]
+           Replacement = "Use configuration.UseSerialization<BinarySerializer>()), where configuration is an instance of type BusConfiguration")]
         public static SerializationSettings Serialization
         {
             get { throw new NotImplementedException(); }
@@ -268,7 +268,7 @@ Bus.Create(config);")]
           Message = "This has been converted to extension methods",
           RemoveInVersion = "6",
           TreatAsErrorFromVersion = "5",
-          Replacement = "Configure.With(b => b.EnableFeature<T>() or b.DisableFeature<T>())")]
+          Replacement = "Use configuration.EnableFeature<T>() or configuration.DisableFeature<T>(), where configuration is an instance of type BusConfiguration")]
         public static FeatureSettings Features
         {
             get
@@ -281,7 +281,7 @@ Bus.Create(config);")]
             Message = "This has been converted to an extension method",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "Configure.With(b => b.Transactions())")]
+            Replacement = "Use configuration.Transactions(), where configuration is an instance of type BusConfiguration")]
         public static TransactionSettings Transactions
         {
             get
@@ -298,7 +298,7 @@ namespace NServiceBus.Features
           Message = "This has been converted to extension methods",
           RemoveInVersion = "6",
           TreatAsErrorFromVersion = "5",
-          Replacement = "Configure.With(b => b.EnableFeature<T>() or b.DisableFeature<T>())")]
+          Replacement = "Use configuration.EnableFeature<T>() or configuration.DisableFeature<T>(), where configuration is an instance of type BusConfiguration")]
     public class FeatureSettings
     {
     }

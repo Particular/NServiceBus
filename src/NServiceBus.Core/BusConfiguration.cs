@@ -13,7 +13,6 @@ namespace NServiceBus
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Container;
     using NServiceBus.Hosting.Helpers;
-    using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.ObjectBuilder.Autofac;
     using NServiceBus.ObjectBuilder.Common;
@@ -31,7 +30,6 @@ namespace NServiceBus
         /// </summary>
         public BusConfiguration() : base(new SettingsHolder())
         {
-            LogManager.HasConfigBeenInitialised = true;
             configurationSourceToUse = new DefaultConfigurationSource();
             Settings.Set<PipelineModifications>(new PipelineModifications());
             Pipeline = new PipelineSettings(this);

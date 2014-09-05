@@ -5,10 +5,10 @@ namespace NServiceBus
 {
     using System;
 
-    [ObsoleteEx(Replacement = "Configure.With(b => b.UseSerialization<Binary>())", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+    [ObsoleteEx(Replacement = "Use configuration.UseSerialization<BinarySerializer>(), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
     public static class ConfigureBinarySerializer
     {
-        [ObsoleteEx(Replacement = "Configure.With(b => b.UseSerialization<Binary>())", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Use configuration.UseSerialization<BinarySerializer>(), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure BinarySerializer(this Configure config)
         {
             throw new NotImplementedException();
