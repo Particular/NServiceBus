@@ -66,7 +66,7 @@
     <Compile Include="..\NServiceBus.Core\ObjectBuilder\Autofac\AutofacObjectBuilder.cs">
       <Link>AutofacObjectBuilder.cs</Link>
     </Compile>
-    <Compile Include="Autofac.cs" />
+    <Compile Include="AutofacBuilder.cs" />
     <Compile Include="AutofacExtensions.cs" />
     <Compile Include="ConfigureAutofacBuilder_Obsolete.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
