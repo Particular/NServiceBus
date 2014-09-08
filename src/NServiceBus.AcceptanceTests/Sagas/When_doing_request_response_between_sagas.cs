@@ -4,6 +4,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
     using Saga;
 
@@ -17,7 +18,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
             Scenario.Define(context)
                     .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new InitiateRequestingSaga())))
                     .Done(c => c.DidRequestingSagaGetTheResponse)
-                    .Run();
+                    .Run(new RunSettings { UseSeparateAppDomains = true });
 
             Assert.True(context.DidRequestingSagaGetTheResponse);
         }
@@ -33,7 +34,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
             Scenario.Define(context)
                     .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new InitiateRequestingSaga())))
                     .Done(c => c.DidRequestingSagaGetTheResponse)
-                    .Run(TimeSpan.FromSeconds(15));
+                    .Run(new RunSettings { UseSeparateAppDomains = true, TestExecutionTimeout = TimeSpan.FromSeconds(15) });
 
             Assert.True(context.DidRequestingSagaGetTheResponse);
         }
@@ -50,7 +51,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
             Scenario.Define(context)
                     .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new InitiateRequestingSaga())))
                     .Done(c => c.DidRequestingSagaGetTheResponse)
-                    .Run(TimeSpan.FromSeconds(15));
+                    .Run(new RunSettings { UseSeparateAppDomains = true, TestExecutionTimeout = TimeSpan.FromSeconds(15) });
 
             Assert.True(context.DidRequestingSagaGetTheResponse);
         }
