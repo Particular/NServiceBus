@@ -488,7 +488,16 @@ namespace NServiceBus.Unicast
 
         public void Return<T>(T errorCode)
         {
-            var returnMessage = ControlMessage.Create(Address.Local);
+            TransportMessage returnMessage;
+
+            if (Configure.Instance.WorkerRunsOnThisEndpoint())
+            {
+                returnMessage = ControlMessage.Create(MasterNodeAddress);
+            }
+            else
+            {
+                returnMessage = ControlMessage.Create(Address.Local);
+            }
 
             returnMessage.MessageIntent = MessageIntentEnum.Reply;
 
@@ -695,12 +704,20 @@ namespace NServiceBus.Unicast
 
         public ICallback Defer(TimeSpan delay, params object[] messages)
         {
-            var options = new SendOptions(Address.Local)
-            {
-                DelayDeliveryWith = delay,
-                EnforceMessagingBestPractices = false
-            };
+            SendOptions options;
 
+            if (Configure.Instance.WorkerRunsOnThisEndpoint())
+            {
+                options = new SendOptions(MasterNodeAddress);
+            }
+            else
+            {
+                options = new SendOptions(Address.Local);
+            }
+
+            options.DelayDeliveryWith = delay;
+            options.EnforceMessagingBestPractices = false;
+            
             return SendMessages(options, LogicalMessageFactory.CreateMultiple(messages));
         }
 
@@ -711,14 +728,22 @@ namespace NServiceBus.Unicast
 
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
-            var options = new SendOptions(Address.Local)
+            SendOptions options;
+
+            if (Configure.Instance.WorkerRunsOnThisEndpoint())
             {
-                DeliverAt = processAt,
-                EnforceMessagingBestPractices = false
-            };
+                options = new SendOptions(MasterNodeAddress);
+            }
+            else
+            {
+                options = new SendOptions(Address.Local);
+            }
+
+            options.DeliverAt = processAt;
+            options.EnforceMessagingBestPractices = false;
+
             return SendMessages(options, LogicalMessageFactory.CreateMultiple(messages));
         }
-
 
         ICallback SendMessages(SendOptions sendOptions, List<LogicalMessage> messages)
         {
