@@ -22,7 +22,14 @@ namespace NServiceBus.AcceptanceTests.Sagas
                             DataId = Guid.NewGuid()
                         }))
                      )
-                    .WithEndpoint<EndpointThatHandlesAMessageAndPublishesEvent>()
+                    .WithEndpoint<EndpointThatHandlesAMessageAndPublishesEvent>(b => b.Given((bus, context) =>
+                    {
+                        if (context.HasNativePubSubSupport)
+                        {
+                            context.Subscribed = true;
+                            context.AddTrace("EndpointThatHandlesAMessageAndPublishesEvent is now subscribed (at least we have asked the broker to be subscribed)");
+                        }
+                    }))
                     .Done(c => c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked))
