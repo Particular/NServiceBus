@@ -8,7 +8,6 @@ namespace NServiceBus.Unicast.Transport
     using Logging;
     using Monitoring;
     using Transports;
-    using Utils;
 
     /// <summary>
     ///     The default implementation of <see cref="ITransport" />
@@ -343,8 +342,7 @@ namespace NServiceBus.Unicast.Transport
 
             if (exceptionFromStartedMessageHandling != null)
             {
-                exceptionFromStartedMessageHandling.PreserveStackTrace();
-                throw exceptionFromStartedMessageHandling; //cause rollback 
+                throw new WrappedException(exceptionFromStartedMessageHandling); //cause rollback 
             }
 
             //care about failures here
@@ -376,21 +374,18 @@ namespace NServiceBus.Unicast.Transport
                     }
                     else
                     {
-                        exceptionFromMessageHandling.PreserveStackTrace();
-                        throw exceptionFromMessageHandling;//cause rollback    
+                        throw new WrappedException(exceptionFromMessageHandling);//cause rollback    
                     }
                 }
                 else
                 {
-                    exceptionFromMessageHandling.PreserveStackTrace();
-                    throw exceptionFromMessageHandling;//cause rollback    
+                    throw new WrappedException(exceptionFromMessageHandling);//cause rollback    
                 }
             }
 
-            if (exceptionFromMessageModules != null) //cause rollback
+            if (exceptionFromMessageModules != null) 
             {
-                exceptionFromMessageModules.PreserveStackTrace();
-                throw exceptionFromMessageModules;
+                throw new WrappedException(exceptionFromMessageModules);//cause rollback
             }
         }
 

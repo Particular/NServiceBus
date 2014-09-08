@@ -74,9 +74,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\NServiceBus.Core\Utils\StackTracePreserver.cs">
-      <Link>StackTracePreserver.cs</Link>
-    </Compile>
     <Compile Include="EndpointType.cs" />
     <Compile Include="EndpointTypeDeterminer.cs" />
     <Compile Include="INameThisEndpoint.cs" />
