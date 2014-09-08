@@ -1,0 +1,7 @@
+﻿Castle.Core
+Castle.Windsor
+Fody
+GitVersionTask
+Janitor.Fody
+Obsolete.Fody
+NuGetPackager

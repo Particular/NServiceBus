@@ -1,0 +1,7 @@
+﻿Fody
+Janitor.Fody
+Ninject
+Ninject.Extensions.ContextPreservation
+Ninject.Extensions.NamedScope
+Obsolete.Fody
+NuGetPackager

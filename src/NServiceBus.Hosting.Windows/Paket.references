@@ -1,0 +1,6 @@
+﻿CommonServiceLocator
+Fody
+GitVersionTask
+log4net
+Obsolete.Fody
+NuGetPackager

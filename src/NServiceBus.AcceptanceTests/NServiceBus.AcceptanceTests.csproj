@@ -37,9 +37,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -151,7 +148,7 @@
     <Compile Include="Versioning\When_multiple_versions_of_a_message_is_published.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="Paket.references" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\NServiceBus.Core\NServiceBus.Core.csproj">

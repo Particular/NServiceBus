@@ -75,7 +75,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="Paket.references" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\GitVersionTask.1.2.0\Build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.1.2.0\Build\GitVersionTask.targets')" />

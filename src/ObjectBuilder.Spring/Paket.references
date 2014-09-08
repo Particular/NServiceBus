@@ -1,0 +1,7 @@
+﻿Common.Logging
+Fody
+GitVersionTask
+Janitor.Fody
+Obsolete.Fody
+Spring.Core
+NuGetPackager
