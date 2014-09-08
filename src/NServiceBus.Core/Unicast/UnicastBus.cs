@@ -575,7 +575,19 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("Sends can only target one address.");
             }
 
-            var destination = destinations.SingleOrDefault();
+            if (destinations.Count == 0)
+            {
+                var messageType = "none";
+
+                if (messages != null && messages.Length >= 1)
+                {
+                    messageType = messages[0].GetType().ToString();
+                }
+                var error = string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType);
+                throw new InvalidOperationException(error);
+            }
+
+            var destination = destinations[0];
 
             return SendMessages(new SendOptions(destination), LogicalMessageFactory.CreateMultiple(messages));
         }
