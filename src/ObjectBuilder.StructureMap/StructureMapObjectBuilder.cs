@@ -193,6 +193,7 @@
 
         static IEnumerable<Type> GetAllInterfacesImplementedBy(Type t)
         {
+// ReSharper disable once ConditionIsAlwaysTrueOrFalse
             return t.GetInterfaces().Where(x=>x.FullName != null && !x.FullName.StartsWith("System."));
         }
 
