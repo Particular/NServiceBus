@@ -262,10 +262,9 @@ Bus.Create(config);")]
         }
 
         [ObsoleteEx(
-          Message = "This has been converted to extension methods",
+          Message = "This has been converted to extension methods. Use `configuration.EnableFeature<T>()` or `configuration.DisableFeature<T>()`, where `configuration` is an instance of type `BusConfiguration`.",
           RemoveInVersion = "6",
-          TreatAsErrorFromVersion = "5",
-          Message = "Use `configuration.EnableFeature<T>()` or `configuration.DisableFeature<T>()`, where `configuration` is an instance of type `BusConfiguration`.")]
+          TreatAsErrorFromVersion = "5")]
         public static FeatureSettings Features
         {
             get
@@ -275,10 +274,9 @@ Bus.Create(config);")]
         }
 
         [ObsoleteEx(
-            Message = "This has been converted to an extension method",
+            Message = "This has been converted to an extension method. Use `configuration.Transactions()`, where `configuration` is an instance of type `BusConfiguration`.",
             RemoveInVersion = "6",
-            TreatAsErrorFromVersion = "5",
-            Message = "Use `configuration.Transactions()`, where `configuration` is an instance of type `BusConfiguration`.")]
+            TreatAsErrorFromVersion = "5")]
         public static TransactionSettings Transactions
         {
             get
