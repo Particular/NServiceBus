@@ -406,7 +406,7 @@ namespace NServiceBus.Hosting.Helpers
                                     "NServiceBus.Hosting.Azure.HostProcess.exe",
 
                                     // And other windows azure stuff
-                                    "Microsoft.WindowsAzure.",
+                                    "Microsoft.WindowsAzure."
 
                                 };
     }

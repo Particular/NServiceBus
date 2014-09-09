@@ -13,6 +13,7 @@ namespace NServiceBus.Unicast
         /// Enforce messaging rules. Make sure, the message can be used within the <see cref="IBus.Send(object[])"/>.
         /// </summary>
         /// <param name="messageType">Event, Command or message</param>
+        /// <param name="messageIntent">The intent of the message</param>
         public static void AssertIsValidForSend(Type messageType, MessageIntentEnum messageIntent)
         {
             if (MessageConventionExtensions.IsEventType(messageType) && messageIntent != MessageIntentEnum.Publish)

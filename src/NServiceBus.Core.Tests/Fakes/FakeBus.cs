@@ -283,7 +283,5 @@
         {
             throw new NotImplementedException();
         }
-
-        public event EventHandler Started;
     }
 }
