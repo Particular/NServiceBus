@@ -10,6 +10,8 @@ namespace NServiceBus.Hosting.Tests
         public abstract class TestContext
         {
             protected EndpointType EndpointType;
+
+// ReSharper disable once NotAccessedField.Global
             protected string TestValue;
         }
 
@@ -148,15 +150,13 @@ namespace NServiceBus.Hosting.Tests
         [TestFixture]
         public class Constructor_Tests
         {
-            protected EndpointType EndpointType;
-
             [Test]
             [ExpectedException(typeof (InvalidOperationException),
                 ExpectedMessage = "Endpoint configuration type needs to have a default constructor",
                 MatchType = MessageMatch.StartsWith)]
             public void When_type_does_not_have_empty_public_constructor_it_should_blow_up()
             {
-                EndpointType = new EndpointType(typeof (TypeWithoutEmptyPublicConstructor));
+                new EndpointType(typeof (TypeWithoutEmptyPublicConstructor));
             }
         }
 

@@ -481,11 +481,9 @@
 
     class CheckMessageIdHandler : IHandleMessages<EventMessage>
     {
-        public static bool Called;
 
         public void Handle(EventMessage message)
         {
-            Called = true;
         }
     }
 
