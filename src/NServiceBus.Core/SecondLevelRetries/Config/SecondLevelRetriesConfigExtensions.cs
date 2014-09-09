@@ -11,7 +11,10 @@ namespace NServiceBus
         /// <summary>
         /// Allows for customization of the second level retries
         /// </summary>
-        [ObsoleteEx(Replacement = "Use configuration.SecondLevelRetries().CustomRetryPolicy(), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(
+            Message = "Use `configuration.SecondLevelRetries().CustomRetryPolicy()`, where `configuration` is an instance of type `BusConfiguration`.", 
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0")]
 // ReSharper disable UnusedParameter.Global
         public static Configure SecondLevelRetries(this Configure config, Action<SecondLevelRetriesSettings> customSettings)
 // ReSharper restore UnusedParameter.Global

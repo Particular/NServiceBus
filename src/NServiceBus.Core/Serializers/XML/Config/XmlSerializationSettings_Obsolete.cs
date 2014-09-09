@@ -5,14 +5,14 @@ namespace NServiceBus.Serializers.XML.Config
     using System;
 
     [ObsoleteEx(
-            Replacement = "Use configuration.UseSerialization<XmlSerializer>(), where configuration is an instance of type BusConfiguration",
+            Message = "Use configuration.UseSerialization<XmlSerializer>(), where `configuration` is an instance of type `BusConfiguration`.",
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0")]
     public class XmlSerializationSettings
     {
 
         [ObsoleteEx(
-            Replacement = "Use configuration.UseSerialization<XmlSerializer>().DontWrapRawXml(), where configuration is an instance of type BusConfiguration",
+            Message = "Use `configuration.UseSerialization<XmlSerializer>().DontWrapRawXml()`, where `configuration` is an instance of type `BusConfiguration`.",
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0")]
         public XmlSerializationSettings DontWrapRawXml()
@@ -21,7 +21,7 @@ namespace NServiceBus.Serializers.XML.Config
         }
 
         [ObsoleteEx(
-            Replacement = "Use configuration.UseSerialization<XmlSerializer>().Namespace(namespaceToUse), where configuration is an instance of type BusConfiguration",
+            Message = "Use `configuration.UseSerialization<XmlSerializer>().Namespace(namespaceToUse)`, where `configuration` is an instance of type `BusConfiguration`.",
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0")]
         public XmlSerializationSettings Namespace(string namespaceToUse)
@@ -30,7 +30,7 @@ namespace NServiceBus.Serializers.XML.Config
         }
 
         [ObsoleteEx(
-            Replacement = "Use configuration.UseSerialization<XmlSerializer>().SanitizeInput(), where configuration is an instance of type BusConfiguration",
+            Message = "Use `configuration.UseSerialization<XmlSerializer>().SanitizeInput()`, where `configuration` is an instance of type `BusConfiguration`.",
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0")]
         public XmlSerializationSettings SanitizeInput()

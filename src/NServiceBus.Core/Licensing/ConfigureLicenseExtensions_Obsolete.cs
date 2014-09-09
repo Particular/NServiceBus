@@ -7,14 +7,20 @@ namespace NServiceBus
     public static partial class ConfigureLicenseExtensions
     {
 
-        [ObsoleteEx(Replacement = "Use configuration.License(licenseText), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(
+            Message = "Use `configuration.License(licenseText)`, where configuration is an instance of type `BusConfiguration`", 
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0")]
         public static Configure License(this Configure config, string licenseText)
         {
             throw new NotImplementedException();
         }
 
 
-        [ObsoleteEx(Replacement = "Use configuration.LicensePath(licenseFile), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(
+            Message = "Use `configuration.LicensePath(licenseFile)`, where configuration is an instance of type `BusConfiguration`", 
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0")]
         public static Configure LicensePath(this Configure config, string licenseFile)
         {
             throw new NotImplementedException();

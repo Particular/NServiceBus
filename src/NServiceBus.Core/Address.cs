@@ -25,7 +25,10 @@
         /// <summary>
         /// Get the address of this endpoint.
         /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "Please inject an instance of Configure and call Configure.LocalAddress instead")]
+        [ObsoleteEx(
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0", 
+            Message = "Please inject an instance of `Configure` and call `Configure.LocalAddress` instead")]
         public static Address Local
         {
             get { throw new InvalidOperationException(); }
@@ -35,7 +38,10 @@
         /// Sets the address of this endpoint.
         /// </summary>
         /// <param name="queue">The queue name.</param>
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "ConfigureTransport<T>.LocalAddress(queue)")]
+        [ObsoleteEx(
+            RemoveInVersion = "6.0",
+            TreatAsErrorFromVersion = "5.0",
+            Replacement = "ConfigureTransport<T>.LocalAddress(queue)")]
 // ReSharper disable once UnusedParameter.Global
          public static void InitializeLocalAddress(string queue)
         {
@@ -46,7 +52,10 @@
         /// Sets the public return address of this endpoint.
         /// </summary>
         /// <param name="address">The public address.</param>
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "Use configuration.OverridePublicReturnAddress(address), where configuration is an instance of type BusConfiguration")]
+        [ObsoleteEx(
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0", 
+            Message = "Use `configuration.OverridePublicReturnAddress(address)`, where `configuration` is an instance of type `BusConfiguration`.")]
 // ReSharper disable once UnusedParameter.Global
         public static void OverridePublicReturnAddress(Address address)
         {

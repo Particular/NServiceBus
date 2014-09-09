@@ -15,8 +15,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0",
-            Message = "Log4Net integration has been moved to a stand alone nuget 'NServiceBus.Log4Net'.",
-            Replacement = "Install the 'NServiceBus.Log4Net' nuget and run 'LogManager.Use<Log4NetFactory>();'.")]
+            Message = "Log4Net integration has been moved to a stand alone nuget 'NServiceBus.Log4Net'. Install the 'NServiceBus.Log4Net' nuget and run 'LogManager.Use<Log4NetFactory>();'.")]
         public static Configure Log4Net(this Configure config)
         {
             throw new NotImplementedException();
@@ -25,8 +24,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0",
-            Message = "Log4Net integration has been moved to a stand alone nuget 'NServiceBus.Log4Net'.",
-            Replacement = "Install the 'NServiceBus.Log4Net' nuget and run 'LogManager.Use<Log4NetFactory>();'.")]
+            Message = "Log4Net integration has been moved to a stand alone nuget 'NServiceBus.Log4Net'. Install the 'NServiceBus.Log4Net' nuget and run 'LogManager.Use<Log4NetFactory>();'.")]
         public static Configure Log4Net<TAppender>(this Configure config, Action<TAppender> initializeAppender) where TAppender : new()
         {
             throw new NotImplementedException();
@@ -35,8 +33,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0",
-            Message = "Log4Net integration has been moved to a stand alone nuget 'NServiceBus.Log4Net'.",
-            Replacement = "Install the 'NServiceBus.Log4Net' nuget and run 'LogManager.Use<Log4NetFactory>();'.")]
+            Message = "Log4Net integration has been moved to a stand alone nuget 'NServiceBus.Log4Net'. Install the 'NServiceBus.Log4Net' nuget and run 'LogManager.Use<Log4NetFactory>();'.")]
         public static Configure Log4Net(this Configure config, object appenderSkeleton)
         {
             throw new NotImplementedException();
@@ -46,8 +43,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0",
-            Message = "Log4Net integration has been moved to a stand alone nuget 'NServiceBus.Log4Net'.",
-            Replacement = "Install the 'NServiceBus.Log4Net' nuget and run 'LogManager.Use<Log4NetFactory>();'.")]
+            Message = "Log4Net integration has been moved to a stand alone nuget 'NServiceBus.Log4Net'. Install the 'NServiceBus.Log4Net' nuget and run 'LogManager.Use<Log4NetFactory>();'.")]
         public static void Log4Net()
         {
             throw new NotImplementedException();
@@ -56,8 +52,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0",
-            Message = "Log4Net integration has been moved to a stand alone nuget 'NServiceBus.Log4Net'.",
-            Replacement = "Install the 'NServiceBus.Log4Net' nuget and run 'LogManager.Use<Log4NetFactory>();'.")]
+            Message = "Log4Net integration has been moved to a stand alone nuget 'NServiceBus.Log4Net'. Install the 'NServiceBus.Log4Net' nuget and run 'LogManager.Use<Log4NetFactory>();'.")]
         public static void Log4Net(Action config)
         {
             throw new NotImplementedException();
@@ -66,8 +61,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0",
-            Message = "Nlog integration has been moved to a stand alone nuget 'NServiceBus.NLog'.",
-            Replacement = "Install the 'NServiceBus.NLog' nuget and run 'LogManager.Use<NLogFactory>();'.")]
+            Message = "Nlog integration has been moved to a stand alone nuget 'NServiceBus.NLog'. Install the 'NServiceBus.NLog' nuget and run 'LogManager.Use<NLogFactory>();'.")]
         public static Configure NLog(this Configure config, params object[] targetsForNServiceBusToLogTo)
         {
             throw new NotImplementedException();
@@ -76,8 +70,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6.0", 
             TreatAsErrorFromVersion = "5.0",
-            Message = "Nlog integration has been moved to a stand alone nuget 'NServiceBus.NLog'.",
-            Replacement = "Install the 'NServiceBus.NLog' nuget and run 'LogManager.Use<Log4NetFactory>();'.")]
+            Message = "Nlog integration has been moved to a stand alone nuget 'NServiceBus.NLog'. Install the 'NServiceBus.NLog' nuget and run 'LogManager.Use<Log4NetFactory>();'.")]
         public static void NLog()
         {
             throw new NotImplementedException();
@@ -86,7 +79,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6.0", 
             TreatAsErrorFromVersion = "5.0",
-            Replacement = "LogManager.UseFactory(new MyCustomLoggerFactory())")]
+            Replacement = "LogManager.UseFactory(ILoggerFactory)")]
         public static void Custom(ILoggerFactory loggerFactory)
         {
             throw new NotImplementedException();

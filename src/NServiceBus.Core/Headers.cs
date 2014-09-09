@@ -215,7 +215,10 @@
         /// <param name="msg">The message to retrieve a header from.</param>
         /// <param name="key">The header key.</param>
         /// <returns>The value assigned to the header.</returns>
-        [ObsoleteEx(Replacement = "bus.GetMessageHeader(msg, key)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
+        [ObsoleteEx(
+            Replacement = "bus.GetMessageHeader(msg, key)",
+            TreatAsErrorFromVersion = "5.0", 
+            RemoveInVersion = "6.0")]
 // ReSharper disable UnusedParameter.Global
         public static string GetMessageHeader(object msg, string key)
 // ReSharper restore UnusedParameter.Global
@@ -229,7 +232,10 @@
         /// <param name="msg">The message to add a header to.</param>
         /// <param name="key">The header key.</param>
         /// <param name="value">The value to assign to the header.</param>
-        [ObsoleteEx(Replacement = "bus.SetMessageHeader(msg, key, value)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
+        [ObsoleteEx(
+            Replacement = "bus.SetMessageHeader(msg, key, value)", 
+            TreatAsErrorFromVersion = "5.0",
+            RemoveInVersion = "6.0")]
 // ReSharper disable UnusedParameter.Global
         public static void SetMessageHeader(object msg, string key, string value)
 // ReSharper restore UnusedParameter.Global

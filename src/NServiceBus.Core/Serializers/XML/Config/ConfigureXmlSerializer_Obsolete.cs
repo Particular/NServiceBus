@@ -4,11 +4,17 @@ namespace NServiceBus
 {
     using System;
 
-    [ObsoleteEx(Replacement = "Use configuration.UseSerialization<XmlSerializer>(), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+    [ObsoleteEx(
+        Message = "Use `configuration.UseSerialization<XmlSerializer>()`, where `configuration` is an instance of type `BusConfiguration`.", 
+        RemoveInVersion = "6.0",
+        TreatAsErrorFromVersion = "5.0")]
     public static class ConfigureXmlSerializer
     {
 
-        [ObsoleteEx(Replacement = "Use configuration.UseSerialization<XmlSerializer>(), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(
+            Message = "Use `configuration.UseSerialization<XmlSerializer>()`, where `configuration` is an instance of type `BusConfiguration`.", 
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0")]
         public static Configure XmlSerializer(this Configure config, string nameSpace = null, bool sanitizeInput = false)
         {
             throw new NotImplementedException();

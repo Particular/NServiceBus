@@ -52,7 +52,10 @@ namespace NServiceBus
         /// <param name="msg">The <see cref="IMessage"/> to retrieve a header from.</param>
         /// <param name="key">The header key.</param>
         /// <returns>The value assigned to the header.</returns>
-        [ObsoleteEx(Replacement = "bus.GetMessageHeader(msg, key)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
+        [ObsoleteEx(
+            Replacement = "bus.GetMessageHeader(msg, key)", 
+            TreatAsErrorFromVersion = "5.0",
+            RemoveInVersion = "6.0")]
         public static string GetHeader(this IMessage msg, string key)
         {
             throw new InvalidOperationException();
@@ -64,7 +67,10 @@ namespace NServiceBus
         /// <param name="msg">The <see cref="IMessage"/> to add a header to.</param>
         /// <param name="key">The header key.</param>
         /// <param name="value">The value to assign to the header.</param>
-        [ObsoleteEx(Replacement = "bus.SetMessageHeader(msg, key, value)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
+        [ObsoleteEx(
+            Replacement = "bus.SetMessageHeader(msg, key, value)",
+            TreatAsErrorFromVersion = "5.0",
+            RemoveInVersion = "6.0")]
         public static void SetHeader(this IMessage msg, string key, string value)
         {
             throw new InvalidOperationException();

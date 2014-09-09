@@ -12,7 +12,10 @@ namespace NServiceBus
         /// Setting this to true may make sense for certain smart-client applications, 
         /// but rarely for server applications.
         /// </summary>
-        [ObsoleteEx(Replacement = "Use configuration.PurgeOnStartup()), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(
+            Message = "Use `configuration.PurgeOnStartup()`, where `configuration` is an instance of type `BusConfiguration`.", 
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0")]
         public static Configure PurgeOnStartup(this Configure config, bool value)
         {
             throw new NotImplementedException();
@@ -21,7 +24,10 @@ namespace NServiceBus
         /// <summary>
         /// True if the users wants the input queue to be purged when we starts up
         /// </summary>
-        [ObsoleteEx(Replacement = "The ReadOnlySettings extension method ConfigurePurging.GetPurgeOnStartup", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(
+            Message = "The `ReadOnlySettings` extension method `ConfigurePurging.GetPurgeOnStartup`", 
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0")]
         public static bool PurgeRequested
         {
             get

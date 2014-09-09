@@ -6,7 +6,10 @@ namespace NServiceBus
 
     public static partial class InstallConfigExtensions
     {
-        [ObsoleteEx(Replacement = "Use configuration.EnableInstallers(), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(
+            Message = "Use `configuration.EnableInstallers()`, where configuration is an instance of type `BusConfiguration`.", 
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0")]
         public static Configure EnableInstallers(this Configure config, string username = null)
         {
             throw new InvalidOperationException();

@@ -10,13 +10,19 @@ namespace NServiceBus
 
     public static class JsonSerializerConfigurationExtensions
     {
-        [ObsoleteEx(Replacement = "Use configuration.UseSerialization<JsonSerializer>(), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(
+            Message = "Use `configuration.UseSerialization<JsonSerializer>()`, where `configuration` is an instance of type `BusConfiguration`.", 
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0")]
         public static SerializationSettings Json(this SerializationSettings settings)
         {
             throw new NotImplementedException();
         }
 
-        [ObsoleteEx(Replacement = "Use configuration.UseSerialization<BsonSerializer>(), where configuration is an instance of type BusConfiguration", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(
+            Message = "Use `configuration.UseSerialization<BsonSerializer>()`, where `configuration` is an instance of type `BusConfiguration`.", 
+            RemoveInVersion = "6.0",
+            TreatAsErrorFromVersion = "5.0")]
         public static SerializationSettings Bson(this SerializationSettings settings)
         {
             throw new NotImplementedException();

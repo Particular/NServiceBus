@@ -6,13 +6,13 @@ namespace NServiceBus
     using System;
 
     [ObsoleteEx(
-        Replacement = "Use configuration.EnableCriticalTimePerformanceCounter() or configuration.EnableSLAPerformanceCounter(TimeSpan), where configuration is an instance of type BusConfiguration", 
+        Message = "Use `configuration.EnableCriticalTimePerformanceCounter()` or `configuration.EnableSLAPerformanceCounter(TimeSpan)`, where configuration is an instance of type `BusConfiguration`.", 
         RemoveInVersion = "6.0", 
         TreatAsErrorFromVersion = "5.0")]
     public static class MonitoringConfig
     {
         [ObsoleteEx(
-            Replacement = "Use configuration.EnableSLAPerformanceCounter(TimeSpan), where configuration is an instance of type BusConfiguration", 
+            Message = "Use `configuration.EnableSLAPerformanceCounter(TimeSpan)`, where configuration is an instance of type `BusConfiguration`.", 
             RemoveInVersion = "6.0", 
             TreatAsErrorFromVersion = "5.0")]
         public static Configure SetEndpointSLA(this Configure config, TimeSpan sla)
@@ -21,7 +21,8 @@ namespace NServiceBus
         }
 
 
-        [ObsoleteEx(Replacement = "Use configuration.EnableCriticalTimePerformanceCounter(), where configuration is an instance of type BusConfiguration", 
+        [ObsoleteEx(
+            Message = "Use `configuration.EnableCriticalTimePerformanceCounter()`, where configuration is an instance of type `BusConfiguration`.", 
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0")]
         public static Configure EnablePerformanceCounters(this Configure config)
