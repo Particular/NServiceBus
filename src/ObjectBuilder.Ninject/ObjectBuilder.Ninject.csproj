@@ -88,4 +88,321 @@
   </Target>
   <Import Project="..\packages\GitVersionTask.1.2.0\Build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.1.2.0\Build\GitVersionTask.targets')" />
   <Import Project="..\packages\NuGetPackager.0.1.3\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.1.3\build\NuGetPackager.targets')" />
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.0'">
+      <ItemGroup>
+        <Reference Include="Janitor">
+          <HintPath>..\..\packages\Janitor.Fody\lib\portable-net4+sl5+wp8+win8+wpa81+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework'">
+      <ItemGroup>
+        <Reference Include="Janitor">
+          <HintPath>..\..\packages\Janitor.Fody\lib\portable-net4+sl5+wp8+win8+wpa81+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight' And $(SilverlightVersion) == 'v5.0'">
+      <ItemGroup>
+        <Reference Include="Janitor">
+          <HintPath>..\..\packages\Janitor.Fody\lib\portable-net4+sl5+wp8+win8+wpa81+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight'">
+      <ItemGroup>
+        <Reference Include="Janitor">
+          <HintPath>..\..\packages\Janitor.Fody\lib\portable-net4+sl5+wp8+win8+wpa81+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v3.5'">
+      <ItemGroup>
+        <Reference Include="Ninject">
+          <HintPath>..\..\packages\Ninject\lib\net35\Ninject.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.0'">
+      <ItemGroup>
+        <Reference Include="Ninject">
+          <HintPath>..\..\packages\Ninject\lib\net40\Ninject.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
+      <ItemGroup>
+        <Reference Include="Ninject">
+          <HintPath>..\..\packages\Ninject\lib\net45-full\Ninject.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework'">
+      <ItemGroup>
+        <Reference Include="Ninject">
+          <HintPath>..\..\packages\Ninject\lib\net45-full\Ninject.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight' And $(SilverlightVersion) == 'v3.0'">
+      <ItemGroup>
+        <Reference Include="Ninject">
+          <HintPath>..\..\packages\Ninject\lib\sl3\Ninject.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight' And $(SilverlightVersion) == 'v4.0'">
+      <ItemGroup>
+        <Reference Include="Ninject">
+          <HintPath>..\..\packages\Ninject\lib\sl4\Ninject.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight' And $(SilverlightVersion) == 'v5.0'">
+      <ItemGroup>
+        <Reference Include="Ninject">
+          <HintPath>..\..\packages\Ninject\lib\sl5\Ninject.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight'">
+      <ItemGroup>
+        <Reference Include="Ninject">
+          <HintPath>..\..\packages\Ninject\lib\sl5\Ninject.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v3.5'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.ContextPreservation">
+          <HintPath>..\..\packages\Ninject.Extensions.ContextPreservation\lib\net35\Ninject.Extensions.ContextPreservation.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.0'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.ContextPreservation">
+          <HintPath>..\..\packages\Ninject.Extensions.ContextPreservation\lib\net40\Ninject.Extensions.ContextPreservation.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.ContextPreservation">
+          <HintPath>..\..\packages\Ninject.Extensions.ContextPreservation\lib\net45-full\Ninject.Extensions.ContextPreservation.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.ContextPreservation">
+          <HintPath>..\..\packages\Ninject.Extensions.ContextPreservation\lib\net45-full\Ninject.Extensions.ContextPreservation.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight' And $(SilverlightVersion) == 'v3.0'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.ContextPreservation">
+          <HintPath>..\..\packages\Ninject.Extensions.ContextPreservation\lib\sl3\Ninject.Extensions.ContextPreservation.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight' And $(SilverlightVersion) == 'v4.0'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.ContextPreservation">
+          <HintPath>..\..\packages\Ninject.Extensions.ContextPreservation\lib\sl4\Ninject.Extensions.ContextPreservation.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight' And $(SilverlightVersion) == 'v5.0'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.ContextPreservation">
+          <HintPath>..\..\packages\Ninject.Extensions.ContextPreservation\lib\sl5\Ninject.Extensions.ContextPreservation.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.ContextPreservation">
+          <HintPath>..\..\packages\Ninject.Extensions.ContextPreservation\lib\sl5\Ninject.Extensions.ContextPreservation.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v3.5'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.NamedScope">
+          <HintPath>..\..\packages\Ninject.Extensions.NamedScope\lib\net35\Ninject.Extensions.NamedScope.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.0'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.NamedScope">
+          <HintPath>..\..\packages\Ninject.Extensions.NamedScope\lib\net40\Ninject.Extensions.NamedScope.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.NamedScope">
+          <HintPath>..\..\packages\Ninject.Extensions.NamedScope\lib\net45-full\Ninject.Extensions.NamedScope.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.NamedScope">
+          <HintPath>..\..\packages\Ninject.Extensions.NamedScope\lib\net45-full\Ninject.Extensions.NamedScope.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight' And $(SilverlightVersion) == 'v3.0'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.NamedScope">
+          <HintPath>..\..\packages\Ninject.Extensions.NamedScope\lib\sl3\Ninject.Extensions.NamedScope.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight' And $(SilverlightVersion) == 'v4.0'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.NamedScope">
+          <HintPath>..\..\packages\Ninject.Extensions.NamedScope\lib\sl4\Ninject.Extensions.NamedScope.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight' And $(SilverlightVersion) == 'v5.0'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.NamedScope">
+          <HintPath>..\..\packages\Ninject.Extensions.NamedScope\lib\sl5\Ninject.Extensions.NamedScope.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight'">
+      <ItemGroup>
+        <Reference Include="Ninject.Extensions.NamedScope">
+          <HintPath>..\..\packages\Ninject.Extensions.NamedScope\lib\sl5\Ninject.Extensions.NamedScope.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v3.5'">
+      <ItemGroup>
+        <Reference Include="Obsolete">
+          <HintPath>..\..\packages\Obsolete.Fody\lib\NET35\Obsolete.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.0'">
+      <ItemGroup>
+        <Reference Include="Obsolete">
+          <HintPath>..\..\packages\Obsolete.Fody\lib\portable-net4+sl4+wp8+win8+wpa81+MonoAndroid16+MonoTouch40\Obsolete.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework'">
+      <ItemGroup>
+        <Reference Include="Obsolete">
+          <HintPath>..\..\packages\Obsolete.Fody\lib\portable-net4+sl4+wp8+win8+wpa81+MonoAndroid16+MonoTouch40\Obsolete.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight' And $(SilverlightVersion) == 'v4.0'">
+      <ItemGroup>
+        <Reference Include="Obsolete">
+          <HintPath>..\..\packages\Obsolete.Fody\lib\portable-net4+sl4+wp8+win8+wpa81+MonoAndroid16+MonoTouch40\Obsolete.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight'">
+      <ItemGroup>
+        <Reference Include="Obsolete">
+          <HintPath>..\..\packages\Obsolete.Fody\lib\portable-net4+sl4+wp8+win8+wpa81+MonoAndroid16+MonoTouch40\Obsolete.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
 </Project>
