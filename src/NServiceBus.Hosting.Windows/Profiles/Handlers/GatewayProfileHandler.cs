@@ -8,12 +8,12 @@
     {
         public void ProfileActivated(BusConfiguration config)
         {
-            throw new Exception("MultiSite Profile is obsolete as Gateway is a feature now, you can use Feature.Enable<Gateway> to turn it on.");
+            throw new Exception("MultiSite Profile is now obsolete. Gateway has been moved to its own stand alone nuget 'NServiceBus.Gateway'. To enable Gateway, install the nuget package and then call `configuration.EnableFeature<Gateway>()`, where `configuration` is an instance of type `BusConfiguration`.");
         }
 
         public void ProfileActivated(Configure config)
         {
-            throw new Exception("MultiSite Profile is obsolete as Gateway is a feature now, you can use Feature.Enable<Gateway> to turn it on.");
+            throw new Exception("MultiSite Profile is now obsolete. Gateway has been moved to its own stand alone nuget 'NServiceBus.Gateway'. To enable Gateway, install the nuget package and then call `configuration.EnableFeature<Gateway>()`, where `configuration` is an instance of type `BusConfiguration`.");
         }
     }
 }
