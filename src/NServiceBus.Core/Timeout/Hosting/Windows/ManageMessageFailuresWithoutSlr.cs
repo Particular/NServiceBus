@@ -3,7 +3,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using System;
     using Faults;
     using Logging;
-    using NServiceBus.Unicast.Transport;
+    using Unicast.Transport;
     using Transports;
     using Unicast.Queuing;
 
