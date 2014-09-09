@@ -23,7 +23,11 @@ namespace NServiceBus.Hosting
         ///     Accepts the type which will specify the users custom configuration.
         ///     This type should implement <see cref="IConfigureThisEndpoint" />.
         /// </summary>
+        /// <param name="args"></param>
+        /// <param name="defaultProfiles"></param>
+        /// <param name="endpointName"></param>
         /// <param name="scannableAssembliesFullName">Assemblies full name that were scanned.</param>
+        /// <param name="specifier"></param>
         public GenericHost(IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles,
             string endpointName, IEnumerable<string> scannableAssembliesFullName = null)
         {

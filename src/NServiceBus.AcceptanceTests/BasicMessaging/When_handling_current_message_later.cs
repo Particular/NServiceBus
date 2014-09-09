@@ -55,7 +55,7 @@
                                    "ThirdHandler:Executed",
                                    "FirstHandler:Executed",
                                    "SecondHandler:Handling the message this time",
-                                   "ThirdHandler:Executed",
+                                   "ThirdHandler:Executed"
                                },
                     events);
         }

@@ -33,6 +33,7 @@ namespace NServiceBus
         /// Configure the distributor to run on this endpoint
         /// </summary>
         /// <param name="withWorker">True if this endpoint should enlist as a worker</param>
+        /// <param name="config">True if this endpoint should enlist as a worker</param>
         [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
         public static Configure RunDistributor(this Configure config, bool withWorker = true)
         {

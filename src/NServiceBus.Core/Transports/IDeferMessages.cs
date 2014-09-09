@@ -10,7 +10,9 @@
         /// <summary>
         /// Defers the given message that will be processed at the given time
         /// </summary>
+        /// <param name="processAt">The time when this message should be processed</param>
         /// <param name="address">The endpoint of the endpoint who should get the message</param>
+        /// <param name="message">The message to defer</param>
         void Defer(TransportMessage message, DateTime processAt, Address address);
 
         /// <summary>

@@ -61,6 +61,7 @@
         public class Entry
         {
             public byte[] Data;
+// ReSharper disable once NotAccessedField.Global
             public DateTime ExpireAt;
         }
     }

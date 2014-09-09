@@ -32,8 +32,11 @@ namespace NServiceBus.Faults.Forwarder
         /// </summary>
         public static string GetFailedQueueFromLabel(Message m)
         {
+// ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (m.Label == null)
+// ReSharper disable HeuristicUnreachableCode
                 return null;
+// ReSharper restore HeuristicUnreachableCode
 
             if (!m.Label.Contains(FAILEDQUEUE))
                 return null;

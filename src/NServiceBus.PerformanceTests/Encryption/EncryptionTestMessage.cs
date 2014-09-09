@@ -9,6 +9,7 @@ namespace Runner.Encryption
     public class EncryptionTestMessage : MessageBase
     {
         public WireEncryptedString Secret { get; set; }
+// ReSharper disable once NotAccessedField.Global
         public WireEncryptedString SecretField;
         public ClassForNesting CreditCard { get; set; }
         public WireEncryptedString SecretThatIsNull { get; set; }

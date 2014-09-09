@@ -12,6 +12,7 @@ namespace NServiceBus.ObjectBuilder
         /// <summary>
         /// Configures the given type. Can be used to configure all kinds of properties.
         /// </summary>
+        /// <param name="concreteComponent">The type to configure</param>
         /// <param name="dependencyLifecycle">Defines lifecycle semantics for the given type.</param>
         IComponentConfig ConfigureComponent(Type concreteComponent, DependencyLifecycle dependencyLifecycle);
 
@@ -39,6 +40,7 @@ namespace NServiceBus.ObjectBuilder
         /// Configures the given type. Can be used to configure all kinds of properties. This method is deprecated use the signature
         /// that contains the <see cref="DependencyLifecycle"/> enum instead
         /// </summary>
+        /// <param name="concreteComponent"></param>
         /// <param name="callModel">Defines whether the type should have singleton or single call semantics.</param>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "ConfigureComponent<T>(Type, DependencyLifecycle)")]
         IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel);

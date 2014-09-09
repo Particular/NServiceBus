@@ -34,7 +34,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[]
                                {
-                                   typeof(InterfaceProfile).FullName,
+                                   typeof(InterfaceProfile).FullName
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
 
@@ -45,7 +45,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[]
                                {
-                                   typeof(InterfaceProfile).FullName,
+                                   typeof(InterfaceProfile).FullName
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
                 profileManager.ActivateProfileHandlers();
@@ -56,7 +56,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[]
                                {
-                                   typeof(InterfaceProfile).FullName,
+                                   typeof(InterfaceProfile).FullName
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
                 var implementations = profileManager.GetImplementor<IHandleProfile>(typeof(IHandleProfile<>))
@@ -86,7 +86,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[]
                                {
-                                   typeof(ClassProfile).FullName,
+                                   typeof(ClassProfile).FullName
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
 
@@ -97,7 +97,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[]
                                {
-                                   typeof(ClassProfile).FullName,
+                                   typeof(ClassProfile).FullName
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
                 profileManager.ActivateProfileHandlers();
@@ -108,7 +108,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[]
                                {
-                                   typeof(ClassProfile).FullName,
+                                   typeof(ClassProfile).FullName
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
                 var implementations = profileManager.GetImplementor<IHandleProfile>(typeof(IHandleProfile<>))
@@ -152,7 +152,7 @@ namespace NServiceBus.Hosting.Tests
                 var profiles = new[]
                                {
                                    typeof(ChildProfile).FullName,
-                                   typeof(BaseProfile).FullName,
+                                   typeof(BaseProfile).FullName
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
 
@@ -321,7 +321,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[]
                                {
-                                   typeof (Profile).FullName,
+                                   typeof (Profile).FullName
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
                 var implementations = profileManager.GetImplementor<IHandleProfile>(typeof(IHandleProfile<>))
@@ -336,7 +336,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[]
                                {
-                                   typeof (Profile).FullName,
+                                   typeof (Profile).FullName
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
                 profileManager.ActivateProfileHandlers();
@@ -380,7 +380,7 @@ namespace NServiceBus.Hosting.Tests
                 var profilesA = new[]
                                {
                                    typeof (Profile1).FullName,
-                                   typeof (Profile2).FullName,
+                                   typeof (Profile2).FullName
                                };
                 var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
                 Assert.AreEqual(typeof(Profile1), profileManagerA.activeProfiles[0]);
@@ -389,7 +389,7 @@ namespace NServiceBus.Hosting.Tests
                 var profilesB = new[]
                                {
                                    typeof (Profile2).FullName,
-                                   typeof (Profile1).FullName,
+                                   typeof (Profile1).FullName
                                };
                 var profileManagerB = new ProfileManager(allAssemblies, null, profilesB, null);
                 Assert.AreEqual(typeof(Profile2), profileManagerB.activeProfiles[0]);
@@ -402,7 +402,7 @@ namespace NServiceBus.Hosting.Tests
                 var profilesA = new[]
                                {
                                    typeof (Profile1).FullName,
-                                   typeof (Profile2).FullName,
+                                   typeof (Profile2).FullName
                                };
                 var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
                 var implementationsA = profileManagerA.GetImplementor<IHandleProfile>(typeof(IHandleProfile<>))
@@ -413,7 +413,7 @@ namespace NServiceBus.Hosting.Tests
                 var profilesB = new[]
                                {
                                    typeof (Profile2).FullName,
-                                   typeof (Profile1).FullName,
+                                   typeof (Profile1).FullName
                                };
                 var profileManagerB = new ProfileManager(allAssemblies, null, profilesB, null);
                 var implementationsB = profileManagerB.GetImplementor<IHandleProfile>(typeof(IHandleProfile<>))
@@ -427,7 +427,7 @@ namespace NServiceBus.Hosting.Tests
                 var profilesA = new[]
                                {
                                    typeof (Profile1).FullName,
-                                   typeof (Profile2).FullName,
+                                   typeof (Profile2).FullName
                                };
                 var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
                 profileManagerA.ActivateProfileHandlers();
@@ -438,7 +438,7 @@ namespace NServiceBus.Hosting.Tests
                 var profilesB = new[]
                                {
                                    typeof (Profile2).FullName,
-                                   typeof (Profile1).FullName,
+                                   typeof (Profile1).FullName
                                };
                 var profileManagerB = new ProfileManager(allAssemblies, null, profilesB, null);
                 profileManagerB.ActivateProfileHandlers();
@@ -474,7 +474,7 @@ namespace NServiceBus.Hosting.Tests
                 var profilesA = new[]
                                {
                                    typeof (Profile1).FullName,
-                                   typeof (Profile2).FullName,
+                                   typeof (Profile2).FullName
                                };
                 var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
                 profileManagerA.ActivateProfileHandlers();
@@ -568,7 +568,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[]
                                {
-                                   typeof (Profile).FullName,
+                                   typeof (Profile).FullName
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
                 var implementations = profileManager.GetImplementor<IHandleProfile>(typeof(IHandleProfile<>))
@@ -581,7 +581,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[]
                                {
-                                   typeof (Profile).FullName,
+                                   typeof (Profile).FullName
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
                 profileManager.ActivateProfileHandlers();
@@ -620,7 +620,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[]
                                {
-                                   typeof (Profile).FullName,
+                                   typeof (Profile).FullName
                                };
                 var configureThisEndpoint = new ConfigureThisEndpoint();
                 var profileManager = new ProfileManager(allAssemblies, configureThisEndpoint, profiles, null);
@@ -656,7 +656,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[]
                                {
-                                   typeof (Profile).FullName,
+                                   typeof (Profile).FullName
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
                 profileManager.ActivateProfileHandlers();
@@ -689,7 +689,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[]
                                {
-                                   typeof (Profile).FullName,
+                                   typeof (Profile).FullName
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
                 profileManager.ActivateProfileHandlers();
@@ -724,7 +724,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 var profiles = new[]
                                {
-                                   typeof (Profile).FullName,
+                                   typeof (Profile).FullName
                                };
                 var profileManager = new ProfileManager(allAssemblies, null, profiles, null);
                 var implementations = profileManager.GetImplementor<IHandleProfile>(typeof(IHandleProfile<>))
