@@ -27,10 +27,11 @@
         {
             return assembly.GetTypes()
                 .Where(type =>
+                    (type.Namespace != null) &&
                     typeof(Attribute).IsAssignableFrom(type) &&
                     //Ignore log4net attributes
                     !type.Namespace.Contains("log4net") &&
-                        //Ignore Newtonsoft attributes
+                    //Ignore Newtonsoft attributes
                     !type.Namespace.Contains("Newtonsoft") &&
                     //TODO: remove when gitversion is updated
                     !type.Name.EndsWith("ReleaseDateAttribute") &&
