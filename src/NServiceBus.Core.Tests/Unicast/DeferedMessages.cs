@@ -21,6 +21,28 @@
     }
 
     [TestFixture]
+    class When_deferring_a_message_when_involving_worker : using_the_unicastBus
+    {
+        [Test]
+        public void Should_use_master_node_address_when_worker_is_enabled()
+        {
+            settings.SetDefault("Worker.Enabled", true);
+            RegisterMessageType<DeferredMessage>();
+            bus.Defer(TimeSpan.FromDays(1), new DeferredMessage());
+            VerifyThatMessageWasSentWithHeaders(h => h["NServiceBus.Timeout.RouteExpiredTimeoutTo"] == MasterNodeAddress.ToString());
+        }
+
+        [Test]
+        public void Should_use_local_address_when_worker_is_disabled()
+        {
+            settings.SetDefault("Worker.Enabled", false);
+            RegisterMessageType<DeferredMessage>();
+            bus.Defer(TimeSpan.FromDays(1), new DeferredMessage());
+            VerifyThatMessageWasSentWithHeaders(h => h["NServiceBus.Timeout.RouteExpiredTimeoutTo"] == configure.LocalAddress.ToString());
+        }
+    }
+
+    [TestFixture]
     class When_deferring_a_message_with_a_set_delay : using_the_unicastBus
     {
         [Test]
