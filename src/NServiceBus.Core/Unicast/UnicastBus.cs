@@ -570,11 +570,19 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback Defer(TimeSpan delay, object message)
         {
-            var options = new SendOptions(Configure.LocalAddress)
+            SendOptions options;
+
+            if (Settings.GetOrDefault<bool>("Worker.Enabled"))
             {
-                DelayDeliveryWith = delay,
-                EnforceMessagingBestPractices = false
-            };
+                options = new SendOptions(Settings.Get<Address>("MasterNode.Address"));
+            }
+            else
+            {
+                options = new SendOptions(Configure.LocalAddress);
+            }
+
+            options.DelayDeliveryWith = delay;
+            options.EnforceMessagingBestPractices = false;
 
             return SendMessage(options, LogicalMessageFactory.Create(message));
         }
@@ -584,11 +592,20 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback Defer(DateTime processAt, object message)
         {
-            var options = new SendOptions(Configure.LocalAddress)
+            SendOptions options;
+
+            if (Settings.GetOrDefault<bool>("Worker.Enabled"))
             {
-                DeliverAt = processAt,
-                EnforceMessagingBestPractices = false
-            };
+                options = new SendOptions(Settings.Get<Address>("MasterNode.Address"));
+            }
+            else
+            {
+                options = new SendOptions(Configure.LocalAddress);
+            }
+
+            options.DeliverAt = processAt;
+            options.EnforceMessagingBestPractices = false;
+          
             return SendMessage(options, LogicalMessageFactory.Create(message));
         }
 
