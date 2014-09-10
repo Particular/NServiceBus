@@ -40,7 +40,7 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         ///     The receiver responsible for notifying the transport when new messages are available
         /// </summary>
-        public IDequeueMessages Receiver { get; private set; }
+        public IDequeueMessages Receiver { get; set; }
 
         /// <summary>
         ///     Manages failed message processing.
