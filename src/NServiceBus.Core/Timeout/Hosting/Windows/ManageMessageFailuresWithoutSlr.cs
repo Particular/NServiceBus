@@ -3,6 +3,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using System;
     using Faults;
     using Logging;
+    using Unicast.Transport;
     using Transports;
     using Unicast.Queuing;
 
@@ -75,6 +76,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         void SetExceptionHeaders(TransportMessage message, Exception e, string reason)
         {
             message.Headers["NServiceBus.ExceptionInfo.Reason"] = reason;
+            e = UnwrapException(e);
             message.Headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
 
             if (e.InnerException != null)
@@ -89,6 +91,26 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
             message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+        }
+
+        Exception UnwrapException(Exception exception)
+        {
+            do
+            {
+                var wrappedException = exception as WrappedException;
+                if (wrappedException != null)
+                {
+                    exception = wrappedException.InnerException;
+                    continue;
+                }
+                var transportMessageHandlingFailedException = exception as TransportMessageHandlingFailedException;
+                if (transportMessageHandlingFailedException != null)
+                {
+                    exception = transportMessageHandlingFailedException.InnerException;
+                    continue;
+                }
+                return exception;
+            } while (true);
         }
     }
 }
