@@ -40,7 +40,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 return;
             }
 
-            SetExceptionHeaders(message, e, reason);
+            message.SetExceptionHeaders(e, localAddress, reason);
+
             try
             {
                 var sender = Configure.Instance.Builder.Build<ISendMessages>();
@@ -70,25 +71,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public void Init(Address address)
         {
             localAddress = address;
-        }
-
-        void SetExceptionHeaders(TransportMessage message, Exception e, string reason)
-        {
-            message.Headers["NServiceBus.ExceptionInfo.Reason"] = reason;
-            message.Headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
-
-            if (e.InnerException != null)
-                message.Headers["NServiceBus.ExceptionInfo.InnerExceptionType"] = e.InnerException.GetType().FullName;
-
-            message.Headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
-            message.Headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage();
-            message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
-            message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
-
-            var failedQ = localAddress ?? Address.Local;
-
-            message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
-            message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
         }
     }
 }

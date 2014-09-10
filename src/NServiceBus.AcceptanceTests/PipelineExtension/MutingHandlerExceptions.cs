@@ -2,6 +2,7 @@
 namespace NServiceBus.AcceptanceTests.PipelineExtension
 {
     using System;
+    using System.Linq;
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
@@ -60,13 +61,22 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                         //invoke the handler/rest of the pipeline
                         next();
                     }
-                    //catch specifix exceptions or
+                    catch (AggregateException ex)
+                    {
+                        //modify this to your liking
+                        if (ex.InnerExceptions.First().Message == "Lets filter on this text")
+                        {
+                            return;
+                        }
+                        throw;
+                    }
                     catch (Exception ex)
                     {
                         //modify this to your liking
                         if (ex.Message == "Lets filter on this text")
+                        {
                             return;
-
+                        }
                         throw;
                     }
                 }
