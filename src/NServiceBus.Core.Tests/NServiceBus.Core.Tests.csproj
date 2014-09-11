@@ -133,6 +133,7 @@
     <Compile Include="GitFlowVersionTests.cs" />
     <Compile Include="Serializers\Json\When_not_overriding_stream_encoding.cs" />
     <Compile Include="Serializers\Json\When_overriding_stream_encoding.cs" />
+    <Compile Include="Serializers\XML\SerializingGenericTests.cs" />
     <Compile Include="StringStreamExtensions.cs" />
     <Compile Include="Fakes\FakeCentralizedPubSubTransportDefinition.cs" />
     <Compile Include="Licensing\LicenseExpiredFormDisplayerTests.cs" />

@@ -852,7 +852,7 @@ namespace NServiceBus.Serializers.XML
             var messageBuilder = new StringBuilder();
             var t = mapper.GetMappedTypeFor(message.GetType());
 
-            WriteObject(t.Name, t, message, messageBuilder, true);
+            WriteObject(t.SerializationFriendlyName(), t, message, messageBuilder, true);
 
             return messageBuilder;
         }
