@@ -8,12 +8,12 @@
     {
         public void ProfileActivated(BusConfiguration config)
         {
-            throw new Exception("The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.");
+            throw new Exception("Master Profile is now obsolete. The distributor feature has been moved to its own stand alone nuget 'NServiceBus.Distributor.MSMQ'. Once you've installed this package, use `NServiceBus.MsmqMaster` profile instead.");
         }
 
         public void ProfileActivated(Configure config)
         {
-            throw new Exception("The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.");
+            throw new Exception("Master Profile is now obsolete. The distributor feature has been moved to its own stand alone nuget 'NServiceBus.Distributor.MSMQ'. Once you've installed this package, use `NServiceBus.MsmqMaster` profile instead.");
         }
     }
 }
