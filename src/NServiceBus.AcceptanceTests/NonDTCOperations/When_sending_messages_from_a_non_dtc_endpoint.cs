@@ -3,6 +3,7 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -14,7 +15,7 @@
             Scenario.Define<Context>()
                     .WithEndpoint<NonDtcSalesEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
                     .Done(c => c.OrderAckReceived)
-                    .Repeat(r=>r.For<AllOutboxCapableStorages>())
+                    .Repeat(r => r.For<AllOutboxCapableStorages>())
                     .Should(context => Assert.IsTrue(context.OrderAckReceived))
                     .Run(TimeSpan.FromSeconds(20));
         }
@@ -28,11 +29,12 @@
         {
             public NonDtcSalesEndpoint()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.Settings.Set("DisableOutboxTransportCheck", true);
-                    c.EnableOutbox();
-                });
+                EndpointSetup<DefaultServer>(
+                    b =>
+                    {
+                        b.GetSettings().Set("DisableOutboxTransportCheck", true);
+                        b.EnableOutbox();
+                    });
             }
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>

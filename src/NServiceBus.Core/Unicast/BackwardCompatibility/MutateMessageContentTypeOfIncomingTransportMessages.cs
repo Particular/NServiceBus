@@ -21,9 +21,9 @@
             }
         }
 
-        public void Init(Configure config)
+        public void Customize(BusConfiguration configuration)
         {
-            config.Configurer.ConfigureComponent<MutateMessageContentTypeOfIncomingTransportMessages>(DependencyLifecycle.InstancePerCall);
+            configuration.RegisterComponents(c => c.ConfigureComponent<MutateMessageContentTypeOfIncomingTransportMessages>(DependencyLifecycle.InstancePerCall));
         }
     }
 }

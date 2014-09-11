@@ -1,23 +1,21 @@
+#pragma warning disable 1591
+// ReSharper disable UnusedParameter.Global
 namespace NServiceBus
 {
-    /// <summary>
-    ///     Configure Extensions.
-    /// </summary>
+    using System;
+
+    [ObsoleteEx(
+        RemoveInVersion = "6.0", 
+        TreatAsErrorFromVersion = "5.0")]
     public static class ConfigureExtensions
     {
-        /// <summary>
-        ///     Configures this endpoint as a send only endpoint.
-        /// </summary>
-        /// <remarks>
-        ///     Use this in endpoints whose only purpose is sending messages, websites are often a good example of send only endpoints.
-        /// </remarks>
+        [ObsoleteEx(
+            Replacement = "Bus.CreateSendOnly(new BusConfiguration())", 
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0")]
         public static IBus SendOnly(this Configure config)
         {
-            config.Settings.Set("Endpoint.SendOnly", true);
-            
-            config.Initialize();
-            
-            return config.Builder.Build<IBus>();
+            throw new InvalidOperationException();
         }
     }
 }

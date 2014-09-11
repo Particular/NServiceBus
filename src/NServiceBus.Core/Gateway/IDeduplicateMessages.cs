@@ -12,7 +12,6 @@
         /// </summary>
         /// <param name="clientId">The client id that defines the range of ids to check for duplicates</param>
         /// <param name="timeReceived">The time received of the message to allow the storage to do cleanup</param>
-        /// <returns></returns>
         bool DeduplicateMessage(string clientId, DateTime timeReceived);
     }
 }

@@ -70,6 +70,5 @@
         {
             Trace += DateTime.Now.ToString("HH:mm:ss.ffffff") + " - " + trace + Environment.NewLine;
         }
-
     }
 }

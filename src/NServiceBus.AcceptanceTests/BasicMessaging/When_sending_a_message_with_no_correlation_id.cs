@@ -14,7 +14,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<CorrelationEndpoint>(b => b.Given(bus => bus.Send(Address.Local, new MyRequest())))
+                    .WithEndpoint<CorrelationEndpoint>(b => b.Given(bus => bus.SendLocal(new MyRequest())))
                     .Done(c => c.GotRequest)
                     .Run();
 
@@ -35,7 +35,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class GetValueOfIncomingCorrelationId:IMutateIncomingTransportMessages,INeedInitialization
+            class GetValueOfIncomingCorrelationId : IMutateIncomingTransportMessages, INeedInitialization
             {
                 public Context Context { get; set; }
 
@@ -45,9 +45,9 @@
                     Context.MessageIdReceived = transportMessage.Id;
                 }
 
-                public void Init(Configure config)
+                public void Customize(BusConfiguration configuration)
                 {
-                    config.Configurer.ConfigureComponent<GetValueOfIncomingCorrelationId>(DependencyLifecycle.InstancePerCall);
+                    configuration.RegisterComponents(c => c.ConfigureComponent<GetValueOfIncomingCorrelationId>(DependencyLifecycle.InstancePerCall));
                 }
             }
 

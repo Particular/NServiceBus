@@ -14,13 +14,7 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
-                        b.Given((bus, context) =>
-                            SubscriptionBehavior.OnEndpointSubscribed(s =>
-                            {
-                                if (s.SubscriberReturnAddress.Queue.Contains("myinputqueue"))
-                                    context.Subscriber1Subscribed = true;
-                            }))
-                        .When(c => c.Subscriber1Subscribed, bus => bus.Publish(new MyEvent()))
+                        b.When(c => c.Subscriber1Subscribed, bus => bus.Publish(new MyEvent()))
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                         {
@@ -46,7 +40,13 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    if (s.SubscriberReturnAddress.Queue.Contains("myinputqueue"))
+                    {
+                        context.Subscriber1Subscribed = true;
+                    }
+                }));
             }
         }
 
@@ -54,10 +54,10 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>(builder =>
                 {
-                    Address.InitializeLocalAddress("myinputqueue");
-                    c.DisableFeature<AutoSubscribe>();
+                    builder.DisableFeature<AutoSubscribe>();
+                    builder.OverrideLocalAddress("myinputqueue");
                 })
                     .AddMapping<MyEvent>(typeof(Publisher));
             }

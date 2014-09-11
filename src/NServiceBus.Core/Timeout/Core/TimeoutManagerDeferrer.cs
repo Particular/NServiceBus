@@ -10,6 +10,7 @@
     {
         public ISendMessages MessageSender { get; set; }
         public Address TimeoutManagerAddress { get; set; }
+        public Configure Configure { get; set; }
 
         public void Defer(TransportMessage message, SendOptions sendOptions)
         {
@@ -54,7 +55,7 @@
             controlMessage.Headers[headerKey] = headerValue;
             controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = Boolean.TrueString;
 
-            MessageSender.Send(controlMessage, new SendOptions(TimeoutManagerAddress) { ReplyToAddress = Address.Local });
+            MessageSender.Send(controlMessage, new SendOptions(TimeoutManagerAddress) { ReplyToAddress = Configure.PublicReturnAddress });
         }
 
         static ILog Log = LogManager.GetLogger<TimeoutManagerDeferrer>();

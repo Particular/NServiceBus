@@ -40,36 +40,37 @@
             }
 
 
-            class MyTransportMessageMutator:IMutateOutgoingTransportMessages,INeedInitialization
+            class MyTransportMessageMutator : IMutateOutgoingTransportMessages, INeedInitialization
             {
 
                 public Context Context { get; set; }
+
                 public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
                 {
                     Context.OutgoingMessageLogicalMessageReceived = logicalMessage != null;
                     transportMessage.Headers["TransportMutatorCalled"] = true.ToString();
                 }
 
-                public void Init(Configure config)
+                public void Customize(BusConfiguration configuration)
                 {
-                    config.Configurer.ConfigureComponent<MyTransportMessageMutator>(DependencyLifecycle.InstancePerCall);
+                    configuration.RegisterComponents(c => c.ConfigureComponent<MyTransportMessageMutator>(DependencyLifecycle.InstancePerCall));
                 }
             }
 
             class MyMessageMutator : IMutateOutgoingMessages, INeedInitialization
             {
-
+                public IBus Bus { get; set; }
              
                 public object MutateOutgoing(object message)
                 {
-                    Headers.SetMessageHeader(message,"MessageMutatorCalled","true");
+                    Bus.SetMessageHeader(message, "MessageMutatorCalled", "true");
 
                     return message;
                 }
 
-                public void Init(Configure config)
+                public void Customize(BusConfiguration configuration)
                 {
-                    config.Configurer.ConfigureComponent<MyMessageMutator>(DependencyLifecycle.InstancePerCall);
+                    configuration.RegisterComponents(c => c.ConfigureComponent<MyMessageMutator>(DependencyLifecycle.InstancePerCall));
                 }
 
             }

@@ -33,7 +33,7 @@
             public Endpoint()
             {
                 EndpointSetup<DefaultServer>(
-                    c => c.Configurer.ConfigureComponent<MutateIncomingMessages>(DependencyLifecycle.InstancePerCall));
+                    b => b.RegisterComponents(r => r.ConfigureComponent<MutateIncomingMessages>(DependencyLifecycle.InstancePerCall)));
             }
 
             class MutateIncomingMessages : IMutateIncomingMessages

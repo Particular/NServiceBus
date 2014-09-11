@@ -56,14 +56,17 @@
             return EndpointSetup<T>(c => { });
         }
 
-        public EndpointConfigurationBuilder EndpointSetup<T>(Action<Configure> configCustomization) where T: IEndpointSetupTemplate, new()
+        public EndpointConfigurationBuilder EndpointSetup<T>(Action<BusConfiguration> configurationBuilderCustomization = null) where T : IEndpointSetupTemplate, new()
         {
-            configuration.GetConfiguration = (settings,routingTable) =>
+            if (configurationBuilderCustomization == null)
+            {
+                configurationBuilderCustomization = b => { };
+            }
+            configuration.GetConfiguration = (settings, routingTable) =>
                 {
                     var endpointSetupTemplate = new T();
-                    var config = endpointSetupTemplate.GetConfiguration(settings, configuration, new ScenarioConfigSource(configuration, routingTable));
-                    configCustomization(config);
-                    return config;
+                    var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
+                    return endpointSetupTemplate.GetConfiguration(settings, configuration, scenarioConfigSource, configurationBuilderCustomization);
                 };
 
             return this;
@@ -98,6 +101,13 @@
         public EndpointConfigurationBuilder IncludeType<T>()
         {
             configuration.TypesToInclude.Add(typeof(T));
+
+            return this;
+        }
+
+        public EndpointConfigurationBuilder SendOnly()
+        {
+            configuration.SendOnly = true;
 
             return this;
         }

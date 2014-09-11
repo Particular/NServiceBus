@@ -15,7 +15,7 @@
             Scenario.Define<SagaEndpointContext>()
                     .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage())))
                     .Done(context => context.InterceptingHandlerCalled && context.SagaStarted)
-                    .Repeat(r => r.For<AllBuilders>())
+                    .Repeat(r => r.For(Transports.Default))
                     .Should(c =>
                     {
                         Assert.True(c.InterceptingHandlerCalled, "The message handler should be called");
@@ -28,10 +28,10 @@
         [Test]
         public void Should_not_start_saga_if_a_interception_handler_has_been_invoked()
         {
-            Scenario.Define(() => new SagaEndpointContext{InterceptSaga = true})
+            Scenario.Define(() => new SagaEndpointContext { InterceptSaga = true })
                     .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage())))
                    .Done(context => context.InterceptingHandlerCalled)
-                   .Repeat(r => r.For<AllBuilders>())
+                   .Repeat(r => r.For(Transports.Default))
                    .Should(c =>
                         {
                             Assert.True(c.InterceptingHandlerCalled, "The intercepting handler should be called");
@@ -55,7 +55,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c =>c.LoadMessageHandlers<First<InterceptingHandler>>());
+                EndpointSetup<DefaultServer>(b => b.LoadMessageHandlers<First<InterceptingHandler>>());
             }
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>
@@ -88,7 +88,7 @@
                 {
                     Context.InterceptingHandlerCalled = true;
 
-                    if(Context.InterceptSaga)
+                    if (Context.InterceptSaga)
                         Bus.DoNotContinueDispatchingCurrentMessageToHandlers();
                 }
             }

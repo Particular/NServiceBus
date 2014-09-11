@@ -81,17 +81,24 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                     {
                         Console.WriteLine(NoMessageFoundErrorFormat, messageId);
 
+                        uint messageCount = 0;
                         foreach (var m in queue.GetAllMessages())
                         {
+                            messageCount++;
                             var tm = MsmqUtilities.Convert(m);
 
                             var originalId = GetOriginalId(tm);
 
                             if (string.IsNullOrEmpty(originalId) || messageId != originalId)
                             {
+                                if (messageCount % ProgressInterval == 0)
+                                {
+                                    Console.Write(".");
+                                }
                                 continue;
                             }
 
+                            Console.WriteLine();
                             Console.WriteLine("Found message - going to return to queue.");
 
                             using (var tx = new TransactionScope())
@@ -112,6 +119,9 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 
                             return;
                         }
+
+                        Console.WriteLine();
+                        Console.WriteLine(NoMessageFoundInHeadersErrorFormat, messageId);
                     }
                 }
             }
@@ -134,7 +144,9 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         }
 
 
-        string NoMessageFoundErrorFormat = string.Format("INFO: No message found with ID '{0}'. Going to check headers of all messages for one with '{0}' or '{1}'.", Headers.MessageId, Headers.CorrelationId);
+        const string NoMessageFoundErrorFormat = "INFO: No message found with ID '{0}'. Checking headers of all messages.";
+        const string NoMessageFoundInHeadersErrorFormat = "INFO: No message found with ID '{0}' in any headers.";
+        const uint ProgressInterval = 100;
 
         TimeSpan TimeoutDuration = TimeSpan.FromSeconds(5);
         MessageQueue queue;

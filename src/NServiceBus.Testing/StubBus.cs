@@ -1,15 +1,17 @@
 ﻿namespace NServiceBus.Testing
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
 
-    class StubBus : IBus
+    class StubBus : IBus, IManageMessageHeaders
     {
         IMessageCreator messageCreator;
         Dictionary<string, string> outgoingHeaders = new Dictionary<string, string>();
         List<ActualInvocation> actualInvocations = new List<ActualInvocation>();
         TimeoutManager timeoutManager = new TimeoutManager();
+        ConcurrentDictionary<object, ConcurrentDictionary<string, string>> messageHeaders = new ConcurrentDictionary<object, ConcurrentDictionary<string, string>>();
 
         public void ValidateAndReset(IEnumerable<IExpectedInvocation> expectedInvocations)
         {
@@ -283,6 +285,50 @@
                 {
                     {"Value", delayOrProcessAt}
                 }, message);
+        }
+
+        public Action<object, string, string> SetHeaderAction
+        {
+            get
+            {
+                return (msg, key, val) =>
+                    messageHeaders.AddOrUpdate(msg,
+                        o => new ConcurrentDictionary<string, string>(new[]
+                        {
+                            new KeyValuePair<string, string>(key, val)
+                        }),
+                        (o, dictionary) =>
+                        {
+                            dictionary.AddOrUpdate(key, val, (s, s1) => val);
+                            return dictionary;
+                        });
+            }
+        }
+
+        public Func<object, string, string> GetHeaderAction
+        {
+            get
+            {
+                return (msg, key) =>
+                {
+                    ConcurrentDictionary<string, string> kv;
+                    if (messageHeaders.TryGetValue(msg, out kv))
+                    {
+                        string val;
+                        if (kv.TryGetValue(key, out val))
+                        {
+                            return val;
+                        }
+                    }
+
+                    return null;
+                };
+            }
+        }
+
+        public void Dispose()
+        {
+            
         }
     }
 }

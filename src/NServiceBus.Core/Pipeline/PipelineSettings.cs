@@ -7,7 +7,10 @@ namespace NServiceBus.Pipeline
     /// </summary>
     public class PipelineSettings
     {
-        internal PipelineSettings(Configure config)
+        /// <summary>
+        /// Creates an instance of <see cref="PipelineSettings"/>
+        /// </summary>
+        public PipelineSettings(BusConfiguration config)
         {
             this.config = config;
         }
@@ -126,6 +129,6 @@ namespace NServiceBus.Pipeline
             config.Settings.Get<PipelineModifications>().Additions.Add(new T());
         }
 
-        Configure config;
+        BusConfiguration config;
     }
 }

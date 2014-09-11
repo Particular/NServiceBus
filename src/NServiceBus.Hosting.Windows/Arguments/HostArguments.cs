@@ -108,15 +108,6 @@ namespace NServiceBus.Hosting.Windows.Arguments
                         , s => { StartManually = true; }
                     },
                     {
-                        "installInfrastructure",
-                        @"This setting is no longer in use. Please see http://particular.net/articles/managing-nservicebus-using-powershell for the replacement."
-                        , s =>
-                            {
-                                throw new ArgumentException(
-                                    "This parameter is no longer supported. Please see http://particular.net/articles/managing-nservicebus-using-powershell for the replacement.");
-                            }
-                    },
-                    {
                         "scannedAssemblies=",
                         @"Configures NServiceBus to use the types found in the given assemblies."
                         , s => ScannedAssemblies.Add(s)

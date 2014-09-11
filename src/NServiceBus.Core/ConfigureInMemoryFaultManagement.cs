@@ -1,20 +1,20 @@
 namespace NServiceBus
 {
-    using Faults.InMemory;
+    using NServiceBus.Faults.Forwarder;
+    using NServiceBus.Features;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure
     /// </summary>
-    public static class ConfigureInMemoryFaultManagement
+    public static partial class ConfigureInMemoryFaultManagement
     {
         /// <summary>
         /// Use in-memory fault management.
         /// </summary>
-        public static Configure InMemoryFaultManagement(this Configure config)
+        public static void DiscardFailedMessagesInsteadOfSendingToErrorQueue(this BusConfiguration config)
         {
-            config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.SingleInstance);
-
-            return config;
+            config.EnableFeature<InMemoryFaultManager>();
+            config.DisableFeature<ForwarderFaultManager>();
         }
     }
 }

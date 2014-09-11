@@ -22,39 +22,44 @@
         /// </summary>
         public static readonly Address Self = new Address("__self", "localhost");
 
-        
-
         /// <summary>
         /// Get the address of this endpoint.
         /// </summary>
-        public static Address Local { get; private set; }
-
+        [ObsoleteEx(
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0", 
+            Message = "Please inject an instance of `Configure` and call `Configure.LocalAddress` instead")]
+        public static Address Local
+        {
+            get { throw new InvalidOperationException(); }
+        }
 
         /// <summary>
         /// Sets the address of this endpoint.
         /// </summary>
         /// <param name="queue">The queue name.</param>
-        public static void InitializeLocalAddress(string queue)
+        [ObsoleteEx(
+            RemoveInVersion = "6.0",
+            TreatAsErrorFromVersion = "5.0",
+            Replacement = "ConfigureTransport<T>.LocalAddress(queue)")]
+// ReSharper disable once UnusedParameter.Global
+         public static void InitializeLocalAddress(string queue)
         {
-            Local = Parse(queue);
-            PublicReturnAddress = Local;
-
-            if (preventChanges)
-                throw new InvalidOperationException("Overwriting a previously set local address is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
+            throw new InvalidOperationException();
         }
-
-        internal static Address PublicReturnAddress { get; private set; }
 
         /// <summary>
         /// Sets the public return address of this endpoint.
         /// </summary>
         /// <param name="address">The public address.</param>
+        [ObsoleteEx(
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0", 
+            Message = "Use `configuration.OverridePublicReturnAddress(address)`, where `configuration` is an instance of type `BusConfiguration`.")]
+// ReSharper disable once UnusedParameter.Global
         public static void OverridePublicReturnAddress(Address address)
         {
-            PublicReturnAddress = address;
-
-            if (preventChanges)
-                throw new InvalidOperationException("Overwriting a previously set public return address is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
+            throw new InvalidOperationException();
         }
 
         /// <summary>
@@ -64,9 +69,6 @@
         public static void OverrideDefaultMachine(string machineName)
         {
             defaultMachine = machineName;
-
-            if (preventChanges)
-                throw new InvalidOperationException("Overwriting a previously set default machine name is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
         }
 
         /// <summary>
@@ -168,7 +170,13 @@
         {
             unchecked
             {
-                return ((queueLowerCased != null ? queueLowerCased.GetHashCode() : 0) * 397) ^ (machineLowerCased != null ? machineLowerCased.GetHashCode() : 0);
+                var hashCode = ((queueLowerCased != null ? queueLowerCased.GetHashCode() : 0) * 397);
+
+                if (!ignoreMachineName)
+                {
+                    hashCode ^= (machineLowerCased != null ? machineLowerCased.GetHashCode() : 0);
+                }
+                return hashCode;
             }
         }
 
@@ -181,14 +189,6 @@
                 return Queue;
 
             return Queue + "@" + Machine;
-        }
-
-        /// <summary>
-        /// Prevents changes to all addresses.
-        /// </summary>
-        public static void PreventChanges()
-        {
-            preventChanges = true;
         }
 
         /// <summary>
@@ -252,15 +252,12 @@
                 return false;
 
             return other.queueLowerCased.Equals(queueLowerCased);
-
         }
 
         static string defaultMachine = RuntimeEnvironment.MachineName;
-        static bool preventChanges;
 
         readonly string queueLowerCased;
         readonly string machineLowerCased;
         static bool ignoreMachineName;
-
     }
 }

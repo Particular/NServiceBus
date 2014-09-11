@@ -65,14 +65,14 @@ namespace NServiceBus.SecondLevelRetries
         {
             var retryMessageAt = DateTime.UtcNow + defer;
 
-            TransportMessageHelpers.SetHeader(message, Headers.Retries,
-                (TransportMessageHelpers.GetNumberOfRetries(message) + 1).ToString(CultureInfo.InvariantCulture));
+            TransportMessageHeaderHelper.SetHeader(message, Headers.Retries,
+                (TransportMessageHeaderHelper.GetNumberOfRetries(message) + 1).ToString(CultureInfo.InvariantCulture));
 
-            var addressOfFaultingEndpoint = TransportMessageHelpers.GetAddressOfFaultingEndpoint(message);
+            var addressOfFaultingEndpoint = TransportMessageHeaderHelper.GetAddressOfFaultingEndpoint(message);
 
-            if (!TransportMessageHelpers.HeaderExists(message, SecondLevelRetriesHeaders.RetriesTimestamp))
+            if (!TransportMessageHeaderHelper.HeaderExists(message, SecondLevelRetriesHeaders.RetriesTimestamp))
             {
-                TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp,
+                TransportMessageHeaderHelper.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp,
                     DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow));
             }
 

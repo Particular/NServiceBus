@@ -3,6 +3,8 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting.Support;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -15,8 +17,8 @@
                     .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
                     .AllowExceptions()
                     .Done(c => c.OrderAckReceived == 1)
-                    .Repeat(r=>r.For<AllOutboxCapableStorages>())
-                    .Run(TimeSpan.FromSeconds(20));
+                    .Repeat(r => r.For<AllOutboxCapableStorages>())
+                    .Run(new RunSettings { UseSeparateAppDomains = true, TestExecutionTimeout = TimeSpan.FromSeconds(20) });
         }
 
         [Test]
@@ -26,15 +28,15 @@
                     .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
                     {
                         var duplicateMessageId = Guid.NewGuid().ToString();
-                        bus.SendLocal<PlaceOrder>(m => m.SetHeader(Headers.MessageId, duplicateMessageId));
-                        bus.SendLocal<PlaceOrder>(m => m.SetHeader(Headers.MessageId, duplicateMessageId));
+                        bus.SendLocal<PlaceOrder>(m => bus.SetMessageHeader(m, Headers.MessageId, duplicateMessageId));
+                        bus.SendLocal<PlaceOrder>(m => bus.SetMessageHeader(m, Headers.MessageId, duplicateMessageId));
                         bus.SendLocal(new PlaceOrder());
                     }))
                     .AllowExceptions()
                     .Done(c => c.OrderAckReceived >= 2)
-                    .Repeat(r=>r.For<AllOutboxCapableStorages>())
+                    .Repeat(r => r.For<AllOutboxCapableStorages>())
                     .Should(context => Assert.AreEqual(2, context.OrderAckReceived))
-                    .Run(TimeSpan.FromSeconds(20));
+                    .Run(new RunSettings { UseSeparateAppDomains = true, TestExecutionTimeout = TimeSpan.FromSeconds(20) });
         }
 
         public class Context : ScenarioContext
@@ -46,12 +48,13 @@
         {
             public NonDtcReceivingEndpoint()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.Settings.Set("DisableOutboxTransportCheck", true);
-
-                    c.EnableOutbox();
-                })
+                EndpointSetup<DefaultServer>(
+                    
+                    b =>
+                    {
+                        b.GetSettings().Set("DisableOutboxTransportCheck", true);
+                        b.EnableOutbox();
+                    })
                 .AuditTo(Address.Parse("audit"));
             }
 

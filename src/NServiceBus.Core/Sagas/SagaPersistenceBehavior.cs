@@ -4,13 +4,13 @@
     using System.Collections.Generic;
     using System.Linq;
     using Logging;
+    using NServiceBus.Unicast;
     using Pipeline;
     using Pipeline.Contexts;
     using Saga;
     using Finders;
     using Timeout;
     using Transports;
-    using Unicast;
     using Unicast.Messages;
 
     class SagaPersistenceBehavior : IBehavior<IncomingContext>
@@ -19,12 +19,7 @@
 
         public IDeferMessages MessageDeferrer { get; set; }
 
-        public object MutateIncoming(object message)
-        {
-            
-
-            return message;
-        }
+        public IMessageHandlerRegistry MessageHandlerRegistry { get; set; }
 
         public void Invoke(IncomingContext context, Action next)
         {
@@ -42,8 +37,6 @@
                 return;
             }
 
-            MutateIncoming(saga);
-
             currentContext = context;
 
             var sagaInstanceState = new ActiveSagaInstance(saga);
@@ -56,15 +49,16 @@
             if (loadedEntity == null)
             {
                 //if this message are not allowed to start the saga
-                if (!Features.Sagas.ShouldMessageStartSaga(sagaInstanceState.SagaType, context.IncomingLogicalMessage.MessageType))
+                if (!Features.Sagas.IsAStartSagaMessage(sagaInstanceState.SagaType, context.IncomingLogicalMessage.MessageType))
                 {
                     sagaInstanceState.MarkAsNotFound();
 
-                    InvokeSagaNotFoundHandlers();
-                    return;
+                    InvokeSagaNotFoundHandlers(sagaInstanceState.SagaType);
                 }
-
-                sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaInstanceState.SagaType));
+                else
+                {
+                    sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaInstanceState.SagaType));
+                }
             }
             else
             {
@@ -74,7 +68,7 @@
 
             if (IsTimeoutMessage(context.IncomingLogicalMessage))
             {
-                context.MessageHandler.Invocation = HandlerInvocationCache.InvokeTimeout;
+                context.MessageHandler.Invocation = MessageHandlerRegistry.InvokeTimeout;
             }
 
 
@@ -132,9 +126,9 @@
             }
         }
 
-        void InvokeSagaNotFoundHandlers()
+        void InvokeSagaNotFoundHandlers(Type sagaType)
         {
-            logger.InfoFormat("Could not find a saga for the message type {0}. Going to invoke SagaNotFoundHandlers.", currentContext.IncomingLogicalMessage.MessageType.FullName);
+            logger.InfoFormat("Could not find a saga of type '{0}' for the message type '{1}'. Going to invoke SagaNotFoundHandlers.", sagaType.FullName, currentContext.IncomingLogicalMessage.MessageType.FullName);
 
             foreach (var handler in currentContext.Builder.BuildAll<IHandleSagaNotFound>())
             {
@@ -294,6 +288,7 @@
                 : base(WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic")
             {
                 InsertBefore(WellKnownStep.InvokeHandlers);
+                InsertAfter("SetCurrentMessageBeingHandled");
             }
         }
     }

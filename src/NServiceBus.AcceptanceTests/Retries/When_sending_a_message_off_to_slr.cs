@@ -57,7 +57,8 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Configurer.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance))
+                EndpointSetup<DefaultServer>(
+                    b => b.RegisterComponents(r => r.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance)))
                     .WithConfig<TransportConfig>(c =>
                     {
                         c.MaxRetries = 0;
@@ -94,9 +95,9 @@
                     transportMessage.Body[0]--;
                 }
 
-                public void Init(Configure config)
+                public void Customize(BusConfiguration configuration)
                 {
-                    config.Configurer.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall);
+                    configuration.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                 }
             }
 

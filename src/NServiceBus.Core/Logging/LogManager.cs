@@ -12,12 +12,22 @@ namespace NServiceBus.Logging
     {
         static LogManager()
         {
-            var defaultLogLevel = LogLevelReader.GetDefaultLogLevel();
-            loggerFactory = new DefaultLoggerFactory(defaultLogLevel, null);
+            Use<DefaultFactory>();
         }
 
-        static ILoggerFactory loggerFactory; 
-        internal static bool HasConfigBeenInitialised;
+        static Lazy<ILoggerFactory> loggerFactory; 
+
+        /// <summary>
+        /// Used to inject an instance of <see cref="ILoggerFactory"/> into <see cref="LogManager"/>.
+        /// </summary>
+        public static T Use<T>() where T : LoggingFactoryDefinition, new()
+        {
+            var loggingDefinition = new T();
+
+            loggerFactory = new Lazy<ILoggerFactory>(loggingDefinition.GetLoggingFactory); 
+            
+            return loggingDefinition;
+        }
 
         /// <summary>
         /// An instance of <see cref="ILoggerFactory"/> that will be used to construct <see cref="ILog"/>s for static fields.
@@ -25,37 +35,15 @@ namespace NServiceBus.Logging
         /// <remarks>
         /// Replace this instance at application statup to redirect log event to your custom logging library.
         /// </remarks>
-        public static ILoggerFactory LoggerFactory
+        public static void UseFactory(ILoggerFactory loggerFactory)
         {
-            get { return loggerFactory; }
-            set
+            if (loggerFactory == null)
             {
-                if (value == null)
-                    throw new ArgumentNullException("value");
-
-                loggerFactory = value;
-                if (!HasConfigBeenInitialised)
-                {
-                    return;
-                }
-                var log = loggerFactory.GetLogger(typeof(LogManager));
-                log.Warn("Logging has been configured after NServiceBus.Configure.With() has been called. To capture messages and errors that occur during configuration logging should be configured before before NServiceBus.Configure.With().");
+                throw new ArgumentNullException("loggerFactory");
             }
-        }
 
-        /// <summary>
-        /// Sets the <see cref="LoggerFactory"/> to be an instance of the internal default logger.
-        /// </summary>
-        /// <remarks>If <see cref="LoggerFactory"/> is already defined calling this method will replace it.</remarks>
-        /// <param name="level">The minimum <see cref="System.LogLevel"/> threshold to use.</param>
-        /// <param name="loggingDirectory">The target directory to log to.</param>
-        public static void ConfigureDefaults(LogLevel level = LogLevel.Info, string loggingDirectory = null)
-        {
-            level = LogLevelReader.GetDefaultLogLevel(level);
-            LoggerFactory = new DefaultLoggerFactory(level, loggingDirectory);
+            LogManager.loggerFactory = new Lazy<ILoggerFactory>(() => loggerFactory);
         }
-
-        //TODO: perhaps add method for null logging
 
         /// <summary>
         /// Construct a <see cref="ILog"/> using <typeparamref name="T"/> as the name.
@@ -70,7 +58,7 @@ namespace NServiceBus.Logging
         /// </summary>
         public static ILog GetLogger(Type type)
         {
-            return loggerFactory.GetLogger(type);
+            return loggerFactory.Value.GetLogger(type);
         }
 
         /// <summary>
@@ -78,7 +66,7 @@ namespace NServiceBus.Logging
         /// </summary>
         public static ILog GetLogger(string name)
         {
-            return loggerFactory.GetLogger(name);
+            return loggerFactory.Value.GetLogger(name);
         }
     }
 }

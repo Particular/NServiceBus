@@ -12,7 +12,7 @@
                     new Dictionary<string, string>
                         {
                             {
-                                "Serializer", typeof (Binary).AssemblyQualifiedName
+                                "Serializer", typeof (BinarySerializer).AssemblyQualifiedName
                             }
                         }
             };
@@ -24,7 +24,7 @@
                     new Dictionary<string, string>
                         {
                             {
-                                "Serializer", typeof (Bson).AssemblyQualifiedName
+                                "Serializer", typeof (BsonSerializer).AssemblyQualifiedName
                             }
                         }
             };
@@ -36,7 +36,7 @@
                     new Dictionary<string, string>
                         {
                             {
-                                "Serializer", typeof (Xml).AssemblyQualifiedName
+                                "Serializer", typeof (XmlSerializer).AssemblyQualifiedName
                             }
                         }
             };
@@ -48,7 +48,7 @@
                     new Dictionary<string, string>
                         {
                             {
-                                "Serializer", typeof (Json).AssemblyQualifiedName
+                                "Serializer", typeof (JsonSerializer).AssemblyQualifiedName
                             }
                         }
             };

@@ -24,5 +24,13 @@ namespace NServiceBus.Transports
         /// True if the transport
         /// </summary>
         public bool RequireOutboxConsent { get; set; }
+
+        /// <summary>
+        /// Gives implementations access to the <see cref="BusConfiguration"/> instance at configuration time.
+        /// </summary>
+        protected internal virtual void Configure(BusConfiguration config)
+        {
+            
+        }
     }
 }

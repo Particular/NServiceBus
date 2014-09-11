@@ -34,7 +34,7 @@
             {
                 return metadata;
             }
-            var message = string.Format("Could not find metadata for '{0}'.{1}Please ensure the following:{1}1. '{0}' is included in initial scanning see File Scanning: http://particular.net/articles/the-nservicebus-host{1}2. '{0}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode' see: http://particular.net/articles/unobtrusive-mode-messages", messageType.FullName, Environment.NewLine);
+            var message = string.Format("Could not find metadata for '{0}'.{1}Please ensure the following:{1}1. '{0}' is included in initial scanning. {1}2. '{0}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode'.", messageType.FullName, Environment.NewLine);
             throw new Exception(message);
         }
 
@@ -79,7 +79,10 @@
                 .OrderByDescending(PlaceInMessageHierarchy)
                 .ToList();
 
-            var metadata = new MessageMetadata(messageType, !conventions.IsExpressMessageType(messageType) && !defaultToNonPersistentMessages, conventions.TimeToBeReceivedAction(messageType), new[]
+            var timeToBeReceived = conventions.GetTimeToBeReceived(messageType);
+            var isExpressMessageType = conventions.IsExpressMessageType(messageType);
+            var recoverable = !isExpressMessageType && !defaultToNonPersistentMessages;
+            var metadata = new MessageMetadata(messageType, recoverable, timeToBeReceived, new[]
             {
                 messageType
             }.Concat(parentMessages));

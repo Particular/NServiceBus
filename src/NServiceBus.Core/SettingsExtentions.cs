@@ -43,27 +43,32 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Gets the list of types available to this endpoint
+        /// Gets the list of types available to this endpoint.
         /// </summary>
         public static IList<Type> GetAvailableTypes(this ReadOnlySettings settings)
         {
             return settings.Get<IList<Type>>("TypesToScan");
         }
 
-
         /// <summary>
-        /// Returns the name of this endpoint
+        /// Returns the name of this endpoint.
         /// </summary>
         public static string EndpointName(this ReadOnlySettings settings)
         {
             return settings.Get<string>("EndpointName");
         }
 
+        /// <summary>
+        /// Returns the queue name of this endpoint.
+        /// </summary>
+        public static Address LocalAddress(this ReadOnlySettings settings)
+        {
+            return Address.Parse(settings.Get<string>("NServiceBus.LocalAddress"));
+        }
 
         static bool HasConstructorThatAcceptsSettings(Type sectionOverrideType)
         {
             return sectionOverrideType.GetConstructor(new [] { typeof(ReadOnlySettings) }) != null;
         }
-
     }
 }

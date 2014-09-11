@@ -30,7 +30,7 @@
                 return false;
             }
 
-            if (transportMessage.CorrelationId == transportMessage.Id) //to make sure that we don't fire callbacks when doing send locals
+            if (transportMessage.CorrelationId == transportMessage.Id)
             {
                 return false;
             }

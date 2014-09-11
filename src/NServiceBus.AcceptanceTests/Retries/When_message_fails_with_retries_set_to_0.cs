@@ -37,7 +37,8 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Configurer.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance))
+                EndpointSetup<DefaultServer>(
+                    b => b.RegisterComponents(r => r.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance)))
                     .WithConfig<TransportConfig>(c =>
                     {
                         c.MaxRetries = 0;

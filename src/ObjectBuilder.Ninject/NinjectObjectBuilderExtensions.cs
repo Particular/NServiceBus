@@ -2,7 +2,6 @@
 {
     using global::Ninject.Extensions.NamedScope;
     using global::Ninject.Syntax;
-    using Internal;
 
     static class NinjectObjectBuilderExtensions
     {
@@ -16,7 +15,7 @@
         /// <returns>The binding</returns>
         public static IBindingInNamedWithOrOnSyntax<T> WhenInUnitOfWork<T>(this IBindingWhenSyntax<T> syntax)
         {
-            return syntax.WhenAnyAnchestorNamed(ScopeName);
+            return syntax.WhenAnyAncestorNamed(ScopeName);
         }
 
         /// <summary>

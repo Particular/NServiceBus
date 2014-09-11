@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast.Tests
         {
             RegisterSaga<MySaga>();
 
-            ReceiveMessage(new StartMessage());
+            ReceiveMessage(new StartMessage(), mapper: MessageMapper);
 
             Assert.AreEqual(1, persister.CurrentSagaEntities.Keys.Count());
         }
@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Tests
             RegisterSaga<MySaga>();
 
             RegisterMessageType<StartMessageThatIsAnInterface>();
-            ReceiveMessage(MessageMapper.CreateInstance<StartMessageThatIsAnInterface>());
+            ReceiveMessage(MessageMapper.CreateInstance<StartMessageThatIsAnInterface>(), mapper: MessageMapper);
 
             Assert.AreEqual(1, persister.CurrentSagaEntities.Keys.Count());
         }
@@ -37,7 +37,7 @@ namespace NServiceBus.Unicast.Tests
 
             RegisterSaga<MySaga>(new MySagaData { Id = sagaId });
 
-            ReceiveMessage(new StartMessage(), new Dictionary<string, string> { { Headers.SagaId, sagaId.ToString() } });
+            ReceiveMessage(new StartMessage(), new Dictionary<string, string> { { Headers.SagaId, sagaId.ToString() } }, mapper: MessageMapper);
 
             Assert.AreEqual(1, persister.CurrentSagaEntities.Keys.Count());
         }

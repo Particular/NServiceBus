@@ -10,9 +10,7 @@ namespace ObjectBuilder.Tests
     using NServiceBus.ObjectBuilder.CastleWindsor;
     using NServiceBus.ObjectBuilder.Ninject;
     using NServiceBus.ObjectBuilder.Spring;
-    using NServiceBus.ObjectBuilder.StructureMap;
     using NUnit.Framework;
-    using StructureMap;
     using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
 
     public class BuilderFixture
@@ -47,7 +45,6 @@ namespace ObjectBuilder.Tests
             objectBuilders = new List<IContainer>
                 {
                     //add all supported builders here
-                    new StructureMapObjectBuilder(new Container()),
                     new AutofacObjectBuilder(),
                     new WindsorObjectBuilder(),
                     new SpringObjectBuilder(),

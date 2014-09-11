@@ -59,9 +59,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
 
                 class AuditFilteringOverride : INeedInitialization
                 {
-                    public void Init(Configure config)
+                    public void Customize(BusConfiguration configuration)
                     {
-                        config.Pipeline.Register("SetFiltering", typeof(SetFiltering), "Filters audit entries");
+                        configuration.Pipeline.Register("SetFiltering", typeof(SetFiltering), "Filters audit entries");
                     }
                 }
             }
@@ -93,10 +93,10 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                 //here we inject our behavior
                 class AuditFilteringOverride : INeedInitialization
                 {
-                    public void Init(Configure config)
+                    public void Customize(BusConfiguration configuration)
                     {
                         //we replace the default audit behavior with out own
-                        config.Pipeline.Replace(WellKnownStep.AuditProcessedMessage, typeof(FilteringAuditBehavior), "A new audit forwarder that has filtering");
+                        configuration.Pipeline.Replace(WellKnownStep.AuditProcessedMessage, typeof(FilteringAuditBehavior), "A new audit forwarder that has filtering");
                     }
                 }
             }
@@ -104,7 +104,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
 
         public class AuditSpy : EndpointConfigurationBuilder
         {
-
             public AuditSpy()
             {
                 EndpointSetup<DefaultServer>();

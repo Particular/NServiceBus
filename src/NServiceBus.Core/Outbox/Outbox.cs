@@ -70,7 +70,7 @@ The reason you need to do this is because we need to ensure that you have read a
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (!context.Settings.Get<EnabledPersistences>().HasSupportFor(Storage.Outbox))
+            if (!PersistenceStartup.HasSupportFor(context.Settings, Storage.Outbox))
             {
                 throw new Exception("Selected persister doesn't have support for outbox storage. Please select another storage or disable the outbox feature using config.Features(f=>f.Disable<Outbox>())");    
             }

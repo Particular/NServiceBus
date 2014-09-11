@@ -9,7 +9,6 @@ namespace NServiceBus
     using System.Net.NetworkInformation;
     using System.Text;
     using System.Xml;
-    using System.Xml.Serialization;
     using Logging;
     using Transports.Msmq;
 
@@ -302,7 +301,7 @@ namespace NServiceBus
         const string PREFIX = "FormatName:" + DIRECTPREFIX;
         internal const string PRIVATE = "\\private$\\";
         static string localIp;
-        static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
+        static readonly System.Xml.Serialization.XmlSerializer headerSerializer = new System.Xml.Serialization.XmlSerializer(typeof(List<HeaderInfo>));
         static ILog Logger = LogManager.GetLogger<MsmqUtilities>();
     }
 }

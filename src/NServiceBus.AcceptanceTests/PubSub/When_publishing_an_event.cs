@@ -13,15 +13,8 @@
         public void Issue_1851()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b =>
-                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
-                        {
-                            if (s.SubscriberReturnAddress.Queue.Contains("Subscriber3"))
-                            {
-                                context.Subscriber3Subscribed = true;
-                            }
-                        }))
-                        .When(c => c.Subscriber3Subscribed, bus => bus.Publish<IFoo>())
+                    .WithEndpoint<Publisher3>(b =>
+                        b.When(c => c.Subscriber3Subscribed, bus => bus.Publish<IFoo>())
                      )
                     .WithEndpoint<Subscriber3>(b => b.Given((bus, context) =>
                     {
@@ -44,15 +37,11 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
-                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
+                        b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (bus, c) =>
                         {
-                            if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
-                                context.Subscriber1Subscribed = true;
-
-                            if (s.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
-                                context.Subscriber2Subscribed = true;
-                        }))
-                        .When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.Publish(new MyEvent()))
+                            c.AddTrace("Both subscribers is subscribed, going to publish MyEvent");
+                            bus.Publish(new MyEvent());
+                        })
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                         {
@@ -60,6 +49,11 @@
                             if (context.HasNativePubSubSupport)
                             {
                                 context.Subscriber1Subscribed = true;
+                                context.AddTrace("Subscriber1 is now subscribed (at least we have asked the broker to be subscribed)");
+                            }
+                            else
+                            {
+                                context.AddTrace("Subscriber1 has now asked to be subscribed to MyEvent");
                             }
                         }))
                       .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
@@ -69,6 +63,11 @@
                           if (context.HasNativePubSubSupport)
                           {
                               context.Subscriber2Subscribed = true;
+                              context.AddTrace("Subscriber2 is now subscribed (at least we have asked the broker to be subscribed)");
+                          }
+                          else
+                          {
+                              context.AddTrace("Subscriber2 has now asked to be subscribed to MyEvent");
                           }
                       }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
@@ -79,7 +78,7 @@
                         Assert.True(c.Subscriber2GotTheEvent);
                     })
 
-                    .Run();
+                    .Run(TimeSpan.FromSeconds(10));
         }
 
         public class Context : ScenarioContext
@@ -96,7 +95,39 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>(b =>
+                {
+                    b.OnEndpointSubscribed<Context>((s, context) =>
+                    {
+                        if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                        {
+                            context.Subscriber1Subscribed = true;
+                            context.AddTrace("Subscriber1 is now subscribed");
+                        }
+
+
+                        if (s.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
+                        {
+                            context.AddTrace("Subscriber2 is now subscribed");
+                            context.Subscriber2Subscribed = true;
+                        }
+                    });
+                    b.DisableFeature<AutoSubscribe>();
+                });
+            }
+        }
+
+        public class Publisher3 : EndpointConfigurationBuilder
+        {
+            public Publisher3()
+            {
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    if (s.SubscriberReturnAddress.Queue.Contains("Subscriber3"))
+                    {
+                        context.Subscriber3Subscribed = true;
+                    }
+                }));
             }
         }
 
@@ -105,7 +136,7 @@
             public Subscriber3()
             {
                 EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
-                    .AddMapping<IFoo>(typeof(Publisher));
+                    .AddMapping<IFoo>(typeof(Publisher3));
             }
 
             public class MyEventHandler : IHandleMessages<IFoo>
@@ -117,6 +148,7 @@
                     Context.Subscriber3GotTheEvent = true;
                 }
             }
+
         }
 
         public class Subscriber1 : EndpointConfigurationBuilder

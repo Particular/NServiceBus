@@ -25,9 +25,6 @@
         [SetUp]
         public void Setup()
         {
-            Address.InitializeLocalAddress("MyEndpoint");
-
-            
             persister = CreateTimeoutPersister();
         }
 

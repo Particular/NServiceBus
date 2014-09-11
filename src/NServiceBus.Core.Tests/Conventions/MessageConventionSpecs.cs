@@ -12,16 +12,19 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                conventions = new Conventions(isMessageTypeAction: t =>
+                conventions = new Conventions
                 {
-                    timesCalled++;
-                    return false;
-                });
+                    IsMessageTypeAction= t =>
+                    {
+                        timesCalled++;
+                        return false;
+                    }
+                };
 
-                conventions.IsMessage(this);
+                conventions.IsMessageType(GetType());
                 Assert.AreEqual(1, timesCalled);
 
-                conventions.IsMessage(this);
+                conventions.IsMessageType(GetType());
                 Assert.AreEqual(1, timesCalled);
             }
         }
@@ -33,16 +36,19 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                conventions = new Conventions(isEventTypeAction: t =>
+                conventions = new Conventions
                 {
-                    timesCalled++;
-                    return false;
-                });
+                    IsEventTypeAction = t =>
+                    {
+                        timesCalled++;
+                        return false;
+                    }
+                };
 
-                conventions.IsEvent(this);
+                conventions.IsEventType(GetType());
                 Assert.AreEqual(1, timesCalled);
 
-                conventions.IsEvent(this);
+                conventions.IsEventType(GetType());
                 Assert.AreEqual(1, timesCalled);
             }
         }
@@ -54,16 +60,19 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                conventions = new Conventions(isCommandTypeAction: t =>
+                conventions = new Conventions
                 {
-                    timesCalled++;
-                    return false;
-                });
+                    IsCommandTypeAction = t =>
+                    {
+                        timesCalled++;
+                        return false;
+                    }
+                };
 
-                conventions.IsCommand(this);
+                conventions.IsCommandType(GetType());
                 Assert.AreEqual(1, timesCalled);
 
-                conventions.IsCommand(this);
+                conventions.IsCommandType(GetType());
                 Assert.AreEqual(1, timesCalled);
             }
         }

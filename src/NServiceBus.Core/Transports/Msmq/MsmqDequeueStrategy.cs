@@ -17,15 +17,9 @@ namespace NServiceBus.Transports.Msmq
     /// </summary>
     class MsmqDequeueStrategy : IDequeueMessages, IDisposable
     {
-        /// <summary>
-        ///     Purges the queue on startup.
-        /// </summary>
-        public bool PurgeOnStartup { get; set; }
-
-        /// <summary>
-        ///     Msmq unit of work to be used in non DTC mode <see cref="MsmqUnitOfWork" />.
-        /// </summary>
         public MsmqUnitOfWork UnitOfWork { get; set; }
+        public CriticalError CriticalError { get; set; }
+        public Configure Configure { get; set; }
 
         /// <summary>
         ///     Initializes the <see cref="IDequeueMessages" />.
@@ -84,7 +78,7 @@ namespace NServiceBus.Transports.Msmq
 
             queue.MessageReadPropertyFilter = messageReadPropertyFilter;
 
-            if (PurgeOnStartup)
+            if (Configure.PurgeOnStartup())
             {
                 queue.Purge();
             }
@@ -345,10 +339,7 @@ namespace NServiceBus.Transports.Msmq
                         queue.FormatName, GetUserName());
             }
 
-            circuitBreaker.Execute(
-                () =>
-                    ConfigureCriticalErrorAction.RaiseCriticalError("Error in receiving messages.",
-                        new InvalidOperationException(errorException, messageQueueException)));
+            circuitBreaker.Execute(() => CriticalError.Raise("Error in receiving messages.",new InvalidOperationException(errorException, messageQueueException)));
         }
 
         static string GetUserName()

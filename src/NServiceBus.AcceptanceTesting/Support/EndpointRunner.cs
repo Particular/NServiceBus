@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Support;
+    using NServiceBus.Unicast;
     using Transports;
 
     [Serializable]
@@ -17,17 +18,19 @@
         readonly IList<Guid> executedWhens = new List<Guid>();
         EndpointBehavior behavior;
         IStartableBus bus;
-        Configure config;
+        ISendOnlyBus sendOnlyBus;
         EndpointConfiguration configuration;
         Task executeWhens;
         ScenarioContext scenarioContext;
         bool stopped;
+        RunDescriptor runDescriptor;
 
         public Result Initialize(RunDescriptor run, EndpointBehavior endpointBehavior,
             IDictionary<Type, string> routingTable, string endpointName)
         {
             try
             {
+                runDescriptor = run;
                 behavior = endpointBehavior;
                 scenarioContext = run.ScenarioContext;
                 configuration =
@@ -41,29 +44,31 @@
                 }
 
                 //apply custom config settings
-                config = configuration.GetConfiguration(run, routingTable);
+                var busConfiguration = configuration.GetConfiguration(run, routingTable);
 
-                config.Configurer.RegisterSingleton(scenarioContext.GetType(), scenarioContext);
                 scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
 
-                endpointBehavior.CustomConfig.ForEach(customAction => customAction(config));
+                endpointBehavior.CustomConfig.ForEach(customAction => customAction(busConfiguration));
 
-                config.EnableInstallers();
-                bus = config.CreateBus();
+                if (configuration.SendOnly)
+                {
+                    sendOnlyBus = Bus.CreateSendOnly(busConfiguration);
+                }
+                else
+                {
+                    bus = Bus.Create(busConfiguration);
+                    var transportDefinition = ((UnicastBus)bus).Settings.Get<TransportDefinition>();
 
-                var transportDefinition = config.Settings.Get<TransportDefinition>();
+                    scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
+                }
 
-                scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
 
                 executeWhens = Task.Factory.StartNew(() =>
                 {
                     while (!stopped)
                     {
-                        if (!contextChanged.Wait(TimeSpan.FromSeconds(5)))
                         //we spin around each 5s since the callback mechanism seems to be shaky
-                        {
-                            continue;
-                        }
+                        contextChanged.Wait(TimeSpan.FromSeconds(5));
 
                         lock (behavior)
                         {
@@ -105,11 +110,21 @@
                 {
                     var action = given.GetAction(scenarioContext);
 
-                    action(bus);
+                    if (configuration.SendOnly)
+                    {
+                        action(new IBusAdapter(sendOnlyBus));
+                    }
+                    else
+                    {
+
+                        action(bus);
+                    }
                 }
 
-                bus.Start();
-
+                if (!configuration.SendOnly)
+                {
+                    bus.Start();
+                }
 
                 return Result.Success();
             }
@@ -132,7 +147,15 @@
                 executeWhens.Wait();
                 contextChanged.Dispose();
 
-                bus.Dispose();
+                if (configuration.SendOnly)
+                {
+                    sendOnlyBus.Dispose();
+                }
+                else
+                {
+                    bus.Dispose();
+
+                }
 
                 return Result.Success();
             }
@@ -142,6 +165,16 @@
 
                 return Result.Failure(ex);
             }
+        }
+
+        public string Name()
+        {
+            if (runDescriptor.UseSeparateAppdomains)
+            {
+                return AppDomain.CurrentDomain.FriendlyName;
+            }
+
+            return configuration.EndpointName;
         }
 
         public override object InitializeLifetimeService()
@@ -156,13 +189,8 @@
             return lease;
         }
 
-        public string Name()
-        {
-            return AppDomain.CurrentDomain.FriendlyName;
-        }
-
         [Serializable]
-        public class Result : MarshalByRefObject
+        public class Result
         {
             public Exception Exception { get; set; }
 

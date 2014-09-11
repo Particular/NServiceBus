@@ -9,13 +9,17 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
     class ManageMessageFailuresWithoutSlr : IManageMessageFailures
     {
+        ISendMessages messageSender;
+        readonly Configure config;
         static ILog Logger = LogManager.GetLogger<ManageMessageFailuresWithoutSlr>();
 
-        private Address localAddress;
-        private readonly Address errorQueue;
+        Address localAddress;
+        Address errorQueue;
 
-        public ManageMessageFailuresWithoutSlr(IManageMessageFailures mainFailureManager)
+        public ManageMessageFailuresWithoutSlr(IManageMessageFailures mainFailureManager, ISendMessages messageSender, Configure config)
         {
+            this.messageSender = messageSender;
+            this.config = config;
             var mainTransportFailureManager = mainFailureManager as Faults.Forwarder.FaultManager;
             if (mainTransportFailureManager != null)
             {
@@ -44,9 +48,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             SetExceptionHeaders(message, e, reason);
             try
             {
-                var sender = Configure.Instance.Builder.Build<ISendMessages>();
-
-                sender.Send(message, new SendOptions(errorQueue));
+                messageSender.Send(message, new SendOptions(errorQueue));
             }
             catch (Exception exception)
             {
@@ -86,7 +88,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
             message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
 
-            var failedQ = localAddress ?? Address.Local;
+            var failedQ = localAddress ?? config.LocalAddress;
 
             message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
             message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);

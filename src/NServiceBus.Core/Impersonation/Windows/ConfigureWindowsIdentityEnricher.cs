@@ -1,10 +1,10 @@
 namespace NServiceBus.Impersonation.Windows
 {
-    class ConfigureWindowsIdentityEnricher : IWantToRunBeforeConfigurationIsFinalized
+    class ConfigureWindowsIdentityEnricher : INeedInitialization
     {
-        public void Run(Configure config)
+        public void Customize(BusConfiguration configuration)
         {
-            config.Configurer.ConfigureComponent<WindowsIdentityEnricher>(DependencyLifecycle.SingleInstance);
+            configuration.RegisterComponents(r=> r.ConfigureComponent<WindowsIdentityEnricher>(DependencyLifecycle.SingleInstance));
         }
     }
 }

@@ -4,10 +4,13 @@ namespace NServiceBus.Utils.Reflection
     using System.Collections;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
 
     static class ExtensionMethods
     {
+
+
         public static T Construct<T>(this Type type)
         {
             var defaultConstructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[] { }, null);
@@ -17,34 +20,6 @@ namespace NServiceBus.Utils.Reflection
             }
 
             return (T)Activator.CreateInstance(type);
-        }
-
-        public static Type GetGenericallyContainedType(this Type type, Type openGenericType, Type genericArg)
-        {
-            Type result = null;
-            LoopAndAct(type, openGenericType, genericArg, t => result = t);
-
-            return result;
-        }
-
-        static void LoopAndAct(Type type, Type openGenericType, Type genericArg, Action<Type> act)
-        {
-            foreach (var i in type.GetInterfaces())
-            {
-                var args = i.GetGenericArguments();
-
-                if (args.Length != 1)
-                {
-                    continue;
-                }
-
-                if (genericArg.IsAssignableFrom(args[0])
-                    && openGenericType.MakeGenericType(args[0]) == i)
-                {
-                    act(args[0]);
-                    break;
-                }
-            }
         }
 
         /// <summary>
@@ -90,7 +65,7 @@ namespace NServiceBus.Utils.Reflection
                 }
 
                 if (args.Length == 2)
-                    if (typeof(KeyValuePair<,>).MakeGenericType(args) == t)
+                    if (typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t)
                         result = "NServiceBus." + result;
 
                 lock(TypeToNameLookup)  
@@ -105,7 +80,7 @@ namespace NServiceBus.Utils.Reflection
             return t.Name;
         }
 
-        private static readonly byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
+        static byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
 
         static bool IsClrType(byte[] a1)
         {
@@ -113,7 +88,7 @@ namespace NServiceBus.Utils.Reflection
             return structuralEquatable.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
         }
 
-        private static readonly ConcurrentDictionary<Type, bool> IsSystemTypeCache = new ConcurrentDictionary<Type, bool>();
+        static ConcurrentDictionary<Type, bool> IsSystemTypeCache = new ConcurrentDictionary<Type, bool>();
 
         public static bool IsSystemType(this Type type)
         {
@@ -135,6 +110,17 @@ namespace NServiceBus.Utils.Reflection
                    type == typeof(IEvent);
         }
 
-        private static readonly IDictionary<Type, string> TypeToNameLookup = new Dictionary<Type, string>();
+        static Dictionary<Type, string> TypeToNameLookup = new Dictionary<Type, string>();
+
+
+
+        static byte[] nsbPublicKeyToken= typeof(ExtensionMethods).Assembly.GetName().GetPublicKeyToken();
+
+        public static bool IsFromParticularAssembly(this Type type)
+        {
+            return type.Assembly.GetName()
+                .GetPublicKeyToken()
+                .SequenceEqual(nsbPublicKeyToken);
+        }
     }
 }

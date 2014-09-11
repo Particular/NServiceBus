@@ -31,8 +31,7 @@
         /// <summary>
         /// Returns all the routes for a given message
         /// </summary>
-        /// <param name="messageType"></param>
-        /// <returns></returns>
+        /// <param name="messageType">The <see cref="Type"/> of the message to get the destination <see cref="Address"/> list for.</param>
         public List<Address> GetDestinationFor(Type messageType)
         {
             List<Address> address;
@@ -47,8 +46,8 @@
         /// <summary>
         /// Registers a route for the given event
         /// </summary>
-        /// <param name="eventType">The event</param>
-        /// <param name="endpointAddress">The logical owner for the event</param>
+        /// <param name="eventType">The <see cref="Type"/> of the event</param>
+        /// <param name="endpointAddress">The <see cref="Address"/> representing the logical owner for the event</param>
         public void RegisterEventRoute(Type eventType, Address endpointAddress)
         {
             if (endpointAddress == null || endpointAddress == Address.Undefined)

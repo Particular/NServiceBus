@@ -19,14 +19,12 @@
                         bus.Send<MyMessage>(m=>
                         {
                             m.Id = context.Id;
-                            m.SetHeader("MyHeader","MyHeaderValue");
+                            bus.SetMessageHeader(m, "MyHeader", "MyHeaderValue");
                         });
                     }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
-                    .Repeat(r =>r.For(Serializers.Binary)
-                                  //.For<AllBuilders>()
-                    )
+                    .Repeat(r =>r.For(Serializers.Binary))
                     .Should(c =>
                         {
                             Assert.True(c.WasCalled, "The message handler should be called");
@@ -86,7 +84,7 @@
 
                 Context.TimesCalled++;
 
-                Context.MyHeader = message.GetHeader("MyHeader");
+                Context.MyHeader = Bus.GetMessageHeader(message, "MyHeader");
 
                 Context.ReceivedHeaders = Bus.CurrentMessageContext.Headers;
 

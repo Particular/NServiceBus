@@ -1,13 +1,16 @@
 ﻿namespace NServiceBus.Persistence.Legacy
 {
+    using NServiceBus.Features;
+    using NServiceBus.Persistence.Msmq;
+
     /// <summary>
-    /// Used to enable Msmq persistence <see cref="IConfigurePersistence{T}"/>
+    /// Used to enable Msmq persistence.
     /// </summary>
-    public class Msmq : PersistenceDefinition
+    public class MsmqPersistence : PersistenceDefinition
     {
-        internal Msmq()
+        internal MsmqPersistence()
         {
-            Supports(Storage.Subscriptions);
+            Supports(Storage.Subscriptions, s => s.EnableFeatureByDefault<MsmqSubscriptionPersistence>());
         }
     }
 }

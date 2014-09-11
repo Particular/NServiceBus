@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System;
     using Outbox;
 
     /// <summary>
@@ -11,19 +10,14 @@
         /// <summary>
         /// Enables the outbox feature
         /// </summary>
-        public static Configure EnableOutbox(this Configure config,Action<OutboxSettings> customizations = null)
+        public static OutboxSettings EnableOutbox(this BusConfiguration config)
         {
-            if (customizations != null)
-            {
-                customizations(new OutboxSettings(config.Settings));
-            }
-
-            return config.Transactions(t => t.Advanced(a =>
-            {
-                a.DisableDistributedTransactions();
-                a.DoNotWrapHandlersExecutionInATransactionScope();
-            }))
-            .EnableFeature<Features.Outbox>();
+            var outboxSettings = new OutboxSettings(config.Settings);
+            config.Transactions()
+                .DisableDistributedTransactions()
+                .DoNotWrapHandlersExecutionInATransactionScope();
+            config.EnableFeature<Features.Outbox>();
+            return outboxSettings;
         }
     }
 }

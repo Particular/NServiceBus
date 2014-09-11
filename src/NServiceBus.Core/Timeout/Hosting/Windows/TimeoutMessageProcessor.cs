@@ -20,7 +20,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public DefaultTimeoutManager TimeoutManager { get; set; }
 
-        //public Address InputAddress { get { return Features.TimeoutManager.InputAddress; } }
+        public Configure Configure { get; set; }
 
         public bool Disabled { get; set; }
         public string EndpointName{ get; set; }
@@ -41,7 +41,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 //TODO: The line below needs to change when we refactor the slr to be:
                 // transport.DisableSLR() or similar
-                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager);
+                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager, MessageSender, Configure);
             };
         }
 

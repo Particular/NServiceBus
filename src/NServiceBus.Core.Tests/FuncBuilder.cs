@@ -60,10 +60,12 @@
                 }
 
                 //enable property injection
-                result.GetType().GetProperties()
+                var propertyInfos = result.GetType().GetProperties().Where(pi => pi.PropertyType != result.GetType());
+                var propsWithoutFuncs = propertyInfos
                     .Select(p => p.PropertyType)
-                    .Intersect(funcs.Select(f => f.Item1)).ToList()
-                    .ForEach(propertyTypeToSet => result.GetType().GetProperties().First(p => p.PropertyType == propertyTypeToSet)
+                    .Intersect(funcs.Select(f => f.Item1)).ToList();
+
+                propsWithoutFuncs.ForEach(propertyTypeToSet => propertyInfos.First(p => p.PropertyType == propertyTypeToSet)
                                                       .SetValue(result, Build(propertyTypeToSet), null));
 
                 return result;
@@ -71,7 +73,6 @@
             }
             catch (Exception ex)
             {
-                
                 throw new Exception("Failed to build type: " + typeToBuild,ex);
             }
         }

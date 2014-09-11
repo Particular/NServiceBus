@@ -3,6 +3,8 @@
 namespace NServiceBus.Utils.Reflection
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
 
@@ -14,6 +16,13 @@ namespace NServiceBus.Utils.Reflection
             if (info == null) throw new ArgumentException("Member is not a property");
 
             return info;
+        }
+
+        internal static List<TTarget> GetEnumValues()
+        {
+            return Enum.GetValues(typeof(TTarget))
+                .Cast<TTarget>()
+                .ToList();
         }
 
         public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property, bool checkForSingleDot)

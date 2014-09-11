@@ -23,7 +23,6 @@ namespace NServiceBus.Serializers.Json
         /// Creates the writer
         /// </summary>
         /// <param name="stream"></param>
-        /// <returns></returns>
         protected internal override JsonWriter CreateJsonWriter(Stream stream)
         {
             return new BsonWriter(stream);
@@ -33,7 +32,6 @@ namespace NServiceBus.Serializers.Json
         /// Creates the reader
         /// </summary>
         /// <param name="stream"></param>
-        /// <returns></returns>
         protected internal override JsonReader CreateJsonReader(Stream stream)
         {
             return new BsonReader(stream, true, DateTimeKind.Unspecified);
@@ -42,7 +40,6 @@ namespace NServiceBus.Serializers.Json
         /// <summary>
         /// Gets the supported content type
         /// </summary>
-        /// <returns></returns>
         protected internal override string GetContentType()
         {
             return ContentTypes.Bson;

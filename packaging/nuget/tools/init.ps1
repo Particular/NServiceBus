@@ -1,7 +1,7 @@
 param($installPath, $toolsPath, $package, $project)
 
 if($toolsPath){
-	if (!Get-Module NServiceBus.Powershell) {
+	if (-Not (Get-Module NServiceBus.Powershell)) {
 
 		$pathToNServiceBusPSCmdLets = Join-Path $toolsPath NServiceBus.Powershell.Development.dll
 

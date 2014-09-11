@@ -41,24 +41,26 @@
                     order.Specify(First<FirstHandler>.Then<SecondHandler>());
                 }
             }
-
        
             class FirstHandler : IHandleMessages<Message>
             {
+                public IBus Bus { get; set; }
 
                 public void Handle(Message message)
                 {
-                    message.SetHeader("Key", "Value");
+                    Bus.SetMessageHeader(message, "Key", "Value");
                 }
             }
 
             class SecondHandler : IHandleMessages<Message>
             {
+                public IBus Bus { get; set; }
+
                 public Context Context { get; set; }
 
                 public void Handle(Message message)
                 {
-                    var header = message.GetHeader("Key");
+                    var header = Bus.GetMessageHeader(message, "Key");
                     Context.GotMessage = true;
                     Context.SecondHandlerCanReadHeaderSetByFirstHandler = header == "Value";
                 }

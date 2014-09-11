@@ -97,7 +97,7 @@ namespace NServiceBus.ObjectBuilder.Common
             return this;
         }
 
-        public IConfigureComponents RegisterSingleton<T>(object instance)
+        public IConfigureComponents RegisterSingleton<T>(T instance)
         {
             container.RegisterSingleton(typeof(T), instance);
             return this;

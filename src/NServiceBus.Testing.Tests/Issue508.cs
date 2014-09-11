@@ -6,14 +6,8 @@
     using Saga;
 
     [TestFixture]
-    public class Issue508
+    public class Issue508 : BaseTests
     {
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
-        {
-            Test.Initialize();
-        }
-
         [Test]
         public void TimeoutInThePast()
         {

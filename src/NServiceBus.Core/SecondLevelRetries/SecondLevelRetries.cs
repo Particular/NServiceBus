@@ -13,11 +13,34 @@ namespace NServiceBus.Features
         internal SecondLevelRetries()
         {
             EnableByDefault();
-           
-            // if we're not using the Fault Forwarder, we should act as if SLR is disabled
-            //this will change when we make SLR a first class citizen
-            Prerequisite(c => c.Container.HasComponent<FaultManager>(), "A custom faultmanager was defined");
+            DependsOn<ForwarderFaultManager>();
+
+            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't use SLR since it requires receive capabilities");
+
             Prerequisite(IsEnabledInConfig, "SLR was disabled in config");
+        }
+
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
+
+            SetUpRetryPolicy(retriesConfig);
+
+            var processorAddress = context.Settings.LocalAddress().SubScope("Retries");
+            var useRemoteRetryProcessor = context.Settings.HasSetting("SecondLevelRetries.AddressOfRetryProcessor");
+            
+            if (useRemoteRetryProcessor)
+            {
+                processorAddress = context.Settings.Get<Address>("SecondLevelRetries.AddressOfRetryProcessor");
+            }
+
+            context.Container.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, processorAddress);
+            context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.InputAddress, processorAddress);
+            context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.RetryPolicy, context.Settings.GetOrDefault<Func<TransportMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy") ?? DefaultRetryPolicy.RetryPolicy);
+            context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, useRemoteRetryProcessor); 
         }
 
         bool IsEnabledInConfig(FeatureConfigurationContext context)
@@ -31,32 +54,6 @@ namespace NServiceBus.Features
                 return false;
 
             return retriesConfig.Enabled;
-        }
-
-        /// <summary>
-        /// See <see cref="Feature.Setup"/>
-        /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
-
-            SetUpRetryPolicy(retriesConfig);
-
-            var endpointName = context.Settings.Get<string>("EndpointName");
-
-
-            var processorAddress = Address.Parse(endpointName).SubScope("Retries");
-
-            var useRemoteRetryProcessor = context.Settings.HasSetting("SecondLevelRetries.AddressOfRetryProcessor");
-            if (useRemoteRetryProcessor)
-            {
-                processorAddress = context.Settings.Get<Address>("SecondLevelRetries.AddressOfRetryProcessor");
-            }
-
-            context.Container.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, processorAddress);
-            context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.InputAddress, processorAddress);
-            context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.RetryPolicy, context.Settings.GetOrDefault<Func<TransportMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy") ?? DefaultRetryPolicy.RetryPolicy);
-            context.Container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, useRemoteRetryProcessor); 
         }
 
         static void SetUpRetryPolicy(SecondLevelRetriesConfig retriesConfig)

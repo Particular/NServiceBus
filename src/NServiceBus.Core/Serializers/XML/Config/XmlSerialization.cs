@@ -9,9 +9,10 @@
     /// </summary>
     public class XmlSerialization : Feature
     {
-        
         internal XmlSerialization()
         {
+            EnableByDefault();
+            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "XmlSerialization not enable since serialization definition not detected.");
         }
 
         /// <summary>

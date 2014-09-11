@@ -18,7 +18,7 @@
 
         public IList<Type> TypesToInclude { get; set; }
 
-        public Func<RunDescriptor, IDictionary<Type, string>, Configure> GetConfiguration { get; set; }
+        public Func<RunDescriptor, IDictionary<Type, string>, BusConfiguration> GetConfiguration { get; set; }
 
         public string EndpointName
         {
@@ -42,6 +42,7 @@
         public string CustomEndpointName { get; set; }
 
         public Type AuditEndpoint { get; set; }
+        public bool SendOnly { get; set; }
 
         string endpointName;
     }

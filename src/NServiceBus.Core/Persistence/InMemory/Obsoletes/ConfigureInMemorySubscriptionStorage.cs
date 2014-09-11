@@ -1,20 +1,23 @@
+#pragma warning disable 1591
+// ReSharper disable UnusedParameter.Global
+
 namespace NServiceBus
 {
-    using Persistence;
+    using System;
 
-    /// <summary>
-    /// Contains extension methods to NServiceBus.Configure.
-    /// </summary>
+    [ObsoleteEx(
+        RemoveInVersion = "6", 
+        TreatAsErrorFromVersion = "5.0",
+        Message = "Use `configuration.UsePersistence<InMemoryPersistence>()`, where configuration is an instance of type `BusConfiguration`.")]
     public static class ConfigureInMemorySubscriptionStorage
     {
-        /// <summary>
-        /// Stores subscription data in memory.
-        /// This storage are for development scenarios only
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5.1", Replacement = "config.UsePersistence<Persistence.InMemory>()")]
+        [ObsoleteEx(
+            RemoveInVersion = "6", 
+            TreatAsErrorFromVersion = "5.0", 
+            Message = "Use `configuration.UsePersistence<InMemoryPersistence>()`, where configuration is an instance of type `BusConfiguration`.")]
         public static Configure InMemorySubscriptionStorage(this Configure config)
         {
-            return config.UsePersistence<Persistence.InMemory>();
+            throw new InvalidOperationException();
         }
     }
 }

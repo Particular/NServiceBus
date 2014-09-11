@@ -15,10 +15,12 @@ namespace NServiceBus.Faults.Forwarder
     class FaultManager : IManageMessageFailures
     {
         readonly IBuilder builder;
+        readonly Configure config;
 
-        public FaultManager(IBuilder builder)
+        public FaultManager(IBuilder builder, Configure config)
         {
             this.builder = builder;
+            this.config = config;
         }
 
         void IManageMessageFailures.SerializationFailedForMessage(TransportMessage message, Exception e)
@@ -63,7 +65,7 @@ namespace NServiceBus.Faults.Forwarder
                 }
                 else
                 {
-                    var retryAttempt = TransportMessageHelpers.GetNumberOfRetries(message) + 1;
+                    var retryAttempt = TransportMessageHeaderHelper.GetNumberOfRetries(message) + 1;
 
                     Logger.WarnFormat("Message with '{0}' id has failed FLR and will be handed over to SLR for retry attempt {1}.", message.Id, retryAttempt);
                 }
@@ -97,7 +99,7 @@ namespace NServiceBus.Faults.Forwarder
 
             // if the reply to address == ErrorQueue and RealErrorQueue is not null, the
             // SecondLevelRetries sat is running and the error happened within that sat.            
-            return TransportMessageHelpers.GetAddressOfFaultingEndpoint(message) == RetriesErrorQueue;
+            return TransportMessageHeaderHelper.GetAddressOfFaultingEndpoint(message) == RetriesErrorQueue;
         }
 
         void SetExceptionHeaders(TransportMessage message, Exception e)
@@ -112,8 +114,8 @@ namespace NServiceBus.Faults.Forwarder
             message.Headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage();
             message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
             message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.ToString();
-       
-            var failedQ = localAddress ?? Address.Local;
+
+            var failedQ = localAddress ?? config.LocalAddress;
 
             message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
             message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);

@@ -33,14 +33,14 @@
         [Test]
         public void The_default_time_out_should_be_1_day()
         {
-            TransportMessageHelpers.SetHeader(_message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow.AddDays(-1).AddSeconds(-1)));
+            TransportMessageHeaderHelper.SetHeader(_message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow.AddDays(-1).AddSeconds(-1)));
             var hasTimedOut = DefaultRetryPolicy.RetryPolicy(_message) == TimeSpan.MinValue;
             Assert.IsTrue(hasTimedOut);
         }
 
         private void Defer()
         {
-            TransportMessageHelpers.SetHeader(_message, Headers.Retries, (TransportMessageHelpers.GetNumberOfRetries(_message) + 1).ToString());
+            TransportMessageHeaderHelper.SetHeader(_message, Headers.Retries, (TransportMessageHeaderHelper.GetNumberOfRetries(_message) + 1).ToString());
         }
     }
 }

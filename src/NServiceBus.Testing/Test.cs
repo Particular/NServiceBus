@@ -1,14 +1,13 @@
 ﻿namespace NServiceBus.Testing
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using DataBus.InMemory;
     using Features;
     using MessageInterfaces;
-    using Persistence;
+    using NServiceBus.Unicast;
     using Saga;
 
     /// <summary>
@@ -27,19 +26,44 @@
         /// <summary>
         ///     Initializes the testing infrastructure.
         /// </summary>
-        public static void Initialize(Action<ConfigurationBuilder> customisations = null)
+        public static void Initialize(Action<BusConfiguration> customisations = null)
         {
             if (customisations == null)
             {
                 customisations = o => {};
             }
 
-            InitializeInternal(Configure.With(c =>
+            var configuration = new BusConfiguration();
+
+            configuration.EndpointName("UnitTests");
+            configuration.CustomConfigurationSource(testConfigurationSource);
+            configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+            configuration.DisableFeature<Sagas>();
+            configuration.DisableFeature<Audit>();
+            configuration.UseTransport<FakeTestTransport>();
+            configuration.UsePersistence<InMemoryPersistence>();
+            configuration.RegisterEncryptionService(b => new FakeEncryptor());
+            configuration.RegisterComponents(r =>
             {
-                c.EndpointName("UnitTests");
-                c.CustomConfigurationSource(testConfigurationSource);
-                customisations(c);
-            }));
+                r.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
+                r.ConfigureComponent<FakeQueueCreator>(DependencyLifecycle.InstancePerCall);
+                r.ConfigureComponent<FakeDequer>(DependencyLifecycle.InstancePerCall);
+                r.ConfigureComponent<FakeSender>(DependencyLifecycle.InstancePerCall);
+            });
+            customisations(configuration);
+
+            if (initialized)
+            {
+                return;
+            }
+
+            var bus = NServiceBus.Bus.Create(configuration);
+
+            var mapper = ((UnicastBus)bus).Builder.Build<IMessageMapper>();
+
+            messageCreator = mapper;
+
+            initialized = true;
         }
         
         // ReSharper disable UnusedParameter.Global
@@ -81,59 +105,7 @@
         }
         // ReSharper restore UnusedParameter.Global
 
-        static void InitializeInternal(Configure config)
-        {
-            if (initialized)
-            {
-                return;
-            }
-
-            config.DisableFeature<Sagas>()
-                .DisableFeature<Audit>()
-                .UseTransport<FakeTestTransport>()
-                .UsePersistence<InMemory>()
-                .InMemoryFaultManagement();
-
-            config.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
-
-            config.CreateBus();
-
-
-            var mapper = config.Builder.Build<IMessageMapper>();
-            if (mapper == null)
-            {
-                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
-            }
-
-            messageCreator = mapper;
-            ExtensionMethods.GetHeaderAction = (msg, key) =>
-            {
-                ConcurrentDictionary<string, string> kv;
-                if (messageHeaders.TryGetValue(msg, out kv))
-                {
-                    string val;
-                    if (kv.TryGetValue(key, out val))
-                    {
-                        return val;
-                    }
-                }
-
-                return null;
-            };
-            ExtensionMethods.SetHeaderAction = (msg, key, val) =>
-                messageHeaders.AddOrUpdate(msg,
-                    o => new ConcurrentDictionary<string, string>(new[]
-                    {
-                        new KeyValuePair<string, string>(key, val)
-                    }),
-                    (o, dictionary) =>
-                    {
-                        dictionary.AddOrUpdate(key, val, (s, s1) => val);
-                        return dictionary;
-                    });
-
-            initialized = true;
-        }
+     
 
         /// <summary>
         ///     Begin the test script for a saga of type T.
@@ -151,13 +123,17 @@
             var saga = (T)Activator.CreateInstance(typeof(T));
 
             var prop = typeof(T).GetProperty("Data");
-            var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
 
-            saga.Entity = sagaData;
-
-            if (saga.Entity != null)
+            if (prop != null)
             {
-                saga.Entity.Id = sagaId;
+                var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
+
+                saga.Entity = sagaData;
+
+                if (saga.Entity != null)
+                {
+                    saga.Entity.Id = sagaId;
+                }
             }
 
             return Saga(saga);
@@ -253,7 +229,6 @@
 
         static IMessageCreator messageCreator;
         static readonly TestConfigurationSource testConfigurationSource = new TestConfigurationSource();
-        static readonly ConcurrentDictionary<object, ConcurrentDictionary<string, string>> messageHeaders = new ConcurrentDictionary<object, ConcurrentDictionary<string, string>>();
         static bool initialized;
     }
 }

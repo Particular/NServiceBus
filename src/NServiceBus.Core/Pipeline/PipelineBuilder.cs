@@ -55,6 +55,7 @@
 
         void RegisterIncomingCoreBehaviors()
         {
+            coordinator.Register("ProcessingStatistics", typeof(ProcessingStatisticsBehavior), "Add ProcessingStarted and ProcessingEnded headers");
             coordinator.Register(WellKnownStep.CreateChildContainer, typeof(ChildContainerBehavior), "Creates the child container");
             coordinator.Register(WellKnownStep.ExecuteUnitOfWork, typeof(UnitOfWorkBehavior), "Executes the UoW");
             coordinator.Register("ProcessSubscriptionRequests", typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.");

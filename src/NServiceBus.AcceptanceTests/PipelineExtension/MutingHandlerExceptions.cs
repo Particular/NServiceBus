@@ -26,15 +26,12 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
             Assert.IsTrue(context.MessageAudited);
         }
 
-
         public class EndpointWithCustomExceptionMuting : EndpointConfigurationBuilder
         {
-
             public EndpointWithCustomExceptionMuting()
             {
                 EndpointSetup<DefaultServer>()
                     .AuditTo<AuditSpy>();
-
             }
 
             class Handler : IHandleMessages<MessageThatWillBlowUpButExWillBeMuted>
@@ -63,7 +60,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                     {
                         //modify this to your liking
                         if (ex.Message == "Lets filter on this text")
+                        {
                             return;
+                        }
 
                         throw;
                     }
@@ -72,11 +71,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
                 //here we inject our behavior
                 class MyExceptionFilteringOverride : INeedInitialization
                 {
-                    public void Init(Configure config)
+                    public void Customize(BusConfiguration configuration)
                     {
-                        //add our behavior to the pipeline just before NSB actually calls the handlers
-
-                        config.Pipeline.Register<MyExceptionFilteringRegistration>();
+                        configuration.Pipeline.Register<MyExceptionFilteringRegistration>();
                     }
                 }
 
@@ -93,7 +90,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
 
         public class AuditSpy : EndpointConfigurationBuilder
         {
-
             public AuditSpy()
             {
                 EndpointSetup<DefaultServer>();
@@ -115,7 +111,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExtension
             public bool IsMessageHandlingComplete { get; set; }
             public bool MessageAudited { get; set; }
         }
-
 
         [Serializable]
         public class MessageThatWillBlowUpButExWillBeMuted : IMessage

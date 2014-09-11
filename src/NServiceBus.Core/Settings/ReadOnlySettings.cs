@@ -27,7 +27,6 @@ namespace NServiceBus.Settings
         /// </summary>
         /// <typeparam name="T">The type to get, fullname will be used as key</typeparam>
         /// <param name="val">The value if present</param>
-        /// <returns></returns>
         bool TryGet<T>(out T val);
 
         /// <summary>
@@ -65,6 +64,20 @@ namespace NServiceBus.Settings
         /// <typeparam name="T">The <typeparamref name="T"/> to locate in the <see cref="ReadOnlySettings"/>.</typeparam>
         /// <returns>true if the <see cref="ReadOnlySettings"/> contains an element with the specified key; otherwise, false.</returns>
         bool HasSetting<T>();
+
+        /// <summary>
+        /// Determines whether the <see cref="ReadOnlySettings"/> contains a specific value for the specified key.
+        /// </summary>
+        /// <param name="key">The key to locate in the <see cref="ReadOnlySettings"/></param>
+        /// <returns>true if the <see cref="ReadOnlySettings"/> contains an explicit value with the specified key; otherwise, false.</returns>
+        bool HasExplicitValue(string key);
+
+        /// <summary>
+        /// Determines whether the <see cref="ReadOnlySettings"/> contains a specific value for the specified <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The <typeparamref name="T"/> to locate in the <see cref="ReadOnlySettings"/>.</typeparam>
+        /// <returns>true if the <see cref="ReadOnlySettings"/> contains an element with the specified key; otherwise, false.</returns>
+        bool HasExplicitValue<T>();
         
         /// <summary>
         /// Setup property injection for the given type based on convention

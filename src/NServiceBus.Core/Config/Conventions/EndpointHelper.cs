@@ -6,19 +6,22 @@ namespace NServiceBus.Config.Conventions
     using System.Reflection;
     using System.Web;
 
-    /// <summary>
-    /// The default name for a endpoint
-    /// </summary>
-    public static class EndpointHelper
+    class EndpointHelper
     {
-        private static Type entryType;
-        private static bool initialized;
+        StackTrace stackTraceToExamine;
+        Type entryType;
+        bool initialized;
+
+        public EndpointHelper(StackTrace stackTraceToExamine)
+        {
+            this.stackTraceToExamine = stackTraceToExamine;
+        }
 
         /// <summary>
         /// Gets the name of this endpoint
         /// </summary>
         /// <returns>The name of the endpoint.</returns>
-        public static string GetDefaultEndpointName()
+        public string GetDefaultEndpointName()
         {
             Initialize();
 
@@ -42,7 +45,7 @@ namespace NServiceBus.Config.Conventions
         /// Gets the version of the endpoint.
         /// </summary>
         /// <returns>The <see cref="Version"/> the endpoint.</returns>
-        public static string GetEndpointVersion()
+        public string GetEndpointVersion()
         {
             Initialize();
 
@@ -55,12 +58,7 @@ namespace NServiceBus.Config.Conventions
                     "No version of the endpoint could not be retrieved using the default convention, please specify your own convention using Configure.DefineEndpointVersionRetriever()");
         }
 
-        /// <summary>
-        /// If set this will be used to figure out what to name the endpoint and select the version.
-        /// </summary>
-        public static StackTrace StackTraceToExamine { get; set; }
-
-        static void Initialize()
+        void Initialize()
         {
             if (initialized)
                 return;
@@ -85,20 +83,22 @@ namespace NServiceBus.Config.Conventions
 
                 if (targetFrame != null)
                 {
-                    entryType= targetFrame.GetMethod().ReflectedType;
+                    entryType = targetFrame.GetMethod().ReflectedType;
                     return;
                 }
 
-                if (StackTraceToExamine != null)
+                if (stackTraceToExamine != null)
                 {
-                    stackFrames = StackTraceToExamine.GetFrames();
+                    stackFrames = stackTraceToExamine.GetFrames();
                     if (stackFrames != null)
                     {
                         targetFrame =
                             stackFrames.FirstOrDefault(
-                                f => f.GetMethod().DeclaringType != typeof(Configure));
-
-                      
+                                f =>
+                                {
+                                    var declaringType = f.GetMethod().DeclaringType;
+                                    return declaringType != typeof(Configure) && declaringType != typeof(BusConfiguration);
+                                });
                     }
                 }
 

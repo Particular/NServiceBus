@@ -37,7 +37,7 @@
                     var loadedHandler = new MessageHandler
                     {
                         Instance = context.Builder.Build(handlerType),
-                        Invocation = (handlerInstance, message) => HandlerInvocationCache.InvokeHandle(handlerInstance, message)
+                        Invocation = (handlerInstance, message) => HandlerRegistry.InvokeHandle(handlerInstance, message)
                     };
 
                     context.MessageHandler = loadedHandler;
