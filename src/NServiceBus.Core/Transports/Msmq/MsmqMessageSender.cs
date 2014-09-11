@@ -7,14 +7,29 @@ namespace NServiceBus.Transports.Msmq
     using Unicast;
     using Unicast.Queuing;
 
-    class MsmqMessageSender : ISendMessages
+    /// <summary>
+    /// Default MSMQ <see cref="ISendMessages"/> implementation.
+    /// </summary>
+    public class MsmqMessageSender : ISendMessages
     {
+        /// <summary>
+        /// MsmqSettings
+        /// </summary>
         public MsmqSettings Settings { get; set; }
 
+        /// <summary>
+        /// MsmqUnitOfWork
+        /// </summary>
         public MsmqUnitOfWork UnitOfWork { get; set; }
 
+        /// <summary>
+        /// SuppressDistributedTransactions
+        /// </summary>
         public bool SuppressDistributedTransactions { get; set; }
 
+        /// <summary>
+        /// Sends the given <paramref name="message"/>
+        /// </summary>
         public void Send(TransportMessage message, SendOptions sendOptions)
         {
             var address = sendOptions.Destination;
