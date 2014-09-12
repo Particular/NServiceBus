@@ -31,7 +31,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                         }
                     }))
                     .Done(c => c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked)
-                    .Repeat(r => r.For(Transports.Default))
+                    .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>()) // exclude the brokers since c.Subscribed won't get set for them
                     .Should(c => Assert.True(c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked))
                     .Run();
         }
@@ -102,7 +102,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 public class MySaga1Data : ContainSagaData
                 {
                     [Unique]
-                    public virtual  Guid DataId { get; set; }
+                    public virtual Guid DataId { get; set; }
                 }
 
             }
@@ -110,7 +110,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
             public class Saga2 : Saga<Saga2.MySaga2Data>, IAmStartedByMessages<StartSaga2>, IHandleMessages<GroupPendingEvent>
             {
                 public Context Context { get; set; }
-         
+
                 public void Handle(StartSaga2 message)
                 {
                     var dataId = Guid.NewGuid();
@@ -135,7 +135,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 public class MySaga2Data : ContainSagaData
                 {
                     [Unique]
-                    public virtual  Guid DataId { get; set; }
+                    public virtual Guid DataId { get; set; }
                 }
             }
         }
