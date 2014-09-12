@@ -12,10 +12,10 @@ namespace NServiceBus
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        public static TransportExtentions<T> UseTransport<T>(this BusConfiguration busConfiguration) where T : TransportDefinition, new()
+        public static TransportExtensions<T> UseTransport<T>(this BusConfiguration busConfiguration) where T : TransportDefinition, new()
         {
-            var type = typeof(TransportExtentions<>).MakeGenericType(typeof(T));
-            var extension = (TransportExtentions<T>)Activator.CreateInstance(type, busConfiguration.Settings);
+            var type = typeof(TransportExtensions<>).MakeGenericType(typeof(T));
+            var extension = (TransportExtensions<T>)Activator.CreateInstance(type, busConfiguration.Settings);
 
             busConfiguration.Settings.Set("transportDefinitionType", typeof(T));
 
@@ -25,11 +25,11 @@ namespace NServiceBus
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        public static TransportExtentions UseTransport(this BusConfiguration busConfiguration, Type transportDefinitionType)
+        public static TransportExtensions UseTransport(this BusConfiguration busConfiguration, Type transportDefinitionType)
         {
             busConfiguration.Settings.Set("transportDefinitionType", transportDefinitionType);
 
-            return new TransportExtentions(busConfiguration.Settings);
+            return new TransportExtensions(busConfiguration.Settings);
         }
 
         internal static void SetupTransport(BusConfiguration busConfiguration)

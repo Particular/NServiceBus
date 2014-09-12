@@ -7,15 +7,15 @@ namespace NServiceBus
     using NServiceBus.Unicast.Transport;
 
     /// <summary>
-    /// This class provides implementers of persisters with an extension mechanism for custom settings via extention methods.
+    /// This class provides implementers of persisters with an extension mechanism for custom settings via extension methods.
     /// </summary>
     /// <typeparam name="T">The persister definition eg <see cref="InMemory"/>, <see cref="MsmqTransport"/>, etc</typeparam>
-    public class TransportExtentions<T> : TransportExtentions where T : TransportDefinition
+    public class TransportExtensions<T> : TransportExtensions where T : TransportDefinition
     {
         /// <summary>
         /// Default constructor.
         /// </summary>
-        public TransportExtentions(SettingsHolder settings)
+        public TransportExtensions(SettingsHolder settings)
             : base(settings)
         {
         }
@@ -23,7 +23,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures the transport to use the given string as the connection string
         /// </summary>
-        public new TransportExtentions ConnectionString(string connectionString)
+        public new TransportExtensions ConnectionString(string connectionString)
         {
             base.ConnectionString(connectionString);
             return this;
@@ -32,7 +32,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures the transport to use the connection string with the given name
         /// </summary>
-        public new TransportExtentions ConnectionStringName(string name)
+        public new TransportExtensions ConnectionStringName(string name)
         {
             base.ConnectionStringName(name);
             return this;
@@ -41,7 +41,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures the transport to use the given func as the connection string
         /// </summary>
-        public new TransportExtentions ConnectionString(Func<string> connectionString)
+        public new TransportExtensions ConnectionString(Func<string> connectionString)
         {
             base.ConnectionString(connectionString);
             return this;
@@ -51,12 +51,12 @@ namespace NServiceBus
     /// <summary>
     /// This class provides implementers of transports with an extension mechanism for custom settings via extention methods.
     /// </summary>
-    public class TransportExtentions : ExposeSettings
+    public class TransportExtensions : ExposeSettings
     {
         /// <summary>
         /// Default constructor.
         /// </summary>
-        public TransportExtentions(SettingsHolder settings)
+        public TransportExtensions(SettingsHolder settings)
             : base(settings)
         {
         }
@@ -64,7 +64,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures the transport to use the given string as the connection string
         /// </summary>
-        public TransportExtentions ConnectionString(string connectionString)
+        public TransportExtensions ConnectionString(string connectionString)
         {
             Settings.Set<TransportConnectionString>(new TransportConnectionString(() => connectionString));
             return this;
@@ -73,7 +73,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures the transport to use the connection string with the given name
         /// </summary>
-        public TransportExtentions ConnectionStringName(string name)
+        public TransportExtensions ConnectionStringName(string name)
         {
             Settings.Set<TransportConnectionString>(new TransportConnectionString(name));
             return this;
@@ -82,7 +82,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures the transport to use the given func as the connection string
         /// </summary>
-        public TransportExtentions ConnectionString(Func<string> connectionString)
+        public TransportExtensions ConnectionString(Func<string> connectionString)
         {
             Settings.Set<TransportConnectionString>(new TransportConnectionString(connectionString));
             return this;

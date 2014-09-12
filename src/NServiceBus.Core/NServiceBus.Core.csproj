@@ -207,7 +207,7 @@
     <Compile Include="Monitoring\SLA\SLAMonitoring.cs" />
     <Compile Include="Monitoring\ProcessingStatisticsBehavior.cs" />
     <Compile Include="Unicast\Transport\Config\TransportConfiguration.cs" />
-    <Compile Include="Unicast\Transport\Config\TransportExtentions.cs" />
+    <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
     <Compile Include="Unicast\Transport\Config\UseTransportExtensions_Obsolete.cs" />
     <Compile Include="Utils\ElevateChecker.cs" />
     <Compile Include="IStartableBus.cs" />
