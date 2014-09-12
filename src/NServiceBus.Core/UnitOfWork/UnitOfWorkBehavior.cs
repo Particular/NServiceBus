@@ -2,13 +2,15 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Runtime.Serialization;
     using Pipeline;
     using Pipeline.Contexts;
 
 
     class UnitOfWorkBehavior : IBehavior<IncomingContext>
     {
-       public void Invoke(IncomingContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
             try
             {
@@ -25,31 +27,38 @@
                     unitsOfWork.Pop().End();
                 }
             }
+            catch (SerializationException)
+            {
+                throw;
+            }
             catch (Exception exception)
             {
-                AppendEndExceptionsAndRethrow(exception);
+                var trailingExceptions = AppendEndExceptionsAndRethrow(exception);
+                if (trailingExceptions.Any())
+                {
+                    trailingExceptions.Insert(0, exception);
+                    throw new AggregateException(trailingExceptions);
+                }
+                throw;
             }
         }
 
-        void AppendEndExceptionsAndRethrow(Exception parentException)
+        List<Exception> AppendEndExceptionsAndRethrow(Exception initialException)
         {
-            var exceptionsToThrow = new List<Exception>
-                                    {
-                                        parentException
-                                    };
+            var exceptionsToThrow = new List<Exception>();
             while (unitsOfWork.Count > 0)
             {
                 var uow = unitsOfWork.Pop();
                 try
                 {
-                    uow.End(parentException);
+                    uow.End(initialException);
                 }
-                catch (Exception exception)
+                catch (Exception endException)
                 {
-                    exceptionsToThrow.Add(exception);
+                    exceptionsToThrow.Add(endException);
                 }
             }
-            throw new AggregateException(exceptionsToThrow);
+            return exceptionsToThrow;
         }
 
         Stack<IManageUnitsOfWork> unitsOfWork = new Stack<IManageUnitsOfWork>();
