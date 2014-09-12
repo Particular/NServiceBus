@@ -296,7 +296,7 @@ namespace NServiceBus.Timeout.Core
 namespace NServiceBus.Installation.Environments
 {
     [ObsoleteEx(
-        Message = "IEnvironment is no longer required instead use the non generic `INeedToInstallSomething` and use `configuration.EnableInstallers()`, where configuration is an instance of type `BusConfiguration` to execute them.", 
+        Message = "IEnvironment is no longer required instead use the non generic `INeedToInstallSomething` and use `configuration.EnableInstallers()`, where `configuration` is an instance of type `BusConfiguration` to execute them.", 
         RemoveInVersion = "6", 
         TreatAsErrorFromVersion = "5")]
     public class Windows 
@@ -306,7 +306,7 @@ namespace NServiceBus.Installation.Environments
 namespace NServiceBus.Installation
 {
     [ObsoleteEx(
-        Message = "`IEnvironment` is no longer required instead use the non generic `INeedToInstallSomething` and use `configuration.EnableInstallers()`, where configuration is an instance of type `BusConfiguration` to execute them.",
+        Message = "`IEnvironment` is no longer required instead use the non generic `INeedToInstallSomething` and use `configuration.EnableInstallers()`, where `configuration` is an instance of type `BusConfiguration` to execute them.",
         RemoveInVersion = "6", 
         TreatAsErrorFromVersion = "5")]
     public interface IEnvironment 
@@ -316,7 +316,7 @@ namespace NServiceBus.Installation
 namespace NServiceBus.Installation
 {
     [ObsoleteEx(
-        Message = "`IEnvironment` is no longer required instead use the non generic `INeedToInstallSomething` and use `configuration.EnableInstallers()`, where configuration is an instance of type `BusConfiguration` to execute them.",
+        Message = "`IEnvironment` is no longer required instead use the non generic `INeedToInstallSomething` and use `configuration.EnableInstallers()`, where `configuration` is an instance of type `BusConfiguration` to execute them.",
         RemoveInVersion = "6", 
         TreatAsErrorFromVersion = "5")]
     public class INeedToInstallSomething<T>
@@ -326,7 +326,7 @@ namespace NServiceBus.Installation
 namespace NServiceBus
 {
     [ObsoleteEx(
-        Message = "`IEnvironment` is no longer required instead use the non generic `INeedToInstallSomething` and use `configuration.EnableInstallers()`, where configuration is an instance of type `BusConfiguration` to execute them.", 
+        Message = "`IEnvironment` is no longer required instead use the non generic `INeedToInstallSomething` and use `configuration.EnableInstallers()`, where `configuration` is an instance of type `BusConfiguration` to execute them.", 
         RemoveInVersion = "6", 
         TreatAsErrorFromVersion = "5")]
     public class Installer<T>

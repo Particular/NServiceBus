@@ -12,7 +12,7 @@ namespace NServiceBus.SecondLevelRetries.Helpers
     public static class TransportMessageHelpers
     {
         [ObsoleteEx(
-            Message = "Access the `TransportMessage.Header`s dictionary directly using the `FaultsHeaderKeys.FailedQ` key",
+            Message = "Access the `TransportMessage.Headers` dictionary directly using the `FaultsHeaderKeys.FailedQ` key",
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0")]
         public static Address GetAddressOfFaultingEndpoint(TransportMessage message)

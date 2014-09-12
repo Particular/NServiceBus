@@ -9,7 +9,7 @@ namespace NServiceBus
 
         [ObsoleteEx(
             Replacement = "ConfigureFileShareDataBus.FileShareDataBus(this BusConfiguration config, string basePath)", 
-            Message = "Use configuration.FileShareDataBus(basePath), where `configuration` is an instance of type `BusConfiguration`.", 
+            Message = "Use `configuration.FileShareDataBus(basePath)`, where `configuration` is an instance of type `BusConfiguration`.", 
             RemoveInVersion = "6.0", 
             TreatAsErrorFromVersion = "5.0")]
         public static Configure FileShareDataBus(this Configure config, string basePath)

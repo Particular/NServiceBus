@@ -18,7 +18,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Inject an instace of CriticalError and call CriticalError.Raise", 
+            Message = "Inject an instace of `CriticalError` and call `CriticalError.Raise`", 
             RemoveInVersion = "6.0", 
             TreatAsErrorFromVersion = "5.0")]
         public static void RaiseCriticalError(string errorMessage, Exception exception)
