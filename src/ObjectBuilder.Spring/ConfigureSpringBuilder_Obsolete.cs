@@ -21,6 +21,7 @@ namespace NServiceBus
             throw new NotImplementedException();
         }
 
+        [CLSCompliant(false)]
         [ObsoleteEx(
             Message = "Use `configuration.UseContainer<SpringBuilder>(b => b.ExistingApplicationContext(applicationContext))`, where `configuration` is an instance of type `BusConfiguration`.",
             TreatAsErrorFromVersion = "5.0",
