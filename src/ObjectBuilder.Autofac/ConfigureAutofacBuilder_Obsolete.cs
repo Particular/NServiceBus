@@ -6,13 +6,13 @@ namespace NServiceBus
     using global::Autofac;
 
     [ObsoleteEx(
-        Message = "Use `configuration.UseContainer<NServiceBus.Autofac>()`, where `configuration` is an instance of type `BusConfiguration`.", 
+        Message = "Use `configuration.UseContainer<AutofacBuilder>()`, where `configuration` is an instance of type `BusConfiguration`.", 
         TreatAsErrorFromVersion = "5.0", 
         RemoveInVersion = "6.0")]
     public static class ConfigureAutofacBuilder
     {
         [ObsoleteEx(
-            Message = "Use `configuration.UseContainer<NServiceBus.Autofac>()`, where `configuration` is an instance of type `BusConfiguration`.", 
+            Message = "Use `configuration.UseContainer<AutofacBuilder>()`, where `configuration` is an instance of type `BusConfiguration`.", 
             TreatAsErrorFromVersion = "5.0", 
             RemoveInVersion = "6.0")]
         public static Configure AutofacBuilder(this Configure config)
@@ -21,7 +21,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Use `configuration.UseContainer<NServiceBus.Autofac>(b => b.ExistingLifetimeScope(rootScope))`, where `configuration` is an instance of type `BusConfiguration`.", 
+            Message = "Use `configuration.UseContainer<AutofacBuilder>(b => b.ExistingLifetimeScope(rootScope))`, where `configuration` is an instance of type `BusConfiguration`.", 
             TreatAsErrorFromVersion = "5.0", 
             RemoveInVersion = "6.0")]
         public static Configure AutofacBuilder(this Configure config, ILifetimeScope rootScope)

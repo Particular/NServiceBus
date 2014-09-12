@@ -6,13 +6,13 @@ namespace NServiceBus
     using Castle.Windsor;
 
     [ObsoleteEx(
-        Message = "Use `configuration.UseContainer<NServiceBus.Windsor>()`, where `configuration` is an instance of type `BusConfiguration`.", 
+        Message = "Use `configuration.UseContainer<WindsorBuilder>()`, where `configuration` is an instance of type `BusConfiguration`.", 
         TreatAsErrorFromVersion = "5.0", 
         RemoveInVersion = "6.0")]
     public static class ConfigureWindsorBuilder
     {
         [ObsoleteEx(
-            Message = "Use `configuration.UseContainer<NServiceBus.Windsor>()`, where` configuration` is an instance of type BusConfiguration`.", 
+            Message = "Use `configuration.UseContainer<WindsorBuilder>()`, where` configuration` is an instance of type BusConfiguration`.", 
             TreatAsErrorFromVersion = "5.0",
             RemoveInVersion = "6.0")]
         public static Configure CastleWindsorBuilder(this Configure config)
@@ -21,7 +21,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Use `configuration.UseContainer<NServiceBus.Windsor>(b => b.ExistingContainer(container))`, where `configuration` is an instance of type `BusConfiguration`.", 
+            Message = "Use `configuration.UseContainer<WindsorBuilder>(b => b.ExistingContainer(container))`, where `configuration` is an instance of type `BusConfiguration`.", 
             TreatAsErrorFromVersion = "5.0",
             RemoveInVersion = "6.0")]
         public static Configure CastleWindsorBuilder(this Configure config, IWindsorContainer container)
