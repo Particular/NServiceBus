@@ -1,12 +1,12 @@
-﻿namespace NServiceBus.Unicast.Messages
+﻿namespace NServiceBus
 {
     using System;
     using System.Linq;
     using System.Reflection;
     using Logging;
+    using NServiceBus.Unicast.Transport;
     using Pipeline;
     using Pipeline.Contexts;
-    using Transport;
 
     class ExecuteLogicalMessagesBehavior : IBehavior<IncomingContext>
     {

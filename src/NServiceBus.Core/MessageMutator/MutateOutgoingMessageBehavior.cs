@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.MessageMutator
+﻿namespace NServiceBus
 {
     using System;
+    using NServiceBus.MessageMutator;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast.Transport;

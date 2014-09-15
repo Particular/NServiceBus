@@ -4,7 +4,6 @@
     using System.Diagnostics;
     using Config;
     using Logging;
-    using NServiceBus.Audit;
     using Unicast.Queuing.Installers;
     using Utils;
 

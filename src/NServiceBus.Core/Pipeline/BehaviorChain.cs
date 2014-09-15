@@ -1,8 +1,9 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using Logging;
+    using NServiceBus.Pipeline;
 
     class BehaviorChain<T> where T : BehaviorContext
     {

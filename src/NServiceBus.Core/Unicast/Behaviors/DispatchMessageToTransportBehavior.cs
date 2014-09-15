@@ -1,10 +1,11 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
+    using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Queuing;
     using Settings;
     using Pipeline;
     using Pipeline.Contexts;
-    using Queuing;
     using Support;
     using Transports;
 

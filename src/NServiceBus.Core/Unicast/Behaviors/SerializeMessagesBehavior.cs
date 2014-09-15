@@ -1,13 +1,13 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
     using System.IO;
     using System.Linq;
-    using Messages;
+    using NServiceBus.Unicast.Messages;
+    using NServiceBus.Unicast.Transport;
     using Pipeline;
     using Pipeline.Contexts;
     using Serialization;
-    using Transport;
 
     class SerializeMessagesBehavior : IBehavior<OutgoingContext>
     {

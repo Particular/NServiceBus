@@ -3,7 +3,6 @@
     using System;
     using System.Reflection;
     using System.Reflection.Emit;
-    using NServiceBus.Unicast.Messages;
     using NServiceBus.Utils.Reflection;
     using NUnit.Framework;
 

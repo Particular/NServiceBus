@@ -30,8 +30,8 @@
 #if (!DEBUG)
 
             StackTraceAssert.AreEqual(
-@"at NServiceBus.UnitOfWork.UnitOfWorkBehavior.Invoke(IncomingContext context, Action next)
-at NServiceBus.Unicast.Behaviors.ChildContainerBehavior.Invoke(IncomingContext context, Action next)
+@"at NServiceBus.UnitOfWorkBehavior.Invoke(IncomingContext context, Action next)
+at NServiceBus.ChildContainerBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.ProcessingStatisticsBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.Pipeline.PipelineExecutor.Execute[T](BehaviorChain`1 pipelineAction, T context)
 at NServiceBus.Unicast.Transport.TransportReceiver.ProcessMessage(TransportMessage message)
@@ -40,7 +40,7 @@ at NServiceBus.Transports.Msmq.MsmqDequeueStrategy.Action()", context.StackTrace
 
             StackTraceAssert.AreEqual(
 @"at NServiceBus.AcceptanceTests.Exceptions.When_Uow_Begin_and_different_End_throws.Endpoint.UnitOfWorkThatThrowsInEnd.End(Exception ex)
-at NServiceBus.UnitOfWork.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initialException)", context.InnerExceptionTwoStackTrace);
+at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initialException)", context.InnerExceptionTwoStackTrace);
 
 #endif
 

@@ -5,7 +5,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System.Collections.ObjectModel;
     using System.Runtime.Serialization;
     using System.Threading;
-    using Behaviors;
     using Core.Tests;
     using Helpers;
     using Licensing;

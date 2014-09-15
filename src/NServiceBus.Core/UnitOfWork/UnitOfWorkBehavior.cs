@@ -1,9 +1,10 @@
-﻿namespace NServiceBus.UnitOfWork
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.Serialization;
+    using NServiceBus.UnitOfWork;
     using Pipeline;
     using Pipeline.Contexts;
 

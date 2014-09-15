@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Audit
+﻿namespace NServiceBus
 {
     using System;
     using Pipeline;

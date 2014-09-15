@@ -27,6 +27,16 @@
                 }
             }
         }
+        [Test]
+        public void VerifyBehaviorNaming()
+        {
+            foreach (var featureType in GetBehaviors())
+            {
+                Assert.IsFalse(featureType.IsPublic, "Behaviors should internal " + featureType.FullName);
+                Assert.AreEqual("NServiceBus", featureType.Namespace, "Behaviors should be in the NServiceBus namespace since it reduces the 'wall of text' problem when looking at pipeline stack traces. " + featureType.FullName);
+                Assert.IsTrue(featureType.Name.EndsWith("Behavior"), "Behaviors should be suffixed with 'Behavior'. " + featureType.FullName);
+            }
+        }
 
         [Test]
         public void VerifyAttributesAreSealed()
@@ -37,6 +47,11 @@
             }
         }
 
+        static IEnumerable<Type> GetBehaviors()
+        {
+            return typeof(UnicastBus).Assembly.GetTypes()
+                .Where(type => type.GetInterfaces().Any(face=>face.Name.StartsWith("IBehavior")) && !type.IsAbstract);
+        }
         static IEnumerable<Type> GetFeatures()
         {
             return typeof(UnicastBus).Assembly.GetTypes()

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Unicast.Messages
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -7,11 +7,12 @@
     using System.Reflection;
     using System.Runtime.Serialization;
     using Logging;
+    using NServiceBus.Unicast.Messages;
+    using NServiceBus.Unicast.Transport;
     using Pipeline;
     using Pipeline.Contexts;
     using Scheduling.Messages;
     using Serialization;
-    using Transport;
     using Unicast;
 
 

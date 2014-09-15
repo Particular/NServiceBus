@@ -1,14 +1,15 @@
-﻿namespace NServiceBus.Sagas
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using Logging;
+    using NServiceBus.Sagas;
+    using NServiceBus.Sagas.Finders;
     using NServiceBus.Unicast;
     using Pipeline;
     using Pipeline.Contexts;
     using Saga;
-    using Finders;
     using Timeout;
     using Transports;
     using Unicast.Messages;
@@ -32,7 +33,7 @@
                 context.PhysicalMessage.Headers.Remove(Headers.SagaType);
             }
 
-            var saga = context.MessageHandler.Instance as Saga;
+            var saga = context.MessageHandler.Instance as Saga.Saga;
             if (saga == null)
             {
                 next();
@@ -189,7 +190,7 @@
             return true;
         }
 
-        IContainSagaData TryLoadSagaEntity(Saga saga, LogicalMessage message)
+        IContainSagaData TryLoadSagaEntity(Saga.Saga saga, LogicalMessage message)
         {
             var sagaType = saga.GetType();
 
@@ -210,7 +211,7 @@
             return null;
         }
 
-        void NotifyTimeoutManagerThatSagaHasCompleted(Saga saga)
+        void NotifyTimeoutManagerThatSagaHasCompleted(Saga.Saga saga)
         {
             MessageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
         }

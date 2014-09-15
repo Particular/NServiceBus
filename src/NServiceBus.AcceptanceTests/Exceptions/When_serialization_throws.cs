@@ -37,8 +37,8 @@ at System.Xml.XmlTextReaderImpl.ParseDocumentContent()
 at System.Xml.XmlLoader.Load(XmlDocument doc, XmlReader reader, Boolean preserveWhitespace)
 at System.Xml.XmlDocument.Load(XmlReader reader)
 at NServiceBus.Serializers.XML.XmlMessageSerializer.Deserialize(Stream stream, IList`1 messageTypesToDeserialize)
-at NServiceBus.Unicast.Messages.DeserializeLogicalMessagesBehavior.Extract(TransportMessage physicalMessage)
-at NServiceBus.Unicast.Messages.DeserializeLogicalMessagesBehavior.Invoke(IncomingContext context, Action next)", context.InnerExceptionStackTrace);
+at NServiceBus.DeserializeLogicalMessagesBehavior.Extract(TransportMessage physicalMessage)
+at NServiceBus.DeserializeLogicalMessagesBehavior.Invoke(IncomingContext context, Action next)", context.InnerExceptionStackTrace);
 #endif
         }
 
