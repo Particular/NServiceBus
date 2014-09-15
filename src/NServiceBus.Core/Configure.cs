@@ -67,7 +67,6 @@ namespace NServiceBus
             var b = new CommonObjectBuilder
             {
                 Container = container,
-                Synchronized = Settings.GetOrDefault<bool>("UseSynchronizationDomain")
             };
 
             Builder = b;

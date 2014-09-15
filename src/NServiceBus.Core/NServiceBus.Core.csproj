@@ -452,7 +452,6 @@
     <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />
     <Compile Include="ObjectBuilder\Common\ConfigureContainer_Obsolete.cs" />
     <Compile Include="ObjectBuilder\Common\IContainer.cs" />
-    <Compile Include="ObjectBuilder\Common\SynchronizedInvoker.cs" />
     <Compile Include="ObjectBuilder\IBuilder.cs" />
     <Compile Include="ObjectBuilder\IComponentConfig.cs" />
     <Compile Include="ObjectBuilder\IConfigureComponents.cs" />
