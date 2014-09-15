@@ -12,14 +12,33 @@
     /// </summary>
     public class Conventions
     {
+        internal IEnumerable<PropertyInfo> GetDataBusProperties(object message)
+        {
+            var messageType = message.GetType();
+
+
+            List<PropertyInfo> value;
+
+            if (!cache.TryGetValue(messageType, out value))
+            {
+                value = messageType.GetProperties()
+                    .Where(IsDataBusProperty)
+                    .ToList();
+
+                cache[messageType] = value;
+            }
+
+            return value;
+        }
+
         /// <summary>
-        ///     Returns the time to be received for a give <paramref name="messageType"/>.
+        ///     Returns the time to be received for a give <paramref name="messageType" />.
         /// </summary>
         public TimeSpan GetTimeToBeReceived(Type messageType)
         {
             return TimeToBeReceivedAction(messageType);
         }
-        
+
         /// <summary>
         ///     Returns true if the given type is a message type.
         /// </summary>
@@ -152,7 +171,7 @@
         {
             try
             {
-               return EventsConventionCache.ApplyConvention(t, type =>
+                return EventsConventionCache.ApplyConvention(t, type =>
                 {
                     if (type.IsFromParticularAssembly())
                     {
@@ -167,12 +186,11 @@
             }
         }
 
+        readonly ConcurrentDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>();
+
         ConventionCache CommandsConventionCache = new ConventionCache();
         ConventionCache EventsConventionCache = new ConventionCache();
         ConventionCache ExpressConventionCache = new ConventionCache();
-        ConventionCache MessagesConventionCache = new ConventionCache();
-
-        List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
 
         internal Func<Type, bool> IsCommandTypeAction = t => typeof(ICommand).IsAssignableFrom(t) && typeof(ICommand) != t;
 
@@ -186,9 +204,12 @@
             .Any();
 
         internal Func<Type, bool> IsMessageTypeAction = t => typeof(IMessage).IsAssignableFrom(t) &&
-                                                    typeof(IMessage) != t &&
-                                                    typeof(IEvent) != t &&
-                                                    typeof(ICommand) != t;
+                                                             typeof(IMessage) != t &&
+                                                             typeof(IEvent) != t &&
+                                                             typeof(ICommand) != t;
+
+        List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
+        ConventionCache MessagesConventionCache = new ConventionCache();
 
         internal Func<Type, TimeSpan> TimeToBeReceivedAction = t =>
         {

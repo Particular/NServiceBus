@@ -1,11 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
-    using System.Reflection;
     using System.Transactions;
     using NServiceBus.DataBus;
     using Pipeline;
@@ -17,6 +13,7 @@
         public IDataBus DataBus { get; set; }
 
         public IDataBusSerializer DataBusSerializer { get; set; }
+
         public Conventions Conventions { get; set; }
 
         public void Invoke(OutgoingContext context, Action next)
@@ -30,7 +27,7 @@
             var timeToBeReceived = context.OutgoingLogicalMessage.Metadata.TimeToBeReceived;
             var message = context.OutgoingLogicalMessage.Instance;
 
-            foreach (var property in GetDataBusProperties(message))
+            foreach (var property in Conventions.GetDataBusProperties(message))
             {
                 var propertyValue = property.GetValue(message, null);
 
@@ -77,28 +74,6 @@
 
             next();
         }
-
-        IEnumerable<PropertyInfo> GetDataBusProperties(object message)
-        {
-            var messageType = message.GetType();
-
-
-            List<PropertyInfo> value;
-
-            if (!cache.TryGetValue(messageType, out value))
-            {
-                value = messageType.GetProperties()
-                    .Where(Conventions.IsDataBusProperty)
-                    .ToList();
-
-                cache[messageType] = value;
-            }
-
-
-            return value;
-        }
-
-        readonly static ConcurrentDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>();
 
         public class Registration : RegisterStep
         {
