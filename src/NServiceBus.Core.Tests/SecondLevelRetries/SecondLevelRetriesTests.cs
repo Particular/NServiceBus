@@ -32,7 +32,7 @@
             satellite.MessageSender = messageSender;
             satellite.MessageDeferrer = deferrer;
 
-            satellite.RetryPolicy = DefaultRetryPolicy.RetryPolicy;
+            satellite.RetryPolicy = DefaultRetryPolicy.Validate;
 
             message = new TransportMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>{{Headers.ReplyToAddress,CLIENT_QUEUE.ToString()}});
         }

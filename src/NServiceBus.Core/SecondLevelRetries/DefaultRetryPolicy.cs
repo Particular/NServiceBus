@@ -7,10 +7,8 @@ namespace NServiceBus.SecondLevelRetries
     {
         public static int NumberOfRetries = 3;
         public static TimeSpan TimeIncrease = TimeSpan.FromSeconds(10);
-        public static Func<TransportMessage, TimeSpan> RetryPolicy = Validate;
 
-
-        static TimeSpan Validate(TransportMessage message)
+        public static TimeSpan Validate(TransportMessage message)
         {
             if (HasReachedMaxTime(message))
             {

@@ -22,7 +22,7 @@
         {            
             for (var i=0; i<3; i++)
             {                
-                var timeSpan = DefaultRetryPolicy.RetryPolicy(_message);
+                var timeSpan = DefaultRetryPolicy.Validate(_message);
                 
                 Defer();
 
@@ -34,7 +34,7 @@
         public void The_default_time_out_should_be_1_day()
         {
             TransportMessageHeaderHelper.SetHeader(_message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow.AddDays(-1).AddSeconds(-1)));
-            var hasTimedOut = DefaultRetryPolicy.RetryPolicy(_message) == TimeSpan.MinValue;
+            var hasTimedOut = DefaultRetryPolicy.Validate(_message) == TimeSpan.MinValue;
             Assert.IsTrue(hasTimedOut);
         }
 
