@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.AcceptanceTests.Retries
 {
     using System;
-    using Config;
     using Faults;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Config;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
