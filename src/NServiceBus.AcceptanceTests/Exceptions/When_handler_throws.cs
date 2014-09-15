@@ -24,7 +24,7 @@
             Assert.AreEqual(typeof(HandlerException), context.ExceptionType);
 #if (!DEBUG)
       StackTraceAssert.AreEqual(
-@"at NServiceBus.AcceptanceTests.ManageFailures.When_handler_throws.Endpoint.Handler.Handle(Message message)
+@"at NServiceBus.AcceptanceTests.Exceptions.When_handler_throws.Endpoint.Handler.Handle(Message message)
 at NServiceBus.Unicast.MessageHandlerRegistry.Invoke(Object handler, Object message, Dictionary`2 dictionary)
 at NServiceBus.Unicast.Behaviors.InvokeHandlersBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.Unicast.Behaviors.SetCurrentMessageBeingHandledBehavior.Invoke(IncomingContext context, Action next)

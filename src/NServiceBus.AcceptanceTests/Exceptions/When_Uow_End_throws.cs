@@ -26,7 +26,7 @@
             Assert.AreEqual(typeof(EndException), context.ExceptionType);
 #if(!DEBUG)
             StackTraceAssert.AreEqual(
-@"at NServiceBus.AcceptanceTests.ManageFailures.When_Uow_End_throws.Endpoint.UnitOfWorkThatThrowsInEnd.End(Exception ex)
+@"at NServiceBus.AcceptanceTests.Exceptions.When_Uow_End_throws.Endpoint.UnitOfWorkThatThrowsInEnd.End(Exception ex)
 at NServiceBus.UnitOfWork.UnitOfWorkBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.Unicast.Behaviors.ChildContainerBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.ProcessingStatisticsBehavior.Invoke(IncomingContext context, Action next)

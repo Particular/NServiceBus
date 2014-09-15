@@ -39,7 +39,7 @@ at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage m
 at NServiceBus.Transports.Msmq.MsmqDequeueStrategy.Action()", context.StackTrace);
 
             StackTraceAssert.AreEqual(
-@"at NServiceBus.AcceptanceTests.ManageFailures.When_Uow_Begin_and_different_End_throws.Endpoint.UnitOfWorkThatThrowsInEnd.End(Exception ex)
+@"at NServiceBus.AcceptanceTests.Exceptions.When_Uow_Begin_and_different_End_throws.Endpoint.UnitOfWorkThatThrowsInEnd.End(Exception ex)
 at NServiceBus.UnitOfWork.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initialException)", context.InnerExceptionTwoStackTrace);
 
 #endif

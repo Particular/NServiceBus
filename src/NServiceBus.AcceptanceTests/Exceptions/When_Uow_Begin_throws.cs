@@ -26,7 +26,7 @@
             Assert.AreEqual(typeof(BeginException), context.ExceptionType);
 #if (!DEBUG)
             StackTraceAssert.AreEqual(
-@"at NServiceBus.AcceptanceTests.ManageFailures.When_Uow_Begin_throws.Endpoint.UnitOfWorkThatThrowsInBegin.Begin()
+@"at NServiceBus.AcceptanceTests.Exceptions.When_Uow_Begin_throws.Endpoint.UnitOfWorkThatThrowsInBegin.Begin()
 at NServiceBus.UnitOfWork.UnitOfWorkBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.Unicast.Behaviors.ChildContainerBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.ProcessingStatisticsBehavior.Invoke(IncomingContext context, Action next)

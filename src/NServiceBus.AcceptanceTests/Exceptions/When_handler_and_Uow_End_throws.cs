@@ -36,7 +36,7 @@ at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage m
 at NServiceBus.Transports.Msmq.MsmqDequeueStrategy.Action()", context.StackTrace);
 
             StackTraceAssert.AreEqual(
-@"at NServiceBus.AcceptanceTests.ManageFailures.When_handler_and_Uow_End_throws.Endpoint.Handler.Handle(Message message)
+@"at NServiceBus.AcceptanceTests.Exceptions.When_handler_and_Uow_End_throws.Endpoint.Handler.Handle(Message message)
 at NServiceBus.Unicast.MessageHandlerRegistry.Invoke(Object handler, Object message, Dictionary`2 dictionary)
 at NServiceBus.Unicast.Behaviors.InvokeHandlersBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.Unicast.Behaviors.SetCurrentMessageBeingHandledBehavior.Invoke(IncomingContext context, Action next)
@@ -50,7 +50,7 @@ at NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.SubscriptionRece
 at NServiceBus.UnitOfWork.UnitOfWorkBehavior.Invoke(IncomingContext context, Action next)", context.InnerExceptionOneStackTrace);
 
             StackTraceAssert.AreEqual(
-@"at NServiceBus.AcceptanceTests.ManageFailures.When_handler_and_Uow_End_throws.Endpoint.UnitOfWorkThatThrowsInEnd.End(Exception ex)
+@"at NServiceBus.AcceptanceTests.Exceptions.When_handler_and_Uow_End_throws.Endpoint.UnitOfWorkThatThrowsInEnd.End(Exception ex)
 at NServiceBus.UnitOfWork.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initialException)", context.InnerExceptionTwoStackTrace);
             
 #endif
