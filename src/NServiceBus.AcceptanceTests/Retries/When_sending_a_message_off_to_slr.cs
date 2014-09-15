@@ -2,11 +2,11 @@
 {
     using System;
     using System.Linq;
-    using Config;
     using Faults;
     using EndpointTemplates;
     using AcceptanceTesting;
     using MessageMutator;
+    using NServiceBus.Config;
     using NUnit.Framework;
     using Unicast.Messages;
 

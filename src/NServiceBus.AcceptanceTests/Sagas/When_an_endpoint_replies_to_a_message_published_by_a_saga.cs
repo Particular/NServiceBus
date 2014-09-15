@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using Config;
     using EndpointTemplates;
     using AcceptanceTesting;
     using Features;
+    using NServiceBus.Config;
     using NUnit.Framework;
     using PubSub;
     using Saga;

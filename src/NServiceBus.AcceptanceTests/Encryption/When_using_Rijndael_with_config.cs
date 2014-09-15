@@ -2,10 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using Config;
-    using Config.ConfigurationSource;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Config;
+    using NServiceBus.Config.ConfigurationSource;
     using NUnit.Framework;
     using ScenarioDescriptors;
 

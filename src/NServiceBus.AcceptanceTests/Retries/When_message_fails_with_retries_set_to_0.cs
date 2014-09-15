@@ -2,10 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using Config;
     using Faults;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_message_fails_with_retries_set_to_0 : NServiceBusAcceptanceTest

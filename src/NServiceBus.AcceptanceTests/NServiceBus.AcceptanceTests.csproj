@@ -51,49 +51,49 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audit\When_using_audit_message_is_received.cs" />
-    <Compile Include="BasicMessaging\When_registering_a_callback_for_a_local_message_from_early_version_missing_intent.cs" />
-    <Compile Include="BasicMessaging\When_sending_from_a_send_only.cs" />
-    <Compile Include="BasicMessaging\When_using_a_greedy_convention.cs" />
-    <Compile Include="BasicMessaging\When_handling_incoming_messages_headers_should_be_shared.cs" />
-    <Compile Include="BasicMessaging\When_sending_a_message_ensure_proper_headers.cs" />
-    <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_not_expired.cs" />
-    <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_expired.cs" />
-    <Compile Include="BasicMessaging\When_Deferring_a_message.cs" />
-    <Compile Include="Configuration\When_IWantToRunWhenBusStartsAndStops_Start_throws.cs" />
-    <Compile Include="Configuration\When__startup_is_complete.cs" />
+    <Compile Include="Basic\When_registering_a_callback_for_a_local_message_from_early_version_missing_intent.cs" />
+    <Compile Include="Basic\When_sending_from_a_send_only.cs" />
+    <Compile Include="Basic\When_using_a_greedy_convention.cs" />
+    <Compile Include="Basic\When_handling_incoming_messages_headers_should_be_shared.cs" />
+    <Compile Include="Basic\When_sending_a_message_ensure_proper_headers.cs" />
+    <Compile Include="Basic\When_using_a_message_with_TimeToBeReceived_has_not_expired.cs" />
+    <Compile Include="Basic\When_using_a_message_with_TimeToBeReceived_has_expired.cs" />
+    <Compile Include="Basic\When_Deferring_a_message.cs" />
+    <Compile Include="Config\When_IWantToRunWhenBusStartsAndStops_Start_throws.cs" />
+    <Compile Include="Config\When__startup_is_complete.cs" />
     <Compile Include="CriticalError\When_registering_a_custom_criticalErrorHandler.cs" />
     <Compile Include="DataBus\When_sending_with_custom_IDataBus.cs" />
-    <Compile Include="DurableMessaging\When_sending_a_message_to_another_endpoint.cs" />
+    <Compile Include="Volatile\When_sending_a_message_to_another_endpoint.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_multikey.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_custom.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_config.cs" />
     <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
-    <Compile Include="ExceptionHandling\StackTraceAssert.cs" />
-    <Compile Include="ExceptionHandling\When_handler_and_Uow_End_throws.cs">
+    <Compile Include="Exceptions\StackTraceAssert.cs" />
+    <Compile Include="Exceptions\When_handler_and_Uow_End_throws.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ExceptionHandling\When_handler_throws.cs">
+    <Compile Include="Exceptions\When_handler_throws.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ExceptionHandling\When_handler_throws_AggregateException.cs">
+    <Compile Include="Exceptions\When_handler_throws_AggregateException.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ExceptionHandling\When_serialization_throws.cs">
+    <Compile Include="Exceptions\When_serialization_throws.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ExceptionHandling\When_Uow_Begin_and_different_End_throws.cs">
+    <Compile Include="Exceptions\When_Uow_Begin_and_different_End_throws.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ExceptionHandling\When_Uow_Begin_throws.cs">
+    <Compile Include="Exceptions\When_Uow_Begin_throws.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ExceptionHandling\When_Uow_End_throws.cs">
+    <Compile Include="Exceptions\When_Uow_End_throws.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HostInformation\When_a_message_is_received.cs" />
-    <Compile Include="MessageMutators\Issue_1980.cs" />
-    <Compile Include="MessageMutators\When_outgoing_mutator_replaces_message_instance.cs" />
-    <Compile Include="MessageMutators\When_defining_outgoing_message_mutators.cs" />
+    <Compile Include="Mutators\Issue_1980.cs" />
+    <Compile Include="Mutators\When_outgoing_mutator_replaces_message_instance.cs" />
+    <Compile Include="Mutators\When_defining_outgoing_message_mutators.cs" />
     <Compile Include="PerfMon\CriticalTime\When_sending_slow_with_CriticalTime_enabled.cs" />
     <Compile Include="PerfMon\CriticalTime\When_sending_with_CriticalTime_enabled.cs" />
     <Compile Include="PerfMon\SLA\When_sending_slow_with_SLA_enabled.cs" />
@@ -104,27 +104,27 @@
     <Compile Include="Sagas\When_an_endpoint_replies_to_a_message_published_by_a_saga.cs" />
     <Compile Include="Sagas\When_a_saga_is_started_by_a_base_event_published_by_another_saga.cs" />
     <Compile Include="ScenarioDescriptors\AllOutboxCapableStorages.cs" />
-    <Compile Include="NonDTCOperations\When_blowing_up_just_after_dispatch.cs" />
-    <Compile Include="PipelineExtension\MutingHandlerExceptions.cs" />
-    <Compile Include="PipelineExtension\FilteringWhatGetsAudited.cs" />
+    <Compile Include="NonDTC\When_blowing_up_just_after_dispatch.cs" />
+    <Compile Include="PipelineExt\MutingHandlerExceptions.cs" />
+    <Compile Include="PipelineExt\FilteringWhatGetsAudited.cs" />
     <Compile Include="Audit\When_using_auditing_as_a_feature.cs" />
     <Compile Include="Audit\When_a_message_is_audited.cs" />
-    <Compile Include="BasicMessaging\When_sending_a_message_with_no_correlation_id.cs" />
-    <Compile Include="BasicMessaging\When_aborting_the_behavior_chain.cs" />
-    <Compile Include="BasicMessaging\When_handling_current_message_later.cs" />
-    <Compile Include="BasicMessaging\When_registering_a_callback_for_a_local_message.cs" />
-    <Compile Include="BasicMessaging\When_sending_a_message_that_is_registered_multiple_times_to_another_endpoint.cs" />
-    <Compile Include="BasicMessaging\When_using_a_custom_correlation_id.cs" />
-    <Compile Include="BasicMessaging\When_using_callbacks_in_a_scaleout_scenario.cs" />
-    <Compile Include="Configuration\When_a_config_override_is_found.cs" />
+    <Compile Include="Basic\When_sending_a_message_with_no_correlation_id.cs" />
+    <Compile Include="Basic\When_aborting_the_behavior_chain.cs" />
+    <Compile Include="Basic\When_handling_current_message_later.cs" />
+    <Compile Include="Basic\When_registering_a_callback_for_a_local_message.cs" />
+    <Compile Include="Basic\When_sending_a_message_that_is_registered_multiple_times_to_another_endpoint.cs" />
+    <Compile Include="Basic\When_using_a_custom_correlation_id.cs" />
+    <Compile Include="Basic\When_using_callbacks_in_a_scaleout_scenario.cs" />
+    <Compile Include="Config\When_a_config_override_is_found.cs" />
     <Compile Include="Encryption\When_using_encryption_with_custom_service.cs" />
     <Compile Include="EndpointTemplates\ContextAppender.cs" />
-    <Compile Include="NonDTCOperations\When_sending_messages_from_a_non_dtc_endpoint.cs" />
-    <Compile Include="NonDTCOperations\When_receiving_a_message.cs" />
+    <Compile Include="NonDTC\When_sending_messages_from_a_non_dtc_endpoint.cs" />
+    <Compile Include="NonDTC\When_receiving_a_message.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
     <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
-    <Compile Include="PipelineExtension\SkipDeserialization.cs" />
+    <Compile Include="PipelineExt\SkipDeserialization.cs" />
     <Compile Include="PubSub\SubscriptionBehavior.cs" />
     <Compile Include="PubSub\When_multi_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="PubSub\When_publishing_an_event_with_overridden_local_address.cs" />
@@ -160,16 +160,16 @@
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
     <Compile Include="ScenarioDescriptors\Persistence.cs" />
     <Compile Include="Scheduling\When_scheduling_a_recurring_task.cs" />
-    <Compile Include="Transactions\FakePromotableResourceManager.cs" />
-    <Compile Include="Transactions\When_receiving_a_message_with_dtc_disabled.cs" />
-    <Compile Include="Transactions\When_receiving_a_message_with_dtc_enabled.cs" />
-    <Compile Include="Transactions\When_receiving_a_message_with_the_default_settings.cs" />
-    <Compile Include="Transactions\When_receiving_a_message_with_transactions_disabled.cs" />
-    <Compile Include="Transactions\When_sending_a_message_from_a_non_transactional_endpoint_with_a_ambient_transaction_enabled.cs" />
-    <Compile Include="Transactions\When_sending_messages_within_an_ambient_transaction.cs" />
+    <Compile Include="Tx\FakePromotableResourceManager.cs" />
+    <Compile Include="Tx\When_receiving_a_message_with_dtc_disabled.cs" />
+    <Compile Include="Tx\When_receiving_a_message_with_dtc_enabled.cs" />
+    <Compile Include="Tx\When_receiving_a_message_with_the_default_settings.cs" />
+    <Compile Include="Tx\When_receiving_a_message_with_transactions_disabled.cs" />
+    <Compile Include="Tx\When_sending_a_message_from_a_non_transactional_endpoint_with_a_ambient_transaction_enabled.cs" />
+    <Compile Include="Tx\When_sending_messages_within_an_ambient_transaction.cs" />
     <Compile Include="ScenarioDescriptors\Serializers.cs" />
     <Compile Include="ScenarioDescriptors\Transports.cs" />
-    <Compile Include="BasicMessaging\When_sending_a_message_to_another_endpoint.cs" />
+    <Compile Include="Basic\When_sending_a_message_to_another_endpoint.cs" />
     <Compile Include="Versioning\When_multiple_versions_of_a_message_is_published.cs" />
   </ItemGroup>
   <ItemGroup>

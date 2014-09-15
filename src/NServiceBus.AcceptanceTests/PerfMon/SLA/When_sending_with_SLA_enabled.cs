@@ -1,12 +1,12 @@
-﻿namespace NServiceBus.AcceptanceTests.PerformanceMonitoring
+﻿namespace NServiceBus.AcceptanceTests.PerfMon.SLA
 {
     using System;
     using System.Diagnostics;
     using System.Threading;
-    using EndpointTemplates;
-    using AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_sending_with_SLA_enabled : NServiceBusAcceptanceTest
     {
