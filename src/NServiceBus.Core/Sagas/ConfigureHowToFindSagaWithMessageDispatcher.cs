@@ -11,6 +11,13 @@ namespace NServiceBus.Sagas
     /// </summary>
     class ConfigureHowToFindSagaWithMessageDispatcher : IConfigureHowToFindSagaWithMessage
     {
+        readonly SagaConfigurationCache sagaConfigurationCache;
+
+        public ConfigureHowToFindSagaWithMessageDispatcher(SagaConfigurationCache sagaConfigurationCache)
+        {
+            this.sagaConfigurationCache = sagaConfigurationCache;
+        }
+
         void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
         {
             var sagaProp = Reflect<TSagaEntity>.GetProperty(sagaEntityProperty, true);
@@ -24,7 +31,7 @@ namespace NServiceBus.Sagas
                 MessageProp = messageFunc,
                 SagaPropName = sagaProp.Name
             };
-            Features.Sagas.ConfigureHowToFindSagaWithMessage(typeof(TSagaEntity), typeof(TMessage), sagaToMessageMap);
+            sagaConfigurationCache.ConfigureHowToFindSagaWithMessage(typeof(TSagaEntity), typeof(TMessage), sagaToMessageMap);
         }
 
         // ReSharper disable once UnusedParameter.Local

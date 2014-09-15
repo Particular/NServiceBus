@@ -5,17 +5,19 @@
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Serialization;
+    using NServiceBus.Saga;
     using NServiceBus.Sagas;
     using NServiceBus.Sagas.Finders;
-    using Saga;
 
     /// <summary>
-    /// Used to configure saga.
+    ///     Used to configure saga.
     /// </summary>
     public class Sagas : Feature
     {
         internal Sagas()
         {
+            sagaConfigurationCache = new SagaConfigurationCache();
+            sagaMessageFindingConfiguration = new ConfigureHowToFindSagaWithMessageDispatcher(sagaConfigurationCache);
             EnableByDefault();
 
             Defaults(s =>
@@ -33,12 +35,14 @@
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>
+        ///     See <see cref="Feature.Setup" />
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             // Register the Saga related behavior for incoming messages
             context.Pipeline.Register<SagaPersistenceBehavior.SagaPersistenceRegistration>();
+
+            context.Container.RegisterSingleton(sagaConfigurationCache);
 
             foreach (var t in context.Settings.GetAvailableTypes())
             {
@@ -65,25 +69,10 @@
             CreateAdditionalFindersAsNecessary(context);
         }
 
-        internal static void ConfigureHowToFindSagaWithMessage(Type sagaType, Type messageType, SagaToMessageMap sagaToMessageMap)
-        {
-            Dictionary<Type, SagaToMessageMap> messageToProperties;
-            SagaEntityToMessageToPropertyLookup.TryGetValue(sagaType, out messageToProperties);
-
-            if (messageToProperties == null)
-            {
-                messageToProperties = new Dictionary<Type, SagaToMessageMap>();
-                SagaEntityToMessageToPropertyLookup[sagaType] = messageToProperties;
-            }
-
-            messageToProperties[messageType] = sagaToMessageMap;
-        }
-
-        internal static readonly Dictionary<Type, Dictionary<Type, SagaToMessageMap>> SagaEntityToMessageToPropertyLookup = new Dictionary<Type, Dictionary<Type, SagaToMessageMap>>();
 
         void CreateAdditionalFindersAsNecessary(FeatureConfigurationContext context)
         {
-            foreach (var sagaEntityPair in SagaEntityToMessageToPropertyLookup)
+            foreach (var sagaEntityPair in sagaConfigurationCache.SagaEntityToMessageToPropertyLookup)
             {
                 foreach (var messageType in sagaEntityPair.Value.Keys)
                 {
@@ -92,7 +81,7 @@
                 }
             }
 
-            foreach (var sagaEntityType in SagaTypeToSagaEntityTypeLookup.Values)
+            foreach (var sagaEntityType in sagaConfigurationCache.SagaTypeToSagaEntityTypeLookup.Values)
             {
                 var sagaHeaderIdFinder = typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType);
                 context.Container.ConfigureComponent(sagaHeaderIdFinder, DependencyLifecycle.InstancePerCall);
@@ -110,117 +99,124 @@
             ConfigureFinder(finderType, conventions);
         }
 
-        /// <summary>
-        /// True if the given message are configure to start the saga
-        /// </summary>
-        internal static bool IsAStartSagaMessage(Type sagaType, Type messageType)
+        // Made internal for testing purposes
+        internal void ConfigureSaga(Type t, Conventions conventions)
         {
-            List<Type> messageTypes;
-            SagaTypeToMessageTypesRequiringSagaStartLookup.TryGetValue(sagaType, out messageTypes);
-
-            if (messageTypes == null)
-                return false;
-
-            if (messageTypes.Contains(messageType))
-                return true;
-
-            return messageTypes.Any(msgTypeHandleBySaga => msgTypeHandleBySaga.IsAssignableFrom(messageType));
-        }
-
-        /// <summary>
-        /// Returns the saga type configured for the given entity type.
-        /// </summary>
-        internal static Type GetSagaTypeForSagaEntityType(Type sagaEntityType)
-        {
-            Type result;
-            SagaEntityTypeToSagaTypeLookup.TryGetValue(sagaEntityType, out result);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Returns the entity type configured for the given saga type.
-        /// </summary>
-        internal static Type GetSagaEntityTypeForSagaType(Type sagaType)
-        {
-            Type result;
-            SagaTypeToSagaEntityTypeLookup.TryGetValue(sagaType, out result);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Gets a reference to the generic "FindBy" method of the given finder
-        /// for the given message type using a hashtable lookup rather than reflection.
-        /// </summary>
-        internal static MethodInfo GetFindByMethodForFinder(IFinder finder, object message)
-        {
-            MethodInfo result = null;
-
-            Dictionary<Type, MethodInfo> methods;
-            FinderTypeToMessageToMethodInfoLookup.TryGetValue(finder.GetType(), out methods);
-
-            if (methods != null)
+            foreach (var messageType in GetMessageTypesHandledBySaga(t, conventions))
             {
-                methods.TryGetValue(message.GetType(), out result);
-
-                if (result == null)
-                {
-                    foreach (var messageTypePair in methods)
-                    {
-                        if (messageTypePair.Key.IsInstanceOfType(message))
-                        {
-                            result = messageTypePair.Value;
-                        }
-                    }
-                }
+                MapMessageTypeToSagaType(messageType, t);
             }
 
-            return result;
-        }
-
-        /// <summary>
-        /// Returns a list of finder object capable of using the given message.
-        /// </summary>
-        internal static IEnumerable<Type> GetFindersForMessageAndEntity(Type messageType, Type entityType)
-        {
-            var findersWithExactMatch = new List<Type>();
-            var findersMatchingBaseTypes = new List<Type>();
-
-            foreach (var finderPair in FinderTypeToMessageToMethodInfoLookup)
+            foreach (var messageType in GetMessageTypesThatRequireStartingTheSaga(t, conventions))
             {
-                var messageToMethodInfo = finderPair.Value;
-
-                MethodInfo methodInfo;
-
-                if (messageToMethodInfo.TryGetValue(messageType, out methodInfo) && methodInfo.ReturnType == entityType)
-                {
-                    findersWithExactMatch.Add(finderPair.Key);
-                }
-                else
-                {
-                    foreach (var otherMessagePair in messageToMethodInfo)
-                    {
-                        if (otherMessagePair.Key.IsAssignableFrom(messageType) && otherMessagePair.Value.ReturnType == entityType)
-                        {
-                            findersMatchingBaseTypes.Add(finderPair.Key);
-                        }
-                    }
-                }
+                MessageTypeRequiresStartingSaga(messageType, t);
             }
 
-            return findersWithExactMatch.Concat(findersMatchingBaseTypes);
+            var prop = t.GetProperty("Data");
+            MapSagaTypeToSagaEntityType(t, prop.PropertyType);
+
+            var saga = (Saga) FormatterServices.GetUninitializedObject(t);
+            saga.ConfigureHowToFindSaga(sagaMessageFindingConfiguration);
         }
 
-        /// <summary>
-        /// Returns the list of saga types configured.
-        /// </summary>
-        internal static IEnumerable<Type> GetSagaDataTypes()
+        // Made internal for testing purposes
+        internal void ConfigureFinder(Type t, Conventions conventions)
         {
-            return SagaTypeToSagaEntityTypeLookup.Values;
+            foreach (var interfaceType in t.GetInterfaces())
+            {
+                var args = interfaceType.GetGenericArguments();
+                if (args.Length != 2)
+                {
+                    continue;
+                }
+
+                Type sagaEntityType = null;
+                Type messageType = null;
+                foreach (var type in args)
+                {
+                    if (typeof(IContainSagaData).IsAssignableFrom(type))
+                    {
+                        sagaEntityType = type;
+                    }
+
+                    if (conventions.IsMessageType(type) || type == typeof(object))
+                    {
+                        messageType = type;
+                    }
+                }
+
+                if (sagaEntityType == null || messageType == null)
+                {
+                    continue;
+                }
+
+                var finderType = typeof(IFindSagas<>.Using<>).MakeGenericType(sagaEntityType, messageType);
+                if (!finderType.IsAssignableFrom(t))
+                {
+                    continue;
+                }
+
+                finderTypeToSagaEntityTypeLookup[t] = sagaEntityType;
+
+                var method = t.GetMethod("FindBy", new[]
+                {
+                    messageType
+                });
+
+                Dictionary<Type, MethodInfo> methods;
+                sagaConfigurationCache.FinderTypeToMessageToMethodInfoLookup.TryGetValue(t, out methods);
+
+                if (methods == null)
+                {
+                    methods = new Dictionary<Type, MethodInfo>();
+                    sagaConfigurationCache.FinderTypeToMessageToMethodInfoLookup[t] = methods;
+                }
+
+                methods[messageType] = method;
+            }
+        }
+        
+        void MapMessageTypeToSagaType(Type messageType, Type sagaType)
+        {
+            List<Type> sagas;
+            sagaConfigurationCache.MessageTypeToSagaTypesLookup.TryGetValue(messageType, out sagas);
+
+            if (sagas == null)
+            {
+                sagas = new List<Type>(1);
+                sagaConfigurationCache.MessageTypeToSagaTypesLookup[messageType] = sagas;
+            }
+
+            if (!sagas.Contains(sagaType))
+            {
+                sagas.Add(sagaType);
+            }
         }
 
-        internal static bool IsSagaType(Type t)
+        void MapSagaTypeToSagaEntityType(Type sagaType, Type sagaEntityType)
+        {
+            sagaConfigurationCache.SagaTypeToSagaEntityTypeLookup[sagaType] = sagaEntityType;
+            sagaEntityTypeToSagaTypeLookup[sagaEntityType] = sagaType;
+        }
+
+        void MessageTypeRequiresStartingSaga(Type messageType, Type sagaType)
+        {
+            List<Type> messages;
+            sagaConfigurationCache.SagaTypeToMessageTypesRequiringSagaStartLookup.TryGetValue(sagaType, out messages);
+
+            if (messages == null)
+            {
+                messages = new List<Type>(1);
+                sagaConfigurationCache.SagaTypeToMessageTypesRequiringSagaStartLookup[sagaType] = messages;
+            }
+
+            if (!messages.Contains(messageType))
+            {
+                messages.Add(messageType);
+            }
+        }
+
+        static bool IsSagaType(Type t)
         {
             return IsCompatible(t, typeof(Saga));
         }
@@ -240,70 +236,12 @@
             return source.IsAssignableFrom(t) && t != source && !t.IsAbstract && !t.IsInterface && !t.IsGenericType;
         }
 
-        internal static void ConfigureSaga(Type t, Conventions conventions)
-        {
-            foreach (var messageType in GetMessageTypesHandledBySaga(t, conventions))
-                MapMessageTypeToSagaType(messageType, t);
-
-            foreach (var messageType in GetMessageTypesThatRequireStartingTheSaga(t, conventions))
-                MessageTypeRequiresStartingSaga(messageType, t);
-
-            var prop = t.GetProperty("Data");
-            MapSagaTypeToSagaEntityType(t, prop.PropertyType);
-
-            var saga = (Saga)FormatterServices.GetUninitializedObject(t);
-            saga.ConfigureHowToFindSaga(SagaMessageFindingConfiguration);
-        }
-
         static bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)
         {
             var timeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
             var messageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
 
             return sagas.Any(t => timeoutHandler.IsAssignableFrom(t) && !messageHandler.IsAssignableFrom(t));
-        }
-
-        internal static void ConfigureFinder(Type t, Conventions conventions)
-        {
-            foreach (var interfaceType in t.GetInterfaces())
-            {
-                var args = interfaceType.GetGenericArguments();
-                if (args.Length != 2)
-                    continue;
-
-                Type sagaEntityType = null;
-                Type messageType = null;
-                foreach (var type in args)
-                {
-                    if (typeof(IContainSagaData).IsAssignableFrom(type))
-                        sagaEntityType = type;
-
-                    if (conventions.IsMessageType(type) || type == typeof(object))
-                        messageType = type;
-                }
-
-                if (sagaEntityType == null || messageType == null)
-                    continue;
-
-                var finderType = typeof(IFindSagas<>.Using<>).MakeGenericType(sagaEntityType, messageType);
-                if (!finderType.IsAssignableFrom(t))
-                    continue;
-
-                FinderTypeToSagaEntityTypeLookup[t] = sagaEntityType;
-
-                var method = t.GetMethod("FindBy", new[] { messageType });
-
-                Dictionary<Type, MethodInfo> methods;
-                FinderTypeToMessageToMethodInfoLookup.TryGetValue(t, out methods);
-
-                if (methods == null)
-                {
-                    methods = new Dictionary<Type, MethodInfo>();
-                    FinderTypeToMessageToMethodInfoLookup[t] = methods;
-                }
-
-                methods[messageType] = method;
-            }
         }
 
         internal static IEnumerable<Type> GetMessageTypesHandledBySaga(Type sagaType, Conventions conventions)
@@ -339,63 +277,10 @@
             }
         }
 
-        static void MapMessageTypeToSagaType(Type messageType, Type sagaType)
-        {
-            List<Type> sagas;
-            MessageTypeToSagaTypesLookup.TryGetValue(messageType, out sagas);
-
-            if (sagas == null)
-            {
-                sagas = new List<Type>(1);
-                MessageTypeToSagaTypesLookup[messageType] = sagas;
-            }
-
-            if (!sagas.Contains(sagaType))
-                sagas.Add(sagaType);
-        }
-
-        static void MapSagaTypeToSagaEntityType(Type sagaType, Type sagaEntityType)
-        {
-            SagaTypeToSagaEntityTypeLookup[sagaType] = sagaEntityType;
-            SagaEntityTypeToSagaTypeLookup[sagaEntityType] = sagaType;
-        }
-
-        static void MessageTypeRequiresStartingSaga(Type messageType, Type sagaType)
-        {
-            List<Type> messages;
-            SagaTypeToMessageTypesRequiringSagaStartLookup.TryGetValue(sagaType, out messages);
-
-            if (messages == null)
-            {
-                messages = new List<Type>(1);
-                SagaTypeToMessageTypesRequiringSagaStartLookup[sagaType] = messages;
-            }
-
-            if (!messages.Contains(messageType))
-                messages.Add(messageType);
-        }
-
-        static Dictionary<Type, List<Type>> MessageTypeToSagaTypesLookup = new Dictionary<Type, List<Type>>();
-        static Dictionary<Type, Type> SagaEntityTypeToSagaTypeLookup = new Dictionary<Type, Type>();
-        static Dictionary<Type, Type> SagaTypeToSagaEntityTypeLookup = new Dictionary<Type, Type>();
-        static Dictionary<Type, Type> FinderTypeToSagaEntityTypeLookup = new Dictionary<Type, Type>();
-        static Dictionary<Type, Dictionary<Type, MethodInfo>> FinderTypeToMessageToMethodInfoLookup = new Dictionary<Type, Dictionary<Type, MethodInfo>>();
-        static Dictionary<Type, List<Type>> SagaTypeToMessageTypesRequiringSagaStartLookup = new Dictionary<Type, List<Type>>();
-        static IConfigureHowToFindSagaWithMessage SagaMessageFindingConfiguration = new ConfigureHowToFindSagaWithMessageDispatcher();
         Conventions conventions;
-
-        /// <summary>
-        /// Until we get rid of those statics
-        /// </summary>
-        public static void Clear()
-        {
-            MessageTypeToSagaTypesLookup.Clear();
-            SagaEntityTypeToSagaTypeLookup.Clear();
-            SagaTypeToSagaEntityTypeLookup.Clear();
-            FinderTypeToSagaEntityTypeLookup.Clear();
-            FinderTypeToMessageToMethodInfoLookup.Clear();
-
-            SagaTypeToMessageTypesRequiringSagaStartLookup.Clear();
-        }
+        Dictionary<Type, Type> finderTypeToSagaEntityTypeLookup = new Dictionary<Type, Type>();
+        internal SagaConfigurationCache sagaConfigurationCache; // Made internal for testing purposes
+        Dictionary<Type, Type> sagaEntityTypeToSagaTypeLookup = new Dictionary<Type, Type>();
+        IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
     }
 }

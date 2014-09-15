@@ -21,6 +21,8 @@
 
         public IMessageHandlerRegistry MessageHandlerRegistry { get; set; }
 
+        public SagaConfigurationCache SagaConfigurationCache { get; set; }
+
         public void Invoke(IncomingContext context, Action next)
         {
             // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
@@ -49,7 +51,7 @@
             if (loadedEntity == null)
             {
                 //if this message are not allowed to start the saga
-                if (!Features.Sagas.IsAStartSagaMessage(sagaInstanceState.SagaType, context.IncomingLogicalMessage.MessageType))
+                if (!SagaConfigurationCache.IsAStartSagaMessage(sagaInstanceState.SagaType, context.IncomingLogicalMessage.MessageType))
                 {
                     sagaInstanceState.MarkAsNotFound();
 
@@ -64,7 +66,6 @@
             {
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
             }
-
 
             if (IsTimeoutMessage(context.IncomingLogicalMessage))
             {
@@ -192,7 +193,7 @@
         {
             var sagaType = saga.GetType();
 
-            var sagaEntityType = Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
+            var sagaEntityType = SagaConfigurationCache.GetSagaEntityTypeForSagaType(sagaType);
 
             var finders = GetFindersFor(message.MessageType, sagaEntityType);
 
@@ -214,9 +215,9 @@
             MessageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
         }
 
-        static IContainSagaData UseFinderToFindSaga(IFinder finder, object message)
+        IContainSagaData UseFinderToFindSaga(IFinder finder, object message)
         {
-            var method = Features.Sagas.GetFindByMethodForFinder(finder, message);
+            var method = SagaConfigurationCache.GetFindByMethodForFinder(finder, message);
 
             if (method != null)
             {
@@ -235,7 +236,7 @@
 
             if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
             {
-                var finders = Features.Sagas.GetFindersForMessageAndEntity(messageType, sagaEntityType).Select(t => currentContext.Builder.Build(t) as IFinder).ToList();
+                var finders = SagaConfigurationCache.GetFindersForMessageAndEntity(messageType, sagaEntityType).Select(t => currentContext.Builder.Build(t) as IFinder).ToList();
 
                 if (logger.IsDebugEnabled)
                 {
@@ -252,7 +253,7 @@
 
         IContainSagaData CreateNewSagaEntity(Type sagaType)
         {
-            var sagaEntityType = Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
+            var sagaEntityType = SagaConfigurationCache.GetSagaEntityTypeForSagaType(sagaType);
 
             if (sagaEntityType == null)
             {
