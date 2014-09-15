@@ -13,26 +13,31 @@
     [TestFixture]
     public class SecondLevelRetriesTests
     {
-        SecondLevelRetriesProcessor satellite = new SecondLevelRetriesProcessor();
-        FakeMessageSender messageSender = new FakeMessageSender();
-        FakeMessageDeferrer deferrer = new FakeMessageDeferrer();
-        Address ERROR_QUEUE = new Address("error","localhost");
-        Address RETRIES_QUEUE = new Address("retries", "localhost");
-        Address ORIGINAL_QUEUE = new Address("org", "hostname");
-        Address CLIENT_QUEUE = Address.Parse("clientQ@myMachine");
+        SecondLevelRetriesProcessor satellite ;
+        FakeMessageSender messageSender ;
+        FakeMessageDeferrer deferrer ;
+        Address ERROR_QUEUE ;
+        Address RETRIES_QUEUE ;
+        Address ORIGINAL_QUEUE ;
+        Address CLIENT_QUEUE ;
 
         TransportMessage message;
 
         [SetUp]
         public void SetUp()
         {
+            satellite = new SecondLevelRetriesProcessor();
+            messageSender = new FakeMessageSender();
+            deferrer = new FakeMessageDeferrer();
+            ERROR_QUEUE = new Address("error", "localhost");
+            RETRIES_QUEUE = new Address("retries", "localhost");
+            ORIGINAL_QUEUE = new Address("org", "hostname");
+            CLIENT_QUEUE = Address.Parse("clientQ@myMachine");
             satellite.InputAddress = RETRIES_QUEUE;
             satellite.FaultManager = new FaultManager(new FuncBuilder(), null) {ErrorQueue = ERROR_QUEUE};
             
             satellite.MessageSender = messageSender;
             satellite.MessageDeferrer = deferrer;
-
-            satellite.RetryPolicy = DefaultRetryPolicy.Validate;
 
             message = new TransportMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>{{Headers.ReplyToAddress,CLIENT_QUEUE.ToString()}});
         }
@@ -50,10 +55,10 @@
         [Test]
         public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_error_queue_after_retries()
         {
-            TransportMessageHeaderHelper.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");            
+            TransportMessageHeaderHelper.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
 
-          
-            for (var i = 0; i < DefaultRetryPolicy.NumberOfRetries + 1; i++)
+
+            for (var i = 0; i < satellite.NumberOfRetries + 1; i++)
             {
                 satellite.Handle(message);
             }
@@ -88,7 +93,7 @@
         {
             TransportMessageHeaderHelper.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
 
-            for (var i = 0; i < DefaultRetryPolicy.NumberOfRetries + 1; i++)
+            for (var i = 0; i < satellite.NumberOfRetries + 1; i++)
             {
                 satellite.Handle(message);
             }
