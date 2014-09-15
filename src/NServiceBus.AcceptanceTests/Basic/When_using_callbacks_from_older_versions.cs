@@ -7,7 +7,7 @@
     using NServiceBus.MessageMutator;
     using NUnit.Framework;
 
-    public class When_registering_a_callback_from_early_version_missing_intent : NServiceBusAcceptanceTest
+    public class When_using_callbacks_from_older_versions : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_trigger_the_callback()
@@ -60,8 +60,6 @@
 
         class BodyMutator : IMutateIncomingTransportMessages, INeedInitialization
         {
-            public Context Context { get; set; }
-
             public void MutateIncoming(TransportMessage transportMessage)
             {
                 //early versions of did not have a Reply MessageIntent when Bus.Return is called 

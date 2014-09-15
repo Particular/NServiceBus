@@ -6,7 +6,7 @@
     using Features;
     using NUnit.Framework;
 
-    public class When_subscribing_to_a_base_event_from_different_publishers : NServiceBusAcceptanceTest
+    public class When_subscribed_to_base_event_from_2_publishers : NServiceBusAcceptanceTest
     {
         [Test]
         public void should_receive_events_from_all_publishers()

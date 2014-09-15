@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audit\When_using_audit_message_is_received.cs" />
-    <Compile Include="Basic\When_registering_a_callback_for_a_local_message_from_early_version_missing_intent.cs" />
+    <Compile Include="Basic\When_using_callbacks_from_older_versions.cs" />
     <Compile Include="Basic\When_sending_from_a_send_only.cs" />
     <Compile Include="Basic\When_using_a_greedy_convention.cs" />
     <Compile Include="Basic\When_handling_incoming_messages_headers_should_be_shared.cs" />
@@ -102,7 +102,7 @@
     <Compile Include="Retries\When_doing_flr_with_dtc_on.cs" />
     <Compile Include="Retries\When_doing_flr_with_native_transactions.cs" />
     <Compile Include="Sagas\When_an_endpoint_replies_to_a_message_published_by_a_saga.cs" />
-    <Compile Include="Sagas\When_a_saga_is_started_by_a_base_event_published_by_another_saga.cs" />
+    <Compile Include="Sagas\When_started_by_base_event_from_other_saga.cs" />
     <Compile Include="ScenarioDescriptors\AllOutboxCapableStorages.cs" />
     <Compile Include="NonDTC\When_blowing_up_just_after_dispatch.cs" />
     <Compile Include="PipelineExt\MutingHandlerExceptions.cs" />
@@ -113,7 +113,7 @@
     <Compile Include="Basic\When_aborting_the_behavior_chain.cs" />
     <Compile Include="Basic\When_handling_current_message_later.cs" />
     <Compile Include="Basic\When_registering_a_callback_for_a_local_message.cs" />
-    <Compile Include="Basic\When_sending_a_message_that_is_registered_multiple_times_to_another_endpoint.cs" />
+    <Compile Include="Basic\When_multiple_mappings_exists.cs" />
     <Compile Include="Basic\When_using_a_custom_correlation_id.cs" />
     <Compile Include="Basic\When_using_callbacks_in_a_scaleout_scenario.cs" />
     <Compile Include="Config\When_a_config_override_is_found.cs" />
@@ -130,9 +130,9 @@
     <Compile Include="PubSub\When_publishing_an_event_with_overridden_local_address.cs" />
     <Compile Include="PubSub\When_publishing_an_event_with_only_local_messagehandlers.cs" />
     <Compile Include="PubSub\SubscriptionEventArgs.cs" />
-    <Compile Include="PubSub\When_subscribing_to_a_base_event_from_different_publishers.cs" />
+    <Compile Include="PubSub\When_subscribed_to_base_event_from_2_publishers.cs" />
     <Compile Include="PubSub\When_subscribing_to_a_polymorphic_event.cs" />
-    <Compile Include="PubSub\When_publishing_an_event_using_a_broker_transport_with_centralized_routing.cs" />
+    <Compile Include="PubSub\When_publishing_on_brokers.cs" />
     <Compile Include="PubSub\When_publishing_an_event.cs" />
     <Compile Include="Retries\When_sending_a_message_off_to_slr.cs" />
     <Compile Include="Retries\When_messages_fails_flr.cs" />
@@ -146,8 +146,8 @@
     <Compile Include="Sagas\When_sending_from_a_saga_timeout.cs" />
     <Compile Include="Sagas\When_sending_from_a_saga_handle.cs" />
     <Compile Include="Sagas\When_an_endpoint_replies_to_a_saga.cs" />
-    <Compile Include="Sagas\When_a_saga_is_started_by_an_event_published_by_another_saga.cs" />
-    <Compile Include="Sagas\When_receiving_a_message_that_is_mapped_to_an_existing_saga_instance.cs" />
+    <Compile Include="Sagas\When_started_by_an_event_from_another_saga.cs" />
+    <Compile Include="Sagas\When_a_existing_saga_instance_exists.cs" />
     <Compile Include="Sagas\When_two_sagas_subscribe_to_the_same_event.cs" />
     <Compile Include="Sagas\When_using_a_received_message_for_timeout.cs" />
     <Compile Include="Sagas\When_receiving_a_message_that_should_complete_saga.cs" />
@@ -165,7 +165,7 @@
     <Compile Include="Tx\When_receiving_a_message_with_dtc_enabled.cs" />
     <Compile Include="Tx\When_receiving_a_message_with_the_default_settings.cs" />
     <Compile Include="Tx\When_receiving_a_message_with_transactions_disabled.cs" />
-    <Compile Include="Tx\When_sending_a_message_from_a_non_transactional_endpoint_with_a_ambient_transaction_enabled.cs" />
+    <Compile Include="NonTx\When_sending_inside_ambient_tx.cs" />
     <Compile Include="Tx\When_sending_messages_within_an_ambient_transaction.cs" />
     <Compile Include="ScenarioDescriptors\Serializers.cs" />
     <Compile Include="ScenarioDescriptors\Transports.cs" />

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Tx
+﻿namespace NServiceBus.AcceptanceTests.NonTx
 {
     using System;
     using System.Transactions;
@@ -7,7 +7,7 @@
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
-    public class When_sending_a_message_from_a_non_transactional_endpoint_with_a_ambient_transaction_enabled : NServiceBusAcceptanceTest
+    public class When_sending_inside_ambient_tx : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()

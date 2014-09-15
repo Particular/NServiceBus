@@ -6,7 +6,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_sending_a_message_that_is_registered_multiple_times_to_another_endpoint : NServiceBusAcceptanceTest
+    public class When_multiple_mappings_exists : NServiceBusAcceptanceTest
     {
         [Test]
         public void First_registration_should_be_the_final_destination()

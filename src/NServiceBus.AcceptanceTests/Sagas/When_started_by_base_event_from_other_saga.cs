@@ -10,7 +10,7 @@
     using ScenarioDescriptors;
 
     //Repro for #1323
-    public class When_a_saga_is_started_by_a_base_event_published_by_another_saga : NServiceBusAcceptanceTest
+    public class When_started_by_base_event_from_other_saga : NServiceBusAcceptanceTest
     {
 
         [Test]
