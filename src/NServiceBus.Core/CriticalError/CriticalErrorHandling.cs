@@ -5,12 +5,12 @@ namespace NServiceBus.Features
     /// <summary>
     /// Controls what happens when a critical error occurs.
     /// </summary>
-    public class CriticalErrorFeature : Feature
+    class CriticalErrorHandling : Feature
     {
         /// <summary>
-        /// Initializes a enw instance of <see cref="CriticalErrorFeature"/>.
+        /// Initializes a enw instance of <see cref="CriticalErrorHandling"/>.
         /// </summary>
-        public CriticalErrorFeature()
+        internal CriticalErrorHandling()
         {
             EnableByDefault();
         }

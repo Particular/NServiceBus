@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using NServiceBus.Faults.Forwarder;
     using NServiceBus.Features;
 
     /// <summary>

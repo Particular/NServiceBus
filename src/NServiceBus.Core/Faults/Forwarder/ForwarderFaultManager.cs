@@ -1,15 +1,16 @@
-namespace NServiceBus.Faults.Forwarder
+namespace NServiceBus.Features
 {
     using System.Configuration;
     using NServiceBus.Config;
+    using NServiceBus.Faults;
+    using NServiceBus.Faults.Forwarder;
     using NServiceBus.Faults.Forwarder.Config;
-    using NServiceBus.Features;
     using NServiceBus.Logging;
     using NServiceBus.Utils;
 
     class ForwarderFaultManager : Feature
     {
-        public ForwarderFaultManager()
+        internal ForwarderFaultManager()
         {
             EnableByDefault();
             Prerequisite(c => !c.Container.HasComponent<IManageMessageFailures>(), "An IManageMessageFailures implementation is already registered.");

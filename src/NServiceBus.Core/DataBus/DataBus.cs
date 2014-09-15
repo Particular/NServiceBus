@@ -2,14 +2,14 @@ namespace NServiceBus.Features
 {
     using System;
     using System.Linq;
-    using DataBus;
+    using NServiceBus.DataBus;
 
     /// <summary>
     /// Used to configure the databus. 
     /// </summary>
-    public class DataBusFeature : Feature
+    public class DataBus : Feature
 	{
-        internal DataBusFeature()
+        internal DataBus()
         {
             EnableByDefault();
             Prerequisite(DataBusPropertiesFound,"No databus properties was found in available messages");

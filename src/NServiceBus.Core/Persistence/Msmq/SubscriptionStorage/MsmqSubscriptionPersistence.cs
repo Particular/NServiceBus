@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.Persistence.Msmq
+﻿namespace NServiceBus.Features
 {
     using Config;
-    using Features;
     using Logging;
     using Persistence.SubscriptionStorage;
 
@@ -10,6 +9,9 @@
     /// </summary>
     public class MsmqSubscriptionPersistence:Feature
     {
+        internal MsmqSubscriptionPersistence()
+        {
+        }
         /// <summary>
         /// Invoked if the feature is activated
         /// </summary>

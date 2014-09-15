@@ -10,7 +10,6 @@ namespace NServiceBus.Features
     using Pipeline;
     using Pipeline.Contexts;
     using Transports;
-    using Unicast.Behaviors;
     using Unicast.Messages;
     using Unicast.Routing;
     using Unicast.Transport;

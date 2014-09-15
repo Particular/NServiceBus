@@ -1,6 +1,5 @@
-namespace NServiceBus
+namespace NServiceBus.Features
 {
-    using Features;
     using Scheduling;
     using ScheduledTask = Scheduling.Messages.ScheduledTask;
 

@@ -1,8 +1,8 @@
-namespace NServiceBus.Licensing
+namespace NServiceBus.Features
 {
     using System;
     using Logging;
-    using NServiceBus.Features;
+    using NServiceBus.Licensing;
 
     class LicenseReminder : Feature
     {
