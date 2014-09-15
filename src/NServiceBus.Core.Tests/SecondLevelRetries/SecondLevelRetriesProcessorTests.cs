@@ -6,7 +6,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class DefaultRetryPolicyTests
+    public class SecondLevelRetriesProcessorTests
     {
         private readonly int[] _expectedResults = new[] {10,20,30};
         private TransportMessage _message;
@@ -19,10 +19,11 @@
 
         [Test]
         public void The_time_span_should_increase_with_10_sec_for_every_retry()
-        {            
+        {
+            var retriesProcessor = new SecondLevelRetriesProcessor();
             for (var i=0; i<3; i++)
-            {                
-                var timeSpan = DefaultRetryPolicy.Validate(_message);
+            {
+                var timeSpan = retriesProcessor.Validate(_message);
                 
                 Defer();
 
@@ -34,7 +35,9 @@
         public void The_default_time_out_should_be_1_day()
         {
             TransportMessageHeaderHelper.SetHeader(_message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow.AddDays(-1).AddSeconds(-1)));
-            var hasTimedOut = DefaultRetryPolicy.Validate(_message) == TimeSpan.MinValue;
+
+            var retriesProcessor = new SecondLevelRetriesProcessor();
+            var hasTimedOut = retriesProcessor.Validate(_message) == TimeSpan.MinValue;
             Assert.IsTrue(hasTimedOut);
         }
 

@@ -439,7 +439,6 @@
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />
     <Compile Include="Logging\LogManager.cs" />
-    <Compile Include="SecondLevelRetries\DefaultRetryPolicy.cs" />
     <Compile Include="SecondLevelRetries\TransportMessageHelpers.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetriesProcessor.cs" />
     <Compile Include="SecondLevelRetries\Helpers\SecondLevelRetriesHeaders.cs" />
