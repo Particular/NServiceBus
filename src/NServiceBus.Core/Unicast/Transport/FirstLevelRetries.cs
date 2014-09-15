@@ -52,20 +52,13 @@
                                            (s, i) => new Tuple<int, Exception>(i.Item1 + 1, e));
         }
 
-        private void TryInvokeFaultManager(TransportMessage message, Exception exception)
+        void TryInvokeFaultManager(TransportMessage message, Exception exception)
         {
             try
             {
-                var e = exception;
-
-                if (e is AggregateException)
-                {
-                    e = e.GetBaseException();
-                }
-
                 message.RevertToOriginalBodyIfNeeded();
 
-                failureManager.ProcessingAlwaysFailsForMessage(message, e);
+                failureManager.ProcessingAlwaysFailsForMessage(message, exception);
             }
             catch (Exception ex)
             {
