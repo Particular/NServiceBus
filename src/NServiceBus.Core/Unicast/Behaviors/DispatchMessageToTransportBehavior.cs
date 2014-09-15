@@ -18,6 +18,7 @@
 
         public ReadOnlySettings Settings { get; set; }
 
+        public UnicastBus UnicastBus { get; set; }
 
         public void Invoke(OutgoingContext context, Action next)
         {
@@ -39,7 +40,7 @@
 
             messageToSend.Headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
             messageToSend.Headers.Add(Headers.OriginatingEndpoint, Settings.EndpointName());
-            messageToSend.Headers.Add(Headers.OriginatingHostId, UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N"));
+            messageToSend.Headers.Add(Headers.OriginatingHostId, UnicastBus.HostInformation.HostId.ToString("N"));
           
             try
             {

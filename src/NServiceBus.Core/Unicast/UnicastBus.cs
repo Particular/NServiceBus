@@ -28,16 +28,11 @@ namespace NServiceBus.Unicast
     {
         HostInformation hostInformation = HostInformation.CreateDefault();
 
-        // HACK: Statics are bad, remove
-        internal static Guid HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor;
-
         /// <summary>
         /// Initializes a new instance of <see cref="UnicastBus"/>.
         /// </summary>
         public UnicastBus()
         {
-            HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = hostInformation.HostId;
-
             SetupHeaderActions();
         }
 
@@ -147,7 +142,6 @@ namespace NServiceBus.Unicast
                     throw new ArgumentNullException();
                 }
 
-                HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = value.HostId;
                 hostInformation = value;
             }
         }
