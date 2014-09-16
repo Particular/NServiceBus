@@ -6,7 +6,7 @@
     using NServiceBus.MessageMutator;
     using NUnit.Framework;
 
-    public class When_sending_a_message_with_no_correlation_id : NServiceBusAcceptanceTest
+    public class When_sending_with_no_correlation_id : NServiceBusAcceptanceTest
     {  
         [Test]
         public void Should_use_the_message_id_as_the_correlation_id()

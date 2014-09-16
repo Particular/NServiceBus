@@ -6,7 +6,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_publishing_an_event_with_only_local_messagehandlers : NServiceBusAcceptanceTest
+    public class When_publishing_with_only_local_messagehandlers : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_trigger_the_catch_all_handler_for_message_driven_subscriptions()

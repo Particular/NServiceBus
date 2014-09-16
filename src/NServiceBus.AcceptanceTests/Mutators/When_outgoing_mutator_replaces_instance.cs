@@ -6,7 +6,7 @@
     using NServiceBus.MessageMutator;
     using NUnit.Framework;
 
-    public class When_outgoing_mutator_replaces_message_instance : NServiceBusAcceptanceTest
+    public class When_outgoing_mutator_replaces_instance : NServiceBusAcceptanceTest
     {
         [Test]
         public void Message_sent_should_be_new_instance()

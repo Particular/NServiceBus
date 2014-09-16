@@ -6,10 +6,10 @@
     using Features;
     using NUnit.Framework;
 
-    public class When_subscribed_to_base_event_from_2_publishers : NServiceBusAcceptanceTest
+    public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
     {
         [Test]
-        public void should_receive_events_from_all_publishers()
+        public void Should_receive_events_from_all_publishers()
         {
             var cc = new Context();
 

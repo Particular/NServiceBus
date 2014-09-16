@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_publishing_an_event_with_overridden_local_address : NServiceBusAcceptanceTest
+    public class When_publishing_with_overridden_local_address : NServiceBusAcceptanceTest
     {
         [Test, Explicit("This test fails against RabbitMQ")]
         public void Should_be_delivered_to_all_subscribers()

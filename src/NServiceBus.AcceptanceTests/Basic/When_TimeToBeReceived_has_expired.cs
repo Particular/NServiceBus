@@ -5,7 +5,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_using_a_message_with_TimeToBeReceived_has_expired : NServiceBusAcceptanceTest
+    public class When_TimeToBeReceived_has_expired : NServiceBusAcceptanceTest
     {
         [Test, Ignore("The TTL will only be started at the moment the timeoutmanager sends the message back, still giving the test a second to receive it")]
         public void Message_should_not_be_received()

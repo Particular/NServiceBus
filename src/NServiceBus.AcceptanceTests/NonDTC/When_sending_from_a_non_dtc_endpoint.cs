@@ -7,7 +7,7 @@
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NUnit.Framework;
 
-    public class When_sending_messages_from_a_non_dtc_endpoint : NServiceBusAcceptanceTest
+    public class When_sending_from_a_non_dtc_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_store_them_and_dispatch_them_from_the_outbox()

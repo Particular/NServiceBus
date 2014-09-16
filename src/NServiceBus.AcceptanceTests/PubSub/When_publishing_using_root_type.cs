@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_publishing_an_event_using_root_type : NServiceBusAcceptanceTest
+    public class When_publishing_using_root_type : NServiceBusAcceptanceTest
     {
         [Test]
         public void Event_should_be_published_using_instance_type()

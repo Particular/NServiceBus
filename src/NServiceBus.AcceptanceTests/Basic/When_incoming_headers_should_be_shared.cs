@@ -6,7 +6,7 @@
     using NUnit.Framework;
 
     [Explicit]
-    public class When_handling_incoming_messages_headers_should_be_shared : NServiceBusAcceptanceTest
+    public class When_incoming_headers_should_be_shared : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_expose_header_in_downstream_handlers()

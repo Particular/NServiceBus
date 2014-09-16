@@ -7,7 +7,7 @@
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
-    public class When_sending_a_message_to_another_endpoint : NServiceBusAcceptanceTest
+    public class When_sending_to_another_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_the_message()

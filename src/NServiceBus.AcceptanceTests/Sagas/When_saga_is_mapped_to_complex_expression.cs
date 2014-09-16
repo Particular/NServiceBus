@@ -7,7 +7,7 @@
     using Saga;
     using ScenarioDescriptors;
 
-    public class When_saga_is_mapped_to_complex_message_expression : NServiceBusAcceptanceTest
+    public class When_saga_is_mapped_to_complex_expression : NServiceBusAcceptanceTest
     {
 
         [Test]

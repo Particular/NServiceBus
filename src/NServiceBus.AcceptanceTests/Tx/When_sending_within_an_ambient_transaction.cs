@@ -7,7 +7,7 @@
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
-    public class When_sending_messages_within_an_ambient_transaction : NServiceBusAcceptanceTest
+    public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_not_deliver_them_until_the_commit_phase()

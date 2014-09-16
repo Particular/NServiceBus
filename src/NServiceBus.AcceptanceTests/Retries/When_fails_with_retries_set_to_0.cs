@@ -8,7 +8,7 @@
     using NServiceBus.Config;
     using NUnit.Framework;
 
-    public class When_message_fails_with_retries_set_to_0 : NServiceBusAcceptanceTest
+    public class When_fails_with_retries_set_to_0 : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_not_retry_the_message_using_flr()

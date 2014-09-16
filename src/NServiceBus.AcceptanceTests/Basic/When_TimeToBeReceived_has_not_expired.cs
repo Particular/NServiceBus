@@ -5,7 +5,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_using_a_message_with_TimeToBeReceived_has_not_expired : NServiceBusAcceptanceTest
+    public class When_TimeToBeReceived_has_not_expired : NServiceBusAcceptanceTest
     {
         [Test]
         public void Message_should_be_received()

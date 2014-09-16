@@ -6,7 +6,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    class When_sending_a_message_ensure_proper_headers
+    class When_sending_ensure_proper_headers
     {
         [Test]
         public void Should_have_proper_headers_for_the_originating_endpoint()

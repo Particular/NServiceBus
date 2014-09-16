@@ -7,7 +7,7 @@
     using Saga;
     using ScenarioDescriptors;
 
-    public class When_receiving_a_message_that_completes_the_saga : NServiceBusAcceptanceTest
+    public class When_receiving_that_completes_the_saga : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_hydrate_and_complete_the_existing_instance()

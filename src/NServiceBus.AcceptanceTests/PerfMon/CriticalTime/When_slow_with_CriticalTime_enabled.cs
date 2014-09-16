@@ -7,7 +7,7 @@
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
-    public class When_sending_with_CriticalTime_enabled : NServiceBusAcceptanceTest
+    public class When_slow_with_CriticalTime_enabled : NServiceBusAcceptanceTest
     {
         float counterValue;
 
@@ -15,7 +15,7 @@
         [Explicit("Since perf counters need to be enabled with powershell")]
         public void Should_have_perf_counter_set()
         {
-            using (var counter = new PerformanceCounter("NServiceBus", "Critical Time", "PerformanceMonitoring.Endpoint.WhenSendingWithCriticalTimeEnabled." + Transports.Default.Key, true))
+            using (var counter = new PerformanceCounter("NServiceBus", "Critical Time", "PerformanceMonitoring.Endpoint.WhenSendingSlowWithCriticalTimeEnabled." + Transports.Default.Key, true))
             using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
             {
                 var context = new Context();
@@ -26,13 +26,13 @@
                     .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
                     .Run();
             }
-            Assert.Greater(counterValue, 0);
+            Assert.Greater(counterValue, 2);
         }
 
         void CheckPerfCounter(PerformanceCounter counter)
         {
             float rawValue = counter.RawValue;
-            if (rawValue >0)
+            if (rawValue > 0)
             {
                 counterValue = rawValue;
             }
@@ -58,9 +58,9 @@
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
             public Context Context { get; set; }
-            
             public void Handle(MyMessage message)
             {
+                Thread.Sleep(2000);
                 Context.WasCalled = true;
             }
         }

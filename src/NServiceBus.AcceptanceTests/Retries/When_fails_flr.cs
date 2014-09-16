@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_messages_fails_flr : NServiceBusAcceptanceTest
+    public class When_fails_flr : NServiceBusAcceptanceTest
     {
         static TimeSpan SlrDelay = TimeSpan.FromSeconds(5);
 

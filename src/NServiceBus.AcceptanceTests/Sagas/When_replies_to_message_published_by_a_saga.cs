@@ -10,10 +10,10 @@
     using Saga;
     using ScenarioDescriptors;
 
-    public class When_an_endpoint_replies_to_a_message_published_by_a_saga : NServiceBusAcceptanceTest
+    public class When_replies_to_message_published_by_a_saga : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_be_able_to_reply_to_a_message_published_by_a_saga()
+        public void Should_reply_to_a_message_published_by_a_saga()
         {
             Scenario.Define<Context>()
                 .WithEndpoint<EndpointThatHostsASaga>

@@ -10,7 +10,7 @@
     using NUnit.Framework;
     using Unicast.Messages;
 
-    public class When_sending_a_message_off_to_slr : NServiceBusAcceptanceTest
+    public class When_sending_to_slr : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_preserve_the_original_body_for_regular_exceptions()

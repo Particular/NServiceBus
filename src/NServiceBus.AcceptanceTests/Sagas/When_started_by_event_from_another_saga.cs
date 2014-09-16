@@ -10,7 +10,7 @@
     using ScenarioDescriptors;
 
     //Repro for #1323
-    public class When_started_by_an_event_from_another_saga : NServiceBusAcceptanceTest
+    public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_start_the_saga_and_request_a_timeout()

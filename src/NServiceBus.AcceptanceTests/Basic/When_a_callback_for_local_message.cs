@@ -6,7 +6,7 @@
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
-    public class When_registering_a_callback_for_a_local_message : NServiceBusAcceptanceTest
+    public class When_a_callback_for_local_message : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_trigger_the_callback_when_the_response_comes_back()

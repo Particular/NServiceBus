@@ -8,11 +8,12 @@
     using NServiceBus.Support;
     using NUnit.Framework;
 
-    public class When_using_callbacks_in_a_scaleout_scenario : NServiceBusAcceptanceTest
+    public class When_using_callbacks_in_a_scaleout : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Each_client_should_have_a_unique_input_queue_to_avoid_processing_each_others_callbacks()
+        public void Each_client_should_have_a_unique_input_queue()
         {
+            //to avoid processing each others callbacks
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<Client>(b => b.CustomConfig(c => RuntimeEnvironment.MachineNameAction = () => "ClientA")
                         .Given((bus, context) => bus.Send(new MyRequest { Id = context.Id, Client = RuntimeEnvironment.MachineName })

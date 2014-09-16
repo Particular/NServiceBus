@@ -7,10 +7,10 @@
     using Saga;
     using ScenarioDescriptors;
 
-    public class When_receiving_a_message_that_should_start_a_saga : NServiceBusAcceptanceTest
+    public class When_receiving_that_should_start_a_saga : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_start_the_saga_and_call_all_messagehandlers_for_the_given_message()
+        public void Should_start_the_saga_and_call_messagehandlers()
         {
             Scenario.Define<SagaEndpointContext>()
                     .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage())))

@@ -7,7 +7,7 @@
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
-    public class When_receiving_a_message_with_transactions_disabled : NServiceBusAcceptanceTest
+    public class When_receiving_with_transactions_disabled : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
