@@ -56,7 +56,7 @@ namespace Client
         /// </summary>
         private void Expiration()
         {
-            Bus.Send<MessageThatExpires>(m => m.RequestId = new Guid());
+            Bus.Send<MessageThatExpires>(m => m.RequestId = Guid.NewGuid());
             Console.WriteLine("message with expiration was sent");
         }
 
@@ -92,7 +92,9 @@ namespace Client
                                   OrderId = Guid.NewGuid()
                               };
             if (!string.IsNullOrEmpty(tennant))
-                Headers.SetMessageHeader(message, "tennant", tennant);
+            {
+                Bus.SetMessageHeader(message, "tennant", tennant);
+            }
 
             Bus.Send(message);
             Console.WriteLine("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent");

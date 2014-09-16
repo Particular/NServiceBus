@@ -17,5 +17,10 @@ namespace LoggingWithConfigurableThreshold
         public void Stop()
         {
         }
+
+        public void Customize(BusConfiguration configuration)
+        {
+            configuration.UsePersistence<InMemoryPersistence>();
+        }
     }
 }

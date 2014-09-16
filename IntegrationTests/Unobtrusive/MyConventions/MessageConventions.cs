@@ -4,11 +4,11 @@ namespace MyConventions
 {
     using NServiceBus;
 
-    public class MessageConventions:IWantToRunBeforeConfiguration
+    public class MessageConventions : INeedInitialization
     {
-        public void Init(Configure configure)
+        public void Customize(BusConfiguration configuration)
         {
-            configure.DefiningCommandsAs(t => t.Namespace != null && t.Namespace.EndsWith("Commands"))
+            configuration.Conventions().DefiningCommandsAs(t => t.Namespace != null && t.Namespace.EndsWith("Commands"))
                 .DefiningEventsAs(t => t.Namespace != null && t.Namespace.EndsWith("Events"))
                 .DefiningMessagesAs(t => t.Namespace == "Messages")
                 .DefiningEncryptedPropertiesAs(p => p.Name.StartsWith("Encrypted"))
@@ -17,8 +17,7 @@ namespace MyConventions
                 .DefiningTimeToBeReceivedAs(t => t.Name.EndsWith("Expires")
                     ? TimeSpan.FromSeconds(30)
                     : TimeSpan.MaxValue
-                    );
+                );
         }
-
     }
 }

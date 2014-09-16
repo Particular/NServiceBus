@@ -1,4 +1,5 @@
 ﻿using NServiceBus.Persistence;
+using NServiceBus.Persistence.Legacy;
 using NServiceBus.Unicast.Messages;
 
 namespace MyServer
@@ -6,18 +7,12 @@ namespace MyServer
     using NServiceBus;
     using NServiceBus.MessageMutator;
 
-    public class EndpointConfig : IConfigureThisEndpoint,INeedInitialization
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server
     {
-        public void Init(Configure config)
+        public void Customize(BusConfiguration configuration)
         {
-            config.UsePersistence<NServiceBus.Persistence.Legacy.Msmq>();
-            config.UsePersistence<InMemory>();
-            
-        }
-
-        public void Customize(ConfigurationBuilder builder)
-        {
-            
+            configuration.UsePersistence<InMemoryPersistence>();
+            configuration.UsePersistence<MsmqPersistence>().For(Storage.Subscriptions);
         }
     }
 
@@ -32,19 +27,22 @@ namespace MyServer
         public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
         {
             if (Bus.CurrentMessageContext == null)
+            {
                 return;
+            }
+
             if (!Bus.CurrentMessageContext.Headers.ContainsKey("tenant"))
+            {
                 return;
+            }
 
             transportMessage.Headers["tenant"] = Bus.CurrentMessageContext.Headers["tenant"];
         }
 
-        public void Init(Configure config)
+        public void Customize(BusConfiguration configuration)
         {
-
-            config.Configurer.ConfigureComponent<TenantPropagatingMutator>(
-                DependencyLifecycle.InstancePerCall);
+            configuration.RegisterComponents(c => c.ConfigureComponent<TenantPropagatingMutator>(
+                DependencyLifecycle.InstancePerCall));
         }
-
     }
 }
