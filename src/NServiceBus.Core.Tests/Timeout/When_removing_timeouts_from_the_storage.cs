@@ -2,44 +2,17 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Persistence.InMemory.TimeoutPersister;
-    using NServiceBus.Persistence.Raven;
-    using NServiceBus.Persistence.Raven.TimeoutPersister;
+    using System.Linq;
+    using InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
-    using Raven.Client;
-    using Raven.Client.Document;
-    using Raven.Client.Embedded;
-
-    [TestFixture]
-    public class When_removing_timeouts_from_the_storage_with_raven : When_removing_timeouts_from_the_storage
-    {
-        private IDocumentStore store;
-
-        protected override IPersistTimeouts CreateTimeoutPersister()
-        {
-            store = new EmbeddableDocumentStore {RunInMemory = true};
-            //store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "TempTest" };
-            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
-            store.Conventions.MaxNumberOfRequestsPerSession = 10;
-            store.Initialize();
-
-            return new RavenTimeoutPersistence(new StoreAccessor(store));
-        }
-
-        [TearDown]
-        public void Cleanup()
-        {
-            store.Dispose();
-        }
-    }
 
     [TestFixture]
     public class When_removing_timeouts_from_the_storage_with_inMemory : When_removing_timeouts_from_the_storage
     {
         protected override IPersistTimeouts CreateTimeoutPersister()
         {
-            return new InMemoryTimeoutPersistence();
+            return new InMemoryTimeoutPersister();
         }
     }
 
@@ -52,10 +25,6 @@
         [SetUp]
         public void Setup()
         {
-            Address.InitializeLocalAddress("MyEndpoint");
-
-            Configure.GetEndpointNameAction = () => "MyEndpoint";
-
             persister = CreateTimeoutPersister();
         }
 
@@ -76,10 +45,10 @@
                 persister.TryRemove(timeout.Item1, out timeoutData);
             }
 
-            Assert.AreEqual(0, GetNextChunk().Count);
+            Assert.AreEqual(0, GetNextChunk().Count());
         }
 
-        protected List<Tuple<string, DateTime>> GetNextChunk()
+        protected IEnumerable<Tuple<string, DateTime>> GetNextChunk()
         {
             DateTime nextTimeToRunQuery;
             return persister.GetNextChunk(DateTime.UtcNow.AddYears(-3), out nextTimeToRunQuery);

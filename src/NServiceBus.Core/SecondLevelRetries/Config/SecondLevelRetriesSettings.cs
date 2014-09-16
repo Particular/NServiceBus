@@ -1,18 +1,25 @@
 namespace NServiceBus.SecondLevelRetries.Config
 {
     using System;
-    using Settings;
 
-    public class SecondLevelRetriesSettings:ISetDefaultSettings
+    /// <summary>
+    /// Configuration settings for second level retries
+    /// </summary>
+    public class SecondLevelRetriesSettings
     {
-        public SecondLevelRetriesSettings()
+        readonly BusConfiguration config;
+
+        internal SecondLevelRetriesSettings(BusConfiguration config)
         {
-            SettingsHolder.SetDefault("SecondLevelRetries.RetryPolicy", DefaultRetryPolicy.RetryPolicy);
+            this.config = config;
         }
 
+        /// <summary>
+        /// Register a custom retry policy
+        /// </summary>
         public void CustomRetryPolicy(Func<TransportMessage, TimeSpan> customPolicy)
         {
-            SettingsHolder.Set("SecondLevelRetries.RetryPolicy",customPolicy);
+            config.Settings.Set("SecondLevelRetries.RetryPolicy", customPolicy);
         }
     }
 }

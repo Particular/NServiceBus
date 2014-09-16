@@ -3,6 +3,7 @@
     namespace NServiceBus.Config.UnitTests
     {
         using NUnit.Framework;
+        using Conventions = global::NServiceBus.Conventions;
 
         [TestFixture]
         public class When_applying_message_conventions_to_messages : MessageConventionTestBase
@@ -11,16 +12,19 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                MessageConventionExtensions.IsMessageTypeAction = t =>
+                conventions = new Conventions
                 {
-                    timesCalled++;
-                    return false;
+                    IsMessageTypeAction= t =>
+                    {
+                        timesCalled++;
+                        return false;
+                    }
                 };
 
-                MessageConventionExtensions.IsMessage(this);
+                conventions.IsMessageType(GetType());
                 Assert.AreEqual(1, timesCalled);
 
-                MessageConventionExtensions.IsMessage(this);
+                conventions.IsMessageType(GetType());
                 Assert.AreEqual(1, timesCalled);
             }
         }
@@ -32,16 +36,19 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                MessageConventionExtensions.IsEventTypeAction = t =>
+                conventions = new Conventions
                 {
-                    timesCalled++;
-                    return false;
+                    IsEventTypeAction = t =>
+                    {
+                        timesCalled++;
+                        return false;
+                    }
                 };
 
-                MessageConventionExtensions.IsEvent(this);
+                conventions.IsEventType(GetType());
                 Assert.AreEqual(1, timesCalled);
 
-                MessageConventionExtensions.IsEvent(this);
+                conventions.IsEventType(GetType());
                 Assert.AreEqual(1, timesCalled);
             }
         }
@@ -53,16 +60,19 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                MessageConventionExtensions.IsCommandTypeAction = t =>
+                conventions = new Conventions
                 {
-                    timesCalled++;
-                    return false;
+                    IsCommandTypeAction = t =>
+                    {
+                        timesCalled++;
+                        return false;
+                    }
                 };
 
-                MessageConventionExtensions.IsCommand(this);
+                conventions.IsCommandType(GetType());
                 Assert.AreEqual(1, timesCalled);
 
-                MessageConventionExtensions.IsCommand(this);
+                conventions.IsCommandType(GetType());
                 Assert.AreEqual(1, timesCalled);
             }
         }
@@ -71,31 +81,10 @@
 
 namespace NServiceBus.Core.Tests.Conventions.NServiceBus.Config.UnitTests
 {
-    using System;
-    using NUnit.Framework;
+    using Conventions = global::NServiceBus.Conventions;
 
     public class MessageConventionTestBase
     {
-        Func<Type, bool> IsEventTypeAction;
-        Func<Type, bool> IsCommandTypeAction;
-        Func<Type, bool> IsMessageTypeAction;
-
-        [SetUp]
-        public void SetUp()
-        {
-            IsEventTypeAction = MessageConventionExtensions.IsEventTypeAction;
-            IsCommandTypeAction = MessageConventionExtensions.IsCommandTypeAction;
-            IsMessageTypeAction = MessageConventionExtensions.IsMessageTypeAction;
-
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            MessageConventionExtensions.IsEventTypeAction = IsEventTypeAction;
-            MessageConventionExtensions.IsCommandTypeAction = IsCommandTypeAction;
-            MessageConventionExtensions.IsMessageTypeAction = IsMessageTypeAction;
-
-        }
+        protected Conventions conventions;
     }
 }

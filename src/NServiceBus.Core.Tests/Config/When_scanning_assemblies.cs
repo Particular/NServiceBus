@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Tests.Config
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using NServiceBus.Hosting.Helpers;
     using NUnit.Framework;
 
     [TestFixture]
@@ -14,7 +15,7 @@ namespace NServiceBus.Core.Tests.Config
         [SetUp]
         public void SetUp()
         {
-            foundAssemblies = Configure.GetAssembliesInDirectory(AppDomain.CurrentDomain.BaseDirectory)
+            foundAssemblies = GetAssembliesInDirectory(AppDomain.CurrentDomain.BaseDirectory)
                 .ToList();
         }
 
@@ -41,18 +42,17 @@ namespace NServiceBus.Core.Tests.Config
                 foundAssemblies.Where(a => a.FullName.ToLower().StartsWith("nhibernate")).ToArray());
         }
 
-        [Test]
-        public void Should_exclude_log4net()
+        IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
-            CollectionAssert.AreEquivalent(new String[0],
-                foundAssemblies.Where(a => a.FullName.ToLower().StartsWith("log4net")).ToArray());
-        }
-
-        [Test]
-        public void Should_exclude_raven()
-        {
-            CollectionAssert.AreEquivalent(new String[0],
-                foundAssemblies.Where(a => a.FullName.ToLower().StartsWith("raven")).ToArray());
+            var assemblyScanner = new AssemblyScanner(path);
+            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
+            if (assembliesToSkip != null)
+            {
+                assemblyScanner.AssembliesToSkip = assembliesToSkip.ToList();
+            }
+            return assemblyScanner
+                .GetScannableAssemblies()
+                .Assemblies;
         }
     }
 }

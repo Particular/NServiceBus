@@ -1,17 +1,14 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
-    using System.ComponentModel;
     using System.Linq;
     using MessageInterfaces;
+    using NServiceBus.Unicast.Behaviors;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
 
-
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class LoadHandlersBehavior : IBehavior<ReceiveLogicalMessageContext>
+    class LoadHandlersBehavior : IBehavior<IncomingContext>
     {
         public IMessageHandlerRegistry HandlerRegistry { get; set; }
 
@@ -19,9 +16,9 @@
 
         public PipelineExecutor PipelineFactory { get; set; }
 
-        public void Invoke(ReceiveLogicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
-            var messageToHandle = context.LogicalMessage;
+            var messageToHandle = context.IncomingLogicalMessage;
 
             // for now we cheat and pull it from the behavior context:
             var callbackInvoked = context.Get<bool>(CallbackInvocationBehavior.CallbackInvokedKey);
@@ -36,20 +33,25 @@
 
             foreach (var handlerType in handlerTypedToInvoke)
             {
-                var loadedHandler = new MessageHandler
+                using (context.CreateSnapshotRegion())
                 {
-                    Instance = context.Builder.Build(handlerType),
-                    Invocation = (handlerInstance, message) => HandlerInvocationCache.InvokeHandle(handlerInstance, message)
-                };
+                    var loadedHandler = new MessageHandler
+                    {
+                        Instance = context.Builder.Build(handlerType),
+                        Invocation = (handlerInstance, message) => HandlerRegistry.InvokeHandle(handlerInstance, message)
+                    };
 
-                if (PipelineFactory.InvokeHandlerPipeline(loadedHandler).ChainAborted)
-                {
-                    //if the chain was aborted skip the other handlers
-                    break;
+                    context.MessageHandler = loadedHandler;
+
+                    next();
+
+                    if (context.HandlerInvocationAborted)
+                    {
+                        //if the chain was aborted skip the other handlers
+                        break;
+                    }
                 }
             }
-
-            next();
         }
     }
 }

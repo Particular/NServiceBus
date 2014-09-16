@@ -8,7 +8,6 @@ namespace MessageMapperTests
     [TestFixture]
     public class When_mapping_interfaces
     {
-
         [Test]
         public void Interfaces_with_only_properties_should_be_mapped()
         {

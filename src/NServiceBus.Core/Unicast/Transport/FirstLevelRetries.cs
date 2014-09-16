@@ -6,14 +6,16 @@
 
     class FirstLevelRetries
     {
-        private readonly ConcurrentDictionary<string, Tuple<int, Exception>> failuresPerMessage = new ConcurrentDictionary<string, Tuple<int, Exception>>();
-        private readonly IManageMessageFailures failureManager;
-        private readonly int maxRetries;
+        ConcurrentDictionary<string, Tuple<int, Exception>> failuresPerMessage = new ConcurrentDictionary<string, Tuple<int, Exception>>();
+        IManageMessageFailures failureManager;
+        CriticalError criticalError;
+        int maxRetries;
 
-        public FirstLevelRetries(int maxRetries, IManageMessageFailures failureManager)
+        public FirstLevelRetries(int maxRetries, IManageMessageFailures failureManager, CriticalError criticalError)
         {
             this.maxRetries = maxRetries;
             this.failureManager = failureManager;
+            this.criticalError = criticalError;
         }
 
         public bool HasMaxRetriesForMessageBeenReached(TransportMessage message)
@@ -50,29 +52,17 @@
                                            (s, i) => new Tuple<int, Exception>(i.Item1 + 1, e));
         }
 
-        private void TryInvokeFaultManager(TransportMessage message, Exception exception)
+        void TryInvokeFaultManager(TransportMessage message, Exception exception)
         {
             try
             {
-                var e = exception;
-
-                if (e is AggregateException)
-                {
-                    e = e.GetBaseException();
-                }
-
-                if (e is TransportMessageHandlingFailedException)
-                {
-                    e = e.InnerException;
-                }
-
                 message.RevertToOriginalBodyIfNeeded();
 
-                failureManager.ProcessingAlwaysFailsForMessage(message, e);
+                failureManager.ProcessingAlwaysFailsForMessage(message, exception);
             }
             catch (Exception ex)
             {
-                Configure.Instance.RaiseCriticalError(String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
+                criticalError.Raise(String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
 
                 throw;
             }

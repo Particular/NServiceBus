@@ -7,8 +7,6 @@
     using MessageMutator;
     using NUnit.Framework;
 
-#pragma warning disable 612, 618
-
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
         [Test]
@@ -75,13 +73,18 @@
                     transportMessage.Body = modifiedBody;
                 }
 
-                public void Init()
+                public void Customize(BusConfiguration configuration)
                 {
-                    Configure.Component<BodyMutator>(DependencyLifecycle.InstancePerCall);
+                    configuration.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                 }
             }
 
-            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited> { public void Handle(MessageToBeAudited message) { } }
+            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+            {
+                public void Handle(MessageToBeAudited message)
+                {
+                }
+            }
         }
 
         class AuditSpyEndpoint : EndpointConfigurationBuilder
@@ -102,13 +105,18 @@
                     Context.HasDiagnosticLicensingHeaders = transportMessage.Headers.TryGetValue(Headers.HasLicenseExpired, out licenseExpired);
                 }
 
-                public void Init()
+                public void Customize(BusConfiguration configuration)
                 {
-                    Configure.Component<BodySpy>(DependencyLifecycle.InstancePerCall);
+                    configuration.RegisterComponents(c => c.ConfigureComponent<BodySpy>(DependencyLifecycle.InstancePerCall));
                 }
             }
 
-            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited> { public void Handle(MessageToBeAudited message) { } }
+            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+            {
+                public void Handle(MessageToBeAudited message)
+                {
+                }
+            }
         }
 
         public static byte Checksum(byte[] data)
@@ -121,10 +129,5 @@
         public class MessageToBeAudited : IMessage
         {
         }
-
-        
     }
-
-#pragma warning restore  612, 618
-
 }

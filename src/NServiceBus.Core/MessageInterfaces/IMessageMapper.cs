@@ -7,10 +7,6 @@ namespace NServiceBus.MessageInterfaces
     /// Enables looking up interfaced mapped to generated concrete types.
     /// and vice versa.
     /// </summary>
-    [ObsoleteEx(
-        Message = "Not a public API.",
-        TreatAsErrorFromVersion = "5.0",
-        RemoveInVersion = "5.0")]
     public interface IMessageMapper : IMessageCreator
     {
         /// <summary>

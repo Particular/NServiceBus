@@ -30,7 +30,7 @@
             MessageWithXDocument resultXDocument;
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new object[] { messageWithXDocument }, stream);
+                serializer.Serialize(messageWithXDocument, stream);
 
                 stream.Position = 0;
 
@@ -40,7 +40,7 @@
             MessageWithXElement resultXElement;
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new object[] { messageWithXElement }, stream);
+                serializer.Serialize(messageWithXElement, stream);
 
                 stream.Position = 0;
 

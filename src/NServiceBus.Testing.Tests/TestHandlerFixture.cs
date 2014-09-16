@@ -4,14 +4,8 @@ namespace NServiceBus.Testing.Tests
     using NUnit.Framework;
 
     [TestFixture]
-    public class TestHandlerFixture
+    public class TestHandlerFixture : BaseTests
     {
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
-        {
-            Test.Initialize();
-        }
-
         [Test]
         public void ShouldAssertDoNotContinueDispatchingCurrentMessageToHandlersWasCalled()
         {
@@ -454,19 +448,17 @@ namespace NServiceBus.Testing.Tests
 
         public class PublishingManyHandler : IHandleMessages<Incoming>
         {
+            public IBus Bus { get; set; }
             public void Handle(Incoming message)
             {
-                var one = this.Bus().CreateInstance<Outgoing>(m =>
+                Bus.Publish<Outgoing>(m =>
                 {
                     m.Number = 1;
                 });
-
-                var two = this.Bus().CreateInstance<Outgoing>(m =>
+                Bus.Publish<Outgoing>(m =>
                 {
                     m.Number = 2;
                 });
-
-                ((StubBus)this.Bus()).Publish(one, two);
             }
         }
 
@@ -476,17 +468,14 @@ namespace NServiceBus.Testing.Tests
 
             public void Handle(Incoming message)
             {
-                var one = Bus.CreateInstance<Outgoing>(m =>
+                Bus.Send<Outgoing>(m =>
                 {
                     m.Number = 1;
                 });
-
-                var two = Bus.CreateInstance<Outgoing2>(m =>
+                Bus.Send<Outgoing2>(m =>
                 {
                     m.Number = 2;
                 });
-
-                ((StubBus)Bus).Send(one, two);
             }
         }
 
@@ -496,28 +485,27 @@ namespace NServiceBus.Testing.Tests
 
             public void Handle(Incoming message)
             {
-                var one = Bus.CreateInstance<Outgoing>(m =>
+                Bus.Send<Outgoing>(m =>
                 {
                     m.Number = 1;
                 });
 
-                var two = Bus.CreateInstance<Outgoing>(m =>
+                Bus.Send<Outgoing>(m =>
                 {
                     m.Number = 2;
                 });
-
-                ((StubBus)Bus).Send(one, two);
             }
         }
 
         public class SendingHandler<TSend> : IHandleMessages<TestMessage>
             where TSend : IMessage
         {
+            public IBus Bus { get; set; }
             public Action<TSend> ModifyPublish { get; set; }
 
             public void Handle(TestMessage message)
             {
-                this.Bus().Send(ModifyPublish);
+                Bus.Send(ModifyPublish);
             }
         }
 

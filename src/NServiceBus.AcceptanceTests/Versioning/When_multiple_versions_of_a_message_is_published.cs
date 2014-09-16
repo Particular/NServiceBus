@@ -2,10 +2,9 @@
 {
     using EndpointTemplates;
     using AcceptanceTesting;
-    using Features;
+    using NServiceBus.Features;
     using NUnit.Framework;
     using PubSub;
-    using ScenarioDescriptors;
 
     public class When_multiple_versions_of_a_message_is_published : NServiceBusAcceptanceTest
     {
@@ -14,16 +13,7 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<V2Publisher>(b =>
-                        b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
-                            {
-                                if (s.SubscriberReturnAddress.Queue.Contains("V1Subscriber"))
-                                    context.V1Subscribed = true;
-
-                                if (s.SubscriberReturnAddress.Queue.Contains("V2Subscriber"))
-                                    context.V2Subscribed = true;
-                            })
-                            )
-                             .When(c => c.V1Subscribed && c.V2Subscribed, (bus, c) => bus.Publish<V2Event>(e =>
+                        b.When(c => c.V1Subscribed && c.V2Subscribed, (bus, c) => bus.Publish<V2Event>(e =>
                                  {
                                      e.SomeData = 1;
                                      e.MoreInfo = "dasd";
@@ -31,22 +21,16 @@
                     .WithEndpoint<V1Subscriber>(b => b.Given((bus,c) =>
                         {
                             bus.Subscribe<V1Event>();
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (c.HasNativePubSubSupport)
                                 c.V1Subscribed = true;
                         }))
                     .WithEndpoint<V2Subscriber>(b => b.Given((bus,c) =>
                         {
                             bus.Subscribe<V2Event>();
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (c.HasNativePubSubSupport)
                                 c.V2Subscribed = true;
                         }))
                     .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
-                    .Repeat(r =>//broken for active mq until #1098 is fixed
-                                    r.For<AllSerializers>(Serializers.Binary)) //versioning isn't supported for binary serialization
-                    .Should(c =>
-                        {
-                            //put asserts in here if needed
-                        })
                     .Run();
         }
 
@@ -65,15 +49,25 @@
         {
             public V2Publisher()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    if (s.SubscriberReturnAddress.Queue.Contains("V1Subscriber"))
+                    {
+                        context.V1Subscribed = true;
+                    }
 
+                    if (s.SubscriberReturnAddress.Queue.Contains("V2Subscriber"))
+                    {
+                        context.V2Subscribed = true;
+                    }
+                }));
             }
         }
         public class V1Subscriber : EndpointConfigurationBuilder
         {
             public V1Subscriber()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>())
                     .ExcludeType<V2Event>()
                     .AddMapping<V1Event>(typeof(V2Publisher));
 
@@ -95,7 +89,7 @@
         {
             public V2Subscriber()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>())
                      .AddMapping<V2Event>(typeof(V2Publisher));
             }
 

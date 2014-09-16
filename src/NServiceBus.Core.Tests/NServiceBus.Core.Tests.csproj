@@ -9,11 +9,12 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NServiceBus.Core.Tests</RootNamespace>
     <AssemblyName>NServiceBus.Core.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>Test.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\Test.snk</AssemblyOriginatorKeyFile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,6 +27,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <NoWarn>618,67</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,67 +39,14 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <NoWarn>618,67</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AWS.Extensions">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\AWS.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="AWSSDK">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\AWSSDK.dll</HintPath>
-    </Reference>
-    <Reference Include="Esent.Interop">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Esent.Interop.dll</HintPath>
-    </Reference>
-    <Reference Include="GeoAPI">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\GeoAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="ICSharpCode.NRefactory">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\ICSharpCode.NRefactory.dll</HintPath>
-    </Reference>
-    <Reference Include="ICSharpCode.NRefactory.CSharp">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\ICSharpCode.NRefactory.CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Jint.Raven">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Jint.Raven.dll</HintPath>
-    </Reference>
-    <Reference Include="Lucene.Net">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Lucene.Net.dll</HintPath>
-    </Reference>
-    <Reference Include="Lucene.Net.Contrib.Spatial.NTS">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Lucene.Net.Contrib.Spatial.NTS.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\NetTopologySuite.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="PowerCollections">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\PowerCollections.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Abstractions">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Raven.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Client.Embedded">
-      <HintPath>..\packages\RavenDB.Embedded\lib\net40\Raven.Client.Embedded.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Client.Lightweight">
-      <HintPath>..\packages\RavenDB.Client\lib\net40\Raven.Client.Lightweight.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Database">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Raven.Database.dll</HintPath>
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Rhino.Mocks">
-      <HintPath>..\packages\RhinoMocks\lib\net\Rhino.Mocks.dll</HintPath>
-    </Reference>
-    <Reference Include="Spatial4n.Core.NTS">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Spatial4n.Core.NTS.dll</HintPath>
+      <HintPath>..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -116,7 +65,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\NServiceBus.Testing\InMemoryDataBus.cs">
+      <Link>DataBus\InMemoryDataBus.cs</Link>
+    </Compile>
+    <Compile Include="Address\AddressTests.cs" />
+    <Compile Include="AssemblyLocation.cs" />
     <Compile Include="AssemblyScanner\AssemblyScannerTests.cs" />
+    <Compile Include="AssemblyScanner\When_directory_with_no_reference_dlls_is_scanned.cs" />
+    <Compile Include="AssemblyScanner\When_directory_with_handler_dll_is_scanned.cs" />
+    <Compile Include="AssemblyScanner\When_directory__with_non_dot_net_dll_is_scanned.cs" />
+    <Compile Include="AssemblyScanner\When_exclusion_predicate_is_used.cs" />
+    <Compile Include="AssemblyScanner\When_inclusion_predicate_is_used.cs" />
+    <Compile Include="AssemblyScanner\When_scanning_for_dlls_only.cs" />
+    <Compile Include="AssemblyScanner\When_scanning_top_level_only.cs" />
+    <Compile Include="AssemblyScanner\When_told_to_scan_app_domain.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscriptionContext.cs" />
     <Compile Include="AutomaticSubscriptions\When_autosubscribing_a_saga_that_handles_a_superclass_event.cs" />
     <Compile Include="AutomaticSubscriptions\When_starting_an_endpoint_containing_a_saga.cs" />
@@ -129,19 +91,52 @@
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
-    <Compile Include="AttributeTests.cs" />
+    <Compile Include="StandardsTests.cs" />
+    <Compile Include="Encryption\ConfigureRijndaelEncryptionServiceTests.cs" />
+    <Compile Include="Encryption\RijndaelEncryptionServiceTest.cs" />
+    <Compile Include="ModuleInitializer.cs" />
+    <Compile Include="Features\FeatureDependencyTests.cs" />
+    <Compile Include="Features\FeatureSettingsTests.cs" />
+    <Compile Include="Features\FeatureStartupTests.cs" />
+    <Compile Include="Features\FeatureTests.cs" />
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
-    <Compile Include="Pipeline\BehaviorChainTests.cs" />
-    <Compile Include="SetLoggingLibraryTests.cs" />
-    <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReaderTests.cs" />
+    <Compile Include="Logging\RollingLoggerTests.cs" />
+    <Compile Include="Outbox\OutboxRecordBehaviorTests.cs" />
+    <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniqueProperties.cs" />
+    <Compile Include="Persistence\InMemory\AnotherSimpleSageEntity.cs" />
+    <Compile Include="Persistence\InMemory\InMemoryOutboxPersisterTests.cs" />
+    <Compile Include="Persistence\InMemory\SagaWithTwoUniqueProperties.cs" />
+    <Compile Include="Persistence\InMemory\SagaWithUniqueProperty.cs" />
+    <Compile Include="Persistence\InMemory\SimpleSagaEntity.cs" />
+    <Compile Include="Persistence\InMemory\TestSaga.cs" />
+    <Compile Include="Persistence\InMemory\When_completing_a_saga_with_the_InMemory_persister.cs" />
+    <Compile Include="Persistence\InMemory\When_completing_a_saga_with_unique_property_with_InMemory_persister.cs" />
+    <Compile Include="Persistence\InMemory\When_multiple_workers_retrieve_same_saga.cs" />
+    <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_another_saga.cs" />
+    <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />
+    <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_the_original_value_of_another_saga_before_updating.cs" />
+    <Compile Include="Persistence\InMemory\When_persisting_different_sagas_with_unique_properties.cs" />
+    <Compile Include="Persistence\InMemory\When_saga_not_found_return_default.cs" />
+    <Compile Include="Persistence\InMemory\When_updating_a_saga_with_the_same_unique_property_as_another_saga.cs" />
+    <Compile Include="Persistence\InMemory\When_updating_a_saga_with_the_same_unique_property_value.cs" />
+    <Compile Include="Pipeline\PipelineStepTests.cs" />
+    <Compile Include="Pipeline\BehaviorRegistrationsCoordinatorTests.cs" />
+    <Compile Include="Pipeline\BehaviorTypeCheckerTests.cs" />
+    <Compile Include="Sagas\When_completing_a_saga.cs" />
+    <Compile Include="Sagas\When_receiving_a_message_that_hits_multiple_sagas_of_different_types.cs" />
+    <Compile Include="Sagas\When_receiving_a_message_that_is_configure_to_start_a_saga.cs" />
+    <Compile Include="Sagas\When_receiving_a_message_that_is_handled_by_a_saga.cs" />
+    <Compile Include="Sagas\When_receiving_a_message_that_is_not_set_to_start_a_saga.cs" />
+    <Compile Include="Sagas\When_receiving_a_timeout_message.cs" />
+    <Compile Include="Sagas\When_sending_messages_from_a_saga.cs" />
     <Compile Include="GitFlowVersionTests.cs" />
-    <Compile Include="NServiceBusVersionTests.cs" />
-    <Compile Include="Pipeline\BehaviorConventions.cs" />
+    <Compile Include="Serializers\Json\When_not_overriding_stream_encoding.cs" />
+    <Compile Include="Serializers\Json\When_overriding_stream_encoding.cs" />
+    <Compile Include="Serializers\XML\SerializingGenericTests.cs" />
     <Compile Include="StringStreamExtensions.cs" />
     <Compile Include="Fakes\FakeCentralizedPubSubTransportDefinition.cs" />
-    <Compile Include="Gateway\Receiving\HasherTests.cs" />
     <Compile Include="Licensing\LicenseExpiredFormDisplayerTests.cs" />
-    <Compile Include="MessageConventionExtensionsTests.cs" />
+    <Compile Include="ConventionsTests.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
     <Compile Include="DataBus\MessageWithDataBusProperty.cs" />
     <Compile Include="DataBus\MessageWithExplicitTimeToLive.cs" />
@@ -152,72 +147,23 @@
     <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_null_properties.cs" />
     <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_outgoing_messages.cs" />
     <Compile Include="DataBus\When_nservicebus_is_initalizing.cs" />
-    <Compile Include="Encryption\ConfigureRijndaelEncryptionServiceTests.cs" />
     <Compile Include="Encryption\ConventionBasedEncryptedStringSpecs.cs" />
     <Compile Include="Encryption\FakeEncryptionService.cs" />
     <Compile Include="Encryption\Issue_701.cs" />
     <Compile Include="Encryption\Issue_949.cs" />
     <Compile Include="Encryption\Mailing_list_complex_dto.cs" />
-    <Compile Include="Encryption\EncryptionServiceTests.cs" />
     <Compile Include="Encryption\WireEncryptedStringSpecs.cs" />
     <Compile Include="Fakes\FakeBus.cs" />
     <Compile Include="Fakes\FakeTransport.cs" />
-    <Compile Include="Features\FeatureCategories.cs" />
     <Compile Include="FuncBuilder.cs" />
-    <Compile Include="Gateway\Config\When_routing_using_the_configuration_source.cs" />
-    <Compile Include="Gateway\FakeMessageSender.cs" />
-    <Compile Include="Gateway\FakeTransport.cs" />
-    <Compile Include="Gateway\HeaderManagement\When_receiving_a_message_from_another_site.cs" />
-    <Compile Include="Gateway\Idempotency\Raven\in_the_raven_storage.cs" />
-    <Compile Include="Gateway\Idempotency\Raven\When_acking_an_already_acked_message.cs" />
-    <Compile Include="Gateway\Idempotency\Raven\When_acking_an_existing_message.cs" />
-    <Compile Include="Gateway\Idempotency\Raven\When_storing_a_duplicate_message.cs" />
-    <Compile Include="Gateway\Idempotency\Raven\When_storing_a_new_message.cs" />
-    <Compile Include="Gateway\Idempotency\Raven\When_updating_a_header_of_message.cs" />
-    <Compile Include="Gateway\RegularMessage.cs" />
-    <Compile Include="Gateway\Routing\When_routing_a_reply_message.cs" />
-    <Compile Include="Gateway\Routing\When_routing_using_the_configuration_source.cs" />
-    <Compile Include="Installers\GatewayHttpListenerInstallerTests.cs" />
-    <Compile Include="Installers\RavenUserInstallerTests.cs" />
     <Compile Include="Installers\PerformanceMonitorUsersInstallerTests.cs" />
     <Compile Include="ExceptionTests.cs" />
     <Compile Include="MessageMapper\When_mapping_ienumerable_implementations.cs" />
     <Compile Include="MessageMapper\When_mapping_interfaces.cs" />
     <Compile Include="MessageMapper\When_mapping_usinggenerics.cs" />
     <Compile Include="Msmq\MsmqUtilitiesTests.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\Persisting_a_saga_entity_with_a_raven_saga_persister.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\Raven_saga_persistence_concern.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\SagaWithoutUniqueProperties.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\SagaWithUniqueProperty.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\SagaWithUniquePropertyAndALongNamespace.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\Saga_with_unique_property_set_to_null.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\TestSaga.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\When_completing_a_saga_with_the_raven_persister.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\When_persisting_a_saga_entity_with_an_Enum_property.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\When_persisting_a_saga_entity_with_a_concrete_class_property.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\When_persisting_a_saga_entity_with_a_date_time_property.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\When_persisting_a_saga_entity_with_inherited_property.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\When_persisting_a_saga_entity_with_related_entities.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\When_persisting_a_saga_with_the_same_unique_property_as_another_saga.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\When_storing_a_saga_with_a_long_namespace.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\When_updating_a_saga_property_that_does_not_have_a_unique_attribute.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\When_updating_a_saga_property_that_has_a_unique_attribute.cs" />
-    <Compile Include="Persistence\RavenDB\SubscriptionStorage\TestData.cs" />
-    <Compile Include="Persistence\RavenDB\SubscriptionStorage\When_listing_subscribers_for_message_types.cs" />
-    <Compile Include="Persistence\RavenDB\SubscriptionStorage\When_receiving_an_unsubscription_message.cs" />
-    <Compile Include="Persistence\RavenDB\SubscriptionStorage\When_receiving_a_subscription_message.cs" />
-    <Compile Include="Persistence\RavenDB\SubscriptionStorage\When_receiving_duplicate_subscription_messages.cs" />
-    <Compile Include="Persistence\RavenDB\SubscriptionStorage\WithRavenSubscriptionStorage.cs" />
-    <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string.cs" />
-    <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_and_database.cs" />
-    <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_lambda.cs" />
-    <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_lambda_and_database.cs" />
-    <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_that_does_not_exist.cs" />
-    <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_with_the_default_settings.cs" />
-    <Compile Include="Persistence\RavenDB\WithRavenDbServer.cs" />
-    <Compile Include="Persistence\RavenDB\With_using_raven_persistence.cs" />
-    <Compile Include="Pipeline\BehaviorListTests.cs" />
+    <Compile Include="Outbox\FakeOutboxStorage.cs" />
+    <Compile Include="Outbox\OutboxDeduplicationBehaviorTests.cs" />
     <Compile Include="Routing\StaticMessageRouterTests.cs" />
     <Compile Include="Sagas\UniqueAttributeTests.cs" />
     <Compile Include="Sagas\When_resolving_message_handlers_for_a_saga.cs" />
@@ -227,7 +173,7 @@
     <Compile Include="Scheduler\DefaultSchedulerTests.cs" />
     <Compile Include="Scheduler\ScheduledTaskMessageHandlerTests.cs" />
     <Compile Include="Scheduler\ScheduleTests.cs" />
-    <Compile Include="SecondLevelRetries\DefaultRetryPolicyTests.cs" />
+    <Compile Include="SecondLevelRetries\SecondLevelRetriesProcessorTests.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetriesTests.cs" />
     <Compile Include="Serializers\Binary\BinarySerializerTest.cs" />
     <Compile Include="Serializers\Json\BsonMessageSerializerTest.cs" />
@@ -255,7 +201,6 @@
     <Compile Include="Serializers\XML\SomeEnum.cs" />
     <Compile Include="Serializers\XML\Using_Infer_Type_With_Non_Nested_Class.cs" />
     <Compile Include="Timeout\FakeMessageSender.cs" />
-    <Compile Include="Timeout\RavenTimeoutPersisterTests.cs" />
     <Compile Include="Timeout\When_fetching_timeouts_from_storage.cs" />
     <Compile Include="Timeout\When_pooling_timeouts.cs" />
     <Compile Include="Timeout\When_receiving_timeouts.cs" />
@@ -264,7 +209,6 @@
     <Compile Include="Fakes\FakeReceiver.cs" />
     <Compile Include="Transport\for_the_transactional_transport.cs" />
     <Compile Include="Transport\When_specifying_a_non_zero_throughput_limit.cs" />
-    <Compile Include="Transport\When_specifying_a_queu_name_for_msmq_with_total_length_including_machine_name_and_private_identifier_exceeding_114_characters.cs" />
     <Compile Include="Transport\When_specifying_a_zero_throughput_limit.cs" />
     <Compile Include="Unicast\ConfigurationSettings.cs" />
     <Compile Include="Unicast\ConfiguringMessageEndpointMapping.cs" />
@@ -275,7 +219,7 @@
     <Compile Include="Unicast\Contexts\FakeMessageDeferrer.cs" />
     <Compile Include="Unicast\Contexts\InterfaceMessage.cs" />
     <Compile Include="Unicast\Contexts\using_the_unicastbus.cs" />
-    <Compile Include="Unicast\Sagas.cs" />
+    <Compile Include="Sagas\When_using_custom_finders_to_find_sagas.cs" />
     <Compile Include="Unicast\UnitOfWorkBehaviorTests.cs" />
     <Compile Include="Unicast\ThroughputLimiterTests.cs" />
     <Compile Include="Unicast\MessagingBestPracticesTests.cs" />
@@ -284,7 +228,6 @@
     <Compile Include="Unicast\Helpers\FakeSubscriptionStorage.cs" />
     <Compile Include="Unicast\Helpers\FakeTransport.cs" />
     <Compile Include="Unicast\Helpers\Helpers.cs" />
-    <Compile Include="Unicast\MessageModules.cs" />
     <Compile Include="Unicast\Messages\ANamespace\ASubNamespace\MessageD.cs" />
     <Compile Include="Unicast\Messages\ANamespace\MessageC.cs" />
     <Compile Include="Unicast\Messages\DefaultMessageRegistryTests.cs" />
@@ -297,7 +240,6 @@
     <Compile Include="Unicast\Subscriptions.cs" />
     <Compile Include="Unicast\Timing.cs" />
     <Compile Include="Unicast\UnitOfWork.cs" />
-    <Compile Include="Unicast\Impersonation.cs" />
     <Compile Include="Unicast\with_sagas.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethodsTests.cs" />
     <Compile Include="Utils\Reflection\ReflectTests.cs" />
@@ -307,42 +249,41 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="ripple.dependencies.config" />
-    <None Include="Test.snk" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
-      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
-      <Name>NServiceBus</Name>
-    </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Queuing\SqlServer\" />
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="FodyWeavers.xml">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="TestDlls\dotNet.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestDlls\libzmq-v120-mt-3_2_3.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestDlls\NServiceBus.Core.Tests.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestDlls\Rebus.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDlls\some_random.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDlls\some_random.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDlls\Tail.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
+  <Import Project="..\packages\Fody.1.25.0\build\Fody.targets" Condition="Exists('..\packages\Fody.1.25.0\build\Fody.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Fody.1.25.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.25.0\build\Fody.targets'))" />
+  </Target>
 </Project>

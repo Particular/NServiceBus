@@ -6,46 +6,27 @@
     /// <summary>
     /// Windows Installer for NService Bus Host
     /// </summary>
-    public class WindowsInstaller
+    class WindowsInstaller
     {
+
         /// <summary>
         /// Run installers (infrastructure and per endpoint) and handles profiles.
         /// </summary>
         public static void Install(string[] args, string configFile)
         {
             // Create the new appDomain with the new config.
-            var installDomain = AppDomain.CreateDomain("installDomain", AppDomain.CurrentDomain.Evidence, new AppDomainSetup
-                                                                                                              {
-                                                                                                                  ConfigurationFile = configFile,
-                                                                                                                  AppDomainInitializer = DomainInitializer,
-                                                                                                                  AppDomainInitializerArguments = args
-                                                                                                              });
+            var appDomainSetup = new AppDomainSetup
+            {
+                ConfigurationFile = configFile,
+                AppDomainInitializer = DomainInitializer,
+                AppDomainInitializerArguments = args
+            };
+            var installDomain = AppDomain.CreateDomain("installDomain", AppDomain.CurrentDomain.Evidence, appDomainSetup);
 
             // Call the right config method in that appDomain.
             var del = new CrossAppDomainDelegate(RunInstall);
             installDomain.DoCallBack(del);
         }
-
-        /// <summary>
-        /// Run Install
-        /// </summary>
-        static void RunInstall()
-        {
-            Console.WriteLine("Executing the NServiceBus installers");
-
-            try
-            {
-                host.Install(username);
-                Configure.Instance.Builder.Dispose();
-            }
-            catch (Exception ex)
-            {
-                //need to suppress here in order to avoid infinite loop
-                Console.WriteLine("Failed to execute installers: " +ex);  
-            }
-        }
-
-        private static string username;
 
         static void DomainInitializer(string[] args)
         {
@@ -59,11 +40,31 @@
             }
 
             username = arguments.Username;
-            
-            host = new WindowsHost(Type.GetType(arguments.EndpointConfigurationType, true), args, endpointName, arguments.Install, arguments.ScannedAssemblies);
+
+            var endpointType = Type.GetType(arguments.EndpointConfigurationType, true);
+            host = new InstallWindowsHost(endpointType, args, endpointName, arguments.ScannedAssemblies);
         }
 
-        static WindowsHost host;
+        /// <summary>
+        /// Run Install
+        /// </summary>
+        static void RunInstall()
+        {
+            Console.WriteLine("Executing the NServiceBus installers");
+
+            try
+            {
+                host.Install(username);
+            }
+            catch (Exception ex)
+            {
+                //need to suppress here in order to avoid infinite loop
+                Console.WriteLine("Failed to execute installers: " +ex);  
+            }
+        }
+
+        static string username;
+        static InstallWindowsHost host;
 
     }
 }

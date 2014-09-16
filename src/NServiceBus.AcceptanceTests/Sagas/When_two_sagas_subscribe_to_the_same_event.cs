@@ -16,22 +16,22 @@ namespace NServiceBus.AcceptanceTests.Sagas
         public void Should_invoke_all_handlers_on_all_sagas()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<EndpointThatHostsTwoSagas>(b => 
-                        b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
-                        {
-                            if (s.SubscriberReturnAddress.Queue.Contains("Saga1"))
-                            {
-                                context.Subscribed = true;
-                            }
-                        }))
-                        .When(c => true, bus => bus.SendLocal(new StartSaga2
+                    .WithEndpoint<EndpointThatHostsTwoSagas>(b =>
+                        b.When(c => c.Subscribed, bus => bus.SendLocal(new StartSaga2
                         {
                             DataId = Guid.NewGuid()
                         }))
                      )
-                    .WithEndpoint<EndpointThatHandlesAMessageAndPublishesEvent>()
+                    .WithEndpoint<EndpointThatHandlesAMessageAndPublishesEvent>(b => b.Given((bus, context) =>
+                    {
+                        if (context.HasNativePubSubSupport)
+                        {
+                            context.Subscribed = true;
+                            context.AddTrace("EndpointThatHandlesAMessageAndPublishesEvent is now subscribed (at least we have asked the broker to be subscribed)");
+                        }
+                    }))
                     .Done(c => c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked)
-                    .Repeat(r => r.For(Transports.Default))
+                    .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>()) // exclude the brokers since c.Subscribed won't get set for them
                     .Should(c => Assert.True(c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked))
                     .Run();
         }
@@ -47,7 +47,10 @@ namespace NServiceBus.AcceptanceTests.Sagas
         {
             public EndpointThatHandlesAMessageAndPublishesEvent()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    context.Subscribed = true;
+                }));
             }
 
             class OpenGroupCommandHandler : IHandleMessages<OpenGroupCommand>
@@ -79,34 +82,35 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 {
                     Data.DataId = message.DataId;
                     Console.Out.WriteLine("Saga1 received GroupPendingEvent for DataId: {0}", message.DataId);
-                    Context.DidSaga1EventHandlerGetInvoked = true;
                     Bus.SendLocal(new CompleteSaga1Now { DataId = message.DataId });
                 }
 
                 public void Handle(CompleteSaga1Now message)
                 {
                     Console.Out.WriteLine("Saga1 received CompleteSaga1Now for DataId:{0} and MarkAsComplete", message.DataId);
+                    Context.DidSaga1EventHandlerGetInvoked = true;
 
                     MarkAsComplete();
                 }
 
-                public override void ConfigureHowToFindSaga()
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga1Data> mapper)
                 {
-                    ConfigureMapping<GroupPendingEvent>(m => m.DataId).ToSaga(s => s.DataId);
-                    ConfigureMapping<CompleteSaga1Now>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<GroupPendingEvent>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<CompleteSaga1Now>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class MySaga1Data : ContainSagaData
                 {
                     [Unique]
-                    public virtual  Guid DataId { get; set; }
+                    public virtual Guid DataId { get; set; }
                 }
+
             }
 
             public class Saga2 : Saga<Saga2.MySaga2Data>, IAmStartedByMessages<StartSaga2>, IHandleMessages<GroupPendingEvent>
             {
                 public Context Context { get; set; }
-         
+
                 public void Handle(StartSaga2 message)
                 {
                     var dataId = Guid.NewGuid();
@@ -122,16 +126,16 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     MarkAsComplete();
                 }
 
-                public override void ConfigureHowToFindSaga()
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga2Data> mapper)
                 {
-                    ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
-                    ConfigureMapping<GroupPendingEvent>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<GroupPendingEvent>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class MySaga2Data : ContainSagaData
                 {
                     [Unique]
-                    public virtual  Guid DataId { get; set; }
+                    public virtual Guid DataId { get; set; }
                 }
             }
         }

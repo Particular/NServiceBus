@@ -1,18 +1,19 @@
 ﻿namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
+    using System;
     using Hosting.Profiles;
-    using Logging;
 
-    [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "Feature.Enable<Gateway>")]
+    [ObsoleteEx(RemoveInVersion = "6.0")]
     class GatewayProfileHandler : IHandleProfile<MultiSite>
     {
-        void IHandleProfile.ProfileActivated()
+        public void ProfileActivated(BusConfiguration config)
         {
-            Log.Warn("MultiSite Profile is obsolete as Gateway is a feature now, you can use Feature.Enable<Gateway> to turn it on.");
-
-            Configure.Instance.RunGateway();
+            throw new Exception("MultiSite Profile is now obsolete. Gateway has been moved to its own stand alone nuget 'NServiceBus.Gateway'. To enable Gateway, install the nuget package and then call `configuration.EnableFeature<Gateway>()`, where `configuration` is an instance of type `BusConfiguration`.");
         }
 
-        private readonly static ILog Log = LogManager.GetLogger(typeof(GatewayProfileHandler));
+        public void ProfileActivated(Configure config)
+        {
+            throw new Exception("MultiSite Profile is now obsolete. Gateway has been moved to its own stand alone nuget 'NServiceBus.Gateway'. To enable Gateway, install the nuget package and then call `configuration.EnableFeature<Gateway>()`, where `configuration` is an instance of type `BusConfiguration`.");
+        }
     }
 }

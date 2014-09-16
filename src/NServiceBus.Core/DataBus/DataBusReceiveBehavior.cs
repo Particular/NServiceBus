@@ -1,32 +1,24 @@
-﻿namespace NServiceBus.DataBus
+﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Linq;
-    using System.Reflection;
     using System.Transactions;
-    using Gateway.HeaderManagement;
+    using NServiceBus.DataBus;
     using Pipeline;
     using Pipeline.Contexts;
 
-
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class DataBusReceiveBehavior : IBehavior<ReceiveLogicalMessageContext>
+    class DataBusReceiveBehavior : IBehavior<IncomingContext>
     {
         public IDataBus DataBus { get; set; }
 
         public IDataBusSerializer DataBusSerializer { get; set; }
 
+        public Conventions Conventions { get; set; }
 
-        public void Invoke(ReceiveLogicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
-            var message = context.LogicalMessage.Instance;
+            var message = context.IncomingLogicalMessage.Instance;
 
-
-            foreach (var property in GetDataBusProperties(message))
+            foreach (var property in Conventions.GetDataBusProperties(message))
             {
                 var propertyValue = property.GetValue(message, null);
 
@@ -44,7 +36,7 @@
 
                 string dataBusKey;
 
-                if (!context.LogicalMessage.Headers.TryGetValue(HeaderMapper.DATABUS_PREFIX + headerKey, out dataBusKey))
+                if (!context.IncomingLogicalMessage.Headers.TryGetValue("NServiceBus.DataBus." + headerKey, out dataBusKey))
                 {
                     continue;
                 }
@@ -68,26 +60,13 @@
             next();
         }
 
-        static IEnumerable<PropertyInfo> GetDataBusProperties(object message)
+        public class Registration : RegisterStep
         {
-            var messageType = message.GetType();
-
-
-            List<PropertyInfo> value;
-
-            if (!cache.TryGetValue(messageType, out value))
+            public Registration() : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message")
             {
-                value = messageType.GetProperties()
-                    .Where(MessageConventionExtensions.IsDataBusProperty)
-                    .ToList();
-
-                cache[messageType] = value;
+                InsertAfter(WellKnownStep.MutateIncomingMessages);
+                InsertBefore(WellKnownStep.InvokeHandlers);
             }
-
-
-            return value;
         }
-
-        readonly static ConcurrentDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>();
     }
 }

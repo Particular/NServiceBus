@@ -1,35 +1,27 @@
+
 namespace NServiceBus.Satellites
 {
     using System.Linq;
     using Installation;
-    using Installation.Environments;
-    using Settings;
     using Transports;
 
-    /// <summary>
-    /// Responsible to create a queue, using the registered ICreateQueues for each satellite
-    /// </summary>
-    public class SatellitesQueuesCreator : INeedToInstallSomething<Windows>
+    class SatellitesQueuesCreator : INeedToInstallSomething
     {
         public ICreateQueues QueueCreator { get; set; }
-        
-        /// <summary>
-        /// Performs the installation providing permission for the given user.
-        /// </summary>
-        /// <param name="identity">The user for whom permissions will be given.</param>
-        public void Install(string identity)
+
+        public void Install(string identity, Configure config)
         {
-            if (SettingsHolder.Get<bool>("Endpoint.SendOnly"))
+            if (config.Settings.Get<bool>("Endpoint.SendOnly"))
             {
                 return;
             }
 
-            if (ConfigureQueueCreation.DontCreateQueues)
+            if (!config.CreateQueues())
             {
                 return;
             }
 
-            var satellites = Configure.Instance.Builder
+            var satellites = config.Builder
                  .BuildAll<ISatellite>()
                  .ToList();
 

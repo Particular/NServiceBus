@@ -1,43 +1,67 @@
 namespace NServiceBus.Unicast
 {
     using System;
-    using System.ComponentModel;
 
-
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class SendOptions
+    /// <summary>
+    /// Controls how a message will be sent by the transport
+    /// </summary>
+    public class SendOptions : DeliveryOptions
     {
-        public SendOptions()
-        {
-            Intent = MessageIntentEnum.Send;
-            EnforceMessagingBestPractices = true;
-        }
+        TimeSpan? delayDeliveryWith;
 
-        public SendOptions(Address destination):this()
+        /// <summary>
+        /// Creates an instance of <see cref="SendOptions"/>.
+        /// </summary>
+        /// <param name="destination">Address where to send this message</param>
+        public SendOptions(Address destination)
         {
             Destination = destination;
         }
 
-        public SendOptions(string destination): this(Address.Parse(destination))
+        /// <summary>
+        /// Creates an instance of <see cref="SendOptions"/>.
+        /// </summary>
+        /// <param name="destination">Address where to send this message</param>
+        public SendOptions(string destination)
+            : this(Address.Parse(destination))
         {
         }
 
-        public MessageIntentEnum Intent { get; set; }
-        public Address Destination { get; set; }
+        /// <summary>
+        /// The correlation id to be used on the message. Mostly used when doing Bus.Reply
+        /// </summary>
         public string CorrelationId { get; set; }
-        public Address ReplyToAddress { get; set; }
+
+        /// <summary>
+        /// The time when the message should be delivered to the destination
+        /// </summary>
         public DateTime? DeliverAt { get; set; }
-        public TimeSpan? DelayDeliveryWith { get; set; }
-        public bool EnforceMessagingBestPractices { get; set; }
 
 
-        public static SendOptions ReplyTo(Address replyToAddress)
+        /// <summary>
+        /// How long to delay delivery of the message
+        /// </summary>
+        public TimeSpan? DelayDeliveryWith
         {
-            if (replyToAddress == null)
-                throw new InvalidOperationException("Can't reply with null reply-to-address field. It can happen if you are using a SendOnly client. See http://particular.net/articles/one-way-send-only-endpoints");
-
-            return new SendOptions(replyToAddress){Intent = MessageIntentEnum.Reply};
+            get { return delayDeliveryWith; }
+            set
+            {
+                if (value < TimeSpan.Zero)
+                {
+                    throw new Exception("timespan cannot be less than zero");
+                }
+                delayDeliveryWith = value;
+            }
         }
+
+        /// <summary>
+        /// Address where to send this message
+        /// </summary>
+        public Address Destination { get; set; }
+
+        /// <summary>
+        /// The TTR to use for this message
+        /// </summary>
+        public TimeSpan? TimeToBeReceived { get; set; }
     }
 }

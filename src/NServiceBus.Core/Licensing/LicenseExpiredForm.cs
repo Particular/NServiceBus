@@ -10,13 +10,13 @@
     [SkipWeaving]
     partial class LicenseExpiredForm : Form
     {
-        static ILog Logger = LogManager.GetLogger(typeof(LicenseExpiredForm));
+        static ILog Logger = LogManager.GetLogger<LicenseExpiredForm>();
         public LicenseExpiredForm()
         {
             InitializeComponent();
         }
 
-        public Particular.Licensing.License CurrentLicense { get; set; }
+        public License CurrentLicense { get; set; }
 
         protected override void OnLoad(EventArgs e)
         {

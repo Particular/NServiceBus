@@ -1,16 +1,12 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
-    using System.ComponentModel;
-    using System.Linq;
+    using NServiceBus.Unicast.Messages;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
-    using Messages;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class CreatePhysicalMessageBehavior : IBehavior<SendLogicalMessagesContext>
+    class CreatePhysicalMessageBehavior : IBehavior<OutgoingContext>
     {
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
@@ -18,19 +14,23 @@
 
         public PipelineExecutor PipelineExecutor { get; set; }
 
-        public void Invoke(SendLogicalMessagesContext context, Action next)
+        public void Invoke(OutgoingContext context, Action next)
         {
-            var sendOptions = context.SendOptions;
+            var deliveryOptions = context.DeliveryOptions;
 
-            var toSend = new TransportMessage
-            {
-                MessageIntent = sendOptions.Intent,
-                ReplyToAddress = sendOptions.ReplyToAddress
-            };
+            var toSend = new TransportMessage { MessageIntent = MessageIntentEnum.Publish };
 
-            if (sendOptions.CorrelationId != null)
+            var sendOptions = deliveryOptions as SendOptions;
+
+
+            if (sendOptions != null)
             {
-                toSend.CorrelationId = sendOptions.CorrelationId;
+                toSend.MessageIntent = sendOptions is ReplyOptions ? MessageIntentEnum.Reply : MessageIntentEnum.Send;
+
+                if (sendOptions.CorrelationId != null)
+                {
+                    toSend.CorrelationId = sendOptions.CorrelationId;
+                }
             }
 
             //apply static headers
@@ -40,19 +40,20 @@
             }
 
             //apply individual headers
-            foreach(var kvp in context.LogicalMessages.SelectMany(m=>m.Headers))
+            foreach (var kvp in context.OutgoingLogicalMessage.Headers)
             {
                 toSend.Headers[kvp.Key] = kvp.Value;
             }
-           
-            var messageDefinitions = context.LogicalMessages.Select(m => MessageMetadataRegistry.GetMessageDefinition(m.MessageType)).ToList();
 
-            toSend.TimeToBeReceived = messageDefinitions.Min(md => md.TimeToBeReceived);
-            toSend.Recoverable = messageDefinitions.Any(md => md.Recoverable);
+            if (context.OutgoingLogicalMessage.MessageType != null)
+            {
+                var messageDefinitions = MessageMetadataRegistry.GetMessageMetadata(context.OutgoingLogicalMessage.MessageType);
+
+                toSend.TimeToBeReceived = messageDefinitions.TimeToBeReceived;
+                toSend.Recoverable = messageDefinitions.Recoverable;
+            }
 
             context.Set(toSend);
-
-            PipelineExecutor.InvokeSendPipeline(sendOptions,toSend);
 
             next();
         }

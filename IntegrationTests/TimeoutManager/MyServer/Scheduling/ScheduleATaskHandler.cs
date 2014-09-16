@@ -7,6 +7,8 @@ namespace MyServer.Scheduling
     {
         private readonly IBus bus;
 
+        public Schedule Schedule { get; set; }
+
         public ScheduleATaskHandler(IBus bus)
         {
             this.bus = bus;
@@ -15,7 +17,7 @@ namespace MyServer.Scheduling
         public void Handle(ScheduleATask message)
         {
             Console.WriteLine("Scheduling a task to be executed every 1 minute");
-            Schedule.Every(TimeSpan.FromMinutes(1)).Action(() => bus.SendLocal(new ScheduledTaskExecuted()));
+            Schedule.Every(TimeSpan.FromMinutes(1),() => bus.SendLocal(new ScheduledTaskExecuted()));
         }
     }
 }

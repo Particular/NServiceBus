@@ -2,24 +2,28 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Core;
-    using Features;
     using Satellites;
     using Transports;
-    using Transports.Msmq;
+    using Unicast;
     using Unicast.Transport;
 
-    public class TimeoutMessageProcessor : IAdvancedSatellite
+    class TimeoutMessageProcessor : IAdvancedSatellite
     {
+        public TimeoutMessageProcessor()
+        {
+            Disabled = true;
+        }
+
         public ISendMessages MessageSender { get; set; }
 
-        public IManageTimeouts TimeoutManager { get; set; }
+        public Address InputAddress { get; set; }
 
-        public Address InputAddress { get { return Features.TimeoutManager.InputAddress; } }
+        public DefaultTimeoutManager TimeoutManager { get; set; }
 
-        public bool Disabled
-        {
-            get { return !Feature.IsEnabled<TimeoutManager>(); }
-        }
+        public Configure Configure { get; set; }
+
+        public bool Disabled { get; set; }
+        public string EndpointName{ get; set; }
 
         public void Start()
         {
@@ -37,7 +41,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 //TODO: The line below needs to change when we refactor the slr to be:
                 // transport.DisableSLR() or similar
-                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager);
+                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager, MessageSender, Configure);
             };
         }
 
@@ -73,7 +77,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
 
             TimeoutManager.RemoveTimeout(timeoutId);
-            MessageSender.Send(message, destination);
+            MessageSender.Send(message, new SendOptions(destination));
         }
 
         void HandleInternal(TransportMessage message)
@@ -115,9 +119,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     SagaId = sagaId,
                     State = message.Body,
                     Time = DateTimeExtensions.ToUtcDateTime(expire),
-                    CorrelationId = GetCorrelationIdToStore(message),
                     Headers = message.Headers,
-                    OwningTimeoutManager = Configure.EndpointName
+                    OwningTimeoutManager = EndpointName
                 };
 
                 //add a temp header so that we can make sure to restore the ReplyToAddress
@@ -128,24 +131,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
                 TimeoutManager.PushTimeout(data);
             }
-        }
-
-        [ObsoleteEx(RemoveInVersion ="5.0")]
-        string GetCorrelationIdToStore(TransportMessage message)
-        {
-            var correlationIdToStore = message.CorrelationId;
-            
-            if (MessageSender is MsmqMessageSender)
-            {
-                Guid correlationId;
-                
-                if (Guid.TryParse(message.CorrelationId, out correlationId))
-                {
-                    correlationIdToStore = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible                
-                }
-            }
-
-            return correlationIdToStore;
         }
 
         const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";

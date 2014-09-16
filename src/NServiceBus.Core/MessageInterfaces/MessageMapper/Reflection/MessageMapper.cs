@@ -21,12 +21,12 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         public void Initialize(IEnumerable<Type> types)
         {
-            var typesToList = types.ToList();
-
-            if (types == null || !typesToList.Any())
+            if (types == null || !types.Any())
             {
                 return;
             }
+
+            var typesToList = types.ToList();
 
             var name = typesToList.First().Namespace + SUFFIX;
 
@@ -46,7 +46,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <summary>
         /// Generates a concrete implementation of the given type if it is an interface.
         /// </summary>
-        public void InitType(Type t, ModuleBuilder moduleBuilder)
+        void InitType(Type t, ModuleBuilder moduleBuilder)
         {
             if (t == null)
             {
@@ -108,11 +108,17 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
         void GenerateImplementationFor(Type interfaceType, ModuleBuilder moduleBuilder)
         {
+            if (!interfaceType.IsVisible)
+            {
+                throw new Exception(string.Format("We can only generate a concrete implementation for '{0}' if '{0}' is public.", interfaceType));
+            }
+
             if (interfaceType.GetMethods().Any(mi => !(mi.IsSpecialName && (mi.Name.StartsWith("set_") || mi.Name.StartsWith("get_")))))
             {
                 Logger.Warn(string.Format("Interface {0} contains methods and can there for not be mapped. Be aware that non mapped interface can't be used to send messages.",interfaceType.Name));
                 return;
             }
+
             var mapped = CreateTypeFrom(interfaceType, moduleBuilder);
             interfaceToConcreteTypeMapping[interfaceType] = mapped;
             concreteToInterfaceTypeMapping[mapped] = interfaceType;
@@ -124,7 +130,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             var args = t.GetGenericArguments();
             if (args.Length == 2)
             {
-                if (typeof(KeyValuePair<,>).MakeGenericType(args) == t)
+                if (typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t)
                 {
                     return t.SerializationFriendlyName();
                 }
@@ -136,7 +142,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <summary>
         /// Generates a new full name for a type to be generated for the given type.
         /// </summary>
-        public string GetNewTypeName(Type t)
+        string GetNewTypeName(Type t)
         {
             return t.FullName + SUFFIX;
         }
@@ -145,7 +151,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// Generates the concrete implementation of the given type.
         /// Only properties on the given type are generated in the concrete implementation.
         /// </summary>
-        public Type CreateTypeFrom(Type t, ModuleBuilder moduleBuilder)
+        Type CreateTypeFrom(Type t, ModuleBuilder moduleBuilder)
         {
             var typeBuilder = moduleBuilder.DefineType(
                 GetNewTypeName(t),
@@ -420,11 +426,11 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             return FormatterServices.GetUninitializedObject(mapped);
         }
 
-        static readonly string SUFFIX = "__impl";
-        static readonly Dictionary<Type, Type> interfaceToConcreteTypeMapping = new Dictionary<Type, Type>();
-        static readonly Dictionary<Type, Type> concreteToInterfaceTypeMapping = new Dictionary<Type, Type>();
-        static readonly Dictionary<string, Type> nameToType = new Dictionary<string, Type>();
-        static readonly Dictionary<Type, ConstructorInfo> typeToConstructor = new Dictionary<Type, ConstructorInfo>();
-        static ILog Logger = LogManager.GetLogger(typeof(MessageMapper));
+        readonly string SUFFIX = "__impl";
+        readonly Dictionary<Type, Type> interfaceToConcreteTypeMapping = new Dictionary<Type, Type>();
+        readonly Dictionary<Type, Type> concreteToInterfaceTypeMapping = new Dictionary<Type, Type>();
+        readonly Dictionary<string, Type> nameToType = new Dictionary<string, Type>();
+        readonly Dictionary<Type, ConstructorInfo> typeToConstructor = new Dictionary<Type, ConstructorInfo>();
+        ILog Logger = LogManager.GetLogger<MessageMapper>();
     }
 }

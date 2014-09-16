@@ -15,6 +15,7 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid() })))
+                    .AllowExceptions()
                     .Done(c => c.SecondMessageProcessed)
                     .Repeat(r => r.For(Transports.Default))
                     .Run();
@@ -32,8 +33,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>()
-                    .AllowExceptions();
+                EndpointSetup<DefaultServer>();
             }
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>,IHandleMessages<SecondSagaMessage>
@@ -49,11 +49,11 @@
                         });
                 }
 
-                public override void ConfigureHowToFindSaga()
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
                 {
-                    ConfigureMapping<StartSagaMessage>(m=>m.SomeId)
+                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s=>s.SomeId);
-                    ConfigureMapping<SecondSagaMessage>(m => m.SomeId)
+                    mapper.ConfigureMapping<SecondSagaMessage>(m => m.SomeId)
                       .ToSaga(s => s.SomeId);
                 }
 
@@ -67,6 +67,7 @@
 
                     Context.SecondMessageProcessed = true;
                 }
+
             }
 
             public class TestSagaData : IContainSagaData
@@ -74,6 +75,8 @@
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }
                 public virtual string OriginalMessageId { get; set; }
+                
+                [Unique]
                 public virtual Guid SomeId { get; set; }
             }
         }

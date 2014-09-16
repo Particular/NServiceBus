@@ -5,7 +5,6 @@
     using AcceptanceTesting;
     using Features;
     using NUnit.Framework;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     public class When_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest
     {
@@ -15,20 +14,19 @@
             var cc = new Context();
 
             Scenario.Define(cc)
-                    .WithEndpoint<Publisher>(b => b.Given((bus, context) => EnableNotificationsOnSubscribe(context))
-                    .When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.Publish(new MyEvent())))
+                    .WithEndpoint<Publisher>(b => b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.Publish(new MyEvent())))
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                         {
                             bus.Subscribe<IMyEvent>();
 
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (context.HasNativePubSubSupport)
                                 context.Subscriber1Subscribed = true;
                         }))
                     .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
                         {
                             bus.Subscribe<MyEvent>();
 
-                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            if (context.HasNativePubSubSupport)
                                 context.Subscriber2Subscribed = true;
                         }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
@@ -55,7 +53,18 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) =>
+                {
+                    if (args.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                    {
+                        context.Subscriber1Subscribed = true;
+                    }
+
+                    if (args.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
+                    {
+                        context.Subscriber2Subscribed = true;
+                    }
+                }));
             }
         }
 
@@ -63,7 +72,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c=>Configure.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
                     .AddMapping<IMyEvent>(typeof(Publisher));
             }
 
@@ -82,7 +91,7 @@
         {
             public Subscriber2()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
                         .AddMapping<MyEvent>(typeof(Publisher));
             }
 
@@ -96,22 +105,7 @@
                 }
             }
         }
-        static void EnableNotificationsOnSubscribe(Context context)
-        {
-            if (Feature.IsEnabled<MessageDrivenSubscriptions>())
-            {
-                Configure.Instance.Builder.Build<MessageDrivenSubscriptionManager>().ClientSubscribed +=
-                    (sender, args) =>
-                    {
-                        if (args.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
-                            context.Subscriber1Subscribed = true;
-
-                        if (args.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
-                            context.Subscriber2Subscribed = true;
-                    };
-            }
-        }
-
+        
         [Serializable]
         public class MyEvent : IMyEvent
         {

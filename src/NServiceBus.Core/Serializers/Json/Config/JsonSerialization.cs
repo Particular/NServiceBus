@@ -1,16 +1,30 @@
 ﻿namespace NServiceBus.Features
 {
     using MessageInterfaces.MessageMapper.Reflection;
+    using ObjectBuilder;
     using Serializers.Json;
-    using Settings;
 
-    public class JsonSerialization : Feature<Categories.Serializers>
+    /// <summary>
+    /// Uses JSON as the message serialization.
+    /// </summary>
+    public class JsonSerialization : Feature
     {
-        public override void Initialize()
+        
+        internal JsonSerialization()
         {
-            Configure.Component<MessageMapper>(DependencyLifecycle.SingleInstance);
-            Configure.Component<JsonMessageSerializer>(DependencyLifecycle.SingleInstance)
-                 .ConfigureProperty(s => s.SkipArrayWrappingForSingleMessages, !SettingsHolder.GetOrDefault<bool>("SerializationSettings.WrapSingleMessages"));
+            EnableByDefault();
+            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "JsonSerialization not enable since serialization definition not detected.");
+        }
+
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
+            var c = context.Container.ConfigureComponent<JsonMessageSerializer>(DependencyLifecycle.SingleInstance);
+
+            context.Settings.ApplyTo<JsonMessageSerializer>((IComponentConfig)c);
         }
     }
 }

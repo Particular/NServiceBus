@@ -4,17 +4,22 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Faults;
     using Logging;
     using Transports;
+    using Unicast;
     using Unicast.Queuing;
 
     class ManageMessageFailuresWithoutSlr : IManageMessageFailures
     {
-        static readonly ILog Logger = LogManager.GetLogger(typeof(ManageMessageFailuresWithoutSlr));
+        ISendMessages messageSender;
+        readonly Configure config;
+        static ILog Logger = LogManager.GetLogger<ManageMessageFailuresWithoutSlr>();
 
-        private Address localAddress;
-        private readonly Address errorQueue;
+        Address localAddress;
+        Address errorQueue;
 
-        public ManageMessageFailuresWithoutSlr(IManageMessageFailures mainFailureManager)
+        public ManageMessageFailuresWithoutSlr(IManageMessageFailures mainFailureManager, ISendMessages messageSender, Configure config)
         {
+            this.messageSender = messageSender;
+            this.config = config;
             var mainTransportFailureManager = mainFailureManager as Faults.Forwarder.FaultManager;
             if (mainTransportFailureManager != null)
             {
@@ -40,12 +45,11 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 return;
             }
 
-            SetExceptionHeaders(message, e, reason);
+            message.SetExceptionHeaders(e, localAddress ?? config.LocalAddress,reason);
+            
             try
             {
-                var sender = Configure.Instance.Builder.Build<ISendMessages>();
-
-                sender.Send(message, errorQueue);
+                messageSender.Send(message, new SendOptions(errorQueue));
             }
             catch (Exception exception)
             {
@@ -72,23 +76,5 @@ namespace NServiceBus.Timeout.Hosting.Windows
             localAddress = address;
         }
 
-        void SetExceptionHeaders(TransportMessage message, Exception e, string reason)
-        {
-            message.Headers["NServiceBus.ExceptionInfo.Reason"] = reason;
-            message.Headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
-
-            if (e.InnerException != null)
-                message.Headers["NServiceBus.ExceptionInfo.InnerExceptionType"] = e.InnerException.GetType().FullName;
-
-            message.Headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
-            message.Headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage();
-            message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
-            message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
-
-            var failedQ = localAddress ?? Address.Local;
-
-            message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
-            message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
-        }
     }
 }

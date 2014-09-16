@@ -17,7 +17,7 @@
                     .Done(c => c.DidSaga2ReceiveMessage)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.DidSaga2ReceiveMessage))
-                    .Run(TimeSpan.FromSeconds(20));
+                    .Run();
         }
 
         public class Context : ScenarioContext
@@ -50,9 +50,11 @@
                 public class Saga1Data : ContainSagaData
                 {
                 }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
+                {
+                }
             }
-
-
 
             public class Saga2 : Saga<Saga2.Saga2Data>, IAmStartedByMessages<StartSaga2>
             {
@@ -64,6 +66,10 @@
                 }
 
                 public class Saga2Data : ContainSagaData
+                {
+                }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
                 {
                 }
             }

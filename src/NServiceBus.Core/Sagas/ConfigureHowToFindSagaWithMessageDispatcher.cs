@@ -9,17 +9,29 @@ namespace NServiceBus.Sagas
     /// <summary>
     /// Class used to bridge the dependency between <see cref="Saga{T}"/> and <see cref="Configure"/>.
     /// </summary>
-    public class ConfigureHowToFindSagaWithMessageDispatcher : IConfigureHowToFindSagaWithMessage
+    class ConfigureHowToFindSagaWithMessageDispatcher : IConfigureHowToFindSagaWithMessage
     {
-        void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty)
+        readonly SagaConfigurationCache sagaConfigurationCache;
+
+        public ConfigureHowToFindSagaWithMessageDispatcher(SagaConfigurationCache sagaConfigurationCache)
+        {
+            this.sagaConfigurationCache = sagaConfigurationCache;
+        }
+
+        void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
         {
             var sagaProp = Reflect<TSagaEntity>.GetProperty(sagaEntityProperty, true);
-            var messageProp = Reflect<TMessage>.GetProperty(messageProperty, true);
-
+        
             ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
-            ThrowIfNotPropertyLambdaExpression(messageProperty, messageProp);
+            var compiledMessageExpression = messageExpression.Compile();
+            var messageFunc = new Func<object, object>(o => compiledMessageExpression((TMessage)o));
 
-            Features.Sagas.ConfigureHowToFindSagaWithMessage(typeof(TSagaEntity), sagaProp, typeof(TMessage), messageProp);
+            var sagaToMessageMap = new SagaToMessageMap
+            {
+                MessageProp = messageFunc,
+                SagaPropName = sagaProp.Name
+            };
+            sagaConfigurationCache.ConfigureHowToFindSagaWithMessage(typeof(TSagaEntity), typeof(TMessage), sagaToMessageMap);
         }
 
         // ReSharper disable once UnusedParameter.Local
@@ -33,5 +45,11 @@ namespace NServiceBus.Sagas
                         expression.Body));
             }
         }
+    }
+
+    class SagaToMessageMap
+    {
+        public Func<object, object> MessageProp;
+        public string SagaPropName;
     }
 }

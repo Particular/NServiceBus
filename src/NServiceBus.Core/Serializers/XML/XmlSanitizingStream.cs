@@ -6,32 +6,15 @@ namespace NServiceBus.Serializers.XML {
     /// <summary>
 	/// A StreamReader that excludes XML-illegal characters while reading.
 	/// </summary>
-	public class XmlSanitizingStream : StreamReader
+	class XmlSanitizingStream : StreamReader
 	{
-		/// <summary>
-		/// The character that denotes the end of a file has been reached.
-		/// </summary>
 		private const int EOF = -1;
 	
-		/// <summary>Create an instance of XmlSanitizingStream.</summary>
-		/// <param name="streamToSanitize">
-		/// The stream to sanitize of illegal XML characters.
-		/// </param>
 		public XmlSanitizingStream(Stream streamToSanitize)
 			: base(streamToSanitize, true)
 		{ }
 
-        /// <summary>
-        /// Get whether an integer represents a legal XML 1.0 or 1.1 character. See
-        /// the specification at w3.org for these characters.
-        /// </summary>
-        /// <param name="xmlVersion">
-        /// The version number as a string. Use "1.0" for XML 1.0 character
-        /// validation, and use "1.1" for XML 1.1 character validation.
-        /// </param>
-        /// <param name="character">Char to check</param>
-        /// <returns><c>true</c> if is a legal xml character.</returns>
-        public static bool IsLegalXmlChar(string xmlVersion, int character)
+		public static bool IsLegalXmlChar(string xmlVersion, int character)
 		{
 			switch (xmlVersion)
 			{
@@ -127,8 +110,6 @@ namespace NServiceBus.Serializers.XML {
 	
 		} // method
 	
-		#region Read*() method overrides
-		
 		// The following methods are exact copies of the methods in TextReader, 
 		// extracting by disassembling it in Reflector
 	
@@ -215,8 +196,6 @@ namespace NServiceBus.Serializers.XML {
 			return builder.ToString();
 		}
 	
-		#endregion
-	
-	} // class
+	}
 
 }

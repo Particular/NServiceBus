@@ -1,51 +1,39 @@
 namespace NServiceBus.AutomaticSubscriptions.Config
 {
-    using NServiceBus.Config;
-    using Settings;
-
-    public class AutoSubscribeSettings:ISetDefaultSettings
+    /// <summary>
+    /// Provides fine grained control over auto subscribe
+    /// </summary>
+    public class AutoSubscribeSettings
     {
-        public AutoSubscribeSettings()
+        BusConfiguration config;
+
+        internal AutoSubscribeSettings(BusConfiguration config)
         {
-            InfrastructureServices.SetDefaultFor<IAutoSubscriptionStrategy>(typeof(DefaultAutoSubscriptionStrategy),DependencyLifecycle.SingleInstance);
+            this.config = config;
         }
 
         /// <summary>
         /// Turns off auto subscriptions for sagas. Sagas where not auto subscribed by default before v4
         /// </summary>
-        public AutoSubscribeSettings DoNotAutoSubscribeSagas()
+        public void DoNotAutoSubscribeSagas()
         {
-            SettingsHolder.SetProperty<DefaultAutoSubscriptionStrategy>(c=>c.DoNotAutoSubscribeSagas,true);
-            return this;
+            config.Settings.SetProperty<AutoSubscriptionStrategy>(c => c.DoNotAutoSubscribeSagas, true);
         }
 
         /// <summary>
         /// Allows to endpoint to subscribe to messages owned by the local endpoint
         /// </summary>
-        public AutoSubscribeSettings DoNotRequireExplicitRouting()
+        public void DoNotRequireExplicitRouting()
         {
-            SettingsHolder.SetProperty<DefaultAutoSubscriptionStrategy>(c => c.DoNotRequireExplicitRouting, true); 
-            return this;
+            config.Settings.SetProperty<AutoSubscriptionStrategy>(c => c.DoNotRequireExplicitRouting, true); 
         }
 
         /// <summary>
         /// Turns on auto-subscriptions for messages not marked as commands. This was the default before v4
         /// </summary>
-        public AutoSubscribeSettings AutoSubscribePlainMessages()
+        public void AutoSubscribePlainMessages()
         {
-            SettingsHolder.SetProperty<DefaultAutoSubscriptionStrategy>(c => c.SubscribePlainMessages, true);
-            return this;
-        }
-
-
-
-        /// <summary>
-        /// Registers a custom auto-subscription strategy
-        /// </summary>
-        public AutoSubscribeSettings CustomAutoSubscriptionStrategy<T>() where T : IAutoSubscriptionStrategy
-        {
-            InfrastructureServices.RegisterServiceFor<IAutoSubscriptionStrategy>(typeof(T), DependencyLifecycle.SingleInstance);
-            return this;
+            config.Settings.SetProperty<AutoSubscriptionStrategy>(c => c.SubscribePlainMessages, true);
         }
     }
 }

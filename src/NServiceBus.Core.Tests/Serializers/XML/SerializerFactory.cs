@@ -8,12 +8,16 @@ namespace NServiceBus.Serializers.XML.Test
 
     public class SerializerFactory
     {
-         public static XmlMessageSerializer Create<T>()
+         public static XmlMessageSerializer Create<T>(MessageMapper mapper = null)
          {
              var types = new List<Type> {typeof (T)};
-             var mapper = new MessageMapper();
+             if (mapper == null)
+             {
+                 mapper = new MessageMapper();
+             }
+
              mapper.Initialize(types);
-             var serializer = new XmlMessageSerializer(mapper);
+             var serializer = new XmlMessageSerializer(mapper, new Conventions());
 
              serializer.Initialize(types);
 
@@ -24,7 +28,7 @@ namespace NServiceBus.Serializers.XML.Test
          {
              var mapper = new MessageMapper();
              mapper.Initialize(types);
-             var serializer = new XmlMessageSerializer(mapper);
+             var serializer = new XmlMessageSerializer(mapper, new Conventions());
 
              serializer.Initialize(types);
 
@@ -46,7 +50,7 @@ namespace NServiceBus.Serializers.XML.Test
         {
             using (var stream = new MemoryStream())
             {
-                SerializerFactory.Create<T>().Serialize(new[] { message }, stream);
+                SerializerFactory.Create<T>().Serialize(message, stream);
                 stream.Position = 0;
               
                 var msgArray = SerializerFactory.Create<T>().Deserialize(stream, new[]{message.GetType()});
@@ -85,7 +89,7 @@ namespace NServiceBus.Serializers.XML.Test
                     config(serializer);
 
 
-                serializer.Serialize(new[] { message }, stream);
+                serializer.Serialize(message, stream);
                 stream.Position = 0;
                 var result = new StreamReader(stream);
 

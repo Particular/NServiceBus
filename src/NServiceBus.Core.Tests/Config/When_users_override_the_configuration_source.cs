@@ -7,26 +7,29 @@ namespace NServiceBus.Core.Tests.Config
     [TestFixture]
     public class When_users_override_the_configuration_source
     {
-        private IConfigurationSource userConfigurationSource;
+        IConfigurationSource userConfigurationSource;
+
+        Configure config;
 
         [SetUp]
         public void SetUp()
         {
             userConfigurationSource = new UserConfigurationSource();
-            Configure.With(new Type[]{})
-                .CustomConfigurationSource(userConfigurationSource);
+
+            var builder = new BusConfiguration();
+            builder.TypesToScan(new Type[]
+                {
+                });
+            builder.CustomConfigurationSource(userConfigurationSource);
+
+            config = builder.BuildConfiguration();
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            Configure.Instance.CustomConfigurationSource(new DefaultConfigurationSource());
-        }
-        
+      
         [Test]
         public void NService_bus_should_resolve_configuration_from_that_source()
         {
-            var section = Configure.GetConfigSection<TestConfigurationSection>();
+            var section = config.Settings.GetConfigSection<TestConfigurationSection>();
 
             Assert.AreEqual(section.TestSetting,"TestValue");
         }

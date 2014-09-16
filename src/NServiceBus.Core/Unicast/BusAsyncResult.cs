@@ -51,10 +51,8 @@ namespace NServiceBus.Unicast
             sync.Set();
         }
 
-        private readonly static ILog log = LogManager.GetLogger(typeof(UnicastBus));
-
-        #region IAsyncResult Members
-
+        static ILog log = LogManager.GetLogger<UnicastBus>();
+        
         /// <summary>
         /// Returns a completion result containing the error code, messages, and state.
         /// </summary>
@@ -86,7 +84,5 @@ namespace NServiceBus.Unicast
         {
             get { return completed; }
         }
-
-        #endregion
     }
 }

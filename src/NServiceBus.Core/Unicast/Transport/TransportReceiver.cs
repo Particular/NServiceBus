@@ -7,14 +7,35 @@ namespace NServiceBus.Unicast.Transport
     using Faults;
     using Logging;
     using Monitoring;
+    using Settings;
     using Transports;
-    using Utils;
 
     /// <summary>
     ///     The default implementation of <see cref="ITransport" />
     /// </summary>
     public class TransportReceiver : ITransport, IDisposable
     {
+        /// <summary>
+        /// Creates an instance of <see cref="TransportReceiver"/>
+        /// </summary>
+        /// <param name="transactionSettings">The transaction settings to use for this <see cref="TransportReceiver"/>.</param>
+        /// <param name="maximumConcurrencyLevel">The maximum number of messages to process in parallel.</param>
+        /// <param name="maximumThroughput">The maximum throughput per second, 0 means unlimited.</param>
+        /// <param name="receiver">The <see cref="IDequeueMessages"/> instance to use.</param>
+        /// <param name="manageMessageFailures">The <see cref="IManageMessageFailures"/> instance to use.</param>
+        /// <param name="settings">The current settings</param>
+        /// <param name="config">Configure instance</param>
+        public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures, ReadOnlySettings settings, Configure config)
+        {
+            this.settings = settings;
+            this.config = config;
+            TransactionSettings = transactionSettings;
+            MaximumConcurrencyLevel = maximumConcurrencyLevel;
+            MaximumMessageThroughputPerSecond = maximumThroughput;
+            FailureManager = manageMessageFailures;
+            Receiver = receiver;
+        }
+
         /// <summary>
         ///     The receiver responsible for notifying the transport when new messages are available
         /// </summary>
@@ -25,11 +46,11 @@ namespace NServiceBus.Unicast.Transport
         /// </summary>
         public IManageMessageFailures FailureManager { get; set; }
 
-        /// <summary>
-        ///     The current settings for transactions
-        /// </summary>
-        public TransactionSettings TransactionSettings { get; set; }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
             //Injected at compile time
@@ -51,36 +72,9 @@ namespace NServiceBus.Unicast.Transport
         public event EventHandler<FailedMessageProcessingEventArgs> FailedMessageProcessing;
 
         /// <summary>
-        ///     Gets/sets the number of concurrent threads that should be
-        ///     created for processing the queue.
-        ///     Get returns the actual number of running worker threads, which may
-        ///     be different than the originally configured value.
-        ///     When used as a setter, this value will be used by the <see cref="Start(Address)" />
-        ///     method only and will have no effect if called afterwards.
-        ///     To change the number of worker threads at runtime, call <see cref="ChangeNumberOfWorkerThreads" />.
-        /// </summary>
-        public virtual int NumberOfWorkerThreads
-        {
-            get { return MaximumConcurrencyLevel; }
-        }
-
-        /// <summary>
         ///     Gets the maximum concurrency level this <see cref="ITransport" /> is able to support.
         /// </summary>
-        public virtual int MaximumConcurrencyLevel
-        {
-            get { return maximumConcurrencyLevel; }
-            set
-            {
-                if (isStarted)
-                {
-                    throw new InvalidOperationException(
-                        "Can't set the number of worker threads after the transport has been started. Use ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel) instead.");
-                }
-
-                maximumConcurrencyLevel = value;
-            }
-        }
+        public virtual int MaximumConcurrencyLevel { get; private set; }
 
         /// <summary>
         ///     Updates the maximum concurrency level this <see cref="ITransport" /> is able to support.
@@ -88,12 +82,12 @@ namespace NServiceBus.Unicast.Transport
         /// <param name="maximumConcurrencyLevel">The new maximum concurrency level for this <see cref="ITransport" />.</param>
         public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)
         {
-            if (this.maximumConcurrencyLevel == maximumConcurrencyLevel)
+            if (MaximumConcurrencyLevel == maximumConcurrencyLevel)
             {
                 return;
             }
 
-            this.maximumConcurrencyLevel = maximumConcurrencyLevel;
+            MaximumConcurrencyLevel = maximumConcurrencyLevel;
 
             if (isStarted)
             {
@@ -107,39 +101,22 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         ///     Gets the receiving messages rate.
         /// </summary>
-        public int MaximumMessageThroughputPerSecond
-        {
-            get { return maxMessageThroughputPerSecond; }
-        }
+        public int MaximumMessageThroughputPerSecond { get; private set; }
 
         /// <summary>
-        ///     Throttling receiving messages rate. You can't set the value other than the value specified at your license.
+        /// Updates the MaximumMessageThroughputPerSecond setting.
         /// </summary>
-        public int MaxThroughputPerSecond
-        {
-            get { return maxMessageThroughputPerSecond; }
-            set
-            {
-                if (isStarted)
-                {
-                    throw new InvalidOperationException(
-                        "Can't set the maximum throughput per second after the transport has been started. Use ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond) instead.");
-                }
-
-                maxMessageThroughputPerSecond = value;
-            }
-        }
-
+        /// <param name="maximumMessageThroughputPerSecond">The new value.</param>
         public void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)
         {
-            if (maximumMessageThroughputPerSecond == maxMessageThroughputPerSecond)
+            if (maximumMessageThroughputPerSecond == MaximumMessageThroughputPerSecond)
             {
                 return;
             }
 
             lock (changeMaximumMessageThroughputPerSecondLock)
             {
-                maxMessageThroughputPerSecond = maximumMessageThroughputPerSecond;
+                MaximumMessageThroughputPerSecond = maximumMessageThroughputPerSecond;
                 if (throughputLimiter != null)
                 {
                     throughputLimiter.Stop();
@@ -162,20 +139,10 @@ namespace NServiceBus.Unicast.Transport
         /// </summary>
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
+
         /// <summary>
-        ///     Changes the number of worker threads to the given target,
-        ///     stopping or starting worker threads as needed.
+        /// Starts the transport listening for messages on the given local address.
         /// </summary>
-        public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
-        {
-            ChangeMaximumConcurrencyLevel(targetNumberOfWorkerThreads);
-        }
-
-        public void Start(string inputqueue)
-        {
-            Start(Address.Parse(inputqueue));
-        }
-
         public void Start(Address address)
         {
             if (isStarted)
@@ -187,31 +154,33 @@ namespace NServiceBus.Unicast.Transport
 
             var returnAddressForFailures = address;
 
-            if (Configure.Instance.WorkerRunsOnThisEndpoint()
-                && (returnAddressForFailures.Queue.ToLower().EndsWith(".worker") || address == Address.Local))
+            var workerRunsOnThisEndpoint = settings.GetOrDefault<bool>("Worker.Enabled");
+
+            if (workerRunsOnThisEndpoint
+                && (returnAddressForFailures.Queue.ToLower().EndsWith(".worker") || address == config.LocalAddress))
                 //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
             {
-                returnAddressForFailures = Configure.Instance.GetMasterNodeAddress();
+                returnAddressForFailures = settings.Get<Address>("MasterNode.Address");
 
                 Logger.InfoFormat("Worker started, failures will be redirected to {0}", returnAddressForFailures);
             }
 
             FailureManager.Init(returnAddressForFailures);
 
-            firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager);
+            firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager, CriticalError);
 
             InitializePerformanceCounters();
 
             throughputLimiter = new ThroughputLimiter();
 
-            throughputLimiter.Start(maxMessageThroughputPerSecond);
+            throughputLimiter.Start(MaximumMessageThroughputPerSecond);
 
             StartReceiver();
 
-            if (maxMessageThroughputPerSecond > 0)
+            if (MaximumMessageThroughputPerSecond > 0)
             {
                 Logger.InfoFormat("Transport: {0} started with its throughput limited to {1} msg/sec", receiveAddress,
-                    maxMessageThroughputPerSecond);
+                    MaximumMessageThroughputPerSecond);
             }
 
             isStarted = true;
@@ -243,7 +212,7 @@ namespace NServiceBus.Unicast.Transport
         void StartReceiver()
         {
             Receiver.Init(receiveAddress, TransactionSettings, TryProcess, EndProcess);
-            Receiver.Start(maximumConcurrencyLevel);
+            Receiver.Start(MaximumConcurrencyLevel);
         }
 
         [DebuggerNonUserCode]
@@ -303,11 +272,6 @@ namespace NServiceBus.Unicast.Transport
 
             currentReceivePerformanceDiagnostics.MessageFailed();
 
-            if (ex is AggregateException)
-            {
-                ex = ex.GetBaseException();
-            }
-
             if (TransactionSettings.IsTransactional && messageId != null)
             {
                 firstLevelRetries.IncrementFailuresForMessage(message, ex);
@@ -329,71 +293,76 @@ namespace NServiceBus.Unicast.Transport
 
                 return;
             }
-
-            var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(message);
-
-            if (TransactionSettings.IsTransactional)
+            try
             {
-                if (firstLevelRetries.HasMaxRetriesForMessageBeenReached(message))
+                OnStartedMessageProcessing(message);
+            }
+            catch (Exception exception)
+            {
+                Logger.Error("Failed raising 'started message processing' event.", exception);
+                if (ShouldExitBecauseOfRetries(message))
                 {
-                    OnFinishedMessageProcessing(message);
                     return;
                 }
+                throw;
             }
 
-            if (exceptionFromStartedMessageHandling != null)
-            {
-                exceptionFromStartedMessageHandling.PreserveStackTrace();
-                throw exceptionFromStartedMessageHandling; //cause rollback 
-            }
-
-            //care about failures here
-            var exceptionFromMessageHandling = OnTransportMessageReceived(message);
-
-            //and here
-            var exceptionFromMessageModules = OnFinishedMessageProcessing(message);
-
-            //but need to abort takes precedence - failures aren't counted here,
-            //so messages aren't moved to the error queue.
-            if (needToAbort)
+            if (ShouldExitBecauseOfRetries(message))
             {
                 return;
             }
 
-            if (exceptionFromMessageHandling != null)
+            try
             {
-                if (exceptionFromMessageHandling is AggregateException)
-                {
-                    var serializationException =
-                        exceptionFromMessageHandling.GetBaseException() as SerializationException;
-                    if (serializationException != null)
-                    {
-                        Logger.Error("Failed to deserialize message with ID: " + message.Id, serializationException);
+                OnTransportMessageReceived(message);
+            }
+            catch (SerializationException serializationException)
+            {
+                Logger.Error("Failed to deserialize message with ID: " + message.Id, serializationException);
 
-                        message.RevertToOriginalBodyIfNeeded();
+                message.RevertToOriginalBodyIfNeeded();
 
-                        FailureManager.SerializationFailedForMessage(message, serializationException);
-                    }
-                    else
-                    {
-                        exceptionFromMessageHandling.PreserveStackTrace();
-                        throw exceptionFromMessageHandling;//cause rollback    
-                    }
-                }
-                else
+                FailureManager.SerializationFailedForMessage(message, serializationException);
+            }
+            catch (Exception)
+            {
+                //but need to abort takes precedence - failures aren't counted here,
+                //so messages aren't moved to the error queue.
+                if (!needToAbort)
                 {
-                    exceptionFromMessageHandling.PreserveStackTrace();
-                    throw exceptionFromMessageHandling;//cause rollback    
+                    throw;
                 }
             }
-
-            if (exceptionFromMessageModules != null) //cause rollback
+            finally
             {
-                exceptionFromMessageModules.PreserveStackTrace();
-                throw exceptionFromMessageModules;
+                try
+                {
+                    OnFinishedMessageProcessing(message);
+                }
+                catch (Exception exception)
+                {
+                    Logger.Error("Failed raising 'finished message processing' event.", exception);
+                    //but need to abort takes precedence - failures aren't counted here,
+                    //so messages aren't moved to the error queue.
+                    if (!needToAbort)
+                    {
+                        throw;
+                    }
+                }
             }
         }
 
+        bool ShouldExitBecauseOfRetries(TransportMessage message)
+        {
+            if (TransactionSettings.IsTransactional)
+            {
+                if (firstLevelRetries.HasMaxRetriesForMessageBeenReached(message))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         void InnerStop()
         {
@@ -408,57 +377,28 @@ namespace NServiceBus.Unicast.Transport
             isStarted = false;
         }
 
-        Exception OnStartedMessageProcessing(TransportMessage msg)
+        void OnStartedMessageProcessing(TransportMessage msg)
         {
-            try
+            if (StartedMessageProcessing != null)
             {
-                if (StartedMessageProcessing != null)
-                {
-                    StartedMessageProcessing(this, new StartedMessageProcessingEventArgs(msg));
-                }
+                StartedMessageProcessing(this, new StartedMessageProcessingEventArgs(msg));
             }
-            catch (Exception e)
-            {
-                Logger.Error("Failed raising 'started message processing' event.", e);
-                return e;
-            }
-
-            return null;
         }
 
-        Exception OnFinishedMessageProcessing(TransportMessage msg)
+        void OnFinishedMessageProcessing(TransportMessage msg)
         {
-            try
+            if (FinishedMessageProcessing != null)
             {
-                if (FinishedMessageProcessing != null)
-                {
-                    FinishedMessageProcessing(this, new FinishedMessageProcessingEventArgs(msg));
-                }
+                FinishedMessageProcessing(this, new FinishedMessageProcessingEventArgs(msg));
             }
-            catch (Exception e)
-            {
-                Logger.Error("Failed raising 'finished message processing' event.", e);
-                return e;
-            }
-
-            return null;
         }
 
-        Exception OnTransportMessageReceived(TransportMessage msg)
+        void OnTransportMessageReceived(TransportMessage msg)
         {
-            try
+            if (TransportMessageReceived != null)
             {
-                if (TransportMessageReceived != null)
-                {
-                    TransportMessageReceived(this, new TransportMessageReceivedEventArgs(msg));
-                }
+                TransportMessageReceived(this, new TransportMessageReceivedEventArgs(msg));
             }
-            catch (Exception e)
-            {
-                return e;
-            }
-
-            return null;
         }
 
         void OnFailedMessageProcessing(TransportMessage message, Exception originalException)
@@ -476,7 +416,7 @@ namespace NServiceBus.Unicast.Transport
             }
         }
 
-        public void DisposeManaged()
+        void DisposeManaged()
         {
             InnerStop();
 
@@ -489,14 +429,22 @@ namespace NServiceBus.Unicast.Transport
 
         [ThreadStatic] static volatile bool needToAbort;
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(TransportReceiver));
-        readonly object changeMaximumMessageThroughputPerSecondLock = new object();
+        static ILog Logger = LogManager.GetLogger<TransportReceiver>();
+        object changeMaximumMessageThroughputPerSecondLock = new object();
         ReceivePerformanceDiagnostics currentReceivePerformanceDiagnostics;
         FirstLevelRetries firstLevelRetries;
         bool isStarted;
-        int maxMessageThroughputPerSecond;
-        int maximumConcurrencyLevel;
         Address receiveAddress;
         ThroughputLimiter throughputLimiter;
+        readonly ReadOnlySettings settings;
+        readonly Configure config;
+
+
+        /// <summary>
+        /// The <see cref="TransactionSettings"/> being used.
+        /// </summary>
+        public TransactionSettings TransactionSettings { get; private set; }
+
+        internal CriticalError CriticalError { get; set; }
     }
 }

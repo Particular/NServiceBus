@@ -2,78 +2,17 @@ namespace NServiceBus.Core.Tests.Timeout
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Persistence.InMemory.TimeoutPersister;
-    using NServiceBus.Persistence.Raven;
-    using NServiceBus.Persistence.Raven.TimeoutPersister;
+    using System.Linq;
+    using InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
-    using Raven.Client;
-    using Raven.Client.Document;
-    using Raven.Client.Embedded;
-
-    [TestFixture]
-    [Explicit]
-    public class When_fetching_timeouts_from_storage_with_raven : When_fetching_timeouts_from_storage
-    {
-        private IDocumentStore store;
-
-        protected override IPersistTimeouts CreateTimeoutPersister()
-        {
-            store = new EmbeddableDocumentStore {RunInMemory = true};
-            //store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "TempTest" };
-            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
-            store.Conventions.MaxNumberOfRequestsPerSession = 10;
-            store.Initialize();
-
-            store.JsonRequestFactory.DisableRequestCompression = true;
-           
-            return new RavenTimeoutPersistence(new StoreAccessor(store));
-        }
-
-        [TearDown]
-        public void Cleanup()
-        {
-            store.Dispose();
-        }
-
-        [Test]
-        public void Should_only_return_timeouts_for_this_specific_endpoint_and_any_ones_without_a_owner()
-        {
-            const int numberOfTimeoutsToAdd = 3;
-
-            for (var i = 0; i < numberOfTimeoutsToAdd; i++)
-            {
-                var d = new TimeoutData
-                {
-                    Time = DateTime.UtcNow.AddHours(-1),
-                    OwningTimeoutManager = Configure.EndpointName
-                };
-
-                persister.Add(d);
-            }
-
-            persister.Add(new TimeoutData
-            {
-                Time = DateTime.UtcNow.AddHours(-1),
-                OwningTimeoutManager = "MyOtherTM"
-            });
-
-            persister.Add(new TimeoutData
-            {
-                Time = DateTime.UtcNow.AddHours(-1),
-                OwningTimeoutManager = String.Empty,
-            });
-
-            Assert.AreEqual(numberOfTimeoutsToAdd + 1, GetNextChunk().Count);
-        }
-    }
 
     [TestFixture]
     public class When_fetching_timeouts_from_storage_with_inMemory : When_fetching_timeouts_from_storage
     {
         protected override IPersistTimeouts CreateTimeoutPersister()
         {
-            return new InMemoryTimeoutPersistence();
+            return new InMemoryTimeoutPersister();
         }
     }
 
@@ -86,10 +25,6 @@ namespace NServiceBus.Core.Tests.Timeout
         [SetUp]
         public void Setup()
         {
-            Address.InitializeLocalAddress("MyEndpoint");
-
-            Configure.GetEndpointNameAction = () => "MyEndpoint";
-
             persister = CreateTimeoutPersister();
         }
 
@@ -116,7 +51,7 @@ namespace NServiceBus.Core.Tests.Timeout
                 });
             }
             
-            Assert.AreEqual(numberOfTimeoutsToAdd, GetNextChunk().Count);
+            Assert.AreEqual(numberOfTimeoutsToAdd, GetNextChunk().Count());
         }
 
         [Test]
@@ -129,7 +64,7 @@ namespace NServiceBus.Core.Tests.Timeout
                 var d = new TimeoutData
                 {
                     Time = DateTime.UtcNow.AddHours(-1),
-                    OwningTimeoutManager = Configure.EndpointName
+                    OwningTimeoutManager = "MyEndpoint"
                 };
 
                 persister.Add(d);
@@ -150,7 +85,7 @@ namespace NServiceBus.Core.Tests.Timeout
             Assert.True(totalMilliseconds < 200);
         }
 
-        protected List<Tuple<string, DateTime>> GetNextChunk()
+        protected IEnumerable<Tuple<string, DateTime>> GetNextChunk()
         {
             DateTime nextTimeToRunQuery;
             return persister.GetNextChunk(DateTime.UtcNow.AddYears(-3), out nextTimeToRunQuery);

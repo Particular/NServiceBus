@@ -1,50 +1,52 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
-    using System.ComponentModel;
+    using NServiceBus.Unicast.Transport;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class SendValidatorBehavior : IBehavior<SendLogicalMessageContext>
+    class SendValidatorBehavior : IBehavior<OutgoingContext>
     {
-        public void Invoke(SendLogicalMessageContext context, Action next)
+        public Conventions Conventions { get; set; }
+
+        public void Invoke(OutgoingContext context, Action next)
         {
-            VerifyBestPractices(context);
+            if (!context.OutgoingLogicalMessage.IsControlMessage())
+            {
+                VerifyBestPractices(context);
+            }
 
             next();
         }
 
-        static void VerifyBestPractices(SendLogicalMessageContext context)
+        void VerifyBestPractices(OutgoingContext context)
         {
-            if (!context.SendOptions.EnforceMessagingBestPractices)
+            if (!context.DeliveryOptions.EnforceMessagingBestPractices)
             {
                 return;
             }
-            if (context.SendOptions.Destination == Address.Undefined)
+
+            var sendOptions = context.DeliveryOptions as SendOptions;
+
+            if (sendOptions == null)
             {
-                throw new InvalidOperationException("No destination specified for message: " + context.MessageToSend.MessageType);
+                MessagingBestPractices.AssertIsValidForPubSub(context.OutgoingLogicalMessage.MessageType, Conventions);
+                return;
             }
 
-            switch (context.SendOptions.Intent)
+            if (sendOptions.Destination == Address.Undefined)
             {
-                case MessageIntentEnum.Init:
-                case MessageIntentEnum.Subscribe:
-                case MessageIntentEnum.Unsubscribe:
-                    break;
-                case MessageIntentEnum.Publish:
-                    MessagingBestPractices.AssertIsValidForPubSub(context.MessageToSend.MessageType);
-                    break;
-                case MessageIntentEnum.Reply:
-                    MessagingBestPractices.AssertIsValidForReply(context.MessageToSend.MessageType);
-                    break;
-                case MessageIntentEnum.Send:
-                    MessagingBestPractices.AssertIsValidForSend(context.MessageToSend.MessageType, context.SendOptions.Intent);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                throw new InvalidOperationException("No destination specified for message: " + context.OutgoingLogicalMessage.MessageType);
+            }
+
+            if (sendOptions is ReplyOptions)
+            {
+                MessagingBestPractices.AssertIsValidForReply(context.OutgoingLogicalMessage.MessageType, Conventions);
+            }
+            else
+            {
+                MessagingBestPractices.AssertIsValidForSend(context.OutgoingLogicalMessage.MessageType, Conventions);
             }
         }
     }

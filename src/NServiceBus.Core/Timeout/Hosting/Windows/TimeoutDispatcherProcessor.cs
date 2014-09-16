@@ -2,31 +2,28 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Core;
-    using Features;
     using Satellites;
     using Transports;
     using Unicast.Transport;
 
-    public class TimeoutDispatcherProcessor : IAdvancedSatellite
-    {  
+    class TimeoutDispatcherProcessor : IAdvancedSatellite
+    {
+        public TimeoutDispatcherProcessor()
+        {
+            Disabled = true;
+        }
+
         public ISendMessages MessageSender { get; set; }
 
         public IPersistTimeouts TimeoutsPersister { get; set; }
-        
-        public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
-      
-        public Address InputAddress
-        {
-            get
-            {
-                return TimeoutManager.DispatcherAddress;
-            }
-        }
 
-        public bool Disabled
-        {
-            get { return !Feature.IsEnabled<TimeoutManager>(); }
-        }
+        public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
+
+        public Configure Configure { get; set; }
+      
+        public Address InputAddress { get; set; }
+
+        public bool Disabled { get; set; }
 
         public bool Handle(TransportMessage message)
         {
@@ -35,7 +32,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
             {
-                MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.Destination);
+                MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions(Configure.LocalAddress));
             }
 
             return true;
@@ -57,7 +54,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 //TODO: The line below needs to change when we refactor the slr to be:
                 // transport.DisableSLR() or similar
-                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager);
+                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager, MessageSender, Configure);
             };
         }
     }

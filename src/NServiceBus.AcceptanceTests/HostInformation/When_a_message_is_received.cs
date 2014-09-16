@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.HostInformation
 {
     using System;
-    using Config;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Config;
     using NUnit.Framework;
     using Unicast;
 
@@ -40,12 +40,14 @@
 
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
+            public IBus Bus { get; set; }
+
             public Context Context { get; set; }
 
             public void Handle(MyMessage message)
             {
-                Context.HostId = new Guid(message.GetHeader(Headers.HostId));
-                Context.HostDisplayName = message.GetHeader(Headers.HostDisplayName);
+                Context.HostId = new Guid(Bus.GetMessageHeader(message, Headers.HostId));
+                Context.HostDisplayName = Bus.GetMessageHeader(message, Headers.HostDisplayName);
             }
         }
 
@@ -61,10 +63,10 @@
         {
             public UnicastBus UnicastBus { get; set; }
 
-            public void Run()
+            public void Run(Configure config)
             {
 #pragma warning disable 618
-                var hostInformation = new Hosting.HostInformation(hostId, displayName, displayInstanceIdentifier);
+                var hostInformation = new Hosting.HostInformation(hostId, displayName);
 #pragma warning restore 618
 
                 UnicastBus.HostInformation = hostInformation;

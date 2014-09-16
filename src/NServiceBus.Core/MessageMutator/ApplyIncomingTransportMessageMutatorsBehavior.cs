@@ -1,16 +1,14 @@
-﻿namespace NServiceBus.MessageMutator
+﻿namespace NServiceBus
 {
     using System;
-    using System.ComponentModel;
+    using NServiceBus.MessageMutator;
     using Pipeline;
     using Pipeline.Contexts;
 
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class ApplyIncomingTransportMessageMutatorsBehavior : IBehavior<ReceivePhysicalMessageContext>
+    class ApplyIncomingTransportMessageMutatorsBehavior : IBehavior<IncomingContext>
     {
-        public void Invoke(ReceivePhysicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
             var mutators = context.Builder.BuildAll<IMutateIncomingTransportMessages>();
 

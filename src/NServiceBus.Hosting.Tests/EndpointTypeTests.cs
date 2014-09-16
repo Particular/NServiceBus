@@ -3,20 +3,18 @@ namespace NServiceBus.Hosting.Tests
     namespace EndpointTypeTests
     {
         using System;
+        using System.Diagnostics;
         using Windows;
         using Windows.Arguments;
         using NUnit.Framework;
 
-        public abstract class TestContext
+        abstract class TestContext
         {
             protected EndpointType EndpointType;
-
-// ReSharper disable once NotAccessedField.Global
-            protected string TestValue;
         }
 
         [TestFixture]
-        public class OtherProperty_Getter_Tests : TestContext
+        class OtherProperty_Getter_Tests : TestContext
         {
             [TestFixtureSetUp]
             public void TestFixtureSetup()
@@ -27,32 +25,25 @@ namespace NServiceBus.Hosting.Tests
             [Test]
             public void the_assemblyQualifiedName_getter_should_not_blow_up()
             {
-                TestValue = EndpointType.AssemblyQualifiedName;
+                Trace.WriteLine(EndpointType.AssemblyQualifiedName);
             }
 
             [Test]
             public void the_endpointConfigurationFile_getter_should_not_blow_up()
             {
-                TestValue = EndpointType.EndpointConfigurationFile;
+                Trace.WriteLine(EndpointType.EndpointConfigurationFile);
             }
 
             [Test]
             public void the_endpointVersion_getter_should_not_blow_up()
             {
-                TestValue = EndpointType.EndpointVersion;
+                Trace.WriteLine(EndpointType.EndpointVersion);
             }
         }
 
         [TestFixture]
-        public class EndpointName_Getter_Tests : TestContext
+        class EndpointName_Getter_Tests : TestContext
         {
-            [SetUp]
-            public void Setup()
-            {
-                // configuration hangs around between tests - have to clear it
-                Configure.With().DefineEndpointName((Func<string>) null);
-            }
-
             HostArguments hostArguments;
 
             [TestFixtureSetUp]
@@ -66,8 +57,7 @@ namespace NServiceBus.Hosting.Tests
 
             [Test]
             public void when_endpointName_attribute_exists_it_should_have_first_priority()
-            {
-                Configure.With().DefineEndpointName("EndpointNameFromConfiguration");
+            {                
                 EndpointType = new EndpointType(hostArguments, typeof (TestEndpointTypeWithEndpointNameAttribute));
 
                 Assert.AreEqual("EndpointNameFromAttribute", EndpointType.EndpointName);
@@ -77,7 +67,12 @@ namespace NServiceBus.Hosting.Tests
             [Ignore("this hasn't been implemented yet as far as i can tell")]
             public void when_endpointName_is_provided_via_configuration_it_should_have_second_priority()
             {
-                Configure.With().DefineEndpointName("EndpointNameFromConfiguration");
+                var configuration = new BusConfiguration();
+
+                configuration.EndpointName("EndpointNameFromConfiguration");
+
+                Bus.Create(configuration);
+
                 EndpointType = new EndpointType(hostArguments, typeof (TestEndpointType));
 
                 Assert.AreEqual("EndpointNameFromConfiguration", EndpointType.EndpointName);
@@ -109,7 +104,7 @@ namespace NServiceBus.Hosting.Tests
         }
 
         [TestFixture]
-        public class ServiceName_Getter_Tests : TestContext
+        class ServiceName_Getter_Tests : TestContext
         {
             HostArguments hostArguments;
 
@@ -156,7 +151,7 @@ namespace NServiceBus.Hosting.Tests
                 MatchType = MessageMatch.StartsWith)]
             public void When_type_does_not_have_empty_public_constructor_it_should_blow_up()
             {
-                new EndpointType(typeof (TypeWithoutEmptyPublicConstructor));
+                 new EndpointType(typeof (TypeWithoutEmptyPublicConstructor));
             }
         }
 

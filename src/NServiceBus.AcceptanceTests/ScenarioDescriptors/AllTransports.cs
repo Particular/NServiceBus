@@ -41,9 +41,6 @@
         {
             AllTransportsFilter.Run(t => t.HasSupportForDistributedTransactions.HasValue
                                          && !t.HasSupportForDistributedTransactions.Value, Remove);
-
-            // todo set HasSupportForDistributedTransactions to false on Rabbit MQ
-            AllTransportsFilter.Run(t => t.GetType().Name.Contains("RabbitMQ"), Remove);
         }
     }
 
@@ -109,7 +106,7 @@
                 var type = Type.GetType(transportAssemblyQualifiedName);
                 if (type != null)
                 {
-                    var transport = Activator.CreateInstance(type) as TransportDefinition;
+                    var transport = Activator.CreateInstance(type, true) as TransportDefinition;
                     if (condition(transport))
                     {
                         remove(rundescriptor);

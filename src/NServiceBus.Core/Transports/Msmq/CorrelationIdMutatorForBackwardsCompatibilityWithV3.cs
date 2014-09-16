@@ -2,11 +2,12 @@
 {
     using System;
     using MessageMutator;
+    using Unicast.Messages;
 
-    [ObsoleteEx(RemoveInVersion ="5.0")]
-    public class CorrelationIdMutatorForBackwardsCompatibilityWithV3 : IMutateOutgoingTransportMessages
+    [ObsoleteEx(RemoveInVersion ="6.0")]
+    class CorrelationIdMutatorForBackwardsCompatibilityWithV3 : IMutateOutgoingTransportMessages
     {
-        public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
+        public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
         {
             if (transportMessage.Headers.ContainsKey(CorrIdHeader))
                 return;

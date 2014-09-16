@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Scheduling
 {
     using System;
     using EndpointTemplates;
@@ -13,14 +13,20 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<SchedulingEndpoint>()
-                    .Done(c => c.ScheduleActionInvoked)
+                    .Done(c => c.InvokedAt.HasValue)
                     .Repeat(r => r.For(Transports.Default))
-                  .Run(TimeSpan.FromSeconds(60));
+                    .Should(c =>
+                    {
+                        Assert.True(c.InvokedAt.HasValue);
+                        Assert.Greater(c.InvokedAt.Value - c.RequestedAt, TimeSpan.FromSeconds(5));
+                    })
+                  .Run(TimeSpan.FromSeconds(20));
         }
 
         public class Context : ScenarioContext
         {
-            public bool ScheduleActionInvoked { get; set; }
+            public DateTime? InvokedAt{ get; set; }
+            public DateTime RequestedAt{ get; set; }
         }
 
         public class SchedulingEndpoint : EndpointConfigurationBuilder
@@ -32,20 +38,20 @@
 
             class SetupScheduledAction : IWantToRunWhenBusStartsAndStops
             {
+                public Schedule Schedule { get; set; }
+                public Context Context { get; set; }
                 public void Start()
                 {
-                    Schedule.Every(TimeSpan.FromSeconds(5))
-                       .Action("MyTask", () =>
-                       {
-                           Console.Out.WriteLine("Task invoked");
-                           Configure.Instance.Builder.Build<Context>()
-                                    .ScheduleActionInvoked = true;
-                       });
+                    Context.RequestedAt = DateTime.UtcNow;
+
+                    Schedule.Every(TimeSpan.FromSeconds(5), "MyTask", () =>
+                    {
+                        Context.InvokedAt = DateTime.UtcNow;
+                    });
                 }
 
                 public void Stop()
                 {
-
                 }
             }
         }

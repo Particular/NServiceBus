@@ -2,31 +2,42 @@
 {
     using System;
     using Contexts;
-    using Encryption;
+    using InMemory.SagaPersister;
+    using NServiceBus.Features;
+    using Sagas;
     using NUnit.Framework;
-    using Persistence.InMemory.SagaPersister;
     using Saga;
     using Sagas.Finders;
 
-    public class with_sagas : using_the_unicastBus
+    class with_sagas : using_the_unicastBus
     {
         protected InMemorySagaPersister persister;
+        Conventions conventions;
+        Sagas sagas;
 
         [SetUp]
         public new void SetUp()
         {
-
             persister = new InMemorySagaPersister();
             FuncBuilder.Register<ISagaPersister>(() => persister);
 
-            Features.Sagas.Clear();
+            sagas = new Sagas();
+
+            FuncBuilder.Register<SagaConfigurationCache>(() => sagas.sagaConfigurationCache);
+
+            conventions = new Conventions();
         }
 
+        protected override void ApplyPipelineModifications()
+        {
+            pipelineModifications.Additions.Add(new SagaPersistenceBehavior.SagaPersistenceRegistration());
+        }
 
         protected void RegisterCustomFinder<T>() where T : IFinder
         {
-            Features.Sagas.ConfigureFinder(typeof(T));
+            sagas.ConfigureFinder(typeof(T), conventions);
         }
+
         protected void RegisterSaga<T>(object sagaEntity = null) where T : new()
         {
             var sagaEntityType = GetSagaEntityType<T>();
@@ -34,32 +45,32 @@
             var sagaHeaderIdFinder = typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType);
             FuncBuilder.Register(sagaHeaderIdFinder);
 
-            Features.Sagas.ConfigureSaga(typeof(T));
-            Features.Sagas.ConfigureFinder(sagaHeaderIdFinder);
+            sagas.ConfigureSaga(typeof(T), conventions);
+            sagas.ConfigureFinder(sagaHeaderIdFinder, conventions);
 
-            if (Features.Sagas.SagaEntityToMessageToPropertyLookup.ContainsKey(sagaEntityType))
+            if (sagas.sagaConfigurationCache.SagaEntityToMessageToPropertyLookup.ContainsKey(sagaEntityType))
             {
-                foreach (var entityLookups in Features.Sagas.SagaEntityToMessageToPropertyLookup[sagaEntityType])
+                foreach (var entityLookups in sagas.sagaConfigurationCache.SagaEntityToMessageToPropertyLookup[sagaEntityType])
                 {
                     var propertyFinder = typeof(PropertySagaFinder<,>).MakeGenericType(sagaEntityType, entityLookups.Key);
 
-                    Features.Sagas.ConfigureFinder(propertyFinder);
+                    sagas.ConfigureFinder(propertyFinder, conventions);
 
                     var propertyLookups = entityLookups.Value;
 
                     var finder = Activator.CreateInstance(propertyFinder);
-                    propertyFinder.GetProperty("SagaProperty").SetValue(finder, propertyLookups.Key);
-                    propertyFinder.GetProperty("MessageProperty").SetValue(finder, propertyLookups.Value);
+                    propertyFinder.GetProperty("SagaToMessageMap").SetValue(finder, propertyLookups);
                     FuncBuilder.Register(propertyFinder, () => finder);
                 }
             }
 
             if (sagaEntity != null)
             {
-                var se = (IContainSagaData) sagaEntity;
+                var se = (IContainSagaData)sagaEntity;
 
                 persister.CurrentSagaEntities[se.Id] = new InMemorySagaPersister.VersionedSagaEntity { SagaEntity = se };
             }
+
             RegisterMessageHandlerType<T>();
 
         }

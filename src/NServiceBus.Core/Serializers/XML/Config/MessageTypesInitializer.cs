@@ -7,19 +7,19 @@ namespace NServiceBus.Serializers.XML.Config
     /// <summary>
     /// Initializes the mapper and the serializer with the found message types
     /// </summary>
-    public class MessageTypesInitializer : IWantToRunWhenConfigurationIsComplete
+    class MessageTypesInitializer : IWantToRunWhenConfigurationIsComplete
     {
         public MessageMapper Mapper { get; set; }
         public XmlMessageSerializer Serializer { get; set; }
 
-        public void Run()
+        public void Run(Configure config)
         {
             if (Mapper == null)
             {
                 return;
             }
 
-            var messageTypes = Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType).ToList();
+            var messageTypes = config.TypesToScan.Where(config.Settings.Get<Conventions>().IsMessageType).ToList();
 
             Mapper.Initialize(messageTypes);
 

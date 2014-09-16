@@ -5,8 +5,6 @@ namespace ObjectBuilder.Tests
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus;
-    using NServiceBus.ObjectBuilder.CastleWindsor;
-    using NServiceBus.ObjectBuilder.Spring;
     using NUnit.Framework;
 
     [TestFixture]
@@ -47,7 +45,21 @@ namespace ObjectBuilder.Tests
                 builder.RegisterSingleton(typeof(ISingletonComponent), new AnotherSingletonComponent());
 
                 Assert.IsInstanceOf<AnotherSingletonComponent>(builder.Build(typeof(ISingletonComponent)));
-            }, typeof(SpringObjectBuilder));
+            });//Not supported by, typeof(SpringObjectBuilder));
+        }
+
+        [Test]
+        [Explicit]
+        public void A_registration_should_update_default_component_for_interface()
+        {
+
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerCall);
+                builder.Configure(typeof(SomeOtherClass), DependencyLifecycle.InstancePerCall);
+
+                Assert.IsInstanceOf<SomeOtherClass>(builder.Build(typeof(ISomeInterface)));
+            });
         }
 
         [Test]
@@ -81,7 +93,7 @@ namespace ObjectBuilder.Tests
 
                 Assert.AreEqual(builder.Build(typeof(ISingleton1)), singleton);
                 Assert.AreEqual(builder.Build(typeof(ISingleton2)), singleton);
-            },typeof(SpringObjectBuilder));
+            });//Not supported by,typeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -100,6 +112,21 @@ namespace ObjectBuilder.Tests
                 Assert.True(component.SomeProperty);
 
                 Assert.True(component.AnotherProperty);
+            });
+        }
+
+        [Test]
+        public void Properties_configured_multiple_times_should_retain_only_the_last_configuration()
+        {
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(DuplicateClass), DependencyLifecycle.SingleInstance);
+                builder.ConfigureProperty(typeof(DuplicateClass), "SomeProperty", false);
+                builder.ConfigureProperty(typeof(DuplicateClass), "SomeProperty", true); // this should remove/override the previous property setting
+
+                var component = (DuplicateClass) builder.Build(typeof(DuplicateClass));
+
+                Assert.True(component.SomeProperty);
             });
         }
 
@@ -182,8 +209,8 @@ namespace ObjectBuilder.Tests
                 Assert.True(builder.HasComponent(typeof(ISomeOtherInterface)));
                 Assert.True(builder.HasComponent(typeof(IYetAnotherInterface)));
                 Assert.AreEqual(1, builder.BuildAll(typeof(IYetAnotherInterface)).Count());
-            },
-            typeof(SpringObjectBuilder));
+            });
+            //Not supported bytypeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -202,8 +229,8 @@ namespace ObjectBuilder.Tests
                     Assert.NotNull(childBuilder.Build(typeof(SomeClass)));
                     Assert.AreEqual(2, childBuilder.BuildAll(typeof(ISomeInterface)).Count());
                 }
-            }
-            ,typeof(WindsorObjectBuilder));
+            });
+            //Not supported by,typeof(WindsorObjectBuilder));
         }
 
         [Test]

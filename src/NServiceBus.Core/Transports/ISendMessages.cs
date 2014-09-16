@@ -1,15 +1,15 @@
 namespace NServiceBus.Transports
 {
+    using Unicast;
+
     /// <summary>
     /// Abstraction of the capability to send messages.
     /// </summary>
     public interface ISendMessages
     {
         /// <summary>
-        /// Sends the given <paramref name="message"/> to the <paramref name="address"/>.
+        /// Sends the given <paramref name="message"/>
         /// </summary>
-        /// <param name="message"><see cref="TransportMessage"/> to send.</param>
-        /// <param name="address">Destination <see cref="Address"/>.</param>
-        void Send(TransportMessage message, Address address);
+        void Send(TransportMessage message, SendOptions sendOptions);
     }
 }

@@ -5,52 +5,68 @@
     using System.Linq;
     using System.Reflection;
     using AcceptanceTesting.Support;
-    using Config.ConfigurationSource;
     using Hosting.Helpers;
+    using Logging;
     using NServiceBus;
-    using Settings;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.Config.ConfigurationSource;
+    using NServiceBus.Configuration.AdvanceExtensibility;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
-        public Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource)
+        readonly List<Type> typesToInclude;
+
+        public DefaultServer()
+        {
+            typesToInclude = new List<Type>();
+        }
+
+        public DefaultServer(List<Type> typesToInclude)
+        {
+            this.typesToInclude = typesToInclude;
+        }
+
+        public BusConfiguration GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource, Action<BusConfiguration> configurationBuilderCustomization)
         {
             var settings = runDescriptor.Settings;
 
-            SetLoggingLibrary.Log4Net(null, new ContextAppender(runDescriptor.ScenarioContext, endpointConfiguration));
+            LogManager.UseFactory(new ContextAppender(runDescriptor.ScenarioContext));
 
-            var types = GetTypesToUse(endpointConfiguration);
+            var types = GetTypesScopedByTestClass(endpointConfiguration);
 
-            var transportToUse = settings.GetOrNull("Transport");
+            typesToInclude.AddRange(types);
 
-            Configure.Features.Enable<Features.Sagas>();
+            var builder = new BusConfiguration();
 
-            SettingsHolder.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
-
-            var config = Configure.With(types)
-                            .DefineEndpointName(endpointConfiguration.EndpointName)
-                            .CustomConfigurationSource(configSource)
-                            .DefineBuilder(settings.GetOrNull("Builder"))
-                            .DefineSerializer(settings.GetOrNull("Serializer"))
-                            .DefineTransport(settings)
-                            .DefineSagaPersister(settings.GetOrNull("SagaPersister"));
-
-            if (transportToUse == null ||
-                transportToUse.Contains("Msmq") ||
-                transportToUse.Contains("SqlServer") ||
-                transportToUse.Contains("RabbitMq"))
+            builder.EndpointName(endpointConfiguration.EndpointName);
+            builder.TypesToScan(typesToInclude);
+            builder.CustomConfigurationSource(configSource);
+            builder.EnableInstallers();
+            builder.DefineTransport(settings);
+            builder.DefineBuilder(settings);
+            builder.RegisterComponents(r =>
             {
-                config.DefineTimeoutPersister(settings.GetOrNull("TimeoutPersister"));
-            }
+                r.RegisterSingleton(runDescriptor.ScenarioContext.GetType(), runDescriptor.ScenarioContext);
+                r.RegisterSingleton(typeof(ScenarioContext), runDescriptor.ScenarioContext);
+            });
 
-            if (transportToUse == null || transportToUse.Contains("Msmq") || transportToUse.Contains("SqlServer"))
+       
+            var serializer = settings.GetOrNull("Serializer");
+
+            if (serializer != null)
             {
-                config.DefineSubscriptionStorage(settings.GetOrNull("SubscriptionStorage"));
+                builder.UseSerialization(Type.GetType(serializer));
             }
+            builder.DefinePersistence(settings);
 
-            return config.UnicastBus();
+            builder.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
+            configurationBuilderCustomization(builder);
+
+
+            return builder;
         }
 
-        static IEnumerable<Type> GetTypesToUse(EndpointConfiguration endpointConfiguration)
+        static IEnumerable<Type> GetTypesScopedByTestClass(EndpointConfiguration endpointConfiguration)
         {
             var assemblies = new AssemblyScanner().GetScannableAssemblies();
 

@@ -5,79 +5,36 @@ namespace NServiceBus.Core.Tests.Timeout
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Persistence.InMemory.TimeoutPersister;
-    using NServiceBus.Persistence.Raven;
-    using NServiceBus.Persistence.Raven.TimeoutPersister;
+    using InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Timeout.Hosting.Windows;
     using NUnit.Framework;
-    using Raven.Client;
-    using Raven.Client.Document;
-    using Raven.Client.Embedded;
 
     [TestFixture]
-    public class When_pooling_timeouts_with_raven : When_pooling_timeouts
-    {
-        private IDocumentStore store;
-
-        protected override IPersistTimeouts CreateTimeoutPersister()
-        {
-            store = new EmbeddableDocumentStore { RunInMemory = true };
-            //IDocumentStore store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "TempTest" };
-            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
-            store.Conventions.MaxNumberOfRequestsPerSession = 10;
-            store.Initialize();
-
-            return new RavenTimeoutPersistence(new StoreAccessor(store));
-        }
-
-        [TearDown]
-        public void Cleanup()
-        {
-            store.Dispose();
-        }
-
-        [Test]
-        public void Should_retrieve_all_timeout_messages_that_expired_even_if_it_needs_to_page()
-        {
-            expected = 1024 + 5;
-
-            Enumerable.Range(1, expected).ToList().ForEach(i => persister.Add(CreateData(DateTime.UtcNow.AddSeconds(-5))));
-
-            StartAndStopReceiver(5);
-
-            WaitForMessagesThenAssert(5);
-        }
-    }
-
-   [TestFixture]
-    public class When_pooling_timeouts_with_inMemory : When_pooling_timeouts
+    [Explicit]
+    class When_pooling_timeouts_with_inMemory : When_pooling_timeouts
     {
         protected override IPersistTimeouts CreateTimeoutPersister()
         {
-            return new InMemoryTimeoutPersistence();
+            return new InMemoryTimeoutPersister();
         }
     }
 
-    public abstract class When_pooling_timeouts
+    abstract class When_pooling_timeouts
     {
-        private IManageTimeouts manager;
-        private FakeMessageSender messageSender;
+        DefaultTimeoutManager manager;
+        FakeMessageSender messageSender;
         readonly Random rand = new Random();
-        protected int expected;
+        int expected;
 
-        protected IPersistTimeouts persister;
-        protected TimeoutPersisterReceiver receiver;
+        IPersistTimeouts persister;
+        TimeoutPersisterReceiver receiver;
 
         protected abstract IPersistTimeouts CreateTimeoutPersister();
 
         [SetUp]
         public void Setup()
         {
-            Address.InitializeLocalAddress("MyEndpoint");
-
-            Configure.GetEndpointNameAction = () => "MyEndpoint";
-
             persister = CreateTimeoutPersister();
             messageSender = new FakeMessageSender();
 
@@ -102,7 +59,7 @@ namespace NServiceBus.Core.Tests.Timeout
             expected = 50;
 
             Enumerable.Range(1, expected).ToList().ForEach(i => persister.Add(CreateData(DateTime.UtcNow.AddSeconds(-5))));
-            
+
             StartAndStopReceiver();
 
             WaitForMessagesThenAssert(5);
@@ -127,9 +84,9 @@ namespace NServiceBus.Core.Tests.Timeout
 
             expected = 10;
             Push(expected, DateTime.UtcNow.AddSeconds(1));
-            
+
             Thread.Sleep(TimeSpan.FromSeconds(5));
-            
+
             WaitForMessagesThenAssert(10);
 
             messageSender.MessagesSent = 0;
@@ -197,24 +154,24 @@ namespace NServiceBus.Core.Tests.Timeout
             Enumerable.Range(1, total).ToList().ForEach(i => manager.PushTimeout(CreateData(time)));
         }
 
-        protected void StartAndStopReceiver(int secondsToWaitBeforeCallingStop = 1)
+        private void StartAndStopReceiver(int secondsToWaitBeforeCallingStop = 1)
         {
             receiver.Start();
             Thread.Sleep(TimeSpan.FromSeconds(secondsToWaitBeforeCallingStop));
             receiver.Stop();
         }
 
-        protected static TimeoutData CreateData(DateTime time)
+        private static TimeoutData CreateData(DateTime time)
         {
             return new TimeoutData
                 {
-                    OwningTimeoutManager = Configure.EndpointName,
+                    OwningTimeoutManager = "MyEndpoint",
                     Time = time,
                     Headers = new Dictionary<string, string>(),
                 };
         }
 
-        protected void WaitForMessagesThenAssert(int maxSecondsToWait)
+        private void WaitForMessagesThenAssert(int maxSecondsToWait)
         {
             var maxTime = DateTime.Now.AddSeconds(maxSecondsToWait);
 

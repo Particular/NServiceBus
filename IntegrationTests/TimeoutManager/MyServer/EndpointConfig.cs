@@ -1,23 +1,18 @@
-﻿namespace MyServer
+﻿using NServiceBus.Persistence;
+using NServiceBus.Persistence.Legacy;
+using NServiceBus.Unicast.Messages;
+
+namespace MyServer
 {
     using NServiceBus;
     using NServiceBus.MessageMutator;
 
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server,IWantCustomInitialization
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server
     {
-        public void Init()
+        public void Customize(BusConfiguration configuration)
         {
-            Configure.With()
-                .DefaultBuilder()
-                //shows multi tenant operations of the sagas
-                .MessageToDatabaseMappingConvention(context =>
-                                                        {
-                                                            if (context.Headers.ContainsKey("tenant"))
-                                                                return context.Headers["tenant"];
-
-                                                            return string.Empty;
-                                                        });
-
+            configuration.UsePersistence<InMemoryPersistence>();
+            configuration.UsePersistence<MsmqPersistence>().For(Storage.Subscriptions);
         }
     }
 
@@ -28,21 +23,26 @@
     {
         public IBus Bus { get; set; }
 
-        public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
+        
+        public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
         {
             if (Bus.CurrentMessageContext == null)
+            {
                 return;
+            }
+
             if (!Bus.CurrentMessageContext.Headers.ContainsKey("tenant"))
+            {
                 return;
+            }
 
             transportMessage.Headers["tenant"] = Bus.CurrentMessageContext.Headers["tenant"];
         }
 
-        public void Init()
+        public void Customize(BusConfiguration configuration)
         {
-
-            Configure.Instance.Configurer.ConfigureComponent<TenantPropagatingMutator>(
-                DependencyLifecycle.InstancePerCall);
+            configuration.RegisterComponents(c => c.ConfigureComponent<TenantPropagatingMutator>(
+                DependencyLifecycle.InstancePerCall));
         }
     }
 }

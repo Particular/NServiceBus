@@ -1,22 +1,19 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
-    using System.ComponentModel;
     using System.Linq;
+    using NServiceBus.Unicast.Transport;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
-    using Transport;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class CallbackInvocationBehavior : IBehavior<ReceivePhysicalMessageContext>
+    class CallbackInvocationBehavior : IBehavior<IncomingContext>
     {
         public const string CallbackInvokedKey = "NServiceBus.CallbackInvocationBehavior.CallbackWasInvoked";
 
         public UnicastBus UnicastBus { get; set; }
 
-        public void Invoke(ReceivePhysicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
 
             var messageWasHandled = HandleCorrelatedMessage(context.PhysicalMessage, context);
@@ -26,14 +23,14 @@
             next();
         }
 
-        bool HandleCorrelatedMessage(TransportMessage transportMessage, ReceivePhysicalMessageContext context)
+        bool HandleCorrelatedMessage(TransportMessage transportMessage, IncomingContext context)
         {
             if (transportMessage.CorrelationId == null)
             {
                 return false;
             }
 
-            if (transportMessage.CorrelationId == transportMessage.Id) //to make sure that we don't fire callbacks when doing send locals
+            if (transportMessage.CorrelationId == transportMessage.Id)
             {
                 return false;
             }

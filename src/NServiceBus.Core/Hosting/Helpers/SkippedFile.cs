@@ -6,7 +6,7 @@
     /// </summary>
     public class SkippedFile
     {
-        public SkippedFile(string filePath, string message)
+        internal SkippedFile(string filePath, string message)
         {
             FilePath = filePath;
             SkipReason = message;

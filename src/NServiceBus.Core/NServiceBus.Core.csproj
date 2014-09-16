@@ -9,65 +9,57 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NServiceBus</RootNamespace>
     <AssemblyName>NServiceBus.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
-    <FodyPath>..\packages\Fody</FodyPath>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\binaries\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;MAKE_AutofacObjectBuilder_INTERNAL</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\NServiceBus.Core.xml</DocumentationFile>
-    <NoWarn>1591,1573,618</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\binaries\</OutputPath>
-    <DefineConstants>TRACE;MAKE_AutofacObjectBuilder_INTERNAL</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\NServiceBus.Core.xml</DocumentationFile>
-    <NoWarn>1591,1573,618</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="Fody.targets" />
     <None Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
     </None>
     <Reference Include="Autofac">
-      <HintPath>..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
+      <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="Interop.MSMQ">
       <HintPath>..\..\lib\Interop.MSMQ.dll</HintPath>
     </Reference>
     <Reference Include="Janitor">
-      <HintPath>..\packages\Janitor.Fody\Lib\portable-net4+sl4+wp7+win8+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net\lib\2.0\log4net.dll</HintPath>
+      <HintPath>..\packages\Janitor.Fody.1.1.0.0\Lib\portable-net4+sl5+wp8+win8+wpa81+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.5.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Obsolete">
-      <HintPath>..\packages\Obsolete.Fody\Lib\NET35\Obsolete.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Abstractions">
-      <HintPath>..\packages\RavenDB.Client\lib\net40\Raven.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Client.Lightweight">
-      <HintPath>..\packages\RavenDB.Client\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+      <HintPath>..\packages\Obsolete.Fody.3.1.0.0\Lib\NET35\Obsolete.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -78,6 +70,7 @@
     <Reference Include="System.Messaging" />
     <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Services" />
@@ -86,7 +79,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AllAssemblies.cs" />
     <Compile Include="App_Packages\Particular.Licensing\License.cs" />
     <Compile Include="App_Packages\Particular.Licensing\LicenseDeserializer.cs" />
     <Compile Include="App_Packages\Particular.Licensing\LicenseExpirationChecker.cs" />
@@ -96,202 +88,305 @@
     <Compile Include="App_Packages\Particular.Licensing\TrialStartDateStore.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UniversalDateParser.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
+    <Compile Include="Bus.cs" />
+    <Compile Include="BusConfiguration.cs" />
+    <Compile Include="ConfigureQueueCreation_Obsolete.cs" />
+    <Compile Include="ConfigureInMemoryFaultManagement_obsolete.cs" />
+    <Compile Include="Config\MsmqConnectionStringBuilder.cs" />
+    <Compile Include="Container\ContainerCustomizations.cs" />
+    <Compile Include="Container\ContainerDefinition.cs" />
+    <Compile Include="ConventionsBuilder.cs" />
+    <Compile Include="CriticalError\ConfigureCriticalErrorAction_Obsolete.cs" />
+    <Compile Include="CriticalError\CriticalErrorHandling.cs" />
+    <Compile Include="CriticalError\CriticalError.cs" />
+    <Compile Include="DataBus\ConfigureFileShareDataBus_Obsolete.cs" />
+    <Compile Include="Encryption\DecryptBehavior.cs" />
+    <Compile Include="Encryption\EncryptBehavior.cs" />
+    <Compile Include="Encryption\EncryptedValue.cs" />
+    <Compile Include="Encryption\Encryptor.cs" />
+    <Compile Include="Encryption\ConfigureRijndaelEncryptionService_Obsolete.cs" />
+    <Compile Include="Encryption\RijndaelExpiredKey.cs" />
+    <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
+    <Compile Include="Encryption\RijndaelEncryptionService.cs" />
+    <Compile Include="Faults\Forwarder\ForwarderFaultManager.cs" />
+    <Compile Include="Faults\InMemory\InMemoryFaultManager.cs" />
+    <Compile Include="Features\AdvanceExtensibilityExtensions.cs" />
+    <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
+    <Compile Include="Features\ExposeSettings.cs" />
+    <Compile Include="Features\PrerequisiteStatus.cs" />
+    <Compile Include="Gateway\IDeduplicateMessages.cs" />
+    <Compile Include="IBus_Obsoletes.cs" />
+    <Compile Include="IManageMessageHeaders.cs" />
+    <Compile Include="INeedInitialization.cs" />
+    <Compile Include="Installation\InstallationSupport.cs" />
+    <Compile Include="Installation\InstallConfigExtensions.cs" />
+    <Compile Include="Installation\InstallConfigExtensions_obsolete.cs" />
+    <Compile Include="ISendOnlyBus.cs" />
+    <Compile Include="Licensing\ConfigureLicenseExtensions_Obsolete.cs" />
+    <Compile Include="Logging\DefaultLoggingDefinition.cs" />
+    <Compile Include="Logging\LoggingDefinition.cs" />
+    <Compile Include="Monitoring\PerformanceCounterHelper.cs" />
+    <Compile Include="Monitoring\CriticalTime\CriticalTimeMonitoringConfig.cs" />
+    <Compile Include="Monitoring\CriticalTime\CriticalTimeMonitoring.cs" />
+    <Compile Include="Monitoring\SLA\SLAMonitoringConfig.cs" />
+    <Compile Include="Obsoletes.cs" />
+    <Compile Include="Address.cs" />
+    <Compile Include="AddressMode.cs" />
+    <Compile Include="AllAssemblies.cs" />
     <Compile Include="Audit\Audit.cs" />
-    <Compile Include="Audit\InitMessageAuditer.cs" />
-    <Compile Include="Audit\MessageAuditer.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscribe.cs" />
-    <Compile Include="AutomaticSubscriptions\AutoSubscriber.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettingsExtensions.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettings.cs" />
-    <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
+    <Compile Include="CompletionResult.cs" />
+    <Compile Include="Configure_Obsolete.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
-    <Compile Include="Config\WindowsInstallerRunner.cs" />
-    <Compile Include="Distributor\Config\DistributorInitializer.cs" />
-    <Compile Include="Distributor\Config\WorkerInitializer.cs" />
-    <Compile Include="Distributor\DistributorReadyMessageProcessor.cs" />
-    <Compile Include="Distributor\DistributorSatellite.cs" />
-    <Compile Include="Distributor\IWorkerAvailabilityManager.cs" />
-    <Compile Include="Distributor\LicenseConfig.cs" />
-    <Compile Include="Distributor\MsmqWorkerAvailabilityManager.cs" />
-    <Compile Include="Distributor\QueueCreators\DistributorStorageQueueCreator.cs" />
-    <Compile Include="Distributor\QueueCreators\WorkerQueueCreator.cs" />
-    <Compile Include="Distributor\ReadyMessages\Headers.cs" />
-    <Compile Include="Distributor\ReadyMessages\ReadyMessageSender.cs" />
-    <Compile Include="Distributor\ReadyMessages\ReturnAddressRewriter.cs" />
+    <Compile Include="ContentTypes.cs" />
+    <Compile Include="DataBusProperty.cs" />
+    <Compile Include="Distributor\MasterNode\DefaultMasterNodeAddress.cs" />
     <Compile Include="DataBus\DataBusReceiveBehavior.cs" />
     <Compile Include="DataBus\DataBusSendBehavior.cs" />
     <Compile Include="Encryption\MemberInfoExtensions.cs" />
     <Compile Include="ExceptionExtensions.cs" />
-    <Compile Include="Gateway\Channels\DataReceivedOnChannelArgs.cs" />
-    <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
-    <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReader.cs" />
-    <Compile Include="Gateway\Sending\CallType.cs" />
-    <Compile Include="Gateway\GatewayTransaction.cs" />
+    <Compile Include="ExpressAttribute.cs" />
+    <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="Features\FeatureConfigurationContext.cs" />
+    <Compile Include="Features\ConfigurationBuilderExtensions.cs" />
+    <Compile Include="Features\FeatureStartupTask.cs" />
+    <Compile Include="Features\SettingsExtentions.cs" />
     <Compile Include="GitFlowVersion.cs" />
-    <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
+    <Compile Include="HandlerOrdering\First.cs" />
+    <Compile Include="HandlerOrdering\ISpecifyMessageHandlerOrdering.cs" />
+    <Compile Include="HandlerOrdering\Order.cs" />
+    <Compile Include="Headers.cs" />
+    <Compile Include="Hosting\Configuration\Logging_Obsolete.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
     <Compile Include="Hosting\HostInformation.cs" />
+    <Compile Include="IAuthorizeSubscriptions.cs" />
+    <Compile Include="IBus.cs" />
+    <Compile Include="ICallback.cs" />
+    <Compile Include="ICommand.cs" />
+    <Compile Include="IdGeneration\CombGuid.cs" />
+    <Compile Include="IEvent.cs" />
+    <Compile Include="IInMemoryOperations.cs" />
+    <Compile Include="IMessage.cs" />
+    <Compile Include="IMessageContext.cs" />
+    <Compile Include="IMessageCreator.cs" />
+    <Compile Include="IMessageHandler.cs" />
+    <Compile Include="IMessageModule.cs" />
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
-    <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />
-    <Compile Include="Installation\ElevateChecker.cs" />
-    <Compile Include="Licensing\License.cs" />
+    <Compile Include="Persistence\EnabledPersistence.cs" />
+    <Compile Include="Persistence\Msmq\Msmq.cs" />
+    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
+    <Compile Include="Persistence\PersistenceExtentions.cs" />
+    <Compile Include="Persistence\PersistenceStartup.cs" />
+    <Compile Include="Persistence\Storage.cs" />
+    <Compile Include="Pipeline\PipelineModifications.cs" />
+    <Compile Include="Sagas\SagaConfigurationCache.cs" />
+    <Compile Include="Scheduling\Schedule_Obsolete.cs" />
+    <Compile Include="Scheduling\Scheduler.cs" />
+    <Compile Include="Scheduling\TaskDefinition.cs" />
+    <Compile Include="SecondLevelRetries\Helpers\TransportMessageHelpers_Obsolete.cs" />
+    <Compile Include="Serialization\SerializationConfigExtensions.cs" />
+    <Compile Include="Serialization\SerializationDefinition.cs" />
+    <Compile Include="Serialization\SerializationExtentions.cs" />
+    <Compile Include="Serializers\Binary\Binary.cs" />
+    <Compile Include="Serializers\Json\Bson.cs" />
+    <Compile Include="Serializers\SerializationFeatureHelper.cs" />
+    <Compile Include="Serializers\Json\Json.cs" />
+    <Compile Include="Serializers\XML\Config\Xml.cs" />
+    <Compile Include="Serializers\XML\Config\XmlSerializationExtentions.cs" />
+    <Compile Include="Serializers\XML\Config\XmlSerializationSettings_Obsolete.cs" />
+    <Compile Include="Settings\DurableMessagesConfig.cs" />
+    <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
+    <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
+    <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
+    <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
+    <Compile Include="Monitoring\SLA\SLABehavior.cs" />
+    <Compile Include="Monitoring\CriticalTime\CriticalTimeBehavior.cs" />
+    <Compile Include="Monitoring\MonitoringConfig_Obsolete.cs" />
+    <Compile Include="Monitoring\SLA\SLAMonitoring.cs" />
+    <Compile Include="Monitoring\ProcessingStatisticsBehavior.cs" />
+    <Compile Include="Unicast\IMessageDispatcherFactory_Obsolete.cs" />
+    <Compile Include="Unicast\Transport\Config\TransportConfiguration.cs" />
+    <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
+    <Compile Include="Unicast\Transport\Config\UseTransportExtensions_Obsolete.cs" />
+    <Compile Include="Utils\ExceptionHeaderHelper.cs" />
+    <Compile Include="Utils\ElevateChecker.cs" />
+    <Compile Include="IStartableBus.cs" />
+    <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />
     <Compile Include="Licensing\LicenseBehavior.cs" />
-    <Compile Include="Licensing\LicenseInitializer.cs" />
+    <Compile Include="Licensing\LicenseReminder.cs" />
     <Compile Include="Licensing\LicenseLocationConventions.cs" />
     <Compile Include="Licensing\NonLockingFileReader.cs" />
     <Compile Include="Licensing\StaThreadRunner.cs" />
     <Compile Include="Licensing\LicenseExpiredFormDisplayer.cs" />
-    <Compile Include="Config\RijndaelExpiredKey.cs" />
-    <Compile Include="Config\RijndaelExpiredKeyCollection.cs" />
-    <Compile Include="Persistence\Raven\RavenUserInstaller.cs" />
-    <Compile Include="Installation\PerformanceMonitorUsersInstaller.cs" />
-    <Compile Include="Gateway\GatewayExtensions.cs" />
-    <Compile Include="Persistence\InMemory\Gateway\InMemoryDeduplication.cs" />
-    <Compile Include="Persistence\InMemory\Gateway\InMemoryPersistence.cs" />
-    <Compile Include="Persistence\Raven\Gateway\GatewayMessage.cs" />
-    <Compile Include="Persistence\Raven\Gateway\RavenDBDeduplication.cs" />
-    <Compile Include="Persistence\Raven\Gateway\RavenDBPersistence.cs" />
+    <Compile Include="Logging\ColoredConsoleLogger.cs" />
+    <Compile Include="Logging\DefaultLog.cs" />
+    <Compile Include="Logging\DefaultLoggerFactory.cs" />
+    <Compile Include="Logging\LogLevel.cs" />
+    <Compile Include="Logging\LogLevelReader.cs" />
+    <Compile Include="Logging\RollingLogger.cs" />
+    <Compile Include="Conventions.cs" />
+    <Compile Include="MessageIntentEnum.cs" />
+    <Compile Include="MessageMutator\IMessageMutator.cs" />
+    <Compile Include="MessageMutator\IMutateIncomingMessages.cs" />
+    <Compile Include="MessageMutator\IMutateIncomingTransportMessages.cs" />
+    <Compile Include="MessageMutator\IMutateOutgoingMessages.cs" />
+    <Compile Include="MessageMutator\IMutateOutgoingTransportMessages.cs" />
+    <Compile Include="Outbox\IOutboxStorage.cs" />
+    <Compile Include="Outbox\Outbox.cs" />
+    <Compile Include="Outbox\OutboxAwareAuditer.cs" />
+    <Compile Include="Outbox\OutboxConfigExtensions.cs" />
+    <Compile Include="Outbox\OutboxMessage.cs" />
+    <Compile Include="Outbox\OutboxDeduplicationBehavior.cs" />
+    <Compile Include="Outbox\OutboxRecordBehavior.cs" />
+    <Compile Include="Outbox\OutboxSendBehavior.cs" />
+    <Compile Include="Outbox\OutboxSettings.cs" />
+    <Compile Include="Outbox\TransportOperation.cs" />
+    <Compile Include="Outbox\TransportOperationConverter.cs" />
+    <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayPersistence.cs" />
+    <Compile Include="Persistence\InMemory\InMemory.cs" />
+    <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemoryTimeoutPersister.cs" />
+    <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxPersistence.cs" />
+    <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxStorage.cs" />
+    <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersistence.cs" />
+    <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionPersistence.cs" />
+    <Compile Include="Persistence\InMemory\TimeoutPersister\InMemoryTimeoutPersistence.cs" />
+    <Compile Include="Monitoring\PerformanceMonitorUsersInstaller.cs" />
+    <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayDeduplication.cs" />
+    <Compile Include="Persistence\PersistenceDefinition.cs" />
+    <Compile Include="Persistence\PersistenceConfig.cs" />
     <Compile Include="Pipeline\BehaviorContext.cs" />
     <Compile Include="Pipeline\BehaviorContextStacker.cs" />
     <Compile Include="MessageMutator\ApplyIncomingMessageMutatorsBehavior.cs" />
     <Compile Include="MessageMutator\ApplyIncomingTransportMessageMutatorsBehavior.cs" />
     <Compile Include="Audit\AuditBehavior.cs" />
-    <Compile Include="Pipeline\BehaviorList.cs" />
-    <Compile Include="Pipeline\IPipelineOverride.cs" />
+    <Compile Include="Pipeline\BehaviorRegistrationsCoordinator.cs" />
+    <Compile Include="Pipeline\BehaviorTypeChecker.cs" />
+    <Compile Include="Pipeline\Dependency.cs" />
     <Compile Include="Pipeline\PipelineBuilder.cs" />
-    <Compile Include="Pipeline\PipelineOverride.cs" />
-    <Compile Include="Pipeline\PipelineOverrideConfigurer.cs" />
-    <Compile Include="Sagas\AuditInvokedSagaBehavior.cs" />
-    <Compile Include="Sagas\RemoveIncomingHeadersBehavior.cs" />
-    <Compile Include="Sagas\SagaSendBehavior.cs" />
+    <Compile Include="Pipeline\PipelineSettings.cs" />
+    <Compile Include="Pipeline\RegisterStep.cs" />
+    <Compile Include="Pipeline\RemoveBehavior.cs" />
+    <Compile Include="Pipeline\ReplaceBehavior.cs" />
+    <Compile Include="Pipeline\SnapshotRegion.cs" />
+    <Compile Include="Pipeline\WellknownStep.cs" />
+    <Compile Include="Sagas\PopulateAutoCorrelationHeadersForRepliesBehavior.cs" />
+    <Compile Include="Saga\ContainSagaData.cs" />
+    <Compile Include="Saga\IAmStartedByMessages.cs" />
+    <Compile Include="Saga\IConfigureHowToFindSagaWithMessage.cs" />
+    <Compile Include="Saga\IContainSagaData.cs" />
+    <Compile Include="Saga\IFinder.cs" />
+    <Compile Include="Saga\IFindSagas.cs" />
+    <Compile Include="Saga\IHandleSagaNotFound.cs" />
+    <Compile Include="Saga\IHandleTimeouts.cs" />
+    <Compile Include="Saga\ISagaPersister.cs" />
+    <Compile Include="Saga\Obsoletes.cs" />
+    <Compile Include="Saga\Saga.cs" />
+    <Compile Include="Saga\SagaPropertyMapper.cs" />
+    <Compile Include="Saga\SagaT.cs" />
+    <Compile Include="Saga\ToSagaExpression.cs" />
+    <Compile Include="Saga\UniqueAttribute.cs" />
+    <Compile Include="Serialization\IMessageSerializer.cs" />
+    <Compile Include="SettingsExtentions.cs" />
+    <Compile Include="Settings\ReadOnlySettings.cs" />
+    <Compile Include="Settings\ScaleOutExtentions.cs" />
+    <Compile Include="Settings\TransactionSettingsExtentions.cs" />
+    <Compile Include="Support\RuntimeEnvironment.cs" />
+    <Compile Include="Timeout\TimeoutManagerBasedDeferral.cs" />
+    <Compile Include="TimeToBeReceivedAttribute.cs" />
     <Compile Include="Transports\ConfigureTransport.cs" />
-    <Compile Include="TypesToBeRemovedInVersion5.cs" />
+    <Compile Include="Audit\DefaultMessageAuditer.cs" />
+    <Compile Include="Audit\IAuditMessages.cs" />
+    <Compile Include="Transports\Msmq\Config\CheckMachineNameForComplianceWithDtcLimitation.cs" />
     <Compile Include="Unicast\Behaviors\CallbackInvocationBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ForwardBehavior.cs" />
-    <Compile Include="Unicast\Behaviors\ImpersonateSenderBehavior.cs" />
     <Compile Include="Unicast\Behaviors\InvokeHandlersBehavior.cs" />
     <Compile Include="Unicast\Behaviors\LoadHandlersBehavior.cs" />
     <Compile Include="Unicast\Behaviors\SetCurrentMessageBeingHandledBehavior.cs" />
+    <Compile Include="Unicast\Config\UnicastBus.cs" />
+    <Compile Include="Unicast\DeliveryOptions.cs" />
     <Compile Include="Unicast\Messages\ExecuteLogicalMessagesBehavior.cs" />
     <Compile Include="Unicast\Messages\LogicalMessage.cs" />
     <Compile Include="Unicast\Behaviors\MessageHandler.cs" />
-    <Compile Include="Unicast\Behaviors\MessageHandlingLoggingBehavior.cs" />
+    <Compile Include="Unicast\Behaviors\LogOutgoingMessageBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ChildContainerBehavior.cs" />
     <Compile Include="Unicast\Behaviors\CreatePhysicalMessageBehavior.cs" />
     <Compile Include="Unicast\Behaviors\DispatchMessageToTransportBehavior.cs" />
-    <Compile Include="Pipeline\Contexts\ReceiveLogicalMessageContext.cs" />
-    <Compile Include="Pipeline\Contexts\HandlerInvocationContext.cs" />
-    <Compile Include="Unicast\Behaviors\MultiMessageBehavior.cs" />
-    <Compile Include="Unicast\Behaviors\MultiSendValidatorBehavior.cs" />
     <Compile Include="MessageMutator\MutateOutgoingMessageBehavior.cs" />
     <Compile Include="MessageMutator\MutateOutgoingPhysicalMessageBehavior.cs" />
-    <Compile Include="Pipeline\Contexts\ReceivePhysicalMessageContext.cs" />
+    <Compile Include="Pipeline\Contexts\IncomingContext.cs" />
     <Compile Include="Pipeline\PipelineExecutor.cs" />
-    <Compile Include="Unicast\Behaviors\RaiseMessageReceivedBehavior.cs" />
     <Compile Include="Pipeline\Contexts\RootContext.cs" />
-    <Compile Include="Pipeline\Contexts\SendLogicalMessageContext.cs" />
-    <Compile Include="Pipeline\Contexts\SendLogicalMessagesContext.cs" />
-    <Compile Include="Pipeline\Contexts\SendPhysicalMessageContext.cs" />
+    <Compile Include="Pipeline\Contexts\OutgoingContext.cs" />
     <Compile Include="Unicast\Behaviors\SendValidatorBehavior.cs" />
     <Compile Include="Unicast\Behaviors\SerializeMessagesBehavior.cs" />
     <Compile Include="Sagas\ActiveSagaInstance.cs" />
     <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
     <Compile Include="Unicast\Messages\LogicalMessageFactory.cs" />
+    <Compile Include="Unicast\PublishOptions.cs" />
+    <Compile Include="Unicast\ReplyOptions.cs" />
     <Compile Include="Unicast\SendOptions.cs" />
+    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubscriptionManager.cs" />
+    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageInitializer.cs" />
+    <Compile Include="Unicast\Transport\TransportMessageExtensions.cs" />
+    <Compile Include="Unicast\UnicastBus_Obsolete.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
-    <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer.cs" />
-    <Compile Include="ConfigureCriticalErrorAction.cs" />
-    <Compile Include="ConfigureDefaultBuilder.cs" />
-    <Compile Include="Distributor\ConfigureDistributor.cs" />
-    <Compile Include="ConfigureFaultsForwarder.cs" />
-    <Compile Include="ConfigureFileShareDataBus.cs" />
-    <Compile Include="ConfigureGateway.cs" />
-    <Compile Include="ConfigureImpersonation.cs" />
+    <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer_Obsolete.cs" />
+    <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
+    <Compile Include="ConfigureDefaultBuilder_Obsolete.cs" />
+    <Compile Include="Distributor\ConfigureDistributor_Obsolete.cs" />
+    <Compile Include="ConfigureFaultsForwarder_Obsolete.cs" />
+    <Compile Include="DataBus\ConfigureFileShareDataBus.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
-    <Compile Include="DataBus\InMemory\InMemoryDataBus.cs" />
-    <Compile Include="Features\FeatureSettings.cs" />
-    <Compile Include="Features\Support\FeatureInitializer.cs" />
-    <Compile Include="Features\Support\EnableDefaultFeatures.cs" />
-    <Compile Include="Gateway\Channels\ChannelTypeAttribute.cs" />
-    <Compile Include="Gateway\Deduplication\GatewayMessage.cs" />
-    <Compile Include="Gateway\Deduplication\IDeduplicateMessages.cs" />
-    <Compile Include="Gateway\HeaderManagement\DataBusHeaderManager.cs" />
-    <Compile Include="Gateway\Receiving\SingleCallChannelReceiver.cs" />
-    <Compile Include="Gateway\Sending\SingleCallChannelForwarder.cs" />
-    <Compile Include="Distributor\MasterNode\AdjustSettingsForNonMasterNodes.cs" />
-    <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />
+    <Compile Include="Features\FeatureActivator.cs" />
+    <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesConfigExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
-    <Compile Include="Serializers\Binary\Config\BinarySerializerConfigurationExtensions.cs" />
+    <Compile Include="Serializers\Binary\Config\BinarySerializerConfigurationExtensions_Obsolete.cs" />
     <Compile Include="Serializers\Json\Config\BsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
-    <Compile Include="Serializers\Serializers.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
-    <Compile Include="Serializers\XML\Config\XmlSerializationSettings.cs" />
-    <Compile Include="Serializers\XML\Config\XmlSerializerConfigurationExtensions.cs" />
-    <Compile Include="Settings\SerializationSettings.cs" />
+    <Compile Include="Serializers\XML\Config\XmlSerializerConfigurationExtensions_Obsolete.cs" />
+    <Compile Include="Serialization\SerializationSettings.cs" />
     <Compile Include="Transports\Msmq\CorrelationIdMutatorForBackwardsCompatibilityWithV3.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
-    <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />
-    <Compile Include="Unicast\Messages\ExtractLogicalMessagesBehavior.cs" />
-    <Compile Include="Unicast\Config\FinalizeUnicastBusConfiguration.cs" />
-    <Compile Include="Gateway\DefaultInputAddress.cs" />
-    <Compile Include="Gateway\Gateway.cs" />
-    <Compile Include="Hosting\Profiles\IHandleAnyProfile.cs" />
-    <Compile Include="Persistence\InMemory\InMemoryPersistence.cs" />
-    <Compile Include="Persistence\InMemory\SagaPersister\ConfigureInMemorySagaPersister.cs" />
-    <Compile Include="Persistence\InMemory\SubscriptionStorage\ConfigureInMemorySubscriptionStorage.cs" />
-    <Compile Include="Serializers\Json\Config\ConfigureJsonSerializer.cs" />
-    <Compile Include="Distributor\MasterNode\ConfigureMasterNode.cs" />
+    <Compile Include="Transports\Msmq\Config\MsmqTransportConfigurator.cs" />
+    <Compile Include="Unicast\Messages\DeserializeLogicalMessagesBehavior.cs" />
+    <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySagaPersister.cs" />
+    <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySubscriptionStorage.cs" />
+    <Compile Include="Serializers\Json\Config\ConfigureJsonSerializer_Obsolete.cs" />
+    <Compile Include="Distributor\MasterNode\ConfigureMasterNode_Obsolete.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
-    <Compile Include="Settings\TransportSettings.cs" />
-    <Compile Include="Unicast\Config\SetUnicastBusConfigurationDefaults.cs" />
     <Compile Include="Timeout\TimeoutManager.cs" />
-    <Compile Include="Transports\Msmq\Config\ConfigureMsmqMessageQueue.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\ConfigureMsmqSubscriptionStorage.cs" />
+    <Compile Include="Transports\Msmq\Config\ConfigureMsmqMessageQueue_Obsolete.cs" />
+    <Compile Include="Persistence\Msmq\SubscriptionStorage\ConfigureMsmqSubscriptionStorage_Obsolete.cs" />
     <Compile Include="ConfigureQueueCreation.cs" />
-    <Compile Include="ConfigurePurging.cs" />
+    <Compile Include="Transports\ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />
-    <Compile Include="Persistence\Raven\ConfigureRavenPersistence.cs" />
-    <Compile Include="Persistence\Raven\SagaPersister\ConfigureRavenSagaPersister.cs" />
-    <Compile Include="Persistence\Raven\SubscriptionStorage\ConfigureRavenSubscriptionStorage.cs" />
-    <Compile Include="ConfigureRijndaelEncryptionService.cs" />
-    <Compile Include="ConfigureSagas.cs" />
-    <Compile Include="SecondLevelRetries\Config\ConfigureSecondLevelRetriesExtensions.cs" />
-    <Compile Include="Timeout\ConfigureTimeoutManager.cs" />
-    <Compile Include="ConfigureUnicastBus.cs" />
-    <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer.cs" />
-    <Compile Include="Config\AddressInitializer.cs" />
-    <Compile Include="Config\Advanced\ConfigureSettingLocalAddressNameAction.cs" />
+    <Compile Include="Encryption\ConfigureRijndaelEncryptionService.cs" />
+    <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer_Obsolete.cs" />
+    <Compile Include="Config\Advanced\ConfigureSettingLocalAddressNameAction_Obsolete.cs" />
     <Compile Include="Config\ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Config\ConfigurationSource\IConfigurationSource.cs" />
     <Compile Include="Config\Conventions\EndpointHelper.cs" />
-    <Compile Include="Config\Conventions\SystemMessageConventions.cs" />
     <Compile Include="Config\ConfigureExtensions.cs" />
-    <Compile Include="Config\GatewayConfig.cs" />
-    <Compile Include="Config\INeedInitialization.cs" />
     <Compile Include="Config\IWantToRunWhenConfigurationIsComplete.cs" />
-    <Compile Include="Config\Logging.cs" />
+    <Compile Include="Logging\Logging.cs" />
     <Compile Include="Distributor\MasterNode\MasterNodeConfig.cs" />
     <Compile Include="Config\MessageEndpointMapping.cs" />
     <Compile Include="Config\MessageEndpointMappingCollection.cs" />
     <Compile Include="Config\MessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="Config\MsmqMessageQueueConfig.cs" />
     <Compile Include="Config\IFinalizeConfiguration.cs" />
-    <Compile Include="Persistence\Raven\StoreAccessor.cs" />
-    <Compile Include="Persistence\SetupDefaultPersistence.cs" />
     <Compile Include="Sagas\Sagas.cs" />
     <Compile Include="Satellites\IAdvancedSatellite.cs" />
-    <Compile Include="Settings\ISetDefaultSettings.cs" />
     <Compile Include="Settings\SettingsHolder.cs" />
-    <Compile Include="Config\InfrastructureServices.cs" />
-    <Compile Include="Timeout\Core\TimeoutManagerDefaults.cs" />
-    <Compile Include="Transports\IConfigureTransport.cs" />
     <Compile Include="Transports\ICreateQueues.cs" />
     <Compile Include="Transports\IDeferMessages.cs" />
     <Compile Include="Transports\IDequeueMessages.cs" />
@@ -308,155 +403,59 @@
     <Compile Include="Transports\Msmq\MsmqUnitOfWork.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Config\MsmqSubscriptionStorageConfig.cs" />
-    <Compile Include="Config\MsmqTransportConfig.cs" />
-    <Compile Include="Config\RijndaelEncryptionServiceConfig.cs" />
+    <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Config\SatelliteConfigurer.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesConfig.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetries.cs" />
     <Compile Include="Config\TransportConfig.cs" />
     <Compile Include="Config\UnicastBusConfig.cs" />
-    <Compile Include="DataBus\Config\Bootstrapper.cs" />
+    <Compile Include="DataBus\DataBus.cs" />
     <Compile Include="DataBus\DefaultDatabusSerializer.cs" />
-    <Compile Include="DataBus\FileShare\FileShareDataBus.cs" />
+    <Compile Include="DataBus\FileShareDataBus.cs" />
     <Compile Include="DataBus\IDataBus.cs" />
     <Compile Include="DataBus\IDatabusSerializer.cs" />
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DependencyLifecycle.cs" />
-    <Compile Include="Encryption\Bootstrapper.cs" />
-    <Compile Include="Encryption\Config\ConfigureEncryption.cs" />
-    <Compile Include="Encryption\EncryptionMessageMutator.cs" />
+    <Compile Include="Encryption\EncryptionMutator.cs" />
     <Compile Include="Encryption\IEncryptionService.cs" />
-    <Compile Include="Encryption\Rijndael\EncryptionService.cs" />
-    <Compile Include="EndpointConventions.cs" />
+    <Compile Include="Encryption\EncryptionService.cs" />
     <Compile Include="Faults\FaultsHeaderKeys.cs" />
     <Compile Include="Faults\Forwarder\Config\FaultsQueueCreator.cs" />
     <Compile Include="Faults\Forwarder\FaultManager.cs" />
-    <Compile Include="Faults\Forwarder\MessageHelpers.cs" />
     <Compile Include="Faults\IManageMessageFailures.cs" />
     <Compile Include="Faults\InMemory\FaultManager.cs" />
-    <Compile Include="Gateway\Channels\Channel.cs" />
-    <Compile Include="Gateway\Channels\ChannelFactory.cs" />
-    <Compile Include="Gateway\Channels\Http\DefaultResponder.cs" />
-    <Compile Include="Gateway\Receiving\ChannelException.cs" />
-    <Compile Include="Gateway\Channels\Http\HttpChannelReceiver.cs" />
-    <Compile Include="Gateway\Channels\Http\HttpChannelSender.cs" />
-    <Compile Include="Gateway\Channels\Http\HttpHeaders.cs" />
-    <Compile Include="Gateway\Channels\Http\IHttpResponder.cs" />
-    <Compile Include="Gateway\Channels\IChannelReceiver.cs" />
-    <Compile Include="Gateway\Channels\IChannelSender.cs" />
-    <Compile Include="Gateway\HeaderManagement\GatewayHeaderManager.cs" />
-    <Compile Include="Gateway\HeaderManagement\GatewayHeaders.cs" />
-    <Compile Include="Gateway\HeaderManagement\HeaderMapper.cs" />
-    <Compile Include="Gateway\Notifications\IMessageNotifier.cs" />
-    <Compile Include="Gateway\Notifications\INotifyAboutMessages.cs" />
-    <Compile Include="Gateway\Notifications\MessageNotifier.cs" />
-    <Compile Include="Gateway\Notifications\MessageReceivedOnChannelArgs.cs" />
-    <Compile Include="Gateway\Persistence\IPersistMessages.cs" />
-    <Compile Include="Gateway\Persistence\Sql\SqlPersistence.cs" />
-    <Compile Include="Gateway\Receiving\ConfigurationBasedChannelManager.cs" />
-    <Compile Include="Gateway\Receiving\ConventionBasedChannelManager.cs" />
-    <Compile Include="Gateway\Receiving\GatewayReceiver.cs" />
-    <Compile Include="Gateway\Receiving\IdempotentChannelReceiver.cs" />
-    <Compile Include="Gateway\Receiving\IManageReceiveChannels.cs" />
-    <Compile Include="Gateway\Receiving\IReceiveMessagesFromSites.cs" />
-    <Compile Include="Gateway\Routing\Endpoints\DefaultEndpointRouter.cs" />
-    <Compile Include="Gateway\Routing\IRouteMessagesToEndpoints.cs" />
-    <Compile Include="Gateway\Routing\IRouteMessagesToSites.cs" />
-    <Compile Include="Gateway\Routing\Site.cs" />
-    <Compile Include="Gateway\Routing\Sites\ConfigurationBasedSiteRouter.cs" />
-    <Compile Include="Gateway\Routing\Sites\KeyPrefixConventionSiteRouter.cs" />
-    <Compile Include="Gateway\Routing\Sites\OriginatingSiteHeaderRouter.cs" />
-    <Compile Include="Gateway\Sending\CallInfo.cs" />
-    <Compile Include="Gateway\Sending\GatewaySender.cs" />
-    <Compile Include="Gateway\Sending\IdempotentChannelForwarder.cs" />
-    <Compile Include="Gateway\Sending\IForwardMessagesToSites.cs" />
-    <Compile Include="Gateway\Utils\Hasher.cs" />
-    <Compile Include="Hosting\Configuration\ConfigurationManager.cs" />
     <Compile Include="Hosting\Configuration\EndpointNameAttribute.cs" />
-    <Compile Include="Hosting\Configuration\EndpointSLAAttribute.cs" />
-    <Compile Include="Hosting\Configuration\IConfigureLogging.cs" />
+    <Compile Include="Monitoring\SLA\EndpointSLAAttribute.cs" />
     <Compile Include="Hosting\Configuration\IConfigureThisEndpoint.cs" />
-    <Compile Include="Hosting\Configuration\IWant.cs" />
-    <Compile Include="Hosting\GenericHost.cs" />
-    <Compile Include="Hosting\Helpers\AssemblyListExtensions.cs" />
+    <Compile Include="Hosting\Configuration\IWantCustomInitialization.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
-    <Compile Include="Hosting\IHost.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
-    <Compile Include="Hosting\Profiles\IHandleProfile.cs" />
-    <Compile Include="Hosting\Profiles\IProfile.cs" />
-    <Compile Include="Hosting\Profiles\ProfileActivator.cs" />
-    <Compile Include="Hosting\Profiles\ProfileManager.cs" />
-    <Compile Include="Hosting\Roles\IConfigureRole.cs" />
-    <Compile Include="Hosting\Roles\IRole.cs" />
-    <Compile Include="Hosting\Roles\RoleManager.cs" />
-    <Compile Include="Hosting\Wcf\WcfManager.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Hosting\Wcf\WcfServiceHost.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="IExcludesBuilder.cs" />
     <Compile Include="IIncludesBuilder.cs" />
-    <Compile Include="Impersonation\ExtractIncomingPrincipal.cs" />
-    <Compile Include="Impersonation\Windows\ConfigureWindowsImpersonation.cs" />
     <Compile Include="Impersonation\Windows\WindowsIdentityEnricher.cs" />
-    <Compile Include="Impersonation\Windows\WindowsImpersonator.cs" />
-    <Compile Include="Install.cs" />
-    <Compile Include="Installation\Environments\Windows.cs" />
-    <Compile Include="Installation\IEnvironment.cs" />
-    <Compile Include="Installation\INeedToInstallInfrastructure.cs" />
     <Compile Include="Installation\INeedToInstallSomething.cs" />
     <Compile Include="IWantToRunBeforeConfiguration.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
-    <Compile Include="IWcfService.cs" />
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />
-    <Compile Include="Logging\Internal\ReflectionExtensions.cs" />
-    <Compile Include="Logging\Internal\TypeExtensions.cs" />
-    <Compile Include="Logging\Log4NetBridge\ConfigureInternalLog4NetBridge.cs" />
-    <Compile Include="Logging\Log4NetBridge\Log4NetBridgeAppender.cs" />
-    <Compile Include="Logging\Loggers\ConsoleLogger.cs" />
-    <Compile Include="Logging\Loggers\ConsoleLoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetAppenderFactory.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetConfigurator.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetLogger.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetLoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\NLogConfigurator.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\NLogLogger.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\NLogLoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\NLogTargetFactory.cs" />
-    <Compile Include="Logging\Loggers\NullLogger.cs" />
-    <Compile Include="Logging\Loggers\NullLoggerFactory.cs" />
-    <Compile Include="Logging\LoggingLibraryException.cs" />
     <Compile Include="Logging\LogManager.cs" />
-    <Compile Include="SecondLevelRetries\DefaultRetryPolicy.cs" />
-    <Compile Include="SecondLevelRetries\Helpers\TransportMessageHelpers.cs" />
+    <Compile Include="SecondLevelRetries\TransportMessageHelpers.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetriesProcessor.cs" />
     <Compile Include="SecondLevelRetries\Helpers\SecondLevelRetriesHeaders.cs" />
-    <Compile Include="MessageConventions.cs" />
-    <Compile Include="MessageHeaders\HeaderBootstrapper.cs" />
+    <Compile Include="MessageConventions_Obsolete.cs" />
     <Compile Include="MessageInterfaces\IMessageMapper.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\MessageMapper.cs" />
     <Compile Include="MessageMutator\IMutateTransportMessages.cs" />
-    <Compile Include="MonitoringConfig.cs" />
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />
-    <Compile Include="ObjectBuilder\Common\Config\ConfigureCommon.cs" />
-    <Compile Include="ObjectBuilder\Common\Config\ConfigureContainer.cs" />
+    <Compile Include="ObjectBuilder\Common\ConfigureContainer_Obsolete.cs" />
     <Compile Include="ObjectBuilder\Common\IContainer.cs" />
-    <Compile Include="ObjectBuilder\Common\SynchronizedInvoker.cs" />
-    <Compile Include="ObjectBuilder\ComponentCallModelEnum.cs" />
     <Compile Include="ObjectBuilder\IBuilder.cs" />
     <Compile Include="ObjectBuilder\IComponentConfig.cs" />
     <Compile Include="ObjectBuilder\IConfigureComponents.cs" />
-    <Compile Include="Persistence\ConcurrencyException.cs" />
-    <Compile Include="Persistence\Raven\RavenConventions.cs" />
-    <Compile Include="Persistence\Raven\RavenPersistenceConstants.cs" />
-    <Compile Include="Persistence\Raven\RavenSessionFactory.cs" />
-    <Compile Include="Persistence\Raven\RavenUnitofWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -464,22 +463,16 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersister.cs" />
-    <Compile Include="Persistence\Raven\SagaPersister\RavenSagaPersister.cs" />
     <Compile Include="Sagas\ConfigureHowToFindSagaWithMessageDispatcher.cs" />
-    <Compile Include="Sagas\ConfigureTimeoutAsSystemMessages.cs" />
     <Compile Include="Sagas\Finders\HeaderSagaIdFinder.cs" />
     <Compile Include="Sagas\Finders\PropertySagaFinder.cs" />
     <Compile Include="Satellites\Config\SatelliteContext.cs" />
     <Compile Include="Satellites\ISatellite.cs" />
     <Compile Include="Satellites\SatellitesQueuesCreator.cs" />
     <Compile Include="Satellites\SatelliteLauncher.cs" />
-    <Compile Include="Schedule.cs" />
-    <Compile Include="Scheduling\Configuration\ConfigureScheduledTaskAsSystemMessages.cs" />
-    <Compile Include="Scheduling\Configuration\SchedulerConfiguration.cs" />
+    <Compile Include="Scheduling\Schedule.cs" />
     <Compile Include="Scheduling\DefaultScheduler.cs" />
     <Compile Include="Scheduling\InMemoryScheduledTaskStorage.cs" />
-    <Compile Include="Scheduling\IScheduledTaskStorage.cs" />
-    <Compile Include="Scheduling\IScheduler.cs" />
     <Compile Include="Scheduling\Messages\ScheduledTask.cs" />
     <Compile Include="Scheduling\ScheduledTask.cs" />
     <Compile Include="Scheduling\ScheduledTaskMessageHandler.cs" />
@@ -496,24 +489,18 @@
     <Compile Include="Serializers\XML\Config\MessageTypesInitializer.cs" />
     <Compile Include="Serializers\XML\XmlMessageSerializer.cs" />
     <Compile Include="Serializers\XML\XmlSanitizingStream.cs" />
-    <Compile Include="ServiceAsyncResult.cs" />
-    <Compile Include="SetLoggingLibrary.cs" />
-    <Compile Include="Settings\Endpoint.cs" />
+    <Compile Include="Logging\SetLoggingLibrary_Obsolete.cs" />
     <Compile Include="Settings\TransactionSettings.cs" />
-    <Compile Include="SyncConfig.cs" />
-    <Compile Include="TaskSchedulers\MTATaskScheduler.cs" />
     <Compile Include="Timeout\Core\DefaultTimeoutManager.cs" />
-    <Compile Include="Timeout\Core\IManageTimeouts.cs" />
     <Compile Include="Timeout\Core\IPersistTimeouts.cs" />
     <Compile Include="Timeout\Core\TimeoutData.cs" />
     <Compile Include="Timeout\Hosting\Windows\ManageMessageFailuresWithoutSlr.cs" />
-    <Compile Include="Persistence\InMemory\TimeoutPersister\InMemoryTimeoutPersistence.cs" />
-    <Compile Include="Persistence\Raven\TimeoutPersister\RavenTimeoutPersistence.cs" />
+    <Compile Include="Persistence\InMemory\TimeoutPersister\InMemoryTimeoutPersister.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutDispatcherProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutPersisterReceiver.cs" />
     <Compile Include="Timeout\Core\TimeoutManagerHeaders.cs" />
-    <Compile Include="TransactionalConfigManager.cs" />
+    <Compile Include="TransactionalConfigManager_Obsolete.cs" />
     <Compile Include="TransportMessage.cs" />
     <Compile Include="Licensing\LicenseExpiredForm.cs">
       <SubType>Form</SubType>
@@ -522,70 +509,47 @@
       <DependentUpon>LicenseExpiredForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Unicast\BackwardCompatibility\MutateMessageContentTypeOfIncomingTransportMessages.cs" />
-    <Compile Include="Unicast\BackwardCompatibility\SetIsSagaMessageHeaderForV3XMessages.cs" />
     <Compile Include="Unicast\BuilderExtensions.cs" />
     <Compile Include="Unicast\BusAsyncResult.cs" />
     <Compile Include="Unicast\Callback.cs" />
-    <Compile Include="Unicast\Config\ConfigUnicastBus.cs" />
-    <Compile Include="Unicast\Config\DefaultToTimeoutManagerBasedDeferal.cs" />
-    <Compile Include="Unicast\Config\StartupRunners.cs" />
-    <Compile Include="Unicast\DefaultDispatcherFactory.cs" />
+    <Compile Include="Unicast\Config\LoadMessageHandlersExtentions.cs" />
     <Compile Include="Timeout\Core\TimeoutManagerDeferrer.cs" />
-    <Compile Include="Unicast\Config\DefaultTransportForHost.cs" />
-    <Compile Include="Unicast\HandlerInvocationCache.cs" />
-    <Compile Include="Transports\MessageForwarder.cs" />
     <Compile Include="Unicast\MessagesEventArgs.cs" />
     <Compile Include="Unicast\Queuing\Installers\ForwardReceivedMessagesToQueueCreator.cs" />
-    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\EnableMessageDrivenPublisherIfStorageIsFound.cs" />
-    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageDrivenPublisher.cs" />
+    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageDrivenPublishing.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageDrivenSubscriptions.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\NoopSubscriptionAuthorizer.cs" />
-    <Compile Include="AutomaticSubscriptions\DefaultAutoSubscriptionStrategy.cs" />
-    <Compile Include="AutomaticSubscriptions\IAutoSubscriptionStrategy.cs" />
-    <Compile Include="Unicast\IMessageDispatcherFactory.cs" />
-    <Compile Include="Unicast\IUnicastBus.cs" />
-    <Compile Include="Unicast\IWantToRunWhenTheBusStarts.cs" />
+    <Compile Include="AutomaticSubscriptions\AutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\MessageContext.cs" />
     <Compile Include="Unicast\MessageEventArgs.cs" />
     <Compile Include="Unicast\Messages\MessageMetadataRegistry.cs" />
     <Compile Include="Unicast\Messages\MessageMetadata.cs" />
     <Compile Include="Unicast\MessagingBestPractices.cs" />
-    <Compile Include="Unicast\Monitoring\CriticalTimeCalculator.cs" />
-    <Compile Include="Unicast\Monitoring\EstimatedTimeToSLABreachCalculator.cs" />
-    <Compile Include="Unicast\Monitoring\PerformanceCounterInitializer.cs" />
-    <Compile Include="Unicast\Monitoring\ProcessingStatistics.cs" />
-    <Compile Include="Unicast\Monitoring\CausationMutator.cs" />
-    <Compile Include="Unicast\Monitoring\VersionMutator.cs" />
+    <Compile Include="Monitoring\CriticalTime\CriticalTimeCalculator.cs" />
+    <Compile Include="Monitoring\SLA\EstimatedTimeToSLABreachCalculator.cs" />
+    <Compile Include="Audit\CausationMutator.cs" />
     <Compile Include="Unicast\Publishing\StorageDrivenPublisher.cs" />
-    <Compile Include="Unicast\Queuing\FailedToSendMessageException.cs" />
     <Compile Include="Unicast\Queuing\Installers\EndpointInputQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\Installers\AuditQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\IWantQueueCreated.cs" />
-    <Compile Include="Transports\Msmq\Config\CheckMachineNameForComplianceWithDTCLimitation.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
     <Compile Include="Unicast\Routing\StaticMessageRouter.cs" />
     <Compile Include="Unicast\IMessageHandlerRegistry.cs" />
     <Compile Include="Unicast\MessageHandlerRegistry.cs" />
-    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubcriberSideFiltering\FilteringMutator.cs" />
     <Compile Include="Unicast\Subscriptions\SubscriptionEventArgs.cs" />
-    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubcriberSideFiltering\SubscriptionPredicatesEvaluator.cs" />
-    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageDrivenSubscriptionManager.cs" />
+    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubscriptionReceiverBehavior.cs" />
     <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\ISubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageType.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\Config\SubscriptionsQueueCreator.cs" />
+    <Compile Include="Persistence\Msmq\SubscriptionStorage\SubscriptionsQueueCreator.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\Entry.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorage.cs" />
-    <Compile Include="Persistence\Raven\SubscriptionStorage\RavenSubscriptionStorage.cs" />
-    <Compile Include="Persistence\Raven\SubscriptionStorage\Subscription.cs" />
     <Compile Include="Unicast\Transport\ControlMessage.cs" />
     <Compile Include="Unicast\Transport\FailedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\ITransport.cs" />
     <Compile Include="Unicast\Transport\StartedMessageProcessingEventArgs.cs" />
-    <Compile Include="Unicast\Transport\Config\AdvancedTransactionalConfig.cs" />
-    <Compile Include="Unicast\Transport\Config\Bootstrapper.cs" />
-    <Compile Include="Unicast\Transport\Config\TransportReceiverConfig.cs" />
+    <Compile Include="Unicast\Transport\Config\UseTransportExtensions.cs" />
     <Compile Include="Unicast\Transport\FirstLevelRetries.cs" />
     <Compile Include="Unicast\Transport\Monitoring\ReceivePerformanceDiagnostics.cs" />
     <Compile Include="Unicast\Transport\ThroughputLimiter.cs" />
@@ -593,12 +557,10 @@
     <Compile Include="Unicast\Transport\TransactionSettings.cs" />
     <Compile Include="Unicast\Transport\TransportMessageAvailableEventArgs.cs" />
     <Compile Include="Unicast\Transport\TransportConnectionString.cs" />
-    <Compile Include="Unicast\Transport\TransportMessageHandlingFailedException.cs" />
     <Compile Include="Unicast\Transport\TransportMessageReceivedEventArgs.cs" />
     <Compile Include="Unicast\UnicastBus.cs" />
     <Compile Include="UnitOfWork\IManageUnitsOfWork.cs" />
     <Compile Include="CircuitBreakers\CircuitBreaker.cs" />
-    <Compile Include="Utils\BackOff.cs" />
     <Compile Include="CircuitBreakers\RepeatedFailuresOverTimeCircuitBreaker.cs" />
     <Compile Include="Utils\DeterministicGuid.cs" />
     <Compile Include="Utils\FileVersionRetriever.cs" />
@@ -606,19 +568,15 @@
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
     <Compile Include="Utils\Reflection\Reflect.cs" />
     <Compile Include="Utils\RegistryReader.cs" />
-    <Compile Include="Utils\StackTracePreserver.cs" />
-    <Compile Include="WcfService.cs" />
+    <Compile Include="Encryption\WireEncryptedString.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ripple.dependencies.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Unicast\Monitoring\Config\" />
+    <Folder Include="MessageHeaders\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Gateway\Persistence\Sql\Schema.sql" />
     <None Include="Resources\NServiceBus_Logo-  white.png" />
     <None Include="Resources\NServiceBus.png" />
     <None Include="Resources\logo.bmp" />
@@ -638,18 +596,10 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
-      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
-      <Name>NServiceBus</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="Fody.targets" />
-  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
     <MakeDir Directories="$(TargetDir)temp\" />
-    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetDir)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Interop.MSMQ.dll&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
+    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetDir)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)Interop.MSMQ.dll&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
     <ItemGroup>
       <TempFiles Include="$(TargetDir)temp\*.*" />
     </ItemGroup>
@@ -657,5 +607,15 @@
     <Delete Files="@(TempFiles)" />
     <RemoveDir Directories="$(TargetDir)temp\" />
   </Target>
-  <Import Project="$(SolutionDir)..\BuildSupport\GitVersionTask\Build\GitVersionTask.targets" />
+  <Import Project="..\packages\Fody.1.25.0\build\Fody.targets" Condition="Exists('..\packages\Fody.1.25.0\build\Fody.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Fody.1.25.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.25.0\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\GitVersionTask.1.2.0\Build\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.1.2.0\Build\GitVersionTask.targets'))" />
+    <Error Condition="!Exists('..\packages\NuGetPackager.0.1.3\build\NuGetPackager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.1.3\build\NuGetPackager.targets'))" />
+  </Target>
+  <Import Project="..\packages\GitVersionTask.1.2.0\Build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.1.2.0\Build\GitVersionTask.targets')" />
+  <Import Project="..\packages\NuGetPackager.0.1.3\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.1.3\build\NuGetPackager.targets')" />
 </Project>

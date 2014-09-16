@@ -1,54 +1,60 @@
 ﻿namespace NServiceBus.Features
 {
     using Config;
+    using Settings;
     using Timeout.Core;
     using Timeout.Hosting.Windows;
-    using Transports;
 
     /// <summary>
-    /// This feature provides message deferral based on a external timeout manager.
+    /// Used to configure the timeout manager that provides message deferral.
     /// </summary>
     public class TimeoutManager : Feature
     {
-        public override bool IsEnabledByDefault
+        internal TimeoutManager()
         {
-            get
-            {
-                return true;
-            }
-        }
-
-        public override bool ShouldBeEnabled()
-        {
-            //has the user already specified a custom deferral method
-            if (Configure.HasComponent<IDeferMessages>())
-                return false;
-
-            //if we have a master node configured we should use the Master Node timeout manager instead
-            if (Configure.Instance.HasMasterNode())
-                return false;
-
-            var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
-
-            //if the user has specified another TM we don't need to run our own
-            if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress))
-                return false;
+            DependsOn<TimeoutManagerBasedDeferral>();
+           
+            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"),"Send only endpoints can't use the timeoutmanager since it requires receive capabilities");
             
-            return true;
+            Prerequisite(context =>
+            {
+                var distributorEnabled = context.Settings.GetOrDefault<bool>("Distributor.Enabled");
+                var workerEnabled = context.Settings.GetOrDefault<bool>("Worker.Enabled");
+
+                return distributorEnabled || !workerEnabled;
+            },"This endpoint is a worker and will be using the timeoutmanager running at its masternode instead");
+
+            Prerequisite(context => !HasAlternateTimeoutManagerBeenConfigured(context.Settings),"A user configured timeoutmanager address has been found and this endpoint will send timeouts to that endpoint");
         }
 
-        public override void Initialize()
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
-            DispatcherAddress = Address.Parse(Configure.EndpointName).SubScope("TimeoutsDispatcher");
-            InputAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts");
+            var localAddress = context.Settings.LocalAddress();
+            var dispatcherAddress = localAddress.SubScope("TimeoutsDispatcher");
+            var inputAddress = localAddress.SubScope("Timeouts");
 
-            Configure.Component<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<TimeoutMessageProcessor>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(t => t.Disabled, false)
+                .ConfigureProperty(t => t.InputAddress, inputAddress)
+                .ConfigureProperty(t => t.EndpointName, context.Settings.EndpointName());
 
-            InfrastructureServices.Enable<IPersistTimeouts>();
-            InfrastructureServices.Enable<IManageTimeouts>();
+            context.Container.ConfigureComponent<TimeoutDispatcherProcessor>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(t => t.Disabled, false)
+                .ConfigureProperty(t => t.InputAddress, dispatcherAddress);
+
+            context.Container.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(t => t.DispatcherAddress, dispatcherAddress);
+            context.Container.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
         }
 
-        public static Address InputAddress { get; private set; }
-        public static Address DispatcherAddress { get; private set; }
+        bool HasAlternateTimeoutManagerBeenConfigured(ReadOnlySettings settings)
+        {
+            var unicastConfig = settings.GetConfigSection<UnicastBusConfig>();
+
+            return unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress);
+        }
     }
 }

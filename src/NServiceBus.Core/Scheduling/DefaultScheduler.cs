@@ -1,80 +1,79 @@
 namespace NServiceBus.Scheduling
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
 
-    public class DefaultScheduler : IScheduler
+    class DefaultScheduler
     {
-        static readonly ILog logger = LogManager.GetLogger(typeof(DefaultScheduler));
-
-        private readonly IBus bus;
-        private readonly IScheduledTaskStorage scheduledTaskStorage;        
-
-        public DefaultScheduler(IBus bus, IScheduledTaskStorage scheduledTaskStorage)
+        public DefaultScheduler(IBus bus)
         {
             this.bus = bus;
-            this.scheduledTaskStorage = scheduledTaskStorage;
         }
 
-        public void Schedule(ScheduledTask task)
+        public void Schedule(TaskDefinition taskDefinition)
         {
-            scheduledTaskStorage.Add(task);            
-            logger.DebugFormat("Task {0}/{1} scheduled with timeSpan {2}", task.Name, task.Id, task.Every);
-            DeferTask(task);
+            scheduledTasks[taskDefinition.Id] = taskDefinition;
+            logger.DebugFormat("Task {0}/{1} scheduled with timeSpan {2}", taskDefinition.Name, taskDefinition.Id, taskDefinition.Every);
+            DeferTask(taskDefinition);
         }
 
         public void Start(Guid taskId)
         {
-            var task = scheduledTaskStorage.Get(taskId);
+            TaskDefinition taskDefinition;
 
-            if (task == null)
+            if (!scheduledTasks.TryGetValue(taskId, out taskDefinition))
             {
                 logger.InfoFormat("Could not find any scheduled task {0} with with Id. The DefaultScheduler does not persist tasks between restarts.", taskId);
                 return;
             }
 
-            DeferTask(task);
-            ExecuteTask(task);
+            DeferTask(taskDefinition);
+            ExecuteTask(taskDefinition);
         }
 
-        private static void ExecuteTask(ScheduledTask scheduledTask)
+        static void ExecuteTask(TaskDefinition taskDefinition)
         {
-            logger.InfoFormat("Start executing scheduled task {0}", scheduledTask.Name);
-            var sw = new Stopwatch();            
+            logger.InfoFormat("Start executing scheduled task {0}", taskDefinition.Name);
+            var sw = new Stopwatch();
             sw.Start();
 
             Task.Factory
-                .StartNew(scheduledTask.Task, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default)
+                .StartNew(taskDefinition.Task, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default)
                 .ContinueWith(task =>
-                    {
-                        sw.Stop();
-
-                        if (task.IsFaulted)
-                        {
-                            task.Exception.Handle(ex =>
-                            {
-                                logger.Error(String.Format("Failed to execute scheduled task {0}", scheduledTask.Name), ex);
-                                return true;
-                            });
-                        }
-                        else
-                        {
-                            logger.InfoFormat("Scheduled task {0} run for {1}", scheduledTask.Name, sw.Elapsed.ToString());
-                        }
-                    });
-        }
-
-        private void DeferTask(ScheduledTask task)
-        {            
-            bus.Defer(task.Every, new Messages.ScheduledTask
                 {
-                    TaskId = task.Id,
-                    Name = task.Name,
-                    Every = task.Every
+                    sw.Stop();
+
+                    if (task.IsFaulted)
+                    {
+                        task.Exception.Handle(ex =>
+                        {
+                            logger.Error(String.Format("Failed to execute scheduled task {0}", taskDefinition.Name), ex);
+                            return true;
+                        });
+                    }
+                    else
+                    {
+                        logger.InfoFormat("Scheduled task {0} run for {1}", taskDefinition.Name, sw.Elapsed.ToString());
+                    }
                 });
         }
+
+        void DeferTask(TaskDefinition taskDefinition)
+        {
+            bus.Defer(taskDefinition.Every, new Messages.ScheduledTask
+            {
+                TaskId = taskDefinition.Id,
+                Name = taskDefinition.Name,
+                Every = taskDefinition.Every
+            });
+        }
+
+        static ILog logger = LogManager.GetLogger<DefaultScheduler>();
+        IBus bus;
+        internal ConcurrentDictionary<Guid, TaskDefinition> scheduledTasks = new ConcurrentDictionary<Guid, TaskDefinition>();
     }
 }

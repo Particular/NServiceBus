@@ -1,24 +1,24 @@
 ﻿namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
-    using Config;
-    using Faults;
+    using Features;
     using Hosting.Profiles;
-    using Persistence.InMemory;
+    using NServiceBus.Configuration.AdvanceExtensibility;
 
-    class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig
+
+    class LiteProfileHandler : IHandleProfile<Lite>
     {
-        void IHandleProfile.ProfileActivated()
+        public void ProfileActivated(BusConfiguration config)
         {
-            InMemoryPersistence.UseAsDefault();
-
-            if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
-            {
-                Configure.Instance.InMemoryFaultManagement();
-            }
-
-            WindowsInstallerRunner.RunInstallers = true;
+            config.GetSettings().EnableFeatureByDefault<InstallationSupport>();
+            //if (!config.Configurer.HasComponent<IManageMessageFailures>()) //TODO: Not sure how to handle this yet
+            //{
+                config.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+            //}
         }
 
-        public IConfigureThisEndpoint Config { get; set; }
+        public void ProfileActivated(Configure config)
+        {
+            
+        }
     }
 }

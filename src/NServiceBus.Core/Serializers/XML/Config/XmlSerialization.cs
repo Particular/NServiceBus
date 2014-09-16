@@ -1,18 +1,29 @@
 ﻿namespace NServiceBus.Features
 {
     using MessageInterfaces.MessageMapper.Reflection;
+    using ObjectBuilder;
     using Serializers.XML;
-    using Settings;
 
-    public class XmlSerialization : Feature<Categories.Serializers>
+    /// <summary>
+    /// Used to configure xml as a message serializer
+    /// </summary>
+    public class XmlSerialization : Feature
     {
-        public override void Initialize()
+        internal XmlSerialization()
         {
-            Configure.Component<MessageMapper>(DependencyLifecycle.SingleInstance);
-            Configure.Component<XmlMessageSerializer>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(p => p.SkipWrappingElementForSingleMessages, !SettingsHolder.GetOrDefault<bool>("SerializationSettings.WrapSingleMessages"));
+            EnableByDefault();
+            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "XmlSerialization not enable since serialization definition not detected.");
+        }
 
-            SettingsHolder.ApplyTo<XmlMessageSerializer>();
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
+            var c = context.Container.ConfigureComponent<XmlMessageSerializer>(DependencyLifecycle.SingleInstance);
+
+            context.Settings.ApplyTo<XmlMessageSerializer>((IComponentConfig)c);
         }
     }
 }

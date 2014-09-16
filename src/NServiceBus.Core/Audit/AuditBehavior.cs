@@ -1,21 +1,43 @@
-﻿namespace NServiceBus.Audit
+﻿namespace NServiceBus
 {
     using System;
-    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
+    using Transports;
+    using Unicast;
 
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class AuditBehavior : IBehavior<ReceivePhysicalMessageContext>
+    class AuditBehavior : IBehavior<IncomingContext>
     {
-        public MessageAuditer MessageAuditer { get; set; }
+        public IAuditMessages MessageAuditer { get; set; }
 
-        public void Invoke(ReceivePhysicalMessageContext context, Action next)
+        public Address AuditQueue { get; set; }
+
+        public TimeSpan? TimeToBeReceivedOnForwardedMessages { get; set; }
+
+        public void Invoke(IncomingContext context, Action next)
         {
             next();
-            MessageAuditer.ForwardMessageToAuditQueue(context.PhysicalMessage);
+
+            var sendOptions = new SendOptions(AuditQueue)
+            {
+                TimeToBeReceived = TimeToBeReceivedOnForwardedMessages
+            };
+
+            //set audit related headers
+            context.PhysicalMessage.Headers[Headers.ProcessingStarted] = DateTimeExtensions.ToWireFormattedString(context.Get<DateTime>("IncomingMessage.ProcessingStarted"));
+            context.PhysicalMessage.Headers[Headers.ProcessingEnded] = DateTimeExtensions.ToWireFormattedString(context.Get<DateTime>("IncomingMessage.ProcessingEnded"));
+
+            MessageAuditer.Audit(sendOptions, context.PhysicalMessage);
+        }
+
+        public class Registration:RegisterStep
+        {
+            public Registration()
+                : base(WellKnownStep.AuditProcessedMessage, typeof(AuditBehavior), "Send a copy of the successfully processed message to the configured audit queue")
+            {
+                InsertBefore("ProcessingStatistics");
+            }
         }
     }
 }

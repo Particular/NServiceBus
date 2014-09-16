@@ -1,13 +1,18 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
-    using System.ComponentModel;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public interface IBehavior<T> where T : BehaviorContext
+    /// <summary>
+    /// This is the base interface to implement to create a behavior that can be registered in a pipeline.
+    /// </summary>
+    /// <typeparam name="TContext">The context that this behavior should receive.</typeparam>
+    public interface IBehavior<in TContext> where TContext : BehaviorContext
     {
-        void Invoke(T context, Action next);
+        /// <summary>
+        /// Called when the behavior is executed.
+        /// </summary>
+        /// <param name="context">The current context.</param>
+        /// <param name="next">The next <see cref="IBehavior{TContext}"/> in the chain to execute.</param>
+        void Invoke(TContext context, Action next);
     }
-
 }

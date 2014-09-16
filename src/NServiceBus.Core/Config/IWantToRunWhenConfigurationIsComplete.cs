@@ -9,6 +9,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Method invoked to run custom code.
         /// </summary>
-        void Run();
+        void Run(Configure config);
     }
 }

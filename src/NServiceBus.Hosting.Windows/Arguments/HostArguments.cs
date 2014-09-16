@@ -7,7 +7,7 @@ namespace NServiceBus.Hosting.Windows.Arguments
     using System.Text;
     using NDesk.Options;
 
-    public class HostArguments
+    class HostArguments
     {
         private readonly OptionSet installOptions;
         private readonly OptionSet uninstallOptions;
@@ -106,15 +106,6 @@ namespace NServiceBus.Hosting.Windows.Arguments
                         "startManually",
                         @"Specifies that the service should start manually."
                         , s => { StartManually = true; }
-                    },
-                    {
-                        "installInfrastructure",
-                        @"This setting is no longer in use. Please see http://particular.net/articles/managing-nservicebus-using-powershell for the replacement."
-                        , s =>
-                            {
-                                throw new ArgumentException(
-                                    "This parameter is no longer supported. Please see http://particular.net/articles/managing-nservicebus-using-powershell for the replacement.");
-                            }
                     },
                     {
                         "scannedAssemblies=",

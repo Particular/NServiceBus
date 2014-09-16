@@ -4,13 +4,13 @@
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq;
+    using System.Runtime.ExceptionServices;
     using Arguments;
     using Helpers;
     using Installers;
     using Magnum.StateMachine;
     using Topshelf;
     using Topshelf.Configuration;
-    using Utils;
 
     /// <summary>
     /// Entry point to the process.
@@ -71,72 +71,75 @@
             {
                 WindowsInstaller.Install(args, endpointConfigurationFile);
             }
-            
+
             var cfg = RunnerConfigurator.New(x =>
-                                                               {
-                                                                   x.ConfigureServiceInIsolation<WindowsHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
-                                                                    {
-                                                                        c.ConfigurationFile(endpointConfigurationFile);
-                                                                        c.WhenStarted(service => service.Start());
-                                                                        c.WhenStopped(service => service.Stop());
-                                                                        c.CommandLineArguments(args, () => SetHostServiceLocatorArgs);
-                                                                        c.CreateServiceLocator(() => new HostServiceLocator());
-                                                                    });
+            {
+                x.ConfigureServiceInIsolation<WindowsHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
+                {
+                    c.ConfigurationFile(endpointConfigurationFile);
+                    c.WhenStarted(service => service.Start());
+                    c.WhenStopped(service => service.Stop());
+                    c.CommandLineArguments(args, () => SetHostServiceLocatorArgs);
+                    c.CreateServiceLocator(() => new HostServiceLocator());
+                });
 
-                                                                   if (arguments.Username != null && arguments.Password != null)
-                                                                   {
-                                                                       x.RunAs(arguments.Username, arguments.Password);
-                                                                   }
-                                                                   else
-                                                                   {
-                                                                       x.RunAsLocalSystem();
-                                                                   }
+                if (arguments.Username != null && arguments.Password != null)
+                {
+                    x.RunAs(arguments.Username, arguments.Password);
+                }
+                else
+                {
+                    x.RunAsLocalSystem();
+                }
 
-                                                                   if (arguments.StartManually)
-                                                                   {
-                                                                       x.DoNotStartAutomatically();
-                                                                   }
+                if (arguments.StartManually)
+                {
+                    x.DoNotStartAutomatically();
+                }
 
-                                                                   x.SetDisplayName(arguments.DisplayName ?? displayName);
-                                                                   x.SetServiceName(serviceName);
-                                                                   x.SetDescription(arguments.Description ?? string.Format("NServiceBus Endpoint Host Service for {0}", displayName));
+                x.SetDisplayName(arguments.DisplayName ?? displayName);
+                x.SetServiceName(serviceName);
+                x.SetDescription(arguments.Description ?? string.Format("NServiceBus Endpoint Host Service for {0}", displayName));
 
-                                                                   var serviceCommandLine = new List<string>();
+                var serviceCommandLine = new List<string>();
 
-                                                                   if (!String.IsNullOrEmpty(arguments.EndpointConfigurationType))
-                                                                   {
-                                                                       serviceCommandLine.Add(String.Format(@"/endpointConfigurationType:""{0}""", arguments.EndpointConfigurationType));
-                                                                   }
-                                                                   
-                                                                   if (!String.IsNullOrEmpty(endpointName))
-                                                                   {
-                                                                       serviceCommandLine.Add(String.Format(@"/endpointName:""{0}""", endpointName));
-                                                                   }
+                if (!String.IsNullOrEmpty(arguments.EndpointConfigurationType))
+                {
+                    serviceCommandLine.Add(String.Format(@"/endpointConfigurationType:""{0}""", arguments.EndpointConfigurationType));
+                }
 
-                                                                   if (!String.IsNullOrEmpty(serviceName))
-                                                                   {
-                                                                       serviceCommandLine.Add(String.Format(@"/serviceName:""{0}""", serviceName));
-                                                                   }
+                if (!String.IsNullOrEmpty(endpointName))
+                {
+                    serviceCommandLine.Add(String.Format(@"/endpointName:""{0}""", endpointName));
+                }
 
-                                                                   if (!assemblyScannerResults.ErrorsThrownDuringScanning && arguments.ScannedAssemblies.Count > 0)
-                                                                   {
-                                                                       serviceCommandLine.AddRange(arguments.ScannedAssemblies.Select(assembly => String.Format(@"/scannedAssemblies:""{0}""", assembly)));
-                                                                   }
+                if (!String.IsNullOrEmpty(serviceName))
+                {
+                    serviceCommandLine.Add(String.Format(@"/serviceName:""{0}""", serviceName));
+                }
 
-                                                                   if (arguments.OtherArgs.Any())
-                                                                   {
-                                                                       serviceCommandLine.AddRange(arguments.OtherArgs);
-                                                                   }
+                if (!assemblyScannerResults.ErrorsThrownDuringScanning && arguments.ScannedAssemblies.Count > 0)
+                {
+                    serviceCommandLine.AddRange(arguments.ScannedAssemblies.Select(assembly => String.Format(@"/scannedAssemblies:""{0}""", assembly)));
+                }
 
-                                                                   var commandLine = String.Join(" ", serviceCommandLine);
-                                                                   x.SetServiceCommandLine(commandLine);
+                if (arguments.OtherArgs.Any())
+                {
+                    serviceCommandLine.AddRange(arguments.OtherArgs);
+                }
 
-                                                                   if (arguments.DependsOn == null)
-                                                                       x.DependencyOnMsmq();
-                                                                   else
-                                                                       foreach (var dependency in arguments.DependsOn)
-                                                                           x.DependsOn(dependency);
-                                                               });
+                var commandLine = String.Join(" ", serviceCommandLine);
+                x.SetServiceCommandLine(commandLine);
+
+                if (arguments.DependsOn != null)
+                {
+                    foreach (var dependency in arguments.DependsOn)
+                    {
+                        x.DependsOn(dependency);
+                    }
+                }
+            });
+
             try
             {
 
@@ -144,9 +147,8 @@
             }
             catch (StateMachineException exception)
             {
-                var innerException = exception.InnerException;
-                innerException.PreserveStackTrace();
-                throw innerException;
+                ExceptionDispatchInfo.Capture(exception.InnerException)
+                    .Throw();
             }
         }
 

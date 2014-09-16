@@ -22,6 +22,8 @@
 *.pptx	-text -diff
 *.xap	-text -diff
 *.ico	-text -diff
+*.ttf	-text -diff
+*.otf	-text -diff
 
 *.cs text diff=csharp
 *.config text diff=csharp

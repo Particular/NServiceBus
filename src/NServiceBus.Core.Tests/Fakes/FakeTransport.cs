@@ -14,11 +14,6 @@
         {
         }
 
-        public void Start(string inputQueue)
-        {
-            Start(Address.Parse(inputQueue));
-        }
-
         public bool IsStarted { get; set; }
         public Address InputAddress { get; set; }
         public void Start(Address localAddress)
@@ -31,11 +26,6 @@
 
         public int MaximumConcurrencyLevel { get; private set; }
 
-        public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
-        {
-            ChangeMaximumConcurrencyLevel(targetNumberOfWorkerThreads);
-        }
-
         public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)
         {
             MaximumConcurrencyLevel = maximumConcurrencyLevel;
@@ -46,10 +36,6 @@
         {
             throw new NotImplementedException();
         }
-
-        public int NumberOfWorkerThreads { get; set; }
-
-        public int MaxThroughputPerSecond { get; set; }
 
         public int MaximumMessageThroughputPerSecond { get; private set; }
 

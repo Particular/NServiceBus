@@ -20,14 +20,55 @@ namespace NServiceBus.Serializers.Json.Tests
             Serializer = new JsonMessageSerializer(MessageMapper);
         }
 
+        public class SimpleMessage1
+        {
+            public string PropertyOnMessage1 { get; set; }
+        }
+
+        public class SimpleMessage2
+        {
+            public string PropertyOnMessage2 { get; set; }
+        }
+
+
+        [Test]
+        public void Deserialize_messages_wrapped_in_array_from_older_endpoint()
+        {
+            var jsonWithMultipleMessages = @"
+[
+  {
+    $type: 'NServiceBus.Serializers.Json.Tests.JsonMessageSerializerTest+SimpleMessage1, NServiceBus.Core.Tests',
+    PropertyOnMessage1: 'Message1'
+  },
+  {
+    $type: 'NServiceBus.Serializers.Json.Tests.JsonMessageSerializerTest+SimpleMessage2, NServiceBus.Core.Tests',
+    PropertyOnMessage2: 'Message2'
+  }
+]";
+            using (var stream = new MemoryStream())
+            {
+                var streamWriter = new StreamWriter(stream);
+                streamWriter.Write(jsonWithMultipleMessages);
+                streamWriter.Flush();
+                stream.Position = 0;
+                var result = Serializer.Deserialize(stream, new[]
+                {
+                    typeof(SimpleMessage2),
+                    typeof(SimpleMessage1)
+                });
+
+                Assert.AreEqual(2, result.Length);
+                Assert.AreEqual("Message1", ((SimpleMessage1) result[0]).PropertyOnMessage1);
+                Assert.AreEqual("Message2", ((SimpleMessage2) result[1]).PropertyOnMessage2);
+            }
+        }
+
         [Test]
         public void Deserialize_message_with_interface_without_wrapping()
         {
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
-                Serializer.Serialize(new object[] { new SuperMessage {SomeProperty = "John"} }, stream);
+                Serializer.Serialize(new SuperMessage {SomeProperty = "John"}, stream);
 
                 stream.Position = 0;
 
@@ -42,9 +83,7 @@ namespace NServiceBus.Serializers.Json.Tests
         {
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
-                Serializer.Serialize(new object[] { new SimpleMessage() }, stream);
+                Serializer.Serialize(new SimpleMessage(), stream);
 
                 stream.Position = 0;
                 var result = new StreamReader(stream).ReadToEnd();
@@ -58,9 +97,7 @@ namespace NServiceBus.Serializers.Json.Tests
         {
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
-                Serializer.Serialize(new object[] { new SimpleMessage{SomeProperty = "test"} }, stream);
+                Serializer.Serialize(new SimpleMessage{SomeProperty = "test"}, stream);
 
                 stream.Position = 0;
                 var result = (SimpleMessage) Serializer.Deserialize(stream, new[]{typeof(SimpleMessage)})[0];
@@ -75,9 +112,7 @@ namespace NServiceBus.Serializers.Json.Tests
         {
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
-                Serializer.Serialize(new object[] { new SimpleMessage() }, stream);
+                Serializer.Serialize(new SimpleMessage(), stream);
 
                 stream.Position = 0;
                 var result = new StreamReader(stream).ReadToEnd();
@@ -89,14 +124,13 @@ namespace NServiceBus.Serializers.Json.Tests
         [Test]
         public void Serialize_message_without_concrete_implementation()
         {
-            var mapper = new MessageMapper();
-            mapper.Initialize(new []{ typeof(ISuperMessageWithoutConcreteImpl)});
-            
+            MessageMapper = new MessageMapper();
+            MessageMapper.Initialize(new[] { typeof(ISuperMessageWithoutConcreteImpl) });
+            Serializer = new JsonMessageSerializer(MessageMapper);
+
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
-                Serializer.Serialize(new object[] { mapper.CreateInstance<ISuperMessageWithoutConcreteImpl>() }, stream);
+                Serializer.Serialize(MessageMapper.CreateInstance<ISuperMessageWithoutConcreteImpl>(), stream);
 
                 stream.Position = 0;
                 var result = new StreamReader(stream).ReadToEnd();
@@ -109,17 +143,16 @@ namespace NServiceBus.Serializers.Json.Tests
         [Test]
         public void Deserialize_message_without_concrete_implementation()
         {
-            var mapper = new MessageMapper();
-            mapper.Initialize(new[] { typeof(ISuperMessageWithoutConcreteImpl) });
+            MessageMapper = new MessageMapper();
+            MessageMapper.Initialize(new[] { typeof(ISuperMessageWithoutConcreteImpl) });
+            Serializer = new JsonMessageSerializer(MessageMapper);
 
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
-                var msg = mapper.CreateInstance<ISuperMessageWithoutConcreteImpl>();
+                var msg = MessageMapper.CreateInstance<ISuperMessageWithoutConcreteImpl>();
                 msg.SomeProperty = "test";
 
-                Serializer.Serialize(new object[] { msg }, stream);
+                Serializer.Serialize(msg, stream);
 
                 stream.Position = 0;
 
@@ -133,8 +166,9 @@ namespace NServiceBus.Serializers.Json.Tests
         public void Deserialize_message_with_concrete_implementation_and_interface()
         {
             var map = new[] {typeof(SuperMessageWithConcreteImpl), typeof(ISuperMessageWithConcreteImpl)};
-            var mapper = new MessageMapper();
-            mapper.Initialize(map);
+            MessageMapper = new MessageMapper();
+            MessageMapper.Initialize(map);
+            Serializer = new JsonMessageSerializer(MessageMapper);
 
             using (var stream = new MemoryStream())
             {
@@ -143,7 +177,7 @@ namespace NServiceBus.Serializers.Json.Tests
                     SomeProperty = "test"
                 };
 
-                Serializer.Serialize(new object[] { msg }, stream);
+                Serializer.Serialize(msg, stream);
 
                 stream.Position = 0;
 
@@ -166,9 +200,7 @@ namespace NServiceBus.Serializers.Json.Tests
 
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
-                Serializer.Serialize(new object[] { messageWithXDocument }, stream);
+                Serializer.Serialize(messageWithXDocument, stream);
 
                 stream.Position = 0;
                 var json = new StreamReader(stream).ReadToEnd();
@@ -182,9 +214,7 @@ namespace NServiceBus.Serializers.Json.Tests
 
             using (var stream = new MemoryStream())
             {
-                Serializer.SkipArrayWrappingForSingleMessages = true;
-
-                Serializer.Serialize(new object[] { messageWithXElement }, stream);
+                Serializer.Serialize(messageWithXElement, stream);
 
                 stream.Position = 0;
                 var json = new StreamReader(stream).ReadToEnd();
@@ -196,13 +226,68 @@ namespace NServiceBus.Serializers.Json.Tests
                 Assert.AreEqual(XmlElement, json.Substring(13, json.Length - 15).Replace("\\", string.Empty));
             }
         }
+
+        [Test]
+        public void TestMany()
+        {
+            var xml = @"[{
+    $type: ""NServiceBus.Serializers.Json.Tests.IA, NServiceBus.Core.Tests"",
+    Data: ""rhNAGU4dr/Qjz6ocAsOs3wk3ZmxHMOg="",
+    S: ""kalle"",
+    I: 42,
+    B: {
+        BString: ""BOO"",
+        C: {
+            $type: ""NServiceBus.Serializers.Json.Tests.C, NServiceBus.Core.Tests"",
+            Cstr: ""COO""
+        }
+    }
+}, {
+    $type: ""NServiceBus.Serializers.Json.Tests.IA, NServiceBus.Core.Tests"",
+    Data: ""AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="",
+    S: ""kalle"",
+    I: 42,
+    B: {
+        BString: ""BOO"",
+        C: {
+            $type: ""NServiceBus.Serializers.Json.Tests.C, NServiceBus.Core.Tests"",
+            Cstr: ""COO""
+        }
+    }
+}]";
+            using (var stream = new MemoryStream())
+            {
+                var streamWriter = new StreamWriter(stream);
+                streamWriter.Write(xml);
+                streamWriter.Flush();
+                stream.Position = 0;
+
+                MessageMapper = new MessageMapper();
+                MessageMapper.Initialize(new[] { typeof(IAImpl), typeof(IA) });
+                Serializer = new JsonMessageSerializer(MessageMapper);
+
+                var result = Serializer.Deserialize(stream, new[] { typeof(IAImpl) });
+                Assert.IsNotEmpty(result);
+                Assert.That(result, Has.Length.EqualTo(2));
+
+                Assert.That(result[0], Is.AssignableTo(typeof(IA)));
+                var a = ((IA) result[0]);
+
+                Assert.AreEqual(23, a.Data.Length);
+                Assert.AreEqual(42, a.I);
+                Assert.AreEqual("kalle", a.S);
+                Assert.IsNotNull(a.B);
+                Assert.AreEqual("BOO", a.B.BString);
+                Assert.AreEqual("COO", ((C) a.B.C).Cstr);
+            }
+
+        }
     }
 
     public class SimpleMessage
     {
         public string SomeProperty { get; set; }
     }
-
     public class SuperMessage : IMyEvent
     {
         public string SomeProperty { get; set; }

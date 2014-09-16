@@ -2,19 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using ObjectBuilder.Common;
-    using ObjectBuilder.Common.Config;
-    using Persistence.InMemory.SagaPersister;
-    using Persistence.InMemory.SubscriptionStorage;
-    using Persistence.InMemory.TimeoutPersister;
-    using Persistence.Msmq.SubscriptionStorage;
-    using Persistence.Raven.SagaPersister;
-    using Persistence.Raven.SubscriptionStorage;
-    using Persistence.Raven.TimeoutPersister;
     using ScenarioDescriptors;
-    using Serializers.Binary;
-    using Serializers.Json;
-    using Serializers.XML;
 
     public static class ConfigureExtensions
     {
@@ -28,7 +16,7 @@
             return dictionary[key];
         }
 
-        public static Configure DefineTransport(this Configure config, IDictionary<string, string> settings)
+        public static void DefineTransport(this BusConfiguration builder, IDictionary<string, string> settings)
         {
             if (!settings.ContainsKey("Transport"))
             {
@@ -37,151 +25,67 @@
 
             var transportType = Type.GetType(settings["Transport"]);
 
-            return config.UseTransport(transportType, () => settings["Transport.ConnectionString"]);
+            builder.UseTransport(transportType).ConnectionString(settings["Transport.ConnectionString"]);
         }
 
-        public static Configure DefineSerializer(this Configure config, string serializer)
+        public static void DefinePersistence(this BusConfiguration config, IDictionary<string, string> settings)
         {
-            if (string.IsNullOrEmpty(serializer))
+            if (!settings.ContainsKey("Persistence"))
             {
-                return config; //xml is the default
+                settings = Persistence.Default.Settings;
             }
 
-            var type = Type.GetType(serializer);
+            var persistenceType = Type.GetType(settings["Persistence"]);
 
-            if (type == typeof(XmlMessageSerializer))
-            {
-                Configure.Serialization.Xml();
-                return config;
-            }
 
-            if (type == typeof(JsonMessageSerializer))
-            {
-                Configure.Serialization.Json();
-                return config;
-            }
-
-            if (type == typeof(BsonMessageSerializer))
-            {
-                Configure.Serialization.Bson();
-                return config;
-            }
-
-            if (type == typeof(BinaryMessageSerializer))
-            {
-                Configure.Serialization.Binary();
-                return config;
-            }
-
-            throw new InvalidOperationException("Unknown serializer:" + serializer);
-        }
-
-        public static Configure DefineTimeoutPersister(this Configure config, string persister)
-        {
-            if (string.IsNullOrEmpty(persister))
-            {
-                persister = TimeoutPersisters.Default.Settings["TimeoutPersister"];
-            }
-
-            if (persister.Contains(typeof(InMemoryTimeoutPersistence).FullName))
-            {
-                return config.UseInMemoryTimeoutPersister();
-            }
-
-            if (persister.Contains(typeof(RavenTimeoutPersistence).FullName))
-            {
-                config.RavenPersistence(() => "url=http://localhost:8080");
-                return config.UseRavenTimeoutPersister();
-            }
-
-            CallConfigureForPersister(config, persister);
-
-            return config;
-        }
-
-        public static Configure DefineSagaPersister(this Configure config, string persister)
-        {
-            if (string.IsNullOrEmpty(persister))
-            {
-                persister = SagaPersisters.Default.Settings["SagaPersister"];
-            }
-
-            if (persister.Contains(typeof(InMemorySagaPersister).FullName))
-            {
-                return config.InMemorySagaPersister();
-            }
-
-            if (persister.Contains(typeof(RavenSagaPersister).FullName))
-            {
-                config.RavenPersistence(() => "url=http://localhost:8080");
-                return config.RavenSagaPersister();
-            }
-
-            CallConfigureForPersister(config, persister);
-
-            return config;
-        }
-
-        public static Configure DefineSubscriptionStorage(this Configure config, string persister)
-        {
-            if (string.IsNullOrEmpty(persister))
-            {
-                persister = SubscriptionPersisters.Default.Settings["SubscriptionStorage"];
-            }
-
-            if (persister.Contains(typeof(InMemorySubscriptionStorage).FullName))
-            {
-                return config.InMemorySubscriptionStorage();
-            }
-
-            if (persister.Contains(typeof(RavenSubscriptionStorage).FullName))
-            {
-                config.RavenPersistence(() => "url=http://localhost:8080");
-                return config.RavenSubscriptionStorage();
-            }
-
-            if (persister.Contains(typeof(MsmqSubscriptionStorage).FullName))
-            {
-                return config.MsmqSubscriptionStorage();
-            }
-
-            CallConfigureForPersister(config, persister);
-
-            return config;
-        }
-
-        static void CallConfigureForPersister(Configure config, string persister)
-        {
-            var type = Type.GetType(persister);
-
-            var typeName = "Configure" + type.Name;
+            var typeName = "Configure" + persistenceType.Name;
 
             var configurerType = Type.GetType(typeName, false);
 
-            if (configurerType == null)
+            if (configurerType != null)
             {
+                var configurer = Activator.CreateInstance(configurerType);
+
+                dynamic dc = configurer;
+
+                dc.Configure(config);
                 return;
             }
 
-            var configurer = Activator.CreateInstance(configurerType);
-
-            dynamic dc = configurer;
-
-            dc.Configure(config);
+            config.UsePersistence(persistenceType);
         }
 
-        public static Configure DefineBuilder(this Configure config, string builder)
+        public static void DefineBuilder(this BusConfiguration config, IDictionary<string, string> settings)
         {
-            if (string.IsNullOrEmpty(builder))
+            if (!settings.ContainsKey("Builder"))
             {
-                return config.DefaultBuilder();
+                var builderDescriptor = Builders.Default;
+
+                if (builderDescriptor == null)
+                {
+                    return; //go with the default builder
+                }
+
+                settings = builderDescriptor.Settings;
             }
 
-            var container = (IContainer) Activator.CreateInstance(Type.GetType(builder));
+            var builderType = Type.GetType(settings["Builder"]);
 
-            ConfigureCommon.With(config, container);
 
-            return config;
+            var typeName = "Configure" + builderType.Name;
+
+            var configurerType = Type.GetType(typeName, false);
+
+            if (configurerType != null)
+            {
+                var configurer = Activator.CreateInstance(configurerType);
+
+                dynamic dc = configurer;
+
+                dc.Configure(config);
+            }
+
+            config.UseContainer(builderType);
         }
     }
 }

@@ -4,36 +4,41 @@
     using System.Transactions;
     using Settings;
 
+    /// <summary>
+    /// Settings relates to transactions
+    /// </summary>
     public class TransactionSettings
     {
-        public TransactionSettings()
+        internal TransactionSettings(ReadOnlySettings settings)
         {
             MaxRetries = 5;
-            IsTransactional = SettingsHolder.Get<bool>("Transactions.Enabled");
-            TransactionTimeout = SettingsHolder.Get<TimeSpan>("Transactions.DefaultTimeout");
-            IsolationLevel = SettingsHolder.Get<IsolationLevel>("Transactions.IsolationLevel");
-            DontUseDistributedTransactions = SettingsHolder.Get<bool>("Transactions.SuppressDistributedTransactions");
-            DoNotWrapHandlersExecutionInATransactionScope = SettingsHolder.Get<bool>("Transactions.DoNotWrapHandlersExecutionInATransactionScope");
+            IsTransactional = settings.Get<bool>("Transactions.Enabled");
+            TransactionTimeout = settings.Get<TimeSpan>("Transactions.DefaultTimeout");
+            IsolationLevel = settings.Get<IsolationLevel>("Transactions.IsolationLevel");
+            SuppressDistributedTransactions = settings.Get<bool>("Transactions.SuppressDistributedTransactions");
+            DoNotWrapHandlersExecutionInATransactionScope = settings.Get<bool>("Transactions.DoNotWrapHandlersExecutionInATransactionScope");
         }
 
-        protected TransactionSettings(bool isTransactional, TimeSpan transactionTimeout, IsolationLevel isolationLevel, int maxRetries, bool dontUseDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope)
+        /// <summary>
+        /// Create a new settings
+        /// </summary>
+        /// <param name="isTransactional">Is transactions on</param>
+        /// <param name="transactionTimeout">The tx timeout</param>
+        /// <param name="isolationLevel">The isolation level</param>
+        /// <param name="maxRetries">The number of FLR retries</param>
+        /// <param name="suppressDistributedTransactions">Should DTC be suppressed</param>
+        /// <param name="doNotWrapHandlersExecutionInATransactionScope">Should handlers be wrapped</param>
+        public TransactionSettings(bool isTransactional, TimeSpan transactionTimeout, IsolationLevel isolationLevel, int maxRetries, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope)
         {
             IsTransactional = isTransactional;
             TransactionTimeout = transactionTimeout;
             IsolationLevel = isolationLevel;
             MaxRetries = maxRetries;
-            DontUseDistributedTransactions = dontUseDistributedTransactions;
+            SuppressDistributedTransactions = suppressDistributedTransactions;
             DoNotWrapHandlersExecutionInATransactionScope = doNotWrapHandlersExecutionInATransactionScope;
         }
 
-        public static TransactionSettings Default
-        {
-            get
-            {
-                return new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, 5, false,false);
-            }
-        }
-
+     
         /// <summary>
         /// Sets whether or not the transport is transactional.
         /// </summary>
@@ -61,11 +66,10 @@
         /// </remarks>
         public int MaxRetries { get; set; }
 
-
         /// <summary>
         /// If true the transport won't enlist in distributed transactions
         /// </summary>
-        public bool DontUseDistributedTransactions { get; set; }
+        public bool SuppressDistributedTransactions { get; set; }
 
         /// <summary>
         /// Controls if the message handlers should be wrapped in a <see cref="TransactionScope"/>

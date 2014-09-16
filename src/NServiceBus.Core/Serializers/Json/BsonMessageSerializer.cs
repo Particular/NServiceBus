@@ -16,19 +16,31 @@ namespace NServiceBus.Serializers.Json
         /// </summary>
         public BsonMessageSerializer(IMessageMapper messageMapper): base(messageMapper)
         {
+            wrapMessagesInArray = true;
         }
 
-        protected override JsonWriter CreateJsonWriter(Stream stream)
+        /// <summary>
+        /// Creates the writer
+        /// </summary>
+        /// <param name="stream"></param>
+        protected internal override JsonWriter CreateJsonWriter(Stream stream)
         {
             return new BsonWriter(stream);
         }
 
-        protected override JsonReader CreateJsonReader(Stream stream)
+        /// <summary>
+        /// Creates the reader
+        /// </summary>
+        /// <param name="stream"></param>
+        protected internal override JsonReader CreateJsonReader(Stream stream)
         {
             return new BsonReader(stream, true, DateTimeKind.Unspecified);
         }
 
-        protected override string GetContentType()
+        /// <summary>
+        /// Gets the supported content type
+        /// </summary>
+        protected internal override string GetContentType()
         {
             return ContentTypes.Bson;
         }

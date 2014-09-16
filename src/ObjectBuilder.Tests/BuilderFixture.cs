@@ -3,17 +3,8 @@ namespace ObjectBuilder.Tests
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Ninject;
-    using Ninject.Extensions.ContextPreservation;
-    using Ninject.Extensions.NamedScope;
     using NServiceBus.ObjectBuilder.Autofac;
-    using NServiceBus.ObjectBuilder.CastleWindsor;
-    using NServiceBus.ObjectBuilder.Ninject;
-    using NServiceBus.ObjectBuilder.Spring;
-    using NServiceBus.ObjectBuilder.StructureMap;
-    using NServiceBus.ObjectBuilder.Unity;
     using NUnit.Framework;
-    using StructureMap;
     using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
 
     public class BuilderFixture
@@ -48,16 +39,8 @@ namespace ObjectBuilder.Tests
             objectBuilders = new List<IContainer>
                 {
                     //add all supported builders here
-                    new StructureMapObjectBuilder(new Container()),
-                    new AutofacObjectBuilder(),
-                    new WindsorObjectBuilder(),
-                    new UnityObjectBuilder(),
-                    new SpringObjectBuilder(),
-                    new NinjectObjectBuilder(new StandardKernel(new NinjectSettings {LoadExtensions = false},
-                                                                new ContextPreservationModule(), new NamedScopeModule())),
+                   new AutofacObjectBuilder()
                 };
-
-            DefaultInstances.Clear();
 
             var initialize = InitializeBuilder();
 

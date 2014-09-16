@@ -3,12 +3,25 @@
     using MessageInterfaces.MessageMapper.Reflection;
     using Serializers.Json;
 
-    public class BsonSerialization : Feature<Categories.Serializers>
+    /// <summary>
+    /// Uses Bson as the message serialization.
+    /// </summary>
+    public class BsonSerialization : Feature
     {
-        public override void Initialize()
+        
+        internal BsonSerialization()
         {
-            Configure.Component<MessageMapper>(DependencyLifecycle.SingleInstance);
-            Configure.Component<BsonMessageSerializer>(DependencyLifecycle.SingleInstance);
+            EnableByDefault();
+            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "BsonSerialization not enable since serialization definition not detected.");
+        }
+
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<BsonMessageSerializer>(DependencyLifecycle.SingleInstance);
         }
     }
 }

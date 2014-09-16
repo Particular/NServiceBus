@@ -5,11 +5,16 @@
     /// <summary>
     /// Handles the PerformanceCounters profile.
     /// </summary>
-    public class PerformanceCountersProfileHandler : IHandleProfile<PerformanceCounters>
+    class PerformanceCountersProfileHandler : IHandleProfile<PerformanceCounters>
     {
-        void IHandleProfile.ProfileActivated()
+        public void ProfileActivated(BusConfiguration config)
         {
-            Configure.Instance.EnablePerformanceCounters();
+            config.EnableCriticalTimePerformanceCounter();
+            config.EnableSLAPerformanceCounter();   
+        }
+
+        public void ProfileActivated(Configure config)
+        {
         }
     }
 }

@@ -1,22 +1,14 @@
 ﻿namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
-    using Internal;
-    using Logging.Loggers.Log4NetAdapter;
-    using Logging.Loggers.NLogAdapter;
+    using NServiceBus.Hosting.Profiles;
 
     /// <summary>
-    /// Handles logging configuration for the integration profile.
+    /// Handles logging configuration for the <see cref="Integration"/> profile.
     /// </summary>
-    public class IntegrationLoggingHandler : IConfigureLoggingForProfile<Integration>
+    class IntegrationLoggingHandler : IConfigureLoggingForProfile<Integration>
     {
-        void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
+        public void Configure(IConfigureThisEndpoint specifier)
         {
-            if (Log4NetConfigurator.Log4NetExists)
-                SetLoggingLibrary.Log4Net(null, Log4NetAppenderFactory.CreateColoredConsoleAppender("Info"));
-            else if (NLogConfigurator.NLogExists)
-                SetLoggingLibrary.NLog(null, NLogTargetFactory.CreateColoredConsoleTarget());
-            else
-                ConfigureInternalLog4Net.Integration();
         }
     }
 }

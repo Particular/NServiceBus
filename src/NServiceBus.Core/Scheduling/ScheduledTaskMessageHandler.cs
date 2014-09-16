@@ -1,10 +1,10 @@
 namespace NServiceBus.Scheduling
 {
-    public class ScheduledTaskMessageHandler : IHandleMessages<Messages.ScheduledTask>
+    class ScheduledTaskMessageHandler : IHandleMessages<Messages.ScheduledTask>
     {
-        private readonly IScheduler scheduler;
+        DefaultScheduler scheduler;
 
-        public ScheduledTaskMessageHandler(IScheduler scheduler)
+        public ScheduledTaskMessageHandler(DefaultScheduler scheduler)
         {
             this.scheduler = scheduler;
         }

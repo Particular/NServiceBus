@@ -1,12 +1,15 @@
 ﻿namespace NServiceBus.Core.Tests.Satellite
 {
+    using System;
     using System.Reflection;
+    using System.Transactions;
     using Fakes;
     using Faults;
-    using NServiceBus.Config;
     using NUnit.Framework;
     using Satellites;
+    using Settings;
     using Unicast.Transport;
+    using TransactionSettings = Unicast.Transport.TransactionSettings;
 
     public abstract class SatelliteLauncherContext
     {
@@ -14,7 +17,7 @@
         protected IManageMessageFailures InMemoryFaultManager;
         protected TransportReceiver Transport;
         protected FakeReceiver FakeReceiver;
-     
+
         [SetUp]
         public void SetUp()
         {
@@ -22,25 +25,21 @@
             InMemoryFaultManager = new Faults.InMemory.FaultManager();
             FakeReceiver = new FakeReceiver();
 
-            Transport = new TransportReceiver
-                {
-                    Receiver = FakeReceiver,
-                    TransactionSettings = TransactionSettings.Default
-                };
+            var configurationBuilder = new BusConfiguration();
 
-            Configure.With(new Assembly[0])
-                .DefineEndpointName("Test")
-                .DefaultBuilder();
-            Configure.Instance.Builder = Builder;
-           
+            configurationBuilder.EndpointName("xyz");
+            configurationBuilder.AssembliesToScan(new Assembly[0]);
+
+            Transport = new TransportReceiver(new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, 5, false, false), 1, 0, FakeReceiver, InMemoryFaultManager, new SettingsHolder(), configurationBuilder.BuildConfiguration());
+
             RegisterTypes();
             Builder.Register<IManageMessageFailures>(() => InMemoryFaultManager);
             Builder.Register<TransportReceiver>(() => Transport);
 
-            var configurer = new SatelliteConfigurer();
-            configurer.Init();
+            //var configurer = new SatelliteConfigurer();
+            //configurer.Customize(configure);
 
-            var launcher = new SatelliteLauncher();
+            var launcher = new SatelliteLauncher(Builder);
 
             BeforeRun();
             launcher.Start();

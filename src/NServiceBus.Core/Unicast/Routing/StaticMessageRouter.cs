@@ -23,8 +23,15 @@
             }
         }
 
+        /// <summary>
+        /// Set to true if the router should autosubscribe messages not defined as events
+        /// </summary>
         public bool SubscribeToPlainMessages { get; set; }
 
+        /// <summary>
+        /// Returns all the routes for a given message
+        /// </summary>
+        /// <param name="messageType">The <see cref="Type"/> of the message to get the destination <see cref="Address"/> list for.</param>
         public List<Address> GetDestinationFor(Type messageType)
         {
             List<Address> address;
@@ -36,6 +43,11 @@
             return address;
         }
 
+        /// <summary>
+        /// Registers a route for the given event
+        /// </summary>
+        /// <param name="eventType">The <see cref="Type"/> of the event</param>
+        /// <param name="endpointAddress">The <see cref="Address"/> representing the logical owner for the event</param>
         public void RegisterEventRoute(Type eventType, Address endpointAddress)
         {
             if (endpointAddress == null || endpointAddress == Address.Undefined)
@@ -69,6 +81,11 @@
             }
         }
 
+        /// <summary>
+        /// Registers a route for the given message type
+        /// </summary>
+        /// <param name="messageType">The message type</param>
+        /// <param name="endpointAddress">The address of the logical owner</param>
         public void RegisterMessageRoute(Type messageType, Address endpointAddress)
         {
             if (endpointAddress == null || endpointAddress == Address.Undefined)
@@ -96,7 +113,7 @@
             }
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(StaticMessageRouter));
+        static ILog Logger = LogManager.GetLogger<StaticMessageRouter>();
         readonly ConcurrentDictionary<Type, List<Address>> routes;
     }
 }

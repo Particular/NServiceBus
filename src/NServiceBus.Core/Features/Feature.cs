@@ -2,311 +2,231 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Settings;
-    using Utils;
 
     /// <summary>
-    /// Used to control the various features supported by the framework.
+    ///     Used to control the various features supported by the framework.
     /// </summary>
     public abstract class Feature
     {
-
         /// <summary>
-        /// Called when the feature should perform its initialization. This call will only happen if the feature is enabled.
+        ///     Creates an instance of <see cref="Feature" />.
         /// </summary>
-        public virtual void Initialize()
-        {
-        }
-
-        /// <summary>
-        /// Returns true if the feature should be enable. This method wont be called if the feature is explicitly disabled
-        /// </summary>
-        public virtual bool ShouldBeEnabled()
-        {
-            return true;
-        }
-
-        /// <summary>
-        /// Return <c>true</c> if this is a default <see cref="Feature"/> that needs to be turned on automatically.
-        /// </summary>
-        public virtual bool IsEnabledByDefault
-        {
-            get { return false; }
-        }
-
-        /// <summary>
-        /// Feature name.
-        /// </summary>
-        public string Name
-        {
-            get { return name; }
-        }
-
-        /// <summary>
-        /// True if this specific feature is enabled
-        /// </summary>
-        public bool Enabled
-        {
-            get { return IsEnabled(GetType()); }
-            
-        }
-
-        /// <summary>
-        /// Enables the give feature
-        /// </summary>
-        public static void Enable<T>() where T : Feature
-        {
-            Enable(typeof (T));
-        }
-
-        /// <summary>
-        /// Enables the give feature
-        /// </summary>
-        public static void Enable(Type featureType)
-        {
-            SettingsHolder.Set(featureType.FullName, true);
-        }
-
-        /// <summary>
-        /// Enables the give feature unless explicitly disabled
-        /// </summary>
-        public static void EnableByDefault<T>() where T : Feature
-        {
-            EnableByDefault(typeof (T));
-        }
-
-        /// <summary>
-        /// Enables the give feature unless explicitly disabled
-        /// </summary>
-        public static void EnableByDefault(Type featureType)
-        {
-            SettingsHolder.SetDefault(featureType.FullName, true);
-        }
-
-
-
-        /// <summary>
-        /// Turns the given feature off
-        /// </summary>
-        public static void Disable<T>() where T : Feature
-        {
-            Disable(typeof (T));
-        }
-
-        /// <summary>
-        /// Turns the given feature off
-        /// </summary>
-        public static void Disable(Type featureType)
-        {
-            SettingsHolder.Set(featureType.FullName, false);
-        }
-
-        /// <summary>
-        /// Disabled the give feature unless explicitly enabled
-        /// </summary>
-        public static void DisableByDefault(Type featureType)
-        {
-            SettingsHolder.SetDefault(featureType.FullName, false);
-        }
-
-        /// <summary>
-        /// Returns true if the given feature is enabled
-        /// </summary>
-        public static bool IsEnabled<T>() where T : Feature
-        {
-            return IsEnabled(typeof (T));
-        }
-
-
-        /// <summary>
-        /// Returns true if the given feature is enabled
-        /// </summary>
-        public static bool IsEnabled(Type feature)
-        {
-            return SettingsHolder.GetOrDefault<bool>(feature.FullName);
-        }
-
-        /// <summary>
-        /// Returns the category for this feature if any
-        /// </summary>
-        public virtual FeatureCategory Category 
-        {
-            get { return FeatureCategory.None; }
-        }
-
-        /// <summary>
-        /// Gets all features for the given category
-        /// </summary>
-        public static IEnumerable<Feature> ByCategory(FeatureCategory category)
-        {
-            var result = new List<Feature>();
-
-            Configure.Instance.ForAllTypes<Feature>(t =>
-            {
-                var feature = (Feature)Activator.CreateInstance(t);
-
-                if (feature.Category == category)
-                {
-                    result.Add(feature);
-                }
-
-            });
-
-            return result;
-        }
-
-        public string Version
-        {
-            get
-            {
-                return FileVersionRetriever.GetFileVersion(GetType());
-            }
-        }
-
-        public override string ToString()
-        {
-            
-            return string.Format("{0} [{1}]",Name, Version);
-        }
-
-        protected bool Equals(Feature other)
-        {
-            return string.Equals(name, other.name);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            }
-            return Equals((Feature)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return (name != null ? name.GetHashCode() : 0);
-        }
-
-
-        public static bool operator ==(Feature feature1, Feature feature2)
-        {
-            if (ReferenceEquals(feature1, null))
-            {
-                return ReferenceEquals(feature2, null);
-            }
-
-            return feature1.Equals(feature2);
-        }
-
-        public static bool operator !=(Feature feature1, Feature feature2)
-        {
-            return !(feature1 == feature2);
-        }
-
         protected Feature()
         {
-            name = GetType().Name.Replace("Feature", String.Empty);
-        }
-
-
-        string name;
-    }
-
-    public abstract class Feature<T>:Feature where T: FeatureCategory
-    {
-        public override FeatureCategory Category
-        {
-            get { return Activator.CreateInstance<T>(); }
-        }
-    }
-
-    public abstract class FeatureCategory
-    {
-        public FeatureCategory()
-        {
-            name = GetType().Name.Replace(typeof(FeatureCategory).Name, String.Empty);
-        }
-
-        public static FeatureCategory None
-        {
-            get { return new NoneFeatureCategory(); }
-            
+            StartupTasks = new List<Type>();
+            Dependencies = new List<List<string>>();
+            Name = GetFeatureName(GetType());
         }
 
         /// <summary>
-        /// Returns the list of features in the category that should be used
+        ///     Feature name.
         /// </summary>
-        public virtual IEnumerable<Feature> GetFeaturesToInitialize()
+        public string Name { get; private set; }
+
+        /// <summary>
+        ///     The version for this feature
+        /// </summary>
+        public string Version
         {
-            return new List<Feature>();
+            get { return FileVersionRetriever.GetFileVersion(GetType()); }
         }
 
         /// <summary>
-        /// Feature name.
+        ///     The list of features that this feature is depending on
         /// </summary>
-        public string Name
-        {
-            get { return name; }
-        }
+        internal List<List<string>> Dependencies { get; private set; }
 
-        public IEnumerable<Feature> GetAllAvailableFeatures()
-        {
-            return Feature.ByCategory(this);
-        }
+        /// <summary>
+        ///     Tells if this feature is enabled by default
+        /// </summary>
+        public bool IsEnabledByDefault { get; private set; }
 
-        protected bool Equals(FeatureCategory other)
-        {
-            return string.Equals(name, other.name);
-        }
+        /// <summary>
+        ///     Indicates that the feature is active
+        /// </summary>
+        public bool IsActive { get; private set; }
 
-        public override bool Equals(object obj)
+        internal List<Type> StartupTasks { get; private set; }
+
+        /// <summary>
+        /// Registers default settings
+        /// </summary>
+        /// <param name="settings">The settings holder</param>
+        protected void Defaults(Action<SettingsHolder> settings)
+         {
+             defaults.Add(settings);
+         }
+
+        /// <summary>
+        /// Access to the registered defaults
+        /// </summary>
+        internal List<Action<SettingsHolder>> RegisteredDefaults { get { return defaults; } }
+
+        /// <summary>
+        ///     Called when the features is activated
+        /// </summary>
+        protected internal abstract void Setup(FeatureConfigurationContext context);
+
+        /// <summary>
+        ///     Adds a setup prerequisite condition. If false this feature won't be setup.
+        ///     Prerequisites are only evaluated if the feature is enabled.
+        /// </summary>
+        /// <param name="condition">Condition that must be met in order for this feature to be activated.</param>
+        /// <param name="description">Explanation of what this prerequisite checks.</param>
+        protected void Prerequisite(Func<FeatureConfigurationContext, bool> condition,string description)
         {
-            if (ReferenceEquals(null, obj))
+            if (string.IsNullOrEmpty(description))
             {
-                return false;
+                throw new ArgumentException("Description can't be empty", "description");
             }
-            if (ReferenceEquals(this, obj))
+
+            setupPrerequisites.Add(new SetupPrerequisite
             {
-                return true;
-            }
-            if (obj.GetType() != GetType())
+                Condition = condition,
+                Description = description
+            });
+        }
+
+        /// <summary>
+        ///     Marks this feature as enabled by default.
+        /// </summary>
+        protected void EnableByDefault()
+        {
+            IsEnabledByDefault = true;
+        }
+
+        /// <summary>
+        ///     Registers this feature as depending on the given feature. This means that this feature won't be activated unless
+        ///     the dependant feature is active.
+        ///     This also causes this feature to be activated after the other feature.
+        /// </summary>
+        /// <typeparam name="T">Feature that this feature depends on.</typeparam>
+        protected void DependsOn<T>() where T : Feature
+        {
+            DependsOn(GetFeatureName(typeof(T)));
+        }
+
+        /// <summary>
+        ///     Registers this feature as depending on the given feature. This means that this feature won't be activated unless
+        ///     the dependant feature is active.
+        ///     This also causes this feature to be activated after the other feature.
+        /// </summary>
+        /// <param name="featureName">The name of the feature that this feature depends on.</param>
+        protected void DependsOn(string featureName)
+        {
+            Dependencies.Add(new List<string>{featureName});
+        }
+
+        /// <summary>
+        ///     Register this feature as depending on at least on of the given features. This means that this feature won't be
+        ///     activated
+        ///     unless at least one of the provided features in the list is active.
+        ///     This also causes this feature to be activated after the other features.
+        /// </summary>
+        /// <param name="features">Features list that this feature require at least one of to be activated.</param>
+        protected void DependsOnAtLeastOne(params Type[] features)
+        {
+            if (features == null)
             {
-                return false;
+                throw new ArgumentNullException("features");
             }
-            return Equals((FeatureCategory)obj);
-        }
 
-        public override int GetHashCode()
-        {
-            return (name != null ? name.GetHashCode() : 0);
-        }
-
-        public static bool operator ==(FeatureCategory cat1, FeatureCategory cat2)
-        {
-            if (ReferenceEquals(cat1, null))
+            foreach (var feature in features)
             {
-                return ReferenceEquals(cat2, null);
+                if (!feature.IsSubclassOf(baseFeatureType))
+                {
+                    throw new ArgumentException(string.Format("A Feature can only depend on another Feature. '{0}' is not a Feature", feature.FullName), "features");
+                }
             }
 
-            return cat1.Equals(cat2);
+            Dependencies.Add(new List<string>(features.Select(GetFeatureName)));
         }
 
-        public static bool operator !=(FeatureCategory cat1, FeatureCategory cat2)
+        /// <summary>
+        ///     Register this feature as depending on at least on of the given features. This means that this feature won't be
+        ///     activated unless at least one of the provided features in the list is active.
+        ///     This also causes this feature to be activated after the other features.
+        /// </summary>
+        /// <param name="featureNames">The name of the features that this feature depends on.</param>
+        protected void DependsOnAtLeastOne(params string[] featureNames)
         {
-            return !(cat1 == cat2);
+            if (featureNames == null)
+            {
+                throw new ArgumentNullException("featureNames");
+            }
+
+            Dependencies.Add(new List<string>(featureNames));
         }
 
-        string name;
+        /// <summary>
+        ///     <see cref="FeatureStartupTask" /> that is executed when the <see cref="Feature" /> is started.
+        /// </summary>
+        /// <typeparam name="T">A <see cref="FeatureStartupTask" />.</typeparam>
+        protected void RegisterStartupTask<T>() where T : FeatureStartupTask
+        {
+            StartupTasks.Add(typeof(T));
+        }
 
-        public class NoneFeatureCategory :FeatureCategory{}
+        /// <summary>
+        ///     Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>
+        ///     A string that represents the current object.
+        /// </returns>
+        /// <filterpriority>2</filterpriority>
+        public override string ToString()
+        {
+            return string.Format("{0} [{1}]", Name, Version);
+        }
+
+        internal PrerequisiteStatus CheckPrerequisites(FeatureConfigurationContext context)
+        {
+            var status = new PrerequisiteStatus();
+
+            foreach (var prerequisite in setupPrerequisites)
+            {
+                if (!prerequisite.Condition(context))
+                {
+                    status.ReportFailure(prerequisite.Description);
+                }
+            }
+
+            return status;
+        }
+
+        internal void SetupFeature(FeatureConfigurationContext config)
+        {
+            Setup(config);
+
+            IsActive = true;
+        }
+
+        static string GetFeatureName(Type featureType)
+        {
+            var name = featureType.Name;
+
+            if (name.EndsWith("Feature"))
+            {
+                if (name.Length > featureStringLength)
+                {
+                    name = name.Substring(0, name.Length - featureStringLength);
+                }
+            }
+
+            return name;
+        }
+
+        static Type baseFeatureType = typeof(Feature);
+        static int featureStringLength = "Feature".Length;
+        List<SetupPrerequisite> setupPrerequisites = new List<SetupPrerequisite>();
+        List<Action<SettingsHolder>> defaults = new List<Action<SettingsHolder>>();
+
+        class SetupPrerequisite
+        {
+            public string Description;
+            public Func<FeatureConfigurationContext, bool> Condition;
+        }
     }
 }

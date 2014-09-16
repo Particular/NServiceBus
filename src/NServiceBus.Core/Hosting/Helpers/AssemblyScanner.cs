@@ -2,7 +2,6 @@ namespace NServiceBus.Hosting.Helpers
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -14,11 +13,18 @@ namespace NServiceBus.Hosting.Helpers
     /// </summary>
     public class AssemblyScanner
     {
+        /// <summary>
+        /// Creates a new scanner that will scan the base directory of the current appdomain
+        /// </summary>
         public AssemblyScanner()
             : this(AppDomain.CurrentDomain.BaseDirectory)
         {
         }
 
+        /// <summary>
+        /// Creates a scanner for the given directory
+        /// </summary>
+        /// <param name="baseDirectoryToScan"></param>
         public AssemblyScanner(string baseDirectoryToScan)
         {
             ThrowExceptions = true;
@@ -26,37 +32,14 @@ namespace NServiceBus.Hosting.Helpers
             AssembliesToSkip = new List<string>();
             MustReferenceAtLeastOneAssembly = new List<Assembly>();
             this.baseDirectoryToScan = baseDirectoryToScan;
-            SetScanNestedDirectories();
-            SetIncludeExesInScan();
         }
 
+        /// <summary>
+        /// Tells the scanner to only include assemblies that reference one of the given assemblies
+        /// </summary>
         public List<Assembly> MustReferenceAtLeastOneAssembly { get; private set; }
 
-        [ObsoleteEx(
-            RemoveInVersion = "5.0",
-            Message = @"Defaults to scan sub-directories. In the future, 'ScanNestedDirectories' will be opt-in.")]
-        void SetScanNestedDirectories()
-        {
-            bool scanNestedDirectories;
-            var appSetting = ConfigurationManager.AppSettings["NServiceBus/AssemblyScanning/ScanNestedDirectories"];
-            if (bool.TryParse(appSetting, out scanNestedDirectories))
-            {
-                ScanNestedDirectories = scanNestedDirectories;
-            }
-        }
-
-        [ObsoleteEx(
-            RemoveInVersion = "5.0",
-            Message = @"Defaults to pick up .exe files. In the future, 'IncludeExesInScan' will be opt-in.")]
-        void SetIncludeExesInScan()
-        {
-            bool includeExesInScan;
-            var appSetting = ConfigurationManager.AppSettings["NServiceBus/AssemblyScanning/IncludeExesInScan"];
-            if (bool.TryParse(appSetting, out includeExesInScan))
-            {
-                IncludeExesInScan = includeExesInScan;
-            }
-        }
+        
 
         /// <summary>
         ///     Traverses the specified base directory including all sub-directories, generating a list of assemblies that can be
@@ -85,6 +68,9 @@ namespace NServiceBus.Hosting.Helpers
             return results;
         }
 
+        /// <summary>
+        /// Determines if the scanner should throw exceptions or not
+        /// </summary>
         public bool ThrowExceptions { get; set; }
 
         void ScanAssembly(string assemblyPath, AssemblyScannerResults results)
@@ -267,12 +253,8 @@ namespace NServiceBus.Hosting.Helpers
                 const string bindingRedirects = @"<runtime>
     <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">
         <dependentAssembly>
-        <assemblyIdentity name=""NServiceBus.Core"" publicKeyToken=""9fc386479f8a226c"" culture=""neutral"" />
-        <bindingRedirect oldVersion=""0.0.0.0-{0}"" newVersion=""{0}"" />
-        </dependentAssembly>
-        <dependentAssembly>
-        <assemblyIdentity name=""NServiceBus"" publicKeyToken=""9fc386479f8a226c"" culture=""neutral"" />
-        <bindingRedirect oldVersion=""0.0.0.0-{0}"" newVersion=""{0}"" />
+            <assemblyIdentity name=""NServiceBus.Core"" publicKeyToken=""9fc386479f8a226c"" culture=""neutral"" />
+            <bindingRedirect oldVersion=""0.0.0.0-{0}"" newVersion=""{0}"" />
         </dependentAssembly>
     </assemblyBinding>
 </runtime>";

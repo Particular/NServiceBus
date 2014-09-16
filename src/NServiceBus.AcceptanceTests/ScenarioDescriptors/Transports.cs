@@ -8,7 +8,7 @@
 
     public static class Transports
     {
-        public static IEnumerable<RunDescriptor> AllAvailable
+        internal static IEnumerable<RunDescriptor> AllAvailable
         {
             get
             {
@@ -40,26 +40,9 @@
             }
         }
 
-        public static RunDescriptor ActiveMQ
+        static RunDescriptor Msmq
         {
-            get { return AllAvailable.SingleOrDefault(r => r.Key == "ActiveMQ"); }
-        }
-
-        public static RunDescriptor Msmq
-        {
-            get { return AllAvailable.SingleOrDefault(r => r.Key == "Msmq"); }
-        }
-
-        public static RunDescriptor RabbitMQ
-        {
-            get { return AllAvailable.SingleOrDefault(r => r.Key == "RabbitMQ"); }
-        }
-
-
-
-        public static RunDescriptor SqlServer
-        {
-            get { return AllAvailable.SingleOrDefault(r => r.Key == "SqlServer"); }
+            get { return AllAvailable.SingleOrDefault(r => r.Key == "MsmqTransport"); }
         }
 
         static IEnumerable<RunDescriptor> GetAllAvailable()
@@ -103,10 +86,9 @@
 
         static readonly Dictionary<string, string> DefaultConnectionStrings = new Dictionary<string, string>
             {
-                {"RabbitMQ", "host=localhost"},
-                {"SqlServer", @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;"},
-                {"ActiveMQ", @"ServerUrl=activemq:tcp://localhost:61616"},
-                {"Msmq", @"cacheSendConnection=false;journal=false;"}
+                {"RabbitMQTransport", "host=localhost"},
+                {"SqlServerTransport", @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;"},
+                {"MsmqTransport", @"cacheSendConnection=false;journal=false;"}
             };
 
 

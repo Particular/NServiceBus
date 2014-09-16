@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Encryption
+﻿namespace NServiceBus.Core.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -21,6 +21,10 @@
 
             foreach (var exceptionType in exceptionTypes)
             {
+                if (exceptionType.GetCustomAttribute<ObsoleteAttribute>() !=null )
+                {
+                    continue;
+                }
                 var constructor = exceptionType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance, null, new[] { typeof(SerializationInfo), typeof(StreamingContext) }, null);
                 Assert.IsNotNull(constructor, string.Format("Exception '{0}' should implement 'protected {0}(SerializationInfo info, StreamingContext context){{}}'", exceptionType.Name));
                 var serializableAttribute = exceptionType.GetCustomAttributes(typeof(SerializableAttribute), false).FirstOrDefault();

@@ -11,6 +11,6 @@ Cleanup
 
 Cleanup
 
-..\.\bin\release\Runner.exe PubSub numberofsubscribers=10 numberofmessages=10000 numberofthreads=10 storage=raven
+..\.\bin\release\Runner.exe PubSub numberofsubscribers=10 numberofmessages=10000 numberofthreads=10 storage=inmemory
 
 Cleanup

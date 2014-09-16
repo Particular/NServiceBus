@@ -4,14 +4,30 @@ namespace NServiceBus.CircuitBreakers
     using System.Threading;
     using Logging;
 
-    public class RepeatedFailuresOverTimeCircuitBreaker : ICircuitBreaker, IDisposable
+    /// <summary>
+    /// A circuit breaker that triggers after a given time 
+    /// </summary>
+    public class RepeatedFailuresOverTimeCircuitBreaker : IDisposable
     {
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="timeToWaitBeforeTriggering"></param>
+        /// <param name="triggerAction"></param>
         public RepeatedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering,
             Action<Exception> triggerAction)
             : this(name, timeToWaitBeforeTriggering, triggerAction, TimeSpan.FromSeconds(1))
         {
         }
 
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="timeToWaitBeforeTriggering"></param>
+        /// <param name="triggerAction"></param>
+        /// <param name="delayAfterFailure"></param>
         public RepeatedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering,
             Action<Exception> triggerAction, TimeSpan delayAfterFailure)
         {
@@ -23,6 +39,9 @@ namespace NServiceBus.CircuitBreakers
             timer = new Timer(CircuitBreakerTriggered);
         }
 
+        /// <summary>
+        /// Tell the CB that it should disarm
+        /// </summary>
         public bool Success()
         {
             var newValue = Interlocked.Exchange(ref failureCount, 0);
@@ -38,6 +57,10 @@ namespace NServiceBus.CircuitBreakers
             return true;
         }
 
+        /// <summary>
+        /// Tells the CB to arm
+        /// </summary>
+        /// <param name="exception"></param>
         public void Failure(Exception exception)
         {
             lastException = exception;
@@ -53,6 +76,9 @@ namespace NServiceBus.CircuitBreakers
             Thread.Sleep(delayAfterFailure);
         }
 
+        /// <summary>
+        /// Disposes the CB
+        /// </summary>
         public void Dispose()
         {
             //Injected
@@ -68,7 +94,7 @@ namespace NServiceBus.CircuitBreakers
         }
 
         static readonly TimeSpan NoPeriodicTriggering = TimeSpan.FromMilliseconds(-1);
-        static readonly ILog Logger = LogManager.GetLogger(typeof(RepeatedFailuresOverTimeCircuitBreaker));
+        static ILog Logger = LogManager.GetLogger<RepeatedFailuresOverTimeCircuitBreaker>();
 
         readonly TimeSpan delayAfterFailure;
         readonly string name;

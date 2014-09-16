@@ -6,7 +6,7 @@
     using Rhino.Mocks;
 
     [TestFixture]
-    public class When_publishing_a_command : using_the_unicastBus
+    class When_publishing_a_command : using_the_unicastBus
     {
         [Test]
         public void Should_get_an_error_message()
@@ -18,7 +18,7 @@
     }
 
     [TestFixture]
-    public class When_publishing_an_event : using_the_unicastBus
+    class When_publishing_an_event : using_the_unicastBus
     {
         [Test]
         public void Should_send_a_message_to_each_subscriber()
@@ -32,28 +32,9 @@
 
             bus.Publish(new EventMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(subscriber1)));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<SendOptions>.Matches(o=>o.Destination == subscriber1)));
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(subscriber2)));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<SendOptions>.Matches(o => o.Destination == subscriber2)));
         }
-
-        [Test]
-        public void Should_fire_the_no_subscribers_for_message_if_no_subscribers_exists()
-        {
-          
-            RegisterMessageType<EventMessage>();
-
-            var eventFired = false;
-            var eventMessage = new EventMessage();
-
-            unicastBus.NoSubscribersForMessage += (sender, args) =>
-                {
-                    eventFired = true;
-                    Assert.AreSame(eventMessage,args.Message);
-                };
-            bus.Publish(eventMessage);
-
-            Assert.True(eventFired);
-         }
     }
 }

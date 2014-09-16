@@ -1,8 +1,12 @@
 ﻿namespace NServiceBus.Core.Tests.Transport
 {
+    using System;
+    using System.Transactions;
     using Fakes;
     using NUnit.Framework;
+    using Settings;
     using Unicast.Transport;
+    using TransactionSettings = Unicast.Transport.TransactionSettings;
 
     public class for_the_transactional_transport
     {
@@ -11,12 +15,7 @@
         {
             fakeReceiver = new FakeReceiver();
 
-            TransportReceiver = new TransportReceiver
-                {
-                    FailureManager = new FakeFailureManager(),
-                    Receiver = fakeReceiver,
-                    TransactionSettings = TransactionSettings.Default
-                };
+            TransportReceiver = new TransportReceiver(new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, 5, false,false), 1, 0, fakeReceiver, new FakeFailureManager(), new SettingsHolder(), new BusConfiguration().BuildConfiguration());
 
         }
 

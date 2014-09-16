@@ -2,16 +2,23 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
 
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    /// <summary>
+    /// The logical message.
+    /// </summary>
     public class LogicalMessage
     {
         readonly LogicalMessageFactory factory;
 
-        public LogicalMessage(MessageMetadata metadata, object message, Dictionary<string,string> headers, LogicalMessageFactory factory)
+        internal LogicalMessage(Dictionary<string, string> headers, LogicalMessageFactory factory)
+        {
+            this.factory = factory;
+            Metadata = new MessageMetadata();
+            Headers = headers;
+        }
+
+        internal LogicalMessage(MessageMetadata metadata, object message, Dictionary<string, string> headers, LogicalMessageFactory factory)
         {
             this.factory = factory;
             Instance = message;
@@ -19,22 +26,29 @@
             Headers = headers;
         }
 
-        public void UpdateMessageInstance(object newMessage)
+        /// <summary>
+        /// Updates the message instance.
+        /// </summary>
+        /// <param name="newInstance">The new instance.</param>
+        public void UpdateMessageInstance(object newInstance)
         {
-            var sameInstance = ReferenceEquals(Instance, newMessage);
+            var sameInstance = ReferenceEquals(Instance, newInstance);
             
-            Instance = newMessage;
+            Instance = newInstance;
 
             if (sameInstance)
             {
                 return;
             }
 
-            var newLogicalMessage = factory.Create(newMessage);
+            var newLogicalMessage = factory.Create(newInstance);
 
             Metadata = newLogicalMessage.Metadata;
         }
 
+        /// <summary>
+        /// The <see cref="Type"/> of the message instance.
+        /// </summary>
         public Type MessageType
         {
             get
@@ -43,10 +57,19 @@
             }
         }
 
+        /// <summary>
+        ///     Gets other applicative out-of-band information.
+        /// </summary>
         public Dictionary<string, string> Headers { get; private set; }
 
+        /// <summary>
+        /// Message metadata.
+        /// </summary>
         public MessageMetadata Metadata { get; private set; }
 
+        /// <summary>
+        /// The message instance.
+        /// </summary>
         public object Instance { get; private set; }
     }
 }

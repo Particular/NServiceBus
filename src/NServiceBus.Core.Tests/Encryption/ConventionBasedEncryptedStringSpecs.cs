@@ -2,6 +2,7 @@
 {
     using System;
     using NUnit.Framework;
+    using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
     public class When_sending_a_message_with_user_defined_convention:UserDefinedConventionContext
@@ -59,10 +60,12 @@
 
     public class UserDefinedConventionContext : WireEncryptedStringContext
     {
-        [SetUp]
-        public void SetUp()
+        protected override Conventions BuildConventions()
         {
-            MessageConventionExtensions.IsEncryptedPropertyAction = p => p.Name.StartsWith("Encrypted");
+            return new Conventions
+            {
+                IsEncryptedPropertyAction= p => p.Name.StartsWith("Encrypted")
+            };
         }
     }
 

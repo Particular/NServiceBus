@@ -2,9 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using IdGeneration;
-    using Support;
-    using Unicast;
 
     /// <summary>
     ///     An envelope used by NServiceBus to package messages for transmission.
@@ -25,20 +22,11 @@ namespace NServiceBus
             id = CombGuid.Generate().ToString();
             Headers[NServiceBus.Headers.MessageId] = id;
             CorrelationId = id;
-            Headers.Add(NServiceBus.Headers.OriginatingEndpoint, Configure.EndpointName);
-            Headers.Add(NServiceBus.Headers.OriginatingHostId, UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N"));
             MessageIntent = MessageIntentEnum.Send;
             Headers[NServiceBus.Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
             Headers[NServiceBus.Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
-
-            AddBackwardsCompatibilityHeaders();
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        void AddBackwardsCompatibilityHeaders()
-        {
-            Headers.Add("NServiceBus.OriginatingMachine", RuntimeEnvironment.MachineName);
-        }
 
         /// <summary>
         ///     Creates a new TransportMessage with the given id and headers
@@ -61,6 +49,18 @@ namespace NServiceBus
         }
 
         /// <summary>
+        ///     Creates a new TransportMessage with the given id and headers and reply to address
+        /// </summary>
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "5.1", 
+            RemoveInVersion = "6", 
+            Message = "headers[Headers.ReplyToAddress]=replyToAddress; var tm = new TransportMessage(id,headers)")]
+        public TransportMessage(string existingId, Dictionary<string, string> existingHeaders, Address replyToAddress):this(existingId,existingHeaders)
+        {
+            Headers[NServiceBus.Headers.ReplyToAddress] = replyToAddress.ToString();
+        }
+
+        /// <summary>
         ///     Gets/sets the identifier of this message bundle.
         /// </summary>
         public string Id
@@ -74,15 +74,6 @@ namespace NServiceBus
                 }
                 return id;
             }
-        }
-
-        /// <summary>
-        ///     Gets/sets the identifier that is copied to <see cref="CorrelationId" />.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Id")]
-        public string IdForCorrelation
-        {
-            get { return Id; }
         }
 
         /// <summary>
@@ -108,7 +99,20 @@ namespace NServiceBus
         /// <summary>
         ///     Gets/sets the reply-to address of the message bundle - replaces 'ReturnAddress'.
         /// </summary>
-        public Address ReplyToAddress { get; set; }
+        public Address ReplyToAddress
+        {
+            get
+            {
+                string replyToAddress;
+
+                if (Headers.TryGetValue(NServiceBus.Headers.ReplyToAddress, out replyToAddress))
+                {
+                    return Address.Parse(replyToAddress);
+                }
+
+                return null;
+            }
+        }
 
         /// <summary>
         ///     Gets/sets whether or not the message is supposed to

@@ -15,10 +15,7 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public void Outgoing_databus_properties_should_be_dehydrated()
         {
-            var metadata = new MessageMetadata
-            {
-                TimeToBeReceived = TimeSpan.MaxValue
-            };
+            var metadata = new MessageMetadata();
             var message = new LogicalMessage(metadata, new MessageWithDataBusProperty
             {
                 DataBusProperty = new DataBusProperty<string>("test")
@@ -33,7 +30,7 @@ namespace NServiceBus.Core.Tests.DataBus
         void Invoke(LogicalMessage message)
         {
            
-            var context = new SendLogicalMessageContext(null, new SendOptions(), message);
+            var context = new OutgoingContext(null, new SendOptions(Address.Parse("MyEndpoint")), message);
 
             sendBehavior.Invoke(context, () => { });
         }
@@ -41,11 +38,7 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public void Time_to_live_should_be_passed_on_the_databus()
         {
-            var metadata = new MessageMetadata
-            {
-                TimeToBeReceived = TimeSpan.FromMinutes(1)
-            };
-
+            var metadata = new MessageMetadata(timeToBeReceived: TimeSpan.FromMinutes(1));
             var message = new LogicalMessage(metadata, new MessageWithExplicitTimeToLive
             {
                 DataBusProperty = new DataBusProperty<string>("test")

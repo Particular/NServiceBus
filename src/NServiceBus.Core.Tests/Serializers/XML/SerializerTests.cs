@@ -41,7 +41,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { msg }, stream);
+                serializer.Serialize(msg, stream);
                 stream.Position = 0;
 
                 var msgArray = serializer.Deserialize(stream);
@@ -81,11 +81,26 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void Should_deserialize_multiple_messages_from_different_namespaces()
         {
+            var xml = @"<?xml version=""1.0"" ?>
+<Messages 
+    xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
+    xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
+    xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test.A"" 
+    xmlns:q1=""http://tempuri.net/NServiceBus.Serializers.XML.Test.B"">
+    <Command1>
+        <Id>1eb17e5d-8573-49af-a5cb-76b4a602bb79</Id>
+    </Command1>
+    <q1:Command2>
+        <Id>ad3b5a84-6cf1-4376-aa2d-058b1120c12f</Id>
+    </q1:Command2>
+</Messages>
+";
             using (var stream = new MemoryStream())
             {
-                SerializerFactory.Create(typeof(Command1), typeof(Command2)).Serialize(new object[] { new Command1(Guid.NewGuid()), new Command2(Guid.NewGuid()) }, stream);
+                var writer = new StreamWriter(stream);
+                writer.Write(xml);
+                writer.Flush();
                 stream.Position = 0;
-
                 var msgArray = SerializerFactory.Create(typeof(Command1), typeof(Command2)).Deserialize(stream);
 
                 Assert.AreEqual(typeof(Command1), msgArray[0].GetType());
@@ -113,8 +128,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void Should_be_able_to_serialize_single_message_without_wrapping_element()
         {
-            Serializer.ForMessage<EmptyMessage>(new EmptyMessage(), s =>
-                { s.SkipWrappingElementForSingleMessages = true; })
+            Serializer.ForMessage<EmptyMessage>(new EmptyMessage())
                 .AssertResultingXml(d=> d.DocumentElement.Name == "EmptyMessage","Root should be message typename");
         }
 
@@ -150,7 +164,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { messageWithXDocument }, stream);
+                serializer.Serialize(messageWithXDocument, stream);
                 stream.Position = 0;
 
                 serializer = SerializerFactory.Create(typeof (MessageWithXDocument));
@@ -167,7 +181,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { messageWithXElement }, stream);
+                serializer.Serialize(messageWithXElement, stream);
                 stream.Position = 0;
 
                 serializer = SerializerFactory.Create(typeof (MessageWithXElement));
@@ -184,12 +198,11 @@ namespace NServiceBus.Serializers.XML.Test
         public void Should_be_able_to_serialize_single_message_with_default_namespaces_and_then_deserialize()
         {
             var serializer = SerializerFactory.Create<MessageWithDouble>();
-            serializer.SkipWrappingElementForSingleMessages = true;
             var msg = new MessageWithDouble();
 
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { msg }, stream);
+                serializer.Serialize(msg, stream);
                 stream.Position = 0;
 
                 var msgArray = SerializerFactory.Create(typeof(MessageWithDouble)).Deserialize(stream);
@@ -202,7 +215,6 @@ namespace NServiceBus.Serializers.XML.Test
         public void Should_be_able_to_serialize_single_message_with_default_namespaces()
         {
             var serializer = SerializerFactory.Create<EmptyMessage>();
-            serializer.SkipWrappingElementForSingleMessages = true;
             var msg = new EmptyMessage();
 
             var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">";
@@ -214,7 +226,6 @@ namespace NServiceBus.Serializers.XML.Test
         public void Should_be_able_to_serialize_single_message_with_specified_namespaces()
         {
             var serializer = SerializerFactory.Create<EmptyMessage>();
-            serializer.SkipWrappingElementForSingleMessages = true;
             serializer.Namespace = "http://super.com";
             var msg = new EmptyMessage();
 
@@ -227,7 +238,6 @@ namespace NServiceBus.Serializers.XML.Test
         public void Should_be_able_to_serialize_single_message_with_specified_namespace_with_trailing_forward_slashes()
         {
             var serializer = SerializerFactory.Create<EmptyMessage>();
-            serializer.SkipWrappingElementForSingleMessages = true;
             serializer.Namespace = "http://super.com///";
             var msg = new EmptyMessage();
 
@@ -240,7 +250,7 @@ namespace NServiceBus.Serializers.XML.Test
         {
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { msg }, stream);
+                serializer.Serialize(msg, stream);
                 stream.Position = 0;
 
                 string result;
@@ -284,7 +294,7 @@ namespace NServiceBus.Serializers.XML.Test
                 var msgArray = SerializerFactory.Create(typeof(MessageWithDouble),typeof(EmptyMessage))
                     .Deserialize(stream, new[] { typeof(MessageWithDouble), typeof(EmptyMessage) });
 
-                Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
+                Assert.AreEqual(23.4, ((MessageWithDouble)msgArray[0]).Double);
                 Assert.AreEqual(typeof(EmptyMessage), msgArray[1].GetType());
 
             }
@@ -293,14 +303,14 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void TestMultipleInterfacesDuplicatedProperty()
         {
-            IMessageMapper mapper = new MessageMapper();
-            var serializer = SerializerFactory.Create<IThird>();
+            var mapper = new MessageMapper();
+            var serializer = SerializerFactory.Create<IThird>(mapper);
             var msgBeforeSerialization = mapper.CreateInstance<IThird>(x => x.FirstName = "Danny");
 
             var count = 0;
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { msgBeforeSerialization }, stream);
+                serializer.Serialize(msgBeforeSerialization, stream);
                 stream.Position = 0;
 
                 var reader = XmlReader.Create(stream);
@@ -337,7 +347,7 @@ namespace NServiceBus.Serializers.XML.Test
             Thread.CurrentThread.CurrentCulture = new CultureInfo("de-DE");
 
             var stream = new MemoryStream();
-            serializer.Serialize(new[] { msg }, stream);
+            serializer.Serialize(msg, stream);
 
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
 
@@ -360,8 +370,8 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void TestInterfaces()
         {
-            IMessageMapper mapper = new MessageMapper();
-            var serializer = SerializerFactory.Create<IM2>();
+            var mapper = new MessageMapper();
+            var serializer = SerializerFactory.Create<IM2>(mapper);
 
 
             var o = mapper.CreateInstance<IM2>();
@@ -411,9 +421,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             o.MoreNames = o.Names.ToArray();
 
-            var messages = new IMessage[] { o };
-
-            Time(messages, serializer);
+            Time(o, serializer);
         }
 
         [Test]
@@ -480,7 +488,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { msg }, stream);
+                serializer.Serialize(msg, stream);
                 stream.Position = 0;
 
                 var msgArray = serializer.Deserialize(stream);
@@ -500,7 +508,7 @@ namespace NServiceBus.Serializers.XML.Test
 
 			using (var stream = new MemoryStream())
 			{
-				serializer.Serialize(new[] { msg }, stream);
+				serializer.Serialize(msg, stream);
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
@@ -520,11 +528,11 @@ namespace NServiceBus.Serializers.XML.Test
 
 			using (var stream = new MemoryStream())
 			{
-				serializer.Serialize(new[] { msg }, stream);
+				serializer.Serialize(msg, stream);
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
-				var m = msgArray[0] as MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations;
+				var m = (MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations)msgArray[0];
 				Assert.AreEqual("Hello", m.Items.First<AlternateNamespace.MessageWithListItemAlternate>().Data);
 			}
 		}
@@ -540,11 +548,11 @@ namespace NServiceBus.Serializers.XML.Test
 
 			using (var stream = new MemoryStream())
 			{
-				serializer.Serialize(new[] { msg }, stream);
+				serializer.Serialize(msg, stream);
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
-				var m = msgArray[0] as MessageWithClosedListInAlternateNamespaceMultipleIListImplementations;
+				var m = (MessageWithClosedListInAlternateNamespaceMultipleIListImplementations)msgArray[0];
 				Assert.AreEqual("Hello", m.Items.First<AlternateNamespace.MessageWithListItemAlternate>().Data);
 			}
 		}
@@ -560,11 +568,11 @@ namespace NServiceBus.Serializers.XML.Test
 
 			using (var stream = new MemoryStream())
 			{
-				serializer.Serialize(new[] { msg }, stream);
+				serializer.Serialize(msg, stream);
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
-				var m = msgArray[0] as MessageWithClosedList;
+				var m = (MessageWithClosedList)msgArray[0];
 				Assert.AreEqual("Hello", m.Items.First().Data);
 			}
 		}
@@ -580,11 +588,11 @@ namespace NServiceBus.Serializers.XML.Test
 
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { msg }, stream);
+                serializer.Serialize(msg, stream);
                 stream.Position = 0;
 
                 var msgArray = serializer.Deserialize(stream);
-                var m = msgArray[0] as MessageWithList;
+                var m = (MessageWithList)msgArray[0];
                 Assert.IsEmpty(m.Items);
             }
         }
@@ -656,14 +664,14 @@ namespace NServiceBus.Serializers.XML.Test
             return o;
         }
 
-        private void Time(IMessage[] messages, IMessageSerializer serializer)
+        private void Time(object message, IMessageSerializer serializer)
         {
             var watch = new Stopwatch();
             watch.Start();
 
             for (var i = 0; i < numberOfIterations; i++)
                 using (var stream = new MemoryStream())
-                    serializer.Serialize(messages, stream);
+                    serializer.Serialize(message, stream);
 
             watch.Stop();
             Debug.WriteLine("Serializing: " + watch.Elapsed);
@@ -671,7 +679,7 @@ namespace NServiceBus.Serializers.XML.Test
             watch.Reset();
 
             var s = new MemoryStream();
-            serializer.Serialize(messages, s);
+            serializer.Serialize(message, s);
             var buffer = s.GetBuffer();
             s.Dispose();
 
@@ -784,15 +792,24 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void Should_be_able_to_deserialize_many_messages_of_same_type()
         {
-            var serializer = SerializerFactory.Create<EmptyMessage>();
-
+            var xml = @"<?xml version=""1.0"" ?>
+<Messages xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
+    <EmptyMessage>
+    </EmptyMessage>
+    <EmptyMessage>
+    </EmptyMessage>
+    <EmptyMessage>
+    </EmptyMessage>
+</Messages>
+";
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { new EmptyMessage(), new EmptyMessage(), new EmptyMessage() }, stream);
+                var streamWriter = new StreamWriter(stream);
+                 streamWriter.Write(xml);
+                streamWriter.Flush();
                 stream.Position = 0;
-
+            var serializer = SerializerFactory.Create<EmptyMessage>();
                 var msgArray = serializer.Deserialize(stream, new[] { typeof(EmptyMessage) });
-
                 Assert.AreEqual(3, msgArray.Length);
             }
         }

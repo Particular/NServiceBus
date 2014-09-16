@@ -7,14 +7,6 @@ namespace NServiceBus.Unicast.Transport
 	/// </summary>
 	public interface ITransport
 	{
-		/// <summary>
-		/// Starts the transport.
-		/// </summary>
-		/// <param name="inputqueue">
-		/// The address of a local queue that should be used as input channel for this transport
-		/// </param>
-		[ObsoleteEx(Replacement = "Start(Address localAddress)", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]		
-		void Start(string inputqueue);
 
 		/// <summary>
 		/// Starts the transport listening for messages on the given local address.
@@ -22,39 +14,15 @@ namespace NServiceBus.Unicast.Transport
 		void Start(Address localAddress);
 
 		/// <summary>
-		/// Gets the number of worker threads currently running in the transport.
-		/// </summary>
-		[ObsoleteEx(Replacement = "MaximumConcurrencyLevel", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-		int NumberOfWorkerThreads { get; }
-
-		/// <summary>
 		/// Gets the maximum concurrency level this <see cref="ITransport"/> is able to support.
 		/// </summary>
 		int MaximumConcurrencyLevel { get; }
-
-		/// <summary>
-		/// Changes the number of worker threads running in the transport.
-		/// This may stop active worker threads; those threads will finish
-		/// processing their current message and then exit.
-		/// </summary>
-		/// <param name="targetNumberOfWorkerThreads">
-		/// The requested number of active worker threads after
-		/// the necessary threads have been stopped or started.
-		/// </param>
-		[ObsoleteEx(Replacement = "ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-		void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads);
-
+        
 		/// <summary>
 		/// Updates the maximum concurrency level this <see cref="ITransport"/> is able to support.
 		/// </summary>
 		/// <param name="maximumConcurrencyLevel">The new maximum concurrency level for this <see cref="ITransport"/>.</param>
 		void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel);
-
-		/// <summary>
-		/// Throttling receiving messages rate. You can't set the value than the value specified at your license.
-		/// </summary>
-		[ObsoleteEx(Replacement = "MaximumMessageThroughputPerSecond and ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-		int MaxThroughputPerSecond { get; set; }
 
 		/// <summary>
 		/// Gets the receiving messages rate.

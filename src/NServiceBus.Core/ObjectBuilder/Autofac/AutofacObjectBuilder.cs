@@ -11,11 +11,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
     ///<summary>
     /// Autofac implementation of <see cref="Common.IContainer"/>.
     ///</summary>
-#if MAKE_AutofacObjectBuilder_INTERNAL
     class AutofacObjectBuilder : Common.IContainer
-#else
-    public class AutofacObjectBuilder : Common.IContainer
-#endif
     {
         ILifetimeScope container;
 
@@ -141,7 +137,9 @@ namespace NServiceBus.ObjectBuilder.Autofac
         ///</summary>
         static void SetPropertyValue(object instance, string propertyName, object value)
         {
-            instance.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance).SetValue(instance, value, null);
+            instance.GetType()
+                .GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance)
+                .SetValue(instance, value, null);
         }
 
         static void SetLifetimeScope(DependencyLifecycle dependencyLifecycle, IRegistrationBuilder<object, IConcreteActivatorData, SingleRegistrationStyle> registrationBuilder)

@@ -3,18 +3,16 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Runtime.Serialization;
     using System.Threading;
-    using Audit;
-    using Behaviors;
     using Core.Tests;
     using Helpers;
-    using Impersonation;
-    using Impersonation.Windows;
-    using MessageHeaders;
+    using Licensing;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
+    using NServiceBus.ObjectBuilder;
     using NUnit.Framework;
     using Pipeline;
     using Publishing;
@@ -24,35 +22,34 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Serializers.XML;
     using Settings;
     using Subscriptions.MessageDrivenSubscriptions;
-    using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Timeout;
     using Transports;
     using Unicast.Messages;
     using UnitOfWork;
 
-    public class using_a_configured_unicastBus
+    class using_a_configured_unicastBus
     {
         protected UnicastBus bus;
 
-        protected UnicastBus unicastBus;
         protected ISendMessages messageSender;
         protected FakeSubscriptionStorage subscriptionStorage;
 
-        protected Address gatewayAddress;
         protected MessageMapper MessageMapper = new MessageMapper();
 
         protected FakeTransport Transport;
         protected XmlMessageSerializer MessageSerializer;
         protected FuncBuilder FuncBuilder;
         public static Address MasterNodeAddress;
-        protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
+        protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = (EstimatedTimeToSLABreachCalculator) FormatterServices.GetUninitializedObject(typeof(EstimatedTimeToSLABreachCalculator));
         protected MessageMetadataRegistry MessageMetadataRegistry;
-        protected MessageDrivenSubscriptionManager subscriptionManager;
-        SubscriptionPredicatesEvaluator subscriptionPredicatesEvaluator;
+        protected SubscriptionManager subscriptionManager;
         protected StaticMessageRouter router;
 
         protected MessageHandlerRegistry handlerRegistry;
         protected TransportDefinition transportDefinition;
+        protected SettingsHolder settings;
+        protected Configure configure;
+        protected PipelineModifications pipelineModifications;
 
         PipelineExecutor pipelineFactory;
 
@@ -60,81 +57,72 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             var localAddress = "endpointA";
             MasterNodeAddress = new Address(localAddress, "MasterNode");
-            Address.InitializeLocalAddress(localAddress);
         }
 
         [SetUp]
         public void SetUp()
         {
-          
-            transportDefinition = new Msmq();
-            HandlerInvocationCache.Clear();
+            LicenseManager.InitializeLicense();
+            transportDefinition = new MsmqTransport();
+            
+            settings = new SettingsHolder();
 
-            SettingsHolder.Reset();
-            SettingsHolder.SetDefault("Endpoint.SendOnly", false);
+            settings.SetDefault("EndpointName", "TestEndpoint");
+            settings.SetDefault("Endpoint.SendOnly", false);
+            settings.SetDefault("MasterNode.Address", MasterNodeAddress);
+            pipelineModifications = new PipelineModifications();
+            settings.Set<PipelineModifications>(pipelineModifications);
+
+            ApplyPipelineModifications();
 
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
-            Configure.GetEndpointNameAction = () => "TestEndpoint";
-            subscriptionPredicatesEvaluator = new SubscriptionPredicatesEvaluator();
+
+            FuncBuilder.Register<ReadOnlySettings>(() => settings);
+
             router = new StaticMessageRouter(KnownMessageTypes());
-            handlerRegistry = new MessageHandlerRegistry();
-            MessageMetadataRegistry = new MessageMetadataRegistry
-                {
-                    DefaultToNonPersistentMessages = false
-                };
-
-
-            MessageSerializer = new XmlMessageSerializer(MessageMapper);
-            //ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
-            gatewayAddress = MasterNodeAddress.SubScope("gateway");
+            var conventions = new Conventions();
+            handlerRegistry = new MessageHandlerRegistry(conventions);
+            MessageMetadataRegistry = new MessageMetadataRegistry(false, conventions);
+            MessageSerializer = new XmlMessageSerializer(MessageMapper, conventions);
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             subscriptionStorage = new FakeSubscriptionStorage();
-            subscriptionManager = new MessageDrivenSubscriptionManager
+            configure = new Configure(settings, FuncBuilder, new List<Action<IConfigureComponents>>(), new PipelineSettings(null))
+            {
+                localAddress = Address.Parse("TestEndpoint")
+            };
+
+            subscriptionManager = new SubscriptionManager
                 {
-                    Builder = FuncBuilder,
                     MessageSender = messageSender,
-                    SubscriptionStorage = subscriptionStorage
+                    SubscriptionStorage = subscriptionStorage,
+                    Configure = configure
                 };
 
-            var pipelineBuilder = new PipelineBuilder(FuncBuilder);
-            pipelineFactory = new PipelineExecutor(FuncBuilder , pipelineBuilder);
+            pipelineFactory = new PipelineExecutor(settings, FuncBuilder);
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
 
-            FuncBuilder.Register<MessageAuditer>(() => new MessageAuditer());
+            FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory(MessageMetadataRegistry, MessageMapper, pipelineFactory));
 
-            FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory());
-
-            FuncBuilder.Register<IMutateIncomingMessages>(() => new FilteringMutator
-                {
-                    SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator
-                });
-            FuncBuilder.Register<IMutateIncomingTransportMessages>(() => subscriptionManager);
+            FuncBuilder.Register<IManageSubscriptions>(() => subscriptionManager);
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<MessageMetadataRegistry>(() => MessageMetadataRegistry);
 
             FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
-            FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
             FuncBuilder.Register<IMessageMapper>(() => MessageMapper);
 
-            FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior
+            FuncBuilder.Register<DeserializeLogicalMessagesBehavior>(() => new DeserializeLogicalMessagesBehavior
                                                              {
                                                                  MessageSerializer = MessageSerializer,
                                                                  MessageMetadataRegistry = MessageMetadataRegistry,
                                                              });
-            FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior
-                {
-                    ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
-                });
 
             FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
-            FuncBuilder.Register<PipelineBuilder>(() => pipelineBuilder);
             FuncBuilder.Register<PipelineExecutor>(() => pipelineFactory);
             FuncBuilder.Register<TransportDefinition>(() => transportDefinition);
-
 
             var messagePublisher = new StorageDrivenPublisher
             {
@@ -145,32 +133,34 @@ namespace NServiceBus.Unicast.Tests.Contexts
             var deferrer = new TimeoutManagerDeferrer
             {
                 MessageSender = messageSender,
-                TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts")
+                TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts"),
+                Configure = configure,
             };
 
             FuncBuilder.Register<IDeferMessages>(() => deferrer);
             FuncBuilder.Register<IPublishMessages>(() => messagePublisher);
 
-            unicastBus = new UnicastBus
+            bus = new UnicastBus
             {
-                MasterNodeAddress = MasterNodeAddress,
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
                 Transport = Transport,
                 MessageMapper = MessageMapper,
                 SubscriptionManager = subscriptionManager,
-                SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
-                MessageRouter = router
+                MessageRouter = router,
+                Settings = settings,
+                Configure = configure,
             };
-            bus = unicastBus;
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CausationMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
-            FuncBuilder.Register<UnicastBus>(() => unicastBus);
-            new HeaderBootstrapper
-            {
-                Builder = FuncBuilder
-            }.SetupHeaderActions();
+            FuncBuilder.Register<UnicastBus>(() => bus);
+            FuncBuilder.Register<Conventions>(() => conventions);
+            FuncBuilder.Register<Configure>(() => configure);
+        }
+
+        protected virtual void ApplyPipelineModifications()
+        {
         }
 
         protected virtual IEnumerable<Type> KnownMessageTypes()
@@ -180,12 +170,12 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected void VerifyThatMessageWasSentTo(Address destination)
         {
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(destination)));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<SendOptions>.Matches(o => o.Destination == destination)));
         }
 
         protected void VerifyThatMessageWasSentWithHeaders(Func<IDictionary<string, string>, bool> predicate)
         {
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(t => predicate(t.Headers)), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(t => predicate(t.Headers)), Arg<SendOptions>.Is.Anything));
         }
 
         protected void RegisterUow(IManageUnitsOfWork uow)
@@ -195,16 +185,15 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected void RegisterMessageHandlerType<T>() where T : new()
         {
+// ReSharper disable HeapView.SlowDelegateCreation
             FuncBuilder.Register<T>(() => new T());
+// ReSharper restore HeapView.SlowDelegateCreation
 
             handlerRegistry.RegisterHandler(typeof(T));
-
-            if (unicastBus.MessageDispatcherMappings == null)
-                unicastBus.MessageDispatcherMappings = new Dictionary<Type, Type>();
         }
         protected void RegisterOwnedMessageType<T>()
         {
-            router.RegisterMessageRoute(typeof(T), Address.Local);
+            router.RegisterMessageRoute(typeof(T), configure.LocalAddress);
         }
         protected Address RegisterMessageType<T>()
         {
@@ -233,7 +222,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             try
             {
                 messageSender.AssertWasCalled(x =>
-                  x.Send(Arg<TransportMessage>.Matches(m => condition(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
+                  x.Send(Arg<TransportMessage>.Matches(m => condition(m)), Arg<SendOptions>.Matches(o => o.Destination == addressOfPublishingEndpoint)));
 
             }
             catch (Exception)
@@ -241,7 +230,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 //retry to avoid race conditions 
                 Thread.Sleep(2000);
                 messageSender.AssertWasCalled(x =>
-                 x.Send(Arg<TransportMessage>.Matches(m => condition(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
+                 x.Send(Arg<TransportMessage>.Matches(m => condition(m)), Arg<SendOptions>.Matches(o => o.Destination == addressOfPublishingEndpoint)));
             }
         }
 
@@ -250,7 +239,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             try
             {
                 messageSender.AssertWasCalled(x =>
-                  x.Send(Arg<TransportMessage>.Matches(m => IsSubscriptionFor<T>(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
+                  x.Send(Arg<TransportMessage>.Matches(m => IsSubscriptionFor<T>(m)), Arg<SendOptions>.Matches(o => o.Destination == addressOfPublishingEndpoint)));
 
             }
             catch (Exception)
@@ -258,7 +247,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 //retry to avoid race conditions 
                 Thread.Sleep(1000);
                 messageSender.AssertWasCalled(x =>
-                  x.Send(Arg<TransportMessage>.Matches(m => IsSubscriptionFor<T>(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
+                  x.Send(Arg<TransportMessage>.Matches(m => IsSubscriptionFor<T>(m)), Arg<SendOptions>.Matches(o => o.Destination == addressOfPublishingEndpoint)));
             }
         }
 
@@ -270,14 +259,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
     }
 
-    public class FakeMessageAuditer : MessageAuditer
-    {
-        public override void ForwardMessageToAuditQueue(TransportMessage transportMessage)
-        {
-        }
-    }
 
-    public class using_the_unicastBus : using_a_configured_unicastBus
+    class using_the_unicastBus : using_a_configured_unicastBus
     {
         [SetUp]
         public new void SetUp()
@@ -293,14 +276,14 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             try
             {
-                ExtensionMethods.GetHeaderAction = (o, s) =>
+                bus.GetHeaderAction = (o, s) =>
                 {
                     string v;
                     transportMessage.Headers.TryGetValue(s, out v);
                     return v;
                 };
 
-                ExtensionMethods.SetHeaderAction = (o, s, v) => { transportMessage.Headers[s] = v; };
+                bus.SetHeaderAction = (o, s, v) => { transportMessage.Headers[s] = v; };
 
                 Transport.FakeMessageBeingProcessed(transportMessage);
 
@@ -313,10 +296,10 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
         }
 
-        protected void ReceiveMessage<T>(T message, IDictionary<string, string> headers = null)
+        protected void ReceiveMessage<T>(T message, IDictionary<string, string> headers = null, MessageMapper mapper = null)
         {
             RegisterMessageType<T>();
-            var messageToReceive = Helpers.Serialize(message);
+            var messageToReceive = Helpers.Serialize(message, mapper: mapper);
 
             if (headers != null)
             {
@@ -325,8 +308,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     messageToReceive.Headers[header.Key] = header.Value;
                 }
             }
-
-
 
             ReceiveMessage(messageToReceive);
         }
@@ -342,7 +323,5 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 ResultingException = ex;
             }
         }
-
-
     }
 }

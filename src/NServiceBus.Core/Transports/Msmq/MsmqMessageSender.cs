@@ -4,53 +4,54 @@ namespace NServiceBus.Transports.Msmq
     using System.Messaging;
     using System.Transactions;
     using Config;
-    using Settings;
+    using Unicast;
     using Unicast.Queuing;
 
     /// <summary>
-    ///     Msmq implementation of <see cref="ISendMessages" />.
+    /// Default MSMQ <see cref="ISendMessages"/> implementation.
     /// </summary>
     public class MsmqMessageSender : ISendMessages
     {
         /// <summary>
-        ///     The current runtime settings for the transport
+        /// MsmqSettings
         /// </summary>
         public MsmqSettings Settings { get; set; }
 
         /// <summary>
-        /// Msmq unit of work to be used in non DTC mode <see cref="MsmqUnitOfWork"/>.
+        /// MsmqUnitOfWork
         /// </summary>
         public MsmqUnitOfWork UnitOfWork { get; set; }
 
-       
+        /// <summary>
+        /// SuppressDistributedTransactions
+        /// </summary>
+        public bool SuppressDistributedTransactions { get; set; }
 
         /// <summary>
-        ///     Sends the given <paramref name="message" /> to the <paramref name="address" />.
+        /// Sends the given <paramref name="message"/>
         /// </summary>
-        /// <param name="message">
-        ///     <see cref="TransportMessage" /> to send.
-        /// </param>
-        /// <param name="address">
-        ///     Destination <see cref="Address" />.
-        /// </param>
-        public void Send(TransportMessage message, Address address)
+        public void Send(TransportMessage message, SendOptions sendOptions)
         {
-            var queuePath = MsmqUtilities.GetFullPath(address);
+            var address = sendOptions.Destination;
+            var queuePath = NServiceBus.MsmqUtilities.GetFullPath(address);
             try
             {
                 using (var q = new MessageQueue(queuePath, false, Settings.UseConnectionCache, QueueAccessMode.Send))
                 {
-                    using (var toSend = MsmqUtilities.Convert(message))
+                    using (var toSend = NServiceBus.MsmqUtilities.Convert(message))
                     {
                         toSend.UseDeadLetterQueue = Settings.UseDeadLetterQueue;
                         toSend.UseJournalQueue = Settings.UseJournalQueue;
 
-                        if (message.ReplyToAddress != null)
-                            toSend.ResponseQueue =
-                                new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(),
-                                                                                address.ToString()));
+                        var replyToAddress = sendOptions.ReplyToAddress ?? message.ReplyToAddress;
+                        
+                        if (replyToAddress != null)
+                        {
+                            toSend.ResponseQueue = new MessageQueue(NServiceBus.MsmqUtilities.GetReturnAddress(replyToAddress.ToString(), address.ToString()));
+                        }
 
-                        if (UnitOfWork.HasActiveTransaction())
+
+                        if (sendOptions.EnlistInReceiveTransaction && UnitOfWork.HasActiveTransaction())
                         {
                             q.Send(toSend, UnitOfWork.Transaction);
                         }
@@ -83,9 +84,9 @@ namespace NServiceBus.Transports.Msmq
         static void ThrowFailedToSendException(Address address, Exception ex)
         {
             if (address == null)
-                throw new FailedToSendMessageException("Failed to send message.", ex);
+                throw new Exception("Failed to send message.", ex);
 
-            throw new FailedToSendMessageException(
+            throw new Exception(
                 string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine), ex);
         }
 
@@ -96,7 +97,7 @@ namespace NServiceBus.Transports.Msmq
                 return MessageQueueTransactionType.None;
             }
 
-            if (SettingsHolder.Get<bool>("Transactions.SuppressDistributedTransactions"))
+            if (SuppressDistributedTransactions)
             {
                 return MessageQueueTransactionType.Single;
             }

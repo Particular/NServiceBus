@@ -4,7 +4,7 @@ namespace NServiceBus.Serializers.Json.Internal
     using MessageInterfaces;
     using Newtonsoft.Json.Serialization;
 
-    public class MessageContractResolver : DefaultContractResolver
+    class MessageContractResolver : DefaultContractResolver
     {
         private readonly IMessageMapper _messageMapper;
 

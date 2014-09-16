@@ -14,8 +14,8 @@ namespace Client
             Console.WriteLine("This will send requests to the CancelOrder WCF service");
             Console.WriteLine("Press 'Enter' to send a message.To exit, Ctrl + C");
 
-            ICancelOrderService client = ChannelFactory.CreateChannel();
-            int orderId = 1;
+            var client = ChannelFactory.CreateChannel();
+            var orderId = 1;
 
             try
             {
@@ -28,7 +28,7 @@ namespace Client
 
                     Console.WriteLine("Sending message with OrderId {0}.", message.OrderId);
 
-                    ErrorCodes returnCode = client.Process(message);
+                    var returnCode = client.Process(message);
 
                     Console.WriteLine("Error code returned: " + returnCode);
                 }

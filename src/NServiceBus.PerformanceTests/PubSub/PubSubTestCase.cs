@@ -9,8 +9,9 @@ using NServiceBus.Transports.Msmq;
 using NServiceBus.Transports.Msmq.Config;
 using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
-using RavenTestMessages;
+using PublishTestMessages;
 using Runner;
+using MsmqTransport = NServiceBus.MsmqTransport;
 
 public class PubSubTestCase : TestCase
 {
@@ -30,7 +31,7 @@ public class PubSubTestCase : TestCase
 
         if (string.IsNullOrEmpty(value))
         {
-            return "raven";
+            return "inmemory";
         }
         return value.ToLower();
     }
@@ -40,70 +41,37 @@ public class PubSubTestCase : TestCase
     {
         TransportConfigOverride.MaximumConcurrencyLevel = NumberOfThreads;
 
-        Feature.Disable<Audit>();
+        var configuration = new BusConfiguration();
 
-        Configure.Transactions.Enable();
-
-        var config = Configure.With()
-            .DefineEndpointName("PubSubPerformanceTest")
-            .DefaultBuilder()
-            .UseTransport<Msmq>()
-            .InMemoryFaultManagement();
+        configuration.EndpointName("PubSubPerformanceTest");
+        configuration.EnableInstallers();
+        configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+        configuration.UseTransport<MsmqTransport>();
+        configuration.DisableFeature<Audit>();
 
         switch (GetStorageType())
         {
-            case "raven":
-                config.RavenSubscriptionStorage();
-                break;
             case "inmemory":
-                config.InMemorySubscriptionStorage();
+                configuration.UsePersistence<InMemoryPersistence>();
                 break;
             case "msmq":
-                config.MsmqSubscriptionStorage();
+                configuration.UsePersistence<NServiceBus.Persistence.Legacy.MsmqPersistence>();
                 break;
         }
 
-        using (var bus = config.UnicastBus()
-            .CreateBus())
+        
+        using (var bus = Bus.Create(configuration))
         {
+            var subscriptionStorage = ((NServiceBus.Unicast.UnicastBus) bus).Builder.Build<ISubscriptionStorage>();
 
 
-            Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
-
-            var subscriptionStorage = Configure.Instance.Builder.Build<ISubscriptionStorage>();
-         
-            var testEventMessage = new MessageType(typeof(RavenTestEvent));
-
-     
-            subscriptionStorage.Init();
-
-
-            var creator = new MsmqQueueCreator
-            {
-                Settings = new MsmqSettings { UseTransactionalQueues = true }
-            };
-
-                for (var i = 0; i < GetNumberOfSubscribers(); i++)
-                {
-                    var subscriberAddress = Address.Parse("PubSubPerformanceTest.Subscriber" + i);
-                    creator.CreateQueueIfNecessary(subscriberAddress, null);
-
-                    using (var tx = new TransactionScope())
-                    {
-                        subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
-                        {
-                            testEventMessage
-                        });
-
-                        tx.Complete();
-                    }
-                }
+            PrimeSubscriptionStorage(subscriptionStorage);
 
             Parallel.For(
           0,
           NumberMessages,
           new ParallelOptions { MaxDegreeOfParallelism = NumberOfThreads },
-          x => bus.SendLocal(new PerformRavenPublish()));
+          x => bus.SendLocal(new PerformPublish()));
 
 
             Statistics.StartTime = DateTime.Now;
@@ -117,24 +85,57 @@ public class PubSubTestCase : TestCase
         }
 
     }
+
+    void PrimeSubscriptionStorage(ISubscriptionStorage subscriptionStorage)
+    {
+        var testEventMessage = new MessageType(typeof(TestEvent));
+
+
+        subscriptionStorage.Init();
+
+
+        var creator = new MsmqQueueCreator
+        {
+            Settings = new MsmqSettings
+            {
+                UseTransactionalQueues = true
+            }
+        };
+
+        for (var i = 0; i < GetNumberOfSubscribers(); i++)
+        {
+            var subscriberAddress = Address.Parse("PubSubPerformanceTest.Subscriber" + i);
+            creator.CreateQueueIfNecessary(subscriberAddress, null);
+
+            using (var tx = new TransactionScope())
+            {
+                subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
+                {
+                    testEventMessage
+                });
+
+                tx.Complete();
+            }
+        }
+    }
 }
 
-class PublishRavenEventHandler : IHandleMessages<PerformRavenPublish>
+class PublishEventHandler : IHandleMessages<PerformPublish>
 {
     public IBus Bus { get; set; }
-    public void Handle(PerformRavenPublish message)
+    public void Handle(PerformPublish message)
     {
-        Bus.Publish<RavenTestEvent>();
+        Bus.Publish<TestEvent>();
     }
 }
 
-namespace RavenTestMessages
+namespace PublishTestMessages
 {
-    public class PerformRavenPublish : IMessage
+    public class PerformPublish : IMessage
     {
     }
 
-    public class RavenTestEvent : IEvent
+    public class TestEvent : IEvent
     {
     }
 }

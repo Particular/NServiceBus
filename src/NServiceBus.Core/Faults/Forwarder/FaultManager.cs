@@ -2,16 +2,27 @@ namespace NServiceBus.Faults.Forwarder
 {
     using System;
     using Logging;
+    using ObjectBuilder;
     using SecondLevelRetries.Helpers;
     using Transports;
+    using Unicast;
     using Unicast.Queuing;
 
     /// <summary>
     /// Implementation of IManageMessageFailures by forwarding messages
     /// using ISendMessages.
     /// </summary>
-    public class FaultManager : IManageMessageFailures
+    class FaultManager : IManageMessageFailures
     {
+        readonly IBuilder builder;
+        readonly Configure config;
+
+        public FaultManager(IBuilder builder, Configure config)
+        {
+            this.builder = builder;
+            this.config = config;
+        }
+
         void IManageMessageFailures.SerializationFailedForMessage(TransportMessage message, Exception e)
         {
             SendFailureMessage(message, e, true);
@@ -29,7 +40,7 @@ namespace NServiceBus.Faults.Forwarder
 
         void SendFailureMessage(TransportMessage message, Exception e, bool serializationException = false)
         {
-            SetExceptionHeaders(message, e);
+            message.SetExceptionHeaders(e, localAddress ?? config.LocalAddress);
 
             try
             {
@@ -37,15 +48,15 @@ namespace NServiceBus.Faults.Forwarder
                
                 // Intentionally service-locate ISendMessages to avoid circular
                 // resolution problem in the container
-                var sender = Configure.Instance.Builder.Build<ISendMessages>();
+                var sender = builder.Build<ISendMessages>();
 
                 if (serializationException || MessageWasSentFromSLR(message))
                 {
-                    sender.Send(message, ErrorQueue);
+                    sender.Send(message, new SendOptions(ErrorQueue));
                     return;
                 }
 
-                sender.Send(message, destinationQ);
+                sender.Send(message, new SendOptions(destinationQ));
 
                 //HACK: We need this hack here till we refactor the SLR to be a first class concept in the TransportReceiver
                 if (RetriesErrorQueue == null)
@@ -54,7 +65,7 @@ namespace NServiceBus.Faults.Forwarder
                 }
                 else
                 {
-                    var retryAttempt = TransportMessageHelpers.GetNumberOfRetries(message) + 1;
+                    var retryAttempt = TransportMessageHeaderHelper.GetNumberOfRetries(message) + 1;
 
                     Logger.WarnFormat("Message with '{0}' id has failed FLR and will be handed over to SLR for retry attempt {1}.", message.Id, retryAttempt);
                 }
@@ -88,26 +99,7 @@ namespace NServiceBus.Faults.Forwarder
 
             // if the reply to address == ErrorQueue and RealErrorQueue is not null, the
             // SecondLevelRetries sat is running and the error happened within that sat.            
-            return TransportMessageHelpers.GetAddressOfFaultingEndpoint(message) == RetriesErrorQueue;
-        }
-
-        void SetExceptionHeaders(TransportMessage message, Exception e)
-        {
-            message.Headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
-
-            if (e.InnerException != null)
-            {
-                message.Headers["NServiceBus.ExceptionInfo.InnerExceptionType"] = e.InnerException.GetType().FullName;
-            }
-
-            message.Headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage();
-            message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
-            message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.ToString();
-       
-            var failedQ = localAddress ?? Address.Local;
-
-            message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
-            message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+            return TransportMessageHeaderHelper.GetAddressOfFaultingEndpoint(message) == RetriesErrorQueue;
         }
 
         /// <summary>
@@ -121,6 +113,6 @@ namespace NServiceBus.Faults.Forwarder
         public Address RetriesErrorQueue { get; set; }
 
         Address localAddress;
-        static readonly ILog Logger = LogManager.GetLogger(typeof(FaultManager));
+        static ILog Logger = LogManager.GetLogger<FaultManager>();
     }
 }

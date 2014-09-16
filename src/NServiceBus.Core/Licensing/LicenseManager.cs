@@ -1,6 +1,5 @@
 namespace NServiceBus.Licensing
 {
-    using System;
     using System.Diagnostics;
     using System.Threading;
     using System.Windows.Forms;
@@ -8,8 +7,7 @@ namespace NServiceBus.Licensing
     using Microsoft.Win32;
     using Particular.Licensing;
 
-    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.5", RemoveInVersion = "5.0")]
-    public static class LicenseManager
+    static class LicenseManager
     {
         internal static bool HasLicenseExpired()
         {
@@ -50,10 +48,10 @@ namespace NServiceBus.Licensing
             }
         }
 
-        static Particular.Licensing.License GetTrialLicense()
+        static License GetTrialLicense()
         {
             var trialStartDate = TrialStartDateStore.GetTrialStartDate();
-            var trialLicense = Particular.Licensing.License.TrialLicense(trialStartDate);
+            var trialLicense = License.TrialLicense(trialStartDate);
 
             //Check trial is still valid
             if (LicenseExpirationChecker.HasLicenseExpired(trialLicense))
@@ -62,7 +60,7 @@ namespace NServiceBus.Licensing
             }
             else
             {
-                var message = string.Format("Trial for Particular Service Platform is still active, trial expires on {0}. Configuring NServiceBus to run in trial mode.", trialLicense.ExpirationDate.Value.ToLocalTime().ToShortDateString());
+                var message = string.Format("Trial for Particular Service Platform is still active, trial expires on {0}.", trialLicense.ExpirationDate.Value.ToLocalTime().ToShortDateString());
                 Logger.Info(message);
             }
 
@@ -82,7 +80,6 @@ namespace NServiceBus.Licensing
                 license = GetTrialLicense();
                 return;
             }
-
 
             LicenseVerifier.Verify(licenseText);
 
@@ -127,49 +124,7 @@ namespace NServiceBus.Licensing
 
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
         static string licenseText;
-        static Particular.Licensing.License license;
-
-        [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.5", RemoveInVersion = "5.0")]
-        public static License License
-        {
-            get
-            {
-                if (license == null)
-                {
-                    try
-                    {
-                        InitializeLicense();
-                    }
-                    catch (Exception ex)
-                    {
-                        //we only log here to prevent licensing issue to abort startup and cause production outages
-                        Logger.Fatal("Failed to initialize the license", ex);
-                    }
-                }
-
-                var nsbLicense = new License
-                {
-                    AllowedNumberOfWorkerNodes = int.MaxValue,
-                    MaxThroughputPerSecond = int.MaxValue,
-                    ExpirationDate = DateTime.MaxValue
-                };
-
-                if (license != null)
-                {
-                    if (license.ExpirationDate.HasValue)
-                    {
-                        nsbLicense.ExpirationDate = license.ExpirationDate.Value;
-                    }
-
-                    if (license.UpgradeProtectionExpiration.HasValue)
-                    {
-                        nsbLicense.UpgradeProtectionExpiration = license.UpgradeProtectionExpiration.Value;
-                    }
-                }
-
-                return nsbLicense;
-            }
-        }
+        static License license;
 
 
     }

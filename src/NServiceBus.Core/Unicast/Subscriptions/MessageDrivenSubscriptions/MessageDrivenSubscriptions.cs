@@ -1,15 +1,23 @@
 ﻿namespace NServiceBus.Features
 {
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
 
+    /// <summary>
+    /// Used to configure Message Driven Subscriptions
+    /// </summary>
     public class MessageDrivenSubscriptions : Feature
     {
-        public override void Initialize()
+
+        internal MessageDrivenSubscriptions()
         {
-            Configure.Component<FilteringMutator>(DependencyLifecycle.InstancePerCall);
-            Configure.Component<SubscriptionPredicatesEvaluator>(DependencyLifecycle.SingleInstance);
-            Configure.Component<MessageDrivenSubscriptionManager>(DependencyLifecycle.SingleInstance);
+        }
+
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            context.Container.ConfigureComponent<SubscriptionManager>(DependencyLifecycle.SingleInstance);
         }
     }
 }

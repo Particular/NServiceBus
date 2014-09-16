@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Transports
 {
-    using System;
+    using Unicast;
 
     /// <summary>
     /// Called when the bus wants to defer a message
@@ -8,12 +8,9 @@
     public interface IDeferMessages
     {
         /// <summary>
-        /// Defers the given message that will be processed at the given time
+        /// Defers the given message
         /// </summary>
-        /// <param name="processAt">The time when this message should be processed</param>
-        /// <param name="address">The endpoint of the endpoint who should get the message</param>
-        /// <param name="message">The message to defer</param>
-        void Defer(TransportMessage message, DateTime processAt, Address address);
+        void Defer(TransportMessage message, SendOptions sendOptions);
 
         /// <summary>
         /// Clears all timeouts for the given header

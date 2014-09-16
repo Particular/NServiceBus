@@ -3,12 +3,11 @@
     using System;
     using System.IO;
     using Arguments;
-    using Utils;
 
     /// <summary>
     ///     Representation of an Endpoint Type with additional descriptive properties.
     /// </summary>
-    public class EndpointType
+    class EndpointType
     {
         internal EndpointType(HostArguments arguments, Type type) : this(type)
         {
@@ -31,7 +30,6 @@
             }
             this.type = type;
             AssertIsValid();
-            endpointConfiguration = Activator.CreateInstance(type);
         }
 
         internal Type Type
@@ -63,13 +61,7 @@
                 {
                     return ((EndpointNameAttribute) arr[0]).Name;
                 }
-
-                var nameThisEndpoint = endpointConfiguration as INameThisEndpoint;
-                if (nameThisEndpoint != null)
-                {
-                    return nameThisEndpoint.GetName();
-                }
-
+                
                 if (arguments.EndpointName != null)
                 {
                     return arguments.EndpointName;
@@ -105,7 +97,6 @@
         }
 
         readonly HostArguments arguments = new HostArguments(new string[0]);
-        readonly object endpointConfiguration;
         readonly Type type;
     }
 }

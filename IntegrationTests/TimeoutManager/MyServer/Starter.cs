@@ -1,5 +1,4 @@
 using MyServer.Scheduling;
-using NServiceBus.Hosting;
 
 namespace MyServer
 {
@@ -75,9 +74,10 @@ namespace MyServer
                               {
                                   OrderId = Guid.NewGuid()
                               };
-            if (!string.IsNullOrEmpty(tenant))            
-                message.SetHeader("tenant", tenant);
-            
+            if (!string.IsNullOrEmpty(tenant))
+            {
+                Bus.SetMessageHeader(message, "tenant", tenant);
+            }
                 
             Bus.SendLocal(message);
             Console.WriteLine("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent"); 

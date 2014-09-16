@@ -2,11 +2,12 @@ namespace NServiceBus.Timeout.Core
 {
     using System;
     using System.Collections.Generic;
+    using Unicast;
 
     /// <summary>
     /// Holds timeout information.
     /// </summary>
-    public class TimeoutData : EventArgs
+    public class TimeoutData 
     {
         /// <summary>
         /// Id of this timeout
@@ -32,12 +33,7 @@ namespace NServiceBus.Timeout.Core
         /// The time at which the timeout expires.
         /// </summary>
         public DateTime Time { get; set; }
-
-        /// <summary>
-        /// We store the correlation id in order to preserve it across timeouts
-        /// </summary>
-        public string CorrelationId { get; set; }
-
+        
         /// <summary>
         /// The timeout manager that owns this particular timeout
         /// </summary>
@@ -49,10 +45,10 @@ namespace NServiceBus.Timeout.Core
         public Dictionary<string, string> Headers { get; set; }
 
         /// <summary>
-        /// Returns a <see cref="T:System.String"/> that represents the current <see cref="T:System.Object"/>.
+        /// Returns a <see cref="String"/> that represents the current <see cref="Object"/>.
         /// </summary>
         /// <returns>
-        /// A <see cref="T:System.String"/> that represents the current <see cref="T:System.Object"/>.
+        /// A <see cref="String"/> that represents the current <see cref="Object"/>.
         /// </returns>
         /// <filterpriority>2</filterpriority>
         public override string ToString()
@@ -66,22 +62,9 @@ namespace NServiceBus.Timeout.Core
         /// <returns>Returns a <see cref="TransportMessage"/>.</returns>
         public TransportMessage ToTransportMessage()
         {
-            var replyToAddress = Address.Local;
-            if (Headers != null)
-            {
-                string originalReplyToAddressValue;
-                if (Headers.TryGetValue(OriginalReplyToAddress, out originalReplyToAddressValue))
-                {
-                    replyToAddress = Address.Parse(originalReplyToAddressValue);
-                    Headers.Remove(OriginalReplyToAddress);
-                }
-            }
-
             var transportMessage = new TransportMessage(Id,Headers)
             {
-                ReplyToAddress = replyToAddress,
                 Recoverable = true,
-                CorrelationId = CorrelationId,
                 Body = State
             };
 
@@ -95,6 +78,28 @@ namespace NServiceBus.Timeout.Core
             transportMessage.Headers["NServiceBus.RelatedToTimeoutId"] = Id;
 
             return transportMessage;
+        }
+
+        /// <summary>
+        /// Transforms the timeout to send options.
+        /// </summary>
+        /// <param name="replyToAddress">The reply address to use for outgoing messages</param>
+        public SendOptions ToSendOptions(Address replyToAddress)
+        {
+            if (Headers != null)
+            {
+                string originalReplyToAddressValue;
+                if (Headers.TryGetValue(OriginalReplyToAddress, out originalReplyToAddressValue))
+                {
+                    replyToAddress = Address.Parse(originalReplyToAddressValue);
+                    Headers.Remove(OriginalReplyToAddress);
+                }
+            }
+
+            return new SendOptions(Destination)
+            {
+                ReplyToAddress = replyToAddress
+            };
         }
 
         /// <summary>

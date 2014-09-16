@@ -1,28 +1,45 @@
-﻿namespace NServiceBus
+﻿#pragma warning disable 1591
+// ReSharper disable UnusedParameter.Global
+namespace NServiceBus
 {
-    using Features;
+    using System;
+    using System.Text;
+    using NServiceBus.Serialization;
+    using Serializers.Json;
     using Settings;
 
     public static class JsonSerializerConfigurationExtensions
     {
-        /// <summary>
-        /// Enables the json message serializer
-        /// </summary>
+        [ObsoleteEx(
+            Message = "Use `configuration.UseSerialization<JsonSerializer>()`, where `configuration` is an instance of type `BusConfiguration`.", 
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0")]
         public static SerializationSettings Json(this SerializationSettings settings)
         {
-            Feature.Enable<JsonSerialization>();
+            throw new NotImplementedException();
+        }
 
-            return settings;
+        [ObsoleteEx(
+            Message = "Use `configuration.UseSerialization<BsonSerializer>()`, where `configuration` is an instance of type `BusConfiguration`.", 
+            RemoveInVersion = "6.0",
+            TreatAsErrorFromVersion = "5.0")]
+        public static SerializationSettings Bson(this SerializationSettings settings)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Enables the bson message serializer
+        /// Configures the encoding of JSON stream
         /// </summary>
-        public static SerializationSettings Bson(this SerializationSettings settings)
+        /// <param name="config">The configuration object</param>
+        /// <param name="encoding">Encoding to use for serialization and deserialization</param>
+        public static void Encoding(this SerializationExtentions<JsonSerializer> config, Encoding encoding)
         {
-            Feature.Enable<BsonSerialization>();
-
-            return settings;
+            if (encoding == null)
+            {
+                throw new ArgumentNullException("encoding");
+            }
+            config.Settings.SetProperty<JsonMessageSerializer>(s => s.Encoding, encoding);
         }
     }
 }

@@ -7,12 +7,12 @@ namespace NServiceBus.Transports.Msmq
     using Logging;
     using Support;
 
-    public class MsmqQueueCreator : ICreateQueues
+    class MsmqQueueCreator : ICreateQueues
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqQueueCreator));
-        private static readonly string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
-        private static readonly string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
-        private static readonly string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
+        static ILog Logger = LogManager.GetLogger<MsmqQueueCreator>();
+        static string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
+        static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
+        static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
 
         /// <summary>
         /// The current runtime settings
@@ -104,15 +104,7 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         public static string GetFullPathWithoutPrefix(Address address)
         {
-            var queueName = address.Queue;
-            var msmqTotalQueueName = address.Machine + MsmqUtilities.PRIVATE + queueName;
-
-            if (msmqTotalQueueName.Length >= 114) //Setpermission is limiting us here, docs say it should be 380 + 124
-            {
-                msmqTotalQueueName = address.Machine + MsmqUtilities.PRIVATE + Utils.DeterministicGuid.Create(queueName);
-            }
-
-            return msmqTotalQueueName;
+            return address.Machine + NServiceBus.MsmqUtilities.PRIVATE +  address.Queue;
         }
     }
 

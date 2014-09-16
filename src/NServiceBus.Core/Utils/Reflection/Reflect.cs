@@ -3,21 +3,13 @@
 namespace NServiceBus.Utils.Reflection
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
 
-    /// <summary>
-    /// Provides strong-typed reflection of the <typeparamref name="TTarget"/> 
-    /// type.
-    /// </summary>
-    /// <typeparam name="TTarget">Type to reflect.</typeparam>
     static class Reflect<TTarget> 
     {
-        /// <summary>
-        /// Gets the property represented by the lambda expression.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">The <paramref name="property"/> is null.</exception>
-        /// <exception cref="ArgumentException">The <paramref name="property"/> is not a lambda expression or it does not represent a property access.</exception>
         public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property)
         {
             var info = GetMemberInfo(property, false) as PropertyInfo;
@@ -26,21 +18,18 @@ namespace NServiceBus.Utils.Reflection
             return info;
         }
 
-        /// <summary>
-        /// Gets the property represented by the lambda expression.        
-        /// </summary>
-        /// <param name="property">The property expression</param>
-        /// <param name="checkForSingleDot">If checkForSingleDot is true, then the property expression is checked to see that only a single dot is present.</param>
+        internal static List<TTarget> GetEnumValues()
+        {
+            return Enum.GetValues(typeof(TTarget))
+                .Cast<TTarget>()
+                .ToList();
+        }
+
         public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property, bool checkForSingleDot)
         {
             return GetMemberInfo(property, checkForSingleDot) as PropertyInfo;
         }
 
-        /// <summary>
-        /// Returns a MemberInfo for an expression containing a call to a property.
-        /// </summary>
-        /// <param name="member">The expression for the member to check</param>
-        /// <param name="checkForSingleDot">Checks that the member expression doesn't have more than one dot like a.Prop.Val</param>
         static MemberInfo GetMemberInfo(Expression member, bool checkForSingleDot)
         {
             if (member == null) throw new ArgumentNullException("member");

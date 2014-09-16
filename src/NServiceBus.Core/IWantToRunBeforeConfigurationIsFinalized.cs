@@ -9,6 +9,6 @@ namespace NServiceBus
         /// <summary>
         /// Invoked before configuration is finalized and locked
         /// </summary>
-        void Run();
+        void Run(Configure config);
     }
 }

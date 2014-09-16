@@ -14,45 +14,31 @@
             var rootContext = new Context();
 
             Scenario.Define(rootContext)
-                    .WithEndpoint<Publisher1>(b => b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(args =>
+                .WithEndpoint<Publisher1>(b => b.When(c => c.Publisher1HasASubscriberForIMyEvent, (bus, c) =>
                 {
-                    if (args.MessageType.Contains(typeof(IMyEvent).Name))
-                    {
-                        context.SubscribedToIMyEvent = true;
-                    }
+                    c.AddTrace("Publishing MyEvent1");
+                    bus.Publish(new MyEvent1());
+                }))
+                .WithEndpoint<Publisher2>(b => b.When(c => c.Publisher2HasDetectedASubscriberForEvent2, (bus, c) =>
+                {
+                    c.AddTrace("Publishing MyEvent2");
+                    bus.Publish(new MyEvent2());
+                }))
+                .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
+                {
+                    context.AddTrace("Subscriber1 subscribing to both events");
+                    bus.Subscribe<IMyEvent>();
+                    bus.Subscribe<MyEvent2>();
 
-                    if (args.MessageType.Contains(typeof(MyEvent2).Name))
+                    if (context.HasNativePubSubSupport)
                     {
-                        context.SubscribedToMyEvent2 = true;
+                        context.Publisher1HasASubscriberForIMyEvent = true;
+                        context.Publisher2HasDetectedASubscriberForEvent2 = true;
                     }
                 }))
-                    .When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, bus => bus.Publish(new MyEvent1())))
-                    .WithEndpoint<Publisher2>(b => b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(args =>
-                {
-                    if (args.MessageType.Contains(typeof(IMyEvent).Name))
-                    {
-                        context.SubscribedToIMyEvent = true;
-                    }
-
-                    if (args.MessageType.Contains(typeof(MyEvent2).Name))
-                    {
-                        context.SubscribedToMyEvent2 = true;
-                    }
-                }))
-                    .When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, bus => bus.Publish(new MyEvent2())))
-                    .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
-                    {
-                        bus.Subscribe<IMyEvent>();
-                        bus.Subscribe<MyEvent2>();
-
-                        if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
-                        {
-                            context.SubscribedToIMyEvent = true;
-                            context.SubscribedToMyEvent2 = true;
-                        }
-                    }))
-                    .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)
-                    .Run();
+                .AllowExceptions(e => e.Message.Contains("Oracle.DataAccess.Client.OracleException: ORA-00001") || e.Message.Contains("System.Data.SqlClient.SqlException: Violation of PRIMARY KEY constraint"))
+                .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)
+                .Run();
 
             Assert.True(rootContext.SubscriberGotIMyEvent);
             Assert.True(rootContext.SubscriberGotMyEvent2);
@@ -62,15 +48,22 @@
         {
             public bool SubscriberGotIMyEvent { get; set; }
             public bool SubscriberGotMyEvent2 { get; set; }
-            public bool SubscribedToIMyEvent { get; set; }
-            public bool SubscribedToMyEvent2 { get; set; }
+            public bool Publisher1HasASubscriberForIMyEvent { get; set; }
+            public bool Publisher2HasDetectedASubscriberForEvent2 { get; set; }
         }
 
         public class Publisher1 : EndpointConfigurationBuilder
         {
             public Publisher1()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>( b => b.OnEndpointSubscribed<Context>((args, context) =>
+                {
+                    context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
+                    if (args.MessageType.Contains(typeof(IMyEvent).Name))
+                    {
+                        context.Publisher1HasASubscriberForIMyEvent = true;
+                    }
+                }));
             }
         }
 
@@ -78,7 +71,15 @@
         {
             public Publisher2()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) =>
+                {
+                    context.AddTrace("Publisher2 OnEndpointSubscribed " + args.MessageType);
+
+                    if (args.MessageType.Contains(typeof(MyEvent2).Name))
+                    {
+                        context.Publisher2HasDetectedASubscriberForEvent2 = true;
+                    }
+                }));
             }
         }
 
@@ -86,7 +87,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Features.Disable<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
                     .AddMapping<IMyEvent>(typeof(Publisher1))
                     .AddMapping<MyEvent2>(typeof(Publisher2));
             }
@@ -97,6 +98,7 @@
 
                 public void Handle(IMyEvent messageThatIsEnlisted)
                 {
+                    Context.AddTrace(String.Format("Got event '{0}'", messageThatIsEnlisted));
                     if (messageThatIsEnlisted is MyEvent2)
                     {
                         Context.SubscriberGotMyEvent2 = true;
@@ -108,7 +110,6 @@
                 }
             }
         }
-
         
         [Serializable]
         public class MyEvent1 : IMyEvent

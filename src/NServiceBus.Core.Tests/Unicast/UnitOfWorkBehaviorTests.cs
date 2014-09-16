@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
-    using System.Linq;
     using Core.Tests;
     using NUnit.Framework;
     using ObjectBuilder;
@@ -22,7 +21,8 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatThrowsFromEnd);
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
 
-            Assert.Throws<AggregateException>(() => InvokeBehavior(builder));
+            //since it is a single exception then it will not be an AggregateException 
+            Assert.Throws<InvalidOperationException>(() => InvokeBehavior(builder));
             Assert.IsTrue(unitOfWorkThatThrowsFromEnd.BeginCalled);
             Assert.IsTrue(unitOfWorkThatThrowsFromEnd.EndCalled);
             Assert.IsTrue(unitOfWork.BeginCalled);
@@ -37,17 +37,17 @@
             var unitOfWork = new UnitOfWorkThatThrowsFromEnd();
 
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
+            //since it is a single exception then it will not be an AggregateException 
+            var exception = Assert.Throws<InvalidOperationException>(() => InvokeBehavior(builder));
 
-            var aggregateException = Assert.Throws<AggregateException>(() => InvokeBehavior(builder));
-
-            Assert.AreSame(unitOfWork.ExceptionThrownFromEnd, aggregateException.InnerExceptions[0]);
+            Assert.AreSame(unitOfWork.ExceptionThrownFromEnd, exception);
         }
 
         public void InvokeBehavior(IBuilder builder)
         {
             var runner = new UnitOfWorkBehavior();
 
-            var context = new ReceivePhysicalMessageContext(new RootContext(builder), new TransportMessage(), false);
+            var context = new IncomingContext(new RootContext(builder), new TransportMessage());
 
             runner.Invoke(context, () => { });
 
@@ -141,10 +141,11 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
             builder.Register<IManageUnitsOfWork>(() => throwingUoW);
 
-            var aggregateException = Assert.Throws<AggregateException>(() => InvokeBehavior(builder));
+            //since it is a single exception then it will not be an AggregateException 
+            var exception = Assert.Throws<InvalidOperationException>(() => InvokeBehavior(builder));
 
             Assert.AreSame(throwingUoW.ExceptionThrownFromEnd, unitOfWork.Exception);
-            Assert.AreSame(throwingUoW.ExceptionThrownFromEnd, aggregateException.InnerExceptions.Single());
+            Assert.AreSame(throwingUoW.ExceptionThrownFromEnd, exception);
         }
 
         public class CaptureExceptionPassedToEndUnitOfWork : IManageUnitsOfWork

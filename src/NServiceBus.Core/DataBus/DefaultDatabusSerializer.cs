@@ -1,11 +1,12 @@
-namespace NServiceBus.DataBus
+namespace NServiceBus
 {
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+    using NServiceBus.DataBus;
 
-    public class DefaultDataBusSerializer : IDataBusSerializer
+    class DefaultDataBusSerializer : IDataBusSerializer
 	{
-		private static readonly BinaryFormatter formatter = new BinaryFormatter();
+		static BinaryFormatter formatter = new BinaryFormatter();
       
 		public void Serialize(object databusProperty, Stream stream)
 		{

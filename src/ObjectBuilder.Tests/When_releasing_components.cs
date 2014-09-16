@@ -2,7 +2,6 @@ namespace ObjectBuilder.Tests
 {
     using System;
     using NServiceBus;
-    using NServiceBus.ObjectBuilder.Autofac;
     using NUnit.Framework;
 
     [TestFixture]
@@ -12,25 +11,25 @@ namespace ObjectBuilder.Tests
         public void Transient_component_should_be_destructed_called()
         {
             ForAllBuilders(builder =>
-                {
-                    builder.Configure(typeof (TransientClass), DependencyLifecycle.InstancePerCall);
+            {
+                builder.Configure(typeof(TransientClass), DependencyLifecycle.InstancePerCall);
 
-                    var comp = (TransientClass) builder.Build(typeof (TransientClass));
-                    comp.Name = "Jon";
+                var comp = (TransientClass) builder.Build(typeof(TransientClass));
+                comp.Name = "Jon";
 
-                    var weak = new WeakReference(comp);
+                var weak = new WeakReference(comp);
 
-                    builder.Release(comp);
+                builder.Release(comp);
 
-                    // ReSharper disable once RedundantAssignment
-                    comp = null;
+                // ReSharper disable once RedundantAssignment
+                comp = null;
 
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
 
-                    Assert.IsFalse(weak.IsAlive);
-                    Assert.IsTrue(TransientClass.Destructed);
-                }, typeof(AutofacObjectBuilder));
+                Assert.IsFalse(weak.IsAlive);
+                Assert.IsTrue(TransientClass.Destructed);
+            });//Not supported by typeof(AutofacObjectBuilder));
         }
 
         public class TransientClass 

@@ -1,18 +1,15 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
-    using System.ComponentModel;
-    using System.Configuration;
-    using System.Linq;
-    using Logging;
+    using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Queuing;
+    using Settings;
     using Pipeline;
     using Pipeline.Contexts;
+    using Support;
     using Transports;
-    using Queuing;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class DispatchMessageToTransportBehavior : IBehavior<SendPhysicalMessageContext>
+    class DispatchMessageToTransportBehavior : IBehavior<OutgoingContext>
     {
         public ISendMessages MessageSender { get; set; }
 
@@ -20,100 +17,98 @@
 
         public IDeferMessages MessageDeferral { get; set; }
 
+        public ReadOnlySettings Settings { get; set; }
 
-        public void Invoke(SendPhysicalMessageContext context, Action next)
+        public UnicastBus UnicastBus { get; set; }
+
+        public void Invoke(OutgoingContext context, Action next)
         {
-            var sendOptions = context.SendOptions;
-
-            var logicalMessage = context.LogicalMessages.FirstOrDefault();
-            var messageDescription = "ControlMessage";
-
-            if (logicalMessage != null)
-            {
-                messageDescription = logicalMessage.MessageType.FullName;
-            }
-
-            try
-            {
-                if (sendOptions.Intent == MessageIntentEnum.Publish)
-                {
-                    if (MessagePublisher == null)
-                    {
-                        throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling: Feature.Enable<MessageDrivenPublisher>() in your configuration");
-                    }
-
-                    var eventTypesToPublish = context.LogicalMessages.SelectMany(m => m.Metadata.MessageHierarchy)
-                        .Distinct()
-                        .ToList();
-
-                    var subscribersFound = MessagePublisher.Publish(context.MessageToSend, eventTypesToPublish);
-
-                    context.Set("SubscribersFound", subscribersFound);
-                }
-                else
-                {
-                    var deliverAt = DateTime.UtcNow;
-
-                    if (sendOptions.DelayDeliveryWith.HasValue)
-                    {
-                        deliverAt = deliverAt + sendOptions.DelayDeliveryWith.Value;
-                    }
-
-                    if (sendOptions.DeliverAt.HasValue)
-                    {
-                        deliverAt = sendOptions.DeliverAt.Value.ToUniversalTime();
-                    }
-
-                    if (deliverAt > DateTime.UtcNow)
-                    {
-                        context.MessageToSend.Headers[Headers.IsDeferredMessage] = true.ToString();
-
-                        SetDelayDeliveryWithHeader(context, sendOptions.DelayDeliveryWith);
-
-                        MessageDeferral.Defer(context.MessageToSend, deliverAt, sendOptions.Destination);
-                    }
-                    else
-                    {
-                        MessageSender.Send(context.MessageToSend, sendOptions.Destination);    
-                    }
-                }
-            }
-            catch (QueueNotFoundException ex)
-            {
-                throw new ConfigurationErrorsException("The destination queue '" + ex.Queue +
-                                                       "' could not be found. You may have misconfigured the destination for this kind of message (" +
-                                                       messageDescription +
-                                                       ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " +
-                                                       "It may also be the case that the given queue just hasn't been created yet, or has been deleted."
-                    , ex);
-            }
-
-            if (Log.IsDebugEnabled)
-            {
-                Log.Debug(string.Format("Sending message {0} with ID {1} to destination {2}.\n" +
-                                        "ToString() of the message yields: {3}\n" +
-                                        "Message headers:\n{4}",
-                    messageDescription,
-                    context.MessageToSend.Id,
-                    sendOptions.Destination,
-                    logicalMessage != null ? logicalMessage.ToString() : "",
-                    string.Join(", ", context.MessageToSend.Headers.Select(h => h.Key + ":" + h.Value).ToArray())
-                    ));
-
-            }
+            InvokeNative(context.DeliveryOptions, context.OutgoingMessage);
 
             next();
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0",Message ="V 5.0 will have a explicit IDeferMessages.Defer method for this")]
-        static void SetDelayDeliveryWithHeader(SendPhysicalMessageContext context, TimeSpan? delay)
+        public void InvokeNative(DeliveryOptions deliveryOptions, TransportMessage messageToSend)
         {
-            if (!delay.HasValue)
-                return;
+            var messageDescription = "ControlMessage";
 
-            context.MessageToSend.Headers["NServiceBus.Temporary.DelayDeliveryWith"] = delay.Value.ToString();
+            string enclosedMessageTypes;
+
+            if (messageToSend.Headers.TryGetValue(Headers.EnclosedMessageTypes, out enclosedMessageTypes))
+            {
+                messageDescription = enclosedMessageTypes;
+            }
+
+            messageToSend.Headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
+            messageToSend.Headers.Add(Headers.OriginatingEndpoint, Settings.EndpointName());
+            messageToSend.Headers.Add(Headers.OriginatingHostId, UnicastBus.HostInformation.HostId.ToString("N"));
+          
+            try
+            {
+                if(deliveryOptions is PublishOptions)
+                {
+                    Publish(messageToSend, deliveryOptions as PublishOptions);
+                }
+                else
+                {
+                    SendOrDefer(messageToSend, deliveryOptions as SendOptions);
+                }
+            }
+            catch (QueueNotFoundException ex)
+            {
+                throw new Exception(string.Format("The destination queue '{0}' could not be found. You may have misconfigured the destination for this kind of message ({1}) in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " + "It may also be the case that the given queue just hasn't been created yet, or has been deleted.", ex.Queue, messageDescription), ex);
+            }
         }
 
-        static ILog Log = LogManager.GetLogger(typeof(DispatchMessageToTransportBehavior));
+        void SendOrDefer(TransportMessage messageToSend, SendOptions sendOptions)
+        {
+            if (sendOptions.DelayDeliveryWith.HasValue)
+            {
+                if (sendOptions.DelayDeliveryWith > TimeSpan.Zero)
+                {
+                    SetIsDeferredHeader(messageToSend);
+                    MessageDeferral.Defer(messageToSend, sendOptions);
+                }
+                else
+                {
+                    MessageSender.Send(messageToSend, sendOptions);
+                }
+
+                return;
+            }
+
+            if (sendOptions.DeliverAt.HasValue)
+            {
+                var deliverAt = sendOptions.DeliverAt.Value.ToUniversalTime();
+                if (deliverAt > DateTime.UtcNow)
+                {
+                    SetIsDeferredHeader(messageToSend);
+                    MessageDeferral.Defer(messageToSend, sendOptions);
+                }
+                else
+                {
+                    MessageSender.Send(messageToSend, sendOptions);
+                }
+
+                return;
+            }
+
+            MessageSender.Send(messageToSend, sendOptions);
+        }
+
+        static void SetIsDeferredHeader(TransportMessage messageToSend)
+        {
+            messageToSend.Headers[Headers.IsDeferredMessage] = true.ToString();
+        }
+
+        void Publish(TransportMessage messageToSend,PublishOptions publishOptions)
+        {
+            if (MessagePublisher == null)
+            {
+                throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling config.EnableFeature<MessageDrivenSubscriptions>() in your configuration");
+            }
+
+            MessagePublisher.Publish(messageToSend, publishOptions);
+        }
     }
 }

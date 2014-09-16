@@ -3,7 +3,7 @@
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>NServiceBus.Host</id>
     <title>NServiceBus Host</title>
-    <version>4.0.0-alpha0</version>
+    <version>$version$</version>
     <authors>NServiceBus Ltd</authors>
     <owners>Udi Dahan, Andreas Ohlund, John Simons</owners>
     <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
@@ -14,12 +14,12 @@
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2010-2014 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
-    <dependencies/>
+    <dependencies>
+      <dependency id="NServiceBus" version="$version$" />
+    </dependencies>
   </metadata>
   <files>
-    <file src="..\..\binaries\NServiceBus.Host.exe" target="lib\net40" />
-    <file src="..\..\binaries\NServiceBus.Host.pdb" target="lib\net40" />
-    <file src="..\..\binaries\NServiceBus.Host.xml" target="lib\net40" />
+    <file src="..\..\binaries\NServiceBus.Host.???" target="lib\net45" />
     <file src="nservicebus.host\*.*" target="tools" />
   </files>
 </package>

@@ -1,20 +1,17 @@
-﻿namespace NServiceBus.Licensing
+﻿namespace NServiceBus
 {
     using System;
-    using System.ComponentModel;
     using System.Diagnostics;
-    using log4net;
+    using Logging;
+    using NServiceBus.Licensing;
     using Pipeline;
     using Pipeline.Contexts;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class LicenseBehavior : IBehavior<ReceivePhysicalMessageContext>
+    class LicenseBehavior : IBehavior<IncomingContext>
     {
-
         public bool LicenseExpired { get; set; }
 
-        public void Invoke(ReceivePhysicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
             context.PhysicalMessage.Headers[Headers.HasLicenseExpired] = LicenseExpired.ToString().ToLower();
 
@@ -29,6 +26,6 @@
             }
         }
 
-        static ILog Log = LogManager.GetLogger(typeof(LicenseBehavior));
+        static ILog Log = LogManager.GetLogger<LicenseBehavior>();
     }
 }

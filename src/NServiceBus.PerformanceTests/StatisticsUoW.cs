@@ -18,10 +18,6 @@
             if(Transaction.Current != null)
                 Transaction.Current.TransactionCompleted += OnCompleted;
 
-            //            if (message.TwoPhaseCommit)
-            //{
-            //    Transaction.Current.EnlistDurable(Guid.NewGuid(), enlistment, EnlistmentOptions.None);
-            //}static readonly TwoPhaseCommitEnlistment enlistment = new TwoPhaseCommitEnlistment();  
         }
 
         void OnCompleted(object sender, TransactionEventArgs e)
@@ -52,9 +48,9 @@
                 RecordSuccess();
         }
 
-        public void Init()
+        public void Customize(BusConfiguration configuration)
         {
-            Configure.Component<StatisticsUoW>(DependencyLifecycle.InstancePerUnitOfWork);
+            configuration.RegisterComponents(c => c.ConfigureComponent<StatisticsUoW>(DependencyLifecycle.InstancePerUnitOfWork));
         }
     }
 }

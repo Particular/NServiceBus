@@ -178,6 +178,9 @@ namespace NServiceBus.Config
             BaseClear();
         }
 
+        /// <summary>
+        /// True if the collection is readonly
+        /// </summary>
         public override bool IsReadOnly()
         {
             return false;

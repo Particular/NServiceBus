@@ -1,25 +1,22 @@
 param($installPath, $toolsPath, $package, $project)
 
 if($toolsPath){
-	if (Get-Module NServiceBus.Powershell) {
-		Remove-Module NServiceBus.Powershell.Development
-	}
+	if (-Not (Get-Module NServiceBus.Powershell)) {
 
-	$pathToNServiceBusPSCmdLets = Join-Path $toolsPath NServiceBus.Powershell.Development.dll
+		$pathToNServiceBusPSCmdLets = Join-Path $toolsPath NServiceBus.Powershell.Development.dll
 
-	if(Test-Path $pathToNServiceBusPSCmdLets){
-		Import-Module $pathToNServiceBusPSCmdLets
+		if(Test-Path $pathToNServiceBusPSCmdLets){
+			Import-Module $pathToNServiceBusPSCmdLets
 
-		Write-Host ""
-		Write-Host "Type 'get-help about_NServiceBus' to see all available NServiceBus commands."
-		Write-Host ""
-	}
-	else {
-		Write-Host "NServiceBus powershell module could not be found, no powershell commands will be available"	
+			Write-Host ""
+			Write-Host "Type 'get-help about_NServiceBus' to see all available NServiceBus commands."
+			Write-Host ""
+		}
+		else {
+			Write-Host "NServiceBus powershell module could not be found, no powershell commands will be available"	
+		}
 	}
 }
-
-
 
 $nserviceBusKeyPath =  "HKCU:SOFTWARE\NServiceBus" 
 
@@ -38,7 +35,6 @@ try {
 	#Check for existing NServiceBus installations
 	if (Test-Path $nserviceBusKeyPath) {
 		"Existing NServiceBus v($packageVersion) user detected"
-	
 		$isNewUser = $false
 	}
 	
@@ -57,17 +53,17 @@ try {
 
 	Set-ItemProperty -Path $platformKeyPath -Name "NuGetUser" -Value "true" | Out-Null
 
+
+    $url = "http://particular.net/download-the-particular-service-platform?version=$packageVersion" 
+    $url = $url.ToLowerInvariant(); 
+
+    if($dte){
+	    $dte.ExecuteCommand("View.URL", $url)
+    }
+    else{
+	    "No dte detected, url: $url"
+    }
 } 
 Catch [Exception] { 
 	Write-Warning $error[0]
-}
-
-$url = "http://particular.net/download-the-particular-service-platform?version=$packageVersion" 
-$url = $url.ToLowerInvariant(); 
-
-if($dte){
-	$dte.ExecuteCommand("View.URL", $url)
-}
-else{
-	"No dte detected, url: $url"
 }

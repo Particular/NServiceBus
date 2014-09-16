@@ -4,54 +4,22 @@ namespace NServiceBus.Utils.Reflection
     using System.Collections;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
 
-    /// <summary>
-    /// Contains extension methods
-    /// </summary>
-    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message= "These will be made internal in version 5.0")]
-    public static class ExtensionMethods
+    static class ExtensionMethods
     {
-        /// <summary>
-        /// Useful for finding if a type is (for example) IMessageHandler{T} where T : IMessage.
-        /// </summary>  
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.3", Message= "No longer used. to be deleted")]
-        public static bool IsGenericallyEquivalent(this Type type, Type openGenericType, Type genericArg)
+
+
+        public static T Construct<T>(this Type type)
         {
-            var result = false;
-            LoopAndAct(type, openGenericType, genericArg, t => result = true);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Returns the enclosed generic type given that the type is GenericallyEquivalent.
-        /// </summary>
-        public static Type GetGenericallyContainedType(this Type type, Type openGenericType, Type genericArg)
-        {
-            Type result = null;
-            LoopAndAct(type, openGenericType, genericArg, t => result = t);
-
-            return result;
-        }
-
-        private static void LoopAndAct(Type type, Type openGenericType, Type genericArg, Action<Type> act)
-        {
-            foreach (var i in type.GetInterfaces())
+            var defaultConstructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[] { }, null);
+            if (defaultConstructor != null)
             {
-                var args = i.GetGenericArguments();
-
-                if (args.Length != 1)
-                {
-                    continue;
-                }
-
-                if (genericArg.IsAssignableFrom(args[0])
-                    && openGenericType.MakeGenericType(args[0]) == i)
-                {
-                    act(args[0]);
-                    break;
-                }
+                return (T)defaultConstructor.Invoke(null); 
             }
+
+            return (T)Activator.CreateInstance(type);
         }
 
         /// <summary>
@@ -97,7 +65,7 @@ namespace NServiceBus.Utils.Reflection
                 }
 
                 if (args.Length == 2)
-                    if (typeof(KeyValuePair<,>).MakeGenericType(args) == t)
+                    if (typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t)
                         result = "NServiceBus." + result;
 
                 lock(TypeToNameLookup)  
@@ -112,7 +80,7 @@ namespace NServiceBus.Utils.Reflection
             return t.Name;
         }
 
-        private static readonly byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
+        static byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
 
         static bool IsClrType(byte[] a1)
         {
@@ -120,7 +88,7 @@ namespace NServiceBus.Utils.Reflection
             return structuralEquatable.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
         }
 
-        private static readonly ConcurrentDictionary<Type, bool> IsSystemTypeCache = new ConcurrentDictionary<Type, bool>();
+        static ConcurrentDictionary<Type, bool> IsSystemTypeCache = new ConcurrentDictionary<Type, bool>();
 
         public static bool IsSystemType(this Type type)
         {
@@ -142,6 +110,17 @@ namespace NServiceBus.Utils.Reflection
                    type == typeof(IEvent);
         }
 
-        private static readonly IDictionary<Type, string> TypeToNameLookup = new Dictionary<Type, string>();
+        static Dictionary<Type, string> TypeToNameLookup = new Dictionary<Type, string>();
+
+
+
+        static byte[] nsbPublicKeyToken= typeof(ExtensionMethods).Assembly.GetName().GetPublicKeyToken();
+
+        public static bool IsFromParticularAssembly(this Type type)
+        {
+            return type.Assembly.GetName()
+                .GetPublicKeyToken()
+                .SequenceEqual(nsbPublicKeyToken);
+        }
     }
 }

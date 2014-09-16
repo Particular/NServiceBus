@@ -6,7 +6,7 @@ namespace NServiceBus.Faults.InMemory
     /// <summary>
     /// Logging implementation of IManageMessageFailures.
     /// </summary>
-    public class FaultManager : IManageMessageFailures
+    class FaultManager : IManageMessageFailures
     {
         void IManageMessageFailures.SerializationFailedForMessage(TransportMessage message, Exception e)
         {
@@ -27,6 +27,6 @@ namespace NServiceBus.Faults.InMemory
             
         }
 
-        readonly ILog logger = LogManager.GetLogger(typeof(FaultManager));
+        static ILog logger = LogManager.GetLogger<FaultManager>();
     }
 }

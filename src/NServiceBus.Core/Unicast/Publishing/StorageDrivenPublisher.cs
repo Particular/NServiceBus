@@ -1,51 +1,57 @@
 ﻿namespace NServiceBus.Unicast.Publishing
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using IdGeneration;
+    using Messages;
+    using Pipeline;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions;
     using Transports;
 
-    /// <summary>
-    /// Published messages based on whats registered in the given subscription storage
-    /// </summary>
-    public class StorageDrivenPublisher:IPublishMessages
+    class StorageDrivenPublisher:IPublishMessages
     {
-        /// <summary>
-        /// Subscription storage containing information about events and their subscribers
-        /// </summary>
         public ISubscriptionStorage SubscriptionStorage { get; set; }
 
-        /// <summary>
-        /// The message sender to use when sending the events to the different publishers
-        /// </summary>
         public ISendMessages MessageSender{ get; set; }
+
+        public PipelineExecutor PipelineExecutor { get; set; }
       
-      
-        /// <summary>
-        /// Publishes the given message to all subscribers
-        /// </summary>
-        public bool Publish(TransportMessage message, IEnumerable<Type> eventTypes)
+        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
+
+        public void Publish(TransportMessage message, PublishOptions publishOptions)
         {
             if (SubscriptionStorage == null)
-                throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Add either 'MsmqSubscriptionStorage()' or 'DbSubscriptionStorage()' after 'NServiceBus.Configure.With()'.");
+            {
+                throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured.");
+            }
+                
+            var eventTypesToPublish = MessageMetadataRegistry.GetMessageMetadata(publishOptions.EventType.FullName)
+                .MessageHierarchy
+                .Distinct()
+                .ToList();
 
-            var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(eventTypes.Select(t => new MessageType(t))).ToList();
+            var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(eventTypesToPublish.Select(t => new MessageType(t))).ToList();
 
             if (!subscribers.Any())
-                return false;
+            {
+                PipelineExecutor.CurrentContext.Set("NoSubscribersFoundForMessage",true);
+                return;
+            }
+
+            PipelineExecutor.CurrentContext.Set("SubscribersForEvent", subscribers);
 
             foreach (var subscriber in subscribers)
             {
                 //this is unicast so we give the message a unique ID
                 message.ChangeMessageId(CombGuid.Generate().ToString());
 
-                MessageSender.Send(message,subscriber);
+                MessageSender.Send(message, new SendOptions(subscriber)
+                {
+                    ReplyToAddress = publishOptions.ReplyToAddress,
+                    EnforceMessagingBestPractices = publishOptions.EnforceMessagingBestPractices,
+                    EnlistInReceiveTransaction = publishOptions.EnlistInReceiveTransaction,
+                });
             }
-
-            return true;
         }
     }
 }

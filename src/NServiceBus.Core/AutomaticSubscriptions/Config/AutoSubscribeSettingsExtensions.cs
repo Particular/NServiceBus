@@ -1,16 +1,18 @@
 namespace NServiceBus
 {
-    using System;
     using AutomaticSubscriptions.Config;
-    using Features;
 
+    /// <summary>
+    /// Adds support for custom configuration of the auto subscribe feature
+    /// </summary>
     public static class AutoSubscribeSettingsExtensions
     {
-        public static FeatureSettings AutoSubscribe(this FeatureSettings settings, Action<AutoSubscribeSettings> customSettings)
+        /// <summary>
+        /// Use this method to change how auto subscribe works
+        /// </summary>
+        public static AutoSubscribeSettings AutoSubscribe(this BusConfiguration config)
         {
-            customSettings(new AutoSubscribeSettings());
-
-            return settings;
+            return new AutoSubscribeSettings(config);
         }
     }
 }

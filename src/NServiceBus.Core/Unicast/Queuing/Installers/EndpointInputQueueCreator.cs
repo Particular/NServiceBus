@@ -1,21 +1,25 @@
 namespace NServiceBus.Unicast.Queuing.Installers
 {
-    public class EndpointInputQueueCreator : IWantQueueCreated
+    class EndpointInputQueueCreator : IWantQueueCreated
     {
+        Address address;
+
+        public EndpointInputQueueCreator(Configure config)
+        {
+            address = config.LocalAddress;
+        }
+
         /// <summary>
         /// Endpoint input name
         /// </summary>
         public Address Address
         {
-            get { return Address.Local; }
+            get { return address; }
         }
 
-        /// <summary>
-        /// True if no need to create queue
-        /// </summary>
-        public bool IsDisabled
+        public bool ShouldCreateQueue()
         {
-            get { return false; }
+            return true;
         }
     }
 }

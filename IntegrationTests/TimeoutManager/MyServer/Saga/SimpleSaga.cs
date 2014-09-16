@@ -15,9 +15,9 @@
             RequestTimeout<MyTimeOutState>(TimeSpan.FromSeconds(10), t => t.SomeValue = someState);
         }
 
-        public override void ConfigureHowToFindSaga()
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SimpleSagaData> mapper)
         {
-            ConfigureMapping<StartSagaMessage>(s => s.OrderId).ToSaga(m => m.OrderId);
+            mapper.ConfigureMapping<StartSagaMessage>(s => s.OrderId).ToSaga(m => m.OrderId);
         }
 
         void LogMessage(string message)
@@ -29,7 +29,7 @@
         {
             LogMessage("Timeout fired, with state: " + state.SomeValue);
 
-            LogMessage("Marking the saga as complete, be aware that this will remove the document from the storage (RavenDB)");
+            LogMessage("Marking the saga as complete, be aware that this will remove the document from the storage");
             MarkAsComplete();
         }
     }

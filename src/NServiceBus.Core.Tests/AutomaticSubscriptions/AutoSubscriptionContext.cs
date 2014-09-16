@@ -6,16 +6,18 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
     using NUnit.Framework;
     using Unicast;
     using Unicast.Routing;
+    using Conventions = NServiceBus.Conventions;
 
     public class AutoSubscriptionContext
     {
         [SetUp]
         public void SetUp()
         {
-            autoSubscriptionStrategy = new DefaultAutoSubscriptionStrategy
+            autoSubscriptionStrategy = new AutoSubscriptionStrategy
             {
-                HandlerRegistry = new MessageHandlerRegistry(),
-                MessageRouter = new StaticMessageRouter(KnownMessageTypes())
+                HandlerRegistry = new MessageHandlerRegistry(new Conventions()),
+                MessageRouter = new StaticMessageRouter(KnownMessageTypes()),
+                Conventions = new Conventions()
             };
         }
 
@@ -34,6 +36,6 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
             autoSubscriptionStrategy.MessageRouter.RegisterMessageRoute(typeof(T), address);
         }
 
-        protected DefaultAutoSubscriptionStrategy autoSubscriptionStrategy;
+        internal AutoSubscriptionStrategy autoSubscriptionStrategy;
     }
 }

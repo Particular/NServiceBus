@@ -1,43 +1,36 @@
+
 namespace NServiceBus.Unicast.Queuing
 {
     using System;
     using System.Linq;
     using Installation;
-    using Installation.Environments;
     using Logging;
-    using Settings;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using Transports;
 
-    /// <summary>
-    /// Iterating over all implementers of IWantQueueCreated and creating queue for each.
-    /// </summary>
-    public class QueuesCreator : INeedInitialization, INeedToInstallSomething<Windows>
+    class QueuesCreator : INeedInitialization, INeedToInstallSomething
     {
         public ICreateQueues QueueCreator { get; set; }
 
-        /// <summary>
-        /// Performs the installation providing permission for the given user.
-        /// </summary>
-        /// <param name="identity">The user for under which the queue will be created.</param>
-        public void Install(string identity)
+        public void Install(string identity, Configure config)
         {
-            if (SettingsHolder.Get<bool>("Endpoint.SendOnly"))
+            if (config.Settings.Get<bool>("Endpoint.SendOnly"))
             {
                 return;
             }
 
-            if (ConfigureQueueCreation.DontCreateQueues)
+            if (!config.CreateQueues())
             {
                 return;
             }
 
-            var wantQueueCreatedInstances = Configure.Instance.Builder.BuildAll<IWantQueueCreated>().ToList();
+            var wantQueueCreatedInstances = config.Builder.BuildAll<IWantQueueCreated>().ToList();
 
-            foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => !wantQueueCreatedInstance.IsDisabled))
+            foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => wantQueueCreatedInstance.ShouldCreateQueue()))
             {
                 if (wantQueueCreatedInstance.Address == null)
                 {
-                    throw new InvalidOperationException(string.Format("IWantQueueCreated implementation {0} returned a null address",wantQueueCreatedInstance.GetType().FullName));
+                    throw new InvalidOperationException(string.Format("IWantQueueCreated implementation {0} returned a null address", wantQueueCreatedInstance.GetType().FullName));
                 }
 
                 QueueCreator.CreateQueueIfNecessary(wantQueueCreatedInstance.Address, identity);
@@ -45,14 +38,12 @@ namespace NServiceBus.Unicast.Queuing
             }
         }
 
-        /// <summary>
-        /// Register all IWantQueueCreated implementers.
-        /// </summary>
-        public void Init()
+        public void Customize(BusConfiguration configuration)
         {
-            Configure.Instance.ForAllTypes<IWantQueueCreated>(type => Configure.Instance.Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall));
+            Configure.ForAllTypes<IWantQueueCreated>(configuration.GetSettings().GetAvailableTypes(),
+                type => configuration.RegisterComponents(c => c.ConfigureComponent(type, DependencyLifecycle.InstancePerCall)));
         }
 
-        private readonly static ILog Logger = LogManager.GetLogger(typeof(QueuesCreator));
+        static ILog Logger = LogManager.GetLogger<QueuesCreator>();
     }
 }

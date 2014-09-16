@@ -12,7 +12,7 @@ namespace NServiceBus.Encryption
 
             if (fieldInfo != null)
             {
-                var field = DelegateFactory.Create(fieldInfo);
+                var field = DelegateFactory.CreateGet(fieldInfo);
                 return field.Invoke(source);
             }
 
@@ -28,7 +28,7 @@ namespace NServiceBus.Encryption
                 return null;
             }
 
-            var property = DelegateFactory.Create(propertyInfo);
+            var property = DelegateFactory.CreateGet(propertyInfo);
             return property.Invoke(source);
         }
 

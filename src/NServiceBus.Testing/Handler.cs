@@ -13,15 +13,12 @@
         private readonly StubBus bus;
         private readonly T handler;
         private IDictionary<string, string> incomingHeaders = new Dictionary<string, string>();
-        private readonly List<Action> assertions = new List<Action>();
         private IList<IExpectedInvocation> expectedInvocations = new List<IExpectedInvocation>();
 
         /// <summary>
         /// Creates a new instance of the handler tester.
         /// </summary>
-// ReSharper disable UnusedParameter.Local
-        public Handler(T handler, StubBus bus, IMessageCreator messageCreator, IEnumerable<Type> types)
-// ReSharper restore UnusedParameter.Local
+        internal Handler(T handler, StubBus bus)
         {
             this.handler = handler;
             this.bus = bus;
@@ -45,15 +42,6 @@
         {
             incomingHeaders[key] = value;
 
-            return this;
-        }
-
-        /// <summary>
-        /// Obsolete
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        public Handler<T> AssertOutgoingHeader(string key, string value)
-        {
             return this;
         }
 
@@ -158,16 +146,6 @@
         }
 
         /// <summary>
-        /// Check that the handler tells the bus to forward the current message to the given destination.
-        /// </summary>
-        [ObsoleteEx(Message = "Please use an integration test to validate this feature.", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-        public Handler<T> ExpectForwardCurrentMessageTo(string destination)
-        {
-            expectedInvocations.Add(new ExpectedForwardCurrentMessageToInvocation { Check = d => d == destination });
-            return this;
-        }
-
-        /// <summary>
         /// Check that the handler tells the bus to handle the current message later.
         /// </summary>
         public Handler<T> ExpectHandleCurrentMessageLater()
@@ -267,7 +245,9 @@
             bus.CurrentMessageContext = context;
 
             foreach (var keyValuePair in incomingHeaders)
-                ExtensionMethods.SetHeaderAction(message, keyValuePair.Key, keyValuePair.Value);
+            {
+                bus.SetHeaderAction(message, keyValuePair.Key, keyValuePair.Value);
+            }
 
             ExtensionMethods.CurrentMessageBeingHandled = message;
 
@@ -284,9 +264,6 @@
             bus.ValidateAndReset(expectedInvocations);
             expectedInvocations.Clear();
 
-            assertions.ForEach(a => a());
-
-            assertions.Clear();
             ExtensionMethods.CurrentMessageBeingHandled = null;
         }
 

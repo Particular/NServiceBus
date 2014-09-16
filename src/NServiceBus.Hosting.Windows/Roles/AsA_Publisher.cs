@@ -4,5 +4,9 @@
     /// Indicates this endpoint is a publisher.
     /// This is compatible with <see cref="AsA_Server"/> but not <see cref="AsA_Client"/>.
     /// </summary>
-    public interface AsA_Publisher : AsA_Server {}
+    [ObsoleteEx(
+        RemoveInVersion = "6.0", 
+        Replacement = "AsA_Server" 
+      )]
+    public interface AsA_Publisher  {}
 }

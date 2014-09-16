@@ -1,51 +1,46 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
     using System.IO;
     using System.Linq;
-    using Messages;
+    using NServiceBus.Unicast.Messages;
+    using NServiceBus.Unicast.Transport;
     using Pipeline;
     using Pipeline.Contexts;
     using Serialization;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class SerializeMessagesBehavior : IBehavior<SendPhysicalMessageContext>
+    class SerializeMessagesBehavior : IBehavior<OutgoingContext>
     {
         public IMessageSerializer MessageSerializer { get; set; }
 
-        public void Invoke(SendPhysicalMessageContext context, Action next)
+        public void Invoke(OutgoingContext context, Action next)
         {
-            if (context.LogicalMessages.Any())
+            if (!context.OutgoingMessage.IsControlMessage())
             {
                 using (var ms = new MemoryStream())
                 {
-                    var messages = context.LogicalMessages.Select(m => m.Instance).ToArray();
+                    
+                    MessageSerializer.Serialize(context.OutgoingLogicalMessage.Instance, ms);
 
-                    MessageSerializer.Serialize(messages, ms);
+                    context.OutgoingMessage.Headers[Headers.ContentType] = MessageSerializer.ContentType;
 
-                    context.MessageToSend.Headers[Headers.ContentType] = MessageSerializer.ContentType;
+                    context.OutgoingMessage.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.OutgoingLogicalMessage);
 
-                    context.MessageToSend.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.LogicalMessages);
-
-                    context.MessageToSend.Body = ms.ToArray();
+                    context.OutgoingMessage.Body = ms.ToArray();
                 }
-              
-                foreach (var headerEntry in context.LogicalMessages.SelectMany(lm => lm.Headers))
+
+                foreach (var headerEntry in context.OutgoingLogicalMessage.Headers)
                 {
-                    context.MessageToSend.Headers[headerEntry.Key] = headerEntry.Value;
+                    context.OutgoingMessage.Headers[headerEntry.Key] = headerEntry.Value;
                 }
-                
             }
 
             next();
         }
 
-        string SerializeEnclosedMessageTypes(IEnumerable<LogicalMessage> messages)
+        string SerializeEnclosedMessageTypes(LogicalMessage message)
         {
-            var distinctTypes = messages.SelectMany(lm => lm.Metadata.MessageHierarchy).Distinct();
+            var distinctTypes = message.Metadata.MessageHierarchy.Distinct();
             
             return string.Join(";", distinctTypes.Select(t => t.AssemblyQualifiedName));
         }

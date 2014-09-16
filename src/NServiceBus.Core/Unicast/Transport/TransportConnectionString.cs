@@ -3,30 +3,54 @@
     using System;
     using System.Configuration;
 
-    public static class TransportConnectionString
+    class TransportConnectionString
     {
-        public static void Override(Func<string> func)
+        protected TransportConnectionString()
         {
-            GetValue = _ => func();
         }
 
-        public static string GetConnectionStringOrNull(string connectionStringName = null)
+        public string GetConnectionStringOrNull()
         {
-            return GetValue(connectionStringName ?? DefaultConnectionStringName);
+            return GetValue();
         }
 
-        static Func<string, string> GetValue = connectionStringName =>
+        Func<string> GetValue = () => ReadConnectionString(DefaultConnectionStringName);
+
+
+        static string ReadConnectionString(string connectionStringName)
+        {
+            var connectionStringSettings = ConfigurationManager.ConnectionStrings[connectionStringName];
+
+            if (connectionStringSettings == null)
             {
-                var connectionStringSettings = ConfigurationManager.ConnectionStrings[connectionStringName];
+                return null;
+            }
 
-                if (connectionStringSettings == null)
-                {
-                    return null;
-                }
+            return connectionStringSettings.ConnectionString;
+        }
 
-                return connectionStringSettings.ConnectionString;
-            };
 
-        public static string DefaultConnectionStringName = "NServiceBus/Transport";
+        public TransportConnectionString(Func<string> func)
+        {
+            GetValue = func;
+        }
+
+
+        public TransportConnectionString(string name)
+        {
+            GetValue = () => ReadConnectionString(name);
+        }
+
+        public static TransportConnectionString Default
+        {
+            get
+            {
+                return new TransportConnectionString();
+            }
+
+        }
+
+        const string DefaultConnectionStringName = "NServiceBus/Transport";
+
     }
 }

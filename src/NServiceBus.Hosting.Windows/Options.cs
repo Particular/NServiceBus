@@ -1,4 +1,6 @@
 ﻿// ReSharper disable ConvertToLambdaExpression
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable JoinDeclarationAndInitializer
 // ReSharper disable IdentifierTypo
 // ReSharper disable UnusedMethodReturnValue.Local
 //
@@ -148,7 +150,7 @@ namespace NDesk.Options
     using System.Text;
     using System.Text.RegularExpressions;
 
-    public class OptionValueCollection : IList, IList<string>
+    class OptionValueCollection : IList, IList<string>
     {
 
         List<string> values = new List<string>();
@@ -242,7 +244,7 @@ namespace NDesk.Options
         }
     }
 
-    public class OptionContext
+    class OptionContext
     {
         private OptionSet set;
         private OptionValueCollection c;
@@ -270,14 +272,14 @@ namespace NDesk.Options
         }
     }
 
-    public enum OptionValueType
+    enum OptionValueType
     {
         None,
         Optional,
         Required,
     }
 
-    public abstract class Option
+    abstract class Option
     {
         string prototype, description;
         string[] names;
@@ -458,7 +460,7 @@ namespace NDesk.Options
     }
 
     [Serializable]
-    public class OptionException : Exception
+    class OptionException : Exception
     {
         private string option;
 
@@ -497,9 +499,9 @@ namespace NDesk.Options
         }
     }
 
-    public delegate void OptionAction<TKey, TValue>(TKey key, TValue value);
+    delegate void OptionAction<TKey, TValue>(TKey key, TValue value);
 
-    public class OptionSet : KeyedCollection<string, Option>
+    class OptionSet : KeyedCollection<string, Option>
     {
         public OptionSet()
             : this(f => f)

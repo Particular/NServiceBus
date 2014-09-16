@@ -1,39 +1,36 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
-    using System.ComponentModel;
+    using NServiceBus.Unicast;
     using Pipeline;
     using Pipeline.Contexts;
     using Transports;
-    using Unicast;
 
-    [Obsolete("This is a prototype API. May change in minor version releases.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class ForwardBehavior : IBehavior<ReceivePhysicalMessageContext>
+    class ForwardBehavior : IBehavior<IncomingContext>
     {
-        public ISendMessages MessageSender { get; set; }
-
-        public UnicastBus UnicastBus { get; set; }
+        public IAuditMessages MessageAuditer { get; set; }
 
         public Address ForwardReceivedMessagesTo { get; set; }
 
-        public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
+        public TimeSpan? TimeToBeReceivedOnForwardedMessages { get; set; }
 
-        public void Invoke(ReceivePhysicalMessageContext context, Action next)
+        public void Invoke(IncomingContext context, Action next)
         {
             next();
 
-            if (ForwardReceivedMessagesTo != null && ForwardReceivedMessagesTo != Address.Undefined)
+            MessageAuditer.Audit(new SendOptions(ForwardReceivedMessagesTo)
             {
-                MessageSender.ForwardMessage(context.PhysicalMessage, TimeToBeReceivedOnForwardedMessages, ForwardReceivedMessagesTo);
-            }
-            //To cope with people hacking UnicastBus.ForwardReceivedMessagesTo at runtime. will be removed when we remove UnicastBus.ForwardReceivedMessagesTo
-            if (UnicastBus.ForwardReceivedMessagesTo != ForwardReceivedMessagesTo)
+                TimeToBeReceived = TimeToBeReceivedOnForwardedMessages
+            }, context.PhysicalMessage);
+
+        }
+
+        public class Registration : RegisterStep
+        {
+            public Registration()
+                : base("ForwardMessageTo", typeof(ForwardBehavior), "Forwards message to the specified queue in the UnicastBus config section.")
             {
-                if (UnicastBus.ForwardReceivedMessagesTo != null && UnicastBus.ForwardReceivedMessagesTo != Address.Undefined)
-                {
-                    MessageSender.ForwardMessage(context.PhysicalMessage, UnicastBus.TimeToBeReceivedOnForwardedMessages, UnicastBus.ForwardReceivedMessagesTo);
-                }
+                InsertBefore(WellKnownStep.ExecuteUnitOfWork);
             }
         }
     }

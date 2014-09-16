@@ -1,31 +1,19 @@
 namespace NServiceBus.Unicast.Queuing.Installers
 {
-    using System.ComponentModel;
-    using Audit;
-    using Features;
-
-    /// <summary>
-    /// Signals to create forward received messages queue.
-    /// </summary>
-    [EditorBrowsable(EditorBrowsableState.Advanced)]
-    public class AuditQueueCreator : IWantQueueCreated
+    class AuditQueueCreator : IWantQueueCreated
     {
-        public MessageAuditer Auditer { get; set; }
+        public Address AuditQueue { get; set; }
 
-        /// <summary>
-        /// Address of queue the implementer requires.
-        /// </summary>
         public Address Address
         {
-            get { return Auditer.AuditQueue; }
+            get { return AuditQueue; }
         }
 
-        /// <summary>
-        /// True if no need to create queue
-        /// </summary>
-        public bool IsDisabled
+        public bool Enabled { get; set; }
+
+        public bool ShouldCreateQueue()
         {
-            get { return !Feature.IsEnabled<Audit>(); }
+            return Enabled;
         }
     }
 }

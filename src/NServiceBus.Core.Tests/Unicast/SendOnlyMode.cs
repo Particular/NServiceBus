@@ -5,70 +5,68 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_sending_a_message_in_send_only_mode : using_a_configured_unicastBus
+    class When_sending_a_message_in_send_only_mode : using_a_configured_unicastBus
     {
         [Test]
         public void Should_be_allowed()
         {
-            Configure.Endpoint.AsSendOnly();
+            settings.Set("Endpoint.SendOnly", true);
             RegisterMessageType<TestMessage>();
-            bus.Send(Address.Local, new TestMessage());
+            bus.Send(configure.LocalAddress, new TestMessage());
         }
     }
     [TestFixture]
-    public class When_subscribing_to_a_message_in_send_only_mode : using_a_configured_unicastBus
+    class When_subscribing_to_a_message_in_send_only_mode : using_a_configured_unicastBus
     {
         [Test]
         public void Should_not_be_allowed()
         {
-            Configure.Endpoint.AsSendOnly(); 
+            settings.Set("Endpoint.SendOnly", true);
             RegisterMessageType<TestMessage>();
             Assert.Throws<InvalidOperationException>(() => bus.Subscribe<TestMessage>());
         }
     }
 
     [TestFixture]
-    public class When_unsubscribing_to_a_message_in_send_only_mode : using_a_configured_unicastBus
+    class When_unsubscribing_to_a_message_in_send_only_mode : using_a_configured_unicastBus
     {
         [Test]
         public void Should_not_be_allowed()
         {
-            Configure.Endpoint.AsSendOnly();
+            settings.Set("Endpoint.SendOnly", true);
 
             RegisterMessageType<TestMessage>();
             Assert.Throws<InvalidOperationException>(() => bus.Unsubscribe<TestMessage>());
         }
     }
+
     [TestFixture]
-    public class When_replying_to_a_message_that_was_sent_with_null_reply_to_address : using_the_unicastBus
+    class When_replying_to_a_message_that_was_sent_with_null_reply_to_address : using_the_unicastBus
     {
         [Test]
         public void Should_blow()
         {
             RegisterMessageType<TestMessage>();
-            var receivedMessage = Helpers.Helpers.Serialize(new TestMessage());
+            var receivedMessage = Helpers.Helpers.Serialize(new TestMessage(),true);
             RegisterMessageHandlerType<HandlerThatRepliesWithACommandToAMessage>();
             ReceiveMessage(receivedMessage);
             Assert.IsInstanceOf<InvalidOperationException>(ResultingException.GetBaseException());
         }
     }
+
     [TestFixture]
-    public class When_returning_to_a_message_that_was_sent_with_null_reply_to_address : using_the_unicastBus
+    class When_returning_to_a_message_that_was_sent_with_null_reply_to_address : using_the_unicastBus
     {
         [Test]
         public void Should_blow()
         {
             RegisterMessageType<TestMessage>();
-            var receivedMessage = Helpers.Helpers.Serialize(new TestMessage());
+            var receivedMessage = Helpers.Helpers.Serialize(new TestMessage(),true);
             RegisterMessageHandlerType<HandlerThatReturns>();
             ReceiveMessage(receivedMessage);
             Assert.IsInstanceOf<InvalidOperationException>(ResultingException.GetBaseException());
         }
     }
-
-
-   
-
 
     public class TestMessage : IMessage
     {

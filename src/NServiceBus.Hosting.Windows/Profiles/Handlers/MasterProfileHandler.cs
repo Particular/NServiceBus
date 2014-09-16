@@ -1,27 +1,19 @@
 ﻿namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
     using System;
-    using System.Collections.Generic;
-    using System.Configuration;
-    using System.Linq;
-    using Features;
     using Hosting.Profiles;
 
-    [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
-    class MasterProfileHandler : IHandleProfile<Master>, IWantTheListOfActiveProfiles
+    [ObsoleteEx(RemoveInVersion = "6.0")]
+    class MasterProfileHandler : IHandleProfile<Master>
     {
-        public void ProfileActivated()
+        public void ProfileActivated(BusConfiguration config)
         {
-            if (ActiveProfiles.Contains(typeof(Worker)))
-            {
-                throw new ConfigurationErrorsException("Master profile and Worker profile should not coexist.");
-            }
-
-            Configure.Instance.RunDistributor();
-
-            Feature.EnableByDefault<Gateway>();
+            throw new Exception("Master Profile is now obsolete. The distributor feature has been moved to its own stand alone nuget 'NServiceBus.Distributor.MSMQ'. Once you've installed this package, use `NServiceBus.MsmqMaster` profile instead.");
         }
-        
-        public IEnumerable<Type> ActiveProfiles { get; set; }
+
+        public void ProfileActivated(Configure config)
+        {
+            throw new Exception("Master Profile is now obsolete. The distributor feature has been moved to its own stand alone nuget 'NServiceBus.Distributor.MSMQ'. Once you've installed this package, use `NServiceBus.MsmqMaster` profile instead.");
+        }
     }
 }

@@ -2,12 +2,24 @@
 {
     using Serializers.Binary;
 
-    public class BinarySerialization : Feature<Categories.Serializers>
+    /// <summary>
+    /// Uses Binary as the message serialization.
+    /// </summary>
+    public class BinarySerialization : Feature
     {
-        public override void Initialize()
+        
+        internal BinarySerialization()
         {
-            Configure.Component<SimpleMessageMapper>(DependencyLifecycle.SingleInstance);
-            Configure.Component<BinaryMessageSerializer>(DependencyLifecycle.SingleInstance);
+            EnableByDefault();
+            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "BinarySerialization not enable since serialization definition not detected.");
+        }
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            context.Container.ConfigureComponent<SimpleMessageMapper>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<BinaryMessageSerializer>(DependencyLifecycle.SingleInstance);
         }
     }
 }

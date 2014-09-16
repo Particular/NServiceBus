@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports.Msmq
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -9,13 +9,13 @@ namespace NServiceBus.Transports.Msmq
     using System.Net.NetworkInformation;
     using System.Text;
     using System.Xml;
-    using System.Xml.Serialization;
     using Logging;
+    using Transports.Msmq;
 
     /// <summary>
     ///     MSMQ-related utility functions
     /// </summary>
-    public class MsmqUtilities
+    class MsmqUtilities
     {
         /// <summary>
         ///     Turns a '@' separated value into a full path.
@@ -96,11 +96,8 @@ namespace NServiceBus.Transports.Msmq
             return "127.0.0.1";
         }
 
-        /// <summary>
-        ///     Gets an independent address for the queue in the form:
-        ///     queue@machine.
-        /// </summary>
-        public static Address GetIndependentAddressForQueue(MessageQueue q)
+       
+        static Address GetIndependentAddressForQueue(MessageQueue q)
         {
             if (q == null)
             {
@@ -142,13 +139,20 @@ namespace NServiceBus.Transports.Msmq
         {
             var headers = DeserializeMessageHeaders(m);
 
+            
             var result = new TransportMessage(m.Id, headers)
             {
                 Recoverable = m.Recoverable,
                 TimeToBeReceived = m.TimeToBeReceived,
-                ReplyToAddress = GetIndependentAddressForQueue(m.ResponseQueue),
                 CorrelationId = GetCorrelationId(m, headers)
             };
+
+            //note: we can drop this line when we no longer support interop btw v3 + v4
+            if (m.ResponseQueue != null)
+            {
+                result.Headers[Headers.ReplyToAddress] = GetIndependentAddressForQueue(m.ResponseQueue).ToString();    
+            }
+            
 
             if (Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific))
             {
@@ -297,7 +301,7 @@ namespace NServiceBus.Transports.Msmq
         const string PREFIX = "FormatName:" + DIRECTPREFIX;
         internal const string PRIVATE = "\\private$\\";
         static string localIp;
-        static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
-        static ILog Logger = LogManager.GetLogger(typeof(MsmqUtilities));
+        static readonly System.Xml.Serialization.XmlSerializer headerSerializer = new System.Xml.Serialization.XmlSerializer(typeof(List<HeaderInfo>));
+        static ILog Logger = LogManager.GetLogger<MsmqUtilities>();
     }
 }

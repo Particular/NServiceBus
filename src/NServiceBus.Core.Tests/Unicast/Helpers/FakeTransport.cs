@@ -10,10 +10,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
            
         }
         
-        public void Start(string inputqueue)
-        {
-        }
-
         public void Start(Address localAddress)
         {
         }
@@ -21,10 +17,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
         public int MaximumConcurrencyLevel
         {
             get { return 1; }
-        }
-
-        public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
-        {
         }
 
         public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)
@@ -39,11 +31,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
 
         public void Stop()
         {
-        }
-
-        public int NumberOfWorkerThreads
-        {
-            get { return MaximumConcurrencyLevel; }
         }
 
         public void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)
@@ -77,11 +64,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
             }
             FinishedMessageProcessing(this, new FinishedMessageProcessingEventArgs(transportMessage));
         }
-        /// <summary>
-        /// todo: use for testing.
-        /// </summary>
-        public int MaxThroughputPerSecond { get; set; }
-
         public int MaximumMessageThroughputPerSecond { get; private set; }
     }
 }

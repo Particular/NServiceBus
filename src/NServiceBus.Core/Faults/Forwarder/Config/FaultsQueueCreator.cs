@@ -2,25 +2,20 @@ namespace NServiceBus.Faults.Forwarder.Config
 {
     using Unicast.Queuing;
 
-    /// <summary>
-    /// Signals to create faults queue
-    /// </summary>
-    public class FaultsQueueCreator : IWantQueueCreated
+    class FaultsQueueCreator : IWantQueueCreated
     {
-        /// <summary>
-        /// Signals to create the faults queue
-        /// </summary>
+        public Address ErrorQueue { get; set; }
+
         public Address Address
         {
-            get { return ConfigureFaultsForwarder.ErrorQueue; }
+            get { return ErrorQueue; }
         }
 
-        /// <summary>
-        /// Disabling the creation of faults queue
-        /// </summary>
-        public bool IsDisabled
+        public bool Enabled { get; set; }
+
+        public bool ShouldCreateQueue()
         {
-            get { return ConfigureFaultsForwarder.ErrorQueue == null; }
+            return Enabled;
         }
     }
 }

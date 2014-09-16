@@ -7,7 +7,7 @@ namespace NServiceBus.Testing
     /// <summary>
     /// Saga unit testing framework.
     /// </summary>
-    public class Saga<T> where T : ISaga, new()
+    public class Saga<T> where T : Saga, new()
     {
         private readonly T saga;
         private readonly StubBus bus;
@@ -19,12 +19,19 @@ namespace NServiceBus.Testing
         {
             this.saga = saga;
             this.bus = bus;
+
             if (saga.Entity == null)
             {
                 var prop = typeof(T).GetProperty("Data");
+                if (prop == null)
+                {
+                    return;
+                }
+
                 var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
                 saga.Entity = sagaData;
             }
+
             saga.Entity.OriginalMessageId = Guid.NewGuid().ToString();
             saga.Entity.Originator = "client";
         }
@@ -163,15 +170,6 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Check that the saga uses the bus to return the appropriate error code.
-        /// </summary>
-        [ObsoleteEx(Message = "Sagas should never call Return, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        public Saga<T> ExpectReturn(Func<int, bool> check = null)
-        {
-            throw new InvalidOperationException("Sagas should never call Return, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.");
-        }
-
-        /// <summary>
         /// Check that the saga sends the given message type to the appropriate destination.
         /// </summary>
         public Saga<T> ExpectSendToDestination<TMessage>(Func<TMessage, Address, bool> check)
@@ -188,16 +186,6 @@ namespace NServiceBus.Testing
         public Saga<T> ExpectSendToDestination<TMessage>(Action<TMessage, Address> check)
         {
             return ExpectSendToDestination(CheckActionToFunc(check));
-        }
-
-        /// <summary>
-        /// Check that the saga replies to the originator with the given message type.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "ExpectReplyToOriginator")]
-        // ReSharper disable once IdentifierTypo
-        public Saga<T> ExpectReplyToOrginator<TMessage>(Func<TMessage, bool> check = null)
-        {
-            return ExpectReplyToOriginator(check);
         }
 
         /// <summary>
@@ -234,18 +222,7 @@ namespace NServiceBus.Testing
                 );
             return this;
         }
-
-        /// <summary>
-        /// Check that the saga replies to the originator with the given message type.
-        /// </summary>
-        /// <param name="check">An action that performs assertions on the message.</param>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "ExpectReplyToOriginator")]
-        // ReSharper disable once IdentifierTypo
-        public Saga<T> ExpectReplyToOrginator<TMessage>(Action<TMessage> check)
-        {
-            return ExpectReplyToOriginator(CheckActionToFunc(check));
-        }
-
+        
         /// <summary>
         /// Check that the saga replies to the originator with the given message type.
         /// </summary>
@@ -298,6 +275,17 @@ namespace NServiceBus.Testing
         {
             expectedInvocations.Add(new ExpectedHandleCurrentMessageLaterInvocation<object>());
             return this;
+        }
+
+        /// <summary>
+        /// Initializes the given message type and checks all the expectations previously set up,
+        /// and then clears them for continued testing.
+        /// </summary>
+        public Saga<T> WhenHandling<TMessage>(Action<TMessage> initializeMessage = null)
+        {
+            var msg = bus.CreateInstance(initializeMessage);
+
+            return When(_ => ((dynamic)saga).Handle(msg));
         }
 
         /// <summary>

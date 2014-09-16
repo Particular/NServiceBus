@@ -2,14 +2,17 @@
 
 namespace MessageMutators
 {
-    public class HookMyMessageMutators : IWantCustomInitialization
+    public class HookMyMessageMutators : INeedInitialization
     {
-        public void Init()
+        public void Customize(BusConfiguration configuration)
         {
-            Configure.Instance.Configurer.ConfigureComponent<ValidationMessageMutator>(
+            configuration.RegisterComponents(c =>
+            {
+                c.ConfigureComponent<ValidationMessageMutator>(
+                    DependencyLifecycle.InstancePerCall);
+                c.ConfigureComponent<TransportMessageCompressionMutator>(
                 DependencyLifecycle.InstancePerCall);
-            Configure.Instance.Configurer.ConfigureComponent<TransportMessageCompressionMutator>(
-                DependencyLifecycle.InstancePerCall);
+            });
         }
     }
 }

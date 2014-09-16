@@ -1,8 +1,9 @@
 ﻿using System.IO;
 using System.IO.Compression;
+using NServiceBus.Logging;
 using NServiceBus.MessageMutator;
 using NServiceBus;
-using log4net;
+using NServiceBus.Unicast.Messages;
 
 namespace MessageMutators
 {
@@ -10,7 +11,7 @@ namespace MessageMutators
     {
         private static readonly ILog Logger = LogManager.GetLogger("TransportMessageCompressionMutator");
 
-        public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
+        public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
         {
             Logger.Info("transportMessage.Body size before compression: " + transportMessage.Body.Length);
             

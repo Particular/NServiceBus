@@ -5,14 +5,8 @@
     using Saga;
 
     [TestFixture]
-    class SagaTests
+    class SagaTests : BaseTests
     {
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
-        {
-            Test.Initialize();
-        }
-
         [Test]
         public void MySaga()
         {
@@ -34,6 +28,14 @@
                 .ExpectTimeoutToBeSetIn<StartsSaga>(
                     (state, span) => Assert.That(() => span, Is.EqualTo(TimeSpan.FromDays(7))))
                 .When(s => s.Handle(new StartsSaga()));
+        }
+
+        [Test]
+        public void SagaThatIsStartedWithInterface()
+        {
+            Test.Saga<MySagaWithInterface>()
+                .ExpectSend<Command>()
+                .WhenHandling<StartsSagaWithInterface>(m => m.Foo = "Hello");
         }
 
         [Test]
@@ -145,12 +147,15 @@
 
         public class SagaThatDoesAReplyData : ContainSagaData
         {
-             
         }
 
         public void Handle(MyRequest myRequest)
         {
             Bus.Reply(new MyReply());
+        }
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaThatDoesAReplyData> mapper)
+        {
         }
     }
 
@@ -161,6 +166,27 @@
 
     public class MyReply
     {
+    }
+
+    public class MySagaWithInterface : Saga<MySagaWithInterface.MySagaDataWithInterface>,
+        IAmStartedByMessages<StartsSagaWithInterface>
+    {
+        public class MySagaDataWithInterface : ContainSagaData
+        {
+            
+        }
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaDataWithInterface> mapper)
+        {
+        }
+
+        public void Handle(StartsSagaWithInterface message)
+        {
+            if (message.Foo == "Hello")
+            {
+                Bus.Send<Command>(null);
+            }
+        }
     }
 
     public class MySaga : Saga<MySagaData>,
@@ -180,6 +206,10 @@
             Bus.Publish<Event>();
             MarkAsComplete();
         }
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+        {
+        }
     }
 
     public class MySagaData : IContainSagaData
@@ -187,6 +217,11 @@
         public Guid Id { get; set; }
         public string Originator { get; set; }
         public string OriginalMessageId { get; set; }
+    }
+
+    public interface StartsSagaWithInterface: IEvent
+    {
+        string Foo { get; set; }
     }
 
     public class StartsSaga : ICommand
@@ -257,6 +292,10 @@
                                            m.OrderId = message.OrderId;
                                            m.Total = message.Total*(decimal) 0.9;
                                        });
+        }
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<DiscountPolicyData> mapper)
+        {
         }
     }
 

@@ -62,10 +62,9 @@
 
                 public void Handle(StartSaga message)
                 {
-                    var dataId = Guid.NewGuid();
-                    Console.Out.WriteLine("Saga2 sending DoSomething for DataId: {0}", dataId);
-                    Data.DataId = dataId;
-                    Bus.Send(new DoSomething { DataId = dataId });
+                    Console.Out.WriteLine("Saga2 sending DoSomething for DataId: {0}", message.DataId);
+                    Data.DataId = message.DataId;
+                    Bus.Send(new DoSomething { DataId = message.DataId });
                 }
 
                 public void Handle(DoSomethingResponse message)
@@ -74,10 +73,9 @@
                     Console.Out.WriteLine("Saga received DoSomethingResponse for DataId: {0} and MarkAsComplete", message.DataId);
                     MarkAsComplete();
                 }
-
-                public override void ConfigureHowToFindSaga()
+                
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga2Data> mapper)
                 {
-                    ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class MySaga2Data : ContainSagaData

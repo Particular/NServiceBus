@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Tests.Timeout
 {
     using Transports;
+    using Unicast;
 
     public class FakeMessageSender : ISendMessages
     {
@@ -12,7 +13,7 @@ namespace NServiceBus.Core.Tests.Timeout
             set { messagesSent = value; }
         }
 
-        public void Send(TransportMessage message, Address address)
+        public void Send(TransportMessage message, SendOptions sendOptions)
         {
             MessagesSent++;
         }
