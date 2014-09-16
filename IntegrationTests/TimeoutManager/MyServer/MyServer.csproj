@@ -56,7 +56,6 @@
     <Compile Include="Scheduling\ScheduledTaskExecutedHandler.cs" />
     <Compile Include="Starter.cs" />
     <Compile Include="EndpointConfig.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Saga\SimpleSaga.cs" />
     <Compile Include="Saga\SimpleSagaData.cs" />
     <Compile Include="Saga\StartSagaMessage.cs" />

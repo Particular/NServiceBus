@@ -2,7 +2,6 @@
 {
     using System;
     using Messages;
-    using NServiceBus;
     using NServiceBus.Testing;
     using NUnit.Framework;
     using Server;
