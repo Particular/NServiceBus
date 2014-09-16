@@ -600,13 +600,13 @@
     <Compile Include="CircuitBreakers\CircuitBreaker.cs" />
     <Compile Include="Utils\BackOff.cs" />
     <Compile Include="CircuitBreakers\RepeatedFailuresOverTimeCircuitBreaker.cs" />
+    <Compile Include="Utils\ExceptionHeaderHelper.cs" />
     <Compile Include="Utils\DeterministicGuid.cs" />
     <Compile Include="Utils\FileVersionRetriever.cs" />
     <Compile Include="Utils\Reflection\DelegateFactory.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
     <Compile Include="Utils\Reflection\Reflect.cs" />
     <Compile Include="Utils\RegistryReader.cs" />
-    <Compile Include="Utils\StackTracePreserver.cs" />
     <Compile Include="WcfService.cs" />
   </ItemGroup>
   <ItemGroup>

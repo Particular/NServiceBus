@@ -8,7 +8,6 @@ namespace NServiceBus.Unicast.Transport
     using Logging;
     using Monitoring;
     using Transports;
-    using Utils;
 
     /// <summary>
     ///     The default implementation of <see cref="ITransport" />
@@ -303,11 +302,6 @@ namespace NServiceBus.Unicast.Transport
 
             currentReceivePerformanceDiagnostics.MessageFailed();
 
-            if (ex is AggregateException)
-            {
-                ex = ex.GetBaseException();
-            }
-
             if (TransactionSettings.IsTransactional && messageId != null)
             {
                 firstLevelRetries.IncrementFailuresForMessage(message, ex);
@@ -317,7 +311,6 @@ namespace NServiceBus.Unicast.Transport
 
             Logger.Info("Failed to process message", ex);
         }
-
         void ProcessMessage(TransportMessage message)
         {
             if (string.IsNullOrWhiteSpace(message.Id))
@@ -329,71 +322,76 @@ namespace NServiceBus.Unicast.Transport
 
                 return;
             }
-
-            var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(message);
-
-            if (TransactionSettings.IsTransactional)
+            try
             {
-                if (firstLevelRetries.HasMaxRetriesForMessageBeenReached(message))
+                OnStartedMessageProcessing(message);
+            }
+            catch (Exception exception)
+            {
+                Logger.Error("Failed raising 'started message processing' event.", exception);
+                if (ShouldExitBecauseOfRetries(message))
                 {
-                    OnFinishedMessageProcessing(message);
                     return;
                 }
+                throw;
             }
 
-            if (exceptionFromStartedMessageHandling != null)
-            {
-                exceptionFromStartedMessageHandling.PreserveStackTrace();
-                throw exceptionFromStartedMessageHandling; //cause rollback 
-            }
-
-            //care about failures here
-            var exceptionFromMessageHandling = OnTransportMessageReceived(message);
-
-            //and here
-            var exceptionFromMessageModules = OnFinishedMessageProcessing(message);
-
-            //but need to abort takes precedence - failures aren't counted here,
-            //so messages aren't moved to the error queue.
-            if (needToAbort)
+            if (ShouldExitBecauseOfRetries(message))
             {
                 return;
             }
 
-            if (exceptionFromMessageHandling != null)
+            try
             {
-                if (exceptionFromMessageHandling is AggregateException)
-                {
-                    var serializationException =
-                        exceptionFromMessageHandling.GetBaseException() as SerializationException;
-                    if (serializationException != null)
-                    {
-                        Logger.Error("Failed to deserialize message with ID: " + message.Id, serializationException);
+                OnTransportMessageReceived(message);
+            }
+            catch (SerializationException serializationException)
+            {
+                Logger.Error("Failed to deserialize message with ID: " + message.Id, serializationException);
 
-                        message.RevertToOriginalBodyIfNeeded();
+                message.RevertToOriginalBodyIfNeeded();
 
-                        FailureManager.SerializationFailedForMessage(message, serializationException);
-                    }
-                    else
-                    {
-                        exceptionFromMessageHandling.PreserveStackTrace();
-                        throw exceptionFromMessageHandling;//cause rollback    
-                    }
-                }
-                else
+                FailureManager.SerializationFailedForMessage(message, serializationException);
+            }
+            catch (Exception)
+            {
+                //but need to abort takes precedence - failures aren't counted here,
+                //so messages aren't moved to the error queue.
+                if (!needToAbort)
                 {
-                    exceptionFromMessageHandling.PreserveStackTrace();
-                    throw exceptionFromMessageHandling;//cause rollback    
+                    throw;
                 }
             }
-
-            if (exceptionFromMessageModules != null) //cause rollback
+            finally
             {
-                exceptionFromMessageModules.PreserveStackTrace();
-                throw exceptionFromMessageModules;
+                try
+                {
+                    OnFinishedMessageProcessing(message);
+                }
+                catch (Exception exception)
+                {
+                    Logger.Error("Failed raising 'finished message processing' event.", exception);
+                    //but need to abort takes precedence - failures aren't counted here,
+                    //so messages aren't moved to the error queue.
+                    if (!needToAbort)
+                    {
+                        throw;
+                    }
+                }
             }
         }
 
+        bool ShouldExitBecauseOfRetries(TransportMessage message)
+        {
+            if (TransactionSettings.IsTransactional)
+            {
+                if (firstLevelRetries.HasMaxRetriesForMessageBeenReached(message))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         void InnerStop()
         {
@@ -408,57 +406,28 @@ namespace NServiceBus.Unicast.Transport
             isStarted = false;
         }
 
-        Exception OnStartedMessageProcessing(TransportMessage msg)
+        void OnStartedMessageProcessing(TransportMessage msg)
         {
-            try
+            if (StartedMessageProcessing != null)
             {
-                if (StartedMessageProcessing != null)
-                {
-                    StartedMessageProcessing(this, new StartedMessageProcessingEventArgs(msg));
-                }
+                StartedMessageProcessing(this, new StartedMessageProcessingEventArgs(msg));
             }
-            catch (Exception e)
-            {
-                Logger.Error("Failed raising 'started message processing' event.", e);
-                return e;
-            }
-
-            return null;
         }
 
-        Exception OnFinishedMessageProcessing(TransportMessage msg)
+        void OnFinishedMessageProcessing(TransportMessage msg)
         {
-            try
+            if (FinishedMessageProcessing != null)
             {
-                if (FinishedMessageProcessing != null)
-                {
-                    FinishedMessageProcessing(this, new FinishedMessageProcessingEventArgs(msg));
-                }
+                FinishedMessageProcessing(this, new FinishedMessageProcessingEventArgs(msg));
             }
-            catch (Exception e)
-            {
-                Logger.Error("Failed raising 'finished message processing' event.", e);
-                return e;
-            }
-
-            return null;
         }
 
-        Exception OnTransportMessageReceived(TransportMessage msg)
+        void OnTransportMessageReceived(TransportMessage msg)
         {
-            try
+            if (TransportMessageReceived != null)
             {
-                if (TransportMessageReceived != null)
-                {
-                    TransportMessageReceived(this, new TransportMessageReceivedEventArgs(msg));
-                }
+                TransportMessageReceived(this, new TransportMessageReceivedEventArgs(msg));
             }
-            catch (Exception e)
-            {
-                return e;
-            }
-
-            return null;
         }
 
         void OnFailedMessageProcessing(TransportMessage message, Exception originalException)
@@ -472,7 +441,7 @@ namespace NServiceBus.Unicast.Transport
             }
             catch (Exception e)
             {
-                Logger.Warn("Failed raising 'failed message processing' event.", e);
+                Logger.Error("Failed raising 'failed message processing' event.", e);
             }
         }
 
