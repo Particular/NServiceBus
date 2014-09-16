@@ -5,8 +5,6 @@ namespace ObjectBuilder.Tests
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus;
-    using NServiceBus.ObjectBuilder.CastleWindsor;
-    using NServiceBus.ObjectBuilder.Spring;
     using NUnit.Framework;
 
     [TestFixture]
@@ -47,7 +45,7 @@ namespace ObjectBuilder.Tests
                 builder.RegisterSingleton(typeof(ISingletonComponent), new AnotherSingletonComponent());
 
                 Assert.IsInstanceOf<AnotherSingletonComponent>(builder.Build(typeof(ISingletonComponent)));
-            }, typeof(SpringObjectBuilder));
+            });//Not supported by, typeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -95,7 +93,7 @@ namespace ObjectBuilder.Tests
 
                 Assert.AreEqual(builder.Build(typeof(ISingleton1)), singleton);
                 Assert.AreEqual(builder.Build(typeof(ISingleton2)), singleton);
-            },typeof(SpringObjectBuilder));
+            });//Not supported by,typeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -211,8 +209,8 @@ namespace ObjectBuilder.Tests
                 Assert.True(builder.HasComponent(typeof(ISomeOtherInterface)));
                 Assert.True(builder.HasComponent(typeof(IYetAnotherInterface)));
                 Assert.AreEqual(1, builder.BuildAll(typeof(IYetAnotherInterface)).Count());
-            },
-            typeof(SpringObjectBuilder));
+            });
+            //Not supported bytypeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -231,8 +229,8 @@ namespace ObjectBuilder.Tests
                     Assert.NotNull(childBuilder.Build(typeof(SomeClass)));
                     Assert.AreEqual(2, childBuilder.BuildAll(typeof(ISomeInterface)).Count());
                 }
-            }
-            ,typeof(WindsorObjectBuilder));
+            });
+            //Not supported by,typeof(WindsorObjectBuilder));
         }
 
         [Test]

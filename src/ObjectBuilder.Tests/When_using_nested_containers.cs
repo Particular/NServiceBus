@@ -5,11 +5,7 @@ namespace ObjectBuilder.Tests
     using System.Threading.Tasks;
     using NServiceBus;
     using NServiceBus.ObjectBuilder.Autofac;
-    using NServiceBus.ObjectBuilder.CastleWindsor;
-    using NServiceBus.ObjectBuilder.Ninject;
-    using NServiceBus.ObjectBuilder.Spring;
     using NUnit.Framework;
-    using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
 
     [TestFixture]
     public class When_using_nested_containers : BuilderFixture
@@ -26,8 +22,8 @@ namespace ObjectBuilder.Tests
                     nestedContainer.Build(typeof(InstancePerUoWComponent));
 
                 Assert.True(InstancePerUoWComponent.DisposeCalled);
-            },
-            typeof(SpringObjectBuilder));
+            });
+            //Not supported bytypeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -36,7 +32,7 @@ namespace ObjectBuilder.Tests
             ForAllBuilders(builder =>
             {
                 builder.Configure(typeof(InstancePerUoWComponent),
-                                  DependencyLifecycle.InstancePerUnitOfWork);
+                    DependencyLifecycle.InstancePerUnitOfWork);
 
                 var task1 =
                     Task<object>.Factory.StartNew(
@@ -59,7 +55,8 @@ namespace ObjectBuilder.Tests
 
                 Assert.AreNotSame(task1.Result, task2.Result);
 
-            }, typeof(SpringObjectBuilder));
+            });
+            //Not supported bytypeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -115,36 +112,7 @@ namespace ObjectBuilder.Tests
 
                 var upperLimitBytes = 200 * 1024;
                 Assert.That(after-before, Is.LessThan(upperLimitBytes), "Apparently {0} consumed more than {1} KB of memory", builder, upperLimitBytes/1024);
-            }, typeof(NinjectObjectBuilder));
-        }
-
-        [TestCase(10000, Ignore=true)]
-        [TestCase(20000, Ignore=true)]
-        [Description("Left in for convenience - MHG will remove soon")]
-        public void It_works_with_specific_object_builder(int iterations)
-        {
-            IContainer builder = new NinjectObjectBuilder();
-
-            builder.Configure(typeof(InstancePerCallComponent), DependencyLifecycle.SingleInstance);
-
-            GC.Collect();
-            var before = GC.GetTotalMemory(true);
-            var sw = Stopwatch.StartNew();
-
-            for (var i = 0; i < iterations; i++)
-            {
-                using (var nestedContainer = builder.BuildChildContainer())
-                {
-                    nestedContainer.Build(typeof(InstancePerCallComponent));
-                }
-            }
-
-            sw.Stop();
-            // Collect all generations of memory.
-            GC.Collect();
-
-            var after = GC.GetTotalMemory(true);
-            Console.WriteLine("{0} reps: {1} Time: {2} MemDelta: {3} bytes", iterations, builder.GetType().Name, sw.Elapsed, after - before);
+            });//Not supported by, typeof(NinjectObjectBuilder));
         }
 
         [Test]
@@ -158,8 +126,8 @@ namespace ObjectBuilder.Tests
                 {
                     Assert.AreSame(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)),"UoW's should be singleton in child container");
                 }
-            },
-            typeof(SpringObjectBuilder));
+            });
+            //Not supported bytypeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -171,12 +139,12 @@ namespace ObjectBuilder.Tests
 
                 using (builder.BuildChildContainer())
                 {
-                   //no-op
+                    //no-op
                 }
 
                 Assert.AreNotSame(builder.Build(typeof(InstancePerUoWComponent)), builder.Build(typeof(InstancePerUoWComponent)), "UoW's should be instance per call in the root container");
-            },
-            typeof(AutofacObjectBuilder), typeof(WindsorObjectBuilder));
+            },typeof(AutofacObjectBuilder));
+            //Not supported by typeof(AutofacObjectBuilder), typeof(WindsorObjectBuilder));
         }
         [Test]
         public void Should_not_dispose_singletons_when_container_goes_out_of_scope()
@@ -194,8 +162,8 @@ namespace ObjectBuilder.Tests
                 }
 
                 Assert.False(SingletonComponent.DisposeCalled);
-            },
-            typeof(SpringObjectBuilder));
+            });
+            //Not supported by typeof(SpringObjectBuilder));
         }
 
         class SingletonComponent : ISingletonComponent, IDisposable

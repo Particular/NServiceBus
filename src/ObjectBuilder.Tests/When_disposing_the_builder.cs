@@ -2,10 +2,7 @@ namespace ObjectBuilder.Tests
 {
     using System;
     using System.Diagnostics;
-    using System.Threading.Tasks;
     using NServiceBus;
-    using NServiceBus.ObjectBuilder.Common;
-    using NServiceBus.ObjectBuilder.Spring;
     using NUnit.Framework;
 
     [TestFixture]
@@ -59,34 +56,7 @@ namespace ObjectBuilder.Tests
 
                 Assert.False(AnotherSingletonComponent.DisposeCalled, "Dispose should not be called on AnotherSingletonComponent because it belongs to main container");
                 Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
-            }, typeof(SpringObjectBuilder));
-        }
-
-        [Test, Ignore]
-        public void Spring_only_Should_dispose_all_IDisposable_components_only_when_then_main_container_is_disposed()
-        {
-            using (var container = (IContainer) new SpringObjectBuilder())
-            {
-                DisposableComponent.DisposeCalled = false;
-                AnotherSingletonComponent.DisposeCalled = false;
-
-                container.RegisterSingleton(typeof(AnotherSingletonComponent), new AnotherSingletonComponent());
-                container.Configure(typeof(DisposableComponent), DependencyLifecycle.InstancePerUnitOfWork);
-
-                Task.Factory.StartNew(
-                    () =>
-                        {
-                            using (var builder = container.BuildChildContainer())
-                            {
-                                builder.Build(typeof (DisposableComponent));
-                            }
-                        }, TaskCreationOptions.LongRunning).Wait();
-
-                Assert.False(DisposableComponent.DisposeCalled, "Dispose should not be called on DisposableComponent because Spring does not support child containers!");
-            }
-
-            Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
-            Assert.True(AnotherSingletonComponent.DisposeCalled, "Dispose should be called on AnotherSingletonComponent");
+            });//Not supported by, typeof(SpringObjectBuilder));
         }
 
         public class DisposableComponent : IDisposable
