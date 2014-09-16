@@ -1,4 +1,5 @@
 ﻿// ReSharper disable ConvertToLambdaExpression
+// ReSharper disable UnusedParameter.Local
 // ReSharper disable JoinDeclarationAndInitializer
 // ReSharper disable IdentifierTypo
 // ReSharper disable UnusedMethodReturnValue.Local
