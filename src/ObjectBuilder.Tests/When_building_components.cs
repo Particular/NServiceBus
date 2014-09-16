@@ -2,9 +2,7 @@ namespace ObjectBuilder.Tests
 {
     using System;
     using NServiceBus;
-    using NServiceBus.ObjectBuilder.CastleWindsor;
     using NServiceBus.ObjectBuilder.Common;
-    using NServiceBus.ObjectBuilder.Spring;
     using NUnit.Framework;
 
     [TestFixture]
@@ -27,17 +25,15 @@ namespace ObjectBuilder.Tests
         [Test]
         public void UoW_components_should_resolve_from_main_container()
         {
-            ForAllBuilders(builder =>
-               Assert.NotNull(builder.Build(typeof(InstancePerUoWComponent)))
-               , typeof(WindsorObjectBuilder));
+            ForAllBuilders(builder =>Assert.NotNull(builder.Build(typeof(InstancePerUoWComponent))));
+            //Not supported by typeof(WindsorObjectBuilder));
         }
 
         [Test]
         public void Lambda_uow_components_should_resolve_from_main_container()
-        {            
-            ForAllBuilders(builder =>
-               Assert.NotNull(builder.Build(typeof(LambdaComponentUoW))),               
-               typeof(WindsorObjectBuilder));
+        {
+            ForAllBuilders(builder => Assert.NotNull(builder.Build(typeof(LambdaComponentUoW))));
+            //Not supported by typeof(WindsorObjectBuilder));
         }
 
         [Test]
@@ -74,8 +70,8 @@ namespace ObjectBuilder.Tests
                                    var unregisteredComponent = builder.Build(typeof(UnregisteredComponent)) as UnregisteredComponent;
                                    Assert.NotNull(unregisteredComponent);
                                    Assert.NotNull(unregisteredComponent.SingletonComponent);
-                               }
-               ,typeof(SpringObjectBuilder));
+                               });
+            //Not supported by,typeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -91,7 +87,7 @@ namespace ObjectBuilder.Tests
 
                 Assert.NotNull(component.ConstructorDependency);
                 Assert.NotNull(component.SetterDependency);
-            }, typeof(SpringObjectBuilder));
+            });//Not supported by, typeof(SpringObjectBuilder));
         }
 
  

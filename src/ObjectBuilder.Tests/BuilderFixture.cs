@@ -3,13 +3,7 @@ namespace ObjectBuilder.Tests
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Ninject;
-    using Ninject.Extensions.ContextPreservation;
-    using Ninject.Extensions.NamedScope;
     using NServiceBus.ObjectBuilder.Autofac;
-    using NServiceBus.ObjectBuilder.CastleWindsor;
-    using NServiceBus.ObjectBuilder.Ninject;
-    using NServiceBus.ObjectBuilder.Spring;
     using NUnit.Framework;
     using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
 
@@ -45,11 +39,7 @@ namespace ObjectBuilder.Tests
             objectBuilders = new List<IContainer>
                 {
                     //add all supported builders here
-                    new AutofacObjectBuilder(),
-                    new WindsorObjectBuilder(),
-                    new SpringObjectBuilder(),
-                    new NinjectObjectBuilder(new StandardKernel(new NinjectSettings {LoadExtensions = false},
-                                                                new ContextPreservationModule(), new NamedScopeModule())),
+                   new AutofacObjectBuilder()
                 };
 
             var initialize = InitializeBuilder();
