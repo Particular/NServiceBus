@@ -67,7 +67,6 @@
     <Compile Include="TwoPhaseCommitEnlistment.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="TestSuites\Mutators.ps1" />
     <None Include="TestSuites\Sagas-Concurrency.ps1" />
     <None Include="TestSuites\SqlServer.ps1" />

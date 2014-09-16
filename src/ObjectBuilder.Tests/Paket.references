@@ -1,0 +1,9 @@
+﻿Autofac
+Castle.Core
+Castle.Windsor
+Common.Logging
+Ninject
+Ninject.Extensions.ContextPreservation
+Ninject.Extensions.NamedScope
+NUnit
+Spring.Core
