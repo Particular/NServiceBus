@@ -9,18 +9,19 @@ namespace NServiceBus.AcceptanceTests.Exceptions
 {
     static class StackTraceAssert
     {
-        public static void AreEqual(string expected, string actual)
+// ReSharper disable once UnusedParameter.Global
+        public static void StartsWith(string expected, string actual)
         {
-            if (actual == null || expected == null)
+            if (actual == null)
             {
-                Assert.AreEqual(expected, actual);
+                Assert.Fail();
             }
             else
             {
-                var cleanStackTrace = actual.CleanStackTrace();
+                var cleanStackTrace = CleanStackTrace(actual);
                 try
                 {
-                    Assert.AreEqual(expected.Replace("\r\n", "\n"), cleanStackTrace.Replace("\r\n", "\n"));
+                    Assert.IsTrue(cleanStackTrace.Replace("\r\n", "\n").StartsWith(expected.Replace("\r\n", "\n")));
                 }
                 catch (Exception)
                 {
@@ -29,7 +30,7 @@ namespace NServiceBus.AcceptanceTests.Exceptions
                 }
             }
         }
-        public static string CleanStackTrace(this string stackTrace)
+        static string CleanStackTrace(string stackTrace)
         {
             if (stackTrace== null)
             {

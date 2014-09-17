@@ -1,9 +1,28 @@
 namespace NServiceBus.Transports
 {
+    using System;
+    using NServiceBus.ObjectBuilder;
     using Support;
     using Unicast;
 
-    class DefaultMessageAuditer : IAuditMessages
+    class AuditerWrapper : IAuditMessages
+    {
+        readonly IBuilder builder;
+
+        public Type AuditerImplType { get; set; }
+
+        public AuditerWrapper(IBuilder builder)
+        {
+            this.builder = builder;
+        }
+
+        public void Audit(SendOptions sendOptions, TransportMessage message)
+        {
+            ((dynamic)builder.Build(AuditerImplType)).Audit(sendOptions, message);
+        }
+    }
+
+    class DefaultMessageAuditer
     {
         public ISendMessages MessageSender { get; set; }
 
@@ -45,6 +64,9 @@ namespace NServiceBus.Transports
             {
                 configuration.RegisterComponents(c => c.ConfigureComponent<DefaultMessageAuditer>(DependencyLifecycle.InstancePerCall)
                     .ConfigureProperty(t => t.EndpointName, configuration.Settings.EndpointName()));
+
+                configuration.RegisterComponents(c => c.ConfigureComponent<AuditerWrapper>(DependencyLifecycle.InstancePerCall)
+                    .ConfigureProperty(t => t.AuditerImplType, typeof(DefaultMessageAuditer)));
             }
         }
     }
