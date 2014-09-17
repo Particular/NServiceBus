@@ -1,4 +1,4 @@
-namespace ObjectBuilder.Tests
+namespace NServiceBus.ContainerTests
 {
     using System;
     using System.Diagnostics;

@@ -1,4 +1,4 @@
-namespace ObjectBuilder.Tests
+namespace NServiceBus.ContainerTests
 {
     using NServiceBus;
     using NServiceBus.ObjectBuilder.Common;

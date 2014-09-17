@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.Tests", "ObjectBuilder.Tests\ObjectBuilder.Tests.csproj", "{0A282BF4-0957-4074-8D5E-C2FB8634A3AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.ContainerTests", "NServiceBus.ContainerTests\NServiceBus.ContainerTests.csproj", "{0A282BF4-0957-4074-8D5E-C2FB8634A3AA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Serializers.XML.XsdGenerator", "NServiceBus.Serializers.XML.XsdGenerator\NServiceBus.Serializers.XML.XsdGenerator.csproj", "{85118B5C-6CAA-44B4-87EA-419DC6F4F2FB}"
 EndProject
