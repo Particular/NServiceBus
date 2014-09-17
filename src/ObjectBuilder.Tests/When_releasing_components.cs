@@ -5,12 +5,12 @@ namespace ObjectBuilder.Tests
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_releasing_components : BuilderFixture
+    public class When_releasing_components
     {
         [Test]
         public void Transient_component_should_be_destructed_called()
         {
-            ForAllBuilders(builder =>
+            using (var builder = TestContainerBuilder.ConstructBuilder())
             {
                 builder.Configure(typeof(TransientClass), DependencyLifecycle.InstancePerCall);
 
@@ -20,7 +20,6 @@ namespace ObjectBuilder.Tests
                 var weak = new WeakReference(comp);
 
                 builder.Release(comp);
-
                 // ReSharper disable once RedundantAssignment
                 comp = null;
 
@@ -29,10 +28,11 @@ namespace ObjectBuilder.Tests
 
                 Assert.IsFalse(weak.IsAlive);
                 Assert.IsTrue(TransientClass.Destructed);
-            });//Not supported by typeof(AutofacObjectBuilder));
+            }
+
         }
 
-        public class TransientClass 
+        public class TransientClass
         {
             public static bool Destructed;
 
