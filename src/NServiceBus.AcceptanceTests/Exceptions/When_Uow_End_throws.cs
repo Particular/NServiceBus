@@ -25,15 +25,14 @@
 
             Assert.AreEqual(typeof(EndException), context.ExceptionType);
 #if(!DEBUG)
-            StackTraceAssert.AreEqual(
+            StackTraceAssert.StartsWith(
 @"at NServiceBus.AcceptanceTests.Exceptions.When_Uow_End_throws.Endpoint.UnitOfWorkThatThrowsInEnd.End(Exception ex)
 at NServiceBus.UnitOfWorkBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.ChildContainerBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.ProcessingStatisticsBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.Pipeline.PipelineExecutor.Execute[T](BehaviorChain`1 pipelineAction, T context)
 at NServiceBus.Unicast.Transport.TransportReceiver.ProcessMessage(TransportMessage message)
-at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage message)
-at NServiceBus.Transports.Msmq.MsmqDequeueStrategy.Action()", context.StackTrace);
+at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage message)", context.StackTrace);
 #endif
         }
 
@@ -104,7 +103,6 @@ at NServiceBus.Transports.Msmq.MsmqDequeueStrategy.Action()", context.StackTrace
                 {
                 }
             }
-
         }
 
         [Serializable]

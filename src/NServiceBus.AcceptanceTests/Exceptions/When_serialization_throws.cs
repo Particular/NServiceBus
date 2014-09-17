@@ -3,7 +3,6 @@
     using System;
     using System.Runtime.CompilerServices;
     using System.Runtime.Serialization;
-    using System.Xml;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -25,21 +24,8 @@
                     .AllowExceptions()
                     .Done(c => c.ExceptionReceived)
                     .Run();
-            Assert.AreEqual(typeof(SerializationException), context.ExceptionType);
 
-            Assert.AreEqual(typeof(XmlException), context.InnerExceptionType);
-#if (!DEBUG)
-            StackTraceAssert.AreEqual(
-@"at System.Xml.XmlTextReaderImpl.Throw(Exception e)
-at System.Xml.XmlTextReaderImpl.ParseQName(Boolean isQName, Int32 startOffset, Int32& colonPos)
-at System.Xml.XmlTextReaderImpl.ParseElement()
-at System.Xml.XmlTextReaderImpl.ParseDocumentContent()
-at System.Xml.XmlLoader.Load(XmlDocument doc, XmlReader reader, Boolean preserveWhitespace)
-at System.Xml.XmlDocument.Load(XmlReader reader)
-at NServiceBus.Serializers.XML.XmlMessageSerializer.Deserialize(Stream stream, IList`1 messageTypesToDeserialize)
-at NServiceBus.DeserializeLogicalMessagesBehavior.Extract(TransportMessage physicalMessage)
-at NServiceBus.DeserializeLogicalMessagesBehavior.Invoke(IncomingContext context, Action next)", context.InnerExceptionStackTrace);
-#endif
+            Assert.AreEqual(typeof(SerializationException), context.ExceptionType);
         }
 
         public class Context : ScenarioContext

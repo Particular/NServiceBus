@@ -29,18 +29,17 @@
             
 #if (!DEBUG)
 
-            StackTraceAssert.AreEqual(
+            StackTraceAssert.StartsWith(
 @"at NServiceBus.UnitOfWorkBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.ChildContainerBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.ProcessingStatisticsBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.Pipeline.PipelineExecutor.Execute[T](BehaviorChain`1 pipelineAction, T context)
 at NServiceBus.Unicast.Transport.TransportReceiver.ProcessMessage(TransportMessage message)
-at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage message)
-at NServiceBus.Transports.Msmq.MsmqDequeueStrategy.Action()", context.StackTrace);
+at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage message)", context.StackTrace);
 
-            StackTraceAssert.AreEqual(
-@"at NServiceBus.AcceptanceTests.Exceptions.When_Uow_Begin_and_different_End_throws.Endpoint.UnitOfWorkThatThrowsInEnd.End(Exception ex)
-at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initialException)", context.InnerExceptionTwoStackTrace);
+            StackTraceAssert.StartsWith(
+string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.When_Uow_Begin_and_different_End_throws.Endpoint.{0}.End(Exception ex)
+at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initialException)", context.TypeName), context.InnerExceptionTwoStackTrace);
 
 #endif
 
@@ -55,6 +54,8 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
             public string InnerExceptionTwoStackTrace { get; set; }
             public Type InnerExceptionOneType { get; set; }
             public Type InnerExceptionTwoType { get; set; }
+            public bool FirstOneExecuted { get; set; }
+            public string TypeName { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -66,8 +67,8 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
                     b.RegisterComponents(c =>
                     {
                         c.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance);
-                        c.ConfigureComponent<UnitOfWorkThatThrowsInBegin>(DependencyLifecycle.InstancePerUnitOfWork);
-                        c.ConfigureComponent<UnitOfWorkThatThrowsInEnd>(DependencyLifecycle.InstancePerUnitOfWork);
+                        c.ConfigureComponent<UnitOfWorkThatThrows1>(DependencyLifecycle.InstancePerUnitOfWork);
+                        c.ConfigureComponent<UnitOfWorkThatThrows2>(DependencyLifecycle.InstancePerUnitOfWork);
                     });
                     b.DisableFeature<TimeoutManager>();
                 })
@@ -103,30 +104,63 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
                 }
             }
 
-            public class UnitOfWorkThatThrowsInBegin : IManageUnitsOfWork
+            public class UnitOfWorkThatThrows1 : IManageUnitsOfWork
             {
+                public Context Context { get; set; }
+                
+                bool throwAtEnd;
+
                 [MethodImpl(MethodImplOptions.NoInlining)]
                 public void Begin()
                 {
-                    throw new BeginException();
+                    if (Context.FirstOneExecuted)
+                    {
+                        throw new BeginException();
+                    }
+
+                    Context.FirstOneExecuted = throwAtEnd = true;
                 }
+
                 [MethodImpl(MethodImplOptions.NoInlining)]
                 public void End(Exception ex = null)
                 {
+                    if (throwAtEnd)
+                    {
+                        Context.TypeName = GetType().Name;
+
+                        throw new EndException();
+                    }
                 }
             }
-            public class UnitOfWorkThatThrowsInEnd : IManageUnitsOfWork
+            public class UnitOfWorkThatThrows2 : IManageUnitsOfWork
             {
+                public Context Context { get; set; }
+
+                bool throwAtEnd;
+
                 [MethodImpl(MethodImplOptions.NoInlining)]
                 public void Begin()
                 {
+                    if (Context.FirstOneExecuted)
+                    {
+                        throw new BeginException();
+                    }
+
+                    Context.FirstOneExecuted = throwAtEnd = true;
                 }
+
                 [MethodImpl(MethodImplOptions.NoInlining)]
                 public void End(Exception ex = null)
                 {
-                    throw new EndException();
+                    if (throwAtEnd)
+                    {
+                        Context.TypeName = GetType().Name;
+
+                        throw new EndException();
+                    }
                 }
             }
+
             class Handler : IHandleMessages<Message>
             {
                 [MethodImpl(MethodImplOptions.NoInlining)]
