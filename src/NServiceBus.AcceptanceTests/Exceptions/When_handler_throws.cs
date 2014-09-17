@@ -4,7 +4,6 @@
     using System.Runtime.CompilerServices;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Config;
     using NServiceBus.Faults;
     using NServiceBus.Features;
@@ -21,7 +20,6 @@
                     .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
                     .AllowExceptions()
                     .Done(c => c.ExceptionReceived)
-                    .Repeat(r => r.For(Transports.Default))
                     .Run();
             Assert.AreEqual(typeof(HandlerException), context.ExceptionType);
 #if (!DEBUG)
