@@ -79,7 +79,6 @@ namespace ObjectBuilder.Tests
         [Test, Explicit("Time consuming")]
         public void Instance_per_call_components_should_not_cause_memory_leaks()
         {
-            //const int iterations = 1000000;
             const int iterations = 20000;
 
             using (var builder = TestContainerBuilder.ConstructBuilder())
@@ -160,10 +159,8 @@ namespace ObjectBuilder.Tests
                 {
                     nestedContainer.Build(typeof(ComponentThatDependsOfSingleton));
                 }
+                Assert.False(SingletonComponent.DisposeCalled);
             }
-
-            Assert.False(SingletonComponent.DisposeCalled);
-
             //Not supported by typeof(SpringObjectBuilder));
         }
 
