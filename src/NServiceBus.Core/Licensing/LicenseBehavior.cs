@@ -1,8 +1,9 @@
-﻿namespace NServiceBus.Licensing
+﻿namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
     using Logging;
+    using NServiceBus.Licensing;
     using Pipeline;
     using Pipeline.Contexts;
 

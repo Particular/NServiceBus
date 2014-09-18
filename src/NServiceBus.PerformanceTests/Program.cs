@@ -3,21 +3,18 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus;
     using NServiceBus.Features;
     using Encryption;
-    using NServiceBus.Persistence;
     using Saga;
     using System;
-    
+    using MsmqTransport = NServiceBus.MsmqTransport;
+
     class Program
     {
-        static Configure config;
-
         static void Main(string[] args)
         {
             var testCaseToRun = args[0];
@@ -53,69 +50,70 @@
             if (suppressDTC)
                 endpointName += ".SuppressDTC";
 
-            config = Configure.With(o => o.EndpointName(endpointName))
-                .UseTransport<Msmq>(c => c.ConnectionString("deadLetter=false;journal=false"))
-                .UsePersistence<InMemory>()
-                .DisableFeature<Audit>();
+            var configuration = new BusConfiguration();
 
-            switch (args[2].ToLower())
-            {
-                case "xml":
-                    config.UseSerialization<Xml>();
-                    break;
-
-                case "json":
-                    config.UseSerialization<Json>();
-                    break;
-
-                case "bson":
-                    config.UseSerialization<Bson>();
-                    break;
-
-                case "bin":
-                    config.UseSerialization<Binary>();
-                    break;
-
-                default:
-                    throw new InvalidOperationException("Illegal serialization format " + args[2]);
-            }
+            configuration.EndpointName(endpointName);
+            configuration.EnableInstallers();
+            configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
+            configuration.UseTransport<MsmqTransport>().ConnectionString("deadLetter=false;journal=false");
+            configuration.DisableFeature<Audit>();
 
             if (volatileMode)
             {
-                config.Endpoint(e=>e.AsVolatile());
-            }
-
-            if (suppressDTC)
-            {
-                config.Transactions(t=>t.Advanced(settings => settings.DisableDistributedTransactions()));
-            }
-
-            if (encryption)
-            {
-                SetupRijndaelTestEncryptionService();
+                configuration.DisableDurableMessages();
+                configuration.UsePersistence<InMemoryPersistence>();
             }
 
             switch (args[3].ToLower())
             {
                 case "msmq":
-                    config.UseTransport<Msmq>();
+                    configuration.UseTransport<MsmqTransport>();
                     break;
 
                 default:
                     throw new InvalidOperationException("Illegal transport " + args[2]);
             }
 
-            config.EnableInstallers();
-            using (var startableBus = config.InMemoryFaultManagement().CreateBus())
+            if (suppressDTC)
+            {
+                configuration.Transactions().DisableDistributedTransactions();
+            }
+
+            switch (args[2].ToLower())
+            {
+                case "xml":
+                    configuration.UseSerialization<XmlSerializer>();
+                    break;
+
+                case "json":
+                    configuration.UseSerialization<JsonSerializer>();
+                    break;
+
+                case "bson":
+                    configuration.UseSerialization<BsonSerializer>();
+                    break;
+
+                case "bin":
+                    configuration.UseSerialization<BinarySerializer>();
+                    break;
+
+                default:
+                    throw new InvalidOperationException("Illegal serialization format " + args[2]);
+            }
+            configuration.UsePersistence<InMemoryPersistence>();
+            configuration.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
+            
+
+            using (var startableBus = Bus.Create(configuration))
             {
                 if (saga)
                 {
-                    SeedSagaMessages(numberOfMessages, endpointName, concurrency);
+                    SeedSagaMessages(startableBus,numberOfMessages, endpointName, concurrency);
                 }
                 else
                 {
-                    Statistics.SendTimeNoTx = SeedInputQueue(numberOfMessages / 2, endpointName, numberOfThreads, false, twoPhaseCommit, encryption);
-                    Statistics.SendTimeWithTx = SeedInputQueue(numberOfMessages / 2, endpointName, numberOfThreads, true, twoPhaseCommit, encryption);
+                    Statistics.SendTimeNoTx = SeedInputQueue(startableBus,numberOfMessages / 2, endpointName, numberOfThreads, false, twoPhaseCommit, encryption);
+                    Statistics.SendTimeWithTx = SeedInputQueue(startableBus,numberOfMessages / 2, endpointName, numberOfThreads, true, twoPhaseCommit, encryption);
                 }
 
                 Statistics.StartTime = DateTime.Now;
@@ -125,16 +123,9 @@
                 while (Interlocked.Read(ref Statistics.NumberOfMessages) < numberOfMessages)
                     Thread.Sleep(1000);
 
-
                 DumpSetting(args);
                 Statistics.Dump();
             }
-        }
-
-        private static void SetupRijndaelTestEncryptionService()
-        {
-            var encryptConfig = config.Configurer.ConfigureComponent<NServiceBus.Encryption.Rijndael.EncryptionService>(DependencyLifecycle.SingleInstance);
-            encryptConfig.ConfigureProperty(s => s.Key, Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
         }
 
         static void DumpSetting(string[] args)
@@ -147,12 +138,8 @@
                                   args[5]);
         }
 
-        static void SeedSagaMessages(int numberOfMessages, string inputQueue, int concurrency)
+        static void SeedSagaMessages(IBus bus,int numberOfMessages, string inputQueue, int concurrency)
         {
-#pragma warning disable 0618
-            var bus = Configure.Instance.Builder.Build<IBus>();
-#pragma warning restore 0618
-
             for (var i = 0; i < numberOfMessages / concurrency; i++)
             {
 
@@ -167,12 +154,11 @@
 
         }
 
-        static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
+        static TimeSpan SeedInputQueue(IBus bus,int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
         {
             var sw = new Stopwatch();
 
-            var bus = config.Builder.Build<IBus>();
-
+         
             sw.Start();
             Parallel.For(
                 0,

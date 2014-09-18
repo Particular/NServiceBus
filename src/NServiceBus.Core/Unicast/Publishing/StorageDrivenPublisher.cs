@@ -20,17 +20,15 @@
 
         public void Publish(TransportMessage message, PublishOptions publishOptions)
         {
-
             if (SubscriptionStorage == null)
             {
-                throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Please see: http://docs.particular.net/nservicebus/publish-subscribe-configuration'");
+                throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured.");
             }
                 
             var eventTypesToPublish = MessageMetadataRegistry.GetMessageMetadata(publishOptions.EventType.FullName)
                 .MessageHierarchy
                 .Distinct()
                 .ToList();
-
 
             var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(eventTypesToPublish.Select(t => new MessageType(t))).ToList();
 
@@ -39,14 +37,20 @@
                 PipelineExecutor.CurrentContext.Set("NoSubscribersFoundForMessage",true);
                 return;
             }
-                
+
+            PipelineExecutor.CurrentContext.Set("SubscribersForEvent", subscribers);
 
             foreach (var subscriber in subscribers)
             {
                 //this is unicast so we give the message a unique ID
                 message.ChangeMessageId(CombGuid.Generate().ToString());
 
-                MessageSender.Send(message, new SendOptions(subscriber));
+                MessageSender.Send(message, new SendOptions(subscriber)
+                {
+                    ReplyToAddress = publishOptions.ReplyToAddress,
+                    EnforceMessagingBestPractices = publishOptions.EnforceMessagingBestPractices,
+                    EnlistInReceiveTransaction = publishOptions.EnlistInReceiveTransaction,
+                });
             }
         }
     }

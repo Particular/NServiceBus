@@ -2,38 +2,62 @@ namespace NServiceBus.Transports
 {
     using System;
     using Features;
+    using NServiceBus.Settings;
     using Unicast.Transport;
 
     /// <summary>
     /// Base class for configuring <see cref="TransportDefinition"/> features.
     /// </summary>
-    /// <typeparam name="T">The <see cref="TransportDefinition"/> to configure.</typeparam>
-    public abstract class ConfigureTransport<T> : Feature, IConfigureTransport<T> where T : TransportDefinition, new()
+    public abstract class ConfigureTransport : Feature
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="ConfigureTransport{T}"/>.
+        ///  Initializes a new instance of <see cref="ConfigureTransport"/>.
         /// </summary>
-        public void Configure(Configure config)
+        protected ConfigureTransport()
         {
-            var connectionString = config.Settings.Get<TransportConnectionString>().GetConnectionStringOrNull();
-
-
-            if (connectionString == null && RequiresConnectionString)
+            Defaults(s => s.SetDefault<TransportConnectionString>(TransportConnectionString.Default));
+            Defaults(s =>
             {
-                throw new InvalidOperationException(String.Format(Message, GetConfigFileIfExists(), typeof(T).Name, ExampleConnectionStringForErrorMessage));
-            }
-
-            config.Settings.Set("NServiceBus.Transport.ConnectionString", connectionString);
-
-            var selectedTransportDefinition = config.Settings.Get<TransportDefinition>();
-            config.Configurer.RegisterSingleton<TransportDefinition>(selectedTransportDefinition);
-            InternalConfigure(config);
+                var localAddress = GetLocalAddress(s);
+                if (!String.IsNullOrEmpty(localAddress) && !s.HasExplicitValue("NServiceBus.LocalAddress"))
+                {
+                    s.Set("NServiceBus.LocalAddress", localAddress);
+                }
+            });
         }
 
         /// <summary>
-        /// Gives implementations access to the <see cref="Configure"/> instance at construction time.
+        /// <see cref="Feature.Setup"/>
         /// </summary>
-        protected abstract void InternalConfigure(Configure config);
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            var connectionString = context.Settings.Get<TransportConnectionString>().GetConnectionStringOrNull();
+            var selectedTransportDefinition = context.Settings.Get<TransportDefinition>();
+
+            if (connectionString == null && RequiresConnectionString)
+            {
+                throw new InvalidOperationException(String.Format(Message, GetConfigFileIfExists(), selectedTransportDefinition.GetType().Name, ExampleConnectionStringForErrorMessage));
+            }
+
+            context.Container.RegisterSingleton(selectedTransportDefinition);
+
+            Configure(context, connectionString);
+        }
+
+        /// <summary>
+        ///  Allows the transport to control the local address of the endpoint if needed
+        /// </summary>
+        /// <param name="settings">The current settings in read only mode</param>
+// ReSharper disable once UnusedParameter.Global
+        protected virtual string GetLocalAddress(ReadOnlySettings settings)
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Gives the chance to implementers to set themselves up.
+        /// </summary>
+        protected abstract void Configure(FeatureConfigurationContext context, string connectionString);
 
         /// <summary>
         /// Used by implementations to provide an example connection string that till be used for the possible exception thrown if the <see cref="RequiresConnectionString"/> requirement is not met.
@@ -48,7 +72,6 @@ namespace NServiceBus.Transports
         {
             get { return true; }
         }
-
 
         static string GetConfigFileIfExists()
         {

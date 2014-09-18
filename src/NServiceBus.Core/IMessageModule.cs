@@ -3,7 +3,10 @@ namespace NServiceBus
     /// <summary>
     /// Implementers will be called before and after all message handlers.
     /// </summary>
-    [ObsoleteEx(Replacement = "NServiceBus.UnitOfWork.IManageUnitsOfWork", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "5.1")]
+    [ObsoleteEx(
+        Replacement = "NServiceBus.UnitOfWork.IManageUnitsOfWork", 
+        TreatAsErrorFromVersion = "5.0", 
+        RemoveInVersion = "5.1")]
     public interface IMessageModule
     {
         /// <summary>

@@ -14,12 +14,12 @@ namespace NServiceBus.Features
         }
 
         /// <summary>
-        /// True if all prerequistites for the feature is satisfied
+        /// True if all prerequisites for the feature is satisfied
         /// </summary>
         public bool IsSatisfied { get; private set; }
 
         /// <summary>
-        /// The list of reason why the prereqs are not fullfilled if applicable
+        /// The list of reason why the prerequisites are not fullfilled if applicable
         /// </summary>
         public List<string> Reasons { get; private set; }
 

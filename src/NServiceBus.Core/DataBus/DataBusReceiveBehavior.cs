@@ -1,14 +1,10 @@
-﻿namespace NServiceBus.DataBus
+﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
     using System.Transactions;
+    using NServiceBus.DataBus;
     using Pipeline;
     using Pipeline.Contexts;
-
 
     class DataBusReceiveBehavior : IBehavior<IncomingContext>
     {
@@ -22,7 +18,7 @@
         {
             var message = context.IncomingLogicalMessage.Instance;
 
-            foreach (var property in GetDataBusProperties(message))
+            foreach (var property in Conventions.GetDataBusProperties(message))
             {
                 var propertyValue = property.GetValue(message, null);
 
@@ -64,30 +60,8 @@
             next();
         }
 
-        IEnumerable<PropertyInfo> GetDataBusProperties(object message)
+        public class Registration : RegisterStep
         {
-            var messageType = message.GetType();
-
-
-            List<PropertyInfo> value;
-
-            if (!cache.TryGetValue(messageType, out value))
-            {
-                value = messageType.GetProperties()
-                    .Where(Conventions.IsDataBusProperty)
-                    .ToList();
-
-                cache[messageType] = value;
-            }
-
-
-            return value;
-        }
-
-        readonly static ConcurrentDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>();
-
-        public class Registration:RegisterStep
-        {    
             public Registration() : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message")
             {
                 InsertAfter(WellKnownStep.MutateIncomingMessages);

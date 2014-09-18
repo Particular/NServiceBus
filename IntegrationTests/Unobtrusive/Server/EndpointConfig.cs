@@ -2,15 +2,13 @@
 {
     using NServiceBus;
 
-    public class EndpointConfig: IConfigureThisEndpoint, AsA_Publisher, IWantCustomInitialization
+    public class EndpointConfig: IConfigureThisEndpoint, AsA_Server
     {
-        public Configure Init()
+        public void Customize(BusConfiguration configuration)
         {
-            var configure = Configure.With()
-                .DefaultBuilder()
-                .FileShareDataBus(@"..\..\..\DataBusShare\")
-                .RijndaelEncryptionService();
-            return configure;
+            configuration.UsePersistence<InMemoryPersistence>();
+            configuration.FileShareDataBus(@"..\..\..\DataBusShare\");
+            configuration.RijndaelEncryptionService();
         }
     }
 

@@ -13,24 +13,43 @@ namespace NServiceBus
 
     public partial class Configure
     {
+        /// <summary>
+        /// Gets/sets the object used to configure components.
+        /// This object should eventually reference the same container as the Builder.
+        /// </summary>
+        [ObsoleteEx(
+            Message = "Use `configuration.RegisterComponents(c => c.ConfigureComponent... ))`, where `configuration` is an instance of type `BusConfiguration`.", 
+            RemoveInVersion = "6.0", 
+            TreatAsErrorFromVersion = "5.0")]
+        public IConfigureComponents Configurer
+        {
+            get
+            {
+                throw new InvalidOperationException();
+            }
+            // ReSharper disable ValueParameterNotUsed
+            set
+            // ReSharper restore ValueParameterNotUsed
+            {
+            }
+        }
 
         [ObsoleteEx(
             RemoveInVersion = "6",
-            TreatAsErrorFromVersion = "5.1",
-            Message = "Configure is now instance based. For usages before the container is configured an instance of Configure is passed in. For usages after the container is configured then an instance of Configure can be extracted from the container.")]
+            TreatAsErrorFromVersion = "5.0",
+            Message = "Configure is now instance based. For usages before the container is configured an instance of `Configure` is passed in. For usages after the container is configured then an instance of `Configure` can be extracted from the container.")]
         public static Configure Instance
         {
             get
             {
-                //we can't check for null here since that would break the way we do extension methods (the must be on a instance)
-                return instance;
+                throw new NotImplementedException();
             }
         }
 
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "config.Settings.EndpointName()")]
+            Message = "Use `configuration.EndpointName('MyEndpoint')`, where `configuration` is an instance of type `BusConfiguration`.")]
         public static string EndpointName
         {
             get { throw new NotImplementedException(); }
@@ -40,31 +59,38 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
-        static bool WithHasBeenCalled()
+        public static bool WithHasBeenCalled()
         {
-            return instance != null;
+            throw new NotImplementedException();
         }
 
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "Simply execute this action instead of calling this method")]
+            Message = "Simply execute this action instead of calling this method")]
         public Configure RunCustomAction(Action action)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        ///     True if a builder has been defined.
-        /// </summary>
-        internal static bool BuilderIsConfigured()
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Message = "Not needed, can safely be removed")]
+        public IStartableBus CreateBus()
         {
-            if (!WithHasBeenCalled())
-            {
-                return false;
-            }
+            Initialize();
 
-            return Instance.HasBuilder();
+            return Builder.Build<IStartableBus>();
+        }
+
+
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5")]
+        public static bool BuilderIsConfigured()
+        {
+            throw new NotImplementedException();
         }
 
         [ObsoleteEx(
@@ -123,7 +149,7 @@ namespace NServiceBus
             Replacement = "configure.Configurer.HasComponent")]
         public static bool HasComponent<T>()
         {
-            return HasComponent(typeof(T));
+            throw new NotImplementedException();
         }
 
         [ObsoleteEx(
@@ -133,19 +159,24 @@ namespace NServiceBus
     Replacement = "configure.Configurer.HasComponent")]
         public static bool HasComponent(Type componentType)
         {
-            if (Instance == null)
-            {
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.HasComponent");
-            }
-
-            return Instance.Configurer.HasComponent(componentType);
+            throw new NotImplementedException();
         }
 
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "var configure = Configure.Configure.With(o => o.CustomConfigurationSource(myConfigSource))")]
+            Message = "Use `configuration.CustomConfigurationSource(myConfigSource)`, where `configuration` is an instance of type `BusConfiguration`.")]
         public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        [ObsoleteEx(
+            RemoveInVersion = "6",
+            TreatAsErrorFromVersion = "5",
+            Replacement = "Bus.Create(new BusConfiguration())")]
+        public static Configure With()
         {
             throw new NotImplementedException();
         }
@@ -153,7 +184,9 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "var configure = Configure.Configure.With(o => o.AssembliesInDirectory(probeDirectory))")]
+            Message = @"var config = new BusConfig();
+config.ScanAssembliesInDirectory(directoryToProbe);
+Bus.Create(config);")]
         public static Configure With(string probeDirectory)
         {
             throw new NotImplementedException();
@@ -162,7 +195,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "var configure = Configure.With(o => o.ScanAssemblies(assemblies))")]
+            Message = "Use `configuration.AssembliesToScan(listOfAssemblies)`, where `configuration` is an instance of type `BusConfiguration`.")]
         public static Configure With(IEnumerable<Assembly> assemblies)
         {
             throw new NotImplementedException();
@@ -171,7 +204,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "var configure = Configure.With(o => o.ScanAssemblies(assemblies));")]
+            Message = "Use `configuration.AssembliesToScan(listOfAssemblies)`, where `configuration` is an instance of type `BusConfiguration`.")]
         public static Configure With(params Assembly[] assemblies)
         {
             throw new NotImplementedException();
@@ -180,7 +213,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "var configure = Configure.With(o => o.ScanAssemblies(assemblies))")]
+            Message = "Use `configuration.TypesToScan(listOfTypes)`, where `configuration` is an instance of type `BusConfiguration`.")]
         public static Configure With(IEnumerable<Type> typesToScan)
         {
             throw new NotImplementedException();
@@ -189,7 +222,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "var configure = Configure.With(o => o.EndpointName(definesEndpointName))")]
+            Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of type `BusConfiguration`.")]
         public static Configure DefineEndpointName(Func<string> definesEndpointName)
         {
             throw new NotImplementedException();
@@ -201,13 +234,11 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "var configure = Configure.With(o => o.EndpointName(name))")]
+            Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of type `BusConfiguration`.")]
         public static Configure DefineEndpointName(string name)
         {
             throw new NotImplementedException();
         }
-
-        static Configure instance;
 
         [ObsoleteEx(
             RemoveInVersion = "6",
@@ -218,34 +249,22 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Replacement = "var configure = Configure.With(b => b.EndpointName(\"MyEndpointName\"));")]
+            Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of type `BusConfiguration`.")]
         public static Func<string> GetEndpointNameAction;
 
         [ObsoleteEx(
            RemoveInVersion = "6",
            TreatAsErrorFromVersion = "5",
-           Replacement = "config.UseSerialization<TSerializer>(c=>c.AnyCustomSettingNeeded())")]
+           Message = "Use `configuration.UseSerialization<BinarySerializer>())`, where `configuration` is an instance of type `BusConfiguration`.")]
         public static SerializationSettings Serialization
         {
             get { throw new NotImplementedException(); }
         }
 
-        //public static Func<string> DefineEndpointVersionRetriever;
-
-        //public static IConfigurationSource ConfigurationSource{get;set;}
-
-        //public static Endpoint Endpoint
-        //{
-        //    get
-        //    {
-        //    }
-        //}
-
         [ObsoleteEx(
-          Message = "This has been converted to extension methods",
+          Message = "This has been converted to extension methods. Use `configuration.EnableFeature<T>()` or `configuration.DisableFeature<T>()`, where `configuration` is an instance of type `BusConfiguration`.",
           RemoveInVersion = "6",
-          TreatAsErrorFromVersion = "5",
-          Replacement = "configure.EnableFeature<T>() or configure.DisableFeature<T>()")]
+          TreatAsErrorFromVersion = "5")]
         public static FeatureSettings Features
         {
             get
@@ -254,18 +273,10 @@ namespace NServiceBus
             }
         }
 
-        //public static SerializationSettings Serialization
-        //{
-        //    get
-        //    {
-        //    }
-        //}
-
         [ObsoleteEx(
-            Message = "This has been converted to an extension method",
+            Message = "This has been converted to an extension method. Use `configuration.Transactions()`, where `configuration` is an instance of type `BusConfiguration`.",
             RemoveInVersion = "6",
-            TreatAsErrorFromVersion = "5",
-            Replacement = "configure.Transactions(Action<TransactionSettings>)")]
+            TreatAsErrorFromVersion = "5")]
         public static TransactionSettings Transactions
         {
             get
@@ -273,33 +284,15 @@ namespace NServiceBus
                 throw new NotImplementedException();
             }
         }
-
-        //public static TransportSettings Transports
-        //{
-        //    get
-        //    {
-        //    }
-        //}
-
-        //public static IList<Type> TypesToScan
-        //{
-        //    get;
-        //    private set;
-        //}
-
     }
-
 }
 
 namespace NServiceBus.Features
 {
-
-
     [ObsoleteEx(
-          Message = "This has been converted to extension methods",
           RemoveInVersion = "6",
           TreatAsErrorFromVersion = "5",
-          Replacement = "configure.EnableFeature<T>() or configure.DisableFeature<T>()")]
+          Message = "Use `configuration.EnableFeature<T>()` or `configuration.DisableFeature<T>()`, where `configuration` is an instance of type `BusConfiguration`.")]
     public class FeatureSettings
     {
     }

@@ -17,21 +17,21 @@ namespace NServiceBus.AcceptanceTests.Sagas
         {
             Scenario.Define<Context>()
                     .WithEndpoint<EndpointThatHostsTwoSagas>(b =>
-                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
-                        {
-                            if (s.SubscriberReturnAddress.Queue.Contains("Saga1"))
-                            {
-                                context.Subscribed = true;
-                            }
-                        }))
-                        .When(c => true, bus => bus.SendLocal(new StartSaga2
+                        b.When(c => c.Subscribed, bus => bus.SendLocal(new StartSaga2
                         {
                             DataId = Guid.NewGuid()
                         }))
                      )
-                    .WithEndpoint<EndpointThatHandlesAMessageAndPublishesEvent>()
+                    .WithEndpoint<EndpointThatHandlesAMessageAndPublishesEvent>(b => b.Given((bus, context) =>
+                    {
+                        if (context.HasNativePubSubSupport)
+                        {
+                            context.Subscribed = true;
+                            context.AddTrace("EndpointThatHandlesAMessageAndPublishesEvent is now subscribed (at least we have asked the broker to be subscribed)");
+                        }
+                    }))
                     .Done(c => c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked)
-                    .Repeat(r => r.For(Transports.Default))
+                    .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>()) // exclude the brokers since c.Subscribed won't get set for them
                     .Should(c => Assert.True(c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked))
                     .Run();
         }
@@ -47,7 +47,10 @@ namespace NServiceBus.AcceptanceTests.Sagas
         {
             public EndpointThatHandlesAMessageAndPublishesEvent()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    context.Subscribed = true;
+                }));
             }
 
             class OpenGroupCommandHandler : IHandleMessages<OpenGroupCommand>
@@ -79,13 +82,13 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 {
                     Data.DataId = message.DataId;
                     Console.Out.WriteLine("Saga1 received GroupPendingEvent for DataId: {0}", message.DataId);
-                    Context.DidSaga1EventHandlerGetInvoked = true;
                     Bus.SendLocal(new CompleteSaga1Now { DataId = message.DataId });
                 }
 
                 public void Handle(CompleteSaga1Now message)
                 {
                     Console.Out.WriteLine("Saga1 received CompleteSaga1Now for DataId:{0} and MarkAsComplete", message.DataId);
+                    Context.DidSaga1EventHandlerGetInvoked = true;
 
                     MarkAsComplete();
                 }
@@ -99,7 +102,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 public class MySaga1Data : ContainSagaData
                 {
                     [Unique]
-                    public virtual  Guid DataId { get; set; }
+                    public virtual Guid DataId { get; set; }
                 }
 
             }
@@ -107,7 +110,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
             public class Saga2 : Saga<Saga2.MySaga2Data>, IAmStartedByMessages<StartSaga2>, IHandleMessages<GroupPendingEvent>
             {
                 public Context Context { get; set; }
-         
+
                 public void Handle(StartSaga2 message)
                 {
                     var dataId = Guid.NewGuid();
@@ -132,9 +135,8 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 public class MySaga2Data : ContainSagaData
                 {
                     [Unique]
-                    public virtual  Guid DataId { get; set; }
+                    public virtual Guid DataId { get; set; }
                 }
-
             }
         }
 

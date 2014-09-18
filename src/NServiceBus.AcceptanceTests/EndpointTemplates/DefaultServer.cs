@@ -5,54 +5,68 @@
     using System.Linq;
     using System.Reflection;
     using AcceptanceTesting.Support;
-    using Config.ConfigurationSource;
     using Hosting.Helpers;
     using Logging;
     using NServiceBus;
-    using PubSub;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.Config.ConfigurationSource;
+    using NServiceBus.Configuration.AdvanceExtensibility;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
-        public Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource)
+        readonly List<Type> typesToInclude;
+
+        public DefaultServer()
+        {
+            typesToInclude = new List<Type>();
+        }
+
+        public DefaultServer(List<Type> typesToInclude)
+        {
+            this.typesToInclude = typesToInclude;
+        }
+
+        public BusConfiguration GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource, Action<BusConfiguration> configurationBuilderCustomization)
         {
             var settings = runDescriptor.Settings;
 
-            LogManager.LoggerFactory = new ContextAppender(runDescriptor.ScenarioContext);
+            LogManager.UseFactory(new ContextAppender(runDescriptor.ScenarioContext));
 
-            var types = GetTypesToUse(endpointConfiguration);
+            var types = GetTypesScopedByTestClass(endpointConfiguration);
 
-            var config = Configure.With(o =>
-                                         {
-                                             o.EndpointName(endpointConfiguration.EndpointName);
-                                             o.TypesToScan(types);
-                                             o.CustomConfigurationSource(configSource);
-                                             
-                                             
-                                             string selectedBuilder;
-                                             if (settings.TryGetValue("Builder",out selectedBuilder))
-                                             {
-                                                 o.UseContainer(Type.GetType(selectedBuilder));
-                                             }
-                                           
-                                         })
-                .DefineTransport(settings)
-                .DefinePersistence(settings);
-            
+            typesToInclude.AddRange(types);
+
+            var builder = new BusConfiguration();
+
+            builder.EndpointName(endpointConfiguration.EndpointName);
+            builder.TypesToScan(typesToInclude);
+            builder.CustomConfigurationSource(configSource);
+            builder.EnableInstallers();
+            builder.DefineTransport(settings);
+            builder.DefineBuilder(settings);
+            builder.RegisterComponents(r =>
+            {
+                r.RegisterSingleton(runDescriptor.ScenarioContext.GetType(), runDescriptor.ScenarioContext);
+                r.RegisterSingleton(typeof(ScenarioContext), runDescriptor.ScenarioContext);
+            });
+
+       
             var serializer = settings.GetOrNull("Serializer");
 
             if (serializer != null)
             {
-                config.UseSerialization(Type.GetType(serializer));
+                builder.UseSerialization(Type.GetType(serializer));
             }
+            builder.DefinePersistence(settings);
 
-            config.Settings.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
-            config.Pipeline.Register<SubscriptionBehavior.Registration>();
-            config.Configurer.ConfigureComponent<SubscriptionBehavior>(DependencyLifecycle.InstancePerCall);
+            builder.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
+            configurationBuilderCustomization(builder);
 
-            return config;
+
+            return builder;
         }
 
-        static IEnumerable<Type> GetTypesToUse(EndpointConfiguration endpointConfiguration)
+        static IEnumerable<Type> GetTypesScopedByTestClass(EndpointConfiguration endpointConfiguration)
         {
             var assemblies = new AssemblyScanner().GetScannableAssemblies();
 

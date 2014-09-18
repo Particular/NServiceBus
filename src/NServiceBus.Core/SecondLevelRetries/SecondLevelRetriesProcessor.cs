@@ -13,7 +13,10 @@ namespace NServiceBus.SecondLevelRetries
     {
         public SecondLevelRetriesProcessor()
         {
+            TimeIncrease = TimeSpan.FromSeconds(10);
+            NumberOfRetries = 3;
             Disabled = true;
+            RetryPolicy = Validate;
         }
 
         public ISendMessages MessageSender { get; set; }
@@ -21,6 +24,8 @@ namespace NServiceBus.SecondLevelRetries
         public FaultManager FaultManager { get; set; }
         public Func<TransportMessage, TimeSpan> RetryPolicy { get; set; }
         public Address InputAddress { get; set; }
+        public int NumberOfRetries { get; set; }
+        public TimeSpan TimeIncrease { get; set; }
 
         public bool Disabled
         {
@@ -65,14 +70,14 @@ namespace NServiceBus.SecondLevelRetries
         {
             var retryMessageAt = DateTime.UtcNow + defer;
 
-            TransportMessageHelpers.SetHeader(message, Headers.Retries,
-                (TransportMessageHelpers.GetNumberOfRetries(message) + 1).ToString(CultureInfo.InvariantCulture));
+            TransportMessageHeaderHelper.SetHeader(message, Headers.Retries,
+                (TransportMessageHeaderHelper.GetNumberOfRetries(message) + 1).ToString(CultureInfo.InvariantCulture));
 
-            var addressOfFaultingEndpoint = TransportMessageHelpers.GetAddressOfFaultingEndpoint(message);
+            var addressOfFaultingEndpoint = TransportMessageHeaderHelper.GetAddressOfFaultingEndpoint(message);
 
-            if (!TransportMessageHelpers.HeaderExists(message, SecondLevelRetriesHeaders.RetriesTimestamp))
+            if (!TransportMessageHeaderHelper.HeaderExists(message, SecondLevelRetriesHeaders.RetriesTimestamp))
             {
-                TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp,
+                TransportMessageHeaderHelper.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp,
                     DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow));
             }
 
@@ -88,5 +93,49 @@ namespace NServiceBus.SecondLevelRetries
         }
 
         static ILog logger = LogManager.GetLogger<SecondLevelRetriesProcessor>();
+
+        internal TimeSpan Validate(TransportMessage message)
+        {
+            if (HasReachedMaxTime(message))
+            {
+                return TimeSpan.MinValue;
+            }
+
+            var numberOfRetries = TransportMessageHeaderHelper.GetNumberOfRetries(message);
+
+            var timeToIncreaseInTicks = TimeIncrease.Ticks * (numberOfRetries + 1);
+            var timeIncrease = TimeSpan.FromTicks(timeToIncreaseInTicks);
+
+            return numberOfRetries >= NumberOfRetries ? TimeSpan.MinValue : timeIncrease;
+        }
+
+        static bool HasReachedMaxTime(TransportMessage message)
+        {
+            var timestampHeader = TransportMessageHeaderHelper.GetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp);
+
+            if (String.IsNullOrEmpty(timestampHeader))
+            {
+                return false;
+            }
+
+            try
+            {
+                var handledAt = DateTimeExtensions.ToUtcDateTime(timestampHeader);
+
+                if (DateTime.UtcNow > handledAt.AddDays(1))
+                {
+                    return true;
+                }
+            }
+            // ReSharper disable once EmptyGeneralCatchClause
+            // this code won't usually throw but in case a user has decided to hack a message/headers and for some bizarre reason 
+            // they changed the date and that parse fails, we want to make sure that doesn't prevent the message from being 
+            // forwarded to the error queue.
+            catch (Exception)
+            {
+            }
+
+            return false;
+        }
     }
 }

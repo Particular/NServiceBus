@@ -35,9 +35,6 @@ namespace NServiceBus.Core.Tests.Timeout
         [SetUp]
         public void Setup()
         {
-            Address.InitializeLocalAddress("MyEndpoint");
-
-            
             persister = CreateTimeoutPersister();
             messageSender = new FakeMessageSender();
 

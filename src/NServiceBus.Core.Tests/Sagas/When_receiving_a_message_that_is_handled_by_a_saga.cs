@@ -16,7 +16,7 @@ namespace NServiceBus.Unicast.Tests
 
             RegisterSaga<MySaga>(new MySagaData { Id = sagaId });
 
-            ReceiveMessage(new MessageThatHitsExistingSaga(), new Dictionary<string, string> { { Headers.SagaId, sagaId.ToString() } });
+            ReceiveMessage(new MessageThatHitsExistingSaga(), new Dictionary<string, string> { { Headers.SagaId, sagaId.ToString() } }, mapper: MessageMapper);
 
             Assert.AreEqual(1, persister.CurrentSagaEntities.Count(), "Existing saga should be found");
 
@@ -31,7 +31,7 @@ namespace NServiceBus.Unicast.Tests
 
             RegisterSaga<MySaga>(new MySagaData { Id = sagaId, PropertyThatCorrelatesToMessage = correlationId });
 
-            ReceiveMessage(new MessageThatHitsExistingSaga { PropertyThatCorrelatesToSaga = correlationId });
+            ReceiveMessage(new MessageThatHitsExistingSaga { PropertyThatCorrelatesToSaga = correlationId }, mapper: MessageMapper);
 
             Assert.AreEqual(1, persister.CurrentSagaEntities.Count(), "Existing saga should be found");
 
@@ -47,7 +47,7 @@ namespace NServiceBus.Unicast.Tests
 
             RegisterSaga<MySaga>(new MySagaData { Id = sagaId, PropertyThatCorrelatesToMessage = correlationId });
 
-            ReceiveMessage(new MessageThatHitsExistingSaga { PropertyThatCorrelatesToSaga = correlationId });
+            ReceiveMessage(new MessageThatHitsExistingSaga { PropertyThatCorrelatesToSaga = correlationId }, mapper: MessageMapper);
 
             var sagaAuditTrail = AuditedMessage.Headers[Headers.InvokedSagas];
 

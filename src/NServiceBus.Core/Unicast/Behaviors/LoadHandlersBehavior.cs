@@ -1,8 +1,9 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
     using System.Linq;
     using MessageInterfaces;
+    using NServiceBus.Unicast.Behaviors;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
@@ -37,7 +38,7 @@
                     var loadedHandler = new MessageHandler
                     {
                         Instance = context.Builder.Build(handlerType),
-                        Invocation = (handlerInstance, message) => HandlerInvocationCache.InvokeHandle(handlerInstance, message)
+                        Invocation = (handlerInstance, message) => HandlerRegistry.InvokeHandle(handlerInstance, message)
                     };
 
                     context.MessageHandler = loadedHandler;

@@ -1,12 +1,13 @@
 ﻿namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
+    using NServiceBus.Hosting.Profiles;
 
     /// <summary>
-    /// Handles logging configuration for the lite profile.
+    /// Handles logging configuration for the <see cref="Lite"/> profile.
     /// </summary>
     class LiteLoggingHandler : IConfigureLoggingForProfile<Lite>
     {
-        void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
+        public void Configure(IConfigureThisEndpoint specifier)
         {
         }
     }

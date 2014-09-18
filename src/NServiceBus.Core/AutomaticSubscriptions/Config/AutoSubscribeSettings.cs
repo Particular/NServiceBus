@@ -5,9 +5,9 @@ namespace NServiceBus.AutomaticSubscriptions.Config
     /// </summary>
     public class AutoSubscribeSettings
     {
-        readonly Configure config;
+        BusConfiguration config;
 
-        internal AutoSubscribeSettings(Configure config)
+        internal AutoSubscribeSettings(BusConfiguration config)
         {
             this.config = config;
         }

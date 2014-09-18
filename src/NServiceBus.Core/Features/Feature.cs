@@ -15,17 +15,15 @@
         /// </summary>
         protected Feature()
         {
-            name = GetFeatureName(GetType());
+            StartupTasks = new List<Type>();
+            Dependencies = new List<List<string>>();
+            Name = GetFeatureName(GetType());
         }
 
-    
         /// <summary>
         ///     Feature name.
         /// </summary>
-        public string Name
-        {
-            get { return name; }
-        }
+        public string Name { get; private set; }
 
         /// <summary>
         ///     The version for this feature
@@ -38,32 +36,19 @@
         /// <summary>
         ///     The list of features that this feature is depending on
         /// </summary>
-        internal List<List<string>> Dependencies
-        {
-            get { return dependencies; }
-        }
+        internal List<List<string>> Dependencies { get; private set; }
 
         /// <summary>
         ///     Tells if this feature is enabled by default
         /// </summary>
-        public bool IsEnabledByDefault
-        {
-            get { return isEnabledByDefault; }
-        }
-
+        public bool IsEnabledByDefault { get; private set; }
 
         /// <summary>
         ///     Indicates that the feature is active
         /// </summary>
-        public bool IsActive
-        {
-            get { return isActive; }
-        }
+        public bool IsActive { get; private set; }
 
-        internal List<Type> StartupTasks
-        {
-            get { return startupTasks; }
-        }
+        internal List<Type> StartupTasks { get; private set; }
 
         /// <summary>
         /// Registers default settings
@@ -85,11 +70,11 @@
         protected internal abstract void Setup(FeatureConfigurationContext context);
 
         /// <summary>
-        ///     Adds a setup prerequisite condition. If false this feature won't be setup
-        ///     Prerequisites are only evaluated if the feature is enabled
+        ///     Adds a setup prerequisite condition. If false this feature won't be setup.
+        ///     Prerequisites are only evaluated if the feature is enabled.
         /// </summary>
-        /// <param name="condition">Condition that must be met in order for this feature to be activated</param>
-        /// <param name="description">Explanation of what this prerequisite checks</param>
+        /// <param name="condition">Condition that must be met in order for this feature to be activated.</param>
+        /// <param name="description">Explanation of what this prerequisite checks.</param>
         protected void Prerequisite(Func<FeatureConfigurationContext, bool> condition,string description)
         {
             if (string.IsNullOrEmpty(description))
@@ -109,7 +94,7 @@
         /// </summary>
         protected void EnableByDefault()
         {
-            isEnabledByDefault = true;
+            IsEnabledByDefault = true;
         }
 
         /// <summary>
@@ -117,7 +102,7 @@
         ///     the dependant feature is active.
         ///     This also causes this feature to be activated after the other feature.
         /// </summary>
-        /// <typeparam name="T">Feature that this feature depends on</typeparam>
+        /// <typeparam name="T">Feature that this feature depends on.</typeparam>
         protected void DependsOn<T>() where T : Feature
         {
             DependsOn(GetFeatureName(typeof(T)));
@@ -128,10 +113,10 @@
         ///     the dependant feature is active.
         ///     This also causes this feature to be activated after the other feature.
         /// </summary>
-        /// <param name="featureName">The name of the feature that this feature depends on</param>
+        /// <param name="featureName">The name of the feature that this feature depends on.</param>
         protected void DependsOn(string featureName)
         {
-            dependencies.Add(new List<string>{featureName});
+            Dependencies.Add(new List<string>{featureName});
         }
 
         /// <summary>
@@ -150,13 +135,29 @@
 
             foreach (var feature in features)
             {
-                if (!feature.IsSubclassOf(featureType))
+                if (!feature.IsSubclassOf(baseFeatureType))
                 {
                     throw new ArgumentException(string.Format("A Feature can only depend on another Feature. '{0}' is not a Feature", feature.FullName), "features");
                 }
             }
 
-            dependencies.Add(new List<string>(features.Select(feature =>feature.Name)));
+            Dependencies.Add(new List<string>(features.Select(GetFeatureName)));
+        }
+
+        /// <summary>
+        ///     Register this feature as depending on at least on of the given features. This means that this feature won't be
+        ///     activated unless at least one of the provided features in the list is active.
+        ///     This also causes this feature to be activated after the other features.
+        /// </summary>
+        /// <param name="featureNames">The name of the features that this feature depends on.</param>
+        protected void DependsOnAtLeastOne(params string[] featureNames)
+        {
+            if (featureNames == null)
+            {
+                throw new ArgumentNullException("featureNames");
+            }
+
+            Dependencies.Add(new List<string>(featureNames));
         }
 
         /// <summary>
@@ -165,9 +166,8 @@
         /// <typeparam name="T">A <see cref="FeatureStartupTask" />.</typeparam>
         protected void RegisterStartupTask<T>() where T : FeatureStartupTask
         {
-            startupTasks.Add(typeof(T));
+            StartupTasks.Add(typeof(T));
         }
-
 
         /// <summary>
         ///     Returns a string that represents the current object.
@@ -200,7 +200,7 @@
         {
             Setup(config);
 
-            isActive = true;
+            IsActive = true;
         }
 
         static string GetFeatureName(Type featureType)
@@ -209,27 +209,18 @@
 
             if (name.EndsWith("Feature"))
             {
-                var length = "Feature".Length;
-
-                if (name.Length > length)
+                if (name.Length > featureStringLength)
                 {
-                    name = name.Substring(0, name.Length - length);
+                    name = name.Substring(0, name.Length - featureStringLength);
                 }
             }
 
             return name;
         }
 
-
-        static Type featureType = typeof(Feature);
-
-        List<List<string>> dependencies = new List<List<string>>();
-
-        bool isActive;
-        bool isEnabledByDefault;
-        string name;
+        static Type baseFeatureType = typeof(Feature);
+        static int featureStringLength = "Feature".Length;
         List<SetupPrerequisite> setupPrerequisites = new List<SetupPrerequisite>();
-        List<Type> startupTasks = new List<Type>();
         List<Action<SettingsHolder>> defaults = new List<Action<SettingsHolder>>();
 
         class SetupPrerequisite

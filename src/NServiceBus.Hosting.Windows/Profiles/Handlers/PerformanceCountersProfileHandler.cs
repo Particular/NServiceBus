@@ -7,9 +7,14 @@
     /// </summary>
     class PerformanceCountersProfileHandler : IHandleProfile<PerformanceCounters>
     {
+        public void ProfileActivated(BusConfiguration config)
+        {
+            config.EnableCriticalTimePerformanceCounter();
+            config.EnableSLAPerformanceCounter();   
+        }
+
         public void ProfileActivated(Configure config)
         {
-            config.EnablePerformanceCounters();
         }
     }
 }

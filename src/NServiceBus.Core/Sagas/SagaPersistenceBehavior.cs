@@ -1,16 +1,17 @@
-﻿namespace NServiceBus.Sagas
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using Logging;
+    using NServiceBus.Sagas;
+    using NServiceBus.Sagas.Finders;
+    using NServiceBus.Unicast;
     using Pipeline;
     using Pipeline.Contexts;
     using Saga;
-    using Finders;
     using Timeout;
     using Transports;
-    using Unicast;
     using Unicast.Messages;
 
     class SagaPersistenceBehavior : IBehavior<IncomingContext>
@@ -19,12 +20,9 @@
 
         public IDeferMessages MessageDeferrer { get; set; }
 
-        public object MutateIncoming(object message)
-        {
-            
+        public IMessageHandlerRegistry MessageHandlerRegistry { get; set; }
 
-            return message;
-        }
+        public SagaConfigurationCache SagaConfigurationCache { get; set; }
 
         public void Invoke(IncomingContext context, Action next)
         {
@@ -35,14 +33,12 @@
                 context.PhysicalMessage.Headers.Remove(Headers.SagaType);
             }
 
-            var saga = context.MessageHandler.Instance as Saga;
+            var saga = context.MessageHandler.Instance as Saga.Saga;
             if (saga == null)
             {
                 next();
                 return;
             }
-
-            MutateIncoming(saga);
 
             currentContext = context;
 
@@ -56,25 +52,25 @@
             if (loadedEntity == null)
             {
                 //if this message are not allowed to start the saga
-                if (!Features.Sagas.ShouldMessageStartSaga(sagaInstanceState.SagaType, context.IncomingLogicalMessage.MessageType))
+                if (!SagaConfigurationCache.IsAStartSagaMessage(sagaInstanceState.SagaType, context.IncomingLogicalMessage.MessageType))
                 {
                     sagaInstanceState.MarkAsNotFound();
 
-                    InvokeSagaNotFoundHandlers();
-                    return;
+                    InvokeSagaNotFoundHandlers(sagaInstanceState.SagaType);
                 }
-
-                sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaInstanceState.SagaType));
+                else
+                {
+                    sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaInstanceState.SagaType));
+                }
             }
             else
             {
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
             }
 
-
             if (IsTimeoutMessage(context.IncomingLogicalMessage))
             {
-                context.MessageHandler.Invocation = HandlerInvocationCache.InvokeTimeout;
+                context.MessageHandler.Invocation = MessageHandlerRegistry.InvokeTimeout;
             }
 
 
@@ -132,9 +128,9 @@
             }
         }
 
-        void InvokeSagaNotFoundHandlers()
+        void InvokeSagaNotFoundHandlers(Type sagaType)
         {
-            logger.InfoFormat("Could not find a saga for the message type {0}. Going to invoke SagaNotFoundHandlers.", currentContext.IncomingLogicalMessage.MessageType.FullName);
+            logger.InfoFormat("Could not find a saga of type '{0}' for the message type '{1}'. Going to invoke SagaNotFoundHandlers.", sagaType.FullName, currentContext.IncomingLogicalMessage.MessageType.FullName);
 
             foreach (var handler in currentContext.Builder.BuildAll<IHandleSagaNotFound>())
             {
@@ -194,11 +190,11 @@
             return true;
         }
 
-        IContainSagaData TryLoadSagaEntity(Saga saga, LogicalMessage message)
+        IContainSagaData TryLoadSagaEntity(Saga.Saga saga, LogicalMessage message)
         {
             var sagaType = saga.GetType();
 
-            var sagaEntityType = Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
+            var sagaEntityType = SagaConfigurationCache.GetSagaEntityTypeForSagaType(sagaType);
 
             var finders = GetFindersFor(message.MessageType, sagaEntityType);
 
@@ -215,14 +211,14 @@
             return null;
         }
 
-        void NotifyTimeoutManagerThatSagaHasCompleted(Saga saga)
+        void NotifyTimeoutManagerThatSagaHasCompleted(Saga.Saga saga)
         {
             MessageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
         }
 
-        static IContainSagaData UseFinderToFindSaga(IFinder finder, object message)
+        IContainSagaData UseFinderToFindSaga(IFinder finder, object message)
         {
-            var method = Features.Sagas.GetFindByMethodForFinder(finder, message);
+            var method = SagaConfigurationCache.GetFindByMethodForFinder(finder, message);
 
             if (method != null)
             {
@@ -241,7 +237,7 @@
 
             if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
             {
-                var finders = Features.Sagas.GetFindersForMessageAndEntity(messageType, sagaEntityType).Select(t => currentContext.Builder.Build(t) as IFinder).ToList();
+                var finders = SagaConfigurationCache.GetFindersForMessageAndEntity(messageType, sagaEntityType).Select(t => currentContext.Builder.Build(t) as IFinder).ToList();
 
                 if (logger.IsDebugEnabled)
                 {
@@ -258,7 +254,7 @@
 
         IContainSagaData CreateNewSagaEntity(Type sagaType)
         {
-            var sagaEntityType = Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
+            var sagaEntityType = SagaConfigurationCache.GetSagaEntityTypeForSagaType(sagaType);
 
             if (sagaEntityType == null)
             {
@@ -294,6 +290,7 @@
                 : base(WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic")
             {
                 InsertBefore(WellKnownStep.InvokeHandlers);
+                InsertAfter("SetCurrentMessageBeingHandled");
             }
         }
     }

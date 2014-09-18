@@ -18,7 +18,6 @@ namespace NServiceBus.Settings
         /// </summary>
         /// <typeparam name="T">The type of the value</typeparam>
         /// <param name="key">The key</param>
-        /// <returns></returns>
         public T Get<T>(string key)
         {
             return (T)Get(key);
@@ -222,6 +221,28 @@ namespace NServiceBus.Settings
             var key = typeof(T).FullName;
 
             return HasSetting(key);
+        }
+
+        /// <summary>
+        /// True if there is an explicit value for the given key
+        /// </summary>
+        /// <param name="key">The Key</param>
+        /// <returns>True if found</returns>
+        public bool HasExplicitValue(string key)
+        {
+            return Overrides.ContainsKey(key);
+        }
+
+        /// <summary>
+        /// True if there is an explicit value for the given type
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <returns>True if found</returns>
+        public bool HasExplicitValue<T>()
+        {
+            var key = typeof(T).FullName;
+
+            return HasExplicitValue(key);
         }
 
         /// <summary>

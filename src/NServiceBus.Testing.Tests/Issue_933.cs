@@ -3,14 +3,8 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class Issue_933
+    public class Issue_933 : BaseTests
     {
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
-        {
-            Test.Initialize();
-        }
-
         [Test]
         public void SendMessageWithMultiIncomingHeaders()
         {
@@ -33,10 +27,12 @@
 
         public class MyCommandHandler : IHandleMessages<MyCommand>
         {
+            public IBus Bus { get; set; }
+
             public void Handle(MyCommand message)
             {
-                message.Header1 = message.GetHeader("Key1");
-                message.Header2 = message.GetHeader("Key2");
+                message.Header1 = Bus.GetMessageHeader(message, "Key1");
+                message.Header2 = Bus.GetMessageHeader(message, "Key2");
             }
         }
     }

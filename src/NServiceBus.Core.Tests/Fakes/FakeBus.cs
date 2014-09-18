@@ -193,5 +193,9 @@
             get { throw new NotImplementedException(); }
         }
 
+        public void Dispose()
+        {
+            
+        }
     }
 }

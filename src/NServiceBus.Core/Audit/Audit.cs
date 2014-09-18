@@ -4,7 +4,6 @@
     using System.Diagnostics;
     using Config;
     using Logging;
-    using NServiceBus.Audit;
     using Unicast.Queuing.Installers;
     using Utils;
 
@@ -32,18 +31,17 @@
                 Logger.Warn("Endpoint auditing is configured using the registry on this machine, please ensure that you either run Set-NServiceBusLocalMachineSettings cmdlet on the target deployment machine or specify the QueueName attribute in the AuditConfig section in your app.config file. To quickly add the AuditConfig section to your app.config, in Package Manager Console type: add-NServiceBusAuditConfig.");
             }
 
-
             context.Pipeline.Register<AuditBehavior.Registration>();
 
             var auditQueue = GetConfiguredAuditQueue(context);
 
             context.Container.ConfigureComponent<AuditQueueCreator>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p=>p.Enabled,true)
+                .ConfigureProperty(p => p.Enabled, true)
                 .ConfigureProperty(t => t.AuditQueue, auditQueue);
 
             var behaviorConfig = context.Container.ConfigureComponent<AuditBehavior>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.AuditQueue, auditQueue);
-                
+
 
 
             var messageAuditingConfig = context.Settings.GetConfigSection<AuditConfig>();

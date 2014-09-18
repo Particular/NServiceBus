@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
     using Pipeline;

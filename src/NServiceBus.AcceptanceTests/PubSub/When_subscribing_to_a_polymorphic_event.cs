@@ -14,8 +14,7 @@
             var cc = new Context();
 
             Scenario.Define(cc)
-                    .WithEndpoint<Publisher>(b => b.Given((bus, context) => EnableNotificationsOnSubscribe(context))
-                    .When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.Publish(new MyEvent())))
+                    .WithEndpoint<Publisher>(b => b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.Publish(new MyEvent())))
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                         {
                             bus.Subscribe<IMyEvent>();
@@ -54,7 +53,18 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) =>
+                {
+                    if (args.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                    {
+                        context.Subscriber1Subscribed = true;
+                    }
+
+                    if (args.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
+                    {
+                        context.Subscriber2Subscribed = true;
+                    }
+                }));
             }
         }
 
@@ -95,21 +105,7 @@
                 }
             }
         }
-        static void EnableNotificationsOnSubscribe(Context context)
-        {
-            if (!context.HasNativePubSubSupport)
-            {
-                SubscriptionBehavior.OnEndpointSubscribed(args =>
-                {
-                    if (args.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
-                        context.Subscriber1Subscribed = true;
-
-                    if (args.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
-                        context.Subscriber2Subscribed = true;
-                });
-            }
-        }
-
+        
         [Serializable]
         public class MyEvent : IMyEvent
         {

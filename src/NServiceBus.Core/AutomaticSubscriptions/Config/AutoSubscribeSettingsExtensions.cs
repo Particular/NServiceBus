@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using AutomaticSubscriptions.Config;
 
     /// <summary>
@@ -11,11 +10,9 @@ namespace NServiceBus
         /// <summary>
         /// Use this method to change how auto subscribe works
         /// </summary>
-        public static Configure AutoSubscribe(this Configure config, Action<AutoSubscribeSettings> customSettings)
+        public static AutoSubscribeSettings AutoSubscribe(this BusConfiguration config)
         {
-            customSettings(new AutoSubscribeSettings(config));
-
-            return config;
+            return new AutoSubscribeSettings(config);
         }
     }
 }

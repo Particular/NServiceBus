@@ -8,6 +8,10 @@
     /// </summary>
     public class TimeoutManagerBasedDeferral:Feature
     {
+        internal TimeoutManagerBasedDeferral()
+        {
+            
+        }
         /// <summary>
         /// Invoked if the feature is activated
         /// </summary>

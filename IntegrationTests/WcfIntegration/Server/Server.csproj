@@ -68,5 +68,4 @@
     <StartArguments>NServiceBus.Lite</StartArguments>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)..\..\BuildSupport\RippleRestoreTask.targets" />
 </Project>

@@ -11,6 +11,8 @@
         
         internal BsonSerialization()
         {
+            EnableByDefault();
+            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "BsonSerialization not enable since serialization definition not detected.");
         }
 
         /// <summary>

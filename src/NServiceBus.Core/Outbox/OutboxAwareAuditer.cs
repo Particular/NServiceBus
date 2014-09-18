@@ -4,7 +4,7 @@ namespace NServiceBus.Outbox
     using Transports;
     using Unicast;
 
-    class OutboxAwareAuditer:IAuditMessages
+    class OutboxAwareAuditer
     {
         public DefaultMessageAuditer DefaultMessageAuditer { get; set; }
 
@@ -24,7 +24,7 @@ namespace NServiceBus.Outbox
             }
             else
             {
-                DefaultMessageAuditer.Audit(sendOptions,message);
+                DefaultMessageAuditer.Audit(sendOptions, message);
             }
         }
     }

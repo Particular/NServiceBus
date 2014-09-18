@@ -55,7 +55,7 @@ namespace NServiceBus.ObjectBuilder
         /// Registers the given instance as the singleton that will be returned
         /// for the given type.
         /// </summary>
-        IConfigureComponents RegisterSingleton<T>(object instance);
+        IConfigureComponents RegisterSingleton<T>(T instance);
 
         /// <summary>
         /// Indicates if a component of the given type has been configured.

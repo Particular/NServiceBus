@@ -106,7 +106,7 @@
                 var type = Type.GetType(transportAssemblyQualifiedName);
                 if (type != null)
                 {
-                    var transport = Activator.CreateInstance(type) as TransportDefinition;
+                    var transport = Activator.CreateInstance(type, true) as TransportDefinition;
                     if (condition(transport))
                     {
                         remove(rundescriptor);

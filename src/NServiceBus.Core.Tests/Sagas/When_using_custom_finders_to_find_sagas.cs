@@ -14,8 +14,8 @@
             RegisterSaga<SagaWithDerivedMessage>();
             RegisterCustomFinder<MyFinderForBaseClass>();
             RegisterCustomFinder<MyFinderForFoo2>();
-          
-            ReceiveMessage(new Foo2());
+
+            ReceiveMessage(new Foo2(), mapper: MessageMapper);
 
             Assert.AreEqual(1, persister.CurrentSagaEntities.Count(), "Existing saga should be found");
 
@@ -31,7 +31,7 @@
             RegisterSaga<SagaWithDerivedMessage>();
             RegisterCustomFinder<MyFinderForBaseClass>();
 
-            ReceiveMessage(new Foo2());
+            ReceiveMessage(new Foo2(), mapper: MessageMapper);
 
             Assert.AreEqual(1, persister.CurrentSagaEntities.Count(), "Existing saga should be found");
 

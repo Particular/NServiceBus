@@ -44,7 +44,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -54,12 +54,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyListExtensions\AllTypesAssignableToTests.cs" />
+    <Compile Include="AssemblyListExtensions\AssemblyListExtensions.cs" />
     <Compile Include="AssemblyListExtensions\WhereConcreteTests.cs" />
     <Compile Include="AssemblyPathHelper.cs" />
     <Compile Include="EndpointTypeDeterminerTests.cs" />
     <Compile Include="EndpointTypeTests.cs" />
     <Compile Include="ProfileManagerTests.cs" />
-    <Compile Include="RoleManagerTests.cs" />
     <Compile Include="With_transport_tests.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -74,10 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="ripple.dependencies.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
 </Project>

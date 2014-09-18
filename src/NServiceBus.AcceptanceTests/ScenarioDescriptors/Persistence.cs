@@ -17,7 +17,7 @@
                 if (!string.IsNullOrEmpty(specificPersistence))
                     return AllAvailable.Single(r => r.Key == specificPersistence);
 
-                var nonCorePersisters = AllAvailable.Where(t => t != InMemory && t.Key != "Msmq").ToList();
+                var nonCorePersisters = AllAvailable.Where(t => t != InMemory && t.Key != "MsmqPersistence").ToList();
 
                 if (nonCorePersisters.Count() == 1)
                     return nonCorePersisters.First();
@@ -41,7 +41,7 @@
 
         static RunDescriptor InMemory
         {
-            get { return AllAvailable.SingleOrDefault(r => r.Key == "InMemory"); }
+            get { return AllAvailable.SingleOrDefault(r => r.Key == "InMemoryPersistence"); }
         }
 
         static IEnumerable<RunDescriptor> GetAllAvailable()

@@ -20,7 +20,6 @@ namespace NServiceBus.Serializers.Json.Tests
             Serializer = new JsonMessageSerializer(MessageMapper);
         }
 
-
         public class SimpleMessage1
         {
             public string PropertyOnMessage1 { get; set; }
@@ -69,7 +68,6 @@ namespace NServiceBus.Serializers.Json.Tests
         {
             using (var stream = new MemoryStream())
             {
-
                 Serializer.Serialize(new SuperMessage {SomeProperty = "John"}, stream);
 
                 stream.Position = 0;
@@ -126,12 +124,13 @@ namespace NServiceBus.Serializers.Json.Tests
         [Test]
         public void Serialize_message_without_concrete_implementation()
         {
-            var mapper = new MessageMapper();
-            mapper.Initialize(new []{ typeof(ISuperMessageWithoutConcreteImpl)});
-            
+            MessageMapper = new MessageMapper();
+            MessageMapper.Initialize(new[] { typeof(ISuperMessageWithoutConcreteImpl) });
+            Serializer = new JsonMessageSerializer(MessageMapper);
+
             using (var stream = new MemoryStream())
             {
-                Serializer.Serialize(mapper.CreateInstance<ISuperMessageWithoutConcreteImpl>(), stream);
+                Serializer.Serialize(MessageMapper.CreateInstance<ISuperMessageWithoutConcreteImpl>(), stream);
 
                 stream.Position = 0;
                 var result = new StreamReader(stream).ReadToEnd();
@@ -144,12 +143,13 @@ namespace NServiceBus.Serializers.Json.Tests
         [Test]
         public void Deserialize_message_without_concrete_implementation()
         {
-            var mapper = new MessageMapper();
-            mapper.Initialize(new[] { typeof(ISuperMessageWithoutConcreteImpl) });
+            MessageMapper = new MessageMapper();
+            MessageMapper.Initialize(new[] { typeof(ISuperMessageWithoutConcreteImpl) });
+            Serializer = new JsonMessageSerializer(MessageMapper);
 
             using (var stream = new MemoryStream())
             {
-                var msg = mapper.CreateInstance<ISuperMessageWithoutConcreteImpl>();
+                var msg = MessageMapper.CreateInstance<ISuperMessageWithoutConcreteImpl>();
                 msg.SomeProperty = "test";
 
                 Serializer.Serialize(msg, stream);
@@ -166,8 +166,9 @@ namespace NServiceBus.Serializers.Json.Tests
         public void Deserialize_message_with_concrete_implementation_and_interface()
         {
             var map = new[] {typeof(SuperMessageWithConcreteImpl), typeof(ISuperMessageWithConcreteImpl)};
-            var mapper = new MessageMapper();
-            mapper.Initialize(map);
+            MessageMapper = new MessageMapper();
+            MessageMapper.Initialize(map);
+            Serializer = new JsonMessageSerializer(MessageMapper);
 
             using (var stream = new MemoryStream())
             {
@@ -260,6 +261,10 @@ namespace NServiceBus.Serializers.Json.Tests
                 streamWriter.Write(xml);
                 streamWriter.Flush();
                 stream.Position = 0;
+
+                MessageMapper = new MessageMapper();
+                MessageMapper.Initialize(new[] { typeof(IAImpl), typeof(IA) });
+                Serializer = new JsonMessageSerializer(MessageMapper);
 
                 var result = Serializer.Deserialize(stream, new[] { typeof(IAImpl) });
                 Assert.IsNotEmpty(result);

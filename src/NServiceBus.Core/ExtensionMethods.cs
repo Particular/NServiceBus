@@ -18,7 +18,13 @@ namespace NServiceBus
         /// <returns>The value assigned to the header.</returns>
         public static string GetMessageHeader(this IBus bus, object msg, string key)
         {
-            return GetHeaderAction(msg, key);
+            var manageMessageHeaders = bus as IManageMessageHeaders;
+            if (manageMessageHeaders != null)
+            {
+                return manageMessageHeaders.GetHeaderAction(msg, key);
+            }
+
+            throw new InvalidOperationException("bus does not implement IManageMessageHeaders");
         }
 
         /// <summary>
@@ -28,9 +34,16 @@ namespace NServiceBus
         /// <param name="msg">The message to add a header to.</param>
         /// <param name="key">The header key.</param>
         /// <param name="value">The value to assign to the header.</param>
-        public static void SetMessageHeader(this IBus bus, object msg, string key, string value)
+        public static void SetMessageHeader(this ISendOnlyBus bus, object msg, string key, string value)
         {
-            SetHeaderAction(msg, key, value);
+            var manageMessageHeaders = bus as IManageMessageHeaders;
+            if (manageMessageHeaders != null)
+            {
+                manageMessageHeaders.SetHeaderAction(msg, key, value);
+                return;
+            }
+
+            throw new InvalidOperationException("bus does not implement IManageMessageHeaders");
         }
 
         /// <summary>
@@ -39,9 +52,13 @@ namespace NServiceBus
         /// <param name="msg">The <see cref="IMessage"/> to retrieve a header from.</param>
         /// <param name="key">The header key.</param>
         /// <returns>The value assigned to the header.</returns>
+        [ObsoleteEx(
+            Replacement = "bus.GetMessageHeader(msg, key)", 
+            TreatAsErrorFromVersion = "5.0",
+            RemoveInVersion = "6.0")]
         public static string GetHeader(this IMessage msg, string key)
         {
-            return GetHeaderAction(msg, key);
+            throw new InvalidOperationException();
         }
 
         /// <summary>
@@ -50,9 +67,13 @@ namespace NServiceBus
         /// <param name="msg">The <see cref="IMessage"/> to add a header to.</param>
         /// <param name="key">The header key.</param>
         /// <param name="value">The value to assign to the header.</param>
+        [ObsoleteEx(
+            Replacement = "bus.SetMessageHeader(msg, key, value)",
+            TreatAsErrorFromVersion = "5.0",
+            RemoveInVersion = "6.0")]
         public static void SetHeader(this IMessage msg, string key, string value)
         {
-            SetHeaderAction(msg, key, value);
+            throw new InvalidOperationException();
         }
 
         /// <summary>
@@ -63,18 +84,7 @@ namespace NServiceBus
         [ThreadStatic]
         static object currentMessageBeingHandled;
 
-        /// <summary>
-        /// The <see cref="Action{T1,T2,T3}"/> used to set the header in the <see cref="SetHeader(NServiceBus.IMessage,string,string)"/> method.
-        /// </summary>
-        public static Action<object, string, string> SetHeaderAction = (x, y, z) =>
-                                                                           {
-                                                                               //default to no-op to avoid getting in the way of unit testing
-                                                                           };
-
-        /// <summary>
-        /// The <see cref="Func{T1,T2,TResult}"/> used to get the header value in the <see cref="GetHeader(NServiceBus.IMessage,string)"/> method.
-        /// </summary>
-        public static Func<object, string, string> GetHeaderAction = (x, y) => "No header get header action was defined, please specify one using ExtensionMethods.GetHeaderAction = ...";
+        
 
     }
 }

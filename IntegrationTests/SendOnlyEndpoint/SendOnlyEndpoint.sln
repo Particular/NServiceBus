@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendOnlyEndpoint.Custom", "SendOnlyEndpoint.Custom\SendOnlyEndpoint.Custom.csproj", "{52E814AA-CD2D-48F5-AD5C-38D8335DEBF4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendOnlyEndpoint.NServiceBusHost", "SendOnlyEndpoint.NServiceBusHost\SendOnlyEndpoint.NServiceBusHost.csproj", "{62F5003D-869E-4A26-9373-F66B5F5FDE5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,16 +25,6 @@ Global
 		{52E814AA-CD2D-48F5-AD5C-38D8335DEBF4}.Release|Mixed Platforms.Build.0 = Release|x86
 		{52E814AA-CD2D-48F5-AD5C-38D8335DEBF4}.Release|x86.ActiveCfg = Release|x86
 		{52E814AA-CD2D-48F5-AD5C-38D8335DEBF4}.Release|x86.Build.0 = Release|x86
-		{62F5003D-869E-4A26-9373-F66B5F5FDE5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{62F5003D-869E-4A26-9373-F66B5F5FDE5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{62F5003D-869E-4A26-9373-F66B5F5FDE5B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{62F5003D-869E-4A26-9373-F66B5F5FDE5B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{62F5003D-869E-4A26-9373-F66B5F5FDE5B}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{62F5003D-869E-4A26-9373-F66B5F5FDE5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{62F5003D-869E-4A26-9373-F66B5F5FDE5B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{62F5003D-869E-4A26-9373-F66B5F5FDE5B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{62F5003D-869E-4A26-9373-F66B5F5FDE5B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{62F5003D-869E-4A26-9373-F66B5F5FDE5B}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

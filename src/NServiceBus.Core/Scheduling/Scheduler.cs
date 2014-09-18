@@ -1,6 +1,5 @@
-namespace NServiceBus
+namespace NServiceBus.Features
 {
-    using Features;
     using Scheduling;
     using ScheduledTask = Scheduling.Messages.ScheduledTask;
 
@@ -11,7 +10,7 @@ namespace NServiceBus
     {
         internal Scheduler()
         {
-            DependsOn<TimeoutManagerBasedDeferral>();
+            Prerequisite(c => !c.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Scheduler cannot be used from a sendonly endpoint");
 
             EnableByDefault();
         }

@@ -1,14 +1,15 @@
-﻿namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
+﻿namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
     using System.Linq;
     using Logging;
+    using NServiceBus.Unicast.Subscriptions;
+    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
     using Pipeline;
     using Pipeline.Contexts;
 
-    class SubscriptionReceiverBehavior :
-        IBehavior<IncomingContext>
+    class SubscriptionReceiverBehavior : IBehavior<IncomingContext>
     {
         public ISubscriptionStorage SubscriptionStorage { get; set; }
 

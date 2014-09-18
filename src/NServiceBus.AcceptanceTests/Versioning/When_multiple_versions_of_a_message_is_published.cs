@@ -2,6 +2,7 @@
 {
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Features;
     using NUnit.Framework;
     using PubSub;
 
@@ -12,16 +13,7 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<V2Publisher>(b =>
-                        b.Given((bus, context) => SubscriptionBehavior.OnEndpointSubscribed(s =>
-                            {
-                                if (s.SubscriberReturnAddress.Queue.Contains("V1Subscriber"))
-                                    context.V1Subscribed = true;
-
-                                if (s.SubscriberReturnAddress.Queue.Contains("V2Subscriber"))
-                                    context.V2Subscribed = true;
-                            })
-                            )
-                             .When(c => c.V1Subscribed && c.V2Subscribed, (bus, c) => bus.Publish<V2Event>(e =>
+                        b.When(c => c.V1Subscribed && c.V2Subscribed, (bus, c) => bus.Publish<V2Event>(e =>
                                  {
                                      e.SomeData = 1;
                                      e.MoreInfo = "dasd";
@@ -57,15 +49,25 @@
         {
             public V2Publisher()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    if (s.SubscriberReturnAddress.Queue.Contains("V1Subscriber"))
+                    {
+                        context.V1Subscribed = true;
+                    }
 
+                    if (s.SubscriberReturnAddress.Queue.Contains("V2Subscriber"))
+                    {
+                        context.V2Subscribed = true;
+                    }
+                }));
             }
         }
         public class V1Subscriber : EndpointConfigurationBuilder
         {
             public V1Subscriber()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>())
                     .ExcludeType<V2Event>()
                     .AddMapping<V1Event>(typeof(V2Publisher));
 
@@ -87,7 +89,7 @@
         {
             public V2Subscriber()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>())
                      .AddMapping<V2Event>(typeof(V2Publisher));
             }
 

@@ -1,6 +1,7 @@
-namespace NServiceBus.Outbox
+namespace NServiceBus
 {
     using System;
+    using NServiceBus.Outbox;
     using Pipeline;
     using Pipeline.Contexts;
 

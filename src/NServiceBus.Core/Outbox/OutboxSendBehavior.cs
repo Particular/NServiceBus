@@ -1,14 +1,12 @@
-namespace NServiceBus.Outbox
+namespace NServiceBus
 {
     using System;
+    using NServiceBus.Outbox;
     using Pipeline;
     using Pipeline.Contexts;
-    using Unicast.Behaviors;
 
     class OutboxSendBehavior : IBehavior<OutgoingContext>
     {
-        public IOutboxStorage OutboxStorage { get; set; }
-
         public DispatchMessageToTransportBehavior DispatchMessageToTransportBehavior { get; set; }
 
         public void Invoke(OutgoingContext context, Action next)

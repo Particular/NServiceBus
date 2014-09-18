@@ -4,19 +4,19 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Threading;
     using Hosting.Helpers;
     using Hosting.Profiles;
-    using Hosting.Roles;
     using Hosting.Wcf;
     using Logging;
+    using NServiceBus.Unicast;
 
     class GenericHost
     {
         public GenericHost(IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles, string endpointName, IEnumerable<string> scannableAssembliesFullName = null)
         {
             this.specifier = specifier;
-            config = null;
-
+         
             if (String.IsNullOrEmpty(endpointName))
             {
                 endpointName = specifier.GetType().Namespace ?? specifier.GetType().Assembly.GetName().Name;
@@ -42,10 +42,8 @@ namespace NServiceBus
             }
 
             profileManager = new ProfileManager(assembliesToScan, args, defaultProfiles);
-            ProfileActivator.ProfileManager = profileManager;
 
             wcfManager = new WcfManager();
-            roleManager = new RoleManager(assembliesToScan);
         }
 
         /// <summary>
@@ -57,14 +55,12 @@ namespace NServiceBus
             {
                 PerformConfiguration();
 
-                bus = config.CreateBus();
-
-                if (bus != null && !config.Settings.Get<bool>("Endpoint.SendOnly"))
+                if (bus != null && !bus.Settings.Get<bool>("Endpoint.SendOnly"))
                 {
                     bus.Start();
                 }
 
-                wcfManager.Startup(config);
+                wcfManager.Startup(bus);
             }
             catch (Exception ex)
             {
@@ -82,7 +78,6 @@ namespace NServiceBus
 
             if (bus != null)
             {
-                bus.Shutdown();
                 bus.Dispose();
 
                 bus = null;
@@ -94,12 +89,12 @@ namespace NServiceBus
         /// </summary>
         public void Install(string username)
         {
-            PerformConfiguration();
-            config.EnableInstallers(username);
-            config.CreateBus();
+            PerformConfiguration(builder => builder.EnableInstallers(username));
+          
+            bus.Dispose();
         }
 
-        void PerformConfiguration()
+        void PerformConfiguration(Action<BusConfiguration> moreConfiguration = null)
         {
             var loggingConfigurers = profileManager.GetLoggingConfigurer();
             foreach (var loggingConfigurer in loggingConfigurers)
@@ -107,25 +102,40 @@ namespace NServiceBus
                 loggingConfigurer.Configure(specifier);
             }
 
-            config = Configure.With(builder =>
+            var configuration = new BusConfiguration();
+
+            configuration.EndpointName(endpointNameToUse);
+            configuration.EndpointVersion(endpointVersionToUse);
+            configuration.AssembliesToScan(assembliesToScan);
+            configuration.DefineCriticalErrorAction(OnCriticalError);
+
+            if (moreConfiguration != null)
             {
-                builder.EndpointName(endpointNameToUse);
-                builder.EndpointVersion(() => endpointVersionToUse);
-                builder.AssembliesToScan(assembliesToScan);
+                moreConfiguration(configuration);
+            }
 
-                specifier.Customize(builder);
-            });
+            specifier.Customize(configuration);
+            RoleManager.TweakConfigurationBuilder(specifier, configuration);
+            profileManager.ActivateProfileHandlers(configuration);
 
-            roleManager.ConfigureBusForEndpoint(specifier, config);
+            bus = (UnicastBus) Bus.Create(configuration);
         }
 
-        readonly List<Assembly> assembliesToScan;
-        readonly ProfileManager profileManager;
-        readonly RoleManager roleManager;
-        Configure config;
-        readonly IConfigureThisEndpoint specifier;
-        readonly WcfManager wcfManager;
-        IStartableBus bus;
+        // Windows hosting behavior when critical error occurs is suicide.
+        void OnCriticalError(string errorMessage, Exception exception)
+        {
+            if (Environment.UserInteractive)
+            {
+                Thread.Sleep(10000); // so that user can see on their screen the problem
+            }
+            
+            Environment.FailFast(String.Format("The following critical error was encountered by NServiceBus:\n{0}\nNServiceBus is shutting down.", errorMessage), exception);
+        }
+        List<Assembly> assembliesToScan;
+        ProfileManager profileManager;
+        IConfigureThisEndpoint specifier;
+        WcfManager wcfManager;
+        UnicastBus bus;
         string endpointNameToUse;
         string endpointVersionToUse;
     }

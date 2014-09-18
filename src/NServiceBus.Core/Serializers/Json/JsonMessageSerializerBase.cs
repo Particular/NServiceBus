@@ -40,7 +40,9 @@ namespace NServiceBus.Serializers.Json
         /// <summary>
         /// Removes the wrapping array if serializing a single message 
         /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6.0", Message = "In version 5 multi-message sends was removed. So Wrapping messages is no longer required. If you are communicating with version 3 ensure you are on the latets 3.3.x.")]
+        [ObsoleteEx(
+            RemoveInVersion = "6.0",
+            Message = "In version 5 multi-message sends was removed. So Wrapping messages is no longer required. If you are communicating with version 3 ensure you are on the latets 3.3.x.")]
         public bool SkipArrayWrappingForSingleMessages { get; set; }
 
         /// <summary>
@@ -126,21 +128,18 @@ namespace NServiceBus.Serializers.Json
         /// <summary>
         /// Returns the supported content type
         /// </summary>
-        /// <returns></returns>
         protected internal abstract string GetContentType();
 
         /// <summary>
-        /// Creates a suit
+        /// Creates a <see cref="JsonWriter"/> from a <see cref="Stream"/>
         /// </summary>
-        /// <param name="stream"></param>
-        /// <returns></returns>
+        /// <param name="stream">The <see cref="Stream"/> to create the <see cref="JsonWriter"/> for.</param>
         protected internal abstract JsonWriter CreateJsonWriter(Stream stream);
 
         /// <summary>
-        /// Creates a suitable json reader
+        /// Creates a <see cref="JsonReader"/> from a <see cref="Stream"/>
         /// </summary>
-        /// <param name="stream"></param>
-        /// <returns></returns>
+        /// <param name="stream">The <see cref="Stream"/> to create the <see cref="JsonReader"/> for.</param>
         protected internal abstract JsonReader CreateJsonReader(Stream stream);
     }
 }

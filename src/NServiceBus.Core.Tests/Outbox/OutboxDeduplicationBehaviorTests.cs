@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
+    using System;
+    using System.Transactions;
     using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
     using Outbox;
@@ -47,7 +49,7 @@
             behavior = new OutboxDeduplicationBehavior
             {
                 OutboxStorage = fakeOutbox,
-                TransactionSettings = TransactionSettings.Default
+                TransactionSettings = new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, 5, false,false)
             };
         }
 

@@ -5,7 +5,7 @@
     using System.Linq;
 
     [Serializable]
-    public class RunDescriptor : MarshalByRefObject
+    public class RunDescriptor
     {
         protected bool Equals(RunDescriptor other)
         {
@@ -46,6 +46,8 @@
         public TimeSpan TestExecutionTimeout { get; set; }
 
         public int Permutation { get; set; }
+
+        public bool UseSeparateAppdomains { get; set; }
 
         public void Merge(RunDescriptor descriptorToAdd)
         {

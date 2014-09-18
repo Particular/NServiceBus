@@ -15,5 +15,4 @@ namespace NServiceBus
 		/// the custom logic to execute when the message is received.</remarks>
         void Handle(T message);
     }
-
 }

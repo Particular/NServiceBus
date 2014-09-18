@@ -1,9 +1,12 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
+    using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Queuing;
+    using Settings;
     using Pipeline;
     using Pipeline.Contexts;
-    using Queuing;
+    using Support;
     using Transports;
 
     class DispatchMessageToTransportBehavior : IBehavior<OutgoingContext>
@@ -14,6 +17,9 @@
 
         public IDeferMessages MessageDeferral { get; set; }
 
+        public ReadOnlySettings Settings { get; set; }
+
+        public UnicastBus UnicastBus { get; set; }
 
         public void Invoke(OutgoingContext context, Action next)
         {
@@ -33,6 +39,10 @@
                 messageDescription = enclosedMessageTypes;
             }
 
+            messageToSend.Headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
+            messageToSend.Headers.Add(Headers.OriginatingEndpoint, Settings.EndpointName());
+            messageToSend.Headers.Add(Headers.OriginatingHostId, UnicastBus.HostInformation.HostId.ToString("N"));
+          
             try
             {
                 if(deliveryOptions is PublishOptions)
@@ -95,7 +105,7 @@
         {
             if (MessagePublisher == null)
             {
-                throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling: Feature.Enable<MessageDrivenPublisher>() in your configuration");
+                throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling config.EnableFeature<MessageDrivenSubscriptions>() in your configuration");
             }
 
             MessagePublisher.Publish(messageToSend, publishOptions);

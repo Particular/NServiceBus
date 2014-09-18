@@ -1,10 +1,10 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
+    using NServiceBus.Unicast.Messages;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
-    using Messages;
 
     class CreatePhysicalMessageBehavior : IBehavior<OutgoingContext>
     {

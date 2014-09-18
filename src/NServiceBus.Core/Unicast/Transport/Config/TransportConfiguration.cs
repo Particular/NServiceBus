@@ -1,45 +1,40 @@
+#pragma warning disable 1591
+// ReSharper disable UnusedParameter.Global
+
 namespace NServiceBus
 {
     using System;
-    using Unicast.Transport;
 
-    /// <summary>
-    /// Configuration options common for all transports
-    /// </summary>
+    [ObsoleteEx(
+        RemoveInVersion = "6.0",
+        TreatAsErrorFromVersion = "5.0")]
     public class TransportConfiguration
     {
-        /// <summary>
-        /// Access to the current config instance
-        /// </summary>
-        public Configure Config { get; private set; }
-
-        internal TransportConfiguration(Configure config)
-        {
-            Config = config;
-        }
-
-        /// <summary>
-        /// Configures the transport to use the given string as the connection string
-        /// </summary>
+        [ObsoleteEx(
+            Message = "Use `configuration.UseTransport<T>().ConnectionString(connectionString)`, where `configuration` is an instance of type `BusConfiguration`.",
+            RemoveInVersion = "6.0",
+            TreatAsErrorFromVersion = "5.0")]
         public void ConnectionString(string connectionString)
         {
-            Config.Settings.Set<TransportConnectionString>(new TransportConnectionString(()=>connectionString));
+            throw new InvalidOperationException();
         }
 
-        /// <summary>
-        /// Configures the transport to use the connection string with the given name
-        /// </summary>
+        [ObsoleteEx(
+            Message = "Use `configuration.UseTransport<T>().ConnectionStringName(name)`, where `configuration` is an instance of type `BusConfiguration`.",
+            RemoveInVersion = "6.0",
+            TreatAsErrorFromVersion = "5.0")]
         public void ConnectionStringName(string name)
         {
-            Config.Settings.Set<TransportConnectionString>(new TransportConnectionString(name));
+            throw new InvalidOperationException();
         }
 
-        /// <summary>
-        /// Configures the transport to use the given func as the connection string
-        /// </summary>
+        [ObsoleteEx(
+            Message = "Use` configuration.UseTransport<T>().ConnectionString(connectionString)`, where `configuration` is an instance of type `BusConfiguration`.",
+            RemoveInVersion = "6.0",
+            TreatAsErrorFromVersion = "5.0")]
         public void ConnectionString(Func<string> connectionString)
         {
-            Config.Settings.Set<TransportConnectionString>(new TransportConnectionString(connectionString));
+            throw new InvalidOperationException();
         }
     }
 }

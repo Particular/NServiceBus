@@ -1,62 +1,32 @@
 namespace NServiceBus.Hosting.Tests
 {
-    using System;
     using NUnit.Framework;
-    using Roles;
-    using Roles.Handlers;
     using Transports;
     using Unicast;
 
     [TestFixture]
     public class With_transport_tests
     {
-        Configure config;
-
-        [SetUp]
-        public void SetUp()
-        {
-            config = Configure.With(o =>
-            {
-                o.EndpointName("myTests");
-                o.TypesToScan(new[]
-                {
-                    typeof(TransportRoleHandler),
-                    typeof(MyTransportConfigurer)
-                });
-            });
-
-            roleManager = new RoleManager(new[] { typeof(TransportRoleHandler).Assembly });
-        }
-
-        RoleManager roleManager;
-
         [Test]
         public void Should_configure_requested_transport()
         {
-            roleManager.ConfigureBusForEndpoint(new ConfigWithCustomTransport(), config);
+            var builder = new BusConfiguration();
 
-            Assert.AreEqual(typeof(MyTransportConfigurer), config.Settings.Get<Type>("TransportConfigurer"));
+            builder.EndpointName("myTests");
+            builder.UseTransport<MyTestTransport>();
+
+            var config = builder.BuildConfiguration();
+
             Assert.IsInstanceOf<MyTestTransport>(config.Settings.Get<TransportDefinition>());
         }
 
         [Test]
         public void Should_default_to_msmq_if_no_other_transport_is_configured()
         {
-            var handler = new EnableSelectedTransport();
-            handler.Run(config);
+            var builder = new BusConfiguration();
+            builder.EndpointName("myTests");
 
-            Assert.True(config.Settings.Get<TransportDefinition>() is Msmq);
-        }
-
-        [Test]
-        public void Should_used_configured_transport_if_one_is_configured()
-        {
-            var handler = new EnableSelectedTransport();
-            config.Configurer.ConfigureComponent<MyTestTransportSender>(DependencyLifecycle.SingleInstance);
-
-            handler.Run(config);
-
-            Assert.IsInstanceOf<MyTestTransportSender>(config.Builder.Build<ISendMessages>());
+            Assert.True(builder.BuildConfiguration().Settings.Get<TransportDefinition>() is MsmqTransport);
         }
     }
 
@@ -69,20 +39,18 @@ namespace NServiceBus.Hosting.Tests
 
     public class ConfigWithCustomTransport : IConfigureThisEndpoint, AsA_Server, UsingTransport<MyTestTransport>
     {
-        public void Customize(ConfigurationBuilder builder)
+        public void Customize(BusConfiguration configuration)
         {
         }
     }
-
+    class SecondConfigureThisEndpoint : IConfigureThisEndpoint
+    {
+        public void Customize(BusConfiguration configuration)
+        {
+        }
+    }
 
     public class MyTestTransport : TransportDefinition
     {
-    }
-
-    public class MyTransportConfigurer : IConfigureTransport<MyTestTransport>
-    {
-        public void Configure(Configure config)
-        {
-        }
     }
 }

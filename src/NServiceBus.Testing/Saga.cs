@@ -19,12 +19,19 @@ namespace NServiceBus.Testing
         {
             this.saga = saga;
             this.bus = bus;
+
             if (saga.Entity == null)
             {
                 var prop = typeof(T).GetProperty("Data");
+                if (prop == null)
+                {
+                    return;
+                }
+
                 var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
                 saga.Entity = sagaData;
             }
+
             saga.Entity.OriginalMessageId = Guid.NewGuid().ToString();
             saga.Entity.Originator = "client";
         }
@@ -268,6 +275,17 @@ namespace NServiceBus.Testing
         {
             expectedInvocations.Add(new ExpectedHandleCurrentMessageLaterInvocation<object>());
             return this;
+        }
+
+        /// <summary>
+        /// Initializes the given message type and checks all the expectations previously set up,
+        /// and then clears them for continued testing.
+        /// </summary>
+        public Saga<T> WhenHandling<TMessage>(Action<TMessage> initializeMessage = null)
+        {
+            var msg = bus.CreateInstance(initializeMessage);
+
+            return When(_ => ((dynamic)saga).Handle(msg));
         }
 
         /// <summary>

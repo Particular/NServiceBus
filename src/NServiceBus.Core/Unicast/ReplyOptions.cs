@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast
         {
             if (destination == null)
             {
-                throw new InvalidOperationException("Can't reply with null reply-to-address field. It can happen if you are using a SendOnly client. See http://particular.net/articles/one-way-send-only-endpoints");
+                throw new InvalidOperationException("Can't reply with null reply-to-address field. It can happen if you are using a SendOnly client.");
             }
             CorrelationId = correlationId;
         }

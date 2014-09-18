@@ -7,25 +7,29 @@ namespace NServiceBus.Transports.Msmq
     using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
-    using CircuitBreakers;
-    using Logging;
-    using Support;
-    using Unicast.Transport;
+    using Janitor;
+    using NServiceBus.CircuitBreakers;
+    using NServiceBus.Logging;
+    using NServiceBus.Support;
+    using NServiceBus.Unicast.Transport;
 
     /// <summary>
     ///     Default implementation of <see cref="IDequeueMessages" /> for MSMQ.
     /// </summary>
-    class MsmqDequeueStrategy : IDequeueMessages, IDisposable
+    public class MsmqDequeueStrategy : IDequeueMessages, IDisposable
     {
         /// <summary>
-        ///     Purges the queue on startup.
+        ///     Creates an instance of <see cref="MsmqDequeueStrategy" />.
         /// </summary>
-        public bool PurgeOnStartup { get; set; }
-
-        /// <summary>
-        ///     Msmq unit of work to be used in non DTC mode <see cref="MsmqUnitOfWork" />.
-        /// </summary>
-        public MsmqUnitOfWork UnitOfWork { get; set; }
+        /// <param name="configure">Configure</param>
+        /// <param name="criticalError">CriticalError</param>
+        /// <param name="unitOfWork">MsmqUnitOfWork</param>
+        public MsmqDequeueStrategy(Configure configure, CriticalError criticalError, MsmqUnitOfWork unitOfWork)
+        {
+            this.configure = configure;
+            this.criticalError = criticalError;
+            this.unitOfWork = unitOfWork;
+        }
 
         /// <summary>
         ///     Initializes the <see cref="IDequeueMessages" />.
@@ -84,7 +88,7 @@ namespace NServiceBus.Transports.Msmq
 
             queue.MessageReadPropertyFilter = messageReadPropertyFilter;
 
-            if (PurgeOnStartup)
+            if (configure.PurgeOnStartup())
             {
                 queue.Purge();
             }
@@ -118,6 +122,10 @@ namespace NServiceBus.Transports.Msmq
             queue.Dispose();
         }
 
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
             // Injected
@@ -200,7 +208,7 @@ namespace NServiceBus.Transports.Msmq
 
                             try
                             {
-                                UnitOfWork.SetTransaction(msmqTransaction);
+                                unitOfWork.SetTransaction(msmqTransaction);
 
                                 transportMessage = ConvertMessage(message);
 
@@ -215,7 +223,7 @@ namespace NServiceBus.Transports.Msmq
                             }
                             finally
                             {
-                                UnitOfWork.ClearTransaction();
+                                unitOfWork.ClearTransaction();
                             }
                         }
                     }
@@ -345,10 +353,7 @@ namespace NServiceBus.Transports.Msmq
                         queue.FormatName, GetUserName());
             }
 
-            circuitBreaker.Execute(
-                () =>
-                    ConfigureCriticalErrorAction.RaiseCriticalError("Error in receiving messages.",
-                        new InvalidOperationException(errorException, messageQueueException)));
+            circuitBreaker.Execute(() => criticalError.Raise("Error in receiving messages.", new InvalidOperationException(errorException, messageQueueException)));
         }
 
         static string GetUserName()
@@ -360,13 +365,17 @@ namespace NServiceBus.Transports.Msmq
         }
 
         static ILog Logger = LogManager.GetLogger<MsmqDequeueStrategy>();
-        CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
-        AutoResetEvent peekResetEvent = new AutoResetEvent(false);
+        readonly Configure configure;
+        readonly CriticalError criticalError;
         readonly TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
-        ManualResetEvent stopResetEvent = new ManualResetEvent(true);
+        [SkipWeaving]
+        readonly MsmqUnitOfWork unitOfWork;
+        CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
         Action<TransportMessage, Exception> endProcessMessage;
         int maximumConcurrencyLevel;
+        AutoResetEvent peekResetEvent = new AutoResetEvent(false);
         MessageQueue queue;
+        ManualResetEvent stopResetEvent = new ManualResetEvent(true);
         SemaphoreSlim throttlingSemaphore;
         TransactionOptions transactionOptions;
         TransactionSettings transactionSettings;

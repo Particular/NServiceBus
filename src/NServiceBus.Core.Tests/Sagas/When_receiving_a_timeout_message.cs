@@ -19,7 +19,7 @@ namespace NServiceBus.Unicast.Tests
                 {
                     { Headers.SagaId, sagaId.ToString() },
                     {Headers.IsSagaTimeoutMessage, true.ToString() }
-                });
+                }, mapper: MessageMapper);
 
             Assert.AreEqual(1, persister.CurrentSagaEntities.Count, "Existing saga should be found");
             Assert.True(((MySagaData)persister.CurrentSagaEntities[sagaId].SagaEntity).TimeoutCalled, "Timeout method should be invoked");

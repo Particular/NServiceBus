@@ -15,66 +15,48 @@ namespace NServiceBus.ObjectBuilder.Common
         /// <summary>
         /// The container that will be used to create objects and configure components.
         /// </summary>
-        public IContainer Container
-        {
-            get { return container; }
-            set
-            {
-                container = value;
-                if (sync != null)
-                    sync.Container = value;
-            }
-        }
-
-        bool synchronized;
+        public IContainer Container { get; set; }
 
         /// <summary>
         /// Used for multi-threaded rich clients to build and dispatch
         /// in a synchronization domain.
         /// </summary>
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "5.0",
+            RemoveInVersion = "6.0",
+            Message = "Smartclients should handle their own synchronization")]
         public bool Synchronized
         {
-            get { return synchronized; }
-            set
-            {
-                synchronized = value;
-
-                if (synchronized)
-                {
-                    if (sync == null)
-                        sync = new SynchronizedInvoker();
-
-                    sync.Container = container;
-                }
-            }
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
 
         public IComponentConfig ConfigureComponent(Type concreteComponent, DependencyLifecycle instanceLifecycle)
         {
-            container.Configure(concreteComponent, instanceLifecycle);
+            Container.Configure(concreteComponent, instanceLifecycle);
 
-            return new ComponentConfig(concreteComponent, container);
+            return new ComponentConfig(concreteComponent, Container);
         }
 
         public IComponentConfig<T> ConfigureComponent<T>(DependencyLifecycle instanceLifecycle)
         {
-            container.Configure(typeof(T), instanceLifecycle);
+            Container.Configure(typeof(T), instanceLifecycle);
 
-            return new ComponentConfig<T>(container);
+            return new ComponentConfig<T>(Container);
         }
 
         public IComponentConfig<T> ConfigureComponent<T>(Func<T> componentFactory, DependencyLifecycle instanceLifecycle)
         {
-            container.Configure(componentFactory, instanceLifecycle);
+            Container.Configure(componentFactory, instanceLifecycle);
 
-            return new ComponentConfig<T>(container);
+            return new ComponentConfig<T>(Container);
         }
 
         public IComponentConfig<T> ConfigureComponent<T>(Func<IBuilder,T> componentFactory, DependencyLifecycle instanceLifecycle)
         {
-            container.Configure(() => componentFactory(this), instanceLifecycle);
+            Container.Configure(() => componentFactory(this), instanceLifecycle);
 
-            return new ComponentConfig<T>(container);
+            return new ComponentConfig<T>(Container);
         }
 
         public IConfigureComponents ConfigureProperty<T>(Expression<Func<T, object>> property, object value)
@@ -86,31 +68,31 @@ namespace NServiceBus.ObjectBuilder.Common
 
         public IConfigureComponents ConfigureProperty<T>(string propertyName, object value)
         {
-            container.ConfigureProperty(typeof(T), propertyName, value);
+            Container.ConfigureProperty(typeof(T), propertyName, value);
 
             return this;
         }
 
         IConfigureComponents IConfigureComponents.RegisterSingleton(Type lookupType, object instance)
         {
-            container.RegisterSingleton(lookupType, instance);
+            Container.RegisterSingleton(lookupType, instance);
             return this;
         }
 
-        public IConfigureComponents RegisterSingleton<T>(object instance)
+        public IConfigureComponents RegisterSingleton<T>(T instance)
         {
-            container.RegisterSingleton(typeof(T), instance);
+            Container.RegisterSingleton(typeof(T), instance);
             return this;
         }
 
         public bool HasComponent<T>()
         {
-            return container.HasComponent(typeof(T));
+            return Container.HasComponent(typeof(T));
         }
 
         public bool HasComponent(Type componentType)
         {
-            return container.HasComponent(componentType);
+            return Container.HasComponent(componentType);
         }
 
 
@@ -118,7 +100,7 @@ namespace NServiceBus.ObjectBuilder.Common
         {
             return new CommonObjectBuilder
             {
-                Container = container.BuildChildContainer()
+                Container = Container.BuildChildContainer()
             };
         }
 
@@ -129,49 +111,41 @@ namespace NServiceBus.ObjectBuilder.Common
 
         void DisposeManaged()
         {
-            if (container != null)
+            if (Container != null)
             {
-                container.Dispose();
+                Container.Dispose();
             }
         }
 
         public T Build<T>()
         {
-            return (T)container.Build(typeof(T));
+            return (T)Container.Build(typeof(T));
         }
 
         public object Build(Type typeToBuild)
         {
-            return container.Build(typeToBuild);
+            return Container.Build(typeToBuild);
         }
 
         IEnumerable<object> IBuilder.BuildAll(Type typeToBuild)
         {
-            return container.BuildAll(typeToBuild);
+            return Container.BuildAll(typeToBuild);
         }
 
         void IBuilder.Release(object instance)
         {
-            container.Release(instance);
+            Container.Release(instance);
         }
 
         public IEnumerable<T> BuildAll<T>()
         {
-            return container.BuildAll(typeof(T)).Cast<T>();
+            return Container.BuildAll(typeof(T)).Cast<T>();
         }
 
         public void BuildAndDispatch(Type typeToBuild, Action<object> action)
         {
-            if (sync != null)
-                sync.BuildAndDispatch(typeToBuild, action);
-            else
-            {
-                var o = container.Build(typeToBuild);
-                action(o);
-            }
+            var o = Container.Build(typeToBuild);
+            action(o);
         }
-
-        static SynchronizedInvoker sync;
-        IContainer container;
     }
 }

@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast.Tests
             RegisterMessageType<MessageSentFromSaga>();
             RegisterSaga<MySaga>();
 
-            ReceiveMessage(new MessageToProcess());
+            ReceiveMessage(new MessageToProcess(), mapper: MessageMapper);
 
             var sagaData = (MySagaData)persister.CurrentSagaEntities.First().Value.SagaEntity;
 

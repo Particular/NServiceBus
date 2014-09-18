@@ -7,11 +7,16 @@ namespace Logging
         configuration of the endpoint so we specify "Logging.MyProductionProfile" on the command line.
      */
 
-    public class Endpoint : IConfigureThisEndpoint, AsA_Client {}
+    public class Endpoint : IConfigureThisEndpoint, AsA_Client {
+        public void Customize(BusConfiguration configuration)
+        {
+            configuration.UsePersistence<InMemoryPersistence>();
+        }
+    }
 
     public class MyProductionProfile : Production {}
 
-    public class MyProductionLogging : IConfigureLoggingForProfile<MyProductionProfile>
+    public class MyProductionLogging : NServiceBus.Hosting.Profiles.IConfigureLoggingForProfile<MyProductionProfile>
     {
         public void Configure(IConfigureThisEndpoint specifier)
         {

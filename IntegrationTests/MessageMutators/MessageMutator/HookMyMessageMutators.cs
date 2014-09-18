@@ -4,12 +4,15 @@ namespace MessageMutators
 {
     public class HookMyMessageMutators : INeedInitialization
     {
-        public void Init(Configure config)
+        public void Customize(BusConfiguration configuration)
         {
-            config.Configurer.ConfigureComponent<ValidationMessageMutator>(
+            configuration.RegisterComponents(c =>
+            {
+                c.ConfigureComponent<ValidationMessageMutator>(
+                    DependencyLifecycle.InstancePerCall);
+                c.ConfigureComponent<TransportMessageCompressionMutator>(
                 DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<TransportMessageCompressionMutator>(
-                DependencyLifecycle.InstancePerCall);
+            });
         }
     }
 }

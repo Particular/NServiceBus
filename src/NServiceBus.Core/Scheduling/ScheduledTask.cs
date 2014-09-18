@@ -1,11 +1,10 @@
+#pragma warning disable 1591
 namespace NServiceBus.Scheduling
 {
     using System;
 
     [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "5.1", Message = "The Schedule is now injectable, This won't be needed.")]
-#pragma warning disable 1591
     public class ScheduledTask
-
     {
         public ScheduledTask()
         {
@@ -18,5 +17,4 @@ namespace NServiceBus.Scheduling
         public TimeSpan Every { get; set; }
     }
 
-#pragma warning restore 1591
 }

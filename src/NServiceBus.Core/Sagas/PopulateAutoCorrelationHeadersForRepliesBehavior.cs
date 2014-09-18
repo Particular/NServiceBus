@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.Sagas
+﻿namespace NServiceBus
 {
     using System;
+    using NServiceBus.Sagas;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;

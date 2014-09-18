@@ -69,7 +69,7 @@
         /// <param name="context">The context instance.</param>
         public void InvokePipeline<TContext>(IEnumerable<Type> behaviors, TContext context) where TContext : BehaviorContext
         {
-            var pipeline = new BehaviorChain<TContext>(behaviors);
+            var pipeline = new BehaviorChain<TContext>(behaviors, context);
 
             Execute(pipeline, context);
         }
@@ -124,8 +124,7 @@
             try
             {
                 contextStacker.Push(context);
-
-                pipelineAction.Invoke(context);
+                pipelineAction.Invoke();
             }
             finally
             {

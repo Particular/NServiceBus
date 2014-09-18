@@ -5,6 +5,7 @@ namespace NServiceBus.Unicast
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Principal;
+    using System.Threading;
     using System.Threading.Tasks;
     using Hosting;
     using Licensing;
@@ -23,20 +24,110 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public partial class UnicastBus : IStartableBus, IInMemoryOperations
+    public partial class UnicastBus : IStartableBus, IInMemoryOperations, IManageMessageHeaders
     {
         HostInformation hostInformation = HostInformation.CreateDefault();
-
-        // HACK: Statics are bad, remove
-        internal static Guid HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor;
 
         /// <summary>
         /// Initializes a new instance of <see cref="UnicastBus"/>.
         /// </summary>
         public UnicastBus()
         {
-            HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = hostInformation.HostId;
+            SetupHeaderActions();
         }
+
+        void SetupHeaderActions()
+        {
+            SetHeaderAction = (message, key, value) =>
+            {
+                //are we in the process of sending a logical message
+                var outgoingLogicalMessageContext = PipelineFactory.CurrentContext as OutgoingContext;
+
+                if (outgoingLogicalMessageContext != null && outgoingLogicalMessageContext.OutgoingLogicalMessage.Instance == message)
+                {
+                    outgoingLogicalMessageContext.OutgoingLogicalMessage.Headers[key] = value;
+                }
+
+                Dictionary<object, Dictionary<string, string>> outgoingHeaders;
+
+                if (!PipelineFactory.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
+                {
+                    outgoingHeaders = new Dictionary<object, Dictionary<string, string>>();
+
+                    PipelineFactory.CurrentContext.Set("NServiceBus.OutgoingHeaders", outgoingHeaders);
+                }
+
+                Dictionary<string, string> outgoingHeadersForThisMessage;
+
+                if (!outgoingHeaders.TryGetValue(message, out outgoingHeadersForThisMessage))
+                {
+                    outgoingHeadersForThisMessage = new Dictionary<string, string>();
+                    outgoingHeaders[message] = outgoingHeadersForThisMessage;
+                }
+
+                outgoingHeadersForThisMessage[key] = value;
+            };
+
+            GetHeaderAction = (message, key) =>
+            {
+                if (message == ExtensionMethods.CurrentMessageBeingHandled)
+                {
+                    LogicalMessage messageBeingReceived;
+
+                    //first try to get the header from the current logical message
+                    if (PipelineFactory.CurrentContext.TryGet(out messageBeingReceived))
+                    {
+                        string value;
+
+                        messageBeingReceived.Headers.TryGetValue(key, out value);
+
+                        return value;
+                    }
+
+                    //falling back to get the headers from the physical message
+                    // when we remove the multi message feature we can remove this and instead
+                    // share the same header collection btw physical and logical message
+                    if (CurrentMessageContext != null)
+                    {
+                        string value;
+                        if (CurrentMessageContext.Headers.TryGetValue(key, out value))
+                        {
+                            return value;
+                        }
+                    }
+                    return null;
+                }
+
+                Dictionary<object, Dictionary<string, string>> outgoingHeaders;
+
+                if (!PipelineFactory.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
+                {
+                    return null;
+                }
+                Dictionary<string, string> outgoingHeadersForThisMessage;
+
+                if (!outgoingHeaders.TryGetValue(message, out outgoingHeadersForThisMessage))
+                {
+                    return null;
+                }
+
+                string headerValue;
+
+                outgoingHeadersForThisMessage.TryGetValue(key, out headerValue);
+
+                return headerValue;
+            };
+        }
+
+        /// <summary>
+        /// The <see cref="Action{T1,T2,T3}"/> used to set the header in the bus.SetMessageHeader(msg, key, value) method.
+        /// </summary>
+        public Action<object, string, string> SetHeaderAction { get; internal set; }
+
+        /// <summary>
+        /// The <see cref="Func{T1,T2,TResult}"/> used to get the header value in the bus.GetMessageHeader(msg, key) method.
+        /// </summary>
+        public Func<object, string, string> GetHeaderAction { get; internal set; }
 
         /// <summary>
         /// Provides access to the current host information
@@ -51,7 +142,6 @@ namespace NServiceBus.Unicast
                     throw new ArgumentNullException();
                 }
 
-                HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = value.HostId;
                 hostInformation = value;
             }
         }
@@ -62,11 +152,15 @@ namespace NServiceBus.Unicast
         public ReadOnlySettings Settings { get; set; }
 
         /// <summary>
-        /// Should be used by programmer, not administrator.
         /// Sets an <see cref="ITransport"/> implementation to use as the
         /// listening endpoint for the bus.
         /// </summary>
         public ITransport Transport { get; set; }
+
+        /// <summary>
+        /// Critical error handling
+        /// </summary>
+        public CriticalError CriticalError { get; set; }
 
         /// <summary>
         /// Message queue used to send messages.
@@ -74,7 +168,11 @@ namespace NServiceBus.Unicast
         public ISendMessages MessageSender { get; set; }
 
         /// <summary>
-        /// Should be used by programmer, not administrator.
+        /// Configuration.
+        /// </summary>
+        public Configure Configure { get; set; }
+
+        /// <summary>
         /// Sets <see cref="IBuilder"/> implementation that will be used to 
         /// dynamically instantiate and execute message handlers.
         /// </summary>
@@ -90,7 +188,6 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Should be used by programmer, not administrator.
         /// Sets whether or not the return address of a received message 
         /// should be propagated when the message is forwarded. This field is
         /// used primarily for the Distributor.
@@ -107,33 +204,30 @@ namespace NServiceBus.Unicast
         /// </summary>
         public IManageSubscriptions SubscriptionManager { get; set; }
 
-
         /// <summary>
-        /// <see cref="IBus.Publish{T}(Action{T})"/>
+        /// <see cref="ISendOnlyBus.Publish{T}(Action{T})"/>
         /// </summary>
         public void Publish<T>(Action<T> messageConstructor)
         {
             Publish(messageMapper.CreateInstance(messageConstructor));
         }
 
-
         /// <summary>
-        /// <see cref="IBus.Publish{T}()"/>
+        /// <see cref="ISendOnlyBus.Publish{T}()"/>
         /// </summary>
         public virtual void Publish<T>()
         {
             Publish(messageMapper.CreateInstance<T>());
         }
 
-
         /// <summary>
-        /// <see cref="IBus.Publish{T}(T)"/>
+        /// <see cref="ISendOnlyBus.Publish{T}(T)"/>
         /// </summary>
         public virtual void Publish<T>(T message)
         {
-            var options = new PublishOptions(typeof(T));
-
-            InvokeSendPipeline(options, LogicalMessageFactory.Create(message));
+            var logicalMessage = LogicalMessageFactory.Create(message);
+            var options = new PublishOptions(logicalMessage.MessageType);
+            InvokeSendPipeline(options, logicalMessage);
         }
 
         /// <summary>
@@ -248,7 +342,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply(object message)
         {
-            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress,GetCorrelationId()); 
+            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId()); 
             
             SendMessage(options, LogicalMessageFactory.Create(message));
         }
@@ -313,7 +407,7 @@ namespace NServiceBus.Unicast
             }
             else
             {
-                MessageSender.Send(MessageBeingProcessed, new SendOptions(Address.Local));
+                MessageSender.Send(MessageBeingProcessed, new SendOptions(Configure.LocalAddress));
             }
 
             PipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled = true;
@@ -338,7 +432,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send(object)"/>
+        /// <see cref="ISendOnlyBus.Send(object)"/>
         /// </summary>
         public ICallback SendLocal(object message)
         {
@@ -347,11 +441,11 @@ namespace NServiceBus.Unicast
             {
                 return SendMessage(new SendOptions(Settings.Get<Address>("MasterNode.Address")), LogicalMessageFactory.Create(message));
             }
-            return SendMessage(new SendOptions(Address.Local), LogicalMessageFactory.Create(message));
+            return SendMessage(new SendOptions(Configure.LocalAddress), LogicalMessageFactory.Create(message));
         }
 
         /// <summary>
-        /// <see cref="IBus.Send{T}(Action{T})"/>
+        /// <see cref="ISendOnlyBus.Send{T}(Action{T})"/>
         /// </summary>
         public ICallback Send<T>(Action<T> messageConstructor)
         {
@@ -361,7 +455,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send(object)"/>
+        /// <see cref="ISendOnlyBus.Send(object)"/>
         /// </summary>
         public ICallback Send(object message)
         {
@@ -382,7 +476,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send{T}(string,Action{T})"/>
+        /// <see cref="ISendOnlyBus.Send{T}(string,Action{T})"/>
         /// </summary>
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
@@ -390,7 +484,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send{T}(Address,Action{T})"/>
+        /// <see cref="ISendOnlyBus.Send{T}(Address,Action{T})"/>
         /// </summary>
         public ICallback Send<T>(Address address, Action<T> messageConstructor)
         {
@@ -398,7 +492,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send(string,object)"/>
+        /// <see cref="ISendOnlyBus.Send(string,object)"/>
         /// </summary>
         public ICallback Send(string destination, object message)
         {
@@ -406,7 +500,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send(Address,object)"/>
+        /// <see cref="ISendOnlyBus.Send(Address,object)"/>
         /// </summary>
         public ICallback Send(Address address, object message)
         {
@@ -414,7 +508,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send{T}(string,string,Action{T})"/>
+        /// <see cref="ISendOnlyBus.Send{T}(string,string,Action{T})"/>
         /// </summary>
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
@@ -427,7 +521,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send{T}(Address,string,Action{T})"/>
+        /// <see cref="ISendOnlyBus.Send{T}(Address,string,Action{T})"/>
         /// </summary>
         public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
         {
@@ -440,7 +534,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send(string,string,object)"/>
+        /// <see cref="ISendOnlyBus.Send(string,string,object)"/>
         /// </summary>
         public ICallback Send(string destination, string correlationId, object message)
         {
@@ -453,7 +547,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Send(Address,string,object)"/>
+        /// <see cref="ISendOnlyBus.Send(Address,string,object)"/>
         /// </summary>
         public ICallback Send(Address address, string correlationId, object message)
         {
@@ -466,25 +560,23 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.SendToSites"/>
-        /// </summary>
-        public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
-        {
-            Headers.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
-
-            return SendMessage(new SendOptions(Settings.Get<Address>("MasterNode.Address").SubScope("gateway")), LogicalMessageFactory.Create(message));
-        }
-
-        /// <summary>
         /// <see cref="IBus.Defer(System.TimeSpan,object)"/>
         /// </summary>
         public ICallback Defer(TimeSpan delay, object message)
         {
-            var options = new SendOptions(Address.Local)
+            SendOptions options;
+
+            if (Settings.GetOrDefault<bool>("Worker.Enabled"))
             {
-                DelayDeliveryWith = delay,
-                EnforceMessagingBestPractices = false
-            };
+                options = new SendOptions(Settings.Get<Address>("MasterNode.Address"));
+            }
+            else
+            {
+                options = new SendOptions(Configure.LocalAddress);
+            }
+
+            options.DelayDeliveryWith = delay;
+            options.EnforceMessagingBestPractices = false;
 
             return SendMessage(options, LogicalMessageFactory.Create(message));
         }
@@ -494,11 +586,20 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback Defer(DateTime processAt, object message)
         {
-            var options = new SendOptions(Address.Local)
+            SendOptions options;
+
+            if (Settings.GetOrDefault<bool>("Worker.Enabled"))
             {
-                DeliverAt = processAt,
-                EnforceMessagingBestPractices = false
-            };
+                options = new SendOptions(Settings.Get<Address>("MasterNode.Address"));
+            }
+            else
+            {
+                options = new SendOptions(Configure.LocalAddress);
+            }
+
+            options.DeliverAt = processAt;
+            options.EnforceMessagingBestPractices = false;
+          
             return SendMessage(options, LogicalMessageFactory.Create(message));
         }
 
@@ -516,7 +617,7 @@ namespace NServiceBus.Unicast
         {
             if (sendOptions.ReplyToAddress == null && !SendOnlyMode)
             {
-                sendOptions.ReplyToAddress = Address.Local;
+                sendOptions.ReplyToAddress = Configure.PublicReturnAddress;
             }
 
             if (PropagateReturnAddressOnSend && CurrentMessageContext != null)
@@ -559,8 +660,6 @@ namespace NServiceBus.Unicast
                     return this;
                 }
 
-                Address.PreventChanges();
-
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
                 if (!DoNotStartTransport)
@@ -577,66 +676,43 @@ namespace NServiceBus.Unicast
             satelliteLauncher = new SatelliteLauncher(Builder);
             satelliteLauncher.Start();
 
-            thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
-
-            thingsToRunAtStartupTask = thingsToRunAtStartup.Select(toRun => Task.Factory.StartNew(() =>
-            {
-                var name = toRun.GetType().AssemblyQualifiedName;
-
-                try
+            ProcessStartupItems(
+                Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList(),
+                toRun =>
                 {
                     toRun.Start();
-                    Log.DebugFormat("Started {0}.", name);
-                }
-                catch (Exception ex)
-                {
-                    ConfigureCriticalErrorAction.RaiseCriticalError(String.Format("{0} could not be started.", name), ex);
-                }
-            }, TaskCreationOptions.LongRunning)).ToArray();
+                    thingsRanAtStartup.Add(toRun);
+                    Log.DebugFormat("Started {0}.", toRun.GetType().AssemblyQualifiedName);
+                },
+                ex => CriticalError.Raise("Startup task failed to complete.", ex),
+                startCompletedEvent);
 
             return this;
         }
 
         void ExecuteIWantToRunAtStartupStopMethods()
         {
-            if (thingsToRunAtStartup == null)
+            Log.Debug("Ensuring IWantToRunWhenBusStartsAndStops.Start has been called.");
+            startCompletedEvent.WaitOne();
+            Log.Debug("All IWantToRunWhenBusStartsAndStops.Start have completed now.");
+
+            var tasksToStop = Interlocked.Exchange(ref thingsRanAtStartup, new ConcurrentBag<IWantToRunWhenBusStartsAndStops>());
+            if (!tasksToStop.Any())
             {
                 return;
             }
 
-            //Ensure Start has been called on all thingsToRunAtStartup
-            Log.DebugFormat("Ensuring IWantToRunAtStartup.Start has been called.");
-            Task.WaitAll(thingsToRunAtStartupTask);
-            Log.DebugFormat("All IWantToRunAtStartup.Start should have completed now.");
-
-            var mapTaskToThingsToRunAtStartup = new ConcurrentDictionary<int, string>();
-
-            var tasks = thingsToRunAtStartup.Select(toRun =>
-            {
-                var name = toRun.GetType().AssemblyQualifiedName;
-
-                var task = new Task(() =>
+            ProcessStartupItems(
+                tasksToStop,
+                toRun =>
                 {
-                    try
-                    {
-                        toRun.Stop();
-                        Log.DebugFormat("Stopped {0}.", name);
-                    }
-                    catch (Exception ex)
-                    {
-                        ConfigureCriticalErrorAction.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
-                    }
-                }, TaskCreationOptions.LongRunning);
+                    toRun.Stop();
+                    Log.DebugFormat("Stopped {0}.", toRun.GetType().AssemblyQualifiedName);
+                },
+                ex => Log.Fatal("Startup task failed to stop.", ex),
+                stopCompletedEvent);
 
-                mapTaskToThingsToRunAtStartup.TryAdd(task.Id, name);
-
-                task.Start();
-
-                return task;
-
-            }).ToArray();
-
-            Task.WaitAll(tasks);
+            stopCompletedEvent.WaitOne();
         }
 
         /// <summary>
@@ -645,24 +721,16 @@ namespace NServiceBus.Unicast
         public bool DoNotStartTransport { get; set; }
 
         /// <summary>
-        /// The address this bus will use as it's main input
+        /// The address of this endpoint.
         /// </summary>
-        public Address InputAddress
-        {
-            get
-            {
-                if (inputAddress == null)
-                    inputAddress = Address.Local;
-
-                return inputAddress;
-            }
-            set { inputAddress = value; }
-        }
+        public Address InputAddress { get; set; }
 
         void AssertHasLocalAddress()
         {
-            if (Address.Local == null)
+            if (Configure.LocalAddress == null)
+            {
                 throw new InvalidOperationException("Cannot start subscriber without a queue configured. Please specify the LocalAddress property of UnicastBusConfig.");
+            }
         }
 
         /// <summary>
@@ -688,7 +756,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.OutgoingHeaders"/>
+        /// <see cref="ISendOnlyBus.OutgoingHeaders"/>
         /// </summary>
         public IDictionary<string, string> OutgoingHeaders
         {
@@ -714,14 +782,6 @@ namespace NServiceBus.Unicast
 
                 return new MessageContext(current);
             }
-        }
-
-        /// <summary>
-        /// Shits down the bus and stops processing messages.
-        /// </summary>
-        public void Shutdown()
-        {
-            InnerShutdown();
         }
 
         void InnerShutdown()
@@ -797,8 +857,6 @@ namespace NServiceBus.Unicast
             return destination;
         }
 
-        Address inputAddress;
-
         /// <summary>
         /// Map of message identifiers to Async Results - useful for cleanup in case of timeouts.
         /// </summary>
@@ -824,10 +882,11 @@ namespace NServiceBus.Unicast
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();
 
-        IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
+        ConcurrentBag<IWantToRunWhenBusStartsAndStops> thingsRanAtStartup = new ConcurrentBag<IWantToRunWhenBusStartsAndStops>();
+        ManualResetEvent startCompletedEvent = new ManualResetEvent(false);
+        ManualResetEvent stopCompletedEvent = new ManualResetEvent(true);
 
         IMessageMapper messageMapper;
-        Task[] thingsToRunAtStartupTask = new Task[0];
         SatelliteLauncher satelliteLauncher;
 
         Dictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
@@ -856,6 +915,22 @@ namespace NServiceBus.Unicast
             {
                 return Builder.Build<TransportDefinition>();
             }
+        }
+
+        static void ProcessStartupItems<T>(IEnumerable<T> items, Action<T> iteration, Action<Exception> inCaseOfFault, EventWaitHandle eventToSet)
+        {
+            eventToSet.Reset();
+
+            Task.Factory.StartNew(() =>
+            {
+                Parallel.ForEach(items, iteration);
+                eventToSet.Set();
+            }, TaskCreationOptions.LongRunning | TaskCreationOptions.PreferFairness)
+            .ContinueWith(task =>
+            {
+                eventToSet.Set();
+                inCaseOfFault(task.Exception);
+            }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.LongRunning);
         }
     }
 }

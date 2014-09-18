@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
+    using NServiceBus.Unicast.Transport;
     using Pipeline;
     using Pipeline.Contexts;
-    using Transport;
     using Unicast;
 
     class SendValidatorBehavior : IBehavior<OutgoingContext>

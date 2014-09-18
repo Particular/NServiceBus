@@ -2,8 +2,6 @@ namespace NServiceBus.Logging
 {
     using System;
     using System.Diagnostics;
-    using System.IO;
-    using System.Web;
 
     class DefaultLoggerFactory : ILoggerFactory
     {
@@ -19,30 +17,12 @@ namespace NServiceBus.Logging
         public DefaultLoggerFactory(LogLevel filterLevel, string loggingDirectory)
         {
             this.filterLevel = filterLevel;
-            //use appdata if it exists
-            if (loggingDirectory == null)
-            {
-                loggingDirectory = FindDefaultLoggingDirectory();
-            }
             rollingLogger = new RollingLogger(loggingDirectory);
             isDebugEnabled = LogLevel.Debug >= filterLevel;
             isInfoEnabled = LogLevel.Info >= filterLevel;
             isWarnEnabled = LogLevel.Warn >= filterLevel;
             isErrorEnabled = LogLevel.Error >= filterLevel;
             isFatalEnabled = LogLevel.Fatal >= filterLevel;
-        }
-
-        static string FindDefaultLoggingDirectory()
-        {
-            if (HttpContext.Current != null)
-            {
-                var appDataPath = HttpContext.Current.Server.MapPath("~/App_Data/");
-                if (Directory.Exists(appDataPath))
-                {
-                    return appDataPath;
-                }
-            }
-            return AppDomain.CurrentDomain.BaseDirectory;
         }
 
         public ILog GetLogger(Type type)

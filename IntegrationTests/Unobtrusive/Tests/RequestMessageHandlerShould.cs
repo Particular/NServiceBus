@@ -2,7 +2,6 @@
 {
     using System;
     using Messages;
-    using NServiceBus;
     using NServiceBus.Testing;
     using NUnit.Framework;
     using Server;
@@ -13,10 +12,7 @@
         [TestFixtureSetUp]
         public void TestSetup()
         {
-            MessageConventionExtensions.IsMessageTypeAction =
-                t => t.Namespace != null && t.Namespace.EndsWith("Messages") && !t.Namespace.StartsWith("NServiceBus");
-
-            Test.Initialize();
+            Test.Initialize(configuration => configuration.Conventions().DefiningMessagesAs(t => t.Namespace == "Messages"));
         }
 
         [Test]

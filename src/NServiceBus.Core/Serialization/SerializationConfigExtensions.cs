@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using NServiceBus.Settings;
     using Serialization;
 
     /// <summary>
@@ -11,32 +12,39 @@
         /// <summary>
         /// Configures the given serializer to be used
         /// </summary>
-        /// <typeparam name="T">The serializer definition eg JSON, XML etc</typeparam>
+        /// <typeparam name="T">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/>, etc</typeparam>
         /// <param name="config"></param>
-        /// <param name="customizations">Any serializer customizations needed for the specified serializer</param>
-        /// <returns></returns>
-        public static Configure UseSerialization<T>(this Configure config, Action<SerializationConfiguration> customizations = null) where T : ISerializationDefinition
+        public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config) where T : SerializationDefinition
         {
-            return UseSerialization(config, typeof(T), customizations);
+            var type = typeof(SerializationExtentions<>).MakeGenericType(typeof(T));
+            var extension = (SerializationExtentions<T>)Activator.CreateInstance(type, config.Settings);
+
+            config.UseSerialization(typeof(T));
+
+            return extension;
         }
 
         /// <summary>
         /// Configures the given serializer to be used
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="definitionType">The serializer definition eg JSON, XML etc</param>
-        /// <param name="customizations">Any serializer customizations needed for the specified serializer</param>
-        /// <returns></returns>
-        public static Configure UseSerialization(this Configure config, Type definitionType, Action<SerializationConfiguration> customizations = null)
+        /// <param name="definitionType">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/> etc</param>
+        public static void UseSerialization(this BusConfiguration config, Type definitionType)
         {
-            if (customizations != null)
+            var definition = (SerializationDefinition)Activator.CreateInstance(definitionType);
+
+            config.Settings.Set("SelectedSerializer", definition);
+        }
+
+        internal static SerializationDefinition GetSelectedSerializer(this ReadOnlySettings settings)
+        {
+            SerializationDefinition selectedSerializer;
+            if (settings.TryGet("SelectedSerializer", out selectedSerializer))
             {
-                customizations(new SerializationConfiguration(config.Settings));
+                return selectedSerializer;
             }
 
-            config.Settings.Set("SelectedSerializer", definitionType);
-
-            return config;
+            return new XmlSerializer();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Unicast.Messages
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -7,10 +7,12 @@
     using System.Reflection;
     using System.Runtime.Serialization;
     using Logging;
+    using NServiceBus.Unicast.Messages;
+    using NServiceBus.Unicast.Transport;
     using Pipeline;
     using Pipeline.Contexts;
+    using Scheduling.Messages;
     using Serialization;
-    using Transport;
     using Unicast;
 
 
@@ -61,12 +63,19 @@
             {
                 foreach (var messageTypeString in messageTypeIdentifier.Split(';'))
                 {
-                    if (DoesTypeHaveImplAddedByVersion3(messageTypeString))
+                    var typeString = messageTypeString;
+
+                    if (DoesTypeHaveImplAddedByVersion3(typeString))
                     {
                         continue;
                     }
 
-                    var metadata = MessageMetadataRegistry.GetMessageMetadata(messageTypeString);
+                    if (IsV4OrBelowScheduledTask(typeString))
+                    {
+                        typeString = typeof(ScheduledTask).AssemblyQualifiedName;
+                    }
+
+                    var metadata = MessageMetadataRegistry.GetMessageMetadata(typeString);
                     if (metadata == null)
                     {
                         continue;
@@ -94,6 +103,11 @@
         bool DoesTypeHaveImplAddedByVersion3(string existingTypeString)
         {
             return existingTypeString.Contains("__impl");
+        }
+
+        bool IsV4OrBelowScheduledTask(string existingTypeString)
+        {
+            return existingTypeString.StartsWith("NServiceBus.Scheduling.Messages.ScheduledTask, NServiceBus.Core");
         }
 
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);

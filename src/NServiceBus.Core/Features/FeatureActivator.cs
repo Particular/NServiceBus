@@ -87,11 +87,6 @@ namespace NServiceBus.Features
                 settings.EnableFeatureByDefault(feature.GetType());
             }
 
-            foreach (var defaultSetting in feature.RegisteredDefaults)
-            {
-                defaultSetting(settings);
-            }
-
             features.Add(new FeatureState(feature, new FeatureDiagnosticData
             {
                 EnabledByDefault = feature.IsEnabledByDefault,
@@ -102,18 +97,24 @@ namespace NServiceBus.Features
             }));
         }
 
-        public void SetupFeatures(FeatureConfigurationContext context)
+        public FeaturesReport SetupFeatures(FeatureConfigurationContext context)
         {
-            var featuresToActivate = features.Where(featureState => IsEnabled(featureState.Feature.GetType()) && 
-                MeetsActivationCondition(featureState.Feature,featureState.Diagnostics, context))
+            var featuresToActivate = features.Where(featureState => IsEnabled(featureState.Feature.GetType()))
                 .ToList();
+
+            foreach (var defaultSetting in featuresToActivate.SelectMany(feature => feature.Feature.RegisteredDefaults))
+            {
+                defaultSetting(settings);
+            }
+
+            settings.PreventChanges();
 
             foreach (var feature in featuresToActivate)
             {
                 ActivateFeature(feature, featuresToActivate, context);
             }
 
-            context.Container.RegisterSingleton<FeaturesReport>(new FeaturesReport(features.Select(t=>t.Diagnostics)));
+            return new FeaturesReport(features.Select(t => t.Diagnostics));
         }
 
         public void RegisterStartupTasks(IConfigureComponents container)
@@ -140,9 +141,22 @@ namespace NServiceBus.Features
             }
         }
 
-        static bool ActivateFeature(FeatureState feature, List<FeatureState> featuresToActivate, FeatureConfigurationContext context)
+        public void StopFeatures(IBuilder builder)
         {
-            if (feature.Feature.IsActive)
+            foreach (var feature in features.Where(f => f.Feature.IsActive))
+            {
+                foreach (var taskType in feature.Feature.StartupTasks)
+                {
+                    var task = (FeatureStartupTask)builder.Build(taskType);
+
+                    task.PerformStop();
+                }
+            }
+        }
+
+        static bool ActivateFeature(FeatureState featureState, List<FeatureState> featuresToActivate, FeatureConfigurationContext context)
+        {
+            if (featureState.Feature.IsActive)
             {
                 return true;
             }
@@ -162,16 +176,22 @@ namespace NServiceBus.Features
                                      return hasAllUpstreamDepsBeenActivated;
                                  };
 
-            if (feature.Feature.Dependencies.All(dependencyActivator))
+            if (featureState.Feature.Dependencies.All(dependencyActivator))
             {
-                feature.Feature.SetupFeature(context);
-                feature.Diagnostics.Active = true;
-                feature.Diagnostics.DependenciesAreMeet = true;
+                featureState.Diagnostics.DependenciesAreMeet = true;
 
+                if (!HasAllPrerequisitesSatisfied(featureState.Feature, featureState.Diagnostics, context))
+                {
+                    return false;
+                }
+
+                featureState.Feature.SetupFeature(context);
+                featureState.Diagnostics.Active = true;
+             
                 return true;
             }
 
-            feature.Diagnostics.DependenciesAreMeet = false;
+            featureState.Diagnostics.DependenciesAreMeet = false;
 
             return false;
         }
@@ -181,7 +201,7 @@ namespace NServiceBus.Features
             return settings.GetOrDefault<bool>(featureType.FullName);
         }
 
-        bool MeetsActivationCondition(Feature feature,FeatureDiagnosticData diagnosticData, FeatureConfigurationContext context)
+        static bool HasAllPrerequisitesSatisfied(Feature feature,FeatureDiagnosticData diagnosticData, FeatureConfigurationContext context)
         {
             diagnosticData.PrerequisiteStatus = feature.CheckPrerequisites(context);
 
@@ -197,6 +217,7 @@ namespace NServiceBus.Features
         }
 
         readonly SettingsHolder settings;
+
         readonly List<FeatureState> features = new List<FeatureState>();
 
         class FeatureState
@@ -226,6 +247,7 @@ namespace NServiceBus.Features
 
             public void Stop()
             {
+                FeatureActivator.StopFeatures(Builder);
             }
         }
     }

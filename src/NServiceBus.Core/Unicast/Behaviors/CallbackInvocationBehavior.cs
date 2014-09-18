@@ -1,11 +1,11 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus
 {
     using System;
     using System.Linq;
+    using NServiceBus.Unicast.Transport;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
-    using Transport;
 
     class CallbackInvocationBehavior : IBehavior<IncomingContext>
     {
@@ -30,7 +30,7 @@
                 return false;
             }
 
-            if (transportMessage.CorrelationId == transportMessage.Id) //to make sure that we don't fire callbacks when doing send locals
+            if (transportMessage.CorrelationId == transportMessage.Id)
             {
                 return false;
             }

@@ -12,7 +12,7 @@
         {
             settings.Set("Endpoint.SendOnly", true);
             RegisterMessageType<TestMessage>();
-            bus.Send(Address.Local, new TestMessage());
+            bus.Send(configure.LocalAddress, new TestMessage());
         }
     }
     [TestFixture]

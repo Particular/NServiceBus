@@ -1,15 +1,14 @@
-﻿namespace NServiceBus.Outbox
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Transactions;
+    using NServiceBus.Outbox;
     using Pipeline;
     using Pipeline.Contexts;
     using Transports;
     using Unicast;
-    using Unicast.Behaviors;
     using Unicast.Messages;
-    using NServiceBus;
     using Unicast.Transport;
 
     class OutboxDeduplicationBehavior : IBehavior<IncomingContext>

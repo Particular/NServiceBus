@@ -1,11 +1,32 @@
 namespace NServiceBus.Transports
 {
+    using System;
+    using NServiceBus.ObjectBuilder;
     using Support;
     using Unicast;
 
-    class DefaultMessageAuditer:IAuditMessages
+    class AuditerWrapper : IAuditMessages
+    {
+        readonly IBuilder builder;
+
+        public Type AuditerImplType { get; set; }
+
+        public AuditerWrapper(IBuilder builder)
+        {
+            this.builder = builder;
+        }
+
+        public void Audit(SendOptions sendOptions, TransportMessage message)
+        {
+            ((dynamic)builder.Build(AuditerImplType)).Audit(sendOptions, message);
+        }
+    }
+
+    class DefaultMessageAuditer
     {
         public ISendMessages MessageSender { get; set; }
+
+        public Configure Configure { get; set; }
 
         public string EndpointName { get; set; }
 
@@ -22,12 +43,8 @@ namespace NServiceBus.Transports
                 TimeToBeReceived = sendOptions.TimeToBeReceived.HasValue ? sendOptions.TimeToBeReceived.Value : transportMessage.TimeToBeReceived
             };
 
-            messageToForward.Headers[Headers.OriginatingEndpoint] = EndpointName;
-            messageToForward.Headers[Headers.OriginatingHostId] = UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N");
-            messageToForward.Headers["NServiceBus.ProcessingMachine"] = RuntimeEnvironment.MachineName;
+            messageToForward.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
             messageToForward.Headers[Headers.ProcessingEndpoint] = EndpointName;
-
-
 
             if (transportMessage.ReplyToAddress != null)
             {
@@ -35,15 +52,21 @@ namespace NServiceBus.Transports
             }
 
             // Send the newly created transport message to the queue
-            MessageSender.Send(messageToForward, new SendOptions(sendOptions.Destination) { ReplyToAddress = Address.Local });
+            MessageSender.Send(messageToForward, new SendOptions(sendOptions.Destination)
+            {
+                ReplyToAddress = Configure.PublicReturnAddress
+            });
         }
 
         class Initialization : INeedInitialization
         {
-            public void Init(Configure config)
+            public void Customize(BusConfiguration configuration)
             {
-                config.Configurer.ConfigureComponent<DefaultMessageAuditer>(DependencyLifecycle.InstancePerCall)
-                    .ConfigureProperty(t=>t.EndpointName,config.Settings.EndpointName());
+                configuration.RegisterComponents(c => c.ConfigureComponent<DefaultMessageAuditer>(DependencyLifecycle.InstancePerCall)
+                    .ConfigureProperty(t => t.EndpointName, configuration.Settings.EndpointName()));
+
+                configuration.RegisterComponents(c => c.ConfigureComponent<AuditerWrapper>(DependencyLifecycle.InstancePerCall)
+                    .ConfigureProperty(t => t.AuditerImplType, typeof(DefaultMessageAuditer)));
             }
         }
     }
