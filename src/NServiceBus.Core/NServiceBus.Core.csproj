@@ -174,7 +174,6 @@
     <Compile Include="IMessageContext.cs" />
     <Compile Include="IMessageCreator.cs" />
     <Compile Include="IMessageHandler.cs" />
-    <Compile Include="IMessageModule.cs" />
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="Persistence\EnabledPersistence.cs" />
     <Compile Include="Persistence\Msmq\Msmq.cs" />
@@ -474,7 +473,6 @@
     <Compile Include="Scheduling\DefaultScheduler.cs" />
     <Compile Include="Scheduling\InMemoryScheduledTaskStorage.cs" />
     <Compile Include="Scheduling\Messages\ScheduledTask.cs" />
-    <Compile Include="Scheduling\ScheduledTask.cs" />
     <Compile Include="Scheduling\ScheduledTaskMessageHandler.cs" />
     <Compile Include="Serializers\Binary\BinaryMessageSerializer.cs" />
     <Compile Include="Serializers\Binary\SimpleMessageMapper.cs" />
