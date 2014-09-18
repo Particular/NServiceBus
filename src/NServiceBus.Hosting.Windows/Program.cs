@@ -7,10 +7,8 @@
     using Arguments;
     using Helpers;
     using Installers;
-    using Magnum.StateMachine;
     using Topshelf;
     using Topshelf.Configuration;
-    using Utils;
 
     /// <summary>
     /// Entry point to the process.
@@ -137,17 +135,8 @@
                                                                        foreach (var dependency in arguments.DependsOn)
                                                                            x.DependsOn(dependency);
                                                                });
-            try
-            {
 
                 Runner.Host(cfg, args);
-            }
-            catch (StateMachineException exception)
-            {
-                var innerException = exception.InnerException;
-                innerException.PreserveStackTrace();
-                throw innerException;
-            }
         }
 
         static void SetHostServiceLocatorArgs(string[] args)

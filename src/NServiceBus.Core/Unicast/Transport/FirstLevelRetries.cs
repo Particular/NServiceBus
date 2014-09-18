@@ -54,21 +54,9 @@
         {
             try
             {
-                var e = exception;
-
-                if (e is AggregateException)
-                {
-                    e = e.GetBaseException();
-                }
-
-                if (e is TransportMessageHandlingFailedException)
-                {
-                    e = e.InnerException;
-                }
-
                 message.RevertToOriginalBodyIfNeeded();
 
-                failureManager.ProcessingAlwaysFailsForMessage(message, e);
+                failureManager.ProcessingAlwaysFailsForMessage(message, exception);
             }
             catch (Exception ex)
             {
