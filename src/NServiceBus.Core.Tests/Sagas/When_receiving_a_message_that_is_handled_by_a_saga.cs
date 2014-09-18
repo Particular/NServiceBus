@@ -49,7 +49,7 @@ namespace NServiceBus.Unicast.Tests
 
             ReceiveMessage(new MessageThatHitsExistingSaga { PropertyThatCorrelatesToSaga = correlationId }, mapper: MessageMapper);
 
-            var sagaAuditTrail = AuditedMessage.Headers[Headers.InvokedSagas];
+            var sagaAuditTrail = AuditedMessage.Headers["NServiceBus.InvokedSagas"];
 
             var sagas = sagaAuditTrail.Split(';');
 
