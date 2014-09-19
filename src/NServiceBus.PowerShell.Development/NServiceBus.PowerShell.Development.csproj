@@ -67,9 +67,6 @@
     <Content Include="NServiceBus.PowerShell.Development.psd1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="ripple.dependencies.config">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="about_NServiceBus.help.txt">
@@ -77,6 +74,4 @@
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
-  <Import Project="$(SolutionDir)..\buildsupport\GitVersionTask\Build\GitVersionTask.targets" />
 </Project>
