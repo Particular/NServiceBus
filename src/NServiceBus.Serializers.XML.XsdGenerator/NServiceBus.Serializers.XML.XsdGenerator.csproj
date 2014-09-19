@@ -83,10 +83,5 @@
       <Name>NServiceBus</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="ripple.dependencies.config" />
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
-  <Import Project="$(SolutionDir)..\BuildSupport\GitVersionTask\Build\GitVersionTask.targets" />
 </Project>

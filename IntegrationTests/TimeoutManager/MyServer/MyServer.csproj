@@ -32,9 +32,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\..\..\binaries\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
@@ -60,7 +57,6 @@
     <Compile Include="Scheduling\ScheduledTaskExecutedHandler.cs" />
     <Compile Include="Starter.cs" />
     <Compile Include="EndpointConfig.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Saga\SimpleSaga.cs" />
     <Compile Include="Saga\SimpleSagaData.cs" />
     <Compile Include="Saga\StartSagaMessage.cs" />
@@ -77,4 +73,4 @@
     <StartArguments>NServiceBus.Integration</StartArguments>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-<Import Project="$(SolutionDir)..\..\BuildSupport\RippleRestoreTask.targets" /></Project>
+</Project>
