@@ -1,13 +1,13 @@
 namespace NServiceBus.InMemory.SubscriptionStorage
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
-    using Unicast.Subscriptions;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
+    using NServiceBus.Unicast.Subscriptions;
+    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     /// <summary>
-    /// In memory implementation of the subscription storage
+    ///     In memory implementation of the subscription storage
     /// </summary>
     class InMemorySubscriptionStorage : ISubscriptionStorage
     {
@@ -15,16 +15,9 @@ namespace NServiceBus.InMemory.SubscriptionStorage
         {
             foreach (var m in messageTypes)
             {
-                List<Address> list;
-                if (!storage.TryGetValue(m, out list))
-                {
-                    storage[m] = list = new List<Address>();
-                }
+                var dict = storage.GetOrAdd(m, type => new ConcurrentDictionary<Address, object>());
 
-                if (!list.Contains(address))
-                {
-                    list.Add(address);
-                }
+                dict.AddOrUpdate(address, addValueFactory, updateValueFactory);
             }
         }
 
@@ -32,33 +25,35 @@ namespace NServiceBus.InMemory.SubscriptionStorage
         {
             foreach (var m in messageTypes)
             {
-                List<Address> list;
-                if (storage.TryGetValue(m, out list))
+                ConcurrentDictionary<Address, object> dict;
+                if (storage.TryGetValue(m, out dict))
                 {
-                    list.Remove(address);
+                    object _;
+                    dict.TryRemove(address, out _);
                 }
             }
         }
 
         IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
-            var result = new List<Address>();
+            var result = new HashSet<Address>();
             foreach (var m in messageTypes)
             {
-                List<Address> list;
+                ConcurrentDictionary<Address, object> list;
                 if (storage.TryGetValue(m, out list))
                 {
-                    result.AddRange(list);
+                    result.UnionWith(list.Keys);
                 }
             }
-
-            return result.Distinct();
+            return result;
         }
 
         public void Init()
         {
         }
 
-        readonly ConcurrentDictionary<MessageType, List<Address>> storage = new ConcurrentDictionary<MessageType, List<Address>>();
+        readonly ConcurrentDictionary<MessageType, ConcurrentDictionary<Address, object>> storage = new ConcurrentDictionary<MessageType, ConcurrentDictionary<Address, object>>();
+        Func<Address, object> addValueFactory = a => null;
+        Func<Address, object, object> updateValueFactory = (a, o) => null;
     }
 }
