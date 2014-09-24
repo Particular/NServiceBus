@@ -101,6 +101,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 }
                 public class RequestingSagaData : ContainSagaData
                 {
+                    [Unique]
                     public virtual Guid CorrIdForResponse { get; set; } //wont be needed in the future
                 }
 
@@ -118,7 +119,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     if (Context.ReplyFromNonInitiatingHandler)
                     {
                         Data.CorrIdForRequest = message.SomeIdThatTheResponseSagaCanCorrelateBackToUs; //wont be needed in the future
-                        Bus.SendLocal(new SendReplyFromNonInitiatingHandler{SagaIdSoWeCanCorrelate = Data.Id});
+                        Bus.SendLocal(new SendReplyFromNonInitiatingHandler { SagaIdSoWeCanCorrelate = Data.Id });
                         return;
                     }
 
@@ -138,11 +139,12 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RespondingSagaData> mapper)
                 {
                     //this line is just needed so we can test the non initiating handler case
-                    mapper.ConfigureMapping<SendReplyFromNonInitiatingHandler>(m=>m.SagaIdSoWeCanCorrelate).ToSaga(s=>s.Id);
+                    mapper.ConfigureMapping<SendReplyFromNonInitiatingHandler>(m => m.SagaIdSoWeCanCorrelate).ToSaga(s => s.Id);
                 }
 
                 public class RespondingSagaData : ContainSagaData
                 {
+                    [Unique]
                     public virtual Guid CorrIdForRequest { get; set; }
                 }
 
@@ -182,7 +184,8 @@ namespace NServiceBus.AcceptanceTests.Sagas
             public Guid SomeCorrelationId { get; set; }
         }
 
-        public class SendReplyFromNonInitiatingHandler : ICommand {
+        public class SendReplyFromNonInitiatingHandler : ICommand
+        {
             public Guid SagaIdSoWeCanCorrelate { get; set; }
         }
     }
