@@ -352,9 +352,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
         static string GetEndpointNameForRun(RunDescriptor runDescriptor, EndpointBehavior endpointBehavior)
         {
-            var endpointName = Conventions.EndpointNamingConvention(endpointBehavior.EndpointBuilderType) + "." +
-                               runDescriptor.Key;
-            return endpointName;
+            return Conventions.EndpointNamingConvention(endpointBehavior.EndpointBuilderType);
         }
 
         static ActiveRunner PrepareRunner(string endpointName, string appConfigPath,bool useSeparateAppdomains)
