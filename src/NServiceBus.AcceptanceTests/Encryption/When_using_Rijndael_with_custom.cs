@@ -5,15 +5,14 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_using_Rijndael_with_custom : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_decrypted_message()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, context) => bus.SendLocal(new MessageWithSecretData
+            var context = Scenario.Define<Context>()
+                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new MessageWithSecretData
                         {
                             Secret = "betcha can't guess my secret",
                             SubProperty = new MySecretSubProperty {Secret = "My sub secret"},
@@ -31,20 +30,17 @@
                                         }
                                 }
                         })))
-                    .Done(c => c.Done)
-                    .Repeat(r => r.For<AllSerializers>())
-                    .Should(c =>
-                        {
-                            Assert.AreEqual("betcha can't guess my secret", c.Secret);
-                            Assert.AreEqual("My sub secret", c.SubPropertySecret);
-                            CollectionAssert.AreEquivalent(new List<string> { "312312312312312", "543645546546456" }, c.CreditCards);
-                        })
+                    .Done(c => c.GetTheMessage)
                     .Run();
+
+            Assert.AreEqual("betcha can't guess my secret", context.Secret);
+            Assert.AreEqual("My sub secret", context.SubPropertySecret);
+            CollectionAssert.AreEquivalent(new List<string> { "312312312312312", "543645546546456" }, context.CreditCards);
         }
 
         public class Context : ScenarioContext
         {
-            public bool Done { get; set; }
+            public bool GetTheMessage { get; set; }
 
             public string Secret { get; set; }
 
@@ -76,7 +72,7 @@
                         message.CreditCards[1].Number.Value
                     };
 
-                    Context.Done = true;
+                    Context.GetTheMessage = true;
                 }
             }
         }

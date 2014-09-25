@@ -6,7 +6,6 @@
     using AcceptanceTesting;
     using NServiceBus.DataBus;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_sending_with_custom_IDataBus : NServiceBusAcceptanceTest
     {
@@ -15,21 +14,26 @@
         [Test]
         public void Should_receive_the_message_the_correctly()
         {
-            Scenario.Define<Context>()
+            var context = new Context
+            {
+                TempPath = Path.GetTempFileName()
+            };
+
+            Scenario.Define(context)
                     .WithEndpoint<Sender>(b => b.Given(bus=> bus.Send(new MyMessageWithLargePayload
                         {
                             Payload = new DataBusProperty<byte[]>(PayloadToSend) 
                         })))
                     .WithEndpoint<Receiver>()
-                    .Done(context => context.ReceivedPayload != null)
-                    .Repeat(r => r.For<AllSerializers>())
-                    .Should(c => Assert.AreEqual(PayloadToSend, c.ReceivedPayload, "The large payload should be marshalled correctly using the databus"))
+                    .Done(c => c.ReceivedPayload != null)
                     .Run();
-            File.Delete(MyDataBus.GetTempPath());
+
+            Assert.AreEqual(PayloadToSend, context.ReceivedPayload, "The large payload should be marshalled correctly using the databus");
         }
 
         public class Context : ScenarioContext
         {
+            public string TempPath { get; set; }
             public byte[] ReceivedPayload { get; set; }
         }
 
@@ -61,6 +65,29 @@
             }
         }
 
+        public class MyDataBus : IDataBus
+        {
+            public Context Context { get; set; }
+
+            public Stream Get(string key)
+            {
+                return File.OpenRead(Context.TempPath);
+            }
+
+            public string Put(Stream stream, TimeSpan timeToBeReceived)
+            {
+                using (var destination = File.OpenWrite(Context.TempPath))
+                {
+                    stream.CopyTo(destination);
+                }
+                return "key";
+            }
+
+            public void Start()
+            {
+            }
+        }
+
         [Serializable]
         public class MyMessageWithLargePayload : ICommand
         {
@@ -68,36 +95,5 @@
         }
     }
 
-    public class MyDataBus:IDataBus
-    {
-        string tempPath;
-
-        public MyDataBus()
-        {
-            tempPath = GetTempPath();
-        }
-
-        public static string GetTempPath()
-        {
-            return Path.Combine(Path.GetTempPath(), "MyDataBus.txt");
-        }
-
-        public Stream Get(string key)
-        {
-            return File.OpenRead(tempPath);
-        }
-
-        public string Put(Stream stream, TimeSpan timeToBeReceived)
-        {
-            using (var destination = File.OpenWrite(tempPath))
-            {
-                stream.CopyTo(destination);
-            }
-            return "key";
-        }
-
-        public void Start()
-        {
-        }
-    }
+   
 }

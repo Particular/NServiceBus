@@ -4,7 +4,6 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_sending_databus_properties:NServiceBusAcceptanceTest
     {
@@ -13,16 +12,16 @@
         [Test]
         public void Should_receive_the_message_the_largeproperty_correctly()
         {
-            Scenario.Define<Context>()
+            var context = Scenario.Define<Context>()
                     .WithEndpoint<Sender>(b => b.Given(bus=> bus.Send(new MyMessageWithLargePayload
                         {
                             Payload = new DataBusProperty<byte[]>(PayloadToSend) 
                         })))
                     .WithEndpoint<Receiver>()
-                    .Done(context => context.ReceivedPayload != null)
-                    .Repeat(r => r.For<AllSerializers>())
-                    .Should(c => Assert.AreEqual(PayloadToSend, c.ReceivedPayload, "The large payload should be marshalled correctly using the databus"))
+                    .Done(c => c.ReceivedPayload != null)
                     .Run();
+
+            Assert.AreEqual(PayloadToSend, context.ReceivedPayload, "The large payload should be marshalled correctly using the databus");
         }
 
         public class Context : ScenarioContext
