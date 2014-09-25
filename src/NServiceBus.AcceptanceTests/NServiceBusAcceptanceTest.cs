@@ -16,16 +16,19 @@ namespace NServiceBus.AcceptanceTests
         {
             Conventions.EndpointNamingConvention = t =>
             {
-                var testName = t.FullName.Split('.').Last();
-              
+                var classAndEndpoint = t.FullName.Split('.').Last();
+
+                var testName = classAndEndpoint.Split('+').First();
+                var endpointBuilder = classAndEndpoint.Split('+').Last();
+
+                
                 testName = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(testName);
               
-                testName = testName.Replace("+", "");
                 testName = testName.Replace("_", "");
 
 
 
-                return testName;
+                return testName +"."+ endpointBuilder;
             };
 
             Conventions.DefaultRunDescriptor = () => ScenarioDescriptors.Transports.Default;
