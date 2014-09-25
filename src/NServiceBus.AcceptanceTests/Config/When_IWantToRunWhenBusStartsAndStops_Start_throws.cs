@@ -5,7 +5,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class WhenIWantToRunWhenBusStartsAndStopsStartthrowsaaaaaaaaaaaaaaaa : NServiceBusAcceptanceTest
+    public class When_Start_throws : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_shutdown_bus_cleanly()

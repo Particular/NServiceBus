@@ -19,6 +19,9 @@ namespace NServiceBus.AcceptanceTests
                 var classAndEndpoint = t.FullName.Split('.').Last();
 
                 var testName = classAndEndpoint.Split('+').First();
+
+                testName = testName.Replace("When_", "");
+
                 var endpointBuilder = classAndEndpoint.Split('+').Last();
 
                 
