@@ -325,6 +325,12 @@ namespace NServiceBus.AcceptanceTesting.Support
             foreach (var behaviorDescriptor in behaviorDescriptors)
             {
                 var endpointName = GetEndpointNameForRun(runDescriptor, behaviorDescriptor);
+
+                if (endpointName.Length > 77)
+                {
+                    throw new Exception(string.Format("Endpoint name '{0}' is larger than 77 characters and will cause issues with MSMQ queue names. Please rename your test class or endpoint!",endpointName));
+                }
+
                 var runner = PrepareRunner(endpointName, behaviorDescriptor.AppConfig, runDescriptor.UseSeparateAppdomains);
                 var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName);
 
@@ -352,9 +358,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
         static string GetEndpointNameForRun(RunDescriptor runDescriptor, EndpointBehavior endpointBehavior)
         {
-            var endpointName = Conventions.EndpointNamingConvention(endpointBehavior.EndpointBuilderType) + "." +
-                               runDescriptor.Key;
-            return endpointName;
+            return Conventions.EndpointNamingConvention(endpointBehavior.EndpointBuilderType);
         }
 
         static ActiveRunner PrepareRunner(string endpointName, string appConfigPath,bool useSeparateAppdomains)

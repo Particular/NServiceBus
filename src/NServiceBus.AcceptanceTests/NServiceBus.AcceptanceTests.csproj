@@ -156,7 +156,6 @@
     <Compile Include="Sagas\When_using_contain_saga_data.cs" />
     <Compile Include="ScenarioDescriptors\Builders.cs" />
     <Compile Include="ScenarioDescriptors\AllTransports.cs" />
-    <Compile Include="ScenarioDescriptors\AllSerializers.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
     <Compile Include="ScenarioDescriptors\Persistence.cs" />
     <Compile Include="Scheduling\When_scheduling_a_recurring_task.cs" />
