@@ -4,7 +4,14 @@
     using System.Collections.Generic;
     using Saga;
 
-    public class TestSaga : IContainSagaData
+    class TestSaga:Saga<TestSagaData>
+    {
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+        {
+            
+        }
+    }
+    public class TestSagaData : IContainSagaData
     {
         public Guid Id { get; set; }
 
@@ -59,6 +66,6 @@
     {
         public Guid Id { get; set; }
 
-        public TestSaga ParentSaga { get; set; }
+        public TestSagaData ParentSaga { get; set; }
     }
 }

@@ -1,24 +1,29 @@
 ﻿namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
-    using NServiceBus.InMemory.SagaPersister;
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_persisting_different_sagas_with_unique_properties
+    class When_persisting_different_sagas_with_unique_properties : InMemorySagaPersistenceFixture
     {
+        public When_persisting_different_sagas_with_unique_properties()
+        {
+            RegisterSaga<SagaWithTwoUniqueProperties>();
+            RegisterSaga<AnotherSagaWithTwoUniqueProperties>();
+            RegisterSaga<SagaWithUniqueProperty>();
+        }
         [Test]
         public void  It_should_persist_successfully()
         {
-            var saga1 = new SagaWithTwoUniqueProperties { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 5 };
-            var saga2 = new AnotherSagaWithTwoUniqueProperties { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 5 };
-            var saga3 = new SagaWithUniqueProperty {Id = Guid.NewGuid(), UniqueString = "whatever"};
-            
-            var inMemorySagaPersister = new InMemorySagaPersister();
+            var saga1 = new SagaWithTwoUniquePropertiesData { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 5 };
+            var saga2 = new AnotherSagaWithTwoUniquePropertiesData { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 5 };
+            var saga3 = new SagaWithUniquePropertyData {Id = Guid.NewGuid(), UniqueString = "whatever"};
 
-            inMemorySagaPersister.Save(saga1);
-            inMemorySagaPersister.Save(saga2);
-            inMemorySagaPersister.Save(saga3);
+           
+
+            persister.Save(saga1);
+            persister.Save(saga2);
+            persister.Save(saga3);
         }
     }
 }

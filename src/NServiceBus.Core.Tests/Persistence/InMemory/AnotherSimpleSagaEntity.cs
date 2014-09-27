@@ -3,7 +3,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
     using System;
     using Saga;
 
-    public class AnotherSimpleSageEntity : IContainSagaData
+    public class AnotherSimpleSagaEntity : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

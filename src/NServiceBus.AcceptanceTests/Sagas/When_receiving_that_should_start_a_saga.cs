@@ -58,7 +58,7 @@
                 EndpointSetup<DefaultServer>(b => b.LoadMessageHandlers<First<InterceptingHandler>>());
             }
 
-            public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>
+            public class TestSaga : Saga<TestSaga.TestSagaData>, IAmStartedByMessages<StartSagaMessage>
             {
                 public SagaEndpointContext Context { get; set; }
                 public void Handle(StartSagaMessage message)
@@ -68,16 +68,17 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
                 {
+                    mapper.ConfigureMapping<StartSagaMessage>(m=>m.SomeId)
+                        .ToSaga(s=>s.SomeId);
+                }
+
+                public class TestSagaData : ContainSagaData
+                {
+                    public string SomeId { get; set; }
                 }
             }
 
-            public class TestSagaData : IContainSagaData
-            {
-                public virtual Guid Id { get; set; }
-                public virtual string Originator { get; set; }
-                public virtual string OriginalMessageId { get; set; }
-            }
-
+            
             public class InterceptingHandler : IHandleMessages<StartSagaMessage>
             {
                 public SagaEndpointContext Context { get; set; }
@@ -97,6 +98,7 @@
         [Serializable]
         public class StartSagaMessage : ICommand
         {
+            public string SomeId { get; set; }
         }
 
 

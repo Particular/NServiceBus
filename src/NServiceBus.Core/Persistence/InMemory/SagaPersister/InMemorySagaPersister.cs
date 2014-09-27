@@ -5,6 +5,7 @@ namespace NServiceBus.InMemory.SagaPersister
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
+    using NServiceBus.Sagas;
     using Saga;
     using Serializers.Json;
 
@@ -13,6 +14,14 @@ namespace NServiceBus.InMemory.SagaPersister
     /// </summary>
     class InMemorySagaPersister : ISagaPersister
     {
+        readonly SagaMetaModel sagaModel;
+
+        public InMemorySagaPersister(SagaMetaModel sagaModel)
+        {
+            this.sagaModel = sagaModel;
+        }
+
+    
         public void Complete(IContainSagaData saga)
         {
             VersionedSagaEntity value;
@@ -68,8 +77,10 @@ namespace NServiceBus.InMemory.SagaPersister
 
         private void ValidateUniqueProperties(IContainSagaData saga)
         {
-            var uniqueProperties = UniqueAttribute.GetUniqueProperties(saga.GetType());
-            if (!uniqueProperties.Any()) return;
+            var sagaMetaData = sagaModel.FindByEntityName(saga.GetType().FullName);
+
+
+            if (!sagaMetaData.CorrelationProperties.Any()) return;
 
             var sagasFromSameType = from s in data
                                     where
@@ -77,19 +88,25 @@ namespace NServiceBus.InMemory.SagaPersister
                                     select s.Value;
 
             foreach (var storedSaga in sagasFromSameType)
-                foreach (var uniqueProperty in uniqueProperties)
+            {
+                foreach (var correlationProperty in sagaMetaData.CorrelationProperties)
                 {
+                    var uniqueProperty = saga.GetType().GetProperty(correlationProperty.Name);
+
                     if (uniqueProperty.CanRead)
                     {
                         var inComingSagaPropertyValue = uniqueProperty.GetValue(saga, null);
                         var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaEntity, null);
                         if (inComingSagaPropertyValue.Equals(storedSagaPropertyValue))
-                            throw new
-                                InvalidOperationException(
+                        {
+                            throw new InvalidOperationException(
                                 string.Format("Cannot store a saga. The saga with id '{0}' already has property '{1}' with value '{2}'.",
-                                               storedSaga.SagaEntity.Id, uniqueProperty, storedSagaPropertyValue));
+                                               storedSaga.SagaEntity.Id, uniqueProperty, storedSagaPropertyValue));             
+                        }
                     }
                 }
+            }
+              
         }
 
         public class VersionedSagaEntity

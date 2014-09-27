@@ -1,42 +1,41 @@
 ﻿namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
-    using NServiceBus.InMemory.SagaPersister;
     using NUnit.Framework;
 
     [TestFixture]
-    class When_saga_not_found_return_default
+    class When_saga_not_found_return_default : InMemorySagaPersistenceFixture
     {
-
+        public When_saga_not_found_return_default()
+        {
+            RegisterSaga<SimpleSagaEntitySaga>();
+        }
         [Test]
         public void Should_return_default_when_using_finding_saga_with_property()
         {
-            var p = new InMemorySagaPersister();
-            var simpleSageEntity = p.Get<SimpleSageEntity>("propertyNotFound", null);
+            var simpleSageEntity = persister.Get<SimpleSagaEntity>("propertyNotFound", null);
             Assert.IsNull(simpleSageEntity);
         }
 
         [Test]
         public void Should_return_default_when_using_finding_saga_with_id()
         {
-            var p = new InMemorySagaPersister();
-            var simpleSageEntity = p.Get<SimpleSageEntity>(Guid.Empty);
+            var simpleSageEntity = persister.Get<SimpleSagaEntity>(Guid.Empty);
             Assert.IsNull(simpleSageEntity);
         }
 
         [Test]
         public void Should_return_default_when_using_finding_saga_with_id_of_another_type()
         {
-            var p = new InMemorySagaPersister();
             var id = Guid.NewGuid();
-            var simpleSagaEntity = new SimpleSageEntity
+            var simpleSagaEntity = new SimpleSagaEntity
             {
                 Id = id,
                 OrderSource = "CA"
             };
-            p.Save(simpleSagaEntity);
+            persister.Save(simpleSagaEntity);
 
-            var anotherSagaEntity = p.Get<AnotherSimpleSageEntity>(id);
+            var anotherSagaEntity = persister.Get<AnotherSimpleSagaEntity>(id);
             Assert.IsNull(anotherSagaEntity);
         }
     }
