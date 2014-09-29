@@ -207,6 +207,7 @@
     <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
     <Compile Include="Unicast\Messages\LogicalMessageFactory.cs" />
     <Compile Include="Unicast\SendOptions.cs" />
+    <Compile Include="Unicast\Transport\TransportMessageHandlingFailedException.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />
@@ -600,20 +601,19 @@
     <Compile Include="Unicast\Transport\TransactionSettings.cs" />
     <Compile Include="Unicast\Transport\TransportMessageAvailableEventArgs.cs" />
     <Compile Include="Unicast\Transport\TransportConnectionString.cs" />
-    <Compile Include="Unicast\Transport\TransportMessageHandlingFailedException.cs" />
     <Compile Include="Unicast\Transport\TransportMessageReceivedEventArgs.cs" />
     <Compile Include="Unicast\UnicastBus.cs" />
     <Compile Include="UnitOfWork\IManageUnitsOfWork.cs" />
     <Compile Include="CircuitBreakers\CircuitBreaker.cs" />
     <Compile Include="Utils\BackOff.cs" />
     <Compile Include="CircuitBreakers\RepeatedFailuresOverTimeCircuitBreaker.cs" />
+    <Compile Include="Utils\ExceptionHeaderHelper.cs" />
     <Compile Include="Utils\DeterministicGuid.cs" />
     <Compile Include="Utils\FileVersionRetriever.cs" />
     <Compile Include="Utils\Reflection\DelegateFactory.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
     <Compile Include="Utils\Reflection\Reflect.cs" />
     <Compile Include="Utils\RegistryReader.cs" />
-    <Compile Include="Utils\StackTracePreserver.cs" />
     <Compile Include="WcfService.cs" />
   </ItemGroup>
   <ItemGroup>

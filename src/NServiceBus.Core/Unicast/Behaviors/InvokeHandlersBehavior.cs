@@ -11,9 +11,7 @@
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
-    using Transport;
-
-
+    
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class InvokeHandlersBehavior : IBehavior<HandlerInvocationContext>
@@ -48,11 +46,11 @@
                     {
                         dispatch();
                     }
-                    catch (Exception e)
+                    catch (Exception exception)
                     {
-                        log.Warn(handlerTypeToInvoke.Name + " failed handling message.", e);
+                        log.Warn(handlerTypeToInvoke.Name + " failed handling message.", exception);
 
-                        throw new TransportMessageHandlingFailedException(e);
+                        throw;
                     }
                 });
             }
