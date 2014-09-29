@@ -50,6 +50,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Audit\When_a_replymessage_is_audited.cs" />
     <Compile Include="Audit\When_using_audit_message_is_received.cs" />
     <Compile Include="Basic\When_using_callbacks_from_older_versions.cs" />
     <Compile Include="Basic\When_sending_from_a_send_only.cs" />
