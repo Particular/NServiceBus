@@ -21,12 +21,12 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         public RavenTimeoutPersistence(IDocumentStore store)
         {
             this.store = store;
-            
-            store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutDataSortedByTime",
+
+            store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutDatas",
                                             new IndexDefinitionBuilder<TimeoutData>
                                                 {
                                                     Map = docs => from doc in docs
-                                                                  select new { doc.Time, OwningTimeoutManager = doc.OwningTimeoutManager ?? "" },
+                                                                  select new { doc.SagaId, doc.Time, OwningTimeoutManager = doc.OwningTimeoutManager ?? "" },
                                                     SortOptions =
                                                             {
                                                                 {doc => doc.Time, SortOptions.String}
@@ -41,20 +41,14 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                                                             }
                                                 }, true);
             
-            store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutData/BySagaId", new IndexDefinitionBuilder<TimeoutData>
-                                                                        {
-                                                                            Map = docs => from doc in docs
-                                                                                          select new { doc.SagaId }
-                                                                        }, true);
-
             TriggerCleanupEvery = TimeSpan.FromMinutes(2);
-            CleanupGapFromTimeslice = TimeSpan.FromMinutes(1);            
+            CleanupGapFromTimeslice = TimeSpan.FromMinutes(1);
         }
 
         private static IRavenQueryable<TimeoutData> GetChunkQuery(IDocumentSession session)
         {
             session.Advanced.AllowNonAuthoritativeInformation = true;
-            return session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
+            return session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDatas")
                 .OrderBy(t => t.Time)
                 .Where(t =>
                     t.OwningTimeoutManager == String.Empty ||
@@ -197,8 +191,8 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         public void RemoveTimeoutBy(Guid sagaId)
         {
             using (var session = OpenSession())
-            { 
-                var items = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutData/BySagaId").Where(x => x.SagaId == sagaId);
+            {
+                var items = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDatas").Where(x => x.SagaId == sagaId);
                 foreach (var item in items)
                     session.Delete(item);
 
