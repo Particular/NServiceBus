@@ -5,6 +5,7 @@ namespace NServiceBus.Hosting.Windows
     using System.Diagnostics;
     using System.Threading;
     using Config;
+    using Magnum.StateMachine;
 
     /// <summary>
     /// A windows implementation of the NServiceBus hosting solution
@@ -46,8 +47,17 @@ namespace NServiceBus.Hosting.Windows
             {
                 Thread.Sleep(10000); // so that user can see on their screen the problem
             }
-            
-            Environment.FailFast(String.Format("The following critical error was encountered by NServiceBus:\n{0}\nNServiceBus is shutting down.", errorMessage), exception);
+
+            var topShelfException = exception as StateMachineException;
+            if (topShelfException != null)
+            {
+                var stateMachineException = topShelfException;
+                Environment.FailFast(String.Format("The following critical error was encountered by NServiceBus:\n{0}\nNServiceBus is shutting down.", errorMessage), stateMachineException.InnerException);
+            }
+            else
+            {
+                Environment.FailFast(String.Format("The following critical error was encountered by NServiceBus:\n{0}\nNServiceBus is shutting down.", errorMessage), exception);   
+            }
         }
 
         /// <summary>

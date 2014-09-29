@@ -135,7 +135,6 @@
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="AttributeTests.cs" />
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
-    <Compile Include="Pipeline\BehaviorChainTests.cs" />
     <Compile Include="SetLoggingLibraryTests.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReaderTests.cs" />
     <Compile Include="GitFlowVersionTests.cs" />
@@ -305,7 +304,6 @@
     <Compile Include="Unicast\with_sagas.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethodsTests.cs" />
     <Compile Include="Utils\Reflection\ReflectTests.cs" />
-    <Compile Include="Utils\StackTracePreserverTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

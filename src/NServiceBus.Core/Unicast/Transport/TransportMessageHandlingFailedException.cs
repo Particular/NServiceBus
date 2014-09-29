@@ -7,6 +7,10 @@ namespace NServiceBus.Unicast.Transport
     /// Exception used to transport exceptions encountered in message handlers.
     /// </summary>
     [Serializable]
+    [ObsoleteEx(
+        Message = "If multiple pipeline exceptions occur they will now be wrapped in an AggregateException.",
+        TreatAsErrorFromVersion = "4.7",
+        RemoveInVersion = "5.0")]
     public class TransportMessageHandlingFailedException : Exception
     {
         /// <summary>

@@ -1,0 +1,108 @@
+﻿namespace NServiceBus.AcceptanceTests.Exceptions
+{
+    using System;
+    using System.Runtime.CompilerServices;
+    using System.Runtime.Serialization;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Config;
+    using NServiceBus.Faults;
+    using NServiceBus.MessageMutator;
+    using NUnit.Framework;
+
+    public class When_serialization_throws : NServiceBusAcceptanceTest
+    {
+        [Test]
+        public void Should_receive_SerializationException()
+        {
+            var context = new Context();
+
+            Scenario.Define(context)
+                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
+                    .Done(c => c.ExceptionReceived)
+                    .Run();
+
+            Assert.AreEqual(typeof(SerializationException), context.ExceptionType);
+        }
+
+        public class Context : ScenarioContext
+        {
+            public bool ExceptionReceived { get; set; }
+            public string StackTrace { get; set; }
+            public Type ExceptionType { get; set; }
+            public string InnerExceptionStackTrace { get; set; }
+            public Type InnerExceptionType { get; set; }
+        }
+
+        public class Endpoint : EndpointConfigurationBuilder
+        {
+            public Endpoint()
+            {
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.Configurer.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance);
+                    c.Configurer.ConfigureComponent<CorruptionMutator>(DependencyLifecycle.InstancePerCall);
+                    c.DisableTimeoutManager();
+                })
+                    .WithConfig<TransportConfig>(c =>
+                    {
+                        c.MaxRetries = 0;
+                    })
+                    .AllowExceptions();
+            }
+
+            class CustomFaultManager : IManageMessageFailures
+            {
+                public Context Context { get; set; }
+
+                public void SerializationFailedForMessage(TransportMessage message, Exception e)
+                {
+                    Context.ExceptionType = e.GetType();
+                    Context.StackTrace = e.StackTrace;
+                    if (e.InnerException != null)
+                    {
+                        Context.InnerExceptionType = e.InnerException.GetType();
+                        Context.InnerExceptionStackTrace = e.InnerException.StackTrace;
+                    }
+                    Context.ExceptionReceived = true;
+                }
+
+                public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
+                {
+                }
+
+                public void Init(Address address)
+                {
+                }
+            }
+
+            class CorruptionMutator : IMutateTransportMessages
+            {
+                [MethodImpl(MethodImplOptions.NoInlining)]
+                public void MutateIncoming(TransportMessage transportMessage)
+                {
+                    transportMessage.Body[1]++;
+                }
+
+                [MethodImpl(MethodImplOptions.NoInlining)]
+                public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
+                {
+                }
+            }
+
+            class Handler : IHandleMessages<Message>
+            {
+                [MethodImpl(MethodImplOptions.NoInlining)]
+                public void Handle(Message message)
+                {
+                }
+            }
+        }
+
+        [Serializable]
+        public class Message : IMessage
+        {
+        }
+    }
+    
+}
