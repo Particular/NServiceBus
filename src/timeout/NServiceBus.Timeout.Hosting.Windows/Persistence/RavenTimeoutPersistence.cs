@@ -21,7 +21,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         public RavenTimeoutPersistence(IDocumentStore store)
         {
             this.store = store;
-            
+
             store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutDataSortedByTime",
                                             new IndexDefinitionBuilder<TimeoutData>
                                                 {
@@ -40,7 +40,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                                                                 {doc => doc.Time, FieldStorage.No}
                                                             }
                                                 }, true);
-            
+
             store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutData/BySagaId", new IndexDefinitionBuilder<TimeoutData>
                                                                         {
                                                                             Map = docs => from doc in docs
@@ -48,7 +48,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                                                                         }, true);
 
             TriggerCleanupEvery = TimeSpan.FromMinutes(2);
-            CleanupGapFromTimeslice = TimeSpan.FromMinutes(1);            
+            CleanupGapFromTimeslice = TimeSpan.FromMinutes(1);
         }
 
         private static IRavenQueryable<TimeoutData> GetChunkQuery(IDocumentSession session)
@@ -92,7 +92,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                 // Allow for occasionally cleaning up old timeouts for edge cases where timeouts have been
                 // added after startSlice have been set to a later timout and we might have missed them
                 // because of stale indexes.
-                if (lastCleanupTime.Add(TriggerCleanupEvery) > now || lastCleanupTime == DateTime.MinValue)
+                if (lastCleanupTime.Add(TriggerCleanupEvery) < now || lastCleanupTime == DateTime.MinValue)
                 {
                     results.AddRange(GetCleanupChunk(startSlice));
                 }
@@ -197,7 +197,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         public void RemoveTimeoutBy(Guid sagaId)
         {
             using (var session = OpenSession())
-            { 
+            {
                 var items = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutData/BySagaId").Where(x => x.SagaId == sagaId);
                 foreach (var item in items)
                     session.Delete(item);
