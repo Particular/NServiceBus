@@ -67,7 +67,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                 // Allow for occasionally cleaning up old timeouts for edge cases where timeouts have been
                 // added after startSlice have been set to a later timout and we might have missed them
                 // because of stale indexes.
-                if (lastCleanupTime.Add(TriggerCleanupEvery) > now || lastCleanupTime == DateTime.MinValue)
+                if (lastCleanupTime.Add(TriggerCleanupEvery) < now || lastCleanupTime == DateTime.MinValue)
                 {                    
                     results.AddRange(GetCleanupChunk(startSlice));
                 }
