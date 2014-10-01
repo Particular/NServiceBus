@@ -105,9 +105,14 @@
         public const string OriginatingSagaType = "NServiceBus.OriginatingSagaType";
 
         /// <summary>
-        /// The number of retries that has been performed for this message
+        /// The number of second-level retries that has been performed for this message
         /// </summary>
         public const string Retries = "NServiceBus.Retries";
+
+        /// <summary>
+        /// The number of first-level retries that has been performed for this message
+        /// </summary>
+        public const string FLRetries = "NServiceBus.FLRetries";
 
         /// <summary>
         /// The time processing of this message started
