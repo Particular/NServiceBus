@@ -10,7 +10,7 @@ properties {
 $baseDir = Split-Path (Resolve-Path $MyInvocation.MyCommand.Path)
 $toolsDir = "$baseDir\tools"
 $nugetExec = "$toolsDir\NuGet\NuGet.exe"
-$packageOutPutDir = "$baseDir\artifacts"
+$packageOutPutDir = "$baseDir\nugets"
 $nugetTempPath = "NugetTemp"
 
 task default -depends Build

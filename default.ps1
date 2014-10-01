@@ -636,8 +636,12 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
     
 	foreach($projectFile in $projectFiles) {
 
+		
 		$projectDir = [System.IO.Path]::GetDirectoryName($projectFile)
 		$projectName = [System.IO.Path]::GetFileName($projectDir)
+        if ($projectName.Contains("RunBuild")) { continue }
+  
+
 		$asmInfo = [System.IO.Path]::Combine($projectDir, [System.IO.Path]::Combine("Properties", "AssemblyInfo.cs"))
 		
 		$assemblyTitle = gc $asmInfo | select-string -pattern "AssemblyTitle"
@@ -721,6 +725,8 @@ task InstallDependentPackages -description "Installs dependent packages in the e
     $packageNames = @{}
     
     dir -recurse -include ('packages.config') | ForEach-Object {
+        if ($_.directory.ToString().Contains(".RunBuild")) { continue }
+          
         $packageconfig = [io.path]::Combine($_.directory,$_.name)
         $packagexml = [xml] (gc $packageconfig)
     
