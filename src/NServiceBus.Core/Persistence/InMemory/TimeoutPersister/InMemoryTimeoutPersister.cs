@@ -44,7 +44,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
             lock (lockObject)
             {
                 timeoutData = storage.SingleOrDefault(t => t.Id == timeoutId);
-                
+
                 return timeoutData != null && storage.Remove(timeoutData);
             }
         }
@@ -53,7 +53,10 @@ namespace NServiceBus.InMemory.TimeoutPersister
         {
             lock (lockObject)
             {
-                storage.Where(t => t.SagaId == sagaId).ToList().ForEach(item => storage.Remove(item));
+                foreach (var item in storage.Where(t => t.SagaId == sagaId).ToList())
+                {
+                    storage.Remove(item);
+                }
             }
         }
     }

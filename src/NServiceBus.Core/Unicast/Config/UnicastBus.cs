@@ -78,21 +78,21 @@ namespace NServiceBus.Features
 
             context.Container.ConfigureComponent(b => new TransportReceiver(transactionSettings, maximumConcurrencyLevel, maximumThroughput, b.Build<IDequeueMessages>(), b.Build<IManageMessageFailures>(), context.Settings, b.Build<Configure>())
             {
-              CriticalError =  b.Build<CriticalError>()
+                CriticalError = b.Build<CriticalError>()
             }, DependencyLifecycle.InstancePerCall);
         }
 
         void ConfigureBehaviors(FeatureConfigurationContext context)
         {
             // ReSharper disable HeapView.SlowDelegateCreation
-            context.Settings.GetAvailableTypes().Where(t => (typeof(IBehavior<IncomingContext>).IsAssignableFrom(t)  || typeof(IBehavior<OutgoingContext>).IsAssignableFrom(t))
-                                                            && !(t.IsAbstract || t.IsInterface))
-                // ReSharper restore HeapView.SlowDelegateCreation
-                .ToList()
-                .ForEach(behaviorType => context.Container.ConfigureComponent(behaviorType,DependencyLifecycle.InstancePerCall));
+            var behaviorTypes = context.Settings.GetAvailableTypes().Where(t => (typeof(IBehavior<IncomingContext>).IsAssignableFrom(t) || typeof(IBehavior<OutgoingContext>).IsAssignableFrom(t))
+                                                            && !(t.IsAbstract || t.IsInterface));
+            // ReSharper restore HeapView.SlowDelegateCreation
+            foreach (var behaviorType in behaviorTypes)
+            {
+                context.Container.ConfigureComponent(behaviorType, DependencyLifecycle.InstancePerCall);
+            }
         }
-
-
 
         void ConfigureSubscriptionAuthorization(FeatureConfigurationContext context)
         {
@@ -157,11 +157,14 @@ namespace NServiceBus.Features
                 });
             }
         }
-        void ConfigureMessageRegistry(FeatureConfigurationContext context, List<Type> knownMessages)
+        void ConfigureMessageRegistry(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)
         {
             var messageRegistry = new MessageMetadataRegistry(!DurableMessagesConfig.GetDurableMessagesEnabled(context.Settings), context.Settings.Get<Conventions>());
 
-            knownMessages.ForEach(messageRegistry.RegisterMessageType);
+            foreach (var msg in knownMessages)
+            {
+                messageRegistry.RegisterMessageType(msg);
+            }
 
             context.Container.RegisterSingleton(messageRegistry);
             context.Container.ConfigureComponent<LogicalMessageFactory>(DependencyLifecycle.SingleInstance);
@@ -184,9 +187,6 @@ namespace NServiceBus.Features
                 string.Concat(messageDefinitions.Select(md => md.ToString() + "\n")));
         }
 
-
         static ILog Logger = LogManager.GetLogger<UnicastBus>();
     }
-
-
 }
