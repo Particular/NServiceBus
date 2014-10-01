@@ -1,6 +1,7 @@
 namespace NServiceBus.InMemory.SagaPersister
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -14,27 +15,22 @@ namespace NServiceBus.InMemory.SagaPersister
     {
         public void Complete(IContainSagaData saga)
         {
-            lock (syncRoot)
-            {
-                data.Remove(saga.Id);
-            }
+            VersionedSagaEntity value;
+            data.TryRemove(saga.Id, out value);
         }
 
         public TSagaData Get<TSagaData>(string propertyName, object propertyValue) where TSagaData : IContainSagaData
         {
-            lock (syncRoot)
+            var values = data.Values.Where(x => x.SagaEntity is TSagaData);
+            foreach (var entity in values)
             {
-                var values = data.Values.Where(x => x.SagaEntity is TSagaData);
-                foreach (var entity in values)
+                var prop = entity.SagaEntity.GetType().GetProperty(propertyName);
+                if (prop != null)
                 {
-                    var prop = entity.SagaEntity.GetType().GetProperty(propertyName);
-                    if (prop != null)
+                    if (prop.GetValue(entity.SagaEntity, null).Equals(propertyValue))
                     {
-                        if (prop.GetValue(entity.SagaEntity, null).Equals(propertyValue))
-                        {
-                            entity.ReadByThreadId.Add(Thread.CurrentThread.ManagedThreadId);
-                            return (TSagaData)DeepClone(entity.SagaEntity);
-                        }
+                        entity.RecordRead();
+                        return (TSagaData)DeepClone(entity.SagaEntity);
                     }
                 }
             }
@@ -43,33 +39,26 @@ namespace NServiceBus.InMemory.SagaPersister
 
         public TSagaData Get<TSagaData>(Guid sagaId) where TSagaData : IContainSagaData
         {
-            lock (syncRoot)
+            VersionedSagaEntity result;
+            if (data.TryGetValue(sagaId, out result) && (result != null) && (result.SagaEntity is TSagaData))
             {
-                VersionedSagaEntity result;
-                data.TryGetValue(sagaId, out result);
-                if ((result != null) && (result.SagaEntity is TSagaData))
-                {
-                    result.ReadByThreadId.Add(Thread.CurrentThread.ManagedThreadId);
-                    return (TSagaData)DeepClone(result.SagaEntity);
-                }
+                result.RecordRead();
+                return (TSagaData)DeepClone(result.SagaEntity);
             }
             return default(TSagaData);
         }
 
         public void Save(IContainSagaData saga)
         {
-            lock (syncRoot)
+            ValidateUniqueProperties(saga);
+
+            VersionedSagaEntity sagaEntity;
+            if (data.TryGetValue(saga.Id, out sagaEntity))
             {
-                ValidateUniqueProperties(saga);
-
-                VersionedSagaEntity sagaEntity;
-                if (data.TryGetValue(saga.Id, out sagaEntity))
-                {
-                    sagaEntity.ConcurrencyCheck();
-                }
-
-                data[saga.Id] = new VersionedSagaEntity { SagaEntity = DeepClone(saga) };
+                sagaEntity.ConcurrencyCheck();
             }
+
+            data.AddOrUpdate(saga.Id, id => new VersionedSagaEntity { SagaEntity = DeepClone(saga) }, (id, original) => new VersionedSagaEntity { SagaEntity = DeepClone(saga) });
         }
 
         public void Update(IContainSagaData saga)
@@ -107,18 +96,22 @@ namespace NServiceBus.InMemory.SagaPersister
         {
             public IContainSagaData SagaEntity;
 
+            readonly ConcurrentDictionary<int, byte> readByThreadId = new ConcurrentDictionary<int, byte>();
+
+            public void RecordRead()
+            {
+                readByThreadId.AddOrUpdate(Thread.CurrentThread.ManagedThreadId, id => 0, (id, value) => 0);
+            }
+
             public void ConcurrencyCheck()
             {
-                if (!ReadByThreadId.Contains(Thread.CurrentThread.ManagedThreadId))
+                var currentThreadId = Thread.CurrentThread.ManagedThreadId;
+                if (!readByThreadId.ContainsKey(currentThreadId))
                     throw new Exception(
                         string.Format(
                             "InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved by [Worker.{1}]",
-                            SagaEntity.Id, savedByThreadId));
+                            SagaEntity.Id, currentThreadId));
             }
-
-            public readonly IList<int> ReadByThreadId = new List<int>();
-
-            private readonly int savedByThreadId = Thread.CurrentThread.ManagedThreadId;
         }
 
         private IContainSagaData DeepClone(IContainSagaData source)
@@ -132,12 +125,11 @@ namespace NServiceBus.InMemory.SagaPersister
         {
             get
             {
-                return data;             
+                return data;
             }
         }
 
         private readonly JsonMessageSerializer serializer = new JsonMessageSerializer(null);
-        private readonly IDictionary<Guid, VersionedSagaEntity> data = new Dictionary<Guid, VersionedSagaEntity>();
-        private readonly object syncRoot = new object();
+        private readonly ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
     }
 }
