@@ -2,7 +2,6 @@ namespace NServiceBus.Core.Tests.Timeout
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using InMemory.TimeoutPersister;
@@ -58,7 +57,8 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             expected = 50;
 
-            Enumerable.Range(1, expected).ToList().ForEach(i => persister.Add(CreateData(DateTime.UtcNow.AddSeconds(-5))));
+            for (var i = 0; i < expected; i++)
+                persister.Add(CreateData(DateTime.UtcNow.AddSeconds(-5)));
 
             StartAndStopReceiver();
 
@@ -151,7 +151,8 @@ namespace NServiceBus.Core.Tests.Timeout
 
         private void Push(int total, DateTime time)
         {
-            Enumerable.Range(1, total).ToList().ForEach(i => manager.PushTimeout(CreateData(time)));
+            for (var i = 0; i < total; i++)
+                manager.PushTimeout(CreateData(time));
         }
 
         private void StartAndStopReceiver(int secondsToWaitBeforeCallingStop = 1)

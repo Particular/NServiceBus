@@ -1,7 +1,6 @@
 namespace NServiceBus.Unicast
 {
     using System;
-    using System.Linq;
     using ObjectBuilder;
 
     /// <summary>
@@ -14,9 +13,10 @@ namespace NServiceBus.Unicast
         /// </summary>
         public static void ForEach<T>(this IBuilder builder, Action<T> action)
         {
-            var list = builder.BuildAll<T>().ToList();
-
-            list.ForEach(action);
+            foreach (var t in builder.BuildAll<T>())
+            {
+                action(t);
+            }
         }
     }
 }
