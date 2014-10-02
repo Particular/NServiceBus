@@ -33,6 +33,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                 .OrderBy(t => t.Time)
                 .Where(
                     t =>
+						t.OwningTimeoutManager == null ||
                         t.OwningTimeoutManager == String.Empty ||
                         t.OwningTimeoutManager == Configure.EndpointName);
         }
@@ -68,7 +69,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                 // Allow for occasionally cleaning up old timeouts for edge cases where timeouts have been
                 // added after startSlice have been set to a later timout and we might have missed them
                 // because of stale indexes.
-                if (lastCleanupTime.Add(TriggerCleanupEvery) > now || lastCleanupTime == DateTime.MinValue)
+                if (lastCleanupTime.Add(TriggerCleanupEvery) < now || lastCleanupTime == DateTime.MinValue)
                 {                    
                     results.AddRange(GetCleanupChunk(startSlice));
                 }
