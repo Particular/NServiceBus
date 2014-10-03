@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Globalization;
     using Faults;
 
     class FirstLevelRetries
@@ -59,7 +58,7 @@
             {
                 message.RevertToOriginalBodyIfNeeded();
                 var numberOfRetries = numberOfAttempts - 1;
-                message.Headers[Headers.FLRetries] = numberOfRetries.ToString(CultureInfo.InvariantCulture);
+                message.Headers[Headers.FLRetries] = numberOfRetries.ToString();
                 failureManager.ProcessingAlwaysFailsForMessage(message, exception);
             }
             catch (Exception ex)
