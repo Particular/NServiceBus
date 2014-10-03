@@ -79,9 +79,10 @@ namespace NServiceBus.Unicast
                     {
                         string value;
 
-                        messageBeingReceived.Headers.TryGetValue(key, out value);
-
-                        return value;
+                        if (messageBeingReceived.Headers.TryGetValue(key, out value))
+                        {
+                            return value;
+                        }
                     }
 
                     //falling back to get the headers from the physical message
@@ -95,7 +96,6 @@ namespace NServiceBus.Unicast
                             return value;
                         }
                     }
-                    return null;
                 }
 
                 Dictionary<object, Dictionary<string, string>> outgoingHeaders;
