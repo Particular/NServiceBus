@@ -7,10 +7,6 @@ if($toolsPath){
 
 		if(Test-Path $pathToNServiceBusPSCmdLets){
 			Import-Module $pathToNServiceBusPSCmdLets
-
-			Write-Host ""
-			Write-Host "Type 'get-help about_NServiceBus' to see all available NServiceBus commands."
-			Write-Host ""
 		}
 		else {
 			Write-Host "NServiceBus powershell module could not be found, no powershell commands will be available"	
@@ -34,12 +30,10 @@ try {
 
 	#Check for existing NServiceBus installations
 	if (Test-Path $nserviceBusKeyPath) {
-		"Existing NServiceBus v($packageVersion) user detected"
 		$isNewUser = $false
 	}
 	
 	if (Test-Path $platformKeyPath){
-		"Existing Platform user detected"
 		$isNewUser = $false
 	}
 
@@ -59,9 +53,6 @@ try {
 
     if($dte){
 	    $dte.ExecuteCommand("View.URL", $url)
-    }
-    else{
-	    "No dte detected, url: $url"
     }
 } 
 Catch [Exception] { 
