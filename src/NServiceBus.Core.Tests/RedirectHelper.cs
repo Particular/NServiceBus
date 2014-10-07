@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Reflection;
 using NServiceBus;
+using NUnit.Framework;
 
 //binding redirect in code to avoid need to update the bindingredirect in app.config for TestAssembly.dll
-public static class ModuleInitializer
+[SetUpFixture]
+public class RedirectHelper
 {
-    public static void Initialize()
+
+    [SetUp]
+    public void Initialize()
     {
         AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
     }

@@ -30,7 +30,7 @@
                     return false;
                 }
 
-                TryInvokeFaultManager(message, e.Item2);
+                TryInvokeFaultManager(message, e.Item2, e.Item1);
                 ClearFailuresForMessage(message);
 
                 return true;
@@ -52,12 +52,13 @@
                                            (s, i) => new Tuple<int, Exception>(i.Item1 + 1, e));
         }
 
-        void TryInvokeFaultManager(TransportMessage message, Exception exception)
+        void TryInvokeFaultManager(TransportMessage message, Exception exception, int numberOfAttempts)
         {
             try
             {
                 message.RevertToOriginalBodyIfNeeded();
-
+                var numberOfRetries = numberOfAttempts - 1;
+                message.Headers[Headers.FLRetries] = numberOfRetries.ToString();
                 failureManager.ProcessingAlwaysFailsForMessage(message, exception);
             }
             catch (Exception ex)

@@ -25,12 +25,12 @@ namespace NServiceBus.Faults.Forwarder
 
         void IManageMessageFailures.SerializationFailedForMessage(TransportMessage message, Exception e)
         {
-            SendFailureMessage(message, e, true);
+            TryHandleFailure(() => HandleSerializationFailedForMessage(message, e));
         }
 
         void IManageMessageFailures.ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
         {
-            SendFailureMessage(message, e);
+            TryHandleFailure(() => HandleProcessingAlwaysFailsForMessage(message, e, GetNumberOfFirstLevelRetries(message)));
         }
 
         void IManageMessageFailures.Init(Address address)
@@ -38,37 +38,57 @@ namespace NServiceBus.Faults.Forwarder
             localAddress = address;
         }
 
-        void SendFailureMessage(TransportMessage message, Exception e, bool serializationException = false)
+        void HandleSerializationFailedForMessage(TransportMessage message, Exception e)
         {
             message.SetExceptionHeaders(e, localAddress ?? config.LocalAddress);
+            var sender = LocateMessageSender();
+            sender.Send(message, new SendOptions(ErrorQueue));
+        }
 
+        // Intentionally service-locate ISendMessages to avoid circular
+        // resolution problem in the container
+        ISendMessages LocateMessageSender()
+        {
+            return builder.Build<ISendMessages>();
+        }
+
+        void HandleProcessingAlwaysFailsForMessage(TransportMessage message, Exception e, int numberOfRetries)
+        {
+            message.SetExceptionHeaders(e, localAddress ?? config.LocalAddress);
+            var destinationQ = RetriesErrorQueue ?? ErrorQueue;
+
+            var sender = LocateMessageSender();
+
+            if (MessageWasSentFromSLR(message))
+            {
+                sender.Send(message, new SendOptions(ErrorQueue));
+                return;
+            }
+
+            sender.Send(message, new SendOptions(destinationQ));
+
+            var flrPart = numberOfRetries > 0
+                                 ? string.Format("Message with '{0}' id has failed FLR and", message.Id)
+                                 : string.Format("FLR is disabled and the message '{0}'", message.Id);
+
+            //HACK: We need this hack here till we refactor the SLR to be a first class concept in the TransportReceiver
+            if (RetriesErrorQueue == null)
+            {
+                Logger.ErrorFormat("{0} will be moved to the configured error queue.", flrPart);
+            }
+            else
+            {
+                var retryAttempt = TransportMessageHeaderHelper.GetNumberOfRetries(message) + 1;
+
+                Logger.WarnFormat("{0} will be handed over to SLR for retry attempt {1}.", flrPart, retryAttempt);
+            }
+        }
+
+        void TryHandleFailure(Action failureHandlingAction)
+        {
             try
             {
-                var destinationQ = RetriesErrorQueue ?? ErrorQueue;
-               
-                // Intentionally service-locate ISendMessages to avoid circular
-                // resolution problem in the container
-                var sender = builder.Build<ISendMessages>();
-
-                if (serializationException || MessageWasSentFromSLR(message))
-                {
-                    sender.Send(message, new SendOptions(ErrorQueue));
-                    return;
-                }
-
-                sender.Send(message, new SendOptions(destinationQ));
-
-                //HACK: We need this hack here till we refactor the SLR to be a first class concept in the TransportReceiver
-                if (RetriesErrorQueue == null)
-                {
-                    Logger.ErrorFormat("Message with '{0}' id has failed FLR and will be moved to the configured error queue.", message.Id);
-                }
-                else
-                {
-                    var retryAttempt = TransportMessageHeaderHelper.GetNumberOfRetries(message) + 1;
-
-                    Logger.WarnFormat("Message with '{0}' id has failed FLR and will be handed over to SLR for retry attempt {1}.", message.Id, retryAttempt);
-                }
+                failureHandlingAction();
             }
             catch (Exception exception)
             {
@@ -100,6 +120,20 @@ namespace NServiceBus.Faults.Forwarder
             // if the reply to address == ErrorQueue and RealErrorQueue is not null, the
             // SecondLevelRetries sat is running and the error happened within that sat.            
             return TransportMessageHeaderHelper.GetAddressOfFaultingEndpoint(message) == RetriesErrorQueue;
+        }
+
+        private static int GetNumberOfFirstLevelRetries(TransportMessage message)
+        {
+            string value;
+            if (message.Headers.TryGetValue(Headers.FLRetries, out value))
+            {
+                int i;
+                if (int.TryParse(value, out i))
+                {
+                    return i;
+                }
+            }
+            return 0;
         }
 
         /// <summary>
