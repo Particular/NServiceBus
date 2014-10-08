@@ -60,6 +60,7 @@
     <Compile Include="Basic\When_TimeToBeReceived_has_not_expired.cs" />
     <Compile Include="Basic\When_TimeToBeReceived_has_expired.cs" />
     <Compile Include="Basic\When_Deferring_a_message.cs" />
+    <Compile Include="Basic\When_using_callback_to_get_message.cs" />
     <Compile Include="Config\When_IWantToRunWhenBusStartsAndStops_Start_throws.cs" />
     <Compile Include="Config\When__startup_is_complete.cs" />
     <Compile Include="CriticalError\When_registering_a_custom_criticalErrorHandler.cs" />
