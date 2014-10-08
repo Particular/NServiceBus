@@ -245,7 +245,6 @@
     <Compile Include="Utils\ExceptionHeaderHelperTests.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethodsTests.cs" />
     <Compile Include="Utils\Reflection\ReflectTests.cs" />
-    <Compile Include="Utils\StackTracePreserverTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
