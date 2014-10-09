@@ -35,8 +35,8 @@ at NServiceBus.SetCurrentMessageBeingHandledBehavior.Invoke(IncomingContext cont
 at NServiceBus.LoadHandlersBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.ApplyIncomingMessageMutatorsBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.ExecuteLogicalMessagesBehavior.Invoke(IncomingContext context, Action next)
-at NServiceBus.DeserializeLogicalMessagesBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.CallbackInvocationBehavior.Invoke(IncomingContext context, Action next)
+at NServiceBus.DeserializeLogicalMessagesBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.ApplyIncomingTransportMessageMutatorsBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.SubscriptionReceiverBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.UnitOfWorkBehavior.Invoke(IncomingContext context, Action next)
@@ -44,7 +44,8 @@ at NServiceBus.ChildContainerBehavior.Invoke(IncomingContext context, Action nex
 at NServiceBus.ProcessingStatisticsBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.Pipeline.PipelineExecutor.Execute[T](BehaviorChain`1 pipelineAction, T context)
 at NServiceBus.Unicast.Transport.TransportReceiver.ProcessMessage(TransportMessage message)
-at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage message)", context.StackTrace);
+at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage message)
+at NServiceBus.Transports.Msmq.MsmqDequeueStrategy.Action()", context.StackTrace);
 
             StackTraceAssert.StartsWith(
                 @"at NServiceBus.AcceptanceTests.Exceptions.When_handler_throws_AggregateException.Endpoint.Handler.MethodThatThrows()
