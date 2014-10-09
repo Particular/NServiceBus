@@ -106,6 +106,8 @@
     <Compile Include="Encryption\RijndaelExpiredKey.cs" />
     <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
+    <Compile Include="Faults\ErrorSubscribers.cs" />
+    <Compile Include="Faults\ErrorSubscribersCoordinator.cs" />
     <Compile Include="Faults\Forwarder\ForwarderFaultManager.cs" />
     <Compile Include="Faults\InMemory\InMemoryFaultManager.cs" />
     <Compile Include="Features\AdvanceExtensibilityExtensions.cs" />
@@ -116,6 +118,7 @@
     <Compile Include="IBus_Obsoletes.cs" />
     <Compile Include="IManageMessageHeaders.cs" />
     <Compile Include="INeedInitialization.cs" />
+    <Compile Include="IErrorSubscriber.cs" />
     <Compile Include="Installation\InstallationSupport.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />
     <Compile Include="Installation\InstallConfigExtensions_obsolete.cs" />
@@ -180,6 +183,7 @@
     <Compile Include="Persistence\PersistenceStartup.cs" />
     <Compile Include="Persistence\Storage.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
+    <Compile Include="RegisterErrorSubscribers.cs" />
     <Compile Include="Sagas\SagaConfigurationCache.cs" />
     <Compile Include="Scheduling\Schedule_Obsolete.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
