@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using Core.Tests;
     using Faults.Forwarder;
+    using NServiceBus.Faults;
     using SecondLevelRetries;
     using SecondLevelRetries.Helpers;
     using NUnit.Framework;
@@ -26,18 +27,16 @@
         [SetUp]
         public void SetUp()
         {
-            satellite = new SecondLevelRetriesProcessor();
             messageSender = new FakeMessageSender();
             deferrer = new FakeMessageDeferrer();
             ERROR_QUEUE = new Address("error", "localhost");
             RETRIES_QUEUE = new Address("retries", "localhost");
             ORIGINAL_QUEUE = new Address("org", "hostname");
             CLIENT_QUEUE = Address.Parse("clientQ@myMachine");
-            satellite.InputAddress = RETRIES_QUEUE;
-            satellite.FaultManager = new FaultManager(new FuncBuilder(), null) {ErrorQueue = ERROR_QUEUE};
-            
-            satellite.MessageSender = messageSender;
-            satellite.MessageDeferrer = deferrer;
+            satellite = new SecondLevelRetriesProcessor(messageSender, deferrer, new FaultManager(new FuncBuilder(), null, null) {ErrorQueue = ERROR_QUEUE}, new ErrorSubscribersCoordinator(null))
+            {
+                InputAddress = RETRIES_QUEUE
+            };
 
             message = new TransportMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>{{Headers.ReplyToAddress,CLIENT_QUEUE.ToString()}});
         }
@@ -55,7 +54,7 @@
         [Test]
         public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_error_queue_after_retries()
         {
-            TransportMessageHeaderHelper.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
+            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, "reply@address");
 
 
             for (var i = 0; i < satellite.NumberOfRetries + 1; i++)
@@ -69,7 +68,7 @@
         [Test]
         public void Message_should_be_sent_to_real_errorQ_if_defer_timeSpan_is_less_than_zero()
         {
-            TransportMessageHeaderHelper.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
+            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, "reply@address");
             satellite.RetryPolicy = _ => TimeSpan.MinValue;
 
             satellite.Handle(message);
@@ -80,7 +79,7 @@
         [Test]
         public void Message_should_be_sent_to_retryQ_if_defer_timeSpan_is_greater_than_zero()
         {
-            TransportMessageHeaderHelper.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
+            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, "reply@address");
             satellite.RetryPolicy = _ => TimeSpan.FromSeconds(1);
 
             satellite.Handle(message);
@@ -91,7 +90,7 @@
         [Test]
         public void Message_should_only_be_retried_X_times_when_using_the_defaultPolicy()
         {
-            TransportMessageHeaderHelper.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
+            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, "reply@address");
 
             for (var i = 0; i < satellite.NumberOfRetries + 1; i++)
             {
@@ -104,7 +103,7 @@
         [Test]
         public void Message_retries_header_should_be_removed_before_being_sent_to_real_errorQ()
         {
-            TransportMessageHeaderHelper.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
+            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, "reply@address");
 
             satellite.Handle(message);
 
@@ -118,7 +117,7 @@
         [Test]
         public void A_message_should_only_be_able_to_retry_during_N_minutes()
         {
-            TransportMessageHeaderHelper.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
+            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, "reply@address");
             TransportMessageHeaderHelper.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.Now.AddDays(-2)));
             satellite.Handle(message);
 
@@ -128,7 +127,7 @@
         [Test]
         public void For_each_retry_the_NServiceBus_Retries_header_should_be_increased()
         {
-            TransportMessageHeaderHelper.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
+            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, "reply@address");
             satellite.RetryPolicy = _ => TimeSpan.FromSeconds(1);            
 
             for (var i = 0; i < 10; i++)
@@ -142,7 +141,7 @@
         [Test]
         public void Message_should_be_routed_to_the_failing_endpoint_when_the_time_is_up()
         {
-            TransportMessageHeaderHelper.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, ORIGINAL_QUEUE.ToString());
+            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, ORIGINAL_QUEUE.ToString());
             satellite.RetryPolicy = _ => TimeSpan.FromSeconds(1);
 
             satellite.Handle(message);
