@@ -109,7 +109,7 @@
     <Compile Include="NonDTC\When_blowing_up_just_after_dispatch.cs" />
     <Compile Include="PipelineExt\MutingHandlerExceptions.cs" />
     <Compile Include="PipelineExt\FilteringWhatGetsAudited.cs" />
-    <Compile Include="Audit\When_using_auditing_as_a_feature.cs" />
+    <Compile Include="Audit\When_auditing.cs" />
     <Compile Include="Audit\When_a_message_is_audited.cs" />
     <Compile Include="Basic\When_sending_with_no_correlation_id.cs" />
     <Compile Include="Basic\When_aborting_the_behavior_chain.cs" />
