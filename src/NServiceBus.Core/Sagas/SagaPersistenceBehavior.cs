@@ -45,7 +45,7 @@
             if (loadedEntity == null)
             {
                 //if this message are not allowed to start the saga
-                if (!Features.Sagas.ShouldMessageStartSaga(sagaInstanceState.SagaType, context.LogicalMessage.MessageType))
+                if (!IsAllowedToStartANewSaga(context, sagaInstanceState))
                 {
                     sagaInstanceState.MarkAsNotFound();
 
@@ -59,7 +59,6 @@
             {
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
             }
-
 
             if (IsTimeoutMessage(context.LogicalMessage))
             {
@@ -101,6 +100,25 @@
                     SagaPersister.Update(saga.Entity);
                 }
             }
+        }
+
+        bool IsAllowedToStartANewSaga(HandlerInvocationContext context, ActiveSagaInstance sagaInstanceState)
+        {
+            string sagaType;
+
+            if (context.LogicalMessage.Headers.ContainsKey(Headers.SagaId) &&
+                context.LogicalMessage.Headers.TryGetValue(Headers.SagaType, out sagaType))
+            {
+                //we want to move away from the assembly fully qualified name since that will break if you move sagas
+                // between assemblies. We use the fullname instead which is enough to identify the saga
+                if (sagaType.StartsWith(sagaInstanceState.SagaType.FullName))
+                {
+                    //so now we have a saga id for this saga and if we can't find it we shouldn't start a new one
+                    return false;
+                }
+            }
+
+            return Features.Sagas.ShouldMessageStartSaga(sagaInstanceState.SagaType, context.LogicalMessage.MessageType);
         }
 
         void InvokeSagaNotFoundHandlers()
