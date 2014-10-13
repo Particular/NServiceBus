@@ -36,7 +36,7 @@ namespace NServiceBus.Unicast.Transport
             Receiver = receiver;
         }
 
-        internal ErrorSubscribersCoordinator ErrorSubscribers { get; set; }
+        internal Events ErrorSubscribers { get; set; }
 
         /// <summary>
         ///     The receiver responsible for notifying the transport when new messages are available
