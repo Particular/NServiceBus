@@ -14,7 +14,7 @@ namespace NServiceBus.Faults.Forwarder
     /// </summary>
     class FaultManager : IManageMessageFailures
     {
-        public FaultManager(IBuilder builder, Configure config, ErrorSubscribersCoordinator errorCoordinator)
+        public FaultManager(IBuilder builder, Configure config, Events errorCoordinator)
         {
             this.builder = builder;
             this.config = config;
@@ -150,7 +150,7 @@ namespace NServiceBus.Faults.Forwarder
         static ILog Logger = LogManager.GetLogger<FaultManager>();
         readonly IBuilder builder;
         readonly Configure config;
-        readonly ErrorSubscribersCoordinator errorCoordinator;
+        readonly Events errorCoordinator;
         Address localAddress;
     }
 }

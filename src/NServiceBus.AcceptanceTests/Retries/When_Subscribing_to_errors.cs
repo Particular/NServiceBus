@@ -23,9 +23,9 @@
                     .Done(c => c.MessageSentToError)
                     .Run();
 
-            Assert.AreEqual(2 * 3, context.TotalNumberOfFLRTimesInvokedInHandler);
-            Assert.AreEqual(2 * 3, context.TotalNumberOfFLRTimesInvoked);
-            Assert.AreEqual(2, context.NumberOfSLRRetriesPerformed);
+            Assert.AreEqual(3 * 3, context.TotalNumberOfFLRTimesInvokedInHandler);
+            Assert.AreEqual(3 * 3, context.TotalNumberOfFLRTimesInvoked);
+            Assert.AreEqual(3, context.NumberOfSLRRetriesPerformed);
         }
 
         public class Context : ScenarioContext
@@ -41,7 +41,7 @@
         {
             public SLREndpoint()
             {
-                EndpointSetup<DefaultServer>(config => config.RegisterErrorSubscriber<MyErrorSubscriber>())
+                EndpointSetup<DefaultServer>()
                     .WithConfig<TransportConfig>(c =>
                         {
                             c.MaxRetries = 3;
@@ -75,23 +75,21 @@
             public Guid Id { get; set; }
         }
 
-        public class MyErrorSubscriber : IErrorSubscriber
+        public class MyErrorSubscriber : IWantToRunWhenBusStartsAndStops
         {
             public Context Context { get; set; }
 
-            public void MessageHasBeenSentToErrorQueue(TransportMessage message, Exception exception)
+            public Events Events { get; set; }
+
+            public void Start()
             {
-                Context.MessageSentToError = true;
+                Events.MessageSentToErrorQueue.Subscribe(message => Context.MessageSentToError = true);
+                Events.MessageHasFailedAFirstLevelRetryAttempt.Subscribe(message => Context.TotalNumberOfFLRTimesInvoked++);
+                Events.MessageHasBeenSentToSecondLevelRetries.Subscribe(message => Context.NumberOfSLRRetriesPerformed++);
             }
 
-            public void MessageHasFailedAFirstLevelRetryAttempt(int firstLevelRetryAttempt, TransportMessage message, Exception exception)
+            public void Stop()
             {
-                Context.TotalNumberOfFLRTimesInvoked++;
-            }
-
-            public void MessageHasBeenSentToSecondLevelRetries(int secondLevelRetryAttempt, TransportMessage message, Exception exception)
-            {
-                Context.NumberOfSLRRetriesPerformed++;
             }
         }
     }

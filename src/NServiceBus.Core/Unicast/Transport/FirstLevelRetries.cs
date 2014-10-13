@@ -9,10 +9,10 @@
         ConcurrentDictionary<string, Tuple<int, Exception>> failuresPerMessage = new ConcurrentDictionary<string, Tuple<int, Exception>>();
         IManageMessageFailures failureManager;
         CriticalError criticalError;
-        readonly ErrorSubscribersCoordinator errorCoordinator;
+        readonly Events errorCoordinator;
         int maxRetries;
 
-        public FirstLevelRetries(int maxRetries, IManageMessageFailures failureManager, CriticalError criticalError, ErrorSubscribersCoordinator errorCoordinator)
+        public FirstLevelRetries(int maxRetries, IManageMessageFailures failureManager, CriticalError criticalError, Events errorCoordinator)
         {
             this.maxRetries = maxRetries;
             this.failureManager = failureManager;
