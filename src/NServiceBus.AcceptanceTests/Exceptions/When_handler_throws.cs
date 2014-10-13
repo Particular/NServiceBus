@@ -39,7 +39,9 @@ at NServiceBus.ChildContainerBehavior.Invoke(IncomingContext context, Action nex
 at NServiceBus.ProcessingStatisticsBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.Pipeline.PipelineExecutor.Execute[T](BehaviorChain`1 pipelineAction, T context)
 at NServiceBus.Unicast.Transport.TransportReceiver.ProcessMessage(TransportMessage message)
-at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage message)", context.StackTrace);
+at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage message)
+at NServiceBus.Transports.Msmq.MsmqDequeueStrategy.Action()", context.StackTrace);
+#endif
         }
 
         public class Context : ScenarioContext

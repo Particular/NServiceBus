@@ -6,10 +6,10 @@ namespace NServiceBus.AcceptanceTests.Audit
     using AcceptanceTesting;
     using NUnit.Framework;
 
-    public class When_using_auditing_as_a_feature : NServiceBusAcceptanceTest
+    public class When_auditing : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Message_should_not_be_forwarded_to_auditQueue_when_auditing_is_disabled()
+        public void Should_not_be_forwarded_to_auditQueue_when_auditing_is_disabled()
         {
             var context = new Context();
             Scenario.Define(context)
@@ -22,7 +22,7 @@ namespace NServiceBus.AcceptanceTests.Audit
         }
 
         [Test]
-        public void Message_should_be_forwarded_to_auditQueue_when_auditing_is_enabled()
+        public void Should_be_forwarded_to_auditQueue_when_auditing_is_enabled()
         {
             var context = new Context();
             Scenario.Define(context)
