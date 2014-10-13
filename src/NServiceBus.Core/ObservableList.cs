@@ -4,11 +4,20 @@ namespace NServiceBus
     using System.Collections.Generic;
     using Janitor;
 
-    class ObservableList<T> : IObservable<T>
+    [SkipWeaving]
+    class ObservableList<T> : IObservable<T>, IDisposable
     {
         public ObservableList()
         {
             observers = new List<IObserver<T>>();
+        }
+
+        public void Dispose()
+        {
+            foreach (var observer in observers)
+            {
+                observer.OnCompleted();
+            }
         }
 
         public IDisposable Subscribe(IObserver<T> observer)
@@ -26,14 +35,6 @@ namespace NServiceBus
             foreach (var observer in observers)
             {
                 observer.OnNext(step);
-            }
-        }
-
-        public void Complete()
-        {
-            foreach (var observer in observers)
-            {
-                observer.OnCompleted();
             }
         }
 

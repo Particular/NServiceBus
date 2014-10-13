@@ -79,13 +79,13 @@
         {
             public Context Context { get; set; }
 
-            public Events Events { get; set; }
+            public BusNotifications Notifications { get; set; }
 
             public void Start()
             {
-                Events.MessageSentToErrorQueue.Subscribe(message => Context.MessageSentToError = true);
-                Events.MessageHasFailedAFirstLevelRetryAttempt.Subscribe(message => Context.TotalNumberOfFLRTimesInvoked++);
-                Events.MessageHasBeenSentToSecondLevelRetries.Subscribe(message => Context.NumberOfSLRRetriesPerformed++);
+                Notifications.Errors.MessageSentToErrorQueue.Subscribe(message => Context.MessageSentToError = true);
+                Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt.Subscribe(message => Context.TotalNumberOfFLRTimesInvoked++);
+                Notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(message => Context.NumberOfSLRRetriesPerformed++);
             }
 
             public void Stop()

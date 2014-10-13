@@ -9,7 +9,7 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<Events>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<BusNotifications>(DependencyLifecycle.SingleInstance);
         }
     }
 }

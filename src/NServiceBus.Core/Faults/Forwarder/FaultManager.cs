@@ -14,7 +14,7 @@ namespace NServiceBus.Faults.Forwarder
     /// </summary>
     class FaultManager : IManageMessageFailures
     {
-        public FaultManager(IBuilder builder, Configure config, Events errorCoordinator)
+        public FaultManager(IBuilder builder, Configure config, BusNotifications errorCoordinator)
         {
             this.builder = builder;
             this.config = config;
@@ -70,7 +70,7 @@ namespace NServiceBus.Faults.Forwarder
             if (MessageWasSentFromSLR(message))
             {
                 sender.Send(message, new SendOptions(ErrorQueue));
-                errorCoordinator.InvokeMessageHasBeenSentToErrorQueue(message, e);
+                errorCoordinator.Errors.InvokeMessageHasBeenSentToErrorQueue(message, e);
                 return;
             }
 
@@ -84,14 +84,14 @@ namespace NServiceBus.Faults.Forwarder
             if (RetriesErrorQueue == null)
             {
                 Logger.ErrorFormat("{0} will be moved to the configured error queue.", flrPart);
-                errorCoordinator.InvokeMessageHasBeenSentToErrorQueue(message, e);
+                errorCoordinator.Errors.InvokeMessageHasBeenSentToErrorQueue(message, e);
             }
             else
             {
                 var retryAttempt = TransportMessageHeaderHelper.GetNumberOfRetries(message) + 1;
 
                 Logger.WarnFormat("{0} will be handed over to SLR for retry attempt {1}.", flrPart, retryAttempt);
-                errorCoordinator.InvokeMessageHasBeenSentToSecondLevelRetries(retryAttempt, message, e);
+                errorCoordinator.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(retryAttempt, message, e);
             }
         }
 
@@ -150,7 +150,7 @@ namespace NServiceBus.Faults.Forwarder
         static ILog Logger = LogManager.GetLogger<FaultManager>();
         readonly IBuilder builder;
         readonly Configure config;
-        readonly Events errorCoordinator;
+        readonly BusNotifications errorCoordinator;
         Address localAddress;
     }
 }

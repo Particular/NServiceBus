@@ -9,10 +9,10 @@
         ConcurrentDictionary<string, Tuple<int, Exception>> failuresPerMessage = new ConcurrentDictionary<string, Tuple<int, Exception>>();
         IManageMessageFailures failureManager;
         CriticalError criticalError;
-        readonly Events errorCoordinator;
+        readonly BusNotifications errorCoordinator;
         int maxRetries;
 
-        public FirstLevelRetries(int maxRetries, IManageMessageFailures failureManager, CriticalError criticalError, Events errorCoordinator)
+        public FirstLevelRetries(int maxRetries, IManageMessageFailures failureManager, CriticalError criticalError, BusNotifications errorCoordinator)
         {
             this.maxRetries = maxRetries;
             this.failureManager = failureManager;
@@ -52,12 +52,12 @@
         {
             failuresPerMessage.AddOrUpdate(message.Id, s =>
                 {
-                    errorCoordinator.InvokeMessageHasFailedAFirstLevelRetryAttempt(1, message, e);
+                    errorCoordinator.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(1, message, e);
                     return new Tuple<int, Exception>(1, e);
                 },
                 (s, i) =>
                 {
-                    errorCoordinator.InvokeMessageHasFailedAFirstLevelRetryAttempt(i.Item1 + 1, message, e);
+                    errorCoordinator.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(i.Item1 + 1, message, e);
                     return new Tuple<int, Exception>(i.Item1 + 1, e);
                 });
         }

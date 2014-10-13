@@ -33,7 +33,7 @@
             RETRIES_QUEUE = new Address("retries", "localhost");
             ORIGINAL_QUEUE = new Address("org", "hostname");
             CLIENT_QUEUE = Address.Parse("clientQ@myMachine");
-            satellite = new SecondLevelRetriesProcessor(messageSender, deferrer, new FaultManager(new FuncBuilder(), null, null) {ErrorQueue = ERROR_QUEUE}, new Events())
+            satellite = new SecondLevelRetriesProcessor(messageSender, deferrer, new FaultManager(new FuncBuilder(), null, null) {ErrorQueue = ERROR_QUEUE}, new BusNotifications())
             {
                 InputAddress = RETRIES_QUEUE
             };
