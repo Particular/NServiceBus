@@ -42,8 +42,8 @@ at NServiceBus.SetCurrentMessageBeingHandledBehavior.Invoke(IncomingContext cont
 at NServiceBus.LoadHandlersBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.ApplyIncomingMessageMutatorsBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.ExecuteLogicalMessagesBehavior.Invoke(IncomingContext context, Action next)
-at NServiceBus.DeserializeLogicalMessagesBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.CallbackInvocationBehavior.Invoke(IncomingContext context, Action next)
+at NServiceBus.DeserializeLogicalMessagesBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.ApplyIncomingTransportMessageMutatorsBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.SubscriptionReceiverBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.UnitOfWorkBehavior.Invoke(IncomingContext context, Action next)", context.InnerExceptionOneStackTrace);
