@@ -41,7 +41,6 @@ at NServiceBus.Pipeline.PipelineExecutor.Execute[T](BehaviorChain`1 pipelineActi
 at NServiceBus.Unicast.Transport.TransportReceiver.ProcessMessage(TransportMessage message)
 at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage message)
 at NServiceBus.Transports.Msmq.MsmqDequeueStrategy.Action()", context.StackTrace);
-#endif
         }
 
         public class Context : ScenarioContext
