@@ -9,7 +9,6 @@ namespace NServiceBus.AcceptanceTests.Exceptions
 {
     static class StackTraceAssert
     {
-// ReSharper disable once UnusedParameter.Global
         public static void StartsWith(string expected, string actual)
         {
             if (actual == null)
@@ -19,9 +18,27 @@ namespace NServiceBus.AcceptanceTests.Exceptions
             else
             {
                 var cleanStackTrace = CleanStackTrace(actual);
+
+                var reader = new StringReader(cleanStackTrace);
+
+                var stringBuilder = new StringBuilder();
+                while (true)
+                {
+                    var actualLine = reader.ReadLine();
+                    if (actualLine == null)
+                    {
+                        break;
+                    }
+                    if (expected.Contains(actualLine))
+                    {
+                        stringBuilder.AppendLine(actualLine);
+                    }
+                }
+
                 try
                 {
-                    Assert.IsTrue(cleanStackTrace.Replace("\r\n", "\n").StartsWith(expected.Replace("\r\n", "\n")));
+                    actual = stringBuilder.ToString().TrimEnd();
+                    Assert.AreEqual(actual, expected);
                 }
                 catch (Exception)
                 {

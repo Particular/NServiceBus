@@ -26,7 +26,6 @@
             Assert.AreEqual("My Exception", context.ExceptionMessage);
             Assert.AreEqual("My Inner Exception", context.InnerExceptionMessage);
       
-#if (!DEBUG)
             StackTraceAssert.StartsWith(
                 @"at NServiceBus.AcceptanceTests.Exceptions.When_handler_throws_AggregateException.Endpoint.Handler.Handle(Message message)
 at NServiceBus.Unicast.MessageHandlerRegistry.Invoke(Object handler, Object message, Dictionary`2 dictionary)
@@ -49,7 +48,6 @@ at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage m
             StackTraceAssert.StartsWith(
                 @"at NServiceBus.AcceptanceTests.Exceptions.When_handler_throws_AggregateException.Endpoint.Handler.MethodThatThrows()
 at NServiceBus.AcceptanceTests.Exceptions.When_handler_throws_AggregateException.Endpoint.Handler.Handle(Message message)", context.InnerStackTrace);
-#endif
         }
 
         public class Context : ScenarioContext
