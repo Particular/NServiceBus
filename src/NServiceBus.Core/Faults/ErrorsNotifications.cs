@@ -1,15 +1,15 @@
-namespace NServiceBus
+namespace NServiceBus.Faults
 {
     using System;
     using System.Collections.Generic;
 
     /// <summary>
-    ///     NServiceBus domain events.
+    /// Errors notifications
     /// </summary>
-    public class Events
+    public class ErrorsNotifications: IDisposable
     {
         /// <summary>
-        /// 
+        /// Notification when a message is moved to the error queue.
         /// </summary>
         public IObservable<ErroneousMessage> MessageSentToErrorQueue
         {
@@ -17,6 +17,7 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Notification when a message fails a first level retry.
         /// </summary>
         public IObservable<FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt
         {
@@ -24,10 +25,16 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Notification when a message is sent to second level retires queue.
         /// </summary>
         public IObservable<SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries
         {
             get { return secondLevelRetryList; }
+        }
+
+        void IDisposable.Dispose()
+        {
+            // Injected
         }
 
         internal void InvokeMessageHasBeenSentToErrorQueue(TransportMessage message, Exception exception)
@@ -74,75 +81,5 @@ namespace NServiceBus
         ObservableList<ErroneousMessage> erroneousMessageList = new ObservableList<ErroneousMessage>();
         ObservableList<FirstLevelRetry> firstLevelRetryList = new ObservableList<FirstLevelRetry>();
         ObservableList<SecondLevelRetry> secondLevelRetryList = new ObservableList<SecondLevelRetry>();
-    }
-
-    /// <summary>
-    /// </summary>
-    public class SecondLevelRetry
-    {
-        /// <summary>
-        ///     Gets the message headers.
-        /// </summary>
-        public Dictionary<string, string> Headers { get; internal set; }
-
-        /// <summary>
-        ///     Gets a byte array to the body content of the message
-        /// </summary>
-        public byte[] Body { get; internal set; }
-
-        /// <summary>
-        ///     The exception that caused this message to fail.
-        /// </summary>
-        public Exception Exception { get; internal set; }
-
-        /// <summary>
-        ///     Number of retry attempt.
-        /// </summary>
-        public int RetryAttempt { get; set; }
-    }
-
-    /// <summary>
-    /// </summary>
-    public class FirstLevelRetry
-    {
-        /// <summary>
-        ///     Gets the message headers.
-        /// </summary>
-        public Dictionary<string, string> Headers { get; internal set; }
-
-        /// <summary>
-        ///     Gets a byte array to the body content of the message
-        /// </summary>
-        public byte[] Body { get; internal set; }
-
-        /// <summary>
-        ///     The exception that caused this message to fail.
-        /// </summary>
-        public Exception Exception { get; internal set; }
-
-        /// <summary>
-        ///     Number of retry attempt.
-        /// </summary>
-        public int RetryAttempt { get; set; }
-    }
-
-    /// <summary>
-    /// </summary>
-    public class ErroneousMessage
-    {
-        /// <summary>
-        ///     Gets the message headers.
-        /// </summary>
-        public Dictionary<string, string> Headers { get; internal set; }
-
-        /// <summary>
-        ///     Gets a byte array to the body content of the message
-        /// </summary>
-        public byte[] Body { get; internal set; }
-
-        /// <summary>
-        ///     The exception that caused this message to fail.
-        /// </summary>
-        public Exception Exception { get; internal set; }
     }
 }
