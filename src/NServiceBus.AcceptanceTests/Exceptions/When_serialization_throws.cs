@@ -2,7 +2,6 @@
 {
     using System;
     using System.Runtime.CompilerServices;
-    using System.Runtime.Serialization;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -15,7 +14,7 @@
     public class When_serialization_throws : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_SerializationException()
+        public void Should_receive_MessageDeserializationException()
         {
             var context = new Context();
 
@@ -25,7 +24,7 @@
                     .Done(c => c.ExceptionReceived)
                     .Run();
 
-            Assert.AreEqual(typeof(SerializationException), context.ExceptionType);
+            Assert.AreEqual(typeof(MessageDeserializationException), context.ExceptionType);
         }
 
         public class Context : ScenarioContext
