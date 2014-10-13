@@ -28,7 +28,7 @@
 
 
             var expiredKeys = new List<string> {"gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6" };
-            var service2 = new RijndaelEncryptionService("adDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6", expiredKeys);
+            var service2 = new RijndaelEncryptionService("vznkynwuvateefgduvsqjsufqfrrfcya", expiredKeys);
 
             var decryptedValue = service2.Decrypt(encryptedValue);
             Assert.AreEqual("string to encrypt", decryptedValue);
