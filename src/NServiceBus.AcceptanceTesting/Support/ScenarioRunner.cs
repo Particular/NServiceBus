@@ -219,13 +219,13 @@ namespace NServiceBus.AcceptanceTesting.Support
             });
         }
 
-        static IDictionary<Type, string> CreateRoutingTable(RunDescriptor runDescriptor, IEnumerable<EndpointBehavior> behaviorDescriptors)
+        static IDictionary<Type, string> CreateRoutingTable(IEnumerable<EndpointBehavior> behaviorDescriptors)
         {
             var routingTable = new Dictionary<Type, string>();
 
             foreach (var behaviorDescriptor in behaviorDescriptors)
             {
-                routingTable[behaviorDescriptor.EndpointBuilderType] = GetEndpointNameForRun(runDescriptor, behaviorDescriptor);
+                routingTable[behaviorDescriptor.EndpointBuilderType] = GetEndpointNameForRun(behaviorDescriptor);
             }
 
             return routingTable;
@@ -316,11 +316,11 @@ namespace NServiceBus.AcceptanceTesting.Support
         static List<ActiveRunner> InitializeRunners(RunDescriptor runDescriptor, IList<EndpointBehavior> behaviorDescriptors)
         {
             var runners = new List<ActiveRunner>();
-            var routingTable = CreateRoutingTable(runDescriptor, behaviorDescriptors);
+            var routingTable = CreateRoutingTable(behaviorDescriptors);
 
             foreach (var behaviorDescriptor in behaviorDescriptors)
             {
-                var endpointName = GetEndpointNameForRun(runDescriptor, behaviorDescriptor);
+                var endpointName = GetEndpointNameForRun(behaviorDescriptor);
 
                 if (endpointName.Length > 77)
                 {
@@ -351,7 +351,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             return runners;
         }
 
-        static string GetEndpointNameForRun(RunDescriptor runDescriptor, EndpointBehavior endpointBehavior)
+        static string GetEndpointNameForRun(EndpointBehavior endpointBehavior)
         {
             return Conventions.EndpointNamingConvention(endpointBehavior.EndpointBuilderType);
         }
