@@ -1,7 +1,6 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus.Features
 {
     using System;
-    using NServiceBus.Features;
     using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 
     class CustomSerialization : Feature
