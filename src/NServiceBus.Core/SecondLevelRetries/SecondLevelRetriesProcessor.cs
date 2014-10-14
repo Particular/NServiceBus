@@ -11,12 +11,12 @@ namespace NServiceBus.SecondLevelRetries
 
     class SecondLevelRetriesProcessor : ISatellite
     {
-        public SecondLevelRetriesProcessor(ISendMessages messageSender, IDeferMessages messageDeferrer, FaultManager faultManager, BusNotifications errorCoordinator)
+        public SecondLevelRetriesProcessor(ISendMessages messageSender, IDeferMessages messageDeferrer, FaultManager faultManager, BusNotifications busNotifications)
         {
             this.messageSender = messageSender;
             this.messageDeferrer = messageDeferrer;
             this.faultManager = faultManager;
-            this.errorCoordinator = errorCoordinator;
+            this.busNotifications = busNotifications;
             TimeIncrease = TimeSpan.FromSeconds(10);
             NumberOfRetries = 3;
             Disabled = true;
@@ -62,7 +62,7 @@ namespace NServiceBus.SecondLevelRetries
             message.Headers.Remove(Headers.Retries);
 
             messageSender.Send(message, new SendOptions(faultManager.ErrorQueue));
-            errorCoordinator.Errors.InvokeMessageHasBeenSentToErrorQueue(message, new Exception());
+            busNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, new Exception());
         }
 
         void Defer(TimeSpan defer, TransportMessage message)
@@ -137,7 +137,7 @@ namespace NServiceBus.SecondLevelRetries
 
         static ILog logger = LogManager.GetLogger<SecondLevelRetriesProcessor>();
         readonly FaultManager faultManager;
-        readonly BusNotifications errorCoordinator;
+        readonly BusNotifications busNotifications;
         readonly IDeferMessages messageDeferrer;
         readonly ISendMessages messageSender;
     }

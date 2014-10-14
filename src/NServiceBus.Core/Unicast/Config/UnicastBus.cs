@@ -79,7 +79,7 @@ namespace NServiceBus.Features
             context.Container.ConfigureComponent(b => new TransportReceiver(transactionSettings, maximumConcurrencyLevel, maximumThroughput, b.Build<IDequeueMessages>(), b.Build<IManageMessageFailures>(), context.Settings, b.Build<Configure>())
             {
                 CriticalError = b.Build<CriticalError>(),
-                ErrorSubscribers = b.Build<BusNotifications>()
+                Notifications = b.Build<BusNotifications>()
             }, DependencyLifecycle.InstancePerCall);
         }
 

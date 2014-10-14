@@ -36,7 +36,7 @@ namespace NServiceBus.Unicast.Transport
             Receiver = receiver;
         }
 
-        internal BusNotifications ErrorSubscribers { get; set; }
+        internal BusNotifications Notifications { get; set; }
 
         /// <summary>
         ///     The receiver responsible for notifying the transport when new messages are available
@@ -168,7 +168,7 @@ namespace NServiceBus.Unicast.Transport
 
             FailureManager.Init(returnAddressForFailures);
 
-            firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager, CriticalError, ErrorSubscribers);
+            firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager, CriticalError, Notifications);
 
             InitializePerformanceCounters();
 
