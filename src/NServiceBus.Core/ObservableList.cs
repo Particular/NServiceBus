@@ -2,11 +2,16 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using Janitor;
 
     [SkipWeaving]
     class ObservableList<T> : IObservable<T>, IDisposable
     {
+        List<IObserver<T>> observers;
+        bool isDisposed;
+        object gate = new object();
+
         public ObservableList()
         {
             observers = new List<IObserver<T>>();
@@ -14,51 +19,82 @@ namespace NServiceBus
 
         public void Dispose()
         {
-            foreach (var observer in observers)
+            lock (gate)
             {
-                observer.OnCompleted();
+                foreach (var observer in observers)
+                {
+                    observer.OnCompleted();
+                }
+
+                observers = null;
+                isDisposed = true;
             }
         }
 
         public IDisposable Subscribe(IObserver<T> observer)
         {
-            if (!observers.Contains(observer))
-            {
-                observers.Add(observer);
-            }
+            if (observer == null)
+                throw new ArgumentNullException("observer", "observer is null.");
 
-            return new Unsubscriber<T>(observers, observer);
+            lock (gate)
+            {
+                CheckDisposed();
+
+                observers.Add(observer);
+
+                return new Unsubscriber(this, observer);
+            }
         }
 
         public void Add(T step)
         {
-            foreach (var observer in observers)
+            // If the observers list was immutable we could remove this lock
+            lock (gate)
             {
-                observer.OnNext(step);
+                CheckDisposed();
+
+                foreach (var observer in observers)
+                {
+                    observer.OnNext(step);
+                }
             }
         }
 
-        List<IObserver<T>> observers;
+        void Unsubscribe(IObserver<T> observer)
+        {
+            lock (gate)
+            {
+                observers.Remove(observer);
+            }
+        }
+
+        void CheckDisposed()
+        {
+            if (isDisposed)
+                throw new ObjectDisposedException(string.Empty);
+        }
 
         [SkipWeaving]
-        class Unsubscriber<S> : IDisposable
+        class Unsubscriber : IDisposable
         {
-            public Unsubscriber(List<IObserver<S>> observers, IObserver<S> observer)
+            ObservableList<T> observableList;
+            IObserver<T> observer;
+
+            public Unsubscriber(ObservableList<T> observableList, IObserver<T> observer)
             {
-                this.observers = observers;
+                this.observableList = observableList;
                 this.observer = observer;
             }
 
             public void Dispose()
             {
-                if (observer != null && observers.Contains(observer))
+                var o = Interlocked.Exchange(ref observer, null);
+                if (o != null)
                 {
-                    observers.Remove(observer);
+                    observableList.Unsubscribe(observer);
+                    observableList = null;
                 }
             }
-
-            IObserver<S> observer;
-            List<IObserver<S>> observers;
         }
     }
 }
