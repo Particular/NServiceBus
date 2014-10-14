@@ -71,6 +71,11 @@ namespace NServiceBus.Faults
 
         static byte[] CopyOfBody(byte[] body)
         {
+            if (body == null)
+            {
+                return null;
+            }
+
             var copyBody = new byte[body.Length];
 
             Buffer.BlockCopy(body, 0, copyBody, 0, body.Length);
