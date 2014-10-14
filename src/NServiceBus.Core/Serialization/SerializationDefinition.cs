@@ -10,6 +10,6 @@
         /// <summary>
         /// The feature to enable when this serializer is selected
         /// </summary>
-        internal abstract Type ProvidedByFeature();
+        protected internal abstract Type ProvidedByFeature();
     }
 }
