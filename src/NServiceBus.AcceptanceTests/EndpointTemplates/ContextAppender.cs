@@ -7,9 +7,10 @@
 
     public class ContextAppender : ILoggerFactory, ILog
     {
-        public ContextAppender(ScenarioContext context)
+        public ContextAppender(ScenarioContext context, string endpointName)
         {
             this.context = context;
+            this.endpointName = endpointName;
         }
 
         void Append(Exception exception)
@@ -21,6 +22,7 @@
         }
 
         ScenarioContext context;
+        readonly string endpointName;
 
         public ILog GetLogger(Type type)
         {
@@ -89,17 +91,23 @@
         public void Error(string message)
         {
             Trace.WriteLine(message);
+
+            context.RecordEndpointLog(endpointName,"error", message);
         }
 
         public void Error(string message, Exception exception)
         {
-            Trace.WriteLine(string.Format("{0} {1}", message, exception));
+            var fullMessage = string.Format("{0} {1}", message, exception);
+            Trace.WriteLine(fullMessage);
             Append(exception);
+            context.RecordEndpointLog(endpointName, "error", fullMessage);
         }
 
         public void ErrorFormat(string format, params object[] args)
         {
-            Trace.WriteLine(string.Format(format, args));
+            var fullMessage = string.Format(format, args);
+            Trace.WriteLine(fullMessage);
+            context.RecordEndpointLog(endpointName, "error", fullMessage);
         }
 
         public void Fatal(string message)
