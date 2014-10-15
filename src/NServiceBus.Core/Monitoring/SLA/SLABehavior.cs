@@ -32,7 +32,7 @@
             public Registration()
                 : base("SLA", typeof(SLABehavior), "Updates the SLA performance counter")
             {
-                InsertBefore("ProcessingStatistics");
+                InsertBefore(WellKnownStep.ProcessingStatistics);
             }
         }
     }

@@ -33,7 +33,7 @@
             public Registration()
                 : base("CriticalTime", typeof(CriticalTimeBehavior), "Updates the critical time performance counter")
             {
-                InsertBefore("ProcessingStatistics");
+                InsertBefore(WellKnownStep.ProcessingStatistics);
             }
         }
     }

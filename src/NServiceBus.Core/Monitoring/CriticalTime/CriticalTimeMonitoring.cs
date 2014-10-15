@@ -1,12 +1,10 @@
 namespace NServiceBus.Features
 {
-
     /// <summary>
     /// Used to configure CriticalTimeMonitoring.
     /// </summary>
     public class CriticalTimeMonitoring : Feature
     {
-
         internal CriticalTimeMonitoring()
         {
         }
@@ -16,17 +14,10 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            SetupCriticalTimePerformanceCounter(context);
-
-            context.Pipeline.Register<CriticalTimeBehavior.Registration>();
-        }
-
-        static void SetupCriticalTimePerformanceCounter(FeatureConfigurationContext context)
-        {
-            var criticalTimeCounter = PerformanceCounterHelper.InstantiateCounter("Critical Time", context.Settings.EndpointName());
+            var criticalTimeCounter = PerformanceCounterHelper.InstantiatePerformanceCounter("Critical Time", context.Settings.EndpointName());
             var criticalTimeCalculator = new CriticalTimeCalculator(criticalTimeCounter);
             context.Container.RegisterSingleton(criticalTimeCalculator);
+            context.Pipeline.Register<CriticalTimeBehavior.Registration>();
         }
-
     }
 }

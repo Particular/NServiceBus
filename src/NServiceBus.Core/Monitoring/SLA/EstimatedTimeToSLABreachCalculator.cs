@@ -8,7 +8,6 @@ namespace NServiceBus
 
     class EstimatedTimeToSLABreachCalculator : IDisposable
     {
-        
         public EstimatedTimeToSLABreachCalculator(TimeSpan sla, PerformanceCounter slaBreachCounter)
         {
             endpointSLA = sla;
