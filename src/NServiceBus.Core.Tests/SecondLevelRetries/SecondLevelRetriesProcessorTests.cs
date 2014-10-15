@@ -20,7 +20,7 @@
         [Test]
         public void The_time_span_should_increase_with_10_sec_for_every_retry()
         {
-            var retriesProcessor = new SecondLevelRetriesProcessor(null, null, null, null);
+            var retriesProcessor = new SecondLevelRetriesProcessor();
             for (var i=0; i<3; i++)
             {
                 var timeSpan = retriesProcessor.Validate(_message);
@@ -36,7 +36,7 @@
         {
             TransportMessageHeaderHelper.SetHeader(_message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow.AddDays(-1).AddSeconds(-1)));
 
-            var retriesProcessor = new SecondLevelRetriesProcessor(null, null, null, null);
+            var retriesProcessor = new SecondLevelRetriesProcessor();
             var hasTimedOut = retriesProcessor.Validate(_message) == TimeSpan.MinValue;
             Assert.IsTrue(hasTimedOut);
         }

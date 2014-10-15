@@ -11,17 +11,18 @@ namespace NServiceBus.SecondLevelRetries
 
     class SecondLevelRetriesProcessor : ISatellite
     {
-        public SecondLevelRetriesProcessor(ISendMessages messageSender, IDeferMessages messageDeferrer, FaultManager faultManager, BusNotifications busNotifications)
+        public SecondLevelRetriesProcessor()
         {
-            this.messageSender = messageSender;
-            this.messageDeferrer = messageDeferrer;
-            this.faultManager = faultManager;
-            this.busNotifications = busNotifications;
             TimeIncrease = TimeSpan.FromSeconds(10);
             NumberOfRetries = 3;
             Disabled = true;
             RetryPolicy = Validate;
         }
+
+        public ISendMessages MessageSender { get; set; }
+        public IDeferMessages MessageDeferrer { get; set; }
+        public FaultManager FaultManager { get; set; }
+        public BusNotifications BusNotifications  { get; set; }
 
         public Func<TransportMessage, TimeSpan> RetryPolicy { get; set; }
         public int NumberOfRetries { get; set; }
@@ -57,12 +58,12 @@ namespace NServiceBus.SecondLevelRetries
         {
             logger.ErrorFormat(
                 "SLR has failed to resolve the issue with message {0} and will be forwarded to the error queue at {1}",
-                message.Id, faultManager.ErrorQueue);
+                message.Id, FaultManager.ErrorQueue);
 
             message.Headers.Remove(Headers.Retries);
 
-            messageSender.Send(message, new SendOptions(faultManager.ErrorQueue));
-            busNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, new Exception());
+            MessageSender.Send(message, new SendOptions(FaultManager.ErrorQueue));
+            BusNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, new Exception());
         }
 
         void Defer(TimeSpan defer, TransportMessage message)
@@ -88,7 +89,7 @@ namespace NServiceBus.SecondLevelRetries
             };
 
 
-            messageDeferrer.Defer(message, sendOptions);
+            MessageDeferrer.Defer(message, sendOptions);
         }
 
         internal TimeSpan Validate(TransportMessage message)
@@ -136,9 +137,5 @@ namespace NServiceBus.SecondLevelRetries
         }
 
         static ILog logger = LogManager.GetLogger<SecondLevelRetriesProcessor>();
-        readonly FaultManager faultManager;
-        readonly BusNotifications busNotifications;
-        readonly IDeferMessages messageDeferrer;
-        readonly ISendMessages messageSender;
     }
 }
