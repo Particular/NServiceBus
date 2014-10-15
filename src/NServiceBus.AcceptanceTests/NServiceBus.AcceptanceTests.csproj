@@ -79,6 +79,7 @@
     <Compile Include="Config\When__startup_is_complete.cs" />
     <Compile Include="CriticalError\When_registering_a_custom_criticalErrorHandler.cs" />
     <Compile Include="DataBus\When_sending_with_custom_IDataBus.cs" />
+    <Compile Include="Exceptions\When_handler_throws_serialization_exception.cs" />
     <Compile Include="Sagas\When_message_has_a_saga_id.cs" />
     <Compile Include="Retries\When_Subscribing_to_errors.cs" />
     <Compile Include="Volatile\When_sending_to_non_durable_endpoint.cs" />
