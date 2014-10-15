@@ -1,15 +1,14 @@
 ﻿namespace NServiceBus.AcceptanceTests.Retries
 {
     using System;
-    using EndpointTemplates;
-    using AcceptanceTesting;
+    using System.Collections.Generic;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_Subscribing_to_errors : NServiceBusAcceptanceTest
     {
-        static TimeSpan SlrDelay = TimeSpan.FromSeconds(1);
-
         [Test]
         public void Should_receive_notifications()
         {
@@ -18,13 +17,16 @@
                 Id = Guid.NewGuid()
             };
             Scenario.Define(context)
-                    .WithEndpoint<SLREndpoint>(b => b.Given((bus, c) => bus.SendLocal(new MessageToBeRetried { Id = c.Id })))
-                    .AllowExceptions(e => e.Message.Contains("Simulated exception"))
-                    .Done(c => c.MessageSentToError)
-                    .Run();
+                .WithEndpoint<SLREndpoint>(b => b.Given((bus, c) => bus.SendLocal(new MessageToBeRetried
+                {
+                    Id = c.Id
+                })))
+                .AllowExceptions(e => e.Message.Contains("Simulated exception"))
+                .Done(c => c.MessageSentToError)
+                .Run();
 
-            Assert.AreEqual(3 * 3, context.TotalNumberOfFLRTimesInvokedInHandler);
-            Assert.AreEqual(3 * 3, context.TotalNumberOfFLRTimesInvoked);
+            Assert.AreEqual(3*3, context.TotalNumberOfFLRTimesInvokedInHandler);
+            Assert.AreEqual(3*3, context.TotalNumberOfFLRTimesInvoked);
             Assert.AreEqual(3, context.NumberOfSLRRetriesPerformed);
         }
 
@@ -42,25 +44,25 @@
             public SLREndpoint()
             {
                 EndpointSetup<DefaultServer>()
-                    .WithConfig<TransportConfig>(c =>
-                        {
-                            c.MaxRetries = 3;
-                        })
-                        .WithConfig<SecondLevelRetriesConfig>(c =>
-                        {
-                            c.NumberOfRetries = 2;
-                            c.TimeIncrease = SlrDelay;
-                        });
+                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 3; })
+                    .WithConfig<SecondLevelRetriesConfig>(c =>
+                    {
+                        c.NumberOfRetries = 2;
+                        c.TimeIncrease = TimeSpan.FromSeconds(1);
+                    });
             }
 
 
-            class MessageToBeRetriedHandler:IHandleMessages<MessageToBeRetried>
+            class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
                 public Context Context { get; set; }
 
                 public void Handle(MessageToBeRetried message)
                 {
-                    if (message.Id != Context.Id) return; // ignore messages from previous test runs
+                    if (message.Id != Context.Id)
+                    {
+                        return; // ignore messages from previous test runs
+                    }
 
                     Context.TotalNumberOfFLRTimesInvokedInHandler++;
 
@@ -83,14 +85,20 @@
 
             public void Start()
             {
-                Notifications.Errors.MessageSentToErrorQueue.Subscribe(message => Context.MessageSentToError = true);
-                Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt.Subscribe(message => Context.TotalNumberOfFLRTimesInvoked++);
-                Notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(message => Context.NumberOfSLRRetriesPerformed++);
+                unsubscribeStreams.Add(Notifications.Errors.MessageSentToErrorQueue.Subscribe(message => Context.MessageSentToError = true));
+                unsubscribeStreams.Add(Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt.Subscribe(message => Context.TotalNumberOfFLRTimesInvoked++));
+                unsubscribeStreams.Add(Notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(message => Context.NumberOfSLRRetriesPerformed++));
             }
 
             public void Stop()
             {
+                foreach (var unsubscribeStream in unsubscribeStreams)
+                {
+                    unsubscribeStream.Dispose();
+                }
             }
+
+            List<IDisposable> unsubscribeStreams = new List<IDisposable>();
         }
     }
 }
