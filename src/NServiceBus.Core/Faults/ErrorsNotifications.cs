@@ -11,7 +11,7 @@ namespace NServiceBus.Faults
         /// <summary>
         /// Notification when a message is moved to the error queue.
         /// </summary>
-        public IObservable<ErroneousMessage> MessageSentToErrorQueue
+        public IObservable<FailedMessage> MessageSentToErrorQueue
         {
             get { return erroneousMessageList; }
         }
@@ -39,7 +39,7 @@ namespace NServiceBus.Faults
 
         internal void InvokeMessageHasBeenSentToErrorQueue(TransportMessage message, Exception exception)
         {
-            erroneousMessageList.Publish(new ErroneousMessage
+            erroneousMessageList.Publish(new FailedMessage
             {
                 Headers = new Dictionary<string, string>(message.Headers),
                 Body = CopyOfBody(message.Body),
@@ -83,7 +83,7 @@ namespace NServiceBus.Faults
             return copyBody;
         }
 
-        Observable<ErroneousMessage> erroneousMessageList = new Observable<ErroneousMessage>();
+        Observable<FailedMessage> erroneousMessageList = new Observable<FailedMessage>();
         Observable<FirstLevelRetry> firstLevelRetryList = new Observable<FirstLevelRetry>();
         Observable<SecondLevelRetry> secondLevelRetryList = new Observable<SecondLevelRetry>();
     }

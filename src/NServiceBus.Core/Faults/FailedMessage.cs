@@ -4,8 +4,9 @@ namespace NServiceBus.Faults
     using System.Collections.Generic;
 
     /// <summary>
+    /// Error message event data.
     /// </summary>
-    public class ErroneousMessage
+    public class FailedMessage
     {
         /// <summary>
         ///     Gets the message headers.

@@ -4,6 +4,7 @@ namespace NServiceBus.Faults
     using System.Collections.Generic;
 
     /// <summary>
+    /// first level retry event data.
     /// </summary>
     public class FirstLevelRetry
     {
