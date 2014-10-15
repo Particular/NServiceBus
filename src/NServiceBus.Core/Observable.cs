@@ -6,13 +6,13 @@ namespace NServiceBus
     using Janitor;
 
     [SkipWeaving]
-    class ObservableList<T> : IObservable<T>, IDisposable
+    class Observable<T> : IObservable<T>, IDisposable
     {
         List<IObserver<T>> observers;
         bool isDisposed;
         object gate = new object();
 
-        public ObservableList()
+        public Observable()
         {
             observers = new List<IObserver<T>>();
         }
@@ -37,7 +37,7 @@ namespace NServiceBus
             {
                 throw new ArgumentNullException("observer", "observer is null.");
             }
-            
+
             lock (gate)
             {
                 CheckDisposed();
@@ -48,7 +48,7 @@ namespace NServiceBus
             }
         }
 
-        public void Add(T step)
+        public void Publish(T value)
         {
             // If the observers list was immutable we could remove this lock
             lock (gate)
@@ -57,7 +57,7 @@ namespace NServiceBus
 
                 foreach (var observer in observers)
                 {
-                    observer.OnNext(step);
+                    observer.OnNext(value);
                 }
             }
         }
@@ -81,12 +81,12 @@ namespace NServiceBus
         [SkipWeaving]
         class Unsubscriber : IDisposable
         {
-            ObservableList<T> observableList;
+            Observable<T> observable;
             IObserver<T> observer;
 
-            public Unsubscriber(ObservableList<T> observableList, IObserver<T> observer)
+            public Unsubscriber(Observable<T> observable, IObserver<T> observer)
             {
-                this.observableList = observableList;
+                this.observable = observable;
                 this.observer = observer;
             }
 
@@ -95,8 +95,8 @@ namespace NServiceBus
                 var o = Interlocked.Exchange(ref observer, null);
                 if (o != null)
                 {
-                    observableList.Unsubscribe(observer);
-                    observableList = null;
+                    observable.Unsubscribe(observer);
+                    observable = null;
                 }
             }
         }

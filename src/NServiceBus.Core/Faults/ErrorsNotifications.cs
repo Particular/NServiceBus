@@ -39,7 +39,7 @@ namespace NServiceBus.Faults
 
         internal void InvokeMessageHasBeenSentToErrorQueue(TransportMessage message, Exception exception)
         {
-            erroneousMessageList.Add(new ErroneousMessage
+            erroneousMessageList.Publish(new ErroneousMessage
             {
                 Headers = new Dictionary<string, string>(message.Headers),
                 Body = CopyOfBody(message.Body),
@@ -49,7 +49,7 @@ namespace NServiceBus.Faults
 
         internal void InvokeMessageHasFailedAFirstLevelRetryAttempt(int firstLevelRetryAttempt, TransportMessage message, Exception exception)
         {
-            firstLevelRetryList.Add(new FirstLevelRetry
+            firstLevelRetryList.Publish(new FirstLevelRetry
             {
                 Headers = new Dictionary<string, string>(message.Headers),
                 Body = CopyOfBody(message.Body),
@@ -60,7 +60,7 @@ namespace NServiceBus.Faults
 
         internal void InvokeMessageHasBeenSentToSecondLevelRetries(int secondLevelRetryAttempt, TransportMessage message, Exception exception)
         {
-            secondLevelRetryList.Add(new SecondLevelRetry
+            secondLevelRetryList.Publish(new SecondLevelRetry
             {
                 Headers = new Dictionary<string, string>(message.Headers),
                 Body = CopyOfBody(message.Body),
@@ -83,8 +83,8 @@ namespace NServiceBus.Faults
             return copyBody;
         }
 
-        ObservableList<ErroneousMessage> erroneousMessageList = new ObservableList<ErroneousMessage>();
-        ObservableList<FirstLevelRetry> firstLevelRetryList = new ObservableList<FirstLevelRetry>();
-        ObservableList<SecondLevelRetry> secondLevelRetryList = new ObservableList<SecondLevelRetry>();
+        Observable<ErroneousMessage> erroneousMessageList = new Observable<ErroneousMessage>();
+        Observable<FirstLevelRetry> firstLevelRetryList = new Observable<FirstLevelRetry>();
+        Observable<SecondLevelRetry> secondLevelRetryList = new Observable<SecondLevelRetry>();
     }
 }

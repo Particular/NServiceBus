@@ -133,7 +133,7 @@
     <Compile Include="Monitoring\CriticalTime\CriticalTimeMonitoringConfig.cs" />
     <Compile Include="Monitoring\CriticalTime\CriticalTimeMonitoring.cs" />
     <Compile Include="Monitoring\SLA\SLAMonitoringConfig.cs" />
-    <Compile Include="ObservableList.cs" />
+    <Compile Include="Observable.cs" />
     <Compile Include="Obsoletes.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />
