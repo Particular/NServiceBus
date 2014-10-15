@@ -22,18 +22,6 @@ namespace NServiceBus
             //Injected at compile time
         }
 
-        void DisposeManaged()
-        {
-            if (counter != null)
-            {
-                counter.Dispose();
-            }
-            if (timer != null)
-            {
-                timer.Dispose();
-            }
-        }
-
         public void Update(DateTime sent, DateTime processingStarted, DateTime processingEnded)
         {
             var dataPoint = new DataPoint
@@ -138,6 +126,7 @@ namespace NServiceBus
         List<DataPoint> dataPoints = new List<DataPoint>();
         PerformanceCounter counter;
         TimeSpan endpointSLA;
+// ReSharper disable once NotAccessedField.Local
         Timer timer;
 
         class DataPoint

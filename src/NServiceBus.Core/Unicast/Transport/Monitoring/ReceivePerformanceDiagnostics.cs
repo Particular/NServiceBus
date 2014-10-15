@@ -25,22 +25,6 @@ namespace NServiceBus.Unicast.Transport.Monitoring
             //Injected at compile time
         }
 
-        void DisposeManaged()
-        {
-            if (successRateCounter != null)
-            {
-                successRateCounter.Dispose();
-            }
-            if (throughputCounter != null)
-            {
-                throughputCounter.Dispose();
-            }
-            if (failureRateCounter != null)
-            {
-                failureRateCounter.Dispose();
-            }
-        }
-
         public void Initialize()
         {
             if (receiveAddress.Queue.Length > SByte.MaxValue)
