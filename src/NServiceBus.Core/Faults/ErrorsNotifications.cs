@@ -6,7 +6,7 @@ namespace NServiceBus.Faults
     /// <summary>
     /// Errors notifications
     /// </summary>
-    public class ErrorsNotifications: IDisposable
+    public class ErrorsNotifications : IDisposable
     {
         /// <summary>
         /// Notification when a message is moved to the error queue.
@@ -39,34 +39,17 @@ namespace NServiceBus.Faults
 
         internal void InvokeMessageHasBeenSentToErrorQueue(TransportMessage message, Exception exception)
         {
-            erroneousMessageList.Publish(new FailedMessage
-            {
-                Headers = new Dictionary<string, string>(message.Headers),
-                Body = CopyOfBody(message.Body),
-                Exception = exception,
-            });
+            erroneousMessageList.Publish(new FailedMessage(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception));
         }
 
         internal void InvokeMessageHasFailedAFirstLevelRetryAttempt(int firstLevelRetryAttempt, TransportMessage message, Exception exception)
         {
-            firstLevelRetryList.Publish(new FirstLevelRetry
-            {
-                Headers = new Dictionary<string, string>(message.Headers),
-                Body = CopyOfBody(message.Body),
-                Exception = exception,
-                RetryAttempt = firstLevelRetryAttempt
-            });
+            firstLevelRetryList.Publish(new FirstLevelRetry(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception, firstLevelRetryAttempt));
         }
 
         internal void InvokeMessageHasBeenSentToSecondLevelRetries(int secondLevelRetryAttempt, TransportMessage message, Exception exception)
         {
-            secondLevelRetryList.Publish(new SecondLevelRetry
-            {
-                Headers = new Dictionary<string, string>(message.Headers),
-                Body = CopyOfBody(message.Body),
-                Exception = exception,
-                RetryAttempt = secondLevelRetryAttempt
-            });
+            secondLevelRetryList.Publish(new SecondLevelRetry(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception, secondLevelRetryAttempt));
         }
 
         static byte[] CopyOfBody(byte[] body)
