@@ -44,6 +44,9 @@ namespace NServiceBus.Sagas
                     if (sagaTypesHandled.Contains(sagaType))
                         continue; // don't create the same saga type twice for the same message
 
+                    if (!IsAllowedToStartANewSaga(sagaType))
+                        continue;
+
                     sagaEntity = CreateNewSagaEntity(sagaType);
 
                     sagaEntityIsPersistent = false;
@@ -126,6 +129,25 @@ namespace NServiceBus.Sagas
                                      }
 
                                  };
+        }
+
+        bool IsAllowedToStartANewSaga(Type sagaInstanceType)
+        {
+            string sagaType;
+
+            if (Bus.CurrentMessageContext.Headers.ContainsKey(Headers.SagaId) &&
+                Bus.CurrentMessageContext.Headers.TryGetValue(Headers.SagaType, out sagaType))
+            {
+                //we want to move away from the assembly fully qualified name since that will break if you move sagas
+                // between assemblies. We use the fullname instead which is enough to identify the saga
+                if (sagaType.StartsWith(sagaInstanceType.FullName))
+                {
+                    //so now we have a saga id for this saga and if we can't find it we shouldn't start a new one
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         IContainSagaData CreateNewSagaEntity(Type sagaType)
