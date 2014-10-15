@@ -55,7 +55,7 @@ namespace NServiceBus
 
         static bool TryToInstantiatePerformanceCounter(string counterName, string instanceName, out PerformanceCounter counter, bool throwIfFails)
         {
-            if (instanceName.Length > SByte.MaxValue)
+            if (instanceName.Length > 128)
             {
                 throw new Exception(string.Format("The endpoint name ('{0}') is too long (longer then {1}) to register as a performance counter instance name. Please reduce the endpoint name.", instanceName, (int)SByte.MaxValue));
             }
