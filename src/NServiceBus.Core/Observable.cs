@@ -10,7 +10,8 @@ namespace NServiceBus
     {
         List<IObserver<T>> observers;
         bool isDisposed;
-        object gate = new object();
+        int disposeSignaled;
+        ReaderWriterLockSlim observerLock = new ReaderWriterLockSlim();
 
         public Observable()
         {
@@ -19,16 +20,28 @@ namespace NServiceBus
 
         public void Dispose()
         {
-            lock (gate)
+            if (Interlocked.Exchange(ref disposeSignaled, 1) != 0)
+            {
+                return;
+            }
+
+            observerLock.EnterReadLock();
+            try
             {
                 foreach (var observer in observers)
                 {
                     observer.OnCompleted();
                 }
-
-                observers = null;
-                isDisposed = true;
             }
+            finally
+            {
+                observerLock.ExitReadLock();
+            }
+
+            observerLock.Dispose();
+            observerLock = null;
+            observers = null;
+            isDisposed = true;
         }
 
         public IDisposable Subscribe(IObserver<T> observer)
@@ -38,35 +51,49 @@ namespace NServiceBus
                 throw new ArgumentNullException("observer", "observer is null.");
             }
 
-            lock (gate)
+            CheckDisposed();
+
+            observerLock.EnterWriteLock();
+            try
             {
-                CheckDisposed();
-
                 observers.Add(observer);
-
-                return new Unsubscriber(this, observer);
             }
+            finally
+            {
+                observerLock.ExitWriteLock();
+            }
+
+            return new Unsubscriber(this, observer);
         }
 
         public void Publish(T value)
         {
-            // If the observers list was immutable we could remove this lock
-            lock (gate)
-            {
-                CheckDisposed();
+            CheckDisposed();
 
+            observerLock.EnterReadLock();
+            try
+            {
                 foreach (var observer in observers)
                 {
                     observer.OnNext(value);
                 }
             }
+            finally
+            {
+                observerLock.ExitReadLock();
+            }
         }
 
         void Unsubscribe(IObserver<T> observer)
         {
-            lock (gate)
+            observerLock.EnterWriteLock();
+            try
             {
                 observers.Remove(observer);
+            }
+            finally
+            {
+                observerLock.ExitWriteLock();
             }
         }
 
@@ -74,7 +101,7 @@ namespace NServiceBus
         {
             if (isDisposed)
             {
-                throw new ObjectDisposedException(string.Empty);
+                throw new ObjectDisposedException("Observable");
             }
         }
 
