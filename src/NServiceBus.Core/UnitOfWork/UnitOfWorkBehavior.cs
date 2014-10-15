@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Runtime.Serialization;
     using NServiceBus.UnitOfWork;
     using Pipeline;
     using Pipeline.Contexts;
@@ -28,7 +27,7 @@
                     unitsOfWork.Pop().End();
                 }
             }
-            catch (SerializationException)
+            catch (MessageDeserializationException)
             {
                 throw;
             }

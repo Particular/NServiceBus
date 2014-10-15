@@ -316,7 +316,7 @@ namespace NServiceBus.Unicast.Transport
             {
                 OnTransportMessageReceived(message);
             }
-            catch (SerializationException serializationException)
+            catch (MessageDeserializationException serializationException)
             {
                 Logger.Error("Failed to deserialize message with ID: " + message.Id, serializationException);
 
