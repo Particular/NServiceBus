@@ -3,6 +3,8 @@
     using System;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Config;
+    using NServiceBus.Features;
     using NServiceBus.UnitOfWork;
     using NUnit.Framework;
 
@@ -35,7 +37,16 @@
         {
             public MyEndpoint()
             {
-                EndpointSetup<DefaultServer>(b => b.RegisterComponents(r => r.ConfigureComponent<CheckUnitOfWorkOutcome>(DependencyLifecycle.InstancePerCall)));
+                EndpointSetup<DefaultServer>(b =>
+                {
+                    b.RegisterComponents(r => r.ConfigureComponent<CheckUnitOfWorkOutcome>(DependencyLifecycle.InstancePerCall));
+                    b.DisableFeature<TimeoutManager>();
+                    b.DisableFeature<SecondLevelRetries>();
+                })
+                    .WithConfig<TransportConfig>(c =>
+                    {
+                        c.MaxRetries = 0;
+                    });
             }
 
             class EnsureOrdering : ISpecifyMessageHandlerOrdering
