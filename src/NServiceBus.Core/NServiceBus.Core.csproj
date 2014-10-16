@@ -106,8 +106,14 @@
     <Compile Include="Encryption\RijndaelExpiredKey.cs" />
     <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
+    <Compile Include="BusNotifications.cs" />
+    <Compile Include="Faults\FailedMessage.cs" />
+    <Compile Include="Faults\ErrorsNotifications.cs" />
+    <Compile Include="Faults\ErrorSubscribers.cs" />
+    <Compile Include="Faults\FirstLevelRetry.cs" />
     <Compile Include="Faults\Forwarder\ForwarderFaultManager.cs" />
     <Compile Include="Faults\InMemory\InMemoryFaultManager.cs" />
+    <Compile Include="Faults\SecondLevelRetry.cs" />
     <Compile Include="Features\AdvanceExtensibilityExtensions.cs" />
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\ExposeSettings.cs" />
@@ -127,6 +133,7 @@
     <Compile Include="Monitoring\CriticalTime\CriticalTimeMonitoringConfig.cs" />
     <Compile Include="Monitoring\CriticalTime\CriticalTimeMonitoring.cs" />
     <Compile Include="Monitoring\SLA\SLAMonitoringConfig.cs" />
+    <Compile Include="Observable.cs" />
     <Compile Include="Obsoletes.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />

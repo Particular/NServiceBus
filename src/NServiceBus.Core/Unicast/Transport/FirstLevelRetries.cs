@@ -9,13 +9,15 @@
         ConcurrentDictionary<string, Tuple<int, Exception>> failuresPerMessage = new ConcurrentDictionary<string, Tuple<int, Exception>>();
         IManageMessageFailures failureManager;
         CriticalError criticalError;
+        readonly BusNotifications notifications;
         int maxRetries;
 
-        public FirstLevelRetries(int maxRetries, IManageMessageFailures failureManager, CriticalError criticalError)
+        public FirstLevelRetries(int maxRetries, IManageMessageFailures failureManager, CriticalError criticalError, BusNotifications busNotifications)
         {
             this.maxRetries = maxRetries;
             this.failureManager = failureManager;
             this.criticalError = criticalError;
+            notifications = busNotifications;
         }
 
         public bool HasMaxRetriesForMessageBeenReached(TransportMessage message)
@@ -48,8 +50,16 @@
 
         public void IncrementFailuresForMessage(TransportMessage message, Exception e)
         {
-            failuresPerMessage.AddOrUpdate(message.Id, new Tuple<int, Exception>(1, e),
-                                           (s, i) => new Tuple<int, Exception>(i.Item1 + 1, e));
+            failuresPerMessage.AddOrUpdate(message.Id, s =>
+                {
+                    notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(1, message, e);
+                    return new Tuple<int, Exception>(1, e);
+                },
+                (s, i) =>
+                {
+                    notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(i.Item1 + 1, message, e);
+                    return new Tuple<int, Exception>(i.Item1 + 1, e);
+                });
         }
 
         void TryInvokeFaultManager(TransportMessage message, Exception exception, int numberOfAttempts)
