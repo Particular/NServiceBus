@@ -3,35 +3,29 @@
     using System;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.MessageMutator;
+    using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
 
-    public class When_using_callbacks_from_older_versions : NServiceBusAcceptanceTest
+    public class When_using_callbacks_with_messageid_eq_cid_ : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_trigger_the_callback()
         {
-            Scenario.Define<Context>()
+            var context = Scenario.Define<Context>()
                     .WithEndpoint<EndpointWithLocalCallback>(b=>b.Given(
-                        (bus,context)=>bus.SendLocal(new MyRequest()).Register(r =>
+                        (bus,c)=>bus.SendLocal(new MyRequest()).Register(r =>
                         {
-                            Assert.True(context.HandlerGotTheRequest);
-                            context.CallbackFired = true;
+                            c.CallbackFired = true;
                         })))
                     .Done(c => c.CallbackFired)
-                    .Repeat(r =>r.For(Transports.Default))
-                    .Should(c =>
-                    {
-                        Assert.True(c.CallbackFired);
-                        Assert.True(c.HandlerGotTheRequest);
-                    })
                     .Run();
+
+            Assert.True(context.CallbackFired);
         }
 
         public class Context : ScenarioContext
         {
-            public bool HandlerGotTheRequest { get; set; }
             public bool CallbackFired { get; set; }
         }
 
@@ -51,26 +45,26 @@
                 public void Handle(MyRequest request)
                 {
                     Assert.False(Context.CallbackFired);
-                    Context.HandlerGotTheRequest = true;
 
                     Bus.Return(1);
                 }
             }
         }
 
-        class BodyMutator : IMutateIncomingTransportMessages, INeedInitialization
+        class BodyMutator : IMutateOutgoingTransportMessages, INeedInitialization
         {
-            public void MutateIncoming(TransportMessage transportMessage)
+            public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
             {
-                //early versions of did not have a Reply MessageIntent when Bus.Return is called 
-                transportMessage.MessageIntent = MessageIntentEnum.Send;
-                transportMessage.Headers[Headers.NServiceBusVersion] = "3.3.0";
+                //to simulate native interop cases where msgid == corrid
+                transportMessage.Headers[Headers.MessageId] = transportMessage.Headers[Headers.CorrelationId];
             }
 
             public void Customize(BusConfiguration configuration)
             {
                 configuration.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
             }
+
+         
         }
 
         [Serializable]

@@ -30,10 +30,23 @@
                 return false;
             }
 
-            if (transportMessage.CorrelationId == transportMessage.Id)
+            if (SenderIsV4OrNewer(transportMessage))
             {
-                return false;
+                if (transportMessage.MessageIntent != MessageIntentEnum.Reply)
+                {
+                    return false;
+                }
             }
+            else
+            {
+                //older versions used "Send" as intent for replies. Therefor we need to check for id != cid to avoid 
+                // firing callbacks to soon
+                if (transportMessage.Id == transportMessage.CorrelationId)
+                {
+                    return false;
+                }
+            }
+
 
             BusAsyncResult busAsyncResult;
 
@@ -56,6 +69,18 @@
             busAsyncResult.Complete(statusCode, context.LogicalMessages.Select(lm => lm.Instance).ToArray());
 
             return true;
+        }
+
+        bool SenderIsV4OrNewer(TransportMessage transportMessage)
+        {
+            string version;
+
+            if (!transportMessage.Headers.TryGetValue(Headers.NServiceBusVersion, out version))
+            {
+                return false;
+            }
+
+            return !version.StartsWith("3");
         }
     }
 }
