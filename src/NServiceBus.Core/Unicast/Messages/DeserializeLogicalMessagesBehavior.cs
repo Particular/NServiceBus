@@ -5,7 +5,6 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using System.Runtime.Serialization;
     using Logging;
     using NServiceBus.Unicast.Messages;
     using NServiceBus.Unicast.Transport;
@@ -36,14 +35,13 @@
                 next();
                 return;
             }
-
             try
             {
                 context.LogicalMessages = Extract(transportMessage);
             }
             catch (Exception exception)
             {
-                throw new SerializationException(string.Format("An error occurred while attempting to extract logical messages from transport message {0}", transportMessage), exception);
+                throw new MessageDeserializationException(transportMessage.Id, exception);
             }
 
             next();
@@ -92,10 +90,10 @@
             using (var stream = new MemoryStream(physicalMessage.Body))
             {
                 var messageTypesToDeserialize = messageMetadata.Select(metadata => metadata.MessageType).ToList();
-
                 return MessageSerializer.Deserialize(stream, messageTypesToDeserialize)
                     .Select(x => LogicalMessageFactory.Create(x.GetType(), x, physicalMessage.Headers))
                     .ToList();
+
             }
         }
 
