@@ -184,9 +184,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Message = @"var config = new BusConfig();
-config.ScanAssembliesInDirectory(directoryToProbe);
-Bus.Create(config);")]
+            Message = "Use `configuration.ScanAssembliesInDirectory(directoryToProbe)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.")]
         public static Configure With(string probeDirectory)
         {
             throw new NotImplementedException();
