@@ -11,7 +11,7 @@ namespace NServiceBus
     public static class JsonSerializerConfigurationExtensions
     {
         [ObsoleteEx(
-            Message = "Use `configuration.UseSerialization<JsonSerializer>()`, where `configuration` is an instance of type `BusConfiguration`.", 
+            Message = "Use `configuration.UseSerialization<JsonSerializer>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.", 
             RemoveInVersion = "6.0", 
             TreatAsErrorFromVersion = "5.0")]
         public static SerializationSettings Json(this SerializationSettings settings)
@@ -20,7 +20,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Use `configuration.UseSerialization<BsonSerializer>()`, where `configuration` is an instance of type `BusConfiguration`.", 
+            Message = "Use `configuration.UseSerialization<BsonSerializer>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.", 
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0")]
         public static SerializationSettings Bson(this SerializationSettings settings)
