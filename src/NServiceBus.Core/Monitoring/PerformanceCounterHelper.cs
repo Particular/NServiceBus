@@ -6,7 +6,7 @@ namespace NServiceBus
 
     static class PerformanceCounterHelper
     {
-        static ILog logger = LogManager.GetLogger("PerformanceCountersSetup");
+        static ILog logger = LogManager.GetLogger(typeof(PerformanceCounterHelper));
 
         public static PerformanceCounter InstantiatePerformanceCounter(string counterName, string instanceName)
         {
