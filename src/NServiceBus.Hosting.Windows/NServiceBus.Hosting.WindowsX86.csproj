@@ -47,7 +47,8 @@
     <AssemblyName>NServiceBus.Host32</AssemblyName>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>NServiceBus.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <None Include="FodyWeavers.xml">
@@ -78,9 +79,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\NServiceBus.Core\Utils\StackTracePreserver.cs">
-      <Link>StackTracePreserver.cs</Link>
-    </Compile>
     <Compile Include="EndpointType.cs" />
     <Compile Include="EndpointTypeDeterminer.cs" />
     <Compile Include="INameThisEndpoint.cs" />
@@ -92,6 +90,7 @@
     <Compile Include="Options.cs" />
     <Compile Include="Profiles\Handlers\DistributorProfileHandler.cs" />
     <Compile Include="Profiles\Distributor.cs" />
+    <Compile Include="Profiles\Handlers\WindowsInstallerRunner.cs" />
     <Compile Include="Profiles\MultiSite.cs" />
     <Compile Include="Profiles\Handlers\GatewayProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\MasterProfileHandler.cs" />
@@ -114,6 +113,7 @@
     <Compile Include="Roles\Handlers\ServerRoleHandler.cs" />
     <Compile Include="Roles\Handlers\TransportRoleHandler.cs" />
     <Compile Include="Roles\UsingTransport.cs" />
+    <Compile Include="StackTracePreserver.cs" />
     <Compile Include="WindowsHost.cs" />
     <Compile Include="Profiles\Integration.cs" />
     <Compile Include="Profiles\Lite.cs" />
@@ -140,9 +140,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="NServiceBus.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="ReleaseAfterBuild" AfterTargets="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
