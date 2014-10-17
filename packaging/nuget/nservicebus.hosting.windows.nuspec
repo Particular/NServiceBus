@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-    <id>NServiceBus.Host32</id>
-    <title>NServiceBus Host32</title>
+    <id>NServiceBus.Host</id>
+    <title>NServiceBus Host</title>
     <version>$version$</version>
     <authors>NServiceBus Ltd</authors>
     <owners>NServiceBus Ltd</owners>
@@ -19,7 +19,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\..\binaries\NServiceBus.Host32.???" target="lib\net40" />
-	 <file src="nservicebus.host\*.*" target="tools" />
+    <file src="..\..\binaries\NServiceBus.Host.???" target="lib\net40" />
+	<file src="..\..\binaries\CodeTemplates\Scaffolders\**" target="tools" />
+    <file src="..\..\packaging\nuget\nservicebus.host32\install.ps1" target="tools" />
+	<file src="..\..\packaging\nuget\nservicebus.host.common\*.*" target="tools" />
   </files>
 </package>

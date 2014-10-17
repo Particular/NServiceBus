@@ -3,7 +3,7 @@
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>NServiceBus.NHibernate</id>
     <title>NServiceBus NHibernate</title>
-    <version>4.0.0-alpha0</version>
+    <version>$version$</version>
     <authors>NServiceBus Ltd</authors>
     <owners>Udi Dahan, Andreas Ohlund, John Simons</owners>
     <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
@@ -18,7 +18,7 @@
   </metadata>
   <files>
     <file src="..\..\binaries\NServiceBus.NHibernate.???" target="lib\net40" />
-    <file src="tools\install.ps1" target="tools" />
+    <file src="..\..\packaging\nuget\tools\install.ps1" target="tools" />
     <!--<file src="..\..\src\NServiceBus.NHibernate\**\*.cs" target="src" />-->
   </files>
 </package>
