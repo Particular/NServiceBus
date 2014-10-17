@@ -13,7 +13,6 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Unobtrusive\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,7 +33,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="IMyEvent.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -49,3 +47,4 @@
   </Target>
   -->
 <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+</Project>

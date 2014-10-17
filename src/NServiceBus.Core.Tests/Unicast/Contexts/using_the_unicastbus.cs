@@ -3,7 +3,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Reflection;
     using System.Threading;
     using Audit;
     using Core.Tests;

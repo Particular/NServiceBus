@@ -66,3 +66,4 @@
   </Target>
   -->
 <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+</Project>

@@ -50,7 +50,6 @@
   <ItemGroup>
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="Handlers\CancelOrderHandler.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebServices\CancelOrderService.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -78,3 +77,4 @@
     <StartArguments>NServiceBus.Lite</StartArguments>
   </PropertyGroup>
 <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+</Project>

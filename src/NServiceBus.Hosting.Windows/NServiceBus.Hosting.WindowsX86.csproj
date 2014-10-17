@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{79487CAA-C060-49C8-B689-6250C61A46D5}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NServiceBus.Hosting.Windows</RootNamespace>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <NuGetPackageImportStamp>8e2073b6</NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <AssemblyName>NServiceBus.Host32</AssemblyName>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\binaries\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>..\..\binaries\NServiceBus.Host32.xml</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <NoWarn>1591,1573</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <AssemblyName>NServiceBus.Host32</AssemblyName>
+    <OutputPath>..\..\binaries\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>..\..\binaries\NServiceBus.Host32.xml</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <NoWarn>1591,1573</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>true</DelaySign>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyName>NServiceBus.Host32</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>NServiceBus.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="FodyWeavers.xml">
+      <SubType>Designer</SubType>
+    </None>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
+    <Reference Include="Obsolete, Version=3.1.0.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Obsolete.Fody.3.1.0.0\Lib\NET35\Obsolete.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Topshelf">
+      <HintPath>..\..\lib\Topshelf\Topshelf.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\NServiceBus.Core\Utils\StackTracePreserver.cs">
+      <Link>StackTracePreserver.cs</Link>
+    </Compile>
+    <Compile Include="EndpointType.cs" />
+    <Compile Include="EndpointTypeDeterminer.cs" />
+    <Compile Include="INameThisEndpoint.cs" />
+    <Compile Include="Installers\WindowsInstaller.cs" />
+    <Compile Include="InternalsVisibleTo.cs" />
+    <Compile Include="LoggingHandlers\Internal\ConfigureInternalLog4Net.cs" />
+    <Compile Include="LoggingHandlers\Internal\InternalLog4NetLog.cs" />
+    <Compile Include="LoggingHandlers\Internal\InternalLog4NetLoggerFactory.cs" />
+    <Compile Include="Options.cs" />
+    <Compile Include="Profiles\Handlers\DistributorProfileHandler.cs" />
+    <Compile Include="Profiles\Distributor.cs" />
+    <Compile Include="Profiles\MultiSite.cs" />
+    <Compile Include="Profiles\Handlers\GatewayProfileHandler.cs" />
+    <Compile Include="Profiles\Handlers\MasterProfileHandler.cs" />
+    <Compile Include="Profiles\Handlers\TimeoutProfileHandler.cs" />
+    <Compile Include="Profiles\Handlers\WorkerProfileHandler.cs" />
+    <Compile Include="Profiles\Master.cs" />
+    <Compile Include="Profiles\Time.cs" />
+    <Compile Include="Profiles\Worker.cs" />
+    <Compile Include="Roles\AsA_Publisher.cs" />
+    <Compile Include="Arguments\HostArguments.cs" />
+    <Compile Include="LoggingHandlers\IntegrationLoggingHandler.cs" />
+    <Compile Include="LoggingHandlers\LiteLoggingHandler.cs" />
+    <Compile Include="LoggingHandlers\ProductionLoggingHandler.cs" />
+    <Compile Include="Profiles\Handlers\IntegrationProfileHandler.cs" />
+    <Compile Include="Profiles\Handlers\LiteProfileHandler.cs" />
+    <Compile Include="Profiles\Handlers\PerformanceCountersProfileHandler.cs" />
+    <Compile Include="Profiles\Handlers\ProductionProfileHandler.cs" />
+    <Compile Include="Roles\Handlers\ClientRoleHandler.cs" />
+    <Compile Include="Roles\Handlers\PublisherRoleHandler.cs" />
+    <Compile Include="Roles\Handlers\ServerRoleHandler.cs" />
+    <Compile Include="Roles\Handlers\TransportRoleHandler.cs" />
+    <Compile Include="Roles\UsingTransport.cs" />
+    <Compile Include="WindowsHost.cs" />
+    <Compile Include="Profiles\Integration.cs" />
+    <Compile Include="Profiles\Lite.cs" />
+    <Compile Include="Profiles\PerformanceCounters.cs" />
+    <Compile Include="Profiles\Production.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="HostServiceLocator.cs" />
+    <Compile Include="Roles\AsA_Client.cs" />
+    <Compile Include="Roles\AsA_Server.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Help.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
+      <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
+      <Name>NServiceBus.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
+      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
+      <Name>NServiceBus</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="NServiceBus.ico" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="ReleaseAfterBuild" AfterTargets="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
+    <MakeDir Directories="$(IntermediateOutputPath)temp\" />
+    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(IntermediateOutputPath)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Microsoft.Practices.ServiceLocation.dll&quot; &quot;$(TargetDir)Topshelf.dll&quot; /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
+    <ItemGroup>
+      <TempFiles Include="$(IntermediateOutputPath)temp\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(TempFiles)" DestinationFolder="$(TargetDir)" OverwriteReadOnlyFiles="true" />
+    <Delete Files="@(TempFiles)" />
+    <RemoveDir Directories="$(IntermediateOutputPath)temp\" />
+  </Target>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Fody.1.25.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.25.0\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\GitVersionTask.1.2.1\Build\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.1.2.1\Build\GitVersionTask.targets'))" />
+    <Error Condition="!Exists('..\packages\NuGetPackager.0.1.4\build\NuGetPackager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.1.4\build\NuGetPackager.targets'))" />
+  </Target>
+  <Import Project="..\packages\Fody.1.25.0\build\Fody.targets" Condition="Exists('..\packages\Fody.1.25.0\build\Fody.targets')" />
+  <Import Project="..\packages\GitVersionTask.1.2.1\Build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.1.2.1\Build\GitVersionTask.targets')" />
+  <Import Project="..\packages\NuGetPackager.0.1.4\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.1.4\build\NuGetPackager.targets')" />
+</Project>

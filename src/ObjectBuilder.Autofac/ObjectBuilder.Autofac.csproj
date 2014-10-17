@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -14,8 +15,8 @@
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
-    <FodyPath>..\packages\Fody</FodyPath>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <NuGetPackageImportStamp>e92c6700</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,7 +26,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\binaries\NServiceBus.ObjectBuilder.Autofac.XML</DocumentationFile>
+    <DocumentationFile>..\..\binaries\NServiceBus.ObjectBuilder.Autofac.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
   </PropertyGroup>
@@ -36,18 +37,18 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\binaries\NServiceBus.ObjectBuilder.Autofac.XML</DocumentationFile>
+    <DocumentationFile>..\..\binaries\NServiceBus.ObjectBuilder.Autofac.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autofac">
-      <HintPath>..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
+    <Reference Include="Autofac, Version=3.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Autofac.3.1.5\lib\net40\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="Autofac.Configuration">
-      <HintPath>..\packages\Autofac\lib\net40\Autofac.Configuration.dll</HintPath>
-    </Reference>
-    <Reference Include="Janitor">
-      <HintPath>..\packages\Janitor.Fody\Lib\portable-net4+sl4+wp7+win8+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
+    <Reference Include="Janitor, Version=1.1.0.0, Culture=neutral, PublicKeyToken=d34c7d3bba3746e6, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Janitor.Fody.1.1.0.0\Lib\portable-net4+sl5+wp8+win8+wpa81+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -90,10 +91,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Fody.targets" />
-    <None Include="ripple.dependencies.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="FodyWeavers.xml">
@@ -101,7 +99,15 @@
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="Fody.targets" />
-  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
-  <Import Project="$(SolutionDir)..\BuildSupport\GitVersionTask\build\GitVersionTask.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Fody.1.25.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.25.0\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\GitVersionTask.1.2.1\Build\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.1.2.1\Build\GitVersionTask.targets'))" />
+    <Error Condition="!Exists('..\packages\NuGetPackager.0.1.4\build\NuGetPackager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.1.4\build\NuGetPackager.targets'))" />
+  </Target>
+  <Import Project="..\packages\Fody.1.25.0\build\Fody.targets" Condition="Exists('..\packages\Fody.1.25.0\build\Fody.targets')" />
+  <Import Project="..\packages\GitVersionTask.1.2.1\Build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.1.2.1\Build\GitVersionTask.targets')" />
+  <Import Project="..\packages\NuGetPackager.0.1.4\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.1.4\build\NuGetPackager.targets')" />
 </Project>
