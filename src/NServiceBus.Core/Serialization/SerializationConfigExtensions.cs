@@ -18,8 +18,9 @@
         {
             var type = typeof(SerializationExtentions<>).MakeGenericType(typeof(T));
             var extension = (SerializationExtentions<T>)Activator.CreateInstance(type, config.Settings);
+            var definition = (SerializationDefinition)Activator.CreateInstance(typeof(T));
 
-            config.UseSerialization(typeof(T));
+            config.Settings.Set("SelectedSerializer", definition);
 
             return extension;
         }
@@ -28,12 +29,28 @@
         /// Configures the given serializer to be used
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="definitionType">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/> etc</param>
-        public static void UseSerialization(this BusConfiguration config, Type definitionType)
+        /// <param name="serializerType">The custom serializer type to use for serialization that implements <see cref="IMessageSerializer"/> or a derived type from <see cref="SerializationDefinition"/>.</param>
+        public static void UseSerialization(this BusConfiguration config, Type serializerType)
         {
-            var definition = (SerializationDefinition)Activator.CreateInstance(definitionType);
+            if (serializerType == null)
+            {
+                throw new ArgumentNullException("serializerType");
+            }
 
-            config.Settings.Set("SelectedSerializer", definition);
+            if (typeof(SerializationDefinition).IsAssignableFrom(serializerType))
+            {
+                var definition = (SerializationDefinition)Activator.CreateInstance(serializerType);
+                config.Settings.Set("SelectedSerializer", definition);
+                return;
+            }
+
+            if (!typeof(IMessageSerializer).IsAssignableFrom(serializerType))
+            {
+                throw new ArgumentException("The type needs to implement IMessageSerializer.", "serializerType");
+            }
+
+            config.Settings.Set("SelectedSerializer", new CustomSerializer());
+            config.Settings.Set("CustomSerializerType", serializerType);
         }
 
         internal static SerializationDefinition GetSelectedSerializer(this ReadOnlySettings settings)

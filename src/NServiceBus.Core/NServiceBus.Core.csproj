@@ -192,6 +192,8 @@
     <Compile Include="Scheduling\Scheduler.cs" />
     <Compile Include="Scheduling\TaskDefinition.cs" />
     <Compile Include="SecondLevelRetries\Helpers\TransportMessageHelpers_Obsolete.cs" />
+    <Compile Include="Serialization\CustomSerialization.cs" />
+    <Compile Include="Serialization\CustomSerializer.cs" />
     <Compile Include="Serialization\SerializationConfigExtensions.cs" />
     <Compile Include="Serialization\SerializationDefinition.cs" />
     <Compile Include="Serialization\SerializationExtentions.cs" />

@@ -45,8 +45,13 @@ namespace NServiceBus.Settings
             val = default(T);
 
             object tmp;
-            if (!Overrides.TryGetValue(key, out tmp) && !Defaults.TryGetValue(key, out tmp))
-                return false;
+            if (!Overrides.TryGetValue(key, out tmp))
+            {
+                if (!Defaults.TryGetValue(key, out tmp))
+                {
+                    return false;
+                }
+            }
 
             if (!(tmp is T))
                 return false;
