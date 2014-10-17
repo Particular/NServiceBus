@@ -369,13 +369,13 @@ namespace NServiceBus
     using System;
 
     [ObsoleteEx(
-        Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of type `BusConfiguration`.",
+        Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
         RemoveInVersion = "6",
         TreatAsErrorFromVersion = "5")]
     public static class EndpointConventions
     {
         [ObsoleteEx(
-            Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure DefineEndpointName(this Configure config, Func<string> definesEndpointName)
@@ -384,7 +384,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure DefineEndpointName(this Configure config, string name)
@@ -414,7 +414,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetMessageToDatabaseMappingConvention(convention)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetMessageToDatabaseMappingConvention(convention)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure MessageToDatabaseMappingConvention(this Configure config, Func<IMessageContext, string> convention)
@@ -423,7 +423,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package.` Use `configuration.UsePersistence<RavenDBPersistence>()`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package.` Use `configuration.UsePersistence<RavenDBPersistence>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistence(this Configure config)
@@ -432,7 +432,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistence(this Configure config, string connectionStringName)
@@ -441,7 +441,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
@@ -450,7 +450,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString)
@@ -459,7 +459,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString, string database)
@@ -469,7 +469,7 @@ namespace NServiceBus
 
 
         [ObsoleteEx(
-            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(documentStore)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(documentStore)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenPersistenceWithStore(this Configure config, object documentStore)
@@ -478,7 +478,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>()`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static void RegisterDefaults()
@@ -496,7 +496,7 @@ namespace NServiceBus
     public static class ConfigureRavenSagaPersister
     {
         [ObsoleteEx(
-            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().For(Storage.Sagas)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().For(Storage.Sagas)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenSagaPersister(this Configure config)
@@ -515,7 +515,7 @@ namespace NServiceBus
     public static class ConfigureRavenSubscriptionStorage
     {
         [ObsoleteEx(
-            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().For(Storage.Subscriptions)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().For(Storage.Subscriptions)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure RavenSubscriptionStorage(this Configure config)
@@ -533,7 +533,7 @@ namespace NServiceBus
     public static class ConfigureTimeoutManager
     {
         [ObsoleteEx(
-            Message = "Use `configuration.DisableFeature<TimeoutManager>()`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "Use `configuration.DisableFeature<TimeoutManager>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure DisableTimeoutManager(this Configure config)
@@ -543,7 +543,7 @@ namespace NServiceBus
 
 
         [ObsoleteEx(
-            Message = "Use `configuration.UsePersistence<InMemoryPersistence>()`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "Use `configuration.UsePersistence<InMemoryPersistence>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure UseInMemoryTimeoutPersister(this Configure config)
@@ -552,7 +552,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().For(Storage.Timeouts)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().For(Storage.Timeouts)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure UseRavenTimeoutPersister(this Configure config)
@@ -580,7 +580,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "UnicastBus is now the default and hence calling this method is redundant. `Bus.Create(configuration)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "UnicastBus is now the default and hence calling this method is redundant. `Bus.Create(configuration)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure UnicastBus(this Configure config)
@@ -651,7 +651,7 @@ namespace NServiceBus
     {
 
         [ObsoleteEx(
-            Message = "Use `configuration.UseTransport(transportDefinitionType).ConnectionString()`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "Use `configuration.UseTransport(transportDefinitionType).ConnectionString()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure UseTransport<T>(this Configure config, Func<string> definesConnectionString)
@@ -660,7 +660,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Use `configuration.UseTransport(transportDefinitionType).ConnectionString()`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "Use `configuration.UseTransport(transportDefinitionType).ConnectionString()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static Configure UseTransport(this Configure config, Type transportDefinitionType, Func<string> definesConnectionString)

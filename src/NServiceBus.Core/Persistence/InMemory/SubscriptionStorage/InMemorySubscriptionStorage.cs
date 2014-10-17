@@ -13,45 +13,44 @@ namespace NServiceBus.InMemory.SubscriptionStorage
     {
         void ISubscriptionStorage.Subscribe(Address address, IEnumerable<MessageType> messageTypes)
         {
-            messageTypes.ToList().ForEach(m =>
+            foreach (var m in messageTypes)
             {
                 List<Address> list;
                 if (!storage.TryGetValue(m, out list))
                 {
-                  storage[m] = list = new List<Address>();
+                    storage[m] = list = new List<Address>();
                 }
 
                 if (!list.Contains(address))
                 {
                     list.Add(address);
                 }
-            });
+            }
         }
 
         void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<MessageType> messageTypes)
         {
-            messageTypes.ToList().ForEach(m =>
+            foreach (var m in messageTypes)
             {
                 List<Address> list;
                 if (storage.TryGetValue(m, out list))
                 {
                     list.Remove(address);
                 }
-            });
+            }
         }
-
 
         IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
             var result = new List<Address>();
-            messageTypes.ToList().ForEach(m =>
+            foreach (var m in messageTypes)
             {
                 List<Address> list;
                 if (storage.TryGetValue(m, out list))
                 {
                     result.AddRange(list);
                 }
-            });
+            }
 
             return result.Distinct();
         }

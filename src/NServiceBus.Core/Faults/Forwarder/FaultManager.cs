@@ -1,36 +1,44 @@
 namespace NServiceBus.Faults.Forwarder
 {
     using System;
-    using Logging;
-    using ObjectBuilder;
-    using SecondLevelRetries.Helpers;
-    using Transports;
-    using Unicast;
-    using Unicast.Queuing;
+    using NServiceBus.Logging;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.SecondLevelRetries.Helpers;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Queuing;
 
     /// <summary>
-    /// Implementation of IManageMessageFailures by forwarding messages
-    /// using ISendMessages.
+    ///     Implementation of IManageMessageFailures by forwarding messages
+    ///     using ISendMessages.
     /// </summary>
     class FaultManager : IManageMessageFailures
     {
-        readonly IBuilder builder;
-        readonly Configure config;
-
-        public FaultManager(IBuilder builder, Configure config)
+        public FaultManager(IBuilder builder, Configure config, BusNotifications busNotifications)
         {
             this.builder = builder;
             this.config = config;
+            this.busNotifications = busNotifications;
         }
+
+        /// <summary>
+        ///     Endpoint to which message failures are forwarded
+        /// </summary>
+        public Address ErrorQueue { get; set; }
+
+        /// <summary>
+        ///     The address of the Second Level Retries input queue when SLR is enabled
+        /// </summary>
+        public Address RetriesErrorQueue { get; set; }
 
         void IManageMessageFailures.SerializationFailedForMessage(TransportMessage message, Exception e)
         {
-            SendFailureMessage(message, e, true);
+            TryHandleFailure(() => HandleSerializationFailedForMessage(message, e));
         }
 
         void IManageMessageFailures.ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
         {
-            SendFailureMessage(message, e);
+            TryHandleFailure(() => HandleProcessingAlwaysFailsForMessage(message, e, GetNumberOfFirstLevelRetries(message)));
         }
 
         void IManageMessageFailures.Init(Address address)
@@ -38,37 +46,60 @@ namespace NServiceBus.Faults.Forwarder
             localAddress = address;
         }
 
-        void SendFailureMessage(TransportMessage message, Exception e, bool serializationException = false)
+        void HandleSerializationFailedForMessage(TransportMessage message, Exception e)
+        {
+            message.SetExceptionHeaders(e, localAddress ?? config.LocalAddress);
+            var sender = LocateMessageSender();
+            sender.Send(message, new SendOptions(ErrorQueue));
+        }
+
+        // Intentionally service-locate ISendMessages to avoid circular
+        // resolution problem in the container
+        ISendMessages LocateMessageSender()
+        {
+            return builder.Build<ISendMessages>();
+        }
+
+        void HandleProcessingAlwaysFailsForMessage(TransportMessage message, Exception e, int numberOfRetries)
         {
             message.SetExceptionHeaders(e, localAddress ?? config.LocalAddress);
 
+            var destinationQ = RetriesErrorQueue ?? ErrorQueue;
+            var sender = LocateMessageSender();
+
+            if (MessageWasSentFromSLR(message))
+            {
+                sender.Send(message, new SendOptions(ErrorQueue));
+                busNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, e);
+                return;
+            }
+
+            sender.Send(message, new SendOptions(destinationQ));
+
+            var flrPart = numberOfRetries > 0
+                ? string.Format("Message with '{0}' id has failed FLR and", message.Id)
+                : string.Format("FLR is disabled and the message '{0}'", message.Id);
+
+            //HACK: We need this hack here till we refactor the SLR to be a first class concept in the TransportReceiver
+            if (RetriesErrorQueue == null)
+            {
+                Logger.ErrorFormat("{0} will be moved to the configured error queue.", flrPart);
+                busNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, e);
+            }
+            else
+            {
+                var retryAttempt = TransportMessageHeaderHelper.GetNumberOfRetries(message) + 1;
+
+                Logger.WarnFormat("{0} will be handed over to SLR for retry attempt {1}.", flrPart, retryAttempt);
+                busNotifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(retryAttempt, message, e);
+            }
+        }
+
+        void TryHandleFailure(Action failureHandlingAction)
+        {
             try
             {
-                var destinationQ = RetriesErrorQueue ?? ErrorQueue;
-               
-                // Intentionally service-locate ISendMessages to avoid circular
-                // resolution problem in the container
-                var sender = builder.Build<ISendMessages>();
-
-                if (serializationException || MessageWasSentFromSLR(message))
-                {
-                    sender.Send(message, new SendOptions(ErrorQueue));
-                    return;
-                }
-
-                sender.Send(message, new SendOptions(destinationQ));
-
-                //HACK: We need this hack here till we refactor the SLR to be a first class concept in the TransportReceiver
-                if (RetriesErrorQueue == null)
-                {
-                    Logger.ErrorFormat("Message with '{0}' id has failed FLR and will be moved to the configured error queue.", message.Id);
-                }
-                else
-                {
-                    var retryAttempt = TransportMessageHeaderHelper.GetNumberOfRetries(message) + 1;
-
-                    Logger.WarnFormat("Message with '{0}' id has failed FLR and will be handed over to SLR for retry attempt {1}.", message.Id, retryAttempt);
-                }
+                failureHandlingAction();
             }
             catch (Exception exception)
             {
@@ -102,17 +133,24 @@ namespace NServiceBus.Faults.Forwarder
             return TransportMessageHeaderHelper.GetAddressOfFaultingEndpoint(message) == RetriesErrorQueue;
         }
 
-        /// <summary>
-        /// Endpoint to which message failures are forwarded
-        /// </summary>
-        public Address ErrorQueue { get; set; }
+        static int GetNumberOfFirstLevelRetries(TransportMessage message)
+        {
+            string value;
+            if (message.Headers.TryGetValue(Headers.FLRetries, out value))
+            {
+                int i;
+                if (int.TryParse(value, out i))
+                {
+                    return i;
+                }
+            }
+            return 0;
+        }
 
-        /// <summary>
-        /// The address of the Second Level Retries input queue when SLR is enabled
-        /// </summary>
-        public Address RetriesErrorQueue { get; set; }
-
-        Address localAddress;
         static ILog Logger = LogManager.GetLogger<FaultManager>();
+        readonly IBuilder builder;
+        readonly Configure config;
+        readonly BusNotifications busNotifications;
+        Address localAddress;
     }
 }

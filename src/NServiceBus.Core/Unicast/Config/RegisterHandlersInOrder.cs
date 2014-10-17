@@ -36,24 +36,23 @@ namespace NServiceBus.Features
         {
             var types = new List<Type>();
 
-            settings.GetAvailableTypes().Where(TypeSpecifiesMessageHandlerOrdering)
-                .ToList().ForEach(t =>
+            foreach (var t in settings.GetAvailableTypes().Where(TypeSpecifiesMessageHandlerOrdering))
+            {
+                Logger.DebugFormat("Going to ask for message handler ordering from '{0}'.", t);
+
+                var order = new Order();
+                ((ISpecifyMessageHandlerOrdering)Activator.CreateInstance(t)).SpecifyOrder(order);
+
+                foreach (var ht in order.Types)
                 {
-                    Logger.DebugFormat("Going to ask for message handler ordering from '{0}'.", t);
-
-                    var order = new Order();
-                    ((ISpecifyMessageHandlerOrdering) Activator.CreateInstance(t)).SpecifyOrder(order);
-
-                    order.Types.ToList().ForEach(ht =>
+                    if (types.Contains(ht))
                     {
-                        if (types.Contains(ht))
-                        {
-                            throw new ConfigurationErrorsException(string.Format("The order in which the type '{0}' should be invoked was already specified by a previous implementor of ISpecifyMessageHandlerOrdering. Check the debug logs to see which other specifiers have been invoked.", ht));
-                        }
-                    });
+                        throw new ConfigurationErrorsException(string.Format("The order in which the type '{0}' should be invoked was already specified by a previous implementor of ISpecifyMessageHandlerOrdering. Check the debug logs to see which other specifiers have been invoked.", ht));
+                    }
+                }
 
-                    types.AddRange(order.Types);
-                });
+                types.AddRange(order.Types);
+            }
 
             return types;
         }

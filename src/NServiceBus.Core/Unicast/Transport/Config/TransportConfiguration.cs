@@ -11,7 +11,7 @@ namespace NServiceBus
     public class TransportConfiguration
     {
         [ObsoleteEx(
-            Message = "Use `configuration.UseTransport<T>().ConnectionString(connectionString)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "Use `configuration.UseTransport<T>().ConnectionString(connectionString)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0")]
         public void ConnectionString(string connectionString)
@@ -20,7 +20,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Use `configuration.UseTransport<T>().ConnectionStringName(name)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "Use `configuration.UseTransport<T>().ConnectionStringName(name)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0")]
         public void ConnectionStringName(string name)
@@ -29,7 +29,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Use` configuration.UseTransport<T>().ConnectionString(connectionString)`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "Use` configuration.UseTransport<T>().ConnectionString(connectionString)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6.0",
             TreatAsErrorFromVersion = "5.0")]
         public void ConnectionString(Func<string> connectionString)

@@ -28,7 +28,7 @@ namespace NServiceBus
         {
             Settings = settings;
             this.pipeline = pipeline;
-            
+
             RegisterContainerAdapter(container);
             RunUserRegistrations(registrations);
 
@@ -76,15 +76,14 @@ namespace NServiceBus
                 .ConfigureProperty(c => c.Container, container);
         }
 
-
         void WireUpConfigSectionOverrides()
         {
-            TypesToScan
-                .Where(t => t.GetInterfaces().Any(IsGenericConfigSource))
-                .ToList().ForEach(t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            foreach (var t in TypesToScan.Where(t => t.GetInterfaces().Any(IsGenericConfigSource)))
+            {
+                configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
+            }
         }
 
-       
         /// <summary>
         /// Returns the queue name of this endpoint.
         /// </summary>
@@ -93,7 +92,7 @@ namespace NServiceBus
             get
             {
                 Debug.Assert(localAddress != null);
-                return localAddress;                
+                return localAddress;
             }
         }
 
@@ -121,20 +120,23 @@ namespace NServiceBus
 
             localAddress = Address.Parse(Settings.Get<string>("NServiceBus.LocalAddress"));
 
-            Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
-                .ToList()
-                .ForEach(o => o.Run(this));
+            foreach (var o in Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>())
+            {
+                o.Run(this);
+            }
         }
 
         /// <summary>
         ///     Applies the given action to all the scanned types that can be assigned to <typeparamref name="T" />.
         /// </summary>
-        internal static void ForAllTypes<T>(IList<Type> types, Action<Type> action) where T : class
+        internal static void ForAllTypes<T>(IEnumerable<Type> types, Action<Type> action) where T : class
         {
             // ReSharper disable HeapView.SlowDelegateCreation
-            types.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
-                // ReSharper restore HeapView.SlowDelegateCreation
-                .ToList().ForEach(action);
+            foreach (var type in types.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface)))
+            {
+                action(type);
+            }
+            // ReSharper restore HeapView.SlowDelegateCreation
         }
 
         internal Address PublicReturnAddress
@@ -176,7 +178,7 @@ namespace NServiceBus
         {
             ForAllTypes<T>(types, t =>
             {
-                var instanceToInvoke = (T) Activator.CreateInstance(t);
+                var instanceToInvoke = (T)Activator.CreateInstance(t);
                 action(instanceToInvoke);
             });
         }
@@ -200,7 +202,7 @@ namespace NServiceBus
         internal IConfigureComponents configurer;
 
         FeatureActivator featureActivator;
-        
+
         internal PipelineSettings pipeline;
 
         //HACK: Set by the tests

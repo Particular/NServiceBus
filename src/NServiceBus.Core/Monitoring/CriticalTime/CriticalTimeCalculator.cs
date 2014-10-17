@@ -12,6 +12,7 @@ namespace NServiceBus
         PerformanceCounter counter;
         TimeSpan maxDelta = TimeSpan.FromSeconds(2);
         DateTime timeOfLastCounter;
+// ReSharper disable once NotAccessedField.Local
         Timer timer;
 
 
@@ -24,18 +25,6 @@ namespace NServiceBus
         public void Dispose()
         {
             //Injected at compile time
-        }
-
-        void DisposeManaged()
-        {
-            if (counter != null)
-            {
-                counter.Dispose();
-            }
-            if (timer != null)
-            {
-                timer.Dispose();
-            }
         }
 
         public void Update(DateTime sent, DateTime processingStarted, DateTime processingEnded)

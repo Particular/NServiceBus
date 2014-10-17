@@ -13,7 +13,7 @@ namespace NServiceBus
         /// but rarely for server applications.
         /// </summary>
         [ObsoleteEx(
-            Message = "Use `configuration.PurgeOnStartup()`, where `configuration` is an instance of type `BusConfiguration`.", 
+            Message = "Use `configuration.PurgeOnStartup()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.", 
             RemoveInVersion = "6.0", 
             TreatAsErrorFromVersion = "5.0")]
         public static Configure PurgeOnStartup(this Configure config, bool value)

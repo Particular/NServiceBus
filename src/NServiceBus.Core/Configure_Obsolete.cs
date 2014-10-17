@@ -18,7 +18,7 @@ namespace NServiceBus
         /// This object should eventually reference the same container as the Builder.
         /// </summary>
         [ObsoleteEx(
-            Message = "Use `configuration.RegisterComponents(c => c.ConfigureComponent... ))`, where `configuration` is an instance of type `BusConfiguration`.", 
+            Message = "Use `configuration.RegisterComponents(c => c.ConfigureComponent... ))`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.", 
             RemoveInVersion = "6.0", 
             TreatAsErrorFromVersion = "5.0")]
         public IConfigureComponents Configurer
@@ -49,7 +49,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Message = "Use `configuration.EndpointName('MyEndpoint')`, where `configuration` is an instance of type `BusConfiguration`.")]
+            Message = "Use `configuration.EndpointName('MyEndpoint')`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.")]
         public static string EndpointName
         {
             get { throw new NotImplementedException(); }
@@ -165,7 +165,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Message = "Use `configuration.CustomConfigurationSource(myConfigSource)`, where `configuration` is an instance of type `BusConfiguration`.")]
+            Message = "Use `configuration.CustomConfigurationSource(myConfigSource)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.")]
         public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
         {
             throw new NotImplementedException();
@@ -184,9 +184,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Message = @"var config = new BusConfig();
-config.ScanAssembliesInDirectory(directoryToProbe);
-Bus.Create(config);")]
+            Message = "Use `configuration.ScanAssembliesInDirectory(directoryToProbe)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.")]
         public static Configure With(string probeDirectory)
         {
             throw new NotImplementedException();
@@ -195,7 +193,7 @@ Bus.Create(config);")]
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Message = "Use `configuration.AssembliesToScan(listOfAssemblies)`, where `configuration` is an instance of type `BusConfiguration`.")]
+            Message = "Use `configuration.AssembliesToScan(listOfAssemblies)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.")]
         public static Configure With(IEnumerable<Assembly> assemblies)
         {
             throw new NotImplementedException();
@@ -204,7 +202,7 @@ Bus.Create(config);")]
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Message = "Use `configuration.AssembliesToScan(listOfAssemblies)`, where `configuration` is an instance of type `BusConfiguration`.")]
+            Message = "Use `configuration.AssembliesToScan(listOfAssemblies)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.")]
         public static Configure With(params Assembly[] assemblies)
         {
             throw new NotImplementedException();
@@ -213,7 +211,7 @@ Bus.Create(config);")]
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Message = "Use `configuration.TypesToScan(listOfTypes)`, where `configuration` is an instance of type `BusConfiguration`.")]
+            Message = "Use `configuration.TypesToScan(listOfTypes)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.")]
         public static Configure With(IEnumerable<Type> typesToScan)
         {
             throw new NotImplementedException();
@@ -222,7 +220,7 @@ Bus.Create(config);")]
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of type `BusConfiguration`.")]
+            Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.")]
         public static Configure DefineEndpointName(Func<string> definesEndpointName)
         {
             throw new NotImplementedException();
@@ -234,7 +232,7 @@ Bus.Create(config);")]
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of type `BusConfiguration`.")]
+            Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.")]
         public static Configure DefineEndpointName(string name)
         {
             throw new NotImplementedException();
@@ -249,20 +247,20 @@ Bus.Create(config);")]
         [ObsoleteEx(
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5",
-            Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of type `BusConfiguration`.")]
+            Message = "Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.")]
         public static Func<string> GetEndpointNameAction;
 
         [ObsoleteEx(
            RemoveInVersion = "6",
            TreatAsErrorFromVersion = "5",
-           Message = "Use `configuration.UseSerialization<BinarySerializer>())`, where `configuration` is an instance of type `BusConfiguration`.")]
+           Message = "Use `configuration.UseSerialization<BinarySerializer>())`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.")]
         public static SerializationSettings Serialization
         {
             get { throw new NotImplementedException(); }
         }
 
         [ObsoleteEx(
-          Message = "This has been converted to extension methods. Use `configuration.EnableFeature<T>()` or `configuration.DisableFeature<T>()`, where `configuration` is an instance of type `BusConfiguration`.",
+          Message = "This has been converted to extension methods. Use `configuration.EnableFeature<T>()` or `configuration.DisableFeature<T>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
           RemoveInVersion = "6",
           TreatAsErrorFromVersion = "5")]
         public static FeatureSettings Features
@@ -274,7 +272,7 @@ Bus.Create(config);")]
         }
 
         [ObsoleteEx(
-            Message = "This has been converted to an extension method. Use `configuration.Transactions()`, where `configuration` is an instance of type `BusConfiguration`.",
+            Message = "This has been converted to an extension method. Use `configuration.Transactions()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.",
             RemoveInVersion = "6",
             TreatAsErrorFromVersion = "5")]
         public static TransactionSettings Transactions
@@ -292,7 +290,7 @@ namespace NServiceBus.Features
     [ObsoleteEx(
           RemoveInVersion = "6",
           TreatAsErrorFromVersion = "5",
-          Message = "Use `configuration.EnableFeature<T>()` or `configuration.DisableFeature<T>()`, where `configuration` is an instance of type `BusConfiguration`.")]
+          Message = "Use `configuration.EnableFeature<T>()` or `configuration.DisableFeature<T>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.")]
     public class FeatureSettings
     {
     }

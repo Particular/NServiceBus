@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
 
     class StubBus : IBus, IManageMessageHeaders
     {
@@ -15,7 +14,8 @@
 
         public void ValidateAndReset(IEnumerable<IExpectedInvocation> expectedInvocations)
         {
-            expectedInvocations.ToList().ForEach(e => e.Validate(actualInvocations.ToArray()));
+            foreach (var e in expectedInvocations)
+                e.Validate(actualInvocations.ToArray());
 
             actualInvocations.Clear();
         }
@@ -75,7 +75,6 @@
             return SendLocal(messageCreator.CreateInstance(messageConstructor));
         }
 
-
         public ICallback Send(object message)
         {
             return Send(Address.Undefined, message);
@@ -108,7 +107,6 @@
         {
             return Send(address, messageCreator.CreateInstance(messageConstructor));
         }
-
 
         public ICallback Send(string destination, string correlationId, object message)
         {
@@ -328,7 +326,6 @@
 
         public void Dispose()
         {
-            
         }
     }
 }

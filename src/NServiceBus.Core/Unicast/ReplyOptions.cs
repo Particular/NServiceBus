@@ -5,7 +5,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// Additional options that only apply for reply messages
     /// </summary>
-    class ReplyOptions : SendOptions
+    public class ReplyOptions : SendOptions
     {
         /// <summary>
         /// Both a destination and a correlation id is required when replying
@@ -16,6 +16,7 @@ namespace NServiceBus.Unicast
             {
                 throw new InvalidOperationException("Can't reply with null reply-to-address field. It can happen if you are using a SendOnly client.");
             }
+
             CorrelationId = correlationId;
         }
     }

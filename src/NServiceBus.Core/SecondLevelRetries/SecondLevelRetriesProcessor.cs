@@ -2,12 +2,12 @@ namespace NServiceBus.SecondLevelRetries
 {
     using System;
     using System.Globalization;
-    using Faults.Forwarder;
-    using Helpers;
-    using Logging;
-    using Satellites;
-    using Transports;
-    using Unicast;
+    using NServiceBus.Faults.Forwarder;
+    using NServiceBus.Logging;
+    using NServiceBus.Satellites;
+    using NServiceBus.SecondLevelRetries.Helpers;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast;
 
     class SecondLevelRetriesProcessor : ISatellite
     {
@@ -22,15 +22,14 @@ namespace NServiceBus.SecondLevelRetries
         public ISendMessages MessageSender { get; set; }
         public IDeferMessages MessageDeferrer { get; set; }
         public FaultManager FaultManager { get; set; }
+        public BusNotifications BusNotifications  { get; set; }
+
         public Func<TransportMessage, TimeSpan> RetryPolicy { get; set; }
-        public Address InputAddress { get; set; }
         public int NumberOfRetries { get; set; }
         public TimeSpan TimeIncrease { get; set; }
+        public Address InputAddress { get; set; }
 
-        public bool Disabled
-        {
-            get; set;
-        }
+        public bool Disabled { get; set; }
 
         public void Start()
         {
@@ -64,6 +63,7 @@ namespace NServiceBus.SecondLevelRetries
             message.Headers.Remove(Headers.Retries);
 
             MessageSender.Send(message, new SendOptions(FaultManager.ErrorQueue));
+            BusNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, new Exception());
         }
 
         void Defer(TimeSpan defer, TransportMessage message)
@@ -92,8 +92,6 @@ namespace NServiceBus.SecondLevelRetries
             MessageDeferrer.Defer(message, sendOptions);
         }
 
-        static ILog logger = LogManager.GetLogger<SecondLevelRetriesProcessor>();
-
         internal TimeSpan Validate(TransportMessage message)
         {
             if (HasReachedMaxTime(message))
@@ -103,7 +101,7 @@ namespace NServiceBus.SecondLevelRetries
 
             var numberOfRetries = TransportMessageHeaderHelper.GetNumberOfRetries(message);
 
-            var timeToIncreaseInTicks = TimeIncrease.Ticks * (numberOfRetries + 1);
+            var timeToIncreaseInTicks = TimeIncrease.Ticks*(numberOfRetries + 1);
             var timeIncrease = TimeSpan.FromTicks(timeToIncreaseInTicks);
 
             return numberOfRetries >= NumberOfRetries ? TimeSpan.MinValue : timeIncrease;
@@ -127,15 +125,17 @@ namespace NServiceBus.SecondLevelRetries
                     return true;
                 }
             }
-            // ReSharper disable once EmptyGeneralCatchClause
-            // this code won't usually throw but in case a user has decided to hack a message/headers and for some bizarre reason 
-            // they changed the date and that parse fails, we want to make sure that doesn't prevent the message from being 
-            // forwarded to the error queue.
+                // ReSharper disable once EmptyGeneralCatchClause
+                // this code won't usually throw but in case a user has decided to hack a message/headers and for some bizarre reason 
+                // they changed the date and that parse fails, we want to make sure that doesn't prevent the message from being 
+                // forwarded to the error queue.
             catch (Exception)
             {
             }
 
             return false;
         }
+
+        static ILog logger = LogManager.GetLogger<SecondLevelRetriesProcessor>();
     }
 }

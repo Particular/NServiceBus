@@ -25,25 +25,13 @@ namespace NServiceBus.Unicast.Transport.Monitoring
             //Injected at compile time
         }
 
-        void DisposeManaged()
-        {
-            if (successRateCounter != null)
-            {
-                successRateCounter.Dispose();
-            }
-            if (throughputCounter != null)
-            {
-                throughputCounter.Dispose();
-            }
-            if (failureRateCounter != null)
-            {
-                failureRateCounter.Dispose();
-            }
-        }
-
-
         public void Initialize()
         {
+            if (receiveAddress.Queue.Length > SByte.MaxValue)
+            {
+                throw new Exception(string.Format("The queue name ('{0}') is too long (longer then {1}) to register as a performance counter instance name. Please reduce the queue/endpoint name.", receiveAddress.Queue, (int)SByte.MaxValue));
+            }
+
             if (!InstantiateCounter())
             {
                 return;

@@ -16,6 +16,11 @@
         {
             var settings = config.Settings;
 
+            if (settings.Get<bool>("Endpoint.SendOnly"))
+            {
+                return;
+            }
+
             List<EnabledPersistence> definitions;
             if (!settings.TryGet("PersistenceDefinitions", out definitions))
             {

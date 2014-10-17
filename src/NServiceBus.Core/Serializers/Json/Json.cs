@@ -12,7 +12,7 @@ namespace NServiceBus
         /// <summary>
         /// <see cref="SerializationDefinition.ProvidedByFeature"/>
         /// </summary>
-        internal override Type ProvidedByFeature()
+        protected internal override Type ProvidedByFeature()
         {
             return typeof(JsonSerialization);
         }
