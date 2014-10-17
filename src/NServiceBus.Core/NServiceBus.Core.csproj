@@ -203,6 +203,7 @@
     <Compile Include="Serializers\XML\Config\XmlSerializationExtentions.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationSettings_Obsolete.cs" />
     <Compile Include="Settings\DurableMessagesConfig.cs" />
+    <Compile Include="Timeout\ConfigurationBuilderExtensions.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
