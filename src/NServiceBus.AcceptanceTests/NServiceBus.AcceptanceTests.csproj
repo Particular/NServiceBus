@@ -67,6 +67,7 @@
     <Compile Include="Audit\When_a_replymessage_is_audited.cs" />
     <Compile Include="Audit\When_using_audit_message_is_received.cs" />
     <Compile Include="Basic\When_registering_custom_serializer.cs" />
+    <Compile Include="Basic\When_sending_with_conventions.cs" />
     <Compile Include="Basic\When_using_callbacks_from_older_versions.cs" />
     <Compile Include="Basic\When_sending_from_a_send_only.cs" />
     <Compile Include="Basic\When_using_a_greedy_convention.cs" />

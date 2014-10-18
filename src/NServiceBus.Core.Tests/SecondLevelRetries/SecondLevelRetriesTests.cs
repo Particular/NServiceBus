@@ -34,7 +34,7 @@
             ORIGINAL_QUEUE = new Address("org", "hostname");
             CLIENT_QUEUE = Address.Parse("clientQ@myMachine");
             var busNotifications = new BusNotifications();
-            satellite = new SecondLevelRetriesProcessor()
+            satellite = new SecondLevelRetriesProcessor
             {
                 BusNotifications = busNotifications,
                 FaultManager = new FaultManager(new FuncBuilder(), null, busNotifications)
