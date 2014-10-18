@@ -6,7 +6,7 @@ namespace NServiceBus.Unicast.Transport
     /// <summary>
     ///     Support for throughput limitation of the transport
     /// </summary>
-    class ThroughputLimiter
+    class ThroughputLimiter:IDisposable
     {
         public void Start(int limit)
         {
@@ -92,5 +92,14 @@ namespace NServiceBus.Unicast.Transport
         bool started;
         SemaphoreSlim throughputSemaphore;
         Timer timer;
+
+        public void Dispose()
+        {
+            //Injected
+        }
+        void DisposeManaged()
+        {
+            Stop();
+        }
     }
 }
