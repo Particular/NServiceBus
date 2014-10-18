@@ -164,10 +164,11 @@ namespace NServiceBus
                         types.AddRange(a.GetTypes()
                             .Where(AssemblyScanner.IsAllowedType));
                     }
-                    catch (ReflectionTypeLoadException e)
+                    catch (ReflectionTypeLoadException exception)
                     {
-                        var errorMessage = AssemblyScanner.FormatReflectionTypeLoadException(a.FullName, e);
+                        var errorMessage = AssemblyScanner.FormatReflectionTypeLoadException(a.FullName, exception);
                         LogManager.GetLogger<Configure>().Warn(errorMessage);
+                        types.AddRange(exception.Types);
                         //intentionally swallow exception
                     }
                 });
