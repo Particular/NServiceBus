@@ -89,7 +89,7 @@ namespace NServiceBus.Saga
             var canHandleTimeoutMessage = this is IHandleTimeouts<TTimeoutMessageType>;
             if (!canHandleTimeoutMessage)
             {
-                var message = string.Format("The type '{0}' cannot request timeouts for '{1}' because it does not implement 'IHandleTimeouts<{2}>'", GetType().Name, timeoutMessage, typeof(TTimeoutMessageType).Name);
+                var message = string.Format("The type '{0}' cannot request timeouts for '{1}' because it does not implement 'IHandleTimeouts<{2}>'", GetType().Name, timeoutMessage, typeof(TTimeoutMessageType).FullName);
                 throw new Exception(message);
             }
         }
