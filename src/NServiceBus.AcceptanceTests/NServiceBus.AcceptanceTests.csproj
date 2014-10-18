@@ -84,6 +84,7 @@
     <Compile Include="Exceptions\When_handler_throws_serialization_exception.cs" />
     <Compile Include="Sagas\When_message_has_a_saga_id.cs" />
     <Compile Include="Retries\When_Subscribing_to_errors.cs" />
+    <Compile Include="Sagas\When_saga_id_changed.cs" />
     <Compile Include="Volatile\When_sending_to_non_durable_endpoint.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_multikey.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_custom.cs" />
