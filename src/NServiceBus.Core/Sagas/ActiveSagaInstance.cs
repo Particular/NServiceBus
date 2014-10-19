@@ -8,6 +8,8 @@ namespace NServiceBus.Sagas
     /// </summary>
     public class ActiveSagaInstance
     {
+        Guid sagaId;
+
         internal ActiveSagaInstance(Saga saga)
         {
             Instance = saga;
@@ -51,11 +53,20 @@ namespace NServiceBus.Sagas
 
         void AttachEntity(IContainSagaData sagaEntity)
         {
+            sagaId = sagaEntity.Id;
             Instance.Entity = sagaEntity;
         }
         internal void MarkAsNotFound()
         {
             NotFound = true;
+        }
+
+        internal void ValidateIdHasNotChanged()
+        {
+            if (sagaId != Instance.Entity.Id)
+            {
+                throw new Exception("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + SagaType.FullName);
+            }
         }
     }
 }

@@ -80,7 +80,7 @@
             {
                 return;
             }
-
+            sagaInstanceState.ValidateIdHasNotChanged();
             LogSaga(sagaInstanceState, context);
 
             if (saga.Completed)
