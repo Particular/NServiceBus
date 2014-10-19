@@ -101,22 +101,16 @@ namespace NServiceBus.Faults.Forwarder
             {
                 failureHandlingAction();
             }
+            catch (QueueNotFoundException exception)
+            {
+                var errorMessage = string.Format("Could not forward failed message to error queue '{0}' as it could not be found.", exception.Queue);
+                Logger.Fatal(errorMessage);
+                throw new InvalidOperationException(errorMessage, exception);
+            }
             catch (Exception exception)
             {
-                var queueNotFoundException = exception as QueueNotFoundException;
-                string errorMessage;
-
-                if (queueNotFoundException != null)
-                {
-                    errorMessage = string.Format("Could not forward failed message to error queue '{0}' as it could not be found.", queueNotFoundException.Queue);
-                    Logger.Fatal(errorMessage);
-                }
-                else
-                {
-                    errorMessage = "Could not forward failed message to error queue.";
-                    Logger.Fatal(errorMessage, exception);
-                }
-
+                var errorMessage = "Could not forward failed message to error queue.";
+                Logger.Fatal(errorMessage, exception);
                 throw new InvalidOperationException(errorMessage, exception);
             }
         }
