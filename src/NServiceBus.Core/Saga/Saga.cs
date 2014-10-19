@@ -62,7 +62,7 @@ namespace NServiceBus.Saga
         [ObsoleteEx(
             Message = "Construct your message and pass it to the non Action overload.",
             RemoveInVersion = "6.0",
-            TreatAsErrorFromVersion = "5.0",
+            TreatAsErrorFromVersion = "6.0",
             Replacement = "Saga.RequestTimeout<TTimeoutMessageType>(DateTime, TTimeoutMessageType)")]
         protected void RequestTimeout<TTimeoutMessageType>(DateTime at, Action<TTimeoutMessageType> action) where TTimeoutMessageType : new()
         {
@@ -116,7 +116,7 @@ namespace NServiceBus.Saga
         [ObsoleteEx(
             Message = "Construct your message and pass it to the non Action overload.",
             RemoveInVersion = "6.0",
-            TreatAsErrorFromVersion = "5.0",
+            TreatAsErrorFromVersion = "6.0",
             Replacement = "Saga.RequestTimeout<TTimeoutMessageType>(TimeSpan, TTimeoutMessageType)")]
         protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, Action<TTimeoutMessageType> messageConstructor) where TTimeoutMessageType : new()
         {
@@ -167,7 +167,7 @@ namespace NServiceBus.Saga
         [ObsoleteEx(
             Message = "Construct your message and pass it to the non Action overload.",
             RemoveInVersion = "6.0",
-            TreatAsErrorFromVersion = "5.0",
+            TreatAsErrorFromVersion = "6.0",
             Replacement = "Saga.ReplyToOriginator(object)")]
         protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor) where TMessage : new()
         {
