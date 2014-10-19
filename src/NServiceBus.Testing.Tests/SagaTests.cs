@@ -195,7 +195,7 @@
     {
         public void Handle(StartsSaga message)
         {
-            ReplyToOriginator<ResponseToOriginator>(m => { });
+            ReplyToOriginator(new ResponseToOriginator());
             Bus.Publish<Event>();
             Bus.Send<Command>(null);
             RequestTimeout(TimeSpan.FromDays(7), message);
