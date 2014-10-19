@@ -889,7 +889,7 @@ namespace NServiceBus.Unicast
         IMessageMapper messageMapper;
         SatelliteLauncher satelliteLauncher;
 
-        Dictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
+        ConcurrentDictionary<string, string> staticOutgoingHeaders = new ConcurrentDictionary<string, string>();
 
 
         //we need to not inject since at least Autofac doesn't seem to inject internal properties
