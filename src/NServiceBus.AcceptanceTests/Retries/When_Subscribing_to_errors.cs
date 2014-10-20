@@ -5,6 +5,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
+    using NServiceBus.Faults;
     using NUnit.Framework;
 
     public class When_Subscribing_to_errors : NServiceBusAcceptanceTest
@@ -30,6 +31,27 @@
             Assert.AreEqual(3, context.NumberOfSLRRetriesPerformed);
         }
 
+        [Test]
+        public void Should_contain_exception_details()
+        {
+            var context = new Context
+            {
+                Id = Guid.NewGuid()
+            };
+            Scenario.Define(context)
+                .WithEndpoint<SLREndpoint>(b => b.Given((bus, c) => bus.SendLocal(new MessageToBeRetried
+                {
+                    Id = c.Id
+                })))
+                .AllowExceptions(e => e.Message.Contains("Simulated exception"))
+                .Done(c => c.MessageSentToError)
+                .Run();
+
+            var expectedException = new MySpecialException();
+            Assert.AreEqual(expectedException.Message, context.ErrorMessageDetails.Message);
+            Assert.AreEqual(expectedException.GetType().FullName, context.ErrorMessageDetails.Type);
+        }
+
         public class Context : ScenarioContext
         {
             public Guid Id { get; set; }
@@ -37,6 +59,7 @@
             public int TotalNumberOfFLRTimesInvokedInHandler { get; set; }
             public int NumberOfSLRRetriesPerformed { get; set; }
             public bool MessageSentToError { get; set; }
+            public FailedMessage.FailedMessageException ErrorMessageDetails { get; set; }
         }
 
         public class SLREndpoint : EndpointConfigurationBuilder
@@ -66,7 +89,7 @@
 
                     Context.TotalNumberOfFLRTimesInvokedInHandler++;
 
-                    throw new Exception("Simulated exception");
+                    throw new MySpecialException();
                 }
             }
         }
@@ -85,7 +108,11 @@
 
             public void Start()
             {
-                unsubscribeStreams.Add(Notifications.Errors.MessageSentToErrorQueue.Subscribe(message => Context.MessageSentToError = true));
+                unsubscribeStreams.Add(Notifications.Errors.MessageSentToErrorQueue.Subscribe(message =>
+                {
+                    Context.MessageSentToError = true;
+                    Context.ErrorMessageDetails = message.Exception;
+                }));
                 unsubscribeStreams.Add(Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt.Subscribe(message => Context.TotalNumberOfFLRTimesInvoked++));
                 unsubscribeStreams.Add(Notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(message => Context.NumberOfSLRRetriesPerformed++));
             }
@@ -99,6 +126,14 @@
             }
 
             List<IDisposable> unsubscribeStreams = new List<IDisposable>();
+        }
+
+        public class MySpecialException : Exception
+        {
+            public MySpecialException()
+                : base("Simulated exception")
+            {
+            }
         }
     }
 }
