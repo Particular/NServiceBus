@@ -37,7 +37,7 @@ namespace NServiceBus.Faults
             // Injected
         }
 
-        internal void InvokeMessageHasBeenSentToErrorQueue(TransportMessage message, Exception exception)
+        internal void InvokeMessageHasBeenSentToErrorQueue(TransportMessage message, FailedMessage.FailedMessageException exception)
         {
             erroneousMessageList.Publish(new FailedMessage(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception));
         }

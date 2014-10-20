@@ -2,6 +2,7 @@ namespace NServiceBus.SecondLevelRetries
 {
     using System;
     using System.Globalization;
+    using NServiceBus.Faults;
     using NServiceBus.Faults.Forwarder;
     using NServiceBus.Logging;
     using NServiceBus.Satellites;
@@ -63,7 +64,8 @@ namespace NServiceBus.SecondLevelRetries
             message.Headers.Remove(Headers.Retries);
 
             MessageSender.Send(message, new SendOptions(FaultManager.ErrorQueue));
-            BusNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, new Exception());
+            BusNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, 
+                new FailedMessage.FailedMessageException(message.Headers["NServiceBus.ExceptionInfo.ExceptionType"], message.Headers["NServiceBus.ExceptionInfo.Message"], message.Headers["NServiceBus.ExceptionInfo.Source"], message.Headers["NServiceBus.ExceptionInfo.StackTrace"]));
         }
 
         void Defer(TimeSpan defer, TransportMessage message)

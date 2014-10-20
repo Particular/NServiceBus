@@ -66,11 +66,12 @@ namespace NServiceBus.Faults.Forwarder
 
             var destinationQ = RetriesErrorQueue ?? ErrorQueue;
             var sender = LocateMessageSender();
-
+            var failedMessageException = new FailedMessage.FailedMessageException(e.GetType().FullName, e.GetMessage(), e.Source, e.ToString());
+            
             if (MessageWasSentFromSLR(message))
             {
                 sender.Send(message, new SendOptions(ErrorQueue));
-                busNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, e);
+                busNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, failedMessageException);
                 return;
             }
 
@@ -84,7 +85,7 @@ namespace NServiceBus.Faults.Forwarder
             if (RetriesErrorQueue == null)
             {
                 Logger.ErrorFormat("{0} will be moved to the configured error queue.", flrPart);
-                busNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, e);
+                busNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, failedMessageException);
             }
             else
             {
