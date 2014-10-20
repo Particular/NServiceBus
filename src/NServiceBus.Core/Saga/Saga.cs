@@ -76,7 +76,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="at"><see cref="DateTime"/> to send timeout <paramref name="timeoutMessage"/>.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="at"/> is reached.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage) where TTimeoutMessageType : new()
+        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage) 
         {
             if (at.Kind == DateTimeKind.Unspecified)
             {
@@ -89,7 +89,7 @@ namespace NServiceBus.Saga
             Bus.Defer(at, timeoutMessage);
         }
 
-        void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage) where TTimeoutMessageType : new()
+        void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage) 
         {
             var canHandleTimeoutMessage = this is IHandleTimeouts<TTimeoutMessageType>;
             if (!canHandleTimeoutMessage)
@@ -130,7 +130,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="within"/> expires.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage) where TTimeoutMessageType : new()
+        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage) 
         {
             VerifySagaCanHandleTimeout(timeoutMessage);
             SetTimeoutHeaders(timeoutMessage);
