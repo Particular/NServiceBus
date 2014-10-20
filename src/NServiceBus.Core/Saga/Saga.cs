@@ -171,16 +171,9 @@ namespace NServiceBus.Saga
             Replacement = "Saga.ReplyToOriginator(object)")]
         protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor) where TMessage : new()
         {
-            if (messageConstructor != null)
-            {
-                var instance = new TMessage();
-                messageConstructor(instance);
-                ReplyToOriginator(instance);
-            }
-            else
-            {
-                ReplyToOriginator(null);
-            }
+            var instance = new TMessage();
+            messageConstructor(instance);
+            ReplyToOriginator(instance);
         }
 
         /// <summary>
