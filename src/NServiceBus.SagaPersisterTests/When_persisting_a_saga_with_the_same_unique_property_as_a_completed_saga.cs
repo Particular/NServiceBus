@@ -5,15 +5,11 @@ using NUnit.Framework;
 namespace NServiceBus.SagaPersisterTests
 {
     [TestFixture]
-    public class When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga
+    public class When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga : SagaPersisterTest
     {
         [Test]
         public void It_should_persist_successfully()
         {
-            var persisterAndSession = TestSagaPersister.ConstructPersister();
-            var persister = persisterAndSession.Item1;
-            var session = persisterAndSession.Item2;
-
             session.Begin();
             var uniqueString = Guid.NewGuid().ToString();
             var saga1 = new SagaData

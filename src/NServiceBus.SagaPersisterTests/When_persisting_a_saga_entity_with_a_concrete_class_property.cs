@@ -5,16 +5,12 @@ using NUnit.Framework;
 namespace NServiceBus.SagaPersisterTests
 {
     [TestFixture]
-    public class When_persisting_a_saga_entity_with_a_concrete_class_property
+    public class When_persisting_a_saga_entity_with_a_concrete_class_property : SagaPersisterTest
     {
 
         [Test]
         public void Public_setters_and_getters_of_concrete_classes_should_be_persisted()
         {
-            var persisterAndSession = TestSagaPersister.ConstructPersister();
-            var persister = persisterAndSession.Item1;
-            var session = persisterAndSession.Item2;
-
             var entity = new SagaData
             {
                 Id = Guid.NewGuid(),

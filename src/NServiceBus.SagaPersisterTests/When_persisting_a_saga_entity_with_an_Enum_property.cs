@@ -5,15 +5,11 @@ using NUnit.Framework;
 namespace NServiceBus.SagaPersisterTests
 {
     [TestFixture]
-    public class When_persisting_a_saga_entity_with_an_Enum_property 
+    public class When_persisting_a_saga_entity_with_an_Enum_property : SagaPersisterTest
     {
         [Test]
         public void Enums_should_be_persisted()
         {
-            var persisterAndSession = TestSagaPersister.ConstructPersister();
-            var persister = persisterAndSession.Item1;
-            var session = persisterAndSession.Item2;
-
             var entity = new SagaData
             {
                 Id = Guid.NewGuid(),

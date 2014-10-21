@@ -5,16 +5,12 @@ using NUnit.Framework;
 namespace NServiceBus.SagaPersisterTests
 {
     [TestFixture]
-    public class When_completing_a_saga_with_the_raven_persister
+    public class When_completing_a_saga_with_the_raven_persister : SagaPersisterTest
     {
 
         [Test]
         public void Should_delete_the_saga()
         {
-            var persisterAndSession = TestSagaPersister.ConstructPersister();
-            var persister = persisterAndSession.Item1;
-            var session = persisterAndSession.Item2;
-
             var sagaId = Guid.NewGuid();
 
             session.Begin();

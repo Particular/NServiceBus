@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace NServiceBus.SagaPersisterTests
 {
     [TestFixture]
-    public class When_persisting_a_saga_entity_with_a_DateTime_property
+    public class When_persisting_a_saga_entity_with_a_DateTime_property : SagaPersisterTest
     {
 
         [Test]
@@ -16,9 +16,6 @@ namespace NServiceBus.SagaPersisterTests
                 Id = Guid.NewGuid(),
                 DateTimeProperty = DateTime.Parse("12/02/2010 12:00:00.01")
             };
-            var persisterAndSession = TestSagaPersister.ConstructPersister();
-            var persister = persisterAndSession.Item1;
-            var session = persisterAndSession.Item2;
 
             session.Begin();
             persister.Save(entity);
