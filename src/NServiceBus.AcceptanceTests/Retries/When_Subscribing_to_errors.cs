@@ -10,7 +10,7 @@
     public class When_Subscribing_to_errors : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_notifications()
+        public void Should_contain_exception_details()
         {
             var context = new Context
             {
@@ -25,9 +25,25 @@
                 .Done(c => c.MessageSentToError)
                 .Run();
 
+            Assert.IsInstanceOf<MySpecialException>(context.MessageSentToErrorException);
+        }
+
+        [Test]
+        public void Should_receive_notifications()
+        {
+            var context = new Context
+            {
+                Id = Guid.NewGuid()
+            };
+            Scenario.Define(context)
+                .WithEndpoint<SLREndpoint>()
+                .AllowExceptions(e => e.Message.Contains("Simulated exception"))
+                .Done(c => c.MessageSentToError)
+                .Run();
+
             Assert.AreEqual(3*3, context.TotalNumberOfFLRTimesInvokedInHandler);
             Assert.AreEqual(3*3, context.TotalNumberOfFLRTimesInvoked);
-            Assert.AreEqual(3, context.NumberOfSLRRetriesPerformed);
+            Assert.AreEqual(2, context.NumberOfSLRRetriesPerformed);
         }
 
         public class Context : ScenarioContext
@@ -37,6 +53,7 @@
             public int TotalNumberOfFLRTimesInvokedInHandler { get; set; }
             public int NumberOfSLRRetriesPerformed { get; set; }
             public bool MessageSentToError { get; set; }
+            public Exception MessageSentToErrorException { get; set; }
         }
 
         public class SLREndpoint : EndpointConfigurationBuilder
@@ -66,8 +83,16 @@
 
                     Context.TotalNumberOfFLRTimesInvokedInHandler++;
 
-                    throw new Exception("Simulated exception");
+                    throw new MySpecialException();
                 }
+            }
+        }
+
+        public class MySpecialException : Exception
+        {
+            public MySpecialException()
+                : base("Simulated exception")
+            {
             }
         }
 
@@ -83,11 +108,22 @@
 
             public BusNotifications Notifications { get; set; }
 
+            public IBus Bus { get; set; }
+
             public void Start()
             {
-                unsubscribeStreams.Add(Notifications.Errors.MessageSentToErrorQueue.Subscribe(message => Context.MessageSentToError = true));
+                unsubscribeStreams.Add(Notifications.Errors.MessageSentToErrorQueue.Subscribe(message =>
+                {
+                    Context.MessageSentToErrorException = message.Exception;
+                    Context.MessageSentToError = true;
+                }));
                 unsubscribeStreams.Add(Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt.Subscribe(message => Context.TotalNumberOfFLRTimesInvoked++));
                 unsubscribeStreams.Add(Notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(message => Context.NumberOfSLRRetriesPerformed++));
+
+                Bus.SendLocal(new MessageToBeRetried
+                {
+                    Id = Context.Id
+                });
             }
 
             public void Stop()
