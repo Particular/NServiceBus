@@ -13,22 +13,14 @@ namespace NServiceBus.SecondLevelRetries
     {
         public SecondLevelRetriesProcessor()
         {
-            TimeIncrease = TimeSpan.FromSeconds(10);
-            NumberOfRetries = 3;
             Disabled = true;
-            RetryPolicy = Validate;
         }
 
+        public SecondLevelRetriesConfiguration SecondLevelRetriesConfiguration { get; set; }
         public ISendMessages MessageSender { get; set; }
         public IDeferMessages MessageDeferrer { get; set; }
         public FaultManager FaultManager { get; set; }
-        public BusNotifications BusNotifications  { get; set; }
-
-        public Func<TransportMessage, TimeSpan> RetryPolicy { get; set; }
-        public int NumberOfRetries { get; set; }
-        public TimeSpan TimeIncrease { get; set; }
         public Address InputAddress { get; set; }
-
         public bool Disabled { get; set; }
 
         public void Start()
@@ -41,13 +33,18 @@ namespace NServiceBus.SecondLevelRetries
 
         public bool Handle(TransportMessage message)
         {
-            var defer = RetryPolicy.Invoke(message);
+            // ----------------------------------------------------------------------------------
+            // This check has now been moved to FaultManager.
+            // However the check remains here for backwards compatibility 
+            // with messages that could be in the retries queue.
+            var defer = SecondLevelRetriesConfiguration.RetryPolicy.Invoke(message);
 
             if (defer < TimeSpan.Zero)
             {
                 SendToErrorQueue(message);
                 return true;
             }
+            // ----------------------------------------------------------------------------------
 
             Defer(defer, message);
 
@@ -63,7 +60,6 @@ namespace NServiceBus.SecondLevelRetries
             message.Headers.Remove(Headers.Retries);
 
             MessageSender.Send(message, new SendOptions(FaultManager.ErrorQueue));
-            BusNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, new Exception());
         }
 
         void Defer(TimeSpan defer, TransportMessage message)
@@ -88,52 +84,7 @@ namespace NServiceBus.SecondLevelRetries
                 DeliverAt = retryMessageAt
             };
 
-
             MessageDeferrer.Defer(message, sendOptions);
-        }
-
-        internal TimeSpan Validate(TransportMessage message)
-        {
-            if (HasReachedMaxTime(message))
-            {
-                return TimeSpan.MinValue;
-            }
-
-            var numberOfRetries = TransportMessageHeaderHelper.GetNumberOfRetries(message);
-
-            var timeToIncreaseInTicks = TimeIncrease.Ticks*(numberOfRetries + 1);
-            var timeIncrease = TimeSpan.FromTicks(timeToIncreaseInTicks);
-
-            return numberOfRetries >= NumberOfRetries ? TimeSpan.MinValue : timeIncrease;
-        }
-
-        static bool HasReachedMaxTime(TransportMessage message)
-        {
-            var timestampHeader = TransportMessageHeaderHelper.GetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp);
-
-            if (String.IsNullOrEmpty(timestampHeader))
-            {
-                return false;
-            }
-
-            try
-            {
-                var handledAt = DateTimeExtensions.ToUtcDateTime(timestampHeader);
-
-                if (DateTime.UtcNow > handledAt.AddDays(1))
-                {
-                    return true;
-                }
-            }
-                // ReSharper disable once EmptyGeneralCatchClause
-                // this code won't usually throw but in case a user has decided to hack a message/headers and for some bizarre reason 
-                // they changed the date and that parse fails, we want to make sure that doesn't prevent the message from being 
-                // forwarded to the error queue.
-            catch (Exception)
-            {
-            }
-
-            return false;
         }
 
         static ILog logger = LogManager.GetLogger<SecondLevelRetriesProcessor>();
