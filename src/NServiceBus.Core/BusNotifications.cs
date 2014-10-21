@@ -18,6 +18,16 @@ namespace NServiceBus
 
         ErrorsNotifications errorNotifications = new ErrorsNotifications();
 
+        /// <summary>
+        ///     Errors push-based notifications
+        /// </summary>
+        public PipelineNotifications Pipeline
+        {
+            get { return pipeNotifications; }
+        }
+
+        PipelineNotifications pipeNotifications = new PipelineNotifications();
+
         void IDisposable.Dispose()
         {
             // Injected

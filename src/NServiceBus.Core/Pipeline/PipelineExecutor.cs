@@ -19,9 +19,11 @@
         /// </summary>
         /// <param name="settings">The settings to read data from.</param>
         /// <param name="builder">The builder.</param>
-        public PipelineExecutor(ReadOnlySettings settings, IBuilder builder)
+        /// <param name="busNotifications">Bus notifications.</param>
+        public PipelineExecutor(ReadOnlySettings settings, IBuilder builder, BusNotifications busNotifications)
         {
             rootBuilder = builder;
+            this.busNotifications = busNotifications;
 
             var pipelineBuilder = new PipelineBuilder(settings.Get<PipelineModifications>());
             Incoming = pipelineBuilder.Incoming.AsReadOnly();
@@ -40,38 +42,6 @@
         ///     The list of outgoing steps registered.
         /// </summary>
         public IList<RegisterStep> Outgoing { get; private set; }
-
-        /// <summary>
-        ///     Running instances.
-        /// </summary>
-        public IObservable<StepStarted> StepStarted
-        {
-            get { return stepStarted; }
-        }
-
-        /// <summary>
-        ///     Step ended
-        /// </summary>
-        public IObservable<StepEnded> StepEnded
-        {
-            get { return stepEnded; }
-        }
-
-        /// <summary>
-        ///     Running instances.
-        /// </summary>
-        public IObservable<PipeStarted> PipeStarted
-        {
-            get { return pipeStarted; }
-        }
-
-        /// <summary>
-        ///     Step ended
-        /// </summary>
-        public IObservable<PipeEnded> PipeEnded
-        {
-            get { return pipeEnded; }
-        }
 
         /// <summary>
         ///     The current context being executed.
@@ -110,7 +80,7 @@
         /// <param name="context">The context instance.</param>
         public void InvokePipeline<TContext>(IEnumerable<Type> behaviors, TContext context) where TContext : BehaviorContext
         {
-            var pipeline = new BehaviorChain<TContext>(behaviors, context);
+            var pipeline = new BehaviorChain<TContext>(behaviors, context, this, busNotifications);
 
             Execute(pipeline, context);
         }
@@ -146,26 +116,6 @@
             return context;
         }
 
-        internal void InvokeStepStarted(StepStarted step)
-        {
-            stepStarted.Add(step);
-        }
-
-        internal void InvokeStepEnded(StepEnded step)
-        {
-            stepEnded.Add(step);
-        }
-
-        internal void InvokePipeStarted(PipeStarted pipe)
-        {
-            pipeStarted.Add(pipe);
-        }
-
-        internal void InvokePipeEnded(PipeEnded pipe)
-        {
-            pipeEnded.Add(pipe);
-        }
-
         void DisposeManaged()
         {
             contextStacker.Dispose();
@@ -187,10 +137,7 @@
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
         IEnumerable<Type> incomingBehaviors;
         IEnumerable<Type> outgoingBehaviors;
-        ObservableList<PipeEnded> pipeEnded = new ObservableList<PipeEnded>();
-        ObservableList<PipeStarted> pipeStarted = new ObservableList<PipeStarted>();
         IBuilder rootBuilder;
-        ObservableList<StepEnded> stepEnded = new ObservableList<StepEnded>();
-        ObservableList<StepStarted> stepStarted = new ObservableList<StepStarted>();
+        readonly BusNotifications busNotifications;
     }
 }

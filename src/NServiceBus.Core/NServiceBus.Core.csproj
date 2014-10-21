@@ -210,11 +210,11 @@
     <Compile Include="Sagas\SagaMetaModel.cs" />
     <Compile Include="Sagas\SagaToMessageMap.cs" />
     <Compile Include="Sagas\TypeBasedSagaMetaModel.cs" />
+    <Compile Include="PipelineNotifications.cs" />
     <Compile Include="Sagas\SagaConfigurationCache.cs" />
     <Compile Include="Pipeline\PipeEnded.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
     <Compile Include="Pipeline\PipeStarted.cs" />
-    <Compile Include="Pipeline\ObservableList.cs" />
     <Compile Include="Pipeline\StepEnded.cs" />
     <Compile Include="Pipeline\StepStarted.cs" />
     <Compile Include="Scheduling\Schedule_Obsolete.cs" />
@@ -611,9 +611,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="MessageHeaders\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="Resources\NServiceBus_Logo-  white.png" />
     <None Include="Resources\NServiceBus.png" />

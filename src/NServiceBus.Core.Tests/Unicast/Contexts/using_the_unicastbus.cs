@@ -101,7 +101,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     Configure = configure
                 };
 
-            pipelineFactory = new PipelineExecutor(settings, FuncBuilder);
+            pipelineFactory = new PipelineExecutor(settings, FuncBuilder, new BusNotifications());
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
