@@ -98,6 +98,9 @@
     <Compile Include="CriticalError\CriticalErrorHandling.cs" />
     <Compile Include="CriticalError\CriticalError.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus_Obsolete.cs" />
+    <Compile Include="DataBus\DataBusDefinition.cs" />
+    <Compile Include="DataBus\FileShareDataBus.cs" />
+    <Compile Include="DataBus\UseDataBusExtensions.cs" />
     <Compile Include="Encryption\DecryptBehavior.cs" />
     <Compile Include="Encryption\EncryptBehavior.cs" />
     <Compile Include="Encryption\EncryptedValue.cs" />
@@ -421,7 +424,7 @@
     <Compile Include="Config\UnicastBusConfig.cs" />
     <Compile Include="DataBus\DataBus.cs" />
     <Compile Include="DataBus\DefaultDatabusSerializer.cs" />
-    <Compile Include="DataBus\FileShareDataBus.cs" />
+    <Compile Include="DataBus\FileShareDataBusInternal.cs" />
     <Compile Include="DataBus\IDataBus.cs" />
     <Compile Include="DataBus\IDatabusSerializer.cs" />
     <Compile Include="DateTimeExtensions.cs" />

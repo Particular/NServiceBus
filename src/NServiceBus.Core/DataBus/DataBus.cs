@@ -8,11 +8,11 @@ namespace NServiceBus.Features
     /// Used to configure the databus. 
     /// </summary>
     public class DataBus : Feature
-	{
+    {
         internal DataBus()
         {
             EnableByDefault();
-            Prerequisite(DataBusPropertiesFound,"No databus properties was found in available messages");
+            Prerequisite(DataBusPropertiesFound, "No databus properties was found in available messages");
             RegisterStartupTask<StorageInitializer>();
         }
 
@@ -21,14 +21,17 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (!context.Container.HasComponent<IDataBus>())
+            Type dataBusDefinitionType;
+            var customDataBusComponentRegistered = context.Container.HasComponent<IDataBus>();
+
+            if (!context.Settings.TryGet("dataBusDefinitionType", out dataBusDefinitionType) && !customDataBusComponentRegistered)
             {
                 string basePath;
                 if (!context.Settings.TryGet("FileShareDataBusPath", out basePath))
                 {
                     throw new InvalidOperationException("Messages containing databus properties found, please configure a databus using the ConfigureFileShareDataBus.FileShareDataBus extension method for ConfigurationBuilder.");
                 }
-                var dataBus = new FileShareDataBus(basePath);
+                var dataBus = new FileShareDataBusInternal(basePath);
 
                 context.Container.RegisterSingleton<IDataBus>(dataBus);
             }
@@ -39,7 +42,7 @@ namespace NServiceBus.Features
 
             context.Pipeline.Register<DataBusReceiveBehavior.Registration>();
             context.Pipeline.Register<DataBusSendBehavior.Registration>();
-		}
+        }
 
         static bool DataBusPropertiesFound(FeatureConfigurationContext context)
         {
@@ -78,14 +81,14 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
             return dataBusPropertyFound;
         }
 
-        class StorageInitializer:FeatureStartupTask
+        class StorageInitializer : FeatureStartupTask
         {
             public IDataBus DataBus { get; set; }
 
             protected override void OnStart()
             {
-                DataBus.Start();    
+                DataBus.Start();
             }
         }
-	}
+    }
 }

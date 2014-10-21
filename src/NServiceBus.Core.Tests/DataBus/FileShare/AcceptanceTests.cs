@@ -12,10 +12,10 @@
         [SetUp]
         public void SetUp()
         {
-            dataBus = new FileShareDataBus(basePath) {MaxMessageTimeToLive = TimeSpan.MaxValue};
+            dataBus = new FileShareDataBusInternal(basePath) {MaxMessageTimeToLive = TimeSpan.MaxValue};
         }
 
-        FileShareDataBus dataBus;
+        FileShareDataBusInternal dataBus;
         readonly string basePath = Path.GetTempPath();
 
         string Put(string content, TimeSpan timeToLive)
