@@ -10,7 +10,7 @@
 
             EnableByDefault();
 
-            Prerequisite(context => UseDataBusExtensions.ShouldDataBusFeatureBeEnabled(this, context), "CustomDataBusImplementation not enabled since databus definition not detected.");
+            Prerequisite(context => UseDataBusExtensions.ShouldDataBusFeatureBeEnabled(this, context), "CustomIDataBus not enabled since databus definition not detected.");
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)

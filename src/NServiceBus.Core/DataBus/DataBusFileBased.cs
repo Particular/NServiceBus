@@ -19,6 +19,8 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            // We still doing this check here eventhough we now have an explicit API
+            // to register custom IDataBus implementations for backwards compatibility
             Type dataBusDefinitionType;
             var customDataBusComponentRegistered = context.Container.HasComponent<IDataBus>();
 

@@ -28,6 +28,9 @@ namespace NServiceBus.Features
             }
         }
 
+        /// <summary>
+        ///     Called when the features is activated
+        /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             if (!context.Container.HasComponent<IDataBusSerializer>())
