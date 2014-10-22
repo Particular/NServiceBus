@@ -42,10 +42,7 @@
 
             try
             {
-                notifications.Pipeline.InvokePipeStarted(new PipeStarted
-                {
-                    PipeId = pipeId
-                });
+                notifications.Pipeline.InvokePipeStarted(new PipeStarted(pipeId));
                 duration = Stopwatch.StartNew();
                 InvokeNext(context, pipeId);
             }
@@ -58,11 +55,7 @@
                     elapsed = duration.Elapsed;
                 }
 
-                notifications.Pipeline.InvokePipeEnded(new PipeEnded
-                {
-                    PipeId = pipeId,
-                    Duration = elapsed
-                });
+                notifications.Pipeline.InvokePipeEnded(new PipeEnded(pipeId, elapsed));
             }
         }
 
@@ -89,12 +82,7 @@
             {
                 var instance = (IBehavior<T>) context.Builder.Build(behaviorType);
 
-                notifications.Pipeline.InvokeStepStarted(new StepStarted
-                {
-                    Behavior = behaviorType,
-                    StepId = lookupSteps[behaviorType].StepId,
-                    PipeId = pipeId
-                });
+                notifications.Pipeline.InvokeStepStarted(new StepStarted(pipeId, lookupSteps[behaviorType].StepId, behaviorType));
 
                 duration = Stopwatch.StartNew();
 
@@ -109,12 +97,7 @@
                     elapsed = duration.Elapsed;
                 }
 
-                notifications.Pipeline.InvokeStepEnded(new StepEnded
-                {
-                    StepId = lookupSteps[behaviorType].StepId,
-                    PipeId = pipeId,
-                    Duration = elapsed
-                });
+                notifications.Pipeline.InvokeStepEnded(new StepEnded(pipeId, lookupSteps[behaviorType].StepId, elapsed));
             }
         }
 
