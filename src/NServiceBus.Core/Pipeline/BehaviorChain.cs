@@ -8,8 +8,6 @@
 
     class BehaviorChain<T> where T : BehaviorContext
     {
-        // ReSharper disable StaticFieldInGenericType
-
         public BehaviorChain(IEnumerable<Type> behaviorList, T context, PipelineExecutor pipelineExecutor, BusNotifications notifications)
         {
             context.SetChain(this);
@@ -23,7 +21,7 @@
             PopulateLookupTable(pipelineExecutor);
         }
 
-        static void PopulateLookupTable(PipelineExecutor executor)
+        void PopulateLookupTable(PipelineExecutor executor)
         {
             if (lookupSteps == null)
             {
@@ -120,8 +118,8 @@
             }
         }
 
-        static Dictionary<Type, RegisterStep> lookupSteps;
-        static object lockObj = new object();
+        Dictionary<Type, RegisterStep> lookupSteps;
+        object lockObj = new object();
         readonly BusNotifications notifications;
         T context;
         Queue<Type> itemDescriptors = new Queue<Type>();
