@@ -30,16 +30,10 @@ namespace NServiceBus.Features
                 return;
             }
 
-            SetupSLABreachCounter(context, endpointSla);
-
-            context.Pipeline.Register<SLABehavior.Registration>();
-        }
-
-        static void SetupSLABreachCounter(FeatureConfigurationContext context, TimeSpan endpointSla)
-        {
-            var slaBreachCounter = PerformanceCounterHelper.InstantiateCounter("SLA violation countdown", context.Settings.EndpointName());
+            var slaBreachCounter = PerformanceCounterHelper.InstantiatePerformanceCounter("SLA violation countdown", context.Settings.EndpointName());
             var timeToSLABreachCalculator = new EstimatedTimeToSLABreachCalculator(endpointSla, slaBreachCounter);
             context.Container.RegisterSingleton(timeToSLABreachCalculator);
+            context.Pipeline.Register<SLABehavior.Registration>();
         }
 
         static bool TryGetSLA(FeatureConfigurationContext context, out TimeSpan endpointSla)
@@ -80,6 +74,5 @@ namespace NServiceBus.Features
             sla = endpointSLAAttribute.SLA;
             return true;
         }
-
     }
 }

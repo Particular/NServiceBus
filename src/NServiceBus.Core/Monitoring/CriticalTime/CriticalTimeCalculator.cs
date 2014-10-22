@@ -15,7 +15,6 @@ namespace NServiceBus
 // ReSharper disable once NotAccessedField.Local
         Timer timer;
 
-
         public CriticalTimeCalculator(PerformanceCounter cnt)
         {
             counter = cnt;
