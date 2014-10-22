@@ -3,13 +3,13 @@
     using System;
 
     /// <summary>
-    /// Defines a data bus that can be used by NServiceBus
+    /// Defines a databus that can be used by NServiceBus
     /// </summary>
     public abstract class DataBusDefinition
     {
         /// <summary>
-        /// Type of feature that configures a specific data bus type
+        /// The feature to enable when this databus is selected
         /// </summary>
-        public Type DataBusFeatureType { get; set; }
+        protected internal abstract Type ProvidedByFeature();
     }
 }

@@ -8,16 +8,16 @@ namespace NServiceBus
     /// <summary>
     /// File share implementation of <see cref="IDataBus"/>.
     /// </summary>
-    class FileShareDataBusInternal : IDataBus
+    class FileShareDataBusImplementation : IDataBus
 	{
 		string basePath;
-        static ILog logger = LogManager.GetLogger<FileShareDataBusInternal>();
+        static ILog logger = LogManager.GetLogger<FileShareDataBusImplementation>();
 
 		/// <summary>
-        /// Create a <see cref="FileShareDataBusInternal"/> with the specified <paramref name="basePath"/>.
+        /// Create a <see cref="FileShareDataBusImplementation"/> with the specified <paramref name="basePath"/>.
 		/// </summary>
 		/// <param name="basePath">The path to save files on.</param>
-		public FileShareDataBusInternal(string basePath)
+		public FileShareDataBusImplementation(string basePath)
 		{
 			this.basePath = basePath;
 		}

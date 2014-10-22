@@ -1,31 +1,59 @@
-﻿namespace NServiceBus.DataBus
+﻿namespace NServiceBus
 {
     using System;
+    using NServiceBus.DataBus;
+    using NServiceBus.Features;
 
     /// <summary>
     /// Extension methods to configure data bus
     /// </summary>
     public static class UseDataBusExtensions
     {
-        private const string DataBusDefinitionType = "dataBusDefinitionType";
-
         /// <summary>
-        /// Configures NServiceBus to use the given data bus.
+        /// Configures NServiceBus to use the given data bus definition.
         /// </summary>
-        public static void UseDataBus<T>(this BusConfiguration busConfiguration) where T : DataBusDefinition, new()
+        public static DataBusExtentions<T> UseDataBus<T>(this BusConfiguration config) where T : DataBusDefinition, new()
         {
-            UseDataBus(busConfiguration, typeof(T));
+            var type = typeof(DataBusExtentions<>).MakeGenericType(typeof(T));
+            var extension = (DataBusExtentions<T>)Activator.CreateInstance(type, config.Settings);
+            var definition = (DataBusDefinition)Activator.CreateInstance(typeof(T));
+
+            config.Settings.Set("SelectedDataBus", definition);
+
+            return extension;
         }
 
         /// <summary>
-        /// Configures NServiceBus to use the given data bus.
+        /// Configures NServiceBus to use a custom <see cref="IDataBus"/> implementation.
         /// </summary>
-        public static void UseDataBus(this BusConfiguration busConfiguration, Type dataBusDefinitionType)
+        public static DataBusExtentions UseDataBus(this BusConfiguration config, Type dataBusType)
         {
-            busConfiguration.Settings.Set(DataBusDefinitionType, dataBusDefinitionType);
+            if (dataBusType == null)
+            {
+                throw new ArgumentNullException("dataBusType");
+            }
 
-            var definition = (DataBusDefinition)Activator.CreateInstance(dataBusDefinitionType);
-            busConfiguration.EnableFeature(definition.DataBusFeatureType);
+            if (!typeof(IDataBus).IsAssignableFrom(dataBusType))
+            {
+                throw new ArgumentException("The type needs to implement IDataBus.", "dataBusType");
+            }
+
+            config.Settings.Set("SelectedDataBus", new CustomDataBus());
+            config.Settings.Set("CustomDataBusType", dataBusType);
+
+            return new DataBusExtentions(config.Settings);
+        }
+
+        internal static bool ShouldDataBusFeatureBeEnabled(Feature feature, FeatureConfigurationContext context)
+        {
+            DataBusDefinition dataBusDefinition;
+
+            if (!context.Settings.TryGet("SelectedDataBus", out dataBusDefinition))
+            {
+                dataBusDefinition = new FileShareDataBus();
+            }
+
+            return dataBusDefinition.ProvidedByFeature() == feature.GetType();
         }
     }
 }

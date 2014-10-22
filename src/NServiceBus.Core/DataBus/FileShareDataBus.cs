@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using NServiceBus.DataBus;
 
     /// <summary>
@@ -7,12 +8,9 @@ namespace NServiceBus
     /// </summary>
     public class FileShareDataBus : DataBusDefinition
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="FileShareDataBusInternal"/>
-        /// </summary>
-        public FileShareDataBus()
+        protected internal override Type ProvidedByFeature()
         {
-            DataBusFeatureType = typeof(Features.DataBus);
+            return typeof(Features.DataBus);
         }
     }
 }
