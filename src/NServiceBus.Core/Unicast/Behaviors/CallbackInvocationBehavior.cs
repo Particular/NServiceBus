@@ -80,7 +80,7 @@
                 return false;
             }
 
-            return !version.StartsWith("3");
+            return !version.StartsWith("3.");
         }
     }
 }

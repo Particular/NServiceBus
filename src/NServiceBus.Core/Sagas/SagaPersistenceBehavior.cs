@@ -174,7 +174,7 @@
                 return false;
             }
 
-            if (!version.StartsWith("3"))
+            if (!version.StartsWith("3."))
             {
                 return false;
             }
