@@ -22,7 +22,7 @@ namespace NServiceBus.Core.Tests.DataBus
             
             var config = builder.BuildConfiguration();
 
-            Assert.True(new DataBus().CheckPrerequisites(new FeatureConfigurationContext(config)).IsSatisfied);
+            Assert.True(new DataBusFileBased().CheckPrerequisites(new FeatureConfigurationContext(config)).IsSatisfied);
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace NServiceBus.Core.Tests.DataBus
             builder.EndpointName("xyz");
             builder.TypesToScan(new[] { typeof(MessageWithoutDataBusProperty) });
 
-            var feature = new DataBus();
+            var feature = new DataBusFileBased();
 
             Assert.False(feature.CheckPrerequisites(new FeatureConfigurationContext(builder.BuildConfiguration())).IsSatisfied);
         }
@@ -54,7 +54,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 });
             builder.Conventions().DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"));
             
-            var feature = new DataBus();
+            var feature = new DataBusFileBased();
 
             Assert.Throws<InvalidOperationException>(() => feature.CheckPrerequisites(new FeatureConfigurationContext(builder.BuildConfiguration())));
         }
@@ -81,7 +81,7 @@ namespace NServiceBus.Core.Tests.DataBus
             });
 
             var config = builder.BuildConfiguration();
-            var feature = new DataBus();
+            var feature = new DataBusFileBased();
 
             Assert.DoesNotThrow(() => feature.CheckPrerequisites(new FeatureConfigurationContext(config)));
         }

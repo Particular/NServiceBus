@@ -100,6 +100,7 @@
     <Compile Include="DataBus\ConfigureFileShareDataBus_Obsolete.cs" />
     <Compile Include="DataBus\CustomDataBus.cs" />
     <Compile Include="DataBus\CustomIDataBus.cs" />
+    <Compile Include="DataBus\DataBus.cs" />
     <Compile Include="DataBus\DataBusDefinition.cs" />
     <Compile Include="DataBus\DataBusExtentions.cs" />
     <Compile Include="DataBus\FileShareDataBus.cs" />
@@ -425,7 +426,7 @@
     <Compile Include="SecondLevelRetries\SecondLevelRetries.cs" />
     <Compile Include="Config\TransportConfig.cs" />
     <Compile Include="Config\UnicastBusConfig.cs" />
-    <Compile Include="DataBus\DataBus.cs" />
+    <Compile Include="DataBus\DataBusFileBased.cs" />
     <Compile Include="DataBus\DefaultDatabusSerializer.cs" />
     <Compile Include="DataBus\FileShareDataBusImplementation.cs" />
     <Compile Include="DataBus\IDataBus.cs" />

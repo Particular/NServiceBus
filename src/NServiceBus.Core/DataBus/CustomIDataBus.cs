@@ -6,7 +6,7 @@
     {
         public CustomIDataBus()
         {
-            DependsOn<DataBusCore>();
+            DependsOn<DataBus>();
 
             EnableByDefault();
 

@@ -10,7 +10,7 @@ namespace NServiceBus
     {
         protected internal override Type ProvidedByFeature()
         {
-            return typeof(Features.DataBus);
+            return typeof(Features.DataBusFileBased);
         }
     }
 }
