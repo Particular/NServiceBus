@@ -7,10 +7,6 @@
         public CustomIDataBus()
         {
             DependsOn<DataBus>();
-
-            EnableByDefault();
-
-            Prerequisite(context => UseDataBusExtensions.ShouldDataBusFeatureBeEnabled(this, context), "CustomIDataBus not enabled since databus definition not detected.");
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)

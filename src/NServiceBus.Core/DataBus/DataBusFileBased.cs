@@ -8,10 +8,6 @@ namespace NServiceBus.Features
         public DataBusFileBased()
         {
             DependsOn<DataBus>();
-
-            EnableByDefault();
-
-            Prerequisite(context => UseDataBusExtensions.ShouldDataBusFeatureBeEnabled(this, context), "CustomDataBusImplementation not enable since databus definition not detected.");
         }
 
         /// <summary>

@@ -3,6 +3,7 @@ namespace NServiceBus.Features
     using System;
     using System.Linq;
     using NServiceBus.DataBus;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Used to configure the databus. 
@@ -15,7 +16,21 @@ namespace NServiceBus.Features
 
             Prerequisite(DataBusPropertiesFound, "No databus properties was found in available messages");
 
+            Defaults(s => s.EnableFeatureByDefault(GetSelectedFeatureForDataBus(s)));
+
             RegisterStartupTask<IDataBusInitializer>();
+        }
+
+        static Type GetSelectedFeatureForDataBus(SettingsHolder settings)
+        {
+            DataBusDefinition dataBusDefinition;
+
+            if (!settings.TryGet("SelectedDataBus", out dataBusDefinition))
+            {
+                dataBusDefinition = new FileShareDataBus();
+            }
+
+            return dataBusDefinition.ProvidedByFeature();
         }
 
         class IDataBusInitializer : FeatureStartupTask

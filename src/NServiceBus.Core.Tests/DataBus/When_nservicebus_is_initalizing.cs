@@ -33,7 +33,7 @@ namespace NServiceBus.Core.Tests.DataBus
             builder.EndpointName("xyz");
             builder.TypesToScan(new[] { typeof(MessageWithoutDataBusProperty) });
 
-            var feature = new DataBusFileBased();
+            var feature = new DataBus();
 
             Assert.False(feature.CheckPrerequisites(new FeatureConfigurationContext(builder.BuildConfiguration())).IsSatisfied);
         }

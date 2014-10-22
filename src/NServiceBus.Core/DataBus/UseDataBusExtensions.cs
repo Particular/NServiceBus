@@ -2,7 +2,6 @@
 {
     using System;
     using NServiceBus.DataBus;
-    using NServiceBus.Features;
 
     /// <summary>
     /// Extension methods to configure data bus
@@ -42,18 +41,6 @@
             config.Settings.Set("CustomDataBusType", dataBusType);
 
             return new DataBusExtentions(config.Settings);
-        }
-
-        internal static bool ShouldDataBusFeatureBeEnabled(Feature feature, FeatureConfigurationContext context)
-        {
-            DataBusDefinition dataBusDefinition;
-
-            if (!context.Settings.TryGet("SelectedDataBus", out dataBusDefinition))
-            {
-                dataBusDefinition = new FileShareDataBus();
-            }
-
-            return dataBusDefinition.ProvidedByFeature() == feature.GetType();
         }
     }
 }
