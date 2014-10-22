@@ -60,7 +60,16 @@
                 {
                     sagaInstanceState.MarkAsNotFound();
 
-                    InvokeSagaNotFoundHandlers(sagaInstanceState.SagaType);
+                    //we don't invoke not found handlers for timeouts since
+                    if (IsTimeoutMessage(context.IncomingLogicalMessage))
+                    {
+                        logger.InfoFormat("No saga found for timeout message {0}, ignoring since the saga has been marked as complete before the timeout fired",context.PhysicalMessage.Id);
+                    }
+                    else
+                    {
+                        InvokeSagaNotFoundHandlers(sagaInstanceState.SagaType);
+                    }
+
                 }
             }
             else
