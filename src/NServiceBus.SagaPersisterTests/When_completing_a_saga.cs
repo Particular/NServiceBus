@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace NServiceBus.SagaPersisterTests
 {
     [TestFixture]
-    public class When_completing_a_saga_with_the_raven_persister : SagaPersisterTest
+    public class When_completing_a_saga : SagaPersisterTest
     {
 
         [Test]

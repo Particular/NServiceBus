@@ -46,7 +46,7 @@
     <Compile Include="PersisterSession.cs" />
     <Compile Include="SagaPersisterTest.cs" />
     <Compile Include="When_persisting_a_saga_with_unique_property_set_to_null.cs" />
-    <Compile Include="When_completing_a_saga_with_the_raven_persister.cs" />
+    <Compile Include="When_completing_a_saga.cs" />
     <Compile Include="When_persisting_a_saga_entity_with_an_Enum_property.cs" />
     <Compile Include="When_persisting_a_saga_entity_with_a_concrete_class_property.cs" />
     <Compile Include="When_persisting_a_saga_entity_with_a_date_time_property.cs" />
