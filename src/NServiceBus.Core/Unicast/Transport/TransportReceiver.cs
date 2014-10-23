@@ -188,7 +188,7 @@ namespace NServiceBus.Unicast.Transport
 
             if (Configure.Instance.WorkerRunsOnThisEndpoint()
                 && (returnAddressForFailures.Queue.ToLower().EndsWith(".worker") || address == Address.Local))
-                //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
+            //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
             {
                 returnAddressForFailures = Configure.Instance.GetMasterNodeAddress();
 
@@ -336,10 +336,18 @@ namespace NServiceBus.Unicast.Transport
 
                 return;
             }
-            
+
 
             if (ShouldExitBecauseOfRetries(message))
             {
+                try
+                {
+                    OnFinishedMessageProcessing(message);
+                }
+                catch (Exception exception)
+                {
+                    Logger.Error("Failed raising 'finished message processing' event.", exception);
+                }
                 return;
             }
 
@@ -458,7 +466,8 @@ namespace NServiceBus.Unicast.Transport
         }
 
 
-        [ThreadStatic] static volatile bool needToAbort;
+        [ThreadStatic]
+        static volatile bool needToAbort;
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(TransportReceiver));
         readonly object changeMaximumMessageThroughputPerSecondLock = new object();
