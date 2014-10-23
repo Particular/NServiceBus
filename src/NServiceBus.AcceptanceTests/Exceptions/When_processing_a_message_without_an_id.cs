@@ -26,12 +26,7 @@
 
         public class Context : ScenarioContext
         {
-            public bool ExceptionReceived { get; set; }
             public bool StartMessageProcessingCalled { get; set; }
-            public string StackTrace { get; set; }
-            public Type ExceptionType { get; set; }
-            public string InnerExceptionStackTrace { get; set; }
-            public Type InnerExceptionType { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -53,7 +48,7 @@
 
             class StartProcessingListener : IWantToRunWhenBusStartsAndStops
             {
-                readonly Context context;
+                Context context;
 
                 public StartProcessingListener(UnicastBus bus, Context context)
                 {
