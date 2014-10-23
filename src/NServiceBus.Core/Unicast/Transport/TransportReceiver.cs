@@ -313,15 +313,6 @@ namespace NServiceBus.Unicast.Transport
         }
         void ProcessMessage(TransportMessage message)
         {
-            if (string.IsNullOrWhiteSpace(message.Id))
-            {
-                Logger.Error("Message without message id detected");
-
-                FailureManager.SerializationFailedForMessage(message,
-                    new SerializationException("Message without message id received."));
-
-                return;
-            }
             try
             {
                 OnStartedMessageProcessing(message);
@@ -335,6 +326,17 @@ namespace NServiceBus.Unicast.Transport
                 }
                 throw;
             }
+
+            if (string.IsNullOrWhiteSpace(message.Id))
+            {
+                Logger.Error("Message without message id detected");
+
+                FailureManager.SerializationFailedForMessage(message,
+                    new SerializationException("Message without message id received."));
+
+                return;
+            }
+            
 
             if (ShouldExitBecauseOfRetries(message))
             {
