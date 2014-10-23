@@ -39,17 +39,17 @@ namespace NServiceBus.Faults
 
         internal void InvokeMessageHasBeenSentToErrorQueue(TransportMessage message, Exception exception)
         {
-            erroneousMessageList.Publish(new FailedMessage(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception));
+            erroneousMessageList.OnNext(new FailedMessage(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception));
         }
 
         internal void InvokeMessageHasFailedAFirstLevelRetryAttempt(int firstLevelRetryAttempt, TransportMessage message, Exception exception)
         {
-            firstLevelRetryList.Publish(new FirstLevelRetry(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception, firstLevelRetryAttempt));
+            firstLevelRetryList.OnNext(new FirstLevelRetry(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception, firstLevelRetryAttempt));
         }
 
         internal void InvokeMessageHasBeenSentToSecondLevelRetries(int secondLevelRetryAttempt, TransportMessage message, Exception exception)
         {
-            secondLevelRetryList.Publish(new SecondLevelRetry(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception, secondLevelRetryAttempt));
+            secondLevelRetryList.OnNext(new SecondLevelRetry(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception, secondLevelRetryAttempt));
         }
 
         static byte[] CopyOfBody(byte[] body)

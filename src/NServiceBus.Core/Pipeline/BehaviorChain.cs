@@ -37,25 +37,40 @@
 
         public void Invoke()
         {
-            Stopwatch duration = null;
-            var pipeId = Guid.NewGuid().ToString();
+            var outerPipe = false;
 
             try
             {
-                notifications.Pipeline.InvokePipeStarted(new PipeStarted(pipeId));
-                duration = Stopwatch.StartNew();
-                InvokeNext(context, pipeId);
+                if (!context.TryGet("Diagnostics.Pipe", out steps))
+                {
+                    outerPipe = true;
+                    steps = new Observable<StepStarted>();
+                    context.Set("Diagnostics.Pipe", steps);
+                    notifications.Pipeline.InvokeReceiveStarted(steps);
+                }
+            
+                InvokeNext(context);
+
+                if (outerPipe)
+                {
+                    steps.OnCompleted();
+                }
+            }
+            catch (Exception ex)
+            {
+                if (outerPipe)
+                {
+                    steps.OnError(ex);
+                }
+
+                throw;
             }
             finally
             {
-                var elapsed = TimeSpan.Zero;
-                if (duration != null)
+                if (outerPipe)
                 {
-                    duration.Stop();
-                    elapsed = duration.Elapsed;
+                    context.Remove("Diagnostics.Pipe");
                 }
-
-                notifications.Pipeline.InvokePipeEnded(new PipeEnded(pipeId, elapsed));
             }
         }
 
@@ -69,7 +84,7 @@
             itemDescriptors = new Queue<Type>(snapshots.Pop());
         }
 
-        void InvokeNext(T context, string pipeId)
+        void InvokeNext(T context)
         {
             if (itemDescriptors.Count == 0)
             {
@@ -77,35 +92,42 @@
             }
 
             var behaviorType = itemDescriptors.Dequeue();
-            Stopwatch duration = null;
+            var stepEnded = new Observable<StepEnded>();
+
             try
             {
+                steps.OnNext(new StepStarted(lookupSteps[behaviorType].StepId, behaviorType, stepEnded));
+
                 var instance = (IBehavior<T>) context.Builder.Build(behaviorType);
 
-                notifications.Pipeline.InvokeStepStarted(new StepStarted(pipeId, lookupSteps[behaviorType].StepId, behaviorType));
+                var duration = Stopwatch.StartNew();
 
-                duration = Stopwatch.StartNew();
-
-                instance.Invoke(context, () => InvokeNext(context, pipeId));
-            }
-            finally
-            {
-                var elapsed = TimeSpan.Zero;
-                if (duration != null)
+                instance.Invoke(context, () =>
                 {
                     duration.Stop();
-                    elapsed = duration.Elapsed;
-                }
+                    InvokeNext(context);
+                    duration.Start();
+                });
 
-                notifications.Pipeline.InvokeStepEnded(new StepEnded(pipeId, lookupSteps[behaviorType].StepId, elapsed));
+                duration.Stop();
+
+                stepEnded.OnNext(new StepEnded(duration.Elapsed));
+                stepEnded.OnCompleted();
+            }
+            catch (Exception ex)
+            {
+                stepEnded.OnError(ex);
+
+                throw;
             }
         }
 
-        Dictionary<Type, RegisterStep> lookupSteps;
-        object lockObj = new object();
         readonly BusNotifications notifications;
         T context;
         Queue<Type> itemDescriptors = new Queue<Type>();
+        object lockObj = new object();
+        Dictionary<Type, RegisterStep> lookupSteps;
         Stack<Queue<Type>> snapshots = new Stack<Queue<Type>>();
+        Observable<StepStarted> steps;
     }
 }

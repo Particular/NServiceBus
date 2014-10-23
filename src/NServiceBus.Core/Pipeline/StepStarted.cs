@@ -3,40 +3,49 @@ namespace NServiceBus.Pipeline
     using System;
 
     /// <summary>
-    /// Step execution started.
+    ///     Step execution started.
     /// </summary>
     public struct StepStarted
     {
-        readonly string pipeId;
-        readonly string stepId;
-        readonly Type behavior;
-
         /// <summary>
-        /// Creates an instance of <see cref="StepStarted"/>.
+        ///     Creates an instance of <see cref="StepStarted" />.
         /// </summary>
-        /// <param name="pipeId">Pipe identifier.</param>
         /// <param name="stepId">Step identifier.</param>
         /// <param name="behavior">Behavior type.</param>
-        public StepStarted(string pipeId, string stepId, Type behavior)
+        /// <param name="stepEnded">Observable for when step ends.</param>
+        public StepStarted(string stepId, Type behavior, IObservable<StepEnded> stepEnded)
         {
-            this.pipeId = pipeId;
             this.stepId = stepId;
             this.behavior = behavior;
+            this.stepEnded = stepEnded;
         }
 
         /// <summary>
-        /// Pipe identifier. 
+        ///     Behavior type.
         /// </summary>
-        public string PipeId { get { return pipeId; } }
+        public Type Behavior
+        {
+            get { return behavior; }
+        }
 
         /// <summary>
-        /// Step identifier.
+        ///     Step identifier.
         /// </summary>
-        public string StepId { get { return stepId; } }
+        public string StepId
+        {
+            get { return stepId; }
+        }
 
         /// <summary>
-        /// Behavior type.
+        /// Step ended.
         /// </summary>
-        public Type Behavior { get { return behavior; } }
+        public IObservable<StepEnded> Ended
+        {
+            get { return stepEnded; }
+        }
+
+        readonly Type behavior;
+        readonly IObservable<StepEnded> stepEnded;
+        readonly string stepId;
     }
 }

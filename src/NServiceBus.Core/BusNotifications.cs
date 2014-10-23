@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using NServiceBus.Faults;
+    using NServiceBus.Pipeline;
 
     /// <summary>
     ///     Bus notifications.
@@ -19,7 +20,7 @@ namespace NServiceBus
         ErrorsNotifications errorNotifications = new ErrorsNotifications();
 
         /// <summary>
-        ///     Errors push-based notifications
+        ///     Pipeline push-based notifications
         /// </summary>
         public PipelineNotifications Pipeline
         {
