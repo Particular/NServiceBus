@@ -118,6 +118,7 @@
     <Compile Include="Exceptions\When_Module_Begin_throws.cs" />
     <Compile Include="Exceptions\When_Module_End_throws.cs" />
     <Compile Include="Exceptions\When_Module_Error_throws.cs" />
+    <Compile Include="Exceptions\When_processing_a_message_without_an_id.cs" />
     <Compile Include="Exceptions\When_serialization_throws.cs" />
     <Compile Include="Exceptions\When_Uow_Begin_and_different_End_throws.cs" />
     <Compile Include="Exceptions\When_Uow_Begin_throws.cs" />
