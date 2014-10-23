@@ -34,7 +34,7 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(builder => builder.FileShareDataBus(@".\databus\sender"))
+                EndpointSetup<DefaultServer>(builder => builder.UseDataBus<FileShareDataBus>().BasePath(@".\databus\sender"))
                     .AddMapping<MyMessageWithLargePayload>(typeof (Receiver));
             }
         }
@@ -43,7 +43,7 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(builder => builder.FileShareDataBus(@".\databus\sender"));
+                EndpointSetup<DefaultServer>(builder => builder.UseDataBus<FileShareDataBus>().BasePath(@".\databus\sender"));
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessageWithLargePayload>
