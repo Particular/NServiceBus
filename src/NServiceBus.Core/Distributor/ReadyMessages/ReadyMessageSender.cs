@@ -28,7 +28,7 @@ namespace NServiceBus.Distributor.ReadyMessages
             var capacityAvailable = transport.MaximumConcurrencyLevel;
             SendReadyMessage(capacityAvailable, true);
 
-            transport.FinishedMessageProcessing += TransportOnFinishedMessageProcessing;
+            transport.StartedMessageProcessing += TransportOnStartedMessageProcessing;
         }
 
         public void Stop()
@@ -36,11 +36,11 @@ namespace NServiceBus.Distributor.ReadyMessages
             //transport will be null if !WorkerRunsOnThisEndpoint
             if (transport != null)
             {
-                transport.FinishedMessageProcessing -= TransportOnFinishedMessageProcessing;
+                transport.StartedMessageProcessing -= TransportOnStartedMessageProcessing;
             }
         }
 
-        void TransportOnFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs eventArgs)
+        void TransportOnStartedMessageProcessing(object sender, StartedMessageProcessingEventArgs startedMessageProcessingEventArgs)
         {
             //if there was a failure this "send" will be rolled back
             SendReadyMessage();
@@ -54,7 +54,9 @@ namespace NServiceBus.Distributor.ReadyMessages
             readyMessage.Headers.Add(Headers.WorkerCapacityAvailable, capacityAvailable.ToString());
 
             if (isStarting)
+            {
                 readyMessage.Headers.Add(Headers.WorkerStarting, Boolean.TrueString);
+            }
 
             MessageSender.Send(readyMessage, DistributorControlAddress);
         }
