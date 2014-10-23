@@ -23,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>618</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,6 +33,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>618</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac">
@@ -97,6 +99,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Messaging" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
@@ -108,6 +111,7 @@
     <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_expired.cs" />
     <Compile Include="BasicMessaging\When_Deferring_a_message.cs" />
     <Compile Include="BusStartStop\When_bus_start_raises_an_inmemory_message.cs" />
+    <Compile Include="Distributor\Processing_SLR_message.cs" />
     <Compile Include="Exceptions\StackTraceAssert.cs" />
     <Compile Include="Exceptions\When_handler_and_Module_End_throws.cs" />
     <Compile Include="Exceptions\When_handler_and_Uow_End_throws.cs" />
