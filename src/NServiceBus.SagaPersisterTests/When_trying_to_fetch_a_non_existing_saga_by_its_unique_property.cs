@@ -5,7 +5,8 @@ using NUnit.Framework;
 namespace NServiceBus.SagaPersisterTests
 {
     [TestFixture]
-    public class When_trying_to_fetch_a_non_existing_saga_by_its_unique_property : SagaPersisterTest
+// ReSharper disable once PartialTypeWithSinglePart
+    public partial class When_trying_to_fetch_a_non_existing_saga_by_its_unique_property : SagaPersisterTest
     {
         [Test]
         public void It_should_return_null()

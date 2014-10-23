@@ -5,7 +5,8 @@ using NUnit.Framework;
 namespace NServiceBus.SagaPersisterTests
 {
     [TestFixture]
-    public class When_updating_a_saga_without_unique_properties : SagaPersisterTest
+// ReSharper disable once PartialTypeWithSinglePart
+    public partial class When_updating_a_saga_without_unique_properties : SagaPersisterTest
     {
         [Test]
         public void It_should_persist_successfully()

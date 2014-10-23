@@ -5,7 +5,8 @@ using NUnit.Framework;
 namespace NServiceBus.SagaPersisterTests
 {
     [TestFixture]
-    public class When_persisting_a_saga_entity_with_a_DateTime_property : SagaPersisterTest
+// ReSharper disable once PartialTypeWithSinglePart
+    public partial class When_persisting_a_saga_entity_with_a_DateTime_property : SagaPersisterTest
     {
 
         [Test]

@@ -15,10 +15,16 @@ namespace NServiceBus.SagaPersisterTests
 
         [SetUp]
         public void CreatePersister()
-        {
-            persister = (ISagaPersister)Activator.CreateInstance(Type.GetType("NServiceBus.InMemory.SagaPersister.InMemorySagaPersister, NServiceBus.Core",true));
-            session = new PersisterSession();
+        {           
             OnConstructPersister();
+            if (persister == null)
+            {
+                persister = (ISagaPersister)Activator.CreateInstance(Type.GetType("NServiceBus.InMemory.SagaPersister.InMemorySagaPersister, NServiceBus.Core", true));                
+            }
+            if (session == null)
+            {
+                session = (PersisterSession)Activator.CreateInstance(typeof(PersisterSession));
+            }
         }
     }
 }

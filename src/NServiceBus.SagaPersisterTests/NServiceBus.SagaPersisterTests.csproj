@@ -53,9 +53,7 @@
     <Compile Include="When_persisting_a_saga_entity_with_inherited_property.cs" />
     <Compile Include="When_persisting_a_saga_with_the_same_unique_property_as_another_saga.cs" />
     <Compile Include="When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />
-    <Compile Include="When_storing_a_saga_with_a_long_namespace.cs" />
     <Compile Include="When_trying_to_fetch_a_non_existing_saga_by_its_unique_property.cs" />
-    <Compile Include="When_updating_a_saga_property_on_a_existing_sagaInstance_that_just_got_a_unique_attribute_set.cs" />
     <Compile Include="When_updating_a_saga_property_that_does_not_have_a_unique_attribute.cs" />
     <Compile Include="When_updating_a_saga_property_that_has_a_unique_attribute.cs" />
     <Compile Include="When_updating_a_saga_without_unique_properties.cs" />

@@ -6,7 +6,8 @@ namespace NServiceBus.SagaPersisterTests
 {
 
     [TestFixture]
-    public class When_persisting_a_saga_with_the_same_unique_property_as_another_saga : SagaPersisterTest
+// ReSharper disable once PartialTypeWithSinglePart
+    public partial class When_persisting_a_saga_with_the_same_unique_property_as_another_saga : SagaPersisterTest
     {
         [Test]
         public void It_should_enforce_uniqueness()

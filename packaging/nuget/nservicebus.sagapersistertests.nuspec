@@ -15,11 +15,10 @@
     <copyright>Copyright 2010-2014 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
-      <dependency id="NServiceBus" version="$version$" />
   	  <dependency id="NUnit" version="[2.0.0, 3.0.0)" />
     </dependencies>
   </metadata>
   <files>
-    <file src="..\..\src\NServiceBus.SagaPersisterTests\**\*.cs" target="content\App_Packages\NSB.SagaPersisterTests.$version$"  exclude="**\bin\**\*.*;**\obj\**\*.*"/>
+    <file src="..\..\src\NServiceBus.SagaPersisterTests\**\*.cs" target="content\App_Packages\NSB.SagaPersisterTests"  exclude="**\bin\**\*.*;**\obj\**\*.*"/>
   </files>
 </package>

@@ -5,7 +5,8 @@ using NUnit.Framework;
 namespace NServiceBus.SagaPersisterTests
 {
     [TestFixture]
-    public class When_persisting_a_saga_entity_with_an_Enum_property : SagaPersisterTest
+// ReSharper disable once PartialTypeWithSinglePart
+    public partial class When_persisting_a_saga_entity_with_an_Enum_property : SagaPersisterTest
     {
         [Test]
         public void Enums_should_be_persisted()

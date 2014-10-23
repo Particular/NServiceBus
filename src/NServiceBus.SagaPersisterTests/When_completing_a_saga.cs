@@ -5,7 +5,8 @@ using NUnit.Framework;
 namespace NServiceBus.SagaPersisterTests
 {
     [TestFixture]
-    public class When_completing_a_saga : SagaPersisterTest
+// ReSharper disable once PartialTypeWithSinglePart
+    public partial class When_completing_a_saga : SagaPersisterTest
     {
 
         [Test]
