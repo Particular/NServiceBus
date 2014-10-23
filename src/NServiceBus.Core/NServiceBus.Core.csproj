@@ -195,7 +195,16 @@
     <Compile Include="Persistence\PersistenceStartup.cs" />
     <Compile Include="Persistence\Storage.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
-    <Compile Include="Sagas\SagaConfigurationCache.cs" />
+    <Compile Include="Sagas\CorrelationProperty.cs" />
+    <Compile Include="Sagas\CustomFinderAdapter.cs" />
+    <Compile Include="Sagas\LoadSagaByIdWrapper.cs" />
+    <Compile Include="Sagas\SagaFinder.cs" />
+    <Compile Include="Sagas\SagaFinderDefinition.cs" />
+    <Compile Include="Sagas\SagaMessage.cs" />
+    <Compile Include="Sagas\SagaMetadata.cs" />
+    <Compile Include="Sagas\SagaMetaModel.cs" />
+    <Compile Include="Sagas\SagaToMessageMap.cs" />
+    <Compile Include="Sagas\TypeBasedSagaMetaModel.cs" />
     <Compile Include="Scheduling\Schedule_Obsolete.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
     <Compile Include="Scheduling\TaskDefinition.cs" />
@@ -481,9 +490,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersister.cs" />
-    <Compile Include="Sagas\ConfigureHowToFindSagaWithMessageDispatcher.cs" />
-    <Compile Include="Sagas\Finders\HeaderSagaIdFinder.cs" />
-    <Compile Include="Sagas\Finders\PropertySagaFinder.cs" />
+    <Compile Include="Sagas\PropertySagaFinder.cs" />
     <Compile Include="Satellites\Config\SatelliteContext.cs" />
     <Compile Include="Satellites\ISatellite.cs" />
     <Compile Include="Satellites\SatellitesQueuesCreator.cs" />

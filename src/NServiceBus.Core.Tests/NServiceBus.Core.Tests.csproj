@@ -93,6 +93,9 @@
     <Compile Include="DataBus\InMemoryDataBus.cs" />
     <Compile Include="Features\FeatureDefaultsTests.cs" />
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
+    <Compile Include="Persistence\InMemory\InMemorySagaPersistenceFixture.cs" />
+    <Compile Include="Sagas\SagaModelTests.cs" />
+    <Compile Include="Sagas\TypeBasedSagaMetaModelTests.cs" />
     <Compile Include="StandardsTests.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionServiceTests.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceTest.cs" />
@@ -104,13 +107,13 @@
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
     <Compile Include="Logging\RollingLoggerTests.cs" />
     <Compile Include="Outbox\OutboxRecordBehaviorTests.cs" />
-    <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniqueProperties.cs" />
-    <Compile Include="Persistence\InMemory\AnotherSimpleSageEntity.cs" />
+    <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniquePropertiesData.cs" />
+    <Compile Include="Persistence\InMemory\AnotherSimpleSagaEntity.cs" />
     <Compile Include="Persistence\InMemory\InMemoryOutboxPersisterTests.cs" />
-    <Compile Include="Persistence\InMemory\SagaWithTwoUniqueProperties.cs" />
-    <Compile Include="Persistence\InMemory\SagaWithUniqueProperty.cs" />
+    <Compile Include="Persistence\InMemory\SagaWithTwoUniquePropertiesData.cs" />
+    <Compile Include="Persistence\InMemory\SagaWithUniquePropertyData.cs" />
     <Compile Include="Persistence\InMemory\SimpleSagaEntity.cs" />
-    <Compile Include="Persistence\InMemory\TestSaga.cs" />
+    <Compile Include="Persistence\InMemory\TestSagaData.cs" />
     <Compile Include="Persistence\InMemory\When_completing_a_saga_with_the_InMemory_persister.cs" />
     <Compile Include="Persistence\InMemory\When_completing_a_saga_with_unique_property_with_InMemory_persister.cs" />
     <Compile Include="Persistence\InMemory\When_multiple_workers_retrieve_same_saga.cs" />
@@ -124,13 +127,6 @@
     <Compile Include="Pipeline\PipelineStepTests.cs" />
     <Compile Include="Pipeline\BehaviorRegistrationsCoordinatorTests.cs" />
     <Compile Include="Pipeline\BehaviorTypeCheckerTests.cs" />
-    <Compile Include="Sagas\When_completing_a_saga.cs" />
-    <Compile Include="Sagas\When_receiving_a_message_that_hits_multiple_sagas_of_different_types.cs" />
-    <Compile Include="Sagas\When_receiving_a_message_that_is_configure_to_start_a_saga.cs" />
-    <Compile Include="Sagas\When_receiving_a_message_that_is_handled_by_a_saga.cs" />
-    <Compile Include="Sagas\When_receiving_a_message_that_is_not_set_to_start_a_saga.cs" />
-    <Compile Include="Sagas\When_receiving_a_timeout_message.cs" />
-    <Compile Include="Sagas\When_sending_messages_from_a_saga.cs" />
     <Compile Include="GitFlowVersionTests.cs" />
     <Compile Include="Serializers\Json\When_not_overriding_stream_encoding.cs" />
     <Compile Include="Serializers\Json\When_overriding_stream_encoding.cs" />
@@ -168,8 +164,6 @@
     <Compile Include="Outbox\OutboxDeduplicationBehaviorTests.cs" />
     <Compile Include="Routing\StaticMessageRouterTests.cs" />
     <Compile Include="Sagas\UniqueAttributeTests.cs" />
-    <Compile Include="Sagas\When_resolving_message_handlers_for_a_saga.cs" />
-    <Compile Include="Sagas\When_resolving_started_by_interfaces_for_a_saga.cs" />
     <Compile Include="Satellite\SatelliteLauncherContext.cs" />
     <Compile Include="Satellite\SatelliteLauncherTests.cs" />
     <Compile Include="Scheduler\DefaultSchedulerTests.cs" />
@@ -223,7 +217,6 @@
     <Compile Include="Unicast\Contexts\FakeMessageDeferrer.cs" />
     <Compile Include="Unicast\Contexts\InterfaceMessage.cs" />
     <Compile Include="Unicast\Contexts\using_the_unicastbus.cs" />
-    <Compile Include="Sagas\When_using_custom_finders_to_find_sagas.cs" />
     <Compile Include="Unicast\UnitOfWorkBehaviorTests.cs" />
     <Compile Include="Unicast\ThroughputLimiterTests.cs" />
     <Compile Include="Unicast\MessagingBestPracticesTests.cs" />
@@ -244,7 +237,6 @@
     <Compile Include="Unicast\Subscriptions.cs" />
     <Compile Include="Unicast\Timing.cs" />
     <Compile Include="Unicast\UnitOfWork.cs" />
-    <Compile Include="Unicast\with_sagas.cs" />
     <Compile Include="Utils\ExceptionHeaderHelperTests.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethodsTests.cs" />
     <Compile Include="Utils\Reflection\ReflectTests.cs" />

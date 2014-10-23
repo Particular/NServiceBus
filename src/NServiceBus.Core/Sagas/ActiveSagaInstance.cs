@@ -9,21 +9,35 @@ namespace NServiceBus.Sagas
     public class ActiveSagaInstance
     {
         Guid sagaId;
-
-        internal ActiveSagaInstance(Saga saga)
+        internal ActiveSagaInstance(Saga saga,SagaMetadata metadata)
         {
             Instance = saga;
-            SagaType = saga.GetType();
+            Metadata = metadata;
         }
+
+        /// <summary>
+        /// The id of the saga
+        /// </summary>
+        public string SagaId { get; private set; }
 
         /// <summary>
         /// The type of the saga
         /// </summary>
-        public Type SagaType { get; private set; }
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Replacement = ".Metadata.SagaType")]
+        public Type SagaType 
+        {
+            get { return Metadata.SagaType; }
+        }
+
+        /// <summary>
+        /// Metadata for this active saga
+        /// </summary>
+        internal SagaMetadata Metadata { get; private set; }
         
         /// <summary>
         /// The actual saga instance
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Replacement = "context.MessageHandler.Instance")]
         public Saga Instance { get; private set; }
         
         /// <summary>
@@ -55,6 +69,7 @@ namespace NServiceBus.Sagas
         {
             sagaId = sagaEntity.Id;
             Instance.Entity = sagaEntity;
+            SagaId = sagaEntity.Id.ToString();
         }
         internal void MarkAsNotFound()
         {

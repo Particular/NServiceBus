@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
-    using System.Collections.Generic;
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
@@ -173,52 +172,6 @@
             bus.Send<InterfaceMessage>(m => { });
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<SendOptions>.Matches(o=>o.Destination == defaultAddress)));
-        }
-    }
-
-    [TestFixture]
-    class When_replying_to_a_saga : with_sagas
-    {
-        [Test]
-        public void The_saga_id_header_should_point_to_the_saga_we_are_replying_to()
-        {   
-            RegisterMessageType<SagaRequest>();
-            RegisterMessageType<ReplyToSaga>();
-            var receivedMessage = Helpers.Helpers.Serialize(new SagaRequest());
-
-            var sagaId = Guid.NewGuid();
-            var sagaType = "the saga type";
-
-            receivedMessage.Headers[Headers.OriginatingSagaId] = sagaId.ToString();
-            receivedMessage.Headers[Headers.OriginatingSagaType] = sagaType;
-
-            RegisterMessageHandlerType<HandlerThatRepliesToSaga>();
-            ReceiveMessage(receivedMessage);
-
-            AssertSendWithHeaders(headers => headers[Headers.SagaId] == sagaId.ToString() && headers[Headers.SagaType] == sagaType);
-        }
-
-        void AssertSendWithHeaders(Func<IDictionary<string, string>, bool> condition)
-        {
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => condition(m.Headers)), Arg<SendOptions>.Is.Anything));
-        }
-
-
-        class SagaRequest : IMessage
-        {
-        }
-        class ReplyToSaga : IMessage
-        {
-        }
-
-        class HandlerThatRepliesToSaga : IHandleMessages<SagaRequest>
-        {
-            public IBus Bus { get; set; }
-
-            public void Handle(SagaRequest message)
-            {
-                Bus.Reply(new ReplyToSaga());
-            }
         }
     }
 }

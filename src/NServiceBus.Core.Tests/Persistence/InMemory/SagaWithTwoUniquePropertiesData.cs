@@ -3,7 +3,15 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
     using System;
     using Saga;
 
-    public class SagaWithTwoUniqueProperties : IContainSagaData
+    class SagaWithTwoUniqueProperties:Saga<SagaWithTwoUniquePropertiesData>
+    {
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithTwoUniquePropertiesData> mapper)
+        {
+            
+        }
+    }
+
+    public class SagaWithTwoUniquePropertiesData : IContainSagaData
     {
         public Guid Id { get; set; }
 
