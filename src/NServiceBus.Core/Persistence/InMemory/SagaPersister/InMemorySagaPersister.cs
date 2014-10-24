@@ -34,14 +34,16 @@ namespace NServiceBus.InMemory.SagaPersister
             foreach (var entity in values)
             {
                 var prop = entity.SagaEntity.GetType().GetProperty(propertyName);
-                if (prop != null)
+                if (prop == null)
                 {
-                    if (prop.GetValue(entity.SagaEntity, null).Equals(propertyValue))
-                    {
-                        entity.RecordRead();
-                        return (TSagaData)DeepClone(entity.SagaEntity);
-                    }
+                    continue;
                 }
+                if (!prop.GetValue(entity.SagaEntity, null).Equals(propertyValue))
+                {
+                    continue;
+                }
+                entity.RecordRead();
+                return (TSagaData)DeepClone(entity.SagaEntity);
             }
             return default(TSagaData);
         }
@@ -75,7 +77,7 @@ namespace NServiceBus.InMemory.SagaPersister
             Save(saga);
         }
 
-        private void ValidateUniqueProperties(IContainSagaData saga)
+        void ValidateUniqueProperties(IContainSagaData saga)
         {
             var sagaMetaData = sagaModel.FindByEntityName(saga.GetType().FullName);
 
@@ -92,17 +94,16 @@ namespace NServiceBus.InMemory.SagaPersister
                 foreach (var correlationProperty in sagaMetaData.CorrelationProperties)
                 {
                     var uniqueProperty = saga.GetType().GetProperty(correlationProperty.Name);
-
-                    if (uniqueProperty.CanRead)
+                    if (!uniqueProperty.CanRead)
                     {
-                        var inComingSagaPropertyValue = uniqueProperty.GetValue(saga, null);
-                        var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaEntity, null);
-                        if (inComingSagaPropertyValue.Equals(storedSagaPropertyValue))
-                        {
-                            throw new InvalidOperationException(
-                                string.Format("Cannot store a saga. The saga with id '{0}' already has property '{1}' with value '{2}'.",
-                                               storedSaga.SagaEntity.Id, uniqueProperty, storedSagaPropertyValue));             
-                        }
+                        continue;
+                    }
+                    var inComingSagaPropertyValue = uniqueProperty.GetValue(saga, null);
+                    var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaEntity, null);
+                    if (inComingSagaPropertyValue.Equals(storedSagaPropertyValue))
+                    {
+                        var message = string.Format("Cannot store a saga. The saga with id '{0}' already has property '{1}' with value '{2}'.",storedSaga.SagaEntity.Id, uniqueProperty, storedSagaPropertyValue);
+                        throw new InvalidOperationException(message);
                     }
                 }
             }
@@ -131,7 +132,7 @@ namespace NServiceBus.InMemory.SagaPersister
             }
         }
 
-        private IContainSagaData DeepClone(IContainSagaData source)
+        IContainSagaData DeepClone(IContainSagaData source)
         {
             var json = serializer.SerializeObject(source);
 
@@ -146,7 +147,7 @@ namespace NServiceBus.InMemory.SagaPersister
             }
         }
 
-        private readonly JsonMessageSerializer serializer = new JsonMessageSerializer(null);
-        private readonly ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
+        JsonMessageSerializer serializer = new JsonMessageSerializer(null);
+        ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
     }
 }
