@@ -91,6 +91,7 @@
     <Compile Include="Sagas\When_saga_id_changed.cs" />
     <Compile Include="Sagas\When_a_base_class_message_hits_a_saga.cs" />
     <Compile Include="Sagas\When_a_finder_exists.cs" />
+    <Compile Include="Tx\Issue_2481.cs" />
     <Compile Include="Volatile\When_sending_to_non_durable_endpoint.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_multikey.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_custom.cs" />

@@ -35,6 +35,13 @@ namespace NServiceBus
             configurationSourceToUse = new DefaultConfigurationSource();
             Settings.Set<PipelineModifications>(new PipelineModifications());
             Pipeline = new PipelineSettings(this);
+
+            Settings.SetDefault("Endpoint.SendOnly", false);
+            Settings.SetDefault("Transactions.Enabled", true);
+            Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
+            Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
+            Settings.SetDefault("Transactions.SuppressDistributedTransactions", false);
+            Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
         }
 
         /// <summary>
@@ -197,7 +204,25 @@ namespace NServiceBus
 
             UseTransportExtensions.SetupTransport(this);
             var container = customBuilder ?? new AutofacObjectBuilder();
-            RegisterEndpointWideDefaults();
+
+            Settings.SetDefault<IConfigurationSource>(configurationSourceToUse);
+            Settings.SetDefault("TypesToScan", scannedTypes);
+
+            var endpointHelper = new EndpointHelper(new StackTrace());
+
+            if (endpointVersion == null)
+            {
+                endpointVersion = endpointHelper.GetEndpointVersion();
+            }
+
+            if (endpointName == null)
+            {
+                endpointName = endpointHelper.GetDefaultEndpointName();
+            }
+
+            Settings.SetDefault("EndpointName", endpointName);
+            Settings.SetDefault("EndpointVersion", endpointVersion);
+
 
             if (publicReturnAddress != null)
             {
@@ -224,32 +249,6 @@ namespace NServiceBus
             return assemblyScanner
                 .GetScannableAssemblies()
                 .Assemblies;
-        }
-
-        void RegisterEndpointWideDefaults()
-        {
-            var endpointHelper = new EndpointHelper(new StackTrace());
-
-            if (endpointVersion == null)
-            {
-                endpointVersion = endpointHelper.GetEndpointVersion();
-            }
-
-            if (endpointName == null)
-            {
-                endpointName = endpointHelper.GetDefaultEndpointName();
-            }
-
-            Settings.SetDefault("EndpointName", endpointName);
-            Settings.SetDefault("TypesToScan", scannedTypes);
-            Settings.SetDefault("EndpointVersion", endpointVersion);
-            Settings.SetDefault("Endpoint.SendOnly", false);
-            Settings.SetDefault("Transactions.Enabled", true);
-            Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
-            Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
-            Settings.SetDefault("Transactions.SuppressDistributedTransactions", false);
-            Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
-            Settings.SetDefault<IConfigurationSource>(configurationSourceToUse);
         }
 
         IConfigurationSource configurationSourceToUse;
