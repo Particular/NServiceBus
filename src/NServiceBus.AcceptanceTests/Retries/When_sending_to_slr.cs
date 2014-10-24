@@ -7,6 +7,8 @@
     using AcceptanceTesting;
     using MessageMutator;
     using NServiceBus.Config;
+    using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Transport;
     using NUnit.Framework;
     using Unicast.Messages;
 
@@ -26,6 +28,21 @@
             Assert.AreEqual(context.OriginalBodyChecksum, context.SlrChecksum, "The body of the message sent to slr should be the same as the original message coming off the queue");
 
         }
+        
+        [Test]
+        public void Should_raise_FinishedMessageProcessing_event()
+        {
+            var context = new Context();
+
+            Scenario.Define(context)
+                    .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+                    .Done(c => c.FinishedMessageProcessingCalledAfterFaultManagerInvoked)
+                    .Run();
+
+            Assert.IsTrue(context.FinishedMessageProcessingCalledAfterFaultManagerInvoked);
+
+        }
+
         [Test]
         public void Should_preserve_the_original_body_for_serialization_exceptions()
         {
@@ -46,6 +63,9 @@
 
         public class Context : ScenarioContext
         {
+            public bool FinishedMessageProcessingCalledAfterFaultManagerInvoked { get; set; }
+            public bool FaultManagerInvoked { get; set; }
+
             public byte OriginalBodyChecksum { get; set; }
 
             public byte SlrChecksum { get; set; }
@@ -63,6 +83,33 @@
                     {
                         c.MaxRetries = 0;
                     });
+            }
+
+            class FinishedProcessingListener : IWantToRunWhenBusStartsAndStops
+            {
+                readonly Context context;
+
+                public FinishedProcessingListener(UnicastBus bus, Context context)
+                {
+                    this.context = context;
+                    bus.Transport.FinishedMessageProcessing += Transport_FinishedMessageProcessing;
+                }
+
+                void Transport_FinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
+                {
+                    if (context.FaultManagerInvoked)
+                    {
+                        context.FinishedMessageProcessingCalledAfterFaultManagerInvoked = true;
+                    }
+                }
+
+                public void Start()
+                {
+                }
+
+                public void Stop()
+                {
+                }
             }
 
             class BodyMutator : IMutateTransportMessages, INeedInitialization
@@ -107,11 +154,13 @@
 
                 public void SerializationFailedForMessage(TransportMessage message, Exception e)
                 {
+                    Context.FaultManagerInvoked = true;
                     Context.SlrChecksum = Checksum(message.Body);
                 }
 
                 public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
                 {
+                    Context.FaultManagerInvoked = true;
                     Context.SlrChecksum = Checksum(message.Body);
                 }
 
