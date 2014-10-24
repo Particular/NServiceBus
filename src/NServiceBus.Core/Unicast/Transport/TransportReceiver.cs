@@ -159,7 +159,7 @@ namespace NServiceBus.Unicast.Transport
 
             if (workerRunsOnThisEndpoint
                 && (returnAddressForFailures.Queue.ToLower().EndsWith(".worker") || address == config.LocalAddress))
-                //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
+            //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
             {
                 returnAddressForFailures = settings.Get<Address>("MasterNode.Address");
 
@@ -285,15 +285,6 @@ namespace NServiceBus.Unicast.Transport
 
         void ProcessMessage(TransportMessage message)
         {
-            if (string.IsNullOrWhiteSpace(message.Id))
-            {
-                Logger.Error("Message without message id detected");
-
-                FailureManager.SerializationFailedForMessage(message,
-                    new SerializationException("Message without message id received."));
-
-                return;
-            }
             try
             {
                 OnStartedMessageProcessing(message);
@@ -308,8 +299,27 @@ namespace NServiceBus.Unicast.Transport
                 throw;
             }
 
+            if (string.IsNullOrWhiteSpace(message.Id))
+            {
+                Logger.Error("Message without message id detected");
+
+                FailureManager.SerializationFailedForMessage(message,
+                    new SerializationException("Message without message id received."));
+
+                return;
+            }
+
+
             if (ShouldExitBecauseOfRetries(message))
             {
+                try
+                {
+                    OnFinishedMessageProcessing(message);
+                }
+                catch (Exception exception)
+                {
+                    Logger.Error("Failed raising 'finished message processing' event.", exception);
+                }
                 return;
             }
 
@@ -428,7 +438,8 @@ namespace NServiceBus.Unicast.Transport
         }
 
 
-        [ThreadStatic] static volatile bool needToAbort;
+        [ThreadStatic]
+        static volatile bool needToAbort;
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
         object changeMaximumMessageThroughputPerSecondLock = new object();
