@@ -6,8 +6,12 @@ namespace NServiceBus.Faults
     /// <summary>
     /// Error message event data.
     /// </summary>
-    public class FailedMessage
+    public struct FailedMessage
     {
+        readonly Dictionary<string, string> headers;
+        readonly byte[] body;
+        readonly Exception exception;
+
         /// <summary>
         /// Creates a new instance of <see cref="FailedMessage"/>.
         /// </summary>
@@ -16,24 +20,24 @@ namespace NServiceBus.Faults
         /// <param name="exception">Exception thrown.</param>
         public FailedMessage(Dictionary<string, string> headers, byte[] body, Exception exception)
         {
-            Headers = headers;
-            Body = body;
-            Exception = exception;
+            this.headers = headers;
+            this.body = body;
+            this.exception = exception;
         }
 
         /// <summary>
         ///     Gets the message headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; private set; }
+        public Dictionary<string, string> Headers { get { return headers; }}
 
         /// <summary>
         ///     Gets a byte array to the body content of the message
         /// </summary>
-        public byte[] Body { get; private set; }
+        public byte[] Body { get { return body; } }
 
         /// <summary>
         ///     The exception that caused this message to fail.
         /// </summary>
-        public Exception Exception { get; private set; }
+        public Exception Exception { get { return exception; } }
     }
 }
