@@ -7,6 +7,7 @@ if($toolsPath){
 
 		if(Test-Path $pathToNServiceBusPSCmdLets){
 			Import-Module $pathToNServiceBusPSCmdLets
+			Write-Host "Type 'get-help about_NServiceBus' to see all available NServiceBus commands."
 		}
 		else {
 			Write-Host "NServiceBus powershell module could not be found, no powershell commands will be available"	
