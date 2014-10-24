@@ -84,6 +84,7 @@
     <Compile Include="DataBus\When_using_custom_IDataBus.cs" />
     <Compile Include="Exceptions\When_handler_throws_serialization_exception.cs" />
     <Compile Include="Exceptions\Message_without_an_id.cs" />
+    <Compile Include="Sagas\When_reply_from_a_finder.cs" />
     <Compile Include="Sagas\When_message_has_a_saga_id.cs" />
     <Compile Include="Retries\When_Subscribing_to_errors.cs" />
     <Compile Include="Sagas\When_timeout_hit_not_found_saga.cs" />
