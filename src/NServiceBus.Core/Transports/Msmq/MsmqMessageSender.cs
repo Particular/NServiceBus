@@ -97,11 +97,6 @@ namespace NServiceBus.Transports.Msmq
                 return MessageQueueTransactionType.None;
             }
 
-            if (SuppressDistributedTransactions)
-            {
-                return MessageQueueTransactionType.Single;
-            }
-
             return Transaction.Current != null
                        ? MessageQueueTransactionType.Automatic
                        : MessageQueueTransactionType.Single;
