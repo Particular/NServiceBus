@@ -412,6 +412,16 @@
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesBehavior.cs" />
     <Compile Include="Pipeline\Contexts\HandlingContext.cs" />
     <Compile Include="Unicast\Behaviors\MessageProcessingAbortedException.cs" />
+    <Compile Include="Serializers\XML\Config\XmlSerializationSettings_Obsolete.cs" />
+    <Compile Include="Settings\DurableMessagesConfig.cs" />
+    <Compile Include="Timeout\ConfigurationBuilderExtensions.cs" />
+    <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
+    <Compile Include="Unicast\Behaviors\FileBasedRoundRobinRouting.cs" />
+    <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
+    <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
+    <Compile Include="Unicast\Behaviors\RoutingBehavior.cs" />
+    <Compile Include="Unicast\Behaviors\Routing.cs" />
+    <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
     <Compile Include="Performance\Statistics\SLA\SLABehavior.cs" />
     <Compile Include="Performance\Statistics\CriticalTime\CriticalTimeBehavior.cs" />
