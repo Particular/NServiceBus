@@ -200,11 +200,14 @@ namespace NServiceBus
                 }
             }
 
+            Settings.SetDefault("TypesToScan", scannedTypes);
+
+            Configure.ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
+
             UseTransportExtensions.SetupTransport(this);
             var container = customBuilder ?? new AutofacObjectBuilder();
 
             Settings.SetDefault<IConfigurationSource>(configurationSourceToUse);
-            Settings.SetDefault("TypesToScan", scannedTypes);
 
             var endpointHelper = new EndpointHelper(new StackTrace());
 
@@ -221,7 +224,6 @@ namespace NServiceBus
             Settings.SetDefault("EndpointName", endpointName);
             Settings.SetDefault("EndpointVersion", endpointVersion);
 
-
             if (publicReturnAddress != null)
             {
                 Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
@@ -230,8 +232,6 @@ namespace NServiceBus
             container.RegisterSingleton(typeof(Conventions), conventionsBuilder.Conventions);
 
             Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
-
-            Configure.ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 
             return new Configure(Settings, container, registrations, Pipeline);
         }
