@@ -62,19 +62,14 @@
 
         void SendOrDefer(TransportMessage messageToSend, SendOptions sendOptions)
         {
+            var deferMessage = false;
+
             if (sendOptions.DelayDeliveryWith.HasValue)
             {
                 if (sendOptions.DelayDeliveryWith > TimeSpan.Zero)
                 {
-                    SetIsDeferredHeader(messageToSend);
-                    MessageDeferral.Defer(messageToSend, sendOptions);
+                    deferMessage = true;
                 }
-                else
-                {
-                    MessageSender.Send(messageToSend, sendOptions);
-                }
-
-                return;
             }
 
             if (sendOptions.DeliverAt.HasValue)
@@ -82,17 +77,18 @@
                 var deliverAt = sendOptions.DeliverAt.Value.ToUniversalTime();
                 if (deliverAt > DateTime.UtcNow)
                 {
-                    SetIsDeferredHeader(messageToSend);
-                    MessageDeferral.Defer(messageToSend, sendOptions);
+                    deferMessage = true;
                 }
-                else
-                {
-                    MessageSender.Send(messageToSend, sendOptions);
-                }
+            }
+
+            if (deferMessage)
+            {
+                SetIsDeferredHeader(messageToSend);
+                MessageDeferral.Defer(messageToSend, sendOptions);
 
                 return;
             }
-
+            
             MessageSender.Send(messageToSend, sendOptions);
         }
 
