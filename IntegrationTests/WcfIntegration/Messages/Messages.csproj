@@ -44,7 +44,6 @@
     <Compile Include="CancelOrder.cs" />
     <Compile Include="ErrorCodes.cs" />
     <Compile Include="ICancelOrderService.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -55,3 +54,4 @@
   </Target>
   -->
 <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+</Project>

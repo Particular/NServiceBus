@@ -1,0 +1,17 @@
+{
+  "IncludedLibraryVariableSetIds": [
+    "LibraryVariableSets-33",
+    "LibraryVariableSets-36",
+    "LibraryVariableSets-35",
+	"LibraryVariableSets-65"
+  ],
+  "DefaultToSkipIfAlreadyInstalled": false,
+  "VersioningStrategy": {
+    "DonorPackageStepId": null,
+    "Template": "#{Octopus.Version.LastMajor}.#{Octopus.Version.LastMinor}.#{Octopus.Version.NextPatch}"
+  },
+  "Name": "%PROJECT_NAME%",
+  "Description": "",
+  "IsDisabled": false,
+  "ProjectGroupId": "ProjectGroups-99",
+}

@@ -1,17 +1,12 @@
 namespace ObjectBuilder.Tests
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading.Tasks;
-    using Autofac;
     using NServiceBus;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.ObjectBuilder.Autofac;
     using NServiceBus.ObjectBuilder.Ninject;
     using NServiceBus.ObjectBuilder.Spring;
     using NUnit.Framework;
-    using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
 
     [TestFixture]
     public class When_using_nested_containers : BuilderFixture
