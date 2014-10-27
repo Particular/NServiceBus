@@ -20,6 +20,6 @@
     <file src="..\..\binaries\NServiceBus.???" target="lib\net40\" />
 	<file src="..\..\binaries\NServiceBus.PowerShell.dll" target="tools" />
     <file src="..\..\binaries\about_NServiceBus.help.txt" target="tools" />
-    <file src="tools\init.ps1" target="tools" />
+    <file src="..\..\packaging\nuget\tools\init.ps1" target="tools" />
   </files>
 </package>

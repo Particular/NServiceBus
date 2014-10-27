@@ -15,7 +15,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <NuGetPackageImportStamp>ba202ac2</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>0446699e</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -111,9 +111,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Fody.1.25.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.25.0\build\Fody.targets'))" />
     <Error Condition="!Exists('..\packages\GitVersionTask.1.3.2\Build\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.1.3.2\Build\GitVersionTask.targets'))" />
-    <Error Condition="!Exists('..\packages\NuGetPackager.0.3.2\build\NuGetPackager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.3.2\build\NuGetPackager.targets'))" />
+    <Error Condition="!Exists('..\packages\NuGetPackager.0.4.1\build\NuGetPackager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.4.1\build\NuGetPackager.targets'))" />
   </Target>
   <Import Project="..\packages\Fody.1.25.0\build\Fody.targets" Condition="Exists('..\packages\Fody.1.25.0\build\Fody.targets')" />
   <Import Project="..\packages\GitVersionTask.1.3.2\Build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.1.3.2\Build\GitVersionTask.targets')" />
-  <Import Project="..\packages\NuGetPackager.0.3.2\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.3.2\build\NuGetPackager.targets')" />
+  <Import Project="..\packages\NuGetPackager.0.4.1\build\NuGetPackagerLite.targets" Condition="Exists('..\packages\NuGetPackager.0.4.1\build\NuGetPackagerLite.targets')" />
 </Project>
