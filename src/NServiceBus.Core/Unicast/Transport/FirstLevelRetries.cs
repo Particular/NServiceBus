@@ -50,16 +50,10 @@
 
         public void IncrementFailuresForMessage(TransportMessage message, Exception e)
         {
-            failuresPerMessage.AddOrUpdate(message.Id, s =>
-                {
-                    notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(1, message, e);
-                    return new Tuple<int, Exception>(1, e);
-                },
-                (s, i) =>
-                {
-                    notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(i.Item1 + 1, message, e);
-                    return new Tuple<int, Exception>(i.Item1 + 1, e);
-                });
+            var item = failuresPerMessage.AddOrUpdate(message.Id, new Tuple<int, Exception>(1, e),
+                (s, i) => new Tuple<int, Exception>(i.Item1 + 1, e));
+
+            notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(item.Item1, message, e);
         }
 
         void TryInvokeFaultManager(TransportMessage message, Exception exception, int numberOfAttempts)

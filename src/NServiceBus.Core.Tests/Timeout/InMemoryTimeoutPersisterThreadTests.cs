@@ -47,7 +47,7 @@ namespace NServiceBus.Core.Tests.Timeout
 
         void RemoveTimeoutBy(InMemoryTimeoutPersister inMemoryTimeoutPersister)
         {
-            var sagaId = sagaIdGuids.GetOrAdd(Thread.CurrentThread.ManagedThreadId, i => new Guid());
+            var sagaId = sagaIdGuids.GetOrAdd(Thread.CurrentThread.ManagedThreadId, new Guid());
             inMemoryTimeoutPersister.RemoveTimeoutBy(sagaId);
         }
 
