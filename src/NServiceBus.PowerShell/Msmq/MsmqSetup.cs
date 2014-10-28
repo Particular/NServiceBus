@@ -330,6 +330,7 @@
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         class OSVersionInfo
         {
+// ReSharper disable once NotAccessedField.Local
             public UInt32 OSVersionInfoSize =
                (UInt32)Marshal.SizeOf(typeof(OSVersionInfo));
             public UInt32 MajorVersion = 0;
