@@ -10,12 +10,13 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
 
             var x = (T)obj;
 
+// ReSharper disable CompareNonConstrainedGenericWithNull
             if (item != null && x == null) return false;
 
             if (item == null && x != null) return false;
 
             if (item == null && x == null) return true;
-
+// ReSharper restore CompareNonConstrainedGenericWithNull
             return equals(item, x);
         }
     }

@@ -1,9 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using Messages;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;

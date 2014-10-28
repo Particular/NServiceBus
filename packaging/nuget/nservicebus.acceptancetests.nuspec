@@ -1,22 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-    <id>NServiceBus.AcceptanceTests</id>
-    <title>NServiceBus Acceptance Tests</title>
-    <version>4.0.0-alpha0</version>
+    <id>NServiceBus.AcceptanceTests.Sources</id>
+    <title>Source only package containing the NServiceBus acceptance test suite</title>
+    <version>$version$</version>
     <authors>NServiceBus Ltd</authors>
-    <owners>Udi Dahan, Andreas Ohlund, John Simons</owners>
+    <owners>NServiceBus Ltd</owners>
     <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
     <projectUrl>http://particular.net/</projectUrl>
     <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Acceptance tests for nservicebus core functionality</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
+    <copyright>Copyright 2010-2014 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
-    <dependencies/>
+    <dependencies>
+      <dependency id="NServiceBus" version="[$version$, 5.0.0.0)" />
+      <dependency id="NServiceBus.AcceptanceTesting" version="[$version$, 5.0.0.0)" />
+    </dependencies>
   </metadata>
   <files>
-    <file src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs" target="content\net40\AcceptanceTests" />
+    <file src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs" target="content\" />
   </files>
 </package>

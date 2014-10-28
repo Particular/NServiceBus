@@ -978,6 +978,7 @@ namespace NDesk.Options
                     i < names.Length; i = GetNextOptionIndex(names, i + 1))
             {
                 Write(o, ref written, ", ");
+// ReSharper disable once ConditionalTernaryEqualBranch
                 Write(o, ref written, names[i].Length == 1 ? "-" : "-");
                 Write(o, ref written, names[i]);
             }

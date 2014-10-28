@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Saga;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Saga;
     using NUnit.Framework;
 
     public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
