@@ -138,8 +138,7 @@ namespace NServiceBus.Serializers.Json.Tests
 
             using (var stream = new MemoryStream())
             {
-                var msg = new SuperMessageWithConcreteImpl();
-                msg.SomeProperty = "test";
+                var msg = new SuperMessageWithConcreteImpl {SomeProperty = "test"};
 
                 Serializer.Serialize(new object[] { msg }, stream);
 

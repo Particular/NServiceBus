@@ -68,11 +68,12 @@
 
         protected TestMessage CreateTestMessage()
         {
-            var headers = new Dictionary<string, string>();
-
-            headers.Add("Header1", "Value1");
-            headers.Add("Header2", "Value2");
-            headers.Add("Header3", "49710.06:28:15");
+            var headers = new Dictionary<string, string>
+            {
+                {"Header1", "Value1"}, 
+                {"Header2", "Value2"}, 
+                {"Header3", "49710.06:28:15"}
+            };
 
 
             return new TestMessage

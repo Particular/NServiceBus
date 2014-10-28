@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using ObjectBuilder.Common.Config;
     using ObjectBuilder.Spring;
     using Spring.Context.Support;
@@ -22,6 +23,7 @@
         /// <summary>
         /// Use the Spring Framework as the container with the initialized application context
         /// </summary>
+        [CLSCompliant(false)]
         public static Configure SpringFrameworkBuilder(this Configure config,GenericApplicationContext applicationContext)
         {
             ConfigureCommon.With(config, new SpringObjectBuilder(applicationContext));

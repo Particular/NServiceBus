@@ -35,64 +35,68 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AWS.Extensions">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\AWS.Extensions.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\AWS.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="AWSSDK">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\AWSSDK.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\AWSSDK.dll</HintPath>
     </Reference>
     <Reference Include="Esent.Interop">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Esent.Interop.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\Esent.Interop.dll</HintPath>
     </Reference>
     <Reference Include="GeoAPI">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\GeoAPI.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\GeoAPI.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.NRefactory">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\ICSharpCode.NRefactory.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\ICSharpCode.NRefactory.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.NRefactory.CSharp">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\ICSharpCode.NRefactory.CSharp.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\ICSharpCode.NRefactory.CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Jint.Raven">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Jint.Raven.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\Jint.Raven.dll</HintPath>
     </Reference>
     <Reference Include="Lucene.Net">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Lucene.Net.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\Lucene.Net.dll</HintPath>
     </Reference>
     <Reference Include="Lucene.Net.Contrib.Spatial.NTS">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Lucene.Net.Contrib.Spatial.NTS.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\Lucene.Net.Contrib.Spatial.NTS.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Mono.Cecil.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\Mono.Cecil.dll</HintPath>
     </Reference>
     <Reference Include="NetTopologySuite">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\NetTopologySuite.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\NetTopologySuite.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.5.0.6\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit\lib\nunit.framework.dll</HintPath>
+    <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="PowerCollections">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\PowerCollections.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\PowerCollections.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Abstractions">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Raven.Abstractions.dll</HintPath>
+    <Reference Include="Raven.Abstractions, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\RavenDB.Client.2.0.2375\lib\net40\Raven.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Client.Embedded">
-      <HintPath>..\packages\RavenDB.Embedded\lib\net40\Raven.Client.Embedded.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Embedded.2.0.2380\lib\net40\Raven.Client.Embedded.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Client.Lightweight">
-      <HintPath>..\packages\RavenDB.Client\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+    <Reference Include="Raven.Client.Lightweight, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\RavenDB.Client.2.0.2375\lib\net40\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Database">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Raven.Database.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\Raven.Database.dll</HintPath>
     </Reference>
-    <Reference Include="Rhino.Mocks">
-      <HintPath>..\packages\RhinoMocks\lib\net\Rhino.Mocks.dll</HintPath>
+    <Reference Include="Rhino.Mocks, Version=3.6.0.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="Spatial4n.Core.NTS">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\Spatial4n.Core.NTS.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\Spatial4n.Core.NTS.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -289,7 +293,8 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="ripple.dependencies.config" />
+    <None Include="packages.config" />
+    <None Include="Test.snk" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core.Tests.x64\ConventionBasedHandler.Tests.csproj">
@@ -329,5 +334,4 @@
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
 </Project>

@@ -18,12 +18,12 @@ namespace Runner
         static void Main(string[] args)
         {
             var numberOfThreads = int.Parse(args[0]);
-            bool volatileMode = (args[4].ToLower() == "volatile");
-            bool suppressDTC = (args[4].ToLower() == "suppressdtc");
-            bool twoPhaseCommit = (args[4].ToLower() == "twophasecommit");
-            bool saga = (args[5].ToLower() == "sagamessages");
-            bool nhibernate = (args[6].ToLower() == "nhibernate");
-            int concurrency = int.Parse(args[7]);
+            var volatileMode = (args[4].ToLower() == "volatile");
+            var suppressDTC = (args[4].ToLower() == "suppressdtc");
+            var twoPhaseCommit = (args[4].ToLower() == "twophasecommit");
+            var saga = (args[5].ToLower() == "sagamessages");
+            var nhibernate = (args[6].ToLower() == "nhibernate");
+            var concurrency = int.Parse(args[7]);
 
             TransportConfigOverride.MaximumConcurrencyLevel = numberOfThreads;
 
@@ -76,9 +76,8 @@ namespace Runner
                 {
                     NHibernateSettingRetriever.ConnectionStrings = () =>
                     {
-                        var c = new ConnectionStringSettingsCollection();
+                        var c = new ConnectionStringSettingsCollection {new ConnectionStringSettings("NServiceBus/Persistence", SqlServerConnectionString)};
 
-                        c.Add(new ConnectionStringSettings("NServiceBus/Persistence", SqlServerConnectionString));
                         return c;
 
                     };
@@ -166,10 +165,10 @@ namespace Runner
         {
             var bus = Configure.Instance.Builder.Build<IBus>();
 
-            for (int i = 0; i < numberOfMessages / concurrency; i++)
+            for (var i = 0; i < numberOfMessages / concurrency; i++)
             {
 
-                for (int j = 0; j < concurrency; j++)
+                for (var j = 0; j < concurrency; j++)
                 {
                     bus.Send(inputQueue, new StartSagaMessage
                     {

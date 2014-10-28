@@ -10,7 +10,8 @@ namespace NServiceBus.CircuitBreakers
     {
         private readonly int threshold;
         private int firedTimes;
-        private readonly Timer timer;
+// ReSharper disable once NotAccessedField.Local
+        private Timer timer;
         private int failureCount;
 
         /// <summary>

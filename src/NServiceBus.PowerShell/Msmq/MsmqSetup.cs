@@ -320,18 +320,23 @@
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         class OSVersionInfoEx : OSVersionInfo
         {
+// ReSharper disable UnusedField.Compiler
             public UInt16 ServicePackMajor;
             public UInt16 ServicePackMinor;
             public UInt16 SuiteMask;
+// ReSharper disable once UnassignedField.Compiler
             public byte ProductType;
             public byte Reserved;
+// ReSharper restore UnusedField.Compiler
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         class OSVersionInfo
         {
+// ReSharper disable once NotAccessedField.Local
             public UInt32 OSVersionInfoSize =
                (UInt32)Marshal.SizeOf(typeof(OSVersionInfo));
+// ReSharper disable UnusedField.Compiler
             public UInt32 MajorVersion = 0;
             public UInt32 MinorVersion = 0;
             public UInt32 BuildNumber = 0;
@@ -339,6 +344,7 @@
             // Attribute used to indicate marshalling for String field
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
             public String CSDVersion = null;
+ // ReSharper restore UnusedField.Compiler
         }
 
         const byte VER_NT_WORKSTATION = 1;
