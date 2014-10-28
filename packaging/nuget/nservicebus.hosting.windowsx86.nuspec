@@ -21,7 +21,7 @@
   <files>
     <file src="..\..\binaries\NServiceBus.Host32.???" target="lib\net40" />
 	<file src="..\..\binaries\CodeTemplates\Scaffolders\**" target="tools" />
-    <file src="..\..\packaging\nuget\nservicebus.host\install.ps1" target="tools" />
+    <file src="..\..\packaging\nuget\nservicebus.host32\install.ps1" target="tools" />
 	<file src="..\..\packaging\nuget\nservicebus.host.common\*.*" target="tools" />
   </files>
 </package>
