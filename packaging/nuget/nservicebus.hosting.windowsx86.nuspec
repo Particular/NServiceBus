@@ -20,7 +20,6 @@
   </metadata>
   <files>
      <file src="..\..\binaries\NServiceBus.Host32.???" target="lib\net40" />
-	<file src="..\..\binaries\CodeTemplates\Scaffolders\**" target="tools" />
 	<file src="..\..\packaging\nuget\nservicebus.host\*.*" target="tools" />
   </files>
 </package>
