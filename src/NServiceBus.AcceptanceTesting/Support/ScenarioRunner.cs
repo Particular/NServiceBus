@@ -306,7 +306,7 @@ namespace NServiceBus.AcceptanceTesting.Support
                 var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName);
 
                 // Extend the lease to the timeout value specified.
-                ILease serverLease = (ILease)RemotingServices.GetLifetimeService(runner.Instance);
+                var serverLease = (ILease)RemotingServices.GetLifetimeService(runner.Instance);
 
                 // Add the execution time + additional time for the endpoints to be able to stop gracefully
                 var totalLifeTime = runDescriptor.TestExecutionTimeout.Add(TimeSpan.FromMinutes(2));

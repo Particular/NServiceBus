@@ -113,9 +113,8 @@
             {
                 NHibernateSettingRetriever.ConnectionStrings = () =>
                 {
-                    var c = new ConnectionStringSettingsCollection();
+                    var c = new ConnectionStringSettingsCollection {new ConnectionStringSettings("NServiceBus/Persistence", NHibernateConnectionString)};
 
-                    c.Add(new ConnectionStringSettings("NServiceBus/Persistence", NHibernateConnectionString));
                     return c;
 
                 };
@@ -147,9 +146,8 @@
             {
                 NHibernateSettingRetriever.ConnectionStrings = () =>
                     {
-                        var c = new ConnectionStringSettingsCollection();
-                        
-                        c.Add(new ConnectionStringSettings("NServiceBus/Persistence", NHibernateConnectionString));
+                        var c = new ConnectionStringSettingsCollection {new ConnectionStringSettings("NServiceBus/Persistence", NHibernateConnectionString)};
+
                         return c;
 
                     };

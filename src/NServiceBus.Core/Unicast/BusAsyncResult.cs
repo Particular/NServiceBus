@@ -20,8 +20,7 @@ namespace NServiceBus.Unicast
         public BusAsyncResult(AsyncCallback callback, object state)
         {
             this.callback = callback;
-            result = new CompletionResult();
-            result.State = state;
+            result = new CompletionResult {State = state};
             sync = new ManualResetEvent(false);
         }
 

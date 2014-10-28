@@ -409,7 +409,7 @@ namespace NDesk.Options
             if (count > 1)
             {
                 if (seps.Count == 0)
-                    separators = new string[] { ":", "=" };
+                    separators = new[] { ":", "=" };
                 else if (seps.Count == 1 && seps[0].Length == 0)
                     separators = null;
                 else
@@ -846,7 +846,7 @@ namespace NDesk.Options
             if (option != null)
                 foreach (var o in c.Option.ValueSeparators != null
                         ? option.Split(c.Option.ValueSeparators, StringSplitOptions.None)
-                        : new string[] { option })
+                        : new[] { option })
                 {
                     c.OptionValues.Add(o);
                 }
@@ -1026,9 +1026,9 @@ namespace NDesk.Options
                 return maxIndex == 1 ? "VALUE" : "VALUE" + (index + 1);
             string[] nameStart;
             if (maxIndex == 1)
-                nameStart = new string[] { "{0:", "{" };
+                nameStart = new[] { "{0:", "{" };
             else
-                nameStart = new string[] { "{" + index + ":" };
+                nameStart = new[] { "{" + index + ":" };
             for (var i = 0; i < nameStart.Length; ++i)
             {
                 int start, j = 0;
