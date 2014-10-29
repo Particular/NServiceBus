@@ -18,6 +18,6 @@
   </metadata>
   <files>
     <file src="..\..\binaries\NServiceBus.Distributor.MSMQ.???" target="lib\net40" />
-    <file src="tools\install.ps1" target="tools" />
+    <file src="..\..\packaging\nuget\tools\install.ps1" target="tools" />
   </files>
 </package>

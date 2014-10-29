@@ -31,7 +31,7 @@ namespace NServiceBus.Hosting.Helpers
     // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     class Image : IDisposable
     {
-        readonly Stream stream;
+        Stream stream;
 
         public enum CompilationMode
         {
@@ -118,9 +118,8 @@ namespace NServiceBus.Hosting.Helpers
             return true;
         }
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
-            stream.Dispose();
         }
 
         ushort ReadUInt16()
