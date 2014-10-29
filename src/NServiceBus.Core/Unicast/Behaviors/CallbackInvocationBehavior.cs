@@ -71,12 +71,18 @@
 
         bool SenderIsV5OrNewer(TransportMessage transportMessage)
         {
-            string version;
-            if (!transportMessage.Headers.TryGetValue(Headers.NServiceBusVersion, out version))
+            string versionString;
+            if (!transportMessage.Headers.TryGetValue(Headers.NServiceBusVersion, out versionString))
             {
                 return false;
             }
-            return Version.Parse(version).Major >= 5;
+            Version version;
+            if (!Version.TryParse(versionString, out version))
+            {
+                // if we cant parse the version assume it is not V5
+                return false;
+            }
+            return version.Major >= 5;
         }
     }
 }
