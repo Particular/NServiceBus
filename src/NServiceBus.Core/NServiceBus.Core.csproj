@@ -119,6 +119,7 @@
     <Compile Include="Faults\ErrorsNotifications.cs" />
     <Compile Include="Faults\ErrorSubscribers.cs" />
     <Compile Include="Faults\FirstLevelRetry.cs" />
+    <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\Forwarder\ForwarderFaultManager.cs" />
     <Compile Include="Faults\InMemory\InMemoryFaultManager.cs" />
     <Compile Include="Faults\SecondLevelRetry.cs" />

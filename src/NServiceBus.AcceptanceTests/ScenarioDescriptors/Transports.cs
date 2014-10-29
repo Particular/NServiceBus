@@ -40,7 +40,7 @@
             }
         }
 
-        static RunDescriptor Msmq
+        public static RunDescriptor Msmq
         {
             get { return AllAvailable.SingleOrDefault(r => r.Key == "MsmqTransport"); }
         }
