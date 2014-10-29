@@ -16,9 +16,12 @@
 
             if (context.TryGet(out saga) && !saga.NotFound)
             {
-                context.MessageToSend.Headers[Headers.OriginatingSagaId] = saga.Instance.Entity.Id.ToString();
-                context.MessageToSend.Headers[Headers.OriginatingSagaType] = saga.SagaType.AssemblyQualifiedName;
-
+                //Hack: technically Found should be false by default and then set to true when we find a saga. 
+                if (saga.Instance.Entity != null)
+                {
+                    context.MessageToSend.Headers[Headers.OriginatingSagaId] = saga.Instance.Entity.Id.ToString();
+                    context.MessageToSend.Headers[Headers.OriginatingSagaType] = saga.SagaType.AssemblyQualifiedName;
+                }
             }
 
             //auto correlate with the saga we are replying to if needed

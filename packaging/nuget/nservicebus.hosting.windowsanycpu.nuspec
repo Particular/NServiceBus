@@ -20,6 +20,6 @@
   </metadata>
   <files>
     <file src="..\..\binaries\NServiceBus.Host.???" target="lib\net40" />
-    <file src="nservicebus.host\*.*" target="tools" />
+    <file src="..\..\packaging\nuget\nservicebus.host\*.*" target="tools" />
   </files>
 </package>
