@@ -16,7 +16,7 @@
 
             if (context.TryGet(out saga) && !saga.NotFound)
             {
-                //Hack: technically Found shoud be false by default and then set to true when we find a saga. 
+                //Hack: technically Found should be false by default and then set to true when we find a saga. 
                 if (saga.Instance.Entity != null)
                 {
                     context.MessageToSend.Headers[Headers.OriginatingSagaId] = saga.Instance.Entity.Id.ToString();
