@@ -179,6 +179,7 @@
     <Compile Include="Sagas\Issue_1819.cs" />
     <Compile Include="Sagas\When_message_has_a_saga_id.cs" />
     <Compile Include="Sagas\When_reply_from_a_finder.cs" />
+    <Compile Include="Sagas\When_timeout_hit_not_found_saga.cs" />
     <Compile Include="Sagas\When_sending_from_a_saga_timeout.cs" />
     <Compile Include="Sagas\When_sending_from_a_saga_handle.cs" />
     <Compile Include="Sagas\When_an_endpoint_replies_to_a_saga.cs" />
