@@ -1,29 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-    <id>NServiceBus</id>
-    <title>NServiceBus</title>
-    <version>4.0.0-alpha0</version>
+    <id>NServiceBus.Interfaces</id>
+    <title>NServiceBus Interfaces</title>
+    <version>$version$</version>
     <authors>NServiceBus Ltd</authors>
-    <owners>Udi Dahan, Andreas Ohlund, John Simons</owners>
+    <owners>NServiceBus Ltd</owners>
     <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
     <projectUrl>http://particular.net/</projectUrl>
     <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>The most popular open-source service bus for .net</description>
+    <description>The Interfaces for NServiceBus Implementation</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2010-2014 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
-    <frameworkAssemblies>
-      <frameworkAssembly assemblyName="System" targetFramework="net40" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework="net40" />
-    </frameworkAssemblies>
     <dependencies/>
   </metadata>
   <files>
-    <file src="..\..\binaries\NServiceBus.Core.???" target="lib\net40" />
-    <file src="..\..\binaries\NServiceBus.Powershell.Development.dll" target="tools" />
-    <file src="..\..\src\NServiceBus.PowerShell.Development\about_NServiceBus.help.txt" target="tools" />
-    <file src="tools\init.ps1" target="tools" />
+    <file src="..\..\binaries\NServiceBus.???" target="lib\net40\" />
   </files>
 </package>
