@@ -161,13 +161,16 @@ namespace NServiceBus.Persistence.Raven
         class WindowsAuthData
         {
             public string Name;
+// ReSharper disable once NotAccessedField.Local
             public bool Enabled;
             public List<DatabaseAccess> Databases = new List<DatabaseAccess>();
         }
 
         class DatabaseAccess
         {
+// ReSharper disable once NotAccessedField.Local
             public bool Admin;
+// ReSharper disable once NotAccessedField.Local
             public bool ReadOnly;
             public string TenantId;
         }
