@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using Messages;
+using NServiceBus.Logging;
 using NServiceBus.MessageMutator;
-using log4net;
 
 namespace MessageMutators
 {
