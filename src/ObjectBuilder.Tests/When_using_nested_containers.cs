@@ -6,11 +6,11 @@ namespace ObjectBuilder.Tests
     using NServiceBus;
     using NServiceBus.ObjectBuilder.Autofac;
     using NServiceBus.ObjectBuilder.CastleWindsor;
+    using NServiceBus.ObjectBuilder.Common;
     using NServiceBus.ObjectBuilder.Ninject;
     using NServiceBus.ObjectBuilder.Spring;
     using NServiceBus.ObjectBuilder.Unity;
     using NUnit.Framework;
-    using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
 
     [TestFixture]
     public class When_using_nested_containers : BuilderFixture

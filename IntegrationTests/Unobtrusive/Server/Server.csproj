@@ -13,7 +13,6 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Unobtrusive\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -59,7 +58,6 @@
     <Compile Include="CommandSender.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="MyCommandHandler.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Saga\MyTimeOutState.cs" />
     <Compile Include="Saga\SimpleSaga.cs" />
     <Compile Include="Saga\SimpleSagaData.cs" />
@@ -93,5 +91,8 @@
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
     <StartArguments>NServiceBus.Integration</StartArguments>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)..\..\BuildSupport\RippleRestoreTask.targets" />
+  
+</Project>
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+</Project>
 </Project>
