@@ -80,6 +80,7 @@ namespace NServiceBus
         /// </summary>
         public static bool RunOtherInstallers { private get; set; }
 
+// ReSharper disable once StaticFieldInGenericType
         private static bool installedOthersInstallers;
 
         /// <summary>

@@ -14,7 +14,8 @@
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
-    <FodyPath>..\packages\Fody</FodyPath>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <NuGetPackageImportStamp>ba202ac2</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,6 +26,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\containers\unity\NServiceBus.ObjectBuilder.Unity.XML</DocumentationFile>
+    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <DocumentationFile>..\..\binaries\containers\unity\NServiceBus.ObjectBuilder.Unity.xml</DocumentationFile>
     <NoWarn>1591,1573</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -36,27 +39,36 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\containers\unity\NServiceBus.ObjectBuilder.Unity.XML</DocumentationFile>
+    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <DocumentationFile>..\..\binaries\containers\unity\NServiceBus.ObjectBuilder.Unity.xml</DocumentationFile>
     <NoWarn>1591,1573</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Janitor">
-      <HintPath>..\packages\Janitor.Fody\Lib\portable-net4+sl4+wp7+win8+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
+    <Reference Include="Janitor, Version=1.1.0.0, Culture=neutral, PublicKeyToken=d34c7d3bba3746e6, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Janitor.Fody.1.1.0.0\Lib\portable-net4+sl5+wp8+win8+wpa81+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="Microsoft.Practices.ServiceLocation">
-      <HintPath>..\packages\CommonServiceLocator\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Practices.Unity">
-      <HintPath>..\packages\Unity\lib\NET35\Microsoft.Practices.Unity.dll</HintPath>
+    <Reference Include="Microsoft.Practices.Unity, Version=2.1.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Unity.2.1.505.2\lib\NET35\Microsoft.Practices.Unity.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Practices.Unity.Configuration">
-      <HintPath>..\packages\Unity\lib\NET35\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+    <Reference Include="Microsoft.Practices.Unity.Configuration, Version=2.1.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Unity.2.1.505.2\lib\NET35\Microsoft.Practices.Unity.Configuration.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Practices.Unity.Interception">
-      <HintPath>..\packages\Unity.Interception\lib\NET35\Microsoft.Practices.Unity.Interception.dll</HintPath>
+    <Reference Include="Microsoft.Practices.Unity.Interception, Version=2.1.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Unity.Interception.2.1.505.2\lib\NET35\Microsoft.Practices.Unity.Interception.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Practices.Unity.Interception.Configuration">
-      <HintPath>..\packages\Unity.Interception\lib\NET35\Microsoft.Practices.Unity.Interception.Configuration.dll</HintPath>
+    <Reference Include="Microsoft.Practices.Unity.Interception.Configuration, Version=2.1.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Unity.Interception.2.1.505.2\lib\NET35\Microsoft.Practices.Unity.Interception.Configuration.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -75,10 +87,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Fody.targets" />
-    <None Include="ripple.dependencies.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="FodyWeavers.xml">
@@ -92,11 +101,19 @@
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
       <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
-      <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
+      <Name>NServiceBus</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="Fody.targets" />
-  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
-  <Import Project="$(SolutionDir)..\BuildSupport\GitVersionTask\build\GitVersionTask.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Fody.1.25.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.25.0\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\GitVersionTask.1.3.2\Build\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.1.3.2\Build\GitVersionTask.targets'))" />
+    <Error Condition="!Exists('..\packages\NuGetPackager.0.4.5\build\NuGetPackagerLite.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.4.5\build\NuGetPackagerLite.targets'))" />
+  </Target>
+  <Import Project="..\packages\Fody.1.25.0\build\Fody.targets" Condition="Exists('..\packages\Fody.1.25.0\build\Fody.targets')" />
+  <Import Project="..\packages\GitVersionTask.1.3.2\Build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.1.3.2\Build\GitVersionTask.targets')" />
+  <Import Project="..\packages\NuGetPackager.0.4.5\build\NuGetPackagerLite.targets" Condition="Exists('..\packages\NuGetPackager.0.4.5\build\NuGetPackagerLite.targets')" />
 </Project>

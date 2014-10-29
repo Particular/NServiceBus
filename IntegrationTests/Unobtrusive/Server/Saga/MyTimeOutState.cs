@@ -1,4 +1,3 @@
-using NServiceBus.Saga;
 
 namespace Server.Saga
 {

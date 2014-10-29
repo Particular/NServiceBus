@@ -361,10 +361,10 @@ namespace NServiceBus.Transports.Msmq
         }
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqDequeueStrategy));
-        readonly CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
-        readonly AutoResetEvent peekResetEvent = new AutoResetEvent(false);
+        CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
+        AutoResetEvent peekResetEvent = new AutoResetEvent(false);
         readonly TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
-        readonly ManualResetEvent stopResetEvent = new ManualResetEvent(true);
+        ManualResetEvent stopResetEvent = new ManualResetEvent(true);
         Action<TransportMessage, Exception> endProcessMessage;
         int maximumConcurrencyLevel;
         MessageQueue queue;

@@ -41,6 +41,7 @@ namespace NServiceBus.SecondLevelRetries
                     return true;
                 }
             }
+// ReSharper disable once EmptyGeneralCatchClause
             catch (Exception)
             {
             }

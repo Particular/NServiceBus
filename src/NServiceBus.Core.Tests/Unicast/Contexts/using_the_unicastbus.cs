@@ -85,6 +85,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             {
                 Address.InitializeLocalAddress(localAddress);
             }
+// ReSharper disable once EmptyGeneralCatchClause
             catch // intentional
             {
             }
