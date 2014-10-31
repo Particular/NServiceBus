@@ -79,9 +79,10 @@ namespace NServiceBus.Unicast
                     {
                         string value;
 
-                        messageBeingReceived.Headers.TryGetValue(key, out value);
-
-                        return value;
+                        if (messageBeingReceived.Headers.TryGetValue(key, out value))
+                        {
+                            return value;
+                        }
                     }
 
                     //falling back to get the headers from the physical message
@@ -95,7 +96,6 @@ namespace NServiceBus.Unicast
                             return value;
                         }
                     }
-                    return null;
                 }
 
                 Dictionary<object, Dictionary<string, string>> outgoingHeaders;
@@ -889,7 +889,7 @@ namespace NServiceBus.Unicast
         IMessageMapper messageMapper;
         SatelliteLauncher satelliteLauncher;
 
-        Dictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
+        ConcurrentDictionary<string, string> staticOutgoingHeaders = new ConcurrentDictionary<string, string>();
 
 
         //we need to not inject since at least Autofac doesn't seem to inject internal properties

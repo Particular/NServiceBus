@@ -9,7 +9,10 @@
     /// </summary>
     public class XmlSerializer : SerializationDefinition
     {
-        internal override Type ProvidedByFeature()
+        /// <summary>
+        /// The feature to enable when this serializer is selected
+        /// </summary>
+        protected internal override Type ProvidedByFeature()
         {
             return typeof(XmlSerialization);
         }

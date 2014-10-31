@@ -15,7 +15,6 @@
 
         public void Invoke(IncomingContext context, Action next)
         {
-
             var messageWasHandled = HandleCorrelatedMessage(context.PhysicalMessage, context);
 
             context.Set(CallbackInvokedKey, messageWasHandled);
@@ -29,10 +28,22 @@
             {
                 return false;
             }
-
-            if (transportMessage.CorrelationId == transportMessage.Id)
+            //All versions of 4 still mutated the intent back to send. So we can only apply this logic for version 5 and above
+            if (SenderIsV5OrNewer(transportMessage))
             {
-                return false;
+                if (transportMessage.MessageIntent != MessageIntentEnum.Reply)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                //older versions used "Send" as intent for replies. Therefor we need to check for id != cid to avoid 
+                // firing callbacks too soon
+                if (transportMessage.Id == transportMessage.CorrelationId)
+                {
+                    return false;
+                }
             }
 
             BusAsyncResult busAsyncResult;
@@ -56,6 +67,22 @@
             busAsyncResult.Complete(statusCode, context.LogicalMessages.Select(lm => lm.Instance).ToArray());
 
             return true;
+        }
+
+        bool SenderIsV5OrNewer(TransportMessage transportMessage)
+        {
+            string versionString;
+            if (!transportMessage.Headers.TryGetValue(Headers.NServiceBusVersion, out versionString))
+            {
+                return false;
+            }
+            Version version;
+            if (!Version.TryParse(versionString, out version))
+            {
+                // if we cant parse the version assume it is not V5
+                return false;
+            }
+            return version.Major >= 5;
         }
     }
 }

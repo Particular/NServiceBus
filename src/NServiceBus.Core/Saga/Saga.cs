@@ -59,6 +59,11 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="at"><see cref="DateTime"/> to send call <paramref name="action"/>.</param>
         /// <param name="action">Callback to execute after <paramref name="at"/> is reached.</param>
+        [ObsoleteEx(
+            Message = "Construct your message and pass it to the non Action overload.",
+            RemoveInVersion = "6.0",
+            TreatAsErrorFromVersion = "6.0",
+            Replacement = "Saga.RequestTimeout<TTimeoutMessageType>(DateTime, TTimeoutMessageType)")]
         protected void RequestTimeout<TTimeoutMessageType>(DateTime at, Action<TTimeoutMessageType> action) where TTimeoutMessageType : new()
         {
             var instance = new TTimeoutMessageType();
@@ -71,7 +76,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="at"><see cref="DateTime"/> to send timeout <paramref name="timeoutMessage"/>.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="at"/> is reached.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage) where TTimeoutMessageType : new()
+        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage) 
         {
             if (at.Kind == DateTimeKind.Unspecified)
             {
@@ -84,12 +89,12 @@ namespace NServiceBus.Saga
             Bus.Defer(at, timeoutMessage);
         }
 
-        void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage) where TTimeoutMessageType : new()
+        void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage) 
         {
             var canHandleTimeoutMessage = this is IHandleTimeouts<TTimeoutMessageType>;
             if (!canHandleTimeoutMessage)
             {
-                var message = string.Format("The type '{0}' cannot request timeouts for '{1}' because it does not implement 'IHandleTimeouts<{2}>'", GetType().Name, timeoutMessage, typeof(TTimeoutMessageType).Name);
+                var message = string.Format("The type '{0}' cannot request timeouts for '{1}' because it does not implement 'IHandleTimeouts<{2}>'", GetType().Name, timeoutMessage, typeof(TTimeoutMessageType).FullName);
                 throw new Exception(message);
             }
         }
@@ -108,6 +113,11 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
         /// <param name="messageConstructor">An <see cref="Action"/> which initializes properties of the message that is sent after <paramref name="within"/> expires.</param>
+        [ObsoleteEx(
+            Message = "Construct your message and pass it to the non Action overload.",
+            RemoveInVersion = "6.0",
+            TreatAsErrorFromVersion = "6.0",
+            Replacement = "Saga.RequestTimeout<TTimeoutMessageType>(TimeSpan, TTimeoutMessageType)")]
         protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, Action<TTimeoutMessageType> messageConstructor) where TTimeoutMessageType : new()
         {
             var instance = new TTimeoutMessageType();
@@ -120,7 +130,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="within"/> expires.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage) where TTimeoutMessageType : new()
+        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage) 
         {
             VerifySagaCanHandleTimeout(timeoutMessage);
             SetTimeoutHeaders(timeoutMessage);
@@ -154,18 +164,16 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <typeparam name="TMessage">The type of message to construct.</typeparam>
         /// <param name="messageConstructor">An <see cref="Action"/> which initializes properties of the message reply with.</param>
+        [ObsoleteEx(
+            Message = "Construct your message and pass it to the non Action overload.",
+            RemoveInVersion = "6.0",
+            TreatAsErrorFromVersion = "6.0",
+            Replacement = "Saga.ReplyToOriginator(object)")]
         protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor) where TMessage : new()
         {
-            if (messageConstructor != null)
-            {
-                var instance = new TMessage();
-                messageConstructor(instance);
-                ReplyToOriginator(instance);
-            }
-            else
-            {
-                ReplyToOriginator(null);
-            }
+            var instance = new TMessage();
+            messageConstructor(instance);
+            ReplyToOriginator(instance);
         }
 
         /// <summary>

@@ -47,9 +47,6 @@
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="Interop.MSMQ">
-      <HintPath>..\..\lib\Interop.MSMQ.dll</HintPath>
-    </Reference>
     <Reference Include="Janitor">
       <HintPath>..\packages\Janitor.Fody.1.1.0.0\Lib\portable-net4+sl5+wp8+win8+wpa81+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
       <Private>False</Private>
@@ -100,7 +97,15 @@
     <Compile Include="CriticalError\ConfigureCriticalErrorAction_Obsolete.cs" />
     <Compile Include="CriticalError\CriticalErrorHandling.cs" />
     <Compile Include="CriticalError\CriticalError.cs" />
+    <Compile Include="DataBusPropertyInfo.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus_Obsolete.cs" />
+    <Compile Include="DataBus\CustomDataBus.cs" />
+    <Compile Include="DataBus\CustomIDataBus.cs" />
+    <Compile Include="DataBus\DataBus.cs" />
+    <Compile Include="DataBus\DataBusDefinition.cs" />
+    <Compile Include="DataBus\DataBusExtentions.cs" />
+    <Compile Include="DataBus\FileShareDataBus.cs" />
+    <Compile Include="DataBus\UseDataBusExtensions.cs" />
     <Compile Include="Encryption\DecryptBehavior.cs" />
     <Compile Include="Encryption\EncryptBehavior.cs" />
     <Compile Include="Encryption\EncryptedValue.cs" />
@@ -109,8 +114,15 @@
     <Compile Include="Encryption\RijndaelExpiredKey.cs" />
     <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
+    <Compile Include="BusNotifications.cs" />
+    <Compile Include="Faults\FailedMessage.cs" />
+    <Compile Include="Faults\ErrorsNotifications.cs" />
+    <Compile Include="Faults\ErrorSubscribers.cs" />
+    <Compile Include="Faults\FirstLevelRetry.cs" />
+    <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\Forwarder\ForwarderFaultManager.cs" />
     <Compile Include="Faults\InMemory\InMemoryFaultManager.cs" />
+    <Compile Include="Faults\SecondLevelRetry.cs" />
     <Compile Include="Features\AdvanceExtensibilityExtensions.cs" />
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\ExposeSettings.cs" />
@@ -130,6 +142,7 @@
     <Compile Include="Monitoring\CriticalTime\CriticalTimeMonitoringConfig.cs" />
     <Compile Include="Monitoring\CriticalTime\CriticalTimeMonitoring.cs" />
     <Compile Include="Monitoring\SLA\SLAMonitoringConfig.cs" />
+    <Compile Include="Observable.cs" />
     <Compile Include="Obsoletes.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />
@@ -175,7 +188,6 @@
     <Compile Include="IMessageContext.cs" />
     <Compile Include="IMessageCreator.cs" />
     <Compile Include="IMessageHandler.cs" />
-    <Compile Include="IMessageModule.cs" />
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="Persistence\EnabledPersistence.cs" />
     <Compile Include="Persistence\Msmq\Msmq.cs" />
@@ -184,11 +196,23 @@
     <Compile Include="Persistence\PersistenceStartup.cs" />
     <Compile Include="Persistence\Storage.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
-    <Compile Include="Sagas\SagaConfigurationCache.cs" />
+    <Compile Include="Sagas\CorrelationProperty.cs" />
+    <Compile Include="Sagas\CustomFinderAdapter.cs" />
+    <Compile Include="Sagas\LoadSagaByIdWrapper.cs" />
+    <Compile Include="Sagas\SagaFinder.cs" />
+    <Compile Include="Sagas\SagaFinderDefinition.cs" />
+    <Compile Include="Sagas\SagaMessage.cs" />
+    <Compile Include="Sagas\SagaMetadata.cs" />
+    <Compile Include="Sagas\SagaMetaModel.cs" />
+    <Compile Include="Sagas\SagaToMessageMap.cs" />
+    <Compile Include="Sagas\TypeBasedSagaMetaModel.cs" />
     <Compile Include="Scheduling\Schedule_Obsolete.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
     <Compile Include="Scheduling\TaskDefinition.cs" />
     <Compile Include="SecondLevelRetries\Helpers\TransportMessageHelpers_Obsolete.cs" />
+    <Compile Include="SecondLevelRetries\SecondLevelRetriesConfiguration.cs" />
+    <Compile Include="Serialization\CustomSerialization.cs" />
+    <Compile Include="Serialization\CustomSerializer.cs" />
     <Compile Include="Serialization\SerializationConfigExtensions.cs" />
     <Compile Include="Serialization\SerializationDefinition.cs" />
     <Compile Include="Serialization\SerializationExtentions.cs" />
@@ -200,6 +224,7 @@
     <Compile Include="Serializers\XML\Config\XmlSerializationExtentions.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationSettings_Obsolete.cs" />
     <Compile Include="Settings\DurableMessagesConfig.cs" />
+    <Compile Include="Timeout\ConfigurationBuilderExtensions.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
@@ -210,9 +235,11 @@
     <Compile Include="Monitoring\SLA\SLAMonitoring.cs" />
     <Compile Include="Monitoring\ProcessingStatisticsBehavior.cs" />
     <Compile Include="Unicast\IMessageDispatcherFactory_Obsolete.cs" />
+    <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Unicast\Transport\Config\TransportConfiguration.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
     <Compile Include="Unicast\Transport\Config\UseTransportExtensions_Obsolete.cs" />
+    <Compile Include="Utils\Guard.cs" />
     <Compile Include="Utils\ExceptionHeaderHelper.cs" />
     <Compile Include="Utils\ElevateChecker.cs" />
     <Compile Include="IStartableBus.cs" />
@@ -410,9 +437,9 @@
     <Compile Include="SecondLevelRetries\SecondLevelRetries.cs" />
     <Compile Include="Config\TransportConfig.cs" />
     <Compile Include="Config\UnicastBusConfig.cs" />
-    <Compile Include="DataBus\DataBus.cs" />
+    <Compile Include="DataBus\DataBusFileBased.cs" />
     <Compile Include="DataBus\DefaultDatabusSerializer.cs" />
-    <Compile Include="DataBus\FileShareDataBus.cs" />
+    <Compile Include="DataBus\FileShareDataBusImplementation.cs" />
     <Compile Include="DataBus\IDataBus.cs" />
     <Compile Include="DataBus\IDatabusSerializer.cs" />
     <Compile Include="DateTimeExtensions.cs" />
@@ -464,9 +491,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersister.cs" />
-    <Compile Include="Sagas\ConfigureHowToFindSagaWithMessageDispatcher.cs" />
-    <Compile Include="Sagas\Finders\HeaderSagaIdFinder.cs" />
-    <Compile Include="Sagas\Finders\PropertySagaFinder.cs" />
+    <Compile Include="Sagas\PropertySagaFinder.cs" />
     <Compile Include="Satellites\Config\SatelliteContext.cs" />
     <Compile Include="Satellites\ISatellite.cs" />
     <Compile Include="Satellites\SatellitesQueuesCreator.cs" />
@@ -475,7 +500,6 @@
     <Compile Include="Scheduling\DefaultScheduler.cs" />
     <Compile Include="Scheduling\InMemoryScheduledTaskStorage.cs" />
     <Compile Include="Scheduling\Messages\ScheduledTask.cs" />
-    <Compile Include="Scheduling\ScheduledTask.cs" />
     <Compile Include="Scheduling\ScheduledTaskMessageHandler.cs" />
     <Compile Include="Serializers\Binary\BinaryMessageSerializer.cs" />
     <Compile Include="Serializers\Binary\SimpleMessageMapper.cs" />
@@ -600,7 +624,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
     <MakeDir Directories="$(TargetDir)temp\" />
-    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetDir)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)Interop.MSMQ.dll&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
+    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetDir)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
     <ItemGroup>
       <TempFiles Include="$(TargetDir)temp\*.*" />
     </ItemGroup>

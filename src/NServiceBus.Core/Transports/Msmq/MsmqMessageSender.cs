@@ -42,14 +42,14 @@ namespace NServiceBus.Transports.Msmq
                     {
                         toSend.UseDeadLetterQueue = Settings.UseDeadLetterQueue;
                         toSend.UseJournalQueue = Settings.UseJournalQueue;
-
+                        toSend.TimeToReachQueue = Settings.TimeToReachQueue;
+                        
                         var replyToAddress = sendOptions.ReplyToAddress ?? message.ReplyToAddress;
                         
                         if (replyToAddress != null)
                         {
                             toSend.ResponseQueue = new MessageQueue(NServiceBus.MsmqUtilities.GetReturnAddress(replyToAddress.ToString(), address.ToString()));
                         }
-
 
                         if (sendOptions.EnlistInReceiveTransaction && UnitOfWork.HasActiveTransaction())
                         {

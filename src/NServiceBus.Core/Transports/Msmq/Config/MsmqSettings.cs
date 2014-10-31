@@ -1,5 +1,8 @@
 namespace NServiceBus.Transports.Msmq.Config
 {
+    using System;
+    using System.Messaging;
+
     /// <summary>
     /// Runtime settings for the Msmq transport
     /// </summary>
@@ -14,6 +17,7 @@ namespace NServiceBus.Transports.Msmq.Config
             UseDeadLetterQueue = true;
             UseConnectionCache = true;
             UseTransactionalQueues = true;
+            TimeToReachQueue = Message.InfiniteTimeout;
         }
 
         /// <summary>
@@ -35,5 +39,10 @@ namespace NServiceBus.Transports.Msmq.Config
         /// Determines if the system uses transactional queues
         /// </summary>
         public bool UseTransactionalQueues { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum amount of time for the message to reach the queue.
+        /// </summary>
+        public TimeSpan TimeToReachQueue { get; set; }
     }
 }

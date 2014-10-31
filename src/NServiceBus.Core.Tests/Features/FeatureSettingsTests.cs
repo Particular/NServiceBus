@@ -111,6 +111,17 @@
 
     public abstract class TestFeature : Feature
     {
+        protected TestFeature()
+        {
+            Defaults(s =>
+            {
+                if (OnDefaults != null)
+                {
+                    OnDefaults(this);
+                }
+            });
+        }
+
         public bool Enabled
         {
             get { return IsEnabledByDefault; }
@@ -118,6 +129,7 @@
         }
 
         public Action<Feature> OnActivation;
+        public Action<Feature> OnDefaults;
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {

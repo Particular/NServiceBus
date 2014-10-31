@@ -36,6 +36,8 @@ namespace NServiceBus.Unicast.Transport
             Receiver = receiver;
         }
 
+        internal BusNotifications Notifications { get; set; }
+
         /// <summary>
         ///     The receiver responsible for notifying the transport when new messages are available
         /// </summary>
@@ -45,7 +47,6 @@ namespace NServiceBus.Unicast.Transport
         ///     Manages failed message processing.
         /// </summary>
         public IManageMessageFailures FailureManager { get; set; }
-
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -167,7 +168,7 @@ namespace NServiceBus.Unicast.Transport
 
             FailureManager.Init(returnAddressForFailures);
 
-            firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager, CriticalError);
+            firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager, CriticalError, Notifications);
 
             InitializePerformanceCounters();
 
@@ -326,7 +327,7 @@ namespace NServiceBus.Unicast.Transport
             {
                 OnTransportMessageReceived(message);
             }
-            catch (SerializationException serializationException)
+            catch (MessageDeserializationException serializationException)
             {
                 Logger.Error("Failed to deserialize message with ID: " + message.Id, serializationException);
 
@@ -449,7 +450,6 @@ namespace NServiceBus.Unicast.Transport
         ThroughputLimiter throughputLimiter;
         readonly ReadOnlySettings settings;
         readonly Configure config;
-
 
         /// <summary>
         /// The <see cref="TransactionSettings"/> being used.

@@ -9,13 +9,15 @@
         ConcurrentDictionary<string, Tuple<int, Exception>> failuresPerMessage = new ConcurrentDictionary<string, Tuple<int, Exception>>();
         IManageMessageFailures failureManager;
         CriticalError criticalError;
+        readonly BusNotifications notifications;
         int maxRetries;
 
-        public FirstLevelRetries(int maxRetries, IManageMessageFailures failureManager, CriticalError criticalError)
+        public FirstLevelRetries(int maxRetries, IManageMessageFailures failureManager, CriticalError criticalError, BusNotifications busNotifications)
         {
             this.maxRetries = maxRetries;
             this.failureManager = failureManager;
             this.criticalError = criticalError;
+            notifications = busNotifications;
         }
 
         public bool HasMaxRetriesForMessageBeenReached(TransportMessage message)
@@ -30,7 +32,7 @@
                     return false;
                 }
 
-                TryInvokeFaultManager(message, e.Item2);
+                TryInvokeFaultManager(message, e.Item2, e.Item1);
                 ClearFailuresForMessage(message);
 
                 return true;
@@ -48,16 +50,19 @@
 
         public void IncrementFailuresForMessage(TransportMessage message, Exception e)
         {
-            failuresPerMessage.AddOrUpdate(message.Id, new Tuple<int, Exception>(1, e),
-                                           (s, i) => new Tuple<int, Exception>(i.Item1 + 1, e));
+            var item = failuresPerMessage.AddOrUpdate(message.Id, new Tuple<int, Exception>(1, e),
+                (s, i) => new Tuple<int, Exception>(i.Item1 + 1, e));
+
+            notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(item.Item1, message, e);
         }
 
-        void TryInvokeFaultManager(TransportMessage message, Exception exception)
+        void TryInvokeFaultManager(TransportMessage message, Exception exception, int numberOfAttempts)
         {
             try
             {
                 message.RevertToOriginalBodyIfNeeded();
-
+                var numberOfRetries = numberOfAttempts - 1;
+                message.Headers[Headers.FLRetries] = numberOfRetries.ToString();
                 failureManager.ProcessingAlwaysFailsForMessage(message, exception);
             }
             catch (Exception ex)

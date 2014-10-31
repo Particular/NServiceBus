@@ -2,58 +2,107 @@ namespace NServiceBus.InMemory.TimeoutPersister
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
+    using System.Threading;
     using Timeout.Core;
 
     class InMemoryTimeoutPersister : IPersistTimeouts
     {
-        readonly IList<TimeoutData> storage = new List<TimeoutData>();
-        readonly object lockObject = new object();
+        List<TimeoutData> storage = new List<TimeoutData>();
+        ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
 
         public IEnumerable<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
-            lock (lockObject)
+            var now = DateTime.UtcNow;
+            nextTimeToRunQuery = DateTime.MaxValue;
+
+            var tuples = new List<Tuple<string, DateTime>>();
+
+            try
             {
-                var now = DateTime.UtcNow;
+                readerWriterLock.EnterReadLock();
 
-                var nextTimeout = storage
-                    .Where(data => data.Time > now)
-                    .OrderBy(data => data.Time)
-                    .FirstOrDefault();
-
-                nextTimeToRunQuery = nextTimeout != null ? nextTimeout.Time : now.AddMinutes(1);
-
-                return storage
-                    .Where(data => data.Time > startSlice && data.Time <= now)
-                    .OrderBy(data => data.Time)
-                    .Select(t => new Tuple<string, DateTime>(t.Id, t.Time));
+                foreach (var data in storage)
+                {
+                    if (data.Time > now && data.Time < nextTimeToRunQuery)
+                    {
+                        nextTimeToRunQuery = data.Time;
+                    }
+                    if (data.Time > startSlice && data.Time <= now)
+                    {
+                        tuples.Add(new Tuple<string, DateTime>(data.Id, data.Time));
+                    }
+                }
             }
+            finally
+            {
+                readerWriterLock.ExitReadLock();
+            }
+            if (nextTimeToRunQuery == DateTime.MaxValue)
+            {
+                nextTimeToRunQuery = now.AddMinutes(1);
+            }
+            return tuples;
         }
 
         public void Add(TimeoutData timeout)
         {
-            lock (lockObject)
+            timeout.Id = Guid.NewGuid().ToString();
+            try
             {
-                timeout.Id = Guid.NewGuid().ToString();
+                readerWriterLock.EnterWriteLock();
                 storage.Add(timeout);
+            }
+            finally
+            {
+                readerWriterLock.ExitWriteLock();
             }
         }
 
         public bool TryRemove(string timeoutId, out TimeoutData timeoutData)
         {
-            lock (lockObject)
+            try
             {
-                timeoutData = storage.SingleOrDefault(t => t.Id == timeoutId);
-                
-                return timeoutData != null && storage.Remove(timeoutData);
+                readerWriterLock.EnterWriteLock();
+
+                for (var index = 0; index < storage.Count; index++)
+                {
+                    var data = storage[index];
+                    if (data.Id == timeoutId)
+                    {
+                        timeoutData = data;
+                        storage.RemoveAt(index);
+                        return true;
+                    }
+                }
+
+                timeoutData = null;
+                return false;
+            }
+            finally
+            {
+                readerWriterLock.ExitWriteLock();
             }
         }
 
         public void RemoveTimeoutBy(Guid sagaId)
         {
-            lock (lockObject)
+            try
             {
-                storage.Where(t => t.SagaId == sagaId).ToList().ForEach(item => storage.Remove(item));
+                readerWriterLock.EnterWriteLock();
+                for (var index = 0; index < storage.Count; )
+                {
+                    var timeoutData = storage[index];
+                    if (timeoutData.SagaId == sagaId)
+                    {
+                        storage.RemoveAt(index);
+                        continue;
+                    }
+                    index++;
+                }
+            }
+            finally
+            {
+                readerWriterLock.ExitWriteLock();
             }
         }
     }

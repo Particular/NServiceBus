@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using NServiceBus.Utils;
     using NServiceBus.Utils.Reflection;
     using Transports;
 
@@ -9,6 +10,8 @@ namespace NServiceBus
     /// </summary>
     public static partial class UseTransportExtensions
     {
+        private const string TransportDefinitionTypeKey = "transportDefinitionType";
+
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
@@ -17,7 +20,7 @@ namespace NServiceBus
             var type = typeof(TransportExtensions<>).MakeGenericType(typeof(T));
             var extension = (TransportExtensions<T>)Activator.CreateInstance(type, busConfiguration.Settings);
 
-            busConfiguration.Settings.Set("transportDefinitionType", typeof(T));
+            busConfiguration.Settings.Set(TransportDefinitionTypeKey, typeof(T));
 
             return extension;
         }
@@ -27,7 +30,9 @@ namespace NServiceBus
         /// </summary>
         public static TransportExtensions UseTransport(this BusConfiguration busConfiguration, Type transportDefinitionType)
         {
-            busConfiguration.Settings.Set("transportDefinitionType", transportDefinitionType);
+            Guard.TypeHasDefaultConstructor(transportDefinitionType, "transportDefinitionType");
+
+            busConfiguration.Settings.Set(TransportDefinitionTypeKey, transportDefinitionType);
 
             return new TransportExtensions(busConfiguration.Settings);
         }
@@ -42,7 +47,7 @@ namespace NServiceBus
         static TransportDefinition GetTransportDefinition(BusConfiguration busConfiguration)
         {
             Type transportDefinitionType;
-            if (!busConfiguration.Settings.TryGet("transportDefinitionType", out transportDefinitionType))
+            if (!busConfiguration.Settings.TryGet(TransportDefinitionTypeKey, out transportDefinitionType))
             {
                 return new MsmqTransport();
             }

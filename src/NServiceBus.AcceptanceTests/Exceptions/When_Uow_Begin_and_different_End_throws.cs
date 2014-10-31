@@ -26,9 +26,6 @@
             Assert.AreEqual(typeof(BeginException), context.InnerExceptionOneType);
             Assert.AreEqual(typeof(EndException), context.InnerExceptionTwoType);
 
-            
-#if (!DEBUG)
-
             StackTraceAssert.StartsWith(
 @"at NServiceBus.UnitOfWorkBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.ChildContainerBehavior.Invoke(IncomingContext context, Action next)
@@ -40,8 +37,6 @@ at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage m
             StackTraceAssert.StartsWith(
 string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.When_Uow_Begin_and_different_End_throws.Endpoint.{0}.End(Exception ex)
 at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initialException)", context.TypeName), context.InnerExceptionTwoStackTrace);
-
-#endif
 
         }
 

@@ -63,11 +63,13 @@
         /// <summary>
         /// Only kept for backwards compatibility reasons
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "6.0",RemoveInVersion = "6.0",Message = "No longer required")]
         public string EncryptedBase64Value { get; set; }
 
         /// <summary>
         /// Only kept for backwards compatibility reasons
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "6.0", RemoveInVersion = "6.0", Message = "No longer required")]
         public string Base64Iv { get; set; }
         
         //****

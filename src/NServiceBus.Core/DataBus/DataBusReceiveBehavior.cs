@@ -20,7 +20,7 @@
 
             foreach (var property in Conventions.GetDataBusProperties(message))
             {
-                var propertyValue = property.GetValue(message, null);
+                var propertyValue = property.Getter(message);
 
                 var dataBusProperty = propertyValue as IDataBusProperty;
                 string headerKey;
@@ -52,7 +52,7 @@
                     }
                     else
                     {
-                        property.SetValue(message, value, null);
+                        property.Setter(message, value);
                     }
                 }
             }

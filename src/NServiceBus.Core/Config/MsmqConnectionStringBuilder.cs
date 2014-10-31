@@ -1,5 +1,6 @@
 namespace NServiceBus.Config
 {
+    using System;
     using System.Data.Common;
     using NServiceBus.Transports.Msmq.Config;
 
@@ -7,7 +8,6 @@ namespace NServiceBus.Config
     {
         public MsmqConnectionStringBuilder(string connectionString)
         {
-            
             ConnectionString = connectionString;
         }
 
@@ -16,18 +16,30 @@ namespace NServiceBus.Config
             var settings = new MsmqSettings();
 
             if (ContainsKey("deadLetter"))
-                settings.UseDeadLetterQueue = bool.Parse((string)this["deadLetter"]);
+            {
+                settings.UseDeadLetterQueue = bool.Parse((string) this["deadLetter"]);
+            }
 
             if (ContainsKey("journal"))
+            {
                 settings.UseJournalQueue = bool.Parse((string) this["journal"]);
+            }
 
             if (ContainsKey("cacheSendConnection"))
-                settings.UseConnectionCache = bool.Parse((string)this["cacheSendConnection"]);
+            {
+                settings.UseConnectionCache = bool.Parse((string) this["cacheSendConnection"]);
+            }
 
             if (ContainsKey("useTransactionalQueues"))
-                settings.UseTransactionalQueues = bool.Parse((string)this["useTransactionalQueues"]);
+            {
+                settings.UseTransactionalQueues = bool.Parse((string) this["useTransactionalQueues"]);
+            }
 
-           
+            if (ContainsKey("timeToReachQueue"))
+            {
+                settings.TimeToReachQueue = TimeSpan.Parse((string) this["timeToReachQueue"]);
+            }
+
             return settings;
         }
     }

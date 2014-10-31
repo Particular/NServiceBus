@@ -4,6 +4,7 @@
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
+    using NServiceBus.DataBus;
     using NUnit.Framework;
 
     [TestFixture]
@@ -12,10 +13,10 @@
         [SetUp]
         public void SetUp()
         {
-            dataBus = new FileShareDataBus(basePath) {MaxMessageTimeToLive = TimeSpan.MaxValue};
+            dataBus = new FileShareDataBusImplementation(basePath) {MaxMessageTimeToLive = TimeSpan.MaxValue};
         }
 
-        FileShareDataBus dataBus;
+        FileShareDataBusImplementation dataBus;
         readonly string basePath = Path.GetTempPath();
 
         string Put(string content, TimeSpan timeToLive)

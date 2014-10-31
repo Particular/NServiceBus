@@ -3,8 +3,8 @@
 namespace NServiceBus
 {
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "5.0", 
-        Replacement = "NServiceBus.Hosting.Profiles.IConfigureLogging",
+        TreatAsErrorFromVersion = "5.0",
+        Message = "Use the `NServiceBus.Hosting.Profiles.IConfigureLogging` interface which is contained with in the `NServiceBus.Host` nuget. ",
         RemoveInVersion = "6.0")]
     public interface IConfigureLogging
     {
@@ -12,15 +12,15 @@ namespace NServiceBus
 
     [ObsoleteEx(
         TreatAsErrorFromVersion = "5.0", 
-        Replacement = "NServiceBus.Hosting.Profiles.IConfigureLoggingForProfile", 
+        Message = "Use the `NServiceBus.Hosting.Profiles.IConfigureLoggingForProfile` interface which is contained with in the `NServiceBus.Host` nuget. ",
         RemoveInVersion = "6.0")]
     public interface IConfigureLoggingForProfile<T> 
     {
     }
 
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "5.0", 
-        Replacement = "NServiceBus.Hosting.Profiles.IConfigureLogging", 
+        TreatAsErrorFromVersion = "5.0",
+        Message = "Use the `NServiceBus.Hosting.Profiles.IConfigureLogging` interface which is contained with in the `NServiceBus.Host` nuget. ",
         RemoveInVersion = "6.0")]
     public interface IWantCustomLogging
     {

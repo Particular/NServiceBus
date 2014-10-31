@@ -18,6 +18,11 @@
       <dependency id="NServiceBus" version="$version$" />
 	  <dependency id="NServiceBus.AcceptanceTesting" version="$version$" />
 	  <dependency id="NUnit" version="[2.0.0, 3.0.0)" />
+	  <dependency id="Rx-Core" version="2.2.5" />
+	  <dependency id="Rx-Interfaces" version="2.2.5" />
+	  <dependency id="Rx-Linq" version="2.2.5" />
+	  <dependency id="Rx-Main" version="2.2.5" />
+	  <dependency id="Rx-PlatformServices" version="2.2.5" />
     </dependencies>
   </metadata>
   <files>

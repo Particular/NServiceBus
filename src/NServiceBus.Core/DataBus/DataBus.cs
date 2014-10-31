@@ -3,35 +3,51 @@ namespace NServiceBus.Features
     using System;
     using System.Linq;
     using NServiceBus.DataBus;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Used to configure the databus. 
     /// </summary>
     public class DataBus : Feature
-	{
+    {
         internal DataBus()
         {
             EnableByDefault();
-            Prerequisite(DataBusPropertiesFound,"No databus properties was found in available messages");
-            RegisterStartupTask<StorageInitializer>();
+
+            Prerequisite(DataBusPropertiesFound, "No databus properties was found in available messages");
+
+            Defaults(s => s.EnableFeatureByDefault(GetSelectedFeatureForDataBus(s)));
+
+            RegisterStartupTask<IDataBusInitializer>();
+        }
+
+        static Type GetSelectedFeatureForDataBus(SettingsHolder settings)
+        {
+            DataBusDefinition dataBusDefinition;
+
+            if (!settings.TryGet("SelectedDataBus", out dataBusDefinition))
+            {
+                dataBusDefinition = new FileShareDataBus();
+            }
+
+            return dataBusDefinition.ProvidedByFeature();
+        }
+
+        class IDataBusInitializer : FeatureStartupTask
+        {
+            public IDataBus DataBus { get; set; }
+
+            protected override void OnStart()
+            {
+                DataBus.Start();
+            }
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>
+        ///     Called when the features is activated
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (!context.Container.HasComponent<IDataBus>())
-            {
-                string basePath;
-                if (!context.Settings.TryGet("FileShareDataBusPath", out basePath))
-                {
-                    throw new InvalidOperationException("Messages containing databus properties found, please configure a databus using the ConfigureFileShareDataBus.FileShareDataBus extension method for ConfigurationBuilder.");
-                }
-                var dataBus = new FileShareDataBus(basePath);
-
-                context.Container.RegisterSingleton<IDataBus>(dataBus);
-            }
             if (!context.Container.HasComponent<IDataBusSerializer>())
             {
                 context.Container.ConfigureComponent<DefaultDataBusSerializer>(DependencyLifecycle.SingleInstance);
@@ -39,7 +55,7 @@ namespace NServiceBus.Features
 
             context.Pipeline.Register<DataBusReceiveBehavior.Registration>();
             context.Pipeline.Register<DataBusSendBehavior.Registration>();
-		}
+        }
 
         static bool DataBusPropertiesFound(FeatureConfigurationContext context)
         {
@@ -75,17 +91,8 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
                     .SelectMany(messageType => messageType.GetProperties())
                     .Any(conventions.IsDataBusProperty);
             }
+
             return dataBusPropertyFound;
         }
-
-        class StorageInitializer:FeatureStartupTask
-        {
-            public IDataBus DataBus { get; set; }
-
-            protected override void OnStart()
-            {
-                DataBus.Start();    
-            }
-        }
-	}
+    }
 }

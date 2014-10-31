@@ -3,72 +3,72 @@ namespace NServiceBus.Features
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using ObjectBuilder;
-    using Settings;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Settings;
 
     /// <summary>
-    /// Provides diagnostics data about <see cref="Feature"/>s.
+    ///     Provides diagnostics data about <see cref="Feature" />s.
     /// </summary>
     public class FeaturesReport
     {
-        readonly IList<FeatureDiagnosticData> data;
-
         internal FeaturesReport(IEnumerable<FeatureDiagnosticData> data)
         {
             this.data = data.ToList().AsReadOnly();
         }
 
         /// <summary>
-        /// List of <see cref="Feature"/>s diagnostic data.
+        ///     List of <see cref="Feature" />s diagnostic data.
         /// </summary>
         public IList<FeatureDiagnosticData> Features
         {
             get { return data; }
         }
+
+        readonly IList<FeatureDiagnosticData> data;
     }
 
     /// <summary>
-    /// <see cref="Feature"/> diagnostics data.
+    ///     <see cref="Feature" /> diagnostics data.
     /// </summary>
     public class FeatureDiagnosticData
     {
         /// <summary>
-        /// Gets the <see cref="Feature"/> name.
+        ///     Gets the <see cref="Feature" /> name.
         /// </summary>
         public string Name { get; internal set; }
-        
+
         /// <summary>
-        /// Gets whether <see cref="Feature"/> is set to be enabled by default.
+        ///     Gets whether <see cref="Feature" /> is set to be enabled by default.
         /// </summary>
         public bool EnabledByDefault { get; internal set; }
-        
+
         /// <summary>
-        /// Gets the status of the <see cref="Feature"/>.
+        ///     Gets the status of the <see cref="Feature" />.
         /// </summary>
         public bool Active { get; internal set; }
-        
+
         /// <summary>
-        /// Gets the status of the prerequisites for this <see cref="Feature"/>.
+        ///     Gets the status of the prerequisites for this <see cref="Feature" />.
         /// </summary>
         public PrerequisiteStatus PrerequisiteStatus { get; internal set; }
-        
+
         /// <summary>
-        /// Gets the list of <see cref="Feature"/>s that this <see cref="Feature"/> depends on.
+        ///     Gets the list of <see cref="Feature" />s that this <see cref="Feature" /> depends on.
         /// </summary>
         public IList<List<string>> Dependencies { get; internal set; }
-        
+
         /// <summary>
-        /// Gets the <see cref="Feature"/> version.
+        ///     Gets the <see cref="Feature" /> version.
         /// </summary>
         public string Version { get; internal set; }
-        
+
         /// <summary>
-        /// Gets the <see cref="Feature"/> startup tasks.
+        ///     Gets the <see cref="Feature" /> startup tasks.
         /// </summary>
         public IList<Type> StartupTasks { get; internal set; }
-        
+
         /// <summary>
-        /// Gets whether all dependant <see cref="Feature"/>s are activated.
+        ///     Gets whether all dependant <see cref="Feature" />s are activated.
         /// </summary>
         public bool DependenciesAreMeet { get; set; }
     }
@@ -78,6 +78,11 @@ namespace NServiceBus.Features
         public FeatureActivator(SettingsHolder settings)
         {
             this.settings = settings;
+        }
+
+        internal List<FeatureDiagnosticData> Status
+        {
+            get { return features.Select(f => f.Diagnostics).ToList(); }
         }
 
         public void Add(Feature feature)
@@ -99,8 +104,7 @@ namespace NServiceBus.Features
 
         public FeaturesReport SetupFeatures(FeatureConfigurationContext context)
         {
-            var featuresToActivate = features.Where(featureState => IsEnabled(featureState.Feature.GetType()))
-                .ToList();
+            var featuresToActivate = Sort(features).Where(featureState => IsEnabled(featureState.Feature.GetType()));
 
             foreach (var defaultSetting in featuresToActivate.SelectMany(feature => feature.Feature.RegisteredDefaults))
             {
@@ -134,7 +138,7 @@ namespace NServiceBus.Features
             {
                 foreach (var taskType in feature.Feature.StartupTasks)
                 {
-                    var task = (FeatureStartupTask)builder.Build(taskType);
+                    var task = (FeatureStartupTask) builder.Build(taskType);
 
                     task.PerformStartup();
                 }
@@ -147,14 +151,54 @@ namespace NServiceBus.Features
             {
                 foreach (var taskType in feature.Feature.StartupTasks)
                 {
-                    var task = (FeatureStartupTask)builder.Build(taskType);
+                    var task = (FeatureStartupTask) builder.Build(taskType);
 
                     task.PerformStop();
                 }
             }
         }
 
-        static bool ActivateFeature(FeatureState featureState, List<FeatureState> featuresToActivate, FeatureConfigurationContext context)
+        static IEnumerable<FeatureState> Sort(IEnumerable<FeatureState> features)
+        {
+            // Step 1: create nodes for graph
+            var nameToNodeDict = new Dictionary<string, Node>();
+            var allNodes = new List<Node>();
+            foreach (var feature in features)
+            {
+                // create entries to preserve order within
+                var node = new Node
+                {
+                    FeatureState = feature
+                };
+
+                nameToNodeDict[feature.Feature.Name] = node;
+                allNodes.Add(node);
+            }
+
+            // Step 2: create edges dependencies
+            foreach (var node in allNodes)
+            {
+                foreach (var dependencyName in node.FeatureState.Feature.Dependencies.SelectMany(listOfDependencyNames => listOfDependencyNames))
+                {
+                    Node referencedNode;
+                    if (nameToNodeDict.TryGetValue(dependencyName, out referencedNode))
+                    {
+                        node.previous.Add(referencedNode);
+                    }
+                }
+            }
+
+            // Step 3: Perform Topological Sort
+            var output = new List<FeatureState>();
+            foreach (var node in allNodes)
+            {
+                node.Visit(output);
+            }
+
+            return output;
+        }
+
+        static bool ActivateFeature(FeatureState featureState, IEnumerable<FeatureState> featuresToActivate, FeatureConfigurationContext context)
         {
             if (featureState.Feature.IsActive)
             {
@@ -162,19 +206,19 @@ namespace NServiceBus.Features
             }
 
             Func<List<string>, bool> dependencyActivator = dependencies =>
-                                 {
-                                     var dependantFeaturesToActivate = new List<FeatureState>();
+            {
+                var dependantFeaturesToActivate = new List<FeatureState>();
 
-                                     foreach (var dependency in dependencies.Select(dependencyName => featuresToActivate
-                                         .SingleOrDefault(f => f.Feature.Name == dependencyName))
-                                         .Where(dependency => dependency != null))
-                                     {
-                                         dependantFeaturesToActivate.Add(dependency);
-                                     }
-                                     var hasAllUpstreamDepsBeenActivated = dependantFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, context));
+                foreach (var dependency in dependencies.Select(dependencyName => featuresToActivate
+                    .SingleOrDefault(f => f.Feature.Name == dependencyName))
+                    .Where(dependency => dependency != null))
+                {
+                    dependantFeaturesToActivate.Add(dependency);
+                }
+                var hasAllUpstreamDepsBeenActivated = dependantFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, context));
 
-                                     return hasAllUpstreamDepsBeenActivated;
-                                 };
+                return hasAllUpstreamDepsBeenActivated;
+            };
 
             if (featureState.Feature.Dependencies.All(dependencyActivator))
             {
@@ -187,7 +231,7 @@ namespace NServiceBus.Features
 
                 featureState.Feature.SetupFeature(context);
                 featureState.Diagnostics.Active = true;
-             
+
                 return true;
             }
 
@@ -201,28 +245,19 @@ namespace NServiceBus.Features
             return settings.GetOrDefault<bool>(featureType.FullName);
         }
 
-        static bool HasAllPrerequisitesSatisfied(Feature feature,FeatureDiagnosticData diagnosticData, FeatureConfigurationContext context)
+        static bool HasAllPrerequisitesSatisfied(Feature feature, FeatureDiagnosticData diagnosticData, FeatureConfigurationContext context)
         {
             diagnosticData.PrerequisiteStatus = feature.CheckPrerequisites(context);
 
             return diagnosticData.PrerequisiteStatus.IsSatisfied;
         }
 
-        internal List<FeatureDiagnosticData> Status
-        {
-            get
-            {
-                return features.Select(f=>f.Diagnostics).ToList();
-            }
-        }
-
-        readonly SettingsHolder settings;
-
         readonly List<FeatureState> features = new List<FeatureState>();
+        readonly SettingsHolder settings;
 
         class FeatureState
         {
-            public FeatureState(Feature feature,FeatureDiagnosticData diagnostics)
+            public FeatureState(Feature feature, FeatureDiagnosticData diagnostics)
             {
                 Diagnostics = diagnostics;
                 Feature = feature;
@@ -232,14 +267,34 @@ namespace NServiceBus.Features
             public Feature Feature { get; private set; }
         }
 
+        class Node
+        {
+            internal void Visit(ICollection<FeatureState> output)
+            {
+                if (visited)
+                {
+                    return;
+                }
+                visited = true;
+                foreach (var n in previous)
+                {
+                    n.Visit(output);
+                }
+                output.Add(FeatureState);
+            }
+
+            internal FeatureState FeatureState;
+            internal List<Node> previous = new List<Node>();
+            bool visited;
+        }
+
         class Runner : IWantToRunWhenBusStartsAndStops
         {
-
             public IBuilder Builder { get; set; }
 
             public FeatureActivator FeatureActivator { get; set; }
 
-            
+
             public void Start()
             {
                 FeatureActivator.StartFeatures(Builder);

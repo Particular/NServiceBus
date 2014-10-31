@@ -29,7 +29,7 @@
 
             foreach (var property in Conventions.GetDataBusProperties(message))
             {
-                var propertyValue = property.GetValue(message, null);
+                var propertyValue = property.Getter(message);
 
                 if (propertyValue == null)
                     continue;
@@ -63,7 +63,7 @@
                     }
                     else
                     {
-                        property.SetValue(message, null, null);
+                        property.Setter(message, null);
                         headerKey = String.Format("{0}.{1}", message.GetType().FullName, property.Name);
                     }
 

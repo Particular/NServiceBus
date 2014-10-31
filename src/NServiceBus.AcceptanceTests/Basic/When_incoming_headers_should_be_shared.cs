@@ -5,7 +5,6 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    [Explicit]
     public class When_incoming_headers_should_be_shared : NServiceBusAcceptanceTest
     {
         [Test]
@@ -61,8 +60,8 @@
                 public void Handle(Message message)
                 {
                     var header = Bus.GetMessageHeader(message, "Key");
-                    Context.GotMessage = true;
                     Context.SecondHandlerCanReadHeaderSetByFirstHandler = header == "Value";
+                    Context.GotMessage = true;
                 }
             }
         }

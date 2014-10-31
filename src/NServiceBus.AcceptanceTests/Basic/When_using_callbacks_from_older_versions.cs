@@ -64,6 +64,7 @@
             {
                 //early versions of did not have a Reply MessageIntent when Bus.Return is called 
                 transportMessage.MessageIntent = MessageIntentEnum.Send;
+                transportMessage.Headers[Headers.NServiceBusVersion] = "3.3.0";
             }
 
             public void Customize(BusConfiguration configuration)

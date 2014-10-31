@@ -18,6 +18,7 @@ namespace NServiceBus
     using NServiceBus.ObjectBuilder.Common;
     using NServiceBus.Pipeline;
     using NServiceBus.Settings;
+    using NServiceBus.Utils;
     using NServiceBus.Utils.Reflection;
 
     /// <summary>
@@ -28,7 +29,8 @@ namespace NServiceBus
         /// <summary>
         /// Initializes a fresh instance of the builder
         /// </summary>
-        public BusConfiguration() : base(new SettingsHolder())
+        public BusConfiguration()
+            : base(new SettingsHolder())
         {
             configurationSourceToUse = new DefaultConfigurationSource();
             Settings.Set<PipelineModifications>(new PipelineModifications());
@@ -79,7 +81,6 @@ namespace NServiceBus
             scannedTypes = Configure.GetAllowedTypes(assemblies);
         }
 
-
         /// <summary>
         ///     Specifies the directory where NServiceBus scans for types.
         /// </summary>
@@ -96,7 +97,6 @@ namespace NServiceBus
         {
             configurationSourceToUse = configurationSource;
         }
-
 
         /// <summary>
         ///     Defines the name to use for this endpoint.
@@ -142,6 +142,8 @@ namespace NServiceBus
         /// <param name="definitionType">The type of the builder</param>
         public void UseContainer(Type definitionType)
         {
+            Guard.TypeHasDefaultConstructor(definitionType, "definitionType");
+
             UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(Settings));
         }
 

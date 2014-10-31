@@ -16,13 +16,13 @@ namespace NServiceBus.AcceptanceTests.Sagas
         public void Should_invoke_all_handlers_on_all_sagas()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<EndpointThatHostsTwoSagas>(b =>
+                    .WithEndpoint<SagaEndpoint>(b =>
                         b.When(c => c.Subscribed, bus => bus.SendLocal(new StartSaga2
                         {
                             DataId = Guid.NewGuid()
                         }))
                      )
-                    .WithEndpoint<EndpointThatHandlesAMessageAndPublishesEvent>(b => b.Given((bus, context) =>
+                    .WithEndpoint<Publisher>(b => b.Given((bus, context) =>
                     {
                         if (context.HasNativePubSubSupport)
                         {
@@ -43,9 +43,9 @@ namespace NServiceBus.AcceptanceTests.Sagas
             public bool DidSaga2EventHandlerGetInvoked { get; set; }
         }
 
-        public class EndpointThatHandlesAMessageAndPublishesEvent : EndpointConfigurationBuilder
+        public class Publisher : EndpointConfigurationBuilder
         {
-            public EndpointThatHandlesAMessageAndPublishesEvent()
+            public Publisher()
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
@@ -65,13 +65,13 @@ namespace NServiceBus.AcceptanceTests.Sagas
             }
         }
 
-        public class EndpointThatHostsTwoSagas : EndpointConfigurationBuilder
+        public class SagaEndpoint : EndpointConfigurationBuilder
         {
-            public EndpointThatHostsTwoSagas()
+            public SagaEndpoint()
             {
                 EndpointSetup<DefaultServer>()
-                    .AddMapping<OpenGroupCommand>(typeof(EndpointThatHandlesAMessageAndPublishesEvent))
-                    .AddMapping<GroupPendingEvent>(typeof(EndpointThatHandlesAMessageAndPublishesEvent));
+                    .AddMapping<OpenGroupCommand>(typeof(Publisher))
+                    .AddMapping<GroupPendingEvent>(typeof(Publisher));
             }
 
             public class Saga1 : Saga<Saga1.MySaga1Data>, IAmStartedByMessages<GroupPendingEvent>, IHandleMessages<CompleteSaga1Now>

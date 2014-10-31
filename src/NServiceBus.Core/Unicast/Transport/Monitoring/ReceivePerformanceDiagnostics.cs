@@ -6,7 +6,6 @@ namespace NServiceBus.Unicast.Transport.Monitoring
 
     class ReceivePerformanceDiagnostics : IDisposable
     {
-        const string CategoryName = "NServiceBus";
         static ILog Logger = LogManager.GetLogger<ReceivePerformanceDiagnostics>();
         readonly Address receiveAddress;
         bool enabled;
@@ -19,28 +18,10 @@ namespace NServiceBus.Unicast.Transport.Monitoring
             this.receiveAddress = receiveAddress;
         }
 
-
         public void Dispose()
         {
             //Injected at compile time
         }
-
-        void DisposeManaged()
-        {
-            if (successRateCounter != null)
-            {
-                successRateCounter.Dispose();
-            }
-            if (throughputCounter != null)
-            {
-                throughputCounter.Dispose();
-            }
-            if (failureRateCounter != null)
-            {
-                failureRateCounter.Dispose();
-            }
-        }
-
 
         public void Initialize()
         {
@@ -82,32 +63,23 @@ namespace NServiceBus.Unicast.Transport.Monitoring
             throughputCounter.Increment();
         }
 
-
         bool InstantiateCounter()
         {
-            return SetupCounter("# of msgs successfully processed / sec", ref successRateCounter)
-                   && SetupCounter("# of msgs pulled from the input queue /sec", ref throughputCounter)
-                   && SetupCounter("# of msgs failures / sec", ref failureRateCounter);
+            return SetupCounter("# of msgs successfully processed / sec", out successRateCounter)
+                   && SetupCounter("# of msgs pulled from the input queue /sec", out throughputCounter)
+                   && SetupCounter("# of msgs failures / sec", out failureRateCounter);
         }
 
-        bool SetupCounter(string counterName, ref PerformanceCounter counter)
+        bool SetupCounter(string counterName, out PerformanceCounter counter)
         {
-            try
-            {
-                counter = new PerformanceCounter(CategoryName, counterName, receiveAddress.Queue, false);
-                //access the counter type to force a exception to be thrown if the counter doesn't exists
-                // ReSharper disable once UnusedVariable
-                var t = counter.CounterType; 
-            }
-            catch (Exception)
-            {
-                Logger.InfoFormat(
-                    "NServiceBus performance counter for {1} is not set up correctly, no statistics will be emitted for the {0} queue. Execute the Install-NServiceBusPerformanceCounters cmdlet to create the counter.",
-                    receiveAddress.Queue, counterName);
-                return false;
-            }
-            Logger.DebugFormat("'{0}' counter initialized for '{1}'", counterName, receiveAddress);
-            return true;
+                if (!PerformanceCounterHelper.TryToInstantiatePerformanceCounter(counterName, receiveAddress.Queue, out counter))
+                {
+                    return false;
+                }
+
+                Logger.DebugFormat("'{0}' counter initialized for '{1}'", counterName, receiveAddress);
+
+                return true;
         }
     }
 }

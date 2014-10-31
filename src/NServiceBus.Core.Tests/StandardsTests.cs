@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using NServiceBus.Features;
+    using NServiceBus.Logging;
     using NUnit.Framework;
     using UnicastBus = NServiceBus.Unicast.UnicastBus;
 
@@ -27,6 +28,22 @@
                 }
             }
         }
+
+        [Test]
+        public void LoggersShouldBeStaticField()
+        {
+            foreach (var type in typeof(UnicastBus).Assembly.GetTypes())
+            {
+                foreach (var field in type.GetFields(BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public))
+                {
+                    if (field.FieldType == typeof(ILog))
+                    {
+                        Assert.IsTrue(field.IsStatic, "Logger fields should be static " + type.FullName);
+                    }
+                }
+            }
+        }
+
         [Test]
         public void VerifyBehaviorNaming()
         {

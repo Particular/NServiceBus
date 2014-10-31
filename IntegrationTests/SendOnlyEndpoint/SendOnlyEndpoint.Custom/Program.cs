@@ -8,7 +8,6 @@ namespace SendOnlyEndpoint.Custom
         static void Main()
         {
             var configuration = new BusConfiguration();
-            configuration.UsePersistence<InMemoryPersistence>();
 
             using (var bus = Bus.CreateSendOnly(configuration))
             {

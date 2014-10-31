@@ -15,6 +15,7 @@
     <AssemblyOriginatorKeyFile>..\Test.snk</AssemblyOriginatorKeyFile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>27189a06</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,6 +53,7 @@
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Messaging" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Transactions" />
@@ -65,9 +67,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\NServiceBus.Testing\InMemoryDataBus.cs">
-      <Link>DataBus\InMemoryDataBus.cs</Link>
-    </Compile>
     <Compile Include="Address\AddressTests.cs" />
     <Compile Include="AssemblyLocation.cs" />
     <Compile Include="AssemblyScanner\AssemblyScannerTests.cs" />
@@ -91,10 +90,16 @@
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
+    <Compile Include="DataBus\InMemoryDataBus.cs" />
+    <Compile Include="Features\FeatureDefaultsTests.cs" />
+    <Compile Include="Msmq\ConnectionStringParserTests.cs" />
+    <Compile Include="Persistence\InMemory\InMemorySagaPersistenceFixture.cs" />
+    <Compile Include="Sagas\SagaModelTests.cs" />
+    <Compile Include="Sagas\TypeBasedSagaMetaModelTests.cs" />
     <Compile Include="StandardsTests.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionServiceTests.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceTest.cs" />
-    <Compile Include="ModuleInitializer.cs" />
+    <Compile Include="RedirectHelper.cs" />
     <Compile Include="Features\FeatureDependencyTests.cs" />
     <Compile Include="Features\FeatureSettingsTests.cs" />
     <Compile Include="Features\FeatureStartupTests.cs" />
@@ -102,13 +107,13 @@
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
     <Compile Include="Logging\RollingLoggerTests.cs" />
     <Compile Include="Outbox\OutboxRecordBehaviorTests.cs" />
-    <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniqueProperties.cs" />
-    <Compile Include="Persistence\InMemory\AnotherSimpleSageEntity.cs" />
+    <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniquePropertiesData.cs" />
+    <Compile Include="Persistence\InMemory\AnotherSimpleSagaEntity.cs" />
     <Compile Include="Persistence\InMemory\InMemoryOutboxPersisterTests.cs" />
-    <Compile Include="Persistence\InMemory\SagaWithTwoUniqueProperties.cs" />
-    <Compile Include="Persistence\InMemory\SagaWithUniqueProperty.cs" />
+    <Compile Include="Persistence\InMemory\SagaWithTwoUniquePropertiesData.cs" />
+    <Compile Include="Persistence\InMemory\SagaWithUniquePropertyData.cs" />
     <Compile Include="Persistence\InMemory\SimpleSagaEntity.cs" />
-    <Compile Include="Persistence\InMemory\TestSaga.cs" />
+    <Compile Include="Persistence\InMemory\TestSagaData.cs" />
     <Compile Include="Persistence\InMemory\When_completing_a_saga_with_the_InMemory_persister.cs" />
     <Compile Include="Persistence\InMemory\When_completing_a_saga_with_unique_property_with_InMemory_persister.cs" />
     <Compile Include="Persistence\InMemory\When_multiple_workers_retrieve_same_saga.cs" />
@@ -122,13 +127,6 @@
     <Compile Include="Pipeline\PipelineStepTests.cs" />
     <Compile Include="Pipeline\BehaviorRegistrationsCoordinatorTests.cs" />
     <Compile Include="Pipeline\BehaviorTypeCheckerTests.cs" />
-    <Compile Include="Sagas\When_completing_a_saga.cs" />
-    <Compile Include="Sagas\When_receiving_a_message_that_hits_multiple_sagas_of_different_types.cs" />
-    <Compile Include="Sagas\When_receiving_a_message_that_is_configure_to_start_a_saga.cs" />
-    <Compile Include="Sagas\When_receiving_a_message_that_is_handled_by_a_saga.cs" />
-    <Compile Include="Sagas\When_receiving_a_message_that_is_not_set_to_start_a_saga.cs" />
-    <Compile Include="Sagas\When_receiving_a_timeout_message.cs" />
-    <Compile Include="Sagas\When_sending_messages_from_a_saga.cs" />
     <Compile Include="GitFlowVersionTests.cs" />
     <Compile Include="Serializers\Json\When_not_overriding_stream_encoding.cs" />
     <Compile Include="Serializers\Json\When_overriding_stream_encoding.cs" />
@@ -166,8 +164,6 @@
     <Compile Include="Outbox\OutboxDeduplicationBehaviorTests.cs" />
     <Compile Include="Routing\StaticMessageRouterTests.cs" />
     <Compile Include="Sagas\UniqueAttributeTests.cs" />
-    <Compile Include="Sagas\When_resolving_message_handlers_for_a_saga.cs" />
-    <Compile Include="Sagas\When_resolving_started_by_interfaces_for_a_saga.cs" />
     <Compile Include="Satellite\SatelliteLauncherContext.cs" />
     <Compile Include="Satellite\SatelliteLauncherTests.cs" />
     <Compile Include="Scheduler\DefaultSchedulerTests.cs" />
@@ -201,7 +197,9 @@
     <Compile Include="Serializers\XML\SomeEnum.cs" />
     <Compile Include="Serializers\XML\Using_Infer_Type_With_Non_Nested_Class.cs" />
     <Compile Include="Timeout\FakeMessageSender.cs" />
+    <Compile Include="Timeout\InMemoryTimeoutPersisterTests.cs" />
     <Compile Include="Timeout\When_fetching_timeouts_from_storage.cs" />
+    <Compile Include="Timeout\InMemoryTimeoutPersisterThreadTests.cs" />
     <Compile Include="Timeout\When_pooling_timeouts.cs" />
     <Compile Include="Timeout\When_receiving_timeouts.cs" />
     <Compile Include="Timeout\When_removing_timeouts_from_the_storage.cs" />
@@ -219,7 +217,6 @@
     <Compile Include="Unicast\Contexts\FakeMessageDeferrer.cs" />
     <Compile Include="Unicast\Contexts\InterfaceMessage.cs" />
     <Compile Include="Unicast\Contexts\using_the_unicastbus.cs" />
-    <Compile Include="Sagas\When_using_custom_finders_to_find_sagas.cs" />
     <Compile Include="Unicast\UnitOfWorkBehaviorTests.cs" />
     <Compile Include="Unicast\ThroughputLimiterTests.cs" />
     <Compile Include="Unicast\MessagingBestPracticesTests.cs" />
@@ -240,10 +237,9 @@
     <Compile Include="Unicast\Subscriptions.cs" />
     <Compile Include="Unicast\Timing.cs" />
     <Compile Include="Unicast\UnitOfWork.cs" />
-    <Compile Include="Unicast\with_sagas.cs" />
+    <Compile Include="Utils\ExceptionHeaderHelperTests.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethodsTests.cs" />
     <Compile Include="Utils\Reflection\ReflectTests.cs" />
-    <Compile Include="Utils\StackTracePreserverTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -259,9 +255,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <None Include="FodyWeavers.xml">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="TestDlls\dotNet.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -279,11 +272,4 @@
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\Fody.1.25.0\build\Fody.targets" Condition="Exists('..\packages\Fody.1.25.0\build\Fody.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Fody.1.25.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.25.0\build\Fody.targets'))" />
-  </Target>
 </Project>

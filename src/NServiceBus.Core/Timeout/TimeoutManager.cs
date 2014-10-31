@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using System;
     using Config;
     using Settings;
     using Timeout.Core;
@@ -12,6 +13,8 @@
     {
         internal TimeoutManager()
         {
+            Defaults(s => s.SetDefault("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver", TimeSpan.FromSeconds(2)));
+
             DependsOn<TimeoutManagerBasedDeferral>();
            
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"),"Send only endpoints can't use the timeoutmanager since it requires receive capabilities");
@@ -46,6 +49,7 @@
                 .ConfigureProperty(t => t.InputAddress, dispatcherAddress);
 
             context.Container.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(t => t.TimeToWaitBeforeTriggeringCriticalError, context.Settings.Get<TimeSpan>("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver"))
                 .ConfigureProperty(t => t.DispatcherAddress, dispatcherAddress);
             context.Container.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
         }

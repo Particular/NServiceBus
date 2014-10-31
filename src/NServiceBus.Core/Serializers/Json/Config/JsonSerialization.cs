@@ -9,7 +9,6 @@
     /// </summary>
     public class JsonSerialization : Feature
     {
-        
         internal JsonSerialization()
         {
             EnableByDefault();

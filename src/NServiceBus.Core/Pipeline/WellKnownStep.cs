@@ -20,6 +20,7 @@ namespace NServiceBus.Pipeline
             this.stepId = stepId;
         }
 
+
         internal static WellKnownStep Create(string customStepId)
         {
             return new WellKnownStep(customStepId);
@@ -30,6 +31,10 @@ namespace NServiceBus.Pipeline
             return step.stepId;
         }
 
+        /// <summary>
+        /// Statistics analysis
+        /// </summary>
+        public static WellKnownStep ProcessingStatistics = new WellKnownStep("ProcessingStatistics");
         /// <summary>
         /// Auditing
         /// </summary>

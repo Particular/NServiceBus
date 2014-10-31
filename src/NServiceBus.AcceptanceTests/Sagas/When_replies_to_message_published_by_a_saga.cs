@@ -16,13 +16,13 @@
         public void Should_reply_to_a_message_published_by_a_saga()
         {
             Scenario.Define<Context>()
-                .WithEndpoint<EndpointThatHostsASaga>
+                .WithEndpoint<SagaEndpoint>
                 (b => b.When(c => c.Subscribed, bus => bus.SendLocal(new StartSaga
                 {
                     DataId = Guid.NewGuid()
                 }))
                 )
-                .WithEndpoint<EndpointThatHandlesAMessageFromSagaAndReplies>(b => b.Given((bus, context) =>
+                .WithEndpoint<ReplyEndpoint>(b => b.Given((bus, context) =>
                 {
                     bus.Subscribe<DidSomething>();
                     if (context.HasNativePubSubSupport)
@@ -42,12 +42,12 @@
             public bool Subscribed { get; set; }
         }
 
-        public class EndpointThatHandlesAMessageFromSagaAndReplies : EndpointConfigurationBuilder
+        public class ReplyEndpoint : EndpointConfigurationBuilder
         {
-            public EndpointThatHandlesAMessageFromSagaAndReplies()
+            public ReplyEndpoint()
             {
                 EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>())
-                    .AddMapping<DidSomething>(typeof(EndpointThatHostsASaga))
+                    .AddMapping<DidSomething>(typeof(SagaEndpoint))
                     .WithConfig<TransportConfig>(c =>
                     {
                         c.MaxRetries = 0;
@@ -69,9 +69,9 @@
             }
         }
 
-        public class EndpointThatHostsASaga : EndpointConfigurationBuilder
+        public class SagaEndpoint : EndpointConfigurationBuilder
         {
-            public EndpointThatHostsASaga()
+            public SagaEndpoint()
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {

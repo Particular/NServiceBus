@@ -12,18 +12,23 @@
     /// </summary>
     public class Conventions
     {
-        internal IEnumerable<PropertyInfo> GetDataBusProperties(object message)
+        internal IEnumerable<DataBusPropertyInfo> GetDataBusProperties(object message)
         {
             var messageType = message.GetType();
 
 
-            List<PropertyInfo> value;
+            List<DataBusPropertyInfo> value;
 
             if (!cache.TryGetValue(messageType, out value))
             {
                 value = messageType.GetProperties()
                     .Where(IsDataBusProperty)
-                    .ToList();
+                    .Select(property => new DataBusPropertyInfo
+                    {
+                        Name = property.Name,
+                        Getter = DelegateFactory.CreateGet(property),
+                        Setter = DelegateFactory.CreateSet(property),
+                    }).ToList();
 
                 cache[messageType] = value;
             }
@@ -186,7 +191,7 @@
             }
         }
 
-        readonly ConcurrentDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>();
+        readonly ConcurrentDictionary<Type, List<DataBusPropertyInfo>> cache = new ConcurrentDictionary<Type, List<DataBusPropertyInfo>>();
 
         ConventionCache CommandsConventionCache = new ConventionCache();
         ConventionCache EventsConventionCache = new ConventionCache();

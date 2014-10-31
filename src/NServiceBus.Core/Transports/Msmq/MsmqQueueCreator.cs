@@ -19,7 +19,6 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         public MsmqSettings Settings { get; set; }
 
-     
         ///<summary>
         /// Utility method for creating a queue if it does not exist.
         ///</summary>
@@ -28,11 +27,13 @@ namespace NServiceBus.Transports.Msmq
         public void CreateQueueIfNecessary(Address address, string account)
         {
             if (address == null)
+            {
                 return;
+            }
 
-            var q = GetFullPathWithoutPrefix(address);
-
+            var queuePath = GetFullPathWithoutPrefix(address);
             var isRemote = address.Machine.ToLower() != RuntimeEnvironment.MachineName.ToLower();
+            
             if (isRemote)
             {
                 Logger.Debug("Queue is on remote machine.");
@@ -43,17 +44,17 @@ namespace NServiceBus.Transports.Msmq
 
             try
             {
-                if (MessageQueue.Exists(q))
+                if (MessageQueue.Exists(queuePath))
                 {
                     Logger.Debug("Queue exists, going to set permissions.");
-                    SetPermissionsForQueue(q, account);
+                    SetPermissionsForQueue(queuePath, account);
                     return;
                 }
 
-                Logger.Warn("Queue " + q + " does not exist.");
-                Logger.Debug("Going to create queue: " + q);
+                Logger.Warn("Queue " + queuePath + " does not exist.");
+                Logger.Debug("Going to create queue: " + queuePath);
 
-                CreateQueue(q, account, Settings.UseTransactionalQueues);
+                CreateQueue(queuePath, account, Settings.UseTransactionalQueues);
             }
             catch (MessageQueueException ex)
             {
@@ -68,35 +69,6 @@ namespace NServiceBus.Transports.Msmq
                 Logger.Error(String.Format("Could not create queue {0} or check its existence. Processing will still continue.", address), ex);
             }
         }
-        ///<summary>
-        /// Create named message queue
-        ///</summary>
-        ///<param name="queueName">Queue path</param>
-        ///<param name="account">The account to be given permissions to the queue</param>
-        /// <param name="transactional">If volatileQueues is true then create a non-transactional message queue</param>
-        private static void CreateQueue(string queueName, string account, bool transactional)
-        {
-            MessageQueue.Create(queueName, transactional);
-
-            SetPermissionsForQueue(queueName, account);
-
-            Logger.DebugFormat("Created queue, path: [{0}], account: [{1}], transactional: [{2}]", queueName, account, transactional);
-        }
-        /// <summary>
-        /// Sets default permissions for queue.
-        /// </summary>
-        private static void SetPermissionsForQueue(string queue, string account)
-        {
-            var q = new MessageQueue(queue);
-
-            q.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
-            q.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
-            q.SetPermissions(LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
-
-            q.SetPermissions(account, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
-            q.SetPermissions(account, MessageQueueAccessRights.ReceiveMessage, AccessControlEntryType.Allow);
-            q.SetPermissions(account, MessageQueueAccessRights.PeekMessage, AccessControlEntryType.Allow);
-        }
 
         /// <summary>
         /// Returns the full path without Format or direct os
@@ -106,6 +78,37 @@ namespace NServiceBus.Transports.Msmq
         {
             return address.Machine + NServiceBus.MsmqUtilities.PRIVATE +  address.Queue;
         }
-    }
 
+        static void CreateQueue(string queuePath, string account, bool transactional)
+        {
+            using (var queue = MessageQueue.Create(queuePath, transactional))
+            {
+                SetPermissionsForQueue(queue, account);
+            }
+
+            Logger.DebugFormat("Created queue, path: [{0}], account: [{1}], transactional: [{2}]", queuePath, account, transactional);
+        }
+
+        static void SetPermissionsForQueue(string queuePath, string account)
+        {
+            using (var messageQueue = new MessageQueue(queuePath))
+            {
+                SetPermissionsForQueue(messageQueue, account);
+            }
+        }
+
+        /// <summary>
+        /// Sets default permissions for queue.
+        /// </summary>
+        static void SetPermissionsForQueue(MessageQueue queue, string account)
+        {
+            queue.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
+            queue.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
+            queue.SetPermissions(LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
+
+            queue.SetPermissions(account, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
+            queue.SetPermissions(account, MessageQueueAccessRights.ReceiveMessage, AccessControlEntryType.Allow);
+            queue.SetPermissions(account, MessageQueueAccessRights.PeekMessage, AccessControlEntryType.Allow);
+        }
+    }
 }
