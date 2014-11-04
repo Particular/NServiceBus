@@ -9,6 +9,7 @@ namespace NServiceBus.Features
         internal ForwarderFaultManager()
         {
             EnableByDefault();
+            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't be used to forward received messages to the error queue as the endpoint requires receive capabilities");
             Prerequisite(c => !c.Container.HasComponent<IManageMessageFailures>(), "An IManageMessageFailures implementation is already registered.");
         }
 
