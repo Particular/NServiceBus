@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Exceptions
 {
     using System;
-    using System.Runtime.CompilerServices;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -87,7 +86,6 @@ at NServiceBus.Transports.Msmq.MsmqDequeueStrategy.Action()", context.StackTrace
 
             class Handler : IHandleMessages<Message>
             {
-                [MethodImpl(MethodImplOptions.NoInlining)]
                 public void Handle(Message message)
                 {
                     throw new HandlerException();

@@ -68,10 +68,7 @@ at NServiceBus.AcceptanceTests.Exceptions.When_handler_throws_AggregateException
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.RegisterComponents(c =>
-                    {
-                        c.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance);
-                    });
+                    b.RegisterComponents(c => c.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance));
                     b.DisableFeature<TimeoutManager>();
                 })
                     .WithConfig<TransportConfig>(c =>
@@ -109,7 +106,6 @@ at NServiceBus.AcceptanceTests.Exceptions.When_handler_throws_AggregateException
 
             class Handler : IHandleMessages<Message>
             {
-                [MethodImpl(MethodImplOptions.NoInlining)]
                 public void Handle(Message message)
                 {
                     try
