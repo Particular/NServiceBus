@@ -23,7 +23,7 @@
                 })))
                 .AllowExceptions(e => e.Message.Contains("Simulated exception"))
                 .Done(c => c.MessageSentToError)
-                .Run();
+                .Run(TimeSpan.FromMinutes(5));
 
             Assert.IsInstanceOf<MySpecialException>(context.MessageSentToErrorException);
         }
