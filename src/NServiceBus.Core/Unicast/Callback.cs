@@ -14,9 +14,10 @@ namespace NServiceBus
     /// </summary>
     class Callback : ICallback
     {
-        static readonly Type AsyncControllerType;
+        static Type AsyncControllerType;
 
-        private readonly string messageId;
+        string messageId;
+        bool isSendOnly;
 
         static Callback()
         {
@@ -36,9 +37,10 @@ namespace NServiceBus
         /// <summary>
         /// Creates a new instance of the callback object storing the given message id.
         /// </summary>
-        public Callback(string messageId)
+        public Callback(string messageId, bool isSendOnly)
         {
             this.messageId = messageId;
+            this.isSendOnly = isSendOnly;
         }
 
         /// <summary>
@@ -100,6 +102,10 @@ namespace NServiceBus
 
         public IAsyncResult Register(AsyncCallback callback, object state)
         {
+            if (isSendOnly)
+            {
+                throw new Exception("Callbacks are invalid in a sendonly endpoint.");
+            }
             var result = new BusAsyncResult(callback, state);
 
             if (Registered != null)
@@ -203,21 +209,5 @@ namespace NServiceBus
                 callback((T)Enum.ToObject(typeof(T), cr.ErrorCode));
             }
         }
-    }
-
-    /// <summary>
-    /// Argument passed in the Registered event of the Callback object.
-    /// </summary>
-    public class BusAsyncResultEventArgs : EventArgs
-    {
-        /// <summary>
-        /// Gets/sets the IAsyncResult.
-        /// </summary>
-        public BusAsyncResult Result { get; set; }
-
-        /// <summary>
-        /// Gets/sets the message id.
-        /// </summary>
-        public string MessageId { get; set; }
     }
 }
