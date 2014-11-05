@@ -138,6 +138,7 @@
     <Compile Include="Licensing\ConfigureLicenseExtensions_Obsolete.cs" />
     <Compile Include="Logging\DefaultLoggingDefinition.cs" />
     <Compile Include="Logging\LoggingDefinition.cs" />
+    <Compile Include="MessageInterfaces\MessageMapper\Reflection\ConcreteProxyCreator.cs" />
     <Compile Include="Monitoring\PerformanceCounterHelper.cs" />
     <Compile Include="Monitoring\CriticalTime\CriticalTimeMonitoringConfig.cs" />
     <Compile Include="Monitoring\CriticalTime\CriticalTimeMonitoring.cs" />
