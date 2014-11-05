@@ -26,6 +26,28 @@
         }
 
         [Test]
+        public void Should_store_state_larger_than_8000_bytes()
+        {
+            var headers = new Dictionary<string, string>();
+            var timeout = new TimeoutData
+            {
+                Time = DateTime.UtcNow.AddHours(-1),
+                CorrelationId = "boo",
+                Destination = new Address("timeouts", Environment.MachineName),
+                SagaId = Guid.NewGuid(),
+                State = new byte[9000],
+                Headers = headers,
+                OwningTimeoutManager = Configure.EndpointName,
+            };
+            persister.Add(timeout);
+
+            TimeoutData timeoutData;
+            persister.TryRemove(timeout.Id, out timeoutData);
+
+            Assert.AreEqual(9000, timeoutData.State.Length);
+        }
+
+        [Test]
         public void Should_remove_timeouts_by_id()
         {
             var t1 = new TimeoutData { Time = DateTime.Now.AddYears(-1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
