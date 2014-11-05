@@ -6,6 +6,7 @@
     using Faults;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_handler_throws_serialization_exception : NServiceBusAcceptanceTest
@@ -21,12 +22,14 @@
                     .Done(c => c.HandedOverToSlr)
                     .Run();
 
-            Assert.AreEqual(5, context.NumberOfTimesInvoked);
+            Assert.AreEqual(Context.MaximumRetries, context.NumberOfTimesInvoked);
             Assert.IsFalse(context.SerializationFailedCalled);
         }
 
         public class Context : ScenarioContext
         {
+            public const int MaximumRetries = 3;
+
             public int NumberOfTimesInvoked { get; set; }
             public bool HandedOverToSlr { get; set; }
             public Dictionary<string, string> HeadersOfTheFailedMessage { get; set; }
@@ -35,10 +38,13 @@
 
         public class RetryEndpoint : EndpointConfigurationBuilder
         {
+            public Context Context { get; set; }
+
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(
-                    b => b.RegisterComponents(r => r.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance)));
+                EndpointSetup<DefaultServer>(b =>
+                    b.RegisterComponents(r => r.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance)))
+                     .WithConfig<TransportConfig>(c => c.MaxRetries = Context.MaximumRetries);
             }
 
             class CustomFaultManager : IManageMessageFailures
@@ -79,6 +85,4 @@
         {
         }
     }
-
-
 }
