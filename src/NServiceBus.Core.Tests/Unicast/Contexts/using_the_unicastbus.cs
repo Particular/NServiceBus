@@ -12,6 +12,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
+    using NServiceBus.Hosting;
     using NServiceBus.ObjectBuilder;
     using NUnit.Framework;
     using Pipeline;
@@ -150,6 +151,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 MessageRouter = router,
                 Settings = settings,
                 Configure = configure,
+                HostInformation = new HostInformation(Guid.NewGuid(), "HelloWorld")
             };
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CausationMutator { Bus = bus });
