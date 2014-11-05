@@ -9,7 +9,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Config
         public TimeoutEntityMap()
         {
             Id(x => x.Id, m => m.Generator(Generators.Assigned));
-            Property(p => p.State);
+            Property(p => p.State, pm => pm.Type(NHibernateUtil.BinaryBlob));
             Property(p => p.CorrelationId, pm => pm.Length(1024));
             Property(p => p.Destination, pm =>
                                              {

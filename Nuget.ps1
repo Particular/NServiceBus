@@ -10,7 +10,8 @@ properties {
 $baseDir = Split-Path (Resolve-Path $MyInvocation.MyCommand.Path)
 $toolsDir = "$baseDir\tools"
 $nugetExec = "$toolsDir\NuGet\NuGet.exe"
-$packageOutPutDir = "$baseDir\artifacts"
+$packageOutPutDir = "$baseDir\nugets"
+$chocoPackageOutPutDir = "$baseDir\chocos"
 $nugetTempPath = "NugetTemp"
 
 task default -depends Build
@@ -21,6 +22,12 @@ task Clean {
 		New-Item $packageOutPutDir -ItemType Directory | Out-Null
 	} else {
 		Remove-Item ($packageOutPutDir + '\*.nupkg')
+	}
+	if ( -Not (Test-Path $chocoPackageOutPutDir))
+	{
+		New-Item $chocoPackageOutPutDir -ItemType Directory | Out-Null
+	} else {
+		Remove-Item ($chocoPackageOutPutDir + '\*.nupkg')
 	}
 }
 
