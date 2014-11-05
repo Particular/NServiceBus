@@ -25,7 +25,33 @@
 
             var transportType = Type.GetType(settings["Transport"]);
 
+            var typeName = "Configure" + transportType.Name;
+
+            var configurerType = Type.GetType(typeName, false);
+
+            if (configurerType != null)
+            {
+                var configurer = Activator.CreateInstance(configurerType);
+
+                dynamic dc = configurer;
+
+                dc.Configure(builder);
+                return;
+            }
+
             builder.UseTransport(transportType).ConnectionString(settings["Transport.ConnectionString"]);
+        }
+
+        public static void DefineTransactions(this BusConfiguration config, IDictionary<string, string> settings)
+        {
+            if (settings.ContainsKey("Transactions.Disable"))
+            {
+                config.Transactions().Disable();
+            }
+            if (settings.ContainsKey("Transactions.SuppressDistributedTransactions"))
+            {
+                config.Transactions().DisableDistributedTransactions();
+            }
         }
 
         public static void DefinePersistence(this BusConfiguration config, IDictionary<string, string> settings)
