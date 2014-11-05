@@ -26,7 +26,7 @@ namespace NServiceBus.Unicast
     /// </summary>
     public partial class UnicastBus : IStartableBus, IInMemoryOperations, IManageMessageHeaders
     {
-        HostInformation hostInformation = HostInformation.CreateDefault();
+        HostInformation hostInformation;
 
         /// <summary>
         /// Initializes a new instance of <see cref="UnicastBus"/>.
@@ -809,7 +809,6 @@ namespace NServiceBus.Unicast
 
             started = false;
         }
-
 
         void TransportStartedMessageProcessing(object sender, StartedMessageProcessingEventArgs e)
         {
