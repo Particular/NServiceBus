@@ -9,6 +9,7 @@ namespace NServiceBus.Features
     using Faults;
     using Logging;
     using NServiceBus.Hosting;
+    using NServiceBus.Support;
     using NServiceBus.Unicast;
     using Pipeline;
     using Pipeline.Contexts;
@@ -31,10 +32,10 @@ namespace NServiceBus.Features
             {
                 string fullPathToStartingExe;
                 s.SetDefault("NServiceBus.HostInformation.HostId", GenerateDefaultHostId(out fullPathToStartingExe));
-                s.SetDefault("NServiceBus.HostInformation.DisplayName", Environment.MachineName);
+                s.SetDefault("NServiceBus.HostInformation.DisplayName", RuntimeEnvironment.MachineName);
                 s.SetDefault("NServiceBus.HostInformation.Properties", new Dictionary<string, string>
                 {
-                    {"Machine", Environment.MachineName},
+                    {"Machine", RuntimeEnvironment.MachineName},
                     {"ProcessID", Process.GetCurrentProcess().Id.ToString()},
                     {"UserName", Environment.UserName},
                     {"PathToExecutable", fullPathToStartingExe}
@@ -79,7 +80,7 @@ namespace NServiceBus.Features
 
         static Guid GenerateDefaultHostId(out string fullPathToStartingExe)
         {
-            var gen = new DefaultHostIdGenerator(Environment.CommandLine, Environment.MachineName);
+            var gen = new DefaultHostIdGenerator(Environment.CommandLine, RuntimeEnvironment.MachineName);
 
             fullPathToStartingExe = gen.FullPathToStartingExe;
 
