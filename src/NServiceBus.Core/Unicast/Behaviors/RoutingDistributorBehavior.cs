@@ -4,10 +4,11 @@ namespace NServiceBus
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Routing;
 
-    class RoutingBehavior : IBehavior<OutgoingContext>
+    class RoutingDistributorBehavior : IBehavior<OutgoingContext>
     {
-        public FileBasedRoundRobinRouting Routing { get; set; }
+        public IRouterDistributor Routing { get; set; }
 
         public Func<Address, string> Translator { get; set; }
 
