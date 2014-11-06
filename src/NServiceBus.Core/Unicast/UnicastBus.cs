@@ -132,6 +132,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Provides access to the current host information
         /// </summary>
+        [ObsoleteEx(Message = "We have introduced a more explicit API to set the host identifier, see busConfiguration.UniquelyIdentifyRunningInstance()", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
         public HostInformation HostInformation
         {
             get { return hostInformation; }

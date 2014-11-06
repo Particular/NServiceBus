@@ -65,8 +65,9 @@
             public void Run(Configure config)
             {
                 var hostInformation = new Hosting.HostInformation(hostId, displayName);
-
+#pragma warning disable 618
                 UnicastBus.HostInformation = hostInformation;
+#pragma warning restore 618
             }
         }
     }
