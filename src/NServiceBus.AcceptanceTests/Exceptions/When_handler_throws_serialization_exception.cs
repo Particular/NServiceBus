@@ -6,7 +6,6 @@
     using Faults;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_handler_throws_serialization_exception : NServiceBusAcceptanceTest
@@ -14,22 +13,21 @@
         [Test]
         public void Should_retry_the_message_using_flr()
         {
-            var context = new Context();
+            var context = new Context { Id = Guid.NewGuid() };
 
             Scenario.Define(context)
-                    .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, ctx) => bus.SendLocal(new MessageToBeRetried { ContextId = ctx.Id })))
                     .AllowExceptions()
                     .Done(c => c.HandedOverToSlr)
-                    .Run();
+                    .Run(TimeSpan.FromMinutes(5));
 
-            Assert.AreEqual(Context.MaximumRetries, context.NumberOfTimesInvoked);
+            Assert.AreEqual(5, context.NumberOfTimesInvoked);
             Assert.IsFalse(context.SerializationFailedCalled);
         }
 
         public class Context : ScenarioContext
         {
-            public const int MaximumRetries = 3;
-
+            public Guid Id { get; set; }
             public int NumberOfTimesInvoked { get; set; }
             public bool HandedOverToSlr { get; set; }
             public Dictionary<string, string> HeadersOfTheFailedMessage { get; set; }
@@ -38,13 +36,10 @@
 
         public class RetryEndpoint : EndpointConfigurationBuilder
         {
-            public Context Context { get; set; }
-
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(b =>
-                    b.RegisterComponents(r => r.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance)))
-                     .WithConfig<TransportConfig>(c => c.MaxRetries = Context.MaximumRetries);
+                EndpointSetup<DefaultServer>(
+                    b => b.RegisterComponents(r => r.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance)));
             }
 
             class CustomFaultManager : IManageMessageFailures
@@ -74,6 +69,10 @@
 
                 public void Handle(MessageToBeRetried message)
                 {
+                    if (message.ContextId != Context.Id)
+                    {
+                        return;
+                    }
                     Context.NumberOfTimesInvoked++;
                     throw new SerializationException();
                 }
@@ -83,6 +82,7 @@
         [Serializable]
         public class MessageToBeRetried : IMessage
         {
+            public Guid ContextId { get; set; }
         }
     }
 }
