@@ -26,8 +26,6 @@ namespace NServiceBus.Unicast
     /// </summary>
     public partial class UnicastBus : IStartableBus, IInMemoryOperations, IManageMessageHeaders
     {
-        HostInformation hostInformation = HostInformation.CreateDefault();
-
         /// <summary>
         /// Initializes a new instance of <see cref="UnicastBus"/>.
         /// </summary>
@@ -134,7 +132,17 @@ namespace NServiceBus.Unicast
         /// </summary>
         public HostInformation HostInformation
         {
-            get { return hostInformation; }
+            get
+            {
+                if (hostInformation == null)
+                {
+                    HostInformation customHostInformation;
+
+                    hostInformation = Settings.TryGet(out customHostInformation) ? customHostInformation : HostInformation.CreateDefault();
+                }
+
+                return hostInformation;
+            }
             set
             {
                 if (value == null)
@@ -891,6 +899,7 @@ namespace NServiceBus.Unicast
 
         ConcurrentDictionary<string, string> staticOutgoingHeaders = new ConcurrentDictionary<string, string>();
 
+        HostInformation hostInformation;
 
         //we need to not inject since at least Autofac doesn't seem to inject internal properties
         PipelineExecutor PipelineFactory

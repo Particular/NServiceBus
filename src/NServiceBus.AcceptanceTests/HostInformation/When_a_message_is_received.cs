@@ -3,15 +3,12 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Config;
     using NUnit.Framework;
-    using Unicast;
 
     public class When_a_message_is_received : NServiceBusAcceptanceTest
     {
         static Guid hostId = new Guid("39365055-daf2-439e-b84d-acbef8fd803d");
         const string displayName = "FooBar";
-        const string displayInstanceIdentifier = "FooBar is great!";
 
         [Test]
         public void Host_information_should_be_available_in_headers()
@@ -33,6 +30,14 @@
             public string HostDisplayName { get; set; }
         }
 
+        public class MyEndpoint : EndpointConfigurationBuilder
+        {
+            public MyEndpoint()
+            {
+                EndpointSetup<DefaultServer>(c => c.HostInformation(new Hosting.HostInformation(hostId, displayName)));
+            }
+        }
+
         [Serializable]
         public class MyMessage : ICommand
         {
@@ -51,26 +56,6 @@
             }
         }
 
-        public class MyEndpoint : EndpointConfigurationBuilder
-        {
-            public MyEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-        }
 
-        class OverrideHostInformation : IWantToRunWhenConfigurationIsComplete
-        {
-            public UnicastBus UnicastBus { get; set; }
-
-            public void Run(Configure config)
-            {
-#pragma warning disable 618
-                var hostInformation = new Hosting.HostInformation(hostId, displayName);
-#pragma warning restore 618
-
-                UnicastBus.HostInformation = hostInformation;
-            }
-        }
     }
 }
