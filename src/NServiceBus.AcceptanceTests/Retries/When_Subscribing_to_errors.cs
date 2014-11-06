@@ -39,7 +39,7 @@
                 .WithEndpoint<SLREndpoint>()
                 .AllowExceptions(e => e.Message.Contains("Simulated exception"))
                 .Done(c => c.MessageSentToError)
-                .Run();
+                .Run(TimeSpan.FromMinutes(5));
 
             Assert.AreEqual(3*3, context.TotalNumberOfFLRTimesInvokedInHandler);
             Assert.AreEqual(3*3, context.TotalNumberOfFLRTimesInvoked);
