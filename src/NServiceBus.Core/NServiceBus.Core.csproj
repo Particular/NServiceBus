@@ -91,6 +91,7 @@
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="ConfigureQueueCreation_Obsolete.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement_obsolete.cs" />
+    <Compile Include="ConfigureClientDistribution.cs" />
     <Compile Include="Config\MsmqConnectionStringBuilder.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />
@@ -230,11 +231,11 @@
     <Compile Include="Settings\DurableMessagesConfig.cs" />
     <Compile Include="Timeout\ConfigurationBuilderExtensions.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
-    <Compile Include="Unicast\Behaviors\FileBasedRoundRobinRouting.cs" />
     <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
     <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
     <Compile Include="Unicast\Behaviors\RoutingBehavior.cs" />
     <Compile Include="Unicast\Behaviors\Routing.cs" />
+    <Compile Include="Unicast\Behaviors\RoutingDistributorBehavior.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
     <Compile Include="Monitoring\SLA\SLABehavior.cs" />
@@ -245,6 +246,13 @@
     <Compile Include="Unicast\DefaultHostIdGenerator.cs" />
     <Compile Include="Unicast\IMessageDispatcherFactory_Obsolete.cs" />
     <Compile Include="MessageDeserializationException.cs" />
+    <Compile Include="Unicast\Routing\FileBasedRoundRobinRoutingDistributor.cs" />
+    <Compile Include="Unicast\Routing\FileBasedRouterDistribution.cs" />
+    <Compile Include="Unicast\Routing\FileBasedRoutingDistributor.cs" />
+    <Compile Include="Unicast\Routing\IRouterDistributor.cs" />
+    <Compile Include="Unicast\Routing\RoutingDistributor.cs" />
+    <Compile Include="Unicast\Routing\RoutingDistributorDefinition.cs" />
+    <Compile Include="Unicast\Routing\RoutingExtentions.cs" />
     <Compile Include="Unicast\Transport\Config\TransportConfiguration.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
     <Compile Include="Unicast\Transport\Config\UseTransportExtensions_Obsolete.cs" />

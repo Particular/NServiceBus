@@ -4,6 +4,7 @@
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
+    using NServiceBus.Unicast.Routing;
     using NUnit.Framework;
 
     [TestFixture]
@@ -27,7 +28,7 @@
                 Console.Out.WriteLine("File written to '{0}'", path);
                 File.WriteAllLines(path, addresses);
 
-                var fileBasedRouting = new FileBasedRoundRobinRouting(Path.GetTempPath());
+                var fileBasedRouting = new FileBasedRoundRobinRoutingDistributor(Path.GetTempPath(), TimeSpan.FromMilliseconds(100));
 
                 Parallel.For(0, 100, i =>
                 {
@@ -82,7 +83,7 @@
                 Console.Out.WriteLine("File written to '{0}'", path2);
                 File.WriteAllLines(path2, addresses2);
 
-                var fileBasedRouting = new FileBasedRoundRobinRouting(Path.GetTempPath());
+                var fileBasedRouting = new FileBasedRoundRobinRoutingDistributor(Path.GetTempPath(), TimeSpan.FromMilliseconds(100));
 
                 var task1 = Task.Factory.StartNew(
                 () =>

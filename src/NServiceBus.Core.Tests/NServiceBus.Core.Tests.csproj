@@ -97,6 +97,7 @@
     <Compile Include="FileBasedRoundRobinRoutingTests.cs" />
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
     <Compile Include="Persistence\InMemory\InMemorySagaPersistenceFixture.cs" />
+    <Compile Include="Routing\FileBasedRoundRobinRoutingDistributorTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
     <Compile Include="Sagas\TypeBasedSagaMetaModelTests.cs" />
     <Compile Include="StandardsTests.cs" />
