@@ -2,11 +2,15 @@ namespace NServiceBus.Features
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using AutomaticSubscriptions;
     using Config;
     using Faults;
     using Logging;
+    using NServiceBus.Hosting;
+    using NServiceBus.Support;
+    using NServiceBus.Unicast;
     using Pipeline;
     using Pipeline.Contexts;
     using Transports;
@@ -24,6 +28,19 @@ namespace NServiceBus.Features
             EnableByDefault();
 
             Defaults(s => s.SetDefault("NServiceBus.LocalAddress", s.EndpointName()));
+            Defaults(s =>
+            {
+                string fullPathToStartingExe;
+                s.SetDefault("NServiceBus.HostInformation.HostId", GenerateDefaultHostId(out fullPathToStartingExe));
+                s.SetDefault("NServiceBus.HostInformation.DisplayName", RuntimeEnvironment.MachineName);
+                s.SetDefault("NServiceBus.HostInformation.Properties", new Dictionary<string, string>
+                {
+                    {"Machine", RuntimeEnvironment.MachineName},
+                    {"ProcessID", Process.GetCurrentProcess().Id.ToString()},
+                    {"UserName", Environment.UserName},
+                    {"PathToExecutable", fullPathToStartingExe}
+                });
+            });
         }
 
         /// <summary>
@@ -32,9 +49,13 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var defaultAddress = Address.Parse(context.Settings.Get<string>("NServiceBus.LocalAddress"));
-
+            var hostInfo = new HostInformation(context.Settings.Get<Guid>("NServiceBus.HostInformation.HostId"), 
+                context.Settings.Get<string>("NServiceBus.HostInformation.DisplayName"), 
+                context.Settings.Get<Dictionary<string, string>>("NServiceBus.HostInformation.Properties"));
+            
             context.Container.ConfigureComponent<Unicast.UnicastBus>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(u => u.InputAddress, defaultAddress);
+                .ConfigureProperty(u => u.InputAddress, defaultAddress)
+                .ConfigureProperty(u => u.HostInformation, hostInfo);
 
             ConfigureSubscriptionAuthorization(context);
 
@@ -55,6 +76,15 @@ namespace NServiceBus.Features
             }
 
             SetTransportThresholds(context);
+        }
+
+        static Guid GenerateDefaultHostId(out string fullPathToStartingExe)
+        {
+            var gen = new DefaultHostIdGenerator(Environment.CommandLine, RuntimeEnvironment.MachineName);
+
+            fullPathToStartingExe = gen.FullPathToStartingExe;
+
+            return gen.HostId;
         }
 
         void SetTransportThresholds(FeatureConfigurationContext context)

@@ -64,6 +64,9 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\NServiceBus.Core\Utils\DeterministicGuid.cs">
+      <Link>DeterministicGuid.cs</Link>
+    </Compile>
     <Compile Include="Audit\When_a_replymessage_is_audited.cs" />
     <Compile Include="Audit\When_using_audit_message_is_received.cs" />
     <Compile Include="Basic\When_registering_custom_serializer.cs" />
@@ -88,6 +91,8 @@
     <Compile Include="Exceptions\Cant_convert_to_TransportMessage\When_cant_convert_to_TransportMessage_SuppressedDTC.cs" />
     <Compile Include="Exceptions\When_handler_throws_serialization_exception.cs" />
     <Compile Include="Exceptions\Message_without_an_id.cs" />
+    <Compile Include="HostInformation\When_customising_hostinfo.cs" />
+    <Compile Include="HostInformation\When_feature_overrides_hostinfo.cs" />
     <Compile Include="Sagas\When_reply_from_a_finder.cs" />
     <Compile Include="Exceptions\Cant_convert_to_TransportMessage\When_cant_convert_to_TransportMessage.cs" />
     <Compile Include="Sagas\When_message_has_a_saga_id.cs" />

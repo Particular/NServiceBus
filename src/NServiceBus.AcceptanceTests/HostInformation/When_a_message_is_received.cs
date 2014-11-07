@@ -11,7 +11,6 @@
     {
         static Guid hostId = new Guid("39365055-daf2-439e-b84d-acbef8fd803d");
         const string displayName = "FooBar";
-        const string displayInstanceIdentifier = "FooBar is great!";
 
         [Test]
         public void Host_information_should_be_available_in_headers()
@@ -65,11 +64,10 @@
 
             public void Run(Configure config)
             {
-#pragma warning disable 618
                 var hostInformation = new Hosting.HostInformation(hostId, displayName);
-#pragma warning restore 618
-
+#pragma warning disable 618
                 UnicastBus.HostInformation = hostInformation;
+#pragma warning restore 618
             }
         }
     }

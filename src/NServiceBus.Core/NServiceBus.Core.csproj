@@ -128,6 +128,8 @@
     <Compile Include="Features\ExposeSettings.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
+    <Compile Include="Hosting\HostInfoConfigurationExtensions.cs" />
+    <Compile Include="Hosting\HostInfoSettings.cs" />
     <Compile Include="IBus_Obsoletes.cs" />
     <Compile Include="IManageMessageHeaders.cs" />
     <Compile Include="INeedInitialization.cs" />
@@ -234,6 +236,7 @@
     <Compile Include="Monitoring\MonitoringConfig_Obsolete.cs" />
     <Compile Include="Monitoring\SLA\SLAMonitoring.cs" />
     <Compile Include="Monitoring\ProcessingStatisticsBehavior.cs" />
+    <Compile Include="Unicast\DefaultHostIdGenerator.cs" />
     <Compile Include="Unicast\IMessageDispatcherFactory_Obsolete.cs" />
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Unicast\Transport\Config\TransportConfiguration.cs" />
