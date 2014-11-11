@@ -30,10 +30,13 @@
 
             if (type == typeof(MessageForwardingInCaseOfFaultConfig))
             {
-                return new MessageForwardingInCaseOfFaultConfig
+                if (!configuration.SendOnly)
+                {
+                    return new MessageForwardingInCaseOfFaultConfig
                     {
                         ErrorQueue = "error"
                     } as T;
+                }
             }
 
             if (type == typeof(UnicastBusConfig))
@@ -48,16 +51,18 @@
 
             if (type == typeof(AuditConfig))
             {
-                if (configuration.AddressOfAuditQueue != null)
+                if (!configuration.SendOnly)
                 {
-                    return new AuditConfig{QueueName = configuration.AddressOfAuditQueue.ToString()} as T;
-                }
+                    if (configuration.AddressOfAuditQueue != null)
+                    {
+                        return new AuditConfig { QueueName = configuration.AddressOfAuditQueue.ToString() } as T;
+                    }
 
-                if (configuration.AuditEndpoint != null)
-                {
-                    return new AuditConfig { QueueName = routingTable[configuration.AuditEndpoint] } as T;
+                    if (configuration.AuditEndpoint != null)
+                    {
+                        return new AuditConfig { QueueName = routingTable[configuration.AuditEndpoint] } as T;
+                    }
                 }
-
             }
 
             if (type == typeof(Logging))
