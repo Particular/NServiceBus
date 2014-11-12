@@ -14,7 +14,8 @@
             NServiceBus.Configure.Component<CorrelationIdMutatorForBackwardsCompatibilityWithV3>(DependencyLifecycle.InstancePerCall);
             NServiceBus.Configure.Component<MsmqUnitOfWork>(DependencyLifecycle.SingleInstance);
             NServiceBus.Configure.Component<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
+                .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested)
+                .ConfigureProperty(p => p.ErrorQueue, NServiceBus.Configure.Instance.GetConfiguredErrorQueue());
           
             var cfg = NServiceBus.Configure.GetConfigSection<MsmqMessageQueueConfig>();
 

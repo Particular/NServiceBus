@@ -112,6 +112,10 @@
     <Compile Include="BasicMessaging\When_Deferring_a_message.cs" />
     <Compile Include="BusStartStop\When_bus_start_raises_an_inmemory_message.cs" />
     <Compile Include="Distributor\Processing_SLR_message.cs" />
+    <Compile Include="Exceptions\Cant_convert_to_TransportMessage\When_cant_convert_to_TransportMessage.cs" />
+    <Compile Include="Exceptions\Cant_convert_to_TransportMessage\When_cant_convert_to_TransportMessage_NoTransactions.cs" />
+    <Compile Include="Exceptions\Cant_convert_to_TransportMessage\When_cant_convert_to_TransportMessage_SuppressedDTC.cs" />
+    <Compile Include="Exceptions\Cant_convert_to_TransportMessage\SerializerCorrupter.cs" />
     <Compile Include="Exceptions\StackTraceAssert.cs" />
     <Compile Include="Exceptions\When_handler_and_Module_End_throws.cs" />
     <Compile Include="Exceptions\When_handler_and_Uow_End_throws.cs" />

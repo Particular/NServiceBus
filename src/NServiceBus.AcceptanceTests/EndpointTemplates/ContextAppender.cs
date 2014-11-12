@@ -22,6 +22,10 @@
                     context.Exceptions += loggingEvent.ExceptionObject + "/n/r";
                 }
             }
+            if (loggingEvent.Level >= Level.Warn)
+            {
+                context.RecordLog(endpointConfiguration.EndpointName, loggingEvent.Level.ToString(), loggingEvent.RenderedMessage);
+            }
 
         }
 
