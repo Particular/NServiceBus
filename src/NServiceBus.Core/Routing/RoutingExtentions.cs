@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast.Routing
+namespace NServiceBus.Routing
 {
     using System;
     using NServiceBus.Configuration.AdvanceExtensibility;
