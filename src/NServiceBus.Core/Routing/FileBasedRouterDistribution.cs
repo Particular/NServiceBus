@@ -1,7 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
-    using NServiceBus.Unicast.Routing;
+    using NServiceBus.Routing;
 
     class FileBasedRouterDistribution : Feature
     {

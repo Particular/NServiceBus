@@ -3,8 +3,8 @@ namespace NServiceBus
     using System;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Routing;
     using NServiceBus.Unicast;
-    using NServiceBus.Unicast.Routing;
 
     class RoutingDistributorBehavior : IBehavior<OutgoingContext>
     {
@@ -35,6 +35,17 @@ namespace NServiceBus
             }
 
             return Address.Parse(address);
+        }
+
+        public class RoutingDistributorRegistration : RegisterStep
+        {
+            public RoutingDistributorRegistration()
+                : base("RoutingDistributor", typeof(RoutingDistributorBehavior), "Changes destinations address to round robin on workers")
+            {
+                InsertAfter(WellKnownStep.MutateOutgoingTransportMessage);
+                InsertAfterIfExists("LogOutgoingMessage");
+                InsertBefore(WellKnownStep.DispatchMessageToTransport);
+            }
         }
     }
 }

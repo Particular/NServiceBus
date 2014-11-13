@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using NServiceBus.Features;
-    using NServiceBus.Unicast.Routing;
+    using NServiceBus.Routing;
 
     /// <summary>
     /// File system base routing distribution.
