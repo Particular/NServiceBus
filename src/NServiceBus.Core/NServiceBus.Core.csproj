@@ -448,6 +448,13 @@
     <Compile Include="Unicast\Routing\RoutingDistributor.cs" />
     <Compile Include="Unicast\Routing\RoutingDistributorDefinition.cs" />
     <Compile Include="Unicast\Routing\RoutingExtentions.cs" />
+    <Compile Include="Routing\FileBasedRoundRobinRoutingDistributor.cs" />
+    <Compile Include="Routing\FileBasedRouterDistribution.cs" />
+    <Compile Include="Routing\FileBasedRoutingDistributor.cs" />
+    <Compile Include="Routing\IRouterDistributor.cs" />
+    <Compile Include="Routing\RoutingDistributor.cs" />
+    <Compile Include="Routing\RoutingDistributorDefinition.cs" />
+    <Compile Include="Routing\RoutingExtentions.cs" />
     <Compile Include="Unicast\Transport\Config\TransportConfiguration.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
     <Compile Include="Pipeline\LimitedThreadPoolExecutor.cs" />
@@ -683,6 +690,8 @@
     <Compile Include="Routing\StorageDrivenPublishing\StorageDrivenDispatcher.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
+    <Compile Include="Routing\StaticMessageRouter.cs" />
+    <Compile Include="Unicast\IMessageHandlerRegistry.cs" />
     <Compile Include="Unicast\MessageHandlerRegistry.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionReceiverBehavior.cs" />
     <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionStorage.cs" />

@@ -4,6 +4,7 @@
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
+    using NServiceBus.Routing;
     using NServiceBus.Unicast.Routing;
     using NUnit.Framework;
 

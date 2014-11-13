@@ -3,7 +3,7 @@ namespace NServiceBus.Core.Tests.Sagas
     using System;
     using System.IO;
     using System.Threading;
-    using NServiceBus.Unicast.Routing;
+    using NServiceBus.Routing;
     using NUnit.Framework;
 
     [TestFixture]

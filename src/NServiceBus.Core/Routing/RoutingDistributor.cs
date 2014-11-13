@@ -1,13 +1,15 @@
 namespace NServiceBus.Features
 {
     using System;
-    using NServiceBus.Pipeline;
+    using NServiceBus.Routing;
     using NServiceBus.Settings;
-    using NServiceBus.Unicast.Routing;
 
-    class RoutingDistributor : Feature
+    /// <summary>
+    /// Provides support for distribution load by routing message dynamically
+    /// </summary>
+    public class RoutingDistributor : Feature
     {
-        public RoutingDistributor()
+        internal RoutingDistributor()
         {
             Func<Address, string> translator = a => a.Queue;
             
@@ -23,23 +25,16 @@ namespace NServiceBus.Features
             return dataBusDefinition.ProvidedByFeature();
         }
 
+        /// <summary>
+        /// Configures the feature
+        /// </summary>
+        /// <param name="context">The feature context</param>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Pipeline.Register<RoutingDistributorRegistration>();
+            context.Pipeline.Register<RoutingDistributorBehavior.RoutingDistributorRegistration>();
             
             context.Container.ConfigureComponent<RoutingDistributorBehavior>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(b => b.Translator, context.Settings.Get("Routing.Translator"));
-        }
-
-        public class RoutingDistributorRegistration : RegisterStep
-        {
-            public RoutingDistributorRegistration()
-                : base("RoutingDistributor", typeof(RoutingDistributorBehavior), "Changes destinations address to round robin on workers")
-            {
-                InsertAfter(WellKnownStep.MutateOutgoingTransportMessage);
-                InsertAfterIfExists("LogOutgoingMessage");
-                InsertBefore(WellKnownStep.DispatchMessageToTransport);
-            }
         }
     }
 }

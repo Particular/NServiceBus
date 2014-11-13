@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using NServiceBus.Features;
-    using NServiceBus.Unicast.Routing;
+    using NServiceBus.Routing;
 
     /// <summary>
     /// Extension methods to configure Client Distribution.
