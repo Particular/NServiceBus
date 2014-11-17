@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Tests.Sagas
+namespace NServiceBus.Core.Tests.Routing
 {
     using System;
     using System.IO;
@@ -24,7 +24,7 @@ namespace NServiceBus.Core.Tests.Sagas
         [SetUp]
         public void Setup()
         {
-            routing = new FileBasedRoundRobinDynamicRoutingImpl(basePath, TimeSpan.FromMilliseconds(100));
+            routing = new FileBasedRoundRobinDynamicRoutingImpl(basePath, TimeSpan.FromSeconds(1));
         }
 
         [TearDown]
@@ -86,7 +86,7 @@ namespace NServiceBus.Core.Tests.Sagas
             Assert.AreEqual("WorkerB", address);
         }
 
-        [Test]
+        [Test, Explicit("Need to figure out a way to make this a bit faster and reliable")]
         public void WithRoutingFile_ModifyFile()
         {
             string address;
@@ -109,7 +109,7 @@ namespace NServiceBus.Core.Tests.Sagas
                 "WorkerC"
             });
 
-            Thread.Sleep(2000);
+            Thread.Sleep(10000);
 
             routing.TryGetRouteAddress("QueueB", out address);
             Assert.AreEqual("WorkerA", address);
@@ -122,8 +122,9 @@ namespace NServiceBus.Core.Tests.Sagas
         void StartMonitoring(string queueName)
         {
             string address;
+
             routing.TryGetRouteAddress(queueName, out address);
-            Thread.Sleep(1000);
+            Thread.Sleep(5000);
         }
     }
 }

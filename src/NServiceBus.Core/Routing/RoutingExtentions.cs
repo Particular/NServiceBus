@@ -19,15 +19,15 @@ namespace NServiceBus.Routing
         }
 
         /// <summary>
-        /// Overrides the default translator of <see cref="Address"/> to the parameter that is passed to <see cref="IRouterDistributor.TryGetRouteAddress"/>.
+        /// Overrides the default logical address translator to the parameter that is passed to <see cref="IRouterDistributor.TryGetRouteAddress"/>.
         /// </summary>
         /// <remarks>
-        /// The default translator uses the <see cref="Address.Queue"/>.
+        /// The default translator uses the <see cref="Address.ToString()"/>.
         /// </remarks>
-        /// <param name="translateAddressToQueueName">The callback to do the translation.</param>
-        public RoutingExtentions<T> WithTranslator(Func<Address, string> translateAddressToQueueName)
+        /// <param name="translateToLogicalAddress">The callback to do the translation.</param>
+        public RoutingExtentions<T> WithTranslator(Func<Address, string> translateToLogicalAddress)
         {
-            Settings.Set("Routing.Translator", translateAddressToQueueName);
+            Settings.Set("Routing.Translator", translateToLogicalAddress);
             return this;
         }
     }
