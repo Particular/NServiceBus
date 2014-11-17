@@ -23,6 +23,8 @@ namespace NServiceBus.Routing
         {
             address = null;
 
+            logger.DebugFormat("Request route for {0}.", queueName);
+
             CacheRoute routes;
             if (!routeMapping.TryGetValue(queueName, out routes))
             {
@@ -70,11 +72,17 @@ namespace NServiceBus.Routing
 
                 if (!File.Exists(filePath))
                 {
+                    logger.DebugFormat("No file found for '{0}'.", queueName);
+
                     routeMapping[queueName] = new CacheRoute(new string[0]);
                     return;
                 }
 
+                logger.DebugFormat("Reading '{0}' file.", fileName);
+
                 routeMapping[queueName] = new CacheRoute(ReadAllLinesWithoutLocking(filePath).ToArray());
+
+                logger.DebugFormat("Routing updated for {0}.", queueName);
             }
         }
 
@@ -103,7 +111,7 @@ namespace NServiceBus.Routing
 
         readonly string basePath;
         readonly TimeSpan timeToWaitBeforeRaisingFileChangedEvent;
-        ILog logger = LogManager.GetLogger<FileBasedRoundRobinDynamicRoutingImpl>();
+        static ILog logger = LogManager.GetLogger<FileBasedRoundRobinDynamicRoutingImpl>();
         List<MonitorFileChanges> monitoringFiles = new List<MonitorFileChanges>();
         ConcurrentDictionary<string, CacheRoute> routeMapping = new ConcurrentDictionary<string, CacheRoute>();
 

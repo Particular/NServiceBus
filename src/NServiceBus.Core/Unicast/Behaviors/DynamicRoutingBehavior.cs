@@ -6,7 +6,7 @@ namespace NServiceBus
     using NServiceBus.Routing;
     using NServiceBus.Unicast;
 
-    class RoutingDistributorBehavior : IBehavior<OutgoingContext>
+    class DynamicRoutingBehavior : IBehavior<OutgoingContext>
     {
         public IRouterDistributor Routing { get; set; }
 
@@ -40,7 +40,7 @@ namespace NServiceBus
         public class RoutingDistributorRegistration : RegisterStep
         {
             public RoutingDistributorRegistration()
-                : base("RoutingDistributor", typeof(RoutingDistributorBehavior), "Changes destinations address to round robin on workers")
+                : base("DynamicRouting", typeof(DynamicRoutingBehavior), "Changes destination address to be dynamic. The address is retrieved using the selected dynamic routing.")
             {
                 InsertAfter(WellKnownStep.MutateOutgoingTransportMessage);
                 InsertAfterIfExists("LogOutgoingMessage");

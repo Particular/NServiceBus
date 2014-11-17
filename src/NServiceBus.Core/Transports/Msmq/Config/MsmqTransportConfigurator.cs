@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using System;
     using Config;
     using Logging;
     using NServiceBus.Faults;
@@ -14,7 +15,9 @@
     {
         internal MsmqTransportConfigurator()
         {
-            
+            Func<Address, string> translator = a => a.Queue;
+
+            Defaults(s => s.SetDefaultTransportLogicalAddressTranslator(translator));
         }
 
         /// <summary>
