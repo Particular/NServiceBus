@@ -8,7 +8,7 @@ namespace NServiceBus
 
     class DynamicRoutingBehavior : IBehavior<OutgoingContext>
     {
-        public IRouterDistributor Routing { get; set; }
+        public IProvideDynamicRouting DynamicRouting { get; set; }
 
         public Func<Address, string> Translator { get; set; }
 
@@ -29,7 +29,7 @@ namespace NServiceBus
         Address GetNextAddress(Address destination)
         {
             string address;
-            if (!Routing.TryGetRouteAddress(Translator(destination), out address))
+            if (!DynamicRouting.TryGetRouteAddress(Translator(destination), out address))
             {
                 return destination;
             }
