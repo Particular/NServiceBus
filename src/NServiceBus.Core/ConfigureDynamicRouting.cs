@@ -15,7 +15,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The current definition instance.</param>
         /// <param name="path">The folder path. This can be a UNC path.</param>
-        public static RoutingExtentions<FileBasedDynamicRouting> LookForFilesIn(this RoutingExtentions<FileBasedDynamicRouting> config, string path)
+        public static RoutingExtensions<FileBasedDynamicRouting> LookForFilesIn(this RoutingExtensions<FileBasedDynamicRouting> config, string path)
         {
             config.Settings.Set("FileBasedRouting.BasePath", path);
             return config;
@@ -25,10 +25,10 @@ namespace NServiceBus
         /// Configures NServiceBus to use the given <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">Dynamic routing definition.</typeparam>
-        public static RoutingExtentions<T> UseDynamicRouting<T>(this BusConfiguration config) where T : DynamicRoutingDefinition
+        public static RoutingExtensions<T> UseDynamicRouting<T>(this BusConfiguration config) where T : DynamicRoutingDefinition
         {
-            var type = typeof(RoutingExtentions<>).MakeGenericType(typeof(T));
-            var extension = (RoutingExtentions<T>) Activator.CreateInstance(type, config.Settings);
+            var type = typeof(RoutingExtensions<>).MakeGenericType(typeof(T));
+            var extension = (RoutingExtensions<T>) Activator.CreateInstance(type, config.Settings);
             var definition = (DynamicRoutingDefinition) Activator.CreateInstance(typeof(T));
 
             config.Settings.Set("SelectedRouting", definition);

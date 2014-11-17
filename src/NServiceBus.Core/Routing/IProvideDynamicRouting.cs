@@ -3,9 +3,9 @@ namespace NServiceBus.Routing
     using NServiceBus.Config;
 
     /// <summary>
-    /// Base interface to implement to create different types of routing distributors.
+    /// Base interface to implement to create different types of dynamic routing implementations.
     /// </summary>
-    public interface IRouterDistributor
+    public interface IProvideDynamicRouting
     {
         /// <summary>
         /// Returns the full address to send messages to based on the <paramref name="logicalEndpoint"/> provided.
