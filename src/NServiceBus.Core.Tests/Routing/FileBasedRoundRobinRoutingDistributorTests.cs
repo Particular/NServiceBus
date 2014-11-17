@@ -48,7 +48,7 @@ namespace NServiceBus.Core.Tests.Routing
             Assert.IsFalse(routing.TryGetRouteAddress("QueueA", out address));
         }
 
-        [Test]
+        [Test, Explicit("Need to figure out a way to make this a bit faster and reliable")]
         public void WithRoutingFile()
         {
             string address;
@@ -63,7 +63,7 @@ namespace NServiceBus.Core.Tests.Routing
             Assert.IsTrue(routing.TryGetRouteAddress("QueueB", out address));
         }
 
-        [Test]
+        [Test, Explicit("Need to figure out a way to make this a bit faster and reliable")]
         public void WithRoutingFile_RoundRobbin()
         {
             string address;
