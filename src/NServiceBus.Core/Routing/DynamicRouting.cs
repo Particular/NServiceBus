@@ -7,9 +7,9 @@ namespace NServiceBus.Features
     /// <summary>
     /// Provides support for distribution load by routing message dynamically
     /// </summary>
-    public class RoutingDistributor : Feature
+    class DynamicRouting : Feature
     {
-        internal RoutingDistributor()
+        internal DynamicRouting()
         {
             Func<Address, string> translator = a => a.Queue;
             
@@ -20,7 +20,7 @@ namespace NServiceBus.Features
 
         static Type GetSelectedFeatureForRouting(SettingsHolder settings)
         {
-            var dataBusDefinition = settings.Get<RoutingDistributorDefinition>("SelectedRouting");
+            var dataBusDefinition = settings.Get<DynamicRoutingDefinition>("SelectedRouting");
 
             return dataBusDefinition.ProvidedByFeature();
         }

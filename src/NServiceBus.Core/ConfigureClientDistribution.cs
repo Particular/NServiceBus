@@ -10,11 +10,11 @@ namespace NServiceBus
     public static class ConfigureClientDistribution
     {
         /// <summary>
-        /// Folder path where to look for files when using <see cref="FileBasedRoutingDistributor"/>.
+        /// Folder path where to look for files when using <see cref="FileBasedDynamicRouting"/>.
         /// </summary>
         /// <param name="config">The current definition instance.</param>
         /// <param name="path">The folder path. This can be a UNC path.</param>
-        public static RoutingExtentions<FileBasedRoutingDistributor> LookForFilesIn(this RoutingExtentions<FileBasedRoutingDistributor> config, string path)
+        public static RoutingExtentions<FileBasedDynamicRouting> LookForFilesIn(this RoutingExtentions<FileBasedDynamicRouting> config, string path)
         {
             config.Settings.Set("FileBasedRouting.BasePath", path);
             return config;
@@ -24,15 +24,15 @@ namespace NServiceBus
         /// Configures NServiceBus to use the given Client Distribution definition.
         /// </summary>
         /// <typeparam name="T">Client Distribution definition.</typeparam>
-        public static RoutingExtentions<T> UseClientDistribution<T>(this BusConfiguration config) where T : RoutingDistributorDefinition
+        public static RoutingExtentions<T> UseClientDistribution<T>(this BusConfiguration config) where T : DynamicRoutingDefinition
         {
             var type = typeof(RoutingExtentions<>).MakeGenericType(typeof(T));
             var extension = (RoutingExtentions<T>)Activator.CreateInstance(type, config.Settings);
-            var definition = (RoutingDistributorDefinition)Activator.CreateInstance(typeof(T));
+            var definition = (DynamicRoutingDefinition)Activator.CreateInstance(typeof(T));
 
             config.Settings.Set("SelectedRouting", definition);
 
-            config.EnableFeature<RoutingDistributor>();
+            config.EnableFeature<DynamicRouting>();
 
             return extension;
         }
