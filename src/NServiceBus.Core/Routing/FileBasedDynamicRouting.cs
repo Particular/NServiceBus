@@ -7,14 +7,14 @@ namespace NServiceBus
     /// <summary>
     /// File system base routing distribution.
     /// </summary>
-    public class FileBasedRoutingDistributor : RoutingDistributorDefinition
+    public class FileBasedDynamicRouting : DynamicRoutingDefinition
     {
         /// <summary>
         /// The feature to enable when this routing distributor is selected
         /// </summary>
         protected internal override Type ProvidedByFeature()
         {
-            return typeof(FileBasedRouterDistribution);
+            return typeof(FileBasedRoundRobinDynamicRouting);
         }
     }
 }

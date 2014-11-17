@@ -7,8 +7,8 @@ namespace NServiceBus.Routing
     /// <summary>
     /// This class provides implementers of <see cref="IRouterDistributor"/> with an extension mechanism for custom settings via extention methods.
     /// </summary>
-    /// <typeparam name="T">The client distributor definition eg <see cref="FileBasedRoutingDistributor"/>.</typeparam>
-    public class RoutingExtentions<T> : ExposeSettings where T : RoutingDistributorDefinition
+    /// <typeparam name="T">The client distributor definition eg <see cref="FileBasedDynamicRouting"/>.</typeparam>
+    public class RoutingExtentions<T> : ExposeSettings where T : DynamicRoutingDefinition
     {
         /// <summary>
         /// Default constructor.
