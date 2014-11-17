@@ -103,6 +103,7 @@
     <Compile Include="ConfigureInMemoryFaultManagement_obsolete.cs" />
     <Compile Include="Routing\DynamicRoutingConfigurationExtensions.cs" />
     <Compile Include="ConfigureClientDistribution.cs" />
+    <Compile Include="ConfigureDynamicRouting.cs" />
     <Compile Include="Config\MsmqConnectionStringBuilder.cs" />
     <Compile Include="ConsistencyGuarantees\ApplyDefaultConsistencyGuaranteeBehavior.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeExtensions.cs" />
@@ -432,6 +433,7 @@
     <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
+    <Compile Include="Unicast\Behaviors\DynamicRoutingBehavior.cs" />
     <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
     <Compile Include="Unicast\Behaviors\RoutingBehavior.cs" />
     <Compile Include="Unicast\Behaviors\Routing.cs" />

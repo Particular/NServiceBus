@@ -16,12 +16,21 @@
     using Transports;
     using Transports.Msmq;
     using Transports.Msmq.Config;
-
+    using NServiceBus.Routing;
+    
     /// <summary>
     ///     Used to configure the MSMQ transport.
     /// </summary>
     public class MsmqTransportConfigurator : ConfigureTransport
     {
+        /// <summary>
+        /// Logical address translator to the parameter that is passed to <see cref="IProvideDynamicRouting.TryGetRouteAddress"/>.
+        /// </summary>
+        protected override AddressTranslator Translator
+        {
+            get { return translator = translator ?? new MsmqTranslator(); }
+        }
+
         internal MsmqTransportConfigurator()
         {
             DependsOn<UnicastBus>();
