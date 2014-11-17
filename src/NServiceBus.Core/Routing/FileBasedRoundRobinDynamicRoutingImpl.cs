@@ -11,7 +11,7 @@ namespace NServiceBus.Routing
     using NServiceBus.Logging;
 
     [SkipWeaving]
-    class FileBasedRoundRobinDynamicRoutingImpl : IRouterDistributor, IDisposable
+    class FileBasedRoundRobinDynamicRoutingImpl : IProvideDynamicRouting, IDisposable
     {
         public FileBasedRoundRobinDynamicRoutingImpl(string basePath, TimeSpan timeToWaitBeforeRaisingFileChangedEvent)
         {
