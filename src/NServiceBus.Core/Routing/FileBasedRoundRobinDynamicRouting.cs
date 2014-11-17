@@ -12,7 +12,7 @@ namespace NServiceBus.Features
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.RegisterSingleton(new FileBasedRoundRobinDynamicRoutingImpl(context.Settings.Get<string>("FileBasedRouting.BasePath"), TimeSpan.FromSeconds(5)));
+            context.Container.RegisterSingleton<IRouterDistributor>(new FileBasedRoundRobinDynamicRoutingImpl(context.Settings.Get<string>("FileBasedRouting.BasePath"), TimeSpan.FromSeconds(5)));
         }
     }
 }
