@@ -142,6 +142,14 @@
     <Compile Include="DeterministicGuid.cs" />
     <Compile Include="MessageId\When_message_has_no_id_header.cs" />
     <Compile Include="Hosting\When_feature_overrides_hostinfo.cs" />
+    <Compile Include="Exceptions\Cant_convert_to_TransportMessage\SerializerCorrupter.cs" />
+    <Compile Include="Exceptions\Cant_convert_to_TransportMessage\When_cant_convert_to_TransportMessage_NoTransactions.cs" />
+    <Compile Include="Exceptions\Cant_convert_to_TransportMessage\When_cant_convert_to_TransportMessage_SuppressedDTC.cs" />
+    <Compile Include="Exceptions\When_handler_throws_serialization_exception.cs" />
+    <Compile Include="Exceptions\Message_without_an_id.cs" />
+    <Compile Include="HostInformation\When_customising_hostinfo.cs" />
+    <Compile Include="HostInformation\When_feature_overrides_hostinfo.cs" />
+    <Compile Include="Routing\When_dynamic_routing.cs" />
     <Compile Include="Sagas\When_reply_from_a_finder.cs" />
     <Compile Include="Sagas\When_message_has_a_saga_id.cs" />
     <Compile Include="Recoverability\Retries\When_Subscribing_to_errors.cs" />
