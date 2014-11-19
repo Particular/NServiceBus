@@ -117,6 +117,7 @@
     <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
     <Compile Include="BusNotifications.cs" />
+    <Compile Include="EndpointNotifications.cs" />
     <Compile Include="Faults\FailedMessage.cs" />
     <Compile Include="Faults\ErrorsNotifications.cs" />
     <Compile Include="Faults\ErrorSubscribers.cs" />
@@ -201,6 +202,10 @@
     <Compile Include="Persistence\PersistenceStartup.cs" />
     <Compile Include="Persistence\Storage.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
+    <Compile Include="Routing\DisconnectMessageBehavior.cs" />
+    <Compile Include="Routing\DynamicRoutingBehavior.cs" />
+    <Compile Include="Routing\NoMessageBacklogNotifier.cs" />
+    <Compile Include="Routing\SafeDisconnect.cs" />
     <Compile Include="Sagas\CorrelationProperty.cs" />
     <Compile Include="Sagas\CustomFinderAdapter.cs" />
     <Compile Include="Sagas\LoadSagaByIdWrapper.cs" />
@@ -232,7 +237,6 @@
     <Compile Include="Timeout\ConfigurationBuilderExtensions.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
-    <Compile Include="Unicast\Behaviors\DynamicRoutingBehavior.cs" />
     <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
     <Compile Include="Unicast\Behaviors\RoutingBehavior.cs" />
     <Compile Include="Unicast\Behaviors\Routing.cs" />

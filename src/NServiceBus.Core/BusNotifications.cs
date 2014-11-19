@@ -6,21 +6,30 @@ namespace NServiceBus
     /// <summary>
     ///     Bus notifications.
     /// </summary>
-    public class BusNotifications: IDisposable
+    public class BusNotifications : IDisposable
     {
         /// <summary>
-        ///     Errors push-based notifications
+        ///     Errors push-based notifications.
         /// </summary>
         public ErrorsNotifications Errors
         {
             get { return errorNotifications; }
         }
 
-        ErrorsNotifications errorNotifications = new ErrorsNotifications();
+        /// <summary>
+        ///     Endpoint push-based notifications.
+        /// </summary>
+        public EndpointNotifications Endpoint
+        {
+            get { return endpointNotifications; }
+        }
 
         void IDisposable.Dispose()
         {
             // Injected
         }
+
+        EndpointNotifications endpointNotifications = new EndpointNotifications();
+        ErrorsNotifications errorNotifications = new ErrorsNotifications();
     }
 }
