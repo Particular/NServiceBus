@@ -145,6 +145,7 @@
     <Compile Include="Extensibility\ExtendableOptionsExtensions.cs" />
     <Compile Include="Extensibility\ReadOnlyContextBag.cs" />
     <Compile Include="Faults\ConfigureError.cs" />
+    <Compile Include="EndpointNotifications.cs" />
     <Compile Include="Faults\FailedMessage.cs" />
     <Compile Include="Faults\ErrorsNotifications.cs" />
     <Compile Include="Faults\ErrorSubscribers.cs" />
@@ -376,6 +377,10 @@
     <Compile Include="Persistence\StorageType.cs" />
     <Compile Include="Pipeline\HardcodedPipelineSteps.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
+    <Compile Include="Routing\DisconnectMessageBehavior.cs" />
+    <Compile Include="Routing\DynamicRoutingBehavior.cs" />
+    <Compile Include="Routing\NoMessageBacklogNotifier.cs" />
+    <Compile Include="Routing\SafeDisconnect.cs" />
     <Compile Include="Sagas\CorrelationProperty.cs" />
     <Compile Include="Sagas\CustomFinderAdapter.cs" />
     <Compile Include="Sagas\LoadSagaByIdWrapper.cs" />
@@ -420,7 +425,6 @@
     <Compile Include="Timeout\ConfigurationBuilderExtensions.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
-    <Compile Include="Unicast\Behaviors\DynamicRoutingBehavior.cs" />
     <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
     <Compile Include="Unicast\Behaviors\RoutingBehavior.cs" />
     <Compile Include="Unicast\Behaviors\Routing.cs" />
