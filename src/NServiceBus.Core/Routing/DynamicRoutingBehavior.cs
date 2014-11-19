@@ -1,14 +1,15 @@
-namespace NServiceBus
+namespace NServiceBus.Routing
 {
     using System;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Routing;
     using NServiceBus.Unicast;
 
     class DynamicRoutingBehavior : IBehavior<OutgoingContext>
     {
-        public DynamicRoutingProvider RoutingProvider { get; set; }
+        public IProvideDynamicRouting DynamicRouting { get; set; }
+
+        public Func<Address, string> Translator { get; set; }
 
         public void Invoke(OutgoingContext context, Action next)
         {
@@ -26,9 +27,13 @@ namespace NServiceBus
 
         Address GetNextAddress(Address destination)
         {
-            var address = RoutingProvider.GetRouteAddress(destination);
-            
-            return address;
+            string address;
+            if (!DynamicRouting.TryGetRouteAddress(Translator(destination), out address))
+            {
+                return destination;
+            }
+
+            return Address.Parse(address);
         }
 
         public class RoutingDistributorRegistration : RegisterStep

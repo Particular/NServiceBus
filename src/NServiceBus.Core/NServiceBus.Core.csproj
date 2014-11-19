@@ -385,6 +385,10 @@
     <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoutingConfigurationExtensions.cs" />
     <Compile Include="EndpointControl\NoMessageBacklogNotifier.cs" />
     <Compile Include="EndpointControl\EndpointSafeToDisconnect.cs" />
+    <Compile Include="Routing\DisconnectMessageBehavior.cs" />
+    <Compile Include="Routing\DynamicRoutingBehavior.cs" />
+    <Compile Include="Routing\NoMessageBacklogNotifier.cs" />
+    <Compile Include="Routing\SafeDisconnect.cs" />
     <Compile Include="Sagas\CorrelationProperty.cs" />
     <Compile Include="Sagas\CustomFinderAdapter.cs" />
     <Compile Include="Sagas\LoadSagaByIdWrapper.cs" />
@@ -433,7 +437,6 @@
     <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
-    <Compile Include="Unicast\Behaviors\DynamicRoutingBehavior.cs" />
     <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
     <Compile Include="Unicast\Behaviors\RoutingBehavior.cs" />
     <Compile Include="Unicast\Behaviors\Routing.cs" />
