@@ -297,7 +297,7 @@ namespace NServiceBus.Transports.Msmq
         const string PREFIX = "FormatName:" + DIRECTPREFIX;
         internal const string PRIVATE = "\\private$\\";
         static string localIp;
-        static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
+        static XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
         static ILog Logger = LogManager.GetLogger(typeof(MsmqUtilities));
     }
 }
