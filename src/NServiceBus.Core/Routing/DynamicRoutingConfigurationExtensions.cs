@@ -3,24 +3,12 @@ namespace NServiceBus
     using System;
     using NServiceBus.Features;
     using NServiceBus.Routing;
-    using NServiceBus.Settings;
 
     /// <summary>
     /// Extension methods to configure dynamic routing.
     /// </summary>
-    public static class ConfigureDynamicRouting
+    public static class DynamicRoutingConfigurationExtensions
     {
-        /// <summary>
-        /// Folder path where to look for files when using <see cref="FileBasedDynamicRouting"/>.
-        /// </summary>
-        /// <param name="config">The current definition instance.</param>
-        /// <param name="path">The folder path. This can be a UNC path.</param>
-        public static RoutingExtensions<FileBasedDynamicRouting> LookForFilesIn(this RoutingExtensions<FileBasedDynamicRouting> config, string path)
-        {
-            config.Settings.Set("FileBasedRouting.BasePath", path);
-            return config;
-        }
-
         /// <summary>
         /// Configures NServiceBus to use the given <typeparamref name="T"/>.
         /// </summary>
