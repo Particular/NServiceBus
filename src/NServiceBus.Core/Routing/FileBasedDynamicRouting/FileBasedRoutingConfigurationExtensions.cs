@@ -1,7 +1,5 @@
 namespace NServiceBus
 {
-    using System;
-    using NServiceBus.Features;
     using NServiceBus.Routing;
 
     /// <summary>

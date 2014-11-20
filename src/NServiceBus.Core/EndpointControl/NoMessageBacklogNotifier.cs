@@ -1,4 +1,4 @@
-namespace NServiceBus.Routing
+namespace NServiceBus.EndpointControl
 {
     using System;
     using System.Collections.Generic;
