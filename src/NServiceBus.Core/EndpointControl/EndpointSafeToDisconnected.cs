@@ -1,19 +1,19 @@
-namespace NServiceBus.Routing
+namespace NServiceBus.EndpointControl
 {
     using System.Collections.Generic;
 
     /// <summary>
-    /// Safe disconnect event data
+    /// Event emitted when the endpoints input queue is drained and its ready to be disconnected/shutdown
     /// </summary>
-    public class SafeDisconnect
+    public class EndpointSafeToDisconnected
     {
         readonly Dictionary<string, string> headers;
         
         /// <summary>
-        /// Creates a new instance of <see cref="SafeDisconnect"/>.
+        /// Creates a new instance of <see cref="EndpointSafeToDisconnected"/>.
         /// </summary>
         /// <param name="headers">Message headers.</param>
-        public SafeDisconnect(Dictionary<string, string> headers)
+        public EndpointSafeToDisconnected(Dictionary<string, string> headers)
         {
             this.headers = headers;
         }

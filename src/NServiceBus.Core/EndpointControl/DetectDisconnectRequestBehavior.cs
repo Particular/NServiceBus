@@ -1,13 +1,13 @@
 namespace NServiceBus
 {
     using System;
+    using NServiceBus.EndpointControl;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Routing;
     using NServiceBus.Unicast.Transport;
 
-    class DisconnectMessageBehavior : IBehavior<IncomingContext>
+    class DetectDisconnectRequestBehavior : IBehavior<IncomingContext>
     {
         public NoMessageBacklogNotifier Monitor { get; set; }
 
@@ -37,6 +37,6 @@ namespace NServiceBus
         }
 
         const string DisconnectHeader = "NServiceBus.DisconnectMessage";
-        static ILog logger = LogManager.GetLogger<DisconnectMessageBehavior>();
+        static ILog logger = LogManager.GetLogger<DetectDisconnectRequestBehavior>();
     }
 }

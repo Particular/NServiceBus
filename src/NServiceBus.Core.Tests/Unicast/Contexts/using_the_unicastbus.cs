@@ -12,9 +12,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
+    using NServiceBus.EndpointControl;
     using NServiceBus.Hosting;
     using NServiceBus.ObjectBuilder;
-    using NServiceBus.Routing;
     using NUnit.Framework;
     using Pipeline;
     using Publishing;
@@ -123,7 +123,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                                                              });
 
             FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
-            FuncBuilder.Register<DisconnectMessageBehavior>(() => new DisconnectMessageBehavior()
+            FuncBuilder.Register<DetectDisconnectRequestBehavior>(() => new DetectDisconnectRequestBehavior()
             {
                 Monitor = new NoMessageBacklogNotifier(new BusNotifications())
             });

@@ -8,8 +8,8 @@ namespace NServiceBus.Features
     using Config;
     using Faults;
     using Logging;
+    using NServiceBus.EndpointControl;
     using NServiceBus.Hosting;
-    using NServiceBus.Routing;
     using NServiceBus.Support;
     using NServiceBus.Unicast;
     using Pipeline;
