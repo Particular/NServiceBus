@@ -14,6 +14,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Monitoring;
     using NServiceBus.Hosting;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.Routing;
     using NUnit.Framework;
     using Pipeline;
     using Publishing;
@@ -122,6 +123,10 @@ namespace NServiceBus.Unicast.Tests.Contexts
                                                              });
 
             FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
+            FuncBuilder.Register<DisconnectMessageBehavior>(() => new DisconnectMessageBehavior()
+            {
+                Monitor = new NoMessageBacklogNotifier(new BusNotifications())
+            });
             FuncBuilder.Register<PipelineExecutor>(() => pipelineFactory);
             FuncBuilder.Register<TransportDefinition>(() => transportDefinition);
 

@@ -9,10 +9,7 @@ namespace NServiceBus
 
     class DisconnectMessageBehavior : IBehavior<IncomingContext>
     {
-        public DisconnectMessageBehavior(NoMessageBacklogNotifier monitor)
-        {
-            this.monitor = monitor;
-        }
+        public NoMessageBacklogNotifier Monitor { get; set; }
 
         public void Invoke(IncomingContext context, Action next)
         {
@@ -20,13 +17,13 @@ namespace NServiceBus
 
             if (!transportMessage.IsControlMessage() && !IsDisconnectMessage(transportMessage))
             {
-                monitor.ResetTimer();
+                Monitor.ResetTimer();
                 next();
                 return;
             }
 
             logger.Info("Received a notify for safe disconnect message, starting the timer.");
-            monitor.StartTimer(transportMessage.Headers);
+            Monitor.StartTimer(transportMessage.Headers);
         }
 
         bool IsDisconnectMessage(TransportMessage msg)
@@ -40,7 +37,6 @@ namespace NServiceBus
         }
 
         const string DisconnectHeader = "NServiceBus.DisconnectMessage";
-        readonly NoMessageBacklogNotifier monitor;
         static ILog logger = LogManager.GetLogger<DisconnectMessageBehavior>();
     }
 }
