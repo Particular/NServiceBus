@@ -25,17 +25,8 @@ namespace NServiceBus
                 return;
             }
 
-            var callbackUrl = CallbackUrl(transportMessage);
-
             logger.Info("Received a notify for safe disconnect message, starting the timer.");
-            monitor.StartTimer(callbackUrl);
-        }
-
-        string CallbackUrl(TransportMessage msg)
-        {
-            string url;
-            msg.Headers.TryGetValue(CallbackUrlHeader, out url);
-            return url;
+            monitor.StartTimer(transportMessage.Headers);
         }
 
         bool IsDisconnectMessage(TransportMessage msg)
@@ -49,7 +40,6 @@ namespace NServiceBus
         }
 
         const string DisconnectHeader = "NServiceBus.DisconnectMessage";
-        const string CallbackUrlHeader = "NServiceBus.DisconnectMessage.CallbackUrl";
         readonly NoMessageBacklogNotifier monitor;
         static ILog logger = LogManager.GetLogger<DisconnectMessageBehavior>();
     }
