@@ -5,9 +5,9 @@ namespace NServiceBus
     using NServiceBus.Routing;
 
     /// <summary>
-    /// File system base routing distribution.
+    /// Provides support for round robin scaleout using a static list of endpoints in a text file
     /// </summary>
-    public class FileBasedDynamicRouting : DynamicRoutingDefinition
+    public class FileBasedRoundRobinDistribution : DynamicRoutingDefinition
     {
         /// <summary>
         /// The feature to enable when this routing distributor is selected

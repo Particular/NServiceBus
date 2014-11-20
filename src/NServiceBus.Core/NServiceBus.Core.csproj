@@ -91,7 +91,7 @@
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="ConfigureQueueCreation_Obsolete.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement_obsolete.cs" />
-    <Compile Include="ConfigureDynamicRouting.cs" />
+    <Compile Include="Routing\DynamicRoutingConfigurationExtensions.cs" />
     <Compile Include="Config\MsmqConnectionStringBuilder.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />
@@ -204,6 +204,7 @@
     <Compile Include="Pipeline\PipelineModifications.cs" />
     <Compile Include="Routing\DisconnectMessageBehavior.cs" />
     <Compile Include="Routing\DynamicRoutingBehavior.cs" />
+    <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoutingConfigurationExtensions.cs" />
     <Compile Include="Routing\NoMessageBacklogNotifier.cs" />
     <Compile Include="Routing\SafeDisconnect.cs" />
     <Compile Include="Sagas\CorrelationProperty.cs" />
@@ -251,9 +252,9 @@
     <Compile Include="Unicast\DefaultHostIdGenerator.cs" />
     <Compile Include="Unicast\IMessageDispatcherFactory_Obsolete.cs" />
     <Compile Include="MessageDeserializationException.cs" />
-    <Compile Include="Routing\FileBasedRoundRobinRoutingProvider.cs" />
-    <Compile Include="Routing\FileBasedRoundRobinDynamicRouting.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting.cs" />
+    <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoundRobinRoutingProvider.cs" />
+    <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoundRobinDynamicRouting.cs" />
+    <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoundRobinDistribution.cs" />
     <Compile Include="Routing\IProvideDynamicRouting.cs" />
     <Compile Include="Routing\DynamicRouting.cs" />
     <Compile Include="Routing\DynamicRoutingDefinition.cs" />

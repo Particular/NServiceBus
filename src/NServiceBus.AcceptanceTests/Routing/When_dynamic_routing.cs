@@ -71,7 +71,7 @@
                     "DynamicRouting.Receiver2"
                 });
 
-                EndpointSetup<DefaultServer>(c => c.UseDynamicRouting<FileBasedDynamicRouting>()
+                EndpointSetup<DefaultServer>(c => c.UseDynamicRouting<FileBasedRoundRobinDistribution>()
                     .LookForFilesIn(basePath)
                     .WithTranslator(address => "Receiver"))
                     .AddMapping<Request>(typeof(Receiver1));
@@ -104,7 +104,7 @@
                     "DynamicRouting.Receiver2"
                 });
 
-                EndpointSetup<DefaultServer>(c => c.UseDynamicRouting<FileBasedDynamicRouting>()
+                EndpointSetup<DefaultServer>(c => c.UseDynamicRouting<FileBasedRoundRobinDistribution>()
                     .LookForFilesIn(basePath)
                     .WithTranslator(address => "Receiver"))
                     .AddMapping<Request>(typeof(Receiver1));
