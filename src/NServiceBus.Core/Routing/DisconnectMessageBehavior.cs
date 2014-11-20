@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
@@ -8,8 +9,6 @@ namespace NServiceBus
 
     class DisconnectMessageBehavior : IBehavior<IncomingContext>
     {
-        readonly NoMessageBacklogNotifier monitor;
-
         public DisconnectMessageBehavior(NoMessageBacklogNotifier monitor)
         {
             this.monitor = monitor;
@@ -19,7 +18,7 @@ namespace NServiceBus
         {
             var transportMessage = context.PhysicalMessage;
 
-            if (!transportMessage.IsControlMessage() || !IsDisconnectMessage(transportMessage))
+            if (!transportMessage.IsControlMessage() && !IsDisconnectMessage(transportMessage))
             {
                 monitor.ResetTimer();
                 next();
@@ -28,11 +27,9 @@ namespace NServiceBus
 
             var callbackUrl = CallbackUrl(transportMessage);
 
+            logger.Info("Received a notify for safe disconnect message, starting the timer.");
             monitor.StartTimer(callbackUrl);
         }
-
-        const string DisconnectHeader = "NServiceBus.DisconnectMessage";
-        const string CallbackUrlHeader = "NServiceBus.DisconnectMessage.CallbackUrl";
 
         string CallbackUrl(TransportMessage msg)
         {
@@ -51,14 +48,9 @@ namespace NServiceBus
             return false;
         }
 
-        public class DisconnectMessageRegistration : RegisterStep
-        {
-            public DisconnectMessageRegistration()
-                : base("DisconnectMessage", typeof(DisconnectMessageBehavior), "Armes itself to notify when it is safe to disconnect.")
-            {
-                InsertBefore(WellKnownStep.MutateIncomingTransportMessage);
-                InsertAfter(WellKnownStep.ExecuteUnitOfWork);
-            }
-        }
+        const string DisconnectHeader = "NServiceBus.DisconnectMessage";
+        const string CallbackUrlHeader = "NServiceBus.DisconnectMessage.CallbackUrl";
+        readonly NoMessageBacklogNotifier monitor;
+        static ILog logger = LogManager.GetLogger<DisconnectMessageBehavior>();
     }
 }
