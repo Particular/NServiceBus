@@ -9,6 +9,7 @@ namespace NServiceBus.Features
     using Faults;
     using Logging;
     using NServiceBus.Hosting;
+    using NServiceBus.Routing;
     using NServiceBus.Support;
     using NServiceBus.Unicast;
     using Pipeline;
@@ -60,6 +61,7 @@ namespace NServiceBus.Features
             ConfigureSubscriptionAuthorization(context);
 
             context.Container.ConfigureComponent<PipelineExecutor>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<NoMessageBacklogNotifier>(DependencyLifecycle.SingleInstance);
             ConfigureBehaviors(context);
 
             var knownMessages = context.Settings.GetAvailableTypes()

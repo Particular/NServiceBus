@@ -32,9 +32,7 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Pipeline.Register<DynamicRoutingBehavior.RoutingDistributorRegistration>();
-            context.Pipeline.Register<DisconnectMessageBehavior.DisconnectMessageRegistration>();
 
-            context.Container.ConfigureComponent<NoMessageBacklogNotifier>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<DynamicRoutingBehavior>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(b => b.Translator, context.Settings.Get("Routing.Translator"));
         }
