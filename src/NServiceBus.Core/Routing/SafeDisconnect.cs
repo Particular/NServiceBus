@@ -1,30 +1,26 @@
 namespace NServiceBus.Routing
 {
-    using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Safe disconnect event data
     /// </summary>
     public class SafeDisconnect
     {
-        readonly TimeSpan idleTimeWaited;
-
+        readonly Dictionary<string, string> headers;
         
         /// <summary>
         /// Creates a new instance of <see cref="SafeDisconnect"/>.
         /// </summary>
-        /// <param name="idleTimeWaited">Time waited before raising event.</param>
-        public SafeDisconnect(TimeSpan idleTimeWaited)
+        /// <param name="headers">Message headers.</param>
+        public SafeDisconnect(Dictionary<string, string> headers)
         {
-            this.idleTimeWaited = idleTimeWaited;
+            this.headers = headers;
         }
 
         /// <summary>
-        /// Time waited before raising event.
+        ///     Gets the message headers.
         /// </summary>
-        public TimeSpan IdleTimeWaited
-        {
-            get { return idleTimeWaited; }
-        }
+        public Dictionary<string, string> Headers { get { return headers; } }
     }
 }
