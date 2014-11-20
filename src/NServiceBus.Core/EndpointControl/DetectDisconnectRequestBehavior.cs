@@ -15,19 +15,20 @@ namespace NServiceBus
         {
             var transportMessage = context.PhysicalMessage;
 
-            if (IsDisconnectMessage(transportMessage))
+            if (!transportMessage.IsControlMessage() && !IsDisconnectMessage(transportMessage))
             {
-                logger.Info("Received a notify for safe disconnect message, starting the timer.");
-                Monitor.StartTimer(transportMessage.Headers);
+                Monitor.ResetTimer();
+                next();
                 return;
             }
 
-            next();
+            logger.Info("Received a notify for safe disconnect message, starting the timer.");
+            Monitor.StartTimer(transportMessage.Headers);
         }
 
         bool IsDisconnectMessage(TransportMessage msg)
         {
-            if (msg.IsControlMessage() && msg.Headers.ContainsKey(DisconnectHeader))
+            if (msg.Headers.ContainsKey(DisconnectHeader))
             {
                 return true;
             }

@@ -388,8 +388,8 @@
     <Compile Include="Routing\DisconnectMessageBehavior.cs" />
     <Compile Include="Routing\DynamicRoutingBehavior.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoutingConfigurationExtensions.cs" />
-    <Compile Include="Routing\NoMessageBacklogNotifier.cs" />
-    <Compile Include="Routing\SafeDisconnect.cs" />
+    <Compile Include="EndpointControl\NoMessageBacklogNotifier.cs" />
+    <Compile Include="EndpointControl\EndpointSafeToDisconnected.cs" />
     <Compile Include="Sagas\CorrelationProperty.cs" />
     <Compile Include="Sagas\CustomFinderAdapter.cs" />
     <Compile Include="Sagas\LoadSagaByIdWrapper.cs" />
