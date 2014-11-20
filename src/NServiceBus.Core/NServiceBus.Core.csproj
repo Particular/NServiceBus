@@ -457,6 +457,7 @@
     <Compile Include="Routing\FileBasedRouterDistribution.cs" />
     <Compile Include="Routing\FileBasedRoutingDistributor.cs" />
     <Compile Include="Routing\FileBasedRoundRobinDynamicRoutingImpl.cs" />
+    <Compile Include="Routing\FileBasedRoundRobinRoutingProvider.cs" />
     <Compile Include="Routing\FileBasedRoundRobinDynamicRouting.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting.cs" />
     <Compile Include="Routing\IProvideDynamicRouting.cs" />

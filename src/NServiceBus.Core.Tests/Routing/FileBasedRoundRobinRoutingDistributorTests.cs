@@ -9,7 +9,7 @@ namespace NServiceBus.Core.Tests.Routing
     [TestFixture]
     public class FileBasedRoundRobinRoutingDistributorTests
     {
-        FileBasedRoundRobinDynamicRoutingImpl routing;
+        FileBasedRoundRobinRoutingProvider routing;
         string basePath;
 
         [TestFixtureSetUp]
@@ -24,7 +24,7 @@ namespace NServiceBus.Core.Tests.Routing
         [SetUp]
         public void Setup()
         {
-            routing = new FileBasedRoundRobinDynamicRoutingImpl(basePath, TimeSpan.FromSeconds(1));
+            routing = new FileBasedRoundRobinRoutingProvider(basePath, TimeSpan.FromSeconds(1));
         }
 
         [TearDown]
