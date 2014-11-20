@@ -36,6 +36,9 @@
 
             Scenario.Define(context)
                     .WithEndpoint<Sender2>(b => b.Given((bus, c) => bus.Send(new Request())))
+                    {
+                        bus.Send(new Request());
+                    }))
                     .WithEndpoint<Receiver1>()
                     .WithEndpoint<Receiver2>()
                     .Done(c => c.SafeDisconnectReceived)
