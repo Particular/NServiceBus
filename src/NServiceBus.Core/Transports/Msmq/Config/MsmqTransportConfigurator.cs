@@ -17,7 +17,7 @@
         {
             Func<Address, string> translator = a => a.Queue;
 
-            Defaults(s => s.SetDefaultTransportLogicalAddressTranslator(translator));
+            Defaults(s => s.SetDefault("Routing.Translator", translator));
         }
 
         /// <summary>

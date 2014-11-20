@@ -251,7 +251,7 @@
     <Compile Include="Unicast\DefaultHostIdGenerator.cs" />
     <Compile Include="Unicast\IMessageDispatcherFactory_Obsolete.cs" />
     <Compile Include="MessageDeserializationException.cs" />
-    <Compile Include="Routing\FileBasedRoundRobinDynamicRoutingImpl.cs" />
+    <Compile Include="Routing\FileBasedRoundRobinRoutingProvider.cs" />
     <Compile Include="Routing\FileBasedRoundRobinDynamicRouting.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting.cs" />
     <Compile Include="Routing\IProvideDynamicRouting.cs" />

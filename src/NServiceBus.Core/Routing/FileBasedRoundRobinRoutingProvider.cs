@@ -11,9 +11,9 @@ namespace NServiceBus.Routing
     using NServiceBus.Logging;
 
     [SkipWeaving]
-    class FileBasedRoundRobinDynamicRoutingImpl : IProvideDynamicRouting, IDisposable
+    class FileBasedRoundRobinRoutingProvider : IProvideDynamicRouting, IDisposable
     {
-        public FileBasedRoundRobinDynamicRoutingImpl(string basePath, TimeSpan timeToWaitBeforeRaisingFileChangedEvent)
+        public FileBasedRoundRobinRoutingProvider(string basePath, TimeSpan timeToWaitBeforeRaisingFileChangedEvent)
         {
             this.basePath = basePath;
             this.timeToWaitBeforeRaisingFileChangedEvent = timeToWaitBeforeRaisingFileChangedEvent;
@@ -111,7 +111,7 @@ namespace NServiceBus.Routing
 
         readonly string basePath;
         readonly TimeSpan timeToWaitBeforeRaisingFileChangedEvent;
-        static ILog logger = LogManager.GetLogger<FileBasedRoundRobinDynamicRoutingImpl>();
+        static ILog logger = LogManager.GetLogger<FileBasedRoundRobinRoutingProvider>();
         List<MonitorFileChanges> monitoringFiles = new List<MonitorFileChanges>();
         ConcurrentDictionary<string, CacheRoute> routeMapping = new ConcurrentDictionary<string, CacheRoute>();
 
