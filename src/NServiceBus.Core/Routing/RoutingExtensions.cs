@@ -7,7 +7,7 @@ namespace NServiceBus.Routing
     /// <summary>
     /// This class provides implementers of <see cref="IProvideDynamicRouting"/> with an extension mechanism for custom settings via extension methods.
     /// </summary>
-    /// <typeparam name="T">The client distributor definition eg <see cref="FileBasedDynamicRouting"/>.</typeparam>
+    /// <typeparam name="T">The client distributor definition eg <see cref="FileBasedRoundRobinDistribution"/>.</typeparam>
     public class RoutingExtensions<T> : ExposeSettings where T : DynamicRoutingDefinition
     {
         /// <summary>

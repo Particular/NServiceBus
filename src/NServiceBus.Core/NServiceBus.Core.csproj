@@ -387,6 +387,7 @@
     <Compile Include="EndpointControl\EndpointSafeToDisconnect.cs" />
     <Compile Include="Routing\DisconnectMessageBehavior.cs" />
     <Compile Include="Routing\DynamicRoutingBehavior.cs" />
+    <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoutingConfigurationExtensions.cs" />
     <Compile Include="Routing\NoMessageBacklogNotifier.cs" />
     <Compile Include="Routing\SafeDisconnect.cs" />
     <Compile Include="Sagas\CorrelationProperty.cs" />
