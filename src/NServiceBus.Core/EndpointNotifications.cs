@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using NServiceBus.Routing;
 
     /// <summary>
@@ -17,9 +18,9 @@ namespace NServiceBus
             get { return disconnectEventList; }
         }
 
-        internal void InvokeSafeToDisconnect(TimeSpan idleTimeWaited)
+        internal void InvokeSafeToDisconnect(Dictionary<string, string> headers)
         {
-            disconnectEventList.Publish(new SafeDisconnect(idleTimeWaited));
+            disconnectEventList.Publish(new SafeDisconnect(new Dictionary<string, string>(headers)));
         }
 
         void IDisposable.Dispose()

@@ -2,6 +2,8 @@
 {
     using System;
     using System.IO;
+    using System.Reactive.Concurrency;
+    using System.Reactive.Linq;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Transports;
@@ -46,6 +48,7 @@
                     .Run();
 
             Assert.IsTrue(context.SafeDisconnectReceived);
+            Assert.AreEqual("foo", context.SpecialHeader);
         }
 
         public class Context : ScenarioContext
@@ -53,6 +56,7 @@
             public int Receiver1TimesCalled { get; set; }
             public int Receiver2TimesCalled { get; set; }
             public bool SafeDisconnectReceived { get; set; }
+            public string SpecialHeader { get; set; }
         }
 
         public class Sender2 : EndpointConfigurationBuilder
@@ -80,7 +84,8 @@
                 public void Handle(Response message)
                 {
                     var transportMessage = ControlMessage.Create();
-                    transportMessage.Headers["NServiceBus.DisconnectMessage"] = "foo";
+                    transportMessage.Headers["NServiceBus.DisconnectMessage"] = "anything";
+                    transportMessage.Headers["MySpecialHeader"] = "foo";
 
                     MessageSender.Send(transportMessage, new SendOptions("DynamicRouting.Receiver1"));
                 }
@@ -161,7 +166,13 @@
 
                 public void Start()
                 {
-                    notifications.Endpoint.SafeToDisconnect.Subscribe(disconnect => context.SafeDisconnectReceived = true);
+                    notifications.Endpoint.SafeToDisconnect
+                        .ObserveOn(Scheduler.Default)
+                        .Subscribe(data =>
+                        {
+                            context.SpecialHeader = data.Headers["MySpecialHeader"];
+                            context.SafeDisconnectReceived = true;
+                        });
                 }
 
                 public void Stop()
