@@ -13,14 +13,14 @@ namespace NServiceBus
         ///     Notification when an endpoint has been idled for a configured amount of time
         ///     and it should be safe to shut it down without leaving a backlog of messages.
         /// </summary>
-        public IObservable<EndpointSafeToDisconnected> SafeToDisconnect
+        public IObservable<EndpointSafeToDisconnect> SafeToDisconnect
         {
             get { return disconnectEventList; }
         }
 
         internal void InvokeSafeToDisconnect(Dictionary<string, string> headers)
         {
-            disconnectEventList.Publish(new EndpointSafeToDisconnected(new Dictionary<string, string>(headers)));
+            disconnectEventList.Publish(new EndpointSafeToDisconnect(new Dictionary<string, string>(headers)));
         }
 
         void IDisposable.Dispose()
@@ -28,6 +28,6 @@ namespace NServiceBus
             // Injected
         }
 
-        Observable<EndpointSafeToDisconnected> disconnectEventList = new Observable<EndpointSafeToDisconnected>();
+        Observable<EndpointSafeToDisconnect> disconnectEventList = new Observable<EndpointSafeToDisconnect>();
     }
 }

@@ -206,7 +206,7 @@
     <Compile Include="Routing\DynamicRoutingBehavior.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoutingConfigurationExtensions.cs" />
     <Compile Include="EndpointControl\NoMessageBacklogNotifier.cs" />
-    <Compile Include="EndpointControl\EndpointSafeToDisconnected.cs" />
+    <Compile Include="EndpointControl\EndpointSafeToDisconnect.cs" />
     <Compile Include="Sagas\CorrelationProperty.cs" />
     <Compile Include="Sagas\CustomFinderAdapter.cs" />
     <Compile Include="Sagas\LoadSagaByIdWrapper.cs" />

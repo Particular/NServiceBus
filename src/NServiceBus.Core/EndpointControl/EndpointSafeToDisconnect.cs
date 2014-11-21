@@ -5,15 +5,15 @@ namespace NServiceBus.EndpointControl
     /// <summary>
     /// Event emitted when the endpoints input queue is drained and its ready to be disconnected/shutdown
     /// </summary>
-    public class EndpointSafeToDisconnected
+    public class EndpointSafeToDisconnect
     {
         readonly Dictionary<string, string> headers;
         
         /// <summary>
-        /// Creates a new instance of <see cref="EndpointSafeToDisconnected"/>.
+        /// Creates a new instance of <see cref="EndpointSafeToDisconnect"/>.
         /// </summary>
         /// <param name="headers">Message headers.</param>
-        public EndpointSafeToDisconnected(Dictionary<string, string> headers)
+        public EndpointSafeToDisconnect(Dictionary<string, string> headers)
         {
             this.headers = headers;
         }
