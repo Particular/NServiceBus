@@ -16,8 +16,8 @@ namespace NServiceBus.Logging
         /// </summary>
         public DefaultFactory()
         {
-            directory = FindDefaultLoggingDirectory();
-            level = LogLevelReader.GetDefaultLogLevel();
+            directory = new Lazy<string>(FindDefaultLoggingDirectory);
+            level = new Lazy<LogLevel>(() => LogLevelReader.GetDefaultLogLevel());
         }
 
         /// <summary>
@@ -25,38 +25,42 @@ namespace NServiceBus.Logging
         /// </summary>
         protected internal override ILoggerFactory GetLoggingFactory()
         {
-            var loggerFactory = new DefaultLoggerFactory(level, directory);
+            var loggerFactory = new DefaultLoggerFactory(level.Value, directory.Value);
             var message = string.Format("Logging to '{0}' with level {1}", directory, level);
             loggerFactory.Write(GetType().Name,LogLevel.Info,message);
             return loggerFactory;
         }
 
-        LogLevel level;
+        Lazy<LogLevel> level;
 
         /// <summary>
         /// Controls the <see cref="LogLevel"/>.
         /// </summary>
         public void Level(LogLevel level)
         {
-            this.level = level;
+            this.level = new Lazy<LogLevel>(() => level);
         }
 
-        string directory;
+        Lazy<string> directory;
 
         /// <summary>
         /// The directory to log files to.
         /// </summary>
         public void Directory(string directory)
         {
+            if (string.IsNullOrWhiteSpace(directory))
+            {
+                throw new ArgumentNullException("directory");
+            }
             if (!IODirectory.Exists(directory))
             {
                 var message = string.Format("Could not find logging directory: '{0}'", directory);
                 throw new DirectoryNotFoundException(message);
             }
-            this.directory = directory;
+            this.directory = new Lazy<string>(() => directory);
         }
 
-        static string FindDefaultLoggingDirectory()
+        internal static string FindDefaultLoggingDirectory()
         {
             //use appdata if it exists
             if (HttpContext.Current != null)
