@@ -3,6 +3,7 @@ namespace NServiceBus.Logging
     using System;
     using System.IO;
     using System.Web;
+    using System.Web.Hosting;
     using IODirectory=System.IO.Directory;
 
     /// <summary>
@@ -62,16 +63,27 @@ namespace NServiceBus.Logging
 
         internal static string FindDefaultLoggingDirectory()
         {
-            //use appdata if it exists
-            if (HttpContext.Current != null)
+            if (HttpRuntime.AppDomainAppId == null)
             {
-                var appDataPath = HttpContext.Current.Server.MapPath("~/App_Data/");
+                return AppDomain.CurrentDomain.BaseDirectory;
+            }
+
+            return DeriveAppDataPath();
+        }
+
+        internal static string DeriveAppDataPath()
+        {
+            //we are in a website so attempt to MapPath
+            var appDataPath = HostingEnvironment.MapPath("~/App_Data/");
+            if (appDataPath != null)
+            {
                 if (IODirectory.Exists(appDataPath))
                 {
                     return appDataPath;
                 }
             }
-            return AppDomain.CurrentDomain.BaseDirectory;
+            var error = "Detected running in a website but could not derive the path to '~/App_Data/'. Instead configure the logging directory using LogManager.Use<DefaultFactory>().Directory(\"pathToLoggingDirectory\");";
+            throw new Exception(error);
         }
     }
 }

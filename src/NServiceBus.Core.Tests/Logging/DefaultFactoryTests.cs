@@ -21,11 +21,11 @@
         }
 
         [Test]
-        public void When_not_running_in_http_should_return_BaseDirectory()
+        public void When_not_running_in_http_DeriveAppDataPath_should_throw()
         {
-            Assert.AreEqual(AppDomain.CurrentDomain.BaseDirectory, DefaultFactory.FindDefaultLoggingDirectory());
+            var exception = Assert.Throws<Exception>(() => DefaultFactory.DeriveAppDataPath());
+            Assert.AreEqual("Detected running in a website but could not derive the path to '~/App_Data/'. Instead configure the logging directory using LogManager.Use<DefaultFactory>().Directory(\"pathToLoggingDirectory\");", exception.Message);
         }
-        
     }
 
 
