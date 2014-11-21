@@ -77,14 +77,14 @@ namespace NServiceBus.Logging
             var appDataPath = TryMapPath();
             if (appDataPath == null)
             {
-                throw new Exception(GettMapPathError("Failed since MapPath returned null"));
+                throw new Exception(GetMapPathError("Failed since MapPath returned null"));
             }
             if (IODirectory.Exists(appDataPath))
             {
                 return appDataPath;
             }
             
-            throw new Exception(GettMapPathError(string.Format("Failed since path returned ({0}) does not exist, please create it.", appDataPath)));
+            throw new Exception(GetMapPathError(string.Format("Failed since path returned ({0}) does not exist, please create it.", appDataPath)));
         }
 
         static string TryMapPath()
@@ -95,11 +95,11 @@ namespace NServiceBus.Logging
             }
             catch (Exception exception)
             {
-                throw new Exception(GettMapPathError("Failed since MapPath threw an exception"), exception);
+                throw new Exception(GetMapPathError("Failed since MapPath threw an exception"), exception);
             }
         }
 
-        static string GettMapPathError(string reason)
+        static string GetMapPathError(string reason)
         {
             return "Detected running in a website and attempted to use HostingEnvironment.MapPath(\"~/App_Data/\") to derive the logging path. " + reason + ". To avoid using HostingEnvironment.MapPath to derive the logging directory you can instead configure it to a specific path using LogManager.Use<DefaultFactory>().Directory(\"pathToLoggingDirectory\");";
         }
