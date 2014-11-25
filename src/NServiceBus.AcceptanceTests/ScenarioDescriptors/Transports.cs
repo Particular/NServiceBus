@@ -78,10 +78,6 @@
                     runDescriptor.Settings.Add("Transport.ConnectionString", connectionString);
                     yield return runDescriptor;
                 }
-                else
-                {
-                    Console.Out.WriteLine("No connection string found for transport: {0}, test will not be executed for this transport", key);
-                }
             }
         }
 

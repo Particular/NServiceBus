@@ -118,7 +118,7 @@ namespace NServiceBus
 
             featureActivator.RegisterStartupTasks(configurer);
 
-            localAddress = Address.Parse(Settings.Get<string>("NServiceBus.LocalAddress"));
+            localAddress =Settings.LocalAddress();
 
             foreach (var o in Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>())
             {
