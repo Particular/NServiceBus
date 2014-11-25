@@ -13,6 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>337cdb4b</NuGetPackageImportStamp>
     <CreatePackages>False</CreatePackages>
+    <ProductName>NServiceBus</ProductName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
