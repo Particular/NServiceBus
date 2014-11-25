@@ -239,9 +239,6 @@
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
     <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
-    <Compile Include="Unicast\Behaviors\RoutingBehavior.cs" />
-    <Compile Include="Unicast\Behaviors\Routing.cs" />
-    <Compile Include="Unicast\Behaviors\RoutingDistributorBehavior.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
     <Compile Include="Monitoring\SLA\SLABehavior.cs" />
