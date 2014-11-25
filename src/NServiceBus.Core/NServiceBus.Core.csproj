@@ -123,6 +123,7 @@
     <Compile Include="DataBus\DataBusSendBehavior.cs" />
     <Compile Include="Encryption\MemberInfoExtensions.cs" />
     <Compile Include="ExceptionExtensions.cs" />
+    <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
