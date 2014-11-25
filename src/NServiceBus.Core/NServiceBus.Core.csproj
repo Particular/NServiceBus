@@ -135,6 +135,7 @@
     <Compile Include="DataBus\DataBusSendBehavior.cs" />
     <Compile Include="Encryption\MemberInfoExtensions.cs" />
     <Compile Include="ExceptionExtensions.cs" />
+    <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Gateway\Channels\DataReceivedOnChannelArgs.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReader.cs" />
