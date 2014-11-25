@@ -9,6 +9,7 @@
     using DataBus.InMemory;
     using Features.Categories;
     using MessageInterfaces;
+    using NServiceBus.Config;
     using Saga;
 
     /// <summary>
@@ -249,6 +250,13 @@
         /// </summary>
         public T GetConfiguration<T>() where T : class, new()
         {
+            if (typeof(T) == typeof(MessageForwardingInCaseOfFaultConfig))
+            {
+                return new MessageForwardingInCaseOfFaultConfig
+                       {
+                           ErrorQueue = "Error"
+                       } as T;
+            }
             return null;
         }
     }
