@@ -2,7 +2,6 @@
 {
     using System;
     using NServiceBus.Persistence;
-    using NServiceBus.Persistence.Legacy;
 
     /// <summary>
     /// Enables users to select persistence by calling .UsePersistence()
