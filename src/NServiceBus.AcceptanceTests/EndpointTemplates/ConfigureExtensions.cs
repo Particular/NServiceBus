@@ -16,18 +16,16 @@
             return dictionary[key];
         }
 
-        public static void DefineTransport(this BusConfiguration builder, IDictionary<string, string> settings)
+        public static void DefineTransport(this BusConfiguration builder, IDictionary<string, string> settings, Type endpointBuilderType)
         {
             if (!settings.ContainsKey("Transport"))
             {
                 settings = Transports.Default.Settings;
             }
 
-            var transportType = Type.GetType(settings["Transport"]);
+            const string typeName = "ConfigureTransport";
 
-            var typeName = "Configure" + transportType.Name;
-
-            var configurerType = Type.GetType(typeName, false);
+            var configurerType = endpointBuilderType.GetNestedType(typeName);
 
             if (configurerType != null)
             {
@@ -38,6 +36,8 @@
                 dc.Configure(builder);
                 return;
             }
+
+            var transportType = Type.GetType(settings["Transport"]);
 
             builder.UseTransport(transportType).ConnectionString(settings["Transport.ConnectionString"]);
         }
