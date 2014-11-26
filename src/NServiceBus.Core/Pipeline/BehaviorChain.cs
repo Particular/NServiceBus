@@ -18,23 +18,9 @@
                 itemDescriptors.Enqueue(behaviorType);
             }
 
-            PopulateLookupTable(pipelineExecutor);
+            lookupSteps = pipelineExecutor.Incoming.Concat(pipelineExecutor.Outgoing).ToDictionary(rs => rs.BehaviorType);
         }
-
-        void PopulateLookupTable(PipelineExecutor executor)
-        {
-            if (lookupSteps == null)
-            {
-                lock (lockObj)
-                {
-                    if (lookupSteps == null)
-                    {
-                        lookupSteps = executor.Incoming.Concat(executor.Outgoing).ToDictionary(rs => rs.BehaviorType);
-                    }
-                }
-            }
-        }
-
+        
         public void Invoke()
         {
             var outerPipe = false;
@@ -125,7 +111,6 @@
         readonly BusNotifications notifications;
         T context;
         Queue<Type> itemDescriptors = new Queue<Type>();
-        object lockObj = new object();
         Dictionary<Type, RegisterStep> lookupSteps;
         Stack<Queue<Type>> snapshots = new Stack<Queue<Type>>();
         Observable<StepStarted> steps;
