@@ -23,17 +23,16 @@
         }
 
         /// <summary>
-        /// 
+        /// Configures the given persistence to be used for a specific storage type
         /// </summary>
-        /// <param name="config"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="S"></typeparam>
-        /// <returns></returns>
+        /// <typeparam name="T">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc</typeparam>
+        /// <typeparam name="S">The <see cref="StorageType"/>storage type</typeparam>
+        /// <param name="config">The configuration object since this is an extention method</param>
         public static PersistenceExtentions<T, S> UsePersistence<T, S>(this BusConfiguration config) where T : PersistenceDefinition
-                                                                                                        where S : StorageType
+                                                                                                     where S : StorageType
         {
             var type = typeof(PersistenceExtentions<,>).MakeGenericType(typeof(T), typeof(S));
-            var extension = (PersistenceExtentions<T, S>)Activator.CreateInstance(type, config.Settings);
+            var extension = (PersistenceExtentions<T, S>) Activator.CreateInstance(type, config.Settings);
 
             return extension;
         }
@@ -48,37 +47,4 @@
             return new PersistenceExtentions(definitionType, config.Settings);
         }
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public static class Test
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="extentions"></param>
-        /// <returns></returns>
-        public static PersistenceExtentions<MsmqPersistence, StorageType.Sagas> TestIt(this PersistenceExtentions<MsmqPersistence, StorageType.Sagas> extentions)
-        {
-            return extentions;
-        } 
-    } 
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public class StorageType
-    {
-     /// <summary>
-     /// 
-     /// </summary>
-     public class Sagas : StorageType{}
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public class Subscriptions : StorageType {}
-    }
-
 }

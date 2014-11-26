@@ -6,31 +6,33 @@
     using NServiceBus.Persistence;
     using NServiceBus.Settings;
 
-    /// <summary>
-    /// 
+    /// <summary> 
+    /// This class provides implementers of persisters with an extension mechanism for custom settings for specific storage type via extention methods.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <typeparam name="S"></typeparam>
-    public class PersistenceExtentions<T, S> : PersistenceExtentions<T> where T : PersistenceDefinition
-        where S : StorageOption
+    /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory" />, <see cref="MsmqTransport" />, etc</typeparam>
+    /// <typeparam name="S">The <see cref="StorageType"/>storage type</typeparam>
+    public class PersistenceExtentions<T, S> : PersistenceExtentions<T>
+        where T : PersistenceDefinition
+        where S : StorageType
     {
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="settings"></param>
-        public PersistenceExtentions(SettingsHolder settings) : base(settings)
+        public PersistenceExtentions(SettingsHolder settings)
+            : base(settings)
         {
         }
     }
 
     /// <summary>
-    /// This class provides implementers of persisters with an extension mechanism for custom settings via extention methods.
+    ///     This class provides implementers of persisters with an extension mechanism for custom settings via extention
+    ///     methods.
     /// </summary>
-    /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory"/>, <see cref="MsmqTransport"/>, etc</typeparam>
+    /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory" />, <see cref="MsmqTransport" />, etc</typeparam>
     public class PersistenceExtentions<T> : PersistenceExtentions where T : PersistenceDefinition
     {
         /// <summary>
-        /// Default constructor.
+        ///     Default constructor.
         /// </summary>
         public PersistenceExtentions(SettingsHolder settings)
             : base(typeof(T), settings)
@@ -38,7 +40,7 @@
         }
 
         /// <summary>
-        /// Defines the list of specific storage needs this persistence should provide
+        ///     Defines the list of specific storage needs this persistence should provide
         /// </summary>
         /// <param name="specificStorages">The list of storage needs</param>
         public new PersistenceExtentions<T> For(params Storage[] specificStorages)
@@ -49,14 +51,13 @@
     }
 
     /// <summary>
-    /// This class provides implementers of persisters with an extension mechanism for custom settings via extention methods.
+    ///     This class provides implementers of persisters with an extension mechanism for custom settings via extention
+    ///     methods.
     /// </summary>
     public class PersistenceExtentions : ExposeSettings
     {
-        readonly EnabledPersistence enabledPersistence;
-
         /// <summary>
-        /// Default constructor.
+        ///     Default constructor.
         /// </summary>
         public PersistenceExtentions(Type definitionType, SettingsHolder settings)
             : base(settings)
@@ -77,7 +78,7 @@
         }
 
         /// <summary>
-        /// Defines the list of specific storage needs this persistence should provide
+        ///     Defines the list of specific storage needs this persistence should provide
         /// </summary>
         /// <param name="specificStorages">The list of storage needs</param>
         public PersistenceExtentions For(params Storage[] specificStorages)
@@ -91,5 +92,7 @@
 
             return this;
         }
+
+        readonly EnabledPersistence enabledPersistence;
     }
 }
