@@ -63,6 +63,7 @@ namespace NServiceBus.Transports.Msmq
             };
 
             queue = new MessageQueue(MsmqUtilities.GetFullPath(address), false, true, QueueAccessMode.Receive);
+            errorQueue = new MessageQueue(MsmqUtilities.GetFullPath(ErrorQueue), false, true, QueueAccessMode.Send);
 
             if (transactionSettings.IsTransactional && !QueueIsTransactional())
             {
@@ -89,6 +90,11 @@ namespace NServiceBus.Transports.Msmq
                 queue.Purge();
             }
         }
+
+        /// <summary>
+        /// The address of the configured error queue. 
+        /// </summary>
+        public Address ErrorQueue { get; set; }
 
         /// <summary>
         ///     Starts the dequeuing of message using the specified <paramref name="maximumConcurrencyLevel" />.
@@ -179,11 +185,9 @@ namespace NServiceBus.Transports.Msmq
 
         void Action()
         {
-            Exception exception = null;
             TransportMessage transportMessage = null;
             try
             {
-                Message message;
                 if (transactionSettings.IsTransactional)
                 {
                     if (transactionSettings.DontUseDistributedTransactions)
@@ -191,9 +195,10 @@ namespace NServiceBus.Transports.Msmq
                         using (var msmqTransaction = new MessageQueueTransaction())
                         {
                             msmqTransaction.Begin();
-                            message = ReceiveMessage(() => queue.Receive(receiveTimeout, msmqTransaction));
 
-                            if (message == null)
+                            Message message;
+
+                            if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, msmqTransaction), out message))
                             {
                                 msmqTransaction.Commit();
                                 return;
@@ -203,9 +208,19 @@ namespace NServiceBus.Transports.Msmq
                             {
                                 UnitOfWork.SetTransaction(msmqTransaction);
 
-                                transportMessage = ConvertMessage(message);
+                                try
+                                {
+                                    transportMessage = MsmqUtilities.Convert(message);
+                                }
+                                catch (Exception exception)
+                                {
+                                    LogCorruptedMessage(message, exception);
+                                    errorQueue.Send(message, msmqTransaction);
+                                    msmqTransaction.Commit();
+                                    return;
+                                }
 
-                                if (ProcessMessage(transportMessage))
+                                if (tryProcessMessage(transportMessage))
                                 {
                                     msmqTransaction.Commit();
                                 }
@@ -224,19 +239,27 @@ namespace NServiceBus.Transports.Msmq
                     {
                         using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
                         {
-                            message =
-                                ReceiveMessage(
-                                    () => queue.Receive(receiveTimeout, MessageQueueTransactionType.Automatic));
+                            Message message;
 
-                            if (message == null)
+                            if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.Automatic), out message))
                             {
                                 scope.Complete();
                                 return;
                             }
 
-                            transportMessage = ConvertMessage(message);
+                            try
+                            {
+                                transportMessage = MsmqUtilities.Convert(message);
+                            }
+                            catch (Exception ex)
+                            {
+                                LogCorruptedMessage(message, ex);
+                                errorQueue.Send(message, MessageQueueTransactionType.Automatic);
+                                scope.Complete();
+                                return;
+                            }
 
-                            if (ProcessMessage(transportMessage))
+                            if (tryProcessMessage(transportMessage))
                             {
                                 scope.Complete();
                             }
@@ -245,28 +268,43 @@ namespace NServiceBus.Transports.Msmq
                 }
                 else
                 {
-                    message = ReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.None));
+                    Message message;
 
-                    if (message == null)
+                    if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.None), out message))
                     {
                         return;
                     }
 
-                    transportMessage = ConvertMessage(message);
+                    try
+                    {
+                        transportMessage = MsmqUtilities.Convert(message);
+                    }
+                    catch (Exception exception)
+                    {
+                        LogCorruptedMessage(message, exception);
+                        errorQueue.Send(message, MessageQueueTransactionType.None);
+                        return;
+                    }
 
-                    ProcessMessage(transportMessage);
+                    tryProcessMessage(transportMessage);
                 }
+
+                endProcessMessage(transportMessage, null);
             }
             catch (Exception ex)
             {
-                exception = ex;
+                endProcessMessage(transportMessage, ex);
             }
             finally
             {
-                endProcessMessage(transportMessage, exception);
-
                 throttlingSemaphore.Release();
             }
+        }
+
+        void LogCorruptedMessage(Message message, Exception ex)
+        {
+            var error = string.Format("Message '{0}' is corrupt and will be moved to '{1}'", message.Id, ErrorQueue.Queue);
+            Logger.Error(error, ex);
         }
 
         void CallPeekWithExceptionHandling(Action action)
@@ -306,19 +344,21 @@ namespace NServiceBus.Transports.Msmq
         }
 
         [DebuggerNonUserCode]
-        Message ReceiveMessage(Func<Message> receive)
+        bool TryReceiveMessage(Func<Message> receive, out Message message)
         {
-            Message message = null;
+            message = null;
+
             try
             {
                 message = receive();
+                return true;
             }
             catch (MessageQueueException messageQueueException)
             {
                 if (messageQueueException.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                 {
                     //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
-                    return null;
+                    return false;
                 }
 
                 RaiseCriticalException(messageQueueException);
@@ -331,7 +371,8 @@ namespace NServiceBus.Transports.Msmq
             {
                 peekResetEvent.Set();
             }
-            return message;
+
+            return false;
         }
 
         void RaiseCriticalException(MessageQueueException messageQueueException)
@@ -368,6 +409,7 @@ namespace NServiceBus.Transports.Msmq
         Action<TransportMessage, Exception> endProcessMessage;
         int maximumConcurrencyLevel;
         MessageQueue queue;
+        MessageQueue errorQueue;
         SemaphoreSlim throttlingSemaphore;
         TransactionOptions transactionOptions;
         TransactionSettings transactionSettings;
