@@ -7,6 +7,23 @@
     using NServiceBus.Settings;
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="S"></typeparam>
+    public class PersistenceExtentions<T, S> : PersistenceExtentions<T> where T : PersistenceDefinition
+        where S : StorageOption
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="settings"></param>
+        public PersistenceExtentions(SettingsHolder settings) : base(settings)
+        {
+        }
+    }
+
+    /// <summary>
     /// This class provides implementers of persisters with an extension mechanism for custom settings via extention methods.
     /// </summary>
     /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory"/>, <see cref="MsmqTransport"/>, etc</typeparam>

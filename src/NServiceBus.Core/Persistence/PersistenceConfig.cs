@@ -2,6 +2,7 @@
 {
     using System;
     using NServiceBus.Persistence;
+    using NServiceBus.Persistence.Legacy;
 
     /// <summary>
     /// Enables users to select persistence by calling .UsePersistence()
@@ -22,6 +23,22 @@
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="config"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="S"></typeparam>
+        /// <returns></returns>
+        public static PersistenceExtentions<T, S> UsePersistence<T, S>(this BusConfiguration config) where T : PersistenceDefinition
+                                                                                                        where S : StorageType
+        {
+            var type = typeof(PersistenceExtentions<,>).MakeGenericType(typeof(T), typeof(S));
+            var extension = (PersistenceExtentions<T, S>)Activator.CreateInstance(type, config.Settings);
+
+            return extension;
+        }
+
+        /// <summary>
         ///  Configures the given persistence to be used
         /// </summary>
         /// <param name="config">The configuration object since this is an extention method</param>
@@ -31,4 +48,37 @@
             return new PersistenceExtentions(definitionType, config.Settings);
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public static class Test
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="extentions"></param>
+        /// <returns></returns>
+        public static PersistenceExtentions<MsmqPersistence, StorageType.Sagas> TestIt(this PersistenceExtentions<MsmqPersistence, StorageType.Sagas> extentions)
+        {
+            return extentions;
+        } 
+    } 
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class StorageType
+    {
+     /// <summary>
+     /// 
+     /// </summary>
+     public class Sagas : StorageType{}
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class Subscriptions : StorageType {}
+    }
+
 }
