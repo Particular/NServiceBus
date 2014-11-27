@@ -55,7 +55,7 @@ namespace NServiceBus.Config.Conventions
             }
 
             throw new InvalidOperationException(
-                    "No version of the endpoint could not be retrieved using the default convention, please specify your own convention using Configure.DefineEndpointVersionRetriever()");
+                    "No version of the endpoint could not be retrieved using the default convention, please specify your own version using config.EndpointVersion(version).");
         }
 
         void Initialize()
