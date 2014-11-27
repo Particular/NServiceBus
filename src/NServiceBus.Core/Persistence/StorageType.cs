@@ -8,26 +8,26 @@
         /// <summary>
         /// Storage for timeouts
         /// </summary>
-        public class Timeouts : StorageType { }
+        public sealed class Timeouts : StorageType { }
 
         /// <summary>
         /// Storage for subscriptions
         /// </summary>
-        public class Subscriptions : StorageType { }
+        public sealed class Subscriptions : StorageType { }
 
         /// <summary>
         /// Storage for sagas
         /// </summary>
-        public class Sagas : StorageType { }
+        public sealed class Sagas : StorageType { }
 
         /// <summary>
         /// Storage for gateway de-duplication
         /// </summary>
-        public class GatewayDeduplication : StorageType { }
+        public sealed class GatewayDeduplication : StorageType { }
         
         /// <summary>
         /// Storage for outbox
         /// </summary>
-        public class Outbox : StorageType { }
+        public sealed class Outbox : StorageType { }
     }
 }

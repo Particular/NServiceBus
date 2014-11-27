@@ -4,8 +4,8 @@
     /// The storage needs of NServiceBus
     /// </summary>
     [ObsoleteEx(
-    RemoveInVersion = "7.0",
-    TreatAsErrorFromVersion = "6.0",
+    RemoveInVersion = "8.0",
+    TreatAsErrorFromVersion = "7.0",
     Message = "Use `StorageType` instead")]
 
     public enum Storage
