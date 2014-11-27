@@ -270,7 +270,7 @@ namespace NServiceBus.Transports.Msmq
         static readonly string DIRECTPREFIX_TCP = "DIRECT=TCP:";
         readonly static string PREFIX_TCP = "FormatName:" + DIRECTPREFIX_TCP;
         static readonly string PREFIX = "FormatName:" + DIRECTPREFIX;
-        static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
+        static XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
         internal const string PRIVATE = "\\private$\\";
         static ILog Logger = LogManager.GetLogger(typeof(MsmqUtilities));
     }

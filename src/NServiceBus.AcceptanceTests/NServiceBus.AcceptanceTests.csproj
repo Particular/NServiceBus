@@ -109,6 +109,7 @@
   <ItemGroup>
     <Compile Include="Audit\When_using_auditing_as_a_feature.cs" />
     <Compile Include="Audit\When_a_message_is_audited.cs" />
+    <Compile Include="BasicMessaging\When_starting_a_send_only.cs" />
     <Compile Include="BasicMessaging\MessingAround.cs" />
     <Compile Include="BasicMessaging\When_aborting_the_behavior_chain.cs" />
     <Compile Include="BasicMessaging\When_handling_current_message_later.cs" />
@@ -121,6 +122,10 @@
     <Compile Include="Encryption\When_using_encryption_with_custom_service.cs" />
     <Compile Include="Encryption\When_using_encryption_with_multikey.cs" />
     <Compile Include="EndpointTemplates\BusExtensions.cs" />
+    <Compile Include="Exceptions\When_cant_convert_to_TransportMessage_NoTransactions.cs" />
+    <Compile Include="Exceptions\When_cant_convert_to_TransportMessage_SuppressedDTC.cs" />
+    <Compile Include="Exceptions\SerializerCorrupter.cs" />
+    <Compile Include="Exceptions\When_cant_convert_to_TransportMessage.cs" />
     <Compile Include="Gateway\When_sending_a_message_via_the_gateway.cs" />
     <Compile Include="Gateway\When_doing_request_response_between_sites.cs" />
     <Compile Include="Gateway\When_using_a_custom_correlation_id.cs" />
