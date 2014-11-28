@@ -60,7 +60,8 @@
                     .WithConfig<TransportConfig>(c =>
                         {
                             c.MaxRetries = 0;
-                        });
+                        })
+                        .AllowExceptions();
             }
 
             class BodyMutator : IMutateTransportMessages, NServiceBus.INeedInitialization

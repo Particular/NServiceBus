@@ -39,7 +39,8 @@
                     {
                         Configure.Transactions.Disable();
                         Configure.Transactions.Advanced(t => t.WrapHandlersExecutionInATransactionScope());
-                    });
+                    })
+                    .AllowExceptions();
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

@@ -8,7 +8,10 @@
     using AcceptanceTesting.Support;
     using Config.ConfigurationSource;
     using Hosting.Helpers;
+    using log4net.Appender;
+    using log4net.Core;
     using NServiceBus;
+    using NServiceBus.AcceptanceTesting;
     using Settings;
 
     public class DefaultServer : IEndpointSetupTemplate
@@ -16,8 +19,8 @@
         public Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource)
         {
             var settings = runDescriptor.Settings;
-            
-            SetupLogging(endpointConfiguration);
+
+            SetupLogging(endpointConfiguration, runDescriptor.ScenarioContext);
 
             var types = GetTypesToUse(endpointConfiguration);
 
@@ -77,7 +80,7 @@
             }
         }
 
-        static void SetupLogging(EndpointConfiguration endpointConfiguration)
+        static void SetupLogging(EndpointConfiguration endpointConfiguration, ScenarioContext scenarioContext)
         {
             var logDir = ".\\logfiles\\";
 
@@ -89,14 +92,41 @@
             if (File.Exists(logFile))
                 File.Delete(logFile);
 
-            var logLevel = "WARN";
-            var logLevelOverride =  Environment.GetEnvironmentVariable("tests_loglevel");
-
-            if (!string.IsNullOrEmpty(logLevelOverride))
-                logLevel = logLevelOverride;
-
-            SetLoggingLibrary.Log4Net(null,
-                                      Logging.Loggers.Log4NetAdapter.Log4NetAppenderFactory.CreateRollingFileAppender(logLevel, logFile));
+            try
+            {
+                SetLoggingLibrary.Log4Net(null, new ContextAppender(scenarioContext, endpointConfiguration));
+            }
+            catch (Exception ex)
+            {
+                Console.Out.WriteLine(ex);
+            }
         }
+    }
+
+    public class ContextAppender : AppenderSkeleton
+    {
+        public ContextAppender(ScenarioContext context, EndpointConfiguration endpointConfiguration)
+        {
+            this.context = context;
+            this.endpointConfiguration = endpointConfiguration;
+        }
+
+        protected override void Append(LoggingEvent loggingEvent)
+        {
+            if (!endpointConfiguration.AllowExceptions && loggingEvent.ExceptionObject != null)
+            {
+                lock (context)
+                {
+                    context.Exceptions += loggingEvent.ExceptionObject + "/n/r";
+                }
+            }
+            if (loggingEvent.Level >= Level.Warn)
+            {
+                context.RecordLog(endpointConfiguration.EndpointName, loggingEvent.Level.ToString(), loggingEvent.RenderedMessage);
+            }
+        }
+
+        ScenarioContext context;
+        EndpointConfiguration endpointConfiguration;
     }
 }

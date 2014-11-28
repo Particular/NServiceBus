@@ -37,6 +37,12 @@
 
             return this;
         }
+        
+        public EndpointConfigurationBuilder AllowExceptions()
+        {
+            configuration.AllowExceptions = true;
+            return this;
+        }
 
         public EndpointConfigurationBuilder AddMapping<T>(Type endpoint)
         {

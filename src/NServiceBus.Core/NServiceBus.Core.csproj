@@ -102,6 +102,7 @@
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
+    <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
