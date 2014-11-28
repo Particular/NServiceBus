@@ -42,7 +42,8 @@
                     .WithConfig<TransportConfig>(c =>
                         {
                             c.MaxRetries = 0;
-                        });
+                        })
+                        .AllowExceptions();
             }
 
             class CustomFaultManager: IManageMessageFailures

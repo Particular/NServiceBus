@@ -32,7 +32,8 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>()
+                    .AllowExceptions();
             }
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>,IHandleMessages<SecondSagaMessage>
