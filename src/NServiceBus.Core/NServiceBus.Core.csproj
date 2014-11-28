@@ -194,6 +194,11 @@
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="Persistence\EnabledPersistence.cs" />
+    <Compile Include="Persistence\FileSystem\FileSystem.cs" />
+    <Compile Include="Persistence\FileSystem\Sagas\FileSystemSagaPersister.cs" />
+    <Compile Include="Persistence\FileSystem\SerilalizationHelpers.cs" />
+    <Compile Include="Persistence\FileSystem\Subscriptions\FileSystemSubscriptionPersister.cs" />
+    <Compile Include="Persistence\FileSystem\Timeouts\FileSystemTimeoutPersister.cs" />
     <Compile Include="Persistence\Msmq\Msmq.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
     <Compile Include="Persistence\PersistenceExtentions.cs" />
@@ -606,6 +611,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="MessageHeaders\" />
+    <Folder Include="Persistence\FileSystem\Gateway\" />
+    <Folder Include="Persistence\FileSystem\Outbox\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\NServiceBus_Logo-  white.png" />
