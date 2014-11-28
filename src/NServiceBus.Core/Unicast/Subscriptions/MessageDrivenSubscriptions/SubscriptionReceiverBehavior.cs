@@ -63,8 +63,6 @@
                 return;
             }
 
-            context.DoNotInvokeAnyMoreHandlers();
-
             if (transportMessage.MessageIntent == MessageIntentEnum.Subscribe)
             {
                 if (!SubscriptionAuthorizer.AuthorizeSubscribe(messageTypeString, subscriberAddress.ToString(), transportMessage.Headers))
