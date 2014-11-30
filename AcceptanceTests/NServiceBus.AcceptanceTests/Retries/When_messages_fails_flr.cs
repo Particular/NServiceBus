@@ -49,7 +49,8 @@
                         {
                             c.NumberOfRetries = 1;
                             c.TimeIncrease = SlrDelay;
-                        });
+                        })
+                        .AllowExceptions();
             }
 
 

@@ -159,7 +159,15 @@ namespace NServiceBus.AcceptanceTesting.Support
                 {
                     runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
-                    PerformScenarios(runDescriptor,runners, () => done(runDescriptor.ScenarioContext));
+                    PerformScenarios(runDescriptor,runners, () =>
+                    {
+                        if (!string.IsNullOrEmpty(runDescriptor.ScenarioContext.Exceptions))
+                        {
+                            Console.Out.WriteLine(runDescriptor.ScenarioContext.Exceptions);
+                            throw new Exception("Failures in endpoints");
+                        }
+                        return done(runDescriptor.ScenarioContext);
+                    });
                 }
                 finally
                 {

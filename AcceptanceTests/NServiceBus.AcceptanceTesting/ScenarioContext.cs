@@ -1,4 +1,7 @@
-﻿namespace NServiceBus.AcceptanceTesting
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace NServiceBus.AcceptanceTesting
 {
     using System;
     using System.Runtime.Remoting.Activation;
@@ -60,6 +63,30 @@
         }
 
         public bool EndpointsStarted { get; set; }
+        public string Exceptions { get; set; }
+        public void RecordLog(string endpointName, string level, string message)
+        {
+            endpointLogs.Add(new EndpointLogItem
+            {
+                Endpoint = endpointName,
+                Level = level.ToLower(),
+                Message = message
+            });
+        }
+
+        public List<EndpointLogItem> GetAllLogs()
+        {
+            return endpointLogs.ToList();
+        }
+
+        List<EndpointLogItem> endpointLogs = new List<EndpointLogItem>();
+
+        public class EndpointLogItem
+        {
+            public string Endpoint { get; set; }
+            public string Message { get; set; }
+            public string Level { get; set; }
+        }
 
     }
 }

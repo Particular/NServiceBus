@@ -73,7 +73,8 @@
             {
                 EndpointSetup<DefaultServer>(
                     c => c.Configurer.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance))
-                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1);
+                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1)
+                    .AllowExceptions();
             }
 
             class CustomFaultManager : IManageMessageFailures
