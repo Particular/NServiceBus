@@ -5,9 +5,9 @@ namespace NServiceBus.Pipeline
     using System.Linq;
     using Logging;
 
-    class BehaviorRegistrationsCoordinator
+    class StepRegistrationsCoordinator
     {
-        public BehaviorRegistrationsCoordinator(List<RemoveBehavior> removals, List<ReplaceBehavior> replacements)
+        public StepRegistrationsCoordinator(List<RemoveStep> removals, List<ReplaceBehavior> replacements)
         {
             this.removals = removals;
             this.replacements = replacements;
@@ -55,7 +55,7 @@ namespace NServiceBus.Pipeline
                     continue;
                 }
 
-                var message = string.Format("Behavior registration with id '{0}' is already registered for '{1}'", metadata.StepId, registrations[metadata.StepId].BehaviorType);
+                var message = string.Format("Step registration with id '{0}' is already registered for '{1}'", metadata.StepId, registrations[metadata.StepId].BehaviorType);
                 throw new Exception(message);
             }
 
@@ -64,7 +64,7 @@ namespace NServiceBus.Pipeline
             {
                 if (!registrations.ContainsKey(metadata.ReplaceId))
                 {
-                    var message = string.Format("You can only replace an existing behavior registration, '{0}' registration does not exist!", metadata.ReplaceId);
+                    var message = string.Format("You can only replace an existing step registration, '{0}' registration does not exist!", metadata.ReplaceId);
                     throw new Exception(message);
                 }
 
@@ -80,7 +80,7 @@ namespace NServiceBus.Pipeline
             {
                 if (!registrations.ContainsKey(metadata.RemoveId))
                 {
-                    var message = string.Format("You cannot remove behavior registration with id '{0}', registration does not exist!", metadata.RemoveId);
+                    var message = string.Format("You cannot remove step registration with id '{0}', registration does not exist!", metadata.RemoveId);
                     throw new Exception(message);
                 }
 
@@ -89,7 +89,7 @@ namespace NServiceBus.Pipeline
                     var add = additions.First(mr => (mr.Befores != null && mr.Befores.Select(b=>b.Id).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)) ||
                                                     (mr.Afters != null && mr.Afters.Select(b=>b.Id).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)));
 
-                    var message = string.Format("You cannot remove behavior registration with id '{0}', registration with id {1} depends on it!", metadata.RemoveId, add.StepId);
+                    var message = string.Format("You cannot remove step registration with id '{0}', registration with id {1} depends on it!", metadata.RemoveId, add.StepId);
                     throw new Exception(message);
                 }
 
@@ -129,7 +129,7 @@ namespace NServiceBus.Pipeline
                         }
                         else
                         {
-                            var message = string.Format("Registration '{0}' specified in the insertbefore of the '{1}' behavior does not exist!", beforeReference.Id, node.Rego.StepId);
+                            var message = string.Format("Registration '{0}' specified in the insertbefore of the '{1}' step does not exist!", beforeReference.Id, node.Rego.StepId);
 
                             if (!beforeReference.Enforce)
                             {
@@ -154,7 +154,7 @@ namespace NServiceBus.Pipeline
                         }
                         else
                         {
-                            var message = string.Format("Registration '{0}' specified in the insertafter of the '{1}' behavior does not exist!", afterReference.Id, node.Rego.StepId);
+                            var message = string.Format("Registration '{0}' specified in the insertafter of the '{1}' step does not exist!", afterReference.Id, node.Rego.StepId);
 
                             if (!afterReference.Enforce)
                             {
@@ -180,19 +180,19 @@ namespace NServiceBus.Pipeline
         }
 
         List<RegisterStep> additions = new List<RegisterStep>();
-        List<RemoveBehavior> removals;
+        List<RemoveStep> removals;
         List<ReplaceBehavior> replacements;
 
-        static ILog Logger = LogManager.GetLogger<BehaviorRegistrationsCoordinator>();
+        static ILog Logger = LogManager.GetLogger<StepRegistrationsCoordinator>();
 
-        class CaseInsensitiveIdComparer : IEqualityComparer<RemoveBehavior>
+        class CaseInsensitiveIdComparer : IEqualityComparer<RemoveStep>
         {
-            public bool Equals(RemoveBehavior x, RemoveBehavior y)
+            public bool Equals(RemoveStep x, RemoveStep y)
             {
                 return x.RemoveId.Equals(y.RemoveId, StringComparison.CurrentCultureIgnoreCase);
             }
 
-            public int GetHashCode(RemoveBehavior obj)
+            public int GetHashCode(RemoveStep obj)
             {
                 return obj.RemoveId.ToLower().GetHashCode();
             }
