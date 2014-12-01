@@ -4,6 +4,7 @@ namespace NServiceBus.Unicast.Transport
     using System.Threading.Tasks;
     using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.EndpointControl;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
@@ -22,6 +23,8 @@ namespace NServiceBus.Unicast.Transport
             this.receiver = receiver;
             this.builder = builder;
         }
+
+
 
 
         /// <summary>
