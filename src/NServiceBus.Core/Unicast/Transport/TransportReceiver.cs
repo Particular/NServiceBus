@@ -158,6 +158,10 @@ namespace NServiceBus.Unicast.Transport
             receiveAddress = address;
 
             var returnAddressForFailures = address;
+            if (address == config.LocalAddress)
+            {
+                returnAddressForFailures = config.PublicReturnAddress;
+            }
 
             var workerRunsOnThisEndpoint = settings.GetOrDefault<bool>("Worker.Enabled");
 
