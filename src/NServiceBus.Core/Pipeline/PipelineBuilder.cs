@@ -8,7 +8,7 @@
     {
         public PipelineBuilder(PipelineModifications modifications)
         {
-            coordinator = new BehaviorRegistrationsCoordinator(modifications.Removals, modifications.Replacements);
+            coordinator = new StepRegistrationsCoordinator(modifications.Removals, modifications.Replacements);
 
             RegisterIncomingCoreBehaviors();
             RegisterOutgoingCoreBehaviors();
@@ -78,6 +78,6 @@
             coordinator.Register(WellKnownStep.DispatchMessageToTransport, typeof(DispatchMessageToTransportBehavior), "Dispatches messages to the transport");
         }
 
-        BehaviorRegistrationsCoordinator coordinator;
+        StepRegistrationsCoordinator coordinator;
     }
 }

@@ -217,6 +217,9 @@
     <Compile Include="Sagas\SagaMetaModel.cs" />
     <Compile Include="Sagas\SagaToMessageMap.cs" />
     <Compile Include="Sagas\TypeBasedSagaMetaModel.cs" />
+    <Compile Include="Pipeline\PipelineNotifications.cs" />
+    <Compile Include="Pipeline\StepStarted.cs" />
+    <Compile Include="Pipeline\StepEnded.cs" />
     <Compile Include="Scheduling\Schedule_Obsolete.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
     <Compile Include="Scheduling\TaskDefinition.cs" />
@@ -311,13 +314,13 @@
     <Compile Include="MessageMutator\ApplyIncomingMessageMutatorsBehavior.cs" />
     <Compile Include="MessageMutator\ApplyIncomingTransportMessageMutatorsBehavior.cs" />
     <Compile Include="Audit\AuditBehavior.cs" />
-    <Compile Include="Pipeline\BehaviorRegistrationsCoordinator.cs" />
+    <Compile Include="Pipeline\StepRegistrationsCoordinator.cs" />
     <Compile Include="Pipeline\BehaviorTypeChecker.cs" />
     <Compile Include="Pipeline\Dependency.cs" />
     <Compile Include="Pipeline\PipelineBuilder.cs" />
     <Compile Include="Pipeline\PipelineSettings.cs" />
     <Compile Include="Pipeline\RegisterStep.cs" />
-    <Compile Include="Pipeline\RemoveBehavior.cs" />
+    <Compile Include="Pipeline\RemoveStep.cs" />
     <Compile Include="Pipeline\ReplaceBehavior.cs" />
     <Compile Include="Pipeline\SnapshotRegion.cs" />
     <Compile Include="Pipeline\WellknownStep.cs" />
@@ -618,9 +621,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="MessageHeaders\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="Resources\NServiceBus_Logo-  white.png" />
     <None Include="Resources\NServiceBus.png" />

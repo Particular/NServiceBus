@@ -5,7 +5,7 @@
     class PipelineModifications
     {
         public List<RegisterStep> Additions = new List<RegisterStep>();
-        public List<RemoveBehavior> Removals = new List<RemoveBehavior>();
+        public List<RemoveStep> Removals = new List<RemoveStep>();
         public List<ReplaceBehavior> Replacements = new List<ReplaceBehavior>();
     }
 }

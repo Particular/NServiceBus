@@ -109,6 +109,7 @@ namespace NServiceBus
         /// <summary>
         ///     Defines the version of this endpoint.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5.2", Message = "This api does not do anything.")]
         public void EndpointVersion(string version)
         {
             endpointVersion = version;
