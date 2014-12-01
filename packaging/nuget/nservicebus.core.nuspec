@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>NServiceBus</id>
+    <title>NServiceBus</title>
+    <version>$version$</version>
+    <authors>NServiceBus Ltd</authors>
+    <owners>NServiceBus Ltd</owners>
+    <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
+    <projectUrl>http://particular.net/</projectUrl>
+    <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>The most popular open-source service bus for .net</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
+    <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System" targetFramework="net40" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="net40" />
+    </frameworkAssemblies>
+    <dependencies>
+      <dependency id="NServiceBus.Interfaces" version="[$version$, 5.0.0.0)" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\..\binaries\NServiceBus.Core.???" target="lib\net40" />
+    <file src="..\..\binaries\NServiceBus.PowerShell.dll" target="tools" />
+    <file src="..\..\src\NServiceBus.PowerShell\about_NServiceBus.help.txt" target="tools" />
+    <file src="..\..\packaging\nuget\tools\init.ps1" target="tools" />
+  </files>
+</package>

@@ -2,12 +2,12 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("NServiceBus.Core")]
+[assembly: AssemblyTitle("NServiceBus.PowerShell")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyCopyright("Copyright (C) NServiceBus 2010-2012")]
-[assembly: AssemblyProduct("NServiceBus.Core")]
+[assembly: AssemblyProduct("NServiceBus")]
 [assembly: AssemblyCompany("NServiceBus")]
 [assembly: AssemblyConfiguration("release")]
 [assembly: ComVisible(false)]		
-[assembly: CLSCompliantAttribute(true)]
+[assembly: CLSCompliantAttribute(false)]
 
