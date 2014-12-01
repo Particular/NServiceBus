@@ -7,6 +7,7 @@ namespace NServiceBus.Unicast.Transport
     using Faults;
     using Logging;
     using Monitoring;
+    using NServiceBus.EndpointControl;
     using Settings;
     using Transports;
 
@@ -37,6 +38,9 @@ namespace NServiceBus.Unicast.Transport
         }
 
         internal BusNotifications Notifications { get; set; }
+
+        internal NoMessageBacklogNotifier Monitor { get; set; }
+
 
         /// <summary>
         ///     The receiver responsible for notifying the transport when new messages are available
@@ -222,6 +226,8 @@ namespace NServiceBus.Unicast.Transport
             currentReceivePerformanceDiagnostics.MessageDequeued();
 
             needToAbort = false;
+
+            Monitor.ResetTimer();
 
             using (var tx = GetTransactionScope())
             {
