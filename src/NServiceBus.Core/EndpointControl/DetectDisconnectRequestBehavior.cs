@@ -22,7 +22,6 @@ namespace NServiceBus
                 return;
             }
 
-            Monitor.ResetTimer();
             next();
         }
 
