@@ -13,9 +13,7 @@
             var definitionType = Type.GetType(defaultStorage.Settings["Persistence"]);
 
             var definition = (PersistenceDefinition)Activator.CreateInstance(definitionType, true);
-#pragma warning disable 618
-            if (definition.HasSupportFor(Storage.Outbox))
-#pragma warning restore 618
+            if (definition.HasSupportFor<StorageType.Outbox>())
             {
                 Add(defaultStorage);
             }

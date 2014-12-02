@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Persistence;
     using NServiceBus.Settings;
@@ -43,6 +44,10 @@
         ///     Defines the list of specific storage needs this persistence should provide
         /// </summary>
         /// <param name="specificStorages">The list of storage needs</param>
+         [ObsoleteEx(
+            RemoveInVersion = "8.0",
+            TreatAsErrorFromVersion = "7.0",
+            Replacement = "UsePersistence<T, S>()")]
         public new PersistenceExtentions<T> For(params Storage[] specificStorages)
         {
             base.For(specificStorages);
@@ -72,7 +77,7 @@
             enabledPersistence = new EnabledPersistence
             {
                 DefinitionType = definitionType,
-                SelectedStorages = new List<Storage>(),
+                SelectedStorages = new List<Type>(),
             };
             definitions.Add(enabledPersistence);
         }
@@ -81,6 +86,10 @@
         ///     Defines the list of specific storage needs this persistence should provide
         /// </summary>
         /// <param name="specificStorages">The list of storage needs</param>
+        [ObsoleteEx(
+            RemoveInVersion = "8.0",
+            TreatAsErrorFromVersion = "7.0",
+            Replacement = "UsePersistence<T, S>()")]
         public PersistenceExtentions For(params Storage[] specificStorages)
         {
             if (specificStorages == null || specificStorages.Length == 0)
@@ -88,7 +97,8 @@
                 throw new ArgumentException("Please make sure you specify at least one Storage.");
             }
 
-            enabledPersistence.SelectedStorages.AddRange(specificStorages);
+            var list = specificStorages.Select(StorageType.FromEnum).ToArray();
+            enabledPersistence.SelectedStorages.AddRange(list);
 
             return this;
         }

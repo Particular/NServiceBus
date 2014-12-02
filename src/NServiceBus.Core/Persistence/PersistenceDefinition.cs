@@ -13,13 +13,13 @@
         /// <summary>
         /// Used be the storage definitions to declare what they support
         /// </summary>
-        protected void Supports(Storage storage, Action<SettingsHolder> action)
+        protected void Supports<T>(Action<SettingsHolder> action) where T : StorageType
         {
-            if (storageToActionMap.ContainsKey(storage))
+            if (storageToActionMap.ContainsKey(typeof(T)))
             {
-                throw new Exception(string.Format("Action for {0} already defined.", storage));
+                throw new Exception(string.Format("Action for {0} already defined.", typeof(T)));
             }
-            storageToActionMap[storage] = action;
+            storageToActionMap[typeof(T)] = action;
         }
 
         /// <summary>
@@ -33,14 +33,30 @@
         /// <summary>
         /// True if supplied storage is supported
         /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "8.0",
+            TreatAsErrorFromVersion = "7.0",
+            Replacement = "HasSupportFor<T>()")]
         public bool HasSupportFor(Storage storage)
         {
-            return storageToActionMap.ContainsKey(storage);
+            return storageToActionMap.ContainsKey(StorageType.FromEnum(storage));
         }
 
-        internal void ApplyActionForStorage(Storage storage, SettingsHolder settings)
+        /// <summary>
+        /// True if supplied storage is supported
+        /// </summary>
+        public bool HasSupportFor<T>() where T : StorageType
         {
-            var actionForStorage = storageToActionMap[storage];
+            return storageToActionMap.ContainsKey(typeof(T));
+        }
+
+        internal void ApplyActionForStorage(Type storageType, SettingsHolder settings)
+        {
+            if (!storageType.IsSubclassOf(typeof(StorageType)))
+            {
+                throw new ArgumentException(string.Format("Storage type '{0}' is not a sub-class of StorageType", storageType.FullName), "storageType");
+            }
+            var actionForStorage = storageToActionMap[storageType];
             actionForStorage(settings);
         }
 
@@ -52,7 +68,7 @@
             }
         }
 
-        internal List<Storage> GetSupportedStorages(List<Storage> selectedStorages)
+        internal List<Type> GetSupportedStorages(List<Type> selectedStorages)
         {
             if (selectedStorages.Count > 0)
             {
@@ -63,6 +79,6 @@
         }
 
         List<Action<SettingsHolder>> defaults = new List<Action<SettingsHolder>>();
-        Dictionary<Storage, Action<SettingsHolder>> storageToActionMap = new Dictionary<Storage, Action<SettingsHolder>>();
+        Dictionary<Type, Action<SettingsHolder>> storageToActionMap = new Dictionary<Type, Action<SettingsHolder>>();
     }
 }
