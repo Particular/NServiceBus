@@ -168,7 +168,7 @@ namespace NServiceBus
                     {
                         var errorMessage = AssemblyScanner.FormatReflectionTypeLoadException(a.FullName, exception);
                         LogManager.GetLogger<Configure>().Warn(errorMessage);
-                        types.AddRange(exception.Types);
+                        types.AddRange(exception.Types.Where(AssemblyScanner.IsAllowedType));
                         //intentionally swallow exception
                     }
                 });
