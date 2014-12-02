@@ -7,7 +7,7 @@
     /// <summary>
     /// The storage types used for NServiceBus needs
     /// </summary>
-    public abstract class StorageType : IEquatable<StorageType>
+    public abstract class StorageType
     {
         readonly Storage storage;
 
@@ -54,54 +54,6 @@
         public sealed class Outbox : StorageType
         {
             internal Outbox() : base(Storage.Outbox) { }
-        }
-
-        /// <summary>
-        /// Indicates whether the current <see cref="StorageType"/> is equal to another <see cref="StorageType"/>.
-        /// </summary>
-        public bool Equals(StorageType other)
-        {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            return storage == other.storage;
-        }
-
-        /// <summary>
-        /// Indicates whether the current <see cref="StorageType"/> is equal to another <see cref="StorageType"/>.
-        /// </summary>
-        public override bool Equals(object obj)
-        {
-            return Equals((StorageType) obj);
-        }
-
-        /// <summary>
-        /// Serves as a hash function for <see cref="StorageType"/> type. 
-        /// </summary>
-        public override int GetHashCode()
-        {
-            return storage.GetHashCode();
-        }
-
-        /// <summary>
-        /// Check if two two storage types are the same
-        /// </summary>
-        public static bool operator ==(StorageType left, StorageType right)
-        {
-            return Equals(left, right);
-        }
-
-        /// <summary>
-        /// Check if two two storage types are different
-        /// </summary>
-        public static bool operator !=(StorageType left, StorageType right)
-        {
-            return !Equals(left, right);
         }
 
         /// <summary>
