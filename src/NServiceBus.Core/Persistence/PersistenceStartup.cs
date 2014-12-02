@@ -29,7 +29,7 @@
 
             definitions.Reverse();
 
-            var availableStorages = StorageType.GetAvailableStorageTypes(); //Reflect<Storage>.GetEnumValues();
+            var availableStorages = StorageType.GetAvailableStorageTypes();
             var resultingSupportedStorages = new List<Type>();
 
             foreach (var definition in definitions)

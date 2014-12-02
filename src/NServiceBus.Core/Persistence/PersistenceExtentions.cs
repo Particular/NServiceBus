@@ -45,8 +45,8 @@
         /// </summary>
         /// <param name="specificStorages">The list of storage needs</param>
          [ObsoleteEx(
-            RemoveInVersion = "8.0",
-            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
             Replacement = "UsePersistence<T, S>()")]
         public new PersistenceExtentions<T> For(params Storage[] specificStorages)
         {
@@ -87,8 +87,8 @@
         /// </summary>
         /// <param name="specificStorages">The list of storage needs</param>
         [ObsoleteEx(
-            RemoveInVersion = "8.0",
-            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
             Replacement = "UsePersistence<T, S>()")]
         public PersistenceExtentions For(params Storage[] specificStorages)
         {

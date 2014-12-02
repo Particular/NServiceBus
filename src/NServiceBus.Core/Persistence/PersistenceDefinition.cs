@@ -34,8 +34,8 @@
         /// True if supplied storage is supported
         /// </summary>
         [ObsoleteEx(
-            RemoveInVersion = "8.0",
-            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
             Replacement = "HasSupportFor<T>()")]
         public bool HasSupportFor(Storage storage)
         {
