@@ -16,9 +16,7 @@
         public static PersistenceExtentions<T> UsePersistence<T>(this BusConfiguration config) where T : PersistenceDefinition
         {
             var type = typeof(PersistenceExtentions<>).MakeGenericType(typeof(T));
-            var extension = (PersistenceExtentions<T>)Activator.CreateInstance(type, config.Settings);
-
-            return extension;
+            return (PersistenceExtentions<T>)Activator.CreateInstance(type, config.Settings);
         }
 
         /// <summary>
@@ -31,9 +29,7 @@
                                                                                                      where S : StorageType
         {
             var type = typeof(PersistenceExtentions<,>).MakeGenericType(typeof(T), typeof(S));
-            var extension = (PersistenceExtentions<T, S>) Activator.CreateInstance(type, config.Settings);
-
-            return extension;
+            return (PersistenceExtentions<T, S>) Activator.CreateInstance(type, config.Settings);
         }
 
         /// <summary>

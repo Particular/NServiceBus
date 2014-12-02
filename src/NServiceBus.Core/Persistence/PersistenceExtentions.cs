@@ -103,6 +103,6 @@
             return this;
         }
 
-        readonly EnabledPersistence enabledPersistence;
+        EnabledPersistence enabledPersistence;
     }
 }
