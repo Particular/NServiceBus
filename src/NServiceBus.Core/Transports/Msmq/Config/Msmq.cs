@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
     using Transports;
@@ -22,10 +23,10 @@ namespace NServiceBus
         /// </summary>
         protected internal override void Configure(BusConfiguration config)
         {
-            // For MSMQ the endpoint differentiator is a no-op since you commonly scale out by running the same endpoint on a different machine.
+            // For MSMQ the endpoint suffix is a no-op since you commonly scale out by running the same endpoint on a different machine.
             // if users want to run more than one instance on the same machine they need to set an explicit discriminator
             config.GetSettings()
-                .SetDefault("EndpointInstanceDiscriminator", "");
+                .SetDefault("EndpointInstanceSuffix", String.Empty);
                
             config.EnableFeature<MsmqTransportConfigurator>();
             config.EnableFeature<MessageDrivenSubscriptions>();

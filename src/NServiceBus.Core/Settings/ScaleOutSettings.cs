@@ -1,7 +1,5 @@
 namespace NServiceBus.Settings
 {
-    using System;
-
     /// <summary>
     /// Placeholder for the various settings related to how a endpoint is scaled out
     /// </summary>
@@ -35,26 +33,26 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        /// Makes sure that each instance of this endpoint gets a unique queue based on the transport specific discriminator.
-        /// The default discriminator set by the transport will be used
+        /// Makes sure that each instance of this endpoint gets a unique queue based on the transport specific suffix.
         /// </summary>
+        /// <remarks>
+        /// The default suffix set by the transport will be used.
+        /// </remarks>
         public void UniqueQueuePerEndpointInstance()
         {
             config.Settings.Set("IndividualizeEndpointAddress", true);
         }
 
         /// <summary>
-        /// Makes sure that each instance of this endpoint gets a unique queue based on the transport specific discriminator.
+        /// Makes sure that each instance of this endpoint gets a unique queue based on the transport specific suffix.
         /// </summary>
-        /// <param name="discriminator">The discriminator to use</param>
-        public void UniqueQueuePerEndpointInstance(string discriminator)
+        /// <param name="suffix">The suffix to use.</param>
+        public void UniqueQueuePerEndpointInstance(string suffix)
         {
-            if (discriminator == null)
+            if (suffix != null)
             {
-                throw new ArgumentException("Discriminator can't be null");
+                config.Settings.Set("EndpointInstanceSuffix", suffix);
             }
-
-            config.Settings.Set("EndpointInstanceDiscriminator", discriminator);
             UniqueQueuePerEndpointInstance();
         }
     }

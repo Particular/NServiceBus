@@ -88,12 +88,12 @@ namespace NServiceBus.Transports
                 return settings.EndpointName();
             }
 
-            if (!settings.HasSetting("EndpointInstanceDiscriminator"))
+            if (!settings.HasSetting("EndpointInstanceSuffix"))
             {
-                throw new Exception("No endpoint instance discriminator found. This value is usually provided by your transport so please make sure you're on the lastest version of your specific transport or set the discriminator using 'configuration.ScaleOut().UniqueQueuePerEndpointInstance(myDiscriminator)'");
+                throw new Exception("No endpoint instance suffix found. This value is usually provided by your transport so please make sure you're on the lastest version of your specific transport or set the suffix using 'configuration.ScaleOut().UniqueQueuePerEndpointInstance(mysuffix)'");
             }
 
-            return settings.EndpointName() + settings.Get<string>("EndpointInstanceDiscriminator");
+            return settings.EndpointName() + settings.Get<string>("EndpointInstanceSuffix");
         }
 
 
