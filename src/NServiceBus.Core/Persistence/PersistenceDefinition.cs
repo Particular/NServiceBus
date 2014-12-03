@@ -13,6 +13,7 @@
         /// <summary>
         /// Used be the storage definitions to declare what they support
         /// </summary>
+        /// <typeparam name="T"><see cref="StorageType"/></typeparam>
         protected void Supports<T>(Action<SettingsHolder> action) where T : StorageType
         {
             if (storageToActionMap.ContainsKey(typeof(T)))
