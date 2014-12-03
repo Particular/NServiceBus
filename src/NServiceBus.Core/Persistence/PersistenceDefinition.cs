@@ -26,6 +26,23 @@
         /// <summary>
         /// Used be the storage definitions to declare what they support
         /// </summary>
+         [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Replacement = "Supports<T>()")]
+        protected void Supports(Storage storage, Action<SettingsHolder> action)
+        {
+            var storageType = StorageType.FromEnum(storage);
+            if (storageToActionMap.ContainsKey(storageType))
+            {
+                throw new Exception(string.Format("Action for {0} already defined.", storage));
+            }
+            storageToActionMap[storageType] = action;
+        }
+
+        /// <summary>
+        /// Used be the storage definitions to declare what they support
+        /// </summary>
         protected void Defaults(Action<SettingsHolder> action)
         {
             defaults.Add(action);
