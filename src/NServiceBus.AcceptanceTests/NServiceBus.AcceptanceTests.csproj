@@ -108,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audit\When_a_message_is_audited.cs" />
+    <Compile Include="BasicMessaging\When_starting_a_send_only.cs" />
     <Compile Include="BasicMessaging\When_registering_a_callback_for_a_local_message.cs" />
     <Compile Include="BasicMessaging\When_using_a_custom_correlation_id.cs" />
     <Compile Include="BasicMessaging\When_using_callbacks_in_a_scaleout_scenario.cs" />
@@ -116,6 +117,10 @@
     <Compile Include="Encryption\When_using_encryption_with_multikey.cs" />
     <Compile Include="Encryption\When_using_encryption.cs" />
     <Compile Include="EndpointTemplates\BusExtensions.cs" />
+    <Compile Include="Exceptions\When_cant_convert_to_TransportMessage.cs" />
+    <Compile Include="Exceptions\When_cant_convert_to_TransportMessage_NoTransactions.cs" />
+    <Compile Include="Exceptions\When_cant_convert_to_TransportMessage_SuppressedDTC.cs" />
+    <Compile Include="Exceptions\SerializerCorrupter.cs" />
     <Compile Include="Gateway\When_doing_request_response_between_sites.cs" />
     <Compile Include="Gateway\When_using_a_custom_correlation_id.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />

@@ -11,6 +11,7 @@ namespace NServiceBus.Testing
     using System.Collections.Generic;
     using Features.Categories;
     using DataBus.InMemory;
+    using NServiceBus.Config;
 
     /// <summary>
     /// Entry class used for unit testing
@@ -265,6 +266,13 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public T GetConfiguration<T>() where T : class, new()
         {
+            if (typeof(T) == typeof(MessageForwardingInCaseOfFaultConfig))
+            {
+                return new MessageForwardingInCaseOfFaultConfig
+                       {
+                           ErrorQueue = "Error"
+                       } as T;
+            }
             return null;
         }
     }
