@@ -199,6 +199,7 @@
     <Compile Include="Persistence\PersistenceExtentions.cs" />
     <Compile Include="Persistence\PersistenceStartup.cs" />
     <Compile Include="Persistence\Storage.cs" />
+    <Compile Include="Persistence\StorageType.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
     <Compile Include="Sagas\CorrelationProperty.cs" />
     <Compile Include="Sagas\CustomFinderAdapter.cs" />

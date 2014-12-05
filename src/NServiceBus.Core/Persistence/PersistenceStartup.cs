@@ -29,8 +29,8 @@
 
             definitions.Reverse();
 
-            var availableStorages = Reflect<Storage>.GetEnumValues();
-            var resultingSupportedStorages = new List<Storage>();
+            var availableStorages = StorageType.GetAvailableStorageTypes();
+            var resultingSupportedStorages = new List<Type>();
 
             foreach (var definition in definitions)
             {
@@ -39,18 +39,18 @@
 
                 persistenceDefinition.ApplyDefaults(settings);
 
-                foreach (var storage in supportedStorages)
+                foreach (var storageType in supportedStorages)
                 {
-                    if (availableStorages.Contains(storage))
+                    if (availableStorages.Contains(storageType))
                     {
-                        Logger.InfoFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", definition.DefinitionType.Name, storage);
-                        availableStorages.Remove(storage);
-                        persistenceDefinition.ApplyActionForStorage(storage, settings);
-                        resultingSupportedStorages.Add(storage);
+                        Logger.InfoFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", definition.DefinitionType.Name, storageType);
+                        availableStorages.Remove(storageType);
+                        persistenceDefinition.ApplyActionForStorage(storageType, settings);
+                        resultingSupportedStorages.Add(storageType);
                     }
                     else
                     {
-                        Logger.InfoFormat("Persistence '{0}' was not applied to storage '{1}' since that storage has been claimed by another persistence. This is a 'last one wins' scenario.", definition.DefinitionType.Name, storage);
+                        Logger.InfoFormat("Persistence '{0}' was not applied to storage '{1}' since that storage has been claimed by another persistence. This is a 'last one wins' scenario.", definition.DefinitionType.Name, storageType);
                     }
                 }
             }
@@ -58,10 +58,10 @@
             settings.Set("ResultingSupportedStorages", resultingSupportedStorages);
         }
 
-        internal static bool HasSupportFor(ReadOnlySettings settings, Storage storages)
+        internal static bool HasSupportFor<T>(ReadOnlySettings settings) where T : StorageType
         {
-            return settings.Get<List<Storage>>("ResultingSupportedStorages")
-                .Contains(storages);
+            return settings.Get<List<Type>>("ResultingSupportedStorages")
+                .Contains(typeof(T));
         }
     }
 }
