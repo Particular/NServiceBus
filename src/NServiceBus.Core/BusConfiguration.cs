@@ -173,6 +173,14 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Uses the name of the endpoint as the reply to address on outgoing messages
+        /// </summary>
+        public void UseEndpointNameAsPublicReturnAddress()
+        {
+            useEndpointNameAsPublicReturnAddress = true;
+        }
+
+        /// <summary>
         /// Sets the address of this endpoint.
         /// </summary>
         /// <param name="queue">The queue name.</param>
@@ -234,10 +242,16 @@ namespace NServiceBus
             Settings.SetDefault("EndpointName", endpointName);
             Settings.SetDefault("EndpointVersion", endpointVersion);
 
+            if (useEndpointNameAsPublicReturnAddress)
+            {
+                Settings.SetDefault("PublicReturnAddress", Address.Parse(endpointName));
+            }
+
             if (publicReturnAddress != null)
             {
                 Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
             }
+
 
             container.RegisterSingleton(typeof(Conventions), conventionsBuilder.Conventions);
 
@@ -283,5 +297,6 @@ namespace NServiceBus
         bool scanAssembliesInNestedDirectories;
         string publicReturnAddress;
         PipelineConfiguration pipelineCollection;
+		bool useEndpointNameAsPublicReturnAddress;
     }
 }
