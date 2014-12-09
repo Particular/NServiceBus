@@ -1141,7 +1141,7 @@ namespace NServiceBus.Serializers.XML
                 return Escape(value as string);
             }
 
-            return value.ToString();
+            return Escape(value.ToString());
         }
 
 #pragma warning disable 652
