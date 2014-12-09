@@ -19,10 +19,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<Sender>(b => b.Given((bus, c) =>
-                {
-                    bus.Send(new Request());
-                }))
+                .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.Send(new Request())))
                 .WithEndpoint<Receiver1>()
                 .WithEndpoint<Receiver2>()
                 .Done(c => c.Receiver1TimesCalled > 4 && c.Receiver2TimesCalled > 4)
@@ -38,10 +35,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Sender2>(b => b.Given((bus, c) =>
-                    {
-                        bus.Send(new Request());
-                    }))
+                    .WithEndpoint<Sender2>(b => b.Given((bus, c) => bus.Send(new Request())))
                     .WithEndpoint<Receiver1>()
                     .WithEndpoint<Receiver2>()
                     .Done(c => c.SafeDisconnectReceived)
