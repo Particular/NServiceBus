@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using Messages;
+    using NServiceBus.Routing;
     using Pipeline;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions;
@@ -17,6 +18,11 @@
         public PipelineExecutor PipelineExecutor { get; set; }
       
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
+
+
+        public IProvideDynamicRouting RoutingProvider { get; set; }
+
+        public Func<Address, string> Translator { get; set; }
 
         public void Publish(TransportMessage message, PublishOptions publishOptions)
         {
@@ -45,7 +51,18 @@
                 //this is unicast so we give the message a unique ID
                 message.ChangeMessageId(CombGuid.Generate().ToString());
 
-                MessageSender.Send(message, new SendOptions(subscriber)
+
+                var address = subscriber;
+
+                string dynamicAddress;
+
+                //todo: use the translator
+                if (RoutingProvider != null && RoutingProvider.TryGetRouteAddress(Translator(address), out dynamicAddress))
+                {
+                    address = Address.Parse(dynamicAddress);
+                }
+
+                MessageSender.Send(message, new SendOptions(address)
                 {
                     ReplyToAddress = publishOptions.ReplyToAddress,
                     EnforceMessagingBestPractices = publishOptions.EnforceMessagingBestPractices,
