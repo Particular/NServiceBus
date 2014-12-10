@@ -74,7 +74,7 @@ namespace NServiceBus.Timeout.Core
                 transportMessage.Headers[NServiceBus.Headers.SagaId] = SagaId.ToString();
             }
 
-
+            transportMessage.Headers[NServiceBus.Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
             transportMessage.Headers["NServiceBus.RelatedToTimeoutId"] = Id;
 
             return transportMessage;
