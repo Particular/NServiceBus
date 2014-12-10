@@ -17,8 +17,6 @@ namespace NServiceBus.Serializers.XML.Test
     using B;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
-    using NServiceBus.Serializers.Json;
-    using NServiceBus.Serializers.Json.Tests;
     using NUnit.Framework;
     using Serialization;
 
