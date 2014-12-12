@@ -47,7 +47,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     MessageReceiver =
                         TimeoutMessageProcessor.MessageReceiverFactory != null
                             ? TimeoutMessageProcessor.MessageReceiverFactory()
-                            : new MsmqMessageReceiver(),
+                            : new MsmqMessageReceiver() { ErrorQueue = Configure.Instance.GetConfiguredErrorQueue() },
                     IsTransactional = true,
                     NumberOfWorkerThreads =
                         MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads,

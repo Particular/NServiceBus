@@ -28,7 +28,7 @@ namespace NServiceBus.Satellites
 
             return new TransactionalTransport
             {
-                MessageReceiver = new MsmqMessageReceiver(),
+                MessageReceiver = new MsmqMessageReceiver() { ErrorQueue = Configure.Instance.GetConfiguredErrorQueue() },
                 IsTransactional = tx,
                 NumberOfWorkerThreads = nt,
                 MaxRetries = mr,

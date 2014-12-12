@@ -21,7 +21,7 @@ namespace NServiceBus.Proxy
                   NumberOfWorkerThreads = numberOfThreads,
                   MaxRetries = maxRetries,
                   IsTransactional = true,
-                  MessageReceiver = new MsmqMessageReceiver()
+                  MessageReceiver = new MsmqMessageReceiver() { ErrorQueue = Configure.Instance.GetConfiguredErrorQueue() }
               };
 
             var internalTransport = new TransactionalTransport
@@ -29,7 +29,7 @@ namespace NServiceBus.Proxy
                 NumberOfWorkerThreads = numberOfThreads,
                 MaxRetries = maxRetries,
                 IsTransactional = true,
-                MessageReceiver = new MsmqMessageReceiver()
+                MessageReceiver = new MsmqMessageReceiver() { ErrorQueue = Configure.Instance.GetConfiguredErrorQueue() }
             };
 
             var configure = Configure.With().DefaultBuilder();

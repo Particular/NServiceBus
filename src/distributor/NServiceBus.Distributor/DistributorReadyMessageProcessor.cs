@@ -26,7 +26,7 @@
             {
                 IsTransactional = true,
                 FailureManager = MessageFailureManager,
-                MessageReceiver = new MsmqMessageReceiver(),
+                MessageReceiver = new MsmqMessageReceiver() { ErrorQueue = Configure.Instance.GetConfiguredErrorQueue() },
                 MaxRetries = 5,
                 NumberOfWorkerThreads = NumberOfWorkerThreads,
             };

@@ -22,8 +22,12 @@ namespace NServiceBus
         {
             Selected = true;
 
-            config.Configurer.ConfigureComponent<MsmqMessageReceiver>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(p=>p.PurgeOnStartup,ConfigurePurging.PurgeRequested);
+            if (!Configure.SendOnlyMode)
+            {
+                config.Configurer.ConfigureComponent<MsmqMessageReceiver>(DependencyLifecycle.SingleInstance)
+                    .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested)
+                    .ConfigureProperty(p => p.ErrorQueue, config.GetConfiguredErrorQueue());
+            }
 
             config.Configurer.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.SingleInstance);
 

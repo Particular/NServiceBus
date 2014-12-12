@@ -34,7 +34,7 @@ namespace NServiceBus.Distributor
             {
                 NumberOfWorkerThreads = NumberOfWorkerThreads,
                 IsTransactional = true,
-                MessageReceiver = new MsmqMessageReceiver(),
+                MessageReceiver = new MsmqMessageReceiver() { ErrorQueue = Configure.Instance.GetConfiguredErrorQueue() },
                 MaxRetries = 5,
                 FailureManager = Builder.Build(MessageFailureManager.GetType()) as IManageMessageFailures
             };
