@@ -44,10 +44,17 @@
 
             return config;
         }
+
         /// <summary>
         /// Configures the serializer to use a custom namespace. (http://tempuri.net) is the default.
         /// <para>If the provided namespace ends with trailing forward slashes, those will be removed on the fly.</para>
         /// </summary>
+        /// <param name="config">The <see cref="SerializationExtentions{T}"/> to add a namespace to.</param>
+        /// <param name="namespaceToUse">
+        /// Namespace to use for interop scenarios. 
+        /// Note that this namespace is not validate or used for any logic inside NServiceBus. 
+        /// It is only for scenarios where a transport (or other infrastructure) requires message xml contents to have a specific namespace.
+        /// </param>
         public static SerializationExtentions<XmlSerializer> Namespace(this SerializationExtentions<XmlSerializer> config, string namespaceToUse)
         {
             if (string.IsNullOrEmpty(namespaceToUse))
