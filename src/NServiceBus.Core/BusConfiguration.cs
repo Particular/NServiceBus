@@ -172,13 +172,7 @@ namespace NServiceBus
             publicReturnAddress = address;
         }
 
-        /// <summary>
-        /// Uses the name of the endpoint as the reply to address on outgoing messages
-        /// </summary>
-        public void UseEndpointNameAsPublicReturnAddress()
-        {
-            useEndpointNameAsPublicReturnAddress = true;
-        }
+
 
         /// <summary>
         /// Sets the address of this endpoint.
@@ -241,17 +235,6 @@ namespace NServiceBus
 
             Settings.SetDefault("EndpointName", endpointName);
             Settings.SetDefault("EndpointVersion", endpointVersion);
-
-            if (useEndpointNameAsPublicReturnAddress)
-            {
-                Settings.SetDefault("PublicReturnAddress", Address.Parse(endpointName));
-            }
-
-            if (publicReturnAddress != null)
-            {
-                Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
-            }
-
 
             container.RegisterSingleton(typeof(Conventions), conventionsBuilder.Conventions);
 
