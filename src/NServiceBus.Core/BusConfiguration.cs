@@ -163,16 +163,10 @@ namespace NServiceBus
         /// <param name="address">The public address.</param>
         public void OverridePublicReturnAddress(Address address)
         {
-            publicReturnAddress = address;
+            Settings.SetDefault("PublicReturnAddress", address);
         }
 
-        /// <summary>
-        /// Uses the name of the endpoint as the reply to address on outgoing messages
-        /// </summary>
-        public void UseEndpointNameAsPublicReturnAddress()
-        {
-            useEndpointNameAsPublicReturnAddress = true;
-        }
+
 
         /// <summary>
         /// Sets the address of this endpoint.
@@ -235,17 +229,6 @@ namespace NServiceBus
             Settings.SetDefault("EndpointName", endpointName);
             Settings.SetDefault("EndpointVersion", endpointVersion);
 
-            if (useEndpointNameAsPublicReturnAddress)
-            {
-                Settings.SetDefault("PublicReturnAddress", Address.Parse(endpointName));
-            }
-
-            if (publicReturnAddress != null)
-            {
-                Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
-            }
-
-
             container.RegisterSingleton(typeof(Conventions), conventionsBuilder.Conventions);
 
             Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
@@ -274,7 +257,5 @@ namespace NServiceBus
         string endpointName;
         string endpointVersion;
         IList<Type> scannedTypes;
-        Address publicReturnAddress;
-        bool useEndpointNameAsPublicReturnAddress;
     }
 }

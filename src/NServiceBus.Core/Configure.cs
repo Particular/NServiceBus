@@ -143,12 +143,16 @@ namespace NServiceBus
         {
             get
             {
-                if (!Settings.HasSetting("PublicReturnAddress"))
+                Address returnAddress;
+
+                if (Settings.TryGet("PublicReturnAddress",out returnAddress))
                 {
-                    return LocalAddress;
+                    return returnAddress;
                 }
 
-                return Settings.Get<Address>("PublicReturnAddress");
+                return Settings.GetOrDefault<bool>("UseEndpointNameAsPublicReturnAddress") ?
+                        Address.Parse(Settings.EndpointName()) :
+                        LocalAddress;
             }
         }
 

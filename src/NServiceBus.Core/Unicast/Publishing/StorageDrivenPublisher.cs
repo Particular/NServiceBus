@@ -56,7 +56,6 @@
 
                 string dynamicAddress;
 
-                //todo: use the translator
                 if (RoutingProvider != null && RoutingProvider.TryGetRouteAddress(Translator(address), out dynamicAddress))
                 {
                     address = Address.Parse(dynamicAddress);
