@@ -33,23 +33,26 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        /// Makes sure that each instance of this endpoint gets a unique queue based on the transport specific discriminator.
-        /// The default discriminator set by the transport will be used.
+        /// Makes sure that each instance of this endpoint gets a unique queue based on the transport specific suffix.
         /// </summary>
+        /// <remarks>
+        /// The default suffix set by the transport will be used.
+        /// </remarks>
         public void UniqueQueuePerEndpointInstance()
         {
             config.Settings.Set("IndividualizeEndpointAddress", true);
         }
 
         /// <summary>
-        /// Makes sure that each instance of this endpoint gets a unique queue based on the transport specific discriminator.
+        /// Makes sure that each instance of this endpoint gets a unique queue based on the <paramref name="suffix"/>.
         /// </summary>
-        /// <param name="discriminator">The discriminator to use.</param>
-        public void UniqueQueuePerEndpointInstance(string discriminator)
+        /// <param name="suffix">The suffix to use.</param>
+        public void UniqueQueuePerEndpointInstance(string suffix)
         {
-            Guard.AgainstNullAndEmpty("discriminator", discriminator);
-
-            config.Settings.Set("EndpointInstanceDiscriminator", discriminator);
+            if (suffix != null)
+            {
+                config.Settings.Set("EndpointInstanceSuffix", suffix);
+            }
             UniqueQueuePerEndpointInstance();
         }
     }
