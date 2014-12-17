@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using Faults.Forwarder;
     using NServiceBus.Faults;
+    using NServiceBus.Routing;
     using SecondLevelRetries;
     using SecondLevelRetries.Helpers;
     using NUnit.Framework;
@@ -35,7 +36,7 @@
             var busNotifications = new BusNotifications();
             satellite = new SecondLevelRetriesProcessor
             {
-                FaultManager = new FaultManager(null, null, busNotifications)
+                FaultManager = new FaultManager(new DynamicRoutingProvider(), null, null, busNotifications)
                 {
                     ErrorQueue = ERROR_QUEUE
                 },

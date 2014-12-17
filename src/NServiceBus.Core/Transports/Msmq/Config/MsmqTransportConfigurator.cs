@@ -1,32 +1,49 @@
 ﻿namespace NServiceBus.Features
 {
-    using System;
-    using Config;
-    using Logging;
+    using NServiceBus.Config;
     using NServiceBus.Faults;
-    using Transports;
-    using Transports.Msmq;
-    using Transports.Msmq.Config;
+    using NServiceBus.Logging;
+    using NServiceBus.Routing;
+    using NServiceBus.Transports;
+    using NServiceBus.Transports.Msmq;
+    using NServiceBus.Transports.Msmq.Config;
 
     /// <summary>
-    /// Used to configure the MSMQ transport.
+    ///     Used to configure the MSMQ transport.
     /// </summary>
     public class MsmqTransportConfigurator : ConfigureTransport
     {
-        internal MsmqTransportConfigurator()
-        {
-            Func<Address, string> translator = a => a.Queue;
-
-            Defaults(s => s.SetDefault("Routing.Translator", translator));
-        }
-            
         /// <summary>
-        /// Initializes a new instance of <see cref="ConfigureTransport"/>.
+        /// Logical address translator to the parameter that is passed to <see cref="IProvideDynamicRouting.TryGetRouteAddress"/>.
+        /// </summary>
+        protected override AddressTranslator Translator
+        {
+            get { return translator = translator ?? new MsmqTranslator(); }
+        }
+
+        /// <summary>
+        ///     <see cref="ConfigureTransport.ExampleConnectionStringForErrorMessage" />
+        /// </summary>
+        protected override string ExampleConnectionStringForErrorMessage
+        {
+            get { return "cacheSendConnection=true;journal=false;deadLetter=true"; }
+        }
+
+        /// <summary>
+        ///     <see cref="ConfigureTransport.RequiresConnectionString" />
+        /// </summary>
+        protected override bool RequiresConnectionString
+        {
+            get { return false; }
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of <see cref="ConfigureTransport" />.
         /// </summary>
         protected override void Configure(FeatureConfigurationContext context, string connectionString)
         {
             new CheckMachineNameForComplianceWithDtcLimitation()
-            .Check();
+                .Check();
 
             context.Container.ConfigureComponent<CorrelationIdMutatorForBackwardsCompatibilityWithV3>(DependencyLifecycle.InstancePerCall);
             context.Container.ConfigureComponent<MsmqUnitOfWork>(DependencyLifecycle.SingleInstance);
@@ -63,24 +80,6 @@
                 .ConfigureProperty(t => t.Settings, settings);
         }
 
-        /// <summary>
-        /// <see cref="ConfigureTransport.ExampleConnectionStringForErrorMessage"/>
-        /// </summary>
-        protected override string ExampleConnectionStringForErrorMessage
-        {
-            get { return "cacheSendConnection=true;journal=false;deadLetter=true"; }
-        }
-
-        /// <summary>
-        /// <see cref="ConfigureTransport.RequiresConnectionString"/>
-        /// </summary>
-        protected override bool RequiresConnectionString
-        {
-            get { return false; }
-        }
-
-        static ILog Logger = LogManager.GetLogger<MsmqTransportConfigurator>();
-
         const string Message =
             @"
 MsmqMessageQueueConfig section has been deprecated in favor of using a connectionString instead.
@@ -89,8 +88,15 @@ Here is an example of what is required:
     <add name=""NServiceBus/Transport"" connectionString=""cacheSendConnection=true;journal=false;deadLetter=true"" />
   </connectionStrings>";
 
+        static ILog Logger = LogManager.GetLogger<MsmqTransportConfigurator>();
+        MsmqTranslator translator;
 
-
+        class MsmqTranslator : AddressTranslator
+        {
+            public override string Translate(Address address)
+            {
+                return address.Queue;
+            }
+        }
     }
-
 }

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using NServiceBus.Routing;
     using Pipeline;
     using Pipeline.Contexts;
     using Transports;
@@ -15,11 +16,15 @@
 
         public TimeSpan? TimeToBeReceivedOnForwardedMessages { get; set; }
 
+        public DynamicRoutingProvider RoutingProvider { get; set; }
+
         public void Invoke(IncomingContext context, Action next)
         {
             next();
 
-            var sendOptions = new SendOptions(AuditQueue)
+            var address = RoutingProvider.GetRouteAddress(AuditQueue);
+            
+            var sendOptions = new SendOptions(address)
             {
                 TimeToBeReceived = TimeToBeReceivedOnForwardedMessages
             };

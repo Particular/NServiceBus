@@ -205,6 +205,7 @@
     <Compile Include="Pipeline\PipelineModifications.cs" />
     <Compile Include="EndpointControl\DetectDisconnectRequestBehavior.cs" />
     <Compile Include="Routing\DynamicRoutingBehavior.cs" />
+    <Compile Include="Routing\DynamicRoutingProvider.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoutingConfigurationExtensions.cs" />
     <Compile Include="EndpointControl\NoMessageBacklogNotifier.cs" />
     <Compile Include="EndpointControl\EndpointSafeToDisconnect.cs" />
@@ -240,6 +241,7 @@
     <Compile Include="Serializers\XML\Config\XmlSerializationSettings_Obsolete.cs" />
     <Compile Include="Settings\DurableMessagesConfig.cs" />
     <Compile Include="Timeout\ConfigurationBuilderExtensions.cs" />
+    <Compile Include="Transports\AddressTranslator.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
     <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />

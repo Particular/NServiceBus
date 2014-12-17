@@ -19,10 +19,8 @@
       
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
+        public DynamicRoutingProvider RoutingProvider { get; set; }
 
-        public IProvideDynamicRouting RoutingProvider { get; set; }
-
-        public Func<Address, string> Translator { get; set; }
 
         public void Publish(TransportMessage message, PublishOptions publishOptions)
         {
@@ -54,12 +52,7 @@
 
                 var address = subscriber;
 
-                string dynamicAddress;
-
-                if (RoutingProvider != null && RoutingProvider.TryGetRouteAddress(Translator(address), out dynamicAddress))
-                {
-                    address = Address.Parse(dynamicAddress);
-                }
+                address = RoutingProvider.GetRouteAddress(address);
 
                 MessageSender.Send(message, new SendOptions(address)
                 {
