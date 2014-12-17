@@ -17,7 +17,7 @@ namespace NServiceBus
     public partial class Configure
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="Configure"/>.
+        ///     Creates a new instance of <see cref="Configure" />.
         /// </summary>
         internal Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration)
         {
@@ -48,6 +48,44 @@ namespace NServiceBus
         public IList<Type> TypesToScan
         {
             get { return Settings.GetAvailableTypes(); }
+        }
+
+        /// <summary>
+        ///     Returns the queue name of this endpoint.
+        /// </summary>
+        public Address LocalAddress
+        {
+            get
+            {
+                Debug.Assert(localAddress != null);
+                return localAddress;
+            }
+        }
+
+        internal Address PublicReturnAddress
+        {
+            get
+            {
+                if (returnAddress != null)
+                {
+                    return returnAddress;
+                }
+
+                Address temp;
+
+                if (Settings.TryGet("PublicReturnAddress", out temp))
+                {
+                    returnAddress = temp;
+                }
+                else
+                {
+                    returnAddress = Settings.GetOrDefault<bool>("UseEndpointNameAsPublicReturnAddress") ?
+                        Address.Parse(Settings.EndpointName()) :
+                        LocalAddress;
+                }
+
+                return returnAddress;
+            }
         }
 
         void RunUserRegistrations(List<Action<IConfigureComponents>> registrations)
@@ -137,7 +175,7 @@ namespace NServiceBus
         {
             ForAllTypes<T>(types, t =>
             {
-                var instanceToInvoke = (T)Activator.CreateInstance(t);
+                var instanceToInvoke = (T) Activator.CreateInstance(t);
                 action(instanceToInvoke);
             });
         }
@@ -159,7 +197,9 @@ namespace NServiceBus
         }
 
         internal IConfigureComponents container;
-        internal PipelineSettings pipelineSettings;
+        internal PipelineSettings pipeline;
         PipelineConfiguration pipelineConfiguration;
+        internal PipelineSettings pipeline;
+        Address returnAddress;
     }
 }
