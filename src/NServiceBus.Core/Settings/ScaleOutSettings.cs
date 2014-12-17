@@ -44,7 +44,7 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        /// Makes sure that each instance of this endpoint gets a unique queue based on the transport specific suffix.
+        /// Makes sure that each instance of this endpoint gets a unique queue based on the <paramref name="suffix"/>.
         /// </summary>
         /// <param name="suffix">The suffix to use.</param>
         public void UniqueQueuePerEndpointInstance(string suffix)
