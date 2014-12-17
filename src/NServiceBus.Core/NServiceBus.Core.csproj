@@ -201,6 +201,7 @@
     <Compile Include="Persistence\PersistenceExtentions.cs" />
     <Compile Include="Persistence\PersistenceStartup.cs" />
     <Compile Include="Persistence\Storage.cs" />
+    <Compile Include="Persistence\StorageType.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
     <Compile Include="EndpointControl\DetectDisconnectRequestBehavior.cs" />
     <Compile Include="Routing\DynamicRoutingBehavior.cs" />

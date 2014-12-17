@@ -9,7 +9,7 @@
     {
         internal MsmqPersistence()
         {
-            Supports(Storage.Subscriptions, s => s.EnableFeatureByDefault<MsmqSubscriptionPersistence>());
+            Supports<StorageType.Subscriptions>(s => s.EnableFeatureByDefault<MsmqSubscriptionPersistence>());
         }
     }
 }

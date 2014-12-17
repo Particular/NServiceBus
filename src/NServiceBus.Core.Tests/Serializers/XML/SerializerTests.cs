@@ -126,6 +126,32 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
         [Test]
+        public void Deserialize_private_message_with_two_unrelated_interface_without_wrapping()
+        {
+            var serializer = SerializerFactory.Create(typeof(CompositeMessage), typeof(IMyEventA), typeof(IMyEventB));
+            var deserializer = SerializerFactory.Create(typeof(IMyEventA), typeof(IMyEventB));
+
+            using (var stream = new MemoryStream())
+            {
+                var msg = new CompositeMessage()
+                {
+                    IntValue = 42,
+                    StringValue = "Answer"
+                };
+
+                serializer.Serialize(msg, stream);
+
+                stream.Position = 0;
+
+                var result = deserializer.Deserialize(stream, new[] { typeof(IMyEventA), typeof(IMyEventB) });
+                var a = (IMyEventA)result[0];
+                var b = (IMyEventB)result[1];
+                Assert.AreEqual(42, b.IntValue);
+                Assert.AreEqual("Answer", a.StringValue);
+            }
+        }
+
+        [Test]
         public void Should_be_able_to_serialize_single_message_without_wrapping_element()
         {
             Serializer.ForMessage<EmptyMessage>(new EmptyMessage())
@@ -968,6 +994,32 @@ namespace NServiceBus.Serializers.XML.Test
 	public class ItemList : List<MessageWithListItem>
 	{
 	}
+
+    public class CompositeMessage : IMyEventA, IMyEventB
+    {
+        public string StringValue { get; set; }
+        public int IntValue { get; set; }
+    }
+
+    public interface IMyEventA
+    {
+        string StringValue { get; set; }
+    }
+
+    public class MyEventA_impl : IMyEventA
+    {
+        public string StringValue { get; set; }
+    }
+
+    public interface IMyEventB
+    {
+        int IntValue { get; set; }
+    }
+
+    public class MyEventB_impl : IMyEventB
+    {
+        public int IntValue { get; set; }
+    }
 }
 
 namespace NServiceBus.Serializers.XML.Test.AlternateNamespace

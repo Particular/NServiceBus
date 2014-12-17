@@ -79,6 +79,33 @@ namespace NServiceBus.Serializers.Json.Tests
         }
 
         [Test]
+        public void Deserialize_private_message_with_two_unrelated_interface_without_wrapping()
+        {
+            MessageMapper = new MessageMapper();
+            MessageMapper.Initialize(new[] { typeof(IMyEventA), typeof(IMyEventB) });
+            Serializer = new JsonMessageSerializer(MessageMapper);
+
+            using (var stream = new MemoryStream())
+            {
+                var msg = new CompositeMessage()
+                {
+                    IntValue = 42,
+                    StringValue = "Answer"
+                };
+
+                Serializer.Serialize(msg, stream);
+
+                stream.Position = 0;
+
+                var result = Serializer.Deserialize(stream, new[] { typeof(IMyEventA), typeof(IMyEventB) });
+                var a = (IMyEventA) result[0];
+                var b = (IMyEventB) result[1];
+                Assert.AreEqual(42, b.IntValue);
+                Assert.AreEqual("Answer", a.StringValue);
+            }
+        }
+
+        [Test]
         public void Serialize_message_without_wrapping()
         {
             using (var stream = new MemoryStream())
@@ -295,6 +322,32 @@ namespace NServiceBus.Serializers.Json.Tests
 
     public interface IMyEvent
     {
+    }
+
+    public class CompositeMessage : IMyEventA, IMyEventB
+    {
+        public string StringValue { get; set; }
+        public int IntValue { get; set; }
+    }
+
+    public interface IMyEventA
+    {
+        string StringValue { get; set; }
+    }
+
+    public class MyEventA_impl : IMyEventA
+    {
+        public string StringValue { get; set; }
+    }
+
+    public interface IMyEventB
+    {
+        int IntValue { get; set; }
+    }
+
+    public class MyEventB_impl : IMyEventB
+    {
+        public int IntValue { get; set; }
     }
 
     public class MessageWithXDocument

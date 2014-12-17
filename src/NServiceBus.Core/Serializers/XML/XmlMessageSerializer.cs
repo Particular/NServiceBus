@@ -319,21 +319,28 @@ namespace NServiceBus.Serializers.XML
 
             if (doc.DocumentElement.Name.ToLower() != "messages")
             {
-                Type nodeType = null;
-
-                if (messageTypesToDeserialize != null)
+                if (messageTypesToDeserialize != null && messageTypesToDeserialize.Any())
                 {
-                    nodeType = messageTypesToDeserialize.FirstOrDefault();
+                    var rootTypes = FindRootTypes(messageTypesToDeserialize);
+                    foreach (var rootType in rootTypes)
+                    {
+                        var m = Process(doc.DocumentElement, null, rootType);
+                        if (m == null)
+                        {
+                            throw new SerializationException("Could not deserialize message.");
+                        }
+                        result.Add(m); 
+                    }
                 }
-
-                var m = Process(doc.DocumentElement, null, nodeType);
-
-                if (m == null)
+                else
                 {
-                    throw new SerializationException("Could not deserialize message.");
+                    var m = Process(doc.DocumentElement, null);
+                    if (m == null)
+                    {
+                        throw new SerializationException("Could not deserialize message.");
+                    }
+                    result.Add(m);    
                 }
-
-                result.Add(m);
             }
             else
             {
@@ -363,6 +370,25 @@ namespace NServiceBus.Serializers.XML
             defaultNameSpace = null;
 
             return result.ToArray();
+        }
+
+        static IEnumerable<Type> FindRootTypes(IEnumerable<Type> messageTypesToDeserialize)
+        {
+            Type currentRoot = null;
+            foreach (var type in messageTypesToDeserialize)
+            {
+                if (currentRoot == null)
+                {
+                    currentRoot = type;
+                    yield return currentRoot;
+                    continue;
+                }
+                if (!type.IsAssignableFrom(currentRoot))
+                {
+                    currentRoot = type;
+                    yield return currentRoot;
+                }
+            }
         }
 
         object Process(XmlNode node, object parent, Type nodeType = null)
@@ -1141,7 +1167,7 @@ namespace NServiceBus.Serializers.XML
                 return Escape(value as string);
             }
 
-            return value.ToString();
+            return Escape(value.ToString());
         }
 
 #pragma warning disable 652

@@ -3,6 +3,10 @@
     /// <summary>
     /// The storage needs of NServiceBus
     /// </summary>
+    [ObsoleteEx(
+    RemoveInVersion = "7.0",
+    TreatAsErrorFromVersion = "6.0",
+    Replacement = "NServiceBus.Persistence.StorageType")]
     public enum Storage
     {
         /// <summary>
