@@ -13,7 +13,7 @@ namespace NServiceBus
         /// Configures NServiceBus to use the given <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">Dynamic routing definition.</typeparam>
-        public static RoutingExtensions<T> UseDynamicRouting<T>(this BusConfiguration config) where T : DynamicRoutingDefinition
+        public static RoutingExtensions<T> UseDynamicRouting<T>(this BusConfiguration config) where T : DynamicRoutingDefinition, new()
         {
             var type = typeof(RoutingExtensions<>).MakeGenericType(typeof(T));
             var extension = (RoutingExtensions<T>) Activator.CreateInstance(type, config.Settings);
