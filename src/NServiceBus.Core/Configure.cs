@@ -22,7 +22,7 @@ namespace NServiceBus
     public partial class Configure
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="Configure"/>.
+        ///     Creates a new instance of <see cref="Configure" />.
         /// </summary>
         public Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipeline)
         {
@@ -52,6 +52,44 @@ namespace NServiceBus
         public IList<Type> TypesToScan
         {
             get { return Settings.GetAvailableTypes(); }
+        }
+
+        /// <summary>
+        ///     Returns the queue name of this endpoint.
+        /// </summary>
+        public Address LocalAddress
+        {
+            get
+            {
+                Debug.Assert(localAddress != null);
+                return localAddress;
+            }
+        }
+
+        internal Address PublicReturnAddress
+        {
+            get
+            {
+                if (returnAddress != null)
+                {
+                    return returnAddress;
+                }
+
+                Address temp;
+
+                if (Settings.TryGet("PublicReturnAddress", out temp))
+                {
+                    returnAddress = temp;
+                }
+                else
+                {
+                    returnAddress = Settings.GetOrDefault<bool>("UseEndpointNameAsPublicReturnAddress") ?
+                        Address.Parse(Settings.EndpointName()) :
+                        LocalAddress;
+                }
+
+                return returnAddress;
+            }
         }
 
         void RunUserRegistrations(List<Action<IConfigureComponents>> registrations)
@@ -84,18 +122,6 @@ namespace NServiceBus
             }
         }
 
-        /// <summary>
-        /// Returns the queue name of this endpoint.
-        /// </summary>
-        public Address LocalAddress
-        {
-            get
-            {
-                Debug.Assert(localAddress != null);
-                return localAddress;
-            }
-        }
-
         internal void Initialize()
         {
             WireUpConfigSectionOverrides();
@@ -118,7 +144,7 @@ namespace NServiceBus
 
             featureActivator.RegisterStartupTasks(configurer);
 
-            localAddress =Settings.LocalAddress();
+            localAddress = Settings.LocalAddress();
 
             foreach (var o in Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>())
             {
@@ -137,23 +163,6 @@ namespace NServiceBus
                 action(type);
             }
             // ReSharper restore HeapView.SlowDelegateCreation
-        }
-
-        internal Address PublicReturnAddress
-        {
-            get
-            {
-                Address returnAddress;
-
-                if (Settings.TryGet("PublicReturnAddress",out returnAddress))
-                {
-                    return returnAddress;
-                }
-
-                return Settings.GetOrDefault<bool>("UseEndpointNameAsPublicReturnAddress") ?
-                        Address.Parse(Settings.EndpointName()) :
-                        LocalAddress;
-            }
         }
 
         internal static IList<Type> GetAllowedTypes(params Assembly[] assemblies)
@@ -183,7 +192,7 @@ namespace NServiceBus
         {
             ForAllTypes<T>(types, t =>
             {
-                var instanceToInvoke = (T)Activator.CreateInstance(t);
+                var instanceToInvoke = (T) Activator.CreateInstance(t);
                 action(instanceToInvoke);
             });
         }
@@ -208,9 +217,9 @@ namespace NServiceBus
 
         FeatureActivator featureActivator;
 
-        internal PipelineSettings pipeline;
-
         //HACK: Set by the tests
         internal Address localAddress;
+        internal PipelineSettings pipeline;
+        Address returnAddress;
     }
 }
