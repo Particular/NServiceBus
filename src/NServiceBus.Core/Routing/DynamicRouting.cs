@@ -11,10 +11,6 @@ namespace NServiceBus.Features
     {
         internal DynamicRouting()
         {
-            Func<Address, string> translator = a => a.ToString();
-            
-            Defaults(s => s.SetDefault("Routing.Translator", translator));
-
             Defaults(s => s.EnableFeatureByDefault(GetSelectedFeatureForRouting(s)));
         }
 
@@ -33,8 +29,7 @@ namespace NServiceBus.Features
         {
             context.Pipeline.Register<DynamicRoutingBehavior.RoutingDistributorRegistration>();
 
-            context.Container.ConfigureComponent<DynamicRoutingBehavior>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(b => b.Translator, context.Settings.Get("Routing.Translator"));
+            context.Container.ConfigureComponent<DynamicRoutingBehavior>(DependencyLifecycle.SingleInstance);
         }
     }
 }

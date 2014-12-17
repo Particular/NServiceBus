@@ -18,7 +18,7 @@
     using Transports.Msmq.Config;
 
     /// <summary>
-    /// Used to configure the MSMQ transport.
+    ///     Used to configure the MSMQ transport.
     /// </summary>
     public class MsmqTransportConfigurator : ConfigureTransport
     {
