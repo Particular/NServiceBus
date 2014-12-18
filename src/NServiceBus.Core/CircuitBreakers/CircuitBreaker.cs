@@ -6,7 +6,7 @@ namespace NServiceBus.CircuitBreakers
     /// <summary>
     /// A circuit breaker implementation.
     /// </summary>
-    class CircuitBreaker : IDisposable
+    public class CircuitBreaker : IDisposable
     {
         readonly int threshold;
         int firedTimes;
@@ -40,6 +40,10 @@ namespace NServiceBus.CircuitBreakers
             }
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
             //Injected
