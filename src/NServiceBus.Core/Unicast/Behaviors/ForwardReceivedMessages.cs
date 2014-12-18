@@ -11,6 +11,7 @@
     {
         internal ForwardReceivedMessages()
         {
+            EnableByDefault();
             // Only enable if the configuration is defined in UnicastBus
             Prerequisite(config => GetConfiguredForwardMessageQueue(config) != Address.Undefined,"No forwarding address was defined in the unicastbus config");
         }
