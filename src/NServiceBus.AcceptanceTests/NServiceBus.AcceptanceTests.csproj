@@ -83,6 +83,8 @@
     <Compile Include="Basic\When_Deferring_a_message.cs" />
     <Compile Include="Basic\When_using_callback_to_get_message.cs" />
     <Compile Include="Config\When_overriding_public_return_address.cs" />
+    <Compile Include="Routing\When_audit_use_dynamic_routing.cs" />
+    <Compile Include="Routing\When_errors_use_dynamic_routing.cs" />
     <Compile Include="Routing\When_subscribers_use_dynamic_routing.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="PubSub\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />

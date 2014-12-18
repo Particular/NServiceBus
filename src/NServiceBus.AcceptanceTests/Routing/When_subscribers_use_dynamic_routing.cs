@@ -36,15 +36,15 @@
 
                     bus.Publish(new MyEvent());
                 }))
-                .Done(c => c.GotTheMessasge)
+                .Done(c => c.GotTheMessage)
                 .Repeat(c => c.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(c=> Assert.IsTrue(c.GotTheMessasge))
+                .Should(c => Assert.IsTrue(c.GotTheMessage))
                 .Run();
         }
 
         public class Context : ScenarioContext
         {
-            public bool GotTheMessasge { get; set; }
+            public bool GotTheMessage { get; set; }
         }
 
         public class Publisher : EndpointConfigurationBuilder
@@ -60,7 +60,7 @@
 
                 public void Handle(MyEvent message)
                 {
-                    Context.GotTheMessasge = true;
+                    Context.GotTheMessage = true;
                 }
             }
 
@@ -97,6 +97,7 @@
             }
         }
 
+         [Serializable]
         public class MyEvent : IEvent
         {
 
