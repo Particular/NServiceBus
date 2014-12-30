@@ -125,7 +125,7 @@ namespace NServiceBus.AcceptanceTesting.Support
                 Console.Out.WriteLine("Result: Successful - Duration: {0}", runResult.TotalTime);
             }
 
-            //dump trace and context regardless since asserts outside the should could stoll fail the test
+            //dump trace and context regardless since asserts outside the should could still fail the test
             Console.WriteLine("");
             Console.Out.WriteLine("Context:");
 
