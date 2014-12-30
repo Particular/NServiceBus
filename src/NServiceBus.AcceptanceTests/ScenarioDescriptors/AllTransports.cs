@@ -68,6 +68,17 @@
         }
     }
 
+    public class MsmqOnly : ScenarioDescriptor
+    {
+        public MsmqOnly()
+        {
+            if (Transports.Default == Transports.Msmq)
+            {
+                Add(Transports.Msmq);
+            }
+        }
+    }
+
     public class TypeScanner
     {
 
