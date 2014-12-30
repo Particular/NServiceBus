@@ -12,11 +12,11 @@
         [Test]
         public void Event_should_be_published_using_instance_type()
         {
-            Scenario.Define(() => new Context() { Id = Guid.NewGuid() })
+            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<Publisher>(b =>
                         b.When(c => c.EventASubscribed && c.EventBSubscribed, (bus, ctx) =>
                         {
-                            var message = new CompositeEvent()
+                            var message = new CompositeEvent
                             {
                                 ContextId = ctx.Id
                             };

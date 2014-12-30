@@ -55,7 +55,7 @@
         {
             public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
             {
-                //to simulate native interop cases where msgid == corrid
+                //to simulate native interop cases where MessageId == CorrelationId
                 transportMessage.Headers[Headers.MessageId] = transportMessage.Headers[Headers.CorrelationId];
             }
 

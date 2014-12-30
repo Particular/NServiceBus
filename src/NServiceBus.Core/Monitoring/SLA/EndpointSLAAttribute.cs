@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// Defines the SLA for this endpoint. Needs to be set on the endpoint configuration class
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class)]
     public sealed class EndpointSLAAttribute : Attribute
     {
         /// <summary>

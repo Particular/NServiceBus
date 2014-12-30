@@ -87,7 +87,7 @@ namespace NServiceBus.Serializers.Json.Tests
 
             using (var stream = new MemoryStream())
             {
-                var msg = new CompositeMessage()
+                var msg = new CompositeMessage
                 {
                     IntValue = 42,
                     StringValue = "Answer"
