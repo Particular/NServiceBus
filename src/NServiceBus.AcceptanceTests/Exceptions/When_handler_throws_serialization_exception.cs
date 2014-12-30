@@ -23,7 +23,7 @@
                     .Done(c => c.HandedOverToSlr)
                     .Run(TimeSpan.FromMinutes(5));
 
-            Assert.AreEqual(MaxNumberOfRetries, context.NumberOfTimesInvoked);
+            Assert.AreEqual(MaxNumberOfRetries(), context.NumberOfTimesInvoked);
             Assert.IsFalse(context.SerializationFailedCalled);
         }
 
