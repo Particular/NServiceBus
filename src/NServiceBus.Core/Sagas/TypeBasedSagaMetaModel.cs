@@ -22,6 +22,23 @@ namespace NServiceBus.Sagas
             return typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && !t.IsGenericType;
         }
 
+        static Type GetBaseSagaType(Type t)
+        {
+            var cur = t.BaseType;
+
+            while (cur != null)
+            {
+                if (cur.Name == "Saga`1")
+                {
+                    return cur;
+                }
+
+                cur = cur.BaseType;
+            }
+
+            throw new InvalidOperationException();
+        }
+
         public static SagaMetadata Create(Type sagaType)
         {
             return Create(sagaType, new List<Type>(), new Conventions());
@@ -33,7 +50,7 @@ namespace NServiceBus.Sagas
                 throw new Exception(sagaType.FullName + " is not a saga");
             }
 
-            var sagaEntityType = sagaType.BaseType.GetGenericArguments().Single();
+            var sagaEntityType = GetBaseSagaType(sagaType).GetGenericArguments().Single();
 
             var uniquePropertiesOnEntity = FindUniqueAttributes(sagaEntityType).ToList();
 
