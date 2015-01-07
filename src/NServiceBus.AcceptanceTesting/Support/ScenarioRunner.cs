@@ -369,13 +369,9 @@ namespace NServiceBus.AcceptanceTesting.Support
             var domainSetup = new AppDomainSetup
             {
                 ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
-                LoaderOptimization = LoaderOptimization.SingleDomain
+                LoaderOptimization = LoaderOptimization.SingleDomain,
+                ConfigurationFile = appConfigPath ?? AppDomain.CurrentDomain.SetupInformation.ConfigurationFile
             };
-
-            if (appConfigPath != null)
-            {
-                domainSetup.ConfigurationFile = appConfigPath;
-            }
 
             var appDomain = AppDomain.CreateDomain(endpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
 
