@@ -89,6 +89,7 @@
     <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
     <Compile Include="Bus.cs" />
     <Compile Include="BusConfiguration.cs" />
+    <Compile Include="ConfigureHandlerSettings.cs" />
     <Compile Include="ConfigureQueueCreation_Obsolete.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement_obsolete.cs" />
     <Compile Include="Config\MsmqConnectionStringBuilder.cs" />
