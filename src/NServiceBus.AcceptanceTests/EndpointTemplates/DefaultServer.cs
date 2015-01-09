@@ -81,7 +81,10 @@
 
             types = types.Union(endpointConfiguration.TypesToInclude);
 
-            return types.Where(t => !endpointConfiguration.TypesToExclude.Contains(t)).ToList();
+            return types
+                .Where(t => !endpointConfiguration.TypesToExclude.Contains(t))
+                .Where(t => t.Namespace != null && !endpointConfiguration.NamespaceTypesToExclude.Any(n => t.Namespace.Equals(n, StringComparison.InvariantCultureIgnoreCase) || t.Namespace.StartsWith(n.EndsWith(".") ? n : string.Format("{0}.", n), StringComparison.InvariantCultureIgnoreCase)))
+                .ToList();
         }
 
         static IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)

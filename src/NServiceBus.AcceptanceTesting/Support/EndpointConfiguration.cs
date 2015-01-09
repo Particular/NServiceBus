@@ -10,6 +10,7 @@
             UserDefinedConfigSections = new Dictionary<Type, object>();
             TypesToExclude = new List<Type>();
             TypesToInclude = new List<Type>();
+            NamespaceTypesToExclude = new List<string>();
         }
 
         public IDictionary<Type, Type> EndpointMappings { get; set; }
@@ -17,6 +18,8 @@
         public IList<Type> TypesToExclude { get; set; }
 
         public IList<Type> TypesToInclude { get; set; }
+
+        public IList<string> NamespaceTypesToExclude { get; set; }
 
         public Func<RunDescriptor, IDictionary<Type, string>, BusConfiguration> GetConfiguration { get; set; }
 
