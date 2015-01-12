@@ -84,6 +84,7 @@
     <Compile Include="Basic\When_Deferring_a_message.cs" />
     <Compile Include="Basic\When_using_callback_to_get_message.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
+    <Compile Include="PubSub\When_publishing_from_sendonly.cs" />
     <Compile Include="PubSub\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />
     <Compile Include="ScaleOut\When_individualization_is_enabled_for_msmq.cs" />
     <Compile Include="ScaleOut\When_no_discriminator_is_available.cs" />
