@@ -5,6 +5,7 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using Features;
+    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Persistence;
     using NServiceBus.Unicast.Subscriptions;
     using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -16,12 +17,12 @@
         public void Should_be_delivered_to_all_subscribers()
         {
             var context = new Context();
+
             Scenario.Define(context)
-                .WithEndpoint<SendOnlyPublisher>(b =>
-                    b.Given(bus => bus.Publish(new MyEvent()))
-                )
+                .WithEndpoint<SendOnlyPublisher>()
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.SubscriberGotTheEvent)
+                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                 .Run();
 
             Assert.True(context.SubscriberGotTheEvent);
@@ -42,6 +43,20 @@
                     b.UsePersistence(typeof(HardCodedPersistence));
                     b.DisableFeature<AutoSubscribe>();
                 }).SendOnly();
+            }
+
+            public class Startup : IWantToRunWhenBusStartsAndStops
+            {
+                public IBus Bus { get; set; }
+
+                public void Start()
+                {
+                    Bus.Publish(new MyEvent());
+                }
+
+                public void Stop()
+                {
+                }
             }
         }
 
@@ -72,9 +87,9 @@
         public class HardCodedPersistence : PersistenceDefinition
         {
             internal HardCodedPersistence()
-        {
-            Supports<StorageType.Subscriptions>(s => s.EnableFeatureByDefault<HardCodedPersistenceFeature>());
-        }
+            {
+                Supports<StorageType.Subscriptions>(s => s.EnableFeatureByDefault<HardCodedPersistenceFeature>());
+            }
         }
 
         public class HardCodedPersistenceFeature:Feature
@@ -89,7 +104,6 @@
         {
             public void Subscribe(Address client, IEnumerable<MessageType> messageTypes)
             {
-                
             }
 
             public void Unsubscribe(Address client, IEnumerable<MessageType> messageTypes)
@@ -109,6 +123,4 @@
             }
         }
     }
-
-    
 }

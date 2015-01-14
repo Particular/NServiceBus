@@ -14,22 +14,22 @@
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            sendOnlyBus.Dispose();
         }
 
         public void Publish<T>(T message)
         {
-            throw new NotImplementedException();
+            sendOnlyBus.Publish(message);
         }
 
         public void Publish<T>()
         {
-            throw new NotImplementedException();
+            sendOnlyBus.Publish<T>();
         }
 
         public void Publish<T>(Action<T> messageConstructor)
         {
-            throw new NotImplementedException();
+            sendOnlyBus.Publish(messageConstructor);
         }
 
         public ICallback Send(object message)
@@ -39,50 +39,51 @@
 
         public ICallback Send<T>(Action<T> messageConstructor)
         {
-            throw new NotImplementedException();
+            return sendOnlyBus.Send(messageConstructor);
         }
 
         public ICallback Send(string destination, object message)
         {
-            throw new NotImplementedException();
+            return sendOnlyBus.Send(destination, message);
         }
 
         public ICallback Send(Address address, object message)
         {
-            throw new NotImplementedException();
+            return sendOnlyBus.Send(address, message);
         }
 
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
-            throw new NotImplementedException();
+            return sendOnlyBus.Send(destination, messageConstructor);
         }
 
         public ICallback Send<T>(Address address, Action<T> messageConstructor)
         {
-            throw new NotImplementedException();
+            return sendOnlyBus.Send(address, messageConstructor);
         }
 
         public ICallback Send(string destination, string correlationId, object message)
         {
-            throw new NotImplementedException();
+            return sendOnlyBus.Send(destination, correlationId, message);
         }
 
         public ICallback Send(Address address, string correlationId, object message)
         {
-            throw new NotImplementedException();
+            return sendOnlyBus.Send(address, correlationId, message);
         }
 
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
-            throw new NotImplementedException();
+            return sendOnlyBus.Send(destination, correlationId, messageConstructor);
         }
 
         public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
         {
-            throw new NotImplementedException();
+            return sendOnlyBus.Send(address, correlationId, messageConstructor);
         }
 
         public IDictionary<string, string> OutgoingHeaders { get; private set; }
+
         public void Subscribe(Type messageType)
         {
             throw new NotImplementedException();
