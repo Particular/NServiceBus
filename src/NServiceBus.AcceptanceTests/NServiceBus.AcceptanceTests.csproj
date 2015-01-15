@@ -72,6 +72,7 @@
     <Compile Include="Exceptions\Cant_convert_to_TransportMessage\When_cant_convert_to_TransportMessage_SuppressedDTC.cs" />
     <Compile Include="Exceptions\Cant_convert_to_TransportMessage\When_cant_convert_to_TransportMessage.cs" />
     <Compile Include="Exceptions\Message_without_an_id.cs" />
+    <Compile Include="NonDTC\Auditing.cs" />
     <Compile Include="Sagas\When_message_has_a_saga_id.cs" />
     <Compile Include="Tx\Issue_2481.cs" />
     <Compile Include="Volatile\When_sending_to_non_durable_endpoint.cs" />
