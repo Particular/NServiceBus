@@ -27,31 +27,21 @@
                 throw new Exception(errorMessage);
             }
 
-            definitions.Reverse();
+            var enabledPersistences = PersistenceStorageMerger.Merge(definitions, settings);
 
-            var availableStorages = StorageType.GetAvailableStorageTypes();
             var resultingSupportedStorages = new List<Type>();
 
-            foreach (var definition in definitions)
+            foreach (var definition in enabledPersistences)
             {
                 var persistenceDefinition = definition.DefinitionType.Construct<PersistenceDefinition>();
-                var supportedStorages = persistenceDefinition.GetSupportedStorages(definition.SelectedStorages);
 
                 persistenceDefinition.ApplyDefaults(settings);
 
-                foreach (var storageType in supportedStorages)
+                foreach (var storageType in definition.SelectedStorages)
                 {
-                    if (availableStorages.Contains(storageType))
-                    {
-                        Logger.InfoFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", definition.DefinitionType.Name, storageType);
-                        availableStorages.Remove(storageType);
-                        persistenceDefinition.ApplyActionForStorage(storageType, settings);
-                        resultingSupportedStorages.Add(storageType);
-                    }
-                    else
-                    {
-                        Logger.InfoFormat("Persistence '{0}' was not applied to storage '{1}' since that storage has been claimed by another persistence. This is a 'last one wins' scenario.", definition.DefinitionType.Name, storageType);
-                    }
+                    Logger.InfoFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", definition.DefinitionType.Name, storageType);
+                    persistenceDefinition.ApplyActionForStorage(storageType, settings);
+                    resultingSupportedStorages.Add(storageType);
                 }
             }
 

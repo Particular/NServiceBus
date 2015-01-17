@@ -4,7 +4,9 @@ namespace NServiceBus.Settings
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Configuration;
+    using System.Linq;
     using System.Linq.Expressions;
+    using NServiceBus.Persistence;
     using ObjectBuilder;
     using Utils.Reflection;
 
@@ -291,5 +293,43 @@ namespace NServiceBus.Settings
         readonly ConcurrentDictionary<string, object> Overrides = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         readonly ConcurrentDictionary<string, object> Defaults = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
+        public List<EnabledPersistence> Merge(List<EnabledPersistence> definitions)
+        {
+            definitions.Reverse();
+
+            var availableStorages = StorageType.GetAvailableStorageTypes();
+            var resultingSupportedStorages = new List<Type>();
+            var mergedEnabledPersistences = new List<EnabledPersistence>();
+
+            foreach (var definition in definitions)
+            {
+                var persistenceDefinition = definition.DefinitionType.Construct<PersistenceDefinition>();
+                var supportedStorages = persistenceDefinition.GetSupportedStorages(definition.SelectedStorages);
+
+                var currentDefinition = new EnabledPersistence
+                {
+                    DefinitionType = definition.DefinitionType,
+                    SelectedStorages = new List<Type>()
+                };
+
+                foreach (var storageType in supportedStorages)
+                {
+                    if (availableStorages.Contains(storageType))
+                    {
+                        currentDefinition.SelectedStorages.Add(storageType);
+                        availableStorages.Remove(storageType);
+                        persistenceDefinition.ApplyActionForStorage(storageType, this);
+                        resultingSupportedStorages.Add(storageType);
+                    }
+                }
+
+                if (currentDefinition.SelectedStorages.Any())
+                {
+                    mergedEnabledPersistences.Add(currentDefinition);
+                }
+            }
+
+            return mergedEnabledPersistences;
+        }
     }
 }

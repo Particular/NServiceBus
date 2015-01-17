@@ -198,6 +198,7 @@
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
     <Compile Include="Persistence\PersistenceExtentions.cs" />
     <Compile Include="Persistence\PersistenceStartup.cs" />
+    <Compile Include="Persistence\PersistenceStorageMerger.cs" />
     <Compile Include="Persistence\Storage.cs" />
     <Compile Include="Persistence\StorageType.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
