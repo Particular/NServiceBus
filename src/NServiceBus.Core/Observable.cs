@@ -12,6 +12,7 @@ namespace NServiceBus
         bool isDisposed;
         int disposeSignaled;
         ReaderWriterLockSlim observerLock = new ReaderWriterLockSlim();
+        object disposingLock = new object();
 
         public Observable()
         {
@@ -25,23 +26,26 @@ namespace NServiceBus
                 return;
             }
 
-            observerLock.EnterReadLock();
-            try
+            lock (disposingLock)
             {
-                foreach (var observer in observers)
+                observerLock.EnterReadLock();
+                try
                 {
-                    observer.OnCompleted();
+                    foreach (var observer in observers)
+                    {
+                        observer.OnCompleted();
+                    }
                 }
-            }
-            finally
-            {
-                observerLock.ExitReadLock();
-            }
+                finally
+                {
+                    observerLock.ExitReadLock();
+                }
 
-            observerLock.Dispose();
-            observerLock = null;
-            observers = null;
-            isDisposed = true;
+                observerLock.Dispose();
+                observerLock = null;
+                observers = null;
+                isDisposed = true;
+            }
         }
 
         public IDisposable Subscribe(IObserver<T> observer)
@@ -86,14 +90,19 @@ namespace NServiceBus
 
         void Unsubscribe(IObserver<T> observer)
         {
-            observerLock.EnterWriteLock();
-            try
+            lock (disposingLock)
             {
-                observers.Remove(observer);
-            }
-            finally
-            {
-                observerLock.ExitWriteLock();
+                CheckDisposed();
+
+                observerLock.EnterWriteLock();
+                try
+                {
+                    observers.Remove(observer);
+                }
+                finally
+                {
+                    observerLock.ExitWriteLock();
+                }
             }
         }
 
@@ -122,7 +131,14 @@ namespace NServiceBus
                 var o = Interlocked.Exchange(ref observer, null);
                 if (o != null)
                 {
-                    observable.Unsubscribe(observer);
+                    try
+                    {
+                        observable.Unsubscribe(observer);
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        //Observable has already been disposed, safe to ignore
+                    }
                     observable = null;
                 }
             }
