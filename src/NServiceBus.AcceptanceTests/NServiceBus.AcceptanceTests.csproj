@@ -94,6 +94,7 @@
     <Compile Include="Exceptions\Message_without_an_id.cs" />
     <Compile Include="HostInformation\When_customising_hostinfo.cs" />
     <Compile Include="HostInformation\When_feature_overrides_hostinfo.cs" />
+    <Compile Include="NonDTC\When_outbox_with_auditing.cs" />
     <Compile Include="Sagas\When_reply_from_a_finder.cs" />
     <Compile Include="Exceptions\Cant_convert_to_TransportMessage\When_cant_convert_to_TransportMessage.cs" />
     <Compile Include="Sagas\When_message_has_a_saga_id.cs" />
