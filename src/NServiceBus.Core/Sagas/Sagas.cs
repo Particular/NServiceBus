@@ -35,8 +35,9 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            // Register the Saga related behavior for incoming messages
+            // Register the Saga related behaviors for incoming messages
             context.Pipeline.Register<SagaPersistenceBehavior.Registration>();
+            context.Pipeline.Register<InvokeSagaNotFoundBehavior.Registration>();
 
             var typeBasedSagas = TypeBasedSagaMetaModel.Create(context.Settings.GetAvailableTypes(),conventions);
 
