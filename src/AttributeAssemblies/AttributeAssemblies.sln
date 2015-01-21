@@ -1,13 +1,9 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Core", "NServiceBus.Core\NServiceBus.Core.csproj", "{ADE75574-EA8E-49ED-9AC6-F1CC54D25DB6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NServiceBus.Core", "NServiceBus.Core", "{3387E847-04BA-4B91-9CAB-EB70C7340D97}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NServiceBus.Azure", "NServiceBus.Azure", "{C42312C5-6594-4909-9232-C8ED4376523D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Azure", "NServiceBus.Azure\NServiceBus.Azure.csproj", "{B95CAA46-809D-4387-B488-1EEDE804ADDE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,16 +15,11 @@ Global
 		{ADE75574-EA8E-49ED-9AC6-F1CC54D25DB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADE75574-EA8E-49ED-9AC6-F1CC54D25DB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADE75574-EA8E-49ED-9AC6-F1CC54D25DB6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B95CAA46-809D-4387-B488-1EEDE804ADDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B95CAA46-809D-4387-B488-1EEDE804ADDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B95CAA46-809D-4387-B488-1EEDE804ADDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B95CAA46-809D-4387-B488-1EEDE804ADDE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{ADE75574-EA8E-49ED-9AC6-F1CC54D25DB6} = {3387E847-04BA-4B91-9CAB-EB70C7340D97}
-		{B95CAA46-809D-4387-B488-1EEDE804ADDE} = {C42312C5-6594-4909-9232-C8ED4376523D}
 	EndGlobalSection
 EndGlobal
