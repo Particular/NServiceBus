@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Configuration;
     using NServiceBus.Faults;
@@ -41,6 +42,13 @@
             }
             headers[FaultsHeaderKeys.FailedQ] = failedQueue.ToString();
             headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+
+            foreach (DictionaryEntry entry in e.Data)
+            {
+                if (entry.Value == null)
+                    continue;
+                headers["NServiceBus.ExceptionInfo.Data." + entry.Key] = entry.Value.ToString();
+            }
         }
     }
 }
