@@ -22,7 +22,7 @@
                     bus.SendLocal(message);
                 }))
                 .Done(c => c.OtherSagaStarted)
-                .Run(TimeSpan.FromSeconds(15));
+                .Run();
 
             Assert.False(context.NotFoundHandlerCalled);
             Assert.True(context.OtherSagaStarted);
