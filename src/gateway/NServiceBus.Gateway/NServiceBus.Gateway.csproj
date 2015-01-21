@@ -56,6 +56,9 @@
     <Reference Include="NServiceBus.Faults">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Faults.Forwarder.Config">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Faults.Forwarder.Config.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Installation">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
     </Reference>

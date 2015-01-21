@@ -34,7 +34,7 @@
                 return;
             }
 
-            var messageReceiver = MessageReceiverFactory != null ? MessageReceiverFactory() : new MsmqMessageReceiver();
+            var messageReceiver = MessageReceiverFactory != null ? MessageReceiverFactory() : new MsmqMessageReceiver() { ErrorQueue = Configure.Instance.GetConfiguredErrorQueue() };
 
             inputTransport = new TransactionalTransport
             {

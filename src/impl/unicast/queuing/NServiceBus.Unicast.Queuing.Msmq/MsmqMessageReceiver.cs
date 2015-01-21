@@ -30,6 +30,7 @@
                     address, Environment.MachineName.ToLower()));
 
             myQueue = new MessageQueue(MsmqUtilities.GetFullPath(address));
+            errorQueue = new MessageQueue(MsmqUtilities.GetFullPath(ErrorQueue), false, true, QueueAccessMode.Send);
 
             if (useTransactions && !QueueIsTransactional())
                 throw new ArgumentException("Queue must be transactional (" + address + ").");
@@ -93,12 +94,23 @@
         {
             try
             {
-                using (var m = myQueue.Receive(TimeSpan.FromSeconds(secondsToWait), GetTransactionTypeForReceive()))
+                var transactionType = GetTransactionTypeForReceive();
+                using (var m = myQueue.Receive(TimeSpan.FromSeconds(secondsToWait), transactionType))
                 {
                     if (m == null)
+                    {
                         return null;
-
-                    return MsmqUtilities.Convert(m);
+                    }
+                    try
+                    {
+                        return MsmqUtilities.Convert(m);
+                    }
+                    catch (Exception exception)
+                    {
+                        LogCorruptedMessage(m, exception);
+                        errorQueue.Send(m, transactionType);
+                        return null;
+                    }
                 }
             }
             catch (MessageQueueException mqe)
@@ -115,6 +127,12 @@
 
                 throw;
             }
+        }
+
+        void LogCorruptedMessage(Message message, Exception ex)
+        {
+            var error = string.Format("Message '{0}' is corrupt and will be moved to '{1}'", message.Id, ErrorQueue.Queue);
+            Logger.Error(error, ex);
         }
 
         bool QueueIsTransactional()
@@ -153,9 +171,15 @@
             set { secondsToWait = value; }
         }
 
+        /// <summary>
+        /// The address of the configured error queue. 
+        /// </summary>
+        public Address ErrorQueue { get; set; }
+
         private int secondsToWait = 1;
 
         private MessageQueue myQueue;
+        MessageQueue errorQueue;
 
         private bool useTransactions;
 

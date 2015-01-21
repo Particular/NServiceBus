@@ -26,7 +26,7 @@ namespace NServiceBus.Gateway.Config
             get
             {
                 //todo - use the type + IBuilder to get a fresh instance. This requires the MsmqMessageReceiver to be configured as singlecall, check with Udi
-                return new MsmqMessageReceiver(); 
+                return new MsmqMessageReceiver() { ErrorQueue = Configure.Instance.GetConfiguredErrorQueue() }; 
             }
         }
 
