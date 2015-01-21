@@ -13,7 +13,6 @@
             definitions.Reverse();
 
             var availableStorages = StorageType.GetAvailableStorageTypes();
-            var resultingSupportedStorages = new List<Type>();
             var mergedEnabledPersistences = new List<EnabledPersistence>();
 
             foreach (var definition in definitions)
@@ -34,7 +33,6 @@
                         currentDefinition.SelectedStorages.Add(storageType);
                         availableStorages.Remove(storageType);
                         persistenceDefinition.ApplyActionForStorage(storageType, settings);
-                        resultingSupportedStorages.Add(storageType);
                     }
                 }
 

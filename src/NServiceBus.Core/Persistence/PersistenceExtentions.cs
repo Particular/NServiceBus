@@ -17,23 +17,11 @@
         where S : StorageType
     {
         /// <summary>
+        /// Default constructor.
         /// </summary>
-        /// <param name="settings"></param>
         public PersistenceExtentions(SettingsHolder settings) : base(settings, typeof(S))
         {
         }
-
-        /// <summary>
-        /// Defines the list of specific storage needs this persistence should provide
-        /// </summary>
-        /// <param name="specificStorages"></param>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException"></exception>
-        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "5.2")]
-        public new PersistenceExtentions<T> For(params Storage[] specificStorages)
-        {
-            throw new InvalidOperationException("Do not invoke .For() when StorageType is already specified.");
-        } 
     }
 
     /// <summary>
@@ -53,8 +41,6 @@
         /// <summary>
         /// Constructor for a specific <see cref="StorageType"/>
         /// </summary>
-        /// <param name="settings"></param>
-        /// <param name="storageType"></param>
         protected PersistenceExtentions(SettingsHolder settings, Type storageType) : base(typeof(T), settings, storageType)
         {
         }
