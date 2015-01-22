@@ -139,7 +139,7 @@ task TestMain -depends CompileMain -description "Builds NServiceBus.dll, keeps t
 		Create-Directory $buildBase\test-reports 
 	}
 	$testAssemblies = @()
-	$testAssemblies +=  dir $buildBase\nservicebus\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
+	$testAssemblies +=  dir $buildBase\nservicebus\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll
 	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
 }
 
@@ -193,7 +193,7 @@ task TestCore  -depends CompileCore -description "Builds NServiceBus.Core.dll, k
 		Create-Directory $buildBase\test-reports 
 	}	
 	$testAssemblies = @()
-	$testAssemblies +=  dir $buildBase\nservicebus.core\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
+	$testAssemblies +=  dir $buildBase\nservicebus.core\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll
 	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
 }
 
@@ -250,7 +250,7 @@ task TestContainers  -depends CompileContainers -description "Builds the contain
 		Create-Directory $buildBase\test-reports 
 	}	
 	$testAssemblies = @()
-	$testAssemblies +=  dir $buildBase\containers\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
+	$testAssemblies +=  dir $buildBase\containers\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll
 	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
 }
 
@@ -285,37 +285,10 @@ task TestNHibernate  -depends CompileNHibernate -description "Builds NServiceBus
 		Create-Directory $buildBase\test-reports 
 	}	
 	$testAssemblies = @()
-	$testAssemblies +=  dir $buildBase\NServiceBus.NHibernate\**Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
+	$testAssemblies +=  dir $buildBase\NServiceBus.NHibernate\**Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll
 	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
 }
 
-task CompileAzure -depends InitEnvironment -description "Builds NServiceBus.Azure.dll and keeps the output in \binaries"   {
-
-	$solutions = dir "$srcDir\azure\*.sln"
-	$solutions | % {
-		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\NServiceBus.Azure\" /p:Configuration=$buildConfiguration }		
-	}
-	$attributeAssembly = "$buildBase\attributeAssemblies\NServiceBus.Azure.dll"
-	$assemblies = dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**Azure**.dll -Exclude **Tests.dll
-	$assemblies += dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**AppFabric**.dll -Exclude **Tests.dll
-	
-	Ilmerge $ilMergeKey $outDir "NServiceBus.Azure" $assemblies $attributeAssembly "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureMergeLog.txt"  $ilMergeExclude
-	
-	Copy-Item $outDir\NServiceBus.Azure.dll $binariesDir -Force;
-	Copy-Item $outDir\NServiceBus.Azure.pdb $binariesDir -Force;
-	
-}
-
-task TestAzure  -depends CompileAzure -description "Builds NServiceBus.Azure.dll, keeps the output in \binaries and unit test the code responsible for NServiceBus.Azure.dll" {
-
-	if((Test-Path -Path $buildBase\test-reports) -eq $false){
-		Create-Directory $buildBase\test-reports 
-	}	
-	$testAssemblies = @()
-	$testAssemblies +=  dir $buildBase\azure\NServiceBus.Azure\**Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll
-	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
-}
 
 task CompileHosts  -depends InitEnvironment -description "Builds NServiceBus.Host.exe and keeps the output in \binaries"  {
 
@@ -357,46 +330,6 @@ task CompileHosts32  -depends InitEnvironment -description "Builds NServiceBus.H
 	
 	Copy-Item $outDir\host\NServiceBus.Host32.exe $binariesDir -Force;
 	Copy-Item $outDir\host\NServiceBus.Host32.pdb $binariesDir -Force;
-}
-
-task CompileAzureHosts  -depends InitEnvironment -description "Builds NServiceBus.Hosting.Azure.dll and NServiceBus.Hosting.Azure.HostProcess.exe and keeps the outputs in \binaries" {
-
-	$solutions = dir "$srcDir\azure\Hosting\NServiceBus.Hosting.sln"
-	$solutions | % {
-		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Hosting\" /p:Configuration=$buildConfiguration}
-	}
-	
-	$assemblies = @("$buildBase\azure\Hosting\NServiceBus.Hosting.Azure.dll",
-		"$buildBase\azure\Hosting\NServiceBus.Hosting.dll")
-	
-	Ilmerge $ilMergeKey $outDir "NServiceBus.Hosting.Azure" $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureHostMergeLog.txt"  $ilMergeExclude
-	
-	Copy-Item $outDir\NServiceBus.Hosting.Azure.dll $binariesDir -Force;
-	Copy-Item $outDir\NServiceBus.Hosting.Azure.pdb $binariesDir -Force;
-	
-	$solutions = dir "$srcDir\azure\Timeout\Timeout.sln"
-	$solutions | % {
-		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Timeout\" /p:Configuration=$buildConfiguration}
-	}
-	
-	echo "Copying NServiceBus.Timeout.Hosting.Azure....."	
-	Copy-Item $buildBase\azure\Timeout\NServiceBus.Timeout.Hosting.Azure.* $buildBase\output -Force
-	
-	$solutions = dir "$srcDir\azure\Hosting\NServiceBus.Hosting.HostProcess.sln"
-	$solutions | % {
-		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Hosting\" /p:Configuration=$buildConfiguration}
-	}
-	
-	$assemblies = @("$buildBase\azure\Hosting\NServiceBus.Hosting.Azure.HostProcess.exe",
-		"$buildBase\azure\Hosting\Magnum.dll", "$buildBase\azure\Hosting\Topshelf.dll")
-	
-	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Hosting.Azure.HostProcess" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureHostProcessMergeLog.txt"  $ilMergeExclude
-	
-	Copy-Item $outDir\host\NServiceBus.Hosting.Azure.HostProcess.exe $binariesDir -Force;
-	Copy-Item $outDir\host\NServiceBus.Hosting.Azure.HostProcess.pdb $binariesDir -Force;
 }
 
 task CompileTools -depends InitEnvironment -description "Builds the tools XsdGenerator.exe, runner.exe and ReturnToSourceQueue.exe." {
@@ -441,14 +374,14 @@ task TestTools -depends CompileTools -description "Builds the tools XsdGenerator
 	exec {&$nunitexec "$buildBase\testing\NServiceBus.Testing.Tests.dll" $script:nunitTargetFramework} 
 }
 
-task Test -depends TestMain, TestCore, TestContainers, TestNHibernate, TestTools <#, TestAzure #> -description "Builds and unit tests all the source which has unit tests"  {	
+task Test -depends TestMain, TestCore, TestContainers, TestNHibernate, TestTools -description "Builds and unit tests all the source which has unit tests"  {	
 }
 
-task PrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts, CompileTools, Test   -description "Builds all the source code in order, Runs thet unit tests and prepares the binaries and Core-only binaries" {
+task PrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileTools, Test   -description "Builds all the source code in order, Runs thet unit tests and prepares the binaries and Core-only binaries" {
 	Prepare-Binaries
 }
 
-task JustPrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts -description "Builds All the source code, just prepare the binaries without testing it" {
+task JustPrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32 -description "Builds All the source code, just prepare the binaries without testing it" {
 }
 
 function Prepare-Binaries{
@@ -465,7 +398,6 @@ function Prepare-Binaries{
 	
 	Copy-Item $outDir\NServiceBus.dll $coreOnlyBinariesDir -Force;
 	Copy-Item $outDir\NServiceBus.NHibernate.dll $coreOnlyBinariesDir -Force;
-	Copy-Item $outDir\NServiceBus.Azure.dll $coreOnlyBinariesDir -Force;
 	Copy-Item $coreOnly\NServiceBus*.* $coreOnlyBinariesDir -Force;
 	
 	Copy-Item $outDir\host\*.* $binariesDir -Force;
@@ -525,8 +457,7 @@ function Prepare-Binaries{
 }
 
 task CompileSamples -depends InitEnvironment -description "Compiles all the sample projects." {
-	$excludeFromBuild = @("AsyncPagesMVC3.sln", "AzureFullDuplex.sln", "AzureHost.sln", "AzurePubSub.sln", "AzureThumbnailCreator.sln", 
-						  "ServiceBusFullDuplex.sln", "AzureServiceBusPubSub.sln")
+	$excludeFromBuild = @("AsyncPagesMVC3.sln", "ServiceBusFullDuplex.sln")
 	$solutions = ls -path $baseDir\Samples -include *.sln -recurse  
 		$solutions | % {
 			$solutionName =  [System.IO.Path]::GetFileName($_.FullName)
