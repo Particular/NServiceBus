@@ -7,7 +7,7 @@
     {
         public MessageForwardingInCaseOfFaultConfig GetConfiguration()
         {
-            return new MessageForwardingInCaseOfFaultConfig
+            return new MessageForwardingInCaseOfFaultConfig()
             {
                 ErrorQueue = "error"
             };

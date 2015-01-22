@@ -6,22 +6,19 @@
     using System.Linq;
     using NServiceBus.Pipeline;
 
-    class BehaviorChain<T> where T : BehaviorContext
+    class BehaviorChain
     {
-        public BehaviorChain(IEnumerable<Type> behaviorList, T context, PipelineExecutor pipelineExecutor, BusNotifications notifications)
+        public BehaviorChain(IEnumerable<BehaviorInstance> behaviorList, BehaviorContext context, PipelineExecutor pipelineExecutor, BusNotifications notifications)
         {
-            context.SetChain(this);
             this.context = context;
             this.notifications = notifications;
-            foreach (var behaviorType in behaviorList)
-            {
-                itemDescriptors.Enqueue(behaviorType);
-            }
+
+            itemDescriptors = behaviorList.ToArray();
 
             lookupSteps = pipelineExecutor.Incoming.Concat(pipelineExecutor.Outgoing).ToDictionary(rs => rs.BehaviorType);
         }
-        
-        public void Invoke()
+
+        public BehaviorContext Invoke(BehaviorContextStacker contextStacker)
         {
             var outerPipe = false;
 
@@ -34,13 +31,15 @@
                     context.Set("Diagnostics.Pipe", steps);
                     notifications.Pipeline.InvokeReceiveStarted(steps);
                 }
-            
-                InvokeNext(context);
+
+                var result = InvokeNext(context, contextStacker, 0);
 
                 if (outerPipe)
                 {
                     steps.OnCompleted();
                 }
+
+                return result;
             }
             catch (Exception ex)
             {
@@ -60,38 +59,34 @@
             }
         }
 
-        public void TakeSnapshot()
+        BehaviorContext InvokeNext(BehaviorContext context, BehaviorContextStacker contextStacker, int currentIndex)
         {
-            snapshots.Push(new Queue<Type>(itemDescriptors));
-        }
-
-        public void DeleteSnapshot()
-        {
-            itemDescriptors = new Queue<Type>(snapshots.Pop());
-        }
-
-        void InvokeNext(T context)
-        {
-            if (itemDescriptors.Count == 0)
+            if (context == null)
             {
-                return;
+                throw new ArgumentNullException("context");
             }
 
-            var behaviorType = itemDescriptors.Dequeue();
-            var stepEnded = new Observable<StepEnded>();
+            if (currentIndex == itemDescriptors.Length)
+            {
+                return context;
+            }
 
+            var behavior = itemDescriptors[currentIndex];
+            var stepEnded = new Observable<StepEnded>();
+            contextStacker.Push(context);
             try
             {
-                steps.OnNext(new StepStarted(lookupSteps[behaviorType].StepId, behaviorType, stepEnded));
+                steps.OnNext(new StepStarted(lookupSteps[behavior.Type].StepId, behavior.Type, stepEnded));
 
-                var instance = (IBehavior<T>) context.Builder.Build(behaviorType);
+                var instance = behavior.GetInstance();
 
                 var duration = Stopwatch.StartNew();
 
-                instance.Invoke(context, () =>
+                BehaviorContext innermostContext = null;
+                behavior.Invoke(instance, context, newContext =>
                 {
                     duration.Stop();
-                    InvokeNext(context);
+                    innermostContext = InvokeNext(newContext, contextStacker, currentIndex + 1);
                     duration.Start();
                 });
 
@@ -99,6 +94,8 @@
 
                 stepEnded.OnNext(new StepEnded(duration.Elapsed));
                 stepEnded.OnCompleted();
+
+                return innermostContext ?? context;
             }
             catch (Exception ex)
             {
@@ -106,13 +103,16 @@
 
                 throw;
             }
+            finally
+            {
+                contextStacker.Pop();
+            }
         }
 
         readonly BusNotifications notifications;
-        T context;
-        Queue<Type> itemDescriptors = new Queue<Type>();
+        BehaviorContext context;
+        BehaviorInstance[] itemDescriptors;
         Dictionary<Type, RegisterStep> lookupSteps;
-        Stack<Queue<Type>> snapshots = new Stack<Queue<Type>>();
         Observable<StepStarted> steps;
     }
 }

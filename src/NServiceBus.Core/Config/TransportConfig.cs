@@ -9,9 +9,9 @@
     public class TransportConfig : ConfigurationSection
     {
         /// <summary>
-        /// Specifies the maximum concurrency level this <see cref="ITransport"/> is able to support.
+        /// Specifies the maximum concurrency level this <see cref="TransportReceiver"/> is able to support.
         /// </summary>
-        [ConfigurationProperty("MaximumConcurrencyLevel", IsRequired = false, DefaultValue = 1)]
+        [ConfigurationProperty("MaximumConcurrencyLevel", IsRequired = false, DefaultValue = 0)]
         public int MaximumConcurrencyLevel
         {
             get
@@ -45,7 +45,7 @@
         /// <summary>
         /// The max throughput for the transport. This allows the user to throttle their endpoint if needed
         /// </summary>
-        [ConfigurationProperty("MaximumMessageThroughputPerSecond", IsRequired = false, DefaultValue = 0)]
+        [ConfigurationProperty("MaximumMessageThroughputPerSecond", IsRequired = false, DefaultValue = -1)]
         public int MaximumMessageThroughputPerSecond
         {
             get

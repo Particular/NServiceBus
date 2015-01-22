@@ -12,11 +12,10 @@
         {
             var incomingTransportMessage = new TransportMessage();
 
-            var context = new IncomingContext(null, incomingTransportMessage)
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(incomingTransportMessage, null))
             {
                 handleCurrentMessageLaterWasCalled = true
             };
-
             context.Set(new OutboxMessage("SomeId"));
 
             Invoke(context);
@@ -35,7 +34,7 @@
             };
         }
 
-        void Invoke(IncomingContext context, bool shouldAbort = false)
+        void Invoke(PhysicalMessageProcessingStageBehavior.Context context, bool shouldAbort = false)
         {
             behavior.Invoke(context, () =>
             {

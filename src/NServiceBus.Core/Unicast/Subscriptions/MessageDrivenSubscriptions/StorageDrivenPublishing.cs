@@ -14,7 +14,14 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<Unicast.Publishing.StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
+            if (context.Settings.Get<bool>("Endpoint.SendOnly"))
+            {
+                context.Container.ConfigureComponent<Unicast.Publishing.StorageDrivenPublisherNonFunctionalPublisher>(DependencyLifecycle.InstancePerCall); 
+            }
+            else
+            {
+                context.Container.ConfigureComponent<Unicast.Publishing.StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);                
+            }
         }
     }
 }

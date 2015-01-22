@@ -29,6 +29,16 @@ namespace NServiceBus
 
         PipelineNotifications pipeNotifications = new PipelineNotifications();
 
+        /// <summary>
+        /// Executor push-based notifications
+        /// </summary>
+        public ExecutorNotifications Executor
+        {
+            get { return executorNotifications; }
+        }
+
+        ExecutorNotifications executorNotifications = new ExecutorNotifications();
+
         void IDisposable.Dispose()
         {
             // Injected

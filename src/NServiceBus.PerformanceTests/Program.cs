@@ -54,7 +54,6 @@
 
             configuration.EndpointName(endpointName);
             configuration.EnableInstallers();
-            configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
             configuration.UseTransport<MsmqTransport>().ConnectionString("deadLetter=false;journal=false");
             configuration.DisableFeature<Audit>();
 

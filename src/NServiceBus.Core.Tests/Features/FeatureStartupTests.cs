@@ -60,6 +60,10 @@
     {
         readonly Type type;
 
+        public FakeBuilder()
+        {
+            
+        }
         public FakeBuilder(Type type)
         {
             this.type = type;
@@ -74,7 +78,7 @@
         {
             if (typeToBuild != type)
             {
-                throw new Exception("Not the expected task");
+                throw new Exception("Not the expected type");
             }
             return Activator.CreateInstance(typeToBuild);
         }

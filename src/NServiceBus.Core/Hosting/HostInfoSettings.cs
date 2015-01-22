@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using NServiceBus.Features;
     using NServiceBus.Hosting;
     using NServiceBus.Utils;
 
@@ -39,7 +40,7 @@ namespace NServiceBus
         /// </remarks>
         public HostInfoSettings UsingCustomIdentifier(Guid id)
         {
-            config.Settings.Set("NServiceBus.HostInformation.HostId", id);
+            config.Settings.Set(UnicastBus.HostIdSettingsKey, id);
             return this;
         }
 
@@ -51,7 +52,7 @@ namespace NServiceBus
         /// </remarks>
         public HostInfoSettings UsingNames(string instanceName, string hostName)
         {
-            config.Settings.Set("NServiceBus.HostInformation.HostId", DeterministicGuid.Create(instanceName, hostName));
+            config.Settings.Set(UnicastBus.HostIdSettingsKey, DeterministicGuid.Create(instanceName, hostName));
             return this;
         }
 

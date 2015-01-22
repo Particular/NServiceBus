@@ -23,7 +23,7 @@ namespace NServiceBus.Features
         {
             Action<string, Exception> errorAction;
             context.Settings.TryGet("onCriticalErrorAction", out errorAction);
-            context.Container.ConfigureComponent(builder => new CriticalError(errorAction, builder.Build<Configure>()), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(builder => new CriticalError(errorAction, builder), DependencyLifecycle.SingleInstance);
         }
 
     }

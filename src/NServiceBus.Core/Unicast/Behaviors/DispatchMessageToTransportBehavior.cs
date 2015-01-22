@@ -5,12 +5,11 @@
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Queuing;
     using Settings;
-    using Pipeline;
     using Pipeline.Contexts;
     using Support;
     using Transports;
 
-    class DispatchMessageToTransportBehavior : IBehavior<OutgoingContext>
+    class DispatchMessageToTransportBehavior : PhysicalOutgoingContextStageBehavior
     {
         public ISendMessages MessageSender { get; set; }
 
@@ -20,9 +19,9 @@
 
         public ReadOnlySettings Settings { get; set; }
 
-        public HostInformation Host { get; set; }
+        public HostInformation HostInfo { get; set; }
 
-        public void Invoke(OutgoingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             InvokeNative(context.DeliveryOptions, context.OutgoingMessage);
 
@@ -42,7 +41,7 @@
 
             messageToSend.Headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
             messageToSend.Headers.Add(Headers.OriginatingEndpoint, Settings.EndpointName());
-            messageToSend.Headers.Add(Headers.OriginatingHostId, Host.HostId.ToString("N"));
+            messageToSend.Headers.Add(Headers.OriginatingHostId, HostInfo.HostId.ToString("N"));
           
             try
             {

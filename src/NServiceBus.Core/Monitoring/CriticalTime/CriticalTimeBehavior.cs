@@ -2,10 +2,9 @@
 {
     using System;
     using Pipeline;
-    using Pipeline.Contexts;
 
 
-    class CriticalTimeBehavior : IBehavior<IncomingContext>
+    class CriticalTimeBehavior : PhysicalMessageProcessingStageBehavior
     {
         CriticalTimeCalculator criticalTimeCounter;
 
@@ -14,7 +13,7 @@
             this.criticalTimeCounter = criticalTimeCounter;
         }
 
-        public void Invoke(IncomingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             next();
 

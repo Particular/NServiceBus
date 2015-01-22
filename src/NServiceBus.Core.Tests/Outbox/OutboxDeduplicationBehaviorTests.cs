@@ -18,7 +18,7 @@
 
             fakeOutbox.ExistingMessage = new OutboxMessage(incomingTransportMessage.Id);
 
-            var context = new IncomingContext(null, incomingTransportMessage);
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(incomingTransportMessage, null));
 
             Invoke(context);
 
@@ -30,8 +30,7 @@
         {
             var incomingTransportMessage = new TransportMessage();
 
-
-            var context = new IncomingContext(null, incomingTransportMessage)
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(incomingTransportMessage, null))
             {
                 handleCurrentMessageLaterWasCalled = true
             };
@@ -45,15 +44,12 @@
         public void SetUp()
         {
             fakeOutbox = new FakeOutboxStorage();
-
-            behavior = new OutboxDeduplicationBehavior
-            {
-                OutboxStorage = fakeOutbox,
-                TransactionSettings = new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, 5, false,false)
-            };
+            var transactionSettings = new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, false, false);
+            
+            behavior = new OutboxDeduplicationBehavior(fakeOutbox, null, null,transactionSettings);
         }
 
-        void Invoke(IncomingContext context, bool shouldAbort = false)
+        void Invoke(PhysicalMessageProcessingStageBehavior.Context context, bool shouldAbort = false)
         {
             behavior.Invoke(context, () =>
             {

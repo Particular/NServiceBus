@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using Transport;
 
-    [TestFixture]
+    [TestFixture,Explicit("Slow tests")]
     public class ThroughputLimiterTests
     {
         [Test, Timeout(3500)]

@@ -2,14 +2,13 @@ namespace NServiceBus
 {
     using System;
     using NServiceBus.Outbox;
-    using Pipeline;
     using Pipeline.Contexts;
 
-    class OutboxSendBehavior : IBehavior<OutgoingContext>
+    class OutboxSendBehavior : PhysicalOutgoingContextStageBehavior
     {
         public DispatchMessageToTransportBehavior DispatchMessageToTransportBehavior { get; set; }
 
-        public void Invoke(OutgoingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             OutboxMessage currentOutboxMessage;
 

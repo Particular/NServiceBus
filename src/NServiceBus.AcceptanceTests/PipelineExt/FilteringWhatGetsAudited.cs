@@ -47,9 +47,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                 }
             }
 
-            class SetFiltering : IBehavior<IncomingContext>
+            class SetFiltering : LogicalMessageProcessingStageBehavior
             {
-                public void Invoke(IncomingContext context, Action next)
+                public override void Invoke(Context context, Action next)
                 {
                     if (context.IncomingLogicalMessage.MessageType == typeof(MessageToBeAudited))
                     {
@@ -71,11 +71,11 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                 public bool DoNotAuditMessage { get; set; }
             }
 
-            class FilteringAuditBehavior : IBehavior<IncomingContext>
+            class FilteringAuditBehavior : PhysicalMessageProcessingStageBehavior
             {
                 public IAuditMessages MessageAuditer { get; set; }
 
-                public void Invoke(IncomingContext context, Action next)
+                public override void Invoke(Context context, Action next)
                 {
                     var auditResult = new AuditFilterResult();
                     context.Set(auditResult);

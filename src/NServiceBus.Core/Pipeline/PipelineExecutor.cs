@@ -1,18 +1,15 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Contexts;
     using ObjectBuilder;
     using Settings;
-    using Unicast;
-    using Unicast.Messages;
 
     /// <summary>
     ///     Orchestrates the execution of a pipeline.
     /// </summary>
-    public class PipelineExecutor : IDisposable
+    public class PipelineExecutor
     {
         /// <summary>
         ///     Create a new instance of <see cref="PipelineExecutor" />.
@@ -21,16 +18,26 @@
         /// <param name="builder">The builder.</param>
         /// <param name="busNotifications">Bus notifications.</param>
         public PipelineExecutor(ReadOnlySettings settings, IBuilder builder, BusNotifications busNotifications)
+            : this(builder, busNotifications, settings.Get<PipelineModifications>(), builder.Build<BehaviorContextStacker>())
         {
-            rootBuilder = builder;
+        }
+
+        internal PipelineExecutor(IBuilder builder, BusNotifications busNotifications, PipelineModifications pipelineModifications, BehaviorContextStacker contextStacker)
+        {
             this.busNotifications = busNotifications;
+            this.contextStacker = contextStacker;
 
-            var pipelineBuilder = new PipelineBuilder(settings.Get<PipelineModifications>());
-            Incoming = pipelineBuilder.Incoming.AsReadOnly();
-            Outgoing = pipelineBuilder.Outgoing.AsReadOnly();
+            var coordinator = new StepRegistrationsCoordinator(pipelineModifications.Removals, pipelineModifications.Replacements);
+            foreach (var rego in pipelineModifications.Additions)
+            {
+                coordinator.Register(rego);
+            }
 
-            incomingBehaviors = Incoming.Select(r => r.BehaviorType);
-            outgoingBehaviors = Outgoing.Select(r => r.BehaviorType);
+            Incoming = coordinator.BuildPipelineModelFor<IncomingContext>();
+            Outgoing = coordinator.BuildPipelineModelFor<OutgoingContext>();
+
+            incomingBehaviors = Incoming.Select(r => r.CreateBehavior(builder)).ToArray();
+            outgoingBehaviors = Outgoing.Select(r => r.CreateBehavior(builder)).ToArray();
         }
 
         /// <summary>
@@ -43,101 +50,33 @@
         /// </summary>
         public IList<RegisterStep> Outgoing { get; private set; }
 
-        /// <summary>
-        ///     The current context being executed.
-        /// </summary>
-        public BehaviorContext CurrentContext
-        {
-            get
-            {
-                var current = contextStacker.Current;
-
-                if (current != null)
-                {
-                    return current;
-                }
-
-                contextStacker.Push(new RootContext(rootBuilder));
-
-                return contextStacker.Current;
-            }
+        internal BehaviorContext InvokeSendPipeline(OutgoingContext context)
+        {            
+            return InvokePipeline(outgoingBehaviors, context);
         }
-
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        /// <filterpriority>2</filterpriority>
-        public void Dispose()
-        {
-            //Injected
-        }
-
-        /// <summary>
-        ///     Invokes a chain of behaviors.
-        /// </summary>
-        /// <typeparam name="TContext">The context to use.</typeparam>
-        /// <param name="behaviors">The behaviors to execute in the specified order.</param>
-        /// <param name="context">The context instance.</param>
-        public void InvokePipeline<TContext>(IEnumerable<Type> behaviors, TContext context) where TContext : BehaviorContext
-        {
-            var pipeline = new BehaviorChain<TContext>(behaviors, context, this, busNotifications);
-
-            Execute(pipeline, context);
-        }
-
-        internal void PreparePhysicalMessagePipelineContext(TransportMessage message)
-        {
-            contextStacker.Push(new IncomingContext(CurrentContext, message));
-        }
-
-        internal void InvokeReceivePhysicalMessagePipeline()
-        {
-            var context = contextStacker.Current as IncomingContext;
-
-            if (context == null)
-            {
-                throw new InvalidOperationException("Can't invoke the receive pipeline when the current context is: " + contextStacker.Current.GetType().Name);
-            }
-
-            InvokePipeline(incomingBehaviors, context);
-        }
-
-        internal void CompletePhysicalMessagePipelineContext()
-        {
-            contextStacker.Pop();
-        }
-
-        internal OutgoingContext InvokeSendPipeline(DeliveryOptions deliveryOptions, LogicalMessage message)
-        {
-            var context = new OutgoingContext(CurrentContext, deliveryOptions, message);
-
-            InvokePipeline(outgoingBehaviors, context);
-
-            return context;
-        }
-
-        void DisposeManaged()
-        {
-            contextStacker.Dispose();
-        }
-
-        void Execute<T>(BehaviorChain<T> pipelineAction, T context) where T : BehaviorContext
+        
+        internal void InvokeReceivePipeline(IncomingContext context)
         {
             try
             {
-                contextStacker.Push(context);
-                pipelineAction.Invoke();
+                InvokePipeline(incomingBehaviors, context);
             }
-            finally
+            catch (MessageProcessingAbortedException)
             {
-                contextStacker.Pop();
+                //We swallow this one because it is used to signal aborting of processing.
             }
         }
 
-        BehaviorContextStacker contextStacker = new BehaviorContextStacker();
-        IEnumerable<Type> incomingBehaviors;
-        IEnumerable<Type> outgoingBehaviors;
-        IBuilder rootBuilder;
+        BehaviorContext InvokePipeline<TContext>(IEnumerable<BehaviorInstance> behaviors, TContext context) where TContext : BehaviorContext
+        {
+            var pipeline = new BehaviorChain(behaviors, context, this, busNotifications);
+            return pipeline.Invoke(contextStacker);
+        }
+
+
+        readonly BehaviorContextStacker contextStacker;
+        IEnumerable<BehaviorInstance> incomingBehaviors;
+        IEnumerable<BehaviorInstance> outgoingBehaviors;
         readonly BusNotifications busNotifications;
     }
 }

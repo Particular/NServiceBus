@@ -19,11 +19,11 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
             });
         }
 
-        class SubscriptionTracer : IBehavior<OutgoingContext>
+        class SubscriptionTracer : Behavior<OutgoingContext>
         {
             public ScenarioContext Context { get; set; }
 
-            public void Invoke(OutgoingContext context, Action next)
+            public override void Invoke(OutgoingContext context, Action next)
             {
                 next();
 
@@ -47,7 +47,6 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
                 public Registration()
                     : base("SubscriptionTracer", typeof(SubscriptionTracer), "Traces the list of found subscribers")
                 {
-                    InsertBefore(WellKnownStep.DispatchMessageToTransport);
                 }
             }
         }

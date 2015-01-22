@@ -1,9 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Retries
 {
     using System;
-    using System.Collections.Generic;
     using System.Runtime.Serialization;
-    using Faults;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
@@ -20,8 +18,8 @@
             Scenario.Define(context)
                     .WithEndpoint<RetryEndpoint>(b => b.Given((bus, ctx) => bus.SendLocal(new MessageToBeRetried { ContextId = ctx.Id })))
                     .AllowExceptions()
-                    .Done(c => c.HandedOverToSlr)
-                    .Run(TimeSpan.FromMinutes(5));
+                    .Done(c => c.ForwardedToErrorQueue)
+                    .Run();
 
             Assert.AreEqual(MaxNumberOfRetries(), context.NumberOfTimesInvoked);
             Assert.IsFalse(context.SerializationFailedCalled);
@@ -31,39 +29,33 @@
         {
             public Guid Id { get; set; }
             public int NumberOfTimesInvoked { get; set; }
-            public bool HandedOverToSlr { get; set; }
-            public Dictionary<string, string> HeadersOfTheFailedMessage { get; set; }
-            public bool SerializationFailedCalled { get; set; }
+            public bool ForwardedToErrorQueue { get; set; }
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(
-                    b => b.RegisterComponents(r => r.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance)));
+                EndpointSetup<DefaultServer>(b => b.DisableFeature<Features.SecondLevelRetries>());
             }
 
-            class CustomFaultManager : IManageMessageFailures
+            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
 
-                public void SerializationFailedForMessage(TransportMessage message, Exception e)
+                public BusNotifications BusNotifications { get; set; }
+
+                public void Start()
                 {
-                    Context.SerializationFailedCalled = true;
+                    BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
+                    {
+                        Context.ForwardedToErrorQueue = true;
+                    });
                 }
 
-                public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
-                {
-                    Context.HandedOverToSlr = true;
-                    Context.HeadersOfTheFailedMessage = message.Headers;
-                }
-
-                public void Init(Address address)
-                {
-
-                }
+                public void Stop() { }
             }
+           
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {

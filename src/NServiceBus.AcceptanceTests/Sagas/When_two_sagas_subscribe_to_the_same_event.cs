@@ -59,7 +59,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 public void Handle(OpenGroupCommand message)
                 {
-                    Console.WriteLine("Received OpenGroupCommand for DataId:{0} ... and publishing GroupPendingEvent", message.DataId);
+                    Console.WriteLine("Received OpenGroupCommand for RunId:{0} ... and publishing GroupPendingEvent", message.DataId);
                     Bus.Publish(new GroupPendingEvent { DataId = message.DataId });
                 }
             }
@@ -81,13 +81,13 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 public void Handle(GroupPendingEvent message)
                 {
                     Data.DataId = message.DataId;
-                    Console.Out.WriteLine("Saga1 received GroupPendingEvent for DataId: {0}", message.DataId);
+                    Console.Out.WriteLine("Saga1 received GroupPendingEvent for RunId: {0}", message.DataId);
                     Bus.SendLocal(new CompleteSaga1Now { DataId = message.DataId });
                 }
 
                 public void Handle(CompleteSaga1Now message)
                 {
-                    Console.Out.WriteLine("Saga1 received CompleteSaga1Now for DataId:{0} and MarkAsComplete", message.DataId);
+                    Console.Out.WriteLine("Saga1 received CompleteSaga1Now for RunId:{0} and MarkAsComplete", message.DataId);
                     Context.DidSaga1EventHandlerGetInvoked = true;
 
                     MarkAsComplete();
@@ -114,7 +114,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 public void Handle(StartSaga2 message)
                 {
                     var dataId = Guid.NewGuid();
-                    Console.Out.WriteLine("Saga2 sending OpenGroupCommand for DataId: {0}", dataId);
+                    Console.Out.WriteLine("Saga2 sending OpenGroupCommand for RunId: {0}", dataId);
                     Data.DataId = dataId;
                     Bus.Send(new OpenGroupCommand { DataId = dataId });
                 }
@@ -122,7 +122,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 public void Handle(GroupPendingEvent message)
                 {
                     Context.DidSaga2EventHandlerGetInvoked = true;
-                    Console.Out.WriteLine("Saga2 received GroupPendingEvent for DataId: {0} and MarkAsComplete", message.DataId);
+                    Console.Out.WriteLine("Saga2 received GroupPendingEvent for RunId: {0} and MarkAsComplete", message.DataId);
                     MarkAsComplete();
                 }
 

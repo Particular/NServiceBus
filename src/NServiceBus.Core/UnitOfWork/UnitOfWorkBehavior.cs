@@ -4,13 +4,11 @@
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.UnitOfWork;
-    using Pipeline;
-    using Pipeline.Contexts;
 
 
-    class UnitOfWorkBehavior : IBehavior<IncomingContext>
+    class UnitOfWorkBehavior : PhysicalMessageProcessingStageBehavior
     {
-        public void Invoke(IncomingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             try
             {

@@ -16,7 +16,7 @@ namespace NServiceBus.Core.Tests.Utils
             var exception = GetAnException();
             var dictionary = new Dictionary<string, string>();
 
-            var failedQueue = new Address("TheErrorQueue", "TheErrorQueueMachine");
+            var failedQueue = "TheErrorQueue@TheErrorQueueMachine";
             ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, failedQueue, "The reason", false);
             Assert.AreEqual("The reason", dictionary["NServiceBus.ExceptionInfo.Reason"]);
             Assert.AreEqual("System.AggregateException", dictionary["NServiceBus.ExceptionInfo.ExceptionType"]);
@@ -39,7 +39,7 @@ namespace NServiceBus.Core.Tests.Utils
             var exception = GetAnException();
             var dictionary = new Dictionary<string, string>();
 
-            var failedQueue = new Address("TheErrorQueue", "TheErrorQueueMachine");
+            var failedQueue = "TheErrorQueue@TheErrorQueueMachine";
             ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, failedQueue, "The reason", true);
             Assert.AreEqual("The reason", dictionary["NServiceBus.ExceptionInfo.Reason"]);
             Assert.AreEqual("System.AggregateException", dictionary["NServiceBus.ExceptionInfo.ExceptionType"]);

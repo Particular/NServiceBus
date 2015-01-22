@@ -51,7 +51,7 @@
             {
                 Assert.IsFalse(featureType.IsPublic, "Behaviors should internal " + featureType.FullName);
                 Assert.AreEqual("NServiceBus", featureType.Namespace, "Behaviors should be in the NServiceBus namespace since it reduces the 'wall of text' problem when looking at pipeline stack traces. " + featureType.FullName);
-                Assert.IsTrue(featureType.Name.EndsWith("Behavior"), "Behaviors should be suffixed with 'Behavior'. " + featureType.FullName);
+                Assert.IsTrue(featureType.Name.EndsWith("Behavior") || featureType.Name.EndsWith("Connector"), "Behaviors should be suffixed with 'Behavior' or 'Connector'. " + featureType.FullName);
             }
         }
 
@@ -67,7 +67,7 @@
         static IEnumerable<Type> GetBehaviors()
         {
             return typeof(UnicastBus).Assembly.GetTypes()
-                .Where(type => type.GetInterfaces().Any(face=>face.Name.StartsWith("IBehavior")) && !type.IsAbstract);
+                .Where(type => type.GetInterfaces().Any(face=>face.Name.StartsWith("IBehavior")) && !type.IsAbstract &&!type.IsGenericType);
         }
         static IEnumerable<Type> GetFeatures()
         {

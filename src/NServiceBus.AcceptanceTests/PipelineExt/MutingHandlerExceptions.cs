@@ -5,7 +5,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
 
     /// <summary>
@@ -46,9 +45,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                 }
             }
 
-            class MyExceptionFilteringBehavior : IBehavior<IncomingContext>
+            class MyExceptionFilteringBehavior : PhysicalMessageProcessingStageBehavior
             {
-                public void Invoke(IncomingContext context, Action next)
+                public override void Invoke(Context context, Action next)
                 {
                     try
                     {
@@ -82,7 +81,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                     public MyExceptionFilteringRegistration() : base("ExceptionFiltering", typeof(MyExceptionFilteringBehavior), "Custom exception filtering")
                     {
                         InsertAfter(WellKnownStep.AuditProcessedMessage);
-                        InsertBefore(WellKnownStep.InvokeHandlers);
                     }
                 }
             }

@@ -24,7 +24,7 @@
         /// <summary>
         /// Access to the container to allow for registrations
         /// </summary>
-        public IConfigureComponents Container { get { return config.configurer; } }
+        public IConfigureComponents Container { get { return config.container; } }
         
         /// <summary>
         /// Access to the pipeline in order to customize it

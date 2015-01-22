@@ -3,26 +3,30 @@
     using System;
     using System.IO;
     using System.Linq;
+    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast.Messages;
     using NServiceBus.Unicast.Transport;
-    using Pipeline;
-    using Pipeline.Contexts;
     using Serialization;
 
-    class SerializeMessagesBehavior : IBehavior<OutgoingContext>
+    class SerializeMessagesBehavior : PhysicalOutgoingContextStageBehavior
     {
-        public IMessageSerializer MessageSerializer { get; set; }
+        readonly IMessageSerializer messageSerializer;
 
-        public void Invoke(OutgoingContext context, Action next)
+        public SerializeMessagesBehavior(IMessageSerializer messageSerializer)
+        {
+            this.messageSerializer = messageSerializer;
+        }
+
+        public override void Invoke(Context context, Action next)
         {
             if (!context.OutgoingMessage.IsControlMessage())
             {
                 using (var ms = new MemoryStream())
                 {
                     
-                    MessageSerializer.Serialize(context.OutgoingLogicalMessage.Instance, ms);
+                    messageSerializer.Serialize(context.OutgoingLogicalMessage.Instance, ms);
 
-                    context.OutgoingMessage.Headers[Headers.ContentType] = MessageSerializer.ContentType;
+                    context.OutgoingMessage.Headers[Headers.ContentType] = messageSerializer.ContentType;
 
                     context.OutgoingMessage.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.OutgoingLogicalMessage);
 
@@ -44,5 +48,6 @@
             
             return string.Join(";", distinctTypes.Select(t => t.AssemblyQualifiedName));
         }
+
     }
 }

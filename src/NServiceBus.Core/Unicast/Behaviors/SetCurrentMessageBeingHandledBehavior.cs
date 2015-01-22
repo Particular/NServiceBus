@@ -1,12 +1,11 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Pipeline;
-    using Pipeline.Contexts;
+    using NServiceBus.Pipeline.Contexts;
 
-    class SetCurrentMessageBeingHandledBehavior : IBehavior<IncomingContext>
+    class SetCurrentMessageBeingHandledBehavior : HandlingStageBehavior
     {
-        public void Invoke(IncomingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             var logicalMessage = context.IncomingLogicalMessage;
 

@@ -57,7 +57,9 @@ namespace NServiceBus.Transports.Msmq
                         }
                         else
                         {
-                            q.Send(toSend, GetTransactionTypeForSend());
+                            var transactionType = GetTransactionTypeForSend();
+
+                            q.Send(toSend, transactionType);
                         }
                     }
                 }

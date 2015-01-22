@@ -12,7 +12,7 @@
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Messages;
 
-    class SagaPersistenceBehavior : IBehavior<IncomingContext>
+    class SagaPersistenceBehavior : HandlingStageBehavior
     {
         public ISagaPersister SagaPersister { get; set; }
 
@@ -22,7 +22,7 @@
 
         public SagaMetaModel SagaMetaModel { get; set; }
 
-        public void Invoke(IncomingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             currentContext = context;
 
@@ -255,7 +255,7 @@
             return sagaEntity;
         }
 
-        IncomingContext currentContext;
+        Context currentContext;
 
         static ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();
 
@@ -265,7 +265,6 @@
                 : base(WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic")
             {
                 InsertBefore(WellKnownStep.InvokeHandlers);
-                InsertAfter("SetCurrentMessageBeingHandled");
             }
         }
     }

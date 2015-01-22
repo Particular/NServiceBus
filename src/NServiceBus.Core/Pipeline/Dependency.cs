@@ -2,13 +2,24 @@ namespace NServiceBus.Pipeline
 {
     class Dependency
     {
-        public string Id { get; private set; }
+        public string DependantId { get; private set; }
+        public string DependsOnId { get; private set; }
         public bool Enforce { get; private set; }
 
-        public Dependency(string id, bool enforce)
+        public DependencyDirection Direction{ get; private set; }
+
+        public Dependency(string dependantId, string dependsOnId, DependencyDirection direction, bool enforce)
         {
-            Id = id;
+            DependantId = dependantId;
+            DependsOnId = dependsOnId;
+            Direction = direction;
             Enforce = enforce;
+        }
+
+        public enum DependencyDirection
+        {
+            Before = 1,
+            After = 2
         }
     }
 }
