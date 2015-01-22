@@ -20,6 +20,8 @@
 		[Test]
 		public void Should_handle_max_ttl()
 		{
+		    dataBus.MaxMessageTimeToLive = TimeSpan.MaxValue;
+
 			Put("Test",TimeSpan.MaxValue);
 			Assert.True(Directory.Exists(Path.Combine(basePath, DateTime.MaxValue.ToString("yyyy-MM-dd_hh"))));
 		}
