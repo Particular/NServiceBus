@@ -41,7 +41,7 @@
             sut.Defer(new TransportMessage(), options);
 
             var expireAt = DateTimeExtensions.ToUtcDateTime(sender.Messages.First().Headers[TimeoutManagerHeaders.Expire]);
-            Assert.IsTrue(expireAt < DateTime.UtcNow + delay);
+            Assert.IsTrue(expireAt <= DateTime.UtcNow + delay);
         }
 
         [Test]
