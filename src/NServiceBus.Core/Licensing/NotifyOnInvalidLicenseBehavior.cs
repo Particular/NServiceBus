@@ -26,7 +26,7 @@
             public Registration()
                 : base("LicenseReminder", typeof(NotifyOnInvalidLicenseBehavior), "Enforces the licensing policy")
             {
-                InsertBefore(WellKnownStep.AuditProcessedMessage);
+                InsertBeforeIfExists(WellKnownStep.AuditProcessedMessage);
             }
         }
     }
