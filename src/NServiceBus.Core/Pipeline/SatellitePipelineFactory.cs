@@ -4,6 +4,7 @@
     using System.Linq;
     using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Satellites;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
@@ -57,7 +58,7 @@
             }
         }
 
-        static IncomingPipeline BuildPipeline(IBuilder builder)
+        static PipelineBase<IncomingContext> BuildPipeline(IBuilder builder)
         {
             var pipelineModifications = new PipelineModifications();
             var pipelineSettings = new PipelineSettings(pipelineModifications);
@@ -69,7 +70,7 @@
             pipelineSettings.Register<FirstLevelRetriesBehavior.Registration>();
             pipelineSettings.Register<ExecuteSatelliteHandlerBehavior.Registration>();
 
-            return new IncomingPipeline(builder, pipelineModifications);
+            return new PipelineBase<IncomingContext>(builder, pipelineModifications);
         }
 
         static readonly ILog Logger = LogManager.GetLogger<SatellitePipelineFactory>();

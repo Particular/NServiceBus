@@ -18,7 +18,7 @@ namespace NServiceBus.Unicast.Transport
     /// </summary>
     public class TransportReceiver : IDisposable, IObserver<MessageAvailable>
     {
-        internal TransportReceiver(string id, IBuilder builder, IDequeueMessages receiver, DequeueSettings dequeueSettings, IncomingPipeline pipeline, IExecutor executor)
+        internal TransportReceiver(string id, IBuilder builder, IDequeueMessages receiver, DequeueSettings dequeueSettings, PipelineBase<IncomingContext> pipeline, IExecutor executor)
         {
             this.id = id;
             this.builder = builder;
@@ -169,7 +169,7 @@ namespace NServiceBus.Unicast.Transport
 
         readonly string id;
         readonly IBuilder builder;
-        readonly IncomingPipeline pipeline;
+        readonly PipelineBase<IncomingContext> pipeline;
         readonly IExecutor executor;
         readonly IDequeueMessages receiver;
 

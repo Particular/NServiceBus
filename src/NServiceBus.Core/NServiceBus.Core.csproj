@@ -316,7 +316,7 @@
     <Compile Include="Unicast\Transport\SuppressAmbientTransactionBehavior.cs" />
     <Compile Include="Unicast\Transport\ReceivePerformanceDiagnosticsBehavior.cs" />
     <Compile Include="Unicast\Transport\HandlerTransactionScopeWrapperBehavior.cs" />
-    <Compile Include="Unicast\Transport\SatelliteTransportReceiver.cs" />
+    <Compile Include="Satellites\SatelliteTransportReceiver.cs" />
     <Compile Include="Unicast\UnicastBus_IBusImpl.cs" />
     <Compile Include="Utils\Guard.cs" />
     <Compile Include="Utils\ExceptionHeaderHelper.cs" />
@@ -420,7 +420,7 @@
     <Compile Include="MessageMutator\MutateOutgoingMessageBehavior.cs" />
     <Compile Include="MessageMutator\MutateOutgoingPhysicalMessageBehavior.cs" />
     <Compile Include="Pipeline\Contexts\LogicalMessagesProcessingStageBehavior.cs" />
-    <Compile Include="Pipeline\IncomingPipeline.cs" />
+    <Compile Include="Pipeline\PipelineBase.cs" />
     <Compile Include="Pipeline\Contexts\RootContext.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingContext.cs" />
     <Compile Include="Unicast\Behaviors\SendValidatorBehavior.cs" />

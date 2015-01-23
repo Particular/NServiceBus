@@ -2,23 +2,12 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Contexts;
     using ObjectBuilder;
 
-    class IncomingPipeline : BasePipeline<IncomingContext>
-    {
-        public IncomingPipeline(IBuilder builder, PipelineModifications pipelineModifications) : base(builder, pipelineModifications){}
-    }
 
-
-    class OutgoingPipeline : BasePipeline<OutgoingContext>
+    class PipelineBase<T>where T:BehaviorContext
     {
-        public OutgoingPipeline(IBuilder builder, PipelineModifications pipelineModifications) : base(builder, pipelineModifications) { }
-    }
-
-    abstract class BasePipeline<T>where T:BehaviorContext
-    {
-        protected BasePipeline(IBuilder builder, PipelineModifications pipelineModifications)
+        public PipelineBase(IBuilder builder, PipelineModifications pipelineModifications)
         {
             busNotifications = builder.Build<BusNotifications>();
             contextStacker = builder.Build<BehaviorContextStacker>();

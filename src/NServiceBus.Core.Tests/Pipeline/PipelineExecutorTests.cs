@@ -17,7 +17,7 @@ namespace NServiceBus.Core.Tests.Pipeline
             var modifications = new PipelineModifications();
             var settings = new PipelineSettings(modifications);
             settings.Register("Static", typeof(SumBehavior), "A static behavior", true);
-            var executor = new IncomingPipeline(builder, modifications);
+            var executor = new PipelineBase<IncomingContext>(builder, modifications);
 
             var ctx1 = new IncomingContext(new RootContext(builder));
             ctx1.Set("Value",2);
@@ -39,7 +39,7 @@ namespace NServiceBus.Core.Tests.Pipeline
             var modifications = new PipelineModifications();
             var settings = new PipelineSettings(modifications);
             settings.Register("NonStatic", typeof(SumBehavior), "A non-static behavior", false);
-            var executor = new IncomingPipeline(builder,modifications);
+            var executor = new PipelineBase<IncomingContext>(builder, modifications);
 
             var ctx1 = new IncomingContext(new RootContext(builder));
             ctx1.Set("Value",2);

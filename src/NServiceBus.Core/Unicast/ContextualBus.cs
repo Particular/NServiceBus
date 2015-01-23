@@ -28,14 +28,14 @@ namespace NServiceBus.Unicast
         readonly ISendMessages messageSender;
         readonly StaticMessageRouter messageRouter;
         readonly CallbackMessageLookup callbackMessageLookup;
-        readonly OutgoingPipeline outgoingPipeline;
+        readonly PipelineBase<OutgoingContext> outgoing;
         readonly bool sendOnlyMode;
         readonly Address sendLocalAddress;
         readonly StaticOutgoingMessageHeaders staticOutgoingMessageHeaders;
 
         public ContextualBus(Func<BehaviorContext> contextGetter, IMessageMapper messageMapper, IBuilder builder, Configure configure, IManageSubscriptions subscriptionManager, 
             MessageMetadataRegistry messageMetadataRegistry, ReadOnlySettings settings, TransportDefinition transportDefinition, ISendMessages messageSender, StaticMessageRouter messageRouter,
-            StaticOutgoingMessageHeaders staticOutgoingMessageHeaders, CallbackMessageLookup callbackMessageLookup, OutgoingPipeline outgoingPipeline)
+            StaticOutgoingMessageHeaders staticOutgoingMessageHeaders, CallbackMessageLookup callbackMessageLookup)
         {
             this.messageMapper = messageMapper;
             this.contextGetter = contextGetter;
@@ -48,7 +48,7 @@ namespace NServiceBus.Unicast
             this.messageRouter = messageRouter;
             this.staticOutgoingMessageHeaders = staticOutgoingMessageHeaders;
             this.callbackMessageLookup = callbackMessageLookup;
-            this.outgoingPipeline = outgoingPipeline;
+            outgoing = new PipelineBase<OutgoingContext>(builder,settings.Get<PipelineModifications>());
             sendOnlyMode = settings.Get<bool>("Endpoint.SendOnly");
             //if we're a worker, send to the distributor data bus
             if (settings.GetOrDefault<bool>("Worker.Enabled"))
@@ -551,7 +551,7 @@ namespace NServiceBus.Unicast
             }
 
             var outgoingContext = new OutgoingContext(context, sendOptions, message);
-            return outgoingPipeline.Invoke(outgoingContext);
+            return outgoing.Invoke(outgoingContext);
         }
 
 

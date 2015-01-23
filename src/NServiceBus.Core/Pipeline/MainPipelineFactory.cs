@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Transport;
@@ -12,7 +13,7 @@
         {
             var dequeueSettings = new DequeueSettings(settings.LocalAddress().Queue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"));
 
-            var incomingPipeline = new IncomingPipeline(builder, settings.Get<PipelineModifications>());
+            var incomingPipeline = new PipelineBase<IncomingContext>(builder, settings.Get<PipelineModifications>());
 
 
             var receiver = new TransportReceiver(
