@@ -45,15 +45,13 @@ namespace NServiceBus.Unicast
             ISendMessages messageSender,
             StaticMessageRouter messageRouter,
             StaticOutgoingMessageHeaders outgoingMessageHeaders,
-            CallbackMessageLookup callbackMessageLookup,
-            PipelineExecutor pipelineExecutor)
+            CallbackMessageLookup callbackMessageLookup)
         {
             this.executor = executor;
             this.criticalError = criticalError;
             this.pipelineFactories = pipelineFactories;
             this.settings = settings;
             this.builder = builder;
-            this.pipelineExecutor = pipelineExecutor;
 
             var rootContext = new RootContext(builder);
             busImpl = new ContextualBus( 
@@ -68,7 +66,8 @@ namespace NServiceBus.Unicast
                 messageSender,
                 messageRouter,
                 outgoingMessageHeaders,
-                callbackMessageLookup, pipelineExecutor);
+                callbackMessageLookup,
+                builder.Build<OutgoingPipeline>());
         }
 
         /// <summary>
@@ -202,8 +201,6 @@ namespace NServiceBus.Unicast
         IExecutor executor;
         CriticalError criticalError;
         IBuilder builder;
-        // ReSharper disable once NotAccessedField.Local
-        PipelineExecutor pipelineExecutor;
 
         static void ProcessStartupItems<T>(IEnumerable<T> items, Action<T> iteration, Action<Exception> inCaseOfFault, EventWaitHandle eventToSet)
         {

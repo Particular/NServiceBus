@@ -11,8 +11,8 @@ namespace NServiceBus.Unicast.Transport
         ISatellite satellite;
 
 
-        public SatelliteTransportReceiver(string id, IBuilder builder, IDequeueMessages receiver, DequeueSettings dequeueSettings, PipelineExecutor pipelineExecutor, IExecutor executor, ISatellite satellite) 
-            : base(id, builder, receiver, dequeueSettings, pipelineExecutor, executor)
+        public SatelliteTransportReceiver(string id, IBuilder builder, IDequeueMessages receiver, DequeueSettings dequeueSettings, IncomingPipeline pipeline, IExecutor executor, ISatellite satellite) 
+            : base(id, builder, receiver, dequeueSettings, pipeline, executor)
         {
             this.satellite = satellite;
         }

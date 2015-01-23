@@ -18,11 +18,11 @@ namespace NServiceBus.Unicast.Transport
     /// </summary>
     public class TransportReceiver : IDisposable, IObserver<MessageAvailable>
     {
-        internal TransportReceiver(string id, IBuilder builder, IDequeueMessages receiver, DequeueSettings dequeueSettings, PipelineExecutor pipelineExecutor, IExecutor executor)
+        internal TransportReceiver(string id, IBuilder builder, IDequeueMessages receiver, DequeueSettings dequeueSettings, IncomingPipeline pipeline, IExecutor executor)
         {
             this.id = id;
             this.builder = builder;
-            this.pipelineExecutor = pipelineExecutor;
+            this.pipeline = pipeline;
             this.executor = executor;
             this.dequeueSettings = dequeueSettings;
             this.receiver = receiver;
@@ -63,7 +63,17 @@ namespace NServiceBus.Unicast.Transport
             context.Set(currentReceivePerformanceDiagnostics);
             SetContext(context);
 
-            executor.Execute(Id, () => pipelineExecutor.InvokeReceivePipeline(context));
+            executor.Execute(Id, () =>
+            {
+                try
+                {
+                    pipeline.Invoke(context);
+                }
+                catch (MessageProcessingAbortedException)
+                {
+                    //We swallow this one because it is used to signal aborting of processing.
+                }
+            });
         }
 
         /// <summary>
@@ -159,7 +169,7 @@ namespace NServiceBus.Unicast.Transport
 
         readonly string id;
         readonly IBuilder builder;
-        readonly PipelineExecutor pipelineExecutor;
+        readonly IncomingPipeline pipeline;
         readonly IExecutor executor;
         readonly IDequeueMessages receiver;
 

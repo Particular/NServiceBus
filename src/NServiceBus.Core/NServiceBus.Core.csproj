@@ -420,7 +420,7 @@
     <Compile Include="MessageMutator\MutateOutgoingMessageBehavior.cs" />
     <Compile Include="MessageMutator\MutateOutgoingPhysicalMessageBehavior.cs" />
     <Compile Include="Pipeline\Contexts\LogicalMessagesProcessingStageBehavior.cs" />
-    <Compile Include="Pipeline\PipelineExecutor.cs" />
+    <Compile Include="Pipeline\IncomingPipeline.cs" />
     <Compile Include="Pipeline\Contexts\RootContext.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingContext.cs" />
     <Compile Include="Unicast\Behaviors\SendValidatorBehavior.cs" />
@@ -546,7 +546,6 @@
     </Compile>
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersister.cs" />
     <Compile Include="Sagas\PropertySagaFinder.cs" />
-    <Compile Include="Satellites\Config\SatelliteContext.cs" />
     <Compile Include="Satellites\ISatellite.cs" />
     <Compile Include="Satellites\SatellitesQueuesCreator.cs" />
     <Compile Include="Scheduling\Schedule.cs" />

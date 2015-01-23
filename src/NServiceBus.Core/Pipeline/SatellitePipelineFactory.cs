@@ -26,7 +26,7 @@
 
                 if (satellite.InputAddress != null)
                 {
-                    var pipelineExecutor = BuildPipelineExecutor(builder);
+                    var pipelineExecutor = BuildPipeline(builder);
 
                     var dequeueSettings = new DequeueSettings(satellite.InputAddress.Queue, 
                         settings.GetOrDefault<bool>("Transport.PurgeOnStartup"));
@@ -57,7 +57,7 @@
             }
         }
 
-        static PipelineExecutor BuildPipelineExecutor(IBuilder builder)
+        static IncomingPipeline BuildPipeline(IBuilder builder)
         {
             var pipelineModifications = new PipelineModifications();
             var pipelineSettings = new PipelineSettings(pipelineModifications);
@@ -69,8 +69,7 @@
             pipelineSettings.Register<FirstLevelRetriesBehavior.Registration>();
             pipelineSettings.Register<ExecuteSatelliteHandlerBehavior.Registration>();
 
-            var pipelineExecutor = new PipelineExecutor(builder, builder.Build<BusNotifications>(), pipelineModifications, builder.Build<BehaviorContextStacker>());
-            return pipelineExecutor;
+            return new IncomingPipeline(builder, pipelineModifications);
         }
 
         static readonly ILog Logger = LogManager.GetLogger<SatellitePipelineFactory>();

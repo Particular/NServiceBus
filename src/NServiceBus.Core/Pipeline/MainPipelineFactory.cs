@@ -12,14 +12,17 @@
         {
             var dequeueSettings = new DequeueSettings(settings.LocalAddress().Queue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"));
 
-            var pipeline = new TransportReceiver(
+            var incomingPipeline = new IncomingPipeline(builder, settings.Get<PipelineModifications>());
+
+
+            var receiver = new TransportReceiver(
                 "Main",
                 builder,
                 builder.Build<IDequeueMessages>(),
                 dequeueSettings,
-                builder.Build<PipelineExecutor>(),
+               incomingPipeline,
                 executor);
-            yield return pipeline;
+            yield return receiver;
         }
     }
 }

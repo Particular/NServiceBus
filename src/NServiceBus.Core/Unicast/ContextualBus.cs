@@ -28,14 +28,14 @@ namespace NServiceBus.Unicast
         readonly ISendMessages messageSender;
         readonly StaticMessageRouter messageRouter;
         readonly CallbackMessageLookup callbackMessageLookup;
-        readonly PipelineExecutor pipelineExecutor;
+        readonly OutgoingPipeline outgoingPipeline;
         readonly bool sendOnlyMode;
         readonly Address sendLocalAddress;
         readonly StaticOutgoingMessageHeaders staticOutgoingMessageHeaders;
 
         public ContextualBus(Func<BehaviorContext> contextGetter, IMessageMapper messageMapper, IBuilder builder, Configure configure, IManageSubscriptions subscriptionManager, 
-            MessageMetadataRegistry messageMetadataRegistry, ReadOnlySettings settings, TransportDefinition transportDefinition, ISendMessages messageSender, StaticMessageRouter messageRouter, 
-            StaticOutgoingMessageHeaders staticOutgoingMessageHeaders, CallbackMessageLookup callbackMessageLookup, PipelineExecutor pipelineExecutor)
+            MessageMetadataRegistry messageMetadataRegistry, ReadOnlySettings settings, TransportDefinition transportDefinition, ISendMessages messageSender, StaticMessageRouter messageRouter,
+            StaticOutgoingMessageHeaders staticOutgoingMessageHeaders, CallbackMessageLookup callbackMessageLookup, OutgoingPipeline outgoingPipeline)
         {
             this.messageMapper = messageMapper;
             this.contextGetter = contextGetter;
@@ -48,7 +48,7 @@ namespace NServiceBus.Unicast
             this.messageRouter = messageRouter;
             this.staticOutgoingMessageHeaders = staticOutgoingMessageHeaders;
             this.callbackMessageLookup = callbackMessageLookup;
-            this.pipelineExecutor = pipelineExecutor;
+            this.outgoingPipeline = outgoingPipeline;
             sendOnlyMode = settings.Get<bool>("Endpoint.SendOnly");
             //if we're a worker, send to the distributor data bus
             if (settings.GetOrDefault<bool>("Worker.Enabled"))
@@ -551,7 +551,7 @@ namespace NServiceBus.Unicast
             }
 
             var outgoingContext = new OutgoingContext(context, sendOptions, message);
-            return pipelineExecutor.InvokeSendPipeline(outgoingContext);
+            return outgoingPipeline.Invoke(outgoingContext);
         }
 
 

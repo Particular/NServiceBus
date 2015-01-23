@@ -8,14 +8,13 @@
 
     class BehaviorChain
     {
-        public BehaviorChain(IEnumerable<BehaviorInstance> behaviorList, BehaviorContext context, PipelineExecutor pipelineExecutor, BusNotifications notifications)
+        public BehaviorChain(IEnumerable<BehaviorInstance> behaviorList, BehaviorContext context, Dictionary<Type, string> lookupSteps, BusNotifications notifications)
         {
             this.context = context;
+            this.lookupSteps = lookupSteps;
             this.notifications = notifications;
 
             itemDescriptors = behaviorList.ToArray();
-
-            lookupSteps = pipelineExecutor.Incoming.Concat(pipelineExecutor.Outgoing).ToDictionary(rs => rs.BehaviorType);
         }
 
         public BehaviorContext Invoke(BehaviorContextStacker contextStacker)
@@ -76,7 +75,7 @@
             contextStacker.Push(context);
             try
             {
-                steps.OnNext(new StepStarted(lookupSteps[behavior.Type].StepId, behavior.Type, stepEnded));
+                steps.OnNext(new StepStarted(lookupSteps[behavior.Type], behavior.Type, stepEnded));
 
                 var instance = behavior.GetInstance();
 
@@ -112,7 +111,7 @@
         readonly BusNotifications notifications;
         BehaviorContext context;
         BehaviorInstance[] itemDescriptors;
-        Dictionary<Type, RegisterStep> lookupSteps;
+        Dictionary<Type, string> lookupSteps;
         Observable<StepStarted> steps;
     }
 }

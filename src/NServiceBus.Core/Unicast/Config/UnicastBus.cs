@@ -104,12 +104,12 @@ namespace NServiceBus.Features
             }, DependencyLifecycle.InstancePerCall);
 
 
-			context.Container.ConfigureComponent(() => hostInfo, DependencyLifecycle.SingleInstance);
 
+            context.Container.ConfigureComponent(b => new OutgoingPipeline(b, context.Settings.Get<PipelineModifications>()), DependencyLifecycle.SingleInstance);
 
-            ConfigureSubscriptionAuthorization(context);
+            context.Container.ConfigureComponent(() => hostInfo, DependencyLifecycle.SingleInstance);
+			ConfigureSubscriptionAuthorization(context);
 
-            context.Container.ConfigureComponent<PipelineExecutor>(DependencyLifecycle.SingleInstance);
 
             var knownMessages = context.Settings.GetAvailableTypes()
                 .Where(context.Settings.Get<Conventions>().IsMessageType)
@@ -125,6 +125,8 @@ namespace NServiceBus.Features
             {
                 return;
             }
+
+
 
             HardcodedPipelineSteps.RegisterIncomingCoreBehaviors(context.Pipeline);
 
@@ -158,8 +160,7 @@ namespace NServiceBus.Features
                 builder.Build<ISendMessages>(),
                 builder.Build<StaticMessageRouter>(),
                 builder.Build<StaticOutgoingMessageHeaders>(),
-                builder.Build<CallbackMessageLookup>(),
-                builder.Build<PipelineExecutor>())
+                builder.Build<CallbackMessageLookup>())
             {
                 HostInformation = hostInfo
             };
@@ -180,7 +181,7 @@ namespace NServiceBus.Features
                 builder.Build<StaticMessageRouter>(),
                 builder.Build<StaticOutgoingMessageHeaders>(),
                 builder.Build<CallbackMessageLookup>(),
-                builder.Build<PipelineExecutor>());
+                builder.Build<OutgoingPipeline>());
         }
 
         static Guid GenerateDefaultHostId(out string fullPathToStartingExe)
