@@ -43,7 +43,9 @@
             headers[FaultsHeaderKeys.FailedQ] = failedQueue.ToString();
             headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
+// ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if(e.Data == null)
+// ReSharper disable once HeuristicUnreachableCode
                 return;
 
             foreach (DictionaryEntry entry in e.Data)
