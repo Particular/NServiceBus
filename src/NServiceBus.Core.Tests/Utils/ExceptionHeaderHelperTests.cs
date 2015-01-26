@@ -103,6 +103,7 @@ namespace NServiceBus.Core.Tests.Utils
         {
             public override IDictionary Data
             {
+// ReSharper disable once AssignNullToNotNullAttribute
                 get { return null; }
             }
         }
