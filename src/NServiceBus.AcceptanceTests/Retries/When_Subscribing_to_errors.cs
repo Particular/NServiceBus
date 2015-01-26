@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -26,6 +27,7 @@
                 .Run(TimeSpan.FromMinutes(5));
 
             Assert.IsInstanceOf<MySpecialException>(context.MessageSentToErrorException);
+            Assert.True(context.GetAllLogs().Any(l => l.Level == "error" && l.Message.Contains("Simulated exception")), "The last exception should be logged as `error` before sending it to the error queue");
         }
 
         [Test]
@@ -42,8 +44,8 @@
                 .Run(TimeSpan.FromMinutes(5));
 
             //FLR max retries = 3 means we will be processing 4 times. SLR max retries = 2 means we will do 3*FLR
-            Assert.AreEqual(4*3, context.TotalNumberOfFLRTimesInvokedInHandler);
-            Assert.AreEqual(4*3, context.TotalNumberOfFLRTimesInvoked);
+            Assert.AreEqual(4 * 3, context.TotalNumberOfFLRTimesInvokedInHandler);
+            Assert.AreEqual(4 * 3, context.TotalNumberOfFLRTimesInvoked);
             Assert.AreEqual(2, context.NumberOfSLRRetriesPerformed);
         }
 
