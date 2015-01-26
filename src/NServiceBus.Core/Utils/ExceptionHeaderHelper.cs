@@ -43,6 +43,9 @@
             headers[FaultsHeaderKeys.FailedQ] = failedQueue.ToString();
             headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
+            if(e.Data == null)
+                return;
+
             foreach (DictionaryEntry entry in e.Data)
             {
                 if (entry.Value == null)
