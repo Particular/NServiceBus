@@ -39,7 +39,7 @@
         /// <param name="definitionType">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc</param>
         public static PersistenceExtentions UsePersistence(this BusConfiguration config, Type definitionType)
         {
-            return new PersistenceExtentions(definitionType, config.Settings);
+            return new PersistenceExtentions(definitionType, config.Settings, null);
         }
     }
 }
