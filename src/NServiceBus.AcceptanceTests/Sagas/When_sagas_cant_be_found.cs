@@ -6,7 +6,7 @@
     using NUnit.Framework;
     using Saga;
 
-    public class Issue_2080 : NServiceBusAcceptanceTest
+    public class When_sagas_cant_be_found : NServiceBusAcceptanceTest
     {
         [Test]
         public void IHandleSagaNotFound_only_called_once()
