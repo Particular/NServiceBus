@@ -2,7 +2,9 @@
 {
     using System.Collections.Generic;
     using System.IO;
+    using System.Runtime.CompilerServices;
     using ApiApprover;
+    using ApprovalTests.Namers;
     using ApprovalTests.Reporters;
     using NUnit.Framework;
 
@@ -12,9 +14,11 @@
     {
         [Test]
         [TestCaseSource("AssemblyPaths")]
+        [UseApprovalSubdirectory("approvals")]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public void approve_public_api(string assembly, string path)
         {
-            PublicApiApprover.ApprovePublicApi(Path.Combine(path, assembly), "results");
+            PublicApiApprover.ApprovePublicApi(Path.Combine(path, assembly));
         }
 
         public static IEnumerable<TestCaseData> AssemblyPaths
