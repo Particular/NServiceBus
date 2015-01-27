@@ -19,7 +19,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<SendOnlyPublisher>()
+                .WithEndpoint<SendOnlyPublisher>(b => b.Given((bus, c) => bus.Publish(new MyEvent())))
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.SubscriberGotTheEvent)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
@@ -43,20 +43,6 @@
                     b.UsePersistence(typeof(HardCodedPersistence));
                     b.DisableFeature<AutoSubscribe>();
                 }).SendOnly();
-            }
-
-            public class Startup : IWantToRunWhenBusStartsAndStops
-            {
-                public IBus Bus { get; set; }
-
-                public void Start()
-                {
-                    Bus.Publish(new MyEvent());
-                }
-
-                public void Stop()
-                {
-                }
             }
         }
 
