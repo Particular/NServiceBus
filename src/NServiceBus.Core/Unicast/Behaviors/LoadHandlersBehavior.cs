@@ -22,7 +22,6 @@
 
             // for now we cheat and pull it from the behavior context:
             var callbackInvoked = context.Get<bool>(CallbackInvocationBehavior.CallbackInvokedKey);
-
             var handlerTypedToInvoke = HandlerRegistry.GetHandlerTypes(messageToHandle.MessageType).ToList();
 
             if (!callbackInvoked && !handlerTypedToInvoke.Any())
