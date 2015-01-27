@@ -15,14 +15,18 @@
                 var specificPersistence = Environment.GetEnvironmentVariable("Persistence.UseSpecific");
 
                 if (!string.IsNullOrEmpty(specificPersistence))
+                {
                     return AllAvailable.Single(r => r.Key == specificPersistence);
+                }
 
-                var nonCorePersisters = AllAvailable.Where(t => t != InMemory && t.Key != "MsmqPersistence").ToList();
+                var nonCorePersister = AllAvailable.FirstOrDefault();
 
-                if (nonCorePersisters.Count() == 1)
-                    return nonCorePersisters.First();
+                if (nonCorePersister != null)
+                {
+                    return nonCorePersister;
+                }
 
-                return InMemory;
+                return InMemoryPersistenceDescriptor;
             }
         }
 
@@ -39,16 +43,24 @@
             }
         }
 
-        static RunDescriptor InMemory
+        static Type InMemoryPersistenceType = typeof(InMemoryPersistence);
+
+        static RunDescriptor InMemoryPersistenceDescriptor = new RunDescriptor
         {
-            get { return AllAvailable.SingleOrDefault(r => r.Key == "InMemoryPersistence"); }
-        }
+            Key = InMemoryPersistenceType.Name,
+            Settings =
+                new Dictionary<string, string>
+                {
+                    {"Persistence", InMemoryPersistenceType.AssemblyQualifiedName}
+                }
+        };
 
         static IEnumerable<RunDescriptor> GetAllAvailable()
         {
-            var foundDefinitions = TypeScanner.GetAllTypesAssignableTo<PersistenceDefinition>();
+            var foundDefinitions = TypeScanner.GetAllTypesAssignableTo<PersistenceDefinition>()
+                .Where(t => t.Assembly != InMemoryPersistenceType.Assembly &&
+                t.Assembly != typeof(Persistence).Assembly);
 
-            
             foreach (var definition in foundDefinitions)
             {
                 var key = definition.Name;
