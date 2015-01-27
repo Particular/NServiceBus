@@ -17,10 +17,9 @@
         where S : StorageType
     {
         /// <summary>
+        /// Default constructor.
         /// </summary>
-        /// <param name="settings"></param>
-        public PersistenceExtentions(SettingsHolder settings)
-            : base(settings)
+        public PersistenceExtentions(SettingsHolder settings) : base(settings, typeof(S))
         {
         }
     }
@@ -35,8 +34,14 @@
         /// <summary>
         ///     Default constructor.
         /// </summary>
-        public PersistenceExtentions(SettingsHolder settings)
-            : base(typeof(T), settings)
+        public PersistenceExtentions(SettingsHolder settings) : base(typeof(T), settings, null)
+        {
+        }
+
+        /// <summary>
+        /// Constructor for a specific <see cref="StorageType"/>
+        /// </summary>
+        protected PersistenceExtentions(SettingsHolder settings, Type storageType) : base(typeof(T), settings, storageType)
         {
         }
 
@@ -64,7 +69,7 @@
         /// <summary>
         ///     Default constructor.
         /// </summary>
-        public PersistenceExtentions(Type definitionType, SettingsHolder settings)
+        public PersistenceExtentions(Type definitionType, SettingsHolder settings, Type storageType)
             : base(settings)
         {
             List<EnabledPersistence> definitions;
@@ -79,6 +84,12 @@
                 DefinitionType = definitionType,
                 SelectedStorages = new List<Type>(),
             };
+
+            if (storageType != null)
+            {
+                enabledPersistence.SelectedStorages.Add(storageType);
+            }
+
             definitions.Add(enabledPersistence);
         }
 

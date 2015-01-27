@@ -5,8 +5,8 @@ namespace NServiceBus.Settings
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq.Expressions;
-    using ObjectBuilder;
-    using Utils.Reflection;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Utils.Reflection;
 
     /// <summary>
     /// Setting container.
@@ -290,6 +290,5 @@ namespace NServiceBus.Settings
 
         readonly ConcurrentDictionary<string, object> Overrides = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         readonly ConcurrentDictionary<string, object> Defaults = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-
     }
 }
