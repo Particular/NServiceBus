@@ -114,7 +114,7 @@
             {
                 return new[]
                 {
-                    Address.Parse("Subscriber")
+                    Address.Parse("publishingfromsendonly.subscriber")
                 };
             }
 
