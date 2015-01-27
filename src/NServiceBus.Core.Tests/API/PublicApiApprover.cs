@@ -1,19 +1,14 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using ApprovalTests;
-using ApprovalTests.Core;
+using ApprovalTests.Namers;
 using Mono.Cecil;
 
 namespace ApiApprover
 {
     public static class PublicApiApprover
     {
-        public static void ApprovePublicApi(string assemblyPath, string resultsPath = "")
+        public static void ApprovePublicApi(string assemblyPath)
         {
-            var callingMethodFrame = new StackTrace(true).GetFrame(1);
-            var sourcePath = Path.GetDirectoryName(callingMethodFrame.GetFileName()) ?? Path.GetTempPath();
-            sourcePath = Path.IsPathRooted(resultsPath) ? resultsPath : Path.Combine(sourcePath, resultsPath);
-
             var assemblyResolver = new DefaultAssemblyResolver();
             assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
 
@@ -26,20 +21,23 @@ namespace ApiApprover
 
             var publicApi = PublicApiGenerator.CreatePublicApiForAssembly(asm);
             var writer = new ApprovalTextWriter(publicApi, "cs");
-            var approvalNamer = new AssemblyPathNamer(assemblyPath, sourcePath);
+            var approvalNamer = new AssemblyPathNamer(assemblyPath);
             Approvals.Verify(writer, approvalNamer, Approvals.GetReporter());
         }
 
-        private class AssemblyPathNamer : IApprovalNamer
+        private class AssemblyPathNamer : UnitTestFrameworkNamer
         {
-            public AssemblyPathNamer(string assemblyPath, string sourcePath)
+            private readonly string name;
+
+            public AssemblyPathNamer(string assemblyPath)
             {
-                Name = Path.GetFileNameWithoutExtension(assemblyPath);
-                SourcePath = sourcePath;
+                name = Path.GetFileNameWithoutExtension(assemblyPath);
             }
 
-            public string SourcePath { get; private set; }
-            public string Name { get; private set; }
+            public override string Name
+            {
+                get { return name; }
+            }
         }
     }
 }
