@@ -1104,6 +1104,7 @@ namespace NServiceBus
     }
     public class WireEncryptedString : System.Runtime.Serialization.ISerializable
     {
+        public WireEncryptedString() { }
         public WireEncryptedString(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
         [System.ObsoleteAttribute("No longer required. Will be treated as an error from version 6.0.0. Will be remov" +
             "ed in version 6.0.0.", false)]
@@ -2124,6 +2125,7 @@ namespace NServiceBus.Pipeline.Contexts
     
     public class IncomingContext : NServiceBus.Pipeline.BehaviorContext
     {
+        public IncomingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.TransportMessage transportMessage) { }
         public bool HandlerInvocationAborted { get; }
         public NServiceBus.Unicast.Messages.LogicalMessage IncomingLogicalMessage { get; set; }
         public System.Collections.Generic.List<NServiceBus.Unicast.Messages.LogicalMessage> LogicalMessages { get; set; }
@@ -2843,6 +2845,7 @@ namespace NServiceBus.Unicast.Queuing
     }
     public class QueueNotFoundException : System.Exception
     {
+        public QueueNotFoundException() { }
         public QueueNotFoundException(NServiceBus.Address queue, string message, System.Exception inner) { }
         protected QueueNotFoundException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
         public NServiceBus.Address Queue { get; set; }
