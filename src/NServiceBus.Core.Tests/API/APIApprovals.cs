@@ -12,7 +12,7 @@
     [TestFixture]
     public class APIApprovals
     {
-        [Ignore("Lots of problems with whitespace")]
+        [Explicit]
         [Test]
         [TestCaseSource("AssemblyPaths")]
         [UseApprovalSubdirectory("approvals")]

@@ -5,10 +5,8 @@
 [assembly: System.Runtime.CompilerServices.InternalsVisibleToAttribute(@"ReturnToSourceQueue, PublicKey=0024000004800000940000000602000000240000525341310004000001000100dde965e6172e019ac82c2639ffe494dd2e7dd16347c34762a05732b492e110f2e4e2e1b5ef2d85c848ccfb671ee20a47c8d1376276708dc30a90ff1121b647ba3b7259a6bc383b2034938ef0e275b58b920375ac605076178123693c6c4f1331661a62eba28c249386855637780e3ff5f23a6d854700eaa6803ef48907513b92")]
 [assembly: System.Runtime.InteropServices.ComVisibleAttribute(false)]
 [assembly: System.Runtime.Versioning.TargetFrameworkAttribute(".NETFramework,Version=v4.5", FrameworkDisplayName=".NET Framework 4.5")]
-
 namespace NServiceBus
 {
-    
     public class Address : System.Runtime.Serialization.ISerializable
     {
         public static readonly NServiceBus.Address Self;
@@ -50,6 +48,7 @@ namespace NServiceBus
     }
     public class BinarySerializer : NServiceBus.Serialization.SerializationDefinition
     {
+        public BinarySerializer() { }
         protected internal override System.Type ProvidedByFeature() { }
     }
     [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<BinarySerializer>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
@@ -60,6 +59,7 @@ namespace NServiceBus
     }
     public class BsonSerializer : NServiceBus.Serialization.SerializationDefinition
     {
+        public BsonSerializer() { }
         protected internal override System.Type ProvidedByFeature() { }
     }
     public class static Bus
@@ -69,6 +69,7 @@ namespace NServiceBus
     }
     public class BusAsyncResultEventArgs : System.EventArgs
     {
+        public BusAsyncResultEventArgs() { }
         public string MessageId { get; set; }
         public NServiceBus.Unicast.BusAsyncResult Result { get; set; }
     }
@@ -102,6 +103,7 @@ namespace NServiceBus
     }
     public class CompletionResult
     {
+        public CompletionResult() { }
         public int ErrorCode { get; set; }
         public object[] Messages { get; set; }
         public object State { get; set; }
@@ -503,6 +505,7 @@ namespace NServiceBus
     }
     public class EncryptedValue
     {
+        public EncryptedValue() { }
         public string Base64Iv { get; set; }
         public string EncryptedBase64Value { get; set; }
     }
@@ -526,7 +529,10 @@ namespace NServiceBus
         public System.TimeSpan SLA { get; }
     }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
-    public sealed class ExpressAttribute : System.Attribute { }
+    public sealed class ExpressAttribute : System.Attribute
+    {
+        public ExpressAttribute() { }
+    }
     public class static ExtensionMethods
     {
         public static object CurrentMessageBeingHandled { get; set; }
@@ -541,10 +547,10 @@ namespace NServiceBus
     }
     public class FileShareDataBus : NServiceBus.DataBus.DataBusDefinition
     {
+        public FileShareDataBus() { }
         protected internal override System.Type ProvidedByFeature() { }
     }
     public class First<T>
-    
     {
         public First() { }
         public System.Collections.Generic.IEnumerable<System.Type> Types { get; }
@@ -685,7 +691,6 @@ namespace NServiceBus
         NServiceBus.IExcludesBuilder And(string assemblyExpression);
     }
     public interface IHandleMessages<T>
-    
     {
         void Handle(T message);
     }
@@ -748,7 +753,10 @@ namespace NServiceBus
         "omething` and use `configuration.EnableInstallers()`, where `configuration` is a" +
         "n instance of type `BusConfiguration` to execute them. Will be removed in versio" +
         "n 6.0.0.", true)]
-    public class Installer<T> { }
+    public class Installer<T>
+    {
+        public Installer() { }
+    }
     public interface ISendOnlyBus : System.IDisposable
     {
         System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
@@ -803,6 +811,7 @@ namespace NServiceBus
     }
     public class JsonSerializer : NServiceBus.Serialization.SerializationDefinition
     {
+        public JsonSerializer() { }
         protected internal override System.Type ProvidedByFeature() { }
     }
     public class static JsonSerializerConfigurationExtensions
@@ -827,7 +836,10 @@ namespace NServiceBus
     }
     [System.ObsoleteAttribute("Since the case where this exception was thrown should not be handled by consumers" +
         " of the API it has been removed. Will be removed in version 6.0.0.", true)]
-    public class MessageConventionException : System.Exception { }
+    public class MessageConventionException : System.Exception
+    {
+        public MessageConventionException() { }
+    }
     [System.ObsoleteAttribute(@"Use `configuration.Conventions().DefiningMessagesAs(definesMessageType)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
     public class static MessageConventions
     {
@@ -886,6 +898,7 @@ namespace NServiceBus
     }
     public class Order
     {
+        public Order() { }
         public System.Collections.Generic.IEnumerable<System.Type> Types { get; set; }
         public void Specify<T>(NServiceBus.First<T> ordering) { }
         public void Specify(params System.Type[] priorityHandlers) { }
@@ -1037,6 +1050,7 @@ namespace NServiceBus
     [System.ObsoleteAttribute("Will be removed in version 6.0.0.", true)]
     public class TransportConfiguration
     {
+        public TransportConfiguration() { }
         [System.ObsoleteAttribute(@"Use `configuration.UseTransport<T>().ConnectionString(connectionString)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
         public void ConnectionString(string connectionString) { }
         [System.ObsoleteAttribute(@"Use` configuration.UseTransport<T>().ConnectionString(connectionString)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
@@ -1103,6 +1117,7 @@ namespace NServiceBus
     }
     public class WireEncryptedString : System.Runtime.Serialization.ISerializable
     {
+        public WireEncryptedString() { }
         public WireEncryptedString(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
         [System.ObsoleteAttribute("No longer required. Will be treated as an error from version 6.0.0. Will be remov" +
             "ed in version 6.0.0.", false)]
@@ -1122,6 +1137,7 @@ namespace NServiceBus
     }
     public class XmlSerializer : NServiceBus.Serialization.SerializationDefinition
     {
+        public XmlSerializer() { }
         protected internal override System.Type ProvidedByFeature() { }
     }
     public class static XmlSerializerConfigurationExtensions
@@ -1132,7 +1148,6 @@ namespace NServiceBus
 }
 namespace NServiceBus.AutomaticSubscriptions.Config
 {
-    
     public class AutoSubscribeSettings
     {
         public void AutoSubscribePlainMessages() { }
@@ -1142,7 +1157,6 @@ namespace NServiceBus.AutomaticSubscriptions.Config
 }
 namespace NServiceBus.AutomaticSubscriptions
 {
-    
     [System.ObsoleteAttribute("Not an extension point any more. If you want full control over autosubscribe plea" +
         "se turn the feature off and implement your own for-loop calling Bus.Subscribe<Yo" +
         "urEvent>() when starting your endpoint. Will be removed in version 6.0.0.", true)]
@@ -1153,7 +1167,6 @@ namespace NServiceBus.AutomaticSubscriptions
 }
 namespace NServiceBus.CircuitBreakers
 {
-    
     public class RepeatedFailuresOverTimeCircuitBreaker : System.IDisposable
     {
         public RepeatedFailuresOverTimeCircuitBreaker(string name, System.TimeSpan timeToWaitBeforeTriggering, System.Action<System.Exception> triggerAction) { }
@@ -1165,9 +1178,9 @@ namespace NServiceBus.CircuitBreakers
 }
 namespace NServiceBus.Config
 {
-    
     public class AuditConfig : System.Configuration.ConfigurationSection
     {
+        public AuditConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("OverrideTimeToBeReceived", IsRequired=false)]
         public System.TimeSpan OverrideTimeToBeReceived { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("QueueName", IsRequired=false)]
@@ -1185,16 +1198,19 @@ namespace NServiceBus.Config
     }
     public class Logging : System.Configuration.ConfigurationSection
     {
+        public Logging() { }
         [System.Configuration.ConfigurationPropertyAttribute("Threshold", DefaultValue="Info", IsRequired=true)]
         public string Threshold { get; set; }
     }
     public class MasterNodeConfig : System.Configuration.ConfigurationSection
     {
+        public MasterNodeConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("Node", IsRequired=true)]
         public string Node { get; set; }
     }
     public class MessageEndpointMapping : System.Configuration.ConfigurationElement, System.IComparable<NServiceBus.Config.MessageEndpointMapping>
     {
+        public MessageEndpointMapping() { }
         [System.Configuration.ConfigurationPropertyAttribute("Assembly", IsRequired=false)]
         public string AssemblyName { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("Endpoint", IsRequired=true)]
@@ -1210,6 +1226,7 @@ namespace NServiceBus.Config
     }
     public class MessageEndpointMappingCollection : System.Configuration.ConfigurationElementCollection
     {
+        public MessageEndpointMappingCollection() { }
         public new string AddElementName { get; set; }
         public new string ClearElementName { get; set; }
         public override System.Configuration.ConfigurationElementCollectionType CollectionType { get; }
@@ -1231,6 +1248,7 @@ namespace NServiceBus.Config
     }
     public class MessageForwardingInCaseOfFaultConfig : System.Configuration.ConfigurationSection
     {
+        public MessageForwardingInCaseOfFaultConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("ErrorQueue", IsRequired=true)]
         public string ErrorQueue { get; set; }
     }
@@ -1238,6 +1256,7 @@ namespace NServiceBus.Config
         "0.0.", true)]
     public class MsmqMessageQueueConfig : System.Configuration.ConfigurationSection
     {
+        public MsmqMessageQueueConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("UseDeadLetterQueue", DefaultValue=true, IsRequired=false)]
         public bool UseDeadLetterQueue { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("UseJournalQueue", IsRequired=false)]
@@ -1245,11 +1264,13 @@ namespace NServiceBus.Config
     }
     public class MsmqSubscriptionStorageConfig : System.Configuration.ConfigurationSection
     {
+        public MsmqSubscriptionStorageConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("Queue", IsRequired=true)]
         public string Queue { get; set; }
     }
     public class RijndaelEncryptionServiceConfig : System.Configuration.ConfigurationSection
     {
+        public RijndaelEncryptionServiceConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("ExpiredKeys", IsRequired=false)]
         public NServiceBus.Config.RijndaelExpiredKeyCollection ExpiredKeys { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("Key", IsRequired=true)]
@@ -1257,11 +1278,13 @@ namespace NServiceBus.Config
     }
     public class RijndaelExpiredKey : System.Configuration.ConfigurationElement, System.IComparable<NServiceBus.Config.RijndaelExpiredKey>
     {
+        public RijndaelExpiredKey() { }
         [System.Configuration.ConfigurationPropertyAttribute("Key", IsRequired=true)]
         public string Key { get; set; }
     }
     public class RijndaelExpiredKeyCollection : System.Configuration.ConfigurationElementCollection
     {
+        public RijndaelExpiredKeyCollection() { }
         public override System.Configuration.ConfigurationElementCollectionType CollectionType { get; }
         public NServiceBus.Config.RijndaelExpiredKey this[int index] { get; set; }
         public NServiceBus.Config.RijndaelExpiredKey this[string key] { get; }
@@ -1286,6 +1309,7 @@ namespace NServiceBus.Config
     }
     public class TransportConfig : System.Configuration.ConfigurationSection
     {
+        public TransportConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("MaximumConcurrencyLevel", DefaultValue=1, IsRequired=false)]
         public int MaximumConcurrencyLevel { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("MaximumMessageThroughputPerSecond", DefaultValue=0, IsRequired=false)]
@@ -1295,6 +1319,7 @@ namespace NServiceBus.Config
     }
     public class UnicastBusConfig : System.Configuration.ConfigurationSection
     {
+        public UnicastBusConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("DistributorControlAddress", IsRequired=false)]
         public string DistributorControlAddress { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("DistributorDataAddress", IsRequired=false)]
@@ -1311,22 +1336,22 @@ namespace NServiceBus.Config
 }
 namespace NServiceBus.Config.ConfigurationSource
 {
-    
-    public class DefaultConfigurationSource : NServiceBus.Config.ConfigurationSource.IConfigurationSource { }
+    public class DefaultConfigurationSource : NServiceBus.Config.ConfigurationSource.IConfigurationSource
+    {
+        public DefaultConfigurationSource() { }
+    }
     public interface IConfigurationSource
     {
         T GetConfiguration<T>()
             where T :  class, new ();
     }
     public interface IProvideConfiguration<T>
-    
     {
         T GetConfiguration();
     }
 }
 namespace NServiceBus.Configuration.AdvanceExtensibility
 {
-    
     public class static AdvanceExtensibilityExtensions
     {
         public static NServiceBus.Settings.SettingsHolder GetSettings(this NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings config) { }
@@ -1338,21 +1363,21 @@ namespace NServiceBus.Configuration.AdvanceExtensibility
 }
 namespace NServiceBus.Container
 {
-    
     public class ContainerCustomizations
     {
         public NServiceBus.Settings.SettingsHolder Settings { get; }
     }
     public abstract class ContainerDefinition
     {
+        protected ContainerDefinition() { }
         public abstract NServiceBus.ObjectBuilder.Common.IContainer CreateContainer(NServiceBus.Settings.ReadOnlySettings settings);
     }
 }
 namespace NServiceBus.DataBus
 {
-    
     public abstract class DataBusDefinition
     {
+        protected DataBusDefinition() { }
         protected internal abstract System.Type ProvidedByFeature();
     }
     public class DataBusExtentions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
@@ -1378,7 +1403,6 @@ namespace NServiceBus.DataBus
 }
 namespace NServiceBus.Encryption
 {
-    
     public interface IEncryptionService
     {
         string Decrypt(NServiceBus.EncryptedValue encryptedValue);
@@ -1387,15 +1411,16 @@ namespace NServiceBus.Encryption
 }
 namespace NServiceBus.Encryption.Rijndael
 {
-    
     [System.ObsoleteAttribute("The Rijndael encryption functionality was an internal implementation detail of NS" +
         "ervicebus as such it has been removed from the public API. Will be removed in ve" +
         "rsion 6.0.0.", true)]
-    public class EncryptionService { }
+    public class EncryptionService
+    {
+        public EncryptionService() { }
+    }
 }
 namespace NServiceBus.Faults
 {
-    
     public class ErrorsNotifications : System.IDisposable
     {
         public ErrorsNotifications() { }
@@ -1439,7 +1464,6 @@ namespace NServiceBus.Faults
 }
 namespace NServiceBus.Features
 {
-    
     public class Audit : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1496,6 +1520,7 @@ namespace NServiceBus.Features
     }
     public class FeatureDiagnosticData
     {
+        public FeatureDiagnosticData() { }
         public bool Active { get; }
         public System.Collections.Generic.IList<System.Collections.Generic.List<string>> Dependencies { get; }
         public bool DependenciesAreMeet { get; set; }
@@ -1506,13 +1531,17 @@ namespace NServiceBus.Features
         public string Version { get; }
     }
     [System.ObsoleteAttribute(@"Use `configuration.EnableFeature<T>()` or `configuration.DisableFeature<T>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-    public class FeatureSettings { }
+    public class FeatureSettings
+    {
+        public FeatureSettings() { }
+    }
     public class FeaturesReport
     {
         public System.Collections.Generic.IList<NServiceBus.Features.FeatureDiagnosticData> Features { get; }
     }
     public abstract class FeatureStartupTask
     {
+        protected FeatureStartupTask() { }
         protected abstract void OnStart();
         protected virtual void OnStop() { }
     }
@@ -1599,7 +1628,10 @@ namespace NServiceBus.Features
     }
     [System.ObsoleteAttribute("Please use `NServiceBus.Features.StorageDrivenPublishing` instead. Will be remove" +
         "d in version 6.0.0.", true)]
-    public class StorageDrivenPublisher { }
+    public class StorageDrivenPublisher
+    {
+        public StorageDrivenPublisher() { }
+    }
     public class StorageDrivenPublishing : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1619,7 +1651,6 @@ namespace NServiceBus.Features
 }
 namespace NServiceBus.Gateway.Deduplication
 {
-    
     public interface IDeduplicateMessages
     {
         bool DeduplicateMessage(string clientId, System.DateTime timeReceived);
@@ -1627,10 +1658,12 @@ namespace NServiceBus.Gateway.Deduplication
 }
 namespace NServiceBus.Hosting
 {
-    
     [System.ObsoleteAttribute("This class was never intended to be exposed as part of the public API. Will be re" +
         "moved in version 6.0.0.", true)]
-    public class GenericHost { }
+    public class GenericHost
+    {
+        public GenericHost() { }
+    }
     public class HostInformation
     {
         public HostInformation(System.Guid hostId, string displayName) { }
@@ -1641,11 +1674,13 @@ namespace NServiceBus.Hosting
     }
     [System.ObsoleteAttribute("This class was never intended to be exposed as part of the public API. Will be re" +
         "moved in version 6.0.0.", true)]
-    public class IHost { }
+    public class IHost
+    {
+        public IHost() { }
+    }
 }
 namespace NServiceBus.Hosting.Helpers
 {
-    
     public class AssemblyScanner
     {
         public AssemblyScanner() { }
@@ -1669,23 +1704,23 @@ namespace NServiceBus.Hosting.Helpers
 }
 namespace NServiceBus.IdGeneration
 {
-    
     [System.ObsoleteAttribute("This class was never intended to be exposed as part of the public API. Will be re" +
         "moved in version 6.0.0.", true)]
     public class static CombGuid { }
 }
 namespace NServiceBus.Installation.Environments
 {
-    
     [System.ObsoleteAttribute("IEnvironment is no longer required instead use the non generic `INeedToInstallSom" +
         "ething` and use `configuration.EnableInstallers()`, where `configuration` is an " +
         "instance of type `BusConfiguration` to execute them. Will be removed in version " +
         "6.0.0.", true)]
-    public class Windows { }
+    public class Windows
+    {
+        public Windows() { }
+    }
 }
 namespace NServiceBus.Installation
 {
-    
     [System.ObsoleteAttribute("`IEnvironment` is no longer required instead use the non generic `INeedToInstallS" +
         "omething` and use `configuration.EnableInstallers()`, where `configuration` is a" +
         "n instance of type `BusConfiguration` to execute them. Will be removed in versio" +
@@ -1699,11 +1734,13 @@ namespace NServiceBus.Installation
         "omething` and use `configuration.EnableInstallers()`, where `configuration` is a" +
         "n instance of type `BusConfiguration` to execute them. Will be removed in versio" +
         "n 6.0.0.", true)]
-    public class INeedToInstallSomething<T> { }
+    public class INeedToInstallSomething<T>
+    {
+        public INeedToInstallSomething() { }
+    }
 }
 namespace NServiceBus.Logging
 {
-    
     public class DefaultFactory : NServiceBus.Logging.LoggingFactoryDefinition
     {
         public DefaultFactory() { }
@@ -1741,11 +1778,15 @@ namespace NServiceBus.Logging
     }
     public abstract class LoggingFactoryDefinition
     {
+        protected LoggingFactoryDefinition() { }
         protected internal abstract NServiceBus.Logging.ILoggerFactory GetLoggingFactory();
     }
     [System.ObsoleteAttribute("Since the case where this exception was thrown should not be handled by consumers" +
         " of the API it has been removed. Will be removed in version 6.0.0.", true)]
-    public class LoggingLibraryException : System.Exception { }
+    public class LoggingLibraryException : System.Exception
+    {
+        public LoggingLibraryException() { }
+    }
     public enum LogLevel
     {
         Debug = 0,
@@ -1766,75 +1807,109 @@ namespace NServiceBus.Logging
 }
 namespace NServiceBus.Logging.Log4NetBridge
 {
-    
     [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
         "g there are external nuget packages available to connect NServiceBus to the vari" +
         "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class ConfigureInternalLog4NetBridge { }
+    public class ConfigureInternalLog4NetBridge
+    {
+        public ConfigureInternalLog4NetBridge() { }
+    }
 }
 namespace NServiceBus.Logging.Loggers
 {
-    
     [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
         "g there are external nuget packages available to connect NServiceBus to the vari" +
         "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class ConsoleLogger { }
+    public class ConsoleLogger
+    {
+        public ConsoleLogger() { }
+    }
     [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
         "g there are external nuget packages available to connect NServiceBus to the vari" +
         "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class ConsoleLoggerFactory { }
+    public class ConsoleLoggerFactory
+    {
+        public ConsoleLoggerFactory() { }
+    }
     [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
         "g there are external nuget packages available to connect NServiceBus to the vari" +
         "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class NullLogger { }
+    public class NullLogger
+    {
+        public NullLogger() { }
+    }
     [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
         "g there are external nuget packages available to connect NServiceBus to the vari" +
         "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class NullLoggerFactory { }
+    public class NullLoggerFactory
+    {
+        public NullLoggerFactory() { }
+    }
 }
 namespace NServiceBus.Logging.Loggers.Log4NetAdapter
 {
-    
     [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
         "g there are external nuget packages available to connect NServiceBus to the vari" +
         "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class Log4NetAppenderFactory { }
+    public class Log4NetAppenderFactory
+    {
+        public Log4NetAppenderFactory() { }
+    }
     [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
         "g there are external nuget packages available to connect NServiceBus to the vari" +
         "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class Log4NetConfigurator { }
+    public class Log4NetConfigurator
+    {
+        public Log4NetConfigurator() { }
+    }
     [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
         "g there are external nuget packages available to connect NServiceBus to the vari" +
         "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class Log4NetLogger { }
+    public class Log4NetLogger
+    {
+        public Log4NetLogger() { }
+    }
     [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
         "g there are external nuget packages available to connect NServiceBus to the vari" +
         "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class Log4NetLoggerFactory { }
+    public class Log4NetLoggerFactory
+    {
+        public Log4NetLoggerFactory() { }
+    }
 }
 namespace NServiceBus.Logging.Loggers.NLogAdapter
 {
-    
     [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
         "g there are external nuget packages available to connect NServiceBus to the vari" +
         "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class NLogConfigurator { }
+    public class NLogConfigurator
+    {
+        public NLogConfigurator() { }
+    }
     [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
         "g there are external nuget packages available to connect NServiceBus to the vari" +
         "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class NLogLogger { }
+    public class NLogLogger
+    {
+        public NLogLogger() { }
+    }
     [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
         "g there are external nuget packages available to connect NServiceBus to the vari" +
         "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class NLogLoggerFactory { }
+    public class NLogLoggerFactory
+    {
+        public NLogLoggerFactory() { }
+    }
     [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
         "g there are external nuget packages available to connect NServiceBus to the vari" +
         "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class NLogTargetFactory { }
+    public class NLogTargetFactory
+    {
+        public NLogTargetFactory() { }
+    }
 }
 namespace NServiceBus.MessageInterfaces
 {
-    
     public interface IMessageMapper : NServiceBus.IMessageCreator
     {
         System.Type GetMappedTypeFor(System.Type t);
@@ -1844,7 +1919,6 @@ namespace NServiceBus.MessageInterfaces
 }
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 {
-    
     public class MessageMapper : NServiceBus.IMessageCreator, NServiceBus.MessageInterfaces.IMessageMapper
     {
         public MessageMapper() { }
@@ -1858,7 +1932,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 }
 namespace NServiceBus.MessageMutator
 {
-    
     public interface IMessageMutator : NServiceBus.MessageMutator.IMutateIncomingMessages, NServiceBus.MessageMutator.IMutateOutgoingMessages { }
     public interface IMutateIncomingMessages
     {
@@ -1880,7 +1953,6 @@ namespace NServiceBus.MessageMutator
 }
 namespace NServiceBus.ObjectBuilder.Common.Config
 {
-    
     [System.ObsoleteAttribute("Use `configuration.UseContainer<T>()`, where configuration is an instance of type" +
         " `BusConfiguration`. Will be removed in version 6.0.0.", true)]
     public class static ConfigureContainer
@@ -1897,7 +1969,6 @@ namespace NServiceBus.ObjectBuilder.Common.Config
 }
 namespace NServiceBus.ObjectBuilder.Common
 {
-    
     public interface IContainer : System.IDisposable
     {
         object Build(System.Type typeToBuild);
@@ -1913,7 +1984,6 @@ namespace NServiceBus.ObjectBuilder.Common
 }
 namespace NServiceBus.ObjectBuilder
 {
-    
     public interface IBuilder : System.IDisposable
     {
         object Build(System.Type typeToBuild);
@@ -1929,7 +1999,6 @@ namespace NServiceBus.ObjectBuilder
         NServiceBus.ObjectBuilder.IComponentConfig ConfigureProperty(string name, object value);
     }
     public interface IComponentConfig<T>
-    
     {
         NServiceBus.ObjectBuilder.IComponentConfig<T> ConfigureProperty(System.Linq.Expressions.Expression<System.Func<T, object>> property, object value);
     }
@@ -1949,7 +2018,6 @@ namespace NServiceBus.ObjectBuilder
 }
 namespace NServiceBus.Outbox
 {
-    
     public interface IOutboxStorage
     {
         void SetAsDispatched(string messageId);
@@ -1977,10 +2045,12 @@ namespace NServiceBus.Outbox
 }
 namespace NServiceBus.Persistence
 {
-    
     [System.ObsoleteAttribute("Since the case where this exception was thrown should not be handled by consumers" +
         " of the API it has been removed. Will be removed in version 6.0.0.", true)]
-    public class ConcurrencyException : System.Exception { }
+    public class ConcurrencyException : System.Exception
+    {
+        public ConcurrencyException() { }
+    }
     public abstract class PersistenceDefinition
     {
         protected PersistenceDefinition() { }
@@ -2018,12 +2088,10 @@ namespace NServiceBus.Persistence
 }
 namespace NServiceBus.Persistence.Legacy
 {
-    
     public class MsmqPersistence : NServiceBus.Persistence.PersistenceDefinition { }
 }
 namespace NServiceBus.Pipeline
 {
-    
     public abstract class BehaviorContext
     {
         protected readonly NServiceBus.Pipeline.BehaviorContext parentContext;
@@ -2120,7 +2188,6 @@ namespace NServiceBus.Pipeline
 }
 namespace NServiceBus.Pipeline.Contexts
 {
-    
     public class IncomingContext : NServiceBus.Pipeline.BehaviorContext
     {
         public IncomingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.TransportMessage transportMessage) { }
@@ -2142,9 +2209,9 @@ namespace NServiceBus.Pipeline.Contexts
 }
 namespace NServiceBus.Saga
 {
-    
     public abstract class ContainSagaData : NServiceBus.Saga.IContainSagaData
     {
+        protected ContainSagaData() { }
         public virtual System.Guid Id { get; set; }
         public virtual string OriginalMessageId { get; set; }
         public virtual string Originator { get; set; }
@@ -2174,9 +2241,9 @@ namespace NServiceBus.Saga
     public abstract class IFindSagas<T>
         where T : NServiceBus.Saga.IContainSagaData
     {
+        protected IFindSagas() { }
         public interface Using<T, M> : NServiceBus.Saga.IFinder
             where T : NServiceBus.Saga.IContainSagaData
-        
         {
             T FindBy(M message);
         }
@@ -2186,7 +2253,6 @@ namespace NServiceBus.Saga
         void Handle(object message);
     }
     public interface IHandleTimeouts<T>
-    
     {
         void Timeout(T state);
     }
@@ -2208,6 +2274,7 @@ namespace NServiceBus.Saga
     }
     public abstract class Saga
     {
+        protected Saga() { }
         public NServiceBus.IBus Bus { get; set; }
         public bool Completed { get; }
         public NServiceBus.Saga.IContainSagaData Entity { get; set; }
@@ -2239,6 +2306,7 @@ namespace NServiceBus.Saga
     public abstract class Saga<TSagaData> : NServiceBus.Saga.Saga
         where TSagaData : NServiceBus.Saga.IContainSagaData, new ()
     {
+        protected Saga() { }
         public TSagaData Data { get; set; }
         protected internal override void ConfigureHowToFindSaga(NServiceBus.Saga.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
         protected abstract void ConfigureHowToFindSaga(NServiceBus.Saga.SagaPropertyMapper<TSagaData> mapper);
@@ -2250,7 +2318,6 @@ namespace NServiceBus.Saga
     }
     public class ToSagaExpression<TSagaData, TMessage>
         where TSagaData : NServiceBus.Saga.IContainSagaData
-    
     {
         public ToSagaExpression(NServiceBus.Saga.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
@@ -2258,6 +2325,7 @@ namespace NServiceBus.Saga
     [System.AttributeUsageAttribute(System.AttributeTargets.Property | System.AttributeTargets.All)]
     public sealed class UniqueAttribute : System.Attribute
     {
+        public UniqueAttribute() { }
         public static System.Collections.Generic.IDictionary<string, object> GetUniqueProperties(NServiceBus.Saga.IContainSagaData entity) { }
         public static System.Collections.Generic.IEnumerable<System.Reflection.PropertyInfo> GetUniqueProperties(System.Type type) { }
         public static System.Reflection.PropertyInfo GetUniqueProperty(System.Type type) { }
@@ -2266,7 +2334,6 @@ namespace NServiceBus.Saga
 }
 namespace NServiceBus.Sagas
 {
-    
     public class ActiveSagaInstance
     {
         [System.ObsoleteAttribute("Please use `context.MessageHandler.Instance` instead. Will be treated as an error" +
@@ -2283,7 +2350,6 @@ namespace NServiceBus.Sagas
 }
 namespace NServiceBus.Satellites
 {
-    
     public interface IAdvancedSatellite : NServiceBus.Satellites.ISatellite
     {
         System.Action<NServiceBus.Unicast.Transport.TransportReceiver> GetReceiverCustomization();
@@ -2299,7 +2365,6 @@ namespace NServiceBus.Satellites
 }
 namespace NServiceBus.SecondLevelRetries.Config
 {
-    
     public class SecondLevelRetriesSettings
     {
         public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }
@@ -2307,7 +2372,6 @@ namespace NServiceBus.SecondLevelRetries.Config
 }
 namespace NServiceBus.SecondLevelRetries.Helpers
 {
-    
     [System.ObsoleteAttribute("Access the `TransportMessage.Headers` dictionary directly. Will be removed in ver" +
         "sion 6.0.0.", true)]
     public class static TransportMessageHelpers
@@ -2331,7 +2395,6 @@ namespace NServiceBus.SecondLevelRetries.Helpers
 }
 namespace NServiceBus.Serialization
 {
-    
     public interface IMessageSerializer
     {
         string ContentType { get; }
@@ -2340,6 +2403,7 @@ namespace NServiceBus.Serialization
     }
     public abstract class SerializationDefinition
     {
+        protected SerializationDefinition() { }
         protected internal abstract System.Type ProvidedByFeature();
     }
     public class SerializationExtentions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
@@ -2350,7 +2414,6 @@ namespace NServiceBus.Serialization
 }
 namespace NServiceBus.Serializers.Binary
 {
-    
     public class BinaryMessageSerializer : NServiceBus.Serialization.IMessageSerializer
     {
         public BinaryMessageSerializer() { }
@@ -2358,11 +2421,13 @@ namespace NServiceBus.Serializers.Binary
         public object[] Deserialize(System.IO.Stream stream, System.Collections.Generic.IList<System.Type> messageTypes = null) { }
         public void Serialize(object message, System.IO.Stream stream) { }
     }
-    public class SimpleMessageMapper : NServiceBus.IMessageCreator, NServiceBus.MessageInterfaces.IMessageMapper { }
+    public class SimpleMessageMapper : NServiceBus.IMessageCreator, NServiceBus.MessageInterfaces.IMessageMapper
+    {
+        public SimpleMessageMapper() { }
+    }
 }
 namespace NServiceBus.Serializers.Json
 {
-    
     public class BsonMessageSerializer : NServiceBus.Serializers.Json.JsonMessageSerializerBase
     {
         public BsonMessageSerializer(NServiceBus.MessageInterfaces.IMessageMapper messageMapper) { }
@@ -2397,10 +2462,10 @@ namespace NServiceBus.Serializers.Json
 }
 namespace NServiceBus.Serializers.XML.Config
 {
-    
     [System.ObsoleteAttribute(@"Use configuration.UseSerialization<XmlSerializer>(), where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
     public class XmlSerializationSettings
     {
+        public XmlSerializationSettings() { }
         [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<XmlSerializer>().DontWrapRawXml()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
         public NServiceBus.Serializers.XML.Config.XmlSerializationSettings DontWrapRawXml() { }
         [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<XmlSerializer>().Namespace(namespaceToUse)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
@@ -2411,7 +2476,6 @@ namespace NServiceBus.Serializers.XML.Config
 }
 namespace NServiceBus.Serializers.XML
 {
-    
     public class XmlMessageSerializer : NServiceBus.Serialization.IMessageSerializer
     {
         public XmlMessageSerializer(NServiceBus.MessageInterfaces.IMessageMapper mapper, NServiceBus.Conventions conventions) { }
@@ -2427,7 +2491,6 @@ namespace NServiceBus.Serializers.XML
 }
 namespace NServiceBus.Settings
 {
-    
     public interface ReadOnlySettings
     {
         void ApplyTo<T>(NServiceBus.ObjectBuilder.IComponentConfig config);
@@ -2452,6 +2515,7 @@ namespace NServiceBus.Settings
     [System.ObsoleteAttribute("Will be removed in version 6.0.0.", true)]
     public class SerializationSettings
     {
+        public SerializationSettings() { }
         [System.ObsoleteAttribute("In version 5 multi-message sends was removed. So Wrapping messages is no longer r" +
             "equired. If you are communicating with version 3 ensure you are on the latest 3." +
             "3.x. Will be removed in version 6.0.0.", true)]
@@ -2499,7 +2563,6 @@ namespace NServiceBus.Settings
 }
 namespace NServiceBus.Support
 {
-    
     public class static RuntimeEnvironment
     {
         public static string MachineName { get; }
@@ -2508,7 +2571,6 @@ namespace NServiceBus.Support
 }
 namespace NServiceBus.Timeout.Core
 {
-    
     [System.ObsoleteAttribute("Timeout management is an internal concern and cannot be replaced. Will be removed" +
         " in version 6.0.0.", true)]
     public interface IManageTimeouts { }
@@ -2522,6 +2584,7 @@ namespace NServiceBus.Timeout.Core
     public class TimeoutData
     {
         public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
+        public TimeoutData() { }
         public NServiceBus.Address Destination { get; set; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; set; }
         public string Id { get; set; }
@@ -2536,7 +2599,6 @@ namespace NServiceBus.Timeout.Core
 }
 namespace NServiceBus.Transports
 {
-    
     public abstract class ConfigureTransport : NServiceBus.Features.Feature
     {
         protected ConfigureTransport() { }
@@ -2580,6 +2642,7 @@ namespace NServiceBus.Transports
     }
     public abstract class TransportDefinition
     {
+        protected TransportDefinition() { }
         public bool HasNativePubSubSupport { get; set; }
         public bool HasSupportForCentralizedPubSub { get; set; }
         public System.Nullable<bool> HasSupportForDistributedTransactions { get; set; }
@@ -2589,7 +2652,6 @@ namespace NServiceBus.Transports
 }
 namespace NServiceBus.Transports.Msmq.Config
 {
-    
     public class MsmqSettings
     {
         public MsmqSettings() { }
@@ -2602,9 +2664,9 @@ namespace NServiceBus.Transports.Msmq.Config
 }
 namespace NServiceBus.Transports.Msmq
 {
-    
     public class HeaderInfo
     {
+        public HeaderInfo() { }
         public string Key { get; set; }
         public string Value { get; set; }
     }
@@ -2619,6 +2681,7 @@ namespace NServiceBus.Transports.Msmq
     }
     public class MsmqMessageSender : NServiceBus.Transports.ISendMessages
     {
+        public MsmqMessageSender() { }
         public NServiceBus.Transports.Msmq.Config.MsmqSettings Settings { get; set; }
         public bool SuppressDistributedTransactions { get; set; }
         public NServiceBus.Transports.Msmq.MsmqUnitOfWork UnitOfWork { get; set; }
@@ -2634,20 +2697,22 @@ namespace NServiceBus.Transports.Msmq
     [System.ObsoleteAttribute("`MsmqUtilities` was never intended to be exposed as part of the public API. PLeas" +
         "e copy the required functionality into your codebase. Will be removed in version" +
         " 6.0.0.", true)]
-    public class MsmqUtilities { }
+    public class MsmqUtilities
+    {
+        public MsmqUtilities() { }
+    }
 }
 namespace NServiceBus.Unicast.Behaviors
 {
-    
     public class MessageHandler
     {
+        public MessageHandler() { }
         public object Instance { get; set; }
         public System.Action<object, object> Invocation { get; set; }
     }
 }
 namespace NServiceBus.Unicast
 {
-    
     public class static BuilderExtensions
     {
         public static void ForEach<T>(this NServiceBus.ObjectBuilder.IBuilder builder, System.Action<T> action) { }
@@ -2662,7 +2727,10 @@ namespace NServiceBus.Unicast
         public void Complete(int errorCode, params object[] messages) { }
     }
     [System.ObsoleteAttribute("Please use `ICallback` instead. Will be removed in version 6.0.0.", true)]
-    public class Callback { }
+    public class Callback
+    {
+        public Callback() { }
+    }
     public abstract class DeliveryOptions
     {
         protected DeliveryOptions() { }
@@ -2687,7 +2755,10 @@ namespace NServiceBus.Unicast
         void InvokeTimeout(object handler, object state);
     }
     [System.ObsoleteAttribute("Please use `IBus` instead. Will be removed in version 6.0.0.", true)]
-    public class IUnicastBus { }
+    public class IUnicastBus
+    {
+        public IUnicastBus() { }
+    }
     public class MessageContext : NServiceBus.IMessageContext
     {
         public MessageContext(NServiceBus.TransportMessage transportMessage) { }
@@ -2794,13 +2865,14 @@ namespace NServiceBus.Unicast
 }
 namespace NServiceBus.Unicast.Config
 {
-    
     [System.ObsoleteAttribute("Please use `Configure` instead. Will be removed in version 6.0.0.", true)]
-    public class ConfigUnicastBus { }
+    public class ConfigUnicastBus
+    {
+        public ConfigUnicastBus() { }
+    }
 }
 namespace NServiceBus.Unicast.Messages
 {
-    
     public class LogicalMessage
     {
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
@@ -2832,10 +2904,12 @@ namespace NServiceBus.Unicast.Messages
 }
 namespace NServiceBus.Unicast.Queuing
 {
-    
     [System.ObsoleteAttribute("Since the case where this exception was thrown should not be handled by consumers" +
         " of the API it has been removed. Will be removed in version 6.0.0.", true)]
-    public class FailedToSendMessageException : System.Exception { }
+    public class FailedToSendMessageException : System.Exception
+    {
+        public FailedToSendMessageException() { }
+    }
     public interface IWantQueueCreated
     {
         NServiceBus.Address Address { get; }
@@ -2843,6 +2917,7 @@ namespace NServiceBus.Unicast.Queuing
     }
     public class QueueNotFoundException : System.Exception
     {
+        public QueueNotFoundException() { }
         public QueueNotFoundException(NServiceBus.Address queue, string message, System.Exception inner) { }
         protected QueueNotFoundException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
         public NServiceBus.Address Queue { get; set; }
@@ -2851,7 +2926,6 @@ namespace NServiceBus.Unicast.Queuing
 }
 namespace NServiceBus.Unicast.Routing
 {
-    
     public class StaticMessageRouter
     {
         public StaticMessageRouter(System.Collections.Generic.IEnumerable<System.Type> knownMessages) { }
@@ -2863,7 +2937,6 @@ namespace NServiceBus.Unicast.Routing
 }
 namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
 {
-    
     public interface ISubscriptionStorage
     {
         System.Collections.Generic.IEnumerable<NServiceBus.Address> GetSubscriberAddressesForMessage(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes);
@@ -2874,7 +2947,6 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
 }
 namespace NServiceBus.Unicast.Subscriptions
 {
-    
     public class MessageType
     {
         public MessageType(System.Type type) { }
@@ -2890,13 +2962,13 @@ namespace NServiceBus.Unicast.Subscriptions
     }
     public class SubscriptionEventArgs : System.EventArgs
     {
+        public SubscriptionEventArgs() { }
         public string MessageType { get; set; }
         public NServiceBus.Address SubscriberReturnAddress { get; set; }
     }
 }
 namespace NServiceBus.Unicast.Transport
 {
-    
     public class static ControlMessage
     {
         public static NServiceBus.TransportMessage Create() { }
@@ -2948,7 +3020,10 @@ namespace NServiceBus.Unicast.Transport
     }
     [System.ObsoleteAttribute("Since the case where this exception was thrown should not be handled by consumers" +
         " of the API it has been removed. Will be removed in version 6.0.0.", true)]
-    public class TransportMessageHandlingFailedException : System.Exception { }
+    public class TransportMessageHandlingFailedException : System.Exception
+    {
+        public TransportMessageHandlingFailedException() { }
+    }
     public class TransportMessageReceivedEventArgs : System.EventArgs
     {
         public TransportMessageReceivedEventArgs(NServiceBus.TransportMessage m) { }
@@ -2976,7 +3051,6 @@ namespace NServiceBus.Unicast.Transport
 }
 namespace NServiceBus.UnitOfWork
 {
-    
     public interface IManageUnitsOfWork
     {
         void Begin();
@@ -2985,17 +3059,18 @@ namespace NServiceBus.UnitOfWork
 }
 namespace NServiceBus.Utils
 {
-    
     [System.ObsoleteAttribute("This class was never intended to be exposed as part of the public API. Will be re" +
         "moved in version 6.0.0.", true)]
-    public class FileVersionRetriever { }
+    public class FileVersionRetriever
+    {
+        public FileVersionRetriever() { }
+    }
     [System.ObsoleteAttribute("This class was never intended to be exposed as part of the public API. Will be re" +
         "moved in version 6.0.0.", true)]
     public class static RegistryReader<T> { }
 }
 namespace System.Threading.Tasks.Schedulers
 {
-    
     [System.ObsoleteAttribute("This class was never intended to be exposed as part of the public API. Will be re" +
         "moved in version 6.0.0.", true)]
     public sealed class MTATaskScheduler { }

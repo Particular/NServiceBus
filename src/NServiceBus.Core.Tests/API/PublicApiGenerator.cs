@@ -8,7 +8,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CSharp;
 using Mono.Cecil;
-using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
 using TypeAttributes = System.Reflection.TypeAttributes;
 
@@ -43,7 +42,8 @@ namespace ApiApprover
             {
                 BracingStyle = "C",
                 BlankLinesBetweenMembers = false,
-                VerbatimOrder = false
+                VerbatimOrder = false,
+                IndentString = "    "
             };
 
             using (var provider = new CSharpCodeProvider())
@@ -83,7 +83,7 @@ namespace ApiApprover
 
         private static string NormaliseLineEndings(string value)
         {
-            return Regex.Replace(value, @"\r\n|\n\r|\r|\n", Environment.NewLine);
+            return Regex.Replace(Regex.Replace(value, @"\r\n|\n\r|\r|\n", Environment.NewLine), string.Format(@"{0}\s*{0}", Environment.NewLine), Environment.NewLine);
         }
 
         private static bool IsDelegate(TypeDefinition publicType)
@@ -197,7 +197,7 @@ namespace ApiApprover
             };
 
             if (declaration.IsInterface && publicType.BaseType != null)
-                throw new NotImplementedException("Base types for interaces needs testing");
+                throw new NotImplementedException("Base types for interfaces needs testing");
 
             PopulateGenericParameters(publicType, declaration.TypeParameters);
 
@@ -384,8 +384,8 @@ namespace ApiApprover
             "System.Reflection.AssemblyConfigurationAttribute",
             "System.Reflection.AssemblyCopyrightAttribute",
             "System.Reflection.AssemblyDescriptionAttribute",
-            "System.Reflection.AssemblyInformationalVersionAttribute",
             "System.Reflection.AssemblyFileVersionAttribute",
+            "System.Reflection.AssemblyInformationalVersionAttribute",
             "System.Reflection.AssemblyProductAttribute",
             "System.Reflection.AssemblyTitleAttribute",
             "System.Reflection.AssemblyTrademarkAttribute"
@@ -460,7 +460,7 @@ namespace ApiApprover
 
         private static void AddCtorToTypeDeclaration(CodeTypeDeclaration typeDeclaration, MethodDefinition member)
         {
-            if (member.IsAssembly || member.IsPrivate || IsEmptyDefaultConstructor(member))
+            if (member.IsAssembly || member.IsPrivate)
                 return;
 
             var method = new CodeConstructor
@@ -472,21 +472,6 @@ namespace ApiApprover
             PopulateMethodParameters(member, method.Parameters);
 
             typeDeclaration.Members.Add(method);
-        }
-
-        private static bool IsEmptyDefaultConstructor(MethodDefinition member)
-        {
-            if (member.Parameters.Count == 0 && member.Body != null && member.Body.Instructions.Count == 3 &&
-                member.Body.Instructions[0].OpCode == OpCodes.Ldarg_0 &&
-                member.Body.Instructions[1].OpCode == OpCodes.Call &&
-                (member.Body.Instructions[1].Operand == null ||
-                (member.Body.Instructions[1].Operand is MethodReference &&
-                 ((MethodReference)member.Body.Instructions[1].Operand).Name == ".ctor")) &&
-                member.Body.Instructions[2].OpCode == OpCodes.Ret)
-            {
-                return true;
-            }
-            return false;
         }
 
         private static void AddMethodToTypeDeclaration(CodeTypeDeclaration typeDeclaration, MethodDefinition member)
@@ -548,12 +533,12 @@ namespace ApiApprover
                 var name = parameter.HasConstant
                     ? string.Format("{0} = {1}", parameter.Name, FormatParameterConstant(parameter))
                     : parameter.Name;
-                var expresion = new CodeParameterDeclarationExpression(type, name)
+                var expression = new CodeParameterDeclarationExpression(type, name)
                 {
                     Direction = direction,
                     CustomAttributes = CreateCustomAttributes(parameter)
                 };
-                parameters.Add(expresion);
+                parameters.Add(expression);
             }
         }
 
