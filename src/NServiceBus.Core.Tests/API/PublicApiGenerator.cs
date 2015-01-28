@@ -368,6 +368,7 @@ namespace ApiApprover
 
         private static readonly HashSet<string> SkipAttributeNames = new HashSet<string>
         {
+            "ReleaseDateAttribute",
             "System.CodeDom.Compiler.GeneratedCodeAttribute",
             "System.ComponentModel.EditorBrowsableAttribute",
             "System.Runtime.CompilerServices.AsyncStateMachineAttribute",
