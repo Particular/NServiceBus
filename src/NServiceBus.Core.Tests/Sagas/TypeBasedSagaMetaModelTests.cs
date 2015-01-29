@@ -140,6 +140,14 @@
             Assert.AreEqual(typeof(MySagaWithScannedFinder.CustomFinder), finder.Properties["custom-finder-clr-type"]);
         }
 
+        [Test]
+        public void GetEntityClrTypeFromInheritanceChain()
+        {
+            var metadata = TypeBasedSagaMetaModel.Create(typeof(SagaWithInheirtanceChain));
+
+            Assert.AreEqual(typeof(SagaWithInheirtanceChain.SagaData), metadata.SagaEntityType);
+        }
+
         SagaFinderDefinition GetFinder(SagaMetadata metadata, string messageType)
         {
             SagaFinderDefinition finder;
@@ -352,6 +360,26 @@
             {
                 
             }
+        }
+
+         class SagaWithInheirtanceChain : SagaWithInheritanceChainBase<SagaWithInheirtanceChain.SagaData, SagaWithInheirtanceChain.SomeOtherData>
+         {
+             public class SagaData : ContainSagaData
+             {
+                 public string SomeId { get; set; }
+             }
+
+             public class SomeOtherData
+             {
+                 public string SomeData { get; set; }
+             }
+         }
+
+         class SagaWithInheritanceChainBase<T, O> : Saga<T> where T : IContainSagaData, new() where O : class
+        {
+             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<T> mapper)
+             {
+             }
         }
     }
 
