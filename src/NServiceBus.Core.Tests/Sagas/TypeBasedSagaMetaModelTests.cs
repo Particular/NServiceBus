@@ -143,9 +143,9 @@
         [Test]
         public void GetEntityClrTypeFromInheritanceChain()
         {
-            var metadata = TypeBasedSagaMetaModel.Create(typeof(SagaWithInheirtanceChain));
+            var metadata = TypeBasedSagaMetaModel.Create(typeof(SagaWithInheritanceChain));
 
-            Assert.AreEqual(typeof(SagaWithInheirtanceChain.SagaData), metadata.SagaEntityType);
+            Assert.AreEqual(typeof(SagaWithInheritanceChain.SagaData), metadata.SagaEntityType);
         }
 
         SagaFinderDefinition GetFinder(SagaMetadata metadata, string messageType)
@@ -362,7 +362,7 @@
             }
         }
 
-         class SagaWithInheirtanceChain : SagaWithInheritanceChainBase<SagaWithInheirtanceChain.SagaData, SagaWithInheirtanceChain.SomeOtherData>
+         class SagaWithInheritanceChain : SagaWithInheritanceChainBase<SagaWithInheritanceChain.SagaData, SagaWithInheritanceChain.SomeOtherData>
          {
              public class SagaData : ContainSagaData
              {
