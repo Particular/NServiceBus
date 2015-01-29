@@ -19,21 +19,25 @@ namespace NServiceBus.Sagas
 
         static bool IsSagaType(Type t)
         {
-            return typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && !t.IsGenericType;
+            return SagaType.IsAssignableFrom(t) && t != SagaType && !t.IsGenericType;
         }
+
+        static Type SagaType = typeof(Saga);
 
         static Type GetBaseSagaType(Type t)
         {
-            var cur = t.BaseType;
+            var currentType = t.BaseType;
+            var previousType = t;
 
-            while (cur != null)
+            while (currentType != null)
             {
-                if (cur.Name == "Saga`1")
+                if (currentType == SagaType)
                 {
-                    return cur;
+                    return previousType;
                 }
 
-                cur = cur.BaseType;
+                previousType = currentType;
+                currentType = currentType.BaseType;
             }
 
             throw new InvalidOperationException();
@@ -43,6 +47,7 @@ namespace NServiceBus.Sagas
         {
             return Create(sagaType, new List<Type>(), new Conventions());
         }
+
         public static SagaMetadata Create(Type sagaType, IEnumerable<Type> availableTypes, Conventions conventions)
         {
             if (!IsSagaType(sagaType))
