@@ -122,6 +122,7 @@
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="DataBus\InMemoryDataBus.cs" />
+    <Compile Include="Encryption\skip_props_and_fields_that_cannot_be_set.cs" />
     <Compile Include="Features\FeatureDefaultsTests.cs" />
     <Compile Include="Logging\DefaultFactoryTests.cs" />
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
