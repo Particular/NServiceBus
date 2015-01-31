@@ -19,6 +19,7 @@ namespace NServiceBus
             return new Schedule(timeSpan);
         }
 
+        [Obsolete("Please use the Action overload which uses the TaskName instead")]
         public void Action(Action task)
         {            
             Action(task.Method.DeclaringType.Name, task);

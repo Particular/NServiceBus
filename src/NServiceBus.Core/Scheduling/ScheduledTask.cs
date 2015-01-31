@@ -6,7 +6,7 @@ namespace NServiceBus.Scheduling
     {
         public ScheduledTask()
         {
-            Id = Guid.NewGuid();
+            Id = Utils.DeterministicGuid.Create(Name);
         }
 
         public Guid Id { get; private set; }
