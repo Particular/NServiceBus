@@ -35,7 +35,7 @@
                 public void Start()
                 {
                     Schedule.Every(TimeSpan.FromSeconds(5))
-                       .Action("MyTask", () =>
+                       .UniqueAction("MyTask", () =>
                        {
                            Console.Out.WriteLine("Task invoked");
                            Configure.Instance.Builder.Build<Context>()

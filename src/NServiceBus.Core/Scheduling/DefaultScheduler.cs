@@ -19,6 +19,15 @@ namespace NServiceBus.Scheduling
             this.scheduledTaskStorage = scheduledTaskStorage;
         }
 
+        public void ScheduleUnique(ScheduledTask scheduledTask)
+        {
+            if (scheduledTaskStorage.Tasks.ContainsKey(scheduledTask.Id))
+            {
+                throw new Exception(string.Format("Task with name '{0}' was registered as unique, but another task with the same name was already registered.", scheduledTask.Name));
+            }
+            Schedule(scheduledTask);
+        }
+
         public void Schedule(ScheduledTask task)
         {
             scheduledTaskStorage.Add(task);            
@@ -32,7 +41,7 @@ namespace NServiceBus.Scheduling
 
             if (task == null)
             {
-                logger.InfoFormat("Could not find any scheduled task {0} with with Id. The DefaultScheduler does not persist tasks between restarts.", taskId);
+                logger.InfoFormat("Could not find any scheduled task with Id {0}. The DefaultScheduler does not persist tasks between restarts.", taskId);
                 return;
             }
 

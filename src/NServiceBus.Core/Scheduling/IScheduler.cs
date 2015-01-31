@@ -6,5 +6,6 @@ namespace NServiceBus.Scheduling
     {
         void Schedule(ScheduledTask task);
         void Start(Guid taskId);
+        void ScheduleUnique(ScheduledTask scheduledTask);
     }
 }
