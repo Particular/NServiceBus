@@ -4,10 +4,10 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class skip_props_and_fields_that_cannot_be_set : WireEncryptedStringContext
+    public class When_message_contains_props_and_fields_that_cannot_be_set : WireEncryptedStringContext
     {
         [Test]
-        public void Run()
+        public void Should_ignore_those_properties_and_fields()
         {
             var message = new BogusEntityMessage{ Entity = new BogusEntity()};
 
