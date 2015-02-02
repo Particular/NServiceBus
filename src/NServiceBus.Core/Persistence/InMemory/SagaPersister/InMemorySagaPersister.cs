@@ -69,7 +69,7 @@ namespace NServiceBus.InMemory.SagaPersister
                 sagaEntity.ConcurrencyCheck();
             }
 
-            data.AddOrUpdate(saga.Id, new VersionedSagaEntity { SagaEntity = DeepClone(saga) }, (id, original) => new VersionedSagaEntity { SagaEntity = DeepClone(saga) });
+            data.AddOrUpdate(saga.Id, id => new VersionedSagaEntity { SagaEntity = DeepClone(saga) }, (id, original) => new VersionedSagaEntity { SagaEntity = DeepClone(saga) });
         }
 
         public void Update(IContainSagaData saga)
