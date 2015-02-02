@@ -55,8 +55,13 @@ namespace NServiceBus.Sagas
                 throw new Exception(sagaType.FullName + " is not a saga");
             }
 
-            var sagaEntityType = GetBaseSagaType(sagaType).GetGenericArguments().Single();
+            var genericArguments = GetBaseSagaType(sagaType).GetGenericArguments();
+            if (genericArguments.Length != 1)
+            {
+                throw new Exception(string.Format("'{0}' saga type does not implement Saga<T>", sagaType));
+            }
 
+            var sagaEntityType = genericArguments.Single();
             var uniquePropertiesOnEntity = FindUniqueAttributes(sagaEntityType).ToList();
 
             var mapper = new SagaMapper();

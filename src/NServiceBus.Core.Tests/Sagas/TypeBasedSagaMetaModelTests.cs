@@ -11,7 +11,18 @@
     [TestFixture]
     public class TypeBasedSagaMetaModelTests
     {
+        [Test]
+        public void Throws_when_does_not_implement_generic_saga()
+        {
+            Assert.Throws<Exception>(() => TypeBasedSagaMetaModel.Create(typeof(MyNonGenericSaga)));
+        }
 
+        class MyNonGenericSaga : Saga
+        {
+            protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
+            {
+            }
+        }
 
         [Test]
         public void GetEntityClrType()
