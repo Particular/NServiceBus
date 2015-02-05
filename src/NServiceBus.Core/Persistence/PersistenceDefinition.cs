@@ -70,12 +70,17 @@
 
         internal void ApplyActionForStorage(Type storageType, SettingsHolder settings)
         {
+            CheckForStorageType(storageType);
+            var actionForStorage = storageToActionMap[storageType];
+            actionForStorage(settings);
+        }
+
+        static void CheckForStorageType(Type storageType)
+        {
             if (!storageType.IsSubclassOf(typeof(StorageType)))
             {
                 throw new ArgumentException(string.Format("Storage type '{0}' is not a sub-class of StorageType", storageType.FullName), "storageType");
             }
-            var actionForStorage = storageToActionMap[storageType];
-            actionForStorage(settings);
         }
 
         internal void ApplyDefaults(SettingsHolder settings)
@@ -88,12 +93,26 @@
 
         internal List<Type> GetSupportedStorages(List<Type> selectedStorages)
         {
+            foreach (var storage in selectedStorages)
+            {
+                CheckForStorageType(storage);
+                CheckForStorageTypeSupport(storage);
+            }
+
             if (selectedStorages.Count > 0)
             {
                 return selectedStorages;
             }
 
             return storageToActionMap.Keys.ToList();
+        }
+
+        void CheckForStorageTypeSupport(Type selectedStorageType)
+        {
+            if (!storageToActionMap.ContainsKey(selectedStorageType))
+            {
+                throw new Exception(string.Format("Persistence '{0}' does not support storage type {1}.", GetType().Name, selectedStorageType.Name));
+            }
         }
 
         List<Action<SettingsHolder>> defaults = new List<Action<SettingsHolder>>();
