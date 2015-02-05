@@ -83,6 +83,7 @@
     <Compile Include="Basic\When_TimeToBeReceived_has_expired.cs" />
     <Compile Include="Basic\When_Deferring_a_message.cs" />
     <Compile Include="Basic\When_using_callback_to_get_message.cs" />
+    <Compile Include="Config\When__using_mixed_persistence_should_not_fail_at_startup.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="PubSub\When_publishing_from_sendonly.cs" />
     <Compile Include="PubSub\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />
@@ -233,6 +234,9 @@
       <Project>{758357f6-cd31-4337-80c4-ba377fc257af}</Project>
       <Name>NServiceBus.AcceptanceTesting</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
