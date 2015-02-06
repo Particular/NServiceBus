@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Persistence
 {
     using System;
-    using System.Collections.Generic;
     using NServiceBus.Persistence;
     using NServiceBus.Persistence.Legacy;
     using NServiceBus.Settings;
