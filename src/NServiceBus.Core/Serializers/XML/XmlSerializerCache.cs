@@ -219,6 +219,6 @@ namespace NServiceBus.Serializers.XML
         public readonly Dictionary<Type, Type> typesToCreateForArrays = new Dictionary<Type, Type>();
         public readonly Dictionary<Type, Type> typesToCreateForEnumerables = new Dictionary<Type, Type>();
 
-        ILog logger = LogManager.GetLogger<XmlSerializerCache>();
+        static ILog logger = LogManager.GetLogger<XmlSerializerCache>();
     }
 }
