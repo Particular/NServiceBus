@@ -1,7 +1,6 @@
 namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System.Collections.Generic;
-    using System.Linq;
     using Hosting.Helpers;
     using NUnit.Framework;
 
@@ -25,10 +24,9 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         }
 
         [Test]
-        public void only_files_explicitly_included_are_returned()
+        public void includes_explicitly_included_file()
         {
-            Assert.That(results.Assemblies, Has.Count.EqualTo(1));
-            Assert.That(results.Assemblies.Single().GetName().Name, Is.EqualTo("NServiceBus.Core.Tests"));
+            Assert.IsTrue(results.Assemblies.Exists(a => a.GetName().Name == "NServiceBus.Core.Tests"));
         }
     }
 }

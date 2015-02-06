@@ -17,9 +17,6 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Directory.CreateDirectory(someDir);
 
             results = new AssemblyScanner(someDir)
-                {
-                    IncludeAppDomainAssemblies = true,
-                }
                 .GetScannableAssemblies();
         }
 

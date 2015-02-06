@@ -22,10 +22,7 @@
             var directoryName = Path.GetDirectoryName(path);
 
             var testDllDirectory = Path.Combine(directoryName, "TestDlls");
-            var assemblyScanner = new AssemblyScanner(testDllDirectory)
-                {
-                    IncludeAppDomainAssemblies = false
-                };
+            var assemblyScanner = new AssemblyScanner(testDllDirectory);
             assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
 
             var results = assemblyScanner

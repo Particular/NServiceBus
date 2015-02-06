@@ -12,10 +12,7 @@
         [SetUp]
         public void Context()
         {
-            var assemblyScanner = new AssemblyScanner(AssemblyLocation.CurrentDirectory)
-                {
-                    IncludeAppDomainAssemblies = false
-                };
+            var assemblyScanner = new AssemblyScanner(AssemblyLocation.CurrentDirectory);
             assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
 
             results = assemblyScanner
