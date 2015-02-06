@@ -3,7 +3,6 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using Features;
     using NUnit.Framework;
 
     public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
@@ -22,6 +21,9 @@
                      )
                .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                {
+                   bus.Subscribe<DerivedEvent1>();
+                   bus.Subscribe<DerivedEvent2>();
+
                    if (context.HasNativePubSubSupport)
                    {
                        context.SubscribedToPublisher1 = true;
@@ -79,7 +81,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>()
                     .AddMapping<DerivedEvent1>(typeof(Publisher1))
                     .AddMapping<DerivedEvent2>(typeof(Publisher2));
             }
