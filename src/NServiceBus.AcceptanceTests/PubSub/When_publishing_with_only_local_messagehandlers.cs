@@ -24,11 +24,15 @@
         public void Should_trigger_the_catch_all_handler_for_publishers_with_centralized_pubsub()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<CentralizedStoragePublisher>(b => b.When(c => c.EndpointsStarted, (bus, context) => bus.Publish(new EventHandledByLocalEndpoint())))
-                    .Done(c => c.CatchAllHandlerGotTheMessage)
-                    .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())
-                    .Should(c => Assert.True(c.CatchAllHandlerGotTheMessage))
-                    .Run();
+                       .WithEndpoint<CentralizedStoragePublisher>(b =>
+                       {
+                           b.Given(bus => bus.Subscribe<EventHandledByLocalEndpoint>());
+                           b.When(c => c.EndpointsStarted, (bus, context) => bus.Publish(new EventHandledByLocalEndpoint()));
+                       })
+                       .Done(c => c.CatchAllHandlerGotTheMessage)
+                       .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())
+                       .Should(c => Assert.True(c.CatchAllHandlerGotTheMessage))
+                       .Run();
         }
 
         public class Context : ScenarioContext
@@ -70,7 +74,7 @@
         {
             public CentralizedStoragePublisher()
             {
-                EndpointSetup<DefaultServer>(builder => builder.AutoSubscribe().DoNotRequireExplicitRouting());
+                EndpointSetup<DefaultServer>();
             }
 
             class CatchAllHandler : IHandleMessages<IEvent> 
