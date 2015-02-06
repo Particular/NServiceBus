@@ -68,6 +68,14 @@
             return storageToActionMap.ContainsKey(typeof(T));
         }
 
+        /// <summary>
+        /// True if supplied storage is supported
+        /// </summary>
+        public bool HasSupportFor(Type storageType) 
+        {
+            return storageToActionMap.ContainsKey(storageType);
+        }
+
         internal void ApplyActionForStorage(Type storageType, SettingsHolder settings)
         {
             if (!storageType.IsSubclassOf(typeof(StorageType)))

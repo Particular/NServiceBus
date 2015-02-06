@@ -89,8 +89,8 @@
             
             if (storageType != null)
             {
-                var storageSupported = StorageTypeSupported(definitionType, storageType);
-                if (!storageSupported)
+                var definition = definitionType.Construct<PersistenceDefinition>();
+                if (!definition.HasSupportFor(storageType))
                 {
                     throw new Exception(string.Format("Persistence '{0}' does not support storage type {1}.", definitionType.Name, storageType.Name));
                 }
@@ -99,15 +99,6 @@
             }
 
             definitions.Add(enabledPersistence);
-        }
-
-        private static bool StorageTypeSupported(Type definitionType, Type storageType)
-        {
-            var definition = definitionType.Construct<PersistenceDefinition>();
-            return (bool)typeof(PersistenceDefinition)
-                .GetMethod("HasSupportFor", new Type[] { })
-                .MakeGenericMethod(storageType)
-                .Invoke(definition, new object[]{});
         }
 
 
