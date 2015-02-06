@@ -6,6 +6,7 @@
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Persistence;
     using NServiceBus.Settings;
+    using Utils.Reflection;
 
     /// <summary> 
     /// This class provides implementers of persisters with an extension mechanism for custom settings for specific storage type via extention methods.
@@ -85,13 +86,30 @@
                 SelectedStorages = new List<Type>(),
             };
 
+            
             if (storageType != null)
             {
+                var storageSupported = StorageTypeSupported(definitionType, storageType);
+                if (!storageSupported)
+                {
+                    throw new Exception(string.Format("Persistence '{0}' does not support storage type {1}.", definitionType.Name, storageType.Name));
+                }
+
                 enabledPersistence.SelectedStorages.Add(storageType);
             }
 
             definitions.Add(enabledPersistence);
         }
+
+        private static bool StorageTypeSupported(Type definitionType, Type storageType)
+        {
+            var definition = definitionType.Construct<PersistenceDefinition>();
+            return (bool)typeof(PersistenceDefinition)
+                .GetMethod("HasSupportFor", new Type[] { })
+                .MakeGenericMethod(storageType)
+                .Invoke(definition, new object[]{});
+        }
+
 
         /// <summary>
         ///     Defines the list of specific storage needs this persistence should provide
