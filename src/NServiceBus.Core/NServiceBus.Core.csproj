@@ -233,6 +233,9 @@
     <Compile Include="Serializers\XML\Config\Xml.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationExtentions.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationSettings_Obsolete.cs" />
+    <Compile Include="Serializers\XML\Deserializer.cs" />
+    <Compile Include="Serializers\XML\Serializer.cs" />
+    <Compile Include="Serializers\XML\XmlSerializerCache.cs" />
     <Compile Include="Settings\DurableMessagesConfig.cs" />
     <Compile Include="Timeout\ConfigurationBuilderExtensions.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
