@@ -233,7 +233,7 @@
       <Project>{758357f6-cd31-4337-80c4-ba377fc257af}</Project>
       <Name>NServiceBus.AcceptanceTesting</Name>
     </ProjectReference>
-  </ItemGroup>
+  </ItemGroup>  
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

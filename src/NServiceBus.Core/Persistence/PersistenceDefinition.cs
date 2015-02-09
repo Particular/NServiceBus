@@ -26,10 +26,10 @@
         /// <summary>
         /// Used be the storage definitions to declare what they support
         /// </summary>
-         [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            Replacement = "Supports<T>()")]
+        [ObsoleteEx(
+           RemoveInVersion = "7.0",
+           TreatAsErrorFromVersion = "6.0",
+           Replacement = "Supports<T>()")]
         protected void Supports(Storage storage, Action<SettingsHolder> action)
         {
             var storageType = StorageType.FromEnum(storage);
@@ -65,7 +65,15 @@
         /// </summary>
         public bool HasSupportFor<T>() where T : StorageType
         {
-            return storageToActionMap.ContainsKey(typeof(T));
+            return HasSupportFor(typeof(T));
+        }
+
+        /// <summary>
+        /// True if supplied storage is supported
+        /// </summary>
+        public bool HasSupportFor(Type storageType) 
+        {
+            return storageToActionMap.ContainsKey(storageType);
         }
 
         internal void ApplyActionForStorage(Type storageType, SettingsHolder settings)
