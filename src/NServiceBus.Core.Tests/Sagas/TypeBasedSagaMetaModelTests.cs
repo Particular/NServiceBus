@@ -11,7 +11,18 @@
     [TestFixture]
     public class TypeBasedSagaMetaModelTests
     {
+        [Test]
+        public void Throws_when_does_not_implement_generic_saga()
+        {
+            Assert.Throws<Exception>(() => TypeBasedSagaMetaModel.Create(typeof(MyNonGenericSaga)));
+        }
 
+        class MyNonGenericSaga : Saga
+        {
+            protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
+            {
+            }
+        }
 
         [Test]
         public void GetEntityClrType()
@@ -138,6 +149,14 @@
 
             Assert.AreEqual(typeof(CustomFinderAdapter<MySagaWithScannedFinder.SagaData, SomeMessage>), finder.Type);
             Assert.AreEqual(typeof(MySagaWithScannedFinder.CustomFinder), finder.Properties["custom-finder-clr-type"]);
+        }
+
+        [Test]
+        public void GetEntityClrTypeFromInheritanceChain()
+        {
+            var metadata = TypeBasedSagaMetaModel.Create(typeof(SagaWithInheritanceChain));
+
+            Assert.AreEqual(typeof(SagaWithInheritanceChain.SagaData), metadata.SagaEntityType);
         }
 
         SagaFinderDefinition GetFinder(SagaMetadata metadata, string messageType)
@@ -352,6 +371,26 @@
             {
                 
             }
+        }
+
+         class SagaWithInheritanceChain : SagaWithInheritanceChainBase<SagaWithInheritanceChain.SagaData, SagaWithInheritanceChain.SomeOtherData>
+         {
+             public class SagaData : ContainSagaData
+             {
+                 public string SomeId { get; set; }
+             }
+
+             public class SomeOtherData
+             {
+                 public string SomeData { get; set; }
+             }
+         }
+
+         class SagaWithInheritanceChainBase<T, O> : Saga<T> where T : IContainSagaData, new() where O : class
+        {
+             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<T> mapper)
+             {
+             }
         }
     }
 

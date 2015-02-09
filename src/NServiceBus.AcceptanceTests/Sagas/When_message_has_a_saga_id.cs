@@ -21,10 +21,10 @@
 
                     bus.SendLocal(message);
                 }))
-                .Done(c => c.NotFoundHandlerCalled && c.OtherSagaStarted)
-                .Run(TimeSpan.FromSeconds(15));
+                .Done(c => c.OtherSagaStarted)
+                .Run();
 
-            Assert.True(context.NotFoundHandlerCalled);
+            Assert.False(context.NotFoundHandlerCalled);
             Assert.True(context.OtherSagaStarted);
             Assert.False(context.MessageHandlerCalled);
             Assert.False(context.TimeoutHandlerCalled);

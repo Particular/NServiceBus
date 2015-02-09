@@ -32,7 +32,7 @@
                 EndpointSetup<DefaultServer>(builder =>
                 {
                     builder.DisableDurableMessages();
-                    builder.DiscardFailedMessagesInsteadOfSendingToErrorQueue(); // to avoid creating the error q, it might blow up for brokers (rabbitmq)
+                    builder.DiscardFailedMessagesInsteadOfSendingToErrorQueue(); // to avoid creating the error q, it might blow up for brokers (RabbitMQ)
                 })
                     .AddMapping<MyMessage>(typeof(Receiver));
             }
@@ -45,7 +45,7 @@
                 EndpointSetup<DefaultServer>(builder =>
                 {
                     builder.DisableDurableMessages();
-                    builder.DiscardFailedMessagesInsteadOfSendingToErrorQueue(); // to avoid creating the error q, it might blow up for brokers (rabbitmq)
+                    builder.DiscardFailedMessagesInsteadOfSendingToErrorQueue(); // to avoid creating the error q, it might blow up for brokers (RabbitMQ)
                 });
             }
         }

@@ -13,6 +13,7 @@ _UpgradeReport.*
 *.resharper
 *.suo
 *.cache
+*.sln.ide
 *~
 *.swp
 *.user

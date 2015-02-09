@@ -86,14 +86,14 @@
                 {
                     return false;
                 }
-                return Equals((StoredMessage) obj);
+                return Equals((StoredMessage)obj);
             }
 
             public override int GetHashCode()
             {
                 unchecked
                 {
-                    return ((Id != null ? Id.GetHashCode() : 0)*397) ^ Dispatched.GetHashCode();
+                    return ((Id != null ? Id.GetHashCode() : 0) * 397) ^ Dispatched.GetHashCode();
                 }
             }
 
@@ -102,14 +102,16 @@
 
         public void RemoveEntriesOlderThan(DateTime dateTime)
         {
-            var entriesToRemove = storage.Where(e => e.Value.Dispatched && e.Value.StoredAt < dateTime)
-                .Select(e=>e.Key);
+            var entriesToRemove = storage
+                .Where(e => e.Value.Dispatched && e.Value.StoredAt < dateTime)
+                .Select(e => e.Key)
+                .ToList();
 
             foreach (var entry in entriesToRemove)
             {
                 StoredMessage toRemove;
 
-                storage.TryRemove(entry, out toRemove);   
+                storage.TryRemove(entry, out toRemove);
             }
         }
     }

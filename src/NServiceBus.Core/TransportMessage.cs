@@ -54,7 +54,7 @@ namespace NServiceBus
         [ObsoleteEx(
             TreatAsErrorFromVersion = "5.1", 
             RemoveInVersion = "6", 
-            Message = "headers[Headers.ReplyToAddress]=replyToAddress; var tm = new TransportMessage(id,headers)")]
+            Message = "Use `headers[Headers.ReplyToAddress]=replyToAddress; var tm = new TransportMessage(id,headers)` instead.")]
         public TransportMessage(string existingId, Dictionary<string, string> existingHeaders, Address replyToAddress):this(existingId,existingHeaders)
         {
             Headers[NServiceBus.Headers.ReplyToAddress] = replyToAddress.ToString();

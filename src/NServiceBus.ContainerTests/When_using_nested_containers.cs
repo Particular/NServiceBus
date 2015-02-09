@@ -21,7 +21,7 @@ namespace NServiceBus.ContainerTests
                     nestedContainer.Build(typeof(InstancePerUoWComponent));
                 Assert.True(InstancePerUoWComponent.DisposeCalled);
             }
-            //Not supported bytypeof(SpringObjectBuilder));
+            //Not supported by typeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace NServiceBus.ContainerTests
             }
 
 
-            //Not supported bytypeof(SpringObjectBuilder));
+            //Not supported by typeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -123,7 +123,7 @@ namespace NServiceBus.ContainerTests
                     Assert.AreSame(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)), "UoW's should be singleton in child container");
                 }
             }
-            //Not supported bytypeof(SpringObjectBuilder));
+            //Not supported by typeof(SpringObjectBuilder));
         }
 
         [Test]

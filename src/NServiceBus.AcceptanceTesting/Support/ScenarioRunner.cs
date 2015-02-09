@@ -125,7 +125,7 @@ namespace NServiceBus.AcceptanceTesting.Support
                 Console.Out.WriteLine("Result: Successful - Duration: {0}", runResult.TotalTime);
             }
 
-            //dump trace and context regardless since asserts outside the should could stoll fail the test
+            //dump trace and context regardless since asserts outside the should could still fail the test
             Console.WriteLine("");
             Console.Out.WriteLine("Context:");
 
@@ -369,13 +369,9 @@ namespace NServiceBus.AcceptanceTesting.Support
             var domainSetup = new AppDomainSetup
             {
                 ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
-                LoaderOptimization = LoaderOptimization.SingleDomain
+                LoaderOptimization = LoaderOptimization.SingleDomain,
+                ConfigurationFile = appConfigPath ?? AppDomain.CurrentDomain.SetupInformation.ConfigurationFile
             };
-
-            if (appConfigPath != null)
-            {
-                domainSetup.ConfigurationFile = appConfigPath;
-            }
 
             var appDomain = AppDomain.CreateDomain(endpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
 

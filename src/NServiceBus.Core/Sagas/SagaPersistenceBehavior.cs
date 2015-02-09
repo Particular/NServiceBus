@@ -42,8 +42,6 @@
             }
 
             var sagaMetadata = SagaMetaModel.FindByName(context.MessageHandler.Instance.GetType().FullName);
-
-
             var sagaInstanceState = new ActiveSagaInstance(saga, sagaMetadata);
 
             //so that other behaviors can access the saga
@@ -53,30 +51,34 @@
 
             if (loadedEntity == null)
             {
-                
                 //if this message are not allowed to start the saga
                 if (IsMessageAllowedToStartTheSaga(context.IncomingLogicalMessage, sagaMetadata))
                 {
+                    context.Set("Sagas.SagaWasInvoked", true);
+
                     sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaMetadata, context.IncomingLogicalMessage));
                 }
                 else
                 {
                     sagaInstanceState.MarkAsNotFound();
 
-                    //we don't invoke not found handlers for timeouts since
+                    //we don't invoke not found handlers for timeouts
                     if (IsTimeoutMessage(context.IncomingLogicalMessage))
                     {
-                        logger.InfoFormat("No saga found for timeout message {0}, ignoring since the saga has been marked as complete before the timeout fired",context.PhysicalMessage.Id);
+                        context.Set("Sagas.SagaWasInvoked", true);
+
+                        logger.InfoFormat("No saga found for timeout message {0}, ignoring since the saga has been marked as complete before the timeout fired", context.PhysicalMessage.Id);
                     }
                     else
                     {
-                        InvokeSagaNotFoundHandlers(sagaMetadata);
+                        context.Set("Sagas.InvokeSagaNotFound", true);
                     }
-
                 }
             }
             else
             {
+                context.Set("Sagas.SagaWasInvoked", true);
+
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
             }
 
@@ -84,7 +86,6 @@
             {
                 context.MessageHandler.Invocation = MessageHandlerRegistry.InvokeTimeout;
             }
-
 
             next();
 
@@ -156,17 +157,6 @@
             else
             {
                 context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] = audit;
-            }
-        }
-
-        void InvokeSagaNotFoundHandlers(SagaMetadata sagaMetadata)
-        {
-            logger.InfoFormat("Could not find a saga '{0}' for the message '{1}'. Going to invoke SagaNotFoundHandlers.", sagaMetadata.Name, currentContext.IncomingLogicalMessage.MessageType.FullName);
-
-            foreach (var handler in currentContext.Builder.BuildAll<IHandleSagaNotFound>())
-            {
-                logger.DebugFormat("Invoking SagaNotFoundHandler '{0}'", handler.GetType().FullName);
-                handler.Handle(currentContext.IncomingLogicalMessage.Instance);
             }
         }
 
