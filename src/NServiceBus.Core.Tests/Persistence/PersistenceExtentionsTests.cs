@@ -14,12 +14,12 @@
         {
             // ReSharper disable once ObjectCreationAsStatement
             var ex = Assert.Throws<Exception>(() => new PersistenceExtentions(typeof(MsmqPersistence), new SettingsHolder(), typeof(StorageType.Timeouts)));
-            Assert.That(ex.Message, Is.EqualTo("Persistence 'MsmqPersistence' does not support storage type Timeouts."));
+            Assert.That(ex.Message, Is.StringStarting("MsmqPersistence does not support storage type Timeouts."));
         }
     }
 
     [TestFixture]
-    public class When_configuring_storage_type_supported_by_persistence
+    public class When_configuring_storage_type_supported_by_persistencer
     {
         [Test]
         public void Should_not_throw_exception()

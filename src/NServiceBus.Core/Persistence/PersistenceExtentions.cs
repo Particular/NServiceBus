@@ -92,7 +92,7 @@
                 var definition = definitionType.Construct<PersistenceDefinition>();
                 if (!definition.HasSupportFor(storageType))
                 {
-                    throw new Exception(string.Format("Persistence '{0}' does not support storage type {1}.", definitionType.Name, storageType.Name));
+                    throw new Exception(string.Format("{0} does not support storage type {1}. See http://docs.particular.net/nservicebus/persistence-in-nservicebus for supported variations.", definitionType.Name, storageType.Name));
                 }
 
                 enabledPersistence.SelectedStorages.Add(storageType);
