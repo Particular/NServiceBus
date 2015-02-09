@@ -53,6 +53,23 @@
         }
 
         [Test]
+        public void Save_fails_when_data_changes_between_read_and_update_on_same_thread()
+        {
+            var inMemorySagaPersister = new InMemorySagaPersister();
+            var saga = new TestSaga { Id = Guid.NewGuid() };
+            inMemorySagaPersister.Save(saga);
+
+            var record = inMemorySagaPersister.Get<TestSaga>(saga.Id);
+            var staleRecord = inMemorySagaPersister.Get<TestSaga>("Id", saga.Id);
+
+            inMemorySagaPersister.Save(record);
+            inMemorySagaPersister.Get<TestSaga>(saga.Id);
+
+            var exception = Assert.Throws<Exception>(() => inMemorySagaPersister.Save(staleRecord));
+            Assert.IsTrue(exception.Message.StartsWith(string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved by [Worker.", saga.Id)));
+        }
+
+        [Test]
         public void Save_process_is_repeatable()
         {
             var saga = new TestSagaData { Id = Guid.NewGuid() };
