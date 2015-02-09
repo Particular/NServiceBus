@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Utils.Reflection
 {
     using System;
+    using System.Collections.Generic;
     using System.Reflection;
     using System.Reflection.Emit;
     using NServiceBus.Utils.Reflection;
@@ -9,6 +10,15 @@
     [TestFixture]
     public class ExtensionMethodsTests
     {
+        [Test]
+        public void SerializationFriendlyNameTests()
+        {
+            Assert.AreEqual("String", typeof(string).SerializationFriendlyName());
+            Assert.AreEqual("DictionaryOfStringAndInt32",typeof(Dictionary<string, int>).SerializationFriendlyName());
+            Assert.AreEqual("DictionaryOfStringAndTupleOfInt32", typeof(Dictionary<string, Tuple<int>>).SerializationFriendlyName());
+            Assert.AreEqual("NServiceBus.KeyValuePairOfStringAndTupleOfInt32", typeof(KeyValuePair<string, Tuple<int>>).SerializationFriendlyName());
+        }
+
         [Test]
         public void Should_return_return_different_results_for_different_types()
         {
