@@ -23,10 +23,8 @@
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.SubscriberGotTheEvent)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
+                .Should(ctx => Assert.True(ctx.SubscriberGotTheEvent))
                 .Run();
-
-            Assert.True(context.SubscriberGotTheEvent);
-
         }
 
         public class Context : ScenarioContext
