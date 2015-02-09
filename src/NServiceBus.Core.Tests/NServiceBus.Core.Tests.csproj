@@ -127,6 +127,7 @@
     <Compile Include="Logging\DefaultFactoryTests.cs" />
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
     <Compile Include="Persistence\InMemory\InMemorySagaPersistenceFixture.cs" />
+    <Compile Include="Persistence\PersistenceExtentionsTests.cs" />
     <Compile Include="Persistence\PersistenceStorageMergerTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
     <Compile Include="Sagas\TypeBasedSagaMetaModelTests.cs" />
@@ -286,8 +287,7 @@
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup />
+  </ItemGroup> 
   <ItemGroup>
     <Content Include="TestDlls\dotNet.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
