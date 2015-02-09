@@ -65,7 +65,7 @@
         /// </summary>
         public bool HasSupportFor<T>() where T : StorageType
         {
-            return storageToActionMap.ContainsKey(typeof(T));
+            return HasSupportFor(typeof(T));
         }
 
         /// <summary>
