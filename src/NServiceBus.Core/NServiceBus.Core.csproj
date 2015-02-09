@@ -252,6 +252,8 @@
     <Compile Include="Unicast\Transport\Config\TransportConfiguration.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
     <Compile Include="Unicast\Transport\Config\UseTransportExtensions_Obsolete.cs" />
+    <Compile Include="Utils\BaseDictionary.cs" />
+    <Compile Include="Utils\WeakKeyDictionary.cs" />
     <Compile Include="Utils\Guard.cs" />
     <Compile Include="Utils\ExceptionHeaderHelper.cs" />
     <Compile Include="Utils\ElevateChecker.cs" />

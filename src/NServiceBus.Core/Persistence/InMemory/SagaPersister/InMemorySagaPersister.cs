@@ -2,10 +2,10 @@ namespace NServiceBus.InMemory.SagaPersister
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using NServiceBus.Sagas;
+    using NServiceBus.Utils;
     using Saga;
     using Serializers.Json;
 
@@ -15,13 +15,16 @@ namespace NServiceBus.InMemory.SagaPersister
     class InMemorySagaPersister : ISagaPersister
     {
         readonly SagaMetaModel sagaModel;
+        int version;
+
+        JsonMessageSerializer serializer = new JsonMessageSerializer(null);
+        ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
 
         public InMemorySagaPersister(SagaMetaModel sagaModel)
         {
             this.sagaModel = sagaModel;
         }
 
-    
         public void Complete(IContainSagaData saga)
         {
             VersionedSagaEntity value;
@@ -42,8 +45,9 @@ namespace NServiceBus.InMemory.SagaPersister
                 {
                     continue;
                 }
-                entity.RecordRead();
-                return (TSagaData)DeepClone(entity.SagaEntity);
+                var clone = (TSagaData)DeepClone(entity.SagaEntity);
+                entity.RecordRead(clone, version);
+                return clone;
             }
             return default(TSagaData);
         }
@@ -53,8 +57,9 @@ namespace NServiceBus.InMemory.SagaPersister
             VersionedSagaEntity result;
             if (data.TryGetValue(sagaId, out result) && (result != null) && (result.SagaEntity is TSagaData))
             {
-                result.RecordRead();
-                return (TSagaData)DeepClone(result.SagaEntity);
+                var clone = (TSagaData)DeepClone(result.SagaEntity);
+                result.RecordRead(clone, version);
+                return clone;
             }
             return default(TSagaData);
         }
@@ -66,10 +71,12 @@ namespace NServiceBus.InMemory.SagaPersister
             VersionedSagaEntity sagaEntity;
             if (data.TryGetValue(saga.Id, out sagaEntity))
             {
-                sagaEntity.ConcurrencyCheck();
+                sagaEntity.ConcurrencyCheck(saga, version);
             }
 
-            data.AddOrUpdate(saga.Id, id => new VersionedSagaEntity { SagaEntity = DeepClone(saga) }, (id, original) => new VersionedSagaEntity { SagaEntity = DeepClone(saga) });
+            data.AddOrUpdate(saga.Id, id => new VersionedSagaEntity { SagaEntity = DeepClone(saga) }, (id, original) => new VersionedSagaEntity { SagaEntity = DeepClone(saga), VersionCache = original.VersionCache });
+
+            Interlocked.Increment(ref version);
         }
 
         public void Update(IContainSagaData saga)
@@ -80,7 +87,6 @@ namespace NServiceBus.InMemory.SagaPersister
         void ValidateUniqueProperties(IContainSagaData saga)
         {
             var sagaMetaData = sagaModel.FindByEntityName(saga.GetType().FullName);
-
 
             if (!sagaMetaData.CorrelationProperties.Any()) return;
 
@@ -102,33 +108,10 @@ namespace NServiceBus.InMemory.SagaPersister
                     var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaEntity, null);
                     if (inComingSagaPropertyValue.Equals(storedSagaPropertyValue))
                     {
-                        var message = string.Format("Cannot store a saga. The saga with id '{0}' already has property '{1}' with value '{2}'.",storedSaga.SagaEntity.Id, uniqueProperty, storedSagaPropertyValue);
+                        var message = string.Format("Cannot store a saga. The saga with id '{0}' already has property '{1}' with value '{2}'.", storedSaga.SagaEntity.Id, uniqueProperty, storedSagaPropertyValue);
                         throw new InvalidOperationException(message);
                     }
                 }
-            }
-              
-        }
-
-        public class VersionedSagaEntity
-        {
-            public IContainSagaData SagaEntity;
-
-            readonly ConcurrentDictionary<int, byte> readByThreadId = new ConcurrentDictionary<int, byte>();
-
-            public void RecordRead()
-            {
-                readByThreadId.AddOrUpdate(Thread.CurrentThread.ManagedThreadId, 0, (id, value) => 0);
-            }
-
-            public void ConcurrencyCheck()
-            {
-                var currentThreadId = Thread.CurrentThread.ManagedThreadId;
-                if (!readByThreadId.ContainsKey(currentThreadId))
-                    throw new Exception(
-                        string.Format(
-                            "InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved by [Worker.{1}]",
-                            SagaEntity.Id, currentThreadId));
             }
         }
 
@@ -139,15 +122,26 @@ namespace NServiceBus.InMemory.SagaPersister
             return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
         }
 
-        public IDictionary<Guid, VersionedSagaEntity> CurrentSagaEntities
+        class VersionedSagaEntity
         {
-            get
+            public IContainSagaData SagaEntity;
+
+            public WeakKeyDictionary<IContainSagaData, int> VersionCache = new WeakKeyDictionary<IContainSagaData, int>();
+
+            public void RecordRead(IContainSagaData sagaEntity, int currentVersion)
             {
-                return data;
+                VersionCache[sagaEntity] = currentVersion;
+            }
+
+            public void ConcurrencyCheck(IContainSagaData sagaEntity, int currentVersion)
+            {
+                int v;
+                if (!VersionCache.TryGetValue(sagaEntity, out v))
+                    throw new Exception(string.Format("InMemorySagaPersister in an inconsistent state: entity Id[{0}] not read.", sagaEntity.Id));
+
+                if (v != currentVersion)
+                    throw new Exception(string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved.", sagaEntity.Id));
             }
         }
-
-        JsonMessageSerializer serializer = new JsonMessageSerializer(null);
-        ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
     }
 }
