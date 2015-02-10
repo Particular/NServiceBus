@@ -22,19 +22,17 @@
         readonly IMessageMapper mapper;
         readonly Conventions conventions;
         readonly XmlSerializerCache cache;
+        readonly bool skipWrappingRawXml;
+        readonly string @namespace;
 
-        public Serializer(IMessageMapper mapper, Conventions conventions, XmlSerializerCache cache)
+        public Serializer(IMessageMapper mapper, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = DefaultNamespace)
         {
             this.mapper = mapper;
             this.conventions = conventions;
             this.cache = cache;
-
-            Namespace = DefaultNamespace;
+            this.skipWrappingRawXml = skipWrappingRawXml;
+            this.@namespace = @namespace;
         }
-
-        public bool SkipWrappingRawXml { get; set; }
-
-        public string Namespace { get; set; }
 
         public byte[] Serialize(object message)
         {
@@ -334,9 +332,9 @@
 
             if (useNS)
             {
-                var @namespace = InitializeNamespaces(value);
+                var messageNamespace = InitializeNamespaces(value);
                 var baseTypes = GetBaseTypes(value);
-                CreateStartElementWithNamespaces(@namespace, baseTypes, builder, element);
+                CreateStartElementWithNamespaces(messageNamespace, baseTypes, builder, element);
             }
             else
             {
@@ -402,7 +400,7 @@
             if (typeof(XContainer).IsAssignableFrom(type))
             {
                 var container = (XContainer) value;
-                if (SkipWrappingRawXml)
+                if (skipWrappingRawXml)
                 {
                     builder.AppendFormat("{0}\n", container);
                 }
@@ -495,7 +493,7 @@
                 "<{0} xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"",
                 element);
 
-            builder.AppendFormat(" xmlns=\"{0}/{1}\"", Namespace, messageNamespace);
+            builder.AppendFormat(" xmlns=\"{0}/{1}\"", @namespace, messageNamespace);
 
             foreach (var t in namespacesToAdd)
             {
