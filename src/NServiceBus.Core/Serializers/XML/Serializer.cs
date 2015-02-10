@@ -13,9 +13,10 @@
 
     class Serializer
     {
-        const string BASETYPE = "baseType";
+        const string BaseType = "baseType";
 
-        string nameSpace = "http://tempuri.net";
+        const string DefaultNamespace = "http://tempuri.net";
+
         List<Type> namespacesToAdd;
 
         readonly IMessageMapper mapper;
@@ -27,6 +28,8 @@
             this.mapper = mapper;
             this.conventions = conventions;
             this.cache = cache;
+
+            Namespace = DefaultNamespace;
         }
 
         public bool SkipWrappingRawXml { get; set; }
@@ -492,7 +495,7 @@
                 "<{0} xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"",
                 element);
 
-            builder.AppendFormat(" xmlns=\"{0}/{1}\"", nameSpace, messageNamespace);
+            builder.AppendFormat(" xmlns=\"{0}/{1}\"", Namespace, messageNamespace);
 
             foreach (var t in namespacesToAdd)
             {
@@ -501,7 +504,7 @@
 
             for (var i = 0; i < baseTypes.Count; i++)
             {
-                var prefix = BASETYPE;
+                var prefix = BaseType;
                 if (i != 0)
                 {
                     prefix += i;
