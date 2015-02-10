@@ -32,7 +32,7 @@
 
             var result = new List<object>();
 
-            XmlDocument doc = ReadStreamIntoDocument(stream, sanitizeInput);
+            var doc = ReadStreamIntoDocument(stream, sanitizeInput);
 
             if (NothingToBeProcessed(doc))
             {
@@ -45,7 +45,7 @@
             {
                 if (ContainsAnyMessageTypesToDeserialize(messageTypesToDeserialize))
                 {
-                    IEnumerable<Type> rootTypes = FindRootTypes(messageTypesToDeserialize);
+                    var rootTypes = FindRootTypes(messageTypesToDeserialize);
                     ProcessRootTypes(rootTypes, doc, result);
                 }
                 else
@@ -96,7 +96,7 @@
         {
             foreach (var rootType in rootTypes)
             {
-                object m = Process(doc.DocumentElement, null, rootType);
+                var m = Process(doc.DocumentElement, null, rootType);
                 if (m == null)
                 {
                     throw new SerializationException("Could not deserialize message.");
@@ -120,7 +120,7 @@
                     continue;
                 }
 
-                Type nodeType = ExtractNodeTypeAtPosition(messageTypesToDeserialize, position);
+                var nodeType = ExtractNodeTypeAtPosition(messageTypesToDeserialize, position);
 
                 var m = Process(node, null, nodeType);
 
