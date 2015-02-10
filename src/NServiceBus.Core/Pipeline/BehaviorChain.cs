@@ -2,41 +2,62 @@
 {
     using System;
     using System.Collections.Generic;
-    using Logging;
+    using System.Diagnostics;
+    using System.Linq;
     using NServiceBus.Pipeline;
 
     class BehaviorChain<T> where T : BehaviorContext
     {
-        T context;
-        // ReSharper disable once StaticFieldInGenericType
-        // The number of T's is small and they will all log to the same point due to the typeof(BehaviorChain<>)
-        static ILog logger = LogManager.GetLogger(typeof(BehaviorChain<>));
-        Queue<Type> itemDescriptors = new Queue<Type>();
-        Stack<Queue<Type>> snapshots = new Stack<Queue<Type>>();
-        
-        public BehaviorChain(IEnumerable<Type> behaviorList, T context)
+        public BehaviorChain(IEnumerable<Type> behaviorList, T context, PipelineExecutor pipelineExecutor, BusNotifications notifications)
         {
             context.SetChain(this);
             this.context = context;
+            this.notifications = notifications;
             foreach (var behaviorType in behaviorList)
             {
                 itemDescriptors.Enqueue(behaviorType);
             }
-        }
 
+            lookupSteps = pipelineExecutor.Incoming.Concat(pipelineExecutor.Outgoing).ToDictionary(rs => rs.BehaviorType);
+        }
+        
         public void Invoke()
         {
-            if (itemDescriptors.Count == 0)
+            var outerPipe = false;
+
+            try
             {
-                return;
-            }
-
-            var behaviorType = itemDescriptors.Dequeue();
-            logger.Debug(behaviorType.Name);
-
-            var instance = (IBehavior<T>) context.Builder.Build(behaviorType);
+                if (!context.TryGet("Diagnostics.Pipe", out steps))
+                {
+                    outerPipe = true;
+                    steps = new Observable<StepStarted>();
+                    context.Set("Diagnostics.Pipe", steps);
+                    notifications.Pipeline.InvokeReceiveStarted(steps);
+                }
             
-            instance.Invoke(context, Invoke);
+                InvokeNext(context);
+
+                if (outerPipe)
+                {
+                    steps.OnCompleted();
+                }
+            }
+            catch (Exception ex)
+            {
+                if (outerPipe)
+                {
+                    steps.OnError(ex);
+                }
+
+                throw;
+            }
+            finally
+            {
+                if (outerPipe)
+                {
+                    context.Remove("Diagnostics.Pipe");
+                }
+            }
         }
 
         public void TakeSnapshot()
@@ -48,5 +69,50 @@
         {
             itemDescriptors = new Queue<Type>(snapshots.Pop());
         }
+
+        void InvokeNext(T context)
+        {
+            if (itemDescriptors.Count == 0)
+            {
+                return;
+            }
+
+            var behaviorType = itemDescriptors.Dequeue();
+            var stepEnded = new Observable<StepEnded>();
+
+            try
+            {
+                steps.OnNext(new StepStarted(lookupSteps[behaviorType].StepId, behaviorType, stepEnded));
+
+                var instance = (IBehavior<T>) context.Builder.Build(behaviorType);
+
+                var duration = Stopwatch.StartNew();
+
+                instance.Invoke(context, () =>
+                {
+                    duration.Stop();
+                    InvokeNext(context);
+                    duration.Start();
+                });
+
+                duration.Stop();
+
+                stepEnded.OnNext(new StepEnded(duration.Elapsed));
+                stepEnded.OnCompleted();
+            }
+            catch (Exception ex)
+            {
+                stepEnded.OnError(ex);
+
+                throw;
+            }
+        }
+
+        readonly BusNotifications notifications;
+        T context;
+        Queue<Type> itemDescriptors = new Queue<Type>();
+        Dictionary<Type, RegisterStep> lookupSteps;
+        Stack<Queue<Type>> snapshots = new Stack<Queue<Type>>();
+        Observable<StepStarted> steps;
     }
 }

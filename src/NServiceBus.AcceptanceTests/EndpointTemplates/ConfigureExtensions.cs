@@ -16,16 +16,44 @@
             return dictionary[key];
         }
 
-        public static void DefineTransport(this BusConfiguration builder, IDictionary<string, string> settings)
+        public static void DefineTransport(this BusConfiguration builder, IDictionary<string, string> settings, Type endpointBuilderType)
         {
             if (!settings.ContainsKey("Transport"))
             {
                 settings = Transports.Default.Settings;
             }
 
+            const string typeName = "ConfigureTransport";
+
             var transportType = Type.GetType(settings["Transport"]);
+            var transportTypeName = "Configure" + transportType.Name;
+
+            var configurerType = endpointBuilderType.GetNestedType(typeName) ??
+                                 Type.GetType(transportTypeName, false);
+
+            if (configurerType != null)
+            {
+                var configurer = Activator.CreateInstance(configurerType);
+
+                dynamic dc = configurer;
+
+                dc.Configure(builder);
+                return;
+            }
 
             builder.UseTransport(transportType).ConnectionString(settings["Transport.ConnectionString"]);
+        }
+
+        public static void DefineTransactions(this BusConfiguration config, IDictionary<string, string> settings)
+        {
+            if (settings.ContainsKey("Transactions.Disable"))
+            {
+                config.Transactions().Disable();
+            }
+            if (settings.ContainsKey("Transactions.SuppressDistributedTransactions"))
+            {
+                config.Transactions().DisableDistributedTransactions();
+            }
         }
 
         public static void DefinePersistence(this BusConfiguration config, IDictionary<string, string> settings)

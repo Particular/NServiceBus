@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Encryption\ClassForNesting.cs" />
     <Compile Include="Encryption\EncryptionTestMessageHandler.cs" />
+    <Compile Include="MessageForwardingInCaseOfFaultConfigOverride.cs" />
     <Compile Include="Saga\CompleteSagaMessage.cs" />
     <Compile Include="MessageBase.cs" />
     <Compile Include="Program.cs" />

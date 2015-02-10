@@ -9,7 +9,12 @@
     /// </summary>
     public class IncomingContext : BehaviorContext
     {
-        internal IncomingContext(BehaviorContext parentContext, TransportMessage transportMessage)
+        /// <summary>
+        /// Creates a new instance of <see cref="OutgoingContext"/>.
+        /// </summary>
+        /// <param name="parentContext">The parent context.</param>
+        /// <param name="transportMessage">The incoming <see cref="TransportMessage"/>.</param>
+        public IncomingContext(BehaviorContext parentContext, TransportMessage transportMessage)
             : base(parentContext)
         {
             handleCurrentMessageLaterWasCalled = false;

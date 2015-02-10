@@ -5,7 +5,7 @@ namespace NServiceBus.ContainerTests
 
     public static class TestContainerBuilder
     {
-        public static Func<IContainer> ConstructBuilder = () => { return (IContainer)Activator.CreateInstance(Type.GetType("NServiceBus.ObjectBuilder.Autofac.AutofacObjectBuilder,NServiceBus.Core")); };
+        public static Func<IContainer> ConstructBuilder = () => (IContainer)Activator.CreateInstance(Type.GetType("NServiceBus.ObjectBuilder.Autofac.AutofacObjectBuilder,NServiceBus.Core"));
 
     }
 }

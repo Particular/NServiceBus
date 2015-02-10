@@ -15,53 +15,43 @@
         public void Run(Configure config)
         {
             var settings = config.Settings;
-
-            if (settings.Get<bool>("Endpoint.SendOnly"))
-            {
-                return;
-            }
-
             List<EnabledPersistence> definitions;
+
             if (!settings.TryGet("PersistenceDefinitions", out definitions))
             {
+                if (settings.Get<bool>("Endpoint.SendOnly"))
+                {
+                    return;
+                }
+
                 throw new Exception(errorMessage);
             }
 
-            definitions.Reverse();
+            var enabledPersistences = PersistenceStorageMerger.Merge(definitions, settings);
 
-            var availableStorages = Reflect<Storage>.GetEnumValues();
-            var resultingSupportedStorages = new List<Storage>();
+            var resultingSupportedStorages = new List<Type>();
 
-            foreach (var definition in definitions)
+            foreach (var definition in enabledPersistences)
             {
                 var persistenceDefinition = definition.DefinitionType.Construct<PersistenceDefinition>();
-                var supportedStorages = persistenceDefinition.GetSupportedStorages(definition.SelectedStorages);
 
                 persistenceDefinition.ApplyDefaults(settings);
 
-                foreach (var storage in supportedStorages)
+                foreach (var storageType in definition.SelectedStorages)
                 {
-                    if (availableStorages.Contains(storage))
-                    {
-                        Logger.InfoFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", definition.DefinitionType.Name, storage);
-                        availableStorages.Remove(storage);
-                        persistenceDefinition.ApplyActionForStorage(storage, settings);
-                        resultingSupportedStorages.Add(storage);
-                    }
-                    else
-                    {
-                        Logger.InfoFormat("Persistence '{0}' was not applied to storage '{1}' since that storage has been claimed by another persistence. This is a 'last one wins' scenario.", definition.DefinitionType.Name, storage);
-                    }
+                    Logger.InfoFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", definition.DefinitionType.Name, storageType);
+                    persistenceDefinition.ApplyActionForStorage(storageType, settings);
+                    resultingSupportedStorages.Add(storageType);
                 }
             }
 
             settings.Set("ResultingSupportedStorages", resultingSupportedStorages);
         }
 
-        internal static bool HasSupportFor(ReadOnlySettings settings, Storage storages)
+        internal static bool HasSupportFor<T>(ReadOnlySettings settings) where T : StorageType
         {
-            return settings.Get<List<Storage>>("ResultingSupportedStorages")
-                .Contains(storages);
+            return settings.Get<List<Type>>("ResultingSupportedStorages")
+                .Contains(typeof(T));
         }
     }
 }

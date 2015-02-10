@@ -10,18 +10,20 @@
     using Unicast.Messages;
 
     /// <summary>
-    /// Orchestrates the execution of a pipeline.
+    ///     Orchestrates the execution of a pipeline.
     /// </summary>
     public class PipelineExecutor : IDisposable
     {
         /// <summary>
-        /// Create a new instance of <see cref="PipelineExecutor"/>.
+        ///     Create a new instance of <see cref="PipelineExecutor" />.
         /// </summary>
         /// <param name="settings">The settings to read data from.</param>
         /// <param name="builder">The builder.</param>
-        public PipelineExecutor(ReadOnlySettings settings, IBuilder builder)
+        /// <param name="busNotifications">Bus notifications.</param>
+        public PipelineExecutor(ReadOnlySettings settings, IBuilder builder, BusNotifications busNotifications)
         {
             rootBuilder = builder;
+            this.busNotifications = busNotifications;
 
             var pipelineBuilder = new PipelineBuilder(settings.Get<PipelineModifications>());
             Incoming = pipelineBuilder.Incoming.AsReadOnly();
@@ -32,17 +34,17 @@
         }
 
         /// <summary>
-        /// The list of incoming steps registered.
+        ///     The list of incoming steps registered.
         /// </summary>
         public IList<RegisterStep> Incoming { get; private set; }
-        
+
         /// <summary>
-        /// The list of outgoing steps registered.
+        ///     The list of outgoing steps registered.
         /// </summary>
         public IList<RegisterStep> Outgoing { get; private set; }
 
         /// <summary>
-        /// The current context being executed.
+        ///     The current context being executed.
         /// </summary>
         public BehaviorContext CurrentContext
         {
@@ -62,25 +64,25 @@
         }
 
         /// <summary>
-        /// Invokes a chain of behaviors. 
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
+        public void Dispose()
+        {
+            //Injected
+        }
+
+        /// <summary>
+        ///     Invokes a chain of behaviors.
         /// </summary>
         /// <typeparam name="TContext">The context to use.</typeparam>
         /// <param name="behaviors">The behaviors to execute in the specified order.</param>
         /// <param name="context">The context instance.</param>
         public void InvokePipeline<TContext>(IEnumerable<Type> behaviors, TContext context) where TContext : BehaviorContext
         {
-            var pipeline = new BehaviorChain<TContext>(behaviors, context);
+            var pipeline = new BehaviorChain<TContext>(behaviors, context, this, busNotifications);
 
             Execute(pipeline, context);
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        /// <filterpriority>2</filterpriority>
-        public void Dispose()
-        {
-            //Injected
         }
 
         internal void PreparePhysicalMessagePipelineContext(TransportMessage message)
@@ -133,8 +135,9 @@
         }
 
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
-        IBuilder rootBuilder;
         IEnumerable<Type> incomingBehaviors;
         IEnumerable<Type> outgoingBehaviors;
+        IBuilder rootBuilder;
+        readonly BusNotifications busNotifications;
     }
 }

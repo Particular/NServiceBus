@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Exceptions
 {
     using System;
-    using System.Runtime.CompilerServices;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -39,8 +38,7 @@ at NServiceBus.ChildContainerBehavior.Invoke(IncomingContext context, Action nex
 at NServiceBus.ProcessingStatisticsBehavior.Invoke(IncomingContext context, Action next)
 at NServiceBus.Pipeline.PipelineExecutor.Execute[T](BehaviorChain`1 pipelineAction, T context)
 at NServiceBus.Unicast.Transport.TransportReceiver.ProcessMessage(TransportMessage message)
-at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage message)
-at NServiceBus.Transports.Msmq.MsmqDequeueStrategy.Action()", context.StackTrace);
+at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage message)", context.StackTrace);
         }
 
         public class Context : ScenarioContext
@@ -87,7 +85,6 @@ at NServiceBus.Transports.Msmq.MsmqDequeueStrategy.Action()", context.StackTrace
 
             class Handler : IHandleMessages<Message>
             {
-                [MethodImpl(MethodImplOptions.NoInlining)]
                 public void Handle(Message message)
                 {
                     throw new HandlerException();

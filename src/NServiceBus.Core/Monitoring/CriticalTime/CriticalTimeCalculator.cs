@@ -10,15 +10,15 @@ namespace NServiceBus
     class CriticalTimeCalculator : IDisposable
     {
         PerformanceCounter counter;
-        TimeSpan maxDelta = TimeSpan.FromSeconds(2);
-        DateTime timeOfLastCounter;
+        TimeSpan estimatedMaximumProcessingDuration = TimeSpan.FromSeconds(2);
+        DateTime lastMessageProcessedTime;
 // ReSharper disable once NotAccessedField.Local
         Timer timer;
 
         public CriticalTimeCalculator(PerformanceCounter cnt)
         {
             counter = cnt;
-            timer = new Timer(ClearPerfCounter, null, 0, 2000);
+            timer = new Timer(ResetCounterValueIfNoMessageHasBeenProcessedRecently, null, 0, 2000);
         }
 
         public void Dispose()
@@ -26,24 +26,29 @@ namespace NServiceBus
             //Injected at compile time
         }
 
-        public void Update(DateTime sent, DateTime processingStarted, DateTime processingEnded)
+        public void Update(DateTime sentInstant, DateTime processingStartedInstant, DateTime processingEndedInstant)
         {
-            counter.RawValue = Convert.ToInt32((processingEnded - sent).TotalSeconds);
+            var endToEndTime = processingEndedInstant - sentInstant;
+            counter.RawValue = Convert.ToInt32(endToEndTime.TotalSeconds);
 
-            timeOfLastCounter = processingEnded;
+            lastMessageProcessedTime = processingEndedInstant;
 
-            var timeTaken = processingEnded - processingStarted;
-            maxDelta = timeTaken.Add(TimeSpan.FromSeconds(1));
+            var processingDuration = processingEndedInstant - processingStartedInstant;
+            estimatedMaximumProcessingDuration = processingDuration.Add(TimeSpan.FromSeconds(1));
         }
 
-        void ClearPerfCounter(object state)
+        void ResetCounterValueIfNoMessageHasBeenProcessedRecently(object state)
         {
-            var delta = DateTime.UtcNow - timeOfLastCounter;
-
-            if (delta > maxDelta)
+            if (NoMessageHasBeenProcessedRecently())
             {
                 counter.RawValue = 0;
             }
+        }
+
+        bool NoMessageHasBeenProcessedRecently()
+        {
+            var timeFromLastMessageProcessed = DateTime.UtcNow - lastMessageProcessedTime;
+            return timeFromLastMessageProcessed > estimatedMaximumProcessingDuration;
         }
     }
 }

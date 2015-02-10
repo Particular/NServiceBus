@@ -15,7 +15,7 @@
         [Explicit("Since perf counters need to be enabled with powershell")]
         public void Should_have_perf_counter_set()
         {
-            using (var counter = new PerformanceCounter("NServiceBus", "Critical Time", "PerformanceMonitoring.Endpoint.WhenSendingWithCriticalTimeEnabled." + Transports.Default.Key, true))
+            using (var counter = new PerformanceCounter("NServiceBus", "Critical Time", "CriticaltimeEnabled.Endpoint", false))
             using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
             {
                 var context = new Context();
@@ -32,7 +32,7 @@
         void CheckPerfCounter(PerformanceCounter counter)
         {
             float rawValue = counter.RawValue;
-            if (rawValue >0)
+            if (rawValue > 0)
             {
                 counterValue = rawValue;
             }

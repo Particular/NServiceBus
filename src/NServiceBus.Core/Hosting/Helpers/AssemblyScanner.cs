@@ -339,7 +339,8 @@ namespace NServiceBus.Hosting.Helpers
 
         internal static bool IsAllowedType(Type type)
         {
-            return !type.IsValueType &&
+            return type != null &&
+                   !type.IsValueType &&
                    !(type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length > 0);
         }
 

@@ -13,13 +13,31 @@
         /// <summary>
         /// Used be the storage definitions to declare what they support
         /// </summary>
+        /// <typeparam name="T"><see cref="StorageType"/></typeparam>
+        protected void Supports<T>(Action<SettingsHolder> action) where T : StorageType
+        {
+            if (storageToActionMap.ContainsKey(typeof(T)))
+            {
+                throw new Exception(string.Format("Action for {0} already defined.", typeof(T)));
+            }
+            storageToActionMap[typeof(T)] = action;
+        }
+
+        /// <summary>
+        /// Used be the storage definitions to declare what they support
+        /// </summary>
+        [ObsoleteEx(
+           RemoveInVersion = "7.0",
+           TreatAsErrorFromVersion = "6.0",
+           Replacement = "Supports<T>()")]
         protected void Supports(Storage storage, Action<SettingsHolder> action)
         {
-            if (storageToActionMap.ContainsKey(storage))
+            var storageType = StorageType.FromEnum(storage);
+            if (storageToActionMap.ContainsKey(storageType))
             {
                 throw new Exception(string.Format("Action for {0} already defined.", storage));
             }
-            storageToActionMap[storage] = action;
+            storageToActionMap[storageType] = action;
         }
 
         /// <summary>
@@ -33,14 +51,38 @@
         /// <summary>
         /// True if supplied storage is supported
         /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Replacement = "HasSupportFor<T>()")]
         public bool HasSupportFor(Storage storage)
         {
-            return storageToActionMap.ContainsKey(storage);
+            return storageToActionMap.ContainsKey(StorageType.FromEnum(storage));
         }
 
-        internal void ApplyActionForStorage(Storage storage, SettingsHolder settings)
+        /// <summary>
+        /// True if supplied storage is supported
+        /// </summary>
+        public bool HasSupportFor<T>() where T : StorageType
         {
-            var actionForStorage = storageToActionMap[storage];
+            return HasSupportFor(typeof(T));
+        }
+
+        /// <summary>
+        /// True if supplied storage is supported
+        /// </summary>
+        public bool HasSupportFor(Type storageType) 
+        {
+            return storageToActionMap.ContainsKey(storageType);
+        }
+
+        internal void ApplyActionForStorage(Type storageType, SettingsHolder settings)
+        {
+            if (!storageType.IsSubclassOf(typeof(StorageType)))
+            {
+                throw new ArgumentException(string.Format("Storage type '{0}' is not a sub-class of StorageType", storageType.FullName), "storageType");
+            }
+            var actionForStorage = storageToActionMap[storageType];
             actionForStorage(settings);
         }
 
@@ -52,7 +94,7 @@
             }
         }
 
-        internal List<Storage> GetSupportedStorages(List<Storage> selectedStorages)
+        internal List<Type> GetSupportedStorages(List<Type> selectedStorages)
         {
             if (selectedStorages.Count > 0)
             {
@@ -63,6 +105,6 @@
         }
 
         List<Action<SettingsHolder>> defaults = new List<Action<SettingsHolder>>();
-        Dictionary<Storage, Action<SettingsHolder>> storageToActionMap = new Dictionary<Storage, Action<SettingsHolder>>();
+        Dictionary<Type, Action<SettingsHolder>> storageToActionMap = new Dictionary<Type, Action<SettingsHolder>>();
     }
 }

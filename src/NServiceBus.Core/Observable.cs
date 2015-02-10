@@ -70,7 +70,7 @@ namespace NServiceBus
             return new Unsubscriber(this, observer);
         }
 
-        public void Publish(T value)
+        public void OnNext(T value)
         {
             CheckDisposed();
 
@@ -80,6 +80,42 @@ namespace NServiceBus
                 foreach (var observer in observers)
                 {
                     observer.OnNext(value);
+                }
+            }
+            finally
+            {
+                observerLock.ExitReadLock();
+            }
+        }
+
+        public void OnError(Exception ex)
+        {
+            CheckDisposed();
+
+            observerLock.EnterReadLock();
+            try
+            {
+                foreach (var observer in observers)
+                {
+                    observer.OnError(ex);
+                }
+            }
+            finally
+            {
+                observerLock.ExitReadLock();
+            }
+        }
+
+        public void OnCompleted()
+        {
+            CheckDisposed();
+
+            observerLock.EnterReadLock();
+            try
+            {
+                foreach (var observer in observers)
+                {
+                    observer.OnCompleted();
                 }
             }
             finally

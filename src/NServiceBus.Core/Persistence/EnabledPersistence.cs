@@ -6,6 +6,6 @@
     class EnabledPersistence
     {
         public Type DefinitionType;
-        public List<Storage> SelectedStorages { get; set; }
+        public List<Type> SelectedStorages { get; set; }
     }
 }

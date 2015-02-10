@@ -3,10 +3,8 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
-    using System.Reflection.Emit;
     using System.Runtime.Serialization;
     using Logging;
     using Utils.Reflection;
@@ -16,37 +14,37 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
     /// </summary>
     public class MessageMapper : IMessageMapper
     {
+
+        ConcreteProxyCreator concreteProxyCreator;
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="MessageMapper"/>.
+        /// </summary>
+        public MessageMapper()
+        {
+            concreteProxyCreator = new ConcreteProxyCreator();
+        }
+
         /// <summary>
         /// Scans the given types generating concrete classes for interfaces.
         /// </summary>
         public void Initialize(IEnumerable<Type> types)
         {
-            if (types == null || !types.Any())
+            if (types == null)
             {
                 return;
             }
 
-            var typesToList = types.ToList();
-
-            var name = typesToList.First().Namespace + SUFFIX;
-
-            var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
-                new AssemblyName(name),
-                AssemblyBuilderAccess.Run
-                );
-
-            var moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
-
-            foreach (var t in typesToList)
+            foreach (var t in types)
             {
-                InitType(t, moduleBuilder);
+                InitType(t);
             }
         }
 
         /// <summary>
         /// Generates a concrete implementation of the given type if it is an interface.
         /// </summary>
-        void InitType(Type t, ModuleBuilder moduleBuilder)
+        void InitType(Type t)
         {
             if (t == null)
             {
@@ -60,7 +58,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             if (typeof(IEnumerable).IsAssignableFrom(t))
             {
-                InitType(t.GetElementType(), moduleBuilder);
+                InitType(t.GetElementType());
 
                 foreach (var interfaceType in t.GetInterfaces())
                 {
@@ -69,7 +67,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 						if(g == t)
 							continue;
 
-						InitType(g, moduleBuilder);
+						InitType(g);
 					}
                 }
 
@@ -86,7 +84,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             if (t.IsInterface)
             {
-                GenerateImplementationFor(t, moduleBuilder);
+                GenerateImplementationFor(t);
             }
             else
             {
@@ -97,16 +95,16 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             foreach (var field in t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
             {
-                InitType(field.FieldType, moduleBuilder);
+                InitType(field.FieldType);
             }
 
             foreach (var prop in t.GetProperties())
             {
-                InitType(prop.PropertyType, moduleBuilder);
+                InitType(prop.PropertyType);
             }
         }
 
-        void GenerateImplementationFor(Type interfaceType, ModuleBuilder moduleBuilder)
+        void GenerateImplementationFor(Type interfaceType)
         {
             if (!interfaceType.IsVisible)
             {
@@ -119,7 +117,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 return;
             }
 
-            var mapped = CreateTypeFrom(interfaceType, moduleBuilder);
+            var mapped = concreteProxyCreator.CreateTypeFrom(interfaceType);
             interfaceToConcreteTypeMapping[interfaceType] = mapped;
             concreteToInterfaceTypeMapping[mapped] = interfaceType;
             typeToConstructor[mapped] = mapped.GetConstructor(Type.EmptyTypes);
@@ -137,202 +135,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             }
 
             return t.FullName;
-        }
-
-        /// <summary>
-        /// Generates a new full name for a type to be generated for the given type.
-        /// </summary>
-        string GetNewTypeName(Type t)
-        {
-            return t.FullName + SUFFIX;
-        }
-
-        /// <summary>
-        /// Generates the concrete implementation of the given type.
-        /// Only properties on the given type are generated in the concrete implementation.
-        /// </summary>
-        Type CreateTypeFrom(Type t, ModuleBuilder moduleBuilder)
-        {
-            var typeBuilder = moduleBuilder.DefineType(
-                GetNewTypeName(t),
-                TypeAttributes.Serializable | TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed,
-                typeof(object)
-                );
-
-            typeBuilder.DefineDefaultConstructor(MethodAttributes.Public);
-
-            foreach (var prop in GetAllProperties(t))
-            {
-                var propertyType = prop.PropertyType;
-
-                var fieldBuilder = typeBuilder.DefineField(
-                    "field_" + prop.Name,
-                    propertyType,
-                    FieldAttributes.Private);
-
-                var propBuilder = typeBuilder.DefineProperty(
-                    prop.Name,
-                    prop.Attributes | PropertyAttributes.HasDefault,
-                    propertyType,
-                    null);
-
-                foreach (var customAttribute in prop.GetCustomAttributes(true))
-                {
-                    AddCustomAttributeToProperty(customAttribute, propBuilder);
-                }
-
-                var getMethodBuilder = typeBuilder.DefineMethod(
-                    "get_" + prop.Name,
-                    MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Final | MethodAttributes.Virtual | MethodAttributes.VtableLayoutMask,
-                    propertyType,
-                    Type.EmptyTypes);
-
-                var getIL = getMethodBuilder.GetILGenerator();
-                // For an instance property, argument zero is the instance. Load the 
-                // instance, then load the private field and return, leaving the
-                // field value on the stack.
-                getIL.Emit(OpCodes.Ldarg_0);
-                getIL.Emit(OpCodes.Ldfld, fieldBuilder);
-                getIL.Emit(OpCodes.Ret);
-
-                // Define the "set" accessor method for Number, which has no return
-                // type and takes one argument of type int (Int32).
-                var setMethodBuilder = typeBuilder.DefineMethod(
-                    "set_" + prop.Name,
-                    getMethodBuilder.Attributes,
-                    null,
-                    new[] { propertyType });
-
-                var setIL = setMethodBuilder.GetILGenerator();
-                // Load the instance and then the numeric argument, then store the
-                // argument in the field.
-                setIL.Emit(OpCodes.Ldarg_0);
-                setIL.Emit(OpCodes.Ldarg_1);
-                setIL.Emit(OpCodes.Stfld, fieldBuilder);
-                setIL.Emit(OpCodes.Ret);
-
-                // Last, map the "get" and "set" accessor methods to the 
-                // PropertyBuilder. The property is now complete. 
-                propBuilder.SetGetMethod(getMethodBuilder);
-                propBuilder.SetSetMethod(setMethodBuilder);
-            }
-
-            typeBuilder.AddInterfaceImplementation(t);
-
-            return typeBuilder.CreateType();
-        }
-
-        /// <summary>
-        /// Given a custom attribute and property builder, adds an instance of custom attribute
-        /// to the property builder
-        /// </summary>
-        void AddCustomAttributeToProperty(object customAttribute, PropertyBuilder propBuilder)
-        {
-            var customAttributeBuilder = BuildCustomAttribute(customAttribute);
-            if (customAttributeBuilder != null)
-            {
-                propBuilder.SetCustomAttribute(customAttributeBuilder);
-            }
-        }
-
-        static CustomAttributeBuilder BuildCustomAttribute(object customAttribute)
-        {
-            ConstructorInfo longestCtor = null;
-            // Get constructor with the largest number of parameters
-            foreach (var cInfo in customAttribute.GetType().GetConstructors().
-                Where(cInfo => longestCtor == null || longestCtor.GetParameters().Length < cInfo.GetParameters().Length))
-                longestCtor = cInfo;
-
-            if (longestCtor == null)
-            {
-                return null;
-            }
-
-            // For each constructor parameter, get corresponding (by name similarity) property and get its value
-            var args = new object[longestCtor.GetParameters().Length];
-            var position = 0;
-            foreach (var consParamInfo in longestCtor.GetParameters())
-            {
-                var attrPropInfo = customAttribute.GetType().GetProperty(consParamInfo.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                if (attrPropInfo != null)
-                {
-                    args[position] = attrPropInfo.GetValue(customAttribute, null);
-                }
-                else
-                {
-                    args[position] = null;
-                    var attrFieldInfo = customAttribute.GetType().GetField(consParamInfo.Name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                    if (attrFieldInfo == null)
-                    {
-                        if (consParamInfo.ParameterType.IsValueType)
-                        {
-                            args[position] = Activator.CreateInstance(consParamInfo.ParameterType);
-                        }
-                    }
-                    else
-                    {
-                        args[position] = attrFieldInfo.GetValue(customAttribute);
-                    }
-                }
-                ++position;
-            }
-
-            var propList = new List<PropertyInfo>();
-            var propValueList = new List<object>();
-            foreach (var attrPropInfo in customAttribute.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                if (!attrPropInfo.CanWrite)
-                {
-                    continue;
-                }
-                object defaultValue = null;
-                var defaultAttributes = attrPropInfo.GetCustomAttributes(typeof(DefaultValueAttribute), true);
-                if (defaultAttributes.Length > 0)
-                {
-                    defaultValue = ((DefaultValueAttribute)defaultAttributes[0]).Value;
-                }
-                var value = attrPropInfo.GetValue(customAttribute, null);
-                if (value == defaultValue)
-                {
-                    continue;
-                }
-                propList.Add(attrPropInfo);
-                propValueList.Add(value);
-            }
-            return new CustomAttributeBuilder(longestCtor, args, propList.ToArray(), propValueList.ToArray());
-        }
-
-        /// <summary>
-        /// Returns all properties on the given type, going up the inheritance hierarchy.
-        /// </summary>
-        static IEnumerable<PropertyInfo> GetAllProperties(Type t)
-        {
-            var props = new List<PropertyInfo>(t.GetProperties());
-            foreach (var interfaceType in t.GetInterfaces())
-            {
-                props.AddRange(GetAllProperties(interfaceType));
-            }
-
-            var names = new List<string>(props.Count);
-            var duplicates = new List<PropertyInfo>(props.Count);
-            foreach (var p in props)
-            {
-                if (names.Contains(p.Name))
-                {
-                    duplicates.Add(p);
-                }
-                else
-                {
-                    names.Add(p.Name);
-                }
-            }
-
-            foreach (var d in duplicates)
-            {
-                props.Remove(d);
-            }
-
-            return props;
         }
 
         /// <summary>
@@ -364,9 +166,9 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         public Type GetMappedTypeFor(string typeName)
         {
             var name = typeName;
-            if (typeName.EndsWith(SUFFIX, StringComparison.Ordinal))
+            if (typeName.EndsWith(ConcreteProxyCreator.SUFFIX, StringComparison.Ordinal))
             {
-                name = typeName.Substring(0, typeName.Length - SUFFIX.Length);
+                name = typeName.Substring(0, typeName.Length - ConcreteProxyCreator.SUFFIX.Length);
             }
 
             Type type;
@@ -426,11 +228,10 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             return FormatterServices.GetUninitializedObject(mapped);
         }
 
-        readonly string SUFFIX = "__impl";
-        readonly Dictionary<Type, Type> interfaceToConcreteTypeMapping = new Dictionary<Type, Type>();
-        readonly Dictionary<Type, Type> concreteToInterfaceTypeMapping = new Dictionary<Type, Type>();
-        readonly Dictionary<string, Type> nameToType = new Dictionary<string, Type>();
-        readonly Dictionary<Type, ConstructorInfo> typeToConstructor = new Dictionary<Type, ConstructorInfo>();
+        Dictionary<Type, Type> interfaceToConcreteTypeMapping = new Dictionary<Type, Type>();
+        Dictionary<Type, Type> concreteToInterfaceTypeMapping = new Dictionary<Type, Type>();
+        Dictionary<string, Type> nameToType = new Dictionary<string, Type>();
+        Dictionary<Type, ConstructorInfo> typeToConstructor = new Dictionary<Type, ConstructorInfo>();
         static ILog Logger = LogManager.GetLogger<MessageMapper>();
     }
 }

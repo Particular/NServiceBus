@@ -11,17 +11,17 @@ namespace NServiceBus.Core.Tests.Pipeline
     [TestFixture]
     class BehaviorRegistrationsCoordinatorTests
     {
-        BehaviorRegistrationsCoordinator coordinator;
-        List<RemoveBehavior> removals;
+        StepRegistrationsCoordinator coordinator;
+        List<RemoveStep> removals;
         List<ReplaceBehavior> replacements;
 
         [SetUp]
         public void Setup()
         {
-            removals = new List<RemoveBehavior>();
+            removals = new List<RemoveStep>();
             replacements = new List<ReplaceBehavior>();
 
-            coordinator = new BehaviorRegistrationsCoordinator(removals, replacements);
+            coordinator = new StepRegistrationsCoordinator(removals, replacements);
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace NServiceBus.Core.Tests.Pipeline
             coordinator.Register("2", typeof(FakeBehavior), "2");
             coordinator.Register("3", typeof(FakeBehavior), "3");
 
-            removals.Add(new RemoveBehavior("1"));
+            removals.Add(new RemoveStep("1"));
 
             var model = coordinator.BuildRuntimeModel();
 

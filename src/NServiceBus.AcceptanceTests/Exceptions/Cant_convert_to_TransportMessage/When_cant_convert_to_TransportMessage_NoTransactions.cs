@@ -5,6 +5,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
     using IMessage = NServiceBus.IMessage;
 
@@ -18,7 +19,7 @@
                     .WithEndpoint<Receiver>()
                     .AllowExceptions()
                     .Done(c => c.GetAllLogs().Any(l=>l.Level == "error"))
-                    .Repeat(r=>r.For(ScenarioDescriptors.Transports.Msmq))
+                    .Repeat(r => r.For<MsmqOnly>())
                     .Should(c =>
                     {
                         var logs = c.GetAllLogs();

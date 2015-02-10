@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Exceptions
 {
     using System;
-    using System.Runtime.CompilerServices;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -118,7 +117,6 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
 
                 bool executedInSecondPlace;
 
-                [MethodImpl(MethodImplOptions.NoInlining)]
                 public void Begin()
                 {
                     if (Context.FirstOneExecuted)
@@ -129,7 +127,6 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
                     Context.FirstOneExecuted = true;
                 }
 
-                [MethodImpl(MethodImplOptions.NoInlining)]
                 public void End(Exception ex = null)
                 {
                     if (executedInSecondPlace)
@@ -147,7 +144,6 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
 
                 bool executedInSecondPlace;
 
-                [MethodImpl(MethodImplOptions.NoInlining)]
                 public void Begin()
                 {
                     if (Context.FirstOneExecuted)
@@ -158,7 +154,6 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
                     Context.FirstOneExecuted = true;
                 }
 
-                [MethodImpl(MethodImplOptions.NoInlining)]
                 public void End(Exception ex = null)
                 {
                     if (executedInSecondPlace)
@@ -172,7 +167,6 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
 
             class Handler : IHandleMessages<Message>
             {
-                [MethodImpl(MethodImplOptions.NoInlining)]
                 public void Handle(Message message)
                 {
                     throw new HandlerException();

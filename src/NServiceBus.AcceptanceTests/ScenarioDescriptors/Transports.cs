@@ -12,9 +12,12 @@
         {
             get
             {
-                if (availableTransports == null)
+                lock (lockObject)
                 {
-                    availableTransports = GetAllAvailable().ToList();
+                    if (availableTransports == null)
+                    {
+                        availableTransports = GetAllAvailable().ToList();
+                    }
                 }
 
                 return availableTransports;
@@ -75,14 +78,11 @@
                     runDescriptor.Settings.Add("Transport.ConnectionString", connectionString);
                     yield return runDescriptor;
                 }
-                else
-                {
-                    Console.Out.WriteLine("No connection string found for transport: {0}, test will not be executed for this transport", key);
-                }
             }
         }
 
         static IList<RunDescriptor> availableTransports;
+        static readonly object lockObject = new object();
 
         static readonly Dictionary<string, string> DefaultConnectionStrings = new Dictionary<string, string>
             {

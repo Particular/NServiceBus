@@ -1,5 +1,7 @@
 namespace NServiceBus.Settings
 {
+    using System;
+
     /// <summary>
     /// Placeholder for the various settings related to how a endpoint is scaled out
     /// </summary>
@@ -30,6 +32,30 @@ namespace NServiceBus.Settings
         public void UseUniqueBrokerQueuePerMachine()
         {
             config.Settings.Set("ScaleOut.UseSingleBrokerQueue", false);
+        }
+
+        /// <summary>
+        /// Makes sure that each instance of this endpoint gets a unique queue based on the transport specific discriminator.
+        /// The default discriminator set by the transport will be used
+        /// </summary>
+        public void UniqueQueuePerEndpointInstance()
+        {
+            config.Settings.Set("IndividualizeEndpointAddress", true);
+        }
+
+        /// <summary>
+        /// Makes sure that each instance of this endpoint gets a unique queue based on the transport specific discriminator.
+        /// </summary>
+        /// <param name="discriminator">The discriminator to use</param>
+        public void UniqueQueuePerEndpointInstance(string discriminator)
+        {
+            if (discriminator == null)
+            {
+                throw new ArgumentException("Discriminator can't be null");
+            }
+
+            config.Settings.Set("EndpointInstanceDiscriminator", discriminator);
+            UniqueQueuePerEndpointInstance();
         }
     }
 }

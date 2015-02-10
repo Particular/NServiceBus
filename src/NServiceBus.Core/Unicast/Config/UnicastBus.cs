@@ -18,16 +18,12 @@ namespace NServiceBus.Features
     using Unicast.Routing;
     using Unicast.Transport;
 
-    /// <summary>
-    ///   Used to configure the <see cref="Unicast.UnicastBus"/>
-    /// </summary>
     class UnicastBus : Feature
     {
         internal UnicastBus()
         {
             EnableByDefault();
 
-            Defaults(s => s.SetDefault("NServiceBus.LocalAddress", s.EndpointName()));
             Defaults(s =>
             {
                 string fullPathToStartingExe;
@@ -43,12 +39,10 @@ namespace NServiceBus.Features
             });
         }
 
-        /// <summary>
-        /// See <see cref="Feature.Setup"/>
-        /// </summary>
+      
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var defaultAddress = Address.Parse(context.Settings.Get<string>("NServiceBus.LocalAddress"));
+            var defaultAddress = context.Settings.LocalAddress();
             var hostInfo = new HostInformation(context.Settings.Get<Guid>("NServiceBus.HostInformation.HostId"), 
                 context.Settings.Get<string>("NServiceBus.HostInformation.DisplayName"), 
                 context.Settings.Get<Dictionary<string, string>>("NServiceBus.HostInformation.Properties"));

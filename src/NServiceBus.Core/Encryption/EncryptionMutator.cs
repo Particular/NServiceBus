@@ -240,7 +240,22 @@ namespace NServiceBus.Encryption
             if (!cache.TryGetValue(messageType, out members))
             {
                 cache[messageType] = members = messageType.GetMembers(BindingFlags.Public | BindingFlags.Instance)
-                    .Where(m => m is FieldInfo || m is PropertyInfo)
+                    .Where(m =>
+                    {
+                        var fieldInfo = m as FieldInfo;
+                        if (fieldInfo != null)
+                        {
+                            return !fieldInfo.IsInitOnly;
+                        }
+
+                        var propInfo = m as PropertyInfo;
+                        if (propInfo != null)
+                        {
+                            return propInfo.CanWrite;
+                        }
+
+                        return false;
+                    })
                     .ToList();
             }
 

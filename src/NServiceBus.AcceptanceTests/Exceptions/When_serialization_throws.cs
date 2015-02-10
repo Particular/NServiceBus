@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Exceptions
 {
     using System;
-    using System.Runtime.CompilerServices;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -82,13 +81,11 @@
 
             class CorruptionMutator : IMutateTransportMessages
             {
-                [MethodImpl(MethodImplOptions.NoInlining)]
                 public void MutateIncoming(TransportMessage transportMessage)
                 {
                     transportMessage.Body[1]++;
                 }
                 
-                [MethodImpl(MethodImplOptions.NoInlining)]
                 public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
                 {
                 }
@@ -96,7 +93,6 @@
 
             class Handler : IHandleMessages<Message>
             {
-                [MethodImpl(MethodImplOptions.NoInlining)]
                 public void Handle(Message message)
                 {
                 }

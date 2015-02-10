@@ -16,7 +16,7 @@
         {
             
         }
-
+            
         /// <summary>
         /// Initializes a new instance of <see cref="ConfigureTransport"/>.
         /// </summary>
@@ -27,13 +27,13 @@
 
             context.Container.ConfigureComponent<CorrelationIdMutatorForBackwardsCompatibilityWithV3>(DependencyLifecycle.InstancePerCall);
             context.Container.ConfigureComponent<MsmqUnitOfWork>(DependencyLifecycle.SingleInstance);
-            
+
             if (!context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
             {
                 context.Container.ConfigureComponent<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                     .ConfigureProperty(p => p.ErrorQueue, ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings));
             }
-            
+
             var cfg = context.Settings.GetConfigSection<MsmqMessageQueueConfig>();
 
             var settings = new MsmqSettings();

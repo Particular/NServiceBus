@@ -44,9 +44,9 @@ namespace NServiceBus.CircuitBreakers
         /// </summary>
         public bool Success()
         {
-            var newValue = Interlocked.Exchange(ref failureCount, 0);
+            var oldValue = Interlocked.Exchange(ref failureCount, 0);
 
-            if (newValue == 0)
+            if (oldValue == 0)
             {
                 return false;
             }

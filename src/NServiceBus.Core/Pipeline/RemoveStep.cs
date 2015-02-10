@@ -1,8 +1,8 @@
 namespace NServiceBus.Pipeline
 {
-    class RemoveBehavior
+    class RemoveStep
     {
-        public RemoveBehavior(string removeId)
+        public RemoveStep(string removeId)
         {
             RemoveId = removeId;
         }

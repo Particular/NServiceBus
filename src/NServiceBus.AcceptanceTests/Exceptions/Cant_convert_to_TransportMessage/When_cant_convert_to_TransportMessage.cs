@@ -5,6 +5,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
     public class When_cant_convert_to_TransportMessage : NServiceBusAcceptanceTest
@@ -17,7 +18,7 @@
                     .WithEndpoint<Receiver>()
                     .AllowExceptions()
                     .Done(c => c.GetAllLogs().Any(l=>l.Level == "error"))
-                    .Repeat(r=>r.For(ScenarioDescriptors.Transports.Msmq))
+                    .Repeat(r => r.For<MsmqOnly>())
                     .Should(c =>
                     {
                         var logs = c.GetAllLogs();

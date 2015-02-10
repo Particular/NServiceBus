@@ -19,13 +19,35 @@ namespace NServiceBus.Sagas
 
         static bool IsSagaType(Type t)
         {
-            return typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && !t.IsGenericType;
+            return SagaType.IsAssignableFrom(t) && t != SagaType && !t.IsGenericType;
+        }
+
+        static Type SagaType = typeof(Saga);
+
+        static Type GetBaseSagaType(Type t)
+        {
+            var currentType = t.BaseType;
+            var previousType = t;
+
+            while (currentType != null)
+            {
+                if (currentType == SagaType)
+                {
+                    return previousType;
+                }
+
+                previousType = currentType;
+                currentType = currentType.BaseType;
+            }
+
+            throw new InvalidOperationException();
         }
 
         public static SagaMetadata Create(Type sagaType)
         {
             return Create(sagaType, new List<Type>(), new Conventions());
         }
+
         public static SagaMetadata Create(Type sagaType, IEnumerable<Type> availableTypes, Conventions conventions)
         {
             if (!IsSagaType(sagaType))
@@ -33,8 +55,13 @@ namespace NServiceBus.Sagas
                 throw new Exception(sagaType.FullName + " is not a saga");
             }
 
-            var sagaEntityType = sagaType.BaseType.GetGenericArguments().Single();
+            var genericArguments = GetBaseSagaType(sagaType).GetGenericArguments();
+            if (genericArguments.Length != 1)
+            {
+                throw new Exception(string.Format("'{0}' saga type does not implement Saga<T>", sagaType));
+            }
 
+            var sagaEntityType = genericArguments.Single();
             var uniquePropertiesOnEntity = FindUniqueAttributes(sagaEntityType).ToList();
 
             var mapper = new SagaMapper();

@@ -118,7 +118,7 @@ namespace NServiceBus
 
             featureActivator.RegisterStartupTasks(configurer);
 
-            localAddress = Address.Parse(Settings.Get<string>("NServiceBus.LocalAddress"));
+            localAddress =Settings.LocalAddress();
 
             foreach (var o in Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>())
             {
@@ -168,7 +168,7 @@ namespace NServiceBus
                     {
                         var errorMessage = AssemblyScanner.FormatReflectionTypeLoadException(a.FullName, exception);
                         LogManager.GetLogger<Configure>().Warn(errorMessage);
-                        types.AddRange(exception.Types);
+                        types.AddRange(exception.Types.Where(AssemblyScanner.IsAllowedType));
                         //intentionally swallow exception
                     }
                 });

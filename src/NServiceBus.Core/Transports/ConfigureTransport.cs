@@ -16,6 +16,9 @@ namespace NServiceBus.Transports
         protected ConfigureTransport()
         {
             Defaults(s => s.SetDefault<TransportConnectionString>(TransportConnectionString.Default));
+            
+            Defaults(s => s.SetDefault("NServiceBus.LocalAddress", GetDefaultEndpointAddress(s)));
+
             Defaults(s =>
             {
                 var localAddress = GetLocalAddress(s);
@@ -48,7 +51,7 @@ namespace NServiceBus.Transports
         ///  Allows the transport to control the local address of the endpoint if needed
         /// </summary>
         /// <param name="settings">The current settings in read only mode</param>
-// ReSharper disable once UnusedParameter.Global
+        // ReSharper disable once UnusedParameter.Global
         protected virtual string GetLocalAddress(ReadOnlySettings settings)
         {
             return null;
@@ -77,6 +80,22 @@ namespace NServiceBus.Transports
         {
             return AppDomain.CurrentDomain.SetupInformation.ConfigurationFile ?? "App.config";
         }
+
+        static string GetDefaultEndpointAddress(ReadOnlySettings settings)
+        {
+            if (!settings.GetOrDefault<bool>("IndividualizeEndpointAddress"))
+            {
+                return settings.EndpointName();
+            }
+
+            if (!settings.HasSetting("EndpointInstanceDiscriminator"))
+            {
+                throw new Exception("No endpoint instance discriminator found. This value is usually provided by your transport so please make sure you're on the lastest version of your specific transport or set the discriminator using 'configuration.ScaleOut().UniqueQueuePerEndpointInstance(myDiscriminator)'");
+            }
+
+            return settings.EndpointName() + settings.Get<string>("EndpointInstanceDiscriminator");
+        }
+
 
         const string Message =
             @"No default connection string found in your config file ({0}) for the {1} Transport.

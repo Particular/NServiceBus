@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Exceptions
 {
     using System;
-    using System.Runtime.CompilerServices;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -83,12 +82,10 @@ at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage m
 
             class UnitOfWorkThatThrowsInEnd : IManageUnitsOfWork
             {
-                [MethodImpl(MethodImplOptions.NoInlining)]
                 public void Begin()
                 {
                 }
 
-                [MethodImpl(MethodImplOptions.NoInlining)]
                 public void End(Exception ex = null)
                 {
                     throw new EndException();
@@ -96,7 +93,6 @@ at NServiceBus.Unicast.Transport.TransportReceiver.TryProcess(TransportMessage m
             }
             class Handler : IHandleMessages<Message>
             {
-                [MethodImpl(MethodImplOptions.NoInlining)]
                 public void Handle(Message message)
                 {
                 }

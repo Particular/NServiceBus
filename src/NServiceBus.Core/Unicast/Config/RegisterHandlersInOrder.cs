@@ -5,6 +5,7 @@ namespace NServiceBus.Features
     using System.Configuration;
     using System.Linq;
     using NServiceBus.Logging;
+    using NServiceBus.ObjectBuilder;
     using NServiceBus.Settings;
     using NServiceBus.Unicast;
 
@@ -86,6 +87,15 @@ namespace NServiceBus.Features
                 context.Container.ConfigureComponent(t, DependencyLifecycle.InstancePerUnitOfWork);
                 handlerRegistry.RegisterHandler(t);
                 handlers.Add(t);
+            }
+
+            List<Action<IConfigureComponents>> propertiesToInject;
+            if (context.Settings.TryGet("NServiceBus.HandlerProperties", out propertiesToInject))
+            {
+                foreach (var action in propertiesToInject)
+                {
+                    action(context.Container);
+                }
             }
 
             context.Container.RegisterSingleton<IMessageHandlerRegistry>(handlerRegistry);

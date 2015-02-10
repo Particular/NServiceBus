@@ -88,10 +88,18 @@ namespace NServiceBus.Serializers.Json
 
             if (requiresDynamicDeserialization)
             {
-                settings = new JsonSerializerSettings{
-                        TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
-                        TypeNameHandling = TypeNameHandling.None,
-                        Converters = { new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.RoundtripKind }, new XContainerConverter() }
+                settings = new JsonSerializerSettings
+                {
+                    TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
+                    TypeNameHandling = TypeNameHandling.None,
+                    Converters =
+                    {
+                        new IsoDateTimeConverter
+                        {
+                            DateTimeStyles = DateTimeStyles.RoundtripKind
+                        },
+                        new XContainerConverter()
+                    }
                 };
             }
 
@@ -108,16 +116,50 @@ namespace NServiceBus.Serializers.Json
             {
                 if (requiresDynamicDeserialization)
                 {
-                    return (object[])jsonSerializer.Deserialize(reader, mostConcreteType.MakeArrayType());
+                    //We can safely use the first type on the list to create an array because multi-message Publish requires messages to be of same type.
+                    return (object[]) jsonSerializer.Deserialize(reader, mostConcreteType.MakeArrayType());
                 }
                 return jsonSerializer.Deserialize<object[]>(reader);
             }
             if (messageTypes != null && messageTypes.Any())
             {
-                return new[] {jsonSerializer.Deserialize(reader, messageTypes.First())};
+                var rootTypes = FindRootTypes(messageTypes);
+                return rootTypes.Select(x =>
+                {
+                    if (reader == null)
+                    {
+                        stream.Seek(0, SeekOrigin.Begin);
+                        reader = CreateJsonReader(stream);
+                        reader.Read();
+                    }
+                    var deserialized = jsonSerializer.Deserialize(reader, x);
+                    reader = null;
+                    return deserialized;
+                }).ToArray();
             }
+            return new[]
+            {
+                jsonSerializer.Deserialize<object>(reader)
+            };
+        }
 
-            return new[] {jsonSerializer.Deserialize<object>(reader)};
+        static IEnumerable<Type> FindRootTypes(IEnumerable<Type> messageTypesToDeserialize)
+        {
+            Type currentRoot = null;
+            foreach (var type in messageTypesToDeserialize)
+            {
+                if (currentRoot == null)
+                {
+                    currentRoot = type;
+                    yield return currentRoot;
+                    continue;
+                }
+                if (!type.IsAssignableFrom(currentRoot))
+                {
+                    currentRoot = type;
+                    yield return currentRoot;
+                }
+            }
         }
 
         /// <summary>
