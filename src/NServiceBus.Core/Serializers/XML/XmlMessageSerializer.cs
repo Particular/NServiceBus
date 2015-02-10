@@ -59,12 +59,7 @@ namespace NServiceBus.Serializers.XML
                 return null;
             }
 
-            var deserializer = new Deserializer(mapper, cache)
-            {
-                SanitizeInput = SanitizeInput,
-                SkipWrappingRawXml = SkipWrappingRawXml,
-            };
-
+            var deserializer = new Deserializer(mapper, cache, SkipWrappingRawXml, SanitizeInput);
             return deserializer.Deserialize(stream, messageTypesToDeserialize);
         }
 

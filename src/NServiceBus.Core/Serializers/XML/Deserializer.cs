@@ -15,14 +15,13 @@
 
     class Deserializer
     {
-        public Deserializer(IMessageMapper mapper, XmlSerializerCache cache)
+        public Deserializer(IMessageMapper mapper, XmlSerializerCache cache, bool skipWrappingRawXml, bool sanitizeInput)
         {
             this.mapper = mapper;
             this.cache = cache;
+            this.skipWrappingRawXml = skipWrappingRawXml;
+            this.sanitizeInput = sanitizeInput;
         }
-
-        public bool SkipWrappingRawXml { get; set; }
-        public bool SanitizeInput { get; set; }
 
         public object[] Deserialize(Stream stream, IList<Type> messageTypesToDeserialize = null)
         {
@@ -33,7 +32,7 @@
 
             var result = new List<object>();
 
-            XmlDocument doc = ReadStreamIntoDocument(stream, SanitizeInput);
+            XmlDocument doc = ReadStreamIntoDocument(stream, sanitizeInput);
 
             if (NothingToBeProcessed(doc))
             {
@@ -504,7 +503,7 @@
 
             if (typeof(XContainer).IsAssignableFrom(type))
             {
-                var reader = new StringReader(SkipWrappingRawXml ? n.OuterXml : n.InnerXml);
+                var reader = new StringReader(skipWrappingRawXml ? n.OuterXml : n.InnerXml);
 
                 if (type == typeof(XDocument))
                 {
@@ -667,6 +666,8 @@
         const string BASETYPE = "baseType";
         static ILog logger = LogManager.GetLogger<Deserializer>();
         readonly XmlSerializerCache cache;
+        readonly bool skipWrappingRawXml;
+        readonly bool sanitizeInput;
         readonly IMessageMapper mapper;
         string defaultNameSpace;
         List<Type> messageBaseTypes = new List<Type>();
