@@ -31,11 +31,7 @@
 
         public bool SkipWrappingRawXml { get; set; }
 
-        public string Namespace
-        {
-            get { return nameSpace; }
-            set { nameSpace = TrimPotentialTrailingForwardSlashes(value); }
-        }
+        public string Namespace { get; set; }
 
         public byte[] Serialize(object message)
         {
@@ -488,19 +484,6 @@
             }
 
             return false;
-        }
-
-        string TrimPotentialTrailingForwardSlashes(string value)
-        {
-            if (value == null)
-            {
-                return null;
-            }
-
-            return value.TrimEnd(new[]
-            {
-                '/'
-            });
         }
 
         void CreateStartElementWithNamespaces(string messageNamespace, List<string> baseTypes, StringBuilder builder, string element)
