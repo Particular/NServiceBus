@@ -4,20 +4,15 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
     using NUnit.Framework;
 
     [TestFixture]
-    class When_updating_a_saga_with_the_same_unique_property_as_another_saga:InMemorySagaPersistenceFixture
+    class When_updating_a_saga_with_the_same_unique_property_as_another_saga
     {
-        public When_updating_a_saga_with_the_same_unique_property_as_another_saga()
-        {
-            RegisterSaga<SagaWithUniqueProperty>();
-
-            RegisterSaga<SagaWithTwoUniqueProperties>();
-        }
         [Test]
         public void It_should_persist_successfully()
         {
             var saga1 = new SagaWithUniquePropertyData {Id = Guid.NewGuid(), UniqueString = "whatever1"};
             var saga2 = new SagaWithUniquePropertyData {Id = Guid.NewGuid(), UniqueString = "whatever"};
-              
+
+            var persister = InMemoryPersisterBuilder.Build(typeof(SagaWithUniqueProperty), typeof(SagaWithTwoUniqueProperties));
             persister.Save(saga1);
             persister.Save(saga2);
 
@@ -34,7 +29,8 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         {
             var saga1 = new SagaWithTwoUniquePropertiesData { Id = Guid.NewGuid(), UniqueString = "whatever1", UniqueInt = 5};
             var saga2 = new SagaWithTwoUniquePropertiesData { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 37};
-            
+
+            var persister = InMemoryPersisterBuilder.Build(typeof(SagaWithUniqueProperty), typeof(SagaWithTwoUniqueProperties));
             persister.Save(saga1);
             persister.Save(saga2);
 

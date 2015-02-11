@@ -4,15 +4,12 @@
     using NUnit.Framework;
 
     [TestFixture]
-    class When_saga_not_found_return_default : InMemorySagaPersistenceFixture
+    class When_saga_not_found_return_default
     {
-        public When_saga_not_found_return_default()
-        {
-            RegisterSaga<SimpleSagaEntitySaga>();
-        }
         [Test]
         public void Should_return_default_when_using_finding_saga_with_property()
         {
+            var persister = InMemoryPersisterBuilder.Build<SimpleSagaEntitySaga>();
             var simpleSageEntity = persister.Get<SimpleSagaEntity>("propertyNotFound", null);
             Assert.IsNull(simpleSageEntity);
         }
@@ -20,6 +17,7 @@
         [Test]
         public void Should_return_default_when_using_finding_saga_with_id()
         {
+            var persister = InMemoryPersisterBuilder.Build<SimpleSagaEntitySaga>();
             var simpleSageEntity = persister.Get<SimpleSagaEntity>(Guid.Empty);
             Assert.IsNull(simpleSageEntity);
         }
@@ -33,6 +31,7 @@
                 Id = id,
                 OrderSource = "CA"
             };
+            var persister = InMemoryPersisterBuilder.Build<SimpleSagaEntitySaga>();
             persister.Save(simpleSagaEntity);
 
             var anotherSagaEntity = persister.Get<AnotherSimpleSagaEntity>(id);

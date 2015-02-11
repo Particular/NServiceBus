@@ -4,18 +4,13 @@
     using NUnit.Framework;
 
     [TestFixture]
-    class When_completing_a_saga_with_the_InMemory_persister:InMemorySagaPersistenceFixture
+    class When_completing_a_saga_with_the_InMemory_persister
     {
-        public When_completing_a_saga_with_the_InMemory_persister()
-        {
-            RegisterSaga<TestSaga>();
-        }
-
         [Test]
         public void Should_delete_the_saga()
         {
             var saga = new TestSagaData { Id = Guid.NewGuid() };
-            
+            var persister = InMemoryPersisterBuilder.Build<TestSaga>();
             persister.Save(saga);
             Assert.NotNull(persister.Get<TestSagaData>(saga.Id));
             persister.Complete(saga);

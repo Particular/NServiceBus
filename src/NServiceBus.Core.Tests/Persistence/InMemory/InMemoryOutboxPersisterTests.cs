@@ -31,7 +31,6 @@
         }
 
 
-
         [Test]
         public void Should_not_remove_non_dispatched_messages()
         {
@@ -47,7 +46,6 @@
 
             Assert.True(storage.TryGet(messageId, out message));
         }
-
 
 
         [Test]
