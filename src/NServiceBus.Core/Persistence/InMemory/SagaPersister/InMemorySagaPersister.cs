@@ -14,7 +14,7 @@ namespace NServiceBus.InMemory.SagaPersister
     /// </summary>
     class InMemorySagaPersister : ISagaPersister
     {
-        readonly SagaMetaModel sagaModel;
+        SagaMetaModel sagaModel;
         int version;
 
         JsonMessageSerializer serializer = new JsonMessageSerializer(null);
@@ -36,12 +36,12 @@ namespace NServiceBus.InMemory.SagaPersister
             var values = data.Values.Where(x => x.SagaEntity is TSagaData);
             foreach (var entity in values)
             {
-                var prop = entity.SagaEntity.GetType().GetProperty(propertyName);
+                var prop = typeof(TSagaData).GetProperty(propertyName);
                 if (prop == null)
                 {
                     continue;
                 }
-                if (!prop.GetValue(entity.SagaEntity, null).Equals(propertyValue))
+                if (!Equals(prop.GetValue(entity.SagaEntity, null), propertyValue))
                 {
                     continue;
                 }
@@ -86,29 +86,32 @@ namespace NServiceBus.InMemory.SagaPersister
 
         void ValidateUniqueProperties(IContainSagaData saga)
         {
-            var sagaMetaData = sagaModel.FindByEntityName(saga.GetType().FullName);
-
-            if (!sagaMetaData.CorrelationProperties.Any()) return;
-
-            var sagasFromSameType = from s in data
-                                    where
-                                        (s.Value.SagaEntity.GetType() == saga.GetType() && (s.Key != saga.Id))
-                                    select s.Value;
-
-            foreach (var storedSaga in sagasFromSameType)
+            var sagaType = saga.GetType();
+            var sagaMetaData = sagaModel.FindByEntityName(sagaType.FullName);
+            var existingSagas = (from s in data
+                where s.Value.SagaEntity.GetType() == sagaType && (s.Key != saga.Id)
+                select s.Value)
+                .ToList();
+            foreach (var correlationProperty in sagaMetaData.CorrelationProperties)
             {
-                foreach (var correlationProperty in sagaMetaData.CorrelationProperties)
+                var uniqueProperty = sagaType.GetProperty(correlationProperty.Name);
+                if (!uniqueProperty.CanRead)
                 {
-                    var uniqueProperty = saga.GetType().GetProperty(correlationProperty.Name);
-                    if (!uniqueProperty.CanRead)
-                    {
-                        continue;
-                    }
-                    var inComingSagaPropertyValue = uniqueProperty.GetValue(saga, null);
+                    continue;
+                }
+                var incomingSagaPropertyValue = uniqueProperty.GetValue(saga, null);
+                if (incomingSagaPropertyValue == null)
+                {
+                    var message = string.Format("Cannot store saga with id '{0}' since the unique property '{1}' has a null value.", saga.Id, uniqueProperty.Name);
+                    throw new InvalidOperationException(message);
+                }
+
+                foreach (var storedSaga in existingSagas)
+                {
                     var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaEntity, null);
-                    if (inComingSagaPropertyValue.Equals(storedSagaPropertyValue))
+                    if (Equals(incomingSagaPropertyValue, storedSagaPropertyValue))
                     {
-                        var message = string.Format("Cannot store a saga. The saga with id '{0}' already has property '{1}' with value '{2}'.", storedSaga.SagaEntity.Id, uniqueProperty, storedSagaPropertyValue);
+                        var message = string.Format("Cannot store a saga. The saga with id '{0}' already has property '{1}'.", storedSaga.SagaEntity.Id, uniqueProperty.Name);
                         throw new InvalidOperationException(message);
                     }
                 }
@@ -118,7 +121,6 @@ namespace NServiceBus.InMemory.SagaPersister
         IContainSagaData DeepClone(IContainSagaData source)
         {
             var json = serializer.SerializeObject(source);
-
             return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
         }
 

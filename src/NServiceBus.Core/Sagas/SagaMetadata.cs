@@ -33,7 +33,7 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// Properties this saga is correlated on
         /// </summary>
-        public IEnumerable<CorrelationProperty> CorrelationProperties;
+        public List<CorrelationProperty> CorrelationProperties;
 
         /// <summary>
         /// The name of the saga
@@ -48,8 +48,6 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// True if the specified message type is allowed to start the saga
         /// </summary>
-        /// <param name="messageType"></param>
-        /// <returns></returns>
         public bool IsMessageAllowedToStartTheSaga(string messageType)
         {
             SagaMessage sagaMessage;
