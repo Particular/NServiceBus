@@ -17,8 +17,7 @@
 
         const string DefaultNamespace = "http://tempuri.net";
 
-        List<Type> namespacesToAdd;
-
+        readonly List<Type> namespacesToAdd = new List<Type>();
         readonly IMessageMapper mapper;
         readonly Conventions conventions;
         readonly XmlSerializerCache cache;
@@ -36,7 +35,6 @@
 
         public byte[] Serialize(object message)
         {
-            InitializeNamespaces(message);
             var messageBuilder = SerializeMessage(message);
 
             var builder = new StringBuilder();
@@ -44,13 +42,6 @@
 
             builder.Append(messageBuilder);
             return Encoding.UTF8.GetBytes(builder.ToString());
-        }
-
-        string InitializeNamespaces(object message)
-        {
-            namespacesToAdd = new List<Type>();
-
-            return GetNamespace(message);
         }
 
         string GetNamespace(object message)
@@ -332,7 +323,7 @@
 
             if (useNS)
             {
-                var messageNamespace = InitializeNamespaces(value);
+                var messageNamespace = GetNamespace(value);
                 var baseTypes = GetBaseTypes(value);
                 CreateStartElementWithNamespaces(messageNamespace, baseTypes, builder, element);
             }
