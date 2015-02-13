@@ -46,7 +46,6 @@
 
         string GetNamespace(object message)
         {
-            //TODO: if the proxy type has the same NS as the real message type we don't need to look this up
             return mapper.GetMappedTypeFor(message.GetType()).Namespace;
         }
 
