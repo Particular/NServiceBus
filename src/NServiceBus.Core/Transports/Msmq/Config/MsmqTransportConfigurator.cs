@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
     using Config;
-    using Logging;
     using NServiceBus.Faults;
     using Transports;
     using Transports.Msmq;
@@ -14,9 +13,9 @@
     {
         internal MsmqTransportConfigurator()
         {
-            
+
         }
-            
+
         /// <summary>
         /// Initializes a new instance of <see cref="ConfigureTransport"/>.
         /// </summary>
@@ -34,22 +33,10 @@
                     .ConfigureProperty(p => p.ErrorQueue, ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings));
             }
 
-            var cfg = context.Settings.GetConfigSection<MsmqMessageQueueConfig>();
-
             var settings = new MsmqSettings();
-            if (cfg != null)
+            if (connectionString != null)
             {
-                settings.UseJournalQueue = cfg.UseJournalQueue;
-                settings.UseDeadLetterQueue = cfg.UseDeadLetterQueue;
-
-                Logger.Warn(Message);
-            }
-            else
-            {
-                if (connectionString != null)
-                {
-                    settings = new MsmqConnectionStringBuilder(connectionString).RetrieveSettings();
-                }
+                settings = new MsmqConnectionStringBuilder(connectionString).RetrieveSettings();
             }
 
             context.Container.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.InstancePerCall)
@@ -75,19 +62,6 @@
         {
             get { return false; }
         }
-
-        static ILog Logger = LogManager.GetLogger<MsmqTransportConfigurator>();
-
-        const string Message =
-            @"
-MsmqMessageQueueConfig section has been deprecated in favor of using a connectionString instead.
-Here is an example of what is required:
-  <connectionStrings>
-    <add name=""NServiceBus/Transport"" connectionString=""cacheSendConnection=true;journal=false;deadLetter=true"" />
-  </connectionStrings>";
-
-
-
     }
 
 }
