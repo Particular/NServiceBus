@@ -110,7 +110,6 @@
     <Compile Include="Encryption\EncryptBehavior.cs" />
     <Compile Include="Encryption\EncryptedValue.cs" />
     <Compile Include="Encryption\Encryptor.cs" />
-    <Compile Include="Encryption\ConfigureRijndaelEncryptionService_Obsolete.cs" />
     <Compile Include="Encryption\RijndaelExpiredKey.cs" />
     <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
@@ -455,7 +454,6 @@
     <Compile Include="DependencyLifecycle.cs" />
     <Compile Include="Encryption\EncryptionMutator.cs" />
     <Compile Include="Encryption\IEncryptionService.cs" />
-    <Compile Include="Encryption\EncryptionService.cs" />
     <Compile Include="Faults\FaultsHeaderKeys.cs" />
     <Compile Include="Faults\Forwarder\Config\FaultsQueueCreator.cs" />
     <Compile Include="Faults\Forwarder\FaultManager.cs" />

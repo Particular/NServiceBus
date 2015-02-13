@@ -12,7 +12,7 @@ namespace NServiceBus
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
     /// </summary>
-    public static partial class ConfigureRijndaelEncryptionService
+    public static class ConfigureRijndaelEncryptionService
     {
         /// <summary>
         /// Use 256 bit AES encryption based on the Rijndael cipher. 
