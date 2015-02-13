@@ -24,7 +24,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public partial class UnicastBus : IStartableBus, IInMemoryOperations, IManageMessageHeaders
+    public class UnicastBus : IStartableBus, IManageMessageHeaders
     {
         HostInformation hostInformation;
 

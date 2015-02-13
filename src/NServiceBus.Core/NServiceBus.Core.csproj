@@ -188,7 +188,6 @@
     <Compile Include="ICommand.cs" />
     <Compile Include="IdGeneration\CombGuid.cs" />
     <Compile Include="IEvent.cs" />
-    <Compile Include="IInMemoryOperations.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="IMessageContext.cs" />
     <Compile Include="IMessageCreator.cs" />
@@ -378,7 +377,6 @@
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubscriptionManager.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageInitializer.cs" />
     <Compile Include="Unicast\Transport\TransportMessageExtensions.cs" />
-    <Compile Include="Unicast\UnicastBus_Obsolete.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />
