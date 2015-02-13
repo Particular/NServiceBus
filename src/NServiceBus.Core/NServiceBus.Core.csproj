@@ -421,7 +421,6 @@
     <Compile Include="Config\MessageEndpointMapping.cs" />
     <Compile Include="Config\MessageEndpointMappingCollection.cs" />
     <Compile Include="Config\MessageForwardingInCaseOfFaultConfig.cs" />
-    <Compile Include="Config\IFinalizeConfiguration.cs" />
     <Compile Include="Sagas\Sagas.cs" />
     <Compile Include="Satellites\IAdvancedSatellite.cs" />
     <Compile Include="Settings\SettingsHolder.cs" />
