@@ -376,7 +376,6 @@
     <Compile Include="Pipeline\BehaviorChain.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
-    <Compile Include="ConfigureDefaultBuilder_Obsolete.cs" />
     <Compile Include="ConfigureFaultsForwarder_Obsolete.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
@@ -476,7 +475,6 @@
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />
-    <Compile Include="ObjectBuilder\Common\ConfigureContainer_Obsolete.cs" />
     <Compile Include="ObjectBuilder\Common\IContainer.cs" />
     <Compile Include="ObjectBuilder\IBuilder.cs" />
     <Compile Include="ObjectBuilder\IComponentConfig.cs" />
