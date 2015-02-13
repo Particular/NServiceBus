@@ -47,44 +47,11 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Get the header with the given key. Cannot be used to change its value.
-        /// </summary>
-        /// <param name="msg">The <see cref="IMessage"/> to retrieve a header from.</param>
-        /// <param name="key">The header key.</param>
-        /// <returns>The value assigned to the header.</returns>
-        [ObsoleteEx(
-            Replacement = "bus.GetMessageHeader(msg, key)", 
-            TreatAsErrorFromVersion = "5.0",
-            RemoveInVersion = "6.0")]
-        public static string GetHeader(this IMessage msg, string key)
-        {
-            throw new InvalidOperationException();
-        }
-
-        /// <summary>
-        /// Sets the value of the header for the given key.
-        /// </summary>
-        /// <param name="msg">The <see cref="IMessage"/> to add a header to.</param>
-        /// <param name="key">The header key.</param>
-        /// <param name="value">The value to assign to the header.</param>
-        [ObsoleteEx(
-            Replacement = "bus.SetMessageHeader(msg, key, value)",
-            TreatAsErrorFromVersion = "5.0",
-            RemoveInVersion = "6.0")]
-        public static void SetHeader(this IMessage msg, string key, string value)
-        {
-            throw new InvalidOperationException();
-        }
-
-        /// <summary>
         /// The object used to see whether headers requested are for the handled message.
         /// </summary>
         public static object CurrentMessageBeingHandled { get { return currentMessageBeingHandled; } set { currentMessageBeingHandled = value; } }
 
         [ThreadStatic]
         static object currentMessageBeingHandled;
-
-        
-
     }
 }
