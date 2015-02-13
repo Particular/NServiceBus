@@ -143,7 +143,6 @@
     <Compile Include="Monitoring\CriticalTime\CriticalTimeMonitoring.cs" />
     <Compile Include="Monitoring\SLA\SLAMonitoringConfig.cs" />
     <Compile Include="Observable.cs" />
-    <Compile Include="Obsoletes.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />
     <Compile Include="AllAssemblies.cs" />
@@ -210,7 +209,6 @@
     <Compile Include="Pipeline\StepEnded.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
     <Compile Include="Scheduling\TaskDefinition.cs" />
-    <Compile Include="SecondLevelRetries\Helpers\TransportMessageHelpers_Obsolete.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetriesConfiguration.cs" />
     <Compile Include="Serialization\CustomSerialization.cs" />
     <Compile Include="Serialization\CustomSerializer.cs" />
@@ -241,9 +239,7 @@
     <Compile Include="Unicast\DefaultHostIdGenerator.cs" />
     <Compile Include="Unicast\IMessageDispatcherFactory_Obsolete.cs" />
     <Compile Include="MessageDeserializationException.cs" />
-    <Compile Include="Unicast\Transport\Config\TransportConfiguration.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
-    <Compile Include="Unicast\Transport\Config\UseTransportExtensions_Obsolete.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\WeakKeyDictionary.cs" />
     <Compile Include="Utils\Guard.cs" />
