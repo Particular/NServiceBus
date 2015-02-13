@@ -144,10 +144,6 @@ namespace NServiceBus.Encryption
             {
                 var encryptedString = wireEncryptedString;
                 EncryptWireEncryptedString(encryptedString);
-
-                //we clear the properties to avoid having the extra data serialized
-                encryptedString.EncryptedBase64Value = null;
-                encryptedString.Base64Iv = null;
             }
             else
             {
