@@ -63,11 +63,6 @@
                 {
                     var typeString = messageTypeString;
 
-                    if (DoesTypeHaveImplAddedByVersion3(typeString))
-                    {
-                        continue;
-                    }
-
                     if (IsV4OrBelowScheduledTask(typeString))
                     {
                         typeString = typeof(ScheduledTask).AssemblyQualifiedName;
@@ -95,12 +90,6 @@
                     .ToList();
 
             }
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6.0")]
-        bool DoesTypeHaveImplAddedByVersion3(string existingTypeString)
-        {
-            return existingTypeString.Contains("__impl");
         }
 
         bool IsV4OrBelowScheduledTask(string existingTypeString)
