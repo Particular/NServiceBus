@@ -151,7 +151,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 MessageRouter = router,
                 Settings = settings,
                 Configure = configure,
-                HostInformation = new HostInformation(Guid.NewGuid(), "HelloWorld")
             };
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CausationMutator { Bus = bus });

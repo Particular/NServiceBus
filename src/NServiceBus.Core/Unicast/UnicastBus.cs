@@ -26,8 +26,6 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class UnicastBus : IStartableBus, IManageMessageHeaders
     {
-        HostInformation hostInformation;
-
         /// <summary>
         /// Initializes a new instance of <see cref="UnicastBus"/>.
         /// </summary>
@@ -135,16 +133,8 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(Message = "We have introduced a more explicit API to set the host identifier, see busConfiguration.UniquelyIdentifyRunningInstance()", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
         public HostInformation HostInformation
         {
-            get { return hostInformation; }
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException();
-                }
-
-                hostInformation = value;
-            }
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
 
         /// <summary>
