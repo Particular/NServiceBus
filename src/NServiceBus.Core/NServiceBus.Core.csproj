@@ -91,7 +91,6 @@
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="ConfigureHandlerSettings.cs" />
     <Compile Include="ConfigureQueueCreation_Obsolete.cs" />
-    <Compile Include="ConfigureInMemoryFaultManagement_obsolete.cs" />
     <Compile Include="Config\MsmqConnectionStringBuilder.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />
@@ -367,7 +366,6 @@
     <Compile Include="Pipeline\BehaviorChain.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
-    <Compile Include="ConfigureFaultsForwarder_Obsolete.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
     <Compile Include="Features\FeatureActivator.cs" />
