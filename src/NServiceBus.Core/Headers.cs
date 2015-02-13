@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System;
-
     /// <summary>
     /// Static class containing headers used by NServiceBus.
     /// </summary>
@@ -41,13 +39,6 @@
         /// This header is considered an applicative header.
         /// </summary>
         public const string SagaId = "NServiceBus.SagaId";
-
-        /// <summary>
-        /// Header containing a list of saga types and ids that this message invoked, the format is "{sagatype}={sagaid};{sagatype}={sagaid}"
-        /// This header is considered an applicative header.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.1", Message = "Enriching the headers for saga related information has been moved to the SagaAudit plugin in ServiceControl. Add a reference to the Saga audit plugin in your endpoint to get more information.")]
-        public const string InvokedSagas = "NServiceBus.InvokedSagas";
 
         /// <summary>
         /// Header containing a stable message id for a message.
