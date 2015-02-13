@@ -97,6 +97,12 @@ namespace NServiceBus.Encryption
                     continue;
                 }
 
+                // don't try to recurse over members of WireEncryptedString
+                if (member.DeclaringType == typeof(WireEncryptedString))
+                {
+                    continue;
+                }
+
                 if (IsIndexedProperty(member))
                 {
                     continue;
