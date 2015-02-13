@@ -127,6 +127,8 @@
     <Compile Include="Logging\DefaultFactoryTests.cs" />
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
     <Compile Include="Persistence\InMemory\InMemoryPersisterBuilder.cs" />
+    <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />
+    <Compile Include="Persistence\InMemory\When_saving_a_null_unique_property.cs" />
     <Compile Include="Persistence\PersistenceExtentionsTests.cs" />
     <Compile Include="Persistence\PersistenceStorageMergerTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
@@ -153,7 +155,7 @@
     <Compile Include="Persistence\InMemory\When_completing_a_saga_with_unique_property_with_InMemory_persister.cs" />
     <Compile Include="Persistence\InMemory\When_multiple_workers_retrieve_same_saga.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_another_saga.cs" />
-    <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />
+    <Compile Include="Persistence\InMemory\When_property_is_null.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_the_original_value_of_another_saga_before_updating.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_different_sagas_with_unique_properties.cs" />
     <Compile Include="Persistence\InMemory\When_saga_not_found_return_default.cs" />
