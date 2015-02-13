@@ -418,7 +418,6 @@
     <Compile Include="Config\ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Config\ConfigurationSource\IConfigurationSource.cs" />
     <Compile Include="Config\Conventions\EndpointHelper.cs" />
-    <Compile Include="Config\ConfigureExtensions.cs" />
     <Compile Include="Config\IWantToRunWhenConfigurationIsComplete.cs" />
     <Compile Include="Logging\Logging.cs" />
     <Compile Include="Distributor\MasterNode\MasterNodeConfig.cs" />
