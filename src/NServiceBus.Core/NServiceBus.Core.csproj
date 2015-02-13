@@ -226,7 +226,6 @@
     <Compile Include="Serializers\Json\Json.cs" />
     <Compile Include="Serializers\XML\Config\Xml.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationExtentions.cs" />
-    <Compile Include="Serializers\XML\Config\XmlSerializationSettings_Obsolete.cs" />
     <Compile Include="Serializers\XML\Deserializer.cs" />
     <Compile Include="Serializers\XML\Serializer.cs" />
     <Compile Include="Serializers\XML\XmlSerializerCache.cs" />
@@ -376,7 +375,6 @@
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
-    <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer_Obsolete.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
     <Compile Include="ConfigureDefaultBuilder_Obsolete.cs" />
     <Compile Include="ConfigureFaultsForwarder_Obsolete.cs" />
@@ -385,20 +383,16 @@
     <Compile Include="Features\FeatureActivator.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesConfigExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
-    <Compile Include="Serializers\Binary\Config\BinarySerializerConfigurationExtensions_Obsolete.cs" />
     <Compile Include="Serializers\Json\Config\BsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
-    <Compile Include="Serializers\XML\Config\XmlSerializerConfigurationExtensions_Obsolete.cs" />
-    <Compile Include="Serialization\SerializationSettings.cs" />
     <Compile Include="Transports\Msmq\CorrelationIdMutatorForBackwardsCompatibilityWithV3.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransportConfigurator.cs" />
     <Compile Include="Unicast\Messages\DeserializeLogicalMessagesBehavior.cs" />
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySagaPersister.cs" />
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySubscriptionStorage.cs" />
-    <Compile Include="Serializers\Json\Config\ConfigureJsonSerializer_Obsolete.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
     <Compile Include="Timeout\TimeoutManager.cs" />
     <Compile Include="Transports\Msmq\Config\ConfigureMsmqMessageQueue_Obsolete.cs" />
@@ -407,7 +401,6 @@
     <Compile Include="Transports\ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionService.cs" />
-    <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer_Obsolete.cs" />
     <Compile Include="Config\ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Config\ConfigurationSource\IConfigurationSource.cs" />
     <Compile Include="Config\Conventions\EndpointHelper.cs" />
