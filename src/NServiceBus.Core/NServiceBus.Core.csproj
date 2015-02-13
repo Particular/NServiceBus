@@ -379,7 +379,6 @@
     <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer_Obsolete.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
     <Compile Include="ConfigureDefaultBuilder_Obsolete.cs" />
-    <Compile Include="Distributor\ConfigureDistributor_Obsolete.cs" />
     <Compile Include="ConfigureFaultsForwarder_Obsolete.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
@@ -400,7 +399,6 @@
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySagaPersister.cs" />
     <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySubscriptionStorage.cs" />
     <Compile Include="Serializers\Json\Config\ConfigureJsonSerializer_Obsolete.cs" />
-    <Compile Include="Distributor\MasterNode\ConfigureMasterNode_Obsolete.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
     <Compile Include="Timeout\TimeoutManager.cs" />
     <Compile Include="Transports\Msmq\Config\ConfigureMsmqMessageQueue_Obsolete.cs" />
