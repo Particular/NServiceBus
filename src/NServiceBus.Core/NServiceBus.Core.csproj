@@ -312,7 +312,6 @@
     <Compile Include="Saga\IHandleSagaNotFound.cs" />
     <Compile Include="Saga\IHandleTimeouts.cs" />
     <Compile Include="Saga\ISagaPersister.cs" />
-    <Compile Include="Saga\Obsoletes.cs" />
     <Compile Include="Saga\Saga.cs" />
     <Compile Include="Saga\SagaPropertyMapper.cs" />
     <Compile Include="Saga\SagaT.cs" />
