@@ -100,7 +100,6 @@
     <Compile Include="CriticalError\CriticalErrorHandling.cs" />
     <Compile Include="CriticalError\CriticalError.cs" />
     <Compile Include="DataBusPropertyInfo.cs" />
-    <Compile Include="DataBus\ConfigureFileShareDataBus_Obsolete.cs" />
     <Compile Include="DataBus\CustomDataBus.cs" />
     <Compile Include="DataBus\CustomIDataBus.cs" />
     <Compile Include="DataBus\DataBus.cs" />
