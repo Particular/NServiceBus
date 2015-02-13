@@ -14,7 +14,7 @@
         /// <summary>
         /// The known handlers
         /// </summary>
-        public IMessageHandlerRegistry HandlerRegistry { get; set; }
+        public MessageHandlerRegistry HandlerRegistry { get; set; }
 
         /// <summary>
         /// The message routing

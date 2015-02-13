@@ -10,7 +10,7 @@
     /// <summary>
     ///     Maintains the message handlers for this endpoint
     /// </summary>
-    public class MessageHandlerRegistry : IMessageHandlerRegistry
+    public class MessageHandlerRegistry
     {
         internal MessageHandlerRegistry(Conventions conventions)
         {

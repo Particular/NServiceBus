@@ -112,7 +112,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<MessageMetadataRegistry>(() => MessageMetadataRegistry);
 
-            FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
+            FuncBuilder.Register<MessageHandlerRegistry>(() => handlerRegistry);
             FuncBuilder.Register<IMessageMapper>(() => MessageMapper);
 
             FuncBuilder.Register<DeserializeLogicalMessagesBehavior>(() => new DeserializeLogicalMessagesBehavior

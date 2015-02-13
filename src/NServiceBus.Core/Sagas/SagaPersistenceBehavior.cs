@@ -18,7 +18,7 @@
 
         public IDeferMessages MessageDeferrer { get; set; }
 
-        public IMessageHandlerRegistry MessageHandlerRegistry { get; set; }
+        public MessageHandlerRegistry MessageHandlerRegistry { get; set; }
 
         public SagaMetaModel SagaMetaModel { get; set; }
 

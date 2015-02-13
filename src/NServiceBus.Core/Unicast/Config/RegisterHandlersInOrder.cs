@@ -18,7 +18,7 @@ namespace NServiceBus.Features
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (context.Container.HasComponent<IMessageHandlerRegistry>())
+            if (context.Container.HasComponent<MessageHandlerRegistry>())
             {
                 return;
             }
@@ -98,7 +98,7 @@ namespace NServiceBus.Features
                 }
             }
 
-            context.Container.RegisterSingleton<IMessageHandlerRegistry>(handlerRegistry);
+            context.Container.RegisterSingleton(handlerRegistry);
         }
 
         public static bool IsMessageHandler(Type type)
