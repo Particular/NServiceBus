@@ -12,6 +12,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
+    using NServiceBus.Hosting;
     using NServiceBus.ObjectBuilder;
     using NUnit.Framework;
     using Pipeline;
@@ -123,6 +124,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
             FuncBuilder.Register<PipelineExecutor>(() => pipelineFactory);
             FuncBuilder.Register<TransportDefinition>(() => transportDefinition);
+            FuncBuilder.Register<HostInformation>(() => new HostInformation(new Guid("{608247E1-6C1D-4C48-A162-4695B662F12B}"), "TestEndpoint"));
 
             var messagePublisher = new StorageDrivenPublisher
             {
