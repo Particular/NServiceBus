@@ -59,8 +59,8 @@
                     result = Activator.CreateInstance(typeToBuild);
                 }
 
-                //enable property injection
-                var propertyInfos = result.GetType().GetProperties().Where(pi => pi.PropertyType != result.GetType());
+                //enable property injection but do not try to inject on obsoleted properties because they should throw
+                var propertyInfos = result.GetType().GetProperties().Where(pi => pi.PropertyType != result.GetType() && !pi.GetCustomAttributes(typeof(ObsoleteAttribute), false).Any());
                 var propsWithoutFuncs = propertyInfos
                     .Select(p => p.PropertyType)
                     .Intersect(funcs.Select(f => f.Item1)).ToList();
