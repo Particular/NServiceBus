@@ -805,9 +805,6 @@ namespace NServiceBus.Unicast
         {
             var incomingMessage = e.Message;
 
-            incomingMessage.Headers[Headers.HostId] = HostInformation.HostId.ToString("N");
-            incomingMessage.Headers[Headers.HostDisplayName] = HostInformation.DisplayName;
-
             PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage);
 
         }

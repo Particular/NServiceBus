@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using NServiceBus.Hosting;
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Queuing;
     using Settings;
@@ -19,7 +20,7 @@
 
         public ReadOnlySettings Settings { get; set; }
 
-        public UnicastBus UnicastBus { get; set; }
+        public HostInformation Host { get; set; }
 
         public void Invoke(OutgoingContext context, Action next)
         {
@@ -41,7 +42,7 @@
 
             messageToSend.Headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
             messageToSend.Headers.Add(Headers.OriginatingEndpoint, Settings.EndpointName());
-            messageToSend.Headers.Add(Headers.OriginatingHostId, UnicastBus.HostInformation.HostId.ToString("N"));
+            messageToSend.Headers.Add(Headers.OriginatingHostId, Host.HostId.ToString("N"));
           
             try
             {
