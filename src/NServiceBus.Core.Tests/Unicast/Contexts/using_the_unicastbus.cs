@@ -12,7 +12,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
-    using NServiceBus.Hosting;
     using NServiceBus.ObjectBuilder;
     using NUnit.Framework;
     using Pipeline;

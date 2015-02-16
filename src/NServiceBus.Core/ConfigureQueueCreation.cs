@@ -3,7 +3,7 @@ namespace NServiceBus
     /// <summary>
     /// Contains extension methods for <see cref="BusConfiguration"/> that expose Queue creation settings.
     /// </summary>
-    public static partial class ConfigureQueueCreation
+    public static class ConfigureQueueCreation
     {
         /// <summary>
         /// If queues configured do not exist, will cause them not to be created on startup.

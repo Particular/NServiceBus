@@ -33,12 +33,12 @@ namespace NServiceBus.Transports.Msmq
         public void Send(TransportMessage message, SendOptions sendOptions)
         {
             var address = sendOptions.Destination;
-            var queuePath = NServiceBus.MsmqUtilities.GetFullPath(address);
+            var queuePath = MsmqUtilities.GetFullPath(address);
             try
             {
                 using (var q = new MessageQueue(queuePath, false, Settings.UseConnectionCache, QueueAccessMode.Send))
                 {
-                    using (var toSend = NServiceBus.MsmqUtilities.Convert(message))
+                    using (var toSend = MsmqUtilities.Convert(message))
                     {
                         toSend.UseDeadLetterQueue = Settings.UseDeadLetterQueue;
                         toSend.UseJournalQueue = Settings.UseJournalQueue;
@@ -48,7 +48,7 @@ namespace NServiceBus.Transports.Msmq
                         
                         if (replyToAddress != null)
                         {
-                            toSend.ResponseQueue = new MessageQueue(NServiceBus.MsmqUtilities.GetReturnAddress(replyToAddress.ToString(), address.ToString()));
+                            toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(replyToAddress.ToString(), address.ToString()));
                         }
 
                         if (sendOptions.EnlistInReceiveTransaction && UnitOfWork.HasActiveTransaction())
