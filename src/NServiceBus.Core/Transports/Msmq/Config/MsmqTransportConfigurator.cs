@@ -24,6 +24,7 @@
             new CheckMachineNameForComplianceWithDtcLimitation()
             .Check();
 
+            context.Container.ConfigureComponent<CorrelationIdMutatorForBackwardsCompatibilityWithV3>(DependencyLifecycle.InstancePerCall);
             context.Container.ConfigureComponent<MsmqUnitOfWork>(DependencyLifecycle.SingleInstance);
 
             if (!context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
