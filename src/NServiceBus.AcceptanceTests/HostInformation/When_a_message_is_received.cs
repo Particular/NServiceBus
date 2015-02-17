@@ -3,6 +3,7 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Unicast;
     using NUnit.Framework;
 
     public class When_a_message_is_received : NServiceBusAcceptanceTest
@@ -53,6 +54,17 @@
             public MyEndpoint()
             {
                 EndpointSetup<DefaultServer>();
+            }
+        }
+
+        class OverrideHostInformation : INeedInitialization
+        {
+            public void Customize(BusConfiguration configuration)
+            {
+                var hostInformation = configuration.UniquelyIdentifyRunningInstance();
+                hostInformation
+                    .UsingCustomIdentifier(hostId)
+                    .UsingCustomDisplayName(displayName);
             }
         }
     }
