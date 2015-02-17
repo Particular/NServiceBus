@@ -3,7 +3,6 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Unicast;
     using NUnit.Framework;
 
     public class When_a_message_is_received : NServiceBusAcceptanceTest
