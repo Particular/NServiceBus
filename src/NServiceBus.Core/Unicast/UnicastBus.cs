@@ -133,8 +133,9 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(Message = "We have introduced a more explicit API to set the host identifier, see busConfiguration.UniquelyIdentifyRunningInstance()", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
         public HostInformation HostInformation
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            // we should be making the getter and setter throw a NotImplementedException
+            // but some containers try to inject on public properties
+            get; set;
         }
 
         /// <summary>
