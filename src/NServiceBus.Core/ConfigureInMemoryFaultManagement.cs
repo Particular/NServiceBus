@@ -6,7 +6,7 @@ namespace NServiceBus
     /// Contains extension methods to NServiceBus.Configure
     /// </summary>
     [ObsoleteEx(RemoveInVersion = "7",TreatAsErrorFromVersion = "6")]
-    public static partial class ConfigureInMemoryFaultManagement
+    public static class ConfigureInMemoryFaultManagement
     {
         /// <summary>
         /// Tells the endpoint to discard messages that fails

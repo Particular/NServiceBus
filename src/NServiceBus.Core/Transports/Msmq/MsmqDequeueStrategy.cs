@@ -33,7 +33,7 @@ namespace NServiceBus.Transports.Msmq
         {
             publicReceiveAddress = Address.Parse(settings.QueueName);
 
-            queue = new MessageQueue(NServiceBus.MsmqUtilities.GetFullPath(settings.QueueName), false, true, QueueAccessMode.Receive);
+            queue = new MessageQueue(MsmqUtilities.GetFullPath(settings.QueueName), false, true, QueueAccessMode.Receive);
 
             if (isTransactional && !QueueIsTransactional())
             {
