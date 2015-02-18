@@ -53,6 +53,8 @@ namespace NServiceBus.Features
                 context.Settings.Get<Dictionary<string, string>>("NServiceBus.HostInformation.Properties"));
 
             context.Container.RegisterSingleton(hostInfo);
+            context.Pipeline.Register<HostInformationBehavior.Registration>();
+
             context.Container.ConfigureComponent<BusNotifications>(DependencyLifecycle.SingleInstance);
            
 
@@ -104,7 +106,6 @@ namespace NServiceBus.Features
             }, DependencyLifecycle.InstancePerCall);
 
 
-            context.Container.ConfigureComponent(() => hostInfo, DependencyLifecycle.SingleInstance);
 			ConfigureSubscriptionAuthorization(context);
 
 

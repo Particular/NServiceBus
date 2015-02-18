@@ -117,12 +117,6 @@
         }
 
         ReceiveOptions options;
-
-        static ILog Logger = LogManager.GetLogger<MsmqTransportConfigurator>();
-
-
-
-
     }
 
 }

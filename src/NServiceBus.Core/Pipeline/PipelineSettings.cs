@@ -11,16 +11,6 @@ namespace NServiceBus.Pipeline
     /// </summary>
     public class PipelineSettings
     {
-
-        /// <summary>
-        /// Creates an instance of <see cref="PipelineSettings"/>
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6")]
-        public PipelineSettings(BusConfiguration config)
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Creates an instance of <see cref="PipelineSettings"/>
         /// </summary>

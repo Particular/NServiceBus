@@ -293,10 +293,5 @@ namespace NServiceBus.Unicast
         /// <see cref="IBus.CurrentMessageContext"/>
         /// </summary>
         public IMessageContext CurrentMessageContext { get { return busImpl.CurrentMessageContext; } }
-
-        /// <summary>
-        /// <see cref="IBus.InMemory"/>
-        /// </summary>
-        public IInMemoryOperations InMemory { get { return busImpl.InMemory; } }
     }
 }

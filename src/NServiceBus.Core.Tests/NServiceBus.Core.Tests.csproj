@@ -148,7 +148,6 @@
     <Compile Include="Persistence\InMemory\When_saving_a_null_unique_property.cs" />
     <Compile Include="Persistence\PersistenceExtentionsTests.cs" />
     <Compile Include="Persistence\PersistenceStorageMergerTests.cs" />
-    <Compile Include="Persistence\InMemory\InMemorySagaPersistenceFixture.cs" />
     <Compile Include="Pipeline\HandlerTransactionScopeWrapperBehaviorTests.cs" />
     <Compile Include="Pipeline\PipelineExecutorTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />

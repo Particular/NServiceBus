@@ -130,6 +130,7 @@
     <Compile Include="Transports\Msmq\MsmqReceiveWithNoTransactionBehavior.cs" />
     <Compile Include="Transports\ReceiveBehavior.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalOutgoingContext.cs" />
+    <Compile Include="Unicast\Behaviors\SagaInvocationResult.cs" />
     <Compile Include="Unicast\Behaviors\TransportReceiveToPhysicalMessageProcessingConnector.cs" />
     <Compile Include="Pipeline\Contexts\LogicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\IBehaviorInvoker.cs" />
@@ -256,11 +257,7 @@
     <Compile Include="Pipeline\StepEnded.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
     <Compile Include="Scheduling\TaskDefinition.cs" />
-    <Compile Include="SecondLevelRetries\SecondLevelRetriesConfiguration.cs" />
     <Compile Include="Faults\MoveFaultsToErrorQueueBehavior.cs" />
-    <Compile Include="Scheduling\Schedule_Obsolete.cs" />
-    <Compile Include="Scheduling\Scheduler.cs" />
-    <Compile Include="Scheduling\TaskDefinition.cs" />
     <Compile Include="SecondLevelRetries\DefaultSecondLevelRetryPolicy.cs" />
     <Compile Include="Serialization\CustomSerialization.cs" />
     <Compile Include="Serialization\CustomSerializer.cs" />
@@ -278,10 +275,7 @@
     <Compile Include="Serializers\XML\XmlSerializerCache.cs" />
     <Compile Include="Settings\DurableMessagesConfig.cs" />
     <Compile Include="Timeout\ConfigurationBuilderExtensions.cs" />
-    <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
     <Compile Include="Unicast\Behaviors\InvokeSagaNotFoundBehavior.cs" />
-    <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
-    <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Transports\MessageAvailable.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithTransactionScopeBehavior.cs" />
     <Compile Include="Transports\ReceiveOptions.cs" />
@@ -292,7 +286,6 @@
     <Compile Include="Unicast\Behaviors\MessageProcessingAbortedException.cs" />
     <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
     <Compile Include="Unicast\CallbackMessageLookup.cs" />
-    <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
     <Compile Include="Monitoring\SLA\SLABehavior.cs" />
     <Compile Include="Monitoring\CriticalTime\CriticalTimeBehavior.cs" />
@@ -302,14 +295,10 @@
     <Compile Include="Unicast\DefaultHostIdGenerator.cs" />
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Unicast\Messages\HostInformationBehavior.cs" />
-    <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\WeakKeyDictionary.cs" />
-    <Compile Include="Unicast\Publishing\StorageDrivenPublisherNonFunctionalPublisher.cs" />
     <Compile Include="Unicast\StaticOutgoingMessageHeaders.cs" />
-    <Compile Include="Unicast\Transport\Config\TransportConfiguration.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
-    <Compile Include="Unicast\Transport\Config\UseTransportExtensions_Obsolete.cs" />
     <Compile Include="Satellites\ExecuteSatelliteHandlerBehavior.cs" />
     <Compile Include="Pipeline\LimitedThreadPoolExecutor.cs" />
     <Compile Include="Pipeline\ThroughputLimitExecutor.cs" />
@@ -451,12 +440,7 @@
     <Compile Include="Transports\Msmq\CorrelationIdMutatorForBackwardsCompatibilityWithV3.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransportConfigurator.cs" />
-    <Compile Include="Unicast\Messages\DeserializeLogicalMessagesBehavior.cs" />
     <Compile Include="Unicast\Messages\DeserializeLogicalMessagesConnector.cs" />
-    <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySagaPersister.cs" />
-    <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySubscriptionStorage.cs" />
-    <Compile Include="Serializers\Json\Config\ConfigureJsonSerializer_Obsolete.cs" />
-    <Compile Include="Distributor\MasterNode\ConfigureMasterNode_Obsolete.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
     <Compile Include="Timeout\TimeoutManager.cs" />
     <Compile Include="ConfigureQueueCreation.cs" />
@@ -524,10 +508,6 @@
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />
     <Compile Include="Logging\LogManager.cs" />
-    <Compile Include="SecondLevelRetries\TransportMessageHelpers.cs" />
-    <Compile Include="SecondLevelRetries\SecondLevelRetriesProcessor.cs" />
-    <Compile Include="SecondLevelRetries\Helpers\SecondLevelRetriesHeaders.cs" />
-    <Compile Include="MessageConventions_Obsolete.cs" />
     <Compile Include="MessageInterfaces\IMessageMapper.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\MessageMapper.cs" />
     <Compile Include="MessageMutator\IMutateTransportMessages.cs" />
@@ -644,7 +624,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Persistence\InMemory\Obsoletes\" />
+    <Folder Include="SecondLevelRetries\Helpers\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\NServiceBus_Logo-  white.png" />

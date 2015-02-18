@@ -9,9 +9,9 @@
 
     class LoadHandlersConnector : StageConnector<LogicalMessageProcessingStageBehavior.Context, HandlingStageBehavior.Context>
     {
-        readonly IMessageHandlerRegistry messageHandlerRegistry;
+        readonly MessageHandlerRegistry messageHandlerRegistry;
 
-        public LoadHandlersConnector(IMessageHandlerRegistry messageHandlerRegistry)
+        public LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry)
         {
             this.messageHandlerRegistry = messageHandlerRegistry;
         }

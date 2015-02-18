@@ -557,7 +557,7 @@ namespace NServiceBus.Unicast
 
         ICallback SetupCallback(string transportMessageId)
         {
-            var result = new NServiceBus.Callback(transportMessageId, sendOnlyMode);
+            var result = new Callback(transportMessageId, sendOnlyMode);
             result.Registered += (sender, args) => callbackMessageLookup.RegisterResult(args.MessageId, args.Result);
 
             return result;
@@ -599,11 +599,6 @@ namespace NServiceBus.Unicast
                 return new MessageContext(current);
             }
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public IInMemoryOperations InMemory { get; private set; }
 
         /// <summary>
         /// Gets the destination address For a message type.
