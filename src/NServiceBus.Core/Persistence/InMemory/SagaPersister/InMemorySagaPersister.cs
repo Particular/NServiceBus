@@ -94,6 +94,11 @@ namespace NServiceBus.InMemory.SagaPersister
                 .ToList();
             foreach (var correlationProperty in sagaMetaData.CorrelationProperties)
             {
+                if (correlationProperty.Name == null)
+                {
+                    continue;
+                }
+
                 var uniqueProperty = sagaType.GetProperty(correlationProperty.Name);
                 if (!uniqueProperty.CanRead)
                 {
