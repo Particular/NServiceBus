@@ -76,11 +76,17 @@ namespace NServiceBus.Sagas
 
             foreach (var mapping in mapper.Mappings)
             {
-                if (uniquePropertiesOnEntity.All(p => p.Name != mapping.SagaPropName))
+                if (!mapping.IsCustomFinderMap)
                 {
-                    uniquePropertiesOnEntity.Add(new CorrelationProperty { Name = mapping.SagaPropName });    
+                    if (uniquePropertiesOnEntity.All(p => p.Name != mapping.SagaPropName))
+                    {
+                        uniquePropertiesOnEntity.Add(new CorrelationProperty
+                                                     {
+                                                         Name = mapping.SagaPropName
+                                                     });
+                    }
                 }
-                
+
 
                 SetFinderForMessage(mapping, sagaEntityType, finders);
             }
@@ -158,10 +164,9 @@ namespace NServiceBus.Sagas
                 MessageType = mapping.MessageType.FullName
             };
 
-            if (mapping.CustomFinderType != null)
+            if (mapping.IsCustomFinderMap)
             {
                 finder.Type = typeof(CustomFinderAdapter<,>).MakeGenericType(sagaEntityType, mapping.MessageType);
-
                 finder.Properties["custom-finder-clr-type"] = mapping.CustomFinderType;
             }
             else
@@ -169,7 +174,6 @@ namespace NServiceBus.Sagas
                 finder.Type = typeof(PropertySagaFinder<>).MakeGenericType(sagaEntityType);
                 finder.Properties["property-accessor"] = mapping.MessageProp;
                 finder.Properties["saga-property-name"] = mapping.SagaPropName;
-
             }
 
             finders.Add(finder);
