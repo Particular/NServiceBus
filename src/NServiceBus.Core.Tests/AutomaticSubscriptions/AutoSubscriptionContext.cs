@@ -28,7 +28,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
 
         protected void RegisterMessageHandlerType<T>()
         {
-            ((MessageHandlerRegistry) autoSubscriptionStrategy.HandlerRegistry).RegisterHandler(typeof(T));
+            autoSubscriptionStrategy.HandlerRegistry.RegisterHandler(typeof(T));
         }
 
         protected void RegisterMessageType<T>(Address address)

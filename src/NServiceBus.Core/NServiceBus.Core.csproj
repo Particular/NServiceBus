@@ -90,17 +90,13 @@
     <Compile Include="Bus.cs" />
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="ConfigureHandlerSettings.cs" />
-    <Compile Include="ConfigureQueueCreation_Obsolete.cs" />
-    <Compile Include="ConfigureInMemoryFaultManagement_obsolete.cs" />
     <Compile Include="Config\MsmqConnectionStringBuilder.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />
     <Compile Include="ConventionsBuilder.cs" />
-    <Compile Include="CriticalError\ConfigureCriticalErrorAction_Obsolete.cs" />
     <Compile Include="CriticalError\CriticalErrorHandling.cs" />
     <Compile Include="CriticalError\CriticalError.cs" />
     <Compile Include="DataBusPropertyInfo.cs" />
-    <Compile Include="DataBus\ConfigureFileShareDataBus_Obsolete.cs" />
     <Compile Include="DataBus\CustomDataBus.cs" />
     <Compile Include="DataBus\CustomIDataBus.cs" />
     <Compile Include="DataBus\DataBus.cs" />
@@ -112,7 +108,6 @@
     <Compile Include="Encryption\EncryptBehavior.cs" />
     <Compile Include="Encryption\EncryptedValue.cs" />
     <Compile Include="Encryption\Encryptor.cs" />
-    <Compile Include="Encryption\ConfigureRijndaelEncryptionService_Obsolete.cs" />
     <Compile Include="Encryption\RijndaelExpiredKey.cs" />
     <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
@@ -132,14 +127,11 @@
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
     <Compile Include="Hosting\HostInfoConfigurationExtensions.cs" />
     <Compile Include="Hosting\HostInfoSettings.cs" />
-    <Compile Include="IBus_Obsoletes.cs" />
     <Compile Include="IManageMessageHeaders.cs" />
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="Installation\InstallationSupport.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />
-    <Compile Include="Installation\InstallConfigExtensions_obsolete.cs" />
     <Compile Include="ISendOnlyBus.cs" />
-    <Compile Include="Licensing\ConfigureLicenseExtensions_Obsolete.cs" />
     <Compile Include="Logging\DefaultFactory.cs" />
     <Compile Include="Logging\LoggingDefinition.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\ConcreteProxyCreator.cs" />
@@ -148,7 +140,6 @@
     <Compile Include="Monitoring\CriticalTime\CriticalTimeMonitoring.cs" />
     <Compile Include="Monitoring\SLA\SLAMonitoringConfig.cs" />
     <Compile Include="Observable.cs" />
-    <Compile Include="Obsoletes.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />
     <Compile Include="AllAssemblies.cs" />
@@ -157,7 +148,6 @@
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettingsExtensions.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettings.cs" />
     <Compile Include="CompletionResult.cs" />
-    <Compile Include="Configure_Obsolete.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
     <Compile Include="ContentTypes.cs" />
@@ -178,7 +168,6 @@
     <Compile Include="HandlerOrdering\ISpecifyMessageHandlerOrdering.cs" />
     <Compile Include="HandlerOrdering\Order.cs" />
     <Compile Include="Headers.cs" />
-    <Compile Include="Hosting\Configuration\Logging_Obsolete.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
     <Compile Include="Hosting\HostInformation.cs" />
@@ -188,7 +177,6 @@
     <Compile Include="ICommand.cs" />
     <Compile Include="IdGeneration\CombGuid.cs" />
     <Compile Include="IEvent.cs" />
-    <Compile Include="IInMemoryOperations.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="IMessageContext.cs" />
     <Compile Include="IMessageCreator.cs" />
@@ -216,10 +204,8 @@
     <Compile Include="Pipeline\PipelineNotifications.cs" />
     <Compile Include="Pipeline\StepStarted.cs" />
     <Compile Include="Pipeline\StepEnded.cs" />
-    <Compile Include="Scheduling\Schedule_Obsolete.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
     <Compile Include="Scheduling\TaskDefinition.cs" />
-    <Compile Include="SecondLevelRetries\Helpers\TransportMessageHelpers_Obsolete.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetriesConfiguration.cs" />
     <Compile Include="Serialization\CustomSerialization.cs" />
     <Compile Include="Serialization\CustomSerializer.cs" />
@@ -232,29 +218,23 @@
     <Compile Include="Serializers\Json\Json.cs" />
     <Compile Include="Serializers\XML\Config\Xml.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationExtentions.cs" />
-    <Compile Include="Serializers\XML\Config\XmlSerializationSettings_Obsolete.cs" />
     <Compile Include="Serializers\XML\Deserializer.cs" />
     <Compile Include="Serializers\XML\Serializer.cs" />
     <Compile Include="Serializers\XML\XmlSerializerCache.cs" />
     <Compile Include="Settings\DurableMessagesConfig.cs" />
     <Compile Include="Timeout\ConfigurationBuilderExtensions.cs" />
-    <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
     <Compile Include="Unicast\Behaviors\InvokeSagaNotFoundBehavior.cs" />
     <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
-    <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
     <Compile Include="Monitoring\SLA\SLABehavior.cs" />
     <Compile Include="Monitoring\CriticalTime\CriticalTimeBehavior.cs" />
-    <Compile Include="Monitoring\MonitoringConfig_Obsolete.cs" />
     <Compile Include="Monitoring\SLA\SLAMonitoring.cs" />
     <Compile Include="Monitoring\ProcessingStatisticsBehavior.cs" />
     <Compile Include="Unicast\DefaultHostIdGenerator.cs" />
-    <Compile Include="Unicast\IMessageDispatcherFactory_Obsolete.cs" />
     <Compile Include="MessageDeserializationException.cs" />
-    <Compile Include="Unicast\Transport\Config\TransportConfiguration.cs" />
+    <Compile Include="Unicast\Messages\HostInformationBehavior.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
-    <Compile Include="Unicast\Transport\Config\UseTransportExtensions_Obsolete.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\WeakKeyDictionary.cs" />
     <Compile Include="Utils\Guard.cs" />
@@ -294,7 +274,6 @@
     <Compile Include="Outbox\TransportOperationConverter.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayPersistence.cs" />
     <Compile Include="Persistence\InMemory\InMemory.cs" />
-    <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemoryTimeoutPersister.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxPersistence.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxStorage.cs" />
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersistence.cs" />
@@ -329,7 +308,6 @@
     <Compile Include="Saga\IHandleSagaNotFound.cs" />
     <Compile Include="Saga\IHandleTimeouts.cs" />
     <Compile Include="Saga\ISagaPersister.cs" />
-    <Compile Include="Saga\Obsoletes.cs" />
     <Compile Include="Saga\Saga.cs" />
     <Compile Include="Saga\SagaPropertyMapper.cs" />
     <Compile Include="Saga\SagaT.cs" />
@@ -378,58 +356,39 @@
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubscriptionManager.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageInitializer.cs" />
     <Compile Include="Unicast\Transport\TransportMessageExtensions.cs" />
-    <Compile Include="Unicast\UnicastBus_Obsolete.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
-    <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer_Obsolete.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
-    <Compile Include="ConfigureDefaultBuilder_Obsolete.cs" />
-    <Compile Include="Distributor\ConfigureDistributor_Obsolete.cs" />
-    <Compile Include="ConfigureFaultsForwarder_Obsolete.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
     <Compile Include="Features\FeatureActivator.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesConfigExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
-    <Compile Include="Serializers\Binary\Config\BinarySerializerConfigurationExtensions_Obsolete.cs" />
     <Compile Include="Serializers\Json\Config\BsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
-    <Compile Include="Serializers\XML\Config\XmlSerializerConfigurationExtensions_Obsolete.cs" />
-    <Compile Include="Serialization\SerializationSettings.cs" />
     <Compile Include="Transports\Msmq\CorrelationIdMutatorForBackwardsCompatibilityWithV3.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransportConfigurator.cs" />
     <Compile Include="Unicast\Messages\DeserializeLogicalMessagesBehavior.cs" />
-    <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySagaPersister.cs" />
-    <Compile Include="Persistence\InMemory\Obsoletes\ConfigureInMemorySubscriptionStorage.cs" />
-    <Compile Include="Serializers\Json\Config\ConfigureJsonSerializer_Obsolete.cs" />
-    <Compile Include="Distributor\MasterNode\ConfigureMasterNode_Obsolete.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
     <Compile Include="Timeout\TimeoutManager.cs" />
-    <Compile Include="Transports\Msmq\Config\ConfigureMsmqMessageQueue_Obsolete.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\ConfigureMsmqSubscriptionStorage_Obsolete.cs" />
     <Compile Include="ConfigureQueueCreation.cs" />
     <Compile Include="Transports\ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionService.cs" />
-    <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer_Obsolete.cs" />
-    <Compile Include="Config\Advanced\ConfigureSettingLocalAddressNameAction_Obsolete.cs" />
     <Compile Include="Config\ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Config\ConfigurationSource\IConfigurationSource.cs" />
     <Compile Include="Config\Conventions\EndpointHelper.cs" />
-    <Compile Include="Config\ConfigureExtensions.cs" />
     <Compile Include="Config\IWantToRunWhenConfigurationIsComplete.cs" />
     <Compile Include="Logging\Logging.cs" />
     <Compile Include="Distributor\MasterNode\MasterNodeConfig.cs" />
     <Compile Include="Config\MessageEndpointMapping.cs" />
     <Compile Include="Config\MessageEndpointMappingCollection.cs" />
     <Compile Include="Config\MessageForwardingInCaseOfFaultConfig.cs" />
-    <Compile Include="Config\MsmqMessageQueueConfig.cs" />
-    <Compile Include="Config\IFinalizeConfiguration.cs" />
     <Compile Include="Sagas\Sagas.cs" />
     <Compile Include="Satellites\IAdvancedSatellite.cs" />
     <Compile Include="Settings\SettingsHolder.cs" />
@@ -464,7 +423,6 @@
     <Compile Include="DependencyLifecycle.cs" />
     <Compile Include="Encryption\EncryptionMutator.cs" />
     <Compile Include="Encryption\IEncryptionService.cs" />
-    <Compile Include="Encryption\EncryptionService.cs" />
     <Compile Include="Faults\FaultsHeaderKeys.cs" />
     <Compile Include="Faults\Forwarder\Config\FaultsQueueCreator.cs" />
     <Compile Include="Faults\Forwarder\FaultManager.cs" />
@@ -473,7 +431,6 @@
     <Compile Include="Hosting\Configuration\EndpointNameAttribute.cs" />
     <Compile Include="Monitoring\SLA\EndpointSLAAttribute.cs" />
     <Compile Include="Hosting\Configuration\IConfigureThisEndpoint.cs" />
-    <Compile Include="Hosting\Configuration\IWantCustomInitialization.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
@@ -481,7 +438,6 @@
     <Compile Include="IIncludesBuilder.cs" />
     <Compile Include="Impersonation\Windows\WindowsIdentityEnricher.cs" />
     <Compile Include="Installation\INeedToInstallSomething.cs" />
-    <Compile Include="IWantToRunBeforeConfiguration.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Logging\ILog.cs" />
@@ -490,14 +446,12 @@
     <Compile Include="SecondLevelRetries\TransportMessageHelpers.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetriesProcessor.cs" />
     <Compile Include="SecondLevelRetries\Helpers\SecondLevelRetriesHeaders.cs" />
-    <Compile Include="MessageConventions_Obsolete.cs" />
     <Compile Include="MessageInterfaces\IMessageMapper.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\MessageMapper.cs" />
     <Compile Include="MessageMutator\IMutateTransportMessages.cs" />
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />
-    <Compile Include="ObjectBuilder\Common\ConfigureContainer_Obsolete.cs" />
     <Compile Include="ObjectBuilder\Common\IContainer.cs" />
     <Compile Include="ObjectBuilder\IBuilder.cs" />
     <Compile Include="ObjectBuilder\IComponentConfig.cs" />
@@ -532,7 +486,6 @@
     <Compile Include="Serializers\XML\Config\MessageTypesInitializer.cs" />
     <Compile Include="Serializers\XML\XmlMessageSerializer.cs" />
     <Compile Include="Serializers\XML\XmlSanitizingStream.cs" />
-    <Compile Include="Logging\SetLoggingLibrary_Obsolete.cs" />
     <Compile Include="Settings\TransactionSettings.cs" />
     <Compile Include="Timeout\Core\DefaultTimeoutManager.cs" />
     <Compile Include="Timeout\Core\IPersistTimeouts.cs" />
@@ -543,7 +496,6 @@
     <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutPersisterReceiver.cs" />
     <Compile Include="Timeout\Core\TimeoutManagerHeaders.cs" />
-    <Compile Include="TransactionalConfigManager_Obsolete.cs" />
     <Compile Include="TransportMessage.cs" />
     <Compile Include="Licensing\LicenseExpiredForm.cs">
       <SubType>Form</SubType>
@@ -616,7 +568,9 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Persistence\InMemory\Obsoletes\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="Resources\NServiceBus_Logo-  white.png" />
     <None Include="Resources\NServiceBus.png" />

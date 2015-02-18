@@ -23,46 +23,6 @@
         public static readonly Address Self = new Address("__self", "localhost");
 
         /// <summary>
-        /// Get the address of this endpoint.
-        /// </summary>
-        [ObsoleteEx(
-            RemoveInVersion = "6.0", 
-            TreatAsErrorFromVersion = "5.0", 
-            Message = "Please inject an instance of `Configure` and call `Configure.LocalAddress` instead")]
-        public static Address Local
-        {
-            get { throw new InvalidOperationException(); }
-        }
-
-        /// <summary>
-        /// Sets the address of this endpoint.
-        /// </summary>
-        /// <param name="queue">The queue name.</param>
-        [ObsoleteEx(
-            RemoveInVersion = "6.0",
-            TreatAsErrorFromVersion = "5.0",
-            Replacement = "ConfigureTransport<T>.LocalAddress(queue)")]
-// ReSharper disable once UnusedParameter.Global
-         public static void InitializeLocalAddress(string queue)
-        {
-            throw new InvalidOperationException();
-        }
-
-        /// <summary>
-        /// Sets the public return address of this endpoint.
-        /// </summary>
-        /// <param name="address">The public address.</param>
-        [ObsoleteEx(
-            RemoveInVersion = "6.0", 
-            TreatAsErrorFromVersion = "5.0", 
-            Message = "Use `configuration.OverridePublicReturnAddress(address)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces.")]
-// ReSharper disable once UnusedParameter.Global
-        public static void OverridePublicReturnAddress(Address address)
-        {
-            throw new InvalidOperationException();
-        }
-
-        /// <summary>
         /// Sets the address mode, can only be done as long as the local address is not been initialized.By default the default machine equals Environment.MachineName
         /// </summary>
         /// <param name="machineName">The machine name.</param>

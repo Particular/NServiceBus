@@ -18,7 +18,7 @@
 
         public IDeferMessages MessageDeferrer { get; set; }
 
-        public IMessageHandlerRegistry MessageHandlerRegistry { get; set; }
+        public MessageHandlerRegistry MessageHandlerRegistry { get; set; }
 
         public SagaMetaModel SagaMetaModel { get; set; }
 
@@ -94,7 +94,6 @@
                 return;
             }
             sagaInstanceState.ValidateIdHasNotChanged();
-            LogSaga(sagaInstanceState, context);
 
             if (saga.Completed)
             {
@@ -140,24 +139,6 @@
             }
 
             return message.Metadata.MessageHierarchy.Any(messageType => sagaMetadata.IsMessageAllowedToStartTheSaga(messageType.FullName));
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.1", Message = "Enriching the headers for saga related information has been moved to the SagaAudit plugin in ServiceControl.  Add a reference to the Saga audit plugin in your endpoint to get more information.")]
-        void LogSaga(ActiveSagaInstance saga, IncomingContext context)
-        {
-
-            var audit = string.Format("{0}:{1}", saga.Metadata.Name, saga.SagaId);
-
-            string header;
-
-            if (context.IncomingLogicalMessage.Headers.TryGetValue(Headers.InvokedSagas, out header))
-            {
-                context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] += string.Format(";{0}", audit);
-            }
-            else
-            {
-                context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] = audit;
-            }
         }
 
         static bool IsTimeoutMessage(LogicalMessage message)

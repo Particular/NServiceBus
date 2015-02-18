@@ -54,5 +54,14 @@ namespace NServiceBus
             config.Settings.Set("NServiceBus.HostInformation.HostId", DeterministicGuid.Create(instanceName, hostName));
             return this;
         }
+
+        /// <summary>
+        /// Allows to override the display name.
+        /// </summary>
+        public HostInfoSettings UsingCustomDisplayName(string displayName)
+        {
+            config.Settings.Set("NServiceBus.HostInformation.DisplayName", displayName);
+            return this;
+        }
     }
 }

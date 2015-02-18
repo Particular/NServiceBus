@@ -10,7 +10,7 @@
 
     class LoadHandlersBehavior : IBehavior<IncomingContext>
     {
-        public IMessageHandlerRegistry HandlerRegistry { get; set; }
+        public MessageHandlerRegistry HandlerRegistry { get; set; }
 
         public IMessageMapper MessageMapper { get; set; }
 

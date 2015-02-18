@@ -255,8 +255,6 @@
             mutator.MutateOutgoing(message);
 
             Assert.AreEqual(message.Secret.EncryptedValue.EncryptedBase64Value, EncryptedBase64Value);
-            Assert.AreEqual(message.Secret.EncryptedBase64Value, null);
-            Assert.AreEqual(message.Secret.Base64Iv, null);
         }
     }
 

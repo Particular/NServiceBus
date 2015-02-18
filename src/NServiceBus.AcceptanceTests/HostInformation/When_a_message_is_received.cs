@@ -3,9 +3,7 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Config;
     using NUnit.Framework;
-    using Unicast;
 
     public class When_a_message_is_received : NServiceBusAcceptanceTest
     {
@@ -58,16 +56,14 @@
             }
         }
 
-        class OverrideHostInformation : IWantToRunWhenConfigurationIsComplete
+        class OverrideHostInformation : INeedInitialization
         {
-            public UnicastBus UnicastBus { get; set; }
-
-            public void Run(Configure config)
+            public void Customize(BusConfiguration configuration)
             {
-                var hostInformation = new Hosting.HostInformation(hostId, displayName);
-#pragma warning disable 618
-                UnicastBus.HostInformation = hostInformation;
-#pragma warning restore 618
+                var hostInformation = configuration.UniquelyIdentifyRunningInstance();
+                hostInformation
+                    .UsingCustomIdentifier(hostId)
+                    .UsingCustomDisplayName(displayName);
             }
         }
     }

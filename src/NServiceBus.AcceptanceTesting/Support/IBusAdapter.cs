@@ -155,9 +155,5 @@
         }
 
         public IMessageContext CurrentMessageContext { get; private set; }
-
-#pragma warning disable 0618
-        public IInMemoryOperations InMemory { get; private set; }
-#pragma warning restore 0618
     }
 }

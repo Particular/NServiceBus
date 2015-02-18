@@ -97,6 +97,12 @@ namespace NServiceBus.Encryption
                     continue;
                 }
 
+                // don't try to recurse over members of WireEncryptedString
+                if (member.DeclaringType == typeof(WireEncryptedString))
+                {
+                    continue;
+                }
+
                 if (IsIndexedProperty(member))
                 {
                     continue;
@@ -144,10 +150,6 @@ namespace NServiceBus.Encryption
             {
                 var encryptedString = wireEncryptedString;
                 EncryptWireEncryptedString(encryptedString);
-
-                //we clear the properties to avoid having the extra data serialized
-                encryptedString.EncryptedBase64Value = null;
-                encryptedString.Base64Iv = null;
             }
             else
             {

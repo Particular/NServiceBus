@@ -97,7 +97,7 @@
             }
         }
 
-        [ObsoleteEx(RemoveInVersion = "6.0")]
+        [ObsoleteEx(RemoveInVersion = "7.0")]
         bool DoesTypeHaveImplAddedByVersion3(string existingTypeString)
         {
             return existingTypeString.Contains("__impl");

@@ -4,7 +4,7 @@
     using MessageMutator;
     using Unicast.Messages;
 
-    [ObsoleteEx(RemoveInVersion ="6.0")]
+    [ObsoleteEx(RemoveInVersion ="7.0")]
     class CorrelationIdMutatorForBackwardsCompatibilityWithV3 : IMutateOutgoingTransportMessages
     {
         public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)

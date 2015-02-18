@@ -188,11 +188,6 @@
             get { throw new NotImplementedException(); }
         }
 
-        public IInMemoryOperations InMemory
-        {
-            get { throw new NotImplementedException(); }
-        }
-
         public void Dispose()
         {
             

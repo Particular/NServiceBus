@@ -112,7 +112,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<MessageMetadataRegistry>(() => MessageMetadataRegistry);
 
-            FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
+            FuncBuilder.Register<MessageHandlerRegistry>(() => handlerRegistry);
             FuncBuilder.Register<IMessageMapper>(() => MessageMapper);
 
             FuncBuilder.Register<DeserializeLogicalMessagesBehavior>(() => new DeserializeLogicalMessagesBehavior
@@ -124,6 +124,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
             FuncBuilder.Register<PipelineExecutor>(() => pipelineFactory);
             FuncBuilder.Register<TransportDefinition>(() => transportDefinition);
+            FuncBuilder.Register<HostInformation>(() => new HostInformation(new Guid("{608247E1-6C1D-4C48-A162-4695B662F12B}"), "TestEndpoint"));
 
             var messagePublisher = new StorageDrivenPublisher
             {
@@ -151,7 +152,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 MessageRouter = router,
                 Settings = settings,
                 Configure = configure,
-                HostInformation = new HostInformation(Guid.NewGuid(), "HelloWorld")
             };
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CausationMutator { Bus = bus });

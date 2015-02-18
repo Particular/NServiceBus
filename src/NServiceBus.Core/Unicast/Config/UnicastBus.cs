@@ -46,10 +46,10 @@ namespace NServiceBus.Features
             var hostInfo = new HostInformation(context.Settings.Get<Guid>("NServiceBus.HostInformation.HostId"), 
                 context.Settings.Get<string>("NServiceBus.HostInformation.DisplayName"), 
                 context.Settings.Get<Dictionary<string, string>>("NServiceBus.HostInformation.Properties"));
-            
+            context.Container.ConfigureComponent(() => hostInfo, DependencyLifecycle.SingleInstance);
+
             context.Container.ConfigureComponent<Unicast.UnicastBus>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(u => u.InputAddress, defaultAddress)
-                .ConfigureProperty(u => u.HostInformation, hostInfo);
+                .ConfigureProperty(u => u.InputAddress, defaultAddress);
 
             ConfigureSubscriptionAuthorization(context);
 

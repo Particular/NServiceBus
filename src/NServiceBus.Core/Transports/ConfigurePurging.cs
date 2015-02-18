@@ -3,7 +3,7 @@ namespace NServiceBus
     /// <summary>
     /// Configures purging
     /// </summary>
-    public static partial class ConfigurePurging
+    public static class ConfigurePurging
     {
         /// <summary>
         /// Requests that the incoming queue be purged of all messages when the bus is started.

@@ -48,6 +48,7 @@
 
         void RegisterIncomingCoreBehaviors()
         {
+            coordinator.Register(WellKnownStep.HostInformation, typeof(HostInformationBehavior), "Add HostId and ProcessingEnded HostDisplayName");
             coordinator.Register(WellKnownStep.ProcessingStatistics, typeof(ProcessingStatisticsBehavior), "Add ProcessingStarted and ProcessingEnded headers");
             coordinator.Register(WellKnownStep.CreateChildContainer, typeof(ChildContainerBehavior), "Creates the child container");
             coordinator.Register(WellKnownStep.ExecuteUnitOfWork, typeof(UnitOfWorkBehavior), "Executes the UoW");

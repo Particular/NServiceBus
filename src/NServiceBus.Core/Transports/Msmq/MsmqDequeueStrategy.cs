@@ -65,8 +65,8 @@ namespace NServiceBus.Transports.Msmq
                 Timeout = transactionSettings.TransactionTimeout
             };
 
-            queue = new MessageQueue(NServiceBus.MsmqUtilities.GetFullPath(address), false, true, QueueAccessMode.Receive);
-            errorQueue = new MessageQueue(NServiceBus.MsmqUtilities.GetFullPath(ErrorQueue), false, true, QueueAccessMode.Send);
+            queue = new MessageQueue(MsmqUtilities.GetFullPath(address), false, true, QueueAccessMode.Receive);
+            errorQueue = new MessageQueue(MsmqUtilities.GetFullPath(ErrorQueue), false, true, QueueAccessMode.Send);
 
             if (transactionSettings.IsTransactional && !QueueIsTransactional())
             {
@@ -214,7 +214,7 @@ namespace NServiceBus.Transports.Msmq
 
                                 try
                                 {
-                                    transportMessage = NServiceBus.MsmqUtilities.Convert(message);
+                                    transportMessage = MsmqUtilities.Convert(message);
                                 }
                                 catch (Exception exception)
                                 {
@@ -253,7 +253,7 @@ namespace NServiceBus.Transports.Msmq
 
                             try
                             {
-                                transportMessage = NServiceBus.MsmqUtilities.Convert(message);
+                                transportMessage = MsmqUtilities.Convert(message);
                             }
                             catch (Exception ex)
                             {
@@ -281,7 +281,7 @@ namespace NServiceBus.Transports.Msmq
 
                     try
                     {
-                        transportMessage = NServiceBus.MsmqUtilities.Convert(message);
+                        transportMessage = MsmqUtilities.Convert(message);
                     }
                     catch (Exception exception)
                     {

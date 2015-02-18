@@ -76,7 +76,7 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         public static string GetFullPathWithoutPrefix(Address address)
         {
-            return address.Machine + NServiceBus.MsmqUtilities.PRIVATE +  address.Queue;
+            return address.Machine + MsmqUtilities.PRIVATE +  address.Queue;
         }
 
         static void CreateQueue(string queuePath, string account, bool transactional)

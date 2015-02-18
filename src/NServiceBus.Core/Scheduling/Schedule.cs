@@ -10,7 +10,7 @@ namespace NServiceBus
     /// Scheduling capability to schedule a task (as an <see cref="System.Action"/>) to be executed repeatedly in a given interval.
     /// </summary>
     /// <remarks>This is a in-memory list of <see cref="System.Action"/>s.</remarks>
-    public partial class Schedule
+    public class Schedule
     {
         IBuilder builder;
 

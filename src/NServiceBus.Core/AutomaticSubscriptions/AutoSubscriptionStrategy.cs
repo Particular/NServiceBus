@@ -14,7 +14,7 @@
         /// <summary>
         /// The known handlers
         /// </summary>
-        public IMessageHandlerRegistry HandlerRegistry { get; set; }
+        public MessageHandlerRegistry HandlerRegistry { get; set; }
 
         /// <summary>
         /// The message routing
@@ -50,21 +50,4 @@
                 .ToList();
         }
     }
-
-
-    /// <summary>
-    /// Abstracts the strategy for selecting which events to auto-subscribe to during startup
-    /// </summary>
-    [ObsoleteEx(
-      Message = "Not an extension point any more. If you want full control over autosubscribe please turn the feature off and implement your own for-loop calling Bus.Subscribe<YourEvent>() when starting your endpoint",
-      RemoveInVersion = "6.0",
-      TreatAsErrorFromVersion = "5.0")]
-    public interface IAutoSubscriptionStrategy
-    {
-        /// <summary>
-        /// Returns the list of events to auto-subscribe
-        /// </summary>
-        IEnumerable<Type> GetEventsToSubscribe();
-    }
-
 }

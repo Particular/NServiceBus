@@ -24,10 +24,8 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public partial class UnicastBus : IStartableBus, IInMemoryOperations, IManageMessageHeaders
+    public class UnicastBus : IStartableBus, IManageMessageHeaders
     {
-        HostInformation hostInformation;
-
         /// <summary>
         /// Initializes a new instance of <see cref="UnicastBus"/>.
         /// </summary>
@@ -135,16 +133,9 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(Message = "We have introduced a more explicit API to set the host identifier, see busConfiguration.UniquelyIdentifyRunningInstance()", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
         public HostInformation HostInformation
         {
-            get { return hostInformation; }
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException();
-                }
-
-                hostInformation = value;
-            }
+            // we should be making the getter and setter throw a NotImplementedException
+            // but some containers try to inject on public properties
+            get; set;
         }
 
         /// <summary>
@@ -632,7 +623,7 @@ namespace NServiceBus.Unicast
 
         ICallback SetupCallback(string transportMessageId)
         {
-            var result = new NServiceBus.Callback(transportMessageId, Settings.GetOrDefault<bool>("Endpoint.SendOnly"));
+            var result = new Callback(transportMessageId, Settings.GetOrDefault<bool>("Endpoint.SendOnly"));
             result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
             {
                 //TODO: what should we do if the key already exists?
@@ -814,9 +805,6 @@ namespace NServiceBus.Unicast
         void TransportStartedMessageProcessing(object sender, StartedMessageProcessingEventArgs e)
         {
             var incomingMessage = e.Message;
-
-            incomingMessage.Headers[Headers.HostId] = HostInformation.HostId.ToString("N");
-            incomingMessage.Headers[Headers.HostDisplayName] = HostInformation.DisplayName;
 
             PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage);
 

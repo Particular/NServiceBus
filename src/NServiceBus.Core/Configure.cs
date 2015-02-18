@@ -19,7 +19,7 @@ namespace NServiceBus
     /// <summary>
     ///     Central configuration entry point.
     /// </summary>
-    public partial class Configure
+    public class Configure
     {
         /// <summary>
         ///     Creates a new instance of <see cref="Configure"/>.

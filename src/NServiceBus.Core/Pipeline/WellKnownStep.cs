@@ -32,6 +32,10 @@ namespace NServiceBus.Pipeline
         }
 
         /// <summary>
+        /// Host information
+        /// </summary>
+        public static WellKnownStep HostInformation = new WellKnownStep("HostInformation");
+        /// <summary>
         /// Statistics analysis
         /// </summary>
         public static WellKnownStep ProcessingStatistics = new WellKnownStep("ProcessingStatistics");
