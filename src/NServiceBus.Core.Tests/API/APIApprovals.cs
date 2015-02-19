@@ -16,7 +16,6 @@
     [TestFixture]
     public class APIApprovals
     {
-        [Ignore("We reenable when we fix the newline issue")]
         [Test]
         [TestCaseSource("AssemblyPaths")]
         [UseApprovalSubdirectory("approvals")]

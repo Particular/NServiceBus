@@ -1993,6 +1993,7 @@ namespace NServiceBus.Transports
         public bool HasNativePubSubSupport { get; set; }
         public bool HasSupportForCentralizedPubSub { get; set; }
         public System.Nullable<bool> HasSupportForDistributedTransactions { get; set; }
+        public bool HasSupportForMultiQueueNativeTransactions { get; set; }
         public bool RequireOutboxConsent { get; set; }
         protected internal void Configure(NServiceBus.BusConfiguration config) { }
     }
@@ -2028,10 +2029,9 @@ namespace NServiceBus.Transports.Msmq
     }
     public class MsmqMessageSender : NServiceBus.Transports.ISendMessages
     {
-        public MsmqMessageSender() { }
+        public MsmqMessageSender(NServiceBus.Pipeline.BehaviorContext context) { }
         public NServiceBus.Transports.Msmq.Config.MsmqSettings Settings { get; set; }
         public bool SuppressDistributedTransactions { get; set; }
-        public NServiceBus.Transports.Msmq.MsmqUnitOfWork UnitOfWork { get; set; }
         public void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions) { }
     }
     public class MsmqUnitOfWork : System.IDisposable
