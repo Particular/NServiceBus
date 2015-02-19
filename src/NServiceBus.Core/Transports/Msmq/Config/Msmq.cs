@@ -15,6 +15,7 @@ namespace NServiceBus
         public MsmqTransport()
         {
             RequireOutboxConsent = true;
+            HasSupportForMultiQueueNativeTransactions = true;
         }
 
         /// <summary>
