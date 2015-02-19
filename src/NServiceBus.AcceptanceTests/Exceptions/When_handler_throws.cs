@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Exceptions
 {
     using System;
+    using System.Runtime.Serialization;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -92,12 +93,18 @@ at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)
         public class Message : IMessage
         {
         }
+
+        [Serializable]
         public class HandlerException : Exception
         {
             public HandlerException()
                 : base("HandlerException")
             {
 
+            }
+
+            protected HandlerException(SerializationInfo info, StreamingContext context)
+            {
             }
         }
     }

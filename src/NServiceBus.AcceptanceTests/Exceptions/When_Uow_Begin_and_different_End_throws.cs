@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Exceptions
 {
     using System;
+    using System.Runtime.Serialization;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -158,6 +159,8 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
         public class Message : IMessage
         {
         }
+
+        [Serializable]
         public class BeginException : Exception
         {
             public BeginException()
@@ -165,13 +168,23 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
             {
 
             }
+
+            protected BeginException(SerializationInfo info, StreamingContext context)
+            {
+            }
         }
+
+        [Serializable]
         public class EndException : Exception
         {
             public EndException()
                 : base("EndException")
             {
 
+            }
+
+            protected EndException(SerializationInfo info, StreamingContext context)
+            {
             }
         }
     }

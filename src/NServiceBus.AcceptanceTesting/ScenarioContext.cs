@@ -89,7 +89,6 @@
             return endpointLogs.ToList();
         }
 
-
         List<EndpointLogItem> endpointLogs = new List<EndpointLogItem>();
 
         public class EndpointLogItem

@@ -3,8 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.Serialization;
     using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Config;
     using NUnit.Framework;
 
@@ -13,21 +16,26 @@
         [Test]
         public void Should_contain_exception_details()
         {
-            var context = new Context
+            Scenario.Define(() => new Context
             {
                 Id = Guid.NewGuid()
-            };
-            Scenario.Define(context)
+            })
                 .WithEndpoint<SLREndpoint>(b => b.Given((bus, c) => bus.SendLocal(new MessageToBeRetried
                 {
                     Id = c.Id
                 })))
                 .AllowExceptions(e => e.Message.Contains("Simulated exception"))
                 .Done(c => c.MessageSentToError)
-                .Run(TimeSpan.FromMinutes(5));
-
-            Assert.IsInstanceOf<MySpecialException>(context.MessageSentToErrorException);
-            Assert.True(context.GetAllLogs().Any(l => l.Level == "error" && l.Message.Contains("Simulated exception")), "The last exception should be logged as `error` before sending it to the error queue");
+                .Repeat(r => r.For<AllTransports>())
+                .Should(c =>
+                {
+                    Assert.IsInstanceOf<MySpecialException>(c.MessageSentToErrorException);
+                    Assert.True(c.GetAllLogs().Any(l => l.Level == "error" && l.Message.Contains("Simulated exception")), "The last exception should be logged as `error` before sending it to the error queue");
+                })
+                .Run(new RunSettings
+                {
+                    UseSeparateAppDomains = true
+                });
         }
 
         [Test]
@@ -41,7 +49,7 @@
                 .WithEndpoint<SLREndpoint>()
                 .AllowExceptions(e => e.Message.Contains("Simulated exception"))
                 .Done(c => c.MessageSentToError)
-                .Run(TimeSpan.FromMinutes(5));
+                .Run();
 
             //FLR max retries = 3 means we will be processing 4 times. SLR max retries = 2 means we will do 3*FLR
             Assert.AreEqual(4 * 3, context.TotalNumberOfFLRTimesInvokedInHandler);
@@ -91,10 +99,15 @@
             }
         }
 
+        [Serializable]
         public class MySpecialException : Exception
         {
             public MySpecialException()
                 : base("Simulated exception")
+            {
+            }
+
+            protected MySpecialException(SerializationInfo info, StreamingContext context)
             {
             }
         }
