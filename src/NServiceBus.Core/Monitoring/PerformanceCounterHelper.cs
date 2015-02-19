@@ -29,7 +29,7 @@ namespace NServiceBus
                 throw new Exception(string.Format("The endpoint name ('{0}') is too long (longer then {1}) to register as a performance counter instance name. Please reduce the endpoint name.", instanceName, (int)SByte.MaxValue));
             }
 
-            var message = String.Format("NServiceBus performance counter for '{0}' is not set up correctly. To rectify this problem see http://docs.particular.net/search?q=PerformanceCounters.", counterName);
+            var message = String.Format("NServiceBus performance counter for '{0}' is not set up correctly. To rectify this problem download the latest powershell commandlets from http://www.particular.net downloads page.", counterName);
 
             try
             {
