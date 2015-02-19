@@ -9,14 +9,13 @@ namespace NServiceBus.Unicast
         /// <see cref="ISendOnlyBus.Publish{T}()"/>
         /// </summary>
         /// <param name="message"></param>
-        /// <typeparam name="T"></typeparam>
-        public void Publish<T>(T message)
+        public void Publish(object message)
         {
             busImpl.Publish(message);
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Publish{T}(T)"/>
+        /// <see cref="ISendOnlyBus.Publish{T}()"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         public void Publish<T>()

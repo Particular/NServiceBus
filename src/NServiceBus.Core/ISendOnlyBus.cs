@@ -4,14 +4,14 @@ namespace NServiceBus
     using System.Collections.Generic;
 
     /// <summary>
-    /// Provides the subset of bus operations that is applicable for a send only bus
+    /// Provides the subset of bus operations that is applicable for a send only bus.
     /// </summary>
     public interface ISendOnlyBus: IDisposable
     {
         /// <summary>
         /// Publish the message to subscribers.
         /// </summary>
-        void Publish<T>(T message);
+        void Publish(object message);
 
         /// <summary>
         /// Publish the message to subscribers.

@@ -26,6 +26,7 @@ namespace ApiApprover
         }
     }
 
+
     public static class PublicApiGenerator
     {
         // TODO: Assembly references?
@@ -42,8 +43,7 @@ namespace ApiApprover
             {
                 BracingStyle = "C",
                 BlankLinesBetweenMembers = false,
-                VerbatimOrder = false,
-                IndentString = "    "
+                VerbatimOrder = false
             };
 
             using (var provider = new CSharpCodeProvider())
@@ -83,7 +83,7 @@ namespace ApiApprover
 
         private static string NormaliseLineEndings(string value)
         {
-            return Regex.Replace(Regex.Replace(value, @"\r\n|\n\r|\r|\n", Environment.NewLine), string.Format(@"{0}\s*{0}", Environment.NewLine), Environment.NewLine);
+            return Regex.Replace(value, @"\r\n|\n\r|\r|\n", Environment.NewLine);
         }
 
         private static bool IsDelegate(TypeDefinition publicType)
@@ -125,7 +125,7 @@ namespace ApiApprover
             }
             else if (memberInfo is PropertyDefinition)
             {
-                AddPropertyToTypeDeclaration(typeDeclaration, (PropertyDefinition)memberInfo);
+                AddPropertyToTypeDeclaration(typeDeclaration, (PropertyDefinition) memberInfo);
             }
             else if (memberInfo is EventDefinition)
             {
@@ -133,7 +133,7 @@ namespace ApiApprover
             }
             else if (memberInfo is FieldDefinition)
             {
-                AddFieldToTypeDeclaration(typeDeclaration, (FieldDefinition)memberInfo);
+                AddFieldToTypeDeclaration(typeDeclaration, (FieldDefinition) memberInfo);
             }
         }
 
@@ -165,7 +165,7 @@ namespace ApiApprover
             if (IsDelegate(publicType))
                 return CreateDelegateDeclaration(publicType);
 
-            var @static = false;
+            bool @static = false;
             TypeAttributes attributes = 0;
             if (publicType.IsPublic || publicType.IsNestedPublic)
                 attributes |= TypeAttributes.Public;
@@ -257,7 +257,7 @@ namespace ApiApprover
             if (declaration.TypeParameters.Count > 0)
             {
                 var parameterNames = from parameterType in declaration.TypeParameters.Cast<CodeTypeParameter>()
-                                     select parameterType.Name;
+                    select parameterType.Name;
                 declaration.Name = string.Format("{0}<{1}>", declaration.Name, string.Join(", ", parameterNames));
             }
 
@@ -368,7 +368,6 @@ namespace ApiApprover
 
         private static readonly HashSet<string> SkipAttributeNames = new HashSet<string>
         {
-            "ReleaseDateAttribute",
             "System.CodeDom.Compiler.GeneratedCodeAttribute",
             "System.ComponentModel.EditorBrowsableAttribute",
             "System.Runtime.CompilerServices.AsyncStateMachineAttribute",
@@ -400,13 +399,13 @@ namespace ApiApprover
         {
             if (attributeArgument.Value is CustomAttributeArgument)
             {
-                return CreateInitialiserExpression((CustomAttributeArgument)attributeArgument.Value);
+                return CreateInitialiserExpression((CustomAttributeArgument) attributeArgument.Value);
             }
 
             if (attributeArgument.Value is CustomAttributeArgument[])
             {
-                var initialisers = from argument in (CustomAttributeArgument[])attributeArgument.Value
-                                   select CreateInitialiserExpression(argument);
+                var initialisers = from argument in (CustomAttributeArgument[]) attributeArgument.Value
+                    select CreateInitialiserExpression(argument);
                 return new CodeArrayCreateExpression(CreateCodeTypeReference(attributeArgument.Type), initialisers.ToArray());
             }
 
@@ -587,9 +586,9 @@ namespace ApiApprover
             if (typeDefinition.IsInterface)
             {
                 var interfaceMethods = from @interfaceReference in typeDefinition.Interfaces
-                                       let interfaceDefinition = @interfaceReference.Resolve()
-                                       where interfaceDefinition != null
-                                       select interfaceDefinition.Methods;
+                    let interfaceDefinition = @interfaceReference.Resolve()
+                    where interfaceDefinition != null
+                    select interfaceDefinition.Methods;
 
                 return interfaceMethods.Any(ms => MetadataResolver.GetMethod(ms, method) != null);
             }
@@ -681,12 +680,12 @@ namespace ApiApprover
             // Scope should be the same for getter and setter. If one isn't specified, it'll be 0
             var getterScope = getterAttributes & MemberAttributes.ScopeMask;
             var setterScope = setterAttributes & MemberAttributes.ScopeMask;
-            var scope = (MemberAttributes)Math.Max((int)getterScope, (int)setterScope);
+            var scope = (MemberAttributes) Math.Max((int) getterScope, (int) setterScope);
 
             // Vtable should be the same for getter and setter. If one isn't specified, it'll be 0
             var getterVtable = getterAttributes & MemberAttributes.VTableMask;
             var setterVtable = setterAttributes & MemberAttributes.VTableMask;
-            var vtable = (MemberAttributes)Math.Max((int)getterVtable, (int)setterVtable);
+            var vtable = (MemberAttributes) Math.Max((int) getterVtable, (int) setterVtable);
 
             return access | scope | vtable;
         }
@@ -791,6 +790,5 @@ namespace ApiApprover
         }
     }
 }
-
 // ReSharper restore BitwiseOperatorOnEnumWihtoutFlags
 // ReSharper restore CheckNamespace

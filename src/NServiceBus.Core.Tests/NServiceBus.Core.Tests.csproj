@@ -110,8 +110,6 @@
   <ItemGroup>
     <Compile Include="Address\AddressTests.cs" />
     <Compile Include="API\APIApprovals.cs" />
-    <Compile Include="API\PublicApiApprover.cs" />
-    <Compile Include="API\PublicApiGenerator.cs" />
     <Compile Include="AssemblyLocation.cs" />
     <Compile Include="AssemblyScanner\AssemblyScannerTests.cs" />
     <Compile Include="AssemblyScanner\When_directory_with_no_reference_dlls_is_scanned.cs" />
@@ -150,6 +148,8 @@
     <Compile Include="Persistence\PersistenceStorageMergerTests.cs" />
     <Compile Include="Pipeline\HandlerTransactionScopeWrapperBehaviorTests.cs" />
     <Compile Include="Pipeline\PipelineExecutorTests.cs" />
+    <Compile Include="PublicApiApprover.cs" />
+    <Compile Include="PublicApiGenerator.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
     <Compile Include="Sagas\TypeBasedSagaMetaModelTests.cs" />
     <Compile Include="SecondLevelRetries\DefaultRetryPolicyTests.cs" />
