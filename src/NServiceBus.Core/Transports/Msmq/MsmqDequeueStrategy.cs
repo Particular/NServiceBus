@@ -6,7 +6,6 @@ namespace NServiceBus.Transports.Msmq
     using System.Threading;
     using Janitor;
     using NServiceBus.CircuitBreakers;
-    using NServiceBus.Logging;
 
     /// <summary>
     ///     Default implementation of <see cref="IDequeueMessages" /> for MSMQ.
@@ -151,7 +150,6 @@ namespace NServiceBus.Transports.Msmq
                 : "Unknown User";
         }
 
-        static ILog Logger = LogManager.GetLogger<MsmqDequeueStrategy>();
         CriticalError criticalError;
         readonly bool isTransactional;
         readonly Address errorQueueAddress;

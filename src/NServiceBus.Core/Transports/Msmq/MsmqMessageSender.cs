@@ -4,6 +4,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Messaging;
     using System.Transactions;
     using Config;
+    using NServiceBus.Pipeline;
     using Unicast;
     using Unicast.Queuing;
 
@@ -12,15 +13,22 @@ namespace NServiceBus.Transports.Msmq
     /// </summary>
     public class MsmqMessageSender : ISendMessages
     {
+        readonly BehaviorContext context;
+
+        /// <summary>
+        /// Creates a new sender.
+        /// </summary>
+        /// <param name="context"></param>
+        public MsmqMessageSender(BehaviorContext context)
+        {
+            this.context = context;
+        }
+
         /// <summary>
         /// MsmqSettings
         /// </summary>
         public MsmqSettings Settings { get; set; }
 
-        /// <summary>
-        /// MsmqUnitOfWork
-        /// </summary>
-        public MsmqUnitOfWork UnitOfWork { get; set; }
 
         /// <summary>
         /// SuppressDistributedTransactions
@@ -51,9 +59,12 @@ namespace NServiceBus.Transports.Msmq
                             toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(replyToAddress.ToString(), address.ToString()));
                         }
 
-                        if (sendOptions.EnlistInReceiveTransaction && UnitOfWork.HasActiveTransaction())
+                        MessageQueueTransaction receiveTransaction;
+                        context.TryGet(out receiveTransaction);
+
+                        if (sendOptions.EnlistInReceiveTransaction && receiveTransaction != null)
                         {
-                            q.Send(toSend, UnitOfWork.Transaction);
+                            q.Send(toSend, receiveTransaction);
                         }
                         else
                         {
