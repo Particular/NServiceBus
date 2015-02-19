@@ -6,8 +6,7 @@
 
     public class FakeBus : IBus 
     {
-
-        public void Publish<T>(T message)
+        public void Publish(object message)
         {
             throw new NotImplementedException();
         }

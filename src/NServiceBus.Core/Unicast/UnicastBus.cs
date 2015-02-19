@@ -213,9 +213,9 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Publish{T}(T)"/>
+        /// <see cref="ISendOnlyBus.Publish(object)"/>
         /// </summary>
-        public virtual void Publish<T>(T message)
+        public virtual void Publish(object message)
         {
             var logicalMessage = LogicalMessageFactory.Create(message);
             var options = new PublishOptions(logicalMessage.MessageType);
