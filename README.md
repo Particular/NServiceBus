@@ -97,7 +97,7 @@ RavenDB is under both a OSS and a commercial license described [here](http://rav
 
 The commercial version can be used free of charge for NServiceBus specific storage needs like:
 
-Subscriptions, Sagas, Timeouts, etc 
+Subscriptions, Sagas, Timeouts, etc.
 
 Application specific use requires a paid RavenDB license
 
