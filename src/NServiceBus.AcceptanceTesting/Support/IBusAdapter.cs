@@ -17,7 +17,7 @@
             sendOnlyBus.Dispose();
         }
 
-        public void Publish<T>(T message)
+        public void Publish(object message)
         {
             sendOnlyBus.Publish(message);
         }
