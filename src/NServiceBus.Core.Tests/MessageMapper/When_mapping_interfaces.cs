@@ -38,12 +38,13 @@ namespace MessageMapperTests
         }
 
         [Test]
-        public void Interfaces_with_methods_should_be_ignored()
+        public void Interfaces_with_methods_are_not_supported()
         {
             var mapper = new MessageMapper();
-            mapper.Initialize(new[] { typeof(InterfaceWithMethods) });
-
-            Assert.Null(mapper.GetMappedTypeFor(typeof(InterfaceWithMethods)));
+            Assert.Throws<Exception>(() => mapper.Initialize(new[]
+            {
+                typeof(InterfaceWithMethods)
+            }));
         }
 
         public interface InterfaceWithMethods
