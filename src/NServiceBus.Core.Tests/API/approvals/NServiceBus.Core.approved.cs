@@ -13,20 +13,12 @@ namespace NServiceBus
         public static readonly NServiceBus.Address Undefined;
         public Address(string queueName, string machineName) { }
         protected Address(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
-        [System.ObsoleteAttribute("Please inject an instance of `Configure` and call `Configure.LocalAddress` instea" +
-            "d. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Address Local { get; }
         public string Machine { get; }
         public string Queue { get; }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
         public static void IgnoreMachineName() { }
-        [System.ObsoleteAttribute("Please use `ConfigureTransport<T>.LocalAddress(queue)` instead. Will be removed i" +
-            "n version 6.0.0.", true)]
-        public static void InitializeLocalAddress(string queue) { }
         public static void OverrideDefaultMachine(string machineName) { }
-        [System.ObsoleteAttribute(@"Use `configuration.OverridePublicReturnAddress(address)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static void OverridePublicReturnAddress(NServiceBus.Address address) { }
         public static NServiceBus.Address Parse(string destination) { }
         public NServiceBus.Address SubScope(string qualifier) { }
         public override string ToString() { }
@@ -50,12 +42,6 @@ namespace NServiceBus
     {
         public BinarySerializer() { }
         protected internal override System.Type ProvidedByFeature() { }
-    }
-    [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<BinarySerializer>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-    public class static BinarySerializerConfigurationExtensions
-    {
-        [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<BinarySerializer>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure Binary(this NServiceBus.Settings.SerializationSettings settings) { }
     }
     public class BsonSerializer : NServiceBus.Serialization.SerializationDefinition
     {
@@ -82,9 +68,6 @@ namespace NServiceBus
         public NServiceBus.ConventionsBuilder Conventions() { }
         public void CustomConfigurationSource(NServiceBus.Config.ConfigurationSource.IConfigurationSource configurationSource) { }
         public void EndpointName(string name) { }
-        [System.ObsoleteAttribute("This api does not do anything. Will be treated as an error from version 5.2.0. Wi" +
-            "ll be removed in version 6.0.0.", false)]
-        public void EndpointVersion(string version) { }
         public void OverrideLocalAddress(string queue) { }
         public void OverridePublicReturnAddress(NServiceBus.Address address) { }
         public void RegisterComponents(System.Action<NServiceBus.ObjectBuilder.IConfigureComponents> registration) { }
@@ -123,133 +106,19 @@ namespace NServiceBus
     }
     public class Configure
     {
-        [System.ObsoleteAttribute(@"Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static System.Func<string> GetEndpointNameAction;
-        [System.ObsoleteAttribute("No longer an extension point for NSB. Will be removed in version 6.0.0.", true)]
-        public static System.Func<System.IO.FileInfo, System.Reflection.Assembly> LoadAssembly;
         public Configure(NServiceBus.Settings.SettingsHolder settings, NServiceBus.ObjectBuilder.Common.IContainer container, System.Collections.Generic.List<System.Action<NServiceBus.ObjectBuilder.IConfigureComponents>> registrations, NServiceBus.Pipeline.PipelineSettings pipeline) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
-        [System.ObsoleteAttribute(@"Use `configuration.RegisterComponents(c => c.ConfigureComponent... ))`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public NServiceBus.ObjectBuilder.IConfigureComponents Configurer { get; set; }
-        [System.ObsoleteAttribute(@"Use `configuration.EndpointName('MyEndpoint')`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static string EndpointName { get; }
-        [System.ObsoleteAttribute(@"This has been converted to extension methods. Use `configuration.EnableFeature<T>()` or `configuration.DisableFeature<T>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Features.FeatureSettings Features { get; }
-        [System.ObsoleteAttribute(@"Configure is now instance based. For usages before the container is configured an instance of `Configure` is passed in. For usages after the container is configured then an instance of `Configure` can be extracted from the container. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure Instance { get; }
         public NServiceBus.Address LocalAddress { get; }
-        [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<BinarySerializer>())`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Settings.SerializationSettings Serialization { get; }
         public NServiceBus.Settings.SettingsHolder Settings { get; }
-        [System.ObsoleteAttribute(@"This has been converted to an extension method. Use `configuration.Transactions()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Settings.TransactionSettings Transactions { get; }
         public System.Collections.Generic.IList<System.Type> TypesToScan { get; }
-        [System.ObsoleteAttribute("Will be removed in version 6.0.0.", true)]
-        public static bool BuilderIsConfigured() { }
-        [System.ObsoleteAttribute("Configure is now instance based. Please use `configure.Configurer.ConfigureCompon" +
-            "ent` instead. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.ObjectBuilder.IComponentConfig Component(System.Type type, NServiceBus.DependencyLifecycle lifecycle) { }
-        [System.ObsoleteAttribute("Configure is now instance based. Please use `configure.Configurer.ConfigureCompon" +
-            "ent` instead. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.ObjectBuilder.IComponentConfig<T> Component<T>(NServiceBus.DependencyLifecycle lifecycle) { }
-        [System.ObsoleteAttribute("Configure is now instance based. Please use `configure.Configurer.ConfigureCompon" +
-            "ent` instead. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.ObjectBuilder.IComponentConfig<T> Component<T>(System.Func<T> componentFactory, NServiceBus.DependencyLifecycle lifecycle) { }
-        [System.ObsoleteAttribute("Configure is now instance based. Please use `configure.Configurer.ConfigureCompon" +
-            "ent` instead. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.ObjectBuilder.IComponentConfig<T> Component<T>(System.Func<NServiceBus.ObjectBuilder.IBuilder, T> componentFactory, NServiceBus.DependencyLifecycle lifecycle) { }
-        [System.ObsoleteAttribute("Not needed, can safely be removed. Will be removed in version 6.0.0.", true)]
-        public NServiceBus.IStartableBus CreateBus() { }
-        [System.ObsoleteAttribute(@"Use `configuration.CustomConfigurationSource(myConfigSource)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public NServiceBus.Configure CustomConfigurationSource(NServiceBus.Config.ConfigurationSource.IConfigurationSource configurationSource) { }
-        [System.ObsoleteAttribute(@"Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DefineEndpointName(System.Func<string> definesEndpointName) { }
-        [System.ObsoleteAttribute(@"Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DefineEndpointName(string name) { }
-        [System.ObsoleteAttribute("Please use `ReadOnlySettings.GetConfigSection<T>` instead. Will be removed in ver" +
-            "sion 6.0.0.", true)]
-        public static T GetConfigSection<T>() { }
-        [System.ObsoleteAttribute("Configure is now instance based. Please use `configure.Configurer.HasComponent` i" +
-            "nstead. Will be removed in version 6.0.0.", true)]
-        public static bool HasComponent<T>() { }
-        [System.ObsoleteAttribute("Configure is now instance based. Please use `configure.Configurer.HasComponent` i" +
-            "nstead. Will be removed in version 6.0.0.", true)]
-        public static bool HasComponent(System.Type componentType) { }
-        [System.ObsoleteAttribute("Simply execute this action instead of calling this method. Will be removed in ver" +
-            "sion 6.0.0.", true)]
-        public NServiceBus.Configure RunCustomAction(System.Action action) { }
-        [System.ObsoleteAttribute("Please use `Bus.Create(new BusConfiguration())` instead. Will be removed in versi" +
-            "on 6.0.0.", true)]
-        public static NServiceBus.Configure With() { }
-        [System.ObsoleteAttribute(@"Use `configuration.ScanAssembliesInDirectory(directoryToProbe)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure With(string probeDirectory) { }
-        [System.ObsoleteAttribute(@"Use `configuration.AssembliesToScan(listOfAssemblies)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure With(System.Collections.Generic.IEnumerable<System.Reflection.Assembly> assemblies) { }
-        [System.ObsoleteAttribute(@"Use `configuration.AssembliesToScan(listOfAssemblies)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure With(params System.Reflection.Assembly[] assemblies) { }
-        [System.ObsoleteAttribute(@"Use `configuration.TypesToScan(listOfTypes)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure With(System.Collections.Generic.IEnumerable<System.Type> typesToScan) { }
-        [System.ObsoleteAttribute("Will be removed in version 6.0.0.", true)]
-        public static bool WithHasBeenCalled() { }
-    }
-    [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<BinarySerializer>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-    public class static ConfigureBinarySerializer
-    {
-        [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<BinarySerializer>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure BinarySerializer(this NServiceBus.Configure config) { }
     }
     public class static ConfigureCriticalErrorAction
     {
-        [System.ObsoleteAttribute("Use `configuration.DefineCriticalErrorAction()`, where configuration is an instan" +
-            "ce of type `BusConfiguration`. Please use `ConfigureCriticalErrorAction.DefineCr" +
-            "iticalErrorAction()` instead. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DefineCriticalErrorAction(this NServiceBus.Configure config, System.Action<string, System.Exception> onCriticalError) { }
         public static void DefineCriticalErrorAction(this NServiceBus.BusConfiguration busConfiguration, System.Action<string, System.Exception> onCriticalError) { }
-        [System.ObsoleteAttribute("Inject an instace of `CriticalError` and call `CriticalError.Raise`. Will be remo" +
-            "ved in version 6.0.0.", true)]
-        public static void RaiseCriticalError(string errorMessage, System.Exception exception) { }
-    }
-    [System.ObsoleteAttribute("Default builder will be used automatically. It is safe to remove this code. Will " +
-        "be removed in version 6.0.0.", true)]
-    public class static ConfigureDefaultBuilder
-    {
-        [System.ObsoleteAttribute("Default builder will be used automatically. It is safe to remove this code. Will " +
-            "be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DefaultBuilder(this NServiceBus.Configure config) { }
-    }
-    [System.ObsoleteAttribute("The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distribu" +
-        "tor.MSMQ.dll), please make sure you reference the new assembly. Will be removed " +
-        "in version 6.0.0.", true)]
-    public class static ConfigureDistributor
-    {
-        public static bool DistributorConfiguredToRunOnThisEndpoint(this NServiceBus.Configure config) { }
-        public static bool DistributorEnabled(this NServiceBus.Configure config) { }
-        public static NServiceBus.Configure EnlistWithDistributor(this NServiceBus.Configure config) { }
-        public static NServiceBus.Configure RunDistributor(this NServiceBus.Configure config, bool withWorker = True) { }
-        public static NServiceBus.Configure RunDistributorWithNoWorkerOnItsEndpoint(this NServiceBus.Configure config) { }
-        public static bool WorkerRunsOnThisEndpoint(this NServiceBus.Configure config) { }
-    }
-    [System.ObsoleteAttribute("Will be removed in version 6.0.0.", true)]
-    public class static ConfigureExtensions
-    {
-        [System.ObsoleteAttribute("Please use `Bus.CreateSendOnly(new BusConfiguration())` instead. Will be removed " +
-            "in version 6.0.0.", true)]
-        public static NServiceBus.IBus SendOnly(this NServiceBus.Configure config) { }
-    }
-    [System.ObsoleteAttribute("Will be removed in version 6.0.0.", true)]
-    public class static ConfigureFaultsForwarder
-    {
-        [System.ObsoleteAttribute("It is safe to remove this method call. This is the default behavior. Will be remo" +
-            "ved in version 6.0.0.", true)]
-        public static NServiceBus.Configure MessageForwardingInCaseOfFault(this NServiceBus.Configure config) { }
     }
     public class static ConfigureFileShareDataBus
     {
         public static NServiceBus.DataBus.DataBusExtentions<NServiceBus.FileShareDataBus> BasePath(this NServiceBus.DataBus.DataBusExtentions<NServiceBus.FileShareDataBus> config, string basePath) { }
-        [System.ObsoleteAttribute(@"Use `configuration.FileShareDataBus(basePath)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Please use `ConfigureFileShareDataBus.FileShareDataBus(this BusConfiguration config, string basePath)` instead. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure FileShareDataBus(this NServiceBus.Configure config, string basePath) { }
-        [System.ObsoleteAttribute(@"Use `configuration.UseDataBus<FileShareDataBus>().BasePath(basePath)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be treated as an error from version 5.5.0. Will be removed in version 6.0.0.", false)]
-        public static void FileShareDataBus(this NServiceBus.BusConfiguration config, string basePath) { }
     }
     public class static ConfigureHandlerSettings
     {
@@ -258,181 +127,31 @@ namespace NServiceBus
     public class static ConfigureInMemoryFaultManagement
     {
         public static void DiscardFailedMessagesInsteadOfSendingToErrorQueue(this NServiceBus.BusConfiguration config) { }
-        [System.ObsoleteAttribute(@"Use `configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure InMemoryFaultManagement(this NServiceBus.Configure config) { }
-    }
-    [System.ObsoleteAttribute("Use `configuration.UsePersistence<InMemoryPersistence>()`, where configuration is" +
-        " an instance of type `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-    public class static ConfigureInMemorySagaPersister
-    {
-        [System.ObsoleteAttribute("Use `configuration.UsePersistence<InMemoryPersistence>()`, where configuration is" +
-            " an instance of type `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure InMemorySagaPersister(this NServiceBus.Configure config) { }
-    }
-    [System.ObsoleteAttribute("Use `configuration.UsePersistence<InMemoryPersistence>()`, where configuration is" +
-        " an instance of type `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-    public class static ConfigureInMemorySubscriptionStorage
-    {
-        [System.ObsoleteAttribute("Use `configuration.UsePersistence<InMemoryPersistence>()`, where configuration is" +
-            " an instance of type `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure InMemorySubscriptionStorage(this NServiceBus.Configure config) { }
-    }
-    [System.ObsoleteAttribute("Use `configuration.UsePersistence<InMemoryPersistence>()`, where configuration is" +
-        " an instance of type `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-    public class static ConfigureInMemoryTimeoutPersister
-    {
-        [System.ObsoleteAttribute("Use `configuration.UsePersistence<InMemoryPersistence>()`, where configuration is" +
-            " an instance of type `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure UseInMemoryTimeoutPersister(this NServiceBus.Configure config) { }
-    }
-    [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<JsonSerializer>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-    public class static ConfigureJsonSerializer
-    {
-        [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<BsonSerializer>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure BsonSerializer(this NServiceBus.Configure config) { }
-        [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<JsonSerializer>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure JsonSerializer(this NServiceBus.Configure config) { }
     }
     public class static ConfigureLicenseExtensions
     {
-        [System.ObsoleteAttribute("Use `configuration.License(licenseText)`, where configuration is an instance of t" +
-            "ype `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure License(this NServiceBus.Configure config, string licenseText) { }
         public static void License(this NServiceBus.BusConfiguration config, string licenseText) { }
-        [System.ObsoleteAttribute("Use `configuration.LicensePath(licenseFile)`, where configuration is an instance " +
-            "of type `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure LicensePath(this NServiceBus.Configure config, string licenseFile) { }
         public static void LicensePath(this NServiceBus.BusConfiguration config, string licenseFile) { }
-    }
-    [System.ObsoleteAttribute("The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distribu" +
-        "tor.MSMQ.dll), please make sure you reference the new assembly. Will be removed " +
-        "in version 6.0.0.", true)]
-    public class static ConfigureMasterNode
-    {
-        public static NServiceBus.Configure AsMasterNode(this NServiceBus.Configure config) { }
-        public static string GetMasterNode(this NServiceBus.Configure config) { }
-        public static NServiceBus.Address GetMasterNodeAddress(this NServiceBus.Configure config) { }
-        public static bool HasMasterNode(this NServiceBus.Configure config) { }
-        public static bool IsConfiguredAsMasterNode(this NServiceBus.Configure config) { }
-    }
-    [System.ObsoleteAttribute(@"Please use 'UsingTransport<MsmqTransport>' on your 'IConfigureThisEndpoint' class or use `configuration.UseTransport<MsmqTransport>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-    public class static ConfigureMsmqMessageQueue
-    {
-        [System.ObsoleteAttribute(@"Please use 'UsingTransport<MsmqTransport>' on your 'IConfigureThisEndpoint' class or use `configuration.UseTransport<MsmqTransport>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure MsmqTransport(this NServiceBus.Configure config) { }
-    }
-    [System.ObsoleteAttribute(@"Use `configuration.UsePersistence<MsmqPersistence>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-    public class static ConfigureMsmqSubscriptionStorage
-    {
-        [System.ObsoleteAttribute("Assign the queue name via `MsmqSubscriptionStorageConfig` section. Will be remove" +
-            "d in version 6.0.0.", true)]
-        public static NServiceBus.Address Queue { get; set; }
-        [System.ObsoleteAttribute(@"Use configuration.UsePersistence<MsmqPersistence>(), where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure MsmqSubscriptionStorage(this NServiceBus.Configure config) { }
-        [System.ObsoleteAttribute("Use `configuration.UsePersistence<MsmqPersistence>()`, where `configuration` is a" +
-            "n instance of type `BusConfiguration` and assign the queue name via `MsmqSubscri" +
-            "ptionStorageConfig` section. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure MsmqSubscriptionStorage(this NServiceBus.Configure config, string endpointName) { }
     }
     public class static ConfigurePurging
     {
-        [System.ObsoleteAttribute("The `ReadOnlySettings` extension method `ConfigurePurging.GetPurgeOnStartup`. Wil" +
-            "l be removed in version 6.0.0.", true)]
-        public static bool PurgeRequested { get; }
-        [System.ObsoleteAttribute(@"Use `configuration.PurgeOnStartup()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure PurgeOnStartup(this NServiceBus.Configure config, bool value) { }
         public static void PurgeOnStartup(this NServiceBus.BusConfiguration config, bool value) { }
         public static bool PurgeOnStartup(this NServiceBus.Configure config) { }
     }
     public class static ConfigureQueueCreation
     {
-        [System.ObsoleteAttribute("Will be removed in version 6.0.0.", true)]
-        public static bool DontCreateQueues { get; }
         public static bool CreateQueues(this NServiceBus.Configure config) { }
-        [System.ObsoleteAttribute(@"Use `configuration.DoNotCreateQueues()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DoNotCreateQueues(this NServiceBus.Configure config) { }
         public static void DoNotCreateQueues(this NServiceBus.BusConfiguration config) { }
-    }
-    [System.ObsoleteAttribute("RavenDB has been moved to its own stand alone nuget \'NServiceBus.RavenDB\'. Will b" +
-        "e removed in version 6.0.0.", true)]
-    public class static ConfigureRavenPersistence
-    {
-        [System.ObsoleteAttribute("RavenDB has been moved to its own stand alone nuget \'NServiceBus.RavenDB\'. Will b" +
-            "e removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure CustomiseRavenPersistence(this NServiceBus.Configure config, object callback) { }
-        [System.ObsoleteAttribute(@"RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetMessageToDatabaseMappingConvention(convention)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure MessageToDatabaseMappingConvention(this NServiceBus.Configure config, System.Func<NServiceBus.IMessageContext, string> convention) { }
-        [System.ObsoleteAttribute(@"RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package.` Use `configuration.UsePersistence<RavenDBPersistence>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure RavenPersistence(this NServiceBus.Configure config) { }
-        [System.ObsoleteAttribute(@"RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure RavenPersistence(this NServiceBus.Configure config, string connectionStringName) { }
-        [System.ObsoleteAttribute(@"RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure RavenPersistence(this NServiceBus.Configure config, string connectionStringName, string database) { }
-        [System.ObsoleteAttribute(@"RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure RavenPersistence(this NServiceBus.Configure config, System.Func<string> getConnectionString) { }
-        [System.ObsoleteAttribute(@"RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(...)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure RavenPersistence(this NServiceBus.Configure config, System.Func<string> getConnectionString, string database) { }
-        [System.ObsoleteAttribute(@"RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().SetDefaultDocumentStore(documentStore)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure RavenPersistenceWithStore(this NServiceBus.Configure config, object documentStore) { }
-        [System.ObsoleteAttribute(@"RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static void RegisterDefaults() { }
-    }
-    [System.ObsoleteAttribute("RavenDB has been moved to its own stand alone nuget \'NServiceBus.RavenDB\'. Will b" +
-        "e removed in version 6.0.0.", true)]
-    public class static ConfigureRavenSagaPersister
-    {
-        [System.ObsoleteAttribute(@"RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().For(Storage.Sagas)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure RavenSagaPersister(this NServiceBus.Configure config) { }
-    }
-    [System.ObsoleteAttribute("RavenDB has been moved to its own stand alone nuget \'NServiceBus.RavenDB\'. Will b" +
-        "e removed in version 6.0.0.", true)]
-    public class static ConfigureRavenSubscriptionStorage
-    {
-        [System.ObsoleteAttribute(@"RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().For(Storage.Subscriptions)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure RavenSubscriptionStorage(this NServiceBus.Configure config) { }
     }
     public class static ConfigureRijndaelEncryptionService
     {
         public static void RegisterEncryptionService(this NServiceBus.BusConfiguration config, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Encryption.IEncryptionService> func) { }
-        [System.ObsoleteAttribute("Use `configuration.RijndaelEncryptionService()`, where configuration is an instan" +
-            "ce of type `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure RijndaelEncryptionService(this NServiceBus.Configure config) { }
         public static void RijndaelEncryptionService(this NServiceBus.BusConfiguration config) { }
         public static void RijndaelEncryptionService(this NServiceBus.BusConfiguration config, string encryptionKey, System.Collections.Generic.List<string> expiredKeys = null) { }
-    }
-    [System.ObsoleteAttribute("Will be removed in version 6.0.0.", true)]
-    public class static ConfigureSettingLocalAddressNameAction
-    {
-        [System.ObsoleteAttribute(@"Queue name is controlled by the endpoint name. The endpoint name can be configured using a `EndpointNameAttribute`, by passing a serviceName parameter to the host or calling `BusConfiguration.EndpointName` in the fluent API. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DefineLocalAddressNameFunc(this NServiceBus.Configure config, System.Func<string> setLocalAddressNameFunc) { }
-    }
-    [System.ObsoleteAttribute("Will be removed in version 6.0.0.", true)]
-    public class static ConfigureTimeoutManager
-    {
-        [System.ObsoleteAttribute(@"Use `configuration.DisableFeature<TimeoutManager>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DisableTimeoutManager(this NServiceBus.Configure config) { }
-        [System.ObsoleteAttribute(@"Use `configuration.UsePersistence<InMemoryPersistence>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure UseInMemoryTimeoutPersister(this NServiceBus.Configure config) { }
-        [System.ObsoleteAttribute(@"RavenDB has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. Install the nuget package. Use `configuration.UsePersistence<RavenDBPersistence>().For(Storage.Timeouts)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure UseRavenTimeoutPersister(this NServiceBus.Configure config) { }
     }
     public class static ConfigureTransportConnectionString
     {
         public static string TransportConnectionString(this NServiceBus.Configure config) { }
-    }
-    [System.ObsoleteAttribute("Will be removed in version 6.0.0.", true)]
-    public class static ConfigureUnicastBus
-    {
-        [System.ObsoleteAttribute("Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Address GetTimeoutManagerAddress(this NServiceBus.Configure config) { }
-        [System.ObsoleteAttribute(@"UnicastBus is now the default and hence calling this method is redundant. `Bus.Create(configuration)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure UnicastBus(this NServiceBus.Configure config) { }
-    }
-    [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<XmlSerializer>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-    public class static ConfigureXmlSerializer
-    {
-        [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<XmlSerializer>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure XmlSerializer(this NServiceBus.Configure config, string nameSpace = null, bool sanitizeInput = False) { }
     }
     public class static ContentTypes
     {
@@ -509,14 +228,6 @@ namespace NServiceBus
         public string Base64Iv { get; set; }
         public string EncryptedBase64Value { get; set; }
     }
-    [System.ObsoleteAttribute(@"Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-    public class static EndpointConventions
-    {
-        [System.ObsoleteAttribute(@"Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DefineEndpointName(this NServiceBus.Configure config, System.Func<string> definesEndpointName) { }
-        [System.ObsoleteAttribute(@"Use `configuration.EndpointName(myEndpointName)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DefineEndpointName(this NServiceBus.Configure config, string name) { }
-    }
     public sealed class EndpointNameAttribute : System.Attribute
     {
         public EndpointNameAttribute(string name) { }
@@ -536,13 +247,7 @@ namespace NServiceBus
     public class static ExtensionMethods
     {
         public static object CurrentMessageBeingHandled { get; set; }
-        [System.ObsoleteAttribute("Please use `bus.GetMessageHeader(msg, key)` instead. Will be removed in version 6" +
-            ".0.0.", true)]
-        public static string GetHeader(this NServiceBus.IMessage msg, string key) { }
         public static string GetMessageHeader(this NServiceBus.IBus bus, object msg, string key) { }
-        [System.ObsoleteAttribute("Please use `bus.SetMessageHeader(msg, key, value)` instead. Will be removed in ve" +
-            "rsion 6.0.0.", true)]
-        public static void SetHeader(this NServiceBus.IMessage msg, string key, string value) { }
         public static void SetMessageHeader(this NServiceBus.ISendOnlyBus bus, object msg, string key, string value) { }
     }
     public class FileShareDataBus : NServiceBus.DataBus.DataBusDefinition
@@ -572,8 +277,6 @@ namespace NServiceBus
         public const string HostId = "$.diagnostics.hostid";
         public const string HttpFrom = "NServiceBus.From";
         public const string HttpTo = "NServiceBus.To";
-        [System.ObsoleteAttribute(@"Enriching the headers for saga related information has been moved to the SagaAudit plugin in ServiceControl. Add a reference to the Saga audit plugin in your endpoint to get more information. Will be treated as an error from version 5.1.0. Will be removed in version 6.0.0.", false)]
-        public const string InvokedSagas = "NServiceBus.InvokedSagas";
         public const string IsDeferredMessage = "NServiceBus.IsDeferredMessage";
         public const string IsSagaTimeoutMessage = "NServiceBus.IsSagaTimeoutMessage";
         public const string MessageId = "NServiceBus.MessageId";
@@ -600,12 +303,6 @@ namespace NServiceBus
         public const string SubscriptionMessageType = "SubscriptionMessageType";
         public const string TimeSent = "NServiceBus.TimeSent";
         public const string WindowsIdentityName = "WinIdName";
-        [System.ObsoleteAttribute("Please use `bus.GetMessageHeader(msg, key)` instead. Will be removed in version 6" +
-            ".0.0.", true)]
-        public static string GetMessageHeader(object msg, string key) { }
-        [System.ObsoleteAttribute("Please use `bus.SetMessageHeader(msg, key, value)` instead. Will be removed in ve" +
-            "rsion 6.0.0.", true)]
-        public static void SetMessageHeader(object msg, string key, string value) { }
     }
     public class static HostInfoConfigurationExtensions
     {
@@ -613,6 +310,7 @@ namespace NServiceBus
     }
     public class HostInfoSettings
     {
+        public NServiceBus.HostInfoSettings UsingCustomDisplayName(string displayName) { }
         public NServiceBus.HostInfoSettings UsingCustomIdentifier(System.Guid id) { }
         public NServiceBus.HostInfoSettings UsingInstalledFilePath() { }
         public NServiceBus.HostInfoSettings UsingNames(string instanceName, string hostName) { }
@@ -625,9 +323,6 @@ namespace NServiceBus
     public interface IBus : NServiceBus.ISendOnlyBus, System.IDisposable
     {
         NServiceBus.IMessageContext CurrentMessageContext { get; }
-        [System.ObsoleteAttribute("Removed to reduce complexity and API confusion. Will be treated as an error from " +
-            "version 5.5.0. Will be removed in version 6.0.0.", false)]
-        NServiceBus.IInMemoryOperations InMemory { get; }
         NServiceBus.ICallback Defer(System.TimeSpan delay, object message);
         NServiceBus.ICallback Defer(System.DateTime processAt, object message);
         void DoNotContinueDispatchingCurrentMessageToHandlers();
@@ -643,19 +338,6 @@ namespace NServiceBus
         void Unsubscribe(System.Type messageType);
         void Unsubscribe<T>();
     }
-    [System.ObsoleteAttribute("Placeholder for obsoletes. Will be removed in version 6.0.0.", true)]
-    public class static IBus_Obsoletes
-    {
-        [System.ObsoleteAttribute("Since multi message sends is obsoleted in v5 use `IBus.Send<T>()` instead. Will b" +
-            "e removed in version 6.0.0.", true)]
-        public static T CreateInstance<T>(this NServiceBus.IBus bus) { }
-        [System.ObsoleteAttribute("Since multi message sends is obsoleted in v5 use `IBus.Send<T>()` instead. Will b" +
-            "e removed in version 6.0.0.", true)]
-        public static T CreateInstance<T>(this NServiceBus.IBus bus, System.Action<T> action) { }
-        [System.ObsoleteAttribute("Since multi message sends is obsoleted in v5 use `IBus.Send<T>()` instead. Will b" +
-            "e removed in version 6.0.0.", true)]
-        public static object CreateInstance(this NServiceBus.IBus bus, System.Type messageType) { }
-    }
     public interface ICallback
     {
         System.Threading.Tasks.Task<int> Register();
@@ -667,13 +349,6 @@ namespace NServiceBus
         void Register<T>(System.Action<T> callback, object synchronizer);
     }
     public interface ICommand : NServiceBus.IMessage { }
-    [System.ObsoleteAttribute("Use the `NServiceBus.Hosting.Profiles.IConfigureLogging` interface which is conta" +
-        "ined with in the `NServiceBus.Host` nuget. Will be removed in version 6.0.0.", true)]
-    public interface IConfigureLogging { }
-    [System.ObsoleteAttribute("Use the `NServiceBus.Hosting.Profiles.IConfigureLoggingForProfile<T>` interface w" +
-        "hich is contained with in the `NServiceBus.Host` nuget. Will be removed in versi" +
-        "on 6.0.0.", true)]
-    public interface IConfigureLoggingForProfile<T> { }
     public interface IConfigureThisEndpoint
     {
         void Customize(NServiceBus.BusConfiguration configuration);
@@ -699,9 +374,6 @@ namespace NServiceBus
         NServiceBus.IIncludesBuilder And(string assemblyExpression);
         NServiceBus.IExcludesBuilder Except(string assemblyExpression);
     }
-    [System.ObsoleteAttribute("Removed to reduce complexity and API confusion. Will be treated as an error from " +
-        "version 5.5.0. Will be removed in version 6.0.0.", false)]
-    public interface IInMemoryOperations { }
     public interface IManageMessageHeaders
     {
         System.Func<object, string, string> GetHeaderAction { get; }
@@ -725,37 +397,9 @@ namespace NServiceBus
         void Customize(NServiceBus.BusConfiguration configuration);
     }
     public class InMemoryPersistence : NServiceBus.Persistence.PersistenceDefinition { }
-    [System.ObsoleteAttribute("`IEnvironment` is no longer required instead use the non generic `INeedToInstallS" +
-        "omething` and use `configuration.EnableInstallers()`, where `configuration` is a" +
-        "n instance of type `BusConfiguration` to execute them. Will be removed in versio" +
-        "n 6.0.0.", true)]
-    public class static Install
-    {
-        [System.ObsoleteAttribute("`IEnvironment` is no longer required instead use the non generic `INeedToInstallS" +
-            "omething` and use `configuration.EnableInstallers()`, where `configuration` is a" +
-            "n instance of type `BusConfiguration` to execute them. Will be removed in versio" +
-            "n 6.0.0.", true)]
-        public static NServiceBus.Installer<T> ForInstallationOn<T>(this NServiceBus.Configure config) { }
-        [System.ObsoleteAttribute("`IEnvironment` is no longer required instead use the non generic `INeedToInstallS" +
-            "omething` and use `configuration.EnableInstallers()`, where `configuration` is a" +
-            "n instance of type `BusConfiguration` to execute them. Will be removed in versio" +
-            "n 6.0.0.", true)]
-        public static NServiceBus.Installer<T> ForInstallationOn<T>(this NServiceBus.Configure config, string username) { }
-    }
     public class static InstallConfigExtensions
     {
         public static void EnableInstallers(this NServiceBus.BusConfiguration config, string username = null) { }
-        [System.ObsoleteAttribute("Use `configuration.EnableInstallers()`, where configuration is an instance of typ" +
-            "e `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure EnableInstallers(this NServiceBus.Configure config, string username = null) { }
-    }
-    [System.ObsoleteAttribute("`IEnvironment` is no longer required instead use the non generic `INeedToInstallS" +
-        "omething` and use `configuration.EnableInstallers()`, where `configuration` is a" +
-        "n instance of type `BusConfiguration` to execute them. Will be removed in versio" +
-        "n 6.0.0.", true)]
-    public class Installer<T>
-    {
-        public Installer() { }
     }
     public interface ISendOnlyBus : System.IDisposable
     {
@@ -782,24 +426,6 @@ namespace NServiceBus
     {
         NServiceBus.IBus Start();
     }
-    [System.ObsoleteAttribute("Please use `INeedInitialization` or `IConfigureThisEndpoint`. Will be removed in " +
-        "version 6.0.0.", true)]
-    public interface IWantCustomInitialization
-    {
-        void Init();
-    }
-    [System.ObsoleteAttribute("Configure logging in the constructor of the class that implements IConfigureThisE" +
-        "ndpoint. Will be removed in version 6.0.0.", true)]
-    public interface IWantCustomLogging { }
-    [System.ObsoleteAttribute("`IHandleProfile` is now passed an instance of `Configure`. `IWantCustomInitializa" +
-        "tion` is now expected to return a new instance of `Configure`. Will be removed i" +
-        "n version 6.0.0.", true)]
-    public interface IWantTheEndpointConfig { }
-    [System.ObsoleteAttribute(@"`IWantToRunBeforeConfiguration` is no longer in use. Please use the Feature concept instead and register a Default() in the ctor of your feature. If you used this to apply your own conventions please use use `configuration.Conventions().Defining...` , where configuration is an instance of type `BusConfiguration` available by implementing `IConfigureThisEndpoint` or `INeedInitialization`. Will be removed in version 6.0.0.", true)]
-    public interface IWantToRunBeforeConfiguration
-    {
-        void Init(NServiceBus.Configure configure);
-    }
     public interface IWantToRunBeforeConfigurationIsFinalized
     {
         void Run(NServiceBus.Configure config);
@@ -816,60 +442,17 @@ namespace NServiceBus
     }
     public class static JsonSerializerConfigurationExtensions
     {
-        [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<BsonSerializer>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Settings.SerializationSettings Bson(this NServiceBus.Settings.SerializationSettings settings) { }
         public static void Encoding(this NServiceBus.Serialization.SerializationExtentions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
-        [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<JsonSerializer>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Settings.SerializationSettings Json(this NServiceBus.Settings.SerializationSettings settings) { }
     }
     public class static LoadMessageHandlersExtentions
     {
-        [System.ObsoleteAttribute("It is safe to remove this method call. This is the default behavior. Will be remo" +
-            "ved in version 6.0.0.", true)]
-        public static NServiceBus.Configure LoadMessageHandlers(this NServiceBus.Configure config) { }
-        [System.ObsoleteAttribute(@"Use `configuration.LoadMessageHandlers<TFirst>`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure LoadMessageHandlers<TFirst>(this NServiceBus.Configure config) { }
-        [System.ObsoleteAttribute(@"Use `configuration.LoadMessageHandlers<T>`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure LoadMessageHandlers<T>(this NServiceBus.Configure config, NServiceBus.First<T> order) { }
         public static void LoadMessageHandlers<TFirst>(this NServiceBus.BusConfiguration config) { }
         public static void LoadMessageHandlers<T>(this NServiceBus.BusConfiguration config, NServiceBus.First<T> order) { }
-    }
-    [System.ObsoleteAttribute("Since the case where this exception was thrown should not be handled by consumers" +
-        " of the API it has been removed. Will be removed in version 6.0.0.", true)]
-    public class MessageConventionException : System.Exception
-    {
-        public MessageConventionException() { }
-    }
-    [System.ObsoleteAttribute(@"Use `configuration.Conventions().DefiningMessagesAs(definesMessageType)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-    public class static MessageConventions
-    {
-        [System.ObsoleteAttribute(@"Use `configuration.Conventions().DefiningCommandsAs(definesCommandType)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DefiningCommandsAs(this NServiceBus.Configure config, System.Func<System.Type, bool> definesCommandType) { }
-        [System.ObsoleteAttribute(@"Use `configuration.Conventions().DefiningDataBusPropertiesAs(definesDataBusProperty)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DefiningDataBusPropertiesAs(this NServiceBus.Configure config, System.Func<System.Reflection.PropertyInfo, bool> definesDataBusProperty) { }
-        [System.ObsoleteAttribute(@"Use `configuration.Conventions().DefiningEncryptedPropertiesAs(definesEncryptedProperty)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DefiningEncryptedPropertiesAs(this NServiceBus.Configure config, System.Func<System.Reflection.PropertyInfo, bool> definesEncryptedProperty) { }
-        [System.ObsoleteAttribute(@"Use `configuration.Conventions().DefiningEventsAs(definesEventType)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DefiningEventsAs(this NServiceBus.Configure config, System.Func<System.Type, bool> definesEventType) { }
-        [System.ObsoleteAttribute(@"Use `configuration.Conventions().DefiningExpressMessagesAs(definesExpressMessageType)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DefiningExpressMessagesAs(this NServiceBus.Configure config, System.Func<System.Type, bool> definesExpressMessageType) { }
-        [System.ObsoleteAttribute(@"Use `configuration.Conventions().DefiningMessagesAs(definesMessageType)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DefiningMessagesAs(this NServiceBus.Configure config, System.Func<System.Type, bool> definesMessageType) { }
-        [System.ObsoleteAttribute(@"Use `configuration.Conventions().DefiningTimeToBeReceivedAs(retrieveTimeToBeReceived)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DefiningTimeToBeReceivedAs(this NServiceBus.Configure config, System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
     }
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
     {
         public MessageDeserializationException(string transportMessageId, System.Exception innerException) { }
         protected MessageDeserializationException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
-    }
-    [System.ObsoleteAttribute("Inject an instance of `IBus` in the constructor and assign that to a field for us" +
-        "e. Will be removed in version 6.0.0.", true)]
-    public class static MessageHandlerExtensionMethods
-    {
-        [System.ObsoleteAttribute("Inject an instance of `IBus` in the constructor and assign that to a field for us" +
-            "e. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.IBus Bus<T>(this NServiceBus.IHandleMessages<T> handler) { }
     }
     public enum MessageIntentEnum
     {
@@ -878,18 +461,6 @@ namespace NServiceBus
         Subscribe = 3,
         Unsubscribe = 4,
         Reply = 5,
-    }
-    [System.ObsoleteAttribute("Use `configuration.EnableCriticalTimePerformanceCounter()` or `configuration.Enab" +
-        "leSLAPerformanceCounter(TimeSpan)`, where configuration is an instance of type `" +
-        "BusConfiguration`. Will be removed in version 6.0.0.", true)]
-    public class static MonitoringConfig
-    {
-        [System.ObsoleteAttribute("Use `configuration.EnableCriticalTimePerformanceCounter()`, where configuration i" +
-            "s an instance of type `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure EnablePerformanceCounters(this NServiceBus.Configure config) { }
-        [System.ObsoleteAttribute("Use `configuration.EnableSLAPerformanceCounter(TimeSpan)`, where configuration is" +
-            " an instance of type `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure SetEndpointSLA(this NServiceBus.Configure config, System.TimeSpan sla) { }
     }
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition
     {
@@ -920,8 +491,7 @@ namespace NServiceBus
     public class PersistenceExtentions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public PersistenceExtentions(System.Type definitionType, NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
-        [System.ObsoleteAttribute("Please use `UsePersistence<T, S>()` instead. Will be treated as an error from ver" +
-            "sion 6.0.0. Will be removed in version 7.0.0.", false)]
+        [System.ObsoleteAttribute("Please use `UsePersistence<T, S>()` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.PersistenceExtentions For(params NServiceBus.Persistence.Storage[] specificStorages) { }
     }
     public class PersistenceExtentions<T> : NServiceBus.PersistenceExtentions
@@ -929,8 +499,7 @@ namespace NServiceBus
     {
         public PersistenceExtentions(NServiceBus.Settings.SettingsHolder settings) { }
         protected PersistenceExtentions(NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
-        [System.ObsoleteAttribute("Please use `UsePersistence<T, S>()` instead. Will be treated as an error from ver" +
-            "sion 6.0.0. Will be removed in version 7.0.0.", false)]
+        [System.ObsoleteAttribute("Please use `UsePersistence<T, S>()` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.PersistenceExtentions<T> For(params NServiceBus.Persistence.Storage[] specificStorages) { }
     }
     public class PersistenceExtentions<T, S> : NServiceBus.PersistenceExtentions<T>
@@ -942,31 +511,15 @@ namespace NServiceBus
     public class static ScaleOutExtentions
     {
         public static NServiceBus.Settings.ScaleOutSettings ScaleOut(this NServiceBus.BusConfiguration config) { }
-        [System.ObsoleteAttribute(@"Use `configuration.ScaleOut().UseSingleBrokerQueue()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure ScaleOut(this NServiceBus.Configure config, System.Action<NServiceBus.Settings.ScaleOutSettings> customScaleOutSettings) { }
     }
     public class Schedule
     {
         public Schedule(NServiceBus.ObjectBuilder.IBuilder builder) { }
-        [System.ObsoleteAttribute("Inject an instance of `Schedule` to your class and then call the non static membe" +
-            "r `Schedule.Every(TimeSpan timeSpan, Action task)`. Will be removed in version 6" +
-            ".0.0.", true)]
-        public void Action(System.Action task) { }
-        [System.ObsoleteAttribute("Inject an instance of `Schedule` to your class thenuse the non-static version of " +
-            "`Schedule.Every(TimeSpan timeSpan, string name, Action task)`. Will be removed i" +
-            "n version 6.0.0.", true)]
-        public void Action(string name, System.Action task) { }
-        [System.ObsoleteAttribute("Inject an instance of `Schedule` to your class and then call the non-static versi" +
-            "on of `Schedule.Every(TimeSpan timeSpan, Action task)`. Will be removed in versi" +
-            "on 6.0.0.", true)]
-        public static NServiceBus.Schedule Every(System.TimeSpan timeSpan) { }
         public void Every(System.TimeSpan timeSpan, System.Action task) { }
         public void Every(System.TimeSpan timeSpan, string name, System.Action task) { }
     }
     public class static SecondLevelRetriesConfigExtensions
     {
-        [System.ObsoleteAttribute(@"Use `configuration.SecondLevelRetries().CustomRetryPolicy()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure SecondLevelRetries(this NServiceBus.Configure config, System.Action<NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings> customSettings) { }
         public static NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.BusConfiguration config) { }
     }
     public class static SerializationConfigExtensions
@@ -974,43 +527,6 @@ namespace NServiceBus
         public static NServiceBus.Serialization.SerializationExtentions<T> UseSerialization<T>(this NServiceBus.BusConfiguration config)
             where T : NServiceBus.Serialization.SerializationDefinition { }
         public static void UseSerialization(this NServiceBus.BusConfiguration config, System.Type serializerType) { }
-    }
-    [System.ObsoleteAttribute("Log4Net and Nlog integration has been moved to a stand alone nugets, \'NServiceBus" +
-        ".Log4Net\' and \'NServiceBus.NLog\'. Will be removed in version 6.0.0.", true)]
-    public class static SetLoggingLibrary
-    {
-        [System.ObsoleteAttribute("Please use `LogManager.UseFactory(ILoggerFactory)` instead. Will be removed in ve" +
-            "rsion 6.0.0.", true)]
-        public static void Custom(NServiceBus.Logging.ILoggerFactory loggerFactory) { }
-        [System.ObsoleteAttribute("Log4Net integration has been moved to a stand alone nuget \'NServiceBus.Log4Net\'. " +
-            "Install the \'NServiceBus.Log4Net\' nuget and run \'LogManager.Use<Log4NetFactory>(" +
-            ");\'. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure Log4Net(this NServiceBus.Configure config) { }
-        [System.ObsoleteAttribute("Log4Net integration has been moved to a stand alone nuget \'NServiceBus.Log4Net\'. " +
-            "Install the \'NServiceBus.Log4Net\' nuget and run \'LogManager.Use<Log4NetFactory>(" +
-            ");\'. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure Log4Net<TAppender>(this NServiceBus.Configure config, System.Action<TAppender> initializeAppender)
-            where TAppender : new() { }
-        [System.ObsoleteAttribute("Log4Net integration has been moved to a stand alone nuget \'NServiceBus.Log4Net\'. " +
-            "Install the \'NServiceBus.Log4Net\' nuget and run \'LogManager.Use<Log4NetFactory>(" +
-            ");\'. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure Log4Net(this NServiceBus.Configure config, object appenderSkeleton) { }
-        [System.ObsoleteAttribute("Log4Net integration has been moved to a stand alone nuget \'NServiceBus.Log4Net\'. " +
-            "Install the \'NServiceBus.Log4Net\' nuget and run \'LogManager.Use<Log4NetFactory>(" +
-            ");\'. Will be removed in version 6.0.0.", true)]
-        public static void Log4Net() { }
-        [System.ObsoleteAttribute("Log4Net integration has been moved to a stand alone nuget \'NServiceBus.Log4Net\'. " +
-            "Install the \'NServiceBus.Log4Net\' nuget and run \'LogManager.Use<Log4NetFactory>(" +
-            ");\'. Will be removed in version 6.0.0.", true)]
-        public static void Log4Net(System.Action config) { }
-        [System.ObsoleteAttribute("Nlog integration has been moved to a stand alone nuget \'NServiceBus.NLog\'. Instal" +
-            "l the \'NServiceBus.NLog\' nuget and run \'LogManager.Use<NLogFactory>();\'. Will be" +
-            " removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure NLog(this NServiceBus.Configure config, params object[] targetsForNServiceBusToLogTo) { }
-        [System.ObsoleteAttribute("Nlog integration has been moved to a stand alone nuget \'NServiceBus.NLog\'. Instal" +
-            "l the \'NServiceBus.NLog\' nuget and run \'LogManager.Use<Log4NetFactory>();\'. Will" +
-            " be removed in version 6.0.0.", true)]
-        public static void NLog() { }
     }
     public class static SettingsExtentions
     {
@@ -1031,32 +547,9 @@ namespace NServiceBus
         public TimeToBeReceivedAttribute(string timeSpan) { }
         public System.TimeSpan TimeToBeReceived { get; }
     }
-    [System.ObsoleteAttribute(@"Use `configuration.Transactions().Enable()` or `configuration.Transactions().Disable()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-    public class static TransactionalConfigManager
-    {
-        [System.ObsoleteAttribute(@"Use `configuration.Transactions().Disable()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure DontUseTransactions(this NServiceBus.Configure config) { }
-        [System.ObsoleteAttribute(@"Use `configuration.Transactions().IsolationLevel(IsolationLevel.Chaos)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure IsolationLevel(this NServiceBus.Configure config, System.Transactions.IsolationLevel isolationLevel) { }
-        [System.ObsoleteAttribute(@"Use `configuration.Transactions()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure IsTransactional(this NServiceBus.Configure config, bool value) { }
-        [System.ObsoleteAttribute(@"Use `configuration.Transactions().DefaultTimeout(TimeSpan.FromMinutes(5))`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure TransactionTimeout(this NServiceBus.Configure config, System.TimeSpan transactionTimeout) { }
-    }
     public class static TransactionSettingsExtentions
     {
         public static NServiceBus.Settings.TransactionSettings Transactions(this NServiceBus.BusConfiguration config) { }
-    }
-    [System.ObsoleteAttribute("Will be removed in version 6.0.0.", true)]
-    public class TransportConfiguration
-    {
-        public TransportConfiguration() { }
-        [System.ObsoleteAttribute(@"Use `configuration.UseTransport<T>().ConnectionString(connectionString)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public void ConnectionString(string connectionString) { }
-        [System.ObsoleteAttribute(@"Use` configuration.UseTransport<T>().ConnectionString(connectionString)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public void ConnectionString(System.Func<string> connectionString) { }
-        [System.ObsoleteAttribute(@"Use `configuration.UseTransport<T>().ConnectionStringName(name)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public void ConnectionStringName(string name) { }
     }
     public class TransportExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
@@ -1077,10 +570,6 @@ namespace NServiceBus
     {
         public TransportMessage() { }
         public TransportMessage(string existingId, System.Collections.Generic.Dictionary<string, string> existingHeaders) { }
-        [System.ObsoleteAttribute("headers[Headers.ReplyToAddress]=replyToAddress; var tm = new TransportMessage(id," +
-            "headers). Will be treated as an error from version 5.1.0. Will be removed in ver" +
-            "sion 6.0.0.", false)]
-        public TransportMessage(string existingId, System.Collections.Generic.Dictionary<string, string> existingHeaders, NServiceBus.Address replyToAddress) { }
         public byte[] Body { get; set; }
         public string CorrelationId { get; set; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
@@ -1090,14 +579,6 @@ namespace NServiceBus
         public NServiceBus.Address ReplyToAddress { get; }
         public System.TimeSpan TimeToBeReceived { get; set; }
     }
-    [System.ObsoleteAttribute("Will be removed in version 6.0.0.", true)]
-    public class static TransportReceiverConfig
-    {
-        [System.ObsoleteAttribute(@"Use `configuration.UseTransport(transportDefinitionType).ConnectionString()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure UseTransport<T>(this NServiceBus.Configure config, System.Func<string> definesConnectionString) { }
-        [System.ObsoleteAttribute(@"Use `configuration.UseTransport(transportDefinitionType).ConnectionString()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure UseTransport(this NServiceBus.Configure config, System.Type transportDefinitionType, System.Func<string> definesConnectionString) { }
-    }
     public class static UseDataBusExtensions
     {
         public static NServiceBus.DataBus.DataBusExtentions<T> UseDataBus<T>(this NServiceBus.BusConfiguration config)
@@ -1106,11 +587,6 @@ namespace NServiceBus
     }
     public class static UseTransportExtensions
     {
-        [System.ObsoleteAttribute(@"Use `configuration.UseTransport<T>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure UseTransport<T>(this NServiceBus.Configure config, System.Action<NServiceBus.TransportConfiguration> customizations = null)
-            where T : NServiceBus.Transports.TransportDefinition { }
-        [System.ObsoleteAttribute(@"Use `configuration.UseTransport(transportDefinitionType)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure UseTransport(this NServiceBus.Configure config, System.Type transportDefinitionType, System.Action<NServiceBus.TransportConfiguration> customizations = null) { }
         public static NServiceBus.TransportExtensions<T> UseTransport<T>(this NServiceBus.BusConfiguration busConfiguration)
             where T : NServiceBus.Transports.TransportDefinition, new () { }
         public static NServiceBus.TransportExtensions UseTransport(this NServiceBus.BusConfiguration busConfiguration, System.Type transportDefinitionType) { }
@@ -1119,11 +595,9 @@ namespace NServiceBus
     {
         public WireEncryptedString() { }
         public WireEncryptedString(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
-        [System.ObsoleteAttribute("No longer required. Will be treated as an error from version 6.0.0. Will be remov" +
-            "ed in version 6.0.0.", false)]
+        [System.ObsoleteAttribute("No longer required. Will be removed in version 7.0.0.", true)]
         public string Base64Iv { get; set; }
-        [System.ObsoleteAttribute("No longer required. Will be treated as an error from version 6.0.0. Will be remov" +
-            "ed in version 6.0.0.", false)]
+        [System.ObsoleteAttribute("No longer required. Will be removed in version 7.0.0.", true)]
         public string EncryptedBase64Value { get; set; }
         public NServiceBus.EncryptedValue EncryptedValue { get; set; }
         public string Value { get; set; }
@@ -1140,11 +614,6 @@ namespace NServiceBus
         public XmlSerializer() { }
         protected internal override System.Type ProvidedByFeature() { }
     }
-    public class static XmlSerializerConfigurationExtensions
-    {
-        [System.ObsoleteAttribute(@"Use configuration.UseSerialization<XmlSerializer>(), where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure Xml(this NServiceBus.Settings.SerializationSettings settings, System.Action<NServiceBus.Serializers.XML.Config.XmlSerializationSettings> customSettings = null) { }
-    }
 }
 namespace NServiceBus.AutomaticSubscriptions.Config
 {
@@ -1153,16 +622,6 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         public void AutoSubscribePlainMessages() { }
         public void DoNotAutoSubscribeSagas() { }
         public void DoNotRequireExplicitRouting() { }
-    }
-}
-namespace NServiceBus.AutomaticSubscriptions
-{
-    [System.ObsoleteAttribute("Not an extension point any more. If you want full control over autosubscribe plea" +
-        "se turn the feature off and implement your own for-loop calling Bus.Subscribe<Yo" +
-        "urEvent>() when starting your endpoint. Will be removed in version 6.0.0.", true)]
-    public interface IAutoSubscriptionStrategy
-    {
-        System.Collections.Generic.IEnumerable<System.Type> GetEventsToSubscribe();
     }
 }
 namespace NServiceBus.CircuitBreakers
@@ -1185,12 +644,6 @@ namespace NServiceBus.Config
         public System.TimeSpan OverrideTimeToBeReceived { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("QueueName", IsRequired=false)]
         public string QueueName { get; set; }
-    }
-    [System.ObsoleteAttribute("`IFinalizeConfiguration` is no longer in use. Please use the Feature concept inst" +
-        "ead. Will be removed in version 6.0.0.", true)]
-    public interface IFinalizeConfiguration
-    {
-        void FinalizeConfiguration(NServiceBus.Configure config);
     }
     public interface IWantToRunWhenConfigurationIsComplete
     {
@@ -1251,16 +704,6 @@ namespace NServiceBus.Config
         public MessageForwardingInCaseOfFaultConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("ErrorQueue", IsRequired=true)]
         public string ErrorQueue { get; set; }
-    }
-    [System.ObsoleteAttribute("Use NServiceBus/Transport connectionString instead. Will be removed in version 6." +
-        "0.0.", true)]
-    public class MsmqMessageQueueConfig : System.Configuration.ConfigurationSection
-    {
-        public MsmqMessageQueueConfig() { }
-        [System.Configuration.ConfigurationPropertyAttribute("UseDeadLetterQueue", DefaultValue=true, IsRequired=false)]
-        public bool UseDeadLetterQueue { get; set; }
-        [System.Configuration.ConfigurationPropertyAttribute("UseJournalQueue", IsRequired=false)]
-        public bool UseJournalQueue { get; set; }
     }
     public class MsmqSubscriptionStorageConfig : System.Configuration.ConfigurationSection
     {
@@ -1409,16 +852,6 @@ namespace NServiceBus.Encryption
         NServiceBus.EncryptedValue Encrypt(string value);
     }
 }
-namespace NServiceBus.Encryption.Rijndael
-{
-    [System.ObsoleteAttribute("The Rijndael encryption functionality was an internal implementation detail of NS" +
-        "ervicebus as such it has been removed from the public API. Will be removed in ve" +
-        "rsion 6.0.0.", true)]
-    public class EncryptionService
-    {
-        public EncryptionService() { }
-    }
-}
 namespace NServiceBus.Faults
 {
     public class ErrorsNotifications : System.IDisposable
@@ -1530,11 +963,6 @@ namespace NServiceBus.Features
         public System.Collections.Generic.IList<System.Type> StartupTasks { get; }
         public string Version { get; }
     }
-    [System.ObsoleteAttribute(@"Use `configuration.EnableFeature<T>()` or `configuration.DisableFeature<T>()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-    public class FeatureSettings
-    {
-        public FeatureSettings() { }
-    }
     public class FeaturesReport
     {
         public System.Collections.Generic.IList<NServiceBus.Features.FeatureDiagnosticData> Features { get; }
@@ -1626,12 +1054,6 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    [System.ObsoleteAttribute("Please use `NServiceBus.Features.StorageDrivenPublishing` instead. Will be remove" +
-        "d in version 6.0.0.", true)]
-    public class StorageDrivenPublisher
-    {
-        public StorageDrivenPublisher() { }
-    }
     public class StorageDrivenPublishing : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1654,29 +1076,6 @@ namespace NServiceBus.Gateway.Deduplication
     public interface IDeduplicateMessages
     {
         bool DeduplicateMessage(string clientId, System.DateTime timeReceived);
-    }
-}
-namespace NServiceBus.Hosting
-{
-    [System.ObsoleteAttribute("This class was never intended to be exposed as part of the public API. Will be re" +
-        "moved in version 6.0.0.", true)]
-    public class GenericHost
-    {
-        public GenericHost() { }
-    }
-    public class HostInformation
-    {
-        public HostInformation(System.Guid hostId, string displayName) { }
-        public HostInformation(System.Guid hostId, string displayName, System.Collections.Generic.Dictionary<string, string> properties) { }
-        public string DisplayName { get; }
-        public System.Guid HostId { get; }
-        public System.Collections.Generic.Dictionary<string, string> Properties { get; }
-    }
-    [System.ObsoleteAttribute("This class was never intended to be exposed as part of the public API. Will be re" +
-        "moved in version 6.0.0.", true)]
-    public class IHost
-    {
-        public IHost() { }
     }
 }
 namespace NServiceBus.Hosting.Helpers
@@ -1702,41 +1101,22 @@ namespace NServiceBus.Hosting.Helpers
         public string SkipReason { get; }
     }
 }
-namespace NServiceBus.IdGeneration
+namespace NServiceBus.Hosting
 {
-    [System.ObsoleteAttribute("This class was never intended to be exposed as part of the public API. Will be re" +
-        "moved in version 6.0.0.", true)]
-    public class static CombGuid { }
-}
-namespace NServiceBus.Installation.Environments
-{
-    [System.ObsoleteAttribute("IEnvironment is no longer required instead use the non generic `INeedToInstallSom" +
-        "ething` and use `configuration.EnableInstallers()`, where `configuration` is an " +
-        "instance of type `BusConfiguration` to execute them. Will be removed in version " +
-        "6.0.0.", true)]
-    public class Windows
+    public class HostInformation
     {
-        public Windows() { }
+        public HostInformation(System.Guid hostId, string displayName) { }
+        public HostInformation(System.Guid hostId, string displayName, System.Collections.Generic.Dictionary<string, string> properties) { }
+        public string DisplayName { get; }
+        public System.Guid HostId { get; }
+        public System.Collections.Generic.Dictionary<string, string> Properties { get; }
     }
 }
 namespace NServiceBus.Installation
 {
-    [System.ObsoleteAttribute("`IEnvironment` is no longer required instead use the non generic `INeedToInstallS" +
-        "omething` and use `configuration.EnableInstallers()`, where `configuration` is a" +
-        "n instance of type `BusConfiguration` to execute them. Will be removed in versio" +
-        "n 6.0.0.", true)]
-    public interface IEnvironment { }
     public interface INeedToInstallSomething
     {
         void Install(string identity, NServiceBus.Configure config);
-    }
-    [System.ObsoleteAttribute("`IEnvironment` is no longer required instead use the non generic `INeedToInstallS" +
-        "omething` and use `configuration.EnableInstallers()`, where `configuration` is a" +
-        "n instance of type `BusConfiguration` to execute them. Will be removed in versio" +
-        "n 6.0.0.", true)]
-    public class INeedToInstallSomething<T>
-    {
-        public INeedToInstallSomething() { }
     }
 }
 namespace NServiceBus.Logging
@@ -1781,12 +1161,6 @@ namespace NServiceBus.Logging
         protected LoggingFactoryDefinition() { }
         protected internal abstract NServiceBus.Logging.ILoggerFactory GetLoggingFactory();
     }
-    [System.ObsoleteAttribute("Since the case where this exception was thrown should not be handled by consumers" +
-        " of the API it has been removed. Will be removed in version 6.0.0.", true)]
-    public class LoggingLibraryException : System.Exception
-    {
-        public LoggingLibraryException() { }
-    }
     public enum LogLevel
     {
         Debug = 0,
@@ -1803,109 +1177,6 @@ namespace NServiceBus.Logging
         public static T Use<T>()
             where T : NServiceBus.Logging.LoggingFactoryDefinition, new () { }
         public static void UseFactory(NServiceBus.Logging.ILoggerFactory loggerFactory) { }
-    }
-}
-namespace NServiceBus.Logging.Log4NetBridge
-{
-    [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
-        "g there are external nuget packages available to connect NServiceBus to the vari" +
-        "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class ConfigureInternalLog4NetBridge
-    {
-        public ConfigureInternalLog4NetBridge() { }
-    }
-}
-namespace NServiceBus.Logging.Loggers
-{
-    [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
-        "g there are external nuget packages available to connect NServiceBus to the vari" +
-        "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class ConsoleLogger
-    {
-        public ConsoleLogger() { }
-    }
-    [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
-        "g there are external nuget packages available to connect NServiceBus to the vari" +
-        "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class ConsoleLoggerFactory
-    {
-        public ConsoleLoggerFactory() { }
-    }
-    [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
-        "g there are external nuget packages available to connect NServiceBus to the vari" +
-        "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class NullLogger
-    {
-        public NullLogger() { }
-    }
-    [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
-        "g there are external nuget packages available to connect NServiceBus to the vari" +
-        "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class NullLoggerFactory
-    {
-        public NullLoggerFactory() { }
-    }
-}
-namespace NServiceBus.Logging.Loggers.Log4NetAdapter
-{
-    [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
-        "g there are external nuget packages available to connect NServiceBus to the vari" +
-        "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class Log4NetAppenderFactory
-    {
-        public Log4NetAppenderFactory() { }
-    }
-    [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
-        "g there are external nuget packages available to connect NServiceBus to the vari" +
-        "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class Log4NetConfigurator
-    {
-        public Log4NetConfigurator() { }
-    }
-    [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
-        "g there are external nuget packages available to connect NServiceBus to the vari" +
-        "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class Log4NetLogger
-    {
-        public Log4NetLogger() { }
-    }
-    [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
-        "g there are external nuget packages available to connect NServiceBus to the vari" +
-        "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class Log4NetLoggerFactory
-    {
-        public Log4NetLoggerFactory() { }
-    }
-}
-namespace NServiceBus.Logging.Loggers.NLogAdapter
-{
-    [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
-        "g there are external nuget packages available to connect NServiceBus to the vari" +
-        "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class NLogConfigurator
-    {
-        public NLogConfigurator() { }
-    }
-    [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
-        "g there are external nuget packages available to connect NServiceBus to the vari" +
-        "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class NLogLogger
-    {
-        public NLogLogger() { }
-    }
-    [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
-        "g there are external nuget packages available to connect NServiceBus to the vari" +
-        "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class NLogLoggerFactory
-    {
-        public NLogLoggerFactory() { }
-    }
-    [System.ObsoleteAttribute("Sensible defaults for logging are now built into NServicebus. To customise loggin" +
-        "g there are external nuget packages available to connect NServiceBus to the vari" +
-        "ous popular logging frameworks. Will be removed in version 6.0.0.", true)]
-    public class NLogTargetFactory
-    {
-        public NLogTargetFactory() { }
     }
 }
 namespace NServiceBus.MessageInterfaces
@@ -1950,22 +1221,6 @@ namespace NServiceBus.MessageMutator
         void MutateOutgoing(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, NServiceBus.TransportMessage transportMessage);
     }
     public interface IMutateTransportMessages : NServiceBus.MessageMutator.IMutateIncomingTransportMessages, NServiceBus.MessageMutator.IMutateOutgoingTransportMessages { }
-}
-namespace NServiceBus.ObjectBuilder.Common.Config
-{
-    [System.ObsoleteAttribute("Use `configuration.UseContainer<T>()`, where configuration is an instance of type" +
-        " `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-    public class static ConfigureContainer
-    {
-        [System.ObsoleteAttribute("Use `configuration.UseContainer<T>()`, where configuration is an instance of type" +
-            " `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure UsingContainer<T>(this NServiceBus.Configure configure)
-            where T :  class, NServiceBus.ObjectBuilder.Common.IContainer, new () { }
-        [System.ObsoleteAttribute("Use `configuration.UseContainer(container)`, where configuration is an instance o" +
-            "f type `BusConfiguration`. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Configure UsingContainer<T>(this NServiceBus.Configure configure, T container)
-            where T : NServiceBus.ObjectBuilder.Common.IContainer { }
-    }
 }
 namespace NServiceBus.ObjectBuilder.Common
 {
@@ -2043,31 +1298,28 @@ namespace NServiceBus.Outbox
         public System.Collections.Generic.Dictionary<string, string> Options { get; }
     }
 }
+namespace NServiceBus.Persistence.Legacy
+{
+    public class MsmqPersistence : NServiceBus.Persistence.PersistenceDefinition { }
+}
 namespace NServiceBus.Persistence
 {
-    [System.ObsoleteAttribute("Since the case where this exception was thrown should not be handled by consumers" +
-        " of the API it has been removed. Will be removed in version 6.0.0.", true)]
-    public class ConcurrencyException : System.Exception
-    {
-        public ConcurrencyException() { }
-    }
     public abstract class PersistenceDefinition
     {
         protected PersistenceDefinition() { }
         protected void Defaults(System.Action<NServiceBus.Settings.SettingsHolder> action) { }
-        [System.ObsoleteAttribute("Please use `HasSupportFor<T>()` instead. Will be treated as an error from version" +
-            " 6.0.0. Will be removed in version 7.0.0.", false)]
+        [System.ObsoleteAttribute("Please use `HasSupportFor<T>()` instead. Will be removed in version 7.0.0.", true)]
         public bool HasSupportFor(NServiceBus.Persistence.Storage storage) { }
         public bool HasSupportFor<T>()
             where T : NServiceBus.Persistence.StorageType { }
+        public bool HasSupportFor(System.Type storageType) { }
         protected void Supports<T>(System.Action<NServiceBus.Settings.SettingsHolder> action)
             where T : NServiceBus.Persistence.StorageType { }
-        [System.ObsoleteAttribute("Please use `Supports<T>()` instead. Will be treated as an error from version 6.0." +
-            "0. Will be removed in version 7.0.0.", false)]
+        [System.ObsoleteAttribute("Please use `Supports<T>()` instead. Will be removed in version 7.0.0.", true)]
         protected void Supports(NServiceBus.Persistence.Storage storage, System.Action<NServiceBus.Settings.SettingsHolder> action) { }
     }
-    [System.ObsoleteAttribute("Please use `NServiceBus.Persistence.StorageType` instead. Will be treated as an e" +
-        "rror from version 6.0.0. Will be removed in version 7.0.0.", false)]
+    [System.ObsoleteAttribute("Please use `NServiceBus.Persistence.StorageType` instead. Will be removed in vers" +
+        "ion 7.0.0.", true)]
     public enum Storage
     {
         Timeouts = 1,
@@ -2085,10 +1337,6 @@ namespace NServiceBus.Persistence
         public sealed class Subscriptions : NServiceBus.Persistence.StorageType { }
         public sealed class Timeouts : NServiceBus.Persistence.StorageType { }
     }
-}
-namespace NServiceBus.Persistence.Legacy
-{
-    public class MsmqPersistence : NServiceBus.Persistence.PersistenceDefinition { }
 }
 namespace NServiceBus.Pipeline
 {
@@ -2175,6 +1423,7 @@ namespace NServiceBus.Pipeline
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforceBestPractices;
         public static readonly NServiceBus.Pipeline.WellKnownStep ExecuteLogicalMessages;
         public static readonly NServiceBus.Pipeline.WellKnownStep ExecuteUnitOfWork;
+        public static NServiceBus.Pipeline.WellKnownStep HostInformation;
         public static readonly NServiceBus.Pipeline.WellKnownStep InvokeHandlers;
         public static readonly NServiceBus.Pipeline.WellKnownStep InvokeSaga;
         public static readonly NServiceBus.Pipeline.WellKnownStep LoadHandlers;
@@ -2216,15 +1465,7 @@ namespace NServiceBus.Saga
         public virtual string OriginalMessageId { get; set; }
         public virtual string Originator { get; set; }
     }
-    [System.ObsoleteAttribute("Since `ISaga` has been merged into the abstract class `Saga` this interface is no" +
-        " longer required. Please use `NServiceBus.Saga.Saga.Completed` instead. Will be " +
-        "removed in version 6.0.0.", true)]
-    public interface HasCompleted { }
     public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
-    [System.ObsoleteAttribute("Since `ISaga` has been merged into the abstract class `Saga` this interface is no" +
-        " longer required. Please use `NServiceBus.Saga.Saga` instead. Will be removed in" +
-        " version 6.0.0.", true)]
-    public interface IConfigurable { }
     public interface IConfigureHowToFindSagaWithMessage
     {
         void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object>> sagaEntityProperty, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty)
@@ -2256,12 +1497,6 @@ namespace NServiceBus.Saga
     {
         void Timeout(T state);
     }
-    [System.ObsoleteAttribute("Please use `ISagaPersister` instead. Will be removed in version 6.0.0.", true)]
-    public interface IPersistSagas { }
-    [System.ObsoleteAttribute("Please use `NServiceBus.Saga.Saga` instead. Will be removed in version 6.0.0.", true)]
-    public interface ISaga { }
-    [System.ObsoleteAttribute("Please use `NServiceBus.Saga.Saga<T>` instead. Will be removed in version 6.0.0.", true)]
-    public interface ISaga<T> { }
     public interface ISagaPersister
     {
         void Complete(NServiceBus.Saga.IContainSagaData saga);
@@ -2282,15 +1517,14 @@ namespace NServiceBus.Saga
         protected virtual void MarkAsComplete() { }
         protected virtual void ReplyToOriginator(object message) { }
         [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
-            "eplyToOriginator(object)` instead. Will be treated as an error from version 6.0." +
-            "0. Will be removed in version 6.0.0.", false)]
+            "eplyToOriginator(object)` instead. Will be removed in version 7.0.0.", true)]
         protected virtual void ReplyToOriginator<TMessage>(System.Action<TMessage> messageConstructor)
             where TMessage : new() { }
         protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at)
             where TTimeoutMessageType : new() { }
         [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
             "equestTimeout<TTimeoutMessageType>(DateTime, TTimeoutMessageType)` instead. Will" +
-            " be treated as an error from version 6.0.0. Will be removed in version 6.0.0.", false)]
+            " be removed in version 7.0.0.", true)]
         protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at, System.Action<TTimeoutMessageType> action)
             where TTimeoutMessageType : new() { }
         protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at, TTimeoutMessageType timeoutMessage) { }
@@ -2298,7 +1532,7 @@ namespace NServiceBus.Saga
             where TTimeoutMessageType : new() { }
         [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
             "equestTimeout<TTimeoutMessageType>(TimeSpan, TTimeoutMessageType)` instead. Will" +
-            " be treated as an error from version 6.0.0. Will be removed in version 6.0.0.", false)]
+            " be removed in version 7.0.0.", true)]
         protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, System.Action<TTimeoutMessageType> messageConstructor)
             where TTimeoutMessageType : new() { }
         protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
@@ -2336,14 +1570,13 @@ namespace NServiceBus.Sagas
 {
     public class ActiveSagaInstance
     {
-        [System.ObsoleteAttribute("Please use `context.MessageHandler.Instance` instead. Will be treated as an error" +
-            " from version 6.0.0. Will be removed in version 7.0.0.", false)]
+        [System.ObsoleteAttribute("Please use `context.MessageHandler.Instance` instead. Will be removed in version " +
+            "7.0.0.", true)]
         public NServiceBus.Saga.Saga Instance { get; }
         public bool IsNew { get; }
         public bool NotFound { get; }
         public string SagaId { get; }
-        [System.ObsoleteAttribute("Please use `.Metadata.SagaType` instead. Will be treated as an error from version" +
-            " 6.0.0. Will be removed in version 7.0.0.", false)]
+        [System.ObsoleteAttribute("Please use `.Metadata.SagaType` instead. Will be removed in version 7.0.0.", true)]
         public System.Type SagaType { get; }
         public void AttachNewEntity(NServiceBus.Saga.IContainSagaData sagaEntity) { }
     }
@@ -2368,29 +1601,6 @@ namespace NServiceBus.SecondLevelRetries.Config
     public class SecondLevelRetriesSettings
     {
         public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }
-    }
-}
-namespace NServiceBus.SecondLevelRetries.Helpers
-{
-    [System.ObsoleteAttribute("Access the `TransportMessage.Headers` dictionary directly. Will be removed in ver" +
-        "sion 6.0.0.", true)]
-    public class static TransportMessageHelpers
-    {
-        [System.ObsoleteAttribute("Access the `TransportMessage.Headers` dictionary directly using the `FaultsHeader" +
-            "Keys.FailedQ` key. Will be removed in version 6.0.0.", true)]
-        public static NServiceBus.Address GetAddressOfFaultingEndpoint(NServiceBus.TransportMessage message) { }
-        [System.ObsoleteAttribute("Access the `TransportMessage.Headers` dictionary directly. Will be removed in ver" +
-            "sion 6.0.0.", true)]
-        public static string GetHeader(NServiceBus.TransportMessage message, string key) { }
-        [System.ObsoleteAttribute("Access the `TransportMessage.Headers` dictionary directly using the `Headers.Retr" +
-            "ies` key. Will be removed in version 6.0.0.", true)]
-        public static int GetNumberOfRetries(NServiceBus.TransportMessage message) { }
-        [System.ObsoleteAttribute("Access the `TransportMessage.Headers` dictionary directly. Will be removed in ver" +
-            "sion 6.0.0.", true)]
-        public static bool HeaderExists(NServiceBus.TransportMessage message, string key) { }
-        [System.ObsoleteAttribute("Access the `TransportMessage.Headers` dictionary directly. Will be removed in ver" +
-            "sion 6.0.0.", true)]
-        public static void SetHeader(NServiceBus.TransportMessage message, string key, string value) { }
     }
 }
 namespace NServiceBus.Serialization
@@ -2449,29 +1659,11 @@ namespace NServiceBus.Serializers.Json
     {
         protected internal JsonMessageSerializerBase(NServiceBus.MessageInterfaces.IMessageMapper messageMapper) { }
         public string ContentType { get; }
-        [System.ObsoleteAttribute("In version 5 multi-message sends was removed. So Wrapping messages is no longer r" +
-            "equired. If you are communicating with version 3 ensure you are on the latets 3." +
-            "3.x. Will be removed in version 6.0.0.", true)]
-        public bool SkipArrayWrappingForSingleMessages { get; set; }
         protected internal abstract Newtonsoft.Json.JsonReader CreateJsonReader(System.IO.Stream stream);
         protected internal abstract Newtonsoft.Json.JsonWriter CreateJsonWriter(System.IO.Stream stream);
         public object[] Deserialize(System.IO.Stream stream, System.Collections.Generic.IList<System.Type> messageTypes) { }
         protected internal abstract string GetContentType();
         public void Serialize(object message, System.IO.Stream stream) { }
-    }
-}
-namespace NServiceBus.Serializers.XML.Config
-{
-    [System.ObsoleteAttribute(@"Use configuration.UseSerialization<XmlSerializer>(), where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-    public class XmlSerializationSettings
-    {
-        public XmlSerializationSettings() { }
-        [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<XmlSerializer>().DontWrapRawXml()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public NServiceBus.Serializers.XML.Config.XmlSerializationSettings DontWrapRawXml() { }
-        [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<XmlSerializer>().Namespace(namespaceToUse)`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public NServiceBus.Serializers.XML.Config.XmlSerializationSettings Namespace(string namespaceToUse) { }
-        [System.ObsoleteAttribute(@"Use `configuration.UseSerialization<XmlSerializer>().SanitizeInput()`, where `configuration` is an instance of `BusConfiguration`. If self-hosting the instance can be obtained from `new BusConfiguration()`. if using the NServiceBus Host the instance of `BusConfiguration` will be passed in via the `INeedInitialization` or `IConfigureThisEndpoint` interfaces. Will be removed in version 6.0.0.", true)]
-        public NServiceBus.Serializers.XML.Config.XmlSerializationSettings SanitizeInput() { }
     }
 }
 namespace NServiceBus.Serializers.XML
@@ -2511,19 +1703,6 @@ namespace NServiceBus.Settings
         public void UniqueQueuePerEndpointInstance(string discriminator) { }
         public void UseSingleBrokerQueue() { }
         public void UseUniqueBrokerQueuePerMachine() { }
-    }
-    [System.ObsoleteAttribute("Will be removed in version 6.0.0.", true)]
-    public class SerializationSettings
-    {
-        public SerializationSettings() { }
-        [System.ObsoleteAttribute("In version 5 multi-message sends was removed. So Wrapping messages is no longer r" +
-            "equired. If you are communicating with version 3 ensure you are on the latest 3." +
-            "3.x. Will be removed in version 6.0.0.", true)]
-        public NServiceBus.Settings.SerializationSettings DontWrapSingleMessages() { }
-        [System.ObsoleteAttribute("In version 5 multi-message sends was removed. So Wrapping messages is no longer r" +
-            "equired. If you are communicating with version 3 ensure you are on the latest 3." +
-            "3.x. Will be removed in version 6.0.0.", true)]
-        public NServiceBus.Settings.SerializationSettings WrapSingleMessages() { }
     }
     public class SettingsHolder : NServiceBus.Settings.ReadOnlySettings
     {
@@ -2571,9 +1750,6 @@ namespace NServiceBus.Support
 }
 namespace NServiceBus.Timeout.Core
 {
-    [System.ObsoleteAttribute("Timeout management is an internal concern and cannot be replaced. Will be removed" +
-        " in version 6.0.0.", true)]
-    public interface IManageTimeouts { }
     public interface IPersistTimeouts
     {
         void Add(NServiceBus.Timeout.Core.TimeoutData timeout);
@@ -2694,13 +1870,6 @@ namespace NServiceBus.Transports.Msmq
         public void Dispose() { }
         public bool HasActiveTransaction() { }
     }
-    [System.ObsoleteAttribute("`MsmqUtilities` was never intended to be exposed as part of the public API. PLeas" +
-        "e copy the required functionality into your codebase. Will be removed in version" +
-        " 6.0.0.", true)]
-    public class MsmqUtilities
-    {
-        public MsmqUtilities() { }
-    }
 }
 namespace NServiceBus.Unicast.Behaviors
 {
@@ -2726,11 +1895,6 @@ namespace NServiceBus.Unicast
         public bool IsCompleted { get; }
         public void Complete(int errorCode, params object[] messages) { }
     }
-    [System.ObsoleteAttribute("Please use `ICallback` instead. Will be removed in version 6.0.0.", true)]
-    public class Callback
-    {
-        public Callback() { }
-    }
     public abstract class DeliveryOptions
     {
         protected DeliveryOptions() { }
@@ -2738,26 +1902,14 @@ namespace NServiceBus.Unicast
         public bool EnlistInReceiveTransaction { get; set; }
         public NServiceBus.Address ReplyToAddress { get; set; }
     }
-    [System.ObsoleteAttribute("Please use `Use the pipeline and replace the InvokeHandlers step` instead. Will b" +
-        "e removed in version 6.0.0.", true)]
-    public interface IMessageDispatcherFactory
-    {
-        bool CanDispatch(System.Type handler);
-        System.Collections.Generic.IEnumerable<System.Action> GetDispatcher(System.Type messageHandlerType, NServiceBus.ObjectBuilder.IBuilder builder, object toHandle);
-    }
-    [System.ObsoleteAttribute("Not a public API. Please use `MessageHandlerRegistry` instead. Will be treated as" +
-        " an error from version 6.0.0. Will be removed in version 6.0.0.", false)]
+    [System.ObsoleteAttribute("Not a public API. Please use `MessageHandlerRegistry` instead. Will be removed in" +
+        " version 7.0.0.", true)]
     public interface IMessageHandlerRegistry
     {
         System.Collections.Generic.IEnumerable<System.Type> GetHandlerTypes(System.Type messageType);
         System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes();
         void InvokeHandle(object handler, object message);
         void InvokeTimeout(object handler, object state);
-    }
-    [System.ObsoleteAttribute("Please use `IBus` instead. Will be removed in version 6.0.0.", true)]
-    public class IUnicastBus
-    {
-        public IUnicastBus() { }
     }
     public class MessageContext : NServiceBus.IMessageContext
     {
@@ -2769,7 +1921,7 @@ namespace NServiceBus.Unicast
         public MessageEventArgs(object msg) { }
         public object Message { get; }
     }
-    public class MessageHandlerRegistry : NServiceBus.Unicast.IMessageHandlerRegistry
+    public class MessageHandlerRegistry
     {
         public void CacheMethodForHandler(System.Type handler, System.Type messageType) { }
         public void Clear() { }
@@ -2803,7 +1955,7 @@ namespace NServiceBus.Unicast
         public NServiceBus.Address Destination { get; set; }
         public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }
     }
-    public class UnicastBus : NServiceBus.IBus, NServiceBus.IInMemoryOperations, NServiceBus.IManageMessageHeaders, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, System.IDisposable
+    public class UnicastBus : NServiceBus.IBus, NServiceBus.IManageMessageHeaders, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, System.IDisposable
     {
         public UnicastBus() { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; set; }
@@ -2813,11 +1965,8 @@ namespace NServiceBus.Unicast
         public bool DoNotStartTransport { get; set; }
         public System.Func<object, string, string> GetHeaderAction { get; }
         [System.ObsoleteAttribute("We have introduced a more explicit API to set the host identifier, see busConfigu" +
-            "ration.UniquelyIdentifyRunningInstance(). Will be treated as an error from versi" +
-            "on 6.0.0. Will be removed in version 7.0.0.", false)]
+            "ration.UniquelyIdentifyRunningInstance(). Will be removed in version 7.0.0.", true)]
         public NServiceBus.Hosting.HostInformation HostInformation { get; set; }
-        [System.ObsoleteAttribute("InMemory has been removed from the core. Will be removed in version 6.0.0.", true)]
-        public NServiceBus.IInMemoryOperations InMemory { get; }
         public NServiceBus.Address InputAddress { get; set; }
         public NServiceBus.MessageInterfaces.IMessageMapper MessageMapper { get; set; }
         public NServiceBus.Unicast.Routing.StaticMessageRouter MessageRouter { get; set; }
@@ -2837,10 +1986,6 @@ namespace NServiceBus.Unicast
         public void Publish<T>(System.Action<T> messageConstructor) { }
         public virtual void Publish<T>() { }
         public virtual void Publish<T>(T message) { }
-        [System.ObsoleteAttribute("InMemory.Raise has been removed from the core. Will be removed in version 6.0.0.", true)]
-        public void Raise<T>(System.Action<T> messageConstructor) { }
-        [System.ObsoleteAttribute("InMemory.Raise has been removed from the core. Will be removed in version 6.0.0.", true)]
-        public void Raise<T>(T @event) { }
         public void Reply(object message) { }
         public void Reply<T>(System.Action<T> messageConstructor) { }
         public void Return<T>(T errorCode) { }
@@ -2861,14 +2006,6 @@ namespace NServiceBus.Unicast
         public virtual void Subscribe(System.Type messageType) { }
         public void Unsubscribe<T>() { }
         public virtual void Unsubscribe(System.Type messageType) { }
-    }
-}
-namespace NServiceBus.Unicast.Config
-{
-    [System.ObsoleteAttribute("Please use `Configure` instead. Will be removed in version 6.0.0.", true)]
-    public class ConfigUnicastBus
-    {
-        public ConfigUnicastBus() { }
     }
 }
 namespace NServiceBus.Unicast.Messages
@@ -2904,12 +2041,6 @@ namespace NServiceBus.Unicast.Messages
 }
 namespace NServiceBus.Unicast.Queuing
 {
-    [System.ObsoleteAttribute("Since the case where this exception was thrown should not be handled by consumers" +
-        " of the API it has been removed. Will be removed in version 6.0.0.", true)]
-    public class FailedToSendMessageException : System.Exception
-    {
-        public FailedToSendMessageException() { }
-    }
     public interface IWantQueueCreated
     {
         NServiceBus.Address Address { get; }
@@ -3018,12 +2149,6 @@ namespace NServiceBus.Unicast.Transport
         public TransportMessageAvailableEventArgs(NServiceBus.TransportMessage m) { }
         public NServiceBus.TransportMessage Message { get; }
     }
-    [System.ObsoleteAttribute("Since the case where this exception was thrown should not be handled by consumers" +
-        " of the API it has been removed. Will be removed in version 6.0.0.", true)]
-    public class TransportMessageHandlingFailedException : System.Exception
-    {
-        public TransportMessageHandlingFailedException() { }
-    }
     public class TransportMessageReceivedEventArgs : System.EventArgs
     {
         public TransportMessageReceivedEventArgs(NServiceBus.TransportMessage m) { }
@@ -3056,22 +2181,4 @@ namespace NServiceBus.UnitOfWork
         void Begin();
         void End(System.Exception ex = null);
     }
-}
-namespace NServiceBus.Utils
-{
-    [System.ObsoleteAttribute("This class was never intended to be exposed as part of the public API. Will be re" +
-        "moved in version 6.0.0.", true)]
-    public class FileVersionRetriever
-    {
-        public FileVersionRetriever() { }
-    }
-    [System.ObsoleteAttribute("This class was never intended to be exposed as part of the public API. Will be re" +
-        "moved in version 6.0.0.", true)]
-    public class static RegistryReader<T> { }
-}
-namespace System.Threading.Tasks.Schedulers
-{
-    [System.ObsoleteAttribute("This class was never intended to be exposed as part of the public API. Will be re" +
-        "moved in version 6.0.0.", true)]
-    public sealed class MTATaskScheduler { }
 }
