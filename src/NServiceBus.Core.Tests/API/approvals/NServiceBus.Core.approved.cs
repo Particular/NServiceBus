@@ -404,7 +404,7 @@ namespace NServiceBus
     public interface ISendOnlyBus : System.IDisposable
     {
         System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
-        void Publish<T>(T message);
+        void Publish(object message);
         void Publish<T>();
         void Publish<T>(System.Action<T> messageConstructor);
         NServiceBus.ICallback Send(object message);
@@ -1985,7 +1985,7 @@ namespace NServiceBus.Unicast
         public void HandleCurrentMessageLater() { }
         public void Publish<T>(System.Action<T> messageConstructor) { }
         public virtual void Publish<T>() { }
-        public virtual void Publish<T>(T message) { }
+        public virtual void Publish(object message) { }
         public void Reply(object message) { }
         public void Reply<T>(System.Action<T> messageConstructor) { }
         public void Return<T>(T errorCode) { }
