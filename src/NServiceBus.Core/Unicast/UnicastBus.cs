@@ -684,9 +684,8 @@ namespace NServiceBus.Unicast
 
         void ExecuteIWantToRunAtStartupStopMethods()
         {
-            Log.Debug("Ensuring IWantToRunWhenBusStartsAndStops.Start has been called.");
+            // Ensuring IWantToRunWhenBusStartsAndStops.Start has been called.
             startCompletedEvent.WaitOne();
-            Log.Debug("All IWantToRunWhenBusStartsAndStops.Start have completed now.");
 
             var tasksToStop = Interlocked.Exchange(ref thingsRanAtStartup, new ConcurrentBag<IWantToRunWhenBusStartsAndStops>());
             if (!tasksToStop.Any())
