@@ -113,8 +113,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             if (interfaceType.GetMethods().Any(mi => !(mi.IsSpecialName && (mi.Name.StartsWith("set_") || mi.Name.StartsWith("get_")))))
             {
-                Logger.Warn(string.Format("Interface {0} contains methods and can there for not be mapped. Be aware that non mapped interface can't be used to send messages.",interfaceType.Name));
-                return;
+                throw new Exception(string.Format("We can only generate a concrete implementation for '{0}' because the interface contains methods. Make sure interface messages do not contain methods.", interfaceType.Name));
             }
 
             var mapped = concreteProxyCreator.CreateTypeFrom(interfaceType);
