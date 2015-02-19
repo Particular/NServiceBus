@@ -1,8 +1,10 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
+    using System.Diagnostics;
     using System.Linq;
 
+    [DebuggerDisplay("{type.Name}")]
     abstract class BehaviorInstance
     {
         readonly Type type;
