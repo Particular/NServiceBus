@@ -15,15 +15,13 @@
 
     class Deserializer
     {
-        public Deserializer(IMessageMapper mapper, XmlSerializerCache cache)
+        public Deserializer(IMessageMapper mapper, XmlSerializerCache cache, bool skipWrappingRawXml, bool sanitizeInput)
         {
             this.mapper = mapper;
             this.cache = cache;
+            this.skipWrappingRawXml = skipWrappingRawXml;
+            this.sanitizeInput = sanitizeInput;
         }
-
-        public bool SkipWrappingRawXml { get; set; }
-
-        public bool SanitizeInput { get; set; }
 
         public object[] Deserialize(Stream stream, IList<Type> messageTypesToDeserialize = null)
         {
@@ -34,12 +32,53 @@
 
             var result = new List<object>();
 
+            var doc = ReadStreamIntoDocument(stream, sanitizeInput);
+
+            if (NothingToBeProcessed(doc))
+            {
+                return result.ToArray();
+            }
+
+            CacheDefaultNameSpaceMessageBaseTypesAndPrefixes(doc);
+
+            if (ContainsMultipleMessages(doc))
+            {
+                if (ContainsAnyMessageTypesToDeserialize(messageTypesToDeserialize))
+                {
+                    var rootTypes = FindRootTypes(messageTypesToDeserialize);
+                    ProcessRootTypes(rootTypes, doc, result);
+                }
+                else
+                {
+                    var m = Process(doc.DocumentElement, null);
+                    if (m == null)
+                    {
+                        throw new SerializationException("Could not deserialize message.");
+                    }
+                    result.Add(m);
+                }
+            }
+            else
+            {
+                ProcessChildNodes(messageTypesToDeserialize, doc, result);
+            }
+
+            return result.ToArray();
+        }
+
+        static bool NothingToBeProcessed(XmlDocument doc)
+        {
+            return doc.DocumentElement == null;
+        }
+
+        static XmlDocument ReadStreamIntoDocument(Stream stream, bool sanitizeInput)
+        {
             var doc = new XmlDocument
             {
                 PreserveWhitespace = true
             };
 
-            var reader = SanitizeInput
+            var reader = sanitizeInput
                 ? XmlReader.Create(new XmlSanitizingStream(stream), new XmlReaderSettings
                 {
                     CheckCharacters = false
@@ -50,12 +89,59 @@
                 });
 
             doc.Load(reader);
+            return doc;
+        }
 
-            if (doc.DocumentElement == null)
+        void ProcessRootTypes(IEnumerable<Type> rootTypes, XmlDocument doc, ICollection<object> result)
+        {
+            foreach (var rootType in rootTypes)
             {
-                return result.ToArray();
+                var m = Process(doc.DocumentElement, null, rootType);
+                if (m == null)
+                {
+                    throw new SerializationException("Could not deserialize message.");
+                }
+                result.Add(m);
             }
+        }
 
+        static bool ContainsAnyMessageTypesToDeserialize(IList<Type> messageTypesToDeserialize)
+        {
+            return messageTypesToDeserialize != null && messageTypesToDeserialize.Any();
+        }
+
+        void ProcessChildNodes(IList<Type> messageTypesToDeserialize, XmlDocument doc, ICollection<object> result)
+        {
+            var position = 0;
+            foreach (XmlNode node in doc.DocumentElement.ChildNodes)
+            {
+                if (node.NodeType == XmlNodeType.Whitespace)
+                {
+                    continue;
+                }
+
+                var nodeType = ExtractNodeTypeAtPosition(messageTypesToDeserialize, position);
+
+                var m = Process(node, null, nodeType);
+
+                result.Add(m);
+
+                position++;
+            }
+        }
+
+        static Type ExtractNodeTypeAtPosition(IList<Type> messageTypesToDeserialize, int position)
+        {
+            Type nodeType = null;
+            if (messageTypesToDeserialize != null && position < messageTypesToDeserialize.Count)
+            {
+                nodeType = messageTypesToDeserialize.ElementAt(position);
+            }
+            return nodeType;
+        }
+
+        void CacheDefaultNameSpaceMessageBaseTypesAndPrefixes(XmlDocument doc)
+        {
             foreach (XmlAttribute attr in doc.DocumentElement.Attributes)
             {
                 if (attr.Name == "xmlns")
@@ -84,60 +170,11 @@
                     }
                 }
             }
+        }
 
-            if (doc.DocumentElement.Name.ToLower() != "messages")
-            {
-                if (messageTypesToDeserialize != null && messageTypesToDeserialize.Any())
-                {
-                    var rootTypes = FindRootTypes(messageTypesToDeserialize);
-                    foreach (var rootType in rootTypes)
-                    {
-                        var m = Process(doc.DocumentElement, null, rootType);
-                        if (m == null)
-                        {
-                            throw new SerializationException("Could not deserialize message.");
-                        }
-                        result.Add(m);
-                    }
-                }
-                else
-                {
-                    var m = Process(doc.DocumentElement, null);
-                    if (m == null)
-                    {
-                        throw new SerializationException("Could not deserialize message.");
-                    }
-                    result.Add(m);
-                }
-            }
-            else
-            {
-                var position = 0;
-                foreach (XmlNode node in doc.DocumentElement.ChildNodes)
-                {
-                    if (node.NodeType == XmlNodeType.Whitespace)
-                    {
-                        continue;
-                    }
-
-
-                    Type nodeType = null;
-
-                    if (messageTypesToDeserialize != null && position < messageTypesToDeserialize.Count)
-                    {
-                        nodeType = messageTypesToDeserialize.ElementAt(position);
-                    }
-
-
-                    var m = Process(node, null, nodeType);
-
-                    result.Add(m);
-
-                    position++;
-                }
-            }
-
-            return result.ToArray();
+        static bool ContainsMultipleMessages(XmlDocument doc)
+        {
+            return doc.DocumentElement.Name.ToLower() != "messages";
         }
 
         static IEnumerable<Type> FindRootTypes(IEnumerable<Type> messageTypesToDeserialize)
@@ -193,7 +230,6 @@
             {
                 typeName = name;
             }
-
 
             if (parent != null)
             {
@@ -467,7 +503,7 @@
 
             if (typeof(XContainer).IsAssignableFrom(type))
             {
-                var reader = new StringReader(SkipWrappingRawXml ? n.OuterXml : n.InnerXml);
+                var reader = new StringReader(skipWrappingRawXml ? n.OuterXml : n.InnerXml);
 
                 if (type == typeof(XDocument))
                 {
@@ -630,6 +666,8 @@
         const string BASETYPE = "baseType";
         static ILog logger = LogManager.GetLogger<Deserializer>();
         readonly XmlSerializerCache cache;
+        readonly bool skipWrappingRawXml;
+        readonly bool sanitizeInput;
         readonly IMessageMapper mapper;
         string defaultNameSpace;
         List<Type> messageBaseTypes = new List<Type>();

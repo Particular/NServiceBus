@@ -59,12 +59,7 @@ namespace NServiceBus.Serializers.XML
                 return null;
             }
 
-            var deserializer = new Deserializer(mapper, cache)
-            {
-                SanitizeInput = SanitizeInput,
-                SkipWrappingRawXml = SkipWrappingRawXml,
-            };
-
+            var deserializer = new Deserializer(mapper, cache, SkipWrappingRawXml, SanitizeInput);
             return deserializer.Deserialize(stream, messageTypesToDeserialize);
         }
 
@@ -73,12 +68,7 @@ namespace NServiceBus.Serializers.XML
         /// </summary>
         public void Serialize(object message, Stream stream)
         {
-            var serializer = new Serializer(mapper, conventions, cache)
-            {
-                Namespace = Namespace,
-                SkipWrappingRawXml = SkipWrappingRawXml,
-            };
-
+            var serializer = new Serializer(mapper, conventions, cache, SkipWrappingRawXml, Namespace);
             var buffer = serializer.Serialize(message);
             stream.Write(buffer, 0, buffer.Length);
         }
