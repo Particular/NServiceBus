@@ -29,16 +29,19 @@
                 @"at NServiceBus.AcceptanceTests.Exceptions.When_handler_throws_AggregateException.Endpoint.Handler.Handle(Message message)
 at NServiceBus.Unicast.MessageHandlerRegistry.Invoke(Object handler, Object message, Dictionary`2 dictionary)
 at NServiceBus.InvokeHandlersBehavior.Invoke(Context context, Action next)
+at NServiceBus.HandlerTransactionScopeWrapperBehavior.Invoke(Context context, Action next)
 at NServiceBus.LoadHandlersConnector.Invoke(Context context, Action`1 next)
 at NServiceBus.ApplyIncomingMessageMutatorsBehavior.Invoke(Context context, Action next)
 at NServiceBus.ExecuteLogicalMessagesConnector.Invoke(Context context, Action`1 next)
 at NServiceBus.CallbackInvocationBehavior.Invoke(Context context, Action next)
-at NServiceBus.DeserializeLogicalMessagesConnector.Invoke(Context context, Action`1 next)
 at NServiceBus.ApplyIncomingTransportMessageMutatorsBehavior.Invoke(Context context, Action next)
 at NServiceBus.SubscriptionReceiverBehavior.Invoke(Context context, Action next)
 at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
 at NServiceBus.ChildContainerBehavior.Invoke(Context context, Action next)
-at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)", context.StackTrace);
+at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)
+at NServiceBus.EnforceMessageIdBehavior.Invoke(Context context, Action next)
+at NServiceBus.HostInformationBehavior.Invoke(Context context, Action next)
+at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action next)", context.StackTrace);
 
             StackTraceAssert.StartsWith(
                 @"at NServiceBus.AcceptanceTests.Exceptions.When_handler_throws_AggregateException.Endpoint.Handler.MethodThatThrows()
