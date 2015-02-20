@@ -6,20 +6,25 @@ namespace NServiceBus.Features
     using System.Linq;
     using AutomaticSubscriptions;
     using Config;
-    using Faults;
     using Logging;
     using NServiceBus.Hosting;
+    using NServiceBus.MessageInterfaces;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Settings;
+    using NServiceBus.Settings.Concurrency;
+    using NServiceBus.Settings.Throttling;
     using NServiceBus.Support;
+    using NServiceBus.Transports;
     using NServiceBus.Unicast;
     using Pipeline;
-    using Pipeline.Contexts;
-    using Transports;
     using Unicast.Messages;
     using Unicast.Routing;
-    using Unicast.Transport;
+    using TransactionSettings = NServiceBus.Unicast.Transport.TransactionSettings;
 
     class UnicastBus : Feature
     {
+        internal const string HostIdSettingsKey = "NServiceBus.HostInformation.HostId";
+
         internal UnicastBus()
         {
             EnableByDefault();
@@ -27,7 +32,7 @@ namespace NServiceBus.Features
             Defaults(s =>
             {
                 string fullPathToStartingExe;
-                s.SetDefault("NServiceBus.HostInformation.HostId", GenerateDefaultHostId(out fullPathToStartingExe));
+                s.SetDefault(HostIdSettingsKey, GenerateDefaultHostId(out fullPathToStartingExe));
                 s.SetDefault("NServiceBus.HostInformation.DisplayName", RuntimeEnvironment.MachineName);
                 s.SetDefault("NServiceBus.HostInformation.Properties", new Dictionary<string, string>
                 {
@@ -36,25 +41,73 @@ namespace NServiceBus.Features
                     {"UserName", Environment.UserName},
                     {"PathToExecutable", fullPathToStartingExe}
                 });
+                s.SetDefault<IConcurrencyConfig>(new SharedConcurrencyConfig(null));
+                s.SetDefault<IThrottlingConfig>(new NoLimitThrottlingConfig());
             });
         }
 
-      
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var defaultAddress = context.Settings.LocalAddress();
-            var hostInfo = new HostInformation(context.Settings.Get<Guid>("NServiceBus.HostInformation.HostId"), 
-                context.Settings.Get<string>("NServiceBus.HostInformation.DisplayName"), 
+            var hostInfo = new HostInformation(context.Settings.Get<Guid>(HostIdSettingsKey),
+                context.Settings.Get<string>("NServiceBus.HostInformation.DisplayName"),
                 context.Settings.Get<Dictionary<string, string>>("NServiceBus.HostInformation.Properties"));
-            context.Container.ConfigureComponent(() => hostInfo, DependencyLifecycle.SingleInstance);
 
-            context.Container.ConfigureComponent<Unicast.UnicastBus>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(u => u.InputAddress, defaultAddress);
+            context.Container.RegisterSingleton(hostInfo);
+            context.Pipeline.Register<HostInformationBehavior.Registration>();
 
-            ConfigureSubscriptionAuthorization(context);
+            context.Container.ConfigureComponent<BusNotifications>(DependencyLifecycle.SingleInstance);
+           
 
-            context.Container.ConfigureComponent<PipelineExecutor>(DependencyLifecycle.SingleInstance);
-            ConfigureBehaviors(context);
+            var concurrencyConfig = context.Settings.Get<IConcurrencyConfig>();
+            var throttlingConfig = context.Settings.Get<IThrottlingConfig>();
+
+            var transportConfig = context.Settings.GetConfigSection<TransportConfig>();
+
+            if (transportConfig != null)
+            {
+                if (transportConfig.MaximumConcurrencyLevel != 0)
+                {
+                    concurrencyConfig = new SharedConcurrencyConfig(transportConfig.MaximumConcurrencyLevel);
+                }
+                if (transportConfig.MaximumMessageThroughputPerSecond == 0)
+                {
+                    throttlingConfig = new NoLimitThrottlingConfig();
+                }
+                else if (transportConfig.MaximumMessageThroughputPerSecond != -1)
+                {
+                    throttlingConfig = new SharedLimitThrottlingConfig(transportConfig.MaximumConcurrencyLevel);
+                }
+            }
+
+            context.Container.ConfigureComponent(b => throttlingConfig.WrapExecutor(concurrencyConfig.BuildExecutor(b.Build<BusNotifications>())), DependencyLifecycle.SingleInstance);
+
+            context.Container.ConfigureComponent<MainPipelineFactory>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<SatellitePipelineFactory>(DependencyLifecycle.SingleInstance);
+
+            context.Container.ConfigureComponent<BehaviorContextStacker>(DependencyLifecycle.SingleInstance);
+
+            context.Container.ConfigureComponent(b => b.Build<BehaviorContextStacker>().GetCurrentContext(), DependencyLifecycle.InstancePerCall);
+
+            context.Container.ConfigureComponent<CallbackMessageLookup>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<StaticOutgoingMessageHeaders>(DependencyLifecycle.SingleInstance);
+
+            //Hack because we can't register as IStartableBus because it would automatically register as IBus and overrode the proper IBus registration.
+            context.Container.ConfigureComponent<IRealBus>(b => CreateBus(b, hostInfo), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => (IStartableBus)b.Build<IRealBus>(), DependencyLifecycle.SingleInstance);
+
+            context.Container.ConfigureComponent(b =>
+            {
+                var stacker = b.Build<BehaviorContextStacker>();
+                if (stacker.Current != null)
+                {
+                    return CreateContextualBus(b, () => stacker.Current);
+                }
+                return (IBus)b.Build<IRealBus>();
+            }, DependencyLifecycle.InstancePerCall);
+
+
+			ConfigureSubscriptionAuthorization(context);
+
 
             var knownMessages = context.Settings.GetAvailableTypes()
                 .Where(context.Settings.Get<Conventions>().IsMessageType)
@@ -64,12 +117,68 @@ namespace NServiceBus.Features
 
             ConfigureMessageRegistry(context, knownMessages);
 
+            HardcodedPipelineSteps.RegisterOutgoingCoreBehaviors(context.Pipeline);
+            
             if (context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
             {
                 return;
             }
 
-            SetTransportThresholds(context);
+
+
+            HardcodedPipelineSteps.RegisterIncomingCoreBehaviors(context.Pipeline);
+
+            var transactionSettings = new TransactionSettings(context.Settings);
+
+            if (transactionSettings.DoNotWrapHandlersExecutionInATransactionScope)
+            {
+                context.Pipeline.Register<SuppressAmbientTransactionBehavior.Registration>();
+            }
+            else
+            {
+                context.Pipeline.Register<HandlerTransactionScopeWrapperBehavior.Registration>();
+            }
+           
+            context.Pipeline.Register<EnforceMessageIdBehavior.Registration>();   
+        }
+
+        Unicast.UnicastBus CreateBus(IBuilder builder, HostInformation hostInfo)
+        {
+            var bus = new Unicast.UnicastBus(
+                builder.Build<IExecutor>(),
+                builder.Build<CriticalError>(),
+                builder.BuildAll<PipelineFactory>(),
+                builder.Build<IMessageMapper>(),
+                builder,
+                builder.Build<Configure>(),
+                builder.Build<IManageSubscriptions>(),
+                builder.Build<MessageMetadataRegistry>(),
+                builder.Build<ReadOnlySettings>(),
+                builder.Build<TransportDefinition>(),
+                builder.Build<ISendMessages>(),
+                builder.Build<StaticMessageRouter>(),
+                builder.Build<StaticOutgoingMessageHeaders>(),
+                builder.Build<CallbackMessageLookup>())
+            {
+                HostInformation = hostInfo
+            };
+            return bus;
+        }
+
+        ContextualBus CreateContextualBus(IBuilder builder,Func<BehaviorContext> currentContextGetter)
+        {
+            return new ContextualBus(currentContextGetter,
+                builder.Build<IMessageMapper>(),
+                builder,
+                builder.Build<Configure>(),
+                builder.Build<IManageSubscriptions>(),
+                builder.Build<MessageMetadataRegistry>(), 
+                builder.Build<ReadOnlySettings>(),
+                builder.Build<TransportDefinition>(),
+                builder.Build<ISendMessages>(),
+                builder.Build<StaticMessageRouter>(),
+                builder.Build<StaticOutgoingMessageHeaders>(),
+                builder.Build<CallbackMessageLookup>());
         }
 
         static Guid GenerateDefaultHostId(out string fullPathToStartingExe)
@@ -81,43 +190,7 @@ namespace NServiceBus.Features
             return gen.HostId;
         }
 
-        void SetTransportThresholds(FeatureConfigurationContext context)
-        {
-            var transportConfig = context.Settings.GetConfigSection<TransportConfig>();
-            var maximumThroughput = 0;
-            var maximumNumberOfRetries = 5;
-            var maximumConcurrencyLevel = 1;
 
-            if (transportConfig != null)
-            {
-                maximumNumberOfRetries = transportConfig.MaxRetries;
-                maximumThroughput = transportConfig.MaximumMessageThroughputPerSecond;
-                maximumConcurrencyLevel = transportConfig.MaximumConcurrencyLevel;
-            }
-
-            var transactionSettings = new TransactionSettings(context.Settings)
-            {
-                MaxRetries = maximumNumberOfRetries
-            };
-
-            context.Container.ConfigureComponent(b => new TransportReceiver(transactionSettings, maximumConcurrencyLevel, maximumThroughput, b.Build<IDequeueMessages>(), b.Build<IManageMessageFailures>(), context.Settings, b.Build<Configure>())
-            {
-                CriticalError = b.Build<CriticalError>(),
-                Notifications = b.Build<BusNotifications>()
-            }, DependencyLifecycle.InstancePerCall);
-        }
-
-        void ConfigureBehaviors(FeatureConfigurationContext context)
-        {
-            // ReSharper disable HeapView.SlowDelegateCreation
-            var behaviorTypes = context.Settings.GetAvailableTypes().Where(t => (typeof(IBehavior<IncomingContext>).IsAssignableFrom(t) || typeof(IBehavior<OutgoingContext>).IsAssignableFrom(t))
-                                                            && !(t.IsAbstract || t.IsInterface));
-            // ReSharper restore HeapView.SlowDelegateCreation
-            foreach (var behaviorType in behaviorTypes)
-            {
-                context.Container.ConfigureComponent(behaviorType, DependencyLifecycle.InstancePerCall);
-            }
-        }
 
         void ConfigureSubscriptionAuthorization(FeatureConfigurationContext context)
         {

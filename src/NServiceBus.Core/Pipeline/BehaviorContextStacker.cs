@@ -1,11 +1,17 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Pipeline.Contexts;
 
-    class BehaviorContextStacker : IDisposable
+    class BehaviorContextStacker
     {
+        public BehaviorContextStacker(IBuilder rootBuilder)
+        {
+            this.rootBuilder = rootBuilder;
+        }
+
         public BehaviorContext Current
         {
             get
@@ -19,9 +25,18 @@
             }
         }
 
-        public void Dispose()
+        public BehaviorContext GetCurrentContext()
         {
-            //Injected
+            var current = Current;
+
+            if (current != null)
+            {
+                return current;
+            }
+
+            Push(new RootContext(rootBuilder));
+
+            return Current;
         }
 
         public void Push(BehaviorContext item)
@@ -34,7 +49,11 @@
             behaviorContextStack.Value.Pop();
         }
 
+        readonly IBuilder rootBuilder;
+
         //until we get the internal container going we
         ThreadLocal<Stack<BehaviorContext>> behaviorContextStack = new ThreadLocal<Stack<BehaviorContext>>(() => new Stack<BehaviorContext>());
+
+        
     }
 }

@@ -33,8 +33,11 @@ namespace NServiceBus
             : base(new SettingsHolder())
         {
             configurationSourceToUse = new DefaultConfigurationSource();
-            Settings.Set<PipelineModifications>(new PipelineModifications());
-            Pipeline = new PipelineSettings(this);
+
+            var pipelineModifications = new PipelineModifications();
+
+            Settings.Set<PipelineModifications>(pipelineModifications);
+            Pipeline = new PipelineSettings(pipelineModifications);
 
             Settings.SetDefault("Endpoint.SendOnly", false);
             Settings.SetDefault("Transactions.Enabled", true);

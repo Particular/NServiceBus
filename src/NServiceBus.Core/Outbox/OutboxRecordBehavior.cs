@@ -3,13 +3,12 @@ namespace NServiceBus
     using System;
     using NServiceBus.Outbox;
     using Pipeline;
-    using Pipeline.Contexts;
 
-    class OutboxRecordBehavior : IBehavior<IncomingContext>
+    class OutboxRecordBehavior : PhysicalMessageProcessingStageBehavior
     {
         public IOutboxStorage OutboxStorage { get; set; }
 
-        public void Invoke(IncomingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             next();
             

@@ -1,12 +1,10 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Pipeline;
-    using Pipeline.Contexts;
 
-    class ProcessingStatisticsBehavior : IBehavior<IncomingContext>
+    class ProcessingStatisticsBehavior : PhysicalMessageProcessingStageBehavior
     {
-        public void Invoke(IncomingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             string timeSentString;
             var headers = context.PhysicalMessage.Headers;

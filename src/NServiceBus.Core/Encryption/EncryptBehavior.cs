@@ -6,7 +6,7 @@
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast.Transport;
 
-    class EncryptBehavior : IBehavior<OutgoingContext>
+    class EncryptBehavior : Behavior<OutgoingContext>
     {
         EncryptionMutator messageMutator;
 
@@ -15,7 +15,7 @@
             this.messageMutator = messageMutator;
         }
 
-        public void Invoke(OutgoingContext context, Action next)
+        public override void Invoke(OutgoingContext context, Action next)
         {
             if (context.OutgoingLogicalMessage.IsControlMessage())
             {
@@ -35,7 +35,6 @@
                 : base("InvokeEncryption", typeof(EncryptBehavior), "Invokes the encryption logic")
             {
                 InsertAfter(WellKnownStep.MutateOutgoingMessages);
-                InsertBefore(WellKnownStep.CreatePhysicalMessage);
             }
 
         }

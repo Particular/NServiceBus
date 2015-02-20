@@ -45,7 +45,6 @@ public class PubSubTestCase : TestCase
 
         configuration.EndpointName("PubSubPerformanceTest");
         configuration.EnableInstallers();
-        configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
         configuration.UseTransport<MsmqTransport>();
         configuration.DisableFeature<Audit>();
 

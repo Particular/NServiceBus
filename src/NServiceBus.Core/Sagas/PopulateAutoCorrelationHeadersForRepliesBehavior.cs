@@ -8,9 +8,9 @@
     using Unicast.Transport;
 
 
-    class PopulateAutoCorrelationHeadersForRepliesBehavior : IBehavior<OutgoingContext>
+    class PopulateAutoCorrelationHeadersForRepliesBehavior : Behavior<OutgoingContext>
     {
-        public void Invoke(OutgoingContext context, Action next)
+        public override void Invoke(OutgoingContext context, Action next)
         {
             if (context.OutgoingLogicalMessage.IsControlMessage())
             {
@@ -20,30 +20,38 @@
 
             ActiveSagaInstance saga;
 
-            if (context.TryGet(out saga) && !saga.NotFound)
+            if (context.TryGet(out saga) && HasBeenFound(saga))
             {
                 context.OutgoingLogicalMessage.Headers[Headers.OriginatingSagaId] = saga.SagaId;
                 context.OutgoingLogicalMessage.Headers[Headers.OriginatingSagaType] = saga.Metadata.SagaType.AssemblyQualifiedName;
             }
 
+            TransportMessage incomingMessage;
+            context.TryGet(TransportReceiveContext.IncomingPhysicalMessageKey, out incomingMessage);
+
             //auto correlate with the saga we are replying to if needed
-            if (context.DeliveryOptions is ReplyOptions  && context.IncomingMessage != null)
+            if (context.DeliveryOptions is ReplyOptions && incomingMessage != null)
             {
                 string sagaId;
                 string sagaType;
 
-                if (context.IncomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out sagaId))
+                if (incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out sagaId))
                 {
                     context.OutgoingLogicalMessage.Headers[Headers.SagaId] = sagaId;
                 }
 
-                if (context.IncomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out sagaType))
+                if (incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out sagaType))
                 {
                     context.OutgoingLogicalMessage.Headers[Headers.SagaType] = sagaType;
                 }
             }
 
             next();
+        }
+
+        static bool HasBeenFound(ActiveSagaInstance saga)
+        {
+            return !saga.NotFound;
         }
     }
 }

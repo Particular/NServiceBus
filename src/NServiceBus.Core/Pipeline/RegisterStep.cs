@@ -2,19 +2,24 @@ namespace NServiceBus.Pipeline
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Base class to do an advance registration of a step.
     /// </summary>
+    [DebuggerDisplay("{StepId}({BehaviorType.FullName}) - {Description}")]
     public abstract class RegisterStep
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RegisterStep"/> class.
         /// </summary>
         /// <param name="stepId">The unique identifier for this steps.</param>
-        /// <param name="behavior">The type of <see cref="IBehavior{TContext}"/> to register.</param>
+        /// <param name="behavior">The type of <see cref="Behavior{TContext}"/> to register.</param>
         /// <param name="description">A brief description of what this step does.</param>
-        protected RegisterStep(string stepId, Type behavior, string description)
+        /// <param name="isStatic">If a behavior is pipeline-static (shared between executions)</param>
+        protected RegisterStep(string stepId, Type behavior, string description, bool isStatic = false)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
@@ -31,12 +36,41 @@ namespace NServiceBus.Pipeline
             BehaviorType = behavior;
             StepId = stepId;
             Description = description;
+            IsStatic = isStatic;
         }
+
+
+        /// <summary>
+        /// Allows for customization of the container registration for this step
+        /// </summary>
+        /// <param name="customRegistration"></param>
+        public void ContainerRegistration<T>(Func<IBuilder,ReadOnlySettings,T> customRegistration)
+        {
+            customContainerRegistration = (settings, container) => container.ConfigureComponent(builder => customRegistration(builder,settings), DependencyLifecycle.InstancePerCall);
+        }
+
+        internal void ApplyContainerRegistration(ReadOnlySettings settings, IConfigureComponents container)
+        {
+            if (customContainerRegistration != null)
+            {
+                customContainerRegistration(settings, container);
+                return;
+            }
+
+            container.ConfigureComponent(BehaviorType, DependencyLifecycle.InstancePerCall);
+        }
+
+        Action<ReadOnlySettings,IConfigureComponents> customContainerRegistration;
 
         /// <summary>
         /// Gets the unique identifier for this step.
         /// </summary>
         public string StepId { get; private set; }
+
+        /// <summary>
+        /// Gets if the behavior is pipeline-static (shared between all executions of the pipeline)
+        /// </summary>
+        public bool IsStatic { get; private set; }
         
         /// <summary>
         /// Gets the description for this registration.
@@ -47,7 +81,7 @@ namespace NServiceBus.Pipeline
         internal IList<Dependency> Afters { get; private set; }
         
         /// <summary>
-        /// Gets the type of <see cref="IBehavior{TContext}"/> that is being registered.
+        /// Gets the type of <see cref="Behavior{TContext}"/> that is being registered.
         /// </summary>
         public Type BehaviorType { get; internal set; }
 
@@ -81,7 +115,7 @@ namespace NServiceBus.Pipeline
                 Befores = new List<Dependency>();
             }
 
-            Befores.Add(new Dependency(id, false));
+            Befores.Add(new Dependency(StepId,id,Dependency.DependencyDirection.Before, false));
         }
 
         /// <summary>
@@ -112,7 +146,7 @@ namespace NServiceBus.Pipeline
                 Befores = new List<Dependency>();
             }
 
-            Befores.Add(new Dependency(id, true));
+            Befores.Add(new Dependency(StepId, id,Dependency.DependencyDirection.Before, true));
         }
 
         /// <summary>
@@ -145,7 +179,7 @@ namespace NServiceBus.Pipeline
                 Afters = new List<Dependency>();
             }
 
-            Afters.Add(new Dependency(id, false));
+            Afters.Add(new Dependency(StepId, id, Dependency.DependencyDirection.After, false));
         }
 
         /// <summary>
@@ -176,22 +210,31 @@ namespace NServiceBus.Pipeline
                 Afters = new List<Dependency>();
             }
 
-            Afters.Add(new Dependency(id, true));
+            Afters.Add(new Dependency(StepId, id, Dependency.DependencyDirection.After, true));
         }
 
-        internal static RegisterStep Create(WellKnownStep wellKnownStep, Type behavior, string description)
+        internal BehaviorInstance CreateBehavior(IBuilder defaultBuilder)
         {
-            return new DefaultRegisterStep(behavior, wellKnownStep, description);
+            if (IsStatic)
+            {
+                return new StaticBehavior(BehaviorType, defaultBuilder);
+            }
+            return new PerCallBehavior(BehaviorType, defaultBuilder);
         }
-        internal static RegisterStep Create(string pipelineStep, Type behavior, string description)
+
+        internal static RegisterStep Create(WellKnownStep wellKnownStep, Type behavior, string description, bool isStatic)
         {
-            return new DefaultRegisterStep(behavior, pipelineStep, description);
+            return new DefaultRegisterStep(behavior, wellKnownStep, description, isStatic);
+        }
+        internal static RegisterStep Create(string pipelineStep, Type behavior, string description, bool isStatic)
+        {
+            return new DefaultRegisterStep(behavior, pipelineStep, description, isStatic);
         }
         
         class DefaultRegisterStep : RegisterStep
         {
-            public DefaultRegisterStep(Type behavior, string stepId, string description)
-                : base(stepId, behavior, description)
+            public DefaultRegisterStep(Type behavior, string stepId, string description, bool isStatic)
+                : base(stepId, behavior, description, isStatic)
             {
             }
         }

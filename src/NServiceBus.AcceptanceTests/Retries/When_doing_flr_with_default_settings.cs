@@ -1,10 +1,8 @@
 ﻿namespace NServiceBus.AcceptanceTests.Retries
 {
     using System;
-    using Faults;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Config;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -33,8 +31,6 @@
 
             public int NumberOfTimesInvoked { get; set; }
 
-            public bool HandedOverToSlr { get; set; }
-
             public bool SecondMessageReceived { get; set; }
         }
 
@@ -42,33 +38,7 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(
-                    b =>
-                    {
-                        b.Transactions().Disable();
-                        b.RegisterComponents(r => r.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance));
-                    })
-                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1);
-            }
-
-            class CustomFaultManager : IManageMessageFailures
-            {
-                public Context Context { get; set; }
-
-                public void SerializationFailedForMessage(TransportMessage message, Exception e)
-                {
-
-                }
-
-                public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
-                {
-                    Context.HandedOverToSlr = true;
-                }
-
-                public void Init(Address address)
-                {
-
-                }
+                EndpointSetup<DefaultServer>(b => b.Transactions().Disable());
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

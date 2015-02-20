@@ -6,17 +6,20 @@ namespace NServiceBus.Outbox
 
     class OutboxAwareAuditer
     {
-        public DefaultMessageAuditer DefaultMessageAuditer { get; set; }
+        readonly DefaultMessageAuditer defaultMessageAuditer;
+        readonly BehaviorContext behaviorContext;
 
-        public PipelineExecutor PipelineExecutor { get; set; }
+        public OutboxAwareAuditer(DefaultMessageAuditer defaultMessageAuditer, BehaviorContext behaviorContext)
+        {
+            this.defaultMessageAuditer = defaultMessageAuditer;
+            this.behaviorContext = behaviorContext;
+        }
 
         public void Audit( SendOptions sendOptions, TransportMessage message)
         {
-            var context = PipelineExecutor.CurrentContext;
-
             OutboxMessage currentOutboxMessage;
 
-            if (context.TryGet(out currentOutboxMessage))
+            if (behaviorContext.TryGet(out currentOutboxMessage))
             {
                 message.RevertToOriginalBodyIfNeeded();
                 
@@ -24,7 +27,7 @@ namespace NServiceBus.Outbox
             }
             else
             {
-                DefaultMessageAuditer.Audit(sendOptions, message);
+                defaultMessageAuditer.Audit(sendOptions, message);
             }
         }
     }

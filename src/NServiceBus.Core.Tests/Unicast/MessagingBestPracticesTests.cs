@@ -28,19 +28,6 @@
             {
                 MessagingBestPractices.AssertIsValidForReply(typeof(MyMessage), new Conventions());
             }
-
-            public class MyMessage : IMessage
-            {
-                
-            }
-            public class MyCommand : ICommand
-            {
-                
-            }
-            public class MyEvent : IEvent
-            {
-                
-            }
         }
 
         [TestFixture]
@@ -66,18 +53,20 @@
                 MessagingBestPractices.AssertIsValidForPubSub(typeof(MyMessage), new Conventions());
             }
 
-            public class MyMessage : IMessage
-            {
-                
-            }
-            public class MyCommand : ICommand
-            {
-                
-            }
-            public class MyEvent : IEvent
-            {
-                
-            }
+     
+        }
+
+        public class MyMessage : IMessage
+        {
+
+        }
+        public class MyCommand : ICommand
+        {
+
+        }
+        public class MyEvent : IEvent
+        {
+
         }
     }
 }

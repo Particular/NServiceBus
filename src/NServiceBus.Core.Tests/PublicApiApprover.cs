@@ -22,7 +22,7 @@ namespace ApiApprover
             var publicApi = PublicApiGenerator.CreatePublicApiForAssembly(asm);
             var writer = new ApprovalTextWriter(publicApi, "cs");
             var approvalNamer = new AssemblyPathNamer(assemblyPath);
-            ApprovalTests.Approvals.Verify(writer, approvalNamer, ApprovalTests.Approvals.GetReporter());
+            Approvals.Verify(writer, approvalNamer, Approvals.GetReporter());
         }
 
         private class AssemblyPathNamer : UnitTestFrameworkNamer

@@ -11,6 +11,15 @@
     public class MessageDeserializationException : SerializationException
     {
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        public MessageDeserializationException(string message):base(message)
+
+        {
+            
+        }
+        /// <summary>
         /// Initializes a new instance of <see cref="MessageDeserializationException"/>.
         /// </summary>
         /// <param name="innerException"> The exception that is the cause of the current exception.</param>

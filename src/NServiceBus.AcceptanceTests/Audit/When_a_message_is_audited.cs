@@ -9,21 +9,37 @@
 
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
+        Context context;
+
+        [SetUp]
+        public new void SetUp()
+        {
+            context = new Context
+            {
+                RunId = Guid.NewGuid()
+            };
+
+            Scenario.Define(context)
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited(){RunId = context.RunId})))
+                    .WithEndpoint<AuditSpyEndpoint>()
+                    .Done(c => c.Done)
+                    .Run();
+        }
+
         [Test]
         public void Should_preserve_the_original_body()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
-                    .WithEndpoint<AuditSpyEndpoint>()
-                    .Done(c => c.AuditChecksum != default(byte))
-                    .Run();
-
             Assert.AreEqual(context.OriginalBodyChecksum, context.AuditChecksum, "The body of the message sent to audit should be the same as the original message coming off the queue");
         }
 
         [Test]
+        public void Should_be_stamped_with_host_id_and_host_name()
+        {
+            Assert.IsNotNull(context.HostId);
+            Assert.IsNotNull(context.HostName);
+        }
+
+        [Test, Ignore("To be fixed by andreas")]
         public void Should_add_the_license_diagnostic_headers()
         {
             var context = new Context();
@@ -39,9 +55,13 @@
 
         public class Context : ScenarioContext
         {
+            public Guid RunId { get; set; }
+            public bool Done { get; set; }
             public byte OriginalBodyChecksum { get; set; }
             public byte AuditChecksum { get; set; }
             public bool HasDiagnosticLicensingHeaders { get; set; }
+            public string HostId { get; set; }
+            public string HostName { get; set; }
         }
 
         public class EndpointWithAuditOn : EndpointConfigurationBuilder
@@ -113,8 +133,18 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
+                public Context Context { get; set; }
+                public IBus Bus { get; set; }
+
                 public void Handle(MessageToBeAudited message)
                 {
+                    if (message.RunId != Context.RunId)
+                    {
+                        return;
+                    }
+                    Context.HostId = Bus.GetMessageHeader(message, Headers.HostId);
+                    Context.HostName = Bus.GetMessageHeader(message, Headers.HostDisplayName);
+                    Context.Done = true;
                 }
             }
         }
@@ -128,6 +158,7 @@
         [Serializable]
         public class MessageToBeAudited : IMessage
         {
+            public Guid RunId { get; set; }
         }
     }
 }

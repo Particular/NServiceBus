@@ -8,7 +8,7 @@
     using Pipeline.Contexts;
     using Unicast.Transport;
 
-    class DataBusSendBehavior : IBehavior<OutgoingContext>
+    class DataBusSendBehavior : Behavior<OutgoingContext>
     {
         public IDataBus DataBus { get; set; }
 
@@ -16,7 +16,7 @@
 
         public Conventions Conventions { get; set; }
 
-        public void Invoke(OutgoingContext context, Action next)
+        public override void Invoke(OutgoingContext context, Action next)
         {
             if (context.OutgoingLogicalMessage.IsControlMessage())
             {
@@ -80,7 +80,6 @@
             public Registration(): base("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location")
             {
                 InsertAfter(WellKnownStep.MutateOutgoingMessages);
-                InsertBefore(WellKnownStep.CreatePhysicalMessage);
             }
         }
     }

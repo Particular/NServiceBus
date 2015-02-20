@@ -6,31 +6,27 @@ namespace NServiceBus.Unicast.Transport.Monitoring
 
     class ReceivePerformanceDiagnostics : IDisposable
     {
+        readonly string queueName;
         static ILog Logger = LogManager.GetLogger<ReceivePerformanceDiagnostics>();
-        readonly Address receiveAddress;
         bool enabled;
         PerformanceCounter failureRateCounter;
         PerformanceCounter successRateCounter;
         PerformanceCounter throughputCounter;
 
-        public ReceivePerformanceDiagnostics(Address receiveAddress)
+        public ReceivePerformanceDiagnostics(string queueName)
         {
-            this.receiveAddress = receiveAddress;
-        }
-
-        public void Dispose()
-        {
-            //Injected at compile time
-        }
-
-        public void Initialize()
-        {
+            this.queueName = queueName;
             if (!InstantiateCounter())
             {
                 return;
             }
 
             enabled = true;
+        }
+
+        public void Dispose()
+        {
+            //Injected at compile time
         }
 
         public void MessageProcessed()
@@ -72,12 +68,12 @@ namespace NServiceBus.Unicast.Transport.Monitoring
 
         bool SetupCounter(string counterName, out PerformanceCounter counter)
         {
-                if (!PerformanceCounterHelper.TryToInstantiatePerformanceCounter(counterName, receiveAddress.Queue, out counter))
+                if (!PerformanceCounterHelper.TryToInstantiatePerformanceCounter(counterName, queueName, out counter))
                 {
                     return false;
                 }
 
-                Logger.DebugFormat("'{0}' counter initialized for '{1}'", counterName, receiveAddress);
+                Logger.DebugFormat("'{0}' counter initialized for '{1}'", counterName, queueName);
 
                 return true;
         }

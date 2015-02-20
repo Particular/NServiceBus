@@ -3,20 +3,30 @@
     using System;
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
 
-    class HostInformationBehavior : IBehavior<IncomingContext>
+    class HostInformationBehavior : PhysicalMessageProcessingStageBehavior
     {
-        // ReSharper disable once MemberCanBePrivate.Global
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global
-        public HostInformation Host { get; set; }
+        readonly HostInformation hostInfo;
 
-        public void Invoke(IncomingContext context, Action next)
+        public HostInformationBehavior(HostInformation hostInfo)
         {
-            context.PhysicalMessage.Headers[Headers.HostId] = Host.HostId.ToString("N");
-            context.PhysicalMessage.Headers[Headers.HostDisplayName] = Host.DisplayName;
+            this.hostInfo = hostInfo;
+        }
+
+        public override void Invoke(Context context, Action next)
+        {
+            context.PhysicalMessage.Headers[Headers.HostId] = hostInfo.HostId.ToString("N");
+            context.PhysicalMessage.Headers[Headers.HostDisplayName] = hostInfo.DisplayName;
 
             next();
+        }
+
+        public class Registration : RegisterStep
+        {
+            public Registration()
+                : base("AddHostInformation", typeof(HostInformationBehavior), "Adds host information")
+            {
+            }
         }
     }
 }

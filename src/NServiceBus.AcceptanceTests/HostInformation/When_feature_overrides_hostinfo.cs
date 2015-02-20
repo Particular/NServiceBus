@@ -19,11 +19,10 @@ namespace NServiceBus.AcceptanceTests.HostInformation
 
             Scenario.Define(context)
                 .WithEndpoint<MyEndpoint>(e => e.Given(b => b.SendLocal(new MyMessage())))
-                .Done(c => c.HostId != Guid.Empty)
+                .Done(c => c.OriginatingHostId != Guid.Empty)
                 .Run();
 
-            Assert.AreEqual(hostId, context.HostId);
-            Assert.AreEqual(instanceName, context.HostDisplayName);
+            Assert.AreEqual(hostId, context.OriginatingHostId);
         }
 
         public class MyEndpoint : EndpointConfigurationBuilder
@@ -65,15 +64,13 @@ namespace NServiceBus.AcceptanceTests.HostInformation
 
             public void Handle(MyMessage message)
             {
-                Context.HostDisplayName = Bus.GetMessageHeader(message, Headers.HostDisplayName);
-                Context.HostId = new Guid(Bus.GetMessageHeader(message, Headers.HostId));
+                Context.OriginatingHostId = new Guid(Bus.GetMessageHeader(message, Headers.OriginatingHostId));
             }
         }
 
         public class Context : ScenarioContext
         {
-            public Guid HostId { get; set; }
-            public string HostDisplayName { get; set; }
+            public Guid OriginatingHostId { get; set; }
         }
 
         [Serializable]

@@ -2,7 +2,6 @@
 namespace NServiceBus.Pipeline
 {
     using System;
-    using Unicast.Messages;
 
     /// <summary>
     /// Well known steps.
@@ -64,25 +63,13 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public static readonly WellKnownStep InvokeHandlers = new WellKnownStep("InvokeHandlers");
         /// <summary>
-        /// Deserializes all logical messages from the transport message.
-        /// </summary>
-        public static readonly WellKnownStep DeserializeMessages = new WellKnownStep("DeserializeMessages");
-        /// <summary>
         /// Runs incoming mutation for each logical message.
         /// </summary>
         public static readonly WellKnownStep MutateIncomingMessages = new WellKnownStep("MutateIncomingMessages");
         /// <summary>
-        /// Loads all handlers to be executed.
-        /// </summary>
-        public static readonly WellKnownStep LoadHandlers = new WellKnownStep("LoadHandlers");
-        /// <summary>
         /// Invokes the saga code.
         /// </summary>
         public static readonly WellKnownStep InvokeSaga = new WellKnownStep("InvokeSaga");
-        /// <summary>
-        /// Loops through all <see cref="LogicalMessage"/>.
-        /// </summary>
-        public static readonly WellKnownStep ExecuteLogicalMessages = new WellKnownStep("ExecuteLogicalMessages");
         /// <summary>
         /// Ensures best practices are met.
         /// </summary>
@@ -91,10 +78,6 @@ namespace NServiceBus.Pipeline
         /// Runs outgoing mutation for each logical message.
         /// </summary>
         public static readonly WellKnownStep MutateOutgoingMessages = new WellKnownStep("MutateOutgoingMessages");
-        /// <summary>
-        /// Creates the protocol messages to send out.
-        /// </summary>
-        public static readonly WellKnownStep CreatePhysicalMessage = new WellKnownStep("CreatePhysicalMessage");
         /// <summary>
         /// Serializes messages.
         /// </summary>

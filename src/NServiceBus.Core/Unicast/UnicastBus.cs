@@ -10,122 +10,64 @@ namespace NServiceBus.Unicast
     using Hosting;
     using Licensing;
     using Logging;
-    using MessageInterfaces;
-    using Messages;
+    using NServiceBus.MessageInterfaces;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast.Messages;
+    using NServiceBus.Unicast.Routing;
     using ObjectBuilder;
     using Pipeline;
     using Pipeline.Contexts;
-    using Routing;
-    using Satellites;
     using Settings;
-    using Transport;
-    using Transports;
+
+    interface IRealBus
+    {
+    }
 
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public class UnicastBus : IStartableBus, IManageMessageHeaders
+    public partial class UnicastBus : IStartableBus, IManageMessageHeaders, IRealBus
     {
         /// <summary>
         /// Initializes a new instance of <see cref="UnicastBus"/>.
         /// </summary>
-        public UnicastBus()
+        public UnicastBus(
+            IExecutor executor,
+            CriticalError criticalError,
+            IEnumerable<PipelineFactory> pipelineFactories,
+            IMessageMapper messageMapper, 
+            IBuilder builder, 
+            Configure configure, 
+            IManageSubscriptions subscriptionManager, 
+            MessageMetadataRegistry messageMetadataRegistry,
+            ReadOnlySettings settings,
+            TransportDefinition transportDefinition,
+            ISendMessages messageSender,
+            StaticMessageRouter messageRouter,
+            StaticOutgoingMessageHeaders outgoingMessageHeaders,
+            CallbackMessageLookup callbackMessageLookup)
         {
-            SetupHeaderActions();
+            this.executor = executor;
+            this.criticalError = criticalError;
+            this.pipelineFactories = pipelineFactories;
+            this.settings = settings;
+            this.builder = builder;
+
+            var rootContext = new RootContext(builder);
+            busImpl = new ContextualBus( 
+                () => rootContext,
+                messageMapper, 
+                builder, 
+                configure,
+                subscriptionManager, 
+                messageMetadataRegistry,
+                settings,
+                transportDefinition,
+                messageSender,
+                messageRouter,
+                outgoingMessageHeaders,
+                callbackMessageLookup);
         }
-
-        void SetupHeaderActions()
-        {
-            SetHeaderAction = (message, key, value) =>
-            {
-                //are we in the process of sending a logical message
-                var outgoingLogicalMessageContext = PipelineFactory.CurrentContext as OutgoingContext;
-
-                if (outgoingLogicalMessageContext != null && outgoingLogicalMessageContext.OutgoingLogicalMessage.Instance == message)
-                {
-                    outgoingLogicalMessageContext.OutgoingLogicalMessage.Headers[key] = value;
-                }
-
-                Dictionary<object, Dictionary<string, string>> outgoingHeaders;
-
-                if (!PipelineFactory.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
-                {
-                    outgoingHeaders = new Dictionary<object, Dictionary<string, string>>();
-
-                    PipelineFactory.CurrentContext.Set("NServiceBus.OutgoingHeaders", outgoingHeaders);
-                }
-
-                Dictionary<string, string> outgoingHeadersForThisMessage;
-
-                if (!outgoingHeaders.TryGetValue(message, out outgoingHeadersForThisMessage))
-                {
-                    outgoingHeadersForThisMessage = new Dictionary<string, string>();
-                    outgoingHeaders[message] = outgoingHeadersForThisMessage;
-                }
-
-                outgoingHeadersForThisMessage[key] = value;
-            };
-
-            GetHeaderAction = (message, key) =>
-            {
-                if (message == ExtensionMethods.CurrentMessageBeingHandled)
-                {
-                    LogicalMessage messageBeingReceived;
-
-                    //first try to get the header from the current logical message
-                    if (PipelineFactory.CurrentContext.TryGet(out messageBeingReceived))
-                    {
-                        string value;
-
-                        if (messageBeingReceived.Headers.TryGetValue(key, out value))
-                        {
-                            return value;
-                        }
-                    }
-
-                    //falling back to get the headers from the physical message
-                    // when we remove the multi message feature we can remove this and instead
-                    // share the same header collection btw physical and logical message
-                    if (CurrentMessageContext != null)
-                    {
-                        string value;
-                        if (CurrentMessageContext.Headers.TryGetValue(key, out value))
-                        {
-                            return value;
-                        }
-                    }
-                }
-
-                Dictionary<object, Dictionary<string, string>> outgoingHeaders;
-
-                if (!PipelineFactory.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
-                {
-                    return null;
-                }
-                Dictionary<string, string> outgoingHeadersForThisMessage;
-
-                if (!outgoingHeaders.TryGetValue(message, out outgoingHeadersForThisMessage))
-                {
-                    return null;
-                }
-
-                string headerValue;
-
-                outgoingHeadersForThisMessage.TryGetValue(key, out headerValue);
-
-                return headerValue;
-            };
-        }
-
-        /// <summary>
-        /// The <see cref="Action{T1,T2,T3}"/> used to set the header in the bus.SetMessageHeader(msg, key, value) method.
-        /// </summary>
-        public Action<object, string, string> SetHeaderAction { get; internal set; }
-
-        /// <summary>
-        /// The <see cref="Func{T1,T2,TResult}"/> used to get the header value in the bus.GetMessageHeader(msg, key) method.
-        /// </summary>
-        public Func<object, string, string> GetHeaderAction { get; internal set; }
 
         /// <summary>
         /// Provides access to the current host information
@@ -138,500 +80,7 @@ namespace NServiceBus.Unicast
             get; set;
         }
 
-        /// <summary>
-        /// Access to the current settings
-        /// </summary>
-        public ReadOnlySettings Settings { get; set; }
-
-        /// <summary>
-        /// Sets an <see cref="ITransport"/> implementation to use as the
-        /// listening endpoint for the bus.
-        /// </summary>
-        public ITransport Transport { get; set; }
-
-        /// <summary>
-        /// Critical error handling
-        /// </summary>
-        public CriticalError CriticalError { get; set; }
-
-        /// <summary>
-        /// Message queue used to send messages.
-        /// </summary>
-        public ISendMessages MessageSender { get; set; }
-
-        /// <summary>
-        /// Configuration.
-        /// </summary>
-        public Configure Configure { get; set; }
-
-        /// <summary>
-        /// Sets <see cref="IBuilder"/> implementation that will be used to 
-        /// dynamically instantiate and execute message handlers.
-        /// </summary>
-        public IBuilder Builder { get; set; }
-
-        /// <summary>
-        /// Gets/sets the message mapper.
-        /// </summary>
-        public IMessageMapper MessageMapper
-        {
-            get { return messageMapper; }
-            set { messageMapper = value; }
-        }
-
-        /// <summary>
-        /// Sets whether or not the return address of a received message 
-        /// should be propagated when the message is forwarded. This field is
-        /// used primarily for the Distributor.
-        /// </summary>
-        public bool PropagateReturnAddressOnSend { get; set; }
-
-        /// <summary>
-        /// The router for this <see cref="UnicastBus"/>
-        /// </summary>
-        public StaticMessageRouter MessageRouter { get; set; }
-
-        /// <summary>
-        /// The registered subscription manager for this bus instance
-        /// </summary>
-        public IManageSubscriptions SubscriptionManager { get; set; }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Publish{T}(Action{T})"/>
-        /// </summary>
-        public void Publish<T>(Action<T> messageConstructor)
-        {
-            Publish(messageMapper.CreateInstance(messageConstructor));
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Publish{T}()"/>
-        /// </summary>
-        public virtual void Publish<T>()
-        {
-            Publish(messageMapper.CreateInstance<T>());
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Publish(object)"/>
-        /// </summary>
-        public virtual void Publish(object message)
-        {
-            var logicalMessage = LogicalMessageFactory.Create(message);
-            var options = new PublishOptions(logicalMessage.MessageType);
-            InvokeSendPipeline(options, logicalMessage);
-        }
-
-        /// <summary>
-        /// <see cref="IBus.Subscribe{T}()"/>
-        /// </summary>
-        public void Subscribe<T>()
-        {
-            Subscribe(typeof(T));
-        }
-
-        bool SendOnlyMode { get { return Settings.Get<bool>("Endpoint.SendOnly"); } }
-
-        /// <summary>
-        /// <see cref="IBus.Subscribe(Type)"/>
-        /// </summary>
-        public virtual void Subscribe(Type messageType)
-        {
-            MessagingBestPractices.AssertIsValidForPubSub(messageType, Builder.Build<Conventions>());
-
-            if (SendOnlyMode)
-            {
-                throw new InvalidOperationException("It's not allowed for a send only endpoint to be a subscriber");
-            }
-
-            AssertHasLocalAddress();
-
-            if (SubscriptionManager == null)
-            {
-                throw new InvalidOperationException("No subscription manager is available");
-            }
-
-            if (TransportDefinition.HasSupportForCentralizedPubSub)
-            {
-                // We are dealing with a brokered transport wired for auto pub/sub.
-                SubscriptionManager.Subscribe(messageType, null);
-                return;
-            }
-
-            var addresses = GetAtLeastOneAddressForMessageType(messageType);
-
-            foreach (var destination in addresses)
-            {
-                if (Address.Self == destination)
-                {
-                    throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
-                }
-
-                SubscriptionManager.Subscribe(messageType, destination);
-            }
-        }
-
-        List<Address> GetAtLeastOneAddressForMessageType(Type messageType)
-        {
-            var addresses = GetAddressForMessageType(messageType)
-                .Distinct()
-                .ToList();
-            if (addresses.Count == 0)
-            {
-                var error = string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType);
-                throw new InvalidOperationException(error);
-            }
-            return addresses;
-        }
-
-        /// <summary>
-        /// <see cref="IBus.Unsubscribe{T}()"/>
-        /// </summary>
-        public void Unsubscribe<T>()
-        {
-            Unsubscribe(typeof(T));
-        }
-
-
-        /// <summary>
-        /// <see cref="IBus.Unsubscribe(Type)"/>
-        /// </summary>
-        public virtual void Unsubscribe(Type messageType)
-        {
-            MessagingBestPractices.AssertIsValidForPubSub(messageType, Builder.Build<Conventions>());
-
-            if (SendOnlyMode)
-            {
-                throw new InvalidOperationException("It's not allowed for a send only endpoint to unsubscribe");
-            }
-
-            AssertHasLocalAddress();
-
-
-            if (SubscriptionManager == null)
-            {
-                throw new InvalidOperationException("No subscription manager is available");
-            }
-
-            if (TransportDefinition.HasSupportForCentralizedPubSub)
-            {
-                // We are dealing with a brokered transport wired for auto pub/sub.
-                SubscriptionManager.Unsubscribe(messageType, null);
-                return;
-            }
-
-            var addresses = GetAtLeastOneAddressForMessageType(messageType);
-
-            foreach (var destination in addresses)
-            {
-                SubscriptionManager.Unsubscribe(messageType, destination);
-            }
-
-        }
-
-        /// <summary>
-        /// <see cref="IBus.Reply(object)"/>
-        /// </summary>
-        public void Reply(object message)
-        {
-            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId()); 
-            
-            SendMessage(options, LogicalMessageFactory.Create(message));
-        }
-
-        /// <summary>
-        /// <see cref="IBus.Reply{T}(Action{T})"/>
-        /// </summary>
-        public void Reply<T>(Action<T> messageConstructor)
-        {
-            var instance = messageMapper.CreateInstance(messageConstructor);
-            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId()); 
-
-            SendMessage(options, LogicalMessageFactory.Create(instance));
-        }
-
-        /// <summary>
-        /// <see cref="IBus.Return{T}"/>
-        /// </summary>
-        public void Return<T>(T errorCode)
-        {
-            var tType = errorCode.GetType();
-            if (!(tType.IsEnum || tType == typeof(Int32) || tType == typeof(Int16) || tType == typeof(Int64)))
-            {
-                throw new ArgumentException("The errorCode can only be an enum or an integer.", "errorCode");
-            }
-
-            var returnCode = errorCode.ToString();
-            if (tType.IsEnum)
-            {
-                returnCode = Enum.Format(tType, errorCode, "D");
-            }
-
-            var returnMessage = LogicalMessageFactory.CreateControl(new Dictionary<string, string>
-            {
-                {Headers.ReturnMessageErrorCodeHeader, returnCode}
-            });
-
-            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId()); 
-
-            InvokeSendPipeline(options, returnMessage);
-        }
-
-        string GetCorrelationId()
-        {
-            return !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
-        }
-
-        /// <summary>
-        /// <see cref="IBus.HandleCurrentMessageLater"/>
-        /// </summary>
-        public void HandleCurrentMessageLater()
-        {
-            if (PipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled)
-            {
-                return;
-            }
-
-            //if we're a worker, send to the distributor data bus
-            if (Settings.GetOrDefault<bool>("Worker.Enabled"))
-            {
-                MessageSender.Send(MessageBeingProcessed, new SendOptions(Settings.Get<Address>("MasterNode.Address")));
-            }
-            else
-            {
-                MessageSender.Send(MessageBeingProcessed, new SendOptions(Configure.LocalAddress));
-            }
-
-            PipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled = true;
-
-            ((IncomingContext)PipelineFactory.CurrentContext).DoNotInvokeAnyMoreHandlers();
-        }
-
-        /// <summary>
-        /// <see cref="IBus.ForwardCurrentMessageTo(string)"/>
-        /// </summary>
-        public void ForwardCurrentMessageTo(string destination)
-        {
-            MessageSender.Send(MessageBeingProcessed, new SendOptions(destination));
-        }
-
-        /// <summary>
-        /// <see cref="IBus.SendLocal{T}(Action{T})"/>
-        /// </summary>
-        public ICallback SendLocal<T>(Action<T> messageConstructor)
-        {
-            return SendLocal(messageMapper.CreateInstance(messageConstructor));
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send(object)"/>
-        /// </summary>
-        public ICallback SendLocal(object message)
-        {
-            //if we're a worker, send to the distributor data bus
-            if (Settings.GetOrDefault<bool>("Worker.Enabled"))
-            {
-                return SendMessage(new SendOptions(Settings.Get<Address>("MasterNode.Address")), LogicalMessageFactory.Create(message));
-            }
-            return SendMessage(new SendOptions(Configure.LocalAddress), LogicalMessageFactory.Create(message));
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(Action{T})"/>
-        /// </summary>
-        public ICallback Send<T>(Action<T> messageConstructor)
-        {
-            object message = messageMapper.CreateInstance(messageConstructor);
-            var destination = GetDestinationForSend(message);
-            return SendMessage(new SendOptions(destination), LogicalMessageFactory.Create(message));
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send(object)"/>
-        /// </summary>
-        public ICallback Send(object message)
-        {
-            var destination = GetDestinationForSend(message);
-            return SendMessage(new SendOptions(destination), LogicalMessageFactory.Create(message));
-        }
-
-        Address GetDestinationForSend(object message)
-        {
-            var destinations = GetAtLeastOneAddressForMessageType(message.GetType());
-
-            if (destinations.Count > 1)
-            {
-                throw new InvalidOperationException("Sends can only target one address.");
-            }
-
-            return destinations.SingleOrDefault();
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(string,Action{T})"/>
-        /// </summary>
-        public ICallback Send<T>(string destination, Action<T> messageConstructor)
-        {
-            return SendMessage(new SendOptions(destination), LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(Address,Action{T})"/>
-        /// </summary>
-        public ICallback Send<T>(Address address, Action<T> messageConstructor)
-        {
-            return SendMessage(new SendOptions(address), LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send(string,object)"/>
-        /// </summary>
-        public ICallback Send(string destination, object message)
-        {
-            return SendMessage(new SendOptions(destination), LogicalMessageFactory.Create(message));
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send(Address,object)"/>
-        /// </summary>
-        public ICallback Send(Address address, object message)
-        {
-            return SendMessage(new SendOptions(address), LogicalMessageFactory.Create(message));
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(string,string,Action{T})"/>
-        /// </summary>
-        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
-        {
-            var options = new SendOptions(destination)
-            {
-                CorrelationId = correlationId
-            };
-
-            return SendMessage(options, LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(Address,string,Action{T})"/>
-        /// </summary>
-        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
-        {
-            var options = new SendOptions(address)
-            {
-                CorrelationId = correlationId
-            };
-
-            return SendMessage(options, LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send(string,string,object)"/>
-        /// </summary>
-        public ICallback Send(string destination, string correlationId, object message)
-        {
-            var options = new SendOptions(destination)
-            {
-                CorrelationId = correlationId
-            };
-
-            return SendMessage(options, LogicalMessageFactory.Create(message));
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send(Address,string,object)"/>
-        /// </summary>
-        public ICallback Send(Address address, string correlationId, object message)
-        {
-            var options = new SendOptions(address)
-            {
-                CorrelationId = correlationId
-            };
-
-            return SendMessage(options, LogicalMessageFactory.Create(message));
-        }
-
-        /// <summary>
-        /// <see cref="IBus.Defer(System.TimeSpan,object)"/>
-        /// </summary>
-        public ICallback Defer(TimeSpan delay, object message)
-        {
-            SendOptions options;
-
-            if (Settings.GetOrDefault<bool>("Worker.Enabled"))
-            {
-                options = new SendOptions(Settings.Get<Address>("MasterNode.Address"));
-            }
-            else
-            {
-                options = new SendOptions(Configure.LocalAddress);
-            }
-
-            options.DelayDeliveryWith = delay;
-            options.EnforceMessagingBestPractices = false;
-
-            return SendMessage(options, LogicalMessageFactory.Create(message));
-        }
-
-        /// <summary>
-        /// <see cref="IBus.Defer(DateTime,object)"/>
-        /// </summary>
-        public ICallback Defer(DateTime processAt, object message)
-        {
-            SendOptions options;
-
-            if (Settings.GetOrDefault<bool>("Worker.Enabled"))
-            {
-                options = new SendOptions(Settings.Get<Address>("MasterNode.Address"));
-            }
-            else
-            {
-                options = new SendOptions(Configure.LocalAddress);
-            }
-
-            options.DeliverAt = processAt;
-            options.EnforceMessagingBestPractices = false;
-          
-            return SendMessage(options, LogicalMessageFactory.Create(message));
-        }
-
-
-        ICallback SendMessage(SendOptions sendOptions, LogicalMessage message)
-        {
-            var context = InvokeSendPipeline(sendOptions, message);
-
-            var physicalMessage = context.Get<TransportMessage>();
-
-            return SetupCallback(physicalMessage.Id);
-        }
-
-        OutgoingContext InvokeSendPipeline(DeliveryOptions sendOptions, LogicalMessage message)
-        {
-            if (sendOptions.ReplyToAddress == null && !SendOnlyMode)
-            {
-                sendOptions.ReplyToAddress = Configure.PublicReturnAddress;
-            }
-
-            if (PropagateReturnAddressOnSend && CurrentMessageContext != null)
-            {
-                sendOptions.ReplyToAddress = CurrentMessageContext.ReplyToAddress;
-            }
-
-            return PipelineFactory.InvokeSendPipeline(sendOptions, message);
-        }
-
-
-        ICallback SetupCallback(string transportMessageId)
-        {
-            var result = new Callback(transportMessageId, Settings.GetOrDefault<bool>("Endpoint.SendOnly"));
-            result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
-            {
-                //TODO: what should we do if the key already exists?
-                messageIdToAsyncResultLookup[args.MessageId] = args.Result;
-            };
-
-            return result;
-        }
+        
 
         /// <summary>
         /// <see cref="IStartableBus.Start()"/>
@@ -653,20 +102,14 @@ namespace NServiceBus.Unicast
                 }
 
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+                var pipelines = pipelineFactories.SelectMany(x => x.BuildPipelines(Builder, Settings, executor)).ToArray();
+                executor.Start(pipelines.Select(x => x.Id).ToArray());
 
-                if (!DoNotStartTransport)
-                {
-                    Transport.StartedMessageProcessing += TransportStartedMessageProcessing;
-                    Transport.TransportMessageReceived += TransportMessageReceived;
-                    Transport.FinishedMessageProcessing += TransportFinishedMessageProcessing;
-                    Transport.Start(InputAddress);
-                }
+                pipelineCollection = new PipelineCollection(pipelines);
+                pipelineCollection.Start();
 
                 started = true;
             }
-
-            satelliteLauncher = new SatelliteLauncher(Builder);
-            satelliteLauncher.Start();
 
             ProcessStartupItems(
                 Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList(),
@@ -676,7 +119,7 @@ namespace NServiceBus.Unicast
                     thingsRanAtStartup.Add(toRun);
                     Log.DebugFormat("Started {0}.", toRun.GetType().AssemblyQualifiedName);
                 },
-                ex => CriticalError.Raise("Startup task failed to complete.", ex),
+                ex => criticalError.Raise("Startup task failed to complete.", ex),
                 startCompletedEvent);
 
             return this;
@@ -707,24 +150,6 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Allow disabling the unicast bus.
-        /// </summary>
-        public bool DoNotStartTransport { get; set; }
-
-        /// <summary>
-        /// The address of this endpoint.
-        /// </summary>
-        public Address InputAddress { get; set; }
-
-        void AssertHasLocalAddress()
-        {
-            if (Configure.LocalAddress == null)
-            {
-                throw new InvalidOperationException("Cannot start subscriber without a queue configured. Please specify the LocalAddress property of UnicastBusConfig.");
-            }
-        }
-
-        /// <summary>
         /// <see cref="IDisposable.Dispose"/>
         /// </summary>
         public void Dispose()
@@ -732,47 +157,12 @@ namespace NServiceBus.Unicast
             //Injected at compile time
         }
 
+// ReSharper disable once UnusedMember.Local
         void DisposeManaged()
         {
             InnerShutdown();
+            busImpl.Dispose();
             Builder.Dispose();
-        }
-
-        /// <summary>
-        /// <see cref="IBus.DoNotContinueDispatchingCurrentMessageToHandlers"/>
-        /// </summary>
-        public void DoNotContinueDispatchingCurrentMessageToHandlers()
-        {
-            ((IncomingContext)PipelineFactory.CurrentContext).DoNotInvokeAnyMoreHandlers();
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.OutgoingHeaders"/>
-        /// </summary>
-        public IDictionary<string, string> OutgoingHeaders
-        {
-            get
-            {
-                return staticOutgoingHeaders;
-            }
-        }
-
-        /// <summary>
-        /// <see cref="IBus.CurrentMessageContext"/>
-        /// </summary>
-        public IMessageContext CurrentMessageContext
-        {
-            get
-            {
-                TransportMessage current;
-
-                if (!PipelineFactory.CurrentContext.TryGet(IncomingContext.IncomingPhysicalMessageKey, out current))
-                {
-                    return null;
-                }
-
-                return new MessageContext(current);
-            }
         }
 
         void InnerShutdown()
@@ -783,86 +173,15 @@ namespace NServiceBus.Unicast
             }
 
             Log.Info("Initiating shutdown.");
-
-            if (!DoNotStartTransport)
-            {
-                Transport.Stop();
-                Transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
-                Transport.TransportMessageReceived -= TransportMessageReceived;
-                Transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
-            }
-
+            pipelineCollection.Stop();
+            executor.Stop();
             ExecuteIWantToRunAtStartupStopMethods();
-
-            satelliteLauncher.Stop();
 
             Log.Info("Shutdown complete.");
 
             started = false;
         }
 
-        void TransportStartedMessageProcessing(object sender, StartedMessageProcessingEventArgs e)
-        {
-            var incomingMessage = e.Message;
-
-            PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage);
-
-        }
-        void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
-        {
-            PipelineFactory.InvokeReceivePhysicalMessagePipeline();
-        }
-
-        void TransportFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
-        {
-            PipelineFactory.CompletePhysicalMessagePipelineContext();
-        }
-
-        /// <summary>
-        /// Gets the destination address For a message type.
-        /// </summary>
-        /// <param name="messageType">The message type to get the destination for.</param>
-        /// <returns>The address of the destination associated with the message type.</returns>
-        List<Address> GetAddressForMessageType(Type messageType)
-        {
-            var destination = MessageRouter.GetDestinationFor(messageType);
-
-            if (destination.Any())
-            {
-                return destination;
-            }
-
-            if (messageMapper != null && !messageType.IsInterface)
-            {
-                var t = messageMapper.GetMappedTypeFor(messageType);
-                if (t != null && t != messageType)
-                {
-                    return GetAddressForMessageType(t);
-                }
-            }
-
-            return destination;
-        }
-
-        /// <summary>
-        /// Map of message identifiers to Async Results - useful for cleanup in case of timeouts.
-        /// </summary>
-        internal ConcurrentDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new ConcurrentDictionary<string, BusAsyncResult>();
-
-        TransportMessage MessageBeingProcessed
-        {
-            get
-            {
-                TransportMessage current;
-
-                if (!PipelineFactory.CurrentContext.TryGet(IncomingContext.IncomingPhysicalMessageKey, out current))
-                {
-                    throw new InvalidOperationException("There is no current message being processed");
-                }
-
-                return current;
-            }
-        }
 
         volatile bool started;
         object startLocker = new object();
@@ -873,36 +192,13 @@ namespace NServiceBus.Unicast
         ManualResetEvent startCompletedEvent = new ManualResetEvent(false);
         ManualResetEvent stopCompletedEvent = new ManualResetEvent(true);
 
-        IMessageMapper messageMapper;
-        SatelliteLauncher satelliteLauncher;
-
-        ConcurrentDictionary<string, string> staticOutgoingHeaders = new ConcurrentDictionary<string, string>();
-
-
-        //we need to not inject since at least Autofac doesn't seem to inject internal properties
-        PipelineExecutor PipelineFactory
-        {
-            get
-            {
-                return Builder.Build<PipelineExecutor>();
-            }
-        }
-
-        LogicalMessageFactory LogicalMessageFactory
-        {
-            get
-            {
-                return Builder.Build<LogicalMessageFactory>();
-            }
-        }
-
-        TransportDefinition TransportDefinition
-        {
-            get
-            {
-                return Builder.Build<TransportDefinition>();
-            }
-        }
+        PipelineCollection pipelineCollection;
+        ContextualBus busImpl;
+        ReadOnlySettings settings;
+        IEnumerable<PipelineFactory> pipelineFactories;
+        IExecutor executor;
+        CriticalError criticalError;
+        IBuilder builder;
 
         static void ProcessStartupItems<T>(IEnumerable<T> items, Action<T> iteration, Action<Exception> inCaseOfFault, EventWaitHandle eventToSet)
         {
@@ -918,6 +214,31 @@ namespace NServiceBus.Unicast
                 eventToSet.Set();
                 inCaseOfFault(task.Exception);
             }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.LongRunning);
+        }
+
+        /// <summary>
+        /// <see cref="IManageMessageHeaders.SetHeaderAction"/>
+        /// </summary>
+        public Action<object, string, string> SetHeaderAction { get { return busImpl.SetHeaderAction; } }
+        /// <summary>
+        /// <see cref="IManageMessageHeaders.GetHeaderAction"/>
+        /// </summary>
+        public Func<object, string, string> GetHeaderAction { get { return busImpl.GetHeaderAction; } }
+
+        /// <summary>
+        /// Only for tests
+        /// </summary>
+        public ReadOnlySettings Settings
+        {
+            get { return settings; }
+        }
+
+        /// <summary>
+        /// Only for tests
+        /// </summary>
+        public IBuilder Builder
+        {
+            get { return builder; }
         }
     }
 }

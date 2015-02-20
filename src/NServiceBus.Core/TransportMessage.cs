@@ -42,7 +42,7 @@ namespace NServiceBus
             id = existingId;
 
             //only update the "stable id" if there isn't one present already
-            if (!Headers.ContainsKey(NServiceBus.Headers.MessageId))
+            if (!Headers.ContainsKey(NServiceBus.Headers.MessageId) || string.IsNullOrWhiteSpace(Headers[NServiceBus.Headers.MessageId]))
             {
                 Headers[NServiceBus.Headers.MessageId] = existingId;
             }

@@ -4,12 +4,11 @@
     using System.Linq;
     using Logging;
     using NServiceBus.Unicast;
-    using Pipeline;
     using Pipeline.Contexts;
 
-    class LogOutgoingMessageBehavior : IBehavior<OutgoingContext>
+    class LogOutgoingMessageBehavior : PhysicalOutgoingContextStageBehavior
     {
-        public void Invoke(OutgoingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             var options = context.DeliveryOptions as SendOptions;
 

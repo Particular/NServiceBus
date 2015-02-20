@@ -9,10 +9,14 @@
 
     class SubscriptionManager : IManageSubscriptions
     {
-        public ISendMessages MessageSender { get; set; }
-        public ISubscriptionStorage SubscriptionStorage { get; set; }
+        readonly string publicReturnAddress;
+        readonly ISendMessages messageSender;
 
-        public Configure Configure { get; set; }
+        public SubscriptionManager(string publicReturnAddress,ISendMessages messageSender)
+        {
+            this.publicReturnAddress = publicReturnAddress;
+            this.messageSender = messageSender;
+        }
 
         public void Subscribe(Type eventType, Address publisherAddress)
         {
@@ -42,9 +46,9 @@
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
 
-            MessageSender.Send(subscriptionMessage, new SendOptions(publisherAddress)
+            messageSender.Send(subscriptionMessage, new SendOptions(publisherAddress)
             {
-                ReplyToAddress = Configure.PublicReturnAddress
+                ReplyToAddress = Address.Parse(publicReturnAddress) 
             });
         }
 
@@ -60,9 +64,9 @@
         {
             try
             {
-                MessageSender.Send(subscriptionMessage, new SendOptions(destination)
+                messageSender.Send(subscriptionMessage, new SendOptions(destination)
                 {
-                    ReplyToAddress = Configure.PublicReturnAddress
+                    ReplyToAddress = Address.Parse(publicReturnAddress) 
                 });
             }
             catch (QueueNotFoundException ex)

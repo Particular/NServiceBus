@@ -26,6 +26,7 @@
                 var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(int));
                 Assert.AreEqual(typeof(int), messageMetadata.MessageType);
                 Assert.AreEqual(1, messageMetadata.MessageHierarchy.Count());
+                Assert.True(messageMetadata.Recoverable, "Messages should be persistent by default");
             }
 
 
@@ -44,7 +45,7 @@
                 Assert.AreEqual(typeof(ConcreteParent1), messageMetadata.MessageHierarchy.ToList()[2]);
                 Assert.AreEqual(typeof(InterfaceParent1Base), messageMetadata.MessageHierarchy.ToList()[3]);
                 Assert.AreEqual(typeof(ConcreteParentBase), messageMetadata.MessageHierarchy.ToList()[4]);
-                
+
             }
 
 
@@ -67,7 +68,7 @@
 
             }
 
-            interface InterfaceParent1Base :  IMessage
+            interface InterfaceParent1Base : IMessage
             {
 
             }

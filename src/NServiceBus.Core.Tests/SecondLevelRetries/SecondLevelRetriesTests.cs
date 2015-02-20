@@ -1,187 +1,169 @@
-﻿namespace NServiceBus.Management.Retries.Tests
+﻿namespace NServiceBus.Core.Tests.SecondLevelRetries
 {
     using System;
     using System.Collections.Generic;
-    using Faults.Forwarder;
     using NServiceBus.Faults;
-    using SecondLevelRetries;
-    using SecondLevelRetries.Helpers;
+    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.SecondLevelRetries;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast;
     using NUnit.Framework;
-    using Transports;
-    using Unicast;
 
     [TestFixture]
     public class SecondLevelRetriesTests
     {
-        SecondLevelRetriesProcessor satellite ;
-        FakeMessageSender messageSender ;
-        FakeMessageDeferrer deferrer ;
-        Address ERROR_QUEUE ;
-        Address RETRIES_QUEUE ;
-        Address ORIGINAL_QUEUE ;
-        Address CLIENT_QUEUE ;
-
-        TransportMessage message;
-
-        [SetUp]
-        public void SetUp()
+        [Test]
+        public void ShouldRetryIfPolicyReturnsADelay()
         {
-            messageSender = new FakeMessageSender();
-            deferrer = new FakeMessageDeferrer();
-            ERROR_QUEUE = new Address("error", "localhost");
-            RETRIES_QUEUE = new Address("retries", "localhost");
-            ORIGINAL_QUEUE = new Address("org", "hostname");
-            CLIENT_QUEUE = Address.Parse("clientQ@myMachine");
-            var busNotifications = new BusNotifications();
-            satellite = new SecondLevelRetriesProcessor
-            {
-                FaultManager = new FaultManager(null, null, busNotifications)
-                {
-                    ErrorQueue = ERROR_QUEUE
-                },
-                MessageSender = messageSender,
-                MessageDeferrer = deferrer,
-                InputAddress = RETRIES_QUEUE,
-                SecondLevelRetriesConfiguration = new SecondLevelRetriesConfiguration()
-            };
+            var notifications = new BusNotifications();
 
-            message = new TransportMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>{{Headers.ReplyToAddress,CLIENT_QUEUE.ToString()}});
+            var deferrer = new FakeMessageDeferrer();
+            var delay = TimeSpan.FromSeconds(5);
+            var behavior = new SecondLevelRetriesBehavior(deferrer, new FakePolicy(delay), notifications);
+
+            var slrNotification = new SecondLevelRetry();
+
+            notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(slr =>
+            {
+                slrNotification = slr; });
+
+            behavior.Invoke(CreateContext("someid", 1), () => { throw new Exception("testex"); });
+
+            Assert.AreEqual("someid", deferrer.DeferredMessage.Id);
+            Assert.AreEqual(delay, deferrer.Delay);
+            Assert.AreEqual(Address.Parse("test-address-for-this-pipeline"), deferrer.MessageRoutedTo);
+
+            Assert.AreEqual("testex", slrNotification.Exception.Message);
         }
 
         [Test]
-        public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_error_queue()
+        public void ShouldSetTimestampHeaderForFirstRetry()
         {
-            satellite.SecondLevelRetriesConfiguration.RetryPolicy = _ => TimeSpan.MinValue;
+            var deferrer = new FakeMessageDeferrer();
+            var delay = TimeSpan.FromSeconds(5);
+            var behavior = new SecondLevelRetriesBehavior(deferrer, new FakePolicy(delay),new BusNotifications());
 
-            satellite.Handle(message);
+            behavior.Invoke(CreateContext("someid", 0), () => { throw new Exception("testex"); });
 
-            Assert.AreEqual(CLIENT_QUEUE, message.ReplyToAddress);
+            Assert.True(deferrer.DeferredMessage.Headers.ContainsKey(SecondLevelRetriesBehavior.RetriesTimestamp));
+         }
+
+        [Test]
+        public void ShouldSkipRetryIfNoDelayIsReturned()
+        {
+            var deferrer = new FakeMessageDeferrer();
+            var behavior = new SecondLevelRetriesBehavior(deferrer, new FakePolicy(), new BusNotifications());
+            var context = CreateContext("someid", 1);
+
+            Assert.Throws<Exception>(() => behavior.Invoke(context, () => { throw new Exception("testex"); }));
+
+            Assert.False(context.PhysicalMessage.Headers.ContainsKey(Headers.Retries));
+        }
+        [Test]
+        public void ShouldSkipRetryForDeserializationErrors()
+        {
+            var deferrer = new FakeMessageDeferrer();
+            var behavior = new SecondLevelRetriesBehavior(deferrer, new FakePolicy(TimeSpan.FromSeconds(5)), new BusNotifications());
+            var context = CreateContext("someid", 1);
+
+            Assert.Throws<MessageDeserializationException>(() => behavior.Invoke(context, () => { throw new MessageDeserializationException("testex"); }));
+            Assert.False(context.PhysicalMessage.Headers.ContainsKey(Headers.Retries));
         }
 
         [Test]
-        public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_error_queue_after_retries()
+        public void ShouldPullCurrentRetryCountFromHeaders()
         {
-            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, "reply@address");
+            var deferrer = new FakeMessageDeferrer();
+            var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
+
+            var behavior = new SecondLevelRetriesBehavior(deferrer, retryPolicy, new BusNotifications());
+            var currentRetry = 3;
+
+            behavior.Invoke(CreateContext("someid", currentRetry), () => { throw new Exception("testex"); });
+
+            Assert.AreEqual(currentRetry+1, retryPolicy.InvokedWithCurrentRetry);
+        }
+
+        [Test]
+        public void ShouldDefaultRetryCountToZeroIfNoHeaderIsFound()
+        {
+            var deferrer = new FakeMessageDeferrer();
+            var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
+            var context = CreateContext("someid", 2);
+
+            context.PhysicalMessage.Headers.Clear();
 
 
-            for (var i = 0; i < satellite.SecondLevelRetriesConfiguration.NumberOfRetries + 1; i++)
+            var behavior = new SecondLevelRetriesBehavior(deferrer, retryPolicy, new BusNotifications());
+
+            behavior.Invoke(context, () => { throw new Exception("testex"); });
+
+            Assert.AreEqual(1, retryPolicy.InvokedWithCurrentRetry);
+            Assert.AreEqual("1", context.PhysicalMessage.Headers[Headers.Retries]);
+        }
+
+
+        PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId, int currentRetryCount)
+        {
+            var transportMessage = new TransportMessage(messageId, new Dictionary<string, string> { { Headers.Retries, currentRetryCount.ToString() } });
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(transportMessage, null));
+
+            context.SetPublicReceiveAddress("test-address-for-this-pipeline");
+
+            return context;
+        }
+    }
+
+    class FakePolicy : SecondLevelRetryPolicy
+    {
+        readonly TimeSpan? delayToReturn;
+
+        public FakePolicy()
+        {
+
+        }
+        public FakePolicy(TimeSpan delayToReturn)
+        {
+            this.delayToReturn = delayToReturn;
+        }
+
+        public int InvokedWithCurrentRetry { get; private set; }
+
+        public override bool TryGetDelay(TransportMessage message, Exception ex, int currentRetry, out TimeSpan delay)
+        {
+            InvokedWithCurrentRetry = currentRetry;
+
+            if (!delayToReturn.HasValue)
             {
-                satellite.Handle(message);
+                delay = TimeSpan.MinValue;
+                return false;
             }
-
-            Assert.AreEqual(CLIENT_QUEUE, message.ReplyToAddress);
-        }
-
-        [Test]
-        public void Message_should_be_sent_to_real_errorQ_if_defer_timeSpan_is_less_than_zero()
-        {
-            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, "reply@address");
-            satellite.SecondLevelRetriesConfiguration.RetryPolicy = _ => TimeSpan.MinValue;
-
-            satellite.Handle(message);
-
-            Assert.AreEqual(ERROR_QUEUE, messageSender.MessageSentTo);
-        }
-
-        [Test]
-        public void Message_should_be_sent_to_retryQ_if_defer_timeSpan_is_greater_than_zero()
-        {
-            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, "reply@address");
-            satellite.SecondLevelRetriesConfiguration.RetryPolicy = _ => TimeSpan.FromSeconds(1);
-
-            satellite.Handle(message);
-
-            Assert.AreEqual(message, deferrer.DeferredMessage);
-        }
-
-        [Test]
-        public void Message_should_only_be_retried_X_times_when_using_the_defaultPolicy()
-        {
-            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, "reply@address");
-
-            for (var i = 0; i < satellite.SecondLevelRetriesConfiguration.NumberOfRetries + 1; i++)
-            {
-                satellite.Handle(message);
-            }
-
-            Assert.AreEqual(ERROR_QUEUE, messageSender.MessageSentTo);
-        }
-
-        [Test]
-        public void Message_retries_header_should_be_removed_before_being_sent_to_real_errorQ()
-        {
-            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, "reply@address");
-
-            satellite.Handle(message);
-
-            TransportMessageHeaderHelper.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.Now.AddDays(-2)));
-            
-             satellite.Handle(message);
-
-             Assert.False(message.Headers.ContainsKey(Headers.Retries));
-        }
-
-        [Test]
-        public void A_message_should_only_be_able_to_retry_during_N_minutes()
-        {
-            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, "reply@address");
-            TransportMessageHeaderHelper.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.Now.AddDays(-2)));
-            satellite.Handle(message);
-
-            Assert.AreEqual(ERROR_QUEUE, messageSender.MessageSentTo);
-        }
-
-        [Test]
-        public void For_each_retry_the_NServiceBus_Retries_header_should_be_increased()
-        {
-            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, "reply@address");
-            satellite.SecondLevelRetriesConfiguration.RetryPolicy = _ => TimeSpan.FromSeconds(1);            
-
-            for (var i = 0; i < 10; i++)
-            {
-                satellite.Handle(message);
-            }
-            
-            Assert.AreEqual(10, TransportMessageHeaderHelper.GetNumberOfRetries(message));            
-        }
-
-        [Test]
-        public void Message_should_be_routed_to_the_failing_endpoint_when_the_time_is_up()
-        {
-            TransportMessageHeaderHelper.SetHeader(message, FaultsHeaderKeys.FailedQ, ORIGINAL_QUEUE.ToString());
-            satellite.SecondLevelRetriesConfiguration.RetryPolicy = _ => TimeSpan.FromSeconds(1);
-
-            satellite.Handle(message);
-
-            Assert.AreEqual(ORIGINAL_QUEUE, deferrer.MessageRoutedTo);            
+            delay = delayToReturn.Value;
+            return true;
         }
     }
 
     class FakeMessageDeferrer : IDeferMessages
     {
-        public Address MessageRoutedTo { get; set; }
+        public Address MessageRoutedTo { get; private set; }
 
-        public TransportMessage DeferredMessage { get; set; }
+        public TransportMessage DeferredMessage { get; private set; }
+        public TimeSpan Delay { get; private set; }
 
         public void Defer(TransportMessage message, SendOptions sendOptions)
         {
             MessageRoutedTo = sendOptions.Destination;
             DeferredMessage = message;
+
+            if (sendOptions.DelayDeliveryWith.HasValue)
+            {
+                Delay = sendOptions.DelayDeliveryWith.Value;
+            }
         }
 
         public void ClearDeferredMessages(string headerKey, string headerValue)
         {
-            
-        }
-    }
 
-    class FakeMessageSender : ISendMessages
-    {
-        public Address MessageSentTo { get; set; }
-
-        public void Send(TransportMessage message, SendOptions sendOptions)
-        {
-            MessageSentTo = sendOptions.Destination;
         }
     }
 }

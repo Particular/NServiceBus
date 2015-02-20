@@ -28,7 +28,8 @@ namespace NServiceBus.Core.Tests.Timeout
                 thread.Start();
                 thread.Join();
             }
-            Debug.WriteLine(stopwatch.ElapsedMilliseconds);
+
+            Console.Out.WriteLine(stopwatch.ElapsedMilliseconds);
         }
 
         void Runner(InMemoryTimeoutPersister inMemoryTimeoutPersister)

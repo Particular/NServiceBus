@@ -10,6 +10,7 @@ namespace NServiceBus
     using System.Text;
     using System.Xml;
     using Logging;
+    using NServiceBus.Support;
     using Transports.Msmq;
 
     /// <summary>
@@ -30,6 +31,11 @@ namespace NServiceBus
             }
 
             return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
+        }
+
+        public static string GetFullPath(string queue)
+        {
+            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(queue,RuntimeEnvironment.MachineName);
         }
 
         /// <summary>

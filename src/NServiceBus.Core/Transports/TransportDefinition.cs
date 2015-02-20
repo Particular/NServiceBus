@@ -21,6 +21,11 @@ namespace NServiceBus.Transports
         public bool? HasSupportForDistributedTransactions { get; protected set; }
 
         /// <summary>
+        /// Indicates if the transport has support for multi-queue native transactions that allow to receive and send multiple messages atomically.
+        /// </summary>
+        public bool HasSupportForMultiQueueNativeTransactions { get; protected set; }
+
+        /// <summary>
         /// True if the transport
         /// </summary>
         public bool RequireOutboxConsent { get; set; }

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using NServiceBus.Transports;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     /// <summary>
@@ -17,7 +18,8 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<SubscriptionManager>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(builder=>new SubscriptionManager(builder.Build<Configure>().PublicReturnAddress.ToString(),
+                builder.Build<ISendMessages>()), DependencyLifecycle.SingleInstance);
         }
     }
 }

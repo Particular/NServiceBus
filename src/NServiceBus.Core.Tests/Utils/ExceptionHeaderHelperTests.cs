@@ -1,7 +1,6 @@
 namespace NServiceBus.Core.Tests.Utils
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using NServiceBus.Faults;
@@ -16,7 +15,7 @@ namespace NServiceBus.Core.Tests.Utils
             var exception = GetAnException();
             var dictionary = new Dictionary<string, string>();
 
-            var failedQueue = new Address("TheErrorQueue", "TheErrorQueueMachine");
+            var failedQueue = "TheErrorQueue@TheErrorQueueMachine";
             ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, failedQueue, "The reason", false);
             Assert.AreEqual("The reason", dictionary["NServiceBus.ExceptionInfo.Reason"]);
             Assert.AreEqual("System.AggregateException", dictionary["NServiceBus.ExceptionInfo.ExceptionType"]);
@@ -39,7 +38,7 @@ namespace NServiceBus.Core.Tests.Utils
             var exception = GetAnException();
             var dictionary = new Dictionary<string, string>();
 
-            var failedQueue = new Address("TheErrorQueue", "TheErrorQueueMachine");
+            var failedQueue = "TheErrorQueue@TheErrorQueueMachine";
             ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, failedQueue, "The reason", true);
             Assert.AreEqual("The reason", dictionary["NServiceBus.ExceptionInfo.Reason"]);
             Assert.AreEqual("System.AggregateException", dictionary["NServiceBus.ExceptionInfo.ExceptionType"]);
@@ -83,39 +82,6 @@ namespace NServiceBus.Core.Tests.Utils
         void MethodThatThrows2()
         {
             throw new Exception("My Inner Exception");
-        }
-
-        [Test]
-        public void VerifyDataIsSet()
-        {
-            var exception = GetAnException();
-            exception.Data["TestKey"] = "MyValue";
-
-            var dictionary = new Dictionary<string, string>();
-
-            var failedQueue = new Address("TheErrorQueue", "TheErrorQueueMachine");
-            ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, failedQueue, "The reason", false);
-
-            Assert.AreEqual("MyValue", dictionary["NServiceBus.ExceptionInfo.Data.TestKey"]);
-        }
-
-        class NullDataException : Exception
-        {
-            public override IDictionary Data
-            {
-// ReSharper disable once AssignNullToNotNullAttribute
-                get { return null; }
-            }
-        }
-
-        [Test]
-        public void VerifyNullDataDoesNotThrow()
-        {
-            var exception = new NullDataException();
-            var dictionary = new Dictionary<string, string>();
-
-            var failedQueue = new Address("TheErrorQueue", "TheErrorQueueMachine");
-            ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, failedQueue, "The reason", false);
         }
     }
 }

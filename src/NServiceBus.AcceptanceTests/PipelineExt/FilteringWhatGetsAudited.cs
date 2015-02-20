@@ -22,10 +22,10 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
             Scenario.Define(context)
                 .WithEndpoint<UserEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
                 .WithEndpoint<AuditSpy>()
-                .Done(c => c.IsMessageHandlingComplete)
+                .Done(c => c.Done)
                 .Run();
 
-            Assert.IsFalse(context.MessageAudited);
+            Assert.IsFalse(context.WrongMessageAudited);
         }
 
 
@@ -39,22 +39,31 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Context MyContext { get; set; }
+                public IBus Bus { get; set; }
 
                 public void Handle(MessageToBeAudited message)
                 {
-                    MyContext.IsMessageHandlingComplete = true;
+                    Bus.SendLocal(new Message3());
                 }
             }
 
-            class SetFiltering : IBehavior<IncomingContext>
+            class Message3Handler : IHandleMessages<Message3>
             {
-                public void Invoke(IncomingContext context, Action next)
+                public void Handle(Message3 message)
+                {
+                }
+            }
+
+            class SetFiltering : LogicalMessageProcessingStageBehavior
+            {
+                public override void Invoke(Context context, Action next)
                 {
                     if (context.IncomingLogicalMessage.MessageType == typeof(MessageToBeAudited))
                     {
                         context.Get<AuditFilterResult>().DoNotAuditMessage = true;
                     }
+
+                    next();
                 }
 
                 class AuditFilteringOverride : INeedInitialization
@@ -71,11 +80,11 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                 public bool DoNotAuditMessage { get; set; }
             }
 
-            class FilteringAuditBehavior : IBehavior<IncomingContext>
+            class FilteringAuditBehavior : PhysicalMessageProcessingStageBehavior
             {
                 public IAuditMessages MessageAuditer { get; set; }
 
-                public void Invoke(IncomingContext context, Action next)
+                public override void Invoke(Context context, Action next)
                 {
                     var auditResult = new AuditFilterResult();
                     context.Set(auditResult);
@@ -87,7 +96,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                     {
                         return;
                     }
-                    MessageAuditer.Audit(new SendOptions("audit"),context.PhysicalMessage);
+                    MessageAuditer.Audit(new SendOptions("auditspy"), context.PhysicalMessage);
                 }
 
                 //here we inject our behavior
@@ -106,7 +115,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
         {
             public AuditSpy()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => c.EndpointName("auditspy"));
             }
 
             class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
@@ -115,20 +124,35 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
 
                 public void Handle(MessageToBeAudited message)
                 {
-                    MyContext.MessageAudited = true;
+                    MyContext.WrongMessageAudited = true;
+                }
+            }
+
+            class Message3Handler : IHandleMessages<Message3>
+            {
+                public Context MyContext { get; set; }
+
+                public void Handle(Message3 message)
+                {
+                    MyContext.Done = true;
                 }
             }
         }
 
         public class Context : ScenarioContext
         {
-            public bool IsMessageHandlingComplete { get; set; }
-            public bool MessageAudited { get; set; }
+            public bool Done { get; set; }
+            public bool WrongMessageAudited { get; set; }
         }
 
 
         [Serializable]
         public class MessageToBeAudited : IMessage
+        {
+        }
+
+        [Serializable]
+        public class Message3 : IMessage
         {
         }
     }

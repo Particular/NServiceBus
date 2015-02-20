@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast.Messages
     using System;
     using System.Collections.Generic;
     using MessageInterfaces;
+    using NServiceBus.Pipeline.Contexts;
     using Pipeline;
 
 
@@ -13,20 +14,22 @@ namespace NServiceBus.Unicast.Messages
     {
         readonly MessageMetadataRegistry messageMetadataRegistry;
         readonly IMessageMapper messageMapper;
-        readonly PipelineExecutor pipelineExecutor;
+        readonly Func<BehaviorContext> contextGetter;
 
         /// <summary>
         /// Ctor
         /// </summary>
         /// <param name="messageMetadataRegistry"></param>
         /// <param name="messageMapper"></param>
-        /// <param name="pipelineExecutor"></param>
-        public LogicalMessageFactory(MessageMetadataRegistry messageMetadataRegistry, IMessageMapper messageMapper, PipelineExecutor pipelineExecutor)
+        /// <param name="contextGetter"></param>
+        public LogicalMessageFactory(MessageMetadataRegistry messageMetadataRegistry, IMessageMapper messageMapper, Func<BehaviorContext> contextGetter)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.messageMapper = messageMapper;
-            this.pipelineExecutor = pipelineExecutor;
+            this.contextGetter = contextGetter;
         }
+
+        BehaviorContext CurrentContext { get { return contextGetter(); } }
 
         /// <summary>
         /// Creates a new <see cref="LogicalMessage"/> using the specified message instance.
@@ -92,23 +95,12 @@ namespace NServiceBus.Unicast.Messages
 
         Dictionary<string, string> GetMessageHeaders(object message)
         {
-            Dictionary<object, Dictionary<string, string>> outgoingHeaders;
-
-            if (!pipelineExecutor.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
+            OutgoingHeaders existingHeaders;
+            if (!CurrentContext.TryGet(out existingHeaders))
             {
                 return new Dictionary<string, string>();
             }
-            Dictionary<string, string> outgoingHeadersForThisMessage;
-
-            if (!outgoingHeaders.TryGetValue(message, out outgoingHeadersForThisMessage))
-            {
-                return new Dictionary<string, string>();
-            }
-
-            //remove the entry to allow memory to be reclaimed
-            outgoingHeaders.Remove(message);
-
-            return outgoingHeadersForThisMessage;
+            return existingHeaders.GetAndRemoveAll(message);
         }
     }
 }

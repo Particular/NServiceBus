@@ -32,8 +32,8 @@ namespace NServiceBus
             RegisterContainerAdapter(container);
             RunUserRegistrations(registrations);
 
-            configurer.RegisterSingleton(this);
-            configurer.RegisterSingleton<ReadOnlySettings>(settings);
+            this.container.RegisterSingleton(this);
+            this.container.RegisterSingleton<ReadOnlySettings>(settings);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace NServiceBus
         {
             foreach (var registration in registrations)
             {
-                registration(configurer);
+                registration(container);
             }
         }
 
@@ -70,9 +70,9 @@ namespace NServiceBus
             };
 
             Builder = b;
-            configurer = b;
+            this.container = b;
 
-            configurer.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
+            this.container.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(c => c.Container, container);
         }
 
@@ -80,7 +80,7 @@ namespace NServiceBus
         {
             foreach (var t in TypesToScan.Where(t => t.GetInterfaces().Any(IsGenericConfigSource)))
             {
-                configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
+                container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
             }
         }
 
@@ -102,21 +102,23 @@ namespace NServiceBus
 
             featureActivator = new FeatureActivator(Settings);
 
-            configurer.RegisterSingleton(featureActivator);
+            container.RegisterSingleton(featureActivator);
 
             ForAllTypes<Feature>(TypesToScan, t => featureActivator.Add(t.Construct<Feature>()));
 
-            ForAllTypes<IWantToRunWhenConfigurationIsComplete>(TypesToScan, t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            ForAllTypes<IWantToRunWhenConfigurationIsComplete>(TypesToScan, t => container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            ForAllTypes<IWantToRunWhenBusStartsAndStops>(TypesToScan, t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            ForAllTypes<IWantToRunWhenBusStartsAndStops>(TypesToScan, t => container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(TypesToScan, t => t.Run(this));
 
             var featureStats = featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
 
-            configurer.RegisterSingleton(featureStats);
+            pipeline.RegisterBehaviorsInContainer(Settings, container);
 
-            featureActivator.RegisterStartupTasks(configurer);
+            container.RegisterSingleton(featureStats);
+
+            featureActivator.RegisterStartupTasks(container);
 
             localAddress =Settings.LocalAddress();
 
@@ -200,7 +202,7 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
-        internal IConfigureComponents configurer;
+        internal IConfigureComponents container;
 
         FeatureActivator featureActivator;
 

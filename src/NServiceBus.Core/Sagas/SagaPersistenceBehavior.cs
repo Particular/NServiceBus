@@ -12,7 +12,7 @@
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Messages;
 
-    class SagaPersistenceBehavior : IBehavior<IncomingContext>
+    class SagaPersistenceBehavior : HandlingStageBehavior
     {
         public ISagaPersister SagaPersister { get; set; }
 
@@ -22,7 +22,7 @@
 
         public SagaMetaModel SagaMetaModel { get; set; }
 
-        public void Invoke(IncomingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             currentContext = context;
 
@@ -54,8 +54,7 @@
                 //if this message are not allowed to start the saga
                 if (IsMessageAllowedToStartTheSaga(context.IncomingLogicalMessage, sagaMetadata))
                 {
-                    context.Set("Sagas.SagaWasInvoked", true);
-
+                    context.Get<SagaInvocationResult>().SagaFound();
                     sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaMetadata, context.IncomingLogicalMessage));
                 }
                 else
@@ -65,20 +64,18 @@
                     //we don't invoke not found handlers for timeouts
                     if (IsTimeoutMessage(context.IncomingLogicalMessage))
                     {
-                        context.Set("Sagas.SagaWasInvoked", true);
-
+                        context.Get<SagaInvocationResult>().SagaFound();
                         logger.InfoFormat("No saga found for timeout message {0}, ignoring since the saga has been marked as complete before the timeout fired", context.PhysicalMessage.Id);
                     }
                     else
                     {
-                        context.Set("Sagas.InvokeSagaNotFound", true);
+                        context.Get<SagaInvocationResult>().SagaNotFound();
                     }
                 }
             }
             else
             {
-                context.Set("Sagas.SagaWasInvoked", true);
-
+                context.Get<SagaInvocationResult>().SagaFound();
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
             }
 
@@ -255,7 +252,7 @@
             return sagaEntity;
         }
 
-        IncomingContext currentContext;
+        Context currentContext;
 
         static ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();
 
@@ -265,7 +262,6 @@
                 : base(WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic")
             {
                 InsertBefore(WellKnownStep.InvokeHandlers);
-                InsertAfter("SetCurrentMessageBeingHandled");
             }
         }
     }

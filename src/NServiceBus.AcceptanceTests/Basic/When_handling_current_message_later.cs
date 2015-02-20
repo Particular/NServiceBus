@@ -13,10 +13,13 @@
         [Test]
         public void Should_commit_unit_of_work_and_execute_subsequent_handlers()
         {
-            var context = new Context();
+            var context = new Context()
+            {
+                Id = Guid.NewGuid()
+            };
 
             Scenario.Define(context)
-                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.SendLocal(new SomeMessage())))
+                .WithEndpoint<MyEndpoint>(b => b.Given((bus, c) => bus.SendLocal(new SomeMessage(){Id = c.Id})))
                 .Done(c => c.Done)
                 .Run();
 
@@ -27,6 +30,7 @@
 
         public class Context : ScenarioContext
         {
+            public Guid Id { get; set; }
             public bool Done { get; set; }
             public int FirstHandlerInvocationCount { get; set; }
             public int SecondHandlerInvocationCount { get; set; }
@@ -78,6 +82,10 @@
 
                 public void Handle(SomeMessage message)
                 {
+                    if (message.Id != Context.Id)
+                    {
+                        return;
+                    }
                     Context.FirstHandlerInvocationCount++;
 
                     if (Context.FirstHandlerInvocationCount == 1)
@@ -92,13 +100,20 @@
                 public Context Context { get; set; }
                 public void Handle(SomeMessage message)
                 {
+                    if (message.Id != Context.Id)
+                    {
+                        return;
+                    }
                     Context.SecondHandlerInvocationCount++;
                     Context.Done = true;
                 }
             }
         }
         [Serializable]
-        public class SomeMessage : IMessage { }
+        public class SomeMessage : IMessage 
+        {
+            public Guid Id { get; set; }
+        }
 
     }
 

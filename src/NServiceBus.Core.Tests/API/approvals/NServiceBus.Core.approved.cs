@@ -82,6 +82,7 @@ namespace NServiceBus
     {
         public BusNotifications() { }
         public NServiceBus.Faults.ErrorsNotifications Errors { get; }
+        public NServiceBus.Pipeline.ExecutorNotifications Executor { get; }
         public NServiceBus.Pipeline.PipelineNotifications Pipeline { get; }
     }
     public class CompletionResult
@@ -90,6 +91,10 @@ namespace NServiceBus
         public int ErrorCode { get; set; }
         public object[] Messages { get; set; }
         public object State { get; set; }
+    }
+    public class static ConcurrencySettingsExtensions
+    {
+        public static NServiceBus.Settings.Concurrency.ConcurrencySettings Concurrency(this NServiceBus.BusConfiguration config) { }
     }
     public class static ConfigurationBuilderExtensions
     {
@@ -124,8 +129,12 @@ namespace NServiceBus
     {
         public static void InitializeHandlerProperty<THandler>(this NServiceBus.BusConfiguration config, string property, object value) { }
     }
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public class static ConfigureInMemoryFaultManagement
     {
+        [System.ObsoleteAttribute("This is no longer supported. If you want full control over what happens when a me" +
+            "ssage fails (including retries) please override the MoveFaultsToErrorQueue behav" +
+            "ior. Will be removed in version 7.0.0.", true)]
         public static void DiscardFailedMessagesInsteadOfSendingToErrorQueue(this NServiceBus.BusConfiguration config) { }
     }
     public class static ConfigureLicenseExtensions
@@ -136,6 +145,7 @@ namespace NServiceBus
     public class static ConfigurePurging
     {
         public static void PurgeOnStartup(this NServiceBus.BusConfiguration config, bool value) { }
+        [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
         public static bool PurgeOnStartup(this NServiceBus.Configure config) { }
     }
     public class static ConfigureQueueCreation
@@ -186,8 +196,8 @@ namespace NServiceBus
     }
     public class CriticalError
     {
-        public CriticalError(System.Action<string, System.Exception> onCriticalErrorAction, NServiceBus.Configure configure) { }
-        public void Raise(string errorMessage, System.Exception exception) { }
+        public CriticalError(System.Action<string, System.Exception> onCriticalErrorAction, NServiceBus.ObjectBuilder.IBuilder builder) { }
+        public virtual void Raise(string errorMessage, System.Exception exception) { }
     }
     public class static CriticalTimeMonitoringConfig
     {
@@ -392,6 +402,18 @@ namespace NServiceBus
         T CreateInstance<T>(System.Action<T> action);
         object CreateInstance(System.Type messageType);
     }
+    public class static IncomingContextExtensions
+    {
+        public static string PublicReceiveAddress(this NServiceBus.Pipeline.Contexts.IncomingContext context) { }
+        public static void SetPublicReceiveAddress(this NServiceBus.Pipeline.Contexts.IncomingContext context, string address) { }
+    }
+    public class IndividualThrottlingSettings
+    {
+        public NServiceBus.IndividualThrottlingSettings DoNotLimit(string satelliteId) { }
+        public NServiceBus.IndividualThrottlingSettings DoNotLimitMainPipeline() { }
+        public NServiceBus.IndividualThrottlingSettings ForMainPipeline(int maximumMessagesPerSecond) { }
+        public NServiceBus.IndividualThrottlingSettings ForSatellite(string satelliteId, int maximumMessagesPerSecond) { }
+    }
     public interface INeedInitialization
     {
         void Customize(NServiceBus.BusConfiguration configuration);
@@ -451,6 +473,7 @@ namespace NServiceBus
     }
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
     {
+        public MessageDeserializationException(string message) { }
         public MessageDeserializationException(string transportMessageId, System.Exception innerException) { }
         protected MessageDeserializationException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
     }
@@ -461,6 +484,11 @@ namespace NServiceBus
         Subscribe = 3,
         Unsubscribe = 4,
         Reply = 5,
+    }
+    public class MessageProcessingAbortedException : System.Exception
+    {
+        public MessageProcessingAbortedException() { }
+        protected MessageProcessingAbortedException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
     }
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition
     {
@@ -508,6 +536,16 @@ namespace NServiceBus
     {
         public PersistenceExtentions(NServiceBus.Settings.SettingsHolder settings) { }
     }
+    public abstract class PhysicalMessageProcessingStageBehavior : NServiceBus.Pipeline.Behavior<NServiceBus.PhysicalMessageProcessingStageBehavior.Context>
+    {
+        protected PhysicalMessageProcessingStageBehavior() { }
+        public class Context : NServiceBus.Pipeline.Contexts.TransportReceiveContext
+        {
+            protected Context(NServiceBus.Pipeline.BehaviorContext parentContext) { }
+            public bool MessageHandledSuccessfully { get; }
+            public void AbortReceiveOperation() { }
+        }
+    }
     public class static ScaleOutExtentions
     {
         public static NServiceBus.Settings.ScaleOutSettings ScaleOut(this NServiceBus.BusConfiguration config) { }
@@ -540,6 +578,10 @@ namespace NServiceBus
     {
         public static void EnableSLAPerformanceCounter(this NServiceBus.BusConfiguration config, System.TimeSpan sla) { }
         public static void EnableSLAPerformanceCounter(this NServiceBus.BusConfiguration config) { }
+    }
+    public class static ThrottlingSettingsExtensions
+    {
+        public static NServiceBus.Settings.Throttling.ThrottlingSettings Throttling(this NServiceBus.BusConfiguration config) { }
     }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class TimeToBeReceivedAttribute : System.Attribute
@@ -753,9 +795,9 @@ namespace NServiceBus.Config
     public class TransportConfig : System.Configuration.ConfigurationSection
     {
         public TransportConfig() { }
-        [System.Configuration.ConfigurationPropertyAttribute("MaximumConcurrencyLevel", DefaultValue=1, IsRequired=false)]
+        [System.Configuration.ConfigurationPropertyAttribute("MaximumConcurrencyLevel", DefaultValue=0, IsRequired=false)]
         public int MaximumConcurrencyLevel { get; set; }
-        [System.Configuration.ConfigurationPropertyAttribute("MaximumMessageThroughputPerSecond", DefaultValue=0, IsRequired=false)]
+        [System.Configuration.ConfigurationPropertyAttribute("MaximumMessageThroughputPerSecond", DefaultValue=-1, IsRequired=false)]
         public int MaximumMessageThroughputPerSecond { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("MaxRetries", DefaultValue=5, IsRequired=false)]
         public int MaxRetries { get; set; }
@@ -880,6 +922,7 @@ namespace NServiceBus.Faults
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public int RetryAttempt { get; }
     }
+    [System.ObsoleteAttribute(@"IManageMessageFailures is no longer an extension point. If you want full control over what happens when a message fails (including retries) please override the MoveFaultsToErrorQueue behavior. If you just want to get notified when messages are being moved please use BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e=>{}). Will be removed in version 7.0.0.", true)]
     public interface IManageMessageFailures
     {
         void Init(NServiceBus.Address address);
@@ -973,6 +1016,10 @@ namespace NServiceBus.Features
         protected abstract void OnStart();
         protected virtual void OnStop() { }
     }
+    public class FirstLevelRetries : NServiceBus.Features.Feature
+    {
+        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
     public class ForwardReceivedMessages : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1018,6 +1065,7 @@ namespace NServiceBus.Features
         protected override string ExampleConnectionStringForErrorMessage { get; }
         protected override bool RequiresConnectionString { get; }
         protected override void Configure(NServiceBus.Features.FeatureConfigurationContext context, string connectionString) { }
+        protected override System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.ReceiveBehavior> GetReceiveBehaviorFactory(NServiceBus.Transports.ReceiveOptions receiveOptions) { }
     }
     public class Outbox : NServiceBus.Features.Feature
     {
@@ -1340,6 +1388,13 @@ namespace NServiceBus.Persistence
 }
 namespace NServiceBus.Pipeline
 {
+    public abstract class Behavior<TContext> : NServiceBus.Pipeline.IBehavior<TContext, TContext>
+        where TContext : NServiceBus.Pipeline.BehaviorContext
+    {
+        protected Behavior() { }
+        public abstract void Invoke(TContext context, System.Action next);
+        public void Invoke(TContext context, System.Action<TContext> next) { }
+    }
     public abstract class BehaviorContext
     {
         protected readonly NServiceBus.Pipeline.BehaviorContext parentContext;
@@ -1354,20 +1409,33 @@ namespace NServiceBus.Pipeline
         public bool TryGet<T>(out T result) { }
         public bool TryGet<T>(string key, out T result) { }
     }
-    public interface IBehavior<in TContext>
-        where in TContext : NServiceBus.Pipeline.BehaviorContext
+    public class ExecutorNotifications : System.IDisposable
     {
-        void Invoke(TContext context, System.Action next);
+        public ExecutorNotifications() { }
+        public System.IObservable<NServiceBus.Pipeline.ExecutorState> ExecutorState { get; }
     }
-    public class PipelineExecutor : System.IDisposable
+    public struct ExecutorState
     {
-        public PipelineExecutor(NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.BusNotifications busNotifications) { }
-        public NServiceBus.Pipeline.BehaviorContext CurrentContext { get; }
-        public System.Collections.Generic.IList<NServiceBus.Pipeline.RegisterStep> Incoming { get; }
-        public System.Collections.Generic.IList<NServiceBus.Pipeline.RegisterStep> Outgoing { get; }
-        public void Dispose() { }
-        public void InvokePipeline<TContext>(System.Collections.Generic.IEnumerable<System.Type> behaviors, TContext context)
-            where TContext : NServiceBus.Pipeline.BehaviorContext { }
+        public ExecutorState(string[] pipelineIds, int currentConcurrencyLevel) { }
+        public int CurrentConcurrencyLevel { get; }
+        public string[] PipelineIds { get; }
+    }
+    public interface IBehavior<in TIn, out TOut>
+        where in TIn : NServiceBus.Pipeline.BehaviorContext
+        where out TOut : NServiceBus.Pipeline.BehaviorContext
+    {
+        void Invoke(TIn context, System.Action<TOut> next);
+    }
+    public interface IExecutor : System.IDisposable
+    {
+        void Execute(string pipelineId, System.Action action);
+        void Start(string[] pipelineIds);
+        void Stop();
+    }
+    public interface IStageConnector { }
+    public interface PipelineFactory
+    {
+        System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Transport.TransportReceiver> BuildPipelines(NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Pipeline.IExecutor executor);
     }
     public class PipelineNotifications : System.IDisposable
     {
@@ -1376,22 +1444,27 @@ namespace NServiceBus.Pipeline
     }
     public class PipelineSettings
     {
-        public PipelineSettings(NServiceBus.BusConfiguration config) { }
-        public void Register(string stepId, System.Type behavior, string description) { }
-        public void Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description, bool isStatic = False) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description, bool isStatic = False) { }
         public void Register<T>()
             where T : NServiceBus.Pipeline.RegisterStep, new () { }
+        public void Register<T, TBehavior>(System.Func<NServiceBus.ObjectBuilder.IBuilder, TBehavior> customInitializer)
+            where T : NServiceBus.Pipeline.RegisterStep, new () { }
+        public void Register(NServiceBus.Pipeline.RegisterStep registration) { }
         public void Remove(string stepId) { }
         public void Remove(NServiceBus.Pipeline.WellKnownStep wellKnownStep) { }
         public void Replace(string stepId, System.Type newBehavior, string description = null) { }
         public void Replace(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type newBehavior, string description = null) { }
     }
+    [System.Diagnostics.DebuggerDisplayAttribute("{StepId}({BehaviorType.FullName}) - {Description}")]
     public abstract class RegisterStep
     {
-        protected RegisterStep(string stepId, System.Type behavior, string description) { }
+        protected RegisterStep(string stepId, System.Type behavior, string description, bool isStatic = False) { }
         public System.Type BehaviorType { get; }
         public string Description { get; }
+        public bool IsStatic { get; }
         public string StepId { get; }
+        public void ContainerRegistration<T>(System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Settings.ReadOnlySettings, T> customRegistration) { }
         public void InsertAfter(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertAfter(string id) { }
         public void InsertAfterIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
@@ -1401,10 +1474,22 @@ namespace NServiceBus.Pipeline
         public void InsertBeforeIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertBeforeIfExists(string id) { }
     }
+    public abstract class StageConnector<TFrom, TTo> : NServiceBus.Pipeline.IBehavior<TFrom, TTo>, NServiceBus.Pipeline.IStageConnector
+        where TFrom : NServiceBus.Pipeline.BehaviorContext
+        where TTo : NServiceBus.Pipeline.BehaviorContext
+    {
+        protected StageConnector() { }
+        public abstract void Invoke(TFrom context, System.Action<TTo> next);
+    }
     public struct StepEnded
     {
         public StepEnded(System.TimeSpan duration) { }
         public System.TimeSpan Duration { get; }
+    }
+    public class StepRegistrationSequence
+    {
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description, bool isStatic = False) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description, bool isStatic = False) { }
     }
     public struct StepStarted
     {
@@ -1417,16 +1502,12 @@ namespace NServiceBus.Pipeline
     {
         public static readonly NServiceBus.Pipeline.WellKnownStep AuditProcessedMessage;
         public static readonly NServiceBus.Pipeline.WellKnownStep CreateChildContainer;
-        public static readonly NServiceBus.Pipeline.WellKnownStep CreatePhysicalMessage;
-        public static readonly NServiceBus.Pipeline.WellKnownStep DeserializeMessages;
         public static readonly NServiceBus.Pipeline.WellKnownStep DispatchMessageToTransport;
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforceBestPractices;
-        public static readonly NServiceBus.Pipeline.WellKnownStep ExecuteLogicalMessages;
         public static readonly NServiceBus.Pipeline.WellKnownStep ExecuteUnitOfWork;
         public static NServiceBus.Pipeline.WellKnownStep HostInformation;
         public static readonly NServiceBus.Pipeline.WellKnownStep InvokeHandlers;
         public static readonly NServiceBus.Pipeline.WellKnownStep InvokeSaga;
-        public static readonly NServiceBus.Pipeline.WellKnownStep LoadHandlers;
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateIncomingMessages;
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateIncomingTransportMessage;
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateOutgoingMessages;
@@ -1437,23 +1518,61 @@ namespace NServiceBus.Pipeline
 }
 namespace NServiceBus.Pipeline.Contexts
 {
+    public abstract class HandlingStageBehavior : NServiceBus.Pipeline.Behavior<NServiceBus.Pipeline.Contexts.HandlingStageBehavior.Context>
+    {
+        protected HandlingStageBehavior() { }
+        public class Context : NServiceBus.Pipeline.Contexts.LogicalMessageProcessingStageBehavior.Context
+        {
+            protected Context(NServiceBus.Pipeline.BehaviorContext context) { }
+            public bool HandlerInvocationAborted { get; }
+            public NServiceBus.Unicast.Behaviors.MessageHandler MessageHandler { get; }
+            public void DoNotInvokeAnyMoreHandlers() { }
+        }
+    }
     public class IncomingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public IncomingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.TransportMessage transportMessage) { }
-        public bool HandlerInvocationAborted { get; }
-        public NServiceBus.Unicast.Messages.LogicalMessage IncomingLogicalMessage { get; set; }
-        public System.Collections.Generic.List<NServiceBus.Unicast.Messages.LogicalMessage> LogicalMessages { get; set; }
-        public NServiceBus.Unicast.Behaviors.MessageHandler MessageHandler { get; set; }
-        public NServiceBus.TransportMessage PhysicalMessage { get; }
-        public void DoNotInvokeAnyMoreHandlers() { }
+        public IncomingContext(NServiceBus.Pipeline.BehaviorContext parentContext) { }
+    }
+    public abstract class LogicalMessageProcessingStageBehavior : NServiceBus.Pipeline.Behavior<NServiceBus.Pipeline.Contexts.LogicalMessageProcessingStageBehavior.Context>
+    {
+        protected LogicalMessageProcessingStageBehavior() { }
+        public class Context : NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context
+        {
+            public Context(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context parentContext) { }
+            protected Context(NServiceBus.Pipeline.BehaviorContext parentContext) { }
+            public NServiceBus.Unicast.Messages.LogicalMessage IncomingLogicalMessage { get; }
+        }
+    }
+    public abstract class LogicalMessagesProcessingStageBehavior : NServiceBus.Pipeline.Behavior<NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context>
+    {
+        protected LogicalMessagesProcessingStageBehavior() { }
+        public class Context : NServiceBus.PhysicalMessageProcessingStageBehavior.Context
+        {
+            public Context(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Messages.LogicalMessage> logicalMessages, NServiceBus.PhysicalMessageProcessingStageBehavior.Context parentContext) { }
+            protected Context(NServiceBus.Pipeline.BehaviorContext parentContext) { }
+            public System.Collections.Generic.List<NServiceBus.Unicast.Messages.LogicalMessage> LogicalMessages { get; }
+        }
     }
     public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
     {
         public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryOptions deliveryOptions, NServiceBus.Unicast.Messages.LogicalMessage message) { }
+        protected OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public NServiceBus.Unicast.DeliveryOptions DeliveryOptions { get; }
-        public NServiceBus.TransportMessage IncomingMessage { get; }
         public NServiceBus.Unicast.Messages.LogicalMessage OutgoingLogicalMessage { get; }
-        public NServiceBus.TransportMessage OutgoingMessage { get; }
+    }
+    public abstract class PhysicalOutgoingContextStageBehavior : NServiceBus.Pipeline.Behavior<NServiceBus.Pipeline.Contexts.PhysicalOutgoingContextStageBehavior.Context>
+    {
+        protected PhysicalOutgoingContextStageBehavior() { }
+        public class Context : NServiceBus.Pipeline.Contexts.OutgoingContext
+        {
+            public Context(NServiceBus.TransportMessage transportMessage, NServiceBus.Pipeline.Contexts.OutgoingContext parentContext) { }
+            public NServiceBus.TransportMessage OutgoingMessage { get; }
+        }
+    }
+    public class TransportReceiveContext : NServiceBus.Pipeline.Contexts.IncomingContext
+    {
+        protected TransportReceiveContext(NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public NServiceBus.TransportMessage PhysicalMessage { get; }
     }
 }
 namespace NServiceBus.Saga
@@ -1681,6 +1800,21 @@ namespace NServiceBus.Serializers.XML
         public void Serialize(object message, System.IO.Stream stream) { }
     }
 }
+namespace NServiceBus.Settings.Concurrency
+{
+    public class ConcurrencySettings
+    {
+        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSetellite() { }
+        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSetellite(int defaultMaxiumConcurrencyLevel) { }
+        public void UseSingleThreadPool() { }
+        public void UseSingleThreadPool(int maximumConcurrencyLevel) { }
+    }
+    public class IndividualConcurrencySettings
+    {
+        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings ForMainPipeline(int maximumConcurrency) { }
+        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings ForSatellite(string satelliteId, int maximumConcurrency) { }
+    }
+}
 namespace NServiceBus.Settings
 {
     public interface ReadOnlySettings
@@ -1740,6 +1874,16 @@ namespace NServiceBus.Settings
         public NServiceBus.Settings.TransactionSettings WrapHandlersExecutionInATransactionScope() { }
     }
 }
+namespace NServiceBus.Settings.Throttling
+{
+    public class ThrottlingSettings
+    {
+        public void DoNotLimitThroughput() { }
+        public NServiceBus.IndividualThrottlingSettings UseSeparateThroughputLimitForMainPaipelineAndEachSetellite() { }
+        public NServiceBus.IndividualThrottlingSettings UseSeparateThroughputLimitForMainPaipelineAndEachSetellite(int defaultMaximumMessagesPerSecond) { }
+        public void UseSingleTotalThroughputLimit(int maximumMessagesPerSecond) { }
+    }
+}
 namespace NServiceBus.Support
 {
     public class static RuntimeEnvironment
@@ -1782,7 +1926,13 @@ namespace NServiceBus.Transports
         protected virtual bool RequiresConnectionString { get; }
         protected abstract void Configure(NServiceBus.Features.FeatureConfigurationContext context, string connectionString);
         protected virtual string GetLocalAddress(NServiceBus.Settings.ReadOnlySettings settings) { }
+        protected abstract System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.ReceiveBehavior> GetReceiveBehaviorFactory(NServiceBus.Transports.ReceiveOptions receiveOptions);
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
+    public class DequeueSettings
+    {
+        public bool PurgeOnStartup { get; }
+        public string QueueName { get; }
     }
     public interface IAuditMessages
     {
@@ -1797,10 +1947,10 @@ namespace NServiceBus.Transports
         void ClearDeferredMessages(string headerKey, string headerValue);
         void Defer(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
     }
-    public interface IDequeueMessages
+    public interface IDequeueMessages : System.IObservable<NServiceBus.Transports.MessageAvailable>
     {
-        void Init(NServiceBus.Address address, NServiceBus.Unicast.Transport.TransactionSettings transactionSettings, System.Func<NServiceBus.TransportMessage, bool> tryProcessMessage, System.Action<NServiceBus.TransportMessage, System.Exception> endProcessMessage);
-        void Start(int maximumConcurrencyLevel);
+        void Init(NServiceBus.Transports.DequeueSettings settings);
+        void Start();
         void Stop();
     }
     public interface IManageSubscriptions
@@ -1816,12 +1966,34 @@ namespace NServiceBus.Transports
     {
         void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
     }
+    public class MessageAvailable
+    {
+        public MessageAvailable(string publicReceiveAddress, System.Action<NServiceBus.Pipeline.Contexts.IncomingContext> contextAction) { }
+        public string PublicReceiveAddress { get; }
+    }
+    public abstract class ReceiveBehavior : NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.Pipeline.Contexts.TransportReceiveContext>
+    {
+        protected ReceiveBehavior() { }
+        public override void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Pipeline.Contexts.TransportReceiveContext> next) { }
+        protected abstract void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.TransportMessage> onMessage);
+        public class Registration : NServiceBus.Pipeline.RegisterStep
+        {
+            public Registration() { }
+        }
+    }
+    public class ReceiveOptions
+    {
+        public string ErrorQueue { get; }
+        public NServiceBus.Settings.ReadOnlySettings Settings { get; }
+        public NServiceBus.Unicast.Transport.TransactionSettings Transactions { get; }
+    }
     public abstract class TransportDefinition
     {
         protected TransportDefinition() { }
         public bool HasNativePubSubSupport { get; set; }
         public bool HasSupportForCentralizedPubSub { get; set; }
         public System.Nullable<bool> HasSupportForDistributedTransactions { get; set; }
+        public bool HasSupportForMultiQueueNativeTransactions { get; set; }
         public bool RequireOutboxConsent { get; set; }
         protected internal void Configure(NServiceBus.BusConfiguration config) { }
     }
@@ -1846,21 +2018,20 @@ namespace NServiceBus.Transports.Msmq
         public string Key { get; set; }
         public string Value { get; set; }
     }
-    public class MsmqDequeueStrategy : NServiceBus.Transports.IDequeueMessages, System.IDisposable
+    public class MsmqDequeueStrategy : NServiceBus.Transports.IDequeueMessages, System.IDisposable, System.IObservable<NServiceBus.Transports.MessageAvailable>
     {
-        public MsmqDequeueStrategy(NServiceBus.Configure configure, NServiceBus.CriticalError criticalError, NServiceBus.Transports.Msmq.MsmqUnitOfWork unitOfWork) { }
-        public NServiceBus.Address ErrorQueue { get; set; }
+        public MsmqDequeueStrategy(NServiceBus.CriticalError criticalError, bool isTransactional, NServiceBus.Address errorQueueAddress) { }
         public void Dispose() { }
-        public void Init(NServiceBus.Address address, NServiceBus.Unicast.Transport.TransactionSettings settings, System.Func<NServiceBus.TransportMessage, bool> tryProcessMessage, System.Action<NServiceBus.TransportMessage, System.Exception> endProcessMessage) { }
-        public void Start(int maximumConcurrencyLevel) { }
+        public void Init(NServiceBus.Transports.DequeueSettings settings) { }
+        public void Start() { }
         public void Stop() { }
+        public System.IDisposable Subscribe(System.IObserver<NServiceBus.Transports.MessageAvailable> observer) { }
     }
     public class MsmqMessageSender : NServiceBus.Transports.ISendMessages
     {
-        public MsmqMessageSender() { }
+        public MsmqMessageSender(NServiceBus.Pipeline.BehaviorContext context) { }
         public NServiceBus.Transports.Msmq.Config.MsmqSettings Settings { get; set; }
         public bool SuppressDistributedTransactions { get; set; }
-        public NServiceBus.Transports.Msmq.MsmqUnitOfWork UnitOfWork { get; set; }
         public void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions) { }
     }
     public class MsmqUnitOfWork : System.IDisposable
@@ -1894,6 +2065,10 @@ namespace NServiceBus.Unicast
         public bool CompletedSynchronously { get; }
         public bool IsCompleted { get; }
         public void Complete(int errorCode, params object[] messages) { }
+    }
+    public class CallbackMessageLookup
+    {
+        public CallbackMessageLookup() { }
     }
     public abstract class DeliveryOptions
     {
@@ -1955,57 +2130,52 @@ namespace NServiceBus.Unicast
         public NServiceBus.Address Destination { get; set; }
         public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }
     }
-    public class UnicastBus : NServiceBus.IBus, NServiceBus.IManageMessageHeaders, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, System.IDisposable
+    public class StaticOutgoingMessageHeaders
     {
-        public UnicastBus() { }
-        public NServiceBus.ObjectBuilder.IBuilder Builder { get; set; }
-        public NServiceBus.Configure Configure { get; set; }
-        public NServiceBus.CriticalError CriticalError { get; set; }
+        public StaticOutgoingMessageHeaders() { }
+        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
+    }
+    public class UnicastBus : NServiceBus.IBus, NServiceBus.IManageMessageHeaders, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, NServiceBus.Unicast.IRealBus, System.IDisposable
+    {
+        public UnicastBus(NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.PipelineFactory> pipelineFactories, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.ISendMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter, NServiceBus.Unicast.StaticOutgoingMessageHeaders outgoingMessageHeaders, NServiceBus.Unicast.CallbackMessageLookup callbackMessageLookup) { }
+        public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public NServiceBus.IMessageContext CurrentMessageContext { get; }
-        public bool DoNotStartTransport { get; set; }
         public System.Func<object, string, string> GetHeaderAction { get; }
         [System.ObsoleteAttribute("We have introduced a more explicit API to set the host identifier, see busConfigu" +
             "ration.UniquelyIdentifyRunningInstance(). Will be removed in version 7.0.0.", true)]
         public NServiceBus.Hosting.HostInformation HostInformation { get; set; }
-        public NServiceBus.Address InputAddress { get; set; }
-        public NServiceBus.MessageInterfaces.IMessageMapper MessageMapper { get; set; }
-        public NServiceBus.Unicast.Routing.StaticMessageRouter MessageRouter { get; set; }
-        public NServiceBus.Transports.ISendMessages MessageSender { get; set; }
         public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
-        public bool PropagateReturnAddressOnSend { get; set; }
         public System.Action<object, string, string> SetHeaderAction { get; }
-        public NServiceBus.Settings.ReadOnlySettings Settings { get; set; }
-        public NServiceBus.Transports.IManageSubscriptions SubscriptionManager { get; set; }
-        public NServiceBus.Unicast.Transport.ITransport Transport { get; set; }
+        public NServiceBus.Settings.ReadOnlySettings Settings { get; }
         public NServiceBus.ICallback Defer(System.TimeSpan delay, object message) { }
         public NServiceBus.ICallback Defer(System.DateTime processAt, object message) { }
         public void Dispose() { }
         public void DoNotContinueDispatchingCurrentMessageToHandlers() { }
         public void ForwardCurrentMessageTo(string destination) { }
         public void HandleCurrentMessageLater() { }
+        public void Publish(object message) { }
+        public void Publish<T>() { }
         public void Publish<T>(System.Action<T> messageConstructor) { }
-        public virtual void Publish<T>() { }
-        public virtual void Publish(object message) { }
         public void Reply(object message) { }
         public void Reply<T>(System.Action<T> messageConstructor) { }
-        public void Return<T>(T errorCode) { }
-        public NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor) { }
+        public void Return<T>(T errorEnum) { }
         public NServiceBus.ICallback Send(object message) { }
-        public NServiceBus.ICallback Send<T>(string destination, System.Action<T> messageConstructor) { }
-        public NServiceBus.ICallback Send<T>(NServiceBus.Address address, System.Action<T> messageConstructor) { }
+        public NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor) { }
         public NServiceBus.ICallback Send(string destination, object message) { }
         public NServiceBus.ICallback Send(NServiceBus.Address address, object message) { }
-        public NServiceBus.ICallback Send<T>(string destination, string correlationId, System.Action<T> messageConstructor) { }
-        public NServiceBus.ICallback Send<T>(NServiceBus.Address address, string correlationId, System.Action<T> messageConstructor) { }
+        public NServiceBus.ICallback Send<T>(string destination, System.Action<T> messageConstructor) { }
+        public NServiceBus.ICallback Send<T>(NServiceBus.Address address, System.Action<T> messageConstructor) { }
         public NServiceBus.ICallback Send(string destination, string correlationId, object message) { }
         public NServiceBus.ICallback Send(NServiceBus.Address address, string correlationId, object message) { }
-        public NServiceBus.ICallback SendLocal<T>(System.Action<T> messageConstructor) { }
+        public NServiceBus.ICallback Send<T>(string destination, string correlationId, System.Action<T> messageConstructor) { }
+        public NServiceBus.ICallback Send<T>(NServiceBus.Address address, string correlationId, System.Action<T> messageConstructor) { }
         public NServiceBus.ICallback SendLocal(object message) { }
+        public NServiceBus.ICallback SendLocal<T>(System.Action<T> messageConstructor) { }
         public NServiceBus.IBus Start() { }
+        public void Subscribe(System.Type messageType) { }
         public void Subscribe<T>() { }
-        public virtual void Subscribe(System.Type messageType) { }
+        public void Unsubscribe(System.Type messageType) { }
         public void Unsubscribe<T>() { }
-        public virtual void Unsubscribe(System.Type messageType) { }
     }
 }
 namespace NServiceBus.Unicast.Messages
@@ -2020,7 +2190,7 @@ namespace NServiceBus.Unicast.Messages
     }
     public class LogicalMessageFactory
     {
-        public LogicalMessageFactory(NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.Pipeline.PipelineExecutor pipelineExecutor) { }
+        public LogicalMessageFactory(NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, System.Func<NServiceBus.Pipeline.BehaviorContext> contextGetter) { }
         public NServiceBus.Unicast.Messages.LogicalMessage Create(object message) { }
         public NServiceBus.Unicast.Messages.LogicalMessage Create(System.Type messageType, object message, System.Collections.Generic.Dictionary<string, string> headers) { }
         public NServiceBus.Unicast.Messages.LogicalMessage CreateControl(System.Collections.Generic.Dictionary<string, string> headers) { }
@@ -2110,68 +2280,23 @@ namespace NServiceBus.Unicast.Transport
         public NServiceBus.TransportMessage Message { get; }
         public System.Exception Reason { get; }
     }
-    public class FinishedMessageProcessingEventArgs : System.EventArgs
-    {
-        public FinishedMessageProcessingEventArgs(NServiceBus.TransportMessage m) { }
-        public NServiceBus.TransportMessage Message { get; }
-    }
-    public interface ITransport
-    {
-        int MaximumConcurrencyLevel { get; }
-        int MaximumMessageThroughputPerSecond { get; }
-        public event System.EventHandler<NServiceBus.Unicast.Transport.FailedMessageProcessingEventArgs> FailedMessageProcessing;
-        public event System.EventHandler<NServiceBus.Unicast.Transport.FinishedMessageProcessingEventArgs> FinishedMessageProcessing;
-        public event System.EventHandler<NServiceBus.Unicast.Transport.StartedMessageProcessingEventArgs> StartedMessageProcessing;
-        public event System.EventHandler<NServiceBus.Unicast.Transport.TransportMessageReceivedEventArgs> TransportMessageReceived;
-        void AbortHandlingCurrentMessage();
-        void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel);
-        void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond);
-        void Start(NServiceBus.Address localAddress);
-        void Stop();
-    }
-    public class StartedMessageProcessingEventArgs : System.EventArgs
-    {
-        public StartedMessageProcessingEventArgs(NServiceBus.TransportMessage m) { }
-        public NServiceBus.TransportMessage Message { get; }
-    }
     public class TransactionSettings
     {
-        public TransactionSettings(bool isTransactional, System.TimeSpan transactionTimeout, System.Transactions.IsolationLevel isolationLevel, int maxRetries, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope) { }
+        public TransactionSettings(bool isTransactional, System.TimeSpan transactionTimeout, System.Transactions.IsolationLevel isolationLevel, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope) { }
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
         public System.Transactions.IsolationLevel IsolationLevel { get; set; }
         public bool IsTransactional { get; set; }
-        public int MaxRetries { get; set; }
         public bool SuppressDistributedTransactions { get; set; }
         public System.TimeSpan TransactionTimeout { get; set; }
     }
-    public class TransportMessageAvailableEventArgs : System.EventArgs
+    public class TransportReceiver : System.IDisposable, System.IObserver<NServiceBus.Transports.MessageAvailable>
     {
-        public TransportMessageAvailableEventArgs(NServiceBus.TransportMessage m) { }
-        public NServiceBus.TransportMessage Message { get; }
-    }
-    public class TransportMessageReceivedEventArgs : System.EventArgs
-    {
-        public TransportMessageReceivedEventArgs(NServiceBus.TransportMessage m) { }
-        public NServiceBus.TransportMessage Message { get; }
-    }
-    public class TransportReceiver : NServiceBus.Unicast.Transport.ITransport, System.IDisposable
-    {
-        public TransportReceiver(NServiceBus.Unicast.Transport.TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, NServiceBus.Transports.IDequeueMessages receiver, NServiceBus.Faults.IManageMessageFailures manageMessageFailures, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Configure config) { }
-        public NServiceBus.Faults.IManageMessageFailures FailureManager { get; set; }
-        public int MaximumConcurrencyLevel { get; }
-        public int MaximumMessageThroughputPerSecond { get; }
-        public NServiceBus.Transports.IDequeueMessages Receiver { get; set; }
-        public NServiceBus.Unicast.Transport.TransactionSettings TransactionSettings { get; }
-        public event System.EventHandler<NServiceBus.Unicast.Transport.FailedMessageProcessingEventArgs> FailedMessageProcessing;
-        public event System.EventHandler<NServiceBus.Unicast.Transport.FinishedMessageProcessingEventArgs> FinishedMessageProcessing;
-        public event System.EventHandler<NServiceBus.Unicast.Transport.StartedMessageProcessingEventArgs> StartedMessageProcessing;
-        public event System.EventHandler<NServiceBus.Unicast.Transport.TransportMessageReceivedEventArgs> TransportMessageReceived;
-        public void AbortHandlingCurrentMessage() { }
-        public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel) { }
-        public void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond) { }
-        public void Dispose() { }
-        public void Start(NServiceBus.Address address) { }
-        public void Stop() { }
+        public string Id { get; }
+        protected virtual void InnerStop() { }
+        protected virtual void SetContext(NServiceBus.Pipeline.Contexts.IncomingContext context) { }
+        public virtual void Start() { }
+        public virtual void Stop() { }
+        public override string ToString() { }
     }
 }
 namespace NServiceBus.UnitOfWork

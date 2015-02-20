@@ -32,6 +32,7 @@
             }
 
             context.Pipeline.Register<AuditBehavior.Registration>();
+            context.Pipeline.Register<AttachCausationHeadersBehavior.Registration>();
 
             var auditQueue = GetConfiguredAuditQueue(context);
 

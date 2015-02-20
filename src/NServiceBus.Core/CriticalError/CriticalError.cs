@@ -14,39 +14,40 @@ namespace NServiceBus
     public class CriticalError
     {
         Action<string, Exception> onCriticalErrorAction;
-        Configure configure;
-
+        readonly IBuilder builder;
+      
         /// <summary>
         /// Creates an instance of <see cref="CriticalError"/>
         /// </summary>
         /// <param name="onCriticalErrorAction">The action to execute when a critical error is triggered.</param>
-        /// <param name="configure">The <see cref="Configure"/> instance.</param>
-        public CriticalError(Action<string, Exception> onCriticalErrorAction, Configure configure)
+        /// <param name="builder">The <see cref="IBuilder"/> instance.</param>
+        public CriticalError(Action<string, Exception> onCriticalErrorAction, IBuilder builder)
         {
-            if (configure == null)
+            if (builder == null)
             {
-                throw new ArgumentNullException("configure");
+                throw new ArgumentNullException("builder");
             }
+
             this.onCriticalErrorAction = onCriticalErrorAction;
-            this.configure = configure;
+            this.builder = builder;
         }
 
         void DefaultCriticalErrorHandling()
         {
-            var components = configure.Builder.Build<IConfigureComponents>();
+            var components = builder.Build<IConfigureComponents>();
             if (!components.HasComponent<IBus>())
             {
                 return;
             }
 
-            configure.Builder.Build<IStartableBus>()
+            builder.Build<IStartableBus>()
                 .Dispose();
         }
 
         /// <summary>
         /// Trigger the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration,Action{string,Exception})"/>.
         /// </summary>
-        public void Raise(string errorMessage, Exception exception)
+        public virtual void Raise(string errorMessage, Exception exception)
         {
             LogManager.GetLogger("NServiceBus").Fatal(errorMessage, exception);
 
