@@ -5,7 +5,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    class When_multiple_workers_retrieve_same_saga 
+    class When_multiple_workers_retrieve_same_saga
     {
         [Test]
         public void Persister_returns_different_instance_of_saga_data()
@@ -48,6 +48,23 @@
 
             persister.Save(record);
             var exception = Assert.Throws<Exception>(() => persister.Save(staleRecord));
+            Assert.IsTrue(exception.Message.StartsWith(string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved.", saga.Id)));
+        }
+
+        [Test]
+        public void Save_fails_when_data_changes_with_old_version_persisted_twice()
+        {
+            var saga = new TestSagaData { Id = Guid.NewGuid() };
+            var persister = InMemoryPersisterBuilder.Build<TestSaga>();
+            persister.Save(saga);
+
+            var returnedSaga1 = persister.Get<TestSagaData>(saga.Id);
+            persister.Save(returnedSaga1);
+
+            persister.Get<TestSagaData>("Id", saga.Id);
+
+            var exception = Assert.Throws<Exception>(() => persister.Save(returnedSaga1));
+
             Assert.IsTrue(exception.Message.StartsWith(string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved.", saga.Id)));
         }
 
