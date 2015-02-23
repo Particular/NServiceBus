@@ -110,6 +110,7 @@
   <ItemGroup>
     <Compile Include="Address\AddressTests.cs" />
     <Compile Include="API\APIApprovals.cs" />
+    <Compile Include="ApprovalTestConfig.cs" />
     <Compile Include="AssemblyLocation.cs" />
     <Compile Include="AssemblyScanner\AssemblyScannerTests.cs" />
     <Compile Include="AssemblyScanner\When_directory_with_no_reference_dlls_is_scanned.cs" />

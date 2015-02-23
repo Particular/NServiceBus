@@ -1931,6 +1931,7 @@ namespace NServiceBus.Transports
     }
     public class DequeueSettings
     {
+        public DequeueSettings(string queue, bool purgeOnStartup) { }
         public bool PurgeOnStartup { get; }
         public string QueueName { get; }
     }

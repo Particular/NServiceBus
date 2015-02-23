@@ -8,11 +8,9 @@
     using ApiApprover;
     using ApprovalTests;
     using ApprovalTests.Namers;
-    using ApprovalTests.Reporters;
     using Mono.Cecil;
     using NUnit.Framework;
 
-    [UseReporter(typeof(DiffReporter))]
     [TestFixture]
     public class APIApprovals
     {
