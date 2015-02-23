@@ -52,7 +52,7 @@
         }
 
         [Test]
-        public void Save_fails_when_data_changes_with_old_version_persisted_twice()
+        public void Save_fails_when_writing_same_data_twice()
         {
             var saga = new TestSagaData { Id = Guid.NewGuid() };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
@@ -60,8 +60,6 @@
 
             var returnedSaga1 = persister.Get<TestSagaData>(saga.Id);
             persister.Save(returnedSaga1);
-
-            persister.Get<TestSagaData>("Id", saga.Id);
 
             var exception = Assert.Throws<Exception>(() => persister.Save(returnedSaga1));
 
