@@ -74,7 +74,8 @@
 
                 public class TestSagaData : ContainSagaData
                 {
-                    public string SomeId { get; set; }
+                    [Unique]
+                    public virtual string SomeId { get; set; }
                 }
             }
 
@@ -100,8 +101,5 @@
         {
             public string SomeId { get; set; }
         }
-
-
     }
-
 }
