@@ -100,7 +100,7 @@ namespace NServiceBus
         {
             WireUpConfigSectionOverrides();
 
-            featureActivator = new FeatureActivator(Settings);
+            var featureActivator = new FeatureActivator(Settings);
 
             container.RegisterSingleton(featureActivator);
 
@@ -203,8 +203,6 @@ namespace NServiceBus
         }
 
         internal IConfigureComponents container;
-
-        FeatureActivator featureActivator;
 
         internal PipelineSettings pipeline;
 
