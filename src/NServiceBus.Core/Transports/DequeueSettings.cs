@@ -7,7 +7,12 @@
     /// </summary>
     public class DequeueSettings
     {
-        internal DequeueSettings(string queue, bool purgeOnStartup = false)
+        /// <summary>
+        /// Creates an instance of <see cref="DequeueSettings"/>.
+        /// </summary>
+        /// <param name="queue">Queue name.</param>
+        /// <param name="purgeOnStartup"><code>true</code> to purge <paramref name="queue"/> at startup.</param>
+        public DequeueSettings(string queue, bool purgeOnStartup)
         {
             if (string.IsNullOrEmpty(queue))
             {
