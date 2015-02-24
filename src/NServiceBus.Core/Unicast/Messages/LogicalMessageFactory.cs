@@ -87,8 +87,8 @@ namespace NServiceBus.Unicast.Messages
             {
                 throw new ArgumentNullException("headers");
             }
-
-            headers.Add(Headers.ControlMessageHeader, true.ToString());
+            
+            headers.Add(Headers.ControlMessageHeader, bool.TrueString);
 
             return new LogicalMessage(headers, this);
         }
@@ -100,7 +100,7 @@ namespace NServiceBus.Unicast.Messages
             {
                 return new Dictionary<string, string>();
             }
-            return existingHeaders.GetAndRemoveAll(message);
+            return existingHeaders.GetAndRemove(message);
         }
     }
 }

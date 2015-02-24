@@ -4,16 +4,30 @@
 
     class OutgoingHeaders
     {
-        readonly Dictionary<object, Dictionary<string, string>> headers = new Dictionary<object, Dictionary<string, string>>(); 
+        Dictionary<object, Dictionary<string, string>> headers;
 
         public void Add(object message, string header, string value)
         {
+            if (headers == null)
+            {
+                headers = new Dictionary<object, Dictionary<string, string>>
+                {
+                    {
+                        message, new Dictionary<string, string>
+                        {
+                            {header, value}
+                        }
+                    }
+                };
+                return;
+            }
+
             Dictionary<string, string> thisMessageHeaders;
             if (!headers.TryGetValue(message, out thisMessageHeaders))
             {
                 thisMessageHeaders = new Dictionary<string, string>();
-                headers[message] = thisMessageHeaders;
             }
+            
             thisMessageHeaders[header] = value;
         }
 
@@ -29,14 +43,20 @@
             return null;
         }
 
-        public Dictionary<string, string> GetAndRemoveAll(object message)
+        public Dictionary<string, string> GetAndRemove(object message)
         {
+            if (headers == null)
+            {
+                return new Dictionary<string, string>();
+            }
+
             Dictionary<string, string> thisMessageHeaders;
             if (headers.TryGetValue(message, out thisMessageHeaders))
             {
                 headers.Remove(message);
                 return thisMessageHeaders;
             }
+            
             return new Dictionary<string, string>();
         }
     }
