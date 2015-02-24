@@ -45,7 +45,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 
             foreach (var m in q.GetAllMessages())
             {
-                var subscriber = MsmqAddress.Parse(m.Label);
+                var subscriber = m.Label;
                 var messageTypeString = m.Body as string;
                 var messageType = new MessageType(messageTypeString); //this will parse both 2.6 and 3.0 type strings
 
@@ -56,7 +56,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 
         public IEnumerable<string> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
-            var result = new List<MsmqAddress>();
+            var result = new List<string>();
             var messagelist = messageTypes.ToList();
             lock (locker)
             {
@@ -66,39 +66,29 @@ namespace NServiceBus.Persistence.SubscriptionStorage
                     {
                         if (e.MessageType == m)
                         {
-                            if (!result.Contains(e.Subscriber))
+                            var loweredSubscriberAddress = e.Subscriber.ToLowerInvariant();
+                            if (!result.Contains(loweredSubscriberAddress))
                             {
-                                result.Add(e.Subscriber);
+                                result.Add(loweredSubscriberAddress);
+                                yield return e.Subscriber;
                             }
                         }
                     }
                 }
             }
-
-            return result.Select(x=>x.ToString());
-        }
-
-        /// <summary>
-        /// Checks if configuration is wrong - endpoint isn't transactional and
-        /// object isn't configured to handle own transactions.
-        /// </summary>
-        private bool ConfigurationIsWrong()
-        {
-            return (Transaction.Current == null && !DontUseExternalTransaction);
         }
 
         public void Subscribe(string address, IEnumerable<MessageType> messageTypes)
         {
             lock (locker)
             {
-                var msmqAddress = MsmqAddress.Parse(address);
                 var messagelist = messageTypes.ToList();
                 foreach (var messageType in messagelist)
                 {
                     var found = false;
                     foreach (var e in entries)
                     {
-                        if (e.MessageType == messageType && e.Subscriber == msmqAddress)
+                        if (e.MessageType == messageType && e.Subscriber == address)
                         {
                             found = true;
                             break;
@@ -107,16 +97,16 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 
                     if (!found)
                     {
-                        Add(msmqAddress, messageType);
+                        Add(address, messageType);
 
                         var entry = new Entry
                                     {
                                         MessageType = messageType,
-                                        Subscriber = msmqAddress
+                                        Subscriber = address
                                     };
                         entries.Add(entry);
 
-                        log.Debug("Subscriber " + address + " added for message " + messageType + ".");
+                        log.DebugFormat("Subscriber {0} added for message {1}.", address, messageType);
                     }
                 }
             }
@@ -126,15 +116,14 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         {
             lock (locker)
             {
-                var msmqAddress = MsmqAddress.Parse(address);
                 var messagelist = messageTypes.ToList();
                 foreach (var e in entries.ToArray())
                 {
                     foreach (var messageType in messagelist)
                     {
-                        if (e.MessageType == messageType && e.Subscriber == msmqAddress)
+                        if (e.MessageType == messageType && e.Subscriber == address)
                         {
-                            Remove(msmqAddress, messageType);
+                            Remove(address, messageType);
 
                             entries.Remove(e);
 
@@ -148,13 +137,13 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         /// <summary>
         /// Adds a message to the subscription store.
         /// </summary>
-        public void Add(MsmqAddress subscriber, MessageType messageType)
+        public void Add(string subscriber, MessageType messageType)
         {
             var toSend = new Message
                          {
                              Formatter = q.Formatter,
                              Recoverable = true, 
-                             Label = subscriber.ToString(), 
+                             Label = subscriber, 
                              Body = messageType.TypeName + ", Version=" + messageType.Version
                          };
 
@@ -166,7 +155,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         /// <summary>
         /// Removes a message from the subscription store.
         /// </summary>
-        public void Remove(MsmqAddress subscriber, MessageType messageType)
+        public void Remove(string subscriber, MessageType messageType)
         {
             var messageId = RemoveFromLookup(subscriber, messageType);
 
@@ -174,6 +163,15 @@ namespace NServiceBus.Persistence.SubscriptionStorage
                 return;
 
             q.ReceiveById(messageId, GetTransactionType());
+        }
+
+        /// <summary>
+        /// Checks if configuration is wrong - endpoint isn't transactional and
+        /// object isn't configured to handle own transactions.
+        /// </summary>
+        private bool ConfigurationIsWrong()
+        {
+            return (Transaction.Current == null && !DontUseExternalTransaction);
         }
 
         /// <summary>
@@ -217,7 +215,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         /// Adds a message to the lookup to find message from
         /// subscriber, to message type, to message id
         /// </summary>
-        void AddToLookup(MsmqAddress subscriber, MessageType typeName, string messageId)
+        void AddToLookup(string subscriber, MessageType typeName, string messageId)
         {
             lock (lookup)
             {
@@ -234,7 +232,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
             }
         }
 
-        string RemoveFromLookup(MsmqAddress subscriber, MessageType typeName)
+        string RemoveFromLookup(string subscriber, MessageType typeName)
         {
             string messageId = null;
             lock (lookup)
@@ -260,7 +258,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         /// <summary>
         /// lookup from subscriber, to message type, to message id
         /// </summary>
-        readonly Dictionary<MsmqAddress, Dictionary<MessageType, string>> lookup = new Dictionary<MsmqAddress, Dictionary<MessageType, string>>();
+        readonly Dictionary<string, Dictionary<MessageType, string>> lookup = new Dictionary<string, Dictionary<MessageType, string>>(StringComparer.OrdinalIgnoreCase);
 
         readonly List<Entry> entries = new List<Entry>();
         readonly object locker = new object();
