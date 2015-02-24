@@ -15,7 +15,7 @@ namespace NServiceBus.InMemory.SubscriptionStorage
         {
             foreach (var m in messageTypes)
             {
-                var dict = storage.GetOrAdd(m, type => new ConcurrentDictionary<string, object>());
+                var dict = storage.GetOrAdd(m, type => new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase));
 
                 dict.AddOrUpdate(address, addValueFactory, updateValueFactory);
             }
