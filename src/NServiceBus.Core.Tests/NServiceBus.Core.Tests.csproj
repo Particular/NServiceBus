@@ -108,7 +108,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Address\AddressTests.cs" />
     <Compile Include="API\APIApprovals.cs" />
     <Compile Include="ApprovalTestConfig.cs" />
     <Compile Include="AssemblyLocation.cs" />

@@ -17,6 +17,6 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
         /// <summary>
         /// Gets the subscription request message.
         /// </summary>
-        public Address Subscriber { get; set; }
+        public MsmqAddress Subscriber { get; set; }
     }
 }

@@ -66,14 +66,15 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Send(Address, object)"/>
+        /// <see cref="ISendOnlyBus.Send(string, object)"/>
         /// </summary>
         /// <param name="address"></param>
         /// <param name="message"></param>
         /// <returns></returns>
+        [ObsoleteEx(Replacement = "Send(string destination, object message)", RemoveInVersion = "7.0",TreatAsErrorFromVersion = "6.0")]
         public ICallback Send(Address address, object message)
         {
-            return busImpl.Send(address, message);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -89,15 +90,18 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(Address, Action{T})"/>
+        /// <see cref="ISendOnlyBus.Send{T}(string, Action{T})"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="address"></param>
         /// <param name="messageConstructor"></param>
         /// <returns></returns>
+        [ObsoleteEx(Replacement = "Send<T>(string destination, Action<T> messageConstructor)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        // ReSharper disable UnusedParameter.Global
         public ICallback Send<T>(Address address, Action<T> messageConstructor)
+        // ReSharper restore UnusedParameter.Global
         {
-            return busImpl.Send(address, messageConstructor);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -113,15 +117,18 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Send(Address, string, object)"/>
+        /// <see cref="ISendOnlyBus.Send(string, string, object)"/>
         /// </summary>
         /// <param name="address"></param>
         /// <param name="correlationId"></param>
         /// <param name="message"></param>
         /// <returns></returns>
+        [ObsoleteEx(Replacement = "Send<T>(string destination, string correlationId, object message)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        // ReSharper disable UnusedParameter.Global
         public ICallback Send(Address address, string correlationId, object message)
+        // ReSharper restore UnusedParameter.Global
         {
-            return busImpl.Send(address, correlationId, message);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -138,16 +145,19 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(Address, string, Action{T})"/>
+        /// <see cref="ISendOnlyBus.Send{T}(string, string, Action{T})"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="address"></param>
         /// <param name="correlationId"></param>
         /// <param name="messageConstructor"></param>
         /// <returns></returns>
+        [ObsoleteEx(Replacement = "Send<T>(string destination, string correlationId, Action<T> messageConstructor)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        // ReSharper disable UnusedParameter.Global
         public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
+        // ReSharper restore UnusedParameter.Global
         {
-            return busImpl.Send(address, correlationId, messageConstructor);
+            throw new NotImplementedException();
         }
 
         /// <summary>

@@ -9,7 +9,7 @@
     {
         public IAuditMessages MessageAuditer { get; set; }
 
-        public Address ForwardReceivedMessagesTo { get; set; }
+        public string ForwardReceivedMessagesTo { get; set; }
 
         public TimeSpan? TimeToBeReceivedOnForwardedMessages { get; set; }
 

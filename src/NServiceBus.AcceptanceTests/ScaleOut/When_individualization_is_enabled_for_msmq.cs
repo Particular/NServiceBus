@@ -43,7 +43,7 @@
 
                 public void Start()
                 {
-                    Context.Address = Configure.LocalAddress.ToString();
+                    Context.Address = Configure.LocalAddress;
                     Context.EndpointName = ReadOnlySettings.EndpointName();
                 }
 

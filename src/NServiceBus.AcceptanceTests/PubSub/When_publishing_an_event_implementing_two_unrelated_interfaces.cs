@@ -58,7 +58,7 @@
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
-                    if (s.SubscriberReturnAddress.Queue.Contains("Subscriber"))
+                    if (s.SubscriberReturnAddress.Contains("Subscriber"))
                     {
                         if (s.MessageType == typeof(IEventA).AssemblyQualifiedName)
                         {

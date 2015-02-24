@@ -69,7 +69,10 @@ namespace NServiceBus
         public void CustomConfigurationSource(NServiceBus.Config.ConfigurationSource.IConfigurationSource configurationSource) { }
         public void EndpointName(string name) { }
         public void OverrideLocalAddress(string queue) { }
+        [System.ObsoleteAttribute("Please use `OverridePublicReturnAddress(string address)` instead. Will be removed" +
+            " in version 7.0.0.", true)]
         public void OverridePublicReturnAddress(NServiceBus.Address address) { }
+        public void OverridePublicReturnAddress(string address) { }
         public void RegisterComponents(System.Action<NServiceBus.ObjectBuilder.IConfigureComponents> registration) { }
         public void ScanAssembliesInDirectory(string probeDirectory) { }
         public void TypesToScan(System.Collections.Generic.IEnumerable<System.Type> typesToScan) { }
@@ -113,7 +116,7 @@ namespace NServiceBus
     {
         public Configure(NServiceBus.Settings.SettingsHolder settings, NServiceBus.ObjectBuilder.Common.IContainer container, System.Collections.Generic.List<System.Action<NServiceBus.ObjectBuilder.IConfigureComponents>> registrations, NServiceBus.Pipeline.PipelineSettings pipeline) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
-        public NServiceBus.Address LocalAddress { get; }
+        public string LocalAddress { get; }
         public NServiceBus.Settings.SettingsHolder Settings { get; }
         public System.Collections.Generic.IList<System.Type> TypesToScan { get; }
     }
@@ -394,7 +397,7 @@ namespace NServiceBus
     {
         System.Collections.Generic.IDictionary<string, string> Headers { get; }
         string Id { get; }
-        NServiceBus.Address ReplyToAddress { get; }
+        string ReplyToAddress { get; }
     }
     public interface IMessageCreator
     {
@@ -432,13 +435,9 @@ namespace NServiceBus
         NServiceBus.ICallback Send(object message);
         NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor);
         NServiceBus.ICallback Send(string destination, object message);
-        NServiceBus.ICallback Send(NServiceBus.Address address, object message);
         NServiceBus.ICallback Send<T>(string destination, System.Action<T> messageConstructor);
-        NServiceBus.ICallback Send<T>(NServiceBus.Address address, System.Action<T> messageConstructor);
         NServiceBus.ICallback Send(string destination, string correlationId, object message);
-        NServiceBus.ICallback Send(NServiceBus.Address address, string correlationId, object message);
         NServiceBus.ICallback Send<T>(string destination, string correlationId, System.Action<T> messageConstructor);
-        NServiceBus.ICallback Send<T>(NServiceBus.Address address, string correlationId, System.Action<T> messageConstructor);
     }
     public interface ISpecifyMessageHandlerOrdering
     {
@@ -490,10 +489,25 @@ namespace NServiceBus
         public MessageProcessingAbortedException() { }
         protected MessageProcessingAbortedException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
     }
+    public class MsmqAddress : System.Runtime.Serialization.ISerializable
+    {
+        public static readonly NServiceBus.MsmqAddress Self;
+        public static readonly NServiceBus.MsmqAddress Undefined;
+        public MsmqAddress(string queueName, string machineName) { }
+        protected MsmqAddress(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
+        public string Machine { get; }
+        public string Queue { get; }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
+        public static NServiceBus.MsmqAddress Parse(string destination) { }
+        public NServiceBus.MsmqAddress SubScope(string qualifier) { }
+        public override string ToString() { }
+    }
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition
     {
         public MsmqTransport() { }
         protected internal override void Configure(NServiceBus.BusConfiguration config) { }
+        public override string GetSubScope(string address, string qualifier) { }
     }
     public class Order
     {
@@ -572,7 +586,7 @@ namespace NServiceBus
         public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static T GetConfigSection<T>(this NServiceBus.Settings.ReadOnlySettings settings)
             where T :  class, new () { }
-        public static NServiceBus.Address LocalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static string LocalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public class static SLAMonitoringConfig
     {
@@ -618,7 +632,7 @@ namespace NServiceBus
         public string Id { get; }
         public NServiceBus.MessageIntentEnum MessageIntent { get; set; }
         public bool Recoverable { get; set; }
-        public NServiceBus.Address ReplyToAddress { get; }
+        public string ReplyToAddress { get; }
         public System.TimeSpan TimeToBeReceived { get; set; }
     }
     public class static UseDataBusExtensions
@@ -717,7 +731,7 @@ namespace NServiceBus.Config
         [System.Configuration.ConfigurationPropertyAttribute("Type", IsRequired=false)]
         public string TypeFullName { get; set; }
         public int CompareTo(NServiceBus.Config.MessageEndpointMapping other) { }
-        public void Configure(System.Action<System.Type, NServiceBus.Address> mapTypeToEndpoint) { }
+        public void Configure(System.Action<System.Type, string> mapTypeToEndpoint) { }
     }
     public class MessageEndpointMappingCollection : System.Configuration.ConfigurationElementCollection
     {
@@ -923,12 +937,7 @@ namespace NServiceBus.Faults
         public int RetryAttempt { get; }
     }
     [System.ObsoleteAttribute(@"IManageMessageFailures is no longer an extension point. If you want full control over what happens when a message fails (including retries) please override the MoveFaultsToErrorQueue behavior. If you just want to get notified when messages are being moved please use BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e=>{}). Will be removed in version 7.0.0.", true)]
-    public interface IManageMessageFailures
-    {
-        void Init(NServiceBus.Address address);
-        void ProcessingAlwaysFailsForMessage(NServiceBus.TransportMessage message, System.Exception e);
-        void SerializationFailedForMessage(NServiceBus.TransportMessage message, System.Exception e);
-    }
+    public interface IManageMessageFailures { }
     public struct SecondLevelRetry
     {
         public SecondLevelRetry(System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
@@ -1709,7 +1718,7 @@ namespace NServiceBus.Satellites
     public interface ISatellite
     {
         bool Disabled { get; }
-        NServiceBus.Address InputAddress { get; }
+        string InputAddress { get; }
         bool Handle(NServiceBus.TransportMessage message);
         void Start();
         void Stop();
@@ -1905,14 +1914,17 @@ namespace NServiceBus.Timeout.Core
     {
         public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
         public TimeoutData() { }
-        public NServiceBus.Address Destination { get; set; }
+        public string Destination { get; set; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; set; }
         public string Id { get; set; }
         public string OwningTimeoutManager { get; set; }
         public System.Guid SagaId { get; set; }
         public byte[] State { get; set; }
         public System.DateTime Time { get; set; }
+        [System.ObsoleteAttribute("Please use `TimeoutData.ToSendOptions(string)` instead. Will be removed in versio" +
+            "n 7.0.0.", true)]
         public NServiceBus.Unicast.SendOptions ToSendOptions(NServiceBus.Address replyToAddress) { }
+        public NServiceBus.Unicast.SendOptions ToSendOptions(string replyToAddress) { }
         public override string ToString() { }
         public NServiceBus.TransportMessage ToTransportMessage() { }
     }
@@ -1941,7 +1953,7 @@ namespace NServiceBus.Transports
     }
     public interface ICreateQueues
     {
-        void CreateQueueIfNecessary(NServiceBus.Address address, string account);
+        void CreateQueueIfNecessary(string address, string account);
     }
     public interface IDeferMessages
     {
@@ -1956,8 +1968,8 @@ namespace NServiceBus.Transports
     }
     public interface IManageSubscriptions
     {
-        void Subscribe(System.Type eventType, NServiceBus.Address publisherAddress);
-        void Unsubscribe(System.Type eventType, NServiceBus.Address publisherAddress);
+        void Subscribe(System.Type eventType, string publisherAddress);
+        void Unsubscribe(System.Type eventType, string publisherAddress);
     }
     public interface IPublishMessages
     {
@@ -1997,6 +2009,7 @@ namespace NServiceBus.Transports
         public bool HasSupportForMultiQueueNativeTransactions { get; set; }
         public bool RequireOutboxConsent { get; set; }
         protected internal void Configure(NServiceBus.BusConfiguration config) { }
+        public abstract string GetSubScope(string address, string qualifier);
     }
 }
 namespace NServiceBus.Transports.Msmq.Config
@@ -2021,7 +2034,10 @@ namespace NServiceBus.Transports.Msmq
     }
     public class MsmqDequeueStrategy : NServiceBus.Transports.IDequeueMessages, System.IDisposable, System.IObservable<NServiceBus.Transports.MessageAvailable>
     {
+        [System.ObsoleteAttribute("Please use `MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional" +
+            ",MsmqAddress errorQueueAddress)` instead. Will be removed in version 7.0.0.", true)]
         public MsmqDequeueStrategy(NServiceBus.CriticalError criticalError, bool isTransactional, NServiceBus.Address errorQueueAddress) { }
+        public MsmqDequeueStrategy(NServiceBus.CriticalError criticalError, bool isTransactional, NServiceBus.MsmqAddress errorQueueAddress) { }
         public void Dispose() { }
         public void Init(NServiceBus.Transports.DequeueSettings settings) { }
         public void Start() { }
@@ -2076,7 +2092,7 @@ namespace NServiceBus.Unicast
         protected DeliveryOptions() { }
         public bool EnforceMessagingBestPractices { get; set; }
         public bool EnlistInReceiveTransaction { get; set; }
-        public NServiceBus.Address ReplyToAddress { get; set; }
+        public string ReplyToAddress { get; set; }
     }
     [System.ObsoleteAttribute("Not a public API. Please use `MessageHandlerRegistry` instead. Will be removed in" +
         " version 7.0.0.", true)]
@@ -2119,16 +2135,20 @@ namespace NServiceBus.Unicast
     }
     public class ReplyOptions : NServiceBus.Unicast.SendOptions
     {
+        [System.ObsoleteAttribute("Please use `ReplyOptions(string destination, string correlationId)` instead. Will" +
+            " be removed in version 7.0.0.", true)]
         public ReplyOptions(NServiceBus.Address destination, string correlationId) { }
+        public ReplyOptions(string destination, string correlationId) { }
     }
     public class SendOptions : NServiceBus.Unicast.DeliveryOptions
     {
+        [System.ObsoleteAttribute("Please use `SendOptions(string)` instead. Will be removed in version 7.0.0.", true)]
         public SendOptions(NServiceBus.Address destination) { }
         public SendOptions(string destination) { }
         public string CorrelationId { get; set; }
         public System.Nullable<System.TimeSpan> DelayDeliveryWith { get; set; }
         public System.Nullable<System.DateTime> DeliverAt { get; set; }
-        public NServiceBus.Address Destination { get; set; }
+        public string Destination { get; set; }
         public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }
     }
     public class StaticOutgoingMessageHeaders
@@ -2163,12 +2183,20 @@ namespace NServiceBus.Unicast
         public NServiceBus.ICallback Send(object message) { }
         public NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor) { }
         public NServiceBus.ICallback Send(string destination, object message) { }
+        [System.ObsoleteAttribute("Please use `Send(string destination, object message)` instead. Will be removed in" +
+            " version 7.0.0.", true)]
         public NServiceBus.ICallback Send(NServiceBus.Address address, object message) { }
         public NServiceBus.ICallback Send<T>(string destination, System.Action<T> messageConstructor) { }
+        [System.ObsoleteAttribute("Please use `Send<T>(string destination, Action<T> messageConstructor)` instead. W" +
+            "ill be removed in version 7.0.0.", true)]
         public NServiceBus.ICallback Send<T>(NServiceBus.Address address, System.Action<T> messageConstructor) { }
         public NServiceBus.ICallback Send(string destination, string correlationId, object message) { }
+        [System.ObsoleteAttribute("Please use `Send<T>(string destination, string correlationId, object message)` in" +
+            "stead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.ICallback Send(NServiceBus.Address address, string correlationId, object message) { }
         public NServiceBus.ICallback Send<T>(string destination, string correlationId, System.Action<T> messageConstructor) { }
+        [System.ObsoleteAttribute("Please use `Send<T>(string destination, string correlationId, Action<T> messageCo" +
+            "nstructor)` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.ICallback Send<T>(NServiceBus.Address address, string correlationId, System.Action<T> messageConstructor) { }
         public NServiceBus.ICallback SendLocal(object message) { }
         public NServiceBus.ICallback SendLocal<T>(System.Action<T> messageConstructor) { }
@@ -2214,15 +2242,18 @@ namespace NServiceBus.Unicast.Queuing
 {
     public interface IWantQueueCreated
     {
-        NServiceBus.Address Address { get; }
+        string Address { get; }
         bool ShouldCreateQueue();
     }
     public class QueueNotFoundException : System.Exception
     {
         public QueueNotFoundException() { }
+        [System.ObsoleteAttribute("Please use `QueueNotFoundException(string queue, string message, Exception inner)" +
+            "` instead. Will be removed in version 7.0.0.", true)]
         public QueueNotFoundException(NServiceBus.Address queue, string message, System.Exception inner) { }
+        public QueueNotFoundException(string queue, string message, System.Exception inner) { }
         protected QueueNotFoundException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
-        public NServiceBus.Address Queue { get; set; }
+        public string Queue { get; set; }
         public override void GetObjectData(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
     }
 }
@@ -2232,19 +2263,19 @@ namespace NServiceBus.Unicast.Routing
     {
         public StaticMessageRouter(System.Collections.Generic.IEnumerable<System.Type> knownMessages) { }
         public bool SubscribeToPlainMessages { get; set; }
-        public System.Collections.Generic.List<NServiceBus.Address> GetDestinationFor(System.Type messageType) { }
-        public void RegisterEventRoute(System.Type eventType, NServiceBus.Address endpointAddress) { }
-        public void RegisterMessageRoute(System.Type messageType, NServiceBus.Address endpointAddress) { }
+        public System.Collections.Generic.List<string> GetDestinationFor(System.Type messageType) { }
+        public void RegisterEventRoute(System.Type eventType, string endpointAddress) { }
+        public void RegisterMessageRoute(System.Type messageType, string endpointAddress) { }
     }
 }
 namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
 {
     public interface ISubscriptionStorage
     {
-        System.Collections.Generic.IEnumerable<NServiceBus.Address> GetSubscriberAddressesForMessage(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes);
+        System.Collections.Generic.IEnumerable<string> GetSubscriberAddressesForMessage(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes);
         void Init();
-        void Subscribe(NServiceBus.Address client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes);
-        void Unsubscribe(NServiceBus.Address client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes);
+        void Subscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes);
+        void Unsubscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes);
     }
 }
 namespace NServiceBus.Unicast.Subscriptions
@@ -2266,7 +2297,7 @@ namespace NServiceBus.Unicast.Subscriptions
     {
         public SubscriptionEventArgs() { }
         public string MessageType { get; set; }
-        public NServiceBus.Address SubscriberReturnAddress { get; set; }
+        public string SubscriberReturnAddress { get; set; }
     }
 }
 namespace NServiceBus.Unicast.Transport

@@ -24,15 +24,15 @@ namespace NServiceBus.Transports.Msmq
         ///</summary>
         ///<param name="address">Queue path to create</param>
         ///<param name="account">The account to be given permissions to the queue</param>
-        public void CreateQueueIfNecessary(Address address, string account)
+        public void CreateQueueIfNecessary(string address, string account)
         {
             if (address == null)
             {
                 return;
             }
-
-            var queuePath = GetFullPathWithoutPrefix(address);
-            var isRemote = address.Machine.ToLower() != RuntimeEnvironment.MachineName.ToLower();
+            var msmqAddress = MsmqAddress.Parse(address);
+            var queuePath = GetFullPathWithoutPrefix(msmqAddress);
+            var isRemote = msmqAddress.Machine.ToLower() != RuntimeEnvironment.MachineName.ToLower();
             
             if (isRemote)
             {
@@ -74,7 +74,7 @@ namespace NServiceBus.Transports.Msmq
         /// Returns the full path without Format or direct os
         /// from an address.
         /// </summary>
-        public static string GetFullPathWithoutPrefix(Address address)
+        public static string GetFullPathWithoutPrefix(MsmqAddress address)
         {
             return GetFullPathWithoutPrefix(address.Queue, address.Machine);
         }

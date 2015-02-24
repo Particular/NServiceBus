@@ -86,19 +86,19 @@
 
         public class HardCodedPersistenceImpl : ISubscriptionStorage
         {
-            public void Subscribe(Address client, IEnumerable<MessageType> messageTypes)
+            public void Subscribe(string client, IEnumerable<MessageType> messageTypes)
             {
             }
 
-            public void Unsubscribe(Address client, IEnumerable<MessageType> messageTypes)
+            public void Unsubscribe(string client, IEnumerable<MessageType> messageTypes)
             {
             }
 
-            public IEnumerable<Address> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
+            public IEnumerable<string> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
             {
                 return new[]
                 {
-                    Address.Parse("publishingfromsendonly.subscriber")
+                    "publishingfromsendonly.subscriber"
                 };
             }
 

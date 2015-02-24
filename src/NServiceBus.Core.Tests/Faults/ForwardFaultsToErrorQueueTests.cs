@@ -32,7 +32,7 @@ namespace NServiceBus.Core.Tests
                 throw new Exception("testex");
             });
 
-            Assert.AreEqual(Address.Parse(errorQueueAddress), sender.OptionsUsed.Destination);
+            Assert.AreEqual(errorQueueAddress, sender.OptionsUsed.Destination);
 
             Assert.AreEqual("someid", sender.MessageSent.Id);
         }

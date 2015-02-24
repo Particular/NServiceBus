@@ -16,7 +16,7 @@
             var subscriptionManager = new SubscriptionManager("subscriber", sender);
 
 
-            subscriptionManager.Subscribe(typeof(TestEvent),Address.Parse("publish") );
+            subscriptionManager.Subscribe(typeof(TestEvent),"publish");
 
             sender.MessageAvailable.WaitOne();
             Assert.AreEqual(typeof(TestEvent).AssemblyQualifiedName,sender.MessageSent.Headers[Headers.SubscriptionMessageType] );

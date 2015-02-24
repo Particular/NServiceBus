@@ -78,6 +78,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MsmqAddress.cs" />
     <Compile Include="App_Packages\Particular.Licensing\License.cs" />
     <Compile Include="App_Packages\Particular.Licensing\LicenseDeserializer.cs" />
     <Compile Include="App_Packages\Particular.Licensing\LicenseExpirationChecker.cs" />

@@ -31,7 +31,7 @@
 
             Assert.AreEqual("someid", deferrer.DeferredMessage.Id);
             Assert.AreEqual(delay, deferrer.Delay);
-            Assert.AreEqual(Address.Parse("test-address-for-this-pipeline"), deferrer.MessageRoutedTo);
+            Assert.AreEqual("test-address-for-this-pipeline", deferrer.MessageRoutedTo);
 
             Assert.AreEqual("testex", slrNotification.Exception.Message);
         }
@@ -145,7 +145,7 @@
 
     class FakeMessageDeferrer : IDeferMessages
     {
-        public Address MessageRoutedTo { get; private set; }
+        public string MessageRoutedTo { get; private set; }
 
         public TransportMessage DeferredMessage { get; private set; }
         public TimeSpan Delay { get; private set; }

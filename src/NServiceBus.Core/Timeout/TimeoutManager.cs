@@ -2,6 +2,7 @@
 {
     using System;
     using Config;
+    using NServiceBus.Transports;
     using Settings;
     using Timeout.Core;
     using Timeout.Hosting.Windows;
@@ -35,9 +36,10 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            var selectedTransportDefinition = context.Settings.Get<TransportDefinition>();
             var localAddress = context.Settings.LocalAddress();
-            var dispatcherAddress = localAddress.SubScope("TimeoutsDispatcher");
-            var inputAddress = localAddress.SubScope("Timeouts");
+            var dispatcherAddress = selectedTransportDefinition.GetSubScope(localAddress,"TimeoutsDispatcher");
+            var inputAddress = selectedTransportDefinition.GetSubScope(localAddress, "Timeouts");
 
             context.Container.ConfigureComponent<TimeoutMessageProcessor>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(t => t.Disabled, false)

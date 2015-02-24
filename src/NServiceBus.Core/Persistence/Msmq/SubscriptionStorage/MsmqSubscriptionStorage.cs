@@ -2,6 +2,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Messaging;
     using System.Transactions;
     using Logging;
@@ -17,7 +18,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
     {
         public bool TransactionsEnabled { get; set; }
 
-        void ISubscriptionStorage.Init()
+        public void Init()
         {
             var path = MsmqUtilities.GetFullPath(Queue);
 
@@ -44,7 +45,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 
             foreach (var m in q.GetAllMessages())
             {
-                var subscriber = Address.Parse(m.Label);
+                var subscriber = MsmqAddress.Parse(m.Label);
                 var messageTypeString = m.Body as string;
                 var messageType = new MessageType(messageTypeString); //this will parse both 2.6 and 3.0 type strings
 
@@ -53,18 +54,28 @@ namespace NServiceBus.Persistence.SubscriptionStorage
             }
         }
 
-        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
+        public IEnumerable<string> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
-            var result = new List<Address>();
-
+            var result = new List<MsmqAddress>();
+            var messagelist = messageTypes.ToList();
             lock (locker)
+            {
                 foreach (var e in entries)
-                    foreach (var m in messageTypes)
+                {
+                    foreach (var m in messagelist)
+                    {
                         if (e.MessageType == m)
+                        {
                             if (!result.Contains(e.Subscriber))
+                            {
                                 result.Add(e.Subscriber);
+                            }
+                        }
+                    }
+                }
+            }
 
-            return result;
+            return result.Select(x=>x.ToString());
         }
 
         /// <summary>
@@ -76,25 +87,34 @@ namespace NServiceBus.Persistence.SubscriptionStorage
             return (Transaction.Current == null && !DontUseExternalTransaction);
         }
 
-        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<MessageType> messageTypes)
+        public void Subscribe(string address, IEnumerable<MessageType> messageTypes)
         {
             lock (locker)
             {
-                foreach (var messageType in messageTypes)
+                var msmqAddress = MsmqAddress.Parse(address);
+                var messagelist = messageTypes.ToList();
+                foreach (var messageType in messagelist)
                 {
                     var found = false;
                     foreach (var e in entries)
-                        if (e.MessageType == messageType && e.Subscriber == address)
+                    {
+                        if (e.MessageType == messageType && e.Subscriber == msmqAddress)
                         {
                             found = true;
                             break;
                         }
+                    }
 
                     if (!found)
                     {
-                        Add(address, messageType);
+                        Add(msmqAddress, messageType);
 
-                        entries.Add(new Entry { MessageType = messageType, Subscriber = address });
+                        var entry = new Entry
+                                    {
+                                        MessageType = messageType,
+                                        Subscriber = msmqAddress
+                                    };
+                        entries.Add(entry);
 
                         log.Debug("Subscriber " + address + " added for message " + messageType + ".");
                     }
@@ -102,29 +122,41 @@ namespace NServiceBus.Persistence.SubscriptionStorage
             }
         }
 
-        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<MessageType> messageTypes)
+        public void Unsubscribe(string address, IEnumerable<MessageType> messageTypes)
         {
             lock (locker)
             {
+                var msmqAddress = MsmqAddress.Parse(address);
+                var messagelist = messageTypes.ToList();
                 foreach (var e in entries.ToArray())
-                    foreach (var messageType in messageTypes)
-                        if (e.MessageType == messageType && e.Subscriber == address)
+                {
+                    foreach (var messageType in messagelist)
+                    {
+                        if (e.MessageType == messageType && e.Subscriber == msmqAddress)
                         {
-                            Remove(address, messageType);
+                            Remove(msmqAddress, messageType);
 
                             entries.Remove(e);
 
                             log.Debug("Subscriber " + address + " removed for message " + messageType + ".");
                         }
+                    }
+                }
             }
         }
 
         /// <summary>
         /// Adds a message to the subscription store.
         /// </summary>
-        public void Add(Address subscriber, MessageType messageType)
+        public void Add(MsmqAddress subscriber, MessageType messageType)
         {
-            var toSend = new Message { Formatter = q.Formatter, Recoverable = true, Label = subscriber.ToString(), Body = messageType.TypeName + ", Version=" + messageType.Version };
+            var toSend = new Message
+                         {
+                             Formatter = q.Formatter,
+                             Recoverable = true, 
+                             Label = subscriber.ToString(), 
+                             Body = messageType.TypeName + ", Version=" + messageType.Version
+                         };
 
             q.Send(toSend, GetTransactionType());
 
@@ -134,7 +166,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         /// <summary>
         /// Removes a message from the subscription store.
         /// </summary>
-        public void Remove(Address subscriber, MessageType messageType)
+        public void Remove(MsmqAddress subscriber, MessageType messageType)
         {
             var messageId = RemoveFromLookup(subscriber, messageType);
 
@@ -179,17 +211,13 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         /// Sets the address of the queue where subscription messages will be stored.
         /// For a local queue, just use its name - msmq specific info isn't needed.
         /// </summary>
-        public Address Queue
-        {
-            get;
-            set;
-        }
+        public MsmqAddress Queue{get;set;}
 
         /// <summary>
         /// Adds a message to the lookup to find message from
         /// subscriber, to message type, to message id
         /// </summary>
-        private void AddToLookup(Address subscriber, MessageType typeName, string messageId)
+        void AddToLookup(MsmqAddress subscriber, MessageType typeName, string messageId)
         {
             lock (lookup)
             {
@@ -206,7 +234,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
             }
         }
 
-        string RemoveFromLookup(Address subscriber, MessageType typeName)
+        string RemoveFromLookup(MsmqAddress subscriber, MessageType typeName)
         {
             string messageId = null;
             lock (lookup)
@@ -232,7 +260,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         /// <summary>
         /// lookup from subscriber, to message type, to message id
         /// </summary>
-        readonly Dictionary<Address, Dictionary<MessageType, string>> lookup = new Dictionary<Address, Dictionary<MessageType, string>>();
+        readonly Dictionary<MsmqAddress, Dictionary<MessageType, string>> lookup = new Dictionary<MsmqAddress, Dictionary<MessageType, string>>();
 
         readonly List<Entry> entries = new List<Entry>();
         readonly object locker = new object();

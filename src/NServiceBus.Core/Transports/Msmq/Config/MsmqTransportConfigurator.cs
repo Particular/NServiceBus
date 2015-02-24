@@ -82,7 +82,7 @@
                 //}
 
 
-                context.Container.ConfigureComponent(b => new MsmqDequeueStrategy(b.Build<CriticalError>(), endpointIsTransactional, Address.Parse(options.ErrorQueue)),
+                context.Container.ConfigureComponent(b => new MsmqDequeueStrategy(b.Build<CriticalError>(), endpointIsTransactional, MsmqAddress.Parse(options.ErrorQueue)),
                     DependencyLifecycle.InstancePerCall);
             }
 

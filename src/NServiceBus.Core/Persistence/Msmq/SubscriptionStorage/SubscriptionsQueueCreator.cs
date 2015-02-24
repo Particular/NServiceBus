@@ -4,9 +4,9 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 
     class SubscriptionsQueueCreator : IWantQueueCreated
     {
-        public Address StorageQueue { get; set; }
+        public string StorageQueue { get; set; }
 
-        public Address Address
+        public string Address
         {
             get { return StorageQueue; }
         }

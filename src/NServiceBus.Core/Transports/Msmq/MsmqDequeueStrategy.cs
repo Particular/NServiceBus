@@ -18,7 +18,20 @@ namespace NServiceBus.Transports.Msmq
         /// <param name="criticalError">CriticalError</param>
         /// <param name="isTransactional"></param>
         /// <param name="errorQueueAddress"></param>
+        [ObsoleteEx(Replacement = "MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional,MsmqAddress errorQueueAddress)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        // ReSharper disable UnusedParameter.Local
         public MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional,Address errorQueueAddress)
+        // ReSharper restore UnusedParameter.Local
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        ///     Creates an instance of <see cref="MsmqDequeueStrategy" />.
+        /// </summary>
+        /// <param name="criticalError">CriticalError</param>
+        /// <param name="isTransactional"></param>
+        /// <param name="errorQueueAddress"></param>
+        public MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional,MsmqAddress errorQueueAddress)
         {
             this.criticalError = criticalError;
             this.isTransactional = isTransactional;
@@ -30,9 +43,10 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         public void Init(DequeueSettings settings)
         {
-            publicReceiveAddress = Address.Parse(settings.QueueName);
+            publicReceiveAddress = MsmqAddress.Parse(settings.QueueName);
 
-            queue = new MessageQueue(MsmqUtilities.GetFullPath(settings.QueueName), false, true, QueueAccessMode.Receive);
+            var fullPath = MsmqUtilities.GetFullPath(publicReceiveAddress.Queue);
+            queue = new MessageQueue(fullPath, false, true, QueueAccessMode.Receive);
 
             if (isTransactional && !QueueIsTransactional())
             {
@@ -152,7 +166,7 @@ namespace NServiceBus.Transports.Msmq
 
         CriticalError criticalError;
         readonly bool isTransactional;
-        readonly Address errorQueueAddress;
+        readonly MsmqAddress errorQueueAddress;
 
         [SkipWeaving]
         CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
@@ -160,7 +174,7 @@ namespace NServiceBus.Transports.Msmq
         ManualResetEvent stopResetEvent = new ManualResetEvent(true);
         AutoResetEvent peekResetEvent = new AutoResetEvent(false);
 
-        Address publicReceiveAddress;
+        MsmqAddress publicReceiveAddress;
         
         Observable<MessageAvailable> observable = new Observable<MessageAvailable>();
 

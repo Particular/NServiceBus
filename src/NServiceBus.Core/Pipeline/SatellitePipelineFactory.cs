@@ -29,7 +29,7 @@
                 {
                     var pipelineExecutor = BuildPipeline(builder);
 
-                    var dequeueSettings = new DequeueSettings(satellite.InputAddress.Queue, 
+                    var dequeueSettings = new DequeueSettings(satellite.InputAddress, 
                         settings.GetOrDefault<bool>("Transport.PurgeOnStartup"));
 
 

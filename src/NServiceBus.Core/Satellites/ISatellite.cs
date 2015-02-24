@@ -15,7 +15,7 @@ namespace NServiceBus.Satellites
         /// <summary>
         /// The <see cref="Address"/> for this <see cref="ISatellite"/> to use when receiving messages.
         /// </summary>
-        Address InputAddress { get; }
+        string InputAddress { get; }
 
         /// <summary>
         /// Set to <code>true</code> to disable this <see cref="ISatellite"/>.

@@ -40,7 +40,7 @@ namespace ReturnToSourceQueue
                 script = false;
             }
 
-            var errorQueueAddress = Address.Parse(inputQueue);
+            var errorQueueAddress = MsmqAddress.Parse(inputQueue);
 
             if(!IsLocalIpAddress(errorQueueAddress.Machine))
             {

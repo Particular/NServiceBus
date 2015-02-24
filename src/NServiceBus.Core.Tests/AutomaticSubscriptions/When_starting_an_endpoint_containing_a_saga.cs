@@ -12,7 +12,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
         [Test]
         public void Should_autoSubscribe_the_saga_messageHandler_by_default()
         {
-            var eventEndpointAddress = new Address("PublisherAddress", "localhost");
+            var eventEndpointAddress = "PublisherAddress@localhost";
 
             RegisterMessageType<EventMessage>(eventEndpointAddress);
             RegisterMessageHandlerType<MySaga>();
@@ -23,7 +23,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
         [Test]
         public void Should_not_autoSubscribe_the_saga_messageHandler_on_demand()
         {
-            var eventEndpointAddress = new Address("PublisherAddress", "localhost");
+            var eventEndpointAddress = "PublisherAddress@localhost";
 
             RegisterMessageType<EventMessage>(eventEndpointAddress);
             RegisterMessageHandlerType<MySaga>();

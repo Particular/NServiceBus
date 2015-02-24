@@ -87,7 +87,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns the queue name of this endpoint.
         /// </summary>
-        public Address LocalAddress
+        public string LocalAddress
         {
             get
             {
@@ -141,7 +141,7 @@ namespace NServiceBus
             // ReSharper restore HeapView.SlowDelegateCreation
         }
 
-        internal Address PublicReturnAddress
+        internal string PublicReturnAddress
         {
             get
             {
@@ -150,7 +150,7 @@ namespace NServiceBus
                     return LocalAddress;
                 }
 
-                return Settings.Get<Address>("PublicReturnAddress");
+                return Settings.Get<string>("PublicReturnAddress");
             }
         }
 
@@ -207,6 +207,6 @@ namespace NServiceBus
         internal PipelineSettings pipeline;
 
         //HACK: Set by the tests
-        internal Address localAddress;
+        internal string localAddress;
     }
 }

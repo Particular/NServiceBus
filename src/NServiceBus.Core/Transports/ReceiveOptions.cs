@@ -9,39 +9,26 @@ namespace NServiceBus.Transports
     /// </summary>
     public class ReceiveOptions
     {
-        readonly string errorQueue;
-        readonly TransactionSettings transactions;
-        readonly ReadOnlySettings settings;
-
         internal ReceiveOptions(ReadOnlySettings settings)
         {
-            this.settings = settings;
-            errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(Settings).ToString();
-            transactions = new TransactionSettings(Settings);
+            Settings = settings;
+            ErrorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(Settings);
+            Transactions = new TransactionSettings(Settings);
         }
 
         /// <summary>
         /// Gets the error queue name.
         /// </summary>
-        public string ErrorQueue
-        {
-            get { return errorQueue; }
-        }
+        public string ErrorQueue { get; private set; }
 
         /// <summary>
         /// Gets the trnsaction options.
         /// </summary>
-        public TransactionSettings Transactions
-        {
-            get { return transactions; }
-        }
+        public TransactionSettings Transactions { get; private set; }
 
         /// <summary>
         /// Gets the settings.
         /// </summary>
-        public ReadOnlySettings Settings
-        {
-            get { return settings; }
-        }
+        public ReadOnlySettings Settings { get; private set; }
     }
 }

@@ -55,12 +55,12 @@
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) =>
                 {
-                    if (args.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                    if (args.SubscriberReturnAddress.Contains("Subscriber1"))
                     {
                         context.Subscriber1Subscribed = true;
                     }
-
-                    if (args.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
+                    
+                    if (args.SubscriberReturnAddress.Contains("Subscriber2"))
                     {
                         context.Subscriber2Subscribed = true;
                     }

@@ -35,5 +35,13 @@ namespace NServiceBus
             config.Settings.EnableFeatureByDefault<StorageDrivenPublishing>();
             config.Settings.EnableFeatureByDefault<TimeoutManager>();
         }
+
+        /// <summary>
+        /// <see cref="TransportDefinition.GetSubScope"/>
+        /// </summary>
+        public override string GetSubScope(string address, string qualifier)
+        {
+            return MsmqAddress.Parse(address).SubScope(qualifier).ToString();
+        }
     }
 }

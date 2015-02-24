@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using Config;
+    using NServiceBus.Transports;
     using Timeout;
 
     /// <summary>
@@ -22,16 +23,16 @@
                 .ConfigureProperty(p => p.TimeoutManagerAddress, GetTimeoutManagerAddress(context));
         }
 
-        static Address GetTimeoutManagerAddress(FeatureConfigurationContext context)
+        static string GetTimeoutManagerAddress(FeatureConfigurationContext context)
         {
             var unicastConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
 
             if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress))
             {
-                return Address.Parse(unicastConfig.TimeoutManagerAddress);
+                return unicastConfig.TimeoutManagerAddress;
             }
-
-            return context.Settings.Get<Address>("MasterNode.Address").SubScope("Timeouts");
+            var selectedTransportDefinition = context.Settings.Get<TransportDefinition>();
+            return selectedTransportDefinition.GetSubScope(context.Settings.Get<string>("MasterNode.Address"), "Timeouts");
         }
     }
 }

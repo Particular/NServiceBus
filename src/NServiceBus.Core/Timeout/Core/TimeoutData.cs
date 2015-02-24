@@ -17,7 +17,7 @@ namespace NServiceBus.Timeout.Core
         /// <summary>
         /// The address of the client who requested the timeout.
         /// </summary>
-        public Address Destination { get; set; }
+        public string Destination { get; set; }
 
         /// <summary>
         /// The saga ID.
@@ -84,14 +84,25 @@ namespace NServiceBus.Timeout.Core
         /// Transforms the timeout to send options.
         /// </summary>
         /// <param name="replyToAddress">The reply address to use for outgoing messages</param>
+        [ObsoleteEx(Replacement = "TimeoutData.ToSendOptions(string)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        // ReSharper disable once UnusedParameter.Global
         public SendOptions ToSendOptions(Address replyToAddress)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Transforms the timeout to send options.
+        /// </summary>
+        /// <param name="replyToAddress">The reply address to use for outgoing messages</param>
+        public SendOptions ToSendOptions(string replyToAddress)
         {
             if (Headers != null)
             {
                 string originalReplyToAddressValue;
                 if (Headers.TryGetValue(OriginalReplyToAddress, out originalReplyToAddressValue))
                 {
-                    replyToAddress = Address.Parse(originalReplyToAddressValue);
+                    replyToAddress = originalReplyToAddressValue;
                     Headers.Remove(OriginalReplyToAddress);
                 }
             }
