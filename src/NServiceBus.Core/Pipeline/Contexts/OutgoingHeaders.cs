@@ -26,6 +26,7 @@
             if (!headers.TryGetValue(message, out thisMessageHeaders))
             {
                 thisMessageHeaders = new Dictionary<string, string>();
+                headers[message] = thisMessageHeaders;
             }
             
             thisMessageHeaders[header] = value;
