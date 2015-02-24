@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace NServiceBus.Unicast
 {
@@ -171,11 +170,6 @@ namespace NServiceBus.Unicast
         {
             throw new NotImplementedException();
         }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.OutgoingHeaders"/>
-        /// </summary>
-        public IDictionary<string, string> OutgoingHeaders { get { return busImpl.OutgoingHeaders; } }
 
         /// <summary>
         /// <see cref="IBus.Subscribe"/>

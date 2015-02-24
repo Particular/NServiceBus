@@ -53,6 +53,14 @@ namespace NServiceBus
         public PipelineSettings Pipeline { get; private set; }
 
         /// <summary>
+        ///     Endpoint wide outgoing headers to be added to all sent messages.
+        /// </summary>
+        public Dictionary<string, string> OutgoingHeaders
+        {
+            get { return outgoingHeaders = outgoingHeaders ?? new Dictionary<string, string>(); }
+        }
+
+        /// <summary>
         ///     Used to configure components in the container.
         /// </summary>
         public void RegisterComponents(Action<IConfigureComponents> registration)
@@ -241,7 +249,7 @@ namespace NServiceBus
 
             Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
 
-            return new Configure(Settings, container, registrations, Pipeline);
+            return new Configure(Settings, container, registrations, Pipeline, outgoingHeaders);
         }
 
         IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
@@ -266,5 +274,6 @@ namespace NServiceBus
         string endpointVersion;
         IList<Type> scannedTypes;
         string publicReturnAddress;
+        Dictionary<string, string> outgoingHeaders;
     }
 }

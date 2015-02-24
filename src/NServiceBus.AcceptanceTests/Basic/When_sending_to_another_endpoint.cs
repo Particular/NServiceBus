@@ -19,7 +19,6 @@
             Scenario.Define(context)
                     .WithEndpoint<Sender>(b => b.Given((bus, c) =>
                     {
-                        bus.OutgoingHeaders["MyStaticHeader"] = "StaticHeaderValue";
                         bus.Send<MyMessage>(m=>
                         {
                             m.Id = c.Id;
@@ -54,7 +53,7 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(c => c.OutgoingHeaders.Add("MyStaticHeader", "StaticHeaderValue"))
                     .AddMapping<MyMessage>(typeof(Receiver));
             }
         }
