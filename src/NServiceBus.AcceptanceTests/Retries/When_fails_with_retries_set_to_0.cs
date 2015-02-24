@@ -11,13 +11,13 @@
         [Test]
         public void Should_not_retry_the_message_using_flr()
         {
-            var context = new Context()
+            var context = new Context
             {
                 Id = Guid.NewGuid()
             };
 
             Scenario.Define(context)
-                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, ctx) => bus.SendLocal(new MessageToBeRetried(){ContextId = ctx.Id})))
+                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, ctx) => bus.SendLocal(new MessageToBeRetried{ContextId = ctx.Id})))
                     .AllowExceptions()
                     .Done(c => c.GaveUp)
                     .Run();

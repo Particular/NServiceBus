@@ -14,7 +14,7 @@
         [Test]
         public void A_message_id_is_generated_by_the_transport_layer_on_receiving_side()
         {
-            var context = new Context()
+            var context = new Context
             {
                 Id = Guid.NewGuid()
             };

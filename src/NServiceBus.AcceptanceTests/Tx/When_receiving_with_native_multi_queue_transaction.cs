@@ -51,7 +51,7 @@
                 {
                     if (Context.FirstAttempt)
                     {
-                        Bus.SendLocal(new MessageHandledEvent()
+                        Bus.SendLocal(new MessageHandledEvent
                         {
                             HasFailed = true
                         });

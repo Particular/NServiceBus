@@ -13,7 +13,7 @@
         [Test]
         public void Should_correlate_all_saga_messages_properly()
         {
-            var context = new Context()
+            var context = new Context
             {
                 RunId = Guid.NewGuid()
             };
