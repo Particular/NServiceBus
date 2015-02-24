@@ -165,7 +165,7 @@ namespace NServiceBus.Features
             return bus;
         }
 
-        ContextualBus CreateContextualBus(IBuilder builder,Func<BehaviorContext> currentContextGetter)
+        ContextualBus CreateContextualBus(IBuilder builder, Func<BehaviorContext> currentContextGetter)
         {
             return new ContextualBus(currentContextGetter,
                 builder.Build<IMessageMapper>(),

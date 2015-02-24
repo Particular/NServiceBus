@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Janitor;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
@@ -16,6 +17,7 @@ namespace NServiceBus.Unicast
     {
     }
 
+    [SkipWeaving]
     class ContextualBus : IBus, IManageMessageHeaders, IContextualBus
     {
         readonly IMessageMapper messageMapper;
@@ -74,11 +76,6 @@ namespace NServiceBus.Unicast
         public void Dispose()
         {
             //Injected
-        }
-
-        void DisposeManaged()
-        {
-            //We don't own things, we don't release things
         }
 
         void SetupHeaderActions()
