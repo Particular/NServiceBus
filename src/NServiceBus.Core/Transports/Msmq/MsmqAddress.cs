@@ -2,15 +2,12 @@ namespace NServiceBus.Transports.Msmq
 {
     using System;
     using System.Net;
-    using System.Runtime.Serialization;
-    using System.Security;
     using NServiceBus.Support;
 
     ///<summary>
     /// Abstraction for an address on the NServiceBus network.
     ///</summary>
-    [Serializable]
-    public class MsmqAddress : ISerializable
+    public struct MsmqAddress
     {
         /// <summary>
         /// Undefined address.
@@ -22,7 +19,10 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         public static readonly MsmqAddress Self = new MsmqAddress("__self", "localhost");
 
-       
+        readonly string queue;
+        readonly string machine;
+
+
         /// <summary>
         /// Parses a string and returns an Address.
         /// </summary>
@@ -68,43 +68,8 @@ namespace NServiceBus.Transports.Msmq
         ///<param name="machineName">The machine name.</param>
         public MsmqAddress(string queueName, string machineName)
         {
-            Queue = queueName;
-            queueLowerCased = queueName.ToLower();
-            Machine = machineName ?? RuntimeEnvironment.MachineName;
-            machineLowerCased = Machine.ToLower();
-        }
-
-        /// <summary>
-        /// Deserializes an Address.
-        /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo"/> to populate with data. </param>
-        /// <param name="context">The destination (see <see cref="StreamingContext"/>) for this serialization. </param>
-        protected MsmqAddress(SerializationInfo info, StreamingContext context)
-        {
-            Queue = info.GetString("Queue");
-            Machine = info.GetString("Machine");
-            
-            if (!String.IsNullOrEmpty(Queue))
-            {
-                queueLowerCased = Queue.ToLower();
-            }
-
-            if (!String.IsNullOrEmpty(Machine))
-            {
-                machineLowerCased = Machine.ToLower();
-            }
-        }
-
-        /// <summary>
-        /// Populates a <see cref="SerializationInfo"/> with the data needed to serialize the target object.
-        /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo"/> to populate with data. </param>
-        /// <param name="context">The destination (see <see cref="StreamingContext"/>) for this serialization. </param>
-        /// <exception cref="SecurityException">The caller does not have the required permission. </exception>
-        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("Queue", Queue);
-            info.AddValue("Machine", Machine);
+            queue = queueName;
+            machine = machineName ?? RuntimeEnvironment.MachineName;
         }
 
         /// <summary>
@@ -114,20 +79,6 @@ namespace NServiceBus.Transports.Msmq
         public MsmqAddress SubScope(string qualifier)
         {
             return new MsmqAddress(Queue + "." + qualifier, Machine);
-        }
-
-        /// <summary>
-        /// Provides a hash code of the Address.
-        /// </summary>
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = ((queueLowerCased != null ? queueLowerCased.GetHashCode() : 0)*397);
-
-                hashCode ^= (machineLowerCased != null ? machineLowerCased.GetHashCode() : 0);
-                return hashCode;
-            }
         }
 
         /// <summary>
@@ -141,67 +92,17 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// The (lowercase) name of the queue not including the name of the machine or location depending on the address mode.
         /// </summary>
-        public string Queue { get; private set; }
+        public string Queue
+        {
+            get { return queue; }
+        }
 
         /// <summary>
         /// The (lowercase) name of the machine or the (normal) name of the location depending on the address mode.
         /// </summary>
-        public string Machine { get; private set; }
-
-        /// <summary>
-        /// Overloading for the == for the class Address
-        /// </summary>
-        /// <param name="left">Left hand side of == operator</param>
-        /// <param name="right">Right hand side of == operator</param>
-        /// <returns>true if the LHS is equal to RHS</returns>
-        public static bool operator ==(MsmqAddress left, MsmqAddress right)
+        public string Machine
         {
-            return Equals(left, right);
+            get { return machine; }
         }
-
-        /// <summary>
-        /// Overloading for the != for the class Address
-        /// </summary>
-        /// <param name="left">Left hand side of != operator</param>
-        /// <param name="right">Right hand side of != operator</param>
-        /// <returns>true if the LHS is not equal to RHS</returns>
-        public static bool operator !=(MsmqAddress left, MsmqAddress right)
-        {
-            return !Equals(left, right);
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Object"/>.
-        /// </summary>
-        /// <returns>
-        /// true if the specified <see cref="Object"/> is equal to the current <see cref="Object"/>; otherwise, false.
-        /// </returns>
-        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Object"/>. </param><filterpriority>2</filterpriority>
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != typeof(MsmqAddress)) return false;
-            return Equals((MsmqAddress)obj);
-        }
-
-        /// <summary>
-        /// Check this is equal to other Address
-        /// </summary>
-        /// <param name="other">reference addressed to be checked with this</param>
-        /// <returns>true if this is equal to other</returns>
-        private bool Equals(MsmqAddress other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-
-            if (!other.machineLowerCased.Equals(machineLowerCased))
-                return false;
-
-            return other.queueLowerCased.Equals(queueLowerCased);
-        }
-
-        readonly string queueLowerCased;
-        readonly string machineLowerCased;
     }
 }

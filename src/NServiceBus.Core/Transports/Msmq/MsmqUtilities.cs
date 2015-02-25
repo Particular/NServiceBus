@@ -102,14 +102,9 @@ namespace NServiceBus
             return "127.0.0.1";
         }
 
-       
+
         static MsmqAddress GetIndependentAddressForQueue(MessageQueue q)
         {
-            if (q == null)
-            {
-                return null;
-            }
-
             var arr = q.FormatName.Split('\\');
             var queueName = arr[arr.Length - 1];
 
@@ -158,7 +153,6 @@ namespace NServiceBus
             {
                 result.Headers[Headers.ReplyToAddress] = GetIndependentAddressForQueue(m.ResponseQueue).ToString();    
             }
-            
 
             if (Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific))
             {
