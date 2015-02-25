@@ -253,10 +253,10 @@ namespace NServiceBus.AcceptanceTesting.Support
             var startTime = DateTime.UtcNow;
             var maxTime = runDescriptor.TestExecutionTimeout;
 
-            Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(done, maxTime))).Cast<Task>().ToArray(), maxTime);
-
             try
             {
+                Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(done, maxTime))).Cast<Task>().ToArray(), maxTime);
+
                 if ((DateTime.UtcNow - startTime) > maxTime)
                 {
                     throw new ScenarioException(GenerateTestTimedOutMessage(maxTime));
