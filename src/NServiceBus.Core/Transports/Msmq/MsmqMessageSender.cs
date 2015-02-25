@@ -41,8 +41,8 @@ namespace NServiceBus.Transports.Msmq
         public void Send(TransportMessage message, SendOptions sendOptions)
         {
             var destination = sendOptions.Destination;
-            var address = MsmqAddress.Parse(destination);
-            var queuePath = MsmqUtilities.GetFullPath(address);
+            var destinationAddress = MsmqAddress.Parse(destination);
+            var queuePath = MsmqUtilities.GetFullPath(destinationAddress);
             try
             {
                 using (var q = new MessageQueue(queuePath, false, Settings.UseConnectionCache, QueueAccessMode.Send))
@@ -56,7 +56,7 @@ namespace NServiceBus.Transports.Msmq
 
                     if (replyToAddress != null)
                     {
-                        var returnAddress = MsmqUtilities.GetReturnAddress(replyToAddress, destination);
+                        var returnAddress = MsmqUtilities.GetReturnAddress(replyToAddress, destinationAddress.Machine);
                         toSend.ResponseQueue = new MessageQueue(returnAddress);
                     }
 

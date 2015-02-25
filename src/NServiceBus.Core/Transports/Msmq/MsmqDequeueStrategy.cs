@@ -10,21 +10,9 @@ namespace NServiceBus.Transports.Msmq
     /// <summary>
     ///     Default implementation of <see cref="IDequeueMessages" /> for MSMQ.
     /// </summary>
-    public class MsmqDequeueStrategy : IDequeueMessages, IDisposable
+    class MsmqDequeueStrategy : IDequeueMessages, IDisposable
     {
-        /// <summary>
-        ///     Creates an instance of <see cref="MsmqDequeueStrategy" />.
-        /// </summary>
-        /// <param name="criticalError">CriticalError</param>
-        /// <param name="isTransactional"></param>
-        /// <param name="errorQueueAddress"></param>
-        [ObsoleteEx(Replacement = "MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional,MsmqAddress errorQueueAddress)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
-        // ReSharper disable UnusedParameter.Local
-        public MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional, Address errorQueueAddress)
-        // ReSharper restore UnusedParameter.Local
-        {
-            throw new NotImplementedException();
-        }
+
         /// <summary>
         ///     Creates an instance of <see cref="MsmqDequeueStrategy" />.
         /// </summary>
@@ -43,9 +31,17 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         public void Init(DequeueSettings settings)
         {
-            publicReceiveAddress = settings.QueueName;
+            var msmqAddress = MsmqAddress.Parse(settings.QueueName);
 
-            var fullPath = MsmqUtilities.GetFullPath(settings.QueueName);
+            var queueName = msmqAddress.Queue;
+            if (!string.Equals(msmqAddress.Machine, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
+            {
+                var message = string.Format("MSMQ Dequeing can only run against the local machine. Invalid queue name '{0}'", settings.QueueName);
+                throw new Exception(message);
+            }
+            publicReceiveAddress = queueName;
+
+            var fullPath = MsmqUtilities.GetFullPath(queueName);
             queue = new MessageQueue(fullPath, false, true, QueueAccessMode.Receive);
 
             if (isTransactional && !QueueIsTransactional())

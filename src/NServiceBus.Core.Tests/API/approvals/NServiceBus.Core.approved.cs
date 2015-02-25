@@ -2007,27 +2007,6 @@ namespace NServiceBus.Transports.Msmq
         public string Key { get; set; }
         public string Value { get; set; }
     }
-    public struct MsmqAddress
-    {
-        public MsmqAddress(string queueName, string machineName) { }
-        public string Machine { get; }
-        public string Queue { get; }
-        public static NServiceBus.Transports.Msmq.MsmqAddress Parse(string destination) { }
-        public NServiceBus.Transports.Msmq.MsmqAddress SubScope(string qualifier) { }
-        public override string ToString() { }
-    }
-    public class MsmqDequeueStrategy : NServiceBus.Transports.IDequeueMessages, System.IDisposable, System.IObservable<NServiceBus.Transports.MessageAvailable>
-    {
-        [System.ObsoleteAttribute("Please use `MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional" +
-            ",MsmqAddress errorQueueAddress)` instead. Will be removed in version 7.0.0.", true)]
-        public MsmqDequeueStrategy(NServiceBus.CriticalError criticalError, bool isTransactional, NServiceBus.Address errorQueueAddress) { }
-        public MsmqDequeueStrategy(NServiceBus.CriticalError criticalError, bool isTransactional, NServiceBus.Transports.Msmq.MsmqAddress errorQueueAddress) { }
-        public void Dispose() { }
-        public void Init(NServiceBus.Transports.DequeueSettings settings) { }
-        public void Start() { }
-        public void Stop() { }
-        public System.IDisposable Subscribe(System.IObserver<NServiceBus.Transports.MessageAvailable> observer) { }
-    }
     public class MsmqMessageSender : NServiceBus.Transports.ISendMessages
     {
         public MsmqMessageSender(NServiceBus.Pipeline.BehaviorContext context) { }

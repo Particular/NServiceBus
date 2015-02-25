@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
+    using NServiceBus.Transports.Msmq;
     using Transports;
 
     /// <summary>
@@ -46,16 +47,10 @@ namespace NServiceBus
             {
                 throw new ArgumentNullException("qualifier");
             }
-            bool hasMachine;
-            string queue;
-            string machine;
-            MsmqUtilities.Parse(address, out queue, out machine, out hasMachine);
 
-            if (hasMachine)
-            {
-                return string.Format("{0}.{1}@{2}", queue, qualifier, machine);
-            }
-            return address + "." + qualifier;
+            var msmqAddress = MsmqAddress.Parse(address);
+
+            return msmqAddress.ToString(qualifier);
         }
     }
 }

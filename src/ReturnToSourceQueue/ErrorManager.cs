@@ -6,7 +6,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
     using Faults;
     using NServiceBus.Transports.Msmq;
 
-    public class ErrorManager
+    class ErrorManager
     {
         public bool ClusteredQueue { get; set; }
 

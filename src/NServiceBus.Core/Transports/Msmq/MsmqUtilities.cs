@@ -33,42 +33,6 @@ namespace NServiceBus
             return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
         }
 
-        public static void Parse(string address, out string queue, out string machine, out bool hasMachine)
-        {
-            if (string.IsNullOrWhiteSpace(address))
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            var split = address.Split('@');
-
-            if (split.Length > 2)
-            {
-                var message = string.Format("Address contains multiple @ characters. Should be of the format 'queuename@machinename` or 'queuename`. Address supplied: '{0}'", address);
-                throw new ArgumentException(message, "address");
-            }
-
-            if (split.Length == 2)
-            {
-                machine = split[1];
-                if (string.IsNullOrWhiteSpace(machine))
-                {
-                    throw new Exception(string.Format("Empty machine part of address. Address supplied: '{0}'", address));
-                }
-                hasMachine = true;
-            }
-            else
-            {
-                machine = null;
-                hasMachine = false;
-            }
-            queue = split[0];
-            if (string.IsNullOrWhiteSpace(queue))
-            {
-                throw new Exception(string.Format("Empty queue part of address. Address supplied: '{0}'", address));
-            }
-        }
-
         public static string GetFullPath(string queue)
         {
             return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(queue,RuntimeEnvironment.MachineName);
@@ -79,24 +43,13 @@ namespace NServiceBus
         ///     If the target includes a machine name, uses the local machine name in the returned value
         ///     otherwise uses the local IP address in the returned value.
         /// </summary>
-        public static string GetReturnAddress(string replyToAddress, string detination)
+        public static string GetReturnAddress(string replyToString, string detinationMachine)
         {
-            return GetReturnAddress(MsmqAddress.Parse(replyToAddress), MsmqAddress.Parse(detination));
-        }
-
-        /// <summary>
-        ///     Gets the name of the return address from the provided value.
-        ///     If the target includes a machine name, uses the local machine name in the returned value
-        ///     otherwise uses the local IP address in the returned value.
-        /// </summary>
-        public static string GetReturnAddress(MsmqAddress replyToAddress, MsmqAddress detinationAddress)
-        {
-            var machine = detinationAddress.Machine;
-
+            var replyToAddress = MsmqAddress.Parse(replyToString);
             IPAddress targetIpAddress;
 
             //see if the target is an IP address, if so, get our own local ip address
-            if (IPAddress.TryParse(machine, out targetIpAddress))
+            if (IPAddress.TryParse(detinationMachine, out targetIpAddress))
             {
                 if (string.IsNullOrEmpty(localIp))
                 {

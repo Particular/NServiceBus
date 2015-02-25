@@ -6,7 +6,6 @@
     using System.Net;
     using System.Net.NetworkInformation;
     using System.Net.Sockets;
-    using NServiceBus.Support;
     using NUnit.Framework;
 
     [TestFixture]
@@ -51,39 +50,25 @@
             var transportMessage = new TransportMessage();
             var message = MsmqUtilities.Convert(transportMessage);
 
-            message.ResponseQueue = new MessageQueue( MsmqUtilities.GetReturnAddress("local", "destination"));
+            message.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress("local", Environment.MachineName));
             var result = MsmqUtilities.Convert(message);
 
             Assert.AreEqual("local@"+Environment.MachineName, result.Headers[Headers.ReplyToAddress]);
         }
 
-        [Test]
-        public void GetReturnAddress_for_destination_with_no_machine_name_should_return_replyToAddress_with_local_machine()
-        {
-            var returnAddress = MsmqUtilities.GetReturnAddress("replytoaddress", "destinationqueue");
-            returnAddress = returnAddress.Replace(RuntimeEnvironment.MachineName, "TheMachine");
-            Assert.AreEqual(@"FormatName:DIRECT=OS:TheMachine\private$\replytoaddress", returnAddress);
-        }
-
-        [Test]
-        public void GetReturnAddress_for_destination_with_machine_name_should_return_replyToAddress_with_local_machine()
-        {
-            var returnAddress = MsmqUtilities.GetReturnAddress("replytoaddress", "destinationqueue@detinationmachine");
-            returnAddress = returnAddress.Replace(RuntimeEnvironment.MachineName, "TheMachine");
-            Assert.AreEqual(@"FormatName:DIRECT=OS:TheMachine\private$\replytoaddress", returnAddress);
-        }
+  
 
         [Test]
         public void GetReturnAddress_for_both_with_machine_name_should_return_replyToAddress_with_reply_machine()
         {
-            var returnAddress = MsmqUtilities.GetReturnAddress("replytoaddress@replytomachine", "destinationqueue@detinationmachine");
+            var returnAddress = MsmqUtilities.GetReturnAddress("replytoaddress@replytomachine", "detinationmachine");
             Assert.AreEqual(@"FormatName:DIRECT=OS:replytomachine\private$\replytoaddress", returnAddress);
         }
 
         [Test]
         public void GetReturnAddress_for_both_with_ipAddress_should_return_replyToAddress_with_localIP()
         {
-            var returnAddress = MsmqUtilities.GetReturnAddress("replytoaddress@202.171.13.141", "destinationqueue@202.171.13.140");
+            var returnAddress = MsmqUtilities.GetReturnAddress("replytoaddress@202.171.13.141", "202.171.13.140");
             returnAddress = returnAddress.Replace(LocalIPAddress(), "TheLocalIP");
             Assert.AreEqual(@"FormatName:DIRECT=TCP:TheLocalIP\private$\replytoaddress", returnAddress);
         }
@@ -91,12 +76,12 @@
         [Test]
         public void GetReturnAddress_for_destination_with_ipAddress_should_return_replyToAddress_with_localIP()
         {
-            var returnAddress = MsmqUtilities.GetReturnAddress("replytoaddress@replytomachine", "destinationqueue@202.171.13.140");
+            var returnAddress = MsmqUtilities.GetReturnAddress("replytoaddress@replytomachine", "202.171.13.140");
             returnAddress = returnAddress.Replace(LocalIPAddress(), "TheLocalIP");
             Assert.AreEqual(@"FormatName:DIRECT=TCP:TheLocalIP\private$\replytoaddress", returnAddress);
         }
 
-        private string LocalIPAddress()
+        string LocalIPAddress()
         {
             if (!NetworkInterface.GetIsNetworkAvailable())
             {

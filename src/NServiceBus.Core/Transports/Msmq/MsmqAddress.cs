@@ -7,47 +7,76 @@ namespace NServiceBus.Transports.Msmq
     ///<summary>
     /// Abstraction for an address on the NServiceBus network.
     ///</summary>
-    public struct MsmqAddress
+    internal struct MsmqAddress
     {
-        readonly string queue;
-        readonly string machine;
+
+        /// <summary>
+        /// The (lowercase) name of the queue not including the name of the machine or location depending on the address mode.
+        /// </summary>
+        public readonly string Queue;
+
+        /// <summary>
+        /// The (lowercase) name of the machine or the (normal) name of the location depending on the address mode.
+        /// </summary>
+        public readonly string Machine;
 
         /// <summary>
         /// Parses a string and returns an Address.
         /// </summary>
-        /// <param name="destination">The full address to parse.</param>
+        /// <param name="address">The full address to parse.</param>
         /// <returns>A new instance of <see cref="Address"/>.</returns>
-        public static MsmqAddress Parse(string destination)
+        public static MsmqAddress Parse(string address)
         {
-            if (string.IsNullOrEmpty(destination))
+            if (string.IsNullOrEmpty(address))
             {
-                throw new ArgumentException("Invalid destination address specified", "destination");
+                throw new ArgumentException("Invalid destination address specified", "address");
             }
 
-            var arr = destination.Split('@');
+            var split = address.Split('@');
 
-            var queue = arr[0];
-            if (String.IsNullOrWhiteSpace(queue))
+            if (split.Length > 2)
             {
-                throw new ArgumentException("Invalid destination address specified", "destination");
+                var message = string.Format("Address contains multiple @ characters. Address supplied: '{0}'", address);
+                throw new ArgumentException(message, "address");
             }
-            var machine = GetMachineName(arr);
-            return new MsmqAddress(queue, machine);
+
+            var queue = split[0];
+            if (string.IsNullOrWhiteSpace(queue))
+            {
+                var message = string.Format("Empty queue part of address. Address supplied: '{0}'", address);
+                throw new ArgumentException(message, "address");
+            }
+
+            string machineName;
+            if (split.Length == 2)
+            {
+                machineName = split[1];
+                if (string.IsNullOrWhiteSpace(machineName))
+                {
+                    var message = string.Format("Empty machine part of address. Address supplied: '{0}'", address);
+                    throw new ArgumentException(message,"address");
+                }
+                machineName = ApplyLocalMachineConventions(machineName);
+            }
+            else
+            {
+                machineName = RuntimeEnvironment.MachineName;
+            }
+
+            return new MsmqAddress(queue, machineName);
         }
 
-        static string GetMachineName(string[] arr)
+        static string ApplyLocalMachineConventions(string machineName)
         {
-            var machine=RuntimeEnvironment.MachineName;
-
-            if (arr.Length == 2)
+            if (
+                machineName == "." || 
+                machineName.ToLower() == "localhost" || 
+                machineName == IPAddress.Loopback.ToString()
+                )
             {
-                if (arr[1] != "." && arr[1].ToLower() != "localhost" && arr[1] != IPAddress.Loopback.ToString())
-                {
-                    machine = arr[1];
-                }
+                return RuntimeEnvironment.MachineName;
             }
-
-            return machine;
+            return machineName;
         }
 
         /// <summary>
@@ -57,19 +86,10 @@ namespace NServiceBus.Transports.Msmq
         ///<param name="machineName">The machine name.</param>
         public MsmqAddress(string queueName, string machineName)
         {
-            queue = queueName;
-            machine = machineName ?? RuntimeEnvironment.MachineName;
+            Queue = queueName;
+            Machine = machineName;
         }
-
-        /// <summary>
-        /// Creates a new Address whose Queue is derived from the Queue of the existing Address
-        /// together with the provided qualifier. For example: queue.qualifier@machine
-        /// </summary>
-        public MsmqAddress SubScope(string qualifier)
-        {
-            return new MsmqAddress(Queue + "." + qualifier, Machine);
-        }
-
+        
         /// <summary>
         /// Returns a string representation of the address.
         /// </summary>
@@ -79,19 +99,12 @@ namespace NServiceBus.Transports.Msmq
         }
 
         /// <summary>
-        /// The (lowercase) name of the queue not including the name of the machine or location depending on the address mode.
+        /// Returns a string representation of the address.
         /// </summary>
-        public string Queue
+        public string ToString(string qualifier)
         {
-            get { return queue; }
+            return Queue + "." + qualifier + "@" + Machine;
         }
 
-        /// <summary>
-        /// The (lowercase) name of the machine or the (normal) name of the location depending on the address mode.
-        /// </summary>
-        public string Machine
-        {
-            get { return machine; }
-        }
     }
 }
