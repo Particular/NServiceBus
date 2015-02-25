@@ -177,7 +177,6 @@
                 transportCleaner.Cleanup();
             }
 
-
             dynamic persistenceCleaner;
             if (busConfiguration.GetSettings().TryGet("CleanupPersistence", out persistenceCleaner))
             {

@@ -46,6 +46,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Messaging" />
     <Reference Include="System.Reactive.Core">
       <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
     </Reference>
@@ -85,6 +86,7 @@
     <Compile Include="Basic\When_TimeToBeReceived_has_expired.cs" />
     <Compile Include="Basic\When_Deferring_a_message.cs" />
     <Compile Include="Basic\When_using_callback_to_get_message.cs" />
+    <Compile Include="ConfigureMsmqTransport.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="PubSub\When_publishing_from_sendonly.cs" />
     <Compile Include="MessageId\When_message_has_empty_id_header.cs" />
