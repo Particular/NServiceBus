@@ -79,9 +79,9 @@ namespace NServiceBus
         ///     If the target includes a machine name, uses the local machine name in the returned value
         ///     otherwise uses the local IP address in the returned value.
         /// </summary>
-        public static string GetReturnAddress(string value, string target)
+        public static string GetReturnAddress(string replyToAddress, string detination)
         {
-            return GetReturnAddress(MsmqAddress.Parse(value), MsmqAddress.Parse(target));
+            return GetReturnAddress(MsmqAddress.Parse(replyToAddress), MsmqAddress.Parse(detination));
         }
 
         /// <summary>
@@ -89,9 +89,9 @@ namespace NServiceBus
         ///     If the target includes a machine name, uses the local machine name in the returned value
         ///     otherwise uses the local IP address in the returned value.
         /// </summary>
-        public static string GetReturnAddress(MsmqAddress value, MsmqAddress target)
+        public static string GetReturnAddress(MsmqAddress replyToAddress, MsmqAddress detinationAddress)
         {
-            var machine = target.Machine;
+            var machine = detinationAddress.Machine;
 
             IPAddress targetIpAddress;
 
@@ -103,10 +103,10 @@ namespace NServiceBus
                     localIp = LocalIpAddress(targetIpAddress);
                 }
 
-                return PREFIX_TCP + localIp + PRIVATE + value.Queue;
+                return PREFIX_TCP + localIp + PRIVATE + replyToAddress.Queue;
             }
 
-            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
+            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(replyToAddress);
         }
 
         static string LocalIpAddress(IPAddress targetIpAddress)
