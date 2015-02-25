@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
     using System.Collections.Generic;
-    using Outbox;
+    using NServiceBus.Outbox;
 
     internal class FakeOutboxStorage : IOutboxStorage
     {

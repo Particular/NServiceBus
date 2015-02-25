@@ -283,6 +283,7 @@ namespace NServiceBus
         public const string IsSagaTimeoutMessage = "NServiceBus.IsSagaTimeoutMessage";
         public const string MessageId = "NServiceBus.MessageId";
         public const string MessageIntent = "NServiceBus.MessageIntent";
+        public const string NonDurableMessage = "NServiceBus.NonDurableMessage";
         public const string NServiceBusVersion = "NServiceBus.Version";
         public const string OriginatingAddress = "NServiceBus.OriginatingAddress";
         public const string OriginatingEndpoint = "NServiceBus.OriginatingEndpoint";
@@ -304,6 +305,7 @@ namespace NServiceBus
         public const string SagaType = "NServiceBus.SagaType";
         public const string SubscriptionMessageType = "SubscriptionMessageType";
         public const string TimeSent = "NServiceBus.TimeSent";
+        public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
         public const string WindowsIdentityName = "WinIdName";
     }
     public class static HostInfoConfigurationExtensions
@@ -606,8 +608,14 @@ namespace NServiceBus
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string Id { get; }
         public NServiceBus.MessageIntentEnum MessageIntent { get; set; }
+        [System.ObsoleteAttribute("Please use `For sending purposes use DeliveryOptions.NonDurable (note the negatio" +
+            "n). When receiving look at the new \'NServiceBus.NonDurableMessage\' header` inste" +
+            "ad. Will be removed in version 7.0.0.", true)]
         public bool Recoverable { get; set; }
         public string ReplyToAddress { get; }
+        [System.ObsoleteAttribute("Please use `For sending purposes use DeliveryOptions.TimeToBeReceived. When recei" +
+            "ving look at the new \'NServiceBus.TimeToBeReceived\' header` instead. Will be rem" +
+            "oved in version 7.0.0.", true)]
         public System.TimeSpan TimeToBeReceived { get; set; }
     }
     public class static UseDataBusExtensions
@@ -1963,11 +1971,18 @@ namespace NServiceBus.Transports
     {
         protected ReceiveBehavior() { }
         public override void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Pipeline.Contexts.TransportReceiveContext> next) { }
-        protected abstract void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.TransportMessage> onMessage);
+        protected abstract void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Transports.ReceivedMessage> onMessage);
         public class Registration : NServiceBus.Pipeline.RegisterStep
         {
             public Registration() { }
         }
+    }
+    public class ReceivedMessage
+    {
+        public ReceivedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream) { }
+        public System.IO.Stream BodyStream { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
     }
     public class ReceiveOptions
     {
@@ -2055,7 +2070,9 @@ namespace NServiceBus.Unicast
         protected DeliveryOptions() { }
         public bool EnforceMessagingBestPractices { get; set; }
         public bool EnlistInReceiveTransaction { get; set; }
+        public System.Nullable<bool> NonDurable { get; set; }
         public string ReplyToAddress { get; set; }
+        public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }
     }
     [System.ObsoleteAttribute("Not a public API. Please use `MessageHandlerRegistry` instead. Will be removed in" +
         " version 7.0.0.", true)]
@@ -2112,7 +2129,6 @@ namespace NServiceBus.Unicast
         public System.Nullable<System.TimeSpan> DelayDeliveryWith { get; set; }
         public System.Nullable<System.DateTime> DeliverAt { get; set; }
         public string Destination { get; set; }
-        public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }
     }
     public class StaticOutgoingMessageHeaders
     {

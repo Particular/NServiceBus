@@ -38,9 +38,7 @@ namespace NServiceBus.Transports
             // Create a new transport message which will contain the appropriate headers
             var messageToForward = new TransportMessage(transportMessage.Id, transportMessage.Headers)
             {
-                Body = transportMessage.Body,
-                Recoverable = transportMessage.Recoverable,
-                TimeToBeReceived = sendOptions.TimeToBeReceived.HasValue ? sendOptions.TimeToBeReceived.Value : transportMessage.TimeToBeReceived
+                Body = transportMessage.Body
             };
 
             messageToForward.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
@@ -54,7 +52,8 @@ namespace NServiceBus.Transports
             // Send the newly created transport message to the queue
             MessageSender.Send(messageToForward, new SendOptions(sendOptions.Destination)
             {
-                ReplyToAddress = Configure.PublicReturnAddress
+                ReplyToAddress = Configure.PublicReturnAddress,
+                TimeToBeReceived = sendOptions.TimeToBeReceived
             });
         }
 

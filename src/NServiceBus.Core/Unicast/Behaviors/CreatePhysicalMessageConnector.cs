@@ -1,19 +1,16 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.Unicast.Messages;
-    using Pipeline;
-    using Pipeline.Contexts;
-    using Unicast;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Unicast;
 
     class CreatePhysicalMessageConnector : StageConnector<OutgoingContext, PhysicalOutgoingContextStageBehavior.Context>
     {
-        readonly MessageMetadataRegistry messageMetadataRegistry;
         readonly IBus unicastBus;
 
-        public CreatePhysicalMessageConnector(MessageMetadataRegistry messageMetadataRegistry,IBus unicastBus)
+        public CreatePhysicalMessageConnector(IBus unicastBus)
         {
-            this.messageMetadataRegistry = messageMetadataRegistry;
             this.unicastBus = unicastBus;
         }
 
@@ -46,14 +43,6 @@
             foreach (var kvp in context.OutgoingLogicalMessage.Headers)
             {
                 toSend.Headers[kvp.Key] = kvp.Value;
-            }
-
-            if (context.OutgoingLogicalMessage.MessageType != null)
-            {
-                var messageDefinitions = messageMetadataRegistry.GetMessageMetadata(context.OutgoingLogicalMessage.MessageType);
-
-                toSend.TimeToBeReceived = messageDefinitions.TimeToBeReceived;
-                toSend.Recoverable = messageDefinitions.Recoverable;
             }
 
             next(new PhysicalOutgoingContextStageBehavior.Context(toSend,context));

@@ -1,30 +1,26 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.DeliveryOptions
 {
     using System;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_TimeToBeReceived_has_not_expired : NServiceBusAcceptanceTest
+    public class When_TimeToBeReceived_has_expired : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Message_should_be_received()
+        public void Message_should_not_be_received()
         {
             var context = new Context();
-
             Scenario.Define(context)
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new MyMessage())))
-                    .Done(c => c.WasCalled)
-                    .Run();
-
-            Assert.IsTrue(context.WasCalled);
+                    .Run(TimeSpan.FromSeconds(10));
+            Assert.IsFalse(context.WasCalled);
         }
 
         public class Context : ScenarioContext
         {
             public bool WasCalled { get; set; }
         }
-
         public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
@@ -45,7 +41,7 @@
         }
 
         [Serializable]
-        [TimeToBeReceived("00:00:10")]
+        [TimeToBeReceived("00:00:00")]
         public class MyMessage : IMessage
         {
         }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using NServiceBus.Faults;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.SecondLevelRetries;
@@ -105,8 +106,7 @@
 
         PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId, int currentRetryCount)
         {
-            var transportMessage = new TransportMessage(messageId, new Dictionary<string, string> { { Headers.Retries, currentRetryCount.ToString() } });
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(transportMessage, null));
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new ReceivedMessage(messageId, new Dictionary<string, string> { { Headers.Retries, currentRetryCount.ToString() } }, new MemoryStream()), null));
 
             context.SetPublicReceiveAddress("test-address-for-this-pipeline");
 

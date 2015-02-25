@@ -2,8 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using NServiceBus.FirstLevelRetries;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Transports;
     using NUnit.Framework;
 
     [TestFixture]
@@ -109,8 +111,7 @@
         }
         PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId)
         {
-            var transportMessage = new TransportMessage(messageId, new Dictionary<string, string>());
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(transportMessage, null));
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new ReceivedMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null));
             return context;
         }
     }

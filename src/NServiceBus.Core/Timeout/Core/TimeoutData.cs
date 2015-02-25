@@ -64,7 +64,6 @@ namespace NServiceBus.Timeout.Core
         {
             var transportMessage = new TransportMessage(Id,Headers)
             {
-                Recoverable = true,
                 Body = State
             };
 
