@@ -17,7 +17,7 @@ public class ConfigureMsmqTransport
         var name = busConfiguration.GetSettings().EndpointName();
 
         var queuesToBeDeleted = MessageQueue.GetPrivateQueuesByMachine("localhost").Where(n => n.QueueName.Contains(name.ToLowerInvariant()));
-        foreach (MessageQueue queue in queuesToBeDeleted)
+        foreach (var queue in queuesToBeDeleted)
         {
             MessageQueue.Delete(queue.Path);
         }
