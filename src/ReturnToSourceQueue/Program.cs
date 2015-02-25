@@ -5,6 +5,7 @@ namespace ReturnToSourceQueue
     using System.Net;
     using NServiceBus;
     using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
+    using NServiceBus.Transports.Msmq;
 
     class Program
     {

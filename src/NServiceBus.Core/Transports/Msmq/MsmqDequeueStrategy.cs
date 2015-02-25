@@ -20,7 +20,7 @@ namespace NServiceBus.Transports.Msmq
         /// <param name="errorQueueAddress"></param>
         [ObsoleteEx(Replacement = "MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional,MsmqAddress errorQueueAddress)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
         // ReSharper disable UnusedParameter.Local
-        public MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional,Address errorQueueAddress)
+        public MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional, Address errorQueueAddress)
         // ReSharper restore UnusedParameter.Local
         {
             throw new NotImplementedException();
@@ -31,7 +31,7 @@ namespace NServiceBus.Transports.Msmq
         /// <param name="criticalError">CriticalError</param>
         /// <param name="isTransactional"></param>
         /// <param name="errorQueueAddress"></param>
-        public MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional,MsmqAddress errorQueueAddress)
+        public MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional, MsmqAddress errorQueueAddress)
         {
             this.criticalError = criticalError;
             this.isTransactional = isTransactional;

@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
+    using NServiceBus.Transports.Msmq;
     using Transports;
 
     /// <summary>

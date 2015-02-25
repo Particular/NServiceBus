@@ -4,6 +4,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
     using System.Messaging;
     using System.Transactions;
     using Faults;
+    using NServiceBus.Transports.Msmq;
 
     public class ErrorManager
     {

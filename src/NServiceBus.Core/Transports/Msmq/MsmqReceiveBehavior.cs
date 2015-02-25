@@ -7,6 +7,7 @@ namespace NServiceBus
     using NServiceBus.Logging;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
+    using NServiceBus.Transports.Msmq;
 
     abstract class MsmqReceiveBehavior:ReceiveBehavior
     {
