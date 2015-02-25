@@ -489,20 +489,6 @@ namespace NServiceBus
         public MessageProcessingAbortedException() { }
         protected MessageProcessingAbortedException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
     }
-    public class MsmqAddress : System.Runtime.Serialization.ISerializable
-    {
-        public static readonly NServiceBus.MsmqAddress Self;
-        public static readonly NServiceBus.MsmqAddress Undefined;
-        public MsmqAddress(string queueName, string machineName) { }
-        protected MsmqAddress(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
-        public string Machine { get; }
-        public string Queue { get; }
-        public override bool Equals(object obj) { }
-        public override int GetHashCode() { }
-        public static NServiceBus.MsmqAddress Parse(string destination) { }
-        public NServiceBus.MsmqAddress SubScope(string qualifier) { }
-        public override string ToString() { }
-    }
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition
     {
         public MsmqTransport() { }
@@ -2032,12 +2018,23 @@ namespace NServiceBus.Transports.Msmq
         public string Key { get; set; }
         public string Value { get; set; }
     }
+    public struct MsmqAddress
+    {
+        public static readonly NServiceBus.Transports.Msmq.MsmqAddress Self;
+        public static readonly NServiceBus.Transports.Msmq.MsmqAddress Undefined;
+        public MsmqAddress(string queueName, string machineName) { }
+        public string Machine { get; }
+        public string Queue { get; }
+        public static NServiceBus.Transports.Msmq.MsmqAddress Parse(string destination) { }
+        public NServiceBus.Transports.Msmq.MsmqAddress SubScope(string qualifier) { }
+        public override string ToString() { }
+    }
     public class MsmqDequeueStrategy : NServiceBus.Transports.IDequeueMessages, System.IDisposable, System.IObservable<NServiceBus.Transports.MessageAvailable>
     {
         [System.ObsoleteAttribute("Please use `MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional" +
             ",MsmqAddress errorQueueAddress)` instead. Will be removed in version 7.0.0.", true)]
         public MsmqDequeueStrategy(NServiceBus.CriticalError criticalError, bool isTransactional, NServiceBus.Address errorQueueAddress) { }
-        public MsmqDequeueStrategy(NServiceBus.CriticalError criticalError, bool isTransactional, NServiceBus.MsmqAddress errorQueueAddress) { }
+        public MsmqDequeueStrategy(NServiceBus.CriticalError criticalError, bool isTransactional, NServiceBus.Transports.Msmq.MsmqAddress errorQueueAddress) { }
         public void Dispose() { }
         public void Init(NServiceBus.Transports.DequeueSettings settings) { }
         public void Start() { }
