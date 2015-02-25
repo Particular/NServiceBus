@@ -6,6 +6,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Support;
     using NServiceBus.Unicast;
     using Transports;
@@ -24,6 +25,7 @@
         ScenarioContext scenarioContext;
         bool stopped;
         RunDescriptor runDescriptor;
+        BusConfiguration busConfiguration;
 
         public Result Initialize(RunDescriptor run, EndpointBehavior endpointBehavior,
             IDictionary<Type, string> routingTable, string endpointName)
@@ -44,7 +46,7 @@
                 }
 
                 //apply custom config settings
-                var busConfiguration = configuration.GetConfiguration(run, routingTable);
+                busConfiguration = configuration.GetConfiguration(run, routingTable);
 
                 scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
 
@@ -61,7 +63,6 @@
 
                     scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
                 }
-
 
                 executeWhens = Task.Factory.StartNew(() =>
                 {
@@ -154,8 +155,9 @@
                 else
                 {
                     bus.Dispose();
-
                 }
+
+                Cleanup();
 
                 return Result.Success();
             }
@@ -165,6 +167,12 @@
 
                 return Result.Failure(ex);
             }
+        }
+
+        void Cleanup()
+        {
+            dynamic cleaner = busConfiguration.GetSettings().Get("CleanupPersistence");
+            cleaner.Cleanup();
         }
 
         public string Name()

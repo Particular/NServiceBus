@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using ScenarioDescriptors;
 
     public static class ConfigureExtensions
@@ -59,7 +61,7 @@
         public static void DefinePersistence(this BusConfiguration config, IDictionary<string, string> settings)
         {
             if (!settings.ContainsKey("Persistence"))
-            {
+            { 
                 settings = Persistence.Default.Settings;
             }
 
@@ -77,10 +79,20 @@
                 dynamic dc = configurer;
 
                 dc.Configure(config);
+
+                var cleanupMethod = configurer.GetType().GetMethod("Cleanup", BindingFlags.Public | BindingFlags.Instance);
+                config.GetSettings().Set("CleanupPersistence", cleanupMethod != null ? configurer : new Cleaner());
                 return;
             }
 
             config.UsePersistence(persistenceType);
+        }
+
+        private class Cleaner
+        {
+            public void Cleanup()
+            {
+            }
         }
 
         public static void DefineBuilder(this BusConfiguration config, IDictionary<string, string> settings)
