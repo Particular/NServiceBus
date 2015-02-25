@@ -9,19 +9,8 @@ namespace NServiceBus.Transports.Msmq
     ///</summary>
     public struct MsmqAddress
     {
-        /// <summary>
-        /// Undefined address.
-        /// </summary>
-        public static readonly MsmqAddress Undefined = new MsmqAddress(String.Empty, String.Empty);
-
-        /// <summary>
-        /// Self address.
-        /// </summary>
-        public static readonly MsmqAddress Self = new MsmqAddress("__self", "localhost");
-
         readonly string queue;
         readonly string machine;
-
 
         /// <summary>
         /// Parses a string and returns an Address.
@@ -42,11 +31,11 @@ namespace NServiceBus.Transports.Msmq
             {
                 throw new ArgumentException("Invalid destination address specified", "destination");
             }
-            var machine = GetMachineName(arr, queue);
+            var machine = GetMachineName(arr);
             return new MsmqAddress(queue, machine);
         }
 
-        static string GetMachineName(string[] arr, string queue)
+        static string GetMachineName(string[] arr)
         {
             var machine=RuntimeEnvironment.MachineName;
 
