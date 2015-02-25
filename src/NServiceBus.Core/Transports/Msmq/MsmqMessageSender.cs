@@ -56,7 +56,7 @@ namespace NServiceBus.Transports.Msmq
 
                     if (replyToAddress != null)
                     {
-                        var returnAddress = MsmqUtilities.GetReturnAddress(replyToAddress, address.ToString());
+                        var returnAddress = MsmqUtilities.GetReturnAddress(replyToAddress, destination);
                         toSend.ResponseQueue = new MessageQueue(returnAddress);
                     }
 
