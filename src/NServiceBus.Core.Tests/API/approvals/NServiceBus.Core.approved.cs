@@ -7,21 +7,10 @@
 [assembly: System.Runtime.Versioning.TargetFrameworkAttribute(".NETFramework,Version=v4.5", FrameworkDisplayName=".NET Framework 4.5")]
 namespace NServiceBus
 {
-    public class Address : System.Runtime.Serialization.ISerializable
+    [System.ObsoleteAttribute("Use the string based overloads. Will be removed in version 7.0.0.", true)]
+    public class Address
     {
-        public static readonly NServiceBus.Address Self;
-        public static readonly NServiceBus.Address Undefined;
-        public Address(string queueName, string machineName) { }
-        protected Address(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
-        public string Machine { get; }
-        public string Queue { get; }
-        public override bool Equals(object obj) { }
-        public override int GetHashCode() { }
-        public static void IgnoreMachineName() { }
-        public static void OverrideDefaultMachine(string machineName) { }
-        public static NServiceBus.Address Parse(string destination) { }
-        public NServiceBus.Address SubScope(string qualifier) { }
-        public override string ToString() { }
+        public Address() { }
     }
     public enum AddressMode
     {
@@ -2020,8 +2009,6 @@ namespace NServiceBus.Transports.Msmq
     }
     public struct MsmqAddress
     {
-        public static readonly NServiceBus.Transports.Msmq.MsmqAddress Self;
-        public static readonly NServiceBus.Transports.Msmq.MsmqAddress Undefined;
         public MsmqAddress(string queueName, string machineName) { }
         public string Machine { get; }
         public string Queue { get; }
