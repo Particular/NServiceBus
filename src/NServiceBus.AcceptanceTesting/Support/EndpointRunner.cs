@@ -171,11 +171,18 @@
 
         void Cleanup()
         {
-            dynamic transportCleaner = busConfiguration.GetSettings().Get("CleanupTransport");
-            transportCleaner.Cleanup();
+            dynamic transportCleaner;
+            if (busConfiguration.GetSettings().TryGet("CleanupTransport", out transportCleaner))
+            {
+                transportCleaner.Cleanup();
+            }
 
-            dynamic persistenceCleaner = busConfiguration.GetSettings().Get("CleanupPersistence");
-            persistenceCleaner.Cleanup();
+
+            dynamic persistenceCleaner;
+            if (busConfiguration.GetSettings().TryGet("CleanupPersistence", out persistenceCleaner))
+            {
+                persistenceCleaner.Cleanup();
+            }
         }
 
         public string Name()
