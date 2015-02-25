@@ -3,7 +3,6 @@ namespace ReturnToSourceQueue
     using System;
     using System.Linq;
     using System.Net;
-    using NServiceBus;
     using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
     using NServiceBus.Transports.Msmq;
 
