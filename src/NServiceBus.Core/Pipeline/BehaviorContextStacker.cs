@@ -1,11 +1,13 @@
 ﻿namespace NServiceBus.Pipeline
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading;
+    using Janitor;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline.Contexts;
 
-    class BehaviorContextStacker
+    class BehaviorContextStacker : IDisposable
     {
         public BehaviorContextStacker(IBuilder rootBuilder)
         {
@@ -49,8 +51,12 @@
             behaviorContextStack.Value.Pop();
         }
 
-        readonly IBuilder rootBuilder;
+        public void Dispose()
+        {
+        }
 
+        [SkipWeaving]
+        readonly IBuilder rootBuilder;
         //until we get the internal container going we
         ThreadLocal<Stack<BehaviorContext>> behaviorContextStack = new ThreadLocal<Stack<BehaviorContext>>(() => new Stack<BehaviorContext>());
     }

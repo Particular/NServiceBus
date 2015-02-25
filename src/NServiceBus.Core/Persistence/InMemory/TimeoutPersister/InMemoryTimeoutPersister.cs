@@ -5,7 +5,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
     using System.Threading;
     using Timeout.Core;
 
-    class InMemoryTimeoutPersister : IPersistTimeouts
+    class InMemoryTimeoutPersister : IPersistTimeouts, IDisposable
     {
         List<TimeoutData> storage = new List<TimeoutData>();
         ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
@@ -104,6 +104,11 @@ namespace NServiceBus.InMemory.TimeoutPersister
             {
                 readerWriterLock.ExitWriteLock();
             }
+        }
+
+        public void Dispose()
+        {
+            
         }
     }
 }

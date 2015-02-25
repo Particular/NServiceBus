@@ -4,9 +4,10 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using Janitor;
     using NServiceBus.Pipeline;
 
-    class BehaviorChain
+    class BehaviorChain : IDisposable
     {
         public BehaviorChain(IEnumerable<BehaviorInstance> behaviorList, BehaviorContext context, Dictionary<Type, string> lookupSteps, BusNotifications notifications)
         {
@@ -56,6 +57,11 @@
                     context.Remove("Diagnostics.Pipe");
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            
         }
 
         BehaviorContext InvokeNext(BehaviorContext context, BehaviorContextStacker contextStacker, int currentIndex)
@@ -108,10 +114,11 @@
             }
         }
 
+        [SkipWeaving]
         readonly BusNotifications notifications;
-        BehaviorContext context;
-        BehaviorInstance[] itemDescriptors;
-        Dictionary<Type, string> lookupSteps;
+        readonly BehaviorContext context;
+        readonly BehaviorInstance[] itemDescriptors;
+        readonly Dictionary<Type, string> lookupSteps;
         Observable<StepStarted> steps;
     }
 }
