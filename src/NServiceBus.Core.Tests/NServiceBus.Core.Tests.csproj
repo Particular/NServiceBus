@@ -140,6 +140,7 @@
     <Compile Include="Faults\ForwardFaultsToErrorQueueTests.cs" />
     <Compile Include="Hosting\HostInfoSettingsTests.cs" />
     <Compile Include="Logging\DefaultFactoryTests.cs" />
+    <Compile Include="Msmq\MsmqTransportTests.cs" />
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
     <Compile Include="Persistence\InMemory\InMemoryPersisterBuilder.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />

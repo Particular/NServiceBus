@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
     using NServiceBus.Transports.Msmq;
@@ -42,7 +43,26 @@ namespace NServiceBus
         /// </summary>
         public override string GetSubScope(string address, string qualifier)
         {
-            return MsmqAddress.Parse(address).SubScope(qualifier).ToString();
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                throw new ArgumentNullException("address");
+            }
+            if (string.IsNullOrWhiteSpace(qualifier))
+            {
+                throw new ArgumentNullException("qualifier");
+            }
+            var split = address.Split('@');
+            
+            if (split.Length == 1)
+            {
+                return address + "." + qualifier;
+            }
+            if (split.Length == 2)
+            {
+                return string.Format("{0}.{1}@{2}", split[0], qualifier, split[1]);
+            }
+            var message = string.Format("Address contains multiple @ characters. Should be of the format 'queuename@machinename` or 'queuename`. Address supplied: '{0}'", address);
+            throw new ArgumentException(message, "address");
         }
     }
 }
