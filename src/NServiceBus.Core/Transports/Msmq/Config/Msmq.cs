@@ -42,26 +42,20 @@ namespace NServiceBus
         /// </summary>
         public override string GetSubScope(string address, string qualifier)
         {
-            if (string.IsNullOrWhiteSpace(address))
-            {
-                throw new ArgumentNullException("address");
-            }
             if (string.IsNullOrWhiteSpace(qualifier))
             {
                 throw new ArgumentNullException("qualifier");
             }
-            var split = address.Split('@');
-            
-            if (split.Length == 1)
+            bool hasMachine;
+            string queue;
+            string machine;
+            MsmqUtilities.Parse(address, out queue, out machine, out hasMachine);
+
+            if (hasMachine)
             {
-                return address + "." + qualifier;
+                return string.Format("{0}.{1}@{2}", queue, qualifier, machine);
             }
-            if (split.Length == 2)
-            {
-                return string.Format("{0}.{1}@{2}", split[0], qualifier, split[1]);
-            }
-            var message = string.Format("Address contains multiple @ characters. Should be of the format 'queuename@machinename` or 'queuename`. Address supplied: '{0}'", address);
-            throw new ArgumentException(message, "address");
+            return address + "." + qualifier;
         }
     }
 }

@@ -33,6 +33,42 @@ namespace NServiceBus
             return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
         }
 
+        public static void Parse(string address, out string queue, out string machine, out bool hasMachine)
+        {
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                throw new ArgumentNullException("address");
+            }
+
+            var split = address.Split('@');
+
+            if (split.Length > 2)
+            {
+                var message = string.Format("Address contains multiple @ characters. Should be of the format 'queuename@machinename` or 'queuename`. Address supplied: '{0}'", address);
+                throw new ArgumentException(message, "address");
+            }
+
+            if (split.Length == 2)
+            {
+                machine = split[1];
+                if (string.IsNullOrWhiteSpace(machine))
+                {
+                    throw new Exception(string.Format("Empty machine part of address. Address supplied: '{0}'", address));
+                }
+                hasMachine = true;
+            }
+            else
+            {
+                machine = null;
+                hasMachine = false;
+            }
+            queue = split[0];
+            if (string.IsNullOrWhiteSpace(queue))
+            {
+                throw new Exception(string.Format("Empty queue part of address. Address supplied: '{0}'", address));
+            }
+        }
+
         public static string GetFullPath(string queue)
         {
             return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(queue,RuntimeEnvironment.MachineName);
@@ -304,4 +340,5 @@ namespace NServiceBus
         static System.Xml.Serialization.XmlSerializer headerSerializer = new System.Xml.Serialization.XmlSerializer(typeof(List<HeaderInfo>));
         static ILog Logger = LogManager.GetLogger<MsmqUtilities>();
     }
+
 }
