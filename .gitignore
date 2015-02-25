@@ -37,3 +37,4 @@ _NCrunch_NServiceBus/*
 logs
 run-git.cmd
 src/Chocolatey/Build/*
+src/scaffolding.config
