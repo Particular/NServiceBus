@@ -182,7 +182,7 @@ namespace NServiceBus
 
             //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end that the sender added to make it compatible
             //The replace can be removed in v5 since only v3 messages will need this
-            return message.CorrelationId.Replace("\\0", "");
+            return message.CorrelationId.Replace("\\0", String.Empty);
         }
 
         static Dictionary<string, string> DeserializeMessageHeaders(Message m)
