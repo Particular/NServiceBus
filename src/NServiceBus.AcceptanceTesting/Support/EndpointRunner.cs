@@ -16,7 +16,6 @@
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
         readonly SemaphoreSlim contextChanged = new SemaphoreSlim(0);
-        readonly IList<Guid> executedWhens = new List<Guid>();
         EndpointBehavior behavior;
         IStartableBus bus;
         ISendOnlyBus sendOnlyBus;
@@ -66,24 +65,28 @@
 
                 executeWhens = Task.Factory.StartNew(() =>
                 {
+                    var executedWhens = new List<Guid>();
+
                     while (!stopped)
                     {
+                        if (executedWhens.Count == behavior.Whens.Count)
+                        {
+                            break;
+                        }
+
                         //we spin around each 5s since the callback mechanism seems to be shaky
                         contextChanged.Wait(TimeSpan.FromSeconds(5));
 
-                        lock (behavior)
+                        foreach (var when in behavior.Whens)
                         {
-                            foreach (var when in behavior.Whens)
+                            if (executedWhens.Contains(when.Id))
                             {
-                                if (executedWhens.Contains(when.Id))
-                                {
-                                    continue;
-                                }
+                                continue;
+                            }
 
-                                if (when.ExecuteAction(scenarioContext, bus))
-                                {
-                                    executedWhens.Add(when.Id);
-                                }
+                            if (when.ExecuteAction(scenarioContext, bus))
+                            {
+                                executedWhens.Add(when.Id);
                             }
                         }
                     }

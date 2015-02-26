@@ -23,9 +23,7 @@
                     .Run();
 
             Assert.AreEqual(context.OriginalBodyChecksum, context.SlrChecksum, "The body of the message sent to slr should be the same as the original message coming off the queue");
-
         }
-        
       
         [Test]
         public void Should_preserve_the_original_body_for_serialization_exceptions()
@@ -67,7 +65,6 @@
                         c.MaxRetries = 0;
                     });
             }
-
    
             class BodyMutator : IMutateTransportMessages, INeedInitialization
             {

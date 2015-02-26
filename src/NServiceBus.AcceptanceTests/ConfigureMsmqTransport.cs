@@ -36,5 +36,7 @@ public class ConfigureMsmqTransport
             MessageQueue.Delete(queuePath);
             Console.WriteLine("Deleted '{0}' queue", queuePath);
         }
+
+        MessageQueue.ClearConnectionCache();
     }
 }
