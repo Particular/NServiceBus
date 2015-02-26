@@ -70,7 +70,7 @@
 
         public void AddTrace(string trace)
         {
-            Trace += DateTime.Now.ToString("HH:mm:ss.ffffff") + " - " + trace + Environment.NewLine;
+            Trace += String.Format("{0:HH:mm:ss.ffffff} - {1}{2}", DateTime.Now, trace, Environment.NewLine);
         }
 
         public void RecordEndpointLog(string endpointName,string level ,string message)

@@ -56,7 +56,7 @@ namespace NServiceBus.AcceptanceTesting
 
             if (!runDescriptors.Any())
             {
-                Console.Out.WriteLine("No active rundescriptors was found for this test, test will not be executed");
+                Console.WriteLine("No active rundescriptors was found for this test, test will not be executed");
                 return new List<TContext>();
             }
 
@@ -74,7 +74,7 @@ namespace NServiceBus.AcceptanceTesting
 
             sw.Stop();
 
-            Console.Out.WriteLine("Total time for testrun: {0}", sw.Elapsed);
+            Console.WriteLine("Total time for testrun: {0}", sw.Elapsed);
 
             return runDescriptors.Select(r => (TContext)r.ScenarioContext);
         }
@@ -144,7 +144,6 @@ namespace NServiceBus.AcceptanceTesting
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => builder.For(Conventions.DefaultRunDescriptor());
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
         public Func<ScenarioContext, bool> done = context => true;
-
         Func<TContext> contextFactory = () => new TContext();
         Action<RunSummary> reports;
         Func<Exception, bool> allowedExceptions = exception => false;
