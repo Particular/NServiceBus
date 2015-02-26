@@ -16,19 +16,17 @@ namespace NServiceBus.AcceptanceTesting.Support
 
     public class ScenarioRunner
     {
-        public static IEnumerable<RunSummary> Run(IList<RunDescriptor> runDescriptors, IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports, Func<Exception, bool> allowedExceptions)
+        public static void Run(IList<RunDescriptor> runDescriptors, IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports, Func<Exception, bool> allowedExceptions)
         {
             var totalRuns = runDescriptors.Count();
-
             var cts = new CancellationTokenSource();
-
             var po = new ParallelOptions
             {
                 CancellationToken = cts.Token
             };
-
             var maxParallelismSetting = Environment.GetEnvironmentVariable("max_test_parallelism");
             int maxParallelism;
+
             if (int.TryParse(maxParallelismSetting, out maxParallelism))
             {
                 Console.WriteLine("Parallelism limited to: {0}", maxParallelism);
@@ -37,7 +35,9 @@ namespace NServiceBus.AcceptanceTesting.Support
             }
 
             if (limitTestParallelismTo > 0)
+            {
                 po.MaxDegreeOfParallelism = limitTestParallelismTo;
+            }
 
             var results = new ConcurrentBag<RunSummary>();
 
@@ -82,17 +82,19 @@ namespace NServiceBus.AcceptanceTesting.Support
             }
 
             if (failedRuns.Any())
+            {
                 throw new AggregateException("Test run failed due to one or more exception", failedRuns.Select(f => f.Result.Exception));
+            }
 
             foreach (var runSummary in results.Where(s => !s.Result.Failed))
             {
                 DisplayRunResult(runSummary, totalRuns);
 
                 if (reports != null)
+                {
                     reports(runSummary);
+                }
             }
-
-            return results;
         }
 
         static void DisplayRunResult(RunSummary summary, int totalRuns)
@@ -133,7 +135,10 @@ namespace NServiceBus.AcceptanceTesting.Support
 
             foreach (var prop in runResult.ScenarioContext.GetType().GetProperties())
             {
-                if (prop.Name == "Trace") continue;
+                if (prop.Name == "Trace")
+                {
+                    continue;
+                }
 
                 Console.WriteLine("{0} = {1}", prop.Name, prop.GetValue(runResult.ScenarioContext, null));
             }

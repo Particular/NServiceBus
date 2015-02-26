@@ -3,6 +3,7 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
     using Saga;
     using ScenarioDescriptors;
@@ -65,7 +66,7 @@
                     Assert.True(c.AnotherMessageReceived, "AnotherMessage should have been delivered to the handler outside the saga");
                     Assert.False(c.SagaReceivedAnotherMessage, "AnotherMessage should not be delivered to the saga after completion");
                 })
-                .Run();
+                .Run(new RunSettings{UseSeparateAppDomains = true});
         }
 
         public class Context : ScenarioContext
