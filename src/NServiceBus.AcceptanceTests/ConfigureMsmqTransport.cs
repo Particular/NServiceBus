@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Messaging;
 using NServiceBus;
 using NServiceBus.Configuration.AdvanceExtensibility;
@@ -15,11 +17,25 @@ public class ConfigureMsmqTransport
     public void Cleanup()
     {
         var name = busConfiguration.GetSettings().EndpointName();
+        var nameFilter = @"private$\" + name;
+        var allQueues = MessageQueue.GetPrivateQueuesByMachine("localhost");
+        var queuesToBeDeleted = new List<string>();
 
-        var queuesToBeDeleted = MessageQueue.GetPrivateQueuesByMachine("localhost").Where(n => n.QueueName.Contains(name.ToLowerInvariant()));
-        foreach (var queue in queuesToBeDeleted)
+        foreach (var messageQueue in allQueues)
         {
-            MessageQueue.Delete(queue.Path);
+            using (messageQueue)
+            {
+                if (messageQueue.QueueName.StartsWith(nameFilter, StringComparison.OrdinalIgnoreCase))
+                {
+                    queuesToBeDeleted.Add(messageQueue.Path);
+                }
+            }
+        }
+
+        foreach (var queuePath in queuesToBeDeleted)
+        {
+            MessageQueue.Delete(queuePath);
+            Console.WriteLine("Deleted '{0}' queue", queuePath);
         }
     }
 }
