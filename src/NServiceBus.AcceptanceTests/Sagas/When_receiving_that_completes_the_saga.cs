@@ -29,19 +29,16 @@
                     .Done(c => c.SagaCompleted)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.SagaCompleted))
-
                     .Run();
         }
 
         [Test]
         public void Should_ignore_messages_afterwards()
         {
-            var context = new Context
+            Scenario.Define(new Context
             {
                 Id = Guid.NewGuid()
-            };
-
-            Scenario.Define(context)
+            })
                 .WithEndpoint<SagaEndpoint>(b =>
                 {
                     b.Given((bus, c) => bus.SendLocal(new StartSagaMessage
@@ -63,10 +60,12 @@
                 })
                 .Done(c => c.AnotherMessageReceived)
                 .Repeat(r => r.For(Transports.Default))
+                .Should(c =>
+                {
+                    Assert.True(c.AnotherMessageReceived, "AnotherMessage should have been delivered to the handler outside the saga");
+                    Assert.False(c.SagaReceivedAnotherMessage, "AnotherMessage should not be delivered to the saga after completion");
+                })
                 .Run();
-
-            Assert.True(context.AnotherMessageReceived, "AnotherMessage should have been delivered to the handler outside the saga");
-            Assert.False(context.SagaReceivedAnotherMessage, "AnotherMessage should not be delivered to the saga after completion");
         }
 
         public class Context : ScenarioContext
