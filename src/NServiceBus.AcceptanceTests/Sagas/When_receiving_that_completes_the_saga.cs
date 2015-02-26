@@ -3,7 +3,6 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
     using Saga;
     using ScenarioDescriptors;
