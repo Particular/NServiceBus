@@ -46,40 +46,20 @@
         {
             return sendOnlyBus.Send(destination, message);
         }
-
-        public ICallback Send(Address address, object message)
-        {
-            return sendOnlyBus.Send(address, message);
-        }
-
+        
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
             return sendOnlyBus.Send(destination, messageConstructor);
         }
-
-        public ICallback Send<T>(Address address, Action<T> messageConstructor)
-        {
-            return sendOnlyBus.Send(address, messageConstructor);
-        }
-
+        
         public ICallback Send(string destination, string correlationId, object message)
         {
             return sendOnlyBus.Send(destination, correlationId, message);
         }
 
-        public ICallback Send(Address address, string correlationId, object message)
-        {
-            return sendOnlyBus.Send(address, correlationId, message);
-        }
-
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
             return sendOnlyBus.Send(destination, correlationId, messageConstructor);
-        }
-
-        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
-        {
-            return sendOnlyBus.Send(address, correlationId, messageConstructor);
         }
 
         public IDictionary<string, string> OutgoingHeaders { get; private set; }

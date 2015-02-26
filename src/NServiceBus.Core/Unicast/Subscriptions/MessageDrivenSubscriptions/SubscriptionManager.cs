@@ -18,9 +18,9 @@
             this.messageSender = messageSender;
         }
 
-        public void Subscribe(Type eventType, Address publisherAddress)
+        public void Subscribe(Type eventType, string publisherAddress)
         {
-            if (publisherAddress == Address.Undefined)
+            if (publisherAddress == null)
             {
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
             }
@@ -34,9 +34,9 @@
                 SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName));
         }
 
-        public void Unsubscribe(Type eventType, Address publisherAddress)
+        public void Unsubscribe(Type eventType, string publisherAddress)
         {
-            if (publisherAddress == Address.Undefined)
+            if (publisherAddress == null)
             {
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
             }
@@ -48,7 +48,7 @@
 
             messageSender.Send(subscriptionMessage, new SendOptions(publisherAddress)
             {
-                ReplyToAddress = Address.Parse(publicReturnAddress) 
+                ReplyToAddress = publicReturnAddress 
             });
         }
 
@@ -60,13 +60,13 @@
             return subscriptionMessage;
         }
 
-        void SendSubscribeMessageWithRetries(Address destination, TransportMessage subscriptionMessage, string messageType, int retriesCount = 0)
+        void SendSubscribeMessageWithRetries(string destination, TransportMessage subscriptionMessage, string messageType, int retriesCount = 0)
         {
             try
             {
                 messageSender.Send(subscriptionMessage, new SendOptions(destination)
                 {
-                    ReplyToAddress = Address.Parse(publicReturnAddress) 
+                    ReplyToAddress = publicReturnAddress 
                 });
             }
             catch (QueueNotFoundException ex)

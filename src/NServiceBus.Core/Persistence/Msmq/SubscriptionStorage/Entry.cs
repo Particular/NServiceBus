@@ -1,12 +1,10 @@
 namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
 {
-    using System;
     using Unicast.Subscriptions;
 
     /// <summary>
     /// Describes an entry in the list of subscriptions.
     /// </summary>
-    [Serializable]
     class Entry
     {
         /// <summary>
@@ -15,8 +13,8 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
         public MessageType MessageType { get; set; }
 
         /// <summary>
-        /// Gets the subscription request message.
+        /// The subscriber address.
         /// </summary>
-        public Address Subscriber { get; set; }
+        public string Subscriber { get; set; }
     }
 }

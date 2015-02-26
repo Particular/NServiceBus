@@ -10,15 +10,16 @@ namespace NServiceBus.Transports.Msmq
     /// <summary>
     ///     Default implementation of <see cref="IDequeueMessages" /> for MSMQ.
     /// </summary>
-    public class MsmqDequeueStrategy : IDequeueMessages, IDisposable
+    class MsmqDequeueStrategy : IDequeueMessages, IDisposable
     {
+
         /// <summary>
         ///     Creates an instance of <see cref="MsmqDequeueStrategy" />.
         /// </summary>
         /// <param name="criticalError">CriticalError</param>
         /// <param name="isTransactional"></param>
         /// <param name="errorQueueAddress"></param>
-        public MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional,Address errorQueueAddress)
+        public MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional, MsmqAddress errorQueueAddress)
         {
             this.criticalError = criticalError;
             this.isTransactional = isTransactional;
@@ -30,9 +31,18 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         public void Init(DequeueSettings settings)
         {
-            publicReceiveAddress = Address.Parse(settings.QueueName);
+            var msmqAddress = MsmqAddress.Parse(settings.QueueName);
 
-            queue = new MessageQueue(MsmqUtilities.GetFullPath(settings.QueueName), false, true, QueueAccessMode.Receive);
+            var queueName = msmqAddress.Queue;
+            if (!string.Equals(msmqAddress.Machine, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
+            {
+                var message = string.Format("MSMQ Dequeing can only run against the local machine. Invalid queue name '{0}'", settings.QueueName);
+                throw new Exception(message);
+            }
+            publicReceiveAddress = queueName;
+
+            var fullPath = MsmqUtilities.GetFullPath(queueName);
+            queue = new MessageQueue(fullPath, false, true, QueueAccessMode.Receive);
 
             if (isTransactional && !QueueIsTransactional())
             {
@@ -98,7 +108,7 @@ namespace NServiceBus.Transports.Msmq
 
                 CallPeekWithExceptionHandling(() => queue.EndPeek(peekCompletedEventArgs.AsyncResult));
 
-                observable.OnNext(new MessageAvailable(publicReceiveAddress.ToString(), c =>
+                observable.OnNext(new MessageAvailable(publicReceiveAddress, c =>
                 {
                     c.Set(queue);
                     c.Set("MsmqDequeueStrategy.PeekResetEvent",peekResetEvent);
@@ -152,7 +162,7 @@ namespace NServiceBus.Transports.Msmq
 
         CriticalError criticalError;
         readonly bool isTransactional;
-        readonly Address errorQueueAddress;
+        readonly MsmqAddress errorQueueAddress;
 
         [SkipWeaving]
         CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
@@ -160,7 +170,7 @@ namespace NServiceBus.Transports.Msmq
         ManualResetEvent stopResetEvent = new ManualResetEvent(true);
         AutoResetEvent peekResetEvent = new AutoResetEvent(false);
 
-        Address publicReceiveAddress;
+        string publicReceiveAddress;
         
         Observable<MessageAvailable> observable = new Observable<MessageAvailable>();
 

@@ -37,5 +37,11 @@ namespace NServiceBus.Transports
         {
             
         }
+
+        /// <summary>
+        /// Creates a new Address whose Queue is derived from the Queue of the existing Address
+        /// together with the provided qualifier. For example: queue.qualifier@machine
+        /// </summary>
+        public abstract string GetSubScope(string address, string qualifier);
     }
 }

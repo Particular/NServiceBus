@@ -1,7 +1,9 @@
 namespace NServiceBus
 {
+    using System;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
+    using NServiceBus.Transports.Msmq;
     using Transports;
 
     /// <summary>
@@ -26,7 +28,7 @@ namespace NServiceBus
             // For MSMQ the endpoint differentiator is a no-op since you commonly scale out by running the same endpoint on a different machine.
             // if users want to run more than one instance on the same machine they need to set an explicit discriminator
             config.GetSettings()
-                .SetDefault("EndpointInstanceDiscriminator", "");
+                .SetDefault("EndpointInstanceDiscriminator", String.Empty);
                
             config.EnableFeature<MsmqTransportConfigurator>();
             config.EnableFeature<MessageDrivenSubscriptions>();
@@ -34,6 +36,21 @@ namespace NServiceBus
 
             config.Settings.EnableFeatureByDefault<StorageDrivenPublishing>();
             config.Settings.EnableFeatureByDefault<TimeoutManager>();
+        }
+
+        /// <summary>
+        /// <see cref="TransportDefinition.GetSubScope"/>
+        /// </summary>
+        public override string GetSubScope(string address, string qualifier)
+        {
+            if (string.IsNullOrWhiteSpace(qualifier))
+            {
+                throw new ArgumentNullException("qualifier");
+            }
+
+            var msmqAddress = MsmqAddress.Parse(address);
+
+            return msmqAddress.ToString(qualifier);
         }
     }
 }

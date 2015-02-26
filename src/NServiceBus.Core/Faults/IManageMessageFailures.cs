@@ -1,7 +1,5 @@
 namespace NServiceBus.Faults
 {
-    using System;
-
     /// <summary>
     /// Interface for defining how message failures will be handled.
     /// </summary>
@@ -11,20 +9,5 @@ namespace NServiceBus.Faults
        TreatAsErrorFromVersion = "6")]
     public interface IManageMessageFailures
     {
-        /// <summary>
-        /// Invoked when the deserialization of a message failed.
-        /// </summary>
-        void SerializationFailedForMessage(TransportMessage message, Exception e);
-
-        /// <summary>
-        /// Invoked when a message has failed its processing the maximum number of time configured.
-        /// </summary>
-        void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e);
-
-        /// <summary>
-        /// Initializes the fault manager
-        /// </summary>
-        /// <param name="address">The address of the message source</param>
-        void Init(Address address);
     }
 }

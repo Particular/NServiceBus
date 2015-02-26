@@ -222,7 +222,7 @@ namespace NServiceBus.Features
 
             if (!string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
             {
-                var forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
+                var forwardAddress = unicastConfig.ForwardReceivedMessagesTo;
                 context.Container.ConfigureProperty<ForwardBehavior>(b => b.ForwardReceivedMessagesTo, forwardAddress);
             }
 

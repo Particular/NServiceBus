@@ -11,8 +11,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
         [Test]
         public void Should_not_autoSubscribe_commands()
         {
-
-            var commandEndpointAddress = new Address("CommandEndpoint", "localhost");
+            var commandEndpointAddress = "CommandEndpoint@localhost";
 
             RegisterMessageType<CommandMessage>(commandEndpointAddress);
             RegisterMessageHandlerType<CommandMessageHandler>();
@@ -25,7 +24,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
         [Test]
         public void Should_not_autoSubscribe_messages_by_default()
         {
-            var endpointAddress = new Address("MyEndpoint", "localhost");
+            var endpointAddress = "MyEndpoint@localhost";
 
             RegisterMessageType<MyMessage>(endpointAddress);
             RegisterMessageHandlerType<MyMessageHandler>();
@@ -36,7 +35,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
         [Test]
         public void Should_not_autoSubscribe_messages_unless_asked_to_by_the_users()
         {
-            var endpointAddress = new Address("MyEndpoint", "localhost");
+            var endpointAddress = "MyEndpoint@localhost";
 
             autoSubscriptionStrategy.SubscribePlainMessages = true;
 

@@ -2,10 +2,12 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Messaging;
     using System.Transactions;
     using Logging;
     using Msmq.SubscriptionStorage;
+    using NServiceBus.Transports.Msmq;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using MessageType = Unicast.Subscriptions.MessageType;
 
@@ -17,7 +19,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
     {
         public bool TransactionsEnabled { get; set; }
 
-        void ISubscriptionStorage.Init()
+        public void Init()
         {
             var path = MsmqUtilities.GetFullPath(Queue);
 
@@ -44,7 +46,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 
             foreach (var m in q.GetAllMessages())
             {
-                var subscriber = Address.Parse(m.Label);
+                var subscriber = m.Label;
                 var messageTypeString = m.Body as string;
                 var messageType = new MessageType(messageTypeString); //this will parse both 2.6 and 3.0 type strings
 
@@ -53,61 +55,73 @@ namespace NServiceBus.Persistence.SubscriptionStorage
             }
         }
 
-        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
+        public IEnumerable<string> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
-            var result = new List<Address>();
-
-            lock (locker)
-                foreach (var e in entries)
-                    foreach (var m in messageTypes)
-                        if (e.MessageType == m)
-                            if (!result.Contains(e.Subscriber))
-                                result.Add(e.Subscriber);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Checks if configuration is wrong - endpoint isn't transactional and
-        /// object isn't configured to handle own transactions.
-        /// </summary>
-        private bool ConfigurationIsWrong()
-        {
-            return (Transaction.Current == null && !DontUseExternalTransaction);
-        }
-
-        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<MessageType> messageTypes)
-        {
+            var result = new List<string>();
+            var messagelist = messageTypes.ToList();
             lock (locker)
             {
-                foreach (var messageType in messageTypes)
+                foreach (var e in entries)
                 {
-                    var found = false;
-                    foreach (var e in entries)
-                        if (e.MessageType == messageType && e.Subscriber == address)
-                        {
-                            found = true;
-                            break;
-                        }
-
-                    if (!found)
+                    foreach (var m in messagelist)
                     {
-                        Add(address, messageType);
-
-                        entries.Add(new Entry { MessageType = messageType, Subscriber = address });
-
-                        log.Debug("Subscriber " + address + " added for message " + messageType + ".");
+                        if (e.MessageType == m)
+                        {
+                            var loweredSubscriberAddress = e.Subscriber.ToLowerInvariant();
+                            if (!result.Contains(loweredSubscriberAddress))
+                            {
+                                result.Add(loweredSubscriberAddress);
+                                yield return e.Subscriber;
+                            }
+                        }
                     }
                 }
             }
         }
 
-        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<MessageType> messageTypes)
+        public void Subscribe(string address, IEnumerable<MessageType> messageTypes)
         {
             lock (locker)
             {
+                var messagelist = messageTypes.ToList();
+                foreach (var messageType in messagelist)
+                {
+                    var found = false;
+                    foreach (var e in entries)
+                    {
+                        if (e.MessageType == messageType && e.Subscriber == address)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        Add(address, messageType);
+
+                        var entry = new Entry
+                                    {
+                                        MessageType = messageType,
+                                        Subscriber = address
+                                    };
+                        entries.Add(entry);
+
+                        log.DebugFormat("Subscriber {0} added for message {1}.", address, messageType);
+                    }
+                }
+            }
+        }
+
+        public void Unsubscribe(string address, IEnumerable<MessageType> messageTypes)
+        {
+            lock (locker)
+            {
+                var messagelist = messageTypes.ToList();
                 foreach (var e in entries.ToArray())
-                    foreach (var messageType in messageTypes)
+                {
+                    foreach (var messageType in messagelist)
+                    {
                         if (e.MessageType == messageType && e.Subscriber == address)
                         {
                             Remove(address, messageType);
@@ -116,15 +130,23 @@ namespace NServiceBus.Persistence.SubscriptionStorage
 
                             log.Debug("Subscriber " + address + " removed for message " + messageType + ".");
                         }
+                    }
+                }
             }
         }
 
         /// <summary>
         /// Adds a message to the subscription store.
         /// </summary>
-        public void Add(Address subscriber, MessageType messageType)
+        public void Add(string subscriber, MessageType messageType)
         {
-            var toSend = new Message { Formatter = q.Formatter, Recoverable = true, Label = subscriber.ToString(), Body = messageType.TypeName + ", Version=" + messageType.Version };
+            var toSend = new Message
+                         {
+                             Formatter = q.Formatter,
+                             Recoverable = true, 
+                             Label = subscriber, 
+                             Body = messageType.TypeName + ", Version=" + messageType.Version
+                         };
 
             q.Send(toSend, GetTransactionType());
 
@@ -134,7 +156,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         /// <summary>
         /// Removes a message from the subscription store.
         /// </summary>
-        public void Remove(Address subscriber, MessageType messageType)
+        public void Remove(string subscriber, MessageType messageType)
         {
             var messageId = RemoveFromLookup(subscriber, messageType);
 
@@ -142,6 +164,15 @@ namespace NServiceBus.Persistence.SubscriptionStorage
                 return;
 
             q.ReceiveById(messageId, GetTransactionType());
+        }
+
+        /// <summary>
+        /// Checks if configuration is wrong - endpoint isn't transactional and
+        /// object isn't configured to handle own transactions.
+        /// </summary>
+        private bool ConfigurationIsWrong()
+        {
+            return (Transaction.Current == null && !DontUseExternalTransaction);
         }
 
         /// <summary>
@@ -179,17 +210,13 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         /// Sets the address of the queue where subscription messages will be stored.
         /// For a local queue, just use its name - msmq specific info isn't needed.
         /// </summary>
-        public Address Queue
-        {
-            get;
-            set;
-        }
+        public MsmqAddress Queue{get;set;}
 
         /// <summary>
         /// Adds a message to the lookup to find message from
         /// subscriber, to message type, to message id
         /// </summary>
-        private void AddToLookup(Address subscriber, MessageType typeName, string messageId)
+        void AddToLookup(string subscriber, MessageType typeName, string messageId)
         {
             lock (lookup)
             {
@@ -206,7 +233,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
             }
         }
 
-        string RemoveFromLookup(Address subscriber, MessageType typeName)
+        string RemoveFromLookup(string subscriber, MessageType typeName)
         {
             string messageId = null;
             lock (lookup)
@@ -232,7 +259,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         /// <summary>
         /// lookup from subscriber, to message type, to message id
         /// </summary>
-        readonly Dictionary<Address, Dictionary<MessageType, string>> lookup = new Dictionary<Address, Dictionary<MessageType, string>>();
+        readonly Dictionary<string, Dictionary<MessageType, string>> lookup = new Dictionary<string, Dictionary<MessageType, string>>(StringComparer.OrdinalIgnoreCase);
 
         readonly List<Entry> entries = new List<Entry>();
         readonly object locker = new object();

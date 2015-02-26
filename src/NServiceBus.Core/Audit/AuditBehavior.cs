@@ -13,7 +13,7 @@
 
         public IAuditMessages MessageAuditer { get; set; }
 
-        public Address AuditQueue { get; set; }
+        public string AuditQueue { get; set; }
 
         public TimeSpan? TimeToBeReceivedOnForwardedMessages { get; set; }
 

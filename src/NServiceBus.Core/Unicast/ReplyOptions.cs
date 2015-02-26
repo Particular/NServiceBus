@@ -7,10 +7,21 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class ReplyOptions : SendOptions
     {
+
         /// <summary>
         /// Both a destination and a correlation id is required when replying
         /// </summary>
-        public ReplyOptions(Address destination, string correlationId):base(destination)
+        [ObsoleteEx(Replacement = "ReplyOptions(string destination, string correlationId)",RemoveInVersion = "7.0")]
+        // ReSharper disable once UnusedParameter.Local
+        public ReplyOptions(Address destination, string correlationId) : base(destination)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Both a destination and a correlation id is required when replying
+        /// </summary>
+        public ReplyOptions(string destination, string correlationId):base(destination)
         {
             if (destination == null)
             {

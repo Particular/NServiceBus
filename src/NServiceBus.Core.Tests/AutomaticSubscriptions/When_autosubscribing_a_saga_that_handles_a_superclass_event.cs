@@ -17,7 +17,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
         public void Should_autoSubscribe_the_saga_messageHandler()
         {
 
-            var eventEndpointAddress = new Address("PublisherAddress", "localhost");
+            var eventEndpointAddress = "PublisherAddress@localhost";
 
             RegisterMessageType<EventWithParent>(eventEndpointAddress);
             RegisterMessageHandlerType<MySagaThatReactsOnASuperClassEvent>();

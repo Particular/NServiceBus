@@ -2,7 +2,7 @@ namespace NServiceBus.Unicast.Queuing.Installers
 {
     class EndpointInputQueueCreator : IWantQueueCreated
     {
-        Address address;
+        string address;
 
         public EndpointInputQueueCreator(Configure config)
         {
@@ -12,7 +12,7 @@ namespace NServiceBus.Unicast.Queuing.Installers
         /// <summary>
         /// Endpoint input name
         /// </summary>
-        public Address Address
+        public string Address
         {
             get { return address; }
         }

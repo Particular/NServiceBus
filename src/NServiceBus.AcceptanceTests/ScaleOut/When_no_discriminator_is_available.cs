@@ -49,6 +49,11 @@
             {
                 config.EnableFeature<TransportThatDoesntSetADefaultDiscriminatorConfigurator>();
             }
+
+            public override string GetSubScope(string address, string qualifier)
+            {
+                return address + "." + qualifier;
+            }
         }
 
             public class TransportThatDoesntSetADefaultDiscriminatorConfigurator : ConfigureTransport

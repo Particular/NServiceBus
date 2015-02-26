@@ -35,7 +35,7 @@
                 }
             }
 
-            var storageQueue = Address.Parse(queueName);
+            var storageQueue = queueName;
 
             context.Container.ConfigureComponent<SubscriptionsQueueCreator>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.StorageQueue, storageQueue);

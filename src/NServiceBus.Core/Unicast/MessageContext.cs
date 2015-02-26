@@ -45,7 +45,7 @@ namespace NServiceBus.Unicast
             get { return transportMessage.Id; }
         }
 
-        Address IMessageContext.ReplyToAddress
+        string IMessageContext.ReplyToAddress
         {
             get { return transportMessage.ReplyToAddress; }
         }

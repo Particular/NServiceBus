@@ -17,7 +17,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public int SecondsToSleepBetweenPolls { get; set; }
         public DefaultTimeoutManager TimeoutManager { get; set; }
         public CriticalError CriticalError { get; set; }
-        public Address DispatcherAddress { get; set; }
+        public string DispatcherAddress { get; set; }
         public TimeSpan TimeToWaitBeforeTriggeringCriticalError { get; set; }
 
         public void Dispose()

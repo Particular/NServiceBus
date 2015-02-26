@@ -48,7 +48,7 @@ namespace NServiceBus.Transports
 
             if (transportMessage.ReplyToAddress != null)
             {
-                messageToForward.Headers[Headers.OriginatingAddress] = transportMessage.ReplyToAddress.ToString();
+                messageToForward.Headers[Headers.OriginatingAddress] = transportMessage.ReplyToAddress;
             }
 
             // Send the newly created transport message to the queue

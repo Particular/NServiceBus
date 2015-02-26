@@ -8,6 +8,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Create a messages queue where its name is the address parameter, for the given account.
         /// </summary>
-        void CreateQueueIfNecessary(Address address, string account);
+        void CreateQueueIfNecessary(string address, string account);
     }
 }

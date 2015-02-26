@@ -61,9 +61,9 @@ namespace NServiceBus
         /// <summary>
         /// Returns the queue name of this endpoint.
         /// </summary>
-        public static Address LocalAddress(this ReadOnlySettings settings)
+        public static string LocalAddress(this ReadOnlySettings settings)
         {
-            return Address.Parse(settings.Get<string>("NServiceBus.LocalAddress"));
+            return settings.Get<string>("NServiceBus.LocalAddress");
         }
 
         static bool HasConstructorThatAcceptsSettings(Type sectionOverrideType)

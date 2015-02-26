@@ -7,6 +7,7 @@ namespace NServiceBus
     using NServiceBus.Logging;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
+    using NServiceBus.Transports.Msmq;
 
     abstract class MsmqReceiveBehavior:ReceiveBehavior
     {
@@ -42,7 +43,7 @@ namespace NServiceBus
 
         protected void HandleCorruptMessage( IncomingContext context,Message message,Exception ex, Action<MessageQueue,Message> onError)
         {
-            var errorQueue = context.Get<Address>("MsmqDequeueStrategy.ErrorQueue");
+            var errorQueue = context.Get<MsmqAddress>("MsmqDequeueStrategy.ErrorQueue");
 
             LogCorruptedMessage(message, ex, errorQueue);
 
@@ -54,7 +55,7 @@ namespace NServiceBus
         }
 
 
-        void LogCorruptedMessage(Message message, Exception ex, Address errorQueue)
+        void LogCorruptedMessage(Message message, Exception ex, MsmqAddress errorQueue)
         {
             var error = string.Format("Message '{0}' is corrupt and will be moved to '{1}'", message.Id, errorQueue.Queue);
             Logger.Error(error, ex);

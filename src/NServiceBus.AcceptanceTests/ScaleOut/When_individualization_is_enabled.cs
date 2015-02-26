@@ -42,7 +42,7 @@
 
                 public void Start()
                 {
-                    Context.Address = Configure.LocalAddress.ToString();
+                    Context.Address = Configure.LocalAddress;
                 }
 
                 public void Stop()

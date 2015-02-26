@@ -28,6 +28,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The reply address to use for outgoing messages
         /// </summary>
-        public Address ReplyToAddress { get; set; }
+        public string ReplyToAddress { get; set; }
     }
 }

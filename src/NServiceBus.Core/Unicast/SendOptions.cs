@@ -13,9 +13,11 @@ namespace NServiceBus.Unicast
         /// Creates an instance of <see cref="SendOptions"/>.
         /// </summary>
         /// <param name="destination">Address where to send this message</param>
+        [ObsoleteEx(Replacement = "SendOptions(string)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        // ReSharper disable once UnusedParameter.Local
         public SendOptions(Address destination)
         {
-            Destination = destination;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -23,8 +25,8 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="destination">Address where to send this message</param>
         public SendOptions(string destination)
-            : this(Address.Parse(destination))
         {
+            Destination = destination;
         }
 
         /// <summary>
@@ -57,7 +59,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Address where to send this message
         /// </summary>
-        public Address Destination { get; set; }
+        public string Destination { get; set; }
 
         /// <summary>
         /// The TTR to use for this message

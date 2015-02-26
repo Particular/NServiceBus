@@ -4,9 +4,9 @@ namespace NServiceBus.Faults.Forwarder.Config
 
     class FaultsQueueCreator : IWantQueueCreated
     {
-        public Address ErrorQueue { get; set; }
+        public string ErrorQueue { get; set; }
 
-        public Address Address
+        public string Address
         {
             get { return ErrorQueue; }
         }

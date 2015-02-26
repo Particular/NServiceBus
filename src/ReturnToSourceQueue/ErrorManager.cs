@@ -4,12 +4,13 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
     using System.Messaging;
     using System.Transactions;
     using Faults;
+    using NServiceBus.Transports.Msmq;
 
-    public class ErrorManager
+    class ErrorManager
     {
         public bool ClusteredQueue { get; set; }
 
-        public virtual Address InputQueue
+        public virtual MsmqAddress InputQueue
         {
             set
             {
@@ -67,7 +68,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                         return;
                     }
 
-                    using (var q = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(failedQ))))
+                    using (var q = new MessageQueue(MsmqUtilities.GetFullPath(MsmqAddress.Parse(failedQ))))
                     {
                         q.Send(message, MessageQueueTransactionType.Automatic);
                     }
@@ -104,7 +105,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                             using (var tx = new TransactionScope())
                             {
                                 var failedQueue = tm.Headers[FaultsHeaderKeys.FailedQ];
-                                using (var q = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(failedQueue))))
+                                using (var q = new MessageQueue(MsmqUtilities.GetFullPath(MsmqAddress.Parse(failedQueue))))
                                 {
                                     q.Send(m, MessageQueueTransactionType.Automatic);
                                 }

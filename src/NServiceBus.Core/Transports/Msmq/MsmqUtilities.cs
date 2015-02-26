@@ -22,7 +22,7 @@ namespace NServiceBus
         ///     Turns a '@' separated value into a full path.
         ///     Format is 'queue@machine', or 'queue@ipaddress'
         /// </summary>
-        public static string GetFullPath(Address value)
+        public static string GetFullPath(MsmqAddress value)
         {
             IPAddress ipAddress;
             if (IPAddress.TryParse(value.Machine, out ipAddress))
@@ -43,34 +43,23 @@ namespace NServiceBus
         ///     If the target includes a machine name, uses the local machine name in the returned value
         ///     otherwise uses the local IP address in the returned value.
         /// </summary>
-        public static string GetReturnAddress(string value, string target)
+        public static string GetReturnAddress(string replyToString, string detinationMachine)
         {
-            return GetReturnAddress(Address.Parse(value), Address.Parse(target));
-        }
-
-        /// <summary>
-        ///     Gets the name of the return address from the provided value.
-        ///     If the target includes a machine name, uses the local machine name in the returned value
-        ///     otherwise uses the local IP address in the returned value.
-        /// </summary>
-        public static string GetReturnAddress(Address value, Address target)
-        {
-            var machine = target.Machine;
-
+            var replyToAddress = MsmqAddress.Parse(replyToString);
             IPAddress targetIpAddress;
 
             //see if the target is an IP address, if so, get our own local ip address
-            if (IPAddress.TryParse(machine, out targetIpAddress))
+            if (IPAddress.TryParse(detinationMachine, out targetIpAddress))
             {
                 if (string.IsNullOrEmpty(localIp))
                 {
                     localIp = LocalIpAddress(targetIpAddress);
                 }
 
-                return PREFIX_TCP + localIp + PRIVATE + value.Queue;
+                return PREFIX_TCP + localIp + PRIVATE + replyToAddress.Queue;
             }
 
-            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
+            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(replyToAddress);
         }
 
         static string LocalIpAddress(IPAddress targetIpAddress)
@@ -102,27 +91,22 @@ namespace NServiceBus
             return "127.0.0.1";
         }
 
-       
-        static Address GetIndependentAddressForQueue(MessageQueue q)
-        {
-            if (q == null)
-            {
-                return null;
-            }
 
+        static MsmqAddress GetIndependentAddressForQueue(MessageQueue q)
+        {
             var arr = q.FormatName.Split('\\');
             var queueName = arr[arr.Length - 1];
 
             var directPrefixIndex = arr[0].IndexOf(DIRECTPREFIX);
             if (directPrefixIndex >= 0)
             {
-                return new Address(queueName, arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length));
+                return new MsmqAddress(queueName, arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length));
             }
 
             var tcpPrefixIndex = arr[0].IndexOf(DIRECTPREFIX_TCP);
             if (tcpPrefixIndex >= 0)
             {
-                return new Address(queueName, arr[0].Substring(tcpPrefixIndex + DIRECTPREFIX_TCP.Length));
+                return new MsmqAddress(queueName, arr[0].Substring(tcpPrefixIndex + DIRECTPREFIX_TCP.Length));
             }
 
             try
@@ -130,7 +114,7 @@ namespace NServiceBus
                 // the pessimistic approach failed, try the optimistic approach
                 arr = q.QueueName.Split('\\');
                 queueName = arr[arr.Length - 1];
-                return new Address(queueName, q.MachineName);
+                return new MsmqAddress(queueName, q.MachineName);
             }
             catch
             {
@@ -158,7 +142,6 @@ namespace NServiceBus
             {
                 result.Headers[Headers.ReplyToAddress] = GetIndependentAddressForQueue(m.ResponseQueue).ToString();    
             }
-            
 
             if (Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific))
             {
@@ -188,7 +171,7 @@ namespace NServiceBus
 
             //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end that the sender added to make it compatible
             //The replace can be removed in v5 since only v3 messages will need this
-            return message.CorrelationId.Replace("\\0", "");
+            return message.CorrelationId.Replace("\\0", String.Empty);
         }
 
         static Dictionary<string, string> DeserializeMessageHeaders(Message m)
@@ -310,4 +293,5 @@ namespace NServiceBus
         static System.Xml.Serialization.XmlSerializer headerSerializer = new System.Xml.Serialization.XmlSerializer(typeof(List<HeaderInfo>));
         static ILog Logger = LogManager.GetLogger<MsmqUtilities>();
     }
+
 }
