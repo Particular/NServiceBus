@@ -24,6 +24,9 @@
 	  <dependency id="Rx-Main" version="2.2.5" />
 	  <dependency id="Rx-PlatformServices" version="2.2.5" />
     </dependencies>
+	<frameworkAssemblies>
+		<frameworkAssembly assemblyName="System.Messaging" targetFramework="net45" />
+	</frameworkAssemblies>	
   </metadata>
   <files>
     <file src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs" target="content\App_Packages\NSB.AcceptanceTests.$version$" exclude="**\bin\**\*.*;**\obj\**\*.*" />
