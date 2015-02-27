@@ -7,6 +7,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using System.Web;
     using System.Web.UI;
+    using NServiceBus.Logging;
     using Unicast;
 
     /// <summary>
@@ -14,6 +15,7 @@ namespace NServiceBus
     /// </summary>
     class Callback : ICallback
     {
+        static ILog log = LogManager.GetLogger<UnicastBus>();
         static Type AsyncControllerType;
 
         string messageId;
@@ -46,7 +48,7 @@ namespace NServiceBus
         /// <summary>
         /// Event raised when the Register method is called.
         /// </summary>
-        public event EventHandler<BusAsyncResultEventArgs> Registered;
+        public event EventHandler<CallbackResultEventArgs> Registered;
 
         /// <summary>
         /// Returns the message id this object was constructed with.
@@ -58,7 +60,7 @@ namespace NServiceBus
 
         public Task<int> Register()
         {
-            return InternalRegister(null, null).Task
+            return InternalRegister(null, null)
                 .ContinueWith(t => t.Result.ErrorCode, TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
@@ -68,19 +70,19 @@ namespace NServiceBus
                 throw new InvalidOperationException(
                     "Register<T> can only be used with enumerations, use Register() to return an integer instead");
 
-            return InternalRegister(null, null).Task
+            return InternalRegister(null, null)
                 .ContinueWith(t => (T)Enum.Parse(typeof(T), t.Result.ErrorCode.ToString(CultureInfo.InvariantCulture)),
                 TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
         public Task<T> Register<T>(Func<CompletionResult, T> completion)
         {
-            return InternalRegister(null, null).Task.ContinueWith(t => completion(t.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
+            return InternalRegister(null, null).ContinueWith(t => completion(t.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
         public Task Register(Action<CompletionResult> completion)
         {
-            return InternalRegister(null, null).Task.ContinueWith(t => completion(t.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
+            return InternalRegister(null, null).ContinueWith(t => completion(t.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
         public IAsyncResult Register(AsyncCallback callback, object state)
@@ -88,18 +90,38 @@ namespace NServiceBus
             return InternalRegister(callback, state);
         }
 
-        BusAsyncResult InternalRegister(AsyncCallback callback, object state)
+        Task<CompletionResult> InternalRegister(AsyncCallback callback, object state)
         {
             if (isSendOnly)
             {
                 throw new Exception("Callbacks are invalid in a sendonly endpoint.");
             }
-            var result = new BusAsyncResult(callback, state);
 
-            if (Registered != null)
-                Registered(this, new BusAsyncResultEventArgs { Result = result, MessageId = messageId });
+            var tcs = new TaskCompletionSource<CompletionResult>(new CompletionResult
+            {
+                State = state
+            });
 
-            return result;
+            if (callback != null)
+            {
+                tcs.Task.ContinueWith(t =>
+                {
+                    try
+                    {
+                        callback(t);
+                    }
+                    catch (Exception e)
+                    {
+                        log.Error(callback.ToString(), e);
+                    }
+                });
+            }
+
+            var handler = Registered;
+            if (handler != null)
+                handler(this, new CallbackResultEventArgs { TaskCompletionSource = tcs, MessageId = messageId });
+
+            return tcs.Task;
         }
 
         public void Register<T>(Action<T> callback)

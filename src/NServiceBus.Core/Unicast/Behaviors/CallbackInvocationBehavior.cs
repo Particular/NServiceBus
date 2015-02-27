@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast.Transport;
     using Unicast;
@@ -16,7 +17,6 @@
         {
             this.callbackMessageLookup = callbackMessageLookup;
         }
-
 
         public override void Invoke(Context context, Action next)
         {
@@ -43,7 +43,7 @@
             }
             else
             {
-                //older versions used "Send" as intent for replies. Therefor we need to check for id != cid to avoid 
+                //older versions used "Send" as intent for replies. Therefor we need to check for id != cid to avoid
                 // firing callbacks too soon
                 if (transportMessage.Id == transportMessage.CorrelationId)
                 {
@@ -51,9 +51,9 @@
                 }
             }
 
-            BusAsyncResult busAsyncResult;
+            TaskCompletionSource<CompletionResult> taskCompletionSource;
 
-            if (!callbackMessageLookup.TryGet(transportMessage.CorrelationId, out busAsyncResult))
+            if (!callbackMessageLookup.TryGet(transportMessage.CorrelationId, out taskCompletionSource))
             {
                 return false;
             }
@@ -69,7 +69,11 @@
                 }
             }
 
-            busAsyncResult.Complete(statusCode, context.LogicalMessages.Select(lm => lm.Instance).ToArray());
+            var result = (CompletionResult)taskCompletionSource.Task.AsyncState;
+            result.ErrorCode = statusCode;
+            result.Messages = context.LogicalMessages.Select(lm => lm.Instance).ToArray();
+
+            taskCompletionSource.SetResult(result);
 
             return true;
         }

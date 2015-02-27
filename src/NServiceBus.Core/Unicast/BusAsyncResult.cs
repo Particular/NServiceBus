@@ -2,32 +2,20 @@ namespace NServiceBus.Unicast
 {
     using System;
     using System.Threading;
-    using System.Threading.Tasks;
-    using Logging;
 
     /// <summary>
     /// Implementation of IAsyncResult returned when registering a callback.
     /// </summary>
+    [ObsoleteEx(TreatAsErrorFromVersion = "6.0", RemoveInVersion = "7.0")]
     public class BusAsyncResult : IAsyncResult
     {
-        readonly AsyncCallback callback;
-        readonly CompletionResult result;
-        readonly TaskCompletionSource<CompletionResult> tcs;
-        readonly IAsyncResult internalAsyncResult;
-
         /// <summary>
         /// Creates a new object storing the given callback and state.
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "6.0", RemoveInVersion = "7.0")]
         public BusAsyncResult(AsyncCallback callback, object state)
         {
-            this.callback = callback;
-            result = new CompletionResult
-            {
-                State = state
-            };
-
-            tcs = new TaskCompletionSource<CompletionResult>(result);
-            internalAsyncResult = tcs.Task;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -37,31 +25,15 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Complete(int errorCode, params object[] messages)
         {
-            result.ErrorCode = errorCode;
-            result.Messages = messages;
-
-            if (callback != null)
-                try
-                {
-                    callback(this);
-                }
-                catch (Exception e)
-                {
-                    log.Error(callback.ToString(), e);
-                    tcs.SetException(e);
-                }
-
-            tcs.SetResult(result);
+            throw new NotImplementedException();
         }
-
-        static ILog log = LogManager.GetLogger<UnicastBus>();
 
         /// <summary>
         /// Returns a completion result containing the error code, messages, and state.
         /// </summary>
         public object AsyncState
         {
-            get { return internalAsyncResult.AsyncState; }
+            get { throw new NotImplementedException(); }
         }
 
         /// <summary>
@@ -69,7 +41,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public WaitHandle AsyncWaitHandle
         {
-            get { return internalAsyncResult.AsyncWaitHandle; }
+            get { throw new NotImplementedException(); }
         }
 
         /// <summary>
@@ -77,7 +49,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public bool CompletedSynchronously
         {
-            get { return internalAsyncResult.CompletedSynchronously; }
+            get { throw new NotImplementedException(); }
         }
 
         /// <summary>
@@ -85,12 +57,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public bool IsCompleted
         {
-            get { return internalAsyncResult.IsCompleted; }
-        }
-
-        internal Task<CompletionResult> Task
-        {
-            get { return tcs.Task; }
+            get { throw new NotImplementedException(); }
         }
     }
 }
