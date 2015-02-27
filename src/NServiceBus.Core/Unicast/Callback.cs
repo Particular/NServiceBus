@@ -58,49 +58,37 @@ namespace NServiceBus
 
         public Task<int> Register()
         {
-            var asyncResult = Register(null, null);
-            var task = Task<int>.Factory.FromAsync(asyncResult, x =>
-                {
-                    var cr = ((CompletionResult) x.AsyncState);
-
-                    return cr.ErrorCode;
-                }, TaskCreationOptions.None, TaskScheduler.Default);
-
-            return task;
+            return InternalRegister(null, null).Task
+                .ContinueWith(t => t.Result.ErrorCode, TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
         public Task<T> Register<T>()
         {
-            if (!typeof (T).IsEnum)
+            if (!typeof(T).IsEnum)
                 throw new InvalidOperationException(
                     "Register<T> can only be used with enumerations, use Register() to return an integer instead");
 
-            var asyncResult = Register(null, null);
-            var task = Task<T>.Factory.FromAsync(asyncResult, x =>
-                {
-                    var cr = ((CompletionResult) x.AsyncState);
-
-                    return (T) Enum.Parse(typeof (T), cr.ErrorCode.ToString(CultureInfo.InvariantCulture));
-                }, TaskCreationOptions.None, TaskScheduler.Default);
-
-            return task;
+            return InternalRegister(null, null).Task
+                .ContinueWith(t => (T)Enum.Parse(typeof(T), t.Result.ErrorCode.ToString(CultureInfo.InvariantCulture)),
+                TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
         public Task<T> Register<T>(Func<CompletionResult, T> completion)
         {
-            var asyncResult = Register(null, null);
-            return Task<T>.Factory.FromAsync(asyncResult, x => completion((CompletionResult) x.AsyncState),
-                                                 TaskCreationOptions.None, TaskScheduler.Default);
+            return InternalRegister(null, null).Task.ContinueWith(t => completion(t.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
         public Task Register(Action<CompletionResult> completion)
         {
-            var asyncResult = Register(null, null);
-            return Task.Factory.FromAsync(asyncResult, x => completion((CompletionResult) x.AsyncState),
-                                              TaskCreationOptions.None, TaskScheduler.Default);
+            return InternalRegister(null, null).Task.ContinueWith(t => completion(t.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
         public IAsyncResult Register(AsyncCallback callback, object state)
+        {
+            return InternalRegister(callback, state);
+        }
+
+        BusAsyncResult InternalRegister(AsyncCallback callback, object state)
         {
             if (isSendOnly)
             {
@@ -143,7 +131,7 @@ namespace NServiceBus
 
             if (synchronizer == null)
             {
-                Register(GetCallbackInvocationActionFrom(callback), null);
+                InternalRegister(GetCallbackInvocationActionFrom(callback), null);
                 return;
             }
 
@@ -151,7 +139,7 @@ namespace NServiceBus
             if (page != null)
             {
                 page.RegisterAsyncTask(new PageAsyncTask(
-                    (sender, e, cb, extraData) => Register(cb, extraData),
+                    (sender, e, cb, extraData) => InternalRegister(cb, extraData),
                     new EndEventHandler(GetCallbackInvocationActionFrom(callback)),
                     null,
                     null
@@ -172,11 +160,11 @@ namespace NServiceBus
             var synchronizationContext = synchronizer as SynchronizationContext;
             if (synchronizationContext != null)
             {
-               Register(
-                    ar => synchronizationContext.Post(
-                        x => GetCallbackInvocationActionFrom(callback).Invoke(ar), null),
-                    null
-                    );
+                InternalRegister(
+                     ar => synchronizationContext.Post(
+                         x => GetCallbackInvocationActionFrom(callback).Invoke(ar), null),
+                     null
+                     );
             }
         }
 

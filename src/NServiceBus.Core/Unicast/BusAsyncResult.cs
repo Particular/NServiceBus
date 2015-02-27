@@ -2,6 +2,7 @@ namespace NServiceBus.Unicast
 {
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
     using Logging;
 
     /// <summary>
@@ -11,8 +12,8 @@ namespace NServiceBus.Unicast
     {
         readonly AsyncCallback callback;
         readonly CompletionResult result;
-        volatile bool completed;
-        readonly ManualResetEvent sync;
+        readonly TaskCompletionSource<CompletionResult> tcs;
+        readonly IAsyncResult internalAsyncResult;
 
         /// <summary>
         /// Creates a new object storing the given callback and state.
@@ -24,11 +25,13 @@ namespace NServiceBus.Unicast
             {
                 State = state
             };
-            sync = new ManualResetEvent(false);
+
+            tcs = new TaskCompletionSource<CompletionResult>(result);
+            internalAsyncResult = tcs.Task;
         }
 
         /// <summary>
-        /// Stores the given error code and messages, 
+        /// Stores the given error code and messages,
         /// releases any blocked threads,
         /// and invokes the previously given callback.
         /// </summary>
@@ -36,7 +39,6 @@ namespace NServiceBus.Unicast
         {
             result.ErrorCode = errorCode;
             result.Messages = messages;
-            completed = true;
 
             if (callback != null)
                 try
@@ -46,19 +48,20 @@ namespace NServiceBus.Unicast
                 catch (Exception e)
                 {
                     log.Error(callback.ToString(), e);
+                    tcs.SetException(e);
                 }
 
-            sync.Set();
+            tcs.SetResult(result);
         }
 
         static ILog log = LogManager.GetLogger<UnicastBus>();
-        
+
         /// <summary>
         /// Returns a completion result containing the error code, messages, and state.
         /// </summary>
         public object AsyncState
         {
-            get { return result; }
+            get { return internalAsyncResult.AsyncState; }
         }
 
         /// <summary>
@@ -66,7 +69,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public WaitHandle AsyncWaitHandle
         {
-            get { return sync; }
+            get { return internalAsyncResult.AsyncWaitHandle; }
         }
 
         /// <summary>
@@ -74,7 +77,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public bool CompletedSynchronously
         {
-            get { return false; }
+            get { return internalAsyncResult.CompletedSynchronously; }
         }
 
         /// <summary>
@@ -82,7 +85,12 @@ namespace NServiceBus.Unicast
         /// </summary>
         public bool IsCompleted
         {
-            get { return completed; }
+            get { return internalAsyncResult.IsCompleted; }
+        }
+
+        internal Task<CompletionResult> Task
+        {
+            get { return tcs.Task; }
         }
     }
 }
