@@ -34,7 +34,7 @@
 
             var headers = new Dictionary<string, string>
             {
-                {SecondLevelRetriesBehavior.RetriesTimestamp,DateTimeExtensions.ToWireFormattedString(DateTime.Now.AddHours(-24))}
+                {SecondLevelRetriesBehavior.RetriesTimestamp,DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow.AddHours(-24))}
             };
 
             Assert.False(policy.TryGetDelay(new TransportMessage("", headers), new Exception(""), 1, out delay));
