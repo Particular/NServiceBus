@@ -44,7 +44,7 @@
 
         public bool ExecuteAction(ScenarioContext context, IBus bus)
         {
-            var c = context as TContext;
+            var c = (TContext)context;
 
             if (!condition(c))
             {
