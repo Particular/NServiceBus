@@ -16,15 +16,16 @@
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
         readonly SemaphoreSlim contextChanged = new SemaphoreSlim(0);
+        readonly CancellationTokenSource stopSource = new CancellationTokenSource();
         EndpointBehavior behavior;
         IStartableBus bus;
         ISendOnlyBus sendOnlyBus;
         EndpointConfiguration configuration;
         Task executeWhens;
         ScenarioContext scenarioContext;
-        bool stopped;
         RunDescriptor runDescriptor;
         BusConfiguration busConfiguration;
+        CancellationToken stopToken;
 
         public Result Initialize(RunDescriptor run, EndpointBehavior endpointBehavior,
             IDictionary<Type, string> routingTable, string endpointName)
@@ -63,35 +64,46 @@
                     scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
                 }
 
-                executeWhens = Task.Factory.StartNew(() =>
+                stopToken = stopSource.Token;
+
+                if (behavior.Whens.Count == 0)
                 {
-                    var executedWhens = new List<Guid>();
-
-                    while (!stopped)
+                    executeWhens = Task.FromResult(0);
+                }
+                else
+                {
+                    executeWhens = Task.Factory.StartNew(async () =>
                     {
-                        if (executedWhens.Count == behavior.Whens.Count)
-                        {
-                            break;
-                        }
+                        var executedWhens = new List<Guid>();
 
-                        //we spin around each 5s since the callback mechanism seems to be shaky
-                        contextChanged.Wait(TimeSpan.FromSeconds(5));
-
-                        foreach (var when in behavior.Whens)
+                        while (!stopToken.IsCancellationRequested)
                         {
-                            if (executedWhens.Contains(when.Id))
+                            if (executedWhens.Count == behavior.Whens.Count)
                             {
-                                continue;
+                                break;
                             }
 
-                            if (when.ExecuteAction(scenarioContext, bus))
+                            //we spin around each 5s since the callback mechanism seems to be shaky
+                            await contextChanged.WaitAsync(TimeSpan.FromSeconds(5), stopToken);
+
+                            if (stopToken.IsCancellationRequested)
+                                break;
+
+                            foreach (var when in behavior.Whens)
                             {
-                                executedWhens.Add(when.Id);
+                                if (executedWhens.Contains(when.Id))
+                                {
+                                    continue;
+                                }
+
+                                if (when.ExecuteAction(scenarioContext, bus))
+                                {
+                                    executedWhens.Add(when.Id);
+                                }
                             }
                         }
-                    }
-                });
-
+                    }, stopToken).Unwrap();
+                }
                 return Result.Success();
             }
             catch (Exception ex)
@@ -144,10 +156,9 @@
         {
             try
             {
-                stopped = true;
-
+                stopSource.Cancel();
                 scenarioContext.ContextPropertyChanged -= scenarioContext_ContextPropertyChanged;
-
+                
                 executeWhens.Wait();
                 contextChanged.Dispose();
 
