@@ -42,6 +42,7 @@ namespace NServiceBus
         public static NServiceBus.IStartableBus Create(NServiceBus.BusConfiguration configuration) { }
         public static NServiceBus.ISendOnlyBus CreateSendOnly(NServiceBus.BusConfiguration configuration) { }
     }
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public class BusAsyncResultEventArgs : System.EventArgs
     {
         public BusAsyncResultEventArgs() { }
@@ -2056,8 +2057,10 @@ namespace NServiceBus.Unicast
     {
         public static void ForEach<T>(this NServiceBus.ObjectBuilder.IBuilder builder, System.Action<T> action) { }
     }
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public class BusAsyncResult : System.IAsyncResult
     {
+        [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
         public BusAsyncResult(System.AsyncCallback callback, object state) { }
         public object AsyncState { get; }
         public System.Threading.WaitHandle AsyncWaitHandle { get; }
@@ -2065,6 +2068,7 @@ namespace NServiceBus.Unicast
         public bool IsCompleted { get; }
         public void Complete(int errorCode, params object[] messages) { }
     }
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public class CallbackMessageLookup
     {
         public CallbackMessageLookup() { }
