@@ -87,6 +87,7 @@
     <Compile Include="Basic\When_Deferring_a_message.cs" />
     <Compile Include="Basic\When_using_callback_to_get_message.cs" />
     <Compile Include="ConfigureMsmqTransport.cs" />
+    <Compile Include="HandlerContext\When_saga_with_old_and_new_api_is_created.cs" />
     <Compile Include="HandlerContext\When_handling_pub_msg_with_handlers_with_old_and_new_api_with_order_override.cs" />
     <Compile Include="HandlerContext\When_handling_a_sent_message_with_handlers_with_old_and_new_api.cs" />
     <Compile Include="HandlerContext\When_handling_message_a_sent_with_message_handlers_mixing_old_and_new_api_with_order_override.cs" />

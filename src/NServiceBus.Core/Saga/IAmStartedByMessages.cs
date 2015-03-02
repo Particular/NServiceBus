@@ -9,4 +9,16 @@ namespace NServiceBus.Saga
     public interface IAmStartedByMessages<T> : IHandleMessages<T>
     {
     }
+
+#pragma warning disable 1591
+
+    // TODO: We need to discuss whether this makes sense. This is just a first shot.
+    public interface IAmStartedByMessage<T> : IHandle<T>
+    {
+    }
+
+
+    public interface IAmStartedByEvent<T> : ISubscribe<T>
+    { }
+#pragma warning restore 1591
 }
