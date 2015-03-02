@@ -15,4 +15,24 @@ namespace NServiceBus
 		/// the custom logic to execute when the message is received.</remarks>
         void Handle(T message);
     }
+
+#pragma warning disable 1591
+    public interface ISubscribe<T>
+    {
+        void Handle(T message, SubscribeContext context);
+    }
+
+    public class SubscribeContext
+    {
+    }
+
+    public interface IHandle<T>
+    {
+        void Handle(T message, HandleContext context);
+    }
+
+    public class HandleContext
+    {
+    }
+#pragma warning restore 1591
 }
