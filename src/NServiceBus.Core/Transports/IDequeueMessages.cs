@@ -2,6 +2,8 @@
 {
     using System;
 
+    //public class Dequeue
+
     /// <summary>
     /// Interface to implement when developing custom dequeuing strategies.
     /// </summary>

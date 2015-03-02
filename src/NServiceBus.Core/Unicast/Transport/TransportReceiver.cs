@@ -8,11 +8,6 @@ namespace NServiceBus.Unicast.Transport
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Transport.Monitoring;
 
-    //Shared thread pool dispatcher
-    //Individual thread pool dispatcher
-    //Shared throughput limit
-    //Individual throughput limit
-
     /// <summary>
     ///     Default implementation of a NServiceBus transport.
     /// </summary>
@@ -21,11 +16,11 @@ namespace NServiceBus.Unicast.Transport
         internal TransportReceiver(string id, IBuilder builder, IDequeueMessages receiver, DequeueSettings dequeueSettings, PipelineBase<IncomingContext> pipeline, IExecutor executor)
         {
             this.id = id;
-            this.builder = builder;
             this.pipeline = pipeline;
             this.executor = executor;
             this.dequeueSettings = dequeueSettings;
             this.receiver = receiver;
+            this.builder = new PipelineAwareBuilder(new PipelineInfo(id, dequeueSettings.PublicAddress), builder);
         }
 
 
