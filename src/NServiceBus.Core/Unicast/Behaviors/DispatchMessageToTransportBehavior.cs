@@ -42,6 +42,16 @@
             messageToSend.Headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
             messageToSend.Headers.Add(Headers.OriginatingEndpoint, Settings.EndpointName());
             messageToSend.Headers.Add(Headers.OriginatingHostId, HostInfo.HostId.ToString("N"));
+
+            if (deliveryOptions.TimeToBeReceived.HasValue)
+            {
+                messageToSend.Headers[Headers.TimeToBeReceived] =deliveryOptions.TimeToBeReceived.Value.ToString("c");   
+            }
+
+            if (deliveryOptions.NonDurable.HasValue && deliveryOptions.NonDurable.Value)
+            {
+                messageToSend.Headers[Headers.NonDurableMessage] = true.ToString();
+            }
           
             try
             {

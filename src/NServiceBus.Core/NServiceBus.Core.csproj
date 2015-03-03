@@ -132,6 +132,7 @@
     <Compile Include="Transports\Msmq\MsmqReceiveWithNoTransactionBehavior.cs" />
     <Compile Include="Transports\ReceiveBehavior.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalOutgoingContext.cs" />
+    <Compile Include="Transports\ReceivedMessage.cs" />
     <Compile Include="Unicast\Behaviors\SagaInvocationResult.cs" />
     <Compile Include="Unicast\Behaviors\TransportReceiveToPhysicalMessageProcessingConnector.cs" />
     <Compile Include="Pipeline\Contexts\LogicalMessageProcessingStageBehavior.cs" />
@@ -621,6 +622,7 @@
     <Compile Include="Utils\Reflection\Reflect.cs" />
     <Compile Include="Utils\RegistryReader.cs" />
     <Compile Include="Encryption\WireEncryptedString.cs" />
+    <Compile Include="v6-obsoletes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

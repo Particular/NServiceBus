@@ -1,9 +1,11 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Messaging;
     using System.Transactions;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Transports;
 
     class MsmqReceiveWithTransactionScopeBehavior : MsmqReceiveBehavior
     {
@@ -12,7 +14,7 @@ namespace NServiceBus
             this.transactionOptions = transactionOptions;
         }
 
-        protected override void Invoke(IncomingContext context, Action<TransportMessage> onMessage)
+        protected override void Invoke(IncomingContext context, Action<ReceivedMessage> onMessage)
         {
             var queue = context.Get<MessageQueue>();
 
@@ -26,11 +28,11 @@ namespace NServiceBus
                     return;
                 }
 
-                TransportMessage transportMessage;
+                Dictionary<string,string> headers;
 
                 try
                 {
-                    transportMessage = MsmqUtilities.Convert(message);
+                    headers = MsmqUtilities.ExtractHeaders(message);
                 }
                 catch (Exception ex)
                 {
@@ -41,7 +43,10 @@ namespace NServiceBus
                 }
 
 
-                onMessage(transportMessage);
+                using (var bodyStream = message.BodyStream)
+                {
+                    onMessage(new ReceivedMessage(message.Id, headers, bodyStream));
+                }
 
                 scope.Complete();
             }

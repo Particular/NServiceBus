@@ -1,5 +1,7 @@
 namespace NServiceBus.Unicast
 {
+    using System;
+
     /// <summary>
     /// Base class for options to deliver messages.
     /// </summary>
@@ -29,5 +31,17 @@ namespace NServiceBus.Unicast
         /// The reply address to use for outgoing messages
         /// </summary>
         public string ReplyToAddress { get; set; }
+
+
+        /// <summary>
+        /// The TTBR to use for this message
+        /// </summary>
+        public TimeSpan? TimeToBeReceived { get; set; }
+
+
+        /// <summary>
+        /// Controls if the transport should be requested to handle the message in a way that it survives restarts
+        /// </summary>
+        public bool? NonDurable { get; set; }
     }
 }
