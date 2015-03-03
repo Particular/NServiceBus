@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
 
     /// <summary>
@@ -41,5 +42,11 @@
         /// List of types.
         /// </summary>
         public List<Type> Types { get; private set; }
+
+        internal void RemoveDuplicates()
+        {
+            Assemblies = Assemblies.Distinct().ToList();
+            Types = Types.Distinct().ToList();
+        }
     }
 }

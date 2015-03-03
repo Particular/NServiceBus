@@ -110,8 +110,6 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     ScanAssembly(AssemblyPath(assembly.CodeBase), results);
                 }
-
-                results.Assemblies.AddRange(matchingAssembliesFromAppDomain);
             }
 
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles())
@@ -139,6 +137,8 @@ namespace NServiceBus.Hosting.Helpers
 
                 ScanAssembly(AssemblyPath(assembly.CodeBase), results, false);
             }
+
+            results.RemoveDuplicates();
 
             return results;
         }
