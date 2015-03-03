@@ -17,7 +17,7 @@ namespace NServiceBus.Core.Tests.DataBus
             var builder = new BusConfiguration();
 
             builder.EndpointName("xyz");
-            builder.TypesToScan(new[]{typeof(MessageWithDataBusProperty)});
+            builder.TypesToScanInternal(new[]{typeof(MessageWithDataBusProperty)});
             builder.RegisterComponents(c => c.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance));
             
             var config = builder.BuildConfiguration();
@@ -31,7 +31,7 @@ namespace NServiceBus.Core.Tests.DataBus
             var builder = new BusConfiguration();
 
             builder.EndpointName("xyz");
-            builder.TypesToScan(new[] { typeof(MessageWithoutDataBusProperty) });
+            builder.TypesToScanInternal(new[] { typeof(MessageWithoutDataBusProperty) });
 
             var feature = new DataBus();
 
@@ -48,7 +48,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             var builder = new BusConfiguration();
             builder.EndpointName("xyz");
-            builder.TypesToScan(new[]
+            builder.TypesToScanInternal(new[]
                 {
                     typeof(MessageWithNonSerializableDataBusProperty)
                 });
@@ -69,7 +69,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             var builder = new BusConfiguration();
             builder.EndpointName("xyz");
-            builder.TypesToScan(new[]
+            builder.TypesToScanInternal(new[]
                 {
                     typeof(MessageWithNonSerializableDataBusProperty)
                 });

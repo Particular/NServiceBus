@@ -7,12 +7,15 @@ namespace NServiceBus.Hosting.Helpers
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Text;
+    using NServiceBus.Logging;
 
     /// <summary>
     ///   Helpers for assembly scanning operations
     /// </summary>
     public class AssemblyScanner
     {
+        readonly Assembly assemblyToScan;
+
         /// <summary>
         /// Creates a new scanner that will scan the base directory of the current appdomain
         /// </summary>
@@ -28,18 +31,22 @@ namespace NServiceBus.Hosting.Helpers
         public AssemblyScanner(string baseDirectoryToScan)
         {
             ThrowExceptions = true;
-            AssembliesToInclude = new List<string>();
-            AssembliesToSkip = new List<string>();
+            
             MustReferenceAtLeastOneAssembly = new List<Assembly>();
             this.baseDirectoryToScan = baseDirectoryToScan;
+        }
+
+        internal AssemblyScanner(Assembly assemblyToScan)
+        {
+            this.assemblyToScan = assemblyToScan;
+            ThrowExceptions = true;
+            MustReferenceAtLeastOneAssembly = new List<Assembly>();
         }
 
         /// <summary>
         /// Tells the scanner to only include assemblies that reference one of the given assemblies
         /// </summary>
         public List<Assembly> MustReferenceAtLeastOneAssembly { get; private set; }
-
-        
 
         /// <summary>
         ///     Traverses the specified base directory including all sub-directories, generating a list of assemblies that can be
@@ -50,6 +57,13 @@ namespace NServiceBus.Hosting.Helpers
         public AssemblyScannerResults GetScannableAssemblies()
         {
             var results = new AssemblyScannerResults();
+
+            if (assemblyToScan != null)
+            {
+                var uri = new UriBuilder(assemblyToScan.CodeBase);
+                ScanAssembly(Uri.UnescapeDataString(uri.Path).Replace('/', '\\'), results);
+                return results;
+            }
 
             if (IncludeAppDomainAssemblies)
             {
@@ -142,19 +156,20 @@ namespace NServiceBus.Hosting.Helpers
             try
             {
                 //will throw if assembly cannot be loaded
-                assembly.GetTypes();
+                results.Types.AddRange(assembly.GetTypes().Where(IsAllowedType));
             }
             catch (ReflectionTypeLoadException e)
             {
                 results.ErrorsThrownDuringScanning = true;
 
+                var errorMessage = FormatReflectionTypeLoadException(assemblyPath, e);
                 if (ThrowExceptions)
                 {
-                    var errorMessage = FormatReflectionTypeLoadException(assemblyPath, e);
                     throw new Exception(errorMessage);
                 }
 
-                return;
+                LogManager.GetLogger<AssemblyScanner>().Warn(errorMessage);
+                results.Types.AddRange(e.Types.Where(IsAllowedType));
             }
 
             results.Assemblies.Add(assembly);
@@ -316,20 +331,19 @@ namespace NServiceBus.Hosting.Helpers
                 return false;
             }
 
-            var noAssembliesWereExplicitlyIncluded = !AssembliesToInclude.Any();
-            var isExplicitlyIncluded = AssembliesToInclude.Any(included => IsMatch(included, assemblyNameOrFileName));
-
-            return noAssembliesWereExplicitlyIncluded || isExplicitlyIncluded;
+            return true;
         }
 
         static bool IsMatch(string expression, string scopedNameOrFileName)
         {
-            if (DistillLowerAssemblyName(scopedNameOrFileName).StartsWith(expression.ToLower()))
+            var lowerScopedNameOrFileName = DistillLowerAssemblyName(scopedNameOrFileName);
+
+            if (lowerScopedNameOrFileName == expression.ToLower())
             {
                 return true;
             }
 
-            if (DistillLowerAssemblyName(expression).TrimEnd('.') == DistillLowerAssemblyName(scopedNameOrFileName))
+            if (DistillLowerAssemblyName(expression).TrimEnd('.') == lowerScopedNameOrFileName)
             {
                 return true;
             }
@@ -337,11 +351,12 @@ namespace NServiceBus.Hosting.Helpers
             return false;
         }
 
-        internal static bool IsAllowedType(Type type)
+        bool IsAllowedType(Type type)
         {
             return type != null &&
                    !type.IsValueType &&
-                   !(type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length > 0);
+                   !(type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length > 0) && 
+                   !TypesToSkip.Contains(type);
         }
 
         static string DistillLowerAssemblyName(string assemblyOrFileName)
@@ -355,9 +370,8 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         string baseDirectoryToScan;
-        internal List<string> AssembliesToInclude;
-        internal List<string> AssembliesToSkip;
-
+        internal List<string> AssembliesToSkip = new List<string>();
+        internal List<Type> TypesToSkip = new List<Type>();
         internal bool IncludeAppDomainAssemblies;
         internal bool IncludeExesInScan = true;
         internal bool ScanNestedDirectories = true;
@@ -365,32 +379,23 @@ namespace NServiceBus.Hosting.Helpers
         //TODO: delete when we make message scanning lazy #1617
         static string[] DefaultAssemblyExclusions =
                                 {
-
-                                    "system.",
-                                    "mscorlib.", 
-                  
                                     // NSB Build-Dependencies
-                                    "nunit.", "pnunit.", "rhino.mocks.", "XsdGenerator.",
+                                    "nunit.dll",
                  
                                     // NSB OSS Dependencies
-                                    "rhino.licensing.", "bouncycastle.crypto",
-                                    "magnum.", "interop.", "nlog.", "newtonsoft.json.",
-                                    "common.logging.", "topshelf.",
-                                    "Autofac.", "log4net.", "nhibernate.", 
-                                    "castle.",
-
+                                    "nlog.dll", "newtonsoft.json.dll",
+                                    "common.logging.dll", 
+                                    "nhibernate.dll", 
+                                    
                                     // Raven
-                                    "raven.server", "raven.client", "raven.munin.",
-                                    "raven.storage.", "raven.abstractions.", "raven.database",
-                                    "esent.interop", "asyncctplibrary.", "lucene.net.",
-                                    "icsharpcode.nrefactory", "spatial4n.core",
+                                    "raven.client.dll",
+                                    "raven.abstractions.dll",
 
                                     // Azure host process, which is typically referenced for ease of deployment but should not be scanned
                                     "NServiceBus.Hosting.Azure.HostProcess.exe",
 
                                     // And other windows azure stuff
-                                    "Microsoft.WindowsAzure."
-
+                                    "Microsoft.WindowsAzure.dll"
                                 };
     }
 }

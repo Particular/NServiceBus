@@ -1,6 +1,5 @@
 namespace NServiceBus.Serializers.Json.Tests
 {
-    using System;
     using System.Text;
     using Features;
     using NUnit.Framework;
@@ -13,7 +12,6 @@ namespace NServiceBus.Serializers.Json.Tests
         {
             var builder = new BusConfiguration();
 
-            builder.TypesToScan(new Type[0]);
             builder.UseSerialization<JsonSerializer>().Encoding(Encoding.UTF7);
 
             var config = builder.BuildConfiguration();

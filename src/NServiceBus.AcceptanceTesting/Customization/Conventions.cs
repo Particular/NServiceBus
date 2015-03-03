@@ -1,7 +1,16 @@
 namespace NServiceBus.AcceptanceTesting.Customization
 {
     using System;
+    using System.Collections.Generic;
     using Support;
+
+    public static class BusConfigExtensions
+    {
+        public static void TypesToIncludeInScan(this BusConfiguration config, IEnumerable<Type> typesToScan)
+        {
+            config.TypesToScanInternal(typesToScan);
+        }
+    }
 
     public class Conventions
     {

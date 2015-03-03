@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Hosting.Helpers
 {
+    using System;
     using System.Collections.Generic;
     using System.Reflection;
 
@@ -15,6 +16,7 @@
         public AssemblyScannerResults()
         {
             Assemblies = new List<Assembly>();
+            Types = new List<Type>();
             SkippedFiles = new List<SkippedFile>();
         }
        
@@ -34,5 +36,10 @@
         /// True if errors where encountered during assembly scanning
         /// </summary>
         public bool ErrorsThrownDuringScanning { get; internal set; }
+
+        /// <summary>
+        /// List of types.
+        /// </summary>
+        public List<Type> Types { get; private set; }
     }
 }

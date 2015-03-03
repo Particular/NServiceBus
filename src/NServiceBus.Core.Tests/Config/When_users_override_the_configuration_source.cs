@@ -1,6 +1,5 @@
 namespace NServiceBus.Core.Tests.Config
 {
-    using System;
     using NServiceBus.Config.ConfigurationSource;
     using NUnit.Framework;
 
@@ -17,14 +16,10 @@ namespace NServiceBus.Core.Tests.Config
             userConfigurationSource = new UserConfigurationSource();
 
             var builder = new BusConfiguration();
-            builder.TypesToScan(new Type[]
-                {
-                });
             builder.CustomConfigurationSource(userConfigurationSource);
 
             config = builder.BuildConfiguration();
         }
-
       
         [Test]
         public void NService_bus_should_resolve_configuration_from_that_source()
