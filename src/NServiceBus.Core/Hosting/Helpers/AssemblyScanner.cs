@@ -313,10 +313,6 @@ namespace NServiceBus.Hosting.Helpers
                 .Any(name => referencedAssemblies.Any(a => a.Name == name));
         }
 
-        /// <summary>
-        ///  Determines whether the specified assembly name or file name can be included, given the set up include/exclude
-        ///  patterns and default include/exclude patterns
-        /// </summary>
         bool IsIncluded(string assemblyNameOrFileName)
         {
             var isExplicitlyExcluded = AssembliesToSkip.Any(excluded => IsMatch(excluded, assemblyNameOrFileName));
@@ -334,21 +330,9 @@ namespace NServiceBus.Hosting.Helpers
             return true;
         }
 
-        static bool IsMatch(string expression, string scopedNameOrFileName)
+        static bool IsMatch(string expression1, string expression2)
         {
-            var lowerScopedNameOrFileName = DistillLowerAssemblyName(scopedNameOrFileName);
-
-            if (lowerScopedNameOrFileName == expression.ToLower())
-            {
-                return true;
-            }
-
-            if (DistillLowerAssemblyName(expression).TrimEnd('.') == lowerScopedNameOrFileName)
-            {
-                return true;
-            }
-
-            return false;
+            return DistillLowerAssemblyName(expression1) == DistillLowerAssemblyName(expression2);
         }
 
         bool IsAllowedType(Type type)
@@ -380,22 +364,22 @@ namespace NServiceBus.Hosting.Helpers
         static string[] DefaultAssemblyExclusions =
                                 {
                                     // NSB Build-Dependencies
-                                    "nunit.dll",
+                                    "nunit",
                  
                                     // NSB OSS Dependencies
-                                    "nlog.dll", "newtonsoft.json.dll",
-                                    "common.logging.dll", 
-                                    "nhibernate.dll", 
+                                    "nlog", "newtonsoft.json",
+                                    "common.logging", 
+                                    "nhibernate", 
                                     
                                     // Raven
-                                    "raven.client.dll",
-                                    "raven.abstractions.dll",
+                                    "raven.client",
+                                    "raven.abstractions",
 
                                     // Azure host process, which is typically referenced for ease of deployment but should not be scanned
                                     "NServiceBus.Hosting.Azure.HostProcess.exe",
 
                                     // And other windows azure stuff
-                                    "Microsoft.WindowsAzure.dll"
+                                    "Microsoft.WindowsAzure"
                                 };
     }
 }
