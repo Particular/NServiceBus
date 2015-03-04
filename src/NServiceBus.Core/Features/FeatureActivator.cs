@@ -298,23 +298,5 @@ namespace NServiceBus.Features
             internal List<Node> previous = new List<Node>();
             bool visited;
         }
-
-        class Runner : IWantToRunWhenBusStartsAndStops
-        {
-            public IBuilder Builder { get; set; }
-
-            public FeatureActivator FeatureActivator { get; set; }
-
-
-            public void Start()
-            {
-                FeatureActivator.StartFeatures(Builder);
-            }
-
-            public void Stop()
-            {
-                FeatureActivator.StopFeatures(Builder);
-            }
-        }
     }
 }

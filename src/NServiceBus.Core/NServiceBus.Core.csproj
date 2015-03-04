@@ -116,6 +116,7 @@
     <Compile Include="Faults\FailedMessage.cs" />
     <Compile Include="Faults\ErrorsNotifications.cs" />
     <Compile Include="Faults\ErrorSubscribers.cs" />
+    <Compile Include="Features\FeatureRunner.cs" />
     <Compile Include="FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
