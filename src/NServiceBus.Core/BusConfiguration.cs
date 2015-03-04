@@ -70,6 +70,10 @@ namespace NServiceBus
                 throw new ArgumentNullException("assemblies");
             }
 
+            if (assemblies.Any(string.IsNullOrWhiteSpace))
+            {
+                throw new ArgumentException("Passed in a null or empty assembly name.", "assemblies");
+            }
             excludedAssemblies = excludedAssemblies.Union(assemblies, StringComparer.OrdinalIgnoreCase).ToList();
         }
 
@@ -82,6 +86,10 @@ namespace NServiceBus
             if (types == null)
             {
                 throw new ArgumentNullException("types");
+            }
+            if (types.Any(x=>x==null))
+            {
+                throw new ArgumentException("Passed in a null or empty type.", "types");
             }
 
             excludedTypes = excludedTypes.Union(types).ToList();

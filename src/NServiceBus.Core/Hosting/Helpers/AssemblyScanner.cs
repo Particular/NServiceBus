@@ -153,8 +153,7 @@ namespace NServiceBus.Hosting.Helpers
         static string AssemblyPath(string codeBase)
         {
             var uri = new UriBuilder(codeBase);
-            var assemblyPath = Uri.UnescapeDataString(uri.Path).Replace('/', '\\');
-            return assemblyPath;
+            return Uri.UnescapeDataString(uri.Path).Replace('/', '\\');
         }
 
         void ScanAssembly(string assemblyPath, AssemblyScannerResults results, bool checkMustReference = true)

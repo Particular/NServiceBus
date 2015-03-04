@@ -6,8 +6,8 @@
     using System.Reflection;
 
     /// <summary>
-    /// Holds GetScannableAssemblies results.
-    /// Contains list of errors and list of scan-able assemblies.
+    /// Holds <see cref="AssemblyScanner.GetScannableAssemblies"/> results.
+    /// Contains list of errors and list of scannable assemblies.
     /// </summary>
     public class AssemblyScannerResults 
     {
