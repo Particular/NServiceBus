@@ -1900,6 +1900,7 @@ namespace NServiceBus.Timeout.Core
     }
     public class TimeoutData
     {
+        [System.ObsoleteAttribute("Not used anymore. Will be removed in version 7.0.0.", true)]
         public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
         public TimeoutData() { }
         public string Destination { get; set; }
@@ -1909,11 +1910,13 @@ namespace NServiceBus.Timeout.Core
         public System.Guid SagaId { get; set; }
         public byte[] State { get; set; }
         public System.DateTime Time { get; set; }
-        [System.ObsoleteAttribute("Please use `TimeoutData.ToSendOptions(string)` instead. Will be removed in versio" +
-            "n 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use new SendOptions() instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Unicast.SendOptions ToSendOptions(NServiceBus.Address replyToAddress) { }
+        [System.ObsoleteAttribute("Use new SendOptions() instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Unicast.SendOptions ToSendOptions(string replyToAddress) { }
         public override string ToString() { }
+        [System.ObsoleteAttribute("Use new OutgoingMessage(timeoutData.State) instead. Will be removed in version 7." +
+            "0.0.", true)]
         public NServiceBus.TransportMessage ToTransportMessage() { }
     }
 }
@@ -1946,7 +1949,7 @@ namespace NServiceBus.Transports
     public interface IDeferMessages
     {
         void ClearDeferredMessages(string headerKey, string headerValue);
-        void Defer(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
+        void Defer(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.SendOptions sendOptions);
     }
     public interface IDequeueMessages : System.IObservable<NServiceBus.Transports.MessageAvailable>
     {
@@ -1959,35 +1962,41 @@ namespace NServiceBus.Transports
         void Subscribe(System.Type eventType, string publisherAddress);
         void Unsubscribe(System.Type eventType, string publisherAddress);
     }
+    public class IncomingMessage
+    {
+        public IncomingMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream) { }
+        public System.IO.Stream BodyStream { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
+    }
     public interface IPublishMessages
     {
-        void Publish(NServiceBus.TransportMessage message, NServiceBus.Unicast.PublishOptions publishOptions);
+        void Publish(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.PublishOptions publishOptions);
     }
     public interface ISendMessages
     {
-        void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
+        void Send(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.SendOptions sendOptions);
     }
     public class MessageAvailable
     {
         public MessageAvailable(string publicReceiveAddress, System.Action<NServiceBus.Pipeline.Contexts.IncomingContext> contextAction) { }
         public string PublicReceiveAddress { get; }
     }
+    public class OutgoingMessage
+    {
+        public OutgoingMessage(System.Collections.Generic.Dictionary<string, string> headers, byte[] body) { }
+        public byte[] Body { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+    }
     public abstract class ReceiveBehavior : NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.Pipeline.Contexts.TransportReceiveContext>
     {
         protected ReceiveBehavior() { }
         public override void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Pipeline.Contexts.TransportReceiveContext> next) { }
-        protected abstract void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Transports.ReceivedMessage> onMessage);
+        protected abstract void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Transports.IncomingMessage> onMessage);
         public class Registration : NServiceBus.Pipeline.RegisterStep
         {
             public Registration() { }
         }
-    }
-    public class ReceivedMessage
-    {
-        public ReceivedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream) { }
-        public System.IO.Stream BodyStream { get; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
-        public string MessageId { get; }
     }
     public class ReceiveOptions
     {
@@ -2032,7 +2041,7 @@ namespace NServiceBus.Transports.Msmq
         public MsmqMessageSender(NServiceBus.Pipeline.BehaviorContext context) { }
         public NServiceBus.Transports.Msmq.Config.MsmqSettings Settings { get; set; }
         public bool SuppressDistributedTransactions { get; set; }
-        public void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions) { }
+        public void Send(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.SendOptions sendOptions) { }
     }
     public class MsmqUnitOfWork : System.IDisposable
     {
@@ -2079,6 +2088,8 @@ namespace NServiceBus.Unicast
         public bool EnforceMessagingBestPractices { get; set; }
         public bool EnlistInReceiveTransaction { get; set; }
         public System.Nullable<bool> NonDurable { get; set; }
+        [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.ReplyToAddress` header. Wi" +
+            "ll be removed in version 7.0.0.", true)]
         public string ReplyToAddress { get; set; }
         public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }
     }
@@ -2123,9 +2134,10 @@ namespace NServiceBus.Unicast
     }
     public class ReplyOptions : NServiceBus.Unicast.SendOptions
     {
-        [System.ObsoleteAttribute("Please use `ReplyOptions(string destination, string correlationId)` instead. Will" +
-            " be removed in version 7.0.0.", true)]
+        public ReplyOptions(string destination) { }
+        [System.ObsoleteAttribute("ReplyOptions(string destination). Will be removed in version 7.0.0.", true)]
         public ReplyOptions(NServiceBus.Address destination, string correlationId) { }
+        [System.ObsoleteAttribute("ReplyOptions(string destination). Will be removed in version 7.0.0.", true)]
         public ReplyOptions(string destination, string correlationId) { }
     }
     public class SendOptions : NServiceBus.Unicast.DeliveryOptions
@@ -2133,6 +2145,8 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("Please use `SendOptions(string)` instead. Will be removed in version 7.0.0.", true)]
         public SendOptions(NServiceBus.Address destination) { }
         public SendOptions(string destination) { }
+        [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.CorrelationId` header. Wil" +
+            "l be removed in version 7.0.0.", true)]
         public string CorrelationId { get; set; }
         public System.Nullable<System.TimeSpan> DelayDeliveryWith { get; set; }
         public System.Nullable<System.DateTime> DeliverAt { get; set; }

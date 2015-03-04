@@ -50,9 +50,8 @@ namespace NServiceBus.Transports
             }
 
             // Send the newly created transport message to the queue
-            MessageSender.Send(messageToForward, new SendOptions(sendOptions.Destination)
+            MessageSender.Send(new OutgoingMessage(messageToForward.Headers,messageToForward.Body), new SendOptions(sendOptions.Destination)
             {
-                ReplyToAddress = Configure.PublicReturnAddress,
                 TimeToBeReceived = sendOptions.TimeToBeReceived
             });
         }

@@ -25,7 +25,7 @@ namespace NServiceBus.Transports
         /// </summary>
         /// <param name="context"></param>
         /// <param name="onMessage"></param>
-        protected abstract void Invoke(IncomingContext context, Action<ReceivedMessage> onMessage);
+        protected abstract void Invoke(IncomingContext context, Action<IncomingMessage> onMessage);
 
         /// <summary>
         /// 

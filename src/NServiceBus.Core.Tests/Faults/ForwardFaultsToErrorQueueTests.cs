@@ -35,7 +35,7 @@ namespace NServiceBus.Core.Tests
 
             Assert.AreEqual(errorQueueAddress, sender.OptionsUsed.Destination);
 
-            Assert.AreEqual("someid", sender.MessageSent.Id);
+            Assert.AreEqual("someid", sender.MessageSent.Headers[Headers.MessageId]);
         }
         [Test]
         public void ShouldInvokeCriticalErrorIfForwardingFails()
@@ -114,7 +114,7 @@ namespace NServiceBus.Core.Tests
 
         PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId)
         {
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new ReceivedMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null));
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null));
 
             context.SetPublicReceiveAddress("public-receive-address");
             return context;
@@ -136,12 +136,12 @@ namespace NServiceBus.Core.Tests
         }
         public class FakeSender : ISendMessages
         {
-            public TransportMessage MessageSent { get; set; }
+            public OutgoingMessage MessageSent { get; set; }
 
             public SendOptions OptionsUsed { get; set; }
             public bool ThrowOnSend { get; set; }
 
-            public void Send(TransportMessage message, SendOptions sendOptions)
+            public void Send(OutgoingMessage message, SendOptions sendOptions)
             {
                 MessageSent = message;
                 OptionsUsed = sendOptions;

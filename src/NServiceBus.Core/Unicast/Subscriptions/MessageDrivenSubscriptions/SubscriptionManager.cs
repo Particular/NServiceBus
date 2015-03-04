@@ -2,19 +2,19 @@
 {
     using System;
     using System.Threading;
-    using Logging;
-    using Queuing;
-    using Transport;
-    using Transports;
+    using NServiceBus.Logging;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast.Queuing;
+    using NServiceBus.Unicast.Transport;
 
     class SubscriptionManager : IManageSubscriptions
     {
-        readonly string publicReturnAddress;
+        readonly string replyToAddress;
         readonly ISendMessages messageSender;
 
-        public SubscriptionManager(string publicReturnAddress,ISendMessages messageSender)
+        public SubscriptionManager(string replyToAddress,ISendMessages messageSender)
         {
-            this.publicReturnAddress = publicReturnAddress;
+            this.replyToAddress = replyToAddress;
             this.messageSender = messageSender;
         }
 
@@ -46,17 +46,16 @@
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
 
-            messageSender.Send(subscriptionMessage, new SendOptions(publisherAddress)
-            {
-                ReplyToAddress = publicReturnAddress 
-            });
+            messageSender.Send(new OutgoingMessage(subscriptionMessage.Headers,subscriptionMessage.Body), new SendOptions(publisherAddress));
         }
 
-        static TransportMessage CreateControlMessage(Type eventType)
+        TransportMessage CreateControlMessage(Type eventType)
         {
             var subscriptionMessage = ControlMessage.Create();
 
             subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
+            subscriptionMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
+
             return subscriptionMessage;
         }
 
@@ -64,10 +63,7 @@
         {
             try
             {
-                messageSender.Send(subscriptionMessage, new SendOptions(destination)
-                {
-                    ReplyToAddress = publicReturnAddress 
-                });
+                messageSender.Send(new OutgoingMessage(subscriptionMessage.Headers,subscriptionMessage.Body), new SendOptions(destination));
             }
             catch (QueueNotFoundException ex)
             {

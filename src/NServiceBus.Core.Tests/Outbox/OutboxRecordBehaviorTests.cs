@@ -13,7 +13,7 @@
         [Test]
         public void Should_not_store_the_message_if_handle_current_message_later_was_called()
         {
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new ReceivedMessage("id", new Dictionary<string, string>(), new MemoryStream()), null))
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), null))
             {
                 handleCurrentMessageLaterWasCalled = true
             };
