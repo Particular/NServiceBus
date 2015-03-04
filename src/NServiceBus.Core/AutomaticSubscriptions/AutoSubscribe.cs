@@ -1,10 +1,9 @@
 ﻿namespace NServiceBus.Features
 {
     using System.Linq;
-    using AutomaticSubscriptions;
-    using Logging;
-    using NServiceBus.Settings;
-    using Transports;
+    using NServiceBus.AutomaticSubscriptions;
+    using NServiceBus.Logging;
+    using NServiceBus.Transports;
 
     /// <summary>
     /// Used to configure auto subscriptions.
