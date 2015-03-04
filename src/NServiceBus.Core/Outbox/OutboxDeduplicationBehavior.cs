@@ -37,7 +37,7 @@
                 context.Set(outboxMessage);
 
                 //we use this scope to make sure that we escalate to DTC if the user is talking to another resource by misstake
-                using (var checkForEscalationScope = new TransactionScope(TransactionScopeOption.RequiresNew,new TransactionOptions{IsolationLevel = transactionSettings.IsolationLevel,Timeout = transactionSettings.TransactionTimeout}))
+                using (var checkForEscalationScope = new TransactionScope(TransactionScopeOption.RequiresNew,new TransactionOptions{IsolationLevel = transactionSettings.IsolationLevel,Timeout = transactionSettings.TransactionTimeout}, TransactionScopeAsyncFlowOption.Enabled))
                 {
                     next();
                     checkForEscalationScope.Complete();

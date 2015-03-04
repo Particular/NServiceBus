@@ -41,7 +41,7 @@
                     continue;
                 }
 
-                using (new TransactionScope(TransactionScopeOption.Suppress))
+                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                 using (var stream = DataBus.Get(dataBusKey))
                 {
                     var value = DataBusSerializer.Deserialize(stream);
