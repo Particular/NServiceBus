@@ -3,6 +3,7 @@
     using System.Linq;
     using AutomaticSubscriptions;
     using Logging;
+    using NServiceBus.Settings;
     using Transports;
 
     /// <summary>
@@ -13,7 +14,7 @@
         internal AutoSubscribe()
         {
             EnableByDefault();
-
+            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't autosubscribe.");
             RegisterStartupTask<ApplySubscriptions>();
         }
 
