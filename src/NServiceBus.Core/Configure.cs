@@ -127,7 +127,14 @@ namespace NServiceBus
                 o.Run(this);
             }
 
+            ReportFeatures(featureStats);
             StartFeatures(featureActivator);
+        }
+
+        static void ReportFeatures(FeaturesReport featureStats)
+        {
+            var reporter = new DisplayDiagnosticsForFeatures();
+            reporter.Run(featureStats);
         }
 
         void StartFeatures(FeatureActivator featureActivator)
