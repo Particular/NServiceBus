@@ -23,6 +23,7 @@ namespace NServiceBus.Features
             RegisterStartupTask<InstallerRunner>();
         }
 
+        /// <inheritdoc />
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             foreach (var installerType in GetInstallerTypes(context))

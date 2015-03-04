@@ -17,6 +17,7 @@
             RegisterStartupTask<MessageTypesInitializer>();
         }
 
+        /// <inheritdoc />
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
