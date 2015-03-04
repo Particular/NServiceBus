@@ -45,9 +45,10 @@ namespace NServiceBus
                     message.Headers[Headers.Retries] = currentRetry.ToString();
                     message.Headers[RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
-                    deferer.Defer(message, new SendOptions(receiveAddress)
+                    deferer.Defer(new OutgoingMessage(message.Body), new SendOptions(receiveAddress)
                     {
-                        DelayDeliveryWith = delay
+                        DelayDeliveryWith = delay,
+                        Headers = message.Headers
                     });
 
                     notifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(currentRetry,message,ex);

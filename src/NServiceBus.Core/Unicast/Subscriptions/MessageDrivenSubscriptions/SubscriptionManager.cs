@@ -46,9 +46,10 @@
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
 
-            messageSender.Send(subscriptionMessage, new SendOptions(publisherAddress)
+            messageSender.Send(new OutgoingMessage(subscriptionMessage.Body), new SendOptions(publisherAddress)
             {
-                ReplyToAddress = publicReturnAddress 
+                ReplyToAddress = publicReturnAddress,
+                Headers = subscriptionMessage.Headers
             });
         }
 
@@ -64,8 +65,9 @@
         {
             try
             {
-                messageSender.Send(subscriptionMessage, new SendOptions(destination)
+                messageSender.Send(new OutgoingMessage(subscriptionMessage.Body), new SendOptions(destination)
                 {
+                    Headers = subscriptionMessage.Headers,
                     ReplyToAddress = publicReturnAddress 
                 });
             }

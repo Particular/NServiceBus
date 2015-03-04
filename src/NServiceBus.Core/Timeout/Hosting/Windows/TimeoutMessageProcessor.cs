@@ -74,7 +74,10 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
 
             TimeoutManager.RemoveTimeout(timeoutId);
-            MessageSender.Send(message, new SendOptions(destination));
+            MessageSender.Send(new OutgoingMessage(message.Body), new SendOptions(destination)
+            {
+                Headers = message.Headers
+            });
         }
 
         void HandleInternal(TransportMessage message)

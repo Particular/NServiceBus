@@ -17,7 +17,7 @@ namespace NServiceBus.Timeout.Core
         {
             if (timeout.Time.AddSeconds(-1) <= DateTime.UtcNow)
             {
-                MessageSender.Send(timeout.ToTransportMessage(), timeout.ToSendOptions(Configure.LocalAddress));
+                MessageSender.Send(new OutgoingMessage(timeout.State), timeout.ToSendOptions(Configure.LocalAddress));
                 return;
             }
 

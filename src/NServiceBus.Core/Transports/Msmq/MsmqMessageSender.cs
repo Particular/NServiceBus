@@ -38,7 +38,7 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// Sends the given <paramref name="message"/>
         /// </summary>
-        public void Send(TransportMessage message, SendOptions sendOptions)
+        public void Send(OutgoingMessage message, SendOptions sendOptions)
         {
             var destination = sendOptions.Destination;
             var destinationAddress = MsmqAddress.Parse(destination);
@@ -52,7 +52,7 @@ namespace NServiceBus.Transports.Msmq
                     toSend.UseJournalQueue = Settings.UseJournalQueue;
                     toSend.TimeToReachQueue = Settings.TimeToReachQueue;
 
-                    var replyToAddress = sendOptions.ReplyToAddress ?? message.ReplyToAddress;
+                    var replyToAddress = sendOptions.ReplyToAddress;
 
                     if (replyToAddress != null)
                     {

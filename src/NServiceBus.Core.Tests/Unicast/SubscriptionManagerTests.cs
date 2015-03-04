@@ -19,7 +19,7 @@
             subscriptionManager.Subscribe(typeof(TestEvent),"publish");
 
             sender.MessageAvailable.WaitOne();
-            Assert.AreEqual(typeof(TestEvent).AssemblyQualifiedName,sender.MessageSent.Headers[Headers.SubscriptionMessageType] );
+            Assert.AreEqual(typeof(TestEvent).AssemblyQualifiedName,sender.SendOptions.Headers[Headers.SubscriptionMessageType] );
         }
 
         class FakeSender:ISendMessages
@@ -28,13 +28,19 @@
             {
                 MessageAvailable = new AutoResetEvent(false);
             }
-            public TransportMessage MessageSent { get; private set; }
+
+
+            public OutgoingMessage MessageSent { get; private set; }
+
+            public SendOptions SendOptions { get; private set; }
 
             public AutoResetEvent MessageAvailable { get; private set; }
 
-            public void Send(TransportMessage message, SendOptions sendOptions)
+            public void Send(OutgoingMessage message, SendOptions sendOptions)
             {
                 MessageSent = message;
+
+                SendOptions = sendOptions;
 
                 MessageAvailable.Set();
             }

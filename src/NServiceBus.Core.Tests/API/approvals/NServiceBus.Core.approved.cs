@@ -1914,6 +1914,8 @@ namespace NServiceBus.Timeout.Core
         public NServiceBus.Unicast.SendOptions ToSendOptions(NServiceBus.Address replyToAddress) { }
         public NServiceBus.Unicast.SendOptions ToSendOptions(string replyToAddress) { }
         public override string ToString() { }
+        [System.ObsoleteAttribute("Please use `new OutgoingMessage(timeoutData.State)` instead. Will be removed in v" +
+            "ersion 7.0.0.", true)]
         public NServiceBus.TransportMessage ToTransportMessage() { }
     }
 }
@@ -1946,7 +1948,7 @@ namespace NServiceBus.Transports
     public interface IDeferMessages
     {
         void ClearDeferredMessages(string headerKey, string headerValue);
-        void Defer(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
+        void Defer(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.SendOptions sendOptions);
     }
     public interface IDequeueMessages : System.IObservable<NServiceBus.Transports.MessageAvailable>
     {
@@ -1961,16 +1963,21 @@ namespace NServiceBus.Transports
     }
     public interface IPublishMessages
     {
-        void Publish(NServiceBus.TransportMessage message, NServiceBus.Unicast.PublishOptions publishOptions);
+        void Publish(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.PublishOptions publishOptions);
     }
     public interface ISendMessages
     {
-        void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
+        void Send(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.SendOptions sendOptions);
     }
     public class MessageAvailable
     {
         public MessageAvailable(string publicReceiveAddress, System.Action<NServiceBus.Pipeline.Contexts.IncomingContext> contextAction) { }
         public string PublicReceiveAddress { get; }
+    }
+    public class OutgoingMessage
+    {
+        public OutgoingMessage(byte[] body) { }
+        public byte[] Body { get; }
     }
     public abstract class ReceiveBehavior : NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.Pipeline.Contexts.TransportReceiveContext>
     {
@@ -2032,7 +2039,7 @@ namespace NServiceBus.Transports.Msmq
         public MsmqMessageSender(NServiceBus.Pipeline.BehaviorContext context) { }
         public NServiceBus.Transports.Msmq.Config.MsmqSettings Settings { get; set; }
         public bool SuppressDistributedTransactions { get; set; }
-        public void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions) { }
+        public void Send(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.SendOptions sendOptions) { }
     }
     public class MsmqUnitOfWork : System.IDisposable
     {
@@ -2078,6 +2085,7 @@ namespace NServiceBus.Unicast
         protected DeliveryOptions() { }
         public bool EnforceMessagingBestPractices { get; set; }
         public bool EnlistInReceiveTransaction { get; set; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; set; }
         public System.Nullable<bool> NonDurable { get; set; }
         public string ReplyToAddress { get; set; }
         public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }

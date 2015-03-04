@@ -11,6 +11,7 @@ namespace NServiceBus
     using System.Xml;
     using NServiceBus.Logging;
     using NServiceBus.Support;
+    using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq;
     using NServiceBus.Unicast;
 
@@ -204,7 +205,7 @@ namespace NServiceBus
         ///     Converts a TransportMessage to an Msmq message.
         ///     Doesn't set the ResponseQueue of the result.
         /// </summary>
-        public static Message Convert(TransportMessage message, SendOptions sendOptions)
+        public static Message Convert(OutgoingMessage message, DeliveryOptions deliveryOptions)
         {
             var result = new Message();
 
@@ -214,11 +215,11 @@ namespace NServiceBus
             }
 
 
-            AssignMsmqNativeCorrelationId(message, result);
+            AssignMsmqNativeCorrelationId(deliveryOptions, result);
 
-            if (sendOptions.NonDurable.HasValue)
+            if (deliveryOptions.NonDurable.HasValue)
             {
-                result.Recoverable = sendOptions.NonDurable.Value;
+                result.Recoverable = deliveryOptions.NonDurable.Value;
             }
             else
             {
@@ -226,14 +227,14 @@ namespace NServiceBus
                 result.Recoverable = true;
             }
       
-            if (sendOptions.TimeToBeReceived.HasValue &&  sendOptions.TimeToBeReceived.Value < MessageQueue.InfiniteTimeout)
+            if (deliveryOptions.TimeToBeReceived.HasValue &&  deliveryOptions.TimeToBeReceived.Value < MessageQueue.InfiniteTimeout)
             {
-                result.TimeToBeReceived = sendOptions.TimeToBeReceived.Value;
+                result.TimeToBeReceived = deliveryOptions.TimeToBeReceived.Value;
             }
 
             using (var stream = new MemoryStream())
             {
-                headerSerializer.Serialize(stream, message.Headers.Select(pair => new HeaderInfo
+                headerSerializer.Serialize(stream, deliveryOptions.Headers.Select(pair => new HeaderInfo
                 {
                     Key = pair.Key,
                     Value = pair.Value
@@ -241,45 +242,63 @@ namespace NServiceBus
                 result.Extension = stream.ToArray();
             }
 
-            result.AppSpecific = (int) message.MessageIntent;
+            var messageIntent = default(MessageIntentEnum);
+
+            string messageIntentString;
+           
+            if (deliveryOptions.Headers.TryGetValue(Headers.MessageIntent, out messageIntentString))
+            {
+
+                Enum.TryParse(messageIntentString, true, out messageIntent);
+            }
+
+            result.AppSpecific = (int)messageIntent;
+           
 
             return result;
         }
 
-        static void AssignMsmqNativeCorrelationId(TransportMessage message, Message result)
+        static void AssignMsmqNativeCorrelationId(DeliveryOptions options, Message result)
         {
-            if (string.IsNullOrEmpty(message.CorrelationId))
+            string correlationIdHeader;
+
+            if (!options.Headers.TryGetValue(Headers.CorrelationId, out correlationIdHeader))
+            {
+                return;
+            }
+
+            if (string.IsNullOrEmpty(correlationIdHeader))
             {
                 return;
             }
 
             Guid correlationId;
 
-            if (Guid.TryParse(message.CorrelationId, out correlationId))
+            if (Guid.TryParse(correlationIdHeader, out correlationId))
             {
                 //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible                
-                result.CorrelationId = message.CorrelationId + "\\0";
+                result.CorrelationId = correlationIdHeader + "\\0";
                 return;
             }
 
             try
             {
-                if (message.CorrelationId.Contains("\\"))
+                if (correlationIdHeader.Contains("\\"))
                 {
-                    var parts = message.CorrelationId.Split('\\');
+                    var parts = correlationIdHeader.Split('\\');
 
                     int number;
 
                     if (parts.Count() == 2 && Guid.TryParse(parts.First(), out correlationId) &&
                         int.TryParse(parts[1], out number))
                     {
-                        result.CorrelationId = message.CorrelationId;
+                        result.CorrelationId = correlationIdHeader;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Warn("Failed to assign a native correlation id for message: " + message.Id, ex);
+                Logger.Warn("Failed to assign a native correlation id for message: " + options.Headers[Headers.MessageId], ex);
             }
         }
 

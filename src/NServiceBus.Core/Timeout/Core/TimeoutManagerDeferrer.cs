@@ -12,9 +12,9 @@
         public string TimeoutManagerAddress { get; set; }
         public Configure Configure { get; set; }
 
-        public void Defer(TransportMessage message, SendOptions sendOptions)
+        public void Defer(OutgoingMessage message, SendOptions sendOptions)
         {
-            message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = sendOptions.Destination;
+            sendOptions.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = sendOptions.Destination;
 
             DateTime deliverAt;
 
@@ -35,11 +35,11 @@
                 
             }
 
-            message.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(deliverAt);
+            sendOptions.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(deliverAt);
             
             try
             {
-                MessageSender.Send(message, new SendOptions(TimeoutManagerAddress));
+                MessageSender.Send(message, new SendOptions(TimeoutManagerAddress){Headers = sendOptions.Headers});
             }
             catch (Exception ex)
             {
@@ -55,7 +55,11 @@
             controlMessage.Headers[headerKey] = headerValue;
             controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = Boolean.TrueString;
 
-            MessageSender.Send(controlMessage, new SendOptions(TimeoutManagerAddress) { ReplyToAddress = Configure.PublicReturnAddress });
+            MessageSender.Send(new OutgoingMessage(controlMessage.Body), new SendOptions(TimeoutManagerAddress)
+            {
+                ReplyToAddress = Configure.PublicReturnAddress,
+                Headers = controlMessage.Headers
+            });
         }
 
         static ILog Log = LogManager.GetLogger<TimeoutManagerDeferrer>();

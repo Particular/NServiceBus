@@ -60,23 +60,10 @@ namespace NServiceBus.Timeout.Core
         /// Transforms the timeout to a <see cref="TransportMessage"/>.
         /// </summary>
         /// <returns>Returns a <see cref="TransportMessage"/>.</returns>
+        [ObsoleteEx(Replacement = "new OutgoingMessage(timeoutData.State)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
         public TransportMessage ToTransportMessage()
         {
-            var transportMessage = new TransportMessage(Id,Headers)
-            {
-                Body = State
-            };
-
-
-            if (SagaId != Guid.Empty)
-            {
-                transportMessage.Headers[NServiceBus.Headers.SagaId] = SagaId.ToString();
-            }
-
-            transportMessage.Headers[NServiceBus.Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
-            transportMessage.Headers["NServiceBus.RelatedToTimeoutId"] = Id;
-
-            return transportMessage;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -99,20 +86,34 @@ namespace NServiceBus.Timeout.Core
         /// <param name="replyToAddress">The reply address to use for outgoing messages</param>
         public SendOptions ToSendOptions(string replyToAddress)
         {
+
+            var sendOptions = new SendOptions(Destination);
+
             if (Headers != null)
             {
+                sendOptions.Headers = Headers;
+
                 string originalReplyToAddressValue;
                 if (Headers.TryGetValue(OriginalReplyToAddress, out originalReplyToAddressValue))
                 {
                     replyToAddress = originalReplyToAddressValue;
                     Headers.Remove(OriginalReplyToAddress);
                 }
+
+                if (SagaId != Guid.Empty)
+                {
+                    Headers[NServiceBus.Headers.SagaId] = SagaId.ToString();
+                }
+
+                Headers[NServiceBus.Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+                Headers["NServiceBus.RelatedToTimeoutId"] = Id;
             }
 
-            return new SendOptions(Destination)
-            {
-                ReplyToAddress = replyToAddress
-            };
+
+            sendOptions.ReplyToAddress = replyToAddress;
+       
+
+            return sendOptions;
         }
 
         /// <summary>

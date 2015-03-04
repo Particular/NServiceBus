@@ -35,7 +35,7 @@ namespace NServiceBus.Core.Tests
 
             Assert.AreEqual(errorQueueAddress, sender.OptionsUsed.Destination);
 
-            Assert.AreEqual("someid", sender.MessageSent.Id);
+            Assert.AreEqual("someid", sender.OptionsUsed.Headers[Headers.MessageId]);
         }
         [Test]
         public void ShouldInvokeCriticalErrorIfForwardingFails()
@@ -74,12 +74,12 @@ namespace NServiceBus.Core.Tests
             });
 
             //host info
-            Assert.AreEqual(hostInfo.HostId.ToString("N"), sender.MessageSent.Headers[Headers.HostId]);
-            Assert.AreEqual(hostInfo.DisplayName, sender.MessageSent.Headers[Headers.HostDisplayName]);
+            Assert.AreEqual(hostInfo.HostId.ToString("N"), sender.OptionsUsed.Headers[Headers.HostId]);
+            Assert.AreEqual(hostInfo.DisplayName, sender.OptionsUsed.Headers[Headers.HostDisplayName]);
 
-            Assert.AreEqual(context.PublicReceiveAddress(), sender.MessageSent.Headers[FaultsHeaderKeys.FailedQ]);
+            Assert.AreEqual(context.PublicReceiveAddress(), sender.OptionsUsed.Headers[FaultsHeaderKeys.FailedQ]);
             //exception details
-            Assert.AreEqual("testex", sender.MessageSent.Headers["NServiceBus.ExceptionInfo.Message"]);
+            Assert.AreEqual("testex", sender.OptionsUsed.Headers["NServiceBus.ExceptionInfo.Message"]);
 
         }
 
@@ -136,12 +136,12 @@ namespace NServiceBus.Core.Tests
         }
         public class FakeSender : ISendMessages
         {
-            public TransportMessage MessageSent { get; set; }
+            public OutgoingMessage MessageSent { get; set; }
 
             public SendOptions OptionsUsed { get; set; }
             public bool ThrowOnSend { get; set; }
 
-            public void Send(TransportMessage message, SendOptions sendOptions)
+            public void Send(OutgoingMessage message, SendOptions sendOptions)
             {
                 MessageSent = message;
                 OptionsUsed = sendOptions;

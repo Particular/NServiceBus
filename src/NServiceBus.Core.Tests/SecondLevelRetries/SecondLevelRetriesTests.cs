@@ -30,7 +30,7 @@
 
             behavior.Invoke(CreateContext("someid", 1), () => { throw new Exception("testex"); });
 
-            Assert.AreEqual("someid", deferrer.DeferredMessage.Id);
+            Assert.AreEqual("someid", deferrer.SendOptions.Headers[Headers.MessageId]);
             Assert.AreEqual(delay, deferrer.Delay);
             Assert.AreEqual("test-address-for-this-pipeline", deferrer.MessageRoutedTo);
 
@@ -46,7 +46,7 @@
 
             behavior.Invoke(CreateContext("someid", 0), () => { throw new Exception("testex"); });
 
-            Assert.True(deferrer.DeferredMessage.Headers.ContainsKey(SecondLevelRetriesBehavior.RetriesTimestamp));
+            Assert.True(deferrer.SendOptions.Headers.ContainsKey(SecondLevelRetriesBehavior.RetriesTimestamp));
          }
 
         [Test]
@@ -145,15 +145,19 @@
 
     class FakeMessageDeferrer : IDeferMessages
     {
+
+
+        public SendOptions SendOptions { get; private set; }
         public string MessageRoutedTo { get; private set; }
 
-        public TransportMessage DeferredMessage { get; private set; }
+        public OutgoingMessage DeferredMessage { get; private set; }
         public TimeSpan Delay { get; private set; }
 
-        public void Defer(TransportMessage message, SendOptions sendOptions)
+        public void Defer(OutgoingMessage message, SendOptions sendOptions)
         {
             MessageRoutedTo = sendOptions.Destination;
             DeferredMessage = message;
+            SendOptions = sendOptions;
 
             if (sendOptions.DelayDeliveryWith.HasValue)
             {
