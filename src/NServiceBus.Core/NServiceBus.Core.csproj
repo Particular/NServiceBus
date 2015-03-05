@@ -116,6 +116,7 @@
     <Compile Include="Faults\FailedMessage.cs" />
     <Compile Include="Faults\ErrorsNotifications.cs" />
     <Compile Include="Faults\ErrorSubscribers.cs" />
+    <Compile Include="Features\FeatureRunner.cs" />
     <Compile Include="FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="Transports\Msmq\MsmqReceiveWithNoTransactionBehavior.cs" />
     <Compile Include="Transports\ReceiveBehavior.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalOutgoingContext.cs" />
+    <Compile Include="Transports\ReceivedMessage.cs" />
     <Compile Include="Unicast\Behaviors\SagaInvocationResult.cs" />
     <Compile Include="Unicast\Behaviors\TransportReceiveToPhysicalMessageProcessingConnector.cs" />
     <Compile Include="Pipeline\Contexts\LogicalMessageProcessingStageBehavior.cs" />
@@ -545,7 +547,6 @@
     <Compile Include="Serializers\Json\Internal\XContainerConverter.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializer.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerBase.cs" />
-    <Compile Include="Serializers\XML\Config\MessageTypesInitializer.cs" />
     <Compile Include="Serializers\XML\XmlMessageSerializer.cs" />
     <Compile Include="Serializers\XML\XmlSanitizingStream.cs" />
     <Compile Include="Settings\TransactionSettings.cs" />
@@ -621,6 +622,7 @@
     <Compile Include="Utils\Reflection\Reflect.cs" />
     <Compile Include="Utils\RegistryReader.cs" />
     <Compile Include="Encryption\WireEncryptedString.cs" />
+    <Compile Include="v6-obsoletes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

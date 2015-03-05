@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using NServiceBus.Core.Tests.Features;
     using NServiceBus.Faults;
     using NServiceBus.Hosting;
@@ -113,9 +114,7 @@ namespace NServiceBus.Core.Tests
 
         PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId)
         {
-            var transportMessage = new TransportMessage(messageId, new Dictionary<string, string>());
-
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(transportMessage, null));
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new ReceivedMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null));
 
             context.SetPublicReceiveAddress("public-receive-address");
             return context;

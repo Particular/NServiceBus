@@ -9,9 +9,10 @@ namespace NServiceBus
     using System.Net.NetworkInformation;
     using System.Text;
     using System.Xml;
-    using Logging;
+    using NServiceBus.Logging;
     using NServiceBus.Support;
-    using Transports.Msmq;
+    using NServiceBus.Transports.Msmq;
+    using NServiceBus.Unicast;
 
     /// <summary>
     ///     MSMQ-related utility functions
@@ -125,34 +126,24 @@ namespace NServiceBus
         /// <summary>
         ///     Converts an MSMQ message to a TransportMessage.
         /// </summary>
-        public static TransportMessage Convert(Message m)
+        public static Dictionary<string,string> ExtractHeaders(Message msmqMessage)
         {
-            var headers = DeserializeMessageHeaders(m);
-
-            
-            var result = new TransportMessage(m.Id, headers)
-            {
-                Recoverable = m.Recoverable,
-                TimeToBeReceived = m.TimeToBeReceived,
-                CorrelationId = GetCorrelationId(m, headers)
-            };
-
+            var headers = DeserializeMessageHeaders(msmqMessage);
+        
             //note: we can drop this line when we no longer support interop btw v3 + v4
-            if (m.ResponseQueue != null)
+            if (msmqMessage.ResponseQueue != null)
             {
-                result.Headers[Headers.ReplyToAddress] = GetIndependentAddressForQueue(m.ResponseQueue).ToString();    
+                headers[Headers.ReplyToAddress] = GetIndependentAddressForQueue(msmqMessage.ResponseQueue).ToString();    
             }
 
-            if (Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific))
+            if (Enum.IsDefined(typeof(MessageIntentEnum), msmqMessage.AppSpecific))
             {
-                result.MessageIntent = (MessageIntentEnum) m.AppSpecific;
+                headers[Headers.MessageIntent] = ((MessageIntentEnum)msmqMessage.AppSpecific).ToString();
             }
 
-            m.BodyStream.Position = 0;
-            result.Body = new byte[m.BodyStream.Length];
-            m.BodyStream.Read(result.Body, 0, result.Body.Length);
+            headers[Headers.CorrelationId] = GetCorrelationId(msmqMessage, headers);
 
-            return result;
+            return headers;
         }
 
         static string GetCorrelationId(Message message, Dictionary<string, string> headers)
@@ -213,7 +204,7 @@ namespace NServiceBus
         ///     Converts a TransportMessage to an Msmq message.
         ///     Doesn't set the ResponseQueue of the result.
         /// </summary>
-        public static Message Convert(TransportMessage message)
+        public static Message Convert(TransportMessage message, SendOptions sendOptions)
         {
             var result = new Message();
 
@@ -225,11 +216,19 @@ namespace NServiceBus
 
             AssignMsmqNativeCorrelationId(message, result);
 
-            result.Recoverable = message.Recoverable;
-
-            if (message.TimeToBeReceived < MessageQueue.InfiniteTimeout)
+            if (sendOptions.NonDurable.HasValue)
             {
-                result.TimeToBeReceived = message.TimeToBeReceived;
+                result.Recoverable = sendOptions.NonDurable.Value;
+            }
+            else
+            {
+                //default for MSMQ is false but we want to be safe by default
+                result.Recoverable = true;
+            }
+      
+            if (sendOptions.TimeToBeReceived.HasValue &&  sendOptions.TimeToBeReceived.Value < MessageQueue.InfiniteTimeout)
+            {
+                result.TimeToBeReceived = sendOptions.TimeToBeReceived.Value;
             }
 
             using (var stream = new MemoryStream())

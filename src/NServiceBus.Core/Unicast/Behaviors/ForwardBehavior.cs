@@ -19,7 +19,7 @@
 
             MessageAuditer.Audit(new SendOptions(ForwardReceivedMessagesTo)
             {
-                TimeToBeReceived = TimeToBeReceivedOnForwardedMessages
+                TimeToBeReceived = TimeToBeReceivedOnForwardedMessages,
             }, context.PhysicalMessage);
 
         }

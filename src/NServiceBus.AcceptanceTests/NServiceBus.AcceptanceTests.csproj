@@ -82,8 +82,9 @@
     <Compile Include="Basic\When_using_a_greedy_convention.cs" />
     <Compile Include="Basic\When_incoming_headers_should_be_shared.cs" />
     <Compile Include="Basic\When_sending_ensure_proper_headers.cs" />
-    <Compile Include="Basic\When_TimeToBeReceived_has_not_expired.cs" />
-    <Compile Include="Basic\When_TimeToBeReceived_has_expired.cs" />
+    <Compile Include="DeliveryOptions\When_sending_a_non_durable_message.cs" />
+    <Compile Include="DeliveryOptions\When_TimeToBeReceived_has_not_expired.cs" />
+    <Compile Include="DeliveryOptions\When_TimeToBeReceived_has_expired.cs" />
     <Compile Include="Basic\When_Deferring_a_message.cs" />
     <Compile Include="Basic\When_using_callback_to_get_message.cs" />
     <Compile Include="ConfigureMsmqTransport.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="HandlerContext\When_handling_pub_msg_with_handlers_with_old_and_new_api_with_order_override.cs" />
     <Compile Include="HandlerContext\When_handling_a_sent_message_with_handlers_with_old_and_new_api.cs" />
     <Compile Include="HandlerContext\When_handling_message_a_sent_with_message_handlers_mixing_old_and_new_api_with_order_override.cs" />
+    <Compile Include="NonDTC\When_dispatching_transport_operations.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="PubSub\When_publishing_from_sendonly.cs" />
     <Compile Include="MessageId\When_message_has_empty_id_header.cs" />

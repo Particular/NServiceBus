@@ -9,8 +9,6 @@ namespace NServiceBus.Utils.Reflection
 
     static class ExtensionMethods
     {
-
-
         public static T Construct<T>(this Type type)
         {
             var defaultConstructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[] { }, null);
@@ -43,7 +41,7 @@ namespace NServiceBus.Utils.Reflection
         /// </summary>
         public static string SerializationFriendlyName(this Type t)
         {
-            return TypeToNameLookup.GetOrAdd(t, type =>
+            return TypeToNameLookup.GetOrAdd(t.TypeHandle, typeHandle =>
             {
                 var index = t.Name.IndexOf('`');
                 if (index >= 0)
@@ -69,7 +67,7 @@ namespace NServiceBus.Utils.Reflection
 
                     return result;
                 }
-                return type.Name;
+                return Type.GetTypeFromHandle(typeHandle).Name;
             });
         }
 
@@ -81,16 +79,16 @@ namespace NServiceBus.Utils.Reflection
             return structuralEquatable.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
         }
 
-        static ConcurrentDictionary<Type, bool> IsSystemTypeCache = new ConcurrentDictionary<Type, bool>();
+        static ConcurrentDictionary<RuntimeTypeHandle, bool> IsSystemTypeCache = new ConcurrentDictionary<RuntimeTypeHandle, bool>();
 
         public static bool IsSystemType(this Type type)
         {
             bool result;
 
-            if (!IsSystemTypeCache.TryGetValue(type, out result))
+            if (!IsSystemTypeCache.TryGetValue(type.TypeHandle, out result))
             {
                 var nameOfContainingAssembly = type.Assembly.GetName().GetPublicKeyToken();
-                IsSystemTypeCache[type] = result = IsClrType(nameOfContainingAssembly);
+                IsSystemTypeCache[type.TypeHandle] = result = IsClrType(nameOfContainingAssembly);
             }
 
             return result;
@@ -103,7 +101,7 @@ namespace NServiceBus.Utils.Reflection
                    type == typeof(IEvent);
         }
 
-        static ConcurrentDictionary<Type, string> TypeToNameLookup = new ConcurrentDictionary<Type, string>();
+        static ConcurrentDictionary<RuntimeTypeHandle, string> TypeToNameLookup = new ConcurrentDictionary<RuntimeTypeHandle, string>();
 
         static byte[] nsbPublicKeyToken = typeof(ExtensionMethods).Assembly.GetName().GetPublicKeyToken();
 

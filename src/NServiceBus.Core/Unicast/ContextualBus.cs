@@ -25,6 +25,7 @@ namespace NServiceBus.Unicast
         readonly IBuilder builder;
         readonly Configure configure;
         readonly IManageSubscriptions subscriptionManager;
+        readonly MessageMetadataRegistry messageMetadataRegistry;
         readonly LogicalMessageFactory messageFactory;
         readonly TransportDefinition transportDefinition;
         readonly ISendMessages messageSender;
@@ -35,7 +36,7 @@ namespace NServiceBus.Unicast
         readonly string sendLocalAddress;
         readonly StaticOutgoingMessageHeaders staticOutgoingMessageHeaders;
 
-        public ContextualBus(Func<BehaviorContext> contextGetter, IMessageMapper messageMapper, IBuilder builder, Configure configure, IManageSubscriptions subscriptionManager, 
+        public ContextualBus(Func<BehaviorContext> contextGetter, IMessageMapper messageMapper, IBuilder builder, Configure configure, IManageSubscriptions subscriptionManager,
             MessageMetadataRegistry messageMetadataRegistry, ReadOnlySettings settings, TransportDefinition transportDefinition, ISendMessages messageSender, StaticMessageRouter messageRouter,
             StaticOutgoingMessageHeaders staticOutgoingMessageHeaders, CallbackMessageLookup callbackMessageLookup)
         {
@@ -44,13 +45,14 @@ namespace NServiceBus.Unicast
             this.builder = builder;
             this.configure = configure;
             this.subscriptionManager = subscriptionManager;
+            this.messageMetadataRegistry = messageMetadataRegistry;
             messageFactory = new LogicalMessageFactory(messageMetadataRegistry, messageMapper, contextGetter);
             this.transportDefinition = transportDefinition;
             this.messageSender = messageSender;
             this.messageRouter = messageRouter;
             this.staticOutgoingMessageHeaders = staticOutgoingMessageHeaders;
             this.callbackMessageLookup = callbackMessageLookup;
-            outgoing = new PipelineBase<OutgoingContext>(builder,settings.Get<PipelineModifications>());
+            outgoing = new PipelineBase<OutgoingContext>(builder, settings.Get<PipelineModifications>());
             sendOnlyMode = settings.Get<bool>("Endpoint.SendOnly");
             //if we're a worker, send to the distributor data bus
             if (settings.GetOrDefault<bool>("Worker.Enabled"))
@@ -178,7 +180,11 @@ namespace NServiceBus.Unicast
         public virtual void Publish(object message)
         {
             var logicalMessage = messageFactory.Create(message);
+           
             var options = new PublishOptions(logicalMessage.MessageType);
+
+            ApplyDefaultDeliveryOptionsIfNeeded(options,logicalMessage);
+
             InvokeSendPipeline(options, logicalMessage);
         }
 
@@ -481,9 +487,10 @@ namespace NServiceBus.Unicast
 
         ICallback SendMessage(SendOptions sendOptions, LogicalMessage message)
         {
-            var context = InvokeSendPipeline(sendOptions, message);
+            ApplyDefaultDeliveryOptionsIfNeeded(sendOptions,message);
 
-            var physicalMessage = context.Get<TransportMessage>();
+            var physicalMessage = InvokeSendPipeline(sendOptions, message)
+                .Get<TransportMessage>();
 
             return SetupCallback(physicalMessage.Id);
         }
@@ -550,11 +557,25 @@ namespace NServiceBus.Unicast
             }
         }
 
-        /// <summary>
-        /// Gets the destination address For a message type.
-        /// </summary>
-        /// <param name="messageType">The message type to get the destination for.</param>
-        /// <returns>The address of the destination associated with the message type.</returns>
+
+        void ApplyDefaultDeliveryOptionsIfNeeded(DeliveryOptions options, LogicalMessage logicalMessage)
+        {
+            var messageDefinitions = messageMetadataRegistry.GetMessageMetadata(logicalMessage.MessageType);
+
+            if (!options.TimeToBeReceived.HasValue)
+            {
+                if (messageDefinitions.TimeToBeReceived < TimeSpan.MaxValue)
+                {
+                    options.TimeToBeReceived = messageDefinitions.TimeToBeReceived;
+                }
+            }
+
+            if (!options.NonDurable.HasValue)
+            {
+                options.NonDurable = !messageDefinitions.Recoverable;
+            }
+        }
+
         List<string> GetAddressForMessageType(Type messageType)
         {
             var destination = messageRouter.GetDestinationFor(messageType);
@@ -576,7 +597,7 @@ namespace NServiceBus.Unicast
             return destination;
         }
 
-        
+
 
         TransportMessage MessageBeingProcessed
         {

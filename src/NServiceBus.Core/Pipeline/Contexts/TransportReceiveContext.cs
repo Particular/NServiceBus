@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
+    using NServiceBus.Transports;
+
     /// <summary>
     /// Context containing a physical message
     /// </summary>
@@ -7,10 +9,14 @@
     {
         internal const string IncomingPhysicalMessageKey = "NServiceBus.IncomingPhysicalMessage";
 
-        internal TransportReceiveContext(TransportMessage physicalMessage, BehaviorContext parentContext) 
-            : base(parentContext)
+        internal TransportReceiveContext(ReceivedMessage receivedMessage, BehaviorContext parentContext): base(parentContext)
         {
-            PhysicalMessage = physicalMessage;
+            PhysicalMessage = new TransportMessage(receivedMessage.MessageId, receivedMessage.Headers)
+            {
+                Body = new byte[receivedMessage.BodyStream.Length]
+            };
+
+            receivedMessage.BodyStream.Read(PhysicalMessage.Body, 0, PhysicalMessage.Body.Length);
         }
 
         /// <summary>

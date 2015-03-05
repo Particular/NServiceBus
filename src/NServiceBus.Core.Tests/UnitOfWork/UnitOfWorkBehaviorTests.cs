@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using Core.Tests;
+    using NServiceBus.Transports;
     using NUnit.Framework;
     using ObjectBuilder;
     using Pipeline.Contexts;
@@ -143,7 +145,7 @@
         {
             var runner = new UnitOfWorkBehavior();
 
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(null, new IncomingContext(new RootContext(builder))));
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new ReceivedMessage("",new Dictionary<string, string>(),new MemoryStream() ), new IncomingContext(new RootContext(builder))));
 
             runner.Invoke(context, () =>
             {

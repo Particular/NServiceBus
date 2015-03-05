@@ -6,6 +6,7 @@
     using System.Net;
     using System.Net.NetworkInformation;
     using System.Net.Sockets;
+    using NServiceBus.Unicast;
     using NUnit.Framework;
 
     [TestFixture]
@@ -17,11 +18,11 @@
             var expected = String.Format("Can u see this '{0}' character!", (char)0x19);
             var transportMessage = new TransportMessage();
             transportMessage.Headers.Add("NServiceBus.ExceptionInfo.Message", expected);
-            
-            var message = MsmqUtilities.Convert(transportMessage);
-            var result = MsmqUtilities.Convert(message);
 
-            Assert.AreEqual(expected, result.Headers["NServiceBus.ExceptionInfo.Message"]);
+            var message = MsmqUtilities.Convert(transportMessage, new SendOptions("destination"));
+            var headers = MsmqUtilities.ExtractHeaders(message);
+
+            Assert.AreEqual(expected, headers["NServiceBus.ExceptionInfo.Message"]);
         }
 
         [Test]
@@ -32,28 +33,43 @@
             transportMessage.Headers.Add("NServiceBus.ExceptionInfo.Message", expected);
 
             Console.Out.WriteLine(sizeof(char));
-            var message = MsmqUtilities.Convert(transportMessage);
+            var message = MsmqUtilities.Convert(transportMessage,new SendOptions("destination"));
             var bufferWithNulls = new byte[message.Extension.Length + (10 * sizeof(char))];
             
             Buffer.BlockCopy(message.Extension, 0, bufferWithNulls, 0, bufferWithNulls.Length - (10 * sizeof(char)));
             
             message.Extension = bufferWithNulls;
 
-            var result = MsmqUtilities.Convert(message);
+            var headers = MsmqUtilities.ExtractHeaders(message);
 
-            Assert.AreEqual(expected, result.Headers["NServiceBus.ExceptionInfo.Message"]);
+            Assert.AreEqual(expected, headers["NServiceBus.ExceptionInfo.Message"]);
         }
 
         [Test]
         public void Should_fetch_the_replytoaddress_from_responsequeue_for_backwards_compatibility()
         {
             var transportMessage = new TransportMessage();
-            var message = MsmqUtilities.Convert(transportMessage);
+            var message = MsmqUtilities.Convert(transportMessage,new SendOptions("destination"));
 
             message.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress("local", Environment.MachineName));
-            var result = MsmqUtilities.Convert(message);
+            var headers = MsmqUtilities.ExtractHeaders(message);
 
-            Assert.AreEqual("local@"+Environment.MachineName, result.Headers[Headers.ReplyToAddress]);
+            Assert.AreEqual("local@"+Environment.MachineName, headers[Headers.ReplyToAddress]);
+        }
+
+        [Test]
+        public void Should_use_the_TTBR_in_the_send_options_if_set()
+        {
+            var transportMessage = new TransportMessage();
+
+            var options = new SendOptions("destination")
+            {
+                TimeToBeReceived = TimeSpan.FromDays(1)
+            };
+
+            var message = MsmqUtilities.Convert(transportMessage, options);
+
+            Assert.AreEqual(options.TimeToBeReceived.Value, message.TimeToBeReceived);
         }
 
   

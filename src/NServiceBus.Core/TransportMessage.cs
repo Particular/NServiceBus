@@ -12,7 +12,7 @@ namespace NServiceBus
     ///     received by the bus.
     /// </remarks>
     [Serializable]
-    public class TransportMessage
+    public partial class TransportMessage
     {
         /// <summary>
         ///     Initializes the transport message with a CombGuid as identifier
@@ -103,12 +103,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Gets/sets whether or not the message is supposed to
-        ///     be guaranteed deliverable.
-        /// </summary>
-        public bool Recoverable { get; set; }
-
-        /// <summary>
         ///     Indicates to the infrastructure the message intent (publish, or regular send).
         /// </summary>
         public MessageIntentEnum MessageIntent
@@ -126,17 +120,6 @@ namespace NServiceBus
                 return messageIntent;
             }
             set { Headers[NServiceBus.Headers.MessageIntent] = value.ToString(); }
-        }
-
-
-        /// <summary>
-        ///     Gets/sets the maximum time limit in which the message bundle
-        ///     must be received.
-        /// </summary>
-        public TimeSpan TimeToBeReceived
-        {
-            get { return timeToBeReceived; }
-            set { timeToBeReceived = value; }
         }
 
         /// <summary>
@@ -197,6 +180,5 @@ namespace NServiceBus
         byte[] body;
         string id;
         byte[] originalBody;
-        TimeSpan timeToBeReceived = TimeSpan.MaxValue;
     }
 }

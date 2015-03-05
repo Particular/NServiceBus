@@ -46,7 +46,7 @@ namespace NServiceBus.Transports.Msmq
             try
             {
                 using (var q = new MessageQueue(queuePath, false, Settings.UseConnectionCache, QueueAccessMode.Send))
-                using (var toSend = MsmqUtilities.Convert(message))
+                using (var toSend = MsmqUtilities.Convert(message,sendOptions))
                 {
                     toSend.UseDeadLetterQueue = Settings.UseDeadLetterQueue;
                     toSend.UseJournalQueue = Settings.UseJournalQueue;
