@@ -30,7 +30,7 @@
         public MessageMetadata GetMessageMetadata(Type messageType)
         {
             MessageMetadata metadata;
-            if (messages.TryGetValue(messageType, out metadata))
+            if (messages.TryGetValue(messageType.TypeHandle, out metadata))
             {
                 return metadata;
             }
@@ -58,7 +58,7 @@
                 return messages.Values.FirstOrDefault(m => m.MessageType.FullName == messageTypeIdentifier);
             }
             MessageMetadata metadata;
-            if (messages.TryGetValue(messageType, out metadata))
+            if (messages.TryGetValue(messageType.TypeHandle, out metadata))
             {
                 return metadata;
             }
@@ -87,7 +87,7 @@
                 messageType
             }.Concat(parentMessages));
 
-            messages[messageType] = metadata;
+            messages[messageType.TypeHandle] = metadata;
         }
 
         int PlaceInMessageHierarchy(Type type)
@@ -127,7 +127,7 @@
 
         static ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
         readonly Conventions conventions;
-        readonly Dictionary<Type, MessageMetadata> messages = new Dictionary<Type, MessageMetadata>();
+        readonly Dictionary<RuntimeTypeHandle, MessageMetadata> messages = new Dictionary<RuntimeTypeHandle, MessageMetadata>();
         bool defaultToNonPersistentMessages;
     }
 }
