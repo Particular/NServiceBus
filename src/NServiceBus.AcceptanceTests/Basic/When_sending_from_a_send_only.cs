@@ -3,7 +3,7 @@
     using System;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Config;
+    using NServiceBus.Features;
     using NUnit.Framework;
 
     public class When_sending_from_a_send_only : NServiceBusAcceptanceTest
@@ -54,15 +54,17 @@
         {
             public SendOnlyEndpoint()
             {
-                EndpointSetup<DefaultServer>()
-                    .SendOnly();
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.EnableFeature<Bootstrapper>();
+                }).SendOnly();
             }
 
-            public class Bootstrapper : IWantToRunWhenConfigurationIsComplete
+            public class Bootstrapper : Feature
             {
                 public Context Context { get; set; }
 
-                public void Run(Configure config)
+                protected override void Setup(FeatureConfigurationContext context)
                 {
                     Context.SendOnlyEndpointWasStarted = true;
                 }

@@ -91,6 +91,7 @@
     <Compile Include="Bus.cs" />
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="ConfigureHandlerSettings.cs" />
+    <Compile Include="Configure_Obsolete.cs" />
     <Compile Include="Config\MsmqConnectionStringBuilder.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />

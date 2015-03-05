@@ -19,7 +19,7 @@ namespace NServiceBus
     /// <summary>
     ///     Central configuration entry point.
     /// </summary>
-    public class Configure
+    public partial class Configure
     {
         /// <summary>
         ///     Creates a new instance of <see cref="Configure"/>.
@@ -106,7 +106,7 @@ namespace NServiceBus
 
             ForAllTypes<Feature>(TypesToScan, t => featureActivator.Add(t.Construct<Feature>()));
 
-            ForAllTypes<IWantToRunWhenConfigurationIsComplete>(TypesToScan, t => container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            RegisterWantToRunWhenConfigurationIsCompleteAsInstancePerCall();
 
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(TypesToScan, t => container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
@@ -122,10 +122,7 @@ namespace NServiceBus
 
             localAddress = Settings.LocalAddress();
 
-            foreach (var o in Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>())
-            {
-                o.Run(this);
-            }
+            RunWantToRunWhenConfigurationIsComplete();
 
             ReportFeatures(featureStats);
             StartFeatures(featureActivator);
