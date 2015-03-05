@@ -1,10 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
-    using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
-    using System.Reflection;
     using Hosting.Helpers;
     using NUnit.Framework;
 
@@ -17,17 +14,10 @@
         [SetUp]
         public void Context()
         {
-            var codeBase = Assembly.GetExecutingAssembly().CodeBase;
-            var uri = new UriBuilder(codeBase);
-            var path = Uri.UnescapeDataString(uri.Path);
-            var directoryName = Path.GetDirectoryName(path);
-
-            var testDllDirectory = Path.Combine(directoryName, "TestDlls");
-            var assemblyScanner = new AssemblyScanner(testDllDirectory)
+            var assemblyScanner = new AssemblyScanner(AssemblyScannerTests.GetTestAssemblyDirectory())
                 {
                     IncludeAppDomainAssemblies = false
                 };
-            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
 
             results = assemblyScanner
                 .GetScannableAssemblies();

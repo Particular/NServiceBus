@@ -1116,6 +1116,8 @@ namespace NServiceBus.Hosting.Helpers
     {
         public AssemblyScanner() { }
         public AssemblyScanner(string baseDirectoryToScan) { }
+        [System.ObsoleteAttribute("This method is no longer required since deep scanning of assemblies is done to de" +
+            "tect an NServiceBus reference. Will be removed in version 7.0.0.", true)]
         public System.Collections.Generic.List<System.Reflection.Assembly> MustReferenceAtLeastOneAssembly { get; }
         public bool ThrowExceptions { get; set; }
         public NServiceBus.Hosting.Helpers.AssemblyScannerResults GetScannableAssemblies() { }
