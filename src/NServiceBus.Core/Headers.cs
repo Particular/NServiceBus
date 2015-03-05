@@ -54,7 +54,7 @@
         /// Header containing the ReplyToAddress for a message.
         /// </summary>
         public const string ReplyToAddress = "NServiceBus.ReplyToAddress";
-        
+
         /// <summary>
         /// Prefix included on the wire when sending applicative headers.
         /// </summary>
@@ -204,5 +204,18 @@
         /// The intent of the current message
         /// </summary>
         public const string MessageIntent = "NServiceBus.MessageIntent";
+
+        /// <summary>
+        /// The time to be received for this message when it was sent the first time.
+        /// When moved to error and audit this header will be preserved to the original TTBR 
+        /// of the message can be known
+        /// </summary>
+        public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
+
+       
+        /// <summary>
+        /// Indicates that the message was sent as a non durable message
+        /// </summary>
+        public const string NonDurableMessage = "NServiceBus.NonDurableMessage";
     }
 }

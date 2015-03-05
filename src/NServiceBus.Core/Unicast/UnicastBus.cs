@@ -10,6 +10,7 @@ namespace NServiceBus.Unicast
     using Hosting;
     using Licensing;
     using Logging;
+    using NServiceBus.Features;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Messages;
@@ -167,6 +168,8 @@ namespace NServiceBus.Unicast
 
         void InnerShutdown()
         {
+            StopFeatures();
+
             if (!started)
             {
                 return;
@@ -180,6 +183,14 @@ namespace NServiceBus.Unicast
             Log.Info("Shutdown complete.");
 
             started = false;
+        }
+
+        void StopFeatures()
+        {
+            // Pull the feature  runner singleton out of the container
+            // features are always stopped
+            var featureRunner = Builder.Build<FeatureRunner>();
+            featureRunner.Stop();
         }
 
 

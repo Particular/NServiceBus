@@ -11,10 +11,7 @@ namespace NServiceBus.Unicast.Transport
         /// <returns>Transport Message</returns>
         public static TransportMessage Create()
         {
-            var transportMessage = new TransportMessage
-                                       {
-                                           Recoverable = true,
-                                       };
+            var transportMessage = new TransportMessage();
             transportMessage.Headers.Add(Headers.ControlMessageHeader, true.ToString());
 
             return transportMessage;

@@ -154,7 +154,18 @@ namespace NServiceBus.Features
                     var task = (FeatureStartupTask) builder.Build(taskType);
 
                     task.PerformStop();
+
+                    DisposeIfNecessary(task);
                 }
+            }
+        }
+
+        static void DisposeIfNecessary(FeatureStartupTask task)
+        {
+            var disposableTask = task as IDisposable;
+            if (disposableTask != null)
+            {
+                disposableTask.Dispose();
             }
         }
 
@@ -286,24 +297,6 @@ namespace NServiceBus.Features
             internal FeatureState FeatureState;
             internal List<Node> previous = new List<Node>();
             bool visited;
-        }
-
-        class Runner : IWantToRunWhenBusStartsAndStops
-        {
-            public IBuilder Builder { get; set; }
-
-            public FeatureActivator FeatureActivator { get; set; }
-
-
-            public void Start()
-            {
-                FeatureActivator.StartFeatures(Builder);
-            }
-
-            public void Stop()
-            {
-                FeatureActivator.StopFeatures(Builder);
-            }
         }
     }
 }
