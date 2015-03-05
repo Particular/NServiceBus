@@ -18,8 +18,10 @@ namespace NServiceBus.Features
 
         internal InstallationSupport()
         {
-            EnableByDefault();
-            Prerequisite(c => Debugger.IsAttached, "Installation support only runs when the debugger is attached.");
+            if (Debugger.IsAttached)
+            {
+                EnableByDefault();
+            }
             RegisterStartupTask<InstallerRunner>();
         }
 
