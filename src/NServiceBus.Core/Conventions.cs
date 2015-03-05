@@ -15,8 +15,6 @@
         internal IEnumerable<DataBusPropertyInfo> GetDataBusProperties(object message)
         {
             var messageType = message.GetType();
-
-
             List<DataBusPropertyInfo> value;
 
             if (!cache.TryGetValue(messageType, out value))
@@ -52,8 +50,10 @@
             try
             {
                 return MessagesConventionCache.ApplyConvention(t,
-                    type =>
+                    typeHandle =>
                     {
+                        var type = Type.GetTypeFromHandle(typeHandle);
+
                         if (IsInSystemConventionList(type))
                         {
                             return true;
@@ -101,8 +101,9 @@
         {
             try
             {
-                return CommandsConventionCache.ApplyConvention(t, type =>
+                return CommandsConventionCache.ApplyConvention(t, typeHandle =>
                 {
+                    var type = Type.GetTypeFromHandle(typeHandle);
                     if (type.IsFromParticularAssembly())
                     {
                         return false;
@@ -123,8 +124,9 @@
         {
             try
             {
-                return ExpressConventionCache.ApplyConvention(t, type =>
+                return ExpressConventionCache.ApplyConvention(t, typeHandle =>
                 {
+                    var type = Type.GetTypeFromHandle(typeHandle);
                     if (type.IsFromParticularAssembly())
                     {
                         return false;
@@ -176,8 +178,9 @@
         {
             try
             {
-                return EventsConventionCache.ApplyConvention(t, type =>
+                return EventsConventionCache.ApplyConvention(t, typeHandle =>
                 {
+                    var type = Type.GetTypeFromHandle(typeHandle);
                     if (type.IsFromParticularAssembly())
                     {
                         return false;
@@ -227,9 +230,9 @@
 
         class ConventionCache
         {
-            public bool ApplyConvention(Type type, Func<Type, bool> action)
+            public bool ApplyConvention(Type type, Func<RuntimeTypeHandle, bool> action)
             {
-                return cache.GetOrAdd(type, action);
+                return cache.GetOrAdd(type.TypeHandle, action);
             }
 
             public void Reset()
@@ -237,7 +240,7 @@
                 cache.Clear();
             }
 
-            ConcurrentDictionary<Type, bool> cache = new ConcurrentDictionary<Type, bool>();
+            ConcurrentDictionary<RuntimeTypeHandle, bool> cache = new ConcurrentDictionary<RuntimeTypeHandle, bool>();
         }
     }
 }
