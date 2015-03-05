@@ -61,8 +61,6 @@ namespace NServiceBus.Hosting.Helpers
         public AssemblyScanner(string baseDirectoryToScan)
         {
             ThrowExceptions = true;
-
-            MustReferenceAtLeastOneAssembly = new List<Assembly>();
             this.baseDirectoryToScan = baseDirectoryToScan;
         }
 
@@ -70,13 +68,12 @@ namespace NServiceBus.Hosting.Helpers
         {
             this.assemblyToScan = assemblyToScan;
             ThrowExceptions = true;
-            MustReferenceAtLeastOneAssembly = new List<Assembly>();
         }
-
         /// <summary>
         ///     Tells the scanner to only include assemblies that reference one of the given assemblies
         /// </summary>
-        public List<Assembly> MustReferenceAtLeastOneAssembly { get; private set; }
+        [ObsoleteEx(Message = "This method is no longer required since deep scanning of assemblies is done to detect an NServiceBus reference.", RemoveInVersion = "7.0",TreatAsErrorFromVersion = "6.0")]
+        public List<Assembly> MustReferenceAtLeastOneAssembly { get{throw new NotImplementedException();} }
 
         /// <summary>
         ///     Determines if the scanner should throw exceptions or not
@@ -95,8 +92,7 @@ namespace NServiceBus.Hosting.Helpers
 
             if (assemblyToScan != null)
             {
-                var codeBase = assemblyToScan.CodeBase;
-                var assemblyPath = AssemblyPath(codeBase);
+                var assemblyPath = AssemblyPath(assemblyToScan);
                 ScanAssembly(assemblyPath, results);
                 return results;
             }
@@ -108,7 +104,7 @@ namespace NServiceBus.Hosting.Helpers
 
                 foreach (var assembly in matchingAssembliesFromAppDomain)
                 {
-                    ScanAssembly(AssemblyPath(assembly.CodeBase), results);
+                    ScanAssembly(AssemblyPath(assembly), results);
                 }
             }
 
@@ -135,7 +131,7 @@ namespace NServiceBus.Hosting.Helpers
                     continue;
                 }
 
-                ScanAssembly(AssemblyPath(assembly.CodeBase), results, false);
+                ScanAssembly(AssemblyPath(assembly), results, false);
             }
 
             results.RemoveDuplicates();
@@ -150,9 +146,9 @@ namespace NServiceBus.Hosting.Helpers
                 .Where(assembly => !assembly.IsDynamic && IsIncluded(assembly.GetName().Name)).ToList();
         }
 
-        static string AssemblyPath(string codeBase)
+        static string AssemblyPath(Assembly assembly)
         {
-            var uri = new UriBuilder(codeBase);
+            var uri = new UriBuilder(assembly.CodeBase);
             return Uri.UnescapeDataString(uri.Path).Replace('/', '\\');
         }
 
@@ -184,7 +180,7 @@ namespace NServiceBus.Hosting.Helpers
 
             try
             {
-                if (checkMustReference && !AssemblyPassesReferencesTest(assemblyPath))
+                if (checkMustReference && !ReferencesNServiceBus(assemblyPath))
                 {
                     var skippedFile = new SkippedFile(assemblyPath, "Assembly does not reference at least one of the must referenced assemblies.");
                     results.SkippedFiles.Add(skippedFile);
@@ -246,7 +242,13 @@ namespace NServiceBus.Hosting.Helpers
 
         internal static bool IsRuntimeAssembly(string assemblyPath)
         {
-            var publicKeyToken = AssemblyName.GetAssemblyName(assemblyPath).GetPublicKeyToken();
+            var assemblyName = AssemblyName.GetAssemblyName(assemblyPath);
+            return IsRuntimeAssembly(assemblyName);
+        }
+
+        static bool IsRuntimeAssembly(AssemblyName assemblyName)
+        {
+            var publicKeyToken = assemblyName.GetPublicKeyToken();
             var lowerInvariant = BitConverter.ToString(publicKeyToken).Replace("-", String.Empty).ToLowerInvariant();
             //System
             if (lowerInvariant == "b77a5c561934e089")
@@ -367,27 +369,54 @@ namespace NServiceBus.Hosting.Helpers
             }
         }
 
-        bool AssemblyPassesReferencesTest(string assemblyPath)
+
+        internal static bool ReferencesNServiceBus(string assemblyPath)
         {
-            if (MustReferenceAtLeastOneAssembly.Count == 0)
+            var assembly = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
+            //TODO: should we seed the results with NServiceBus.Core.dll?
+            if (assembly.GetName().Name == "NServiceBus.Core")
             {
                 return true;
             }
-
-            var lightLoad = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
-            var referencedAssemblies = lightLoad.GetReferencedAssemblies();
-
-            var hasReferences = MustReferenceAtLeastOneAssembly
-                .Select(reference => reference.GetName().Name)
-                .Any(name => referencedAssemblies.Any(a => a.Name == name));
-
-            if (hasReferences)
-            {
-                mustInclude.AddRange(referencedAssemblies.Where(an => IsIncluded(an.Name)).Select(an => an.FullName));
-            }
-
-            return hasReferences;
+            return ReferencesNServiceBus(assembly, new List<AssemblyName>());
         }
+
+        static bool ReferencesNServiceBus(Assembly assembly, List<AssemblyName> processed)
+        {
+            foreach (var assemblyName in assembly.GetReferencedAssemblies())
+            {
+                if (assemblyName.Name == "NServiceBus.Core")
+                {
+                    return true;
+                }
+                
+                if (processed.Any(x => x.FullName == assemblyName.FullName))
+                {
+                    continue;
+                }
+                processed.Add(assemblyName);
+
+                if (IsRuntimeAssembly(assemblyName))
+                {
+                    continue;
+                }
+                Assembly refAssembly;
+                try
+                {
+                    refAssembly = Assembly.ReflectionOnlyLoad(assemblyName.FullName);
+                }
+                catch (FileNotFoundException)
+                {
+                    continue;
+                }
+                if (ReferencesNServiceBus(refAssembly, processed))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
 
         bool IsIncluded(string assemblyNameOrFileName)
         {

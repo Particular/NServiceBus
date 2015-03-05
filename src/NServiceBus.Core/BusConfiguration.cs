@@ -281,10 +281,11 @@ namespace NServiceBus
 
         List<Type> GetAllowedTypes(string path)
         {
-            var assemblyScanner = new AssemblyScanner(path);
-            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
-            assemblyScanner.AssembliesToSkip = excludedAssemblies;
-            assemblyScanner.TypesToSkip = excludedTypes;
+            var assemblyScanner = new AssemblyScanner(path)
+                                  {
+                                      AssembliesToSkip = excludedAssemblies,
+                                      TypesToSkip = excludedTypes
+                                  };
             return assemblyScanner
                 .GetScannableAssemblies()
                 .Types;
