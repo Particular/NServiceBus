@@ -110,6 +110,8 @@ namespace NServiceBus
 
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(TypesToScan, t => container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
+            ForAllTypes<IRunWhenBusStartsAndStops>(TypesToScan, t => container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(TypesToScan, t => t.Run(this));
 
             var featureStats = featureActivator.SetupFeatures(new FeatureConfigurationContext(this));

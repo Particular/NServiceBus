@@ -264,6 +264,10 @@ namespace NServiceBus
         public NServiceBus.First<T> AndThen<K>() { }
         public static NServiceBus.First<T> Then<K>() { }
     }
+    public class HandleContext
+    {
+        public HandleContext() { }
+    }
     public class static Headers
     {
         public const string ContentType = "NServiceBus.ContentType";
@@ -369,6 +373,10 @@ namespace NServiceBus
     {
         NServiceBus.IExcludesBuilder And(string assemblyExpression);
     }
+    public interface IHandle<T>
+    {
+        void Handle(T message, NServiceBus.HandleContext context);
+    }
     public interface IHandleMessages<T>
     {
         void Handle(T message);
@@ -417,6 +425,11 @@ namespace NServiceBus
     {
         public static void EnableInstallers(this NServiceBus.BusConfiguration config, string username = null) { }
     }
+    public interface IRunWhenBusStartsAndStops
+    {
+        void Start(NServiceBus.RunContext context);
+        void Stop(NServiceBus.RunContext context);
+    }
     public interface ISendOnlyBus : System.IDisposable
     {
         System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
@@ -437,6 +450,10 @@ namespace NServiceBus
     public interface IStartableBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, System.IDisposable
     {
         NServiceBus.IBus Start();
+    }
+    public interface ISubscribe<T>
+    {
+        void Handle(T message, NServiceBus.SubscribeContext context);
     }
     public interface IWantToRunBeforeConfigurationIsFinalized
     {
@@ -537,6 +554,20 @@ namespace NServiceBus
             public void AbortReceiveOperation() { }
         }
     }
+    public class RunContext
+    {
+        public RunContext(NServiceBus.IBus bus) { }
+        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
+        public void Publish(object message) { }
+        public void Publish<T>() { }
+        public void Publish<T>(System.Action<T> messageConstructor) { }
+        public NServiceBus.ICallback Send(object message) { }
+        public NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor) { }
+        public NServiceBus.ICallback Send(string destination, object message) { }
+        public NServiceBus.ICallback Send<T>(string destination, System.Action<T> messageConstructor) { }
+        public NServiceBus.ICallback Send(string destination, string correlationId, object message) { }
+        public NServiceBus.ICallback Send<T>(string destination, string correlationId, System.Action<T> messageConstructor) { }
+    }
     public class static ScaleOutExtentions
     {
         public static NServiceBus.Settings.ScaleOutSettings ScaleOut(this NServiceBus.BusConfiguration config) { }
@@ -569,6 +600,10 @@ namespace NServiceBus
     {
         public static void EnableSLAPerformanceCounter(this NServiceBus.BusConfiguration config, System.TimeSpan sla) { }
         public static void EnableSLAPerformanceCounter(this NServiceBus.BusConfiguration config) { }
+    }
+    public class SubscribeContext
+    {
+        public SubscribeContext() { }
     }
     public class static ThrottlingSettingsExtensions
     {
@@ -1576,6 +1611,8 @@ namespace NServiceBus.Saga
         public virtual string OriginalMessageId { get; set; }
         public virtual string Originator { get; set; }
     }
+    public interface IAmStartedByEvent<T> : NServiceBus.ISubscribe<T> { }
+    public interface IAmStartedByMessage<T> : NServiceBus.IHandle<T> { }
     public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
     public interface IConfigureHowToFindSagaWithMessage
     {
@@ -1603,6 +1640,10 @@ namespace NServiceBus.Saga
     public interface IHandleSagaNotFound
     {
         void Handle(object message);
+    }
+    public interface IHandleTimeout<T>
+    {
+        void Timeout(T state, NServiceBus.Saga.TimeoutContext context);
     }
     public interface IHandleTimeouts<T>
     {
@@ -1660,6 +1701,10 @@ namespace NServiceBus.Saga
         where TSagaData : NServiceBus.Saga.IContainSagaData
     {
         public NServiceBus.Saga.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
+    }
+    public class TimeoutContext
+    {
+        public TimeoutContext() { }
     }
     public class ToSagaExpression<TSagaData, TMessage>
         where TSagaData : NServiceBus.Saga.IContainSagaData

@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Security.Principal;
     using System.Threading;
@@ -81,8 +82,6 @@ namespace NServiceBus.Unicast
             get; set;
         }
 
-        
-
         /// <summary>
         /// <see cref="IStartableBus.Start()"/>
         /// </summary>
@@ -112,13 +111,21 @@ namespace NServiceBus.Unicast
                 started = true;
             }
 
+            var wantToRunWhenBusStartsAndStops = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
+            var runWhenBusStartsAndStops = Builder.BuildAll<IRunWhenBusStartsAndStops>().ToList();
+
+            var everyThingWhichNeedsToRun = wantToRunWhenBusStartsAndStops
+                .Select(r => new StartAndStopAdapter(r))
+                .Concat(runWhenBusStartsAndStops
+                .Select(r => new StartAndStopAdapter(r))).ToList();
+
             ProcessStartupItems(
-                Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList(),
+                everyThingWhichNeedsToRun,
                 toRun =>
                 {
-                    toRun.Start();
+                    toRun.Start(new RunContext(this));
                     thingsRanAtStartup.Add(toRun);
-                    Log.DebugFormat("Started {0}.", toRun.GetType().AssemblyQualifiedName);
+                    Log.DebugFormat("Started {0}.", toRun.Name);
                 },
                 ex => criticalError.Raise("Startup task failed to complete.", ex),
                 startCompletedEvent);
@@ -126,12 +133,70 @@ namespace NServiceBus.Unicast
             return this;
         }
 
+        [DebuggerNonUserCode]
+        class StartAndStopAdapter
+        {
+            readonly IWantToRunWhenBusStartsAndStops wantToRunWhenBusStartsAndStops;
+            readonly IRunWhenBusStartsAndStops runWhenBusStartsAndStops;
+
+            public StartAndStopAdapter(IWantToRunWhenBusStartsAndStops wantToRunWhenBusStartsAndStops)
+            {
+                this.wantToRunWhenBusStartsAndStops = wantToRunWhenBusStartsAndStops;
+            }
+
+            public StartAndStopAdapter(IRunWhenBusStartsAndStops runWhenBusStartsAndStops)
+            {
+                this.runWhenBusStartsAndStops = runWhenBusStartsAndStops;
+            }
+
+            public string Name
+            {
+                get
+                {
+                    if (wantToRunWhenBusStartsAndStops != null)
+                    {
+                        return wantToRunWhenBusStartsAndStops.GetType().AssemblyQualifiedName;
+                    }
+
+                    return runWhenBusStartsAndStops != null ? runWhenBusStartsAndStops.GetType().AssemblyQualifiedName : GetType().AssemblyQualifiedName;
+                }
+            }
+
+            public void Start(RunContext context)
+            {
+                if (wantToRunWhenBusStartsAndStops != null)
+                {
+                    wantToRunWhenBusStartsAndStops.Start();
+                    return;
+                }
+
+                if (runWhenBusStartsAndStops != null)
+                {
+                    runWhenBusStartsAndStops.Start(context);
+                }
+            }
+
+            public void Stop(RunContext context)
+            {
+                if (wantToRunWhenBusStartsAndStops != null)
+                {
+                    wantToRunWhenBusStartsAndStops.Stop();
+                    return;
+                }
+
+                if (runWhenBusStartsAndStops != null)
+                {
+                    runWhenBusStartsAndStops.Stop(context);
+                }
+            }
+        }
+
         void ExecuteIWantToRunAtStartupStopMethods()
         {
             // Ensuring IWantToRunWhenBusStartsAndStops.Start has been called.
             startCompletedEvent.WaitOne();
 
-            var tasksToStop = Interlocked.Exchange(ref thingsRanAtStartup, new ConcurrentBag<IWantToRunWhenBusStartsAndStops>());
+            var tasksToStop = Interlocked.Exchange(ref thingsRanAtStartup, new ConcurrentBag<StartAndStopAdapter>());
             if (!tasksToStop.Any())
             {
                 return;
@@ -141,8 +206,8 @@ namespace NServiceBus.Unicast
                 tasksToStop,
                 toRun =>
                 {
-                    toRun.Stop();
-                    Log.DebugFormat("Stopped {0}.", toRun.GetType().AssemblyQualifiedName);
+                    toRun.Stop(new RunContext(this));
+                    Log.DebugFormat("Stopped {0}.", toRun.Name);
                 },
                 ex => Log.Fatal("Startup task failed to stop.", ex),
                 stopCompletedEvent);
@@ -199,7 +264,7 @@ namespace NServiceBus.Unicast
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();
 
-        ConcurrentBag<IWantToRunWhenBusStartsAndStops> thingsRanAtStartup = new ConcurrentBag<IWantToRunWhenBusStartsAndStops>();
+        ConcurrentBag<StartAndStopAdapter> thingsRanAtStartup = new ConcurrentBag<StartAndStopAdapter>();
         ManualResetEvent startCompletedEvent = new ManualResetEvent(false);
         ManualResetEvent stopCompletedEvent = new ManualResetEvent(true);
 
