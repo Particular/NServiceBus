@@ -5,10 +5,9 @@ namespace NServiceBus.Features
     using System.Diagnostics;
     using System.Linq;
     using System.Security.Principal;
-    using Config;
-    using Installation;
-    using ObjectBuilder;
-    using Settings;
+    using NServiceBus.Installation;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Provides support for running installers
@@ -23,12 +22,10 @@ namespace NServiceBus.Features
             {
                 EnableByDefault();
             }
+            RegisterStartupTask<InstallerRunner>();
         }
 
-        /// <summary>
-        /// Invoked if the feature is activated
-        /// </summary>
-        /// <param name="context">The feature context</param>
+        /// <inheritdoc />
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             foreach (var installerType in GetInstallerTypes(context))
@@ -43,20 +40,29 @@ namespace NServiceBus.Features
                 .Where(t => typeof(INeedToInstallSomething).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface));
         }
 
-        class Starter : IWantToRunWhenConfigurationIsComplete
+        class InstallerRunner : FeatureStartupTask
         {
             IBuilder builder;
             ReadOnlySettings readOnlySettings;
             Configure configure;
 
-            public Starter(IBuilder builder, ReadOnlySettings readOnlySettings, Configure configure)
+            public InstallerRunner(IBuilder builder, ReadOnlySettings readOnlySettings, Configure configure)
             {
                 this.builder = builder;
                 this.readOnlySettings = readOnlySettings;
                 this.configure = configure;
             }
 
-            string GetInstallationUserName(ReadOnlySettings settings)
+            protected override void OnStart()
+            {
+                var username = GetInstallationUserName(readOnlySettings);
+                foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
+                {
+                    installer.Install(username, configure);
+                }
+            }
+
+            static string GetInstallationUserName(ReadOnlySettings settings)
             {
                 string username;
                 if (settings.TryGet(UsernameKey, out username))
@@ -65,15 +71,6 @@ namespace NServiceBus.Features
                 }
 
                 return WindowsIdentity.GetCurrent().Name;
-            }
-
-            public void Run(Configure config)
-            {
-                var username = GetInstallationUserName(readOnlySettings);
-                foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
-                {
-                    installer.Install(username, configure);
-                }
             }
         }
     }

@@ -547,7 +547,6 @@
     <Compile Include="Serializers\Json\Internal\XContainerConverter.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializer.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerBase.cs" />
-    <Compile Include="Serializers\XML\Config\MessageTypesInitializer.cs" />
     <Compile Include="Serializers\XML\XmlMessageSerializer.cs" />
     <Compile Include="Serializers\XML\XmlSanitizingStream.cs" />
     <Compile Include="Settings\TransactionSettings.cs" />
