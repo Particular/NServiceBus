@@ -79,7 +79,6 @@ namespace NServiceBus
         {
             var assemblyScanner = new AssemblyScanner(directory)
             {
-                IncludeAppDomainAssemblies = true,
                 AssembliesToInclude = assembliesToInclude,
                 AssembliesToSkip = assembliesToExclude
             };

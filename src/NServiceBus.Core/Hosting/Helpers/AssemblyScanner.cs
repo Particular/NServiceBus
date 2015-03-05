@@ -51,14 +51,8 @@ namespace NServiceBus.Hosting.Helpers
         {
             var results = new AssemblyScannerResults();
 
-            if (IncludeAppDomainAssemblies)
-            {
-                var matchingAssembliesFromAppDomain = AppDomain.CurrentDomain
-                                                               .GetAssemblies()
-                                                               .Where(assembly => IsIncluded(assembly.GetName().Name));
-
-                results.Assemblies.AddRange(matchingAssembliesFromAppDomain);
-            }
+            // Include AppDomain loaded assemblies all the time
+            results.Assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies().Where(a=> !IsInDefaultAssemblyExclusions(a.GetName().Name)));
 
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles())
             {
@@ -298,6 +292,12 @@ namespace NServiceBus.Hosting.Helpers
                 .Any(name => referencedAssemblies.Any(a => a.Name == name));
         }
 
+        internal static bool IsInDefaultAssemblyExclusions(string assemblyNameOrFileName)
+        {
+            var isExcludedByDefault = DefaultAssemblyExclusions.Any(exclusion => IsMatch(exclusion, assemblyNameOrFileName));
+            return isExcludedByDefault;
+        }
+
         /// <summary>
         ///  Determines whether the specified assembly name or file name can be included, given the set up include/exclude
         ///  patterns and default include/exclude patterns
@@ -310,8 +310,7 @@ namespace NServiceBus.Hosting.Helpers
                 return false;
             }
 
-            var isExcludedByDefault = DefaultAssemblyExclusions.Any(exclusion => IsMatch(exclusion, assemblyNameOrFileName));
-            if (isExcludedByDefault)
+            if (IsInDefaultAssemblyExclusions(assemblyNameOrFileName))
             {
                 return false;
             }
@@ -358,7 +357,6 @@ namespace NServiceBus.Hosting.Helpers
         internal List<string> AssembliesToInclude;
         internal List<string> AssembliesToSkip;
 
-        internal bool IncludeAppDomainAssemblies;
         internal bool IncludeExesInScan = true;
         internal bool ScanNestedDirectories = true;
 

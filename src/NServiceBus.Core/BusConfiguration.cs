@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Transactions;
@@ -89,7 +88,6 @@ namespace NServiceBus
         /// </summary>
         public void ScanAssembliesInDirectory(string probeDirectory)
         {
-            directory = probeDirectory;
             AssembliesToScan(GetAssembliesInDirectory(probeDirectory));
         }
 
@@ -195,17 +193,10 @@ namespace NServiceBus
 
                 ScanAssembliesInDirectory(directoryToScan);
             }
-
-            scannedTypes = scannedTypes.Union(Configure.GetAllowedTypes(Assembly.GetExecutingAssembly())).ToList();
-
-            if (HttpRuntime.AppDomainAppId == null)
+            else
             {
-                var baseDirectory = directory ?? AppDomain.CurrentDomain.BaseDirectory;
-                var hostPath = Path.Combine(baseDirectory, "NServiceBus.Host.exe");
-                if (File.Exists(hostPath))
-                {
-                    scannedTypes = scannedTypes.Union(Configure.GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
-                }
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => !AssemblyScanner.IsInDefaultAssemblyExclusions(a.GetName().Name)).ToArray();
+                scannedTypes = scannedTypes.Union(Configure.GetAllowedTypes(assemblies)).ToList();
             }
 
             Settings.SetDefault("TypesToScan", scannedTypes);
@@ -261,7 +252,6 @@ namespace NServiceBus
         ConventionsBuilder conventionsBuilder = new ConventionsBuilder();
         List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         IContainer customBuilder;
-        string directory;
         string endpointName;
         string endpointVersion;
         IList<Type> scannedTypes;
