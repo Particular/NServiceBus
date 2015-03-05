@@ -684,6 +684,9 @@ namespace NServiceBus.Config
         [System.Configuration.ConfigurationPropertyAttribute("QueueName", IsRequired=false)]
         public string QueueName { get; set; }
     }
+    [System.ObsoleteAttribute("Use the feature concept instead. Please use `A class which inherits from NService" +
+        "Bus.Features.Feature and use configuration.EnableFeature<YourClass>()` instead. " +
+        "Will be removed in version 7.0.0.", true)]
     public interface IWantToRunWhenConfigurationIsComplete
     {
         void Run(NServiceBus.Configure config);
