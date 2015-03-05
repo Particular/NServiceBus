@@ -24,11 +24,6 @@
         }
 
         /// <summary>
-        /// Set to true if the router should autosubscribe messages not defined as events
-        /// </summary>
-        public bool SubscribeToPlainMessages { get; set; }
-
-        /// <summary>
         /// Returns all the routes for a given message
         /// </summary>
         /// <param name="messageType">The <see cref="Type"/> of the message to get the destination <see cref="Address"/> list for.</param>

@@ -2234,7 +2234,6 @@ namespace NServiceBus.Unicast.Routing
     public class StaticMessageRouter
     {
         public StaticMessageRouter(System.Collections.Generic.IEnumerable<System.Type> knownMessages) { }
-        public bool SubscribeToPlainMessages { get; set; }
         public System.Collections.Generic.List<string> GetDestinationFor(System.Type messageType) { }
         public void RegisterEventRoute(System.Type eventType, string endpointAddress) { }
         public void RegisterMessageRoute(System.Type messageType, string endpointAddress) { }
