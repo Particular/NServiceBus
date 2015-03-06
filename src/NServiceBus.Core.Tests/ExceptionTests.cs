@@ -14,12 +14,7 @@
         [Test]
         public void VerifyExceptionConventions()
         {
-            var exceptionTypes = new List<Type>();
-
-            exceptionTypes.AddRange(GetExceptionTypes(typeof(IMessage).Assembly));
-            exceptionTypes.AddRange(GetExceptionTypes(typeof(UnicastBus).Assembly));
-
-            foreach (var exceptionType in exceptionTypes)
+            foreach (var exceptionType in GetExceptionTypes())
             {
                 if (exceptionType.GetCustomAttribute<ObsoleteAttribute>() !=null )
                 {
@@ -39,9 +34,9 @@
             }
         }
 
-        static IEnumerable<Type> GetExceptionTypes(Assembly assembly)
+        static IEnumerable<Type> GetExceptionTypes()
         {
-            foreach (var type in assembly.GetTypes())
+            foreach (var type in typeof(UnicastBus).Assembly.GetTypes())
             {
                 if (typeof(Exception).IsAssignableFrom(type) && type.Namespace.StartsWith("NServiceBus"))
                 {

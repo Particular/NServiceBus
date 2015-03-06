@@ -135,6 +135,7 @@
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="DataBus\InMemoryDataBus.cs" />
     <Compile Include="Encryption\When_message_contains_props_and_fields_that_cannot_be_set.cs" />
+    <Compile Include="ArgumentExceptionTests.cs" />
     <Compile Include="Features\FeatureDefaultsTests.cs" />
     <Compile Include="FirstLevelRetriesTests.cs" />
     <Compile Include="Faults\ForwardFaultsToErrorQueueTests.cs" />
