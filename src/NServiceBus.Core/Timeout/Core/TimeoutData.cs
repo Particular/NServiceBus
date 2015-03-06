@@ -83,7 +83,10 @@ namespace NServiceBus.Timeout.Core
         /// Transforms the timeout to send options.
         /// </summary>
         /// <param name="replyToAddress">The reply address to use for outgoing messages</param>
-        [ObsoleteEx(Replacement = "TimeoutData.ToSendOptions(string)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "TimeoutData.ToSendOptions(string)", 
+            RemoveInVersion = "7.0", 
+            TreatAsErrorFromVersion = "6.0")]
         // ReSharper disable once UnusedParameter.Global
         public SendOptions ToSendOptions(Address replyToAddress)
         {

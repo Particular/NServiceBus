@@ -155,7 +155,7 @@ namespace NServiceBus
         /// Sets the public return address of this endpoint.
         /// </summary>
         /// <param name="address">The public address.</param>
-        [ObsoleteEx(Replacement = "OverridePublicReturnAddress(string address)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        [ObsoleteEx(ReplacementTypeOrMember = "OverridePublicReturnAddress(string address)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
         // ReSharper disable UnusedParameter.Global
         public void OverridePublicReturnAddress(Address address)
         // ReSharper restore UnusedParameter.Global

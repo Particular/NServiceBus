@@ -13,7 +13,10 @@ namespace NServiceBus.Unicast
         /// Creates an instance of <see cref="SendOptions"/>.
         /// </summary>
         /// <param name="destination">Address where to send this message</param>
-        [ObsoleteEx(Replacement = "SendOptions(string)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "SendOptions(string)", 
+            RemoveInVersion = "7.0", 
+            TreatAsErrorFromVersion = "6.0")]
         // ReSharper disable once UnusedParameter.Local
         public SendOptions(Address destination)
         {
