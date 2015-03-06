@@ -88,7 +88,7 @@
             // TODO: Could we maybe also leverage the context object to pass in that dependency?
             public Context Context { get; set; }
 
-            public void Handle(MyMessage message, HandleContext context)
+            public void Handle(MyMessage message, IHandleContext context)
             {
                 if (Context.Id != message.Id)
                     return;

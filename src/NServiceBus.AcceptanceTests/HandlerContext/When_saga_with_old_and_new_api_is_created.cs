@@ -50,7 +50,7 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga message, HandleContext context)
+                public void Handle(StartSaga message, IHandleContext context)
                 {
                 }
 
@@ -70,13 +70,13 @@
                     Context.SagaCompleted = true;
                 }
 
-                public void Timeout(Timeout1 state, TimeoutContext context)
+                public void Timeout(Timeout1 state, ITimeoutContext context)
                 {
                     MarkAsComplete();
                     Context.SagaCompleted = true;
                 }
 
-                public void Handle(SomethingHappenedEvent message, SubscribeContext context)
+                public void Handle(SomethingHappenedEvent message, ISubscribeContext context)
                 {
                 }
 

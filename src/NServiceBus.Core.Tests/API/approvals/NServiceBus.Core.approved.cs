@@ -264,10 +264,6 @@ namespace NServiceBus
         public NServiceBus.First<T> AndThen<K>() { }
         public static NServiceBus.First<T> Then<K>() { }
     }
-    public class HandleContext
-    {
-        public HandleContext() { }
-    }
     public class static Headers
     {
         public const string ContentType = "NServiceBus.ContentType";
@@ -375,8 +371,9 @@ namespace NServiceBus
     }
     public interface IHandle<T>
     {
-        void Handle(T message, NServiceBus.HandleContext context);
+        void Handle(T message, NServiceBus.IHandleContext context);
     }
+    public interface IHandleContext { }
     public interface IHandleMessages<T>
     {
         void Handle(T message);
@@ -466,8 +463,9 @@ namespace NServiceBus
     }
     public interface ISubscribe<T>
     {
-        void Handle(T message, NServiceBus.SubscribeContext context);
+        void Handle(T message, NServiceBus.ISubscribeContext context);
     }
+    public interface ISubscribeContext { }
     public interface IWantToRunBeforeConfigurationIsFinalized
     {
         void Run(NServiceBus.Configure config);
@@ -599,10 +597,6 @@ namespace NServiceBus
     {
         public static void EnableSLAPerformanceCounter(this NServiceBus.BusConfiguration config, System.TimeSpan sla) { }
         public static void EnableSLAPerformanceCounter(this NServiceBus.BusConfiguration config) { }
-    }
-    public class SubscribeContext
-    {
-        public SubscribeContext() { }
     }
     public class static ThrottlingSettingsExtensions
     {
@@ -1645,7 +1639,7 @@ namespace NServiceBus.Saga
     }
     public interface IHandleTimeout<T>
     {
-        void Timeout(T state, NServiceBus.Saga.TimeoutContext context);
+        void Timeout(T state, NServiceBus.Saga.ITimeoutContext context);
     }
     public interface IHandleTimeouts<T>
     {
@@ -1661,6 +1655,7 @@ namespace NServiceBus.Saga
         void Save(NServiceBus.Saga.IContainSagaData saga);
         void Update(NServiceBus.Saga.IContainSagaData saga);
     }
+    public interface ITimeoutContext { }
     public abstract class Saga
     {
         protected Saga() { }
@@ -1703,10 +1698,6 @@ namespace NServiceBus.Saga
         where TSagaData : NServiceBus.Saga.IContainSagaData
     {
         public NServiceBus.Saga.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
-    }
-    public class TimeoutContext
-    {
-        public TimeoutContext() { }
     }
     public class ToSagaExpression<TSagaData, TMessage>
         where TSagaData : NServiceBus.Saga.IContainSagaData
@@ -2146,8 +2137,8 @@ namespace NServiceBus.Unicast
         public void Clear() { }
         public System.Collections.Generic.IEnumerable<System.Type> GetHandlerTypes(System.Type messageType) { }
         public System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes() { }
-        public void InvokeHandle(object handler, object message) { }
-        public void InvokeTimeout(object handler, object state) { }
+        public void InvokeHandle(object handler, object message, object context = null) { }
+        public void InvokeTimeout(object handler, object state, object context = null) { }
         public void RegisterHandler(System.Type handlerType) { }
     }
     public class MessagesEventArgs : System.EventArgs

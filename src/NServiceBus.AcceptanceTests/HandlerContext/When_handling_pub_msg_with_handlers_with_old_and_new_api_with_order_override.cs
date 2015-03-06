@@ -121,7 +121,7 @@
                     // TODO: Could we maybe also leverage the context object to pass in that dependency?
                     public Context Context { get; set; }
 
-                    public void Handle(IMyEvent message, SubscribeContext context)
+                    public void Handle(IMyEvent message, ISubscribeContext context)
                     {
                         if (Context.Id != message.Id)
                             return;
