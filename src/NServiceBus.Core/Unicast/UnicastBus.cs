@@ -162,7 +162,7 @@ namespace NServiceBus.Unicast
                 }
             }
 
-            public void Start(RunContext context)
+            public void Start(IRunContext context)
             {
                 if (wantToRunWhenBusStartsAndStops != null)
                 {
@@ -176,7 +176,7 @@ namespace NServiceBus.Unicast
                 }
             }
 
-            public void Stop(RunContext context)
+            public void Stop(IRunContext context)
             {
                 if (wantToRunWhenBusStartsAndStops != null)
                 {

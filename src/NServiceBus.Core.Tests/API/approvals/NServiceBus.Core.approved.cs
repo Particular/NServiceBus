@@ -425,10 +425,23 @@ namespace NServiceBus
     {
         public static void EnableInstallers(this NServiceBus.BusConfiguration config, string username = null) { }
     }
+    public interface IRunContext
+    {
+        System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
+        void Publish(object message);
+        void Publish<T>();
+        void Publish<T>(System.Action<T> messageConstructor);
+        NServiceBus.ICallback Send(object message);
+        NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor);
+        NServiceBus.ICallback Send(string destination, object message);
+        NServiceBus.ICallback Send<T>(string destination, System.Action<T> messageConstructor);
+        NServiceBus.ICallback Send(string destination, string correlationId, object message);
+        NServiceBus.ICallback Send<T>(string destination, string correlationId, System.Action<T> messageConstructor);
+    }
     public interface IRunWhenBusStartsAndStops
     {
-        void Start(NServiceBus.RunContext context);
-        void Stop(NServiceBus.RunContext context);
+        void Start(NServiceBus.IRunContext context);
+        void Stop(NServiceBus.IRunContext context);
     }
     public interface ISendOnlyBus : System.IDisposable
     {
@@ -553,20 +566,6 @@ namespace NServiceBus
             public bool MessageHandledSuccessfully { get; }
             public void AbortReceiveOperation() { }
         }
-    }
-    public class RunContext
-    {
-        public RunContext(NServiceBus.IBus bus) { }
-        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
-        public void Publish(object message) { }
-        public void Publish<T>() { }
-        public void Publish<T>(System.Action<T> messageConstructor) { }
-        public NServiceBus.ICallback Send(object message) { }
-        public NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor) { }
-        public NServiceBus.ICallback Send(string destination, object message) { }
-        public NServiceBus.ICallback Send<T>(string destination, System.Action<T> messageConstructor) { }
-        public NServiceBus.ICallback Send(string destination, string correlationId, object message) { }
-        public NServiceBus.ICallback Send<T>(string destination, string correlationId, System.Action<T> messageConstructor) { }
     }
     public class static ScaleOutExtentions
     {

@@ -36,12 +36,12 @@
             {
                 public Context Context { get; set; }
 
-                public void Start(RunContext context)
+                public void Start(IRunContext context)
                 {
                     Context.StartCalled = true;
                 }
 
-                public void Stop(RunContext context)
+                public void Stop(IRunContext context)
                 {
                     Context.StopCalled = true;
                 }

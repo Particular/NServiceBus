@@ -29,58 +29,39 @@
         /// <summary>
         /// Method called at startup.
         /// </summary>
-        void Start(RunContext context);
+        void Start(IRunContext context);
 
         /// <summary>
         /// Method called on shutdown.
         /// </summary>
-        void Stop(RunContext context);
+        void Stop(IRunContext context);
     }
 
 #pragma warning disable 1591
-    public class RunContext
+    public interface IRunContext
     {
-        readonly IBus bus;
-
-        public RunContext(IBus bus)
-        {
-            this.bus = bus;
-        }
+        /// <summary>
+        /// Publish the message to subscribers.
+        /// </summary>
+        void Publish(object message);
 
         /// <summary>
         /// Publish the message to subscribers.
         /// </summary>
-        public void Publish(object message)
-        {
-            bus.Publish(message);
-        }
-
-        /// <summary>
-        /// Publish the message to subscribers.
-        /// </summary>
-        public void Publish<T>()
-        {
-            bus.Publish<T>();
-        }
+        void Publish<T>();
 
         /// <summary>
         /// Instantiates a message of type T and publishes it.
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        public void Publish<T>(Action<T> messageConstructor)
-        {
-            bus.Publish(messageConstructor);
-        }
+        void Publish<T>(Action<T> messageConstructor);
 
         /// <summary>
         /// Sends the provided message.
         /// </summary>
         /// <param name="message">The message to send.</param>
-        public ICallback Send(object message)
-        {
-            return bus.Send(message);
-        }
+        ICallback Send(object message);
 
         /// <summary>
         /// Instantiates a message of type T and sends it.
@@ -90,10 +71,7 @@
         /// <remarks>
         /// The message will be sent to the destination configured for T
         /// </remarks>
-        public ICallback Send<T>(Action<T> messageConstructor)
-        {
-            return bus.Send(messageConstructor);
-        }
+        ICallback Send<T>(Action<T> messageConstructor);
 
         /// <summary>
         /// Sends the message.
@@ -102,10 +80,7 @@
         /// The address of the destination to which the message will be sent.
         /// </param>
         /// <param name="message">The message to send.</param>
-        public ICallback Send(string destination, object message)
-        {
-            return bus.Send(destination, message);
-        }
+        ICallback Send(string destination, object message);
 
         /// <summary>
         /// Instantiates a message of type T and sends it to the given destination.
@@ -113,29 +88,20 @@
         /// <typeparam name="T">The type of message, usually an interface</typeparam>
         /// <param name="destination">The destination to which the message will be sent.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        public ICallback Send<T>(string destination, Action<T> messageConstructor)
-        {
-            return bus.Send(destination, messageConstructor);
-        }
+        ICallback Send<T>(string destination, Action<T> messageConstructor);
 
         /// <summary>
         /// Sends the message to the destination as well as identifying this
         /// as a response to a message containing the Id found in correlationId.
         /// </summary>
-        public ICallback Send(string destination, string correlationId, object message)
-        {
-            return bus.Send(destination, correlationId, message);
-        }
+        ICallback Send(string destination, string correlationId, object message);
 
         /// <summary>
         /// Instantiates a message of the type T using the given messageConstructor,
         /// and sends it to the destination identifying it as a response to a message
         /// containing the Id found in correlationId.
         /// </summary>
-        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
-        {
-            return bus.Send(destination, correlationId, messageConstructor);
-        }
+        ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor);
 
         /// <summary>
         /// Gets the list of key/value pairs that will be in the header of
@@ -143,6 +109,62 @@
         /// 
         /// This value will be cleared when a thread receives a message.
         /// </summary>
+        IDictionary<string, string> OutgoingHeaders { get; }
+    }
+
+    class RunContext : IRunContext
+    {
+        readonly IBus bus;
+
+        public RunContext(IBus bus)
+        {
+            this.bus = bus;
+        }
+
+        public void Publish(object message)
+        {
+            bus.Publish(message);
+        }
+
+        public void Publish<T>()
+        {
+            bus.Publish<T>();
+        }
+
+        public void Publish<T>(Action<T> messageConstructor)
+        {
+            bus.Publish(messageConstructor);
+        }
+
+        public ICallback Send(object message)
+        {
+            return bus.Send(message);
+        }
+
+        public ICallback Send<T>(Action<T> messageConstructor)
+        {
+            return bus.Send(messageConstructor);
+        }
+
+        public ICallback Send(string destination, object message)
+        {
+            return bus.Send(destination, message);
+        }
+
+        public ICallback Send<T>(string destination, Action<T> messageConstructor)
+        {
+            return bus.Send(destination, messageConstructor);
+        }
+
+        public ICallback Send(string destination, string correlationId, object message)
+        {
+            return bus.Send(destination, correlationId, message);
+        }
+        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
+        {
+            return bus.Send(destination, correlationId, messageConstructor);
+        }
+
         public IDictionary<string, string> OutgoingHeaders
         {
             get { return this.bus.OutgoingHeaders; }
