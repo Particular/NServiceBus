@@ -62,11 +62,25 @@
 
             public class Bootstrapper : Feature
             {
-                public Context Context { get; set; }
+                public Bootstrapper()
+                {
+                    EnableByDefault();
+
+                    RegisterStartupTask<MyTask>();
+                }
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
-                    Context.SendOnlyEndpointWasStarted = true;
+                }
+
+                public class MyTask : FeatureStartupTask
+                {
+                    public Context Context { get; set; }
+
+                    protected override void OnStart()
+                    {
+                        Context.SendOnlyEndpointWasStarted = true;
+                    }
                 }
             }
         }
@@ -111,4 +125,6 @@
             }
         }
     }
+
+    
 }
