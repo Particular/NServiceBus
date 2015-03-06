@@ -27,7 +27,10 @@ namespace NServiceBus.Unicast.Queuing
         /// <param name="queue"></param>
         /// <param name="message"></param>
         /// <param name="inner"></param>
-        [ObsoleteEx(Replacement = "QueueNotFoundException(string queue, string message, Exception inner)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "QueueNotFoundException(string queue, string message, Exception inner)", 
+            RemoveInVersion = "7.0", 
+            TreatAsErrorFromVersion = "6.0")]
         // ReSharper disable UnusedParameter.Local
         public QueueNotFoundException(Address queue, string message, Exception inner) 
         // ReSharper restore UnusedParameter.Local

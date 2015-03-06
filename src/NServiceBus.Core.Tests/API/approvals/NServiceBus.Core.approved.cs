@@ -643,14 +643,14 @@ namespace NServiceBus
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string Id { get; }
         public NServiceBus.MessageIntentEnum MessageIntent { get; set; }
-        [System.ObsoleteAttribute("Please use `For sending purposes use DeliveryOptions.NonDurable (note the negatio" +
-            "n). When receiving look at the new \'NServiceBus.NonDurableMessage\' header` inste" +
-            "ad. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("For sending purposes use DeliveryOptions.NonDurable (note the negation). When rec" +
+            "eiving look at the new \'NServiceBus.NonDurableMessage\' header. Will be removed i" +
+            "n version 7.0.0.", true)]
         public bool Recoverable { get; set; }
         public string ReplyToAddress { get; }
-        [System.ObsoleteAttribute("Please use `For sending purposes use DeliveryOptions.TimeToBeReceived. When recei" +
-            "ving look at the new \'NServiceBus.TimeToBeReceived\' header` instead. Will be rem" +
-            "oved in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("For sending purposes use DeliveryOptions.TimeToBeReceived. When receiving look at" +
+            " the new \'NServiceBus.TimeToBeReceived\' header. Will be removed in version 7.0.0" +
+            ".", true)]
         public System.TimeSpan TimeToBeReceived { get; set; }
     }
     public class static UseDataBusExtensions
@@ -719,6 +719,9 @@ namespace NServiceBus.Config
         [System.Configuration.ConfigurationPropertyAttribute("QueueName", IsRequired=false)]
         public string QueueName { get; set; }
     }
+    [System.ObsoleteAttribute("Use the feature concept instead via A class which inherits from `NServiceBus.Feat" +
+        "ures.Feature` and use `configuration.EnableFeature<YourClass>()`. Will be remove" +
+        "d in version 7.0.0.", true)]
     public interface IWantToRunWhenConfigurationIsComplete
     {
         void Run(NServiceBus.Configure config);

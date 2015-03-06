@@ -11,7 +11,9 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Both a destination and a correlation id is required when replying
         /// </summary>
-        [ObsoleteEx(Replacement = "ReplyOptions(string destination, string correlationId)",RemoveInVersion = "7.0")]
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "ReplyOptions(string destination, string correlationId)",
+            RemoveInVersion = "7.0")]
         // ReSharper disable once UnusedParameter.Local
         public ReplyOptions(Address destination, string correlationId) : base(destination)
         {

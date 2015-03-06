@@ -6,10 +6,16 @@ namespace NServiceBus
     public partial class TransportMessage
     {
 
-        [ObsoleteEx(Replacement = "For sending purposes use DeliveryOptions.NonDurable (note the negation). When receiving look at the new 'NServiceBus.NonDurableMessage' header", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        [ObsoleteEx(
+            Message = "For sending purposes use DeliveryOptions.NonDurable (note the negation). When receiving look at the new 'NServiceBus.NonDurableMessage' header", 
+            RemoveInVersion = "7.0", 
+            TreatAsErrorFromVersion = "6.0")]
         public bool Recoverable { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
 
-        [ObsoleteEx(Replacement = "For sending purposes use DeliveryOptions.TimeToBeReceived. When receiving look at the new 'NServiceBus.TimeToBeReceived' header", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        [ObsoleteEx(
+            Message = "For sending purposes use DeliveryOptions.TimeToBeReceived. When receiving look at the new 'NServiceBus.TimeToBeReceived' header",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
         public TimeSpan TimeToBeReceived { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
     }
 }

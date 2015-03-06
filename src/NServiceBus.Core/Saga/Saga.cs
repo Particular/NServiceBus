@@ -63,7 +63,7 @@ namespace NServiceBus.Saga
             Message = "Construct your message and pass it to the non Action overload.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            Replacement = "Saga.RequestTimeout<TTimeoutMessageType>(DateTime, TTimeoutMessageType)")]
+            ReplacementTypeOrMember = "Saga.RequestTimeout<TTimeoutMessageType>(DateTime, TTimeoutMessageType)")]
         protected void RequestTimeout<TTimeoutMessageType>(DateTime at, Action<TTimeoutMessageType> action) where TTimeoutMessageType : new()
         {
             throw new NotImplementedException();
@@ -115,7 +115,7 @@ namespace NServiceBus.Saga
             Message = "Construct your message and pass it to the non Action overload.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            Replacement = "Saga.RequestTimeout<TTimeoutMessageType>(TimeSpan, TTimeoutMessageType)")]
+            ReplacementTypeOrMember = "Saga.RequestTimeout<TTimeoutMessageType>(TimeSpan, TTimeoutMessageType)")]
         protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, Action<TTimeoutMessageType> messageConstructor) where TTimeoutMessageType : new()
         {
             throw new NotImplementedException();
@@ -164,7 +164,7 @@ namespace NServiceBus.Saga
             Message = "Construct your message and pass it to the non Action overload.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            Replacement = "Saga.ReplyToOriginator(object)")]
+            ReplacementTypeOrMember = "Saga.ReplyToOriginator(object)")]
         protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor) where TMessage : new()
         {
             throw new NotImplementedException();
