@@ -81,7 +81,7 @@
 
             if (IsTimeoutMessage(context.IncomingLogicalMessage))
             {
-                context.MessageHandler.Invocation = MessageHandlerRegistry.InvokeTimeout;
+                context.MessageHandler.Invocation = (t, m) => MessageHandlerRegistry.InvokeTimeout(t, m);
             }
 
             next();

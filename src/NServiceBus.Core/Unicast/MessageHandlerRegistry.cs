@@ -60,9 +60,9 @@
                 return;
             }
 
-            var messageTypesThisHandlerHandles = GetMessageTypesIfIsMessageHandler(handlerType).ToList();
+            var messageTypes = GetMessageTypesIfIsMessageHandler(handlerType).ToList();
 
-            foreach (var messageType in messageTypesThisHandlerHandles)
+            foreach (var messageType in messageTypes)
             {
                 List<Type> typeList;
                 var typeHandle = handlerType.TypeHandle;
@@ -86,9 +86,10 @@
         /// </summary>
         /// <param name="handler">The handler instance.</param>
         /// <param name="message">The message instance.</param>
-        public void InvokeHandle(object handler, object message)
+        /// <param name="context">The context instance</param>
+        public void InvokeHandle(object handler, object message, object context = null)
         {
-            Invoke(handler, message, handlerCache);
+            Invoke(handler, message, context, handlerCache);
         }
 
         /// <summary>
@@ -96,9 +97,10 @@
         /// </summary>
         /// <param name="handler">The handler instance.</param>
         /// <param name="state">The message instance.</param>
-        public void InvokeTimeout(object handler, object state)
+        /// <param name="context">The context instance</param>
+        public void InvokeTimeout(object handler, object state, object context = null)
         {
-            Invoke(handler, state, timeoutCache);
+            Invoke(handler, state, context, timeoutCache);
         }
 
         /// <summary>
@@ -110,6 +112,9 @@
         {
             CacheMethod(handler, messageType, typeof(IHandleMessages<>), handlerCache);
             CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), timeoutCache);
+            CacheMethod(handler, messageType, typeof(IHandleTimeout<>), timeoutCache);
+            CacheMethod(handler, messageType, typeof(IHandle<>), handlerCache);
+            CacheMethod(handler, messageType, typeof(ISubscribe<>), handlerCache);
         }
 
         /// <summary>
@@ -121,7 +126,7 @@
             timeoutCache.Clear();
         }
 
-        static void Invoke(object handler, object message, Dictionary<RuntimeTypeHandle, List<DelegateHolder>> dictionary)
+        static void Invoke(object handler, object message, object context, Dictionary<RuntimeTypeHandle, List<DelegateHolder>> dictionary)
         {
             List<DelegateHolder> methodList;
             if (!dictionary.TryGetValue(handler.GetType().TypeHandle, out methodList))
@@ -130,7 +135,7 @@
             }
             foreach (var delegateHolder in methodList.Where(x => x.MessageType.IsInstanceOfType(message)))
             {
-                delegateHolder.MethodDelegate(handler, message);
+                delegateHolder.MethodDelegate(handler, message, context);
             }
         }
 
@@ -164,7 +169,7 @@
             }
         }
 
-        static Action<object, object> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
+        static Action<object, object, object> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
         {
             var interfaceType = interfaceGenericType.MakeGenericType(messageType);
 
@@ -174,12 +179,26 @@
                 if (methodInfo != null)
                 {
                     var target = Expression.Parameter(typeof(object));
-                    var param = Expression.Parameter(typeof(object));
+                    var messageParam = Expression.Parameter(typeof(object));
+                    var contextParam = Expression.Parameter(typeof(object));
 
                     var castTarget = Expression.Convert(target, targetType);
-                    var castParam = Expression.Convert(param, methodInfo.GetParameters().First().ParameterType);
-                    var execute = Expression.Call(castTarget, methodInfo, castParam);
-                    return Expression.Lambda<Action<object, object>>(execute, target, param).Compile();
+
+                    var methodParameters = methodInfo.GetParameters();
+                    var messageCastParam = Expression.Convert(messageParam, methodParameters.ElementAt(0).ParameterType);
+
+                    var contextParameter = methodParameters.ElementAtOrDefault(1);
+                    if (contextParameter != null)
+                    {
+                        var contextCastParam = Expression.Convert(contextParam, contextParameter.ParameterType);
+                        var execute = Expression.Call(castTarget, methodInfo, messageCastParam, contextCastParam);
+                        return Expression.Lambda<Action<object, object, object>>(execute, target, messageParam, contextParam).Compile();
+                    }
+                    else
+                    {
+                        var innerExecute = Expression.Call(castTarget, methodInfo, messageCastParam);
+                        return Expression.Lambda<Action<object, object, object>>(innerExecute, target, messageParam, contextParam).Compile();
+                    }
                 }
             }
 
@@ -193,14 +212,18 @@
                 let potentialMessageType = t.GetGenericArguments()[0]
                 where
                     typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                    typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
-                select potentialMessageType;
+                    typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                    typeof(IHandleTimeout<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                    typeof(IHandle<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                    typeof(ISubscribe<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
+
+                   select potentialMessageType;
         }
 
         class DelegateHolder
         {
             public Type MessageType;
-            public Action<object, object> MethodDelegate;
+            public Action<object, object, object> MethodDelegate;
         }
     }
 }

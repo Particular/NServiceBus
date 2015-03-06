@@ -19,19 +19,23 @@ namespace NServiceBus
 #pragma warning disable 1591
     public interface ISubscribe<T>
     {
-        void Handle(T message, SubscribeContext context);
+        void Handle(T message, ISubscribeContext context);
     }
 
-    public class SubscribeContext
+    public interface ISubscribeContext { }
+
+    internal class SubscribeContext
     {
     }
 
     public interface IHandle<T>
     {
-        void Handle(T message, HandleContext context);
+        void Handle(T message, IHandleContext context);
     }
 
-    public class HandleContext
+    public interface IHandleContext { }
+
+    internal class HandleContext : IHandleContext
     {
     }
 #pragma warning restore 1591
