@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
-    using NServiceBus.Config;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Features;
     using NServiceBus.Hosting.Helpers;
@@ -106,8 +105,6 @@ namespace NServiceBus
 
             ForAllTypes<Feature>(TypesToScan, t => featureActivator.Add(t.Construct<Feature>()));
 
-            ForAllTypes<IWantToRunWhenConfigurationIsComplete>(TypesToScan, t => container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(TypesToScan, t => container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(TypesToScan, t => t.Run(this));
@@ -121,11 +118,6 @@ namespace NServiceBus
             featureActivator.RegisterStartupTasks(container);
 
             localAddress = Settings.LocalAddress();
-
-            foreach (var o in Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>())
-            {
-                o.Run(this);
-            }
 
             ReportFeatures(featureStats);
             StartFeatures(featureActivator);
