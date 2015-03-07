@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{476D0A88-E281-4BC8-9617-93E53C1F9FE6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{75424F0A-458B-42DA-9DDD-600367893A93}"
@@ -10,8 +12,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Events", "Events\Events.csproj", "{6F35A2BC-639A-429D-8A40-35784600E956}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "Messages\Messages.csproj", "{DD0DC12D-D6DF-47C0-B75A-AEC351164196}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{5CFCD3C2-9BD3-4FC6-AF7A-F0481F6818F5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyConventions", "MyConventions\MyConventions.csproj", "{FA4A7645-09B1-47A7-962D-6D3DA27F0BCE}"
 EndProject
@@ -41,10 +41,6 @@ Global
 		{DD0DC12D-D6DF-47C0-B75A-AEC351164196}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD0DC12D-D6DF-47C0-B75A-AEC351164196}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD0DC12D-D6DF-47C0-B75A-AEC351164196}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5CFCD3C2-9BD3-4FC6-AF7A-F0481F6818F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5CFCD3C2-9BD3-4FC6-AF7A-F0481F6818F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5CFCD3C2-9BD3-4FC6-AF7A-F0481F6818F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5CFCD3C2-9BD3-4FC6-AF7A-F0481F6818F5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FA4A7645-09B1-47A7-962D-6D3DA27F0BCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FA4A7645-09B1-47A7-962D-6D3DA27F0BCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA4A7645-09B1-47A7-962D-6D3DA27F0BCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
