@@ -224,7 +224,8 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 mapped = GetMappedTypeFor(t);
                 if (mapped == null)
                 {
-                    throw new ArgumentException("Could not find a concrete type mapped to " + t.FullName);
+                    InitType(t);
+                    mapped = GetMappedTypeFor(t);
                 }
             }
 
