@@ -29,7 +29,7 @@
         [ObsoleteEx(
            RemoveInVersion = "7.0",
            TreatAsErrorFromVersion = "6.0",
-           Replacement = "Supports<T>()")]
+           ReplacementTypeOrMember = "Supports<T>()")]
         protected void Supports(Storage storage, Action<SettingsHolder> action)
         {
             var storageType = StorageType.FromEnum(storage);
@@ -54,7 +54,7 @@
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            Replacement = "HasSupportFor<T>()")]
+            ReplacementTypeOrMember = "HasSupportFor<T>()")]
         public bool HasSupportFor(Storage storage)
         {
             return storageToActionMap.ContainsKey(StorageType.FromEnum(storage));

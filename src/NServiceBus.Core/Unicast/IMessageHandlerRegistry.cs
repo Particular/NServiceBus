@@ -10,7 +10,7 @@
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
         Message = "Not a public API",
-        Replacement = "MessageHandlerRegistry")]
+        ReplacementTypeOrMember = "MessageHandlerRegistry")]
     public interface IMessageHandlerRegistry
     {
         /// <summary>
