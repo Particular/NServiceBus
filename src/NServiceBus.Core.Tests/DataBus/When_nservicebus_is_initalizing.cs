@@ -26,19 +26,6 @@ namespace NServiceBus.Core.Tests.DataBus
         }
 
         [Test]
-        public void Databus_should_not_be_activated_if_no_databus_property_is_found()
-        {
-            var builder = new BusConfiguration();
-
-            builder.EndpointName("xyz");
-            builder.TypesToScanInternal(new[] { typeof(MessageWithoutDataBusProperty) });
-
-            var feature = new DataBus();
-
-            Assert.False(feature.CheckPrerequisites(new FeatureConfigurationContext(builder.BuildConfiguration())).IsSatisfied);
-        }
-
-        [Test]
         public void Should_throw_if_propertyType_is_not_serializable()
         {
             if (!Debugger.IsAttached)
