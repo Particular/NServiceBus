@@ -98,7 +98,7 @@ namespace NServiceBus
         /// <summary>
         ///     Specifies the range of types that NServiceBus scans for handlers etc.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Replacement = "ExcludeTypes")]
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "ExcludeTypes")]
         public void TypesToScan(IEnumerable<Type> typesToScan)
         {
         }
@@ -106,7 +106,7 @@ namespace NServiceBus
         /// <summary>
         ///     The assemblies to include when scanning for types.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Replacement = "ExcludeAssemblies")]
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "ExcludeAssemblies")]
         public void AssembliesToScan(IEnumerable<Assembly> assemblies)
         {
         }
@@ -114,7 +114,7 @@ namespace NServiceBus
         /// <summary>
         ///     The assemblies to include when scanning for types.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Replacement = "ExcludeAssemblies")]
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "ExcludeAssemblies")]
         public void AssembliesToScan(params Assembly[] assemblies)
         {
         }
@@ -122,7 +122,7 @@ namespace NServiceBus
         /// <summary>
         ///     Specifies the directory where NServiceBus scans for types.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Replacement = "ExcludeAssemblies")]
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "ExcludeAssemblies")]
         public void ScanAssembliesInDirectory(string probeDirectory)
         {
         }
