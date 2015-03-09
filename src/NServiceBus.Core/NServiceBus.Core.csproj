@@ -301,7 +301,6 @@
     <Compile Include="Unicast\Messages\HostInformationBehavior.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\WeakKeyDictionary.cs" />
-    <Compile Include="Unicast\StaticOutgoingMessageHeaders.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
     <Compile Include="Satellites\ExecuteSatelliteHandlerBehavior.cs" />
     <Compile Include="Pipeline\LimitedThreadPoolExecutor.cs" />

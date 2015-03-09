@@ -7,11 +7,11 @@
 
     class CreatePhysicalMessageConnector : StageConnector<OutgoingContext, PhysicalOutgoingContextStageBehavior.Context>
     {
-        readonly IBus unicastBus;
+        readonly Configure configure;
 
-        public CreatePhysicalMessageConnector(IBus unicastBus)
+        public CreatePhysicalMessageConnector(Configure configure)
         {
-            this.unicastBus = unicastBus;
+            this.configure = configure;
         }
 
         public override void Invoke(OutgoingContext context, Action<PhysicalOutgoingContextStageBehavior.Context> next)
@@ -34,7 +34,7 @@
             }
 
             //apply static headers
-            foreach (var kvp in unicastBus.OutgoingHeaders)
+            foreach (var kvp in configure.OutgoingHeaders)
             {
                 toSend.Headers[kvp.Key] = kvp.Value;
             }

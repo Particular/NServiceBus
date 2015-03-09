@@ -51,6 +51,7 @@ namespace NServiceBus
     public class BusConfiguration : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public BusConfiguration() { }
+        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public void AssembliesToScan(System.Collections.Generic.IEnumerable<System.Reflection.Assembly> assemblies) { }
         public void AssembliesToScan(params System.Reflection.Assembly[] assemblies) { }
@@ -103,9 +104,10 @@ namespace NServiceBus
     }
     public class Configure
     {
-        public Configure(NServiceBus.Settings.SettingsHolder settings, NServiceBus.ObjectBuilder.Common.IContainer container, System.Collections.Generic.List<System.Action<NServiceBus.ObjectBuilder.IConfigureComponents>> registrations, NServiceBus.Pipeline.PipelineSettings pipeline) { }
+        public Configure(NServiceBus.Settings.SettingsHolder settings, NServiceBus.ObjectBuilder.Common.IContainer container, System.Collections.Generic.List<System.Action<NServiceBus.ObjectBuilder.IConfigureComponents>> registrations, NServiceBus.Pipeline.PipelineSettings pipeline, System.Collections.Generic.Dictionary<string, string> outgoingHeaders) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public string LocalAddress { get; }
+        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
         public NServiceBus.Settings.SettingsHolder Settings { get; }
         public System.Collections.Generic.IList<System.Type> TypesToScan { get; }
     }
@@ -419,7 +421,6 @@ namespace NServiceBus
     }
     public interface ISendOnlyBus : System.IDisposable
     {
-        System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
         void Publish(object message);
         void Publish<T>();
         void Publish<T>(System.Action<T> messageConstructor);
@@ -2133,21 +2134,15 @@ namespace NServiceBus.Unicast
         public System.Nullable<System.DateTime> DeliverAt { get; set; }
         public string Destination { get; set; }
     }
-    public class StaticOutgoingMessageHeaders
-    {
-        public StaticOutgoingMessageHeaders() { }
-        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
-    }
     public class UnicastBus : NServiceBus.IBus, NServiceBus.IManageMessageHeaders, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, NServiceBus.Unicast.IRealBus, System.IDisposable
     {
-        public UnicastBus(NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.PipelineFactory> pipelineFactories, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.ISendMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter, NServiceBus.Unicast.StaticOutgoingMessageHeaders outgoingMessageHeaders, NServiceBus.Unicast.CallbackMessageLookup callbackMessageLookup) { }
+        public UnicastBus(NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.PipelineFactory> pipelineFactories, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.ISendMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter, NServiceBus.Unicast.CallbackMessageLookup callbackMessageLookup) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public NServiceBus.IMessageContext CurrentMessageContext { get; }
         public System.Func<object, string, string> GetHeaderAction { get; }
         [System.ObsoleteAttribute("We have introduced a more explicit API to set the host identifier, see busConfigu" +
             "ration.UniquelyIdentifyRunningInstance(). Will be removed in version 7.0.0.", true)]
         public NServiceBus.Hosting.HostInformation HostInformation { get; set; }
-        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
         public System.Action<object, string, string> SetHeaderAction { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
         public NServiceBus.ICallback Defer(System.TimeSpan delay, object message) { }
