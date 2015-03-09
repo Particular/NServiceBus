@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Provides the subset of bus operations that is applicable for a send only bus.
@@ -70,13 +69,5 @@ namespace NServiceBus
         /// containing the Id found in correlationId.
         /// </summary>
         ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor);
-
-        /// <summary>
-        /// Gets the list of key/value pairs that will be in the header of
-        /// messages being sent by the same thread.
-        /// 
-        /// This value will be cleared when a thread receives a message.
-        /// </summary>
-        IDictionary<string, string> OutgoingHeaders { get; }
     }
 }

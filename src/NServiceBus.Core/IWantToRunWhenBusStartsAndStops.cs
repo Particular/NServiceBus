@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Implementers will be invoked when the endpoint starts up.
@@ -102,14 +101,6 @@
         /// containing the Id found in correlationId.
         /// </summary>
         ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor);
-
-        /// <summary>
-        /// Gets the list of key/value pairs that will be in the header of
-        /// messages being sent by the same thread.
-        /// 
-        /// This value will be cleared when a thread receives a message.
-        /// </summary>
-        IDictionary<string, string> OutgoingHeaders { get; }
     }
 
     class RunContext : IRunContext
@@ -163,11 +154,6 @@
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
             return bus.Send(destination, correlationId, messageConstructor);
-        }
-
-        public IDictionary<string, string> OutgoingHeaders
-        {
-            get { return this.bus.OutgoingHeaders; }
         }
     }
 #pragma warning restore 1591

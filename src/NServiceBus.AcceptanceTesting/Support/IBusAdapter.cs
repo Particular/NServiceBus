@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
-    using System.Collections.Generic;
 
     public class IBusAdapter : IBus
     {
@@ -61,8 +60,6 @@
         {
             return sendOnlyBus.Send(destination, correlationId, messageConstructor);
         }
-
-        public IDictionary<string, string> OutgoingHeaders { get; private set; }
 
         public void Subscribe(Type messageType)
         {
