@@ -104,7 +104,7 @@ namespace NServiceBus.Features
 
         public FeaturesReport SetupFeatures(FeatureConfigurationContext context)
         {
-            var featuresToActivate = Sort(features).Where(featureState => IsEnabled(featureState.Feature.GetType()));
+            var featuresToActivate = Sort(features).Where(featureState => IsEnabled(featureState.Feature.GetType())).ToArray();
 
             foreach (var defaultSetting in featuresToActivate.SelectMany(feature => feature.Feature.RegisteredDefaults))
             {
