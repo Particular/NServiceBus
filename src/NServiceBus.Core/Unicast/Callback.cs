@@ -104,17 +104,7 @@ namespace NServiceBus
 
             if (callback != null)
             {
-                tcs.Task.ContinueWith(t =>
-                {
-                    try
-                    {
-                        callback(t);
-                    }
-                    catch (Exception e)
-                    {
-                        log.Error(callback.ToString(), e);
-                    }
-                });
+                tcs.Task.ContinueWith(t => callback(t));
             }
 
             var handler = Registered;
@@ -212,7 +202,7 @@ namespace NServiceBus
             var action = callback as Action<int>;
             if (action != null)
             {
-                action.Invoke(cr.ErrorCode);
+                action(cr.ErrorCode);
             }
             else
             {
