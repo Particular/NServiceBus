@@ -1914,8 +1914,8 @@ namespace NServiceBus.Timeout.Core
         public NServiceBus.Unicast.SendOptions ToSendOptions(NServiceBus.Address replyToAddress) { }
         public NServiceBus.Unicast.SendOptions ToSendOptions(string replyToAddress) { }
         public override string ToString() { }
-        [System.ObsoleteAttribute("Please use `new OutgoingMessage(timeoutData.State)` instead. Will be removed in v" +
-            "ersion 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use new OutgoingMessage(timeoutData.State) instead. Will be removed in version 7." +
+            "0.0.", true)]
         public NServiceBus.TransportMessage ToTransportMessage() { }
     }
 }
