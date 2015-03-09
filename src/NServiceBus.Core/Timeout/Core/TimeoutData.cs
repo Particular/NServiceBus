@@ -60,7 +60,7 @@ namespace NServiceBus.Timeout.Core
         /// Transforms the timeout to a <see cref="TransportMessage"/>.
         /// </summary>
         /// <returns>Returns a <see cref="TransportMessage"/>.</returns>
-        [ObsoleteEx(Replacement = "new OutgoingMessage(timeoutData.State)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        [ObsoleteEx(Message = "Use new OutgoingMessage(timeoutData.State) instead", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
         public TransportMessage ToTransportMessage()
         {
             throw new NotImplementedException();
