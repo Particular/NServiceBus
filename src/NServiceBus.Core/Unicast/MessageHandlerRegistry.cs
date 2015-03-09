@@ -2,8 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
     using NServiceBus.Logging;
     using NServiceBus.Saga;
 
@@ -104,26 +106,21 @@
         }
 
         /// <summary>
-        ///     Registers the method in the cache
-        /// </summary>
-        /// <param name="handler">The object type.</param>
-        /// <param name="messageType">the message type.</param>
-        public void CacheMethodForHandler(Type handler, Type messageType)
-        {
-            CacheMethod(handler, messageType, typeof(IHandleMessages<>), handlerCache);
-            CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), timeoutCache);
-            CacheMethod(handler, messageType, typeof(IHandleTimeout<>), timeoutCache);
-            CacheMethod(handler, messageType, typeof(IHandle<>), handlerCache);
-            CacheMethod(handler, messageType, typeof(ISubscribe<>), handlerCache);
-        }
-
-        /// <summary>
         ///     Clears the cache
         /// </summary>
         public void Clear()
         {
             handlerCache.Clear();
             timeoutCache.Clear();
+        }
+
+        void CacheMethodForHandler(Type handler, Type messageType)
+        {
+            CacheMethod(handler, messageType, typeof(IHandleMessages<>), handlerCache);
+            CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), timeoutCache);
+            CacheMethod(handler, messageType, typeof(IHandleTimeout<>), timeoutCache);
+            CacheMethod(handler, messageType, typeof(IHandle<>), handlerCache);
+            CacheMethod(handler, messageType, typeof(ISubscribe<>), handlerCache);
         }
 
         static void Invoke(object handler, object message, object context, Dictionary<RuntimeTypeHandle, List<DelegateHolder>> dictionary)
@@ -188,21 +185,23 @@
                     var messageCastParam = Expression.Convert(messageParam, methodParameters.ElementAt(0).ParameterType);
 
                     var contextParameter = methodParameters.ElementAtOrDefault(1);
-                    if (contextParameter != null)
+                    if (IsNewContextApi(contextParameter))
                     {
                         var contextCastParam = Expression.Convert(contextParam, contextParameter.ParameterType);
                         var execute = Expression.Call(castTarget, methodInfo, messageCastParam, contextCastParam);
                         return Expression.Lambda<Action<object, object, object>>(execute, target, messageParam, contextParam).Compile();
                     }
-                    else
-                    {
-                        var innerExecute = Expression.Call(castTarget, methodInfo, messageCastParam);
-                        return Expression.Lambda<Action<object, object, object>>(innerExecute, target, messageParam, contextParam).Compile();
-                    }
+                    var innerExecute = Expression.Call(castTarget, methodInfo, messageCastParam);
+                    return Expression.Lambda<Action<object, object, object>>(innerExecute, target, messageParam, contextParam).Compile();
                 }
             }
 
             return null;
+        }
+
+        static bool IsNewContextApi(ParameterInfo contextParameter)
+        {
+            return contextParameter != null;
         }
 
         static IEnumerable<Type> GetMessageTypesIfIsMessageHandler(Type type)
