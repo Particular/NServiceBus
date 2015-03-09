@@ -104,7 +104,9 @@ namespace NServiceBus.Features
 
         public FeaturesReport SetupFeatures(FeatureConfigurationContext context)
         {
-            var featuresToActivate = Sort(features).Where(featureState => IsEnabled(featureState.Feature.GetType())).ToArray();
+            // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
+            // ReSharper disable PossibleMultipleEnumeration
+            var featuresToActivate = Sort(features).Where(featureState => IsEnabled(featureState.Feature.GetType()));
 
             foreach (var defaultSetting in featuresToActivate.SelectMany(feature => feature.Feature.RegisteredDefaults))
             {
@@ -117,6 +119,7 @@ namespace NServiceBus.Features
             {
                 ActivateFeature(feature, featuresToActivate, context);
             }
+            // ReSharper restore PossibleMultipleEnumeration
 
             return new FeaturesReport(features.Select(t => t.Diagnostics));
         }
