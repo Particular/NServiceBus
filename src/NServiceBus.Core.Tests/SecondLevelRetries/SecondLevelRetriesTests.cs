@@ -30,7 +30,7 @@
 
             behavior.Invoke(CreateContext("someid", 1), () => { throw new Exception("testex"); });
 
-            Assert.AreEqual("someid", deferrer.SendOptions.Headers[Headers.MessageId]);
+            Assert.AreEqual("someid", deferrer.DeferredMessage.Headers[Headers.MessageId]);
             Assert.AreEqual(delay, deferrer.Delay);
             Assert.AreEqual("test-address-for-this-pipeline", deferrer.MessageRoutedTo);
 
@@ -46,7 +46,7 @@
 
             behavior.Invoke(CreateContext("someid", 0), () => { throw new Exception("testex"); });
 
-            Assert.True(deferrer.SendOptions.Headers.ContainsKey(SecondLevelRetriesBehavior.RetriesTimestamp));
+            Assert.True(deferrer.DeferredMessage.Headers.ContainsKey(SecondLevelRetriesBehavior.RetriesTimestamp));
          }
 
         [Test]

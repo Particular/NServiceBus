@@ -41,10 +41,7 @@ namespace NServiceBus
                     message.Headers[Headers.HostId] = hostInformation.HostId.ToString("N");
                     message.Headers[Headers.HostDisplayName] = hostInformation.DisplayName;
 
-                    sender.Send(new OutgoingMessage(message.Body), new SendOptions(errorQueueAddress)
-                    {
-                        Headers = message.Headers
-                    });
+                    sender.Send(new OutgoingMessage(message.Headers,message.Body), new SendOptions(errorQueueAddress));
 
                     notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message,exception);
                 }

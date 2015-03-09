@@ -19,7 +19,7 @@
             subscriptionManager.Subscribe(typeof(TestEvent),"publish");
 
             sender.MessageAvailable.WaitOne();
-            Assert.AreEqual(typeof(TestEvent).AssemblyQualifiedName,sender.SendOptions.Headers[Headers.SubscriptionMessageType] );
+            Assert.AreEqual(typeof(TestEvent).AssemblyQualifiedName,sender.MessageSent.Headers[Headers.SubscriptionMessageType] );
         }
 
         class FakeSender:ISendMessages

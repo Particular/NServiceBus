@@ -19,7 +19,6 @@
                 DeliverAt = DateTime.UtcNow.AddDays(1),
                 TimeToBeReceived = TimeSpan.FromMinutes(1),
                 NonDurable = true,
-                ReplyToAddress = "reply to",
                 EnlistInReceiveTransaction = false,
                 EnforceMessagingBestPractices = false
             };
@@ -32,7 +31,6 @@
             Assert.AreEqual(converted.Destination, options.Destination);
             Assert.AreEqual(converted.TimeToBeReceived, options.TimeToBeReceived); 
             Assert.AreEqual(converted.NonDurable, options.NonDurable);
-            Assert.AreEqual(converted.ReplyToAddress, options.ReplyToAddress);
             Assert.AreEqual(converted.EnforceMessagingBestPractices, options.EnforceMessagingBestPractices);
             Assert.AreEqual(converted.EnlistInReceiveTransaction, options.EnlistInReceiveTransaction);
         }
@@ -46,7 +44,6 @@
                 TimeToBeReceived = TimeSpan.FromMinutes(1),
                 NonDurable = true,
                 EnforceMessagingBestPractices = false,
-                ReplyToAddress = "reply to"
             };
 
             var converted = (PublishOptions)options.ToTransportOperationOptions().ToDeliveryOptions();
@@ -55,7 +52,6 @@
             Assert.AreEqual(typeof(MyMessage), options.EventType);
             Assert.AreEqual(converted.TimeToBeReceived, options.TimeToBeReceived);
             Assert.AreEqual(converted.NonDurable, options.NonDurable);
-            Assert.AreEqual(converted.ReplyToAddress, options.ReplyToAddress);
             Assert.AreEqual(converted.EnlistInReceiveTransaction, options.EnlistInReceiveTransaction);
             Assert.AreEqual(converted.EnforceMessagingBestPractices, options.EnforceMessagingBestPractices);
         }

@@ -74,10 +74,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
 
             TimeoutManager.RemoveTimeout(timeoutId);
-            MessageSender.Send(new OutgoingMessage(message.Body), new SendOptions(destination)
-            {
-                Headers = message.Headers
-            });
+            MessageSender.Send(new OutgoingMessage(message.Headers,message.Body), new SendOptions(destination));
         }
 
         void HandleInternal(TransportMessage message)
@@ -123,11 +120,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     OwningTimeoutManager = EndpointName
                 };
 
-                //add a temp header so that we can make sure to restore the ReplyToAddress
-                if (message.ReplyToAddress != null)
-                {
-                    data.Headers[TimeoutData.OriginalReplyToAddress] = message.ReplyToAddress;
-                }
+            
 
                 TimeoutManager.PushTimeout(data);
             }

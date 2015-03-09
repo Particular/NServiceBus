@@ -35,7 +35,7 @@ namespace NServiceBus.Core.Tests
 
             Assert.AreEqual(errorQueueAddress, sender.OptionsUsed.Destination);
 
-            Assert.AreEqual("someid", sender.OptionsUsed.Headers[Headers.MessageId]);
+            Assert.AreEqual("someid", sender.MessageSent.Headers[Headers.MessageId]);
         }
         [Test]
         public void ShouldInvokeCriticalErrorIfForwardingFails()
@@ -74,12 +74,12 @@ namespace NServiceBus.Core.Tests
             });
 
             //host info
-            Assert.AreEqual(hostInfo.HostId.ToString("N"), sender.OptionsUsed.Headers[Headers.HostId]);
-            Assert.AreEqual(hostInfo.DisplayName, sender.OptionsUsed.Headers[Headers.HostDisplayName]);
+            Assert.AreEqual(hostInfo.HostId.ToString("N"), sender.MessageSent.Headers[Headers.HostId]);
+            Assert.AreEqual(hostInfo.DisplayName, sender.MessageSent.Headers[Headers.HostDisplayName]);
 
-            Assert.AreEqual(context.PublicReceiveAddress(), sender.OptionsUsed.Headers[FaultsHeaderKeys.FailedQ]);
+            Assert.AreEqual(context.PublicReceiveAddress(), sender.MessageSent.Headers[FaultsHeaderKeys.FailedQ]);
             //exception details
-            Assert.AreEqual("testex", sender.OptionsUsed.Headers["NServiceBus.ExceptionInfo.Message"]);
+            Assert.AreEqual("testex", sender.MessageSent.Headers["NServiceBus.ExceptionInfo.Message"]);
 
         }
 

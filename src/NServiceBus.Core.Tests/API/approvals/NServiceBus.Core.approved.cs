@@ -1900,6 +1900,7 @@ namespace NServiceBus.Timeout.Core
     }
     public class TimeoutData
     {
+        [System.ObsoleteAttribute("Not used anymore. Will be removed in version 7.0.0.", true)]
         public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
         public TimeoutData() { }
         public string Destination { get; set; }
@@ -1909,9 +1910,9 @@ namespace NServiceBus.Timeout.Core
         public System.Guid SagaId { get; set; }
         public byte[] State { get; set; }
         public System.DateTime Time { get; set; }
-        [System.ObsoleteAttribute("Please use `TimeoutData.ToSendOptions(string)` instead. Will be removed in versio" +
-            "n 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use new SendOptions() instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Unicast.SendOptions ToSendOptions(NServiceBus.Address replyToAddress) { }
+        [System.ObsoleteAttribute("Use new SendOptions() instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Unicast.SendOptions ToSendOptions(string replyToAddress) { }
         public override string ToString() { }
         [System.ObsoleteAttribute("Use new OutgoingMessage(timeoutData.State) instead. Will be removed in version 7." +
@@ -1976,8 +1977,9 @@ namespace NServiceBus.Transports
     }
     public class OutgoingMessage
     {
-        public OutgoingMessage(byte[] body) { }
+        public OutgoingMessage(System.Collections.Generic.Dictionary<string, string> headers, byte[] body) { }
         public byte[] Body { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
     }
     public abstract class ReceiveBehavior : NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.Pipeline.Contexts.TransportReceiveContext>
     {
@@ -2085,7 +2087,6 @@ namespace NServiceBus.Unicast
         protected DeliveryOptions() { }
         public bool EnforceMessagingBestPractices { get; set; }
         public bool EnlistInReceiveTransaction { get; set; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; set; }
         public System.Nullable<bool> NonDurable { get; set; }
         public string ReplyToAddress { get; set; }
         public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }

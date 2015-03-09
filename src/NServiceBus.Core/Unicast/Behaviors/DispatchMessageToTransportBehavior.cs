@@ -72,7 +72,7 @@
 
         void SendOrDefer(TransportMessage messageToSend, SendOptions sendOptions)
         {
-            var outgoingMessage = new OutgoingMessage(messageToSend.Body);
+            var outgoingMessage = new OutgoingMessage(messageToSend.Headers,messageToSend.Body);
 
             if (sendOptions.DelayDeliveryWith.HasValue)
             {
@@ -105,7 +105,6 @@
                 return;
             }
 
-            sendOptions.Headers = messageToSend.Headers;
             MessageSender.Send(outgoingMessage, sendOptions);
         }
 
@@ -120,8 +119,7 @@
             {
                 throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling config.EnableFeature<MessageDrivenSubscriptions>() in your configuration");
             }
-            publishOptions.Headers = messageToSend.Headers;
-            MessagePublisher.Publish(new OutgoingMessage(messageToSend.Body), publishOptions);
+            MessagePublisher.Publish(new OutgoingMessage(messageToSend.Headers,messageToSend.Body), publishOptions);
         }
     }
 }

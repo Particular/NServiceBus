@@ -215,7 +215,7 @@ namespace NServiceBus
             }
 
 
-            AssignMsmqNativeCorrelationId(deliveryOptions, result);
+            AssignMsmqNativeCorrelationId(message.Headers, result);
 
             if (deliveryOptions.NonDurable.HasValue)
             {
@@ -234,7 +234,7 @@ namespace NServiceBus
 
             using (var stream = new MemoryStream())
             {
-                headerSerializer.Serialize(stream, deliveryOptions.Headers.Select(pair => new HeaderInfo
+                headerSerializer.Serialize(stream, message.Headers.Select(pair => new HeaderInfo
                 {
                     Key = pair.Key,
                     Value = pair.Value
@@ -245,8 +245,8 @@ namespace NServiceBus
             var messageIntent = default(MessageIntentEnum);
 
             string messageIntentString;
-           
-            if (deliveryOptions.Headers.TryGetValue(Headers.MessageIntent, out messageIntentString))
+
+            if (message.Headers.TryGetValue(Headers.MessageIntent, out messageIntentString))
             {
 
                 Enum.TryParse(messageIntentString, true, out messageIntent);
@@ -258,11 +258,11 @@ namespace NServiceBus
             return result;
         }
 
-        static void AssignMsmqNativeCorrelationId(DeliveryOptions options, Message result)
+        static void AssignMsmqNativeCorrelationId(Dictionary<string,string> headers, Message result)
         {
             string correlationIdHeader;
 
-            if (!options.Headers.TryGetValue(Headers.CorrelationId, out correlationIdHeader))
+            if (!headers.TryGetValue(Headers.CorrelationId, out correlationIdHeader))
             {
                 return;
             }
@@ -298,7 +298,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                Logger.Warn("Failed to assign a native correlation id for message: " + options.Headers[Headers.MessageId], ex);
+                Logger.Warn("Failed to assign a native correlation id for message: " + headers[Headers.MessageId], ex);
             }
         }
 

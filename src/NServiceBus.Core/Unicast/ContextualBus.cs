@@ -345,7 +345,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Body), new SendOptions(sendLocalAddress){Headers = MessageBeingProcessed.Headers});
+            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Headers,MessageBeingProcessed.Body), new SendOptions(sendLocalAddress));
 
             context.handleCurrentMessageLaterWasCalled = true;
 
@@ -357,7 +357,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void ForwardCurrentMessageTo(string destination)
         {
-            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Body), new SendOptions(destination){Headers = MessageBeingProcessed.Headers});
+            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Headers,MessageBeingProcessed.Body), new SendOptions(destination));
         }
 
         /// <summary>
@@ -489,18 +489,32 @@ namespace NServiceBus.Unicast
 
         BehaviorContext InvokeSendPipeline(DeliveryOptions sendOptions, LogicalMessage message)
         {
-            if (sendOptions.ReplyToAddress == null && !SendOnlyMode)
+
+            SetReplyToAddressHeader(message);
+
+
+            var outgoingContext = new OutgoingContext(context, sendOptions, message);
+
+            return outgoing.Invoke(outgoingContext);
+        }
+
+        void SetReplyToAddressHeader(LogicalMessage message)
+        {
+            string replyToAddress = null;
+
+            if (!SendOnlyMode)
             {
-                sendOptions.ReplyToAddress = configure.PublicReturnAddress;
+                replyToAddress = configure.PublicReturnAddress;
             }
 
             if (PropagateReturnAddressOnSend && CurrentMessageContext != null)
             {
-                sendOptions.ReplyToAddress = CurrentMessageContext.ReplyToAddress;
+                replyToAddress = CurrentMessageContext.ReplyToAddress;
             }
-
-            var outgoingContext = new OutgoingContext(context, sendOptions, message);
-            return outgoing.Invoke(outgoingContext);
+            if (!string.IsNullOrEmpty(replyToAddress))
+            {
+                message.Headers[Headers.ReplyToAddress] = replyToAddress;
+            }
         }
 
         ICallback SetupCallback(string transportMessageId)

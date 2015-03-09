@@ -99,7 +99,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
                     transportMessage.Headers["Timeout.Id"] = timeoutData.Item1;
 
-                    MessageSender.Send(new OutgoingMessage(transportMessage.Body), new SendOptions(DispatcherAddress){Headers = transportMessage.Headers});
+                    MessageSender.Send(new OutgoingMessage(transportMessage.Headers,transportMessage.Body), new SendOptions(DispatcherAddress));
                 }
 
                 lock (lockObject)

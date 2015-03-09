@@ -14,7 +14,7 @@
 
         public void Defer(OutgoingMessage message, SendOptions sendOptions)
         {
-            sendOptions.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = sendOptions.Destination;
+            message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = sendOptions.Destination;
 
             DateTime deliverAt;
 
@@ -35,11 +35,11 @@
                 
             }
 
-            sendOptions.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(deliverAt);
+            message.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(deliverAt);
             
             try
             {
-                MessageSender.Send(message, new SendOptions(TimeoutManagerAddress){Headers = sendOptions.Headers});
+                MessageSender.Send(message, new SendOptions(TimeoutManagerAddress));
             }
             catch (Exception ex)
             {
@@ -55,11 +55,7 @@
             controlMessage.Headers[headerKey] = headerValue;
             controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = Boolean.TrueString;
 
-            MessageSender.Send(new OutgoingMessage(controlMessage.Body), new SendOptions(TimeoutManagerAddress)
-            {
-                ReplyToAddress = Configure.PublicReturnAddress,
-                Headers = controlMessage.Headers
-            });
+            MessageSender.Send(new OutgoingMessage(controlMessage.Headers,controlMessage.Body), new SendOptions(TimeoutManagerAddress));
         }
 
         static ILog Log = LogManager.GetLogger<TimeoutManagerDeferrer>();
