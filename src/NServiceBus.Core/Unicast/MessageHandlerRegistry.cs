@@ -2,12 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using NServiceBus.Logging;
     using NServiceBus.Saga;
+    using NServiceBus.Unicast.Behaviors;
 
     /// <summary>
     ///     Maintains the message handlers for this endpoint
@@ -18,7 +18,6 @@
         readonly Conventions conventions;
         readonly Dictionary<RuntimeTypeHandle, List<DelegateHolder>> handlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
         readonly IDictionary<RuntimeTypeHandle, List<Type>> handlerList = new Dictionary<RuntimeTypeHandle, List<Type>>();
-        readonly Dictionary<RuntimeTypeHandle, List<DelegateHolder>> timeoutCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
 
         internal MessageHandlerRegistry(Conventions conventions)
         {
@@ -29,16 +28,26 @@
         ///     Gets the list of <see cref="IHandleMessages{T}" /> <see cref="Type" />s for the given
         ///     <paramref name="messageType" />
         /// </summary>
+        [ObsoleteEx(ReplacementTypeOrMember = "MessageHandlerRegistry.GetHandlersFor(Type messageType)", RemoveInVersion = "7", TreatAsErrorFromVersion = "6")]
         public IEnumerable<Type> GetHandlerTypes(Type messageType)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Gets the list of handlers <see cref="Type" />s for the given
+        ///     <paramref name="messageType" />
+        /// </summary>
+        public IEnumerable<MessageHandler> GetHandlersFor(Type messageType)
         {
             if (!conventions.IsMessageType(messageType))
             {
-                return Enumerable.Empty<Type>();
+                return Enumerable.Empty<MessageHandler>();
             }
 
             return from keyValue in handlerList
                 where keyValue.Value.Any(msgTypeHandled => msgTypeHandled.IsAssignableFrom(messageType))
-                select Type.GetTypeFromHandle(keyValue.Key);
+                select new MessageHandler(Invoke, Type.GetTypeFromHandle(keyValue.Key));
         }
 
         /// <summary>
@@ -88,10 +97,21 @@
         /// </summary>
         /// <param name="handler">The handler instance.</param>
         /// <param name="message">The message instance.</param>
-        /// <param name="context">The context instance</param>
-        public void InvokeHandle(object handler, object message, object context = null)
+        /// <param name="context">The context instance.</param>
+        public void Invoke(object handler, object message, object context)
         {
             Invoke(handler, message, context, handlerCache);
+        }
+
+        /// <summary>
+        ///     Invokes the handle method of the given handler passing the message
+        /// </summary>
+        /// <param name="handler">The handler instance.</param>
+        /// <param name="message">The message instance.</param>
+        [ObsoleteEx(ReplacementTypeOrMember = "MessageHandlerRegistry.Invoke(object handler, object message, object context)" , RemoveInVersion = "7" , TreatAsErrorFromVersion = "6")]
+        public void InvokeHandle(object handler, object message)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -99,10 +119,10 @@
         /// </summary>
         /// <param name="handler">The handler instance.</param>
         /// <param name="state">The message instance.</param>
-        /// <param name="context">The context instance</param>
-        public void InvokeTimeout(object handler, object state, object context = null)
+        [ObsoleteEx(ReplacementTypeOrMember = "MessageHandlerRegistry.Invoke(object handler, object message, object context)", RemoveInVersion = "7", TreatAsErrorFromVersion = "6")]
+        public void InvokeTimeout(object handler, object state)
         {
-            Invoke(handler, state, context, timeoutCache);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -111,14 +131,13 @@
         public void Clear()
         {
             handlerCache.Clear();
-            timeoutCache.Clear();
         }
 
         void CacheMethodForHandler(Type handler, Type messageType)
         {
             CacheMethod(handler, messageType, typeof(IHandleMessages<>), handlerCache);
-            CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), timeoutCache);
-            CacheMethod(handler, messageType, typeof(IHandleTimeout<>), timeoutCache);
+            CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), handlerCache);
+            CacheMethod(handler, messageType, typeof(IHandleTimeout<>), handlerCache);
             CacheMethod(handler, messageType, typeof(IHandle<>), handlerCache);
             CacheMethod(handler, messageType, typeof(ISubscribe<>), handlerCache);
         }

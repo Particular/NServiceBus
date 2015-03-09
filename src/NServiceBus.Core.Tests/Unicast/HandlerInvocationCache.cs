@@ -30,20 +30,20 @@
             var handleContext = new StubHandleContext();
             var subscribeContext = new StubSubscribeContext();
 
-            cache.InvokeHandle(handler1, stubMessage1);
-            cache.InvokeHandle(handler2, timeoutState);
-            cache.InvokeHandle(handler3, stubMessage1, handleContext);
-            cache.InvokeHandle(handler4, timeoutState, timeoutContext);
-            cache.InvokeHandle(handler5, stubMessage1, subscribeContext);
+            cache.Invoke(handler1, stubMessage1, handleContext);
+            cache.Invoke(handler2, timeoutState, timeoutContext);
+            cache.Invoke(handler3, stubMessage1, handleContext);
+            cache.Invoke(handler4, timeoutState, timeoutContext);
+            cache.Invoke(handler5, stubMessage1, subscribeContext);
 
             var startNew = Stopwatch.StartNew();
             for (var i = 0; i < 100000; i++)
             {
-                cache.InvokeHandle(handler1, stubMessage1);
-                cache.InvokeHandle(handler2, timeoutState);
-                cache.InvokeHandle(handler3, stubMessage1, handleContext);
-                cache.InvokeHandle(handler4, timeoutState, timeoutContext);
-                cache.InvokeHandle(handler5, stubMessage1, subscribeContext);
+                cache.Invoke(handler1, stubMessage1, handleContext);
+                cache.Invoke(handler2, timeoutState, timeoutContext);
+                cache.Invoke(handler3, stubMessage1, handleContext);
+                cache.Invoke(handler4, timeoutState, timeoutContext);
+                cache.Invoke(handler5, stubMessage1, subscribeContext);
             }
             startNew.Stop();
             Trace.WriteLine(startNew.ElapsedMilliseconds);
@@ -108,13 +108,13 @@
             cache.RegisterHandler(typeof(StubSubscribe));
 
             var oldStyle = new StubHandlerOldStyle();
-            cache.InvokeHandle(oldStyle, new StubMessage());
+            cache.Invoke(oldStyle, new StubMessage(), new StubHandleContext());
 
             var newStyle = new StubHandlerNewStyle();
-            cache.InvokeHandle(newStyle, new StubMessage(), new StubHandleContext());
+            cache.Invoke(newStyle, new StubMessage(), new StubHandleContext());
 
             var newStyleSubscribe = new StubSubscribe();
-            cache.InvokeHandle(newStyleSubscribe, new StubMessage(), new StubSubscribeContext());
+            cache.Invoke(newStyleSubscribe, new StubMessage(), new StubSubscribeContext());
 
             Assert.IsTrue(oldStyle.HandleCalled);
             Assert.IsTrue(newStyle.HandleCalled);
@@ -132,13 +132,13 @@
             var stubMessage = new StubMessage();
 
             var oldStyle = new StubHandlerOldStyle();
-            cache.InvokeHandle(oldStyle, stubMessage);
+            cache.Invoke(oldStyle, stubMessage, new StubHandleContext());
 
             var newStyle = new StubHandlerNewStyle();
-            cache.InvokeHandle(newStyle, stubMessage, new StubHandleContext());
+            cache.Invoke(newStyle, stubMessage, new StubHandleContext());
 
             var newStyleSubscribe = new StubSubscribe();
-            cache.InvokeHandle(newStyleSubscribe, stubMessage, new StubSubscribeContext());
+            cache.Invoke(newStyleSubscribe, stubMessage, new StubSubscribeContext());
 
             Assert.AreEqual(stubMessage, oldStyle.HandledMessage);
             Assert.AreEqual(stubMessage, newStyle.HandledMessage);
@@ -154,11 +154,11 @@
 
             var handleContext = new StubHandleContext();
             var newStyle = new StubHandlerNewStyle();
-            cache.InvokeHandle(newStyle, new StubMessage(), handleContext);
+            cache.Invoke(newStyle, new StubMessage(), handleContext);
 
             var subscribeContext = new StubSubscribeContext();
             var newStyleSubscribe = new StubSubscribe();
-            cache.InvokeHandle(newStyleSubscribe, new StubMessage(), subscribeContext);
+            cache.Invoke(newStyleSubscribe, new StubMessage(), subscribeContext);
 
             Assert.AreEqual(handleContext, newStyle.Context);
             Assert.AreEqual(subscribeContext, newStyleSubscribe.Context);
@@ -220,10 +220,10 @@
             cache.RegisterHandler(typeof(StubHandlerNewStyle));
 
             var oldStyle = new StubHandlerOldStyle();
-            cache.InvokeTimeout(oldStyle, new StubTimeoutState());
+            cache.Invoke(oldStyle, new StubTimeoutState(), new StubTimeoutContext());
 
             var newStyle = new StubHandlerNewStyle();
-            cache.InvokeTimeout(newStyle, new StubTimeoutState(), new StubTimeoutContext());
+            cache.Invoke(newStyle, new StubTimeoutState(), new StubTimeoutContext());
 
             Assert.IsTrue(oldStyle.TimeoutCalled);
             Assert.IsTrue(newStyle.TimeoutCalled);
@@ -239,10 +239,10 @@
             var stubState = new StubTimeoutState();
 
             var oldStyle = new StubHandlerOldStyle();
-            cache.InvokeTimeout(oldStyle, stubState);
+            cache.Invoke(oldStyle, stubState, new StubTimeoutContext());
 
             var newStyle = new StubHandlerNewStyle();
-            cache.InvokeTimeout(newStyle, stubState, new StubTimeoutContext());
+            cache.Invoke(newStyle, stubState, new StubTimeoutContext());
 
             Assert.AreEqual(stubState, oldStyle.HandledState);
             Assert.AreEqual(stubState, newStyle.HandledState);
@@ -257,7 +257,7 @@
             var timeoutContext = new StubTimeoutContext();
 
             var newStyle = new StubHandlerNewStyle();
-            cache.InvokeTimeout(newStyle, new StubTimeoutState(), timeoutContext);
+            cache.Invoke(newStyle, new StubTimeoutState(), timeoutContext);
 
             Assert.AreEqual(timeoutContext, newStyle.Context);
         }
