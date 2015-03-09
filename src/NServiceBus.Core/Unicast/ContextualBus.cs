@@ -287,7 +287,11 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply(object message)
         {
-            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId());
+            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress);
+
+            var logicalMessage = messageFactory.Create(message);
+
+            logicalMessage.Headers[Headers.CorrelationId] = GetCorrelationId();
 
             SendMessage(options, messageFactory.Create(message));
         }
@@ -298,9 +302,14 @@ namespace NServiceBus.Unicast
         public void Reply<T>(Action<T> messageConstructor)
         {
             var instance = messageMapper.CreateInstance(messageConstructor);
-            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId());
+            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress);
 
-            SendMessage(options, messageFactory.Create(instance));
+
+            var logicalMessage = messageFactory.Create(instance);
+
+            logicalMessage.Headers[Headers.CorrelationId] = GetCorrelationId();
+
+            SendMessage(options, logicalMessage);
         }
 
         /// <summary>
@@ -325,7 +334,9 @@ namespace NServiceBus.Unicast
                 {Headers.ReturnMessageErrorCodeHeader, returnCode}
             });
 
-            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId());
+            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress);
+
+            returnMessage.Headers[Headers.CorrelationId] = GetCorrelationId();
 
             InvokeSendPipeline(options, returnMessage);
         }
@@ -428,12 +439,13 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
-            var options = new SendOptions(destination)
-            {
-                CorrelationId = correlationId
-            };
+            var options = new SendOptions(destination);
 
-            return SendMessage(options, messageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
+            var logicalMessage = messageFactory.Create(messageMapper.CreateInstance(messageConstructor));
+
+            logicalMessage.Headers[Headers.CorrelationId] = correlationId;
+
+            return SendMessage(options,logicalMessage);
         }
 
         /// <summary>
@@ -441,12 +453,12 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback Send(string destination, string correlationId, object message)
         {
-            var options = new SendOptions(destination)
-            {
-                CorrelationId = correlationId
-            };
+            var options = new SendOptions(destination);
 
-            return SendMessage(options, messageFactory.Create(message));
+            var logicalMessage = messageFactory.Create(message);
+
+            logicalMessage.Headers[Headers.CorrelationId] = correlationId;
+            return SendMessage(options, logicalMessage);
         }
 
         /// <summary>

@@ -2088,6 +2088,8 @@ namespace NServiceBus.Unicast
         public bool EnforceMessagingBestPractices { get; set; }
         public bool EnlistInReceiveTransaction { get; set; }
         public System.Nullable<bool> NonDurable { get; set; }
+        [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.ReplyToAddress` header. Wi" +
+            "ll be removed in version 7.0.0.", true)]
         public string ReplyToAddress { get; set; }
         public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }
     }
@@ -2132,9 +2134,10 @@ namespace NServiceBus.Unicast
     }
     public class ReplyOptions : NServiceBus.Unicast.SendOptions
     {
-        [System.ObsoleteAttribute("Please use `ReplyOptions(string destination, string correlationId)` instead. Will" +
-            " be removed in version 7.0.0.", true)]
+        public ReplyOptions(string destination) { }
+        [System.ObsoleteAttribute("ReplyOptions(string destination). Will be removed in version 7.0.0.", true)]
         public ReplyOptions(NServiceBus.Address destination, string correlationId) { }
+        [System.ObsoleteAttribute("ReplyOptions(string destination). Will be removed in version 7.0.0.", true)]
         public ReplyOptions(string destination, string correlationId) { }
     }
     public class SendOptions : NServiceBus.Unicast.DeliveryOptions
@@ -2142,6 +2145,8 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("Please use `SendOptions(string)` instead. Will be removed in version 7.0.0.", true)]
         public SendOptions(NServiceBus.Address destination) { }
         public SendOptions(string destination) { }
+        [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.CorrelationId` header. Wil" +
+            "l be removed in version 7.0.0.", true)]
         public string CorrelationId { get; set; }
         public System.Nullable<System.TimeSpan> DelayDeliveryWith { get; set; }
         public System.Nullable<System.DateTime> DeliverAt { get; set; }

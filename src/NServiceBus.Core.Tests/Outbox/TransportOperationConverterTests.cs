@@ -14,7 +14,6 @@
 
             var options = new SendOptions("destination")
             {
-                CorrelationId = "cid",
                 DelayDeliveryWith = TimeSpan.FromMinutes(1),
                 DeliverAt = DateTime.UtcNow.AddDays(1),
                 TimeToBeReceived = TimeSpan.FromMinutes(1),
@@ -25,7 +24,6 @@
 
             var converted = (SendOptions)options.ToTransportOperationOptions().ToDeliveryOptions();
 
-            Assert.AreEqual(converted.CorrelationId,options.CorrelationId);
             Assert.AreEqual(converted.DelayDeliveryWith, options.DelayDeliveryWith);
             Assert.AreEqual(converted.DeliverAt.ToString(), options.DeliverAt.ToString()); //the ticks will be off
             Assert.AreEqual(converted.Destination, options.Destination);

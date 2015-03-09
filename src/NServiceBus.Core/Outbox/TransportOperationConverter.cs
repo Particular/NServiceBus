@@ -46,10 +46,6 @@ namespace NServiceBus.Outbox
                     result["DeliverAt"] = DateTimeExtensions.ToWireFormattedString(sendOptions.DeliverAt.Value);
                 }
 
-
-
-
-                result["CorrelationId"] = sendOptions.CorrelationId;
                 result["Destination"] = sendOptions.Destination;
             }
             else
@@ -93,7 +89,7 @@ namespace NServiceBus.Outbox
                     result = sendOptions;
                     break;
                 case "reply":
-                    var replyOptions = new ReplyOptions(options["Destination"], options["CorrelationId"]);
+                    var replyOptions = new ReplyOptions(options["Destination"]);
                     ApplySendOptionSettings(replyOptions, options);
 
                     result = replyOptions;
@@ -144,11 +140,6 @@ namespace NServiceBus.Outbox
             {
                 sendOptions.DeliverAt = DateTimeExtensions.ToUtcDateTime(deliverAt);
             }
-
-
-            sendOptions.CorrelationId = options["CorrelationId"];
-
-            sendOptions.CorrelationId = options["CorrelationId"];
         }
 
     }

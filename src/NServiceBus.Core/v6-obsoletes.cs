@@ -27,15 +27,30 @@ namespace NServiceBus.Unicast
 
     public abstract partial class DeliveryOptions
     {
-        // [ObsoleteEx(
-        //    Message = "Reply to address can be get/set using the `NServiceBus.ReplyToAddress` header",
-        //    RemoveInVersion = "7.0",
-        //    TreatAsErrorFromVersion = "6.0")]
+        [ObsoleteEx(
+           Message = "Reply to address can be get/set using the `NServiceBus.ReplyToAddress` header",
+           RemoveInVersion = "7.0",
+           TreatAsErrorFromVersion = "6.0")]
         public string ReplyToAddress { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
-
     }
 }
 
+
+namespace NServiceBus.Unicast
+{
+    using System;
+
+    public partial class SendOptions
+    {
+
+        [ObsoleteEx(
+    Message = "Reply to address can be get/set using the `NServiceBus.CorrelationId` header",
+    RemoveInVersion = "7.0",
+    TreatAsErrorFromVersion = "6.0")]
+        public string CorrelationId { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
+
+    }
+}
 
 namespace NServiceBus.Timeout.Core
 {
@@ -77,5 +92,36 @@ namespace NServiceBus.Timeout.Core
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
+    }
+}
+
+
+namespace NServiceBus.Unicast
+{
+    using System;
+
+   
+    public partial class ReplyOptions
+    {
+
+           [ObsoleteEx(
+            Message = "ReplyOptions(string destination)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public ReplyOptions(Address destination, string correlationId)
+            : base(destination)
+        {
+            throw new NotImplementedException();
+        }
+
+         [ObsoleteEx(
+            Message = "ReplyOptions(string destination)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public ReplyOptions(string destination, string correlationId)
+            : base(destination)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

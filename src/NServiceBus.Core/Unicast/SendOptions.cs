@@ -5,7 +5,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// Controls how a message will be sent by the transport
     /// </summary>
-    public class SendOptions : DeliveryOptions
+    public partial class SendOptions : DeliveryOptions
     {
         TimeSpan? delayDeliveryWith;
 
@@ -31,11 +31,6 @@ namespace NServiceBus.Unicast
         {
             Destination = destination;
         }
-
-        /// <summary>
-        /// The correlation id to be used on the message. Mostly used when doing Bus.Reply
-        /// </summary>
-        public string CorrelationId { get; set; }
 
         /// <summary>
         /// The time when the message should be delivered to the destination

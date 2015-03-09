@@ -3,7 +3,6 @@
     using System;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Unicast;
 
     class CreatePhysicalMessageConnector : StageConnector<OutgoingContext, PhysicalOutgoingContextStageBehavior.Context>
     {
@@ -16,23 +15,9 @@
 
         public override void Invoke(OutgoingContext context, Action<PhysicalOutgoingContextStageBehavior.Context> next)
         {
-            var deliveryOptions = context.DeliveryOptions;
-
             var toSend = new TransportMessage { MessageIntent = MessageIntentEnum.Publish };
 
-            var sendOptions = deliveryOptions as SendOptions;
-
-
-            if (sendOptions != null)
-            {
-                toSend.MessageIntent = sendOptions is ReplyOptions ? MessageIntentEnum.Reply : MessageIntentEnum.Send;
-
-                if (sendOptions.CorrelationId != null)
-                {
-                    toSend.CorrelationId = sendOptions.CorrelationId;
-                }
-            }
-
+          
             //apply static headers
             foreach (var kvp in configure.OutgoingHeaders)
             {
