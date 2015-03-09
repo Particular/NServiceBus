@@ -39,7 +39,7 @@ namespace NServiceBus
         /// <summary>
         ///     Endpoint wide outgoing headers to be added to all sent messages.
         /// </summary>
-        public Dictionary<string, string> OutgoingHeaders
+        public IDictionary<string, string> OutgoingHeaders
         {
             get { return outgoingHeaders = outgoingHeaders ?? new Dictionary<string, string>(); }
         }

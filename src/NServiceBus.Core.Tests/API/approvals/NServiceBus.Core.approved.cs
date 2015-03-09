@@ -51,7 +51,7 @@ namespace NServiceBus
     public class BusConfiguration : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public BusConfiguration() { }
-        public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
+        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public void AssembliesToScan(System.Collections.Generic.IEnumerable<System.Reflection.Assembly> assemblies) { }
         public void AssembliesToScan(params System.Reflection.Assembly[] assemblies) { }
@@ -107,7 +107,7 @@ namespace NServiceBus
         public Configure(NServiceBus.Settings.SettingsHolder settings, NServiceBus.ObjectBuilder.Common.IContainer container, System.Collections.Generic.List<System.Action<NServiceBus.ObjectBuilder.IConfigureComponents>> registrations, NServiceBus.Pipeline.PipelineSettings pipeline, System.Collections.Generic.Dictionary<string, string> outgoingHeaders) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public string LocalAddress { get; }
-        public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
+        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
         public NServiceBus.Settings.SettingsHolder Settings { get; }
         public System.Collections.Generic.IList<System.Type> TypesToScan { get; }
     }
