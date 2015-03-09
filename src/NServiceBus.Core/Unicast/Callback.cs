@@ -7,6 +7,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using System.Web;
     using System.Web.UI;
+    using NServiceBus.Logging;
     using Unicast;
 
     /// <summary>
@@ -14,6 +15,7 @@ namespace NServiceBus
     /// </summary>
     class Callback : ICallback
     {
+        static ILog log = LogManager.GetLogger<UnicastBus>();
         static Type AsyncControllerType;
 
         string messageId;
@@ -46,7 +48,7 @@ namespace NServiceBus
         /// <summary>
         /// Event raised when the Register method is called.
         /// </summary>
-        public event EventHandler<BusAsyncResultEventArgs> Registered;
+        public event EventHandler<CallbackResultEventArgs> Registered;
 
         /// <summary>
         /// Returns the message id this object was constructed with.
@@ -58,60 +60,58 @@ namespace NServiceBus
 
         public Task<int> Register()
         {
-            var asyncResult = Register(null, null);
-            var task = Task<int>.Factory.FromAsync(asyncResult, x =>
-                {
-                    var cr = ((CompletionResult) x.AsyncState);
-
-                    return cr.ErrorCode;
-                }, TaskCreationOptions.None, TaskScheduler.Default);
-
-            return task;
+            return InternalRegister(null, null)
+                .ContinueWith(t => t.Result.ErrorCode, TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
         public Task<T> Register<T>()
         {
-            if (!typeof (T).IsEnum)
+            if (!typeof(T).IsEnum)
                 throw new InvalidOperationException(
                     "Register<T> can only be used with enumerations, use Register() to return an integer instead");
 
-            var asyncResult = Register(null, null);
-            var task = Task<T>.Factory.FromAsync(asyncResult, x =>
-                {
-                    var cr = ((CompletionResult) x.AsyncState);
-
-                    return (T) Enum.Parse(typeof (T), cr.ErrorCode.ToString(CultureInfo.InvariantCulture));
-                }, TaskCreationOptions.None, TaskScheduler.Default);
-
-            return task;
+            return InternalRegister(null, null)
+                .ContinueWith(t => (T)Enum.Parse(typeof(T), t.Result.ErrorCode.ToString(CultureInfo.InvariantCulture)),
+                TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
         public Task<T> Register<T>(Func<CompletionResult, T> completion)
         {
-            var asyncResult = Register(null, null);
-            return Task<T>.Factory.FromAsync(asyncResult, x => completion((CompletionResult) x.AsyncState),
-                                                 TaskCreationOptions.None, TaskScheduler.Default);
+            return InternalRegister(null, null).ContinueWith(t => completion(t.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
         public Task Register(Action<CompletionResult> completion)
         {
-            var asyncResult = Register(null, null);
-            return Task.Factory.FromAsync(asyncResult, x => completion((CompletionResult) x.AsyncState),
-                                              TaskCreationOptions.None, TaskScheduler.Default);
+            return InternalRegister(null, null).ContinueWith(t => completion(t.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
         public IAsyncResult Register(AsyncCallback callback, object state)
+        {
+            return InternalRegister(callback, state);
+        }
+
+        Task<CompletionResult> InternalRegister(AsyncCallback callback, object state)
         {
             if (isSendOnly)
             {
                 throw new Exception("Callbacks are invalid in a sendonly endpoint.");
             }
-            var result = new BusAsyncResult(callback, state);
 
-            if (Registered != null)
-                Registered(this, new BusAsyncResultEventArgs { Result = result, MessageId = messageId });
+            var tcs = new TaskCompletionSource<CompletionResult>(new CompletionResult
+            {
+                State = state
+            });
 
-            return result;
+            if (callback != null)
+            {
+                tcs.Task.ContinueWith(t => callback(t));
+            }
+
+            var handler = Registered;
+            if (handler != null)
+                handler(this, new CallbackResultEventArgs { TaskCompletionSource = tcs, MessageId = messageId });
+
+            return tcs.Task;
         }
 
         public void Register<T>(Action<T> callback)
@@ -143,7 +143,7 @@ namespace NServiceBus
 
             if (synchronizer == null)
             {
-                Register(GetCallbackInvocationActionFrom(callback), null);
+                InternalRegister(GetCallbackInvocationActionFrom(callback), null);
                 return;
             }
 
@@ -151,7 +151,7 @@ namespace NServiceBus
             if (page != null)
             {
                 page.RegisterAsyncTask(new PageAsyncTask(
-                    (sender, e, cb, extraData) => Register(cb, extraData),
+                    (sender, e, cb, extraData) => InternalRegister(cb, extraData),
                     new EndEventHandler(GetCallbackInvocationActionFrom(callback)),
                     null,
                     null
@@ -172,11 +172,11 @@ namespace NServiceBus
             var synchronizationContext = synchronizer as SynchronizationContext;
             if (synchronizationContext != null)
             {
-               Register(
-                    ar => synchronizationContext.Post(
-                        x => GetCallbackInvocationActionFrom(callback).Invoke(ar), null),
-                    null
-                    );
+                InternalRegister(
+                     ar => synchronizationContext.Post(
+                         x => GetCallbackInvocationActionFrom(callback).Invoke(ar), null),
+                     null
+                     );
             }
         }
 
@@ -202,7 +202,7 @@ namespace NServiceBus
             var action = callback as Action<int>;
             if (action != null)
             {
-                action.Invoke(cr.ErrorCode);
+                action(cr.ErrorCode);
             }
             else
             {

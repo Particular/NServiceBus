@@ -149,7 +149,7 @@ namespace NServiceBus.Unicast
         public Func<object, string, string> GetHeaderAction { get; internal set; }
 
         /// <summary>
-        /// Sets whether or not the return address of a received message 
+        /// Sets whether or not the return address of a received message
         /// should be propagated when the message is forwarded. This field is
         /// used primarily for the Distributor.
         /// </summary>
@@ -209,7 +209,6 @@ namespace NServiceBus.Unicast
 
             AssertHasLocalAddress();
 
-
             if (transportDefinition.HasSupportForCentralizedPubSub)
             {
                 // We are dealing with a brokered transport wired for auto pub/sub.
@@ -254,7 +253,6 @@ namespace NServiceBus.Unicast
             Unsubscribe(typeof(T));
         }
 
-
         /// <summary>
         /// <see cref="IBus.Unsubscribe(Type)"/>
         /// </summary>
@@ -269,7 +267,6 @@ namespace NServiceBus.Unicast
 
             AssertHasLocalAddress();
 
-
             if (transportDefinition.HasSupportForCentralizedPubSub)
             {
                 // We are dealing with a brokered transport wired for auto pub/sub.
@@ -283,7 +280,6 @@ namespace NServiceBus.Unicast
             {
                 subscriptionManager.Unsubscribe(messageType, destination);
             }
-
         }
 
         /// <summary>
@@ -418,7 +414,7 @@ namespace NServiceBus.Unicast
         {
             return SendMessage(new SendOptions(destination), messageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
         }
-        
+
         /// <summary>
         /// <see cref="ISendOnlyBus.Send(string,object)"/>
         /// </summary>
@@ -426,7 +422,7 @@ namespace NServiceBus.Unicast
         {
             return SendMessage(new SendOptions(destination), messageFactory.Create(message));
         }
-        
+
         /// <summary>
         /// <see cref="ISendOnlyBus.Send{T}(string,string,Action{T})"/>
         /// </summary>
@@ -481,7 +477,6 @@ namespace NServiceBus.Unicast
             return SendMessage(options, messageFactory.Create(message));
         }
 
-
         ICallback SendMessage(SendOptions sendOptions, LogicalMessage message)
         {
             ApplyDefaultDeliveryOptionsIfNeeded(sendOptions,message);
@@ -508,11 +503,10 @@ namespace NServiceBus.Unicast
             return outgoing.Invoke(outgoingContext);
         }
 
-
         ICallback SetupCallback(string transportMessageId)
         {
             var result = new Callback(transportMessageId, sendOnlyMode);
-            result.Registered += (sender, args) => callbackMessageLookup.RegisterResult(args.MessageId, args.Result);
+            result.Registered += (sender, args) => callbackMessageLookup.RegisterResult(args.MessageId, args.TaskCompletionSource);
 
             return result;
         }
@@ -583,8 +577,6 @@ namespace NServiceBus.Unicast
             return destination;
         }
 
-
-
         TransportMessage MessageBeingProcessed
         {
             get
@@ -599,6 +591,5 @@ namespace NServiceBus.Unicast
                 return current;
             }
         }
-
     }
 }

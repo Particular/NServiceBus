@@ -6,6 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Argument passed in the Registered event of the Callback object.
     /// </summary>
+    [ObsoleteEx(TreatAsErrorFromVersion = "6.0", RemoveInVersion = "7.0")]
     public class BusAsyncResultEventArgs : EventArgs
     {
         /// <summary>
