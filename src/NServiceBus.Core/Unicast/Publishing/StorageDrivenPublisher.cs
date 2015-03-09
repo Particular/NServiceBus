@@ -51,6 +51,7 @@
                     ReplyToAddress = publishOptions.ReplyToAddress,
                     EnforceMessagingBestPractices = publishOptions.EnforceMessagingBestPractices,
                     EnlistInReceiveTransaction = publishOptions.EnlistInReceiveTransaction,
+                    Headers = publishOptions.Headers
                 });
             }
         }
