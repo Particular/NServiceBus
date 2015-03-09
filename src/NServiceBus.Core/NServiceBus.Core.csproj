@@ -131,6 +131,7 @@
     <Compile Include="Transports\Msmq\MsmqReceiveBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNativeTransactionBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNoTransactionBehavior.cs" />
+    <Compile Include="Transports\OutgoingMessage.cs" />
     <Compile Include="Transports\ReceiveBehavior.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalOutgoingContext.cs" />
     <Compile Include="Transports\ReceivedMessage.cs" />
