@@ -1,8 +1,8 @@
-﻿// ReSharper disable UnusedParameter.Global
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System.Collections.Generic;
     using System.Security.Principal;
+    using JetBrains.Annotations;
 
     /// <summary>
     /// Implementer will be called by the infrastructure in order to authorize
@@ -10,6 +10,7 @@ namespace NServiceBus
     /// 
     /// Infrastructure automatically registers one implementing type in the container as a singleton.
     /// </summary>
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public interface IAuthorizeSubscriptions
     {
         /// <summary>
