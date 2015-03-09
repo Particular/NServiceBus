@@ -1,11 +1,13 @@
 namespace NServiceBus.MessageMutator
 {
+    using JetBrains.Annotations;
     using Unicast.Messages;
 
     /// <summary>
     /// Mutates transport messages before they are sent.
     /// Implementors are invoked after the logical messages have been serialized.
     /// </summary>
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public interface IMutateOutgoingTransportMessages
     {
         /// <summary>
