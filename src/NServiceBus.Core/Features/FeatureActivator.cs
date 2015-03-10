@@ -221,7 +221,7 @@ namespace NServiceBus.Features
             return output;
         }
 
-        static bool ActivateFeature(FeatureState featureState, IEnumerable<FeatureState> featuresToActivate, FeatureConfigurationContext context)
+        static bool ActivateFeature(FeatureState featureState, List<FeatureState> featuresToActivate, FeatureConfigurationContext context)
         {
             if (featureState.Feature.IsActive)
             {
