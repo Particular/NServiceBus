@@ -106,10 +106,18 @@ namespace NServiceBus.Features
                 return false;
             }
 
-            return type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == IHandleMessagesType);
+            return (from @interface in type.GetInterfaces()
+                where @interface.IsGenericType
+                let genericTypeDefinition = @interface.GetGenericTypeDefinition()
+                where genericTypeDefinition == IHandleType ||
+                       genericTypeDefinition == ISubscribeType ||
+                       genericTypeDefinition == IHandleMessagesType
+                select @interface).Any();
         }
 
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
+        static Type IHandleType = typeof(IHandle<>);
+        static Type ISubscribeType = typeof(ISubscribe<>);
         static ILog Logger = LogManager.GetLogger<RegisterHandlersInOrder>();
     }
 }

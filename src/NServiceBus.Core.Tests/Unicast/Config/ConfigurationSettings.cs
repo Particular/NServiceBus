@@ -1,28 +1,37 @@
 ﻿namespace NServiceBus.Unicast.Config.Tests
 {
+    using System;
     using NServiceBus.Features;
     using NUnit.Framework;
 
     [TestFixture]
     public class ConfigUnicastBusTests
     {
-
         [Test]
-        public void Simple_handler_should_be_classified_as_a_handler()
+        [TestCase(typeof(SimpleOldStyleHandler))]
+        [TestCase(typeof(SimpleNewStyleHandler))]
+        [TestCase(typeof(SimpleSubscribe))]
+        public void Simple_handler_should_be_classified_as_a_handler(Type handlerType)
         {
-            Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(typeof(SimpleHandler)));
+            Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(handlerType));
         }
 
         [Test]
-        public void Concrete_implementation_of_abstract_handler_should_be_classified_as_a_handler()
+        [TestCase(typeof(ConcreteImplementationOfAbstractOldStyleHandler))]
+        [TestCase(typeof(ConcreteImplementationOfAbstractNewStyleHandler))]
+        [TestCase(typeof(ConcreteImplementationOfAbstractSubscribe))]
+        public void Concrete_implementation_of_abstract_handler_should_be_classified_as_a_handler(Type handlerType)
         {
-            Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(typeof(ConcreteImplementationOfAbstractHandler)));
+            Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(handlerType));
         }
 
         [Test]
-        public void Abstract_handler_should_not_be_classified_as_a_handler()
+        [TestCase(typeof(AbstractOldStyleHandler))]
+        [TestCase(typeof(AbstractNewStyleHandler))]
+        [TestCase(typeof(AbstractSubscribe))]
+        public void Abstract_handler_should_not_be_classified_as_a_handler(Type handlerType)
         {
-            Assert.IsFalse(RegisterHandlersInOrder.IsMessageHandler(typeof(AbstractHandler)));
+            Assert.IsFalse(RegisterHandlersInOrder.IsMessageHandler(handlerType));
         }
 
         [Test]
@@ -32,68 +41,130 @@
         }
 
         [Test]
-        public void Interface_handler_should_not_be_classified_as_a_handler()
+        [TestCase(typeof(OldStyleInterfaceHandler))]
+        [TestCase(typeof(NewStyleInterfaceHandler))]
+        public void Interface_handler_should_not_be_classified_as_a_handler(Type handlerType)
         {
-            Assert.IsFalse(RegisterHandlersInOrder.IsMessageHandler(typeof(InterfaceHandler)));
+            Assert.IsFalse(RegisterHandlersInOrder.IsMessageHandler(handlerType));
         }
 
         [Test]
-        public void Generic_type_definition_handler_should_not_be_classified_as_a_handler()
+        [TestCase(typeof(GenericTypeDefinitionOldStyleHandler<>))]
+        [TestCase(typeof(GenericTypeDefinitionNewStyleHandler<>))]
+        public void Generic_type_definition_handler_should_not_be_classified_as_a_handler(Type handlerType)
         {
-            Assert.IsFalse(RegisterHandlersInOrder.IsMessageHandler(typeof(GenericTypeDefinitionHandler<>)));
+            Assert.IsFalse(RegisterHandlersInOrder.IsMessageHandler(handlerType));
         }
 
         [Test]
-        public void Specific_generic_type_definition_handler_should_not_be_classified_as_a_handler()
+        [TestCase(typeof(GenericTypeDefinitionOldStyleHandler<string>))]
+        [TestCase(typeof(GenericTypeDefinitionNewStyleHandler<string>))]
+        public void Specific_generic_type_definition_handler_should_not_be_classified_as_a_handler(Type handlerType)
         {
-            Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(typeof(GenericTypeDefinitionHandler<string>)));
+            Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(handlerType));
         }
 
         [Test]
-        public void Generic_implemented_type_definition_handler_should_not_be_classified_as_a_handler()
+        [TestCase(typeof(GenericImplementedOldStyleHandler))]
+        [TestCase(typeof(GenericImplementedNewStyleHandler))]
+        public void Generic_implemented_type_definition_handler_should_not_be_classified_as_a_handler(Type handlerType)
         {
-            Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(typeof(GenericImplementedHandler)));
+            Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(handlerType));
         }
 
-        
-        public class SimpleHandler : IHandleMessages<SimpleMessage>
+        class SimpleOldStyleHandler : IHandleMessages<SimpleMessage>
         {
             public void Handle(SimpleMessage message)
             {
             }
         }
 
-        public class GenericTypeDefinitionHandler<T> : IHandleMessages<SimpleMessage>
+        class SimpleNewStyleHandler : IHandle<SimpleMessage>
+        {
+            public void Handle(SimpleMessage message, IHandleContext context)
+            {
+            }
+        }
+
+        class SimpleSubscribe : ISubscribe<SimpleMessage>
+        {
+            public void Handle(SimpleMessage message, ISubscribeContext context)
+            {
+            }
+        }
+
+        class GenericTypeDefinitionOldStyleHandler<T> : IHandleMessages<SimpleMessage>
         {
             public void Handle(SimpleMessage message)
             {
             }
         }
 
-        public class GenericImplementedHandler : GenericTypeDefinitionHandler<string>
+        class GenericTypeDefinitionNewStyleHandler<T> : IHandle<SimpleMessage>
+        {
+            public void Handle(SimpleMessage message, IHandleContext context)
+            {
+            }
+        }
+
+        class GenericImplementedOldStyleHandler : GenericTypeDefinitionOldStyleHandler<string>
         {
         }
 
-        public interface InterfaceHandler : IHandleMessages<SimpleMessage>
+        class GenericImplementedNewStyleHandler : GenericTypeDefinitionNewStyleHandler<string>
         {
         }
 
-        public class ConcreteImplementationOfAbstractHandler : AbstractHandler
+        interface OldStyleInterfaceHandler : IHandleMessages<SimpleMessage>
         {
         }
 
-        public abstract class AbstractHandler : IHandleMessages<SimpleMessage>
+        interface NewStyleInterfaceHandler : IHandle<SimpleMessage>
+        {
+        }
+
+        interface InterfaceSubscribe : ISubscribe<SimpleMessage>
+        {
+        }
+
+        class ConcreteImplementationOfAbstractOldStyleHandler : AbstractOldStyleHandler
+        {
+        }
+
+        class ConcreteImplementationOfAbstractNewStyleHandler : AbstractNewStyleHandler
+        {
+        }
+
+        class ConcreteImplementationOfAbstractSubscribe : AbstractSubscribe
+        {
+        }
+
+        abstract class AbstractOldStyleHandler : IHandleMessages<SimpleMessage>
         {
             public void Handle(SimpleMessage message)
             {
             }
         }
 
-        public abstract class NotImplementingIHandleMessages
+        abstract class AbstractNewStyleHandler : IHandle<SimpleMessage>
+        {
+            public void Handle(SimpleMessage message, IHandleContext context)
+            {
+            }
+        }
+
+        abstract class AbstractSubscribe : ISubscribe<SimpleMessage>
+        {
+            public void Handle(SimpleMessage message, ISubscribeContext context)
+            {
+            }
+        }
+
+        abstract class NotImplementingIHandleMessages
         {
         }
 
-        public class SimpleMessage
+        class SimpleMessage
         {
         }
     }
