@@ -17,9 +17,6 @@
                 context.IncomingLogicalMessage.UpdateMessageInstance(current);
             }
           
-            //we'll soon remove this when we add SendOptions
-            ExtensionMethods.CurrentMessageBeingHandled = current;
-          
             next();
         }
     }

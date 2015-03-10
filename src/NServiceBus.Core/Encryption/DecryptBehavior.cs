@@ -4,7 +4,6 @@ namespace NServiceBus
     using NServiceBus.Encryption;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Unicast.Transport;
 
     class DecryptBehavior : LogicalMessageProcessingStageBehavior
     {
@@ -16,7 +15,7 @@ namespace NServiceBus
         }
         public override void Invoke(Context context, Action next)
         {
-            if (context.IncomingLogicalMessage.IsControlMessage())
+            if (context.IsControlMessage())
             {
                 next();
                 return;

@@ -33,7 +33,7 @@
                     context.OutgoingMessage.Body = ms.ToArray();
                 }
 
-                foreach (var headerEntry in context.OutgoingLogicalMessage.Headers)
+                foreach (var headerEntry in context.Headers)
                 {
                     context.OutgoingMessage.Headers[headerEntry.Key] = headerEntry.Value;
                 }

@@ -12,7 +12,7 @@
     {
         public override void Invoke(OutgoingContext context, Action next)
         {
-            if (context.OutgoingLogicalMessage.IsControlMessage())
+            if (context.IsControlMessage())
             {
                 next();
                 return;
@@ -22,8 +22,8 @@
 
             if (context.TryGet(out saga) && HasBeenFound(saga))
             {
-                context.OutgoingLogicalMessage.Headers[Headers.OriginatingSagaId] = saga.SagaId;
-                context.OutgoingLogicalMessage.Headers[Headers.OriginatingSagaType] = saga.Metadata.SagaType.AssemblyQualifiedName;
+                context.Headers[Headers.OriginatingSagaId] = saga.SagaId;
+                context.Headers[Headers.OriginatingSagaType] = saga.Metadata.SagaType.AssemblyQualifiedName;
             }
 
             TransportMessage incomingMessage;
@@ -37,12 +37,12 @@
 
                 if (incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out sagaId))
                 {
-                    context.OutgoingLogicalMessage.Headers[Headers.SagaId] = sagaId;
+                    context.Headers[Headers.SagaId] = sagaId;
                 }
 
                 if (incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out sagaType))
                 {
-                    context.OutgoingLogicalMessage.Headers[Headers.SagaType] = sagaType;
+                    context.Headers[Headers.SagaType] = sagaType;
                 }
             }
 

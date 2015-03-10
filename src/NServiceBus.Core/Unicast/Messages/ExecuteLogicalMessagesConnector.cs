@@ -16,7 +16,7 @@
 
             foreach (var message in logicalMessages)
             {
-                next(new LogicalMessageProcessingStageBehavior.Context(message, context));
+                next(new LogicalMessageProcessingStageBehavior.Context(message, context.PhysicalMessage.Headers, context));
             }
 
             if (!context.PhysicalMessage.IsControlMessage())

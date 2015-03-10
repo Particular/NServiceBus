@@ -9,12 +9,12 @@ namespace NServiceBus.Saga
     /// To signify that the receipt of a message should start this saga,
     /// implement <see cref="IAmStartedByMessages{T}"/> for the relevant message type.
     /// </summary>
-    public abstract class Saga 
+    public abstract class Saga
     {
         /// <summary>
         /// The saga's typed data.
         /// </summary>
-        public IContainSagaData Entity{get; set; }
+        public IContainSagaData Entity { get; set; }
 
         /// <summary>
         /// Override this method in order to configure how this saga's data should be found.
@@ -74,7 +74,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="at"><see cref="DateTime"/> to send timeout <paramref name="timeoutMessage"/>.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="at"/> is reached.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage) 
+        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage)
         {
             if (at.Kind == DateTimeKind.Unspecified)
             {
@@ -82,12 +82,17 @@ namespace NServiceBus.Saga
             }
 
             VerifySagaCanHandleTimeout(timeoutMessage);
-            SetTimeoutHeaders(timeoutMessage);
 
-            Bus.Defer(at, timeoutMessage);
+            var context = new SendContext();
+
+            SetTimeoutHeaders(context);
+
+            context.DeliverAt(at);
+
+            Bus.Send(timeoutMessage,context);
         }
 
-        void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage) 
+        void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage)
         {
             var canHandleTimeoutMessage = this is IHandleTimeouts<TTimeoutMessageType>;
             if (!canHandleTimeoutMessage)
@@ -126,20 +131,26 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="within"/> expires.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage) 
+        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage)
         {
             VerifySagaCanHandleTimeout(timeoutMessage);
-            SetTimeoutHeaders(timeoutMessage);
 
-            Bus.Defer(within, timeoutMessage);
+            var context = new SendContext();
+
+
+            SetTimeoutHeaders(context);
+
+            context.DelayDeliveryWith(within);
+
+            Bus.Send(timeoutMessage,context);
         }
 
 
-        void SetTimeoutHeaders(object toSend)
+        void SetTimeoutHeaders(SendContext context)
         {
-            Bus.SetMessageHeader(toSend, Headers.SagaId, Entity.Id.ToString());
-            Bus.SetMessageHeader(toSend, Headers.IsSagaTimeoutMessage, Boolean.TrueString);
-            Bus.SetMessageHeader(toSend, Headers.SagaType, GetType().AssemblyQualifiedName);
+            context.SetHeader(Headers.SagaId, Entity.Id.ToString());
+            context.SetHeader(Headers.IsSagaTimeoutMessage, bool.TrueString);
+            context.SetHeader(Headers.SagaType, GetType().AssemblyQualifiedName);
         }
 
         /// <summary>

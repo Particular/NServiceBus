@@ -4,7 +4,6 @@
     using NServiceBus.Encryption;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Unicast.Transport;
 
     class EncryptBehavior : Behavior<OutgoingContext>
     {
@@ -17,7 +16,7 @@
 
         public override void Invoke(OutgoingContext context, Action next)
         {
-            if (context.OutgoingLogicalMessage.IsControlMessage())
+            if (context.IsControlMessage())
             {
                 next();
                 return;

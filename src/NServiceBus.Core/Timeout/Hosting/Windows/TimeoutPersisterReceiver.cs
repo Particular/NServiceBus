@@ -95,7 +95,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     }
                     //use the dispatcher as the reply to address so that retries go back to the dispatcher q
                     // instead of the main endpoint q
-                    var transportMessage = ControlMessage.Create();
+                    var transportMessage = ControlMessageFactory.Create();
 
                     transportMessage.Headers["Timeout.Id"] = timeoutData.Item1;
 
