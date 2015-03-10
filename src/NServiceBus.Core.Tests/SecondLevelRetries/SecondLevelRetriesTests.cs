@@ -106,7 +106,7 @@
 
         PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId, int currentRetryCount)
         {
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new ReceivedMessage(messageId, new Dictionary<string, string> { { Headers.Retries, currentRetryCount.ToString() } }, new MemoryStream()), null));
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string> { { Headers.Retries, currentRetryCount.ToString() } }, new MemoryStream()), null));
 
             context.SetPublicReceiveAddress("test-address-for-this-pipeline");
 

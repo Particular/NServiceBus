@@ -114,7 +114,7 @@ namespace NServiceBus.Core.Tests
 
         PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId)
         {
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new ReceivedMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null));
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null));
 
             context.SetPublicReceiveAddress("public-receive-address");
             return context;

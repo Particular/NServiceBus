@@ -8,7 +8,7 @@ namespace NServiceBus
 
     class MsmqReceiveWithNativeTransactionBehavior : MsmqReceiveBehavior
     {
-        protected override void Invoke(IncomingContext context, Action<ReceivedMessage> onMessage)
+        protected override void Invoke(IncomingContext context, Action<IncomingMessage> onMessage)
         {
             var queue = context.Get<MessageQueue>();
 
@@ -44,7 +44,7 @@ namespace NServiceBus
                     
                     using (var bodyStream = message.BodyStream)
                     {
-                        onMessage(new ReceivedMessage(message.Id, headers, bodyStream));
+                        onMessage(new IncomingMessage(message.Id, headers, bodyStream));
                     }
 
                     msmqTransaction.Commit();
