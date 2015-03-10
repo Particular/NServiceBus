@@ -105,21 +105,30 @@ namespace NServiceBus.Features
         public FeaturesReport SetupFeatures(FeatureConfigurationContext context)
         {
             // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
-            // ReSharper disable PossibleMultipleEnumeration
-            var featuresToActivate = Sort(features).Where(featureState => IsEnabled(featureState.Feature.GetType()));
+            var sourceFeatures = Sort(features);
 
-            foreach (var defaultSetting in featuresToActivate.SelectMany(feature => feature.Feature.RegisteredDefaults))
+            var enabledFeatures = new List<FeatureState>();
+            while (true)
             {
-                defaultSetting(settings);
+                var featureToActivate = sourceFeatures.FirstOrDefault(x => IsEnabled(x.Feature.GetType()));
+                if (featureToActivate == null)
+                {
+                    break;
+                }
+                sourceFeatures.Remove(featureToActivate);
+                enabledFeatures.Add(featureToActivate);
+                foreach (var registeredDefault in featureToActivate.Feature.RegisteredDefaults)
+                {
+                    registeredDefault(settings);
+                }
             }
 
             settings.PreventChanges();
 
-            foreach (var feature in featuresToActivate)
+            foreach (var feature in enabledFeatures)
             {
-                ActivateFeature(feature, featuresToActivate, context);
+                ActivateFeature(feature, enabledFeatures, context);
             }
-            // ReSharper restore PossibleMultipleEnumeration
 
             return new FeaturesReport(features.Select(t => t.Diagnostics));
         }
@@ -172,7 +181,7 @@ namespace NServiceBus.Features
             }
         }
 
-        static IEnumerable<FeatureState> Sort(IEnumerable<FeatureState> features)
+        static List<FeatureState> Sort(IEnumerable<FeatureState> features)
         {
             // Step 1: create nodes for graph
             var nameToNodeDict = new Dictionary<string, Node>();
