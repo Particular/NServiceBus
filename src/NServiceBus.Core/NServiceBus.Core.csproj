@@ -120,13 +120,13 @@
     <Compile Include="FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
-    <Compile Include="Pipeline\Contexts\OutgoingHeaders.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
     <Compile Include="Pipeline\Contexts\IncomingContext.cs" />
     <Compile Include="Pipeline\Contexts\TransportReceiveContext.cs" />
     <Compile Include="Pipeline\PipelineModelBuilder.cs" />
     <Compile Include="Pipeline\StageConnector.cs" />
+    <Compile Include="SendContext.cs" />
     <Compile Include="Transports\Msmq\MsmqAddress.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNativeTransactionBehavior.cs" />
@@ -182,7 +182,6 @@
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
     <Compile Include="Hosting\HostInfoConfigurationExtensions.cs" />
     <Compile Include="Hosting\HostInfoSettings.cs" />
-    <Compile Include="IManageMessageHeaders.cs" />
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="Installation\InstallationSupport.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />
@@ -213,7 +212,6 @@
     <Compile Include="Encryption\MemberInfoExtensions.cs" />
     <Compile Include="ExceptionExtensions.cs" />
     <Compile Include="ExpressAttribute.cs" />
-    <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Features\FeatureConfigurationContext.cs" />
     <Compile Include="Features\ConfigurationBuilderExtensions.cs" />
     <Compile Include="Features\FeatureStartupTask.cs" />

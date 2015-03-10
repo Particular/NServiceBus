@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Runtime.Serialization.Formatters;
 
     /// <summary>
     /// Provides the subset of bus operations that is applicable for a send only bus.
@@ -31,6 +32,13 @@ namespace NServiceBus
         ICallback Send(object message);
 
         /// <summary>
+        /// Sends the provided message.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <param name="context">The context for the send</param>
+        ICallback Send(object message,SendContext context);
+
+        /// <summary>
         /// Instantiates a message of type T and sends it.
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface</typeparam>
@@ -39,6 +47,15 @@ namespace NServiceBus
         /// The message will be sent to the destination configured for T
         /// </remarks>
         ICallback Send<T>(Action<T> messageConstructor);
+
+
+        /// <summary>
+        /// Instantiates a message of type T and sends it.
+        /// </summary>
+        /// <typeparam name="T">The type of message, usually an interface</typeparam>
+        /// <param name="messageConstructor">An action which initializes properties of the message</param>
+        /// <param name="context">The context for the send</param>
+        ICallback Send<T>(Action<T> messageConstructor, SendContext context);
 
         /// <summary>
         /// Sends the message.

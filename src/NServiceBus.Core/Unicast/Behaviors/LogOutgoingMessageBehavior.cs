@@ -23,7 +23,7 @@
                     context.OutgoingMessage.Id,
                     destination,
                     context.OutgoingLogicalMessage.Instance,
-                    string.Join(", ", context.OutgoingLogicalMessage.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));
+                    string.Join(", ", context.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));
             }
 
             next();

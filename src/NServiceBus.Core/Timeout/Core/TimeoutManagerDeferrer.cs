@@ -50,7 +50,7 @@
 
         public void ClearDeferredMessages(string headerKey, string headerValue)
         {
-            var controlMessage = ControlMessage.Create();
+            var controlMessage = ControlMessageFactory.Create();
 
             controlMessage.Headers[headerKey] = headerValue;
             controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = Boolean.TrueString;

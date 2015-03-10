@@ -1,10 +1,9 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.Unicast.Transport;
-    using Pipeline;
-    using Pipeline.Contexts;
-    using Unicast;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Unicast;
 
     class SendValidatorBehavior : Behavior<OutgoingContext>
     {
@@ -12,7 +11,7 @@
 
         public override void Invoke(OutgoingContext context, Action next)
         {
-            if (!context.OutgoingLogicalMessage.IsControlMessage())
+            if (!context.IsControlMessage())
             {
                 VerifyBestPractices(context);
             }

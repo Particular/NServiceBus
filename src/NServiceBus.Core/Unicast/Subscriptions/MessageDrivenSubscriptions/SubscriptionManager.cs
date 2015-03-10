@@ -51,7 +51,7 @@
 
         TransportMessage CreateControlMessage(Type eventType)
         {
-            var subscriptionMessage = ControlMessage.Create();
+            var subscriptionMessage = ControlMessageFactory.Create();
 
             subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
             subscriptionMessage.Headers[Headers.ReplyToAddress] = replyToAddress;

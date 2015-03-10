@@ -31,18 +31,6 @@
      
             var toSend = new TransportMessage { MessageIntent = intent };
 
-            //apply static headers
-            foreach (var kvp in configure.OutgoingHeaders)
-            {
-                toSend.Headers[kvp.Key] = kvp.Value;
-            }
-
-            //apply individual headers
-            foreach (var kvp in context.OutgoingLogicalMessage.Headers)
-            {
-                toSend.Headers[kvp.Key] = kvp.Value;
-            }
-
             next(new PhysicalOutgoingContextStageBehavior.Context(toSend,context));
         }
 

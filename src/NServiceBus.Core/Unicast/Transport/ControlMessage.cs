@@ -3,7 +3,7 @@ namespace NServiceBus.Unicast.Transport
     /// <summary>
     /// Helper for creating control messages
     /// </summary>
-    public static class ControlMessage
+    public static class ControlMessageFactory
     {
         /// <summary>
         /// Creates Transport Message

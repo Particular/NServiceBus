@@ -41,9 +41,20 @@ namespace NServiceBus.Unicast
         {
             return busImpl.Send(message);
         }
-
         /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(Action{T})"/>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public ICallback Send(object message,SendContext context)
+        {
+            return busImpl.Send(message, context);
+        }
+
+      
+        /// <summary>
+        /// 
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="messageConstructor"></param>
@@ -51,6 +62,18 @@ namespace NServiceBus.Unicast
         public ICallback Send<T>(Action<T> messageConstructor)
         {
             return busImpl.Send(messageConstructor);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="messageConstructor"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public ICallback Send<T>(Action<T> messageConstructor, SendContext context)
+        {
+            return busImpl.Send(messageConstructor,context);
         }
 
         /// <summary>
