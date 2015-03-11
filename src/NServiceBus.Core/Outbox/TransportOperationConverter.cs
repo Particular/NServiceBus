@@ -29,7 +29,7 @@ namespace NServiceBus.Outbox
 
             if (sendOptions != null)
             {
-                operation = sendOptions is ReplyOptions ? "Reply" : "Send";
+                operation = "Send";
 
                 if (isAudit)
                 {
@@ -88,13 +88,6 @@ namespace NServiceBus.Outbox
 
                     result = sendOptions;
                     break;
-                case "reply":
-                    var replyOptions = new ReplyOptions(options["Destination"]);
-                    ApplySendOptionSettings(replyOptions, options);
-
-                    result = replyOptions;
-                    break;
-
                 default:
                     throw new Exception("Unknown operation: " + operation);
             }

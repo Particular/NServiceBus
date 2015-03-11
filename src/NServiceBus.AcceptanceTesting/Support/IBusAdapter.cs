@@ -36,9 +36,19 @@
             return sendOnlyBus.Send(message);
         }
 
+        public ICallback Send(object message, SendContext context)
+        {
+            throw new NotImplementedException();
+        }
+
         public ICallback Send<T>(Action<T> messageConstructor)
         {
             return sendOnlyBus.Send(messageConstructor);
+        }
+
+        public ICallback Send<T>(Action<T> messageConstructor, SendContext context)
+        {
+            throw new NotImplementedException();
         }
 
         public ICallback Send(string destination, object message)

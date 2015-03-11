@@ -17,7 +17,7 @@
             var behavior = new SerializeMessagesBehavior(new FakeSerializer("myContentType"));
             var transportMessage = new TransportMessage("xyz", new Dictionary<string, string>());
 
-            var context = new OutgoingContext(null, new SendOptions("test"), new LogicalMessage(new Dictionary<string, string>(), null));
+            var context = new OutgoingContext(null, new SendOptions("test"), new LogicalMessage(new MessageMetadata(),null,null),new Dictionary<string, string>());
 
             behavior.Invoke(new PhysicalOutgoingContextStageBehavior.Context(transportMessage, context), () => { });
 

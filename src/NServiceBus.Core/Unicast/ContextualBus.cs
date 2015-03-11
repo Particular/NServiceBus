@@ -227,13 +227,12 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply(object message)
         {
-            var context = new SendContext
-            {
-                IsReply = true
-            };
+            var context = new SendContext();
 
             context.SetDestination(MessageBeingProcessed.ReplyToAddress);
             context.SetCorrelationId(GetCorrelationId());
+            context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Reply.ToString());
+
             Send(message, context);
         }
 
@@ -242,13 +241,11 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply<T>(Action<T> messageConstructor)
         {
-            var context = new SendContext
-         {
-             IsReply = true
-         };
-
+            var context = new SendContext();
             context.SetDestination(MessageBeingProcessed.ReplyToAddress);
             context.SetCorrelationId(GetCorrelationId());
+            context.SetHeader(Headers.MessageIntent,MessageIntentEnum.Reply.ToString());
+
             Send(messageConstructor, context);
         }
 
@@ -270,14 +267,12 @@ namespace NServiceBus.Unicast
             }
 
 
-            var context = new SendContext
-            {
-                IsReply = true
-            };
+            var context = new SendContext();
 
             context.SetHeader(Headers.ReturnMessageErrorCodeHeader, returnCode);
             context.SetDestination(MessageBeingProcessed.ReplyToAddress);
             context.SetCorrelationId(GetCorrelationId());
+            context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Reply.ToString());
 
             SendMessage(context, new ControlMessage());
         }
@@ -327,7 +322,7 @@ namespace NServiceBus.Unicast
         {
             var context = new SendContext();
 
-            context.SetDestination(sendLocalAddress);
+            context.SetLocalEndpointAsDestination();
 
             return Send(message,context);
         }
@@ -454,7 +449,12 @@ namespace NServiceBus.Unicast
 
             if (string.IsNullOrEmpty(destination))
             {
-                GetDestinationForSend(message.MessageType);
+                destination = GetDestinationForSend(message.MessageType);
+            }
+
+            if (context.sentToLocalEndpoint)
+            {
+                destination = sendLocalAddress;
             }
 
             var sendOptions = new SendOptions(destination);
@@ -464,7 +464,10 @@ namespace NServiceBus.Unicast
                 context.Headers[Headers.CorrelationId] = context.CorrelationId;
             }
 
-
+            if (!context.Headers.ContainsKey(Headers.MessageIntent))
+            {
+                context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
+            }
             ApplyDefaultDeliveryOptionsIfNeeded(sendOptions, message);
 
 

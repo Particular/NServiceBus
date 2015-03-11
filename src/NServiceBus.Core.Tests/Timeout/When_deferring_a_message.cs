@@ -55,7 +55,7 @@
             settings.Set("EndpointName", "EndpointName");
             sut.Settings = settings;
 
-            sut.Invoke(new PhysicalOutgoingContextStageBehavior.Context(new TransportMessage(), new OutgoingContext(null, new SendOptions("Destination"), null)), () => { });
+            sut.Invoke(new PhysicalOutgoingContextStageBehavior.Context(new TransportMessage(), new OutgoingContext(null, new SendOptions("Destination"),null,new Dictionary<string, string>())), () => { });
 
             Assert.AreEqual(1, sender.Messages.Count);
         }

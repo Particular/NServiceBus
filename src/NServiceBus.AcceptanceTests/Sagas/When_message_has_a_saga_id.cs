@@ -16,10 +16,12 @@
                 {
                     var message = new MessageWithSagaId();
 
-                    bus.SetMessageHeader(message, Headers.SagaId, Guid.NewGuid().ToString());
-                    bus.SetMessageHeader(message, Headers.SagaType, typeof(MySaga).AssemblyQualifiedName);
+                    var sendContext = new SendContext();
 
-                    bus.SendLocal(message);
+                    sendContext.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
+                    sendContext.SetHeader(Headers.SagaType, typeof(MySaga).AssemblyQualifiedName);
+                    sendContext.SetLocalEndpointAsDestination();
+                    bus.Send(message,sendContext);
                 }))
                 .Done(c => c.OtherSagaStarted)
                 .Run();

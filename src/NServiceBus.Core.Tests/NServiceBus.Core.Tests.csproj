@@ -267,7 +267,6 @@
     <Compile Include="Unicast\Contexts\EventMessage.cs" />
     <Compile Include="Unicast\Contexts\InterfaceMessage.cs" />
     <Compile Include="Unicast\LoadHandlersBehaviorTests.cs" />
-    <Compile Include="Unicast\ReplyOptionsTests.cs" />
     <Compile Include="Unicast\SubscriptionManagerTests.cs" />
     <Compile Include="Unicast\TransportMessageTests.cs" />
     <Compile Include="Unicast\MessageTypeTests.cs" />

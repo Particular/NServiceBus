@@ -100,24 +100,29 @@ namespace NServiceBus.Unicast
 {
     using System;
 
-   
-    public partial class ReplyOptions
-    {
 
-           [ObsoleteEx(
-            Message = "ReplyOptions(string destination)",
+    [ObsoleteEx(
+            Message = "Not used anymore, use the 'NServiceBus.MessageIntent' header to detect if the message is a reply",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
+    public class ReplyOptions : SendOptions
+    {
+
+         
+        public ReplyOptions(string destination)
+            : base(destination)
+        {
+            throw new NotImplementedException();
+        }
+
+     
         public ReplyOptions(Address destination, string correlationId)
             : base(destination)
         {
             throw new NotImplementedException();
         }
 
-         [ObsoleteEx(
-            Message = "ReplyOptions(string destination)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
+      
         public ReplyOptions(string destination, string correlationId)
             : base(destination)
         {
