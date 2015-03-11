@@ -1962,6 +1962,13 @@ namespace NServiceBus.Transports
         void Subscribe(System.Type eventType, string publisherAddress);
         void Unsubscribe(System.Type eventType, string publisherAddress);
     }
+    public class IncomingMessage
+    {
+        public IncomingMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream) { }
+        public System.IO.Stream BodyStream { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
+    }
     public interface IPublishMessages
     {
         void Publish(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.PublishOptions publishOptions);
@@ -1985,18 +1992,11 @@ namespace NServiceBus.Transports
     {
         protected ReceiveBehavior() { }
         public override void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Pipeline.Contexts.TransportReceiveContext> next) { }
-        protected abstract void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Transports.ReceivedMessage> onMessage);
+        protected abstract void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Transports.IncomingMessage> onMessage);
         public class Registration : NServiceBus.Pipeline.RegisterStep
         {
             public Registration() { }
         }
-    }
-    public class ReceivedMessage
-    {
-        public ReceivedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream) { }
-        public System.IO.Stream BodyStream { get; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
-        public string MessageId { get; }
     }
     public class ReceiveOptions
     {

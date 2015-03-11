@@ -23,6 +23,8 @@
             {
                 intent = MessageIntentEnum.Send;   
             }
+     
+            var toSend = new TransportMessage { MessageIntent = intent };
 
             if (context.DeliveryOptions is ReplyOptions)
             {
