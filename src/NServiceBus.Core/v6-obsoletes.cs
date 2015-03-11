@@ -2,58 +2,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
-    using System.Reflection;
-
-
-    public partial class BusConfiguration
-    {
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6", 
-            RemoveInVersion = "7", 
-            ReplacementTypeOrMember = "ExcludeTypes")]
-        public void TypesToScan(IEnumerable<Type> typesToScan)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6", 
-            RemoveInVersion = "7", 
-            ReplacementTypeOrMember = "ExcludeAssemblies")]
-        public void AssembliesToScan(IEnumerable<Assembly> assemblies)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7", 
-            ReplacementTypeOrMember = "ExcludeAssemblies")]
-        public void AssembliesToScan(params Assembly[] assemblies)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7", 
-            ReplacementTypeOrMember = "ExcludeAssemblies")]
-        public void ScanAssembliesInDirectory(string probeDirectory)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "OverridePublicReturnAddress(string address)",
-            RemoveInVersion = "7.0", 
-            TreatAsErrorFromVersion = "6.0")]
-        public void OverridePublicReturnAddress(Address address)
-        {
-            throw new NotImplementedException();
-        }
-
-    }
 
     [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "config.ExcludeAssemblies")]
     public class AllAssemblies : IExcludesBuilder, IIncludesBuilder
@@ -111,14 +59,10 @@ namespace NServiceBus.Unicast
     {
 
         [ObsoleteEx(
-            Message = "Reply to address can be get/set using the `NServiceBus.CorrelationId` header",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public string CorrelationId
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
+    Message = "Reply to address can be get/set using the `NServiceBus.CorrelationId` header",
+    RemoveInVersion = "7.0",
+    TreatAsErrorFromVersion = "6.0")]
+        public string CorrelationId { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
 
     }
 }
@@ -172,23 +116,28 @@ namespace NServiceBus.Unicast
     using System;
 
 
-    public partial class ReplyOptions
-    {
-
-        [ObsoleteEx(
-            Message = "ReplyOptions(string destination)",
+    [ObsoleteEx(
+            Message = "Not used anymore, use the 'NServiceBus.MessageIntent' header to detect if the message is a reply",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
+    public class ReplyOptions : SendOptions
+    {
+
+         
+        public ReplyOptions(string destination)
+            : base(destination)
+        {
+            throw new NotImplementedException();
+        }
+
+     
         public ReplyOptions(Address destination, string correlationId)
             : base(destination)
         {
             throw new NotImplementedException();
         }
 
-        [ObsoleteEx(
-            Message = "ReplyOptions(string destination)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
+      
         public ReplyOptions(string destination, string correlationId)
             : base(destination)
         {

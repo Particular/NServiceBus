@@ -17,19 +17,8 @@
         public override void Invoke(OutgoingContext context, Action<PhysicalOutgoingContextStageBehavior.Context> next)
         {
 
-            var intent = MessageIntentEnum.Publish;
-
-            if (context.DeliveryOptions is SendOptions)
-            {
-                intent = MessageIntentEnum.Send;   
-            }
-
-            if (context.DeliveryOptions is ReplyOptions)
-            {
-                intent = MessageIntentEnum.Reply;
-            }
      
-            var toSend = new TransportMessage { MessageIntent = intent };
+            var toSend = new TransportMessage("will be ignored",context.Headers);
 
             next(new PhysicalOutgoingContextStageBehavior.Context(toSend,context));
         }

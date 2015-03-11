@@ -48,7 +48,7 @@
                 public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
                 {
                     Context.OutgoingMessageLogicalMessageReceived = logicalMessage != null;
-                    transportMessage.Headers["TransportMutatorCalled"] = true.ToString();
+                    Context.TransportMutatorCalled = true;
                 }
 
                 public void Customize(BusConfiguration configuration)
@@ -60,10 +60,12 @@
             class MyMessageMutator : IMutateOutgoingMessages, INeedInitialization
             {
                 public IBus Bus { get; set; }
+
+                public Context Context { get; set; }
              
                 public object MutateOutgoing(object message)
                 {
-                    Bus.SetMessageHeader(message, "MessageMutatorCalled", "true");
+                    Context.MessageMutatorCalled = true;
 
                     return message;
                 }
@@ -84,11 +86,7 @@
 
                 public void Handle(MessageToBeMutated message)
                 {
-                    Context.TransportMutatorCalled = Bus.CurrentMessageContext.Headers.ContainsKey("TransportMutatorCalled");
-                    Context.MessageMutatorCalled = Bus.CurrentMessageContext.Headers.ContainsKey("MessageMutatorCalled");
-
-                    Context.MessageProcessed = true;
-
+                   Context.MessageProcessed = true;
                 }
             }
 

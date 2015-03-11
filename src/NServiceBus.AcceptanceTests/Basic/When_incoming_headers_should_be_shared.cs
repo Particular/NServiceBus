@@ -47,7 +47,7 @@
 
                 public void Handle(Message message)
                 {
-                    Bus.SetMessageHeader(message, "Key", "Value");
+                    Bus.CurrentMessageContext.Headers["Key"] = "Value";
                 }
             }
 
@@ -59,7 +59,7 @@
 
                 public void Handle(Message message)
                 {
-                    var header = Bus.GetMessageHeader(message, "Key");
+                    var header = Bus.CurrentMessageContext.Headers["Key"];
                     Context.SecondHandlerCanReadHeaderSetByFirstHandler = header == "Value";
                     Context.GotMessage = true;
                 }

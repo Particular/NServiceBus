@@ -420,7 +420,6 @@
     <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
     <Compile Include="Unicast\Messages\LogicalMessageFactory.cs" />
     <Compile Include="Unicast\PublishOptions.cs" />
-    <Compile Include="Unicast\ReplyOptions.cs" />
     <Compile Include="Unicast\SendOptions.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubscriptionManager.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageInitializer.cs" />

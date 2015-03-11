@@ -19,10 +19,12 @@
             Scenario.Define(context)
                     .WithEndpoint<Sender>(b => b.Given((bus, c) =>
                     {
+                        var sendContext = new SendContext();
+
+                        sendContext.SetHeader("MyHeader", "MyHeaderValue");
                         bus.Send<MyMessage>(m=>
                         {
                             m.Id = c.Id;
-                            bus.SetMessageHeader(m, "MyHeader", "MyHeaderValue");
                         });
                     }))
                     .WithEndpoint<Receiver>()
@@ -78,7 +80,7 @@
 
                     Context.TimesCalled++;
 
-                    Context.MyHeader = Bus.GetMessageHeader(message, "MyHeader");
+                    Context.MyHeader = Bus.CurrentMessageContext.Headers["MyHeader"];
 
                     Context.ReceivedHeaders = Bus.CurrentMessageContext.Headers;
 

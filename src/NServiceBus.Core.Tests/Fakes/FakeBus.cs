@@ -56,7 +56,17 @@
             throw new NotImplementedException();
         }
 
+        public ICallback Send(object message, SendContext context)
+        {
+            throw new NotImplementedException();
+        }
+
         public ICallback Send<T>(Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ICallback Send<T>(Action<T> messageConstructor, SendContext context)
         {
             throw new NotImplementedException();
         }

@@ -64,7 +64,7 @@ namespace NServiceBus.AcceptanceTests.HostInformation
 
             public void Handle(MyMessage message)
             {
-                Context.OriginatingHostId = new Guid(Bus.GetMessageHeader(message, Headers.OriginatingHostId));
+                Context.OriginatingHostId = new Guid(Bus.CurrentMessageContext.Headers[Headers.OriginatingHostId]);
             }
         }
 

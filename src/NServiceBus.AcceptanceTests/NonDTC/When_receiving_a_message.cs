@@ -28,8 +28,15 @@
                     .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
                     {
                         var duplicateMessageId = Guid.NewGuid().ToString();
-                        bus.SendLocal<PlaceOrder>(m => bus.SetMessageHeader(m, Headers.MessageId, duplicateMessageId));
-                        bus.SendLocal<PlaceOrder>(m => bus.SetMessageHeader(m, Headers.MessageId, duplicateMessageId));
+
+                        var duplicateSendContext = new SendContext();
+
+                        duplicateSendContext.SetMessageId(duplicateMessageId);
+                        duplicateSendContext.SetLocalEndpointAsDestination();
+
+                        bus.Send(new PlaceOrder(),duplicateSendContext);
+                        bus.Send(new PlaceOrder(), duplicateSendContext);
+
                         bus.SendLocal(new PlaceOrder());
                     }))
                     .AllowExceptions()

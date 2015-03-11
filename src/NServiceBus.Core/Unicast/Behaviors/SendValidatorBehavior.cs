@@ -39,7 +39,7 @@
                 throw new InvalidOperationException("No destination specified for message: " + context.OutgoingLogicalMessage.MessageType);
             }
 
-            if (sendOptions is ReplyOptions)
+            if (context.Headers[Headers.MessageIntent] == MessageIntentEnum.Reply.ToString())
             {
                 MessagingBestPractices.AssertIsValidForReply(context.OutgoingLogicalMessage.MessageType, Conventions);
             }

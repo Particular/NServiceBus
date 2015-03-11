@@ -30,7 +30,7 @@
             context.TryGet(TransportReceiveContext.IncomingPhysicalMessageKey, out incomingMessage);
 
             //auto correlate with the saga we are replying to if needed
-            if (context.DeliveryOptions is ReplyOptions && incomingMessage != null)
+            if (context.Headers[Headers.MessageIntent] == MessageIntentEnum.Reply.ToString()  && incomingMessage != null)
             {
                 string sagaId;
                 string sagaType;
