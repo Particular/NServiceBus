@@ -287,9 +287,13 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply(object message)
         {
-            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId());
+            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress);
 
-            SendMessage(options, messageFactory.Create(message));
+            var logicalMessage = messageFactory.Create(message);
+
+            logicalMessage.Headers[Headers.CorrelationId] = GetCorrelationId();
+
+            SendMessage(options, logicalMessage);
         }
 
         /// <summary>
@@ -298,9 +302,14 @@ namespace NServiceBus.Unicast
         public void Reply<T>(Action<T> messageConstructor)
         {
             var instance = messageMapper.CreateInstance(messageConstructor);
-            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId());
+            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress);
 
-            SendMessage(options, messageFactory.Create(instance));
+
+            var logicalMessage = messageFactory.Create(instance);
+
+            logicalMessage.Headers[Headers.CorrelationId] = GetCorrelationId();
+
+            SendMessage(options, logicalMessage);
         }
 
         /// <summary>
@@ -325,7 +334,9 @@ namespace NServiceBus.Unicast
                 {Headers.ReturnMessageErrorCodeHeader, returnCode}
             });
 
-            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress, GetCorrelationId());
+            var options = new ReplyOptions(MessageBeingProcessed.ReplyToAddress);
+
+            returnMessage.Headers[Headers.CorrelationId] = GetCorrelationId();
 
             InvokeSendPipeline(options, returnMessage);
         }
@@ -345,7 +356,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            messageSender.Send(MessageBeingProcessed, new SendOptions(sendLocalAddress));
+            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Headers,MessageBeingProcessed.Body), new SendOptions(sendLocalAddress));
 
             context.handleCurrentMessageLaterWasCalled = true;
 
@@ -357,7 +368,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void ForwardCurrentMessageTo(string destination)
         {
-            messageSender.Send(MessageBeingProcessed, new SendOptions(destination));
+            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Headers,MessageBeingProcessed.Body), new SendOptions(destination));
         }
 
         /// <summary>
@@ -428,12 +439,13 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
-            var options = new SendOptions(destination)
-            {
-                CorrelationId = correlationId
-            };
+            var options = new SendOptions(destination);
 
-            return SendMessage(options, messageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
+            var logicalMessage = messageFactory.Create(messageMapper.CreateInstance(messageConstructor));
+
+            logicalMessage.Headers[Headers.CorrelationId] = correlationId;
+
+            return SendMessage(options,logicalMessage);
         }
 
         /// <summary>
@@ -441,12 +453,12 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback Send(string destination, string correlationId, object message)
         {
-            var options = new SendOptions(destination)
-            {
-                CorrelationId = correlationId
-            };
+            var options = new SendOptions(destination);
 
-            return SendMessage(options, messageFactory.Create(message));
+            var logicalMessage = messageFactory.Create(message);
+
+            logicalMessage.Headers[Headers.CorrelationId] = correlationId;
+            return SendMessage(options, logicalMessage);
         }
 
         /// <summary>
@@ -489,18 +501,32 @@ namespace NServiceBus.Unicast
 
         BehaviorContext InvokeSendPipeline(DeliveryOptions sendOptions, LogicalMessage message)
         {
-            if (sendOptions.ReplyToAddress == null && !SendOnlyMode)
+
+            SetReplyToAddressHeader(message);
+
+
+            var outgoingContext = new OutgoingContext(context, sendOptions, message);
+
+            return outgoing.Invoke(outgoingContext);
+        }
+
+        void SetReplyToAddressHeader(LogicalMessage message)
+        {
+            string replyToAddress = null;
+
+            if (!SendOnlyMode)
             {
-                sendOptions.ReplyToAddress = configure.PublicReturnAddress;
+                replyToAddress = configure.PublicReturnAddress;
             }
 
             if (PropagateReturnAddressOnSend && CurrentMessageContext != null)
             {
-                sendOptions.ReplyToAddress = CurrentMessageContext.ReplyToAddress;
+                replyToAddress = CurrentMessageContext.ReplyToAddress;
             }
-
-            var outgoingContext = new OutgoingContext(context, sendOptions, message);
-            return outgoing.Invoke(outgoingContext);
+            if (!string.IsNullOrEmpty(replyToAddress))
+            {
+                message.Headers[Headers.ReplyToAddress] = replyToAddress;
+            }
         }
 
         ICallback SetupCallback(string transportMessageId)

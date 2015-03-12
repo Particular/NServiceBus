@@ -10,7 +10,7 @@
         /// <summary>
         /// Defers the given message
         /// </summary>
-        void Defer(TransportMessage message, SendOptions sendOptions);
+        void Defer(OutgoingMessage message, SendOptions sendOptions);
 
         /// <summary>
         /// Clears all timeouts for the given header

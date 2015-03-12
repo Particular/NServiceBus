@@ -28,13 +28,19 @@
             {
                 MessageAvailable = new AutoResetEvent(false);
             }
-            public TransportMessage MessageSent { get; private set; }
+
+
+            public OutgoingMessage MessageSent { get; private set; }
+
+            public SendOptions SendOptions { get; private set; }
 
             public AutoResetEvent MessageAvailable { get; private set; }
 
-            public void Send(TransportMessage message, SendOptions sendOptions)
+            public void Send(OutgoingMessage message, SendOptions sendOptions)
             {
                 MessageSent = message;
+
+                SendOptions = sendOptions;
 
                 MessageAvailable.Set();
             }

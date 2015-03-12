@@ -23,7 +23,7 @@
             var options = new SendOptions("destination");
             var deliverAt = DateTime.Now.AddDays(1);
             options.DeliverAt = deliverAt;
-            sut.Defer(new TransportMessage(), options);
+            sut.Defer(new OutgoingMessage(new Dictionary<string, string>(),new byte[0]), options);
 
             Assert.AreEqual(DateTimeExtensions.ToWireFormattedString(deliverAt), sender.Messages.First().Headers[TimeoutManagerHeaders.Expire]);
         }
@@ -38,7 +38,7 @@
             var options = new SendOptions("destination");
             var delay = TimeSpan.FromDays(1);
             options.DelayDeliveryWith = delay;
-            sut.Defer(new TransportMessage(), options);
+            sut.Defer(new OutgoingMessage(new Dictionary<string, string>(),new byte[0]), options);
 
             var expireAt = DateTimeExtensions.ToUtcDateTime(sender.Messages.First().Headers[TimeoutManagerHeaders.Expire]);
             Assert.IsTrue(expireAt <= DateTime.UtcNow + delay);
@@ -60,11 +60,13 @@
             Assert.AreEqual(1, sender.Messages.Count);
         }
 
-        private class FakeMessageSender : ISendMessages
+        class FakeMessageSender : ISendMessages
         {
-            public List<TransportMessage> Messages = new List<TransportMessage>();
 
-            public void Send(TransportMessage message, SendOptions sendOptions)
+            public List<OutgoingMessage> Messages = new List<OutgoingMessage>(); 
+            
+
+            public void Send(OutgoingMessage message, SendOptions sendOptions)
             {
                 Messages.Add(message);
             }

@@ -20,11 +20,6 @@ namespace NServiceBus.Outbox
                 result["NonDurable"] = true.ToString();
             }
 
-            if (options.ReplyToAddress != null)
-            {
-                result["ReplyToAddress"] = options.ReplyToAddress;
-            }
-
             result["EnlistInReceiveTransaction"] = options.EnlistInReceiveTransaction.ToString();
             result["EnforceMessagingBestPractices"] = options.EnforceMessagingBestPractices.ToString();
 
@@ -51,10 +46,6 @@ namespace NServiceBus.Outbox
                     result["DeliverAt"] = DateTimeExtensions.ToWireFormattedString(sendOptions.DeliverAt.Value);
                 }
 
-
-
-
-                result["CorrelationId"] = sendOptions.CorrelationId;
                 result["Destination"] = sendOptions.Destination;
             }
             else
@@ -87,10 +78,7 @@ namespace NServiceBus.Outbox
             switch (operation)
             {
                 case "publish":
-                    result = new PublishOptions(Type.GetType(options["EventType"]))
-                    {
-                        ReplyToAddress = options["ReplyToAddress"]
-                    };
+                    result = new PublishOptions(Type.GetType(options["EventType"]));
                     break;
                 case "send":
                 case "audit":
@@ -101,10 +89,7 @@ namespace NServiceBus.Outbox
                     result = sendOptions;
                     break;
                 case "reply":
-                    var replyOptions = new ReplyOptions(options["Destination"], options["CorrelationId"])
-                    {
-                        ReplyToAddress = options["ReplyToAddress"]
-                    };
+                    var replyOptions = new ReplyOptions(options["Destination"]);
                     ApplySendOptionSettings(replyOptions, options);
 
                     result = replyOptions;
@@ -155,18 +140,6 @@ namespace NServiceBus.Outbox
             {
                 sendOptions.DeliverAt = DateTimeExtensions.ToUtcDateTime(deliverAt);
             }
-
-
-            sendOptions.CorrelationId = options["CorrelationId"];
-
-            string replyToAddress;
-            if (options.TryGetValue("ReplyToAddress", out replyToAddress))
-            {
-                sendOptions.ReplyToAddress = replyToAddress;
-            }
-
-
-            sendOptions.CorrelationId = options["CorrelationId"];
         }
 
     }

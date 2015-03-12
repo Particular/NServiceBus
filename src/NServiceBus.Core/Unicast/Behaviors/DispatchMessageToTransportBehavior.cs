@@ -72,16 +72,18 @@
 
         void SendOrDefer(TransportMessage messageToSend, SendOptions sendOptions)
         {
+            var outgoingMessage = new OutgoingMessage(messageToSend.Headers,messageToSend.Body);
+
             if (sendOptions.DelayDeliveryWith.HasValue)
             {
                 if (sendOptions.DelayDeliveryWith > TimeSpan.Zero)
                 {
                     SetIsDeferredHeader(messageToSend);
-                    MessageDeferral.Defer(messageToSend, sendOptions);
+                    MessageDeferral.Defer(outgoingMessage, sendOptions);
                 }
                 else
                 {
-                    MessageSender.Send(messageToSend, sendOptions);
+                    MessageSender.Send(outgoingMessage, sendOptions);
                 }
 
                 return;
@@ -93,17 +95,17 @@
                 if (deliverAt > DateTime.UtcNow)
                 {
                     SetIsDeferredHeader(messageToSend);
-                    MessageDeferral.Defer(messageToSend, sendOptions);
+                    MessageDeferral.Defer(outgoingMessage, sendOptions);
                 }
                 else
                 {
-                    MessageSender.Send(messageToSend, sendOptions);
+                    MessageSender.Send(outgoingMessage, sendOptions);
                 }
 
                 return;
             }
 
-            MessageSender.Send(messageToSend, sendOptions);
+            MessageSender.Send(outgoingMessage, sendOptions);
         }
 
         static void SetIsDeferredHeader(TransportMessage messageToSend)
@@ -117,8 +119,7 @@
             {
                 throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling config.EnableFeature<MessageDrivenSubscriptions>() in your configuration");
             }
-
-            MessagePublisher.Publish(messageToSend, publishOptions);
+            MessagePublisher.Publish(new OutgoingMessage(messageToSend.Headers,messageToSend.Body), publishOptions);
         }
     }
 }

@@ -5,7 +5,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// Base class for options to deliver messages.
     /// </summary>
-    public abstract class DeliveryOptions
+    public abstract partial class DeliveryOptions
     {
         /// <summary>
         /// Creates an instance of <see cref="DeliveryOptions"/>.
@@ -26,11 +26,7 @@ namespace NServiceBus.Unicast
         /// This is enabled by default
         /// </summary>
         public bool EnlistInReceiveTransaction { get; set; }
-        
-        /// <summary>
-        /// The reply address to use for outgoing messages
-        /// </summary>
-        public string ReplyToAddress { get; set; }
+
 
 
         /// <summary>

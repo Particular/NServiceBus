@@ -131,9 +131,10 @@
     <Compile Include="Transports\Msmq\MsmqReceiveBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNativeTransactionBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNoTransactionBehavior.cs" />
+    <Compile Include="Transports\OutgoingMessage.cs" />
     <Compile Include="Transports\ReceiveBehavior.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalOutgoingContext.cs" />
-    <Compile Include="Transports\ReceivedMessage.cs" />
+    <Compile Include="Transports\IncomingMessage.cs" />
     <Compile Include="Unicast\Behaviors\SagaInvocationResult.cs" />
     <Compile Include="Unicast\Behaviors\TransportReceiveToPhysicalMessageProcessingConnector.cs" />
     <Compile Include="Pipeline\Contexts\LogicalMessageProcessingStageBehavior.cs" />
