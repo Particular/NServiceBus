@@ -10,7 +10,7 @@
         {
             ActiveSagaInstance saga;
 
-            if (context.TryGet(out saga) && saga.NotFound && saga.SagaType == context.MessageHandler.Instance.GetType())
+            if (context.TryGet(out saga) && saga.NotFound && saga.SagaType == context.MessageHandler.HandlerType)
             {
                 next();
                 return;
@@ -18,7 +18,7 @@
 
             var messageHandler = context.MessageHandler;
 
-            messageHandler.InvocationWithContext(messageHandler.Instance, context.IncomingLogicalMessage.Instance, null /* Daniel: Not done yet*/);
+            messageHandler.Invoke(context.IncomingLogicalMessage.Instance, null /* Daniel: Not done yet*/);
             next();
         }
     }

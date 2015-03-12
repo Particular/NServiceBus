@@ -81,7 +81,8 @@
 
             if (IsTimeoutMessage(context.IncomingLogicalMessage))
             {
-                context.MessageHandler.InvocationWithContext = (t, m, c) => MessageHandlerRegistry.Invoke(t, m, c);
+                // Daniel: Move that out
+                context.MessageHandler.Invoke(context.IncomingLogicalMessage, null);
             }
 
             next();
