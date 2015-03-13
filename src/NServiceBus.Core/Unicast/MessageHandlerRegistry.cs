@@ -10,7 +10,7 @@
     using NServiceBus.Unicast.Behaviors;
 
     /// <summary>
-    ///     Maintains the potentialHandlerKind handlers for this endpoint
+    ///     Maintains the message handlers for this endpoint
     /// </summary>
     public class MessageHandlerRegistry
     {
@@ -51,15 +51,15 @@
         }
 
         /// <summary>
-        ///     Lists all potentialHandlerKind type for which we have handlers
+        ///     Lists all message type for which we have handlers
         /// </summary>
         public IEnumerable<Type> GetMessageTypes()
         {
-            return from messagesBeingHandled in handlerAndMessagesHandledByHandlerCache.Values
+            return (from messagesBeingHandled in handlerAndMessagesHandledByHandlerCache.Values
                    from typeHandled in messagesBeingHandled
                    let messageType = Type.GetTypeFromHandle(typeHandled.MessageType)
                    where conventions.IsMessageType(messageType)
-                   select messageType; // Daniel: Distinct??
+                   select messageType).Distinct();
         }
 
         /// <summary>
@@ -92,7 +92,7 @@
         /// </summary>
         /// <param name="handler">The handler instance.</param>
         /// <param name="message">The potentialHandlerKind instance.</param>
-        [ObsoleteEx(ReplacementTypeOrMember = "MessageHandlerRegistry.Invoke(object handler, object potentialHandlerKind, object context)", RemoveInVersion = "7", TreatAsErrorFromVersion = "6")]
+        [ObsoleteEx(ReplacementTypeOrMember = "MessageHandler.Invoke(object message, object context)", RemoveInVersion = "7", TreatAsErrorFromVersion = "6")]
         public void InvokeHandle(object handler, object message)
         {
             throw new NotImplementedException();
@@ -103,7 +103,7 @@
         /// </summary>
         /// <param name="handler">The handler instance.</param>
         /// <param name="state">The potentialHandlerKind instance.</param>
-        [ObsoleteEx(ReplacementTypeOrMember = "MessageHandlerRegistry.Invoke(object handler, object potentialHandlerKind, object context)", RemoveInVersion = "7", TreatAsErrorFromVersion = "6")]
+        [ObsoleteEx(ReplacementTypeOrMember = "MessageHandler.Invoke(object message, object context)", RemoveInVersion = "7", TreatAsErrorFromVersion = "6")]
         public void InvokeTimeout(object handler, object state)
         {
             throw new NotImplementedException();
@@ -117,7 +117,7 @@
             handlerAndMessagesHandledByHandlerCache.Clear();
         }
 
-        void CacheMethodForHandler(Type handler, Type messageType, ICollection<DelegateHolder> typeList)
+        static void CacheMethodForHandler(Type handler, Type messageType, ICollection<DelegateHolder> typeList)
         {
             CacheMethod(handler, messageType, typeof(IHandleMessages<>), HandlerKind.Message, typeList);
             CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), HandlerKind.Timeout, typeList);
@@ -126,10 +126,9 @@
             CacheMethod(handler, messageType, typeof(ISubscribe<>), HandlerKind.Event, typeList);
         }
 
-        void CacheMethod(Type handler, Type messageType, Type interfaceGenericType, HandlerKind potentialHandlerKind, ICollection<DelegateHolder> typeList)
+        static void CacheMethod(Type handler, Type messageType, Type interfaceGenericType, HandlerKind potentialHandlerKind, ICollection<DelegateHolder> methodList)
         {
-            Type contextType;
-            var handleMethod = GetMethod(handler, messageType, interfaceGenericType, out contextType);
+            var handleMethod = GetMethod(handler, messageType, interfaceGenericType);
             if (handleMethod == null)
             {
                 return;
@@ -139,59 +138,47 @@
             var delegateHolder = new DelegateHolder
             {
                 MessageType = messageType.TypeHandle,
-                ContextType = contextType.TypeHandle,
                 HandlerKind = potentialHandlerKind,
                 MethodDelegate = handleMethod
             };
-            List<DelegateHolder> methodList;
-            if (handlerAndMessagesHandledByHandlerCache.TryGetValue(handler.TypeHandle, out methodList))
-            {
-                methodList.Add(delegateHolder);
-            }
-            else
-            {
-                handlerAndMessagesHandledByHandlerCache[handler.TypeHandle] = new List<DelegateHolder>
-                {
-                    delegateHolder
-                };
-            }
+            methodList.Add(delegateHolder);
         }
 
-        static Action<object, object, object> GetMethod(Type targetType, Type messageType, Type interfaceGenericType, out Type contextType)
+        static Action<object, object, object> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
         {
             var interfaceType = interfaceGenericType.MakeGenericType(messageType);
 
-            if (interfaceType.IsAssignableFrom(targetType))
+            if (!interfaceType.IsAssignableFrom(targetType))
             {
-                var methodInfo = targetType.GetInterfaceMap(interfaceType).TargetMethods.FirstOrDefault();
-                if (methodInfo != null)
-                {
-                    var target = Expression.Parameter(typeof(object));
-                    var messageParam = Expression.Parameter(typeof(object));
-                    var contextParam = Expression.Parameter(typeof(object));
-
-                    var castTarget = Expression.Convert(target, targetType);
-
-                    var methodParameters = methodInfo.GetParameters();
-                    var messageCastParam = Expression.Convert(messageParam, methodParameters.ElementAt(0).ParameterType);
-
-                    var contextParameter = methodParameters.ElementAtOrDefault(1);
-                    if (IsNewContextApi(contextParameter))
-                    {
-                        contextType = contextParameter.ParameterType;
-                        var contextCastParam = Expression.Convert(contextParam, contextType);
-                        var execute = Expression.Call(castTarget, methodInfo, messageCastParam, contextCastParam);
-                        return Expression.Lambda<Action<object, object, object>>(execute, target, messageParam, contextParam).Compile();
-                    }
-
-                    contextType = typeof(NullContext);
-                    var innerExecute = Expression.Call(castTarget, methodInfo, messageCastParam);
-                    return Expression.Lambda<Action<object, object, object>>(innerExecute, target, messageParam, contextParam).Compile();
-                }
+                return null;
             }
 
-            contextType = null;
-            return null;
+            var methodInfo = targetType.GetInterfaceMap(interfaceType).TargetMethods.FirstOrDefault();
+            if (methodInfo == null)
+            {
+                return null;
+            }
+
+            var target = Expression.Parameter(typeof(object));
+            var messageParam = Expression.Parameter(typeof(object));
+            var contextParam = Expression.Parameter(typeof(object));
+
+            var castTarget = Expression.Convert(target, targetType);
+
+            var methodParameters = methodInfo.GetParameters();
+            var messageCastParam = Expression.Convert(messageParam, methodParameters.ElementAt(0).ParameterType);
+
+            var contextParameter = methodParameters.ElementAtOrDefault(1);
+            if (IsNewContextApi(contextParameter))
+            {
+                var contextType = contextParameter.ParameterType;
+                var contextCastParam = Expression.Convert(contextParam, contextType);
+                var execute = Expression.Call(castTarget, methodInfo, messageCastParam, contextCastParam);
+                return Expression.Lambda<Action<object, object, object>>(execute, target, messageParam, contextParam).Compile();
+            }
+
+            var innerExecute = Expression.Call(castTarget, methodInfo, messageCastParam);
+            return Expression.Lambda<Action<object, object, object>>(innerExecute, target, messageParam, contextParam).Compile();
         }
 
         static bool IsNewContextApi(ParameterInfo contextParameter)
@@ -199,7 +186,7 @@
             return contextParameter != null;
         }
 
-        static List<Type> GetMessageTypesBeingHandledBy(Type type)
+        static IEnumerable<Type> GetMessageTypesBeingHandledBy(Type type)
         {
             return (from t in type.GetInterfaces()
                     where t.IsGenericType
@@ -219,11 +206,8 @@
         class DelegateHolder
         {
             public RuntimeTypeHandle MessageType;
-            public RuntimeTypeHandle ContextType;
             public HandlerKind HandlerKind;
             public Action<object, object, object> MethodDelegate;
         }
-
-        class NullContext { }
     }
 }
