@@ -112,9 +112,9 @@ namespace NServiceBus.Unicast
             var wantToRunWhenBusStartsAndStops = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
             var runWhenBusStartsAndStops = Builder.BuildAll<IRunWhenBusStartsAndStops>().ToList();
 
-            var everyThingWhichNeedsToRun = wantToRunWhenBusStartsAndStops
+            var everyThingWhichNeedsToRun = runWhenBusStartsAndStops
                 .Select(r => new StartAndStopAdapter(r))
-                .Concat(runWhenBusStartsAndStops
+                .Concat(wantToRunWhenBusStartsAndStops
                 .Select(r => new StartAndStopAdapter(r))).ToList();
 
             ProcessStartupItems(
