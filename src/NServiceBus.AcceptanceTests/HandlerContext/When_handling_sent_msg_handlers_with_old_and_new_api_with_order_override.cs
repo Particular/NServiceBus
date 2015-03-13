@@ -8,7 +8,7 @@
         using global::NServiceBus.AcceptanceTests.EndpointTemplates;
         using NUnit.Framework;
 
-        public class When_handling_a_sent_message_with_handlers_with_old_and_new_api_with_order_override : NServiceBusAcceptanceTest
+        public class When_handling_sent_msg_handlers_with_old_and_new_api_with_order_override : NServiceBusAcceptanceTest
         {
             [Test]
             public void Should_call_old_and_new_style_according_to_defined_order()
@@ -21,23 +21,23 @@
                             Id = context.Id
                         })))
                         .Done(c => c.HandlersExecuted.Count == 2)
-                        .Run(TimeSpan.FromSeconds(10));
+                        .Run();
 
                 Verify.AssertOldAndNewStyleHandlersAreInvoked(context);
                 Verify.AssertNewStyleHandlerIsInvokedFirst(context);
                 Verify.AssertOldStyleHandlerIsInvokedSecond(context);
             }
 
-            private static class Verify
+            static class Verify
             {
                 public static void AssertNewStyleHandlerIsInvokedFirst(Context context)
                 {
-                    Assert.AreEqual("NewStyle", context.HandlersExecuted[1]);
+                    Assert.AreEqual("NewStyle", context.HandlersExecuted[0]);
                 }
 
                 public static void AssertOldStyleHandlerIsInvokedSecond(Context context)
                 {
-                    Assert.AreEqual("OldStyle", context.HandlersExecuted[0]);
+                    Assert.AreEqual("OldStyle", context.HandlersExecuted[1]);
                 }
 
                 public static void AssertOldAndNewStyleHandlersAreInvoked(Context context)

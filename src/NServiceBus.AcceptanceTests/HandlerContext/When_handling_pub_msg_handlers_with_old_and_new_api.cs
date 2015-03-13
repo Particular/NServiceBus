@@ -10,19 +10,19 @@
         using global::NServiceBus.Features;
         using NUnit.Framework;
 
-        public class When_handling_pub_msg_with_handlers_with_old_and_new_api_with_order_override : NServiceBusAcceptanceTest
+        public class When_handling_pub_msg_handlers_with_old_and_new_api : NServiceBusAcceptanceTest
         {
             [Test]
             public void Should_call_old_and_new_style_according_to_defined_order()
             {
                 var context = new Context { Id = Guid.NewGuid() };
 
-                Scenario.Define<Context>()
+                Scenario.Define(context)
                     .WithEndpoint<Publisher>(b =>
                         b.When(c => c.SubscriberSubscribed, (bus, c) =>
                         {
                             c.AddTrace("Subscriber is subscribed, going to publish MyEvent");
-                            bus.Publish(new MyEvent());
+                            bus.Publish(new MyEvent { Id = c.Id });
                         })
                      )
                     .WithEndpoint<Subscriber>(b => b.Given((bus, c) =>
@@ -39,21 +39,21 @@
                         }
                     }))
                     .Done(c => c.HandlersExecuted.Count == 2)
-                    .Run(TimeSpan.FromSeconds(10));
+                    .Run();
 
                 Verify.AssertOldAndNewStyleHandlersAreInvoked(context);
-                Verify.AssertNewStyleHandlerIsInvokedFirst(context);
-                Verify.AssertOldStyleHandlerIsInvokedSecond(context);
+                Verify.AssertOldStyleHandlerIsInvokedFirst(context);
+                Verify.AssertNewStyleHandlerIsInvokedSecond(context);
             }
 
-            private static class Verify
+            static class Verify
             {
-                public static void AssertNewStyleHandlerIsInvokedFirst(Context context)
+                public static void AssertNewStyleHandlerIsInvokedSecond(Context context)
                 {
                     Assert.AreEqual("NewStyle", context.HandlersExecuted[1]);
                 }
 
-                public static void AssertOldStyleHandlerIsInvokedSecond(Context context)
+                public static void AssertOldStyleHandlerIsInvokedFirst(Context context)
                 {
                     Assert.AreEqual("OldStyle", context.HandlersExecuted[0]);
                 }

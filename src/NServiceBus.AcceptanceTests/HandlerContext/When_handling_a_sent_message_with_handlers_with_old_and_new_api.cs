@@ -19,14 +19,14 @@
                         Id = context.Id
                     })))
                     .Done(c => c.HandlersExecuted.Count == 2)
-                    .Run(TimeSpan.FromSeconds(10));
+                    .Run();
 
             Verify.AssertOldAndNewStyleHandlersAreInvoked(context);
             Verify.AssertOldStyleHandlerIsInvokedFirst(context);
             Verify.AssertNewStyleHandlerIsInvokedSecond(context);
         }
 
-        private static class Verify
+        static class Verify
         {
             public static void AssertNewStyleHandlerIsInvokedSecond(Context context)
             {
