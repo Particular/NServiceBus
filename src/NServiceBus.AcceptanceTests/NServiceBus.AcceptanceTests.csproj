@@ -96,6 +96,8 @@
     <Compile Include="Sagas\When_doing_request_response_between_sagas_first_handler_responding.cs" />
     <Compile Include="Sagas\When_doing_request_response_between_sagas_response_from_noninitiating.cs" />
     <Compile Include="Sagas\When_doing_request_response_between_sagas_with_timeout.cs" />
+    <Compile Include="Sagas\When_receiving_that_should_start_a_saga_without_interception.cs" />
+    <Compile Include="Sagas\When_receiving_that_should_start_a_saga_with_interception.cs" />
     <Compile Include="Sagas\When_sagas_cant_be_found.cs" />
     <Compile Include="ScaleOut\When_individualization_is_enabled_for_msmq.cs" />
     <Compile Include="ScaleOut\When_no_discriminator_is_available.cs" />
