@@ -4,58 +4,10 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
-    using NUnit.Framework;
     using Saga;
 
     public class When_doing_request_response_between_sagas : NServiceBusAcceptanceTest
     {
-        [Test]
-        public void Should_autocorrelate_the_response_back_to_the_requesting_saga_from_the_first_handler()
-        {
-            var context = new Context();
-
-            Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new InitiateRequestingSaga())))
-                    .Done(c => c.DidRequestingSagaGetTheResponse)
-                    .Run(new RunSettings { UseSeparateAppDomains = true });
-
-            Assert.True(context.DidRequestingSagaGetTheResponse);
-        }
-
-        [Test]
-        public void Should_autocorrelate_the_response_back_to_the_requesting_saga_from_timeouts()
-        {
-            var context = new Context
-            {
-                ReplyFromTimeout = true
-            };
-
-            Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new InitiateRequestingSaga())))
-                    .Done(c => c.DidRequestingSagaGetTheResponse)
-                    .Run(new RunSettings { UseSeparateAppDomains = true, TestExecutionTimeout = TimeSpan.FromSeconds(15) });
-
-            Assert.True(context.DidRequestingSagaGetTheResponse);
-        }
-
-
-        [Test]
-        public void Should_autocorrelate_the_response_back_to_the_requesting_saga_from_handler_other_than_the_initiating_one()
-        {
-            var context = new Context
-            {
-                ReplyFromNonInitiatingHandler = true
-            };
-
-            Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new InitiateRequestingSaga())))
-                    .Done(c => c.DidRequestingSagaGetTheResponse)
-                    .Run(new RunSettings { UseSeparateAppDomains = true, TestExecutionTimeout = TimeSpan.FromSeconds(15) });
-
-            Assert.True(context.DidRequestingSagaGetTheResponse);
-        }
-
         public class Context : ScenarioContext
         {
             public bool DidRequestingSagaGetTheResponse { get; set; }
