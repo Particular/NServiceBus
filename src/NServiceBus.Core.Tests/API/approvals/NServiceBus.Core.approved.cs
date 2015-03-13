@@ -2079,9 +2079,14 @@ namespace NServiceBus.Unicast.Behaviors
 {
     public class MessageHandler
     {
+        [System.ObsoleteAttribute("Please use `MessageHandler(Action<object, object, object> invocationWithContext, " +
+            "Type handlerType)` instead. Will be removed in version 7.0.0.", true)]
         public MessageHandler() { }
+        public System.Type HandlerType { get; }
         public object Instance { get; set; }
+        [System.ObsoleteAttribute("Please use `MessageHandler.Invoke` instead. Will be removed in version 7.0.0.", true)]
         public System.Action<object, object> Invocation { get; set; }
+        public void Invoke(object message, object context) { }
     }
 }
 namespace NServiceBus.Unicast
@@ -2135,10 +2140,17 @@ namespace NServiceBus.Unicast
     {
         public void CacheMethodForHandler(System.Type handler, System.Type messageType) { }
         public void Clear() { }
+        public System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Behaviors.MessageHandler> GetHandlersFor(System.Type messageType) { }
+        [System.ObsoleteAttribute("Please use `MessageHandlerRegistry.GetHandlersFor(Type messageType)` instead. Wil" +
+            "l be removed in version 7.0.0.", true)]
         public System.Collections.Generic.IEnumerable<System.Type> GetHandlerTypes(System.Type messageType) { }
         public System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes() { }
-        public void InvokeHandle(object handler, object message, object context = null) { }
-        public void InvokeTimeout(object handler, object state, object context = null) { }
+        [System.ObsoleteAttribute("Please use `MessageHandler.Invoke(object message, object context)` instead. Will " +
+            "be removed in version 7.0.0.", true)]
+        public void InvokeHandle(object handler, object message) { }
+        [System.ObsoleteAttribute("Please use `MessageHandler.Invoke(object message, object context)` instead. Will " +
+            "be removed in version 7.0.0.", true)]
+        public void InvokeTimeout(object handler, object state) { }
         public void RegisterHandler(System.Type handlerType) { }
     }
     public class MessagesEventArgs : System.EventArgs
