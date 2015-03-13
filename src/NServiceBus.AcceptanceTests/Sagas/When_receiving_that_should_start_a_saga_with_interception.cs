@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
+    using System;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
@@ -10,7 +11,7 @@
         public void Should_not_start_saga_if_a_interception_handler_has_been_invoked()
         {
             Scenario.Define(() => new SagaEndpointContext { InterceptSaga = true })
-                .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage())))
+                .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid().ToString() })))
                 .Done(context => context.InterceptingHandlerCalled)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c =>

@@ -29,6 +29,7 @@
                 public void Handle(StartSagaMessage message)
                 {
                     Context.SagaStarted = true;
+                    Data.SomeId = message.SomeId;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
