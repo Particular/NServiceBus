@@ -1,10 +1,7 @@
 namespace NServiceBus.Unicast.Messages
 {
     using System;
-    using System.Collections.Generic;
-    using MessageInterfaces;
-    using Pipeline;
-
+    using NServiceBus.MessageInterfaces;
 
     /// <summary>
     /// Factory to create <see cref="LogicalMessage"/>s.

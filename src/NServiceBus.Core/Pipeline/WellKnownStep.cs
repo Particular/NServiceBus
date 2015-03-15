@@ -79,10 +79,7 @@ namespace NServiceBus.Pipeline
         /// Runs outgoing mutation for each logical message.
         /// </summary>
         public static readonly WellKnownStep MutateOutgoingMessages = new WellKnownStep("MutateOutgoingMessages");
-        /// <summary>
-        /// Serializes messages.
-        /// </summary>
-        public static readonly WellKnownStep SerializeMessage = new WellKnownStep("SerializeMessage");
+
         /// <summary>
         /// Runs outgoing mutation for <see cref="TransportMessage"/>.
         /// </summary>

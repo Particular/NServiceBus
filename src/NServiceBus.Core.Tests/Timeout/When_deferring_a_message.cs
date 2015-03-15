@@ -26,7 +26,7 @@
             var options = new SendOptions("destination");
             var deliverAt = DateTime.Now.AddDays(1);
             options.DeliverAt = deliverAt;
-            deferrer.Defer(new OutgoingMessage(new Dictionary<string, string>(),new byte[0]), options);
+            deferrer.Defer(new OutgoingMessage("message id",new Dictionary<string, string>(),new byte[0]), options);
 
             Assert.AreEqual(DateTimeExtensions.ToWireFormattedString(deliverAt), sender.Messages.First().Headers[TimeoutManagerHeaders.Expire]);
         }
@@ -44,7 +44,7 @@
             var options = new SendOptions("destination");
             var delay = TimeSpan.FromDays(1);
             options.DelayDeliveryWith = delay;
-            deferrer.Defer(new OutgoingMessage(new Dictionary<string, string>(),new byte[0]), options);
+            deferrer.Defer(new OutgoingMessage("message id",new Dictionary<string, string>(),new byte[0]), options);
 
             var expireAt = DateTimeExtensions.ToUtcDateTime(sender.Messages.First().Headers[TimeoutManagerHeaders.Expire]);
             Assert.IsTrue(expireAt <= DateTime.UtcNow + delay);
@@ -61,7 +61,7 @@
             settings.Set("EndpointName", "EndpointName");
             deferrer.Settings = settings;
 
-            deferrer.Invoke(new PhysicalOutgoingContextStageBehavior.Context(new TransportMessage(), new OutgoingContext(null, new SendOptions("Destination"), null)), () => { });
+            deferrer.Invoke(new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, new SendOptions("Destination"),null,new Dictionary<string, string>(),null)), () => { });
 
             Assert.AreEqual(1, sender.Messages.Count);
         }

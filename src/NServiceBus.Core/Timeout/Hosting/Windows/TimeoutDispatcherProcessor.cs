@@ -37,9 +37,9 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
                 timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
-            
 
-                MessageSender.Send(new OutgoingMessage(timeoutData.Headers, timeoutData.State), sendOptions);
+
+                MessageSender.Send(new OutgoingMessage(message.Id,timeoutData.Headers, timeoutData.State), sendOptions);
             }
 
             return true;

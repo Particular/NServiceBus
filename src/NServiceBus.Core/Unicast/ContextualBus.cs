@@ -12,7 +12,6 @@ namespace NServiceBus.Unicast
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Messages;
     using NServiceBus.Unicast.Routing;
-    using NServiceBus.Unicast.Transport;
 
     interface IContextualBus
     {
@@ -63,7 +62,7 @@ namespace NServiceBus.Unicast
             }
         }
 
-        BehaviorContext context
+        BehaviorContext incomingContext
         {
             get { return contextGetter(); }
         }
@@ -114,7 +113,7 @@ namespace NServiceBus.Unicast
             var headers = new Dictionary<string, string>();
             ApplyStaticHeaders(headers);
 
-            InvokeSendPipeline(options, logicalMessage, headers);
+            InvokeSendPipeline(options, logicalMessage, headers,CombGuid.Generate().ToString());
         }
 
         void ApplyStaticHeaders(Dictionary<string, string> messageHeaders)
@@ -287,16 +286,16 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void HandleCurrentMessageLater()
         {
-            if (context.handleCurrentMessageLaterWasCalled)
+            if (incomingContext.handleCurrentMessageLaterWasCalled)
             {
                 return;
             }
 
-            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new SendOptions(sendLocalAddress));
+            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id,MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new SendOptions(sendLocalAddress));
 
-            context.handleCurrentMessageLaterWasCalled = true;
+            incomingContext.handleCurrentMessageLaterWasCalled = true;
 
-            ((HandlingStageBehavior.Context)context).DoNotInvokeAnyMoreHandlers();
+            ((HandlingStageBehavior.Context)incomingContext).DoNotInvokeAnyMoreHandlers();
         }
 
         /// <summary>
@@ -304,7 +303,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void ForwardCurrentMessageTo(string destination)
         {
-            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new SendOptions(destination));
+            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id,MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new SendOptions(destination));
         }
 
         /// <summary>
@@ -468,24 +467,30 @@ namespace NServiceBus.Unicast
             {
                 context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
             }
-            ApplyDefaultDeliveryOptionsIfNeeded(sendOptions, message);
+            var messageId = context.MessageId;
 
+            if (string.IsNullOrEmpty(messageId))
+            {
+                messageId = CombGuid.Generate().ToString();
+            }
+
+          
+            ApplyDefaultDeliveryOptionsIfNeeded(sendOptions, message);
 
             ApplyStaticHeaders(context.Headers);
 
-            var physicalMessage = InvokeSendPipeline(sendOptions, message, context.Headers)
-                .Get<TransportMessage>();
-
-            return SetupCallback(physicalMessage.Id);
+            InvokeSendPipeline(sendOptions, message, context.Headers, messageId);
+            
+            return SetupCallback(messageId);
         }
 
-        BehaviorContext InvokeSendPipeline(DeliveryOptions sendOptions, LogicalMessage message, Dictionary<string, string> headers)
+        BehaviorContext InvokeSendPipeline(DeliveryOptions sendOptions, LogicalMessage message, Dictionary<string, string> headers,string messageId)
         {
 
             SetReplyToAddressHeader(headers);
 
 
-            var outgoingContext = new OutgoingContext(context, sendOptions, message, headers);
+            var outgoingContext = new OutgoingContext(incomingContext, sendOptions, message, headers, messageId);
 
             return outgoing.Invoke(outgoingContext);
         }
@@ -522,7 +527,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
-            ((HandlingStageBehavior.Context)context).DoNotInvokeAnyMoreHandlers();
+            ((HandlingStageBehavior.Context)incomingContext).DoNotInvokeAnyMoreHandlers();
         }
 
         /// <summary>
@@ -534,7 +539,7 @@ namespace NServiceBus.Unicast
             {
                 TransportMessage current;
 
-                if (!context.TryGet(TransportReceiveContext.IncomingPhysicalMessageKey, out current))
+                if (!incomingContext.TryGet(TransportReceiveContext.IncomingPhysicalMessageKey, out current))
                 {
                     return null;
                 }
@@ -589,7 +594,7 @@ namespace NServiceBus.Unicast
             {
                 TransportMessage current;
 
-                if (!context.TryGet(TransportReceiveContext.IncomingPhysicalMessageKey, out current))
+                if (!incomingContext.TryGet(TransportReceiveContext.IncomingPhysicalMessageKey, out current))
                 {
                     throw new InvalidOperationException("There is no current message being processed");
                 }

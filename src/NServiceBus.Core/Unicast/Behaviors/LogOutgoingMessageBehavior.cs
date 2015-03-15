@@ -3,12 +3,13 @@
     using System;
     using System.Linq;
     using Logging;
+    using NServiceBus.Pipeline;
     using NServiceBus.Unicast;
     using Pipeline.Contexts;
 
-    class LogOutgoingMessageBehavior : PhysicalOutgoingContextStageBehavior
+    class LogOutgoingMessageBehavior : Behavior<OutgoingContext>
     {
-        public override void Invoke(Context context, Action next)
+        public override void Invoke(OutgoingContext context, Action next)
         {
             var options = context.DeliveryOptions as SendOptions;
 
@@ -20,7 +21,7 @@
                                 "ToString() of the message yields: {3}\n" +
                                 "Message headers:\n{4}",
                                 context.OutgoingLogicalMessage.MessageType != null ? context.OutgoingLogicalMessage.MessageType.AssemblyQualifiedName : "unknown",
-                    context.OutgoingMessage.Id,
+                    context.MessageId,
                     destination,
                     context.OutgoingLogicalMessage.Instance,
                     string.Join(", ", context.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));

@@ -32,6 +32,19 @@ namespace NServiceBus
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public TimeSpan TimeToBeReceived { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
+
+
+
+        [ObsoleteEx(
+          Message = "Not used anymore, you most likely should use a `OutgoingMessageInstead`",
+          RemoveInVersion = "7.0",
+          TreatAsErrorFromVersion = "6.0")]
+
+        public TransportMessage()
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
 
@@ -123,21 +136,21 @@ namespace NServiceBus.Unicast
     public class ReplyOptions : SendOptions
     {
 
-         
+
         public ReplyOptions(string destination)
             : base(destination)
         {
             throw new NotImplementedException();
         }
 
-     
+
         public ReplyOptions(Address destination, string correlationId)
             : base(destination)
         {
             throw new NotImplementedException();
         }
 
-      
+
         public ReplyOptions(string destination, string correlationId)
             : base(destination)
         {

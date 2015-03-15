@@ -1,5 +1,6 @@
 namespace NServiceBus.Transports
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -10,12 +11,17 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Constructs the message
         /// </summary>
+        /// <param name="messageId"></param>
         /// <param name="headers">The headers associated with this message</param>
         /// <param name="body">The body of the message</param>
-        public OutgoingMessage(Dictionary<string, string> headers,byte[] body)
+        public OutgoingMessage(string messageId, Dictionary<string, string> headers, byte[] body)
         {
+            MessageId = messageId;
             Headers = headers;
             Body = body;
+
+            Headers[NServiceBus.Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
+            Headers[NServiceBus.Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
         }
 
         /// <summary>
@@ -23,6 +29,11 @@ namespace NServiceBus.Transports
         /// </summary>
         public byte[] Body { get; private set; }
 
+
+        /// <summary>
+        /// The id of the message
+        /// </summary>
+        public string MessageId { get; private set; }
 
         /// <summary>
         /// The headers for the message

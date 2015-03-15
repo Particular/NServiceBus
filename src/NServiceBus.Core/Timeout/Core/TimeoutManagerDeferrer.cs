@@ -50,12 +50,12 @@
 
         public void ClearDeferredMessages(string headerKey, string headerValue)
         {
-            var controlMessage = ControlMessageFactory.Create();
+            var controlMessage = ControlMessageFactory.Create(MessageIntentEnum.Send);
 
             controlMessage.Headers[headerKey] = headerValue;
-            controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = Boolean.TrueString;
+            controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = bool.TrueString;
 
-            MessageSender.Send(new OutgoingMessage(controlMessage.Headers,controlMessage.Body), new SendOptions(TimeoutManagerAddress));
+            MessageSender.Send(controlMessage, new SendOptions(TimeoutManagerAddress));
         }
 
         static ILog Log = LogManager.GetLogger<TimeoutManagerDeferrer>();

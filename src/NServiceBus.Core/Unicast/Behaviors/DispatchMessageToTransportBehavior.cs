@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using NServiceBus.Hosting;
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Queuing;
@@ -23,45 +24,47 @@
 
         public override void Invoke(Context context, Action next)
         {
-            InvokeNative(context.DeliveryOptions, context.OutgoingMessage);
+            InvokeNative(context.DeliveryOptions, new OutgoingMessage(context.MessageId,context.Headers,context.Body));
 
             next();
         }
 
-        public void InvokeNative(DeliveryOptions deliveryOptions, TransportMessage messageToSend)
+        public void InvokeNative(DeliveryOptions deliveryOptions, OutgoingMessage message)
         {
             var messageDescription = "ControlMessage";
 
             string enclosedMessageTypes;
 
-            if (messageToSend.Headers.TryGetValue(Headers.EnclosedMessageTypes, out enclosedMessageTypes))
+            if (message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out enclosedMessageTypes))
             {
                 messageDescription = enclosedMessageTypes;
             }
 
-            messageToSend.Headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
-            messageToSend.Headers.Add(Headers.OriginatingEndpoint, Settings.EndpointName());
-            messageToSend.Headers.Add(Headers.OriginatingHostId, HostInfo.HostId.ToString("N"));
+            message.Headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
+            message.Headers.Add(Headers.OriginatingEndpoint, Settings.EndpointName());
+            message.Headers.Add(Headers.OriginatingHostId, HostInfo.HostId.ToString("N"));
+            message.Headers[Headers.MessageId] = message.MessageId;
+
 
             if (deliveryOptions.TimeToBeReceived.HasValue)
             {
-                messageToSend.Headers[Headers.TimeToBeReceived] =deliveryOptions.TimeToBeReceived.Value.ToString("c");   
+                message.Headers[Headers.TimeToBeReceived] =deliveryOptions.TimeToBeReceived.Value.ToString("c");   
             }
 
             if (deliveryOptions.NonDurable.HasValue && deliveryOptions.NonDurable.Value)
             {
-                messageToSend.Headers[Headers.NonDurableMessage] = true.ToString();
+                message.Headers[Headers.NonDurableMessage] = true.ToString();
             }
           
             try
             {
                 if(deliveryOptions is PublishOptions)
                 {
-                    Publish(messageToSend, deliveryOptions as PublishOptions);
+                    Publish(message, deliveryOptions as PublishOptions);
                 }
                 else
                 {
-                    SendOrDefer(messageToSend, deliveryOptions as SendOptions);
+                    SendOrDefer(message, deliveryOptions as SendOptions);
                 }
             }
             catch (QueueNotFoundException ex)
@@ -70,20 +73,18 @@
             }
         }
 
-        void SendOrDefer(TransportMessage messageToSend, SendOptions sendOptions)
+        void SendOrDefer(OutgoingMessage message, SendOptions sendOptions)
         {
-            var outgoingMessage = new OutgoingMessage(messageToSend.Headers,messageToSend.Body);
-
             if (sendOptions.DelayDeliveryWith.HasValue)
             {
                 if (sendOptions.DelayDeliveryWith > TimeSpan.Zero)
                 {
-                    SetIsDeferredHeader(messageToSend);
-                    MessageDeferral.Defer(outgoingMessage, sendOptions);
+                    SetIsDeferredHeader(message.Headers);
+                    MessageDeferral.Defer(message, sendOptions);
                 }
                 else
                 {
-                    MessageSender.Send(outgoingMessage, sendOptions);
+                    MessageSender.Send(message, sendOptions);
                 }
 
                 return;
@@ -94,32 +95,32 @@
                 var deliverAt = sendOptions.DeliverAt.Value.ToUniversalTime();
                 if (deliverAt > DateTime.UtcNow)
                 {
-                    SetIsDeferredHeader(messageToSend);
-                    MessageDeferral.Defer(outgoingMessage, sendOptions);
+                    SetIsDeferredHeader(message.Headers);
+                    MessageDeferral.Defer(message, sendOptions);
                 }
                 else
                 {
-                    MessageSender.Send(outgoingMessage, sendOptions);
+                    MessageSender.Send(message, sendOptions);
                 }
 
                 return;
             }
 
-            MessageSender.Send(outgoingMessage, sendOptions);
+            MessageSender.Send(message, sendOptions);
         }
 
-        static void SetIsDeferredHeader(TransportMessage messageToSend)
+        static void SetIsDeferredHeader(Dictionary<string,string> headers)
         {
-            messageToSend.Headers[Headers.IsDeferredMessage] = true.ToString();
+            headers[Headers.IsDeferredMessage] = true.ToString();
         }
 
-        void Publish(TransportMessage messageToSend,PublishOptions publishOptions)
+        void Publish(OutgoingMessage message, PublishOptions publishOptions)
         {
             if (MessagePublisher == null)
             {
                 throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling config.EnableFeature<MessageDrivenSubscriptions>() in your configuration");
             }
-            MessagePublisher.Publish(new OutgoingMessage(messageToSend.Headers,messageToSend.Body), publishOptions);
+            MessagePublisher.Publish(message, publishOptions);
         }
     }
 }
