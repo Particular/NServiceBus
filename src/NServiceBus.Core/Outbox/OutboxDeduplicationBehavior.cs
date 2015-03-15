@@ -4,10 +4,10 @@
     using System.Collections.Generic;
     using System.Transactions;
     using NServiceBus.Outbox;
-    using Pipeline;
-    using Transports;
-    using Unicast;
-    using Unicast.Transport;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Transport;
 
     class OutboxDeduplicationBehavior : PhysicalMessageProcessingStageBehavior
     {
@@ -63,10 +63,7 @@
 
                 deliveryOptions.EnlistInReceiveTransaction = false;
 
-                var message = new TransportMessage(transportOperation.MessageId, transportOperation.Headers)
-                {
-                    Body = transportOperation.Body
-                };
+                var message = new OutgoingMessage(transportOperation.MessageId,transportOperation.Headers, transportOperation.Body);
 
                 //dispatch to transport
 

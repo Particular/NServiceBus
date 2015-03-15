@@ -11,7 +11,6 @@
     using NServiceBus.Timeout;
     using NServiceBus.Transports;
     using NServiceBus.Unicast;
-    using NServiceBus.Unicast.Messages;
 
     class SagaPersistenceBehavior : HandlingStageBehavior
     {
@@ -56,7 +55,7 @@
                 if (IsMessageAllowedToStartTheSaga(context, sagaMetadata))
                 {
                     context.Get<SagaInvocationResult>().SagaFound();
-                    sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaMetadata, context.Headers));
+                    sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaMetadata, context));
                 }
                 else
                 {
@@ -234,18 +233,18 @@
             MessageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
         }
 
-        IContainSagaData CreateNewSagaEntity(SagaMetadata metadata,Dictionary<string,string> headers)
+        IContainSagaData CreateNewSagaEntity(SagaMetadata metadata,Context context)
         {
             var sagaEntityType = metadata.SagaEntityType;
 
             var sagaEntity = (IContainSagaData)Activator.CreateInstance(sagaEntityType);
 
             sagaEntity.Id = CombGuid.Generate();
-            sagaEntity.OriginalMessageId = headers[Headers.MessageId];
+            sagaEntity.OriginalMessageId = context.PhysicalMessage.Id;
 
             string replyToAddress;
 
-            if (headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
+            if (context.PhysicalMessage.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
             {
                 sagaEntity.Originator = replyToAddress;
             }

@@ -30,27 +30,18 @@ namespace NServiceBus.Transports
 
         public string EndpointName { get; set; }
 
-        public void Audit(SendOptions sendOptions, TransportMessage transportMessage)
+        public void Audit(SendOptions sendOptions, OutgoingMessage message)
         {
             // Revert the original body if needed (if any mutators were applied, forward the original body as received)
-            transportMessage.RevertToOriginalBodyIfNeeded();
+            //todo: this will be solved when we switch to a stream
+            //transportMessage.RevertToOriginalBodyIfNeeded();
 
-            // Create a new transport message which will contain the appropriate headers
-            var messageToForward = new TransportMessage(transportMessage.Id, transportMessage.Headers)
-            {
-                Body = transportMessage.Body
-            };
 
-            messageToForward.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
-            messageToForward.Headers[Headers.ProcessingEndpoint] = EndpointName;
-
-            if (transportMessage.ReplyToAddress != null)
-            {
-                messageToForward.Headers[Headers.OriginatingAddress] = transportMessage.ReplyToAddress;
-            }
+            message.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
+            message.Headers[Headers.ProcessingEndpoint] = EndpointName;
 
             // Send the newly created transport message to the queue
-            MessageSender.Send(new OutgoingMessage(messageToForward.Headers,messageToForward.Body), new SendOptions(sendOptions.Destination)
+            MessageSender.Send(message, new SendOptions(sendOptions.Destination)
             {
                 TimeToBeReceived = sendOptions.TimeToBeReceived
             });

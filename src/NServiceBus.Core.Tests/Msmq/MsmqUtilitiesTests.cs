@@ -22,7 +22,7 @@
             var options = new SendOptions("destination");
 
 
-            var message = MsmqUtilities.Convert(new OutgoingMessage(new Dictionary<string, string> { { "NServiceBus.ExceptionInfo.Message" ,expected} }, new byte[0]), options);
+            var message = MsmqUtilities.Convert(new OutgoingMessage("message id",new Dictionary<string, string> { { "NServiceBus.ExceptionInfo.Message" ,expected} }, new byte[0]), options);
             var headers = MsmqUtilities.ExtractHeaders(message);
 
             Assert.AreEqual(expected, headers["NServiceBus.ExceptionInfo.Message"]);
@@ -35,7 +35,7 @@
             var options = new SendOptions("destination");
 
             Console.Out.WriteLine(sizeof(char));
-            var message = MsmqUtilities.Convert(new OutgoingMessage(new Dictionary<string, string> { { "NServiceBus.ExceptionInfo.Message", expected } }, new byte[0]), options);
+            var message = MsmqUtilities.Convert(new OutgoingMessage("message id",new Dictionary<string, string> { { "NServiceBus.ExceptionInfo.Message", expected } }, new byte[0]), options);
             var bufferWithNulls = new byte[message.Extension.Length + (10 * sizeof(char))];
             
             Buffer.BlockCopy(message.Extension, 0, bufferWithNulls, 0, bufferWithNulls.Length - (10 * sizeof(char)));
@@ -50,7 +50,7 @@
         [Test]
         public void Should_fetch_the_replytoaddress_from_responsequeue_for_backwards_compatibility()
         {
-            var message = MsmqUtilities.Convert(new OutgoingMessage(new Dictionary<string, string>(),  new byte[0]), new SendOptions("destination"));
+            var message = MsmqUtilities.Convert(new OutgoingMessage("message id",new Dictionary<string, string>(),  new byte[0]), new SendOptions("destination"));
 
             message.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress("local", Environment.MachineName));
             var headers = MsmqUtilities.ExtractHeaders(message);
@@ -66,7 +66,7 @@
                 TimeToBeReceived = TimeSpan.FromDays(1)
             };
 
-            var message = MsmqUtilities.Convert(new OutgoingMessage(new Dictionary<string, string>(),  new byte[0]), options);
+            var message = MsmqUtilities.Convert(new OutgoingMessage("message id",new Dictionary<string, string>(),  new byte[0]), options);
 
             Assert.AreEqual(options.TimeToBeReceived.Value, message.TimeToBeReceived);
         }

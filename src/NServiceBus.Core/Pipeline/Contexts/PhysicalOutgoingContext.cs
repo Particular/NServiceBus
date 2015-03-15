@@ -1,5 +1,8 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
+    using System.Collections.Generic;
+    using NServiceBus.Unicast;
+
     /// <summary>
     /// 
     /// </summary>
@@ -8,27 +11,42 @@
         /// <summary>
         /// 
         /// </summary>
-        public class Context : OutgoingContext
+        public class Context : BehaviorContext
         {
+            readonly OutgoingContext parent;
+
             /// <summary>
             /// 
             /// </summary>
-            /// <param name="transportMessage"></param>
+            /// <param name="body"></param>
             /// <param name="parentContext"></param>
-            public Context(TransportMessage transportMessage, OutgoingContext parentContext)
+            public Context( byte[] body,OutgoingContext parentContext)
                 : base(parentContext)
             {
-                Set(transportMessage);
+                parent = parentContext;
+                Body = body;
             }
 
             /// <summary>
-            /// The message about to be sent out.
+            /// 
             /// </summary>
-            public TransportMessage OutgoingMessage
-            {
-                get { return Get<TransportMessage>(); }
-            }
+            public DeliveryOptions DeliveryOptions { get { return parent.DeliveryOptions; } }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            public byte[] Body { get; set; }
+
+
+            /// <summary>
+            ///     Gets other applicative out-of-band information.
+            /// </summary>
+            public Dictionary<string, string> Headers { get { return parent.Headers; } }
+
+            /// <summary>
+            /// This id of this message
+            /// </summary>
+            public string MessageId { get { return parent.MessageId; } }
         }
     }
 }

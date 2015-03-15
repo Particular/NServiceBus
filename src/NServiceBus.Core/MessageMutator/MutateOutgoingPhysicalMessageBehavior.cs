@@ -10,7 +10,7 @@
         {
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingTransportMessages>())
             {
-                mutator.MutateOutgoing(context.OutgoingLogicalMessage, context.OutgoingMessage);
+                mutator.MutateOutgoing(null, null);
             }
 
             next();

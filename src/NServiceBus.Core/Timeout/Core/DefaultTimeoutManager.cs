@@ -19,7 +19,7 @@ namespace NServiceBus.Timeout.Core
             if (timeout.Time.AddSeconds(-1) <= DateTime.UtcNow)
             {
                 var sendOptions = new SendOptions(timeout.Destination);
-                var message = new OutgoingMessage(timeout.Headers, timeout.State);
+                var message = new OutgoingMessage(timeout.Headers[Headers.MessageId],timeout.Headers, timeout.State);
 
                 MessageSender.Send(message, sendOptions);
                 return;

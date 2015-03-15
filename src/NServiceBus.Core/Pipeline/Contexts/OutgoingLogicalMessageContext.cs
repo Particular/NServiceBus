@@ -1,9 +1,8 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
     using System.Collections.Generic;
-    using Unicast;
-    using Unicast.Messages;
-
+    using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Messages;
 
     /// <summary>
     /// Outgoing pipeline context.
@@ -17,47 +16,35 @@
         /// <param name="deliveryOptions">The delivery options.</param>
         /// <param name="message">The actual message to be sent out.</param>
         /// <param name="headers">The headers fór the message</param>
-        public OutgoingContext(BehaviorContext parentContext, DeliveryOptions deliveryOptions, LogicalMessage message,Dictionary<string,string> headers)
+        /// <param name="messageId">The id of the message</param>
+        public OutgoingContext(BehaviorContext parentContext, DeliveryOptions deliveryOptions, LogicalMessage message,Dictionary<string,string> headers,string messageId)
             : base(parentContext)
         {
+            DeliveryOptions = deliveryOptions;
+            OutgoingLogicalMessage = message;
             Headers = headers;
-            Set(deliveryOptions);
-            Set(OutgoingLogicalMessageKey, message);
-        }
-
-        
-           /// <summary>
-        /// Allows context inheritence
-        /// </summary>
-        /// <param name="parentContext"></param>
-        protected OutgoingContext(BehaviorContext parentContext)
-            : base(parentContext)
-        {
+            MessageId = messageId;
         }
 
         /// <summary>
         /// Sending options.
         /// </summary>
-        public DeliveryOptions DeliveryOptions
-        {
-            get { return Get<DeliveryOptions>(); }
-        }
+        public DeliveryOptions DeliveryOptions { get; private set; }
 
         /// <summary>
         /// Outgoing logical message.
         /// </summary>
-        public LogicalMessage OutgoingLogicalMessage
-        {
-            get { return Get<LogicalMessage>(OutgoingLogicalMessageKey); }
-        }
+        public LogicalMessage OutgoingLogicalMessage { get; private set; }
 
         /// <summary>
         ///     Gets other applicative out-of-band information.
         /// </summary>
         public Dictionary<string, string> Headers { get; private set; }
 
-
-        const string OutgoingLogicalMessageKey = "NServiceBus.OutgoingLogicalMessage";
+        /// <summary>
+        /// This id of this message
+        /// </summary>
+        public string MessageId { get; private set; }
 
         /// <summary>
         /// Tells if this outgoing message is a control message

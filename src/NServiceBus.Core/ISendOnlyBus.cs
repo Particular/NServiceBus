@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Runtime.Serialization.Formatters;
 
     /// <summary>
     /// Provides the subset of bus operations that is applicable for a send only bus.

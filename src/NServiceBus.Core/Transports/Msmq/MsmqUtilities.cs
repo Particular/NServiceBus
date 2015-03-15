@@ -215,7 +215,7 @@ namespace NServiceBus
             }
 
 
-            AssignMsmqNativeCorrelationId(message.Headers, result);
+            AssignMsmqNativeCorrelationId(message, result);
 
             if (deliveryOptions.NonDurable.HasValue)
             {
@@ -258,11 +258,11 @@ namespace NServiceBus
             return result;
         }
 
-        static void AssignMsmqNativeCorrelationId(Dictionary<string,string> headers, Message result)
+        static void AssignMsmqNativeCorrelationId(OutgoingMessage message, Message result)
         {
             string correlationIdHeader;
 
-            if (!headers.TryGetValue(Headers.CorrelationId, out correlationIdHeader))
+            if (!message.Headers.TryGetValue(Headers.CorrelationId, out correlationIdHeader))
             {
                 return;
             }
@@ -298,7 +298,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                Logger.Warn("Failed to assign a native correlation id for message: " + headers[Headers.MessageId], ex);
+                Logger.Warn("Failed to assign a native correlation id for message: " + message.MessageId, ex);
             }
         }
 
