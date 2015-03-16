@@ -71,10 +71,8 @@
     /// <summary>
     /// Daniel: Should we expose that to public?
     /// </summary>
-    [Flags]
     internal enum HandlerKind
     {
-        None = 0,
         Message = 1,
         Event = 2,
         Timeout = 3
