@@ -1,12 +1,11 @@
 namespace NServiceBus.Saga
 {
-
     /// <summary>
     /// This class is used to define sagas containing data and handling a message.
-    /// To handle more message types, implement <see cref="IHandleMessages{T}"/>
+    /// To handle more message types, implement <see cref="IHandle{T}"/>, <see cref="ISubscribe{T}"/> or <see cref="IHandleMessages{T}"/>
     /// for the relevant types.
     /// To signify that the receipt of a message should start this saga,
-    /// implement <see cref="IAmStartedByMessages{T}"/> for the relevant message type.
+    /// implement <see cref="IAmStartedByMessage{T}"/>, <see cref="IAmStartedByEvent{T}"/> or <see cref="IAmStartedByMessages{T}"/> for the relevant message type.
     /// </summary>
     /// <typeparam name="TSagaData">A type that implements <see cref="IContainSagaData"/>.</typeparam>
     public abstract class Saga<TSagaData> : Saga where TSagaData : IContainSagaData, new()

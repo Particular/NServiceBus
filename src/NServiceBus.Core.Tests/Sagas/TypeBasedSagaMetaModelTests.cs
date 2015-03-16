@@ -225,6 +225,98 @@
         }
 
 
+        class SagaWithOldAndNewStyleApiMixedForSameMessage : Saga<SagaWithOldAndNewStyleApiMixedForSameMessage.SagaData>,
+            IAmStartedByMessages<SagaWithOldAndNewStyleApiMixedForSameMessage.StartMessage1>,
+            IAmStartedByMessage<SagaWithOldAndNewStyleApiMixedForSameMessage.StartMessage1>,
+            IAmStartedByMessages<SagaWithOldAndNewStyleApiMixedForSameMessage.StartEvent>,
+            IAmStartedByEvent<SagaWithOldAndNewStyleApiMixedForSameMessage.StartEvent>,
+            IHandleMessages<SagaWithOldAndNewStyleApiMixedForSameMessage.Message3>,
+            IHandle<SagaWithOldAndNewStyleApiMixedForSameMessage.Message3>,
+            ISubscribe<SagaWithOldAndNewStyleApiMixedForSameMessage.Event>,
+            IHandleTimeouts<SagaWithOldAndNewStyleApiMixedForSameMessage.MyTimeout>,
+            IHandleTimeout<SagaWithOldAndNewStyleApiMixedForSameMessage.MyTimeout>
+        {
+            public class StartMessage1 : IMessage
+            {
+                public string SomeId { get; set; }
+            }
+
+            public class StartEvent : IMessage
+            {
+                public string SomeId { get; set; }
+            }
+
+            public class Message3 : IMessage
+            {
+            }
+
+            public class Event : IEvent
+            {
+            }
+
+            public class MyTimeout
+            {
+            }
+
+            public class SagaData : ContainSagaData
+            {
+                public string SomeId { get; set; }
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+                mapper.ConfigureMapping<StartMessage1>(m => m.SomeId)
+                    .ToSaga(s => s.SomeId);
+                mapper.ConfigureMapping<StartEvent>(m => m.SomeId)
+                    .ToSaga(s => s.SomeId);
+            }
+
+            public void Handle(StartMessage1 message)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Handle(StartMessage1 message, IHandleContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Handle(StartEvent message)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Handle(StartEvent message, ISubscribeContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Handle(Message3 message)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Handle(Message3 message, IHandleContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Handle(Event message, ISubscribeContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Timeout(MyTimeout state)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Timeout(MyTimeout state, ITimeoutContext context)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         class SagaWith2StartersAnd1Handler : Saga<SagaWith2StartersAnd1Handler.SagaData>,
             IAmStartedByMessages<SagaWith2StartersAnd1Handler.StartMessage1>,
             IAmStartedByMessages<SagaWith2StartersAnd1Handler.StartMessage2>,
