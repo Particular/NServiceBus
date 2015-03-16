@@ -18,22 +18,22 @@
                     .Run();
 
             Verify.AssertOldAndNewStyleStartAndStopsAreInvoked(context);
-            Verify.AssertNewStyleStartAndStopsAreInvokedFirst(context);
-            Verify.AssertOldStyleStartAndStopsAreInvokedSecond(context);
+            Verify.AssertOldStyleStartAndStopsAreInvokedFirst(context);
+            Verify.AssertNewStyleStartAndStopsAreInvokedSecond(context);
         }
 
         static class Verify
         {
-            public static void AssertNewStyleStartAndStopsAreInvokedFirst(Context context)
+            public static void AssertOldStyleStartAndStopsAreInvokedFirst(Context context)
             {
-                Assert.AreEqual("NewStyle.Start", context.StartsAndStopsExecuted[0]);
-                Assert.AreEqual("NewStyle.Stop", context.StartsAndStopsExecuted[2]);
+                Assert.AreEqual("OldStyle.Start", context.StartsAndStopsExecuted[0]);
+                Assert.AreEqual("OldStyle.Stop", context.StartsAndStopsExecuted[2]);
             }
 
-            public static void AssertOldStyleStartAndStopsAreInvokedSecond(Context context)
+            public static void AssertNewStyleStartAndStopsAreInvokedSecond(Context context)
             {
-                Assert.AreEqual("OldStyle.Start", context.StartsAndStopsExecuted[1]);
-                Assert.AreEqual("OldStyle.Stop", context.StartsAndStopsExecuted[3]);
+                Assert.AreEqual("NewStyle.Start", context.StartsAndStopsExecuted[1]);
+                Assert.AreEqual("NewStyle.Stop", context.StartsAndStopsExecuted[3]);
             }
 
             public static void AssertOldAndNewStyleStartAndStopsAreInvoked(Context context)
