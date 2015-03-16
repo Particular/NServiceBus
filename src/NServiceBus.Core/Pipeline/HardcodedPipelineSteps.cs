@@ -22,9 +22,6 @@ namespace NServiceBus.Pipeline
                 .Register(WellKnownStep.MutateIncomingTransportMessage, typeof(ApplyIncomingTransportMessageMutatorsBehavior), "Executes IMutateIncomingTransportMessages")
                 .Register("InvokeRegisteredCallbacks", typeof(CallbackInvocationBehavior), "Updates the callback inmemory dictionary")
                 .Register(WellKnownStep.MutateIncomingMessages, typeof(ApplyIncomingMessageMutatorsBehavior), "Executes IMutateIncomingMessages")
-                .Register("PrepareHandleContext", typeof(PrepareHandleContextBehavior), "If the current handler handles messages a handle context is added as invocation context.")
-                .Register("PrepareSubscribeContext", typeof(PrepareSubscribeContextBehavior), "If the current handler handles events a subscribe context is added as invocation context.")
-                .Register("PrepareTimeoutContext", typeof(PrepareTimoutContextBehavior), "If the current handler handles timeouts a timeout context is added as invocation context.")
                 .Register(WellKnownStep.InvokeHandlers, typeof(InvokeHandlersBehavior), "Calls the IHandleMessages<T>.Handle(T), IHandle<T>.Handle(T,IHandleContext), ISubscribe<T>.Handle(T,ISubscribeContext) or ITimeout<T>.Timeout(T,ITimeoutContext) method");
         }
 
