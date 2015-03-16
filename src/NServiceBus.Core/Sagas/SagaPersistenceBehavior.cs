@@ -79,12 +79,6 @@
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
             }
 
-            if (IsTimeoutMessage(context.IncomingLogicalMessage))
-            {
-                // Daniel: Move that out
-                context.MessageHandler.Invoke(context.IncomingLogicalMessage, null);
-            }
-
             next();
 
             if (sagaInstanceState.NotFound)

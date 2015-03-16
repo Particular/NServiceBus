@@ -134,6 +134,9 @@
     <Compile Include="Transports\ReceiveBehavior.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalOutgoingContext.cs" />
     <Compile Include="Transports\ReceivedMessage.cs" />
+    <Compile Include="Unicast\Behaviors\PrepareHandleContextBehavior.cs" />
+    <Compile Include="Unicast\Behaviors\PrepareSubscribeContextBehavior.cs" />
+    <Compile Include="Unicast\Behaviors\PrepareTimoutContextBehavior.cs" />
     <Compile Include="Unicast\Behaviors\SagaInvocationResult.cs" />
     <Compile Include="Unicast\Behaviors\TransportReceiveToPhysicalMessageProcessingConnector.cs" />
     <Compile Include="Pipeline\Contexts\LogicalMessageProcessingStageBehavior.cs" />

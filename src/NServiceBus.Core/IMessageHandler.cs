@@ -24,7 +24,7 @@ namespace NServiceBus
 
     public interface ISubscribeContext { }
 
-    internal class SubscribeContext
+    internal class SubscribeContext : ISubscribeContext
     {
     }
 

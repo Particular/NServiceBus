@@ -19,7 +19,7 @@ namespace NServiceBus.Saga
 
     public interface ITimeoutContext { }
 
-    internal class TimeoutContext
+    internal class TimeoutContext : ITimeoutContext
     {
     }
 #pragma warning restore 1591

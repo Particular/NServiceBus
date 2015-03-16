@@ -17,8 +17,8 @@
             }
 
             var messageHandler = context.MessageHandler;
-
-            messageHandler.Invoke(context.IncomingLogicalMessage.Instance, null /* Daniel: Not done yet*/);
+            var invocationContext = context.Get<object>("InvocationContext");
+            messageHandler.Invoke(context.IncomingLogicalMessage.Instance, invocationContext);
             next();
         }
     }
