@@ -18,6 +18,11 @@ namespace NServiceBus
         Local = 0,
         Remote = 1,
     }
+    [System.ObsoleteAttribute("Please use `config.ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
+    public class AllAssemblies : NServiceBus.IExcludesBuilder, NServiceBus.IIncludesBuilder
+    {
+        public AllAssemblies() { }
+    }
     public class static AutoSubscribeSettingsExtensions
     {
         public static NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings AutoSubscribe(this NServiceBus.BusConfiguration config) { }
@@ -366,10 +371,14 @@ namespace NServiceBus
         void SetValue(object value);
     }
     public interface IEvent : NServiceBus.IMessage { }
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
+    public interface IExcludesBuilder { }
     public interface IHandleMessages<T>
     {
         void Handle(T message);
     }
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
+    public interface IIncludesBuilder { }
     public interface IManageMessageHeaders
     {
         System.Func<object, string, string> GetHeaderAction { get; }
@@ -2239,6 +2248,9 @@ namespace NServiceBus.Unicast.Routing
     public class StaticMessageRouter
     {
         public StaticMessageRouter(System.Collections.Generic.IEnumerable<System.Type> knownMessages) { }
+        [System.ObsoleteAttribute("Please use `config.AutoSubscribe().AutoSubscribePlainMessages()` instead. Will be" +
+            " removed in version 7.0.0.", true)]
+        public bool SubscribeToPlainMessages { get; set; }
         public System.Collections.Generic.List<string> GetDestinationFor(System.Type messageType) { }
         public void RegisterEventRoute(System.Type eventType, string endpointAddress) { }
         public void RegisterMessageRoute(System.Type messageType, string endpointAddress) { }

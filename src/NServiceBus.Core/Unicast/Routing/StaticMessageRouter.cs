@@ -108,6 +108,12 @@
             }
         }
 
+        /// <summary>
+        /// Obsolete
+        /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "config.AutoSubscribe().AutoSubscribePlainMessages()")]
+        public bool SubscribeToPlainMessages { get; set; }
+
         static ILog Logger = LogManager.GetLogger<StaticMessageRouter>();
         readonly ConcurrentDictionary<Type, List<string>> routes;
     }
