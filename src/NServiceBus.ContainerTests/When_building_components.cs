@@ -12,10 +12,10 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.RegisterSingleton(typeof(SingletonComponentWithPropertyDependency), new SingletonComponentWithPropertyDependency());
-                InitializeBuilder(builder);
+                builder.RegisterSingleton(typeof(ISingletonComponentWithPropertyDependency), new SingletonComponentWithPropertyDependency());
+                builder.RegisterSingleton(typeof(SingletonComponent), new SingletonComponent());
 
-                var singleton = (SingletonComponentWithPropertyDependency)builder.Build(typeof(SingletonComponentWithPropertyDependency));
+                var singleton = (SingletonComponentWithPropertyDependency)builder.Build(typeof(ISingletonComponentWithPropertyDependency));
                 Assert.IsNotNull(singleton.Dependency);
             }
         }
@@ -141,7 +141,12 @@ namespace NServiceBus.ContainerTests
         {
         }
 
-        public class SingletonComponentWithPropertyDependency
+        public interface ISingletonComponentWithPropertyDependency
+        {
+             
+        }
+
+        public class SingletonComponentWithPropertyDependency : ISingletonComponentWithPropertyDependency
         {
             public SingletonComponent Dependency { get; set; }
         }
