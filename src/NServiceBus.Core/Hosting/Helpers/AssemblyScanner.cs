@@ -7,14 +7,47 @@ namespace NServiceBus.Hosting.Helpers
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Text;
+    using NServiceBus.Logging;
 
     /// <summary>
-    ///   Helpers for assembly scanning operations
+    ///     Helpers for assembly scanning operations
     /// </summary>
     public class AssemblyScanner
     {
+        //TODO: delete when we make message scanning lazy #1617
+        static string[] DefaultAssemblyExclusions =
+        {
+            // NSB Build-Dependencies
+            "nunit",
+
+            // NSB OSS Dependencies
+            "nlog",
+            "newtonsoft.json",
+            "common.logging",
+            "nhibernate",
+
+            // Raven
+            "raven.client",
+            "raven.abstractions",
+
+            // Azure host process, which is typically referenced for ease of deployment but should not be scanned
+            "NServiceBus.Hosting.Azure.HostProcess.exe",
+
+            // And other windows azure stuff
+            "Microsoft.WindowsAzure"
+        };
+
+        static Type IHandleMessagesType = typeof(IHandleMessages<>);
+        readonly Assembly assemblyToScan;
+        internal List<string> AssembliesToSkip = new List<string>();
+        string baseDirectoryToScan;
+        internal bool IncludeAppDomainAssemblies;
+        internal bool IncludeExesInScan = true;
+        internal bool ScanNestedDirectories = true;
+        internal List<Type> TypesToSkip = new List<Type>();
+
         /// <summary>
-        /// Creates a new scanner that will scan the base directory of the current appdomain
+        ///     Creates a new scanner that will scan the base directory of the current appdomain
         /// </summary>
         public AssemblyScanner()
             : this(AppDomain.CurrentDomain.BaseDirectory)
@@ -22,24 +55,34 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         /// <summary>
-        /// Creates a scanner for the given directory
+        ///     Creates a scanner for the given directory
         /// </summary>
         /// <param name="baseDirectoryToScan"></param>
         public AssemblyScanner(string baseDirectoryToScan)
         {
             ThrowExceptions = true;
-            AssembliesToInclude = new List<string>();
-            AssembliesToSkip = new List<string>();
-            MustReferenceAtLeastOneAssembly = new List<Assembly>();
             this.baseDirectoryToScan = baseDirectoryToScan;
         }
 
-        /// <summary>
-        /// Tells the scanner to only include assemblies that reference one of the given assemblies
-        /// </summary>
-        public List<Assembly> MustReferenceAtLeastOneAssembly { get; private set; }
+        internal AssemblyScanner(Assembly assemblyToScan)
+        {
+            this.assemblyToScan = assemblyToScan;
+            ThrowExceptions = true;
+        }
 
-        
+        /// <summary>
+        ///     Tells the scanner to only include assemblies that reference one of the given assemblies
+        /// </summary>
+        [ObsoleteEx(Message = "This method is no longer required since deep scanning of assemblies is done to detect an NServiceBus reference.", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        public List<Assembly> MustReferenceAtLeastOneAssembly
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        /// <summary>
+        ///     Determines if the scanner should throw exceptions or not
+        /// </summary>
+        public bool ThrowExceptions { get; set; }
 
         /// <summary>
         ///     Traverses the specified base directory including all sub-directories, generating a list of assemblies that can be
@@ -51,13 +94,21 @@ namespace NServiceBus.Hosting.Helpers
         {
             var results = new AssemblyScannerResults();
 
+            if (assemblyToScan != null)
+            {
+                var assemblyPath = AssemblyPath(assemblyToScan);
+                ScanAssembly(assemblyPath, results);
+                return results;
+            }
+
             if (IncludeAppDomainAssemblies)
             {
-                var matchingAssembliesFromAppDomain = AppDomain.CurrentDomain
-                                                               .GetAssemblies()
-                                                               .Where(assembly => IsIncluded(assembly.GetName().Name));
+                var matchingAssembliesFromAppDomain = MatchingAssembliesFromAppDomain();
 
-                results.Assemblies.AddRange(matchingAssembliesFromAppDomain);
+                foreach (var assembly in matchingAssembliesFromAppDomain)
+                {
+                    ScanAssembly(AssemblyPath(assembly), results);
+                }
             }
 
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles())
@@ -65,13 +116,44 @@ namespace NServiceBus.Hosting.Helpers
                 ScanAssembly(assemblyFile.FullName, results);
             }
 
+            // This extra step is to ensure unobtrusive message types are included in the Types list.
+            var list = GetHandlerMessageTypes(results.Types).ToList();
+            results.Types.AddRange(list);
+
+            results.RemoveDuplicates();
+
             return results;
         }
 
-        /// <summary>
-        /// Determines if the scanner should throw exceptions or not
-        /// </summary>
-        public bool ThrowExceptions { get; set; }
+        static IEnumerable<Type> GetHandlerMessageTypes(IEnumerable<Type> list)
+        {
+            return list.SelectMany(type =>
+            {
+                if (type.IsAbstract || type.IsGenericTypeDefinition)
+                {
+                    return Type.EmptyTypes;
+                }
+                return type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == IHandleMessagesType);
+            })
+                .Select(t =>
+                {
+                    var args = t.GetGenericArguments();
+                    return args[0];
+                });
+        }
+
+        List<Assembly> MatchingAssembliesFromAppDomain()
+        {
+            return AppDomain.CurrentDomain
+                .GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && IsIncluded(assembly.GetName().Name)).ToList();
+        }
+
+        static string AssemblyPath(Assembly assembly)
+        {
+            var uri = new UriBuilder(assembly.CodeBase);
+            return Uri.UnescapeDataString(uri.Path).Replace('/', '\\');
+        }
 
         void ScanAssembly(string assemblyPath, AssemblyScannerResults results)
         {
@@ -101,13 +183,13 @@ namespace NServiceBus.Hosting.Helpers
 
             try
             {
-                //TODO: re-enable when we make message scanning lazy #1617
-                //if (!AssemblyPassesReferencesTest(assemblyPath))
-                //{
-                //    var skippedFile = new SkippedFile(assemblyPath, "Assembly does not reference at least one of the must referenced assemblies.");
-                //    results.SkippedFiles.Add(skippedFile);
-                //    return;
-                //}
+                if (!ReferencesNServiceBus(assemblyPath))
+                {
+                    var skippedFile = new SkippedFile(assemblyPath, "Assembly does not reference at least one of the must referenced assemblies.");
+                    results.SkippedFiles.Add(skippedFile);
+                    return;
+                }
+
                 if (IsRuntimeAssembly(assemblyPath))
                 {
                     var skippedFile = new SkippedFile(assemblyPath, "Assembly .net runtime assembly.");
@@ -142,28 +224,34 @@ namespace NServiceBus.Hosting.Helpers
             try
             {
                 //will throw if assembly cannot be loaded
-                assembly.GetTypes();
+                results.Types.AddRange(assembly.GetTypes().Where(IsAllowedType));
             }
             catch (ReflectionTypeLoadException e)
             {
                 results.ErrorsThrownDuringScanning = true;
 
+                var errorMessage = FormatReflectionTypeLoadException(assemblyPath, e);
                 if (ThrowExceptions)
                 {
-                    var errorMessage = FormatReflectionTypeLoadException(assemblyPath, e);
                     throw new Exception(errorMessage);
                 }
 
-                return;
+                LogManager.GetLogger<AssemblyScanner>().Warn(errorMessage);
+                results.Types.AddRange(e.Types.Where(IsAllowedType));
             }
 
             results.Assemblies.Add(assembly);
         }
 
-
         internal static bool IsRuntimeAssembly(string assemblyPath)
         {
-            var publicKeyToken = AssemblyName.GetAssemblyName(assemblyPath).GetPublicKeyToken();
+            var assemblyName = AssemblyName.GetAssemblyName(assemblyPath);
+            return IsRuntimeAssembly(assemblyName);
+        }
+
+        static bool IsRuntimeAssembly(AssemblyName assemblyName)
+        {
+            var publicKeyToken = assemblyName.GetPublicKeyToken();
             var lowerInvariant = BitConverter.ToString(publicKeyToken).Replace("-", String.Empty).ToLowerInvariant();
             //System
             if (lowerInvariant == "b77a5c561934e089")
@@ -176,17 +264,17 @@ namespace NServiceBus.Hosting.Helpers
             {
                 return true;
             }
-            
+
             //patterns and practices
             if (lowerInvariant == "31bf3856ad364e35")
             {
                 return true;
             }
-            
+
             return false;
         }
 
-        internal static string FormatReflectionTypeLoadException(string fileName, ReflectionTypeLoadException e)
+        static string FormatReflectionTypeLoadException(string fileName, ReflectionTypeLoadException e)
         {
             var sb = new StringBuilder();
 
@@ -284,24 +372,53 @@ namespace NServiceBus.Hosting.Helpers
             }
         }
 
-        bool AssemblyPassesReferencesTest(string assemblyPath)
+        internal static bool ReferencesNServiceBus(string assemblyPath)
         {
-            if (MustReferenceAtLeastOneAssembly.Count == 0)
+            var assembly = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
+            //TODO: should we seed the results with NServiceBus.Core.dll?
+            if (assembly.GetName().Name == "NServiceBus.Core")
             {
                 return true;
             }
-            var lightLoad = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
-            var referencedAssemblies = lightLoad.GetReferencedAssemblies();
-
-            return MustReferenceAtLeastOneAssembly
-                .Select(reference => reference.GetName().Name)
-                .Any(name => referencedAssemblies.Any(a => a.Name == name));
+            return ReferencesNServiceBus(assembly, new List<AssemblyName>());
         }
 
-        /// <summary>
-        ///  Determines whether the specified assembly name or file name can be included, given the set up include/exclude
-        ///  patterns and default include/exclude patterns
-        /// </summary>
+        static bool ReferencesNServiceBus(Assembly assembly, List<AssemblyName> processed)
+        {
+            foreach (var assemblyName in assembly.GetReferencedAssemblies())
+            {
+                if (assemblyName.Name == "NServiceBus.Core")
+                {
+                    return true;
+                }
+
+                if (processed.Any(x => x.FullName == assemblyName.FullName))
+                {
+                    continue;
+                }
+                processed.Add(assemblyName);
+
+                if (IsRuntimeAssembly(assemblyName))
+                {
+                    continue;
+                }
+                Assembly refAssembly;
+                try
+                {
+                    refAssembly = Assembly.ReflectionOnlyLoad(assemblyName.FullName);
+                }
+                catch (FileNotFoundException)
+                {
+                    continue;
+                }
+                if (ReferencesNServiceBus(refAssembly, processed))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         bool IsIncluded(string assemblyNameOrFileName)
         {
             var isExplicitlyExcluded = AssembliesToSkip.Any(excluded => IsMatch(excluded, assemblyNameOrFileName));
@@ -316,32 +433,20 @@ namespace NServiceBus.Hosting.Helpers
                 return false;
             }
 
-            var noAssembliesWereExplicitlyIncluded = !AssembliesToInclude.Any();
-            var isExplicitlyIncluded = AssembliesToInclude.Any(included => IsMatch(included, assemblyNameOrFileName));
-
-            return noAssembliesWereExplicitlyIncluded || isExplicitlyIncluded;
+            return true;
         }
 
-        static bool IsMatch(string expression, string scopedNameOrFileName)
+        static bool IsMatch(string expression1, string expression2)
         {
-            if (DistillLowerAssemblyName(scopedNameOrFileName).StartsWith(expression.ToLower()))
-            {
-                return true;
-            }
-
-            if (DistillLowerAssemblyName(expression).TrimEnd('.') == DistillLowerAssemblyName(scopedNameOrFileName))
-            {
-                return true;
-            }
-
-            return false;
+            return DistillLowerAssemblyName(expression1) == DistillLowerAssemblyName(expression2);
         }
 
-        internal static bool IsAllowedType(Type type)
+        bool IsAllowedType(Type type)
         {
             return type != null &&
                    !type.IsValueType &&
-                   !(type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length > 0);
+                   !(type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length > 0) &&
+                   !TypesToSkip.Contains(type);
         }
 
         static string DistillLowerAssemblyName(string assemblyOrFileName)
@@ -353,44 +458,5 @@ namespace NServiceBus.Hosting.Helpers
             }
             return lowerAssemblyName;
         }
-
-        string baseDirectoryToScan;
-        internal List<string> AssembliesToInclude;
-        internal List<string> AssembliesToSkip;
-
-        internal bool IncludeAppDomainAssemblies;
-        internal bool IncludeExesInScan = true;
-        internal bool ScanNestedDirectories = true;
-
-        //TODO: delete when we make message scanning lazy #1617
-        static string[] DefaultAssemblyExclusions =
-                                {
-
-                                    "system.",
-                                    "mscorlib.", 
-                  
-                                    // NSB Build-Dependencies
-                                    "nunit.", "pnunit.", "rhino.mocks.", "XsdGenerator.",
-                 
-                                    // NSB OSS Dependencies
-                                    "rhino.licensing.", "bouncycastle.crypto",
-                                    "magnum.", "interop.", "nlog.", "newtonsoft.json.",
-                                    "common.logging.", "topshelf.",
-                                    "Autofac.", "log4net.", "nhibernate.", 
-                                    "castle.",
-
-                                    // Raven
-                                    "raven.server", "raven.client", "raven.munin.",
-                                    "raven.storage.", "raven.abstractions.", "raven.database",
-                                    "esent.interop", "asyncctplibrary.", "lucene.net.",
-                                    "icsharpcode.nrefactory", "spatial4n.core",
-
-                                    // Azure host process, which is typically referenced for ease of deployment but should not be scanned
-                                    "NServiceBus.Hosting.Azure.HostProcess.exe",
-
-                                    // And other windows azure stuff
-                                    "Microsoft.WindowsAzure."
-
-                                };
     }
 }

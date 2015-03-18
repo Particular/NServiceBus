@@ -2,6 +2,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 {
     using System;
     using System.Collections;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -224,7 +225,8 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 mapped = GetMappedTypeFor(t);
                 if (mapped == null)
                 {
-                    throw new ArgumentException("Could not find a concrete type mapped to " + t.FullName);
+                    InitType(t);
+                    mapped = GetMappedTypeFor(t);
                 }
             }
 
@@ -238,9 +240,9 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         }
 
         ConcreteProxyCreator concreteProxyCreator;
-        Dictionary<RuntimeTypeHandle, RuntimeTypeHandle> interfaceToConcreteTypeMapping = new Dictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
-        Dictionary<RuntimeTypeHandle, RuntimeTypeHandle> concreteToInterfaceTypeMapping = new Dictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
-        Dictionary<string, RuntimeTypeHandle> nameToType = new Dictionary<string, RuntimeTypeHandle>();
-        Dictionary<RuntimeTypeHandle, RuntimeMethodHandle> typeToConstructor = new Dictionary<RuntimeTypeHandle, RuntimeMethodHandle>();
+        ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> interfaceToConcreteTypeMapping = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
+        ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> concreteToInterfaceTypeMapping = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
+        ConcurrentDictionary<string, RuntimeTypeHandle> nameToType = new ConcurrentDictionary<string, RuntimeTypeHandle>();
+        ConcurrentDictionary<RuntimeTypeHandle, RuntimeMethodHandle> typeToConstructor = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeMethodHandle>();
     }
 }

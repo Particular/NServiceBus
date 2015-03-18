@@ -5,7 +5,7 @@ namespace Server
     using Messages;
     using NServiceBus;
 
-    class CommandSender : IWantToRunWhenBusStartsAndStops
+    class CommandSender
     {
         public IBus Bus { get; set; }
 
@@ -47,11 +47,6 @@ namespace Server
                 m.EventId = eventId;
             });
             Console.WriteLine("Event published, id: " + eventId);
-            
-        }
-
-        public void Stop()
-        {
             
         }
     }

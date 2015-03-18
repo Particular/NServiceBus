@@ -118,7 +118,6 @@
     <Compile Include="AssemblyScanner\When_directory_with_handler_dll_is_scanned.cs" />
     <Compile Include="AssemblyScanner\When_directory__with_non_dot_net_dll_is_scanned.cs" />
     <Compile Include="AssemblyScanner\When_exclusion_predicate_is_used.cs" />
-    <Compile Include="AssemblyScanner\When_inclusion_predicate_is_used.cs" />
     <Compile Include="AssemblyScanner\When_scanning_for_dlls_only.cs" />
     <Compile Include="AssemblyScanner\When_scanning_top_level_only.cs" />
     <Compile Include="AssemblyScanner\When_told_to_scan_app_domain.cs" />
@@ -128,8 +127,6 @@
     <Compile Include="AutomaticSubscriptions\When_starting_an_endpoint_containing_a_saga.cs" />
     <Compile Include="AutomaticSubscriptions\When_starting_an_endpoint_with_autosubscribe_turned_on.cs" />
     <Compile Include="Config\TestConfigurationSection.cs" />
-    <Compile Include="Config\When_finding_assemblies_to_scan_with_expressions.cs" />
-    <Compile Include="Config\When_loading_types.cs" />
     <Compile Include="Config\When_no_custom_configuration_source_is_specified.cs" />
     <Compile Include="Config\When_scanning_assemblies.cs" />
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
@@ -297,21 +294,27 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TestDlls\dotNet.dll">
+    <None Include="TestDlls\AssemblyWithNoDirectReference.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestDlls\libzmq-v120-mt-3_2_3.dll">
+    </None>
+    <None Include="TestDlls\AssemblyWithReference.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestDlls\some_random.dll">
+    </None>
+    <None Include="TestDlls\dotNet.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestDlls\some_random.exe">
+    </None>
+    <None Include="TestDlls\libzmq-v120-mt-3_2_3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestDlls\Tail.exe">
+    </None>
+    <None Include="TestDlls\some_random.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
+    <None Include="TestDlls\some_random.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDlls\Tail.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -4,7 +4,6 @@ namespace NServiceBus.Features
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using AutomaticSubscriptions;
     using Config;
     using Logging;
     using NServiceBus.Hosting;
@@ -201,13 +200,7 @@ namespace NServiceBus.Features
         {
             var unicastConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
             var router = new StaticMessageRouter(knownMessages);
-            var key = typeof(AutoSubscriptionStrategy).FullName + ".SubscribePlainMessages";
-
-            if (context.Settings.HasSetting(key))
-            {
-                router.SubscribeToPlainMessages = context.Settings.Get<bool>(key);
-            }
-
+            
             context.Container.RegisterSingleton(router);
 
             if (unicastConfig == null)

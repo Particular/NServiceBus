@@ -3,6 +3,21 @@ namespace NServiceBus
 {
     using System;
 
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "config.ExcludeAssemblies")]
+    public class AllAssemblies : IExcludesBuilder, IIncludesBuilder
+    {
+    }
+
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
+    public interface IExcludesBuilder
+    {
+    }
+
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
+    public interface IIncludesBuilder
+    {
+    }
+
     public partial class TransportMessage
     {
 

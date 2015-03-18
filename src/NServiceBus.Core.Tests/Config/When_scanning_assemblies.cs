@@ -45,7 +45,6 @@ namespace NServiceBus.Core.Tests.Config
         IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
             var assemblyScanner = new AssemblyScanner(path);
-            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
             if (assembliesToSkip != null)
             {
                 assemblyScanner.AssembliesToSkip = assembliesToSkip.ToList();

@@ -4,11 +4,8 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Reflection;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Features;
-    using NServiceBus.Hosting.Helpers;
-    using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.ObjectBuilder.Common;
     using NServiceBus.Pipeline;
@@ -170,29 +167,6 @@ namespace NServiceBus
 
                 return Settings.Get<string>("PublicReturnAddress");
             }
-        }
-
-        internal static IList<Type> GetAllowedTypes(params Assembly[] assemblies)
-        {
-            var types = new List<Type>();
-            Array.ForEach(
-                assemblies,
-                a =>
-                {
-                    try
-                    {
-                        types.AddRange(a.GetTypes()
-                            .Where(AssemblyScanner.IsAllowedType));
-                    }
-                    catch (ReflectionTypeLoadException exception)
-                    {
-                        var errorMessage = AssemblyScanner.FormatReflectionTypeLoadException(a.FullName, exception);
-                        LogManager.GetLogger<Configure>().Warn(errorMessage);
-                        types.AddRange(exception.Types.Where(AssemblyScanner.IsAllowedType));
-                        //intentionally swallow exception
-                    }
-                });
-            return types;
         }
 
         internal static void ActivateAndInvoke<T>(IList<Type> types, Action<T> action) where T : class

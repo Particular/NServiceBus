@@ -72,16 +72,22 @@
                         continue;
                     }
 
+                    MessageMetadata metadata;
+
                     if (IsV4OrBelowScheduledTask(typeString))
                     {
-                        typeString = typeof(ScheduledTask).AssemblyQualifiedName;
+                        metadata = MessageMetadataRegistry.GetMessageMetadata(typeof(ScheduledTask));
+                    }
+                    else
+                    {
+                        metadata = MessageMetadataRegistry.GetMessageMetadata(typeString);
                     }
 
-                    var metadata = MessageMetadataRegistry.GetMessageMetadata(typeString);
                     if (metadata == null)
                     {
                         continue;
                     }
+
                     messageMetadata.Add(metadata);
                 }
 

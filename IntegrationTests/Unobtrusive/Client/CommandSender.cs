@@ -5,7 +5,7 @@ namespace Client
     using Messages;
     using NServiceBus;
 
-    public class CommandSender : IWantToRunWhenBusStartsAndStops
+    public class CommandSender
     {
         public IBus Bus { get; set; }
 
@@ -125,10 +125,6 @@ namespace Client
 
             Console.WriteLine("Command sent id: " + commandId);
 
-        }
-
-        public void Stop()
-        {
         }
     }
 }

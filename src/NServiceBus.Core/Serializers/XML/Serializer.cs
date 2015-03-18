@@ -346,7 +346,8 @@
             IEnumerable<PropertyInfo> properties;
             if (!cache.typeToProperties.TryGetValue(t, out properties))
             {
-                throw new InvalidOperationException(string.Format("Type {0} was not registered in the serializer. Check that it appears in the list of configured assemblies/types to scan.", t.FullName));
+                cache.InitType(t);
+                cache.typeToProperties.TryGetValue(t, out properties);
             }
 
             foreach (var prop in properties)

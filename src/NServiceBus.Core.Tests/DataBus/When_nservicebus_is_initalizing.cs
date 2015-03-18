@@ -17,25 +17,12 @@ namespace NServiceBus.Core.Tests.DataBus
             var builder = new BusConfiguration();
 
             builder.EndpointName("xyz");
-            builder.TypesToScan(new[]{typeof(MessageWithDataBusProperty)});
+            builder.TypesToScanInternal(new[]{typeof(MessageWithDataBusProperty)});
             builder.RegisterComponents(c => c.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance));
             
             var config = builder.BuildConfiguration();
 
             Assert.True(new DataBusFileBased().CheckPrerequisites(new FeatureConfigurationContext(config)).IsSatisfied);
-        }
-
-        [Test]
-        public void Databus_should_not_be_activated_if_no_databus_property_is_found()
-        {
-            var builder = new BusConfiguration();
-
-            builder.EndpointName("xyz");
-            builder.TypesToScan(new[] { typeof(MessageWithoutDataBusProperty) });
-
-            var feature = new DataBus();
-
-            Assert.False(feature.CheckPrerequisites(new FeatureConfigurationContext(builder.BuildConfiguration())).IsSatisfied);
         }
 
         [Test]
@@ -48,7 +35,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             var builder = new BusConfiguration();
             builder.EndpointName("xyz");
-            builder.TypesToScan(new[]
+            builder.TypesToScanInternal(new[]
                 {
                     typeof(MessageWithNonSerializableDataBusProperty)
                 });
@@ -69,7 +56,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             var builder = new BusConfiguration();
             builder.EndpointName("xyz");
-            builder.TypesToScan(new[]
+            builder.TypesToScanInternal(new[]
                 {
                     typeof(MessageWithNonSerializableDataBusProperty)
                 });

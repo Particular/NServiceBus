@@ -197,7 +197,6 @@
     <Compile Include="Observable.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />
-    <Compile Include="AllAssemblies.cs" />
     <Compile Include="Audit\Audit.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscribe.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettingsExtensions.cs" />
@@ -504,8 +503,6 @@
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
-    <Compile Include="IExcludesBuilder.cs" />
-    <Compile Include="IIncludesBuilder.cs" />
     <Compile Include="Impersonation\Windows\WindowsIdentityEnricher.cs" />
     <Compile Include="Installation\INeedToInstallSomething.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />

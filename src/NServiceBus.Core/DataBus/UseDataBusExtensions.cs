@@ -19,6 +19,8 @@
 
             config.Settings.Set("SelectedDataBus", definition);
 
+            config.EnableFeature<Features.DataBus>();
+
             return extension;
         }
 
@@ -39,6 +41,8 @@
 
             config.Settings.Set("SelectedDataBus", new CustomDataBus());
             config.Settings.Set("CustomDataBusType", dataBusType);
+
+            config.EnableFeature<Features.DataBus>();
 
             return new DataBusExtentions(config.Settings);
         }
