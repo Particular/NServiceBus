@@ -32,8 +32,9 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class CustomFinder : IFindSagas<TestSaga.SagaData>.Using<SomeOtherMessage>
+            public class CustomFinder : IFindSagas<TestSaga.SagaData>.Using<SomeOtherMessage>
             {
+                // ReSharper disable once MemberCanBePrivate.Global
                 public Context Context { get; set; }
 
                 public TestSaga.SagaData FindBy(SomeOtherMessage message)
