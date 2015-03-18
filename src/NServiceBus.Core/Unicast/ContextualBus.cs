@@ -426,6 +426,7 @@ namespace NServiceBus.Unicast
             var context = new SendContext();
 
             context.DelayDeliveryWith(delay);
+            context.SetLocalEndpointAsDestination();
 
             return SendMessage(context, messageFactory.Create(message));
         }
@@ -438,6 +439,7 @@ namespace NServiceBus.Unicast
             var context = new SendContext();
 
             context.DeliverAt(processAt);
+            context.SetLocalEndpointAsDestination();
 
             return Send(message, context);
         }
@@ -473,6 +475,16 @@ namespace NServiceBus.Unicast
             if (string.IsNullOrEmpty(messageId))
             {
                 messageId = CombGuid.Generate().ToString();
+            }
+
+            if (context.Delay.HasValue)
+            {
+                sendOptions.DelayDeliveryWith = context.Delay;
+            }
+
+            if (context.At.HasValue)
+            {
+                sendOptions.DeliverAt = context.At;
             }
 
           
