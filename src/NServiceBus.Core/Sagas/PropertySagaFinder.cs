@@ -2,8 +2,7 @@ namespace NServiceBus.Sagas
 {
     using System;
     using NServiceBus.ObjectBuilder;
-    using NServiceBus.Unicast.Messages;
-    using Saga;
+    using NServiceBus.Saga;
 
     /// <summary>
     /// Finds the given type of saga by looking it up based on the given property.
@@ -17,10 +16,10 @@ namespace NServiceBus.Sagas
             this.sagaPersister = sagaPersister;
         }
 
-        internal override IContainSagaData Find(IBuilder builder,SagaFinderDefinition finderDefinition, LogicalMessage message)
+        internal override IContainSagaData Find(IBuilder builder,SagaFinderDefinition finderDefinition, object message)
         {
             var propertyAccessor = (Func<object,object>)finderDefinition.Properties["property-accessor"];
-            var propertyValue = propertyAccessor(message.Instance);
+            var propertyValue = propertyAccessor(message);
 
             var sagaPropertyName = (string)finderDefinition.Properties["saga-property-name"];
 

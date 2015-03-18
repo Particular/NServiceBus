@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
+    using System.Collections.Generic;
     using NServiceBus.Unicast.Behaviors;
+    using NServiceBus.Unicast.Messages;
 
     /// <summary>
     /// A behavior that belongs to the handling stage
@@ -10,15 +12,16 @@
         /// <summary>
         /// A context of handling a logical message by a handler
         /// </summary>
-        public class Context : LogicalMessageProcessingStageBehavior.Context
+        public class Context : IncomingContext
         {
-            const string HandlerInvocationAbortedKey = "NServiceBus.HandlerInvocationAborted";
-
             internal Context(MessageHandler handler, LogicalMessageProcessingStageBehavior.Context parentContext)
                 : base(parentContext)
             {
-                Set(handler);
-                
+                MessageHandler = handler;
+                Headers = parentContext.Headers;
+                MessageBeingHandled = parentContext.IncomingLogicalMessage.Instance;
+                MessageMetadata = parentContext.IncomingLogicalMessage.Metadata;
+                MessageId = parentContext.PhysicalMessage.Id;
             }
 
             /// <summary>
@@ -33,10 +36,17 @@
             /// <summary>
             /// The current <see cref="IHandleMessages{T}"/> being executed.
             /// </summary>
-            public MessageHandler MessageHandler
-            {
-                get { return Get<MessageHandler>(); }
-            }
+            public MessageHandler MessageHandler { get; private set; }
+
+            /// <summary>
+            /// Message headers
+            /// </summary>
+            public Dictionary<string,string> Headers{ get; private set; }
+
+            /// <summary>
+            /// The message instance beeing handled
+            /// </summary>
+            public object MessageBeingHandled { get; private set; }
 
             /// <summary>
             /// Call this to stop the invocation of handlers.
@@ -49,21 +59,17 @@
             /// <summary>
             /// <code>true</code> if DoNotInvokeAnyMoreHandlers has been called.
             /// </summary>
-            public bool HandlerInvocationAborted
-            {
-                get
-                {
-                    bool handlerInvocationAborted;
+            public bool HandlerInvocationAborted { get; private set; }
 
-                    if (TryGet(HandlerInvocationAbortedKey, out handlerInvocationAborted))
-                    {
-                        return handlerInvocationAborted;
-                    }
-                    return false;
-                }
-                private set { Set(HandlerInvocationAbortedKey, value); }
-            }
+            /// <summary>
+            /// Metadata for the incoming message
+            /// </summary>
+            public MessageMetadata MessageMetadata { get; private set; }
 
+            /// <summary>
+            /// Id of the incoming message
+            /// </summary>
+            public string MessageId { get; private set; }
         }
     }
 }
