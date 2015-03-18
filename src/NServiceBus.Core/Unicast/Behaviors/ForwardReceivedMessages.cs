@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Features
 {
-    using System;
     using NServiceBus.Config;
     using NServiceBus.Unicast.Queuing.Installers;
 
