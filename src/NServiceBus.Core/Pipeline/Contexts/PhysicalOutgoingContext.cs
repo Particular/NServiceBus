@@ -13,8 +13,7 @@
         /// </summary>
         public class Context : BehaviorContext
         {
-            readonly OutgoingContext parent;
-
+          
             /// <summary>
             /// 
             /// </summary>
@@ -23,14 +22,16 @@
             public Context( byte[] body,OutgoingContext parentContext)
                 : base(parentContext)
             {
-                parent = parentContext;
                 Body = body;
+                DeliveryOptions = parentContext.DeliveryOptions;
+                Headers = parentContext.Headers;
+                MessageId = parentContext.MessageId;
             }
 
             /// <summary>
             /// 
             /// </summary>
-            public DeliveryOptions DeliveryOptions { get { return parent.DeliveryOptions; } }
+            public DeliveryOptions DeliveryOptions { get; private set; }
 
             /// <summary>
             /// 
@@ -41,12 +42,12 @@
             /// <summary>
             ///     Gets other applicative out-of-band information.
             /// </summary>
-            public Dictionary<string, string> Headers { get { return parent.Headers; } }
+            public Dictionary<string, string> Headers { get; private set; }
 
             /// <summary>
             /// This id of this message
             /// </summary>
-            public string MessageId { get { return parent.MessageId; } }
+            public string MessageId { get; private set; }
         }
     }
 }

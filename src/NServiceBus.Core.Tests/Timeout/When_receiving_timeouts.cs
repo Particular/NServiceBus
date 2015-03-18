@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Tests.Timeout
 {
     using System;
+    using System.Collections.Generic;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
 
@@ -13,19 +14,16 @@ namespace NServiceBus.Core.Tests.Timeout
         {
            var  messageSender = new FakeMessageSender();
 
-            var configure = new BusConfiguration().BuildConfiguration();
-
-            configure.localAddress = "sdad@asda";
             var manager = new DefaultTimeoutManager
             {
-                MessageSender = messageSender,
-                Configure = configure
+                MessageSender = messageSender
             };
 
             manager.PushTimeout(new TimeoutData
                 {
                     Time = DateTime.UtcNow,
                     Destination = "local"
+                    Headers = new Dictionary<string, string> { {Headers.MessageId,"msg id"}}
                 });
 
             Assert.AreEqual(1, messageSender.MessagesSent);

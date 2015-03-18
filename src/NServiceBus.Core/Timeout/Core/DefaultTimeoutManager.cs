@@ -10,8 +10,6 @@ namespace NServiceBus.Timeout.Core
 
         public ISendMessages MessageSender { get; set; }
 
-        public Configure Configure { get; set; }
-
         public Action<TimeoutData> TimeoutPushed;
 
         public void PushTimeout(TimeoutData timeout)

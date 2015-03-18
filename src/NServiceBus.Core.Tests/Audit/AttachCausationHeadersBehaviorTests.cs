@@ -12,7 +12,7 @@
         public void Should_set_the_conversation_id_to_new_guid_when_not_sent_from_handler()
         {
             var behavior = new AttachCausationHeadersBehavior();
-            var context = new PhysicalOutgoingContextStageBehavior.Context(null,null);
+            var context = new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, null, null, new Dictionary<string, string>(), null));
 
             behavior.Invoke(context,()=>{});
 
@@ -25,7 +25,7 @@
             var incomingConvId = Guid.NewGuid().ToString();
 
             var behavior = new AttachCausationHeadersBehavior();
-            var context = new PhysicalOutgoingContextStageBehavior.Context(null,null);
+            var context = new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, null, null, new Dictionary<string, string>(), null));
 
             context.Set(TransportReceiveContext.IncomingPhysicalMessageKey,new TransportMessage("xyz",new Dictionary<string, string>{{Headers.ConversationId,incomingConvId}}));
 
@@ -54,7 +54,7 @@
         {
             
             var behavior = new AttachCausationHeadersBehavior();
-            var context = new PhysicalOutgoingContextStageBehavior.Context(null,null);
+            var context = new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, null, null, new Dictionary<string, string>(), null));
 
             context.Set(TransportReceiveContext.IncomingPhysicalMessageKey, new TransportMessage("the message id", new Dictionary<string, string>()));
 
