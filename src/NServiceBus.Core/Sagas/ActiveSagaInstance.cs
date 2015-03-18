@@ -23,7 +23,7 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// The type of the saga
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Replacement = ".Metadata.SagaType")]
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = ".Metadata.SagaType")]
         public Type SagaType 
         {
             get { return Metadata.SagaType; }
@@ -37,7 +37,7 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// The actual saga instance
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Replacement = "context.MessageHandler.Instance")]
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "context.MessageHandler.Instance")]
         public Saga Instance { get; private set; }
         
         /// <summary>

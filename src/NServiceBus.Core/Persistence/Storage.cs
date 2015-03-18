@@ -6,7 +6,7 @@
     [ObsoleteEx(
     RemoveInVersion = "7.0",
     TreatAsErrorFromVersion = "6.0",
-    Replacement = "NServiceBus.Persistence.StorageType")]
+    ReplacementTypeOrMember = "NServiceBus.Persistence.StorageType")]
     public enum Storage
     {
         /// <summary>

@@ -5,7 +5,6 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Config;
-    using NServiceBus.Faults;
     using NServiceBus.Features;
     using NUnit.Framework;
     using Saga;
@@ -24,7 +23,7 @@
                         DataId = Guid.NewGuid()
                     })))
                     .AllowExceptions()
-                .Done(c => c.ExceptionReceived)
+                .Done(c => c.MessageFailed)
                 .Repeat(r => r.For(Transports.Default))
                 .Run();
 
@@ -33,7 +32,7 @@
 
         public class Context : ScenarioContext
         {
-            public bool ExceptionReceived { get; set; }
+            public bool MessageFailed { get; set; }
             public string ExceptionMessage { get; set; }
         }
 
@@ -41,11 +40,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(b =>
-                {
-                    b.RegisterComponents(c => c.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance));
-                    b.DisableFeature<TimeoutManager>();
-                })
+                EndpointSetup<DefaultServer>(b => b.DisableFeature<TimeoutManager>())
                     .WithConfig<TransportConfig>(c =>
                     {
                         c.MaxRetries = 0;
@@ -75,23 +70,22 @@
                 }
 
             }
-            class CustomFaultManager : IManageMessageFailures
+            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
 
-                public void SerializationFailedForMessage(TransportMessage message, Exception e)
+                public BusNotifications BusNotifications { get; set; }
+
+                public void Start()
                 {
+                    BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
+                    {
+                        Context.MessageFailed = true;
+                        Context.ExceptionMessage = e.Exception.Message;
+                    });
                 }
 
-                public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
-                {
-                    Context.ExceptionMessage = e.Message;
-                    Context.ExceptionReceived = true;
-                }
-
-                public void Init(Address address)
-                {
-                }
+                public void Stop() { }
             }
         }
 

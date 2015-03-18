@@ -104,18 +104,30 @@ namespace NServiceBus.Features
 
         public FeaturesReport SetupFeatures(FeatureConfigurationContext context)
         {
-            var featuresToActivate = Sort(features).Where(featureState => IsEnabled(featureState.Feature.GetType()));
+            // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
+            var sourceFeatures = Sort(features);
 
-            foreach (var defaultSetting in featuresToActivate.SelectMany(feature => feature.Feature.RegisteredDefaults))
+            var enabledFeatures = new List<FeatureState>();
+            while (true)
             {
-                defaultSetting(settings);
+                var featureToActivate = sourceFeatures.FirstOrDefault(x => IsEnabled(x.Feature.GetType()));
+                if (featureToActivate == null)
+                {
+                    break;
+                }
+                sourceFeatures.Remove(featureToActivate);
+                enabledFeatures.Add(featureToActivate);
+                foreach (var registeredDefault in featureToActivate.Feature.RegisteredDefaults)
+                {
+                    registeredDefault(settings);
+                }
             }
 
             settings.PreventChanges();
 
-            foreach (var feature in featuresToActivate)
+            foreach (var feature in enabledFeatures)
             {
-                ActivateFeature(feature, featuresToActivate, context);
+                ActivateFeature(feature, enabledFeatures, context);
             }
 
             return new FeaturesReport(features.Select(t => t.Diagnostics));
@@ -154,11 +166,22 @@ namespace NServiceBus.Features
                     var task = (FeatureStartupTask) builder.Build(taskType);
 
                     task.PerformStop();
+
+                    DisposeIfNecessary(task);
                 }
             }
         }
 
-        static IEnumerable<FeatureState> Sort(IEnumerable<FeatureState> features)
+        static void DisposeIfNecessary(FeatureStartupTask task)
+        {
+            var disposableTask = task as IDisposable;
+            if (disposableTask != null)
+            {
+                disposableTask.Dispose();
+            }
+        }
+
+        static List<FeatureState> Sort(IEnumerable<FeatureState> features)
         {
             // Step 1: create nodes for graph
             var nameToNodeDict = new Dictionary<string, Node>();
@@ -198,7 +221,7 @@ namespace NServiceBus.Features
             return output;
         }
 
-        static bool ActivateFeature(FeatureState featureState, IEnumerable<FeatureState> featuresToActivate, FeatureConfigurationContext context)
+        static bool ActivateFeature(FeatureState featureState, List<FeatureState> featuresToActivate, FeatureConfigurationContext context)
         {
             if (featureState.Feature.IsActive)
             {
@@ -286,24 +309,6 @@ namespace NServiceBus.Features
             internal FeatureState FeatureState;
             internal List<Node> previous = new List<Node>();
             bool visited;
-        }
-
-        class Runner : IWantToRunWhenBusStartsAndStops
-        {
-            public IBuilder Builder { get; set; }
-
-            public FeatureActivator FeatureActivator { get; set; }
-
-
-            public void Start()
-            {
-                FeatureActivator.StartFeatures(Builder);
-            }
-
-            public void Stop()
-            {
-                FeatureActivator.StopFeatures(Builder);
-            }
         }
     }
 }

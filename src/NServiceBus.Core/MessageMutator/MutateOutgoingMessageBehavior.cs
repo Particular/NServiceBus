@@ -7,9 +7,9 @@
     using Unicast.Transport;
 
 
-    class MutateOutgoingMessageBehavior : IBehavior<OutgoingContext>
+    class MutateOutgoingMessageBehavior : Behavior<OutgoingContext>
     {
-        public void Invoke(OutgoingContext context, Action next)
+        public override void Invoke(OutgoingContext context, Action next)
         {
             if (context.OutgoingLogicalMessage.IsControlMessage())
             {

@@ -17,20 +17,6 @@ namespace NServiceBus.ObjectBuilder.Common
         /// </summary>
         public IContainer Container { get; set; }
 
-        /// <summary>
-        /// Used for multi-threaded rich clients to build and dispatch
-        /// in a synchronization domain.
-        /// </summary>
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "5.0",
-            RemoveInVersion = "6.0",
-            Message = "Smartclients should handle their own synchronization")]
-        public bool Synchronized
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
-
         public IComponentConfig ConfigureComponent(Type concreteComponent, DependencyLifecycle instanceLifecycle)
         {
             Container.Configure(concreteComponent, instanceLifecycle);

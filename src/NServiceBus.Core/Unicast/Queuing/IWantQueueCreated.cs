@@ -8,7 +8,7 @@ namespace NServiceBus.Unicast.Queuing
         /// <summary>
         /// Address of queue the implementer requires.
         /// </summary>
-        Address Address { get; }
+        string Address { get; }
         
         /// <summary>
         /// True if no need to create queue

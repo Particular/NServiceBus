@@ -1,8 +1,11 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
+    using System.Collections.Generic;
+    using System.IO;
+    using NServiceBus.Outbox;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Transports;
     using NUnit.Framework;
-    using Outbox;
 
     [TestFixture]
     public class OutboxRecordBehaviorTests
@@ -10,13 +13,10 @@
         [Test]
         public void Should_not_store_the_message_if_handle_current_message_later_was_called()
         {
-            var incomingTransportMessage = new TransportMessage();
-
-            var context = new IncomingContext(null, incomingTransportMessage)
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), null))
             {
                 handleCurrentMessageLaterWasCalled = true
             };
-
             context.Set(new OutboxMessage("SomeId"));
 
             Invoke(context);
@@ -35,7 +35,7 @@
             };
         }
 
-        void Invoke(IncomingContext context, bool shouldAbort = false)
+        void Invoke(PhysicalMessageProcessingStageBehavior.Context context, bool shouldAbort = false)
         {
             behavior.Invoke(context, () =>
             {

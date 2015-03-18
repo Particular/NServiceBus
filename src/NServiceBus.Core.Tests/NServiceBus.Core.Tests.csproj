@@ -70,6 +70,7 @@
     <Reference Include="NServiceBus.OldCompilerBits">
       <HintPath>TestDlls\NServiceBus.OldCompilerBits.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
@@ -82,6 +83,18 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Messaging" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices">
+      <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
@@ -95,10 +108,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Address\AddressTests.cs" />
     <Compile Include="API\APIApprovals.cs" />
-    <Compile Include="API\PublicApiApprover.cs" />
-    <Compile Include="API\PublicApiGenerator.cs" />
+    <Compile Include="ApprovalTestConfig.cs" />
+    <Compile Include="App_Packages\ApiApprover.3.0.1\PublicApiApprover.cs" />
+    <Compile Include="App_Packages\ApiApprover.3.0.1\PublicApiGenerator.cs" />
     <Compile Include="AssemblyLocation.cs" />
     <Compile Include="AssemblyScanner\AssemblyScannerTests.cs" />
     <Compile Include="AssemblyScanner\When_directory_with_no_reference_dlls_is_scanned.cs" />
@@ -109,6 +122,7 @@
     <Compile Include="AssemblyScanner\When_scanning_for_dlls_only.cs" />
     <Compile Include="AssemblyScanner\When_scanning_top_level_only.cs" />
     <Compile Include="AssemblyScanner\When_told_to_scan_app_domain.cs" />
+    <Compile Include="Audit\AttachCausationHeadersBehaviorTests.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscriptionContext.cs" />
     <Compile Include="AutomaticSubscriptions\When_autosubscribing_a_saga_that_handles_a_superclass_event.cs" />
     <Compile Include="AutomaticSubscriptions\When_starting_an_endpoint_containing_a_saga.cs" />
@@ -124,15 +138,24 @@
     <Compile Include="DataBus\InMemoryDataBus.cs" />
     <Compile Include="Encryption\When_message_contains_props_and_fields_that_cannot_be_set.cs" />
     <Compile Include="Features\FeatureDefaultsTests.cs" />
+    <Compile Include="FirstLevelRetriesTests.cs" />
+    <Compile Include="Faults\ForwardFaultsToErrorQueueTests.cs" />
+    <Compile Include="Hosting\HostInfoSettingsTests.cs" />
     <Compile Include="Logging\DefaultFactoryTests.cs" />
+    <Compile Include="Msmq\MsmqTransportTests.cs" />
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
+    <Compile Include="Outbox\TransportOperationConverterTests.cs" />
     <Compile Include="Persistence\InMemory\InMemoryPersisterBuilder.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />
     <Compile Include="Persistence\InMemory\When_saving_a_null_unique_property.cs" />
     <Compile Include="Persistence\PersistenceExtentionsTests.cs" />
     <Compile Include="Persistence\PersistenceStorageMergerTests.cs" />
+    <Compile Include="Pipeline\HandlerTransactionScopeWrapperBehaviorTests.cs" />
+    <Compile Include="Pipeline\PipelineExecutorTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
     <Compile Include="Sagas\TypeBasedSagaMetaModelTests.cs" />
+    <Compile Include="SecondLevelRetries\DefaultRetryPolicyTests.cs" />
+    <Compile Include="Serializers\SerializeMessagesBehaviorTests.cs" />
     <Compile Include="StandardsTests.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionServiceTests.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceTest.cs" />
@@ -169,7 +192,6 @@
     <Compile Include="Serializers\Json\When_overriding_stream_encoding.cs" />
     <Compile Include="Serializers\XML\SerializingGenericTests.cs" />
     <Compile Include="StringStreamExtensions.cs" />
-    <Compile Include="Fakes\FakeCentralizedPubSubTransportDefinition.cs" />
     <Compile Include="Licensing\LicenseExpiredFormDisplayerTests.cs" />
     <Compile Include="ConventionsTests.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
@@ -189,7 +211,6 @@
     <Compile Include="Encryption\Mailing_list_complex_dto.cs" />
     <Compile Include="Encryption\WireEncryptedStringSpecs.cs" />
     <Compile Include="Fakes\FakeBus.cs" />
-    <Compile Include="Fakes\FakeTransport.cs" />
     <Compile Include="FuncBuilder.cs" />
     <Compile Include="Installers\PerformanceMonitorUsersInstallerTests.cs" />
     <Compile Include="ExceptionTests.cs" />
@@ -201,12 +222,9 @@
     <Compile Include="Outbox\OutboxDeduplicationBehaviorTests.cs" />
     <Compile Include="Routing\StaticMessageRouterTests.cs" />
     <Compile Include="Sagas\UniqueAttributeTests.cs" />
-    <Compile Include="Satellite\SatelliteLauncherContext.cs" />
-    <Compile Include="Satellite\SatelliteLauncherTests.cs" />
     <Compile Include="Scheduler\DefaultSchedulerTests.cs" />
     <Compile Include="Scheduler\ScheduledTaskMessageHandlerTests.cs" />
     <Compile Include="Scheduler\ScheduleTests.cs" />
-    <Compile Include="SecondLevelRetries\SecondLevelRetriesProcessorTests.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetriesTests.cs" />
     <Compile Include="Serializers\Binary\BinarySerializerTest.cs" />
     <Compile Include="Serializers\Json\BsonMessageSerializerTest.cs" />
@@ -235,45 +253,33 @@
     <Compile Include="Serializers\XML\Using_Infer_Type_With_Non_Nested_Class.cs" />
     <Compile Include="Timeout\FakeMessageSender.cs" />
     <Compile Include="Timeout\InMemoryTimeoutPersisterTests.cs" />
+    <Compile Include="Timeout\When_deferring_a_message.cs" />
     <Compile Include="Timeout\When_fetching_timeouts_from_storage.cs" />
     <Compile Include="Timeout\InMemoryTimeoutPersisterThreadTests.cs" />
     <Compile Include="Timeout\When_pooling_timeouts.cs" />
     <Compile Include="Timeout\When_receiving_timeouts.cs" />
     <Compile Include="Timeout\When_removing_timeouts_from_the_storage.cs" />
-    <Compile Include="Fakes\FakeFailureManager.cs" />
-    <Compile Include="Fakes\FakeReceiver.cs" />
-    <Compile Include="Transport\for_the_transactional_transport.cs" />
-    <Compile Include="Transport\When_specifying_a_non_zero_throughput_limit.cs" />
-    <Compile Include="Transport\When_specifying_a_zero_throughput_limit.cs" />
+    <Compile Include="Pipeline\When_specifying_a_non_zero_throughput_limit.cs" />
     <Compile Include="Unicast\ConfigurationSettings.cs" />
     <Compile Include="Unicast\ConfiguringMessageEndpointMapping.cs" />
     <Compile Include="Unicast\Config\ConfigurationSettings.cs" />
     <Compile Include="Unicast\Contexts\CommandMessage.cs" />
-    <Compile Include="Unicast\Contexts\CommandWithDataBusPropertyMessage.cs" />
     <Compile Include="Unicast\Contexts\EventMessage.cs" />
-    <Compile Include="Unicast\Contexts\FakeMessageDeferrer.cs" />
     <Compile Include="Unicast\Contexts\InterfaceMessage.cs" />
-    <Compile Include="Unicast\Contexts\using_the_unicastbus.cs" />
-    <Compile Include="Unicast\UnitOfWorkBehaviorTests.cs" />
+    <Compile Include="Unicast\LoadHandlersBehaviorTests.cs" />
+    <Compile Include="Unicast\ReplyOptionsTests.cs" />
+    <Compile Include="Unicast\SubscriptionManagerTests.cs" />
+    <Compile Include="Unicast\TransportMessageTests.cs" />
+    <Compile Include="Unicast\MessageTypeTests.cs" />
+    <Compile Include="UnitOfWork\UnitOfWorkBehaviorTests.cs" />
     <Compile Include="Unicast\ThroughputLimiterTests.cs" />
     <Compile Include="Unicast\MessagingBestPracticesTests.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
-    <Compile Include="Unicast\DeferedMessages.cs" />
-    <Compile Include="Unicast\Helpers\FakeSubscriptionStorage.cs" />
-    <Compile Include="Unicast\Helpers\FakeTransport.cs" />
-    <Compile Include="Unicast\Helpers\Helpers.cs" />
     <Compile Include="Unicast\Messages\ANamespace\ASubNamespace\MessageD.cs" />
     <Compile Include="Unicast\Messages\ANamespace\MessageC.cs" />
     <Compile Include="Unicast\Messages\DefaultMessageRegistryTests.cs" />
     <Compile Include="Unicast\Messages\MessageA.cs" />
     <Compile Include="Unicast\Messages\MessageB.cs" />
-    <Compile Include="Unicast\Publishing.cs" />
-    <Compile Include="Unicast\Receiving.cs" />
-    <Compile Include="Unicast\Sending.cs" />
-    <Compile Include="Unicast\SendOnlyMode.cs" />
-    <Compile Include="Unicast\Subscriptions.cs" />
-    <Compile Include="Unicast\Timing.cs" />
-    <Compile Include="Unicast\UnitOfWork.cs" />
     <Compile Include="Utils\ExceptionHeaderHelperTests.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethodsTests.cs" />
     <Compile Include="Utils\Reflection\ReflectTests.cs" />

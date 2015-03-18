@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
-    using System.Collections.Generic;
 
     public class IBusAdapter : IBus
     {
@@ -17,7 +16,7 @@
             sendOnlyBus.Dispose();
         }
 
-        public void Publish<T>(T message)
+        public void Publish(object message)
         {
             sendOnlyBus.Publish(message);
         }
@@ -46,43 +45,21 @@
         {
             return sendOnlyBus.Send(destination, message);
         }
-
-        public ICallback Send(Address address, object message)
-        {
-            return sendOnlyBus.Send(address, message);
-        }
-
+        
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
             return sendOnlyBus.Send(destination, messageConstructor);
         }
-
-        public ICallback Send<T>(Address address, Action<T> messageConstructor)
-        {
-            return sendOnlyBus.Send(address, messageConstructor);
-        }
-
+        
         public ICallback Send(string destination, string correlationId, object message)
         {
             return sendOnlyBus.Send(destination, correlationId, message);
-        }
-
-        public ICallback Send(Address address, string correlationId, object message)
-        {
-            return sendOnlyBus.Send(address, correlationId, message);
         }
 
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
             return sendOnlyBus.Send(destination, correlationId, messageConstructor);
         }
-
-        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
-        {
-            return sendOnlyBus.Send(address, correlationId, messageConstructor);
-        }
-
-        public IDictionary<string, string> OutgoingHeaders { get; private set; }
 
         public void Subscribe(Type messageType)
         {
@@ -155,9 +132,5 @@
         }
 
         public IMessageContext CurrentMessageContext { get; private set; }
-
-#pragma warning disable 0618
-        public IInMemoryOperations InMemory { get; private set; }
-#pragma warning restore 0618
     }
 }

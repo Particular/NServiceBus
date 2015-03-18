@@ -16,10 +16,10 @@
         /// </summary>
         public StaticMessageRouter(IEnumerable<Type> knownMessages)
         {
-            routes = new ConcurrentDictionary<Type, List<Address>>();
+            routes = new ConcurrentDictionary<Type, List<string>>();
             foreach (var knownMessage in knownMessages)
             {
-                routes[knownMessage] = new List<Address>();
+                routes[knownMessage] = new List<string>();
             }
         }
 
@@ -32,12 +32,12 @@
         /// Returns all the routes for a given message
         /// </summary>
         /// <param name="messageType">The <see cref="Type"/> of the message to get the destination <see cref="Address"/> list for.</param>
-        public List<Address> GetDestinationFor(Type messageType)
+        public List<string> GetDestinationFor(Type messageType)
         {
-            List<Address> address;
+            List<string> address;
             if (!routes.TryGetValue(messageType, out address))
             {
-                return new List<Address>();
+                return new List<string>();
             }
 
             return address;
@@ -48,18 +48,18 @@
         /// </summary>
         /// <param name="eventType">The <see cref="Type"/> of the event</param>
         /// <param name="endpointAddress">The <see cref="Address"/> representing the logical owner for the event</param>
-        public void RegisterEventRoute(Type eventType, Address endpointAddress)
+        public void RegisterEventRoute(Type eventType, string endpointAddress)
         {
-            if (endpointAddress == null || endpointAddress == Address.Undefined)
+            if (endpointAddress == null)
             {
-                throw new InvalidOperationException(String.Format("'{0}' can't be registered with Address.Undefined route.", eventType.FullName));
+                throw new InvalidOperationException(String.Format("'{0}' can't be registered with null route.", eventType.FullName));
             }
 
-            List<Address> currentAddress;
+            List<string> currentAddress;
 
             if (!routes.TryGetValue(eventType, out currentAddress))
             {
-                routes[eventType] = currentAddress = new List<Address>();
+                routes[eventType] = currentAddress = new List<string>();
             }
 
             Logger.DebugFormat(currentAddress.Any() ? "Routing for message: {0} appending {1}" : "Routing for message: {0} set to {1}", eventType, endpointAddress);
@@ -86,18 +86,18 @@
         /// </summary>
         /// <param name="messageType">The message type</param>
         /// <param name="endpointAddress">The address of the logical owner</param>
-        public void RegisterMessageRoute(Type messageType, Address endpointAddress)
+        public void RegisterMessageRoute(Type messageType, string endpointAddress)
         {
-            if (endpointAddress == null || endpointAddress == Address.Undefined)
+            if (endpointAddress == null)
             {
                 throw new InvalidOperationException(String.Format("'{0}' can't be registered with Address.Undefined route.", messageType.FullName));
             }
 
-            List<Address> currentAddress;
+            List<string> currentAddress;
 
             if (!routes.TryGetValue(messageType, out currentAddress))
             {
-                routes[messageType] = currentAddress = new List<Address>();
+                routes[messageType] = currentAddress = new List<string>();
             }
 
             Logger.DebugFormat("Routing for message: {0} set to {1}", messageType, endpointAddress);
@@ -114,6 +114,6 @@
         }
 
         static ILog Logger = LogManager.GetLogger<StaticMessageRouter>();
-        readonly ConcurrentDictionary<Type, List<Address>> routes;
+        readonly ConcurrentDictionary<Type, List<string>> routes;
     }
 }

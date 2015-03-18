@@ -10,6 +10,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Publishes the given messages to all known subscribers
         /// </summary>
-        void Publish(TransportMessage message,PublishOptions publishOptions);
+        void Publish(OutgoingMessage message,PublishOptions publishOptions);
     }
 }

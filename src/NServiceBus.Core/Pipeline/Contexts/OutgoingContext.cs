@@ -3,6 +3,7 @@
     using Unicast;
     using Unicast.Messages;
 
+
     /// <summary>
     /// Outgoing pipeline context.
     /// </summary>
@@ -21,6 +22,30 @@
             Set(OutgoingLogicalMessageKey, message);
         }
 
+        internal OutgoingHeaders OutgoingHeaders
+        {
+            get
+            {
+                OutgoingHeaders existingHeaders;
+                if (TryGet(out existingHeaders))
+                {
+                    return existingHeaders;
+                }
+                existingHeaders = new OutgoingHeaders();
+                Set(existingHeaders);
+                return existingHeaders;
+            }
+        }
+        
+           /// <summary>
+        /// Allows context inheritence
+        /// </summary>
+        /// <param name="parentContext"></param>
+        protected OutgoingContext(BehaviorContext parentContext)
+            : base(parentContext)
+        {
+        }
+
         /// <summary>
         /// Sending options.
         /// </summary>
@@ -37,28 +62,7 @@
             get { return Get<LogicalMessage>(OutgoingLogicalMessageKey); }
         }
 
-        /// <summary>
-        /// The received message, if any.
-        /// </summary>
-        public TransportMessage IncomingMessage
-        {
-            get
-            {
-                TransportMessage message;
 
-                parentContext.TryGet(IncomingContext.IncomingPhysicalMessageKey, out message);
-
-                return message;
-            }
-        }
-
-        /// <summary>
-        /// The message about to be sent out.
-        /// </summary>
-        public TransportMessage OutgoingMessage
-        {
-            get { return Get<TransportMessage>(); }
-        }
 
         const string OutgoingLogicalMessageKey = "NServiceBus.OutgoingLogicalMessage";
     }

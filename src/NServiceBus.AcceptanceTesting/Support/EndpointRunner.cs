@@ -6,6 +6,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Support;
     using NServiceBus.Unicast;
     using Transports;
@@ -15,15 +16,16 @@
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
         readonly SemaphoreSlim contextChanged = new SemaphoreSlim(0);
-        readonly IList<Guid> executedWhens = new List<Guid>();
+        readonly CancellationTokenSource stopSource = new CancellationTokenSource();
         EndpointBehavior behavior;
         IStartableBus bus;
         ISendOnlyBus sendOnlyBus;
         EndpointConfiguration configuration;
         Task executeWhens;
         ScenarioContext scenarioContext;
-        bool stopped;
         RunDescriptor runDescriptor;
+        BusConfiguration busConfiguration;
+        CancellationToken stopToken;
 
         public Result Initialize(RunDescriptor run, EndpointBehavior endpointBehavior,
             IDictionary<Type, string> routingTable, string endpointName)
@@ -44,7 +46,7 @@
                 }
 
                 //apply custom config settings
-                var busConfiguration = configuration.GetConfiguration(run, routingTable);
+                busConfiguration = configuration.GetConfiguration(run, routingTable);
 
                 scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
 
@@ -62,16 +64,31 @@
                     scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
                 }
 
+                stopToken = stopSource.Token;
 
-                executeWhens = Task.Factory.StartNew(() =>
+                if (behavior.Whens.Count == 0)
                 {
-                    while (!stopped)
+                    executeWhens = Task.FromResult(0);
+                }
+                else
+                {
+                    executeWhens = Task.Factory.StartNew(async () =>
                     {
-                        //we spin around each 5s since the callback mechanism seems to be shaky
-                        contextChanged.Wait(TimeSpan.FromSeconds(5));
+                        var executedWhens = new List<Guid>();
 
-                        lock (behavior)
+                        while (!stopToken.IsCancellationRequested)
                         {
+                            if (executedWhens.Count == behavior.Whens.Count)
+                            {
+                                break;
+                            }
+
+                            //we spin around each 5s since the callback mechanism seems to be shaky
+                            await contextChanged.WaitAsync(TimeSpan.FromSeconds(5), stopToken);
+
+                            if (stopToken.IsCancellationRequested)
+                                break;
+
                             foreach (var when in behavior.Whens)
                             {
                                 if (executedWhens.Contains(when.Id))
@@ -85,9 +102,8 @@
                                 }
                             }
                         }
-                    }
-                });
-
+                    }, stopToken).Unwrap();
+                }
                 return Result.Success();
             }
             catch (Exception ex)
@@ -140,10 +156,9 @@
         {
             try
             {
-                stopped = true;
-
+                stopSource.Cancel();
                 scenarioContext.ContextPropertyChanged -= scenarioContext_ContextPropertyChanged;
-
+                
                 executeWhens.Wait();
                 contextChanged.Dispose();
 
@@ -154,8 +169,9 @@
                 else
                 {
                     bus.Dispose();
-
                 }
+
+                Cleanup();
 
                 return Result.Success();
             }
@@ -164,6 +180,21 @@
                 Logger.Error("Failed to stop endpoint " + configuration.EndpointName, ex);
 
                 return Result.Failure(ex);
+            }
+        }
+
+        void Cleanup()
+        {
+            dynamic transportCleaner;
+            if (busConfiguration.GetSettings().TryGet("CleanupTransport", out transportCleaner))
+            {
+                transportCleaner.Cleanup();
+            }
+
+            dynamic persistenceCleaner;
+            if (busConfiguration.GetSettings().TryGet("CleanupPersistence", out persistenceCleaner))
+            {
+                persistenceCleaner.Cleanup();
             }
         }
 

@@ -10,8 +10,14 @@
     /// <summary>
     ///     Maintains the message handlers for this endpoint
     /// </summary>
-    public class MessageHandlerRegistry : IMessageHandlerRegistry
+    public class MessageHandlerRegistry
     {
+        static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
+        readonly Conventions conventions;
+        readonly Dictionary<RuntimeTypeHandle, List<DelegateHolder>> handlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
+        readonly IDictionary<RuntimeTypeHandle, List<Type>> handlerList = new Dictionary<RuntimeTypeHandle, List<Type>>();
+        readonly Dictionary<RuntimeTypeHandle, List<DelegateHolder>> timeoutCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
+
         internal MessageHandlerRegistry(Conventions conventions)
         {
             this.conventions = conventions;
@@ -30,7 +36,7 @@
 
             return from keyValue in handlerList
                 where keyValue.Value.Any(msgTypeHandled => msgTypeHandled.IsAssignableFrom(messageType))
-                select keyValue.Key;
+                select Type.GetTypeFromHandle(keyValue.Key);
         }
 
         /// <summary>
@@ -59,9 +65,10 @@
             foreach (var messageType in messageTypesThisHandlerHandles)
             {
                 List<Type> typeList;
-                if (!handlerList.TryGetValue(handlerType, out typeList))
+                var typeHandle = handlerType.TypeHandle;
+                if (!handlerList.TryGetValue(typeHandle, out typeList))
                 {
-                    handlerList[handlerType] = typeList = new List<Type>();
+                    handlerList[typeHandle] = typeList = new List<Type>();
                 }
 
                 if (!typeList.Contains(messageType))
@@ -75,43 +82,43 @@
         }
 
         /// <summary>
-        /// Invokes the handle method of the given handler passing the message
+        ///     Invokes the handle method of the given handler passing the message
         /// </summary>
         /// <param name="handler">The handler instance.</param>
         /// <param name="message">The message instance.</param>
         public void InvokeHandle(object handler, object message)
         {
-            Invoke(handler, message, HandlerCache);
+            Invoke(handler, message, handlerCache);
         }
 
         /// <summary>
-        /// Invokes the timeout method of the given handler passing the message
+        ///     Invokes the timeout method of the given handler passing the message
         /// </summary>
         /// <param name="handler">The handler instance.</param>
         /// <param name="state">The message instance.</param>
         public void InvokeTimeout(object handler, object state)
         {
-            Invoke(handler, state, TimeoutCache);
+            Invoke(handler, state, timeoutCache);
         }
 
         /// <summary>
-        /// Registers the method in the cache
+        ///     Registers the method in the cache
         /// </summary>
         /// <param name="handler">The object type.</param>
         /// <param name="messageType">the message type.</param>
         public void CacheMethodForHandler(Type handler, Type messageType)
         {
-            CacheMethod(handler, messageType, typeof(IHandleMessages<>), HandlerCache);
-            CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), TimeoutCache);
+            CacheMethod(handler, messageType, typeof(IHandleMessages<>), handlerCache);
+            CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), timeoutCache);
         }
 
         /// <summary>
-        /// Clears the cache
+        ///     Clears the cache
         /// </summary>
         public void Clear()
         {
-            HandlerCache.Clear();
-            TimeoutCache.Clear();
+            handlerCache.Clear();
+            timeoutCache.Clear();
         }
 
         static void Invoke(object handler, object message, Dictionary<RuntimeTypeHandle, List<DelegateHolder>> dictionary)
@@ -151,9 +158,9 @@
             else
             {
                 cache[handler.TypeHandle] = new List<DelegateHolder>
-				    {
-					    delegateHolder
-				    };
+                {
+                    delegateHolder
+                };
             }
         }
 
@@ -179,16 +186,7 @@
             return null;
         }
 
-        class DelegateHolder
-        {
-            public Type MessageType;
-            public Action<object, object> MethodDelegate;
-        }
-
-        readonly Dictionary<RuntimeTypeHandle, List<DelegateHolder>> HandlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
-        readonly Dictionary<RuntimeTypeHandle, List<DelegateHolder>> TimeoutCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
-
-        IEnumerable<Type> GetMessageTypesIfIsMessageHandler(Type type)
+        static IEnumerable<Type> GetMessageTypesIfIsMessageHandler(Type type)
         {
             return from t in type.GetInterfaces()
                 where t.IsGenericType
@@ -199,9 +197,10 @@
                 select potentialMessageType;
         }
 
-        static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
-
-        readonly Conventions conventions;
-        readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
+        class DelegateHolder
+        {
+            public Type MessageType;
+            public Action<object, object> MethodDelegate;
+        }
     }
 }

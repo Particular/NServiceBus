@@ -70,7 +70,7 @@
 
         public void AddTrace(string trace)
         {
-            Trace += DateTime.Now.ToString("HH:mm:ss.ffffff") + " - " + trace + Environment.NewLine;
+            Trace += String.Format("{0:HH:mm:ss.ffffff} - {1}{2}", DateTime.Now, trace, Environment.NewLine);
         }
 
         public void RecordEndpointLog(string endpointName,string level ,string message)
@@ -89,7 +89,6 @@
             return endpointLogs.ToList();
         }
 
-
         List<EndpointLogItem> endpointLogs = new List<EndpointLogItem>();
 
         public class EndpointLogItem
@@ -97,6 +96,11 @@
             public string Endpoint { get; set; }
             public string Message { get; set; }
             public string Level { get; set; }
+
+            public override string ToString()
+            {
+                return string.Format("{0}({1}) - {2}", Level, Endpoint, Message);
+            }
         }
     }
 }

@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.Features
 {
     using System.Linq;
-    using AutomaticSubscriptions;
-    using Logging;
-    using Transports;
+    using NServiceBus.AutomaticSubscriptions;
+    using NServiceBus.Logging;
+    using NServiceBus.Transports;
 
     /// <summary>
     /// Used to configure auto subscriptions.
@@ -13,7 +13,7 @@
         internal AutoSubscribe()
         {
             EnableByDefault();
-
+            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't autosubscribe.");
             RegisterStartupTask<ApplySubscriptions>();
         }
 

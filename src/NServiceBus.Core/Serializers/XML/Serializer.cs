@@ -13,33 +13,28 @@
 
     class Serializer
     {
-        const string BASETYPE = "baseType";
+        const string BaseType = "baseType";
 
-        string nameSpace = "http://tempuri.net";
-        List<Type> namespacesToAdd;
+        const string DefaultNamespace = "http://tempuri.net";
 
+        readonly List<Type> namespacesToAdd = new List<Type>();
         readonly IMessageMapper mapper;
         readonly Conventions conventions;
         readonly XmlSerializerCache cache;
+        readonly bool skipWrappingRawXml;
+        readonly string @namespace;
 
-        public Serializer(IMessageMapper mapper, Conventions conventions, XmlSerializerCache cache)
+        public Serializer(IMessageMapper mapper, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = DefaultNamespace)
         {
             this.mapper = mapper;
             this.conventions = conventions;
             this.cache = cache;
-        }
-
-        public bool SkipWrappingRawXml { get; set; }
-
-        public string Namespace
-        {
-            get { return nameSpace; }
-            set { nameSpace = TrimPotentialTrailingForwardSlashes(value); }
+            this.skipWrappingRawXml = skipWrappingRawXml;
+            this.@namespace = @namespace;
         }
 
         public byte[] Serialize(object message)
         {
-            InitializeNamespaces(message);
             var messageBuilder = SerializeMessage(message);
 
             var builder = new StringBuilder();
@@ -49,16 +44,8 @@
             return Encoding.UTF8.GetBytes(builder.ToString());
         }
 
-        string InitializeNamespaces(object message)
-        {
-            namespacesToAdd = new List<Type>();
-
-            return GetNamespace(message);
-        }
-
         string GetNamespace(object message)
         {
-            //TODO: if the proxy type has the same NS as the real message type we don't need to look this up
             return mapper.GetMappedTypeFor(message.GetType()).Namespace;
         }
 
@@ -335,9 +322,9 @@
 
             if (useNS)
             {
-                var @namespace = InitializeNamespaces(value);
+                var messageNamespace = GetNamespace(value);
                 var baseTypes = GetBaseTypes(value);
-                CreateStartElementWithNamespaces(@namespace, baseTypes, builder, element);
+                CreateStartElementWithNamespaces(messageNamespace, baseTypes, builder, element);
             }
             else
             {
@@ -403,7 +390,7 @@
             if (typeof(XContainer).IsAssignableFrom(type))
             {
                 var container = (XContainer) value;
-                if (SkipWrappingRawXml)
+                if (skipWrappingRawXml)
                 {
                     builder.AppendFormat("{0}\n", container);
                 }
@@ -490,26 +477,13 @@
             return false;
         }
 
-        string TrimPotentialTrailingForwardSlashes(string value)
-        {
-            if (value == null)
-            {
-                return null;
-            }
-
-            return value.TrimEnd(new[]
-            {
-                '/'
-            });
-        }
-
         void CreateStartElementWithNamespaces(string messageNamespace, List<string> baseTypes, StringBuilder builder, string element)
         {
             builder.AppendFormat(
                 "<{0} xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"",
                 element);
 
-            builder.AppendFormat(" xmlns=\"{0}/{1}\"", nameSpace, messageNamespace);
+            builder.AppendFormat(" xmlns=\"{0}/{1}\"", @namespace, messageNamespace);
 
             foreach (var t in namespacesToAdd)
             {
@@ -518,7 +492,7 @@
 
             for (var i = 0; i < baseTypes.Count; i++)
             {
-                var prefix = BASETYPE;
+                var prefix = BaseType;
                 if (i != 0)
                 {
                     prefix += i;

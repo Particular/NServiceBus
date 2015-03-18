@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
-    using NServiceBus.Config;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Features;
     using NServiceBus.Hosting.Helpers;
@@ -19,21 +18,30 @@ namespace NServiceBus
     /// <summary>
     ///     Central configuration entry point.
     /// </summary>
-    public partial class Configure
+    public class Configure
     {
         /// <summary>
         ///     Creates a new instance of <see cref="Configure"/>.
         /// </summary>
-        public Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipeline)
+        public Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipeline, Dictionary<string, string> outgoingHeaders)
         {
             Settings = settings;
             this.pipeline = pipeline;
+            this.outgoingHeaders = outgoingHeaders;
 
             RegisterContainerAdapter(container);
             RunUserRegistrations(registrations);
 
-            configurer.RegisterSingleton(this);
-            configurer.RegisterSingleton<ReadOnlySettings>(settings);
+            this.container.RegisterSingleton(this);
+            this.container.RegisterSingleton<ReadOnlySettings>(settings);
+        }
+
+        /// <summary>
+        ///     Endpoint wide outgoing headers to be added to all sent messages.
+        /// </summary>
+        public IDictionary<string, string> OutgoingHeaders
+        {
+            get { return outgoingHeaders = outgoingHeaders ?? new Dictionary<string, string>(); }
         }
 
         /// <summary>
@@ -58,7 +66,7 @@ namespace NServiceBus
         {
             foreach (var registration in registrations)
             {
-                registration(configurer);
+                registration(container);
             }
         }
 
@@ -70,9 +78,9 @@ namespace NServiceBus
             };
 
             Builder = b;
-            configurer = b;
+            this.container = b;
 
-            configurer.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
+            this.container.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(c => c.Container, container);
         }
 
@@ -80,14 +88,14 @@ namespace NServiceBus
         {
             foreach (var t in TypesToScan.Where(t => t.GetInterfaces().Any(IsGenericConfigSource)))
             {
-                configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
+                container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
             }
         }
 
         /// <summary>
         /// Returns the queue name of this endpoint.
         /// </summary>
-        public Address LocalAddress
+        public string LocalAddress
         {
             get
             {
@@ -100,30 +108,42 @@ namespace NServiceBus
         {
             WireUpConfigSectionOverrides();
 
-            featureActivator = new FeatureActivator(Settings);
+            var featureActivator = new FeatureActivator(Settings);
 
-            configurer.RegisterSingleton(featureActivator);
+            container.RegisterSingleton(featureActivator);
 
             ForAllTypes<Feature>(TypesToScan, t => featureActivator.Add(t.Construct<Feature>()));
 
-            ForAllTypes<IWantToRunWhenConfigurationIsComplete>(TypesToScan, t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
-            ForAllTypes<IWantToRunWhenBusStartsAndStops>(TypesToScan, t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            ForAllTypes<IWantToRunWhenBusStartsAndStops>(TypesToScan, t => container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(TypesToScan, t => t.Run(this));
 
             var featureStats = featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
 
-            configurer.RegisterSingleton(featureStats);
+            pipeline.RegisterBehaviorsInContainer(Settings, container);
 
-            featureActivator.RegisterStartupTasks(configurer);
+            container.RegisterSingleton(featureStats);
 
-            localAddress =Settings.LocalAddress();
+            featureActivator.RegisterStartupTasks(container);
 
-            foreach (var o in Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>())
-            {
-                o.Run(this);
-            }
+            localAddress = Settings.LocalAddress();
+
+            ReportFeatures(featureStats);
+            StartFeatures(featureActivator);
+        }
+
+        static void ReportFeatures(FeaturesReport featureStats)
+        {
+            var reporter = new DisplayDiagnosticsForFeatures();
+            reporter.Run(featureStats);
+        }
+
+        void StartFeatures(FeatureActivator featureActivator)
+        {
+            var featureRunner = new FeatureRunner(Builder, featureActivator);
+            container.RegisterSingleton(featureRunner);
+
+            featureRunner.Start();
         }
 
         /// <summary>
@@ -139,7 +159,7 @@ namespace NServiceBus
             // ReSharper restore HeapView.SlowDelegateCreation
         }
 
-        internal Address PublicReturnAddress
+        internal string PublicReturnAddress
         {
             get
             {
@@ -148,7 +168,7 @@ namespace NServiceBus
                     return LocalAddress;
                 }
 
-                return Settings.Get<Address>("PublicReturnAddress");
+                return Settings.Get<string>("PublicReturnAddress");
             }
         }
 
@@ -200,13 +220,12 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
-        internal IConfigureComponents configurer;
-
-        FeatureActivator featureActivator;
+        internal IConfigureComponents container;
 
         internal PipelineSettings pipeline;
+        Dictionary<string, string> outgoingHeaders;
 
         //HACK: Set by the tests
-        internal Address localAddress;
+        internal string localAddress;
     }
 }

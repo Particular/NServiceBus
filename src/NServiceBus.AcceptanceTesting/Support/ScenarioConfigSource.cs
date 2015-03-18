@@ -55,7 +55,7 @@
                 {
                     if (configuration.AddressOfAuditQueue != null)
                     {
-                        return new AuditConfig { QueueName = configuration.AddressOfAuditQueue.ToString() } as T;
+                        return new AuditConfig { QueueName = configuration.AddressOfAuditQueue } as T;
                     }
 
                     if (configuration.AuditEndpoint != null)

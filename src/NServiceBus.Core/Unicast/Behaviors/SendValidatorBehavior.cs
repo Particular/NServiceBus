@@ -6,11 +6,11 @@
     using Pipeline.Contexts;
     using Unicast;
 
-    class SendValidatorBehavior : IBehavior<OutgoingContext>
+    class SendValidatorBehavior : Behavior<OutgoingContext>
     {
         public Conventions Conventions { get; set; }
 
-        public void Invoke(OutgoingContext context, Action next)
+        public override void Invoke(OutgoingContext context, Action next)
         {
             if (!context.OutgoingLogicalMessage.IsControlMessage())
             {
@@ -35,7 +35,7 @@
                 return;
             }
 
-            if (sendOptions.Destination == Address.Undefined)
+            if (string.IsNullOrWhiteSpace(sendOptions.Destination))
             {
                 throw new InvalidOperationException("No destination specified for message: " + context.OutgoingLogicalMessage.MessageType);
             }

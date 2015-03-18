@@ -4,18 +4,17 @@
     using System.Linq;
     using Logging;
     using NServiceBus.Unicast;
-    using Pipeline;
     using Pipeline.Contexts;
 
-    class LogOutgoingMessageBehavior : IBehavior<OutgoingContext>
+    class LogOutgoingMessageBehavior : PhysicalOutgoingContextStageBehavior
     {
-        public void Invoke(OutgoingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             var options = context.DeliveryOptions as SendOptions;
 
             if (options != null && log.IsDebugEnabled && context.OutgoingLogicalMessage != null)
             {
-                var destination = options.Destination.ToString();
+                var destination = options.Destination;
 
                 log.DebugFormat("Sending message '{0}' with id '{1}' to destination '{2}'.\n" +
                                 "ToString() of the message yields: {3}\n" +

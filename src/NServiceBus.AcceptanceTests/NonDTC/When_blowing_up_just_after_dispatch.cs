@@ -6,7 +6,6 @@
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
 
     public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest
@@ -67,24 +66,23 @@
         }
 
 
-        [Serializable]
         public class PlaceOrder : ICommand { }
 
-        [Serializable]
         class SendOrderAcknowledgement : IMessage { }
     }
 
-    public class BlowUpAfterDispatchBehavior : IBehavior<IncomingContext>
+    public class BlowUpAfterDispatchBehavior : PhysicalMessageProcessingStageBehavior
     {
         public class Registration : RegisterStep
         {
             public Registration() : base("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing")
             {
+                InsertAfter("FirstLevelRetries");
                 InsertBefore("OutboxDeduplication");
             }
         }
 
-        public void Invoke(IncomingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             if (!context.PhysicalMessage.Headers[Headers.EnclosedMessageTypes].Contains(typeof(When_blowing_up_just_after_dispatch.PlaceOrder).Name))
             {

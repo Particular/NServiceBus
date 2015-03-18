@@ -1,9 +1,11 @@
 namespace NServiceBus.Unicast
 {
+    using System;
+
     /// <summary>
     /// Base class for options to deliver messages.
     /// </summary>
-    public abstract class DeliveryOptions
+    public abstract partial class DeliveryOptions
     {
         /// <summary>
         /// Creates an instance of <see cref="DeliveryOptions"/>.
@@ -24,10 +26,18 @@ namespace NServiceBus.Unicast
         /// This is enabled by default
         /// </summary>
         public bool EnlistInReceiveTransaction { get; set; }
-        
+
+
+
         /// <summary>
-        /// The reply address to use for outgoing messages
+        /// The TTBR to use for this message
         /// </summary>
-        public Address ReplyToAddress { get; set; }
+        public TimeSpan? TimeToBeReceived { get; set; }
+
+
+        /// <summary>
+        /// Controls if the transport should be requested to handle the message in a way that it survives restarts
+        /// </summary>
+        public bool? NonDurable { get; set; }
     }
 }

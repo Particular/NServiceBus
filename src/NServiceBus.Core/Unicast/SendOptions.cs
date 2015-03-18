@@ -5,7 +5,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// Controls how a message will be sent by the transport
     /// </summary>
-    public class SendOptions : DeliveryOptions
+    public partial class SendOptions : DeliveryOptions
     {
         TimeSpan? delayDeliveryWith;
 
@@ -13,9 +13,14 @@ namespace NServiceBus.Unicast
         /// Creates an instance of <see cref="SendOptions"/>.
         /// </summary>
         /// <param name="destination">Address where to send this message</param>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "SendOptions(string)", 
+            RemoveInVersion = "7.0", 
+            TreatAsErrorFromVersion = "6.0")]
+        // ReSharper disable once UnusedParameter.Local
         public SendOptions(Address destination)
         {
-            Destination = destination;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -23,14 +28,9 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="destination">Address where to send this message</param>
         public SendOptions(string destination)
-            : this(Address.Parse(destination))
         {
+            Destination = destination;
         }
-
-        /// <summary>
-        /// The correlation id to be used on the message. Mostly used when doing Bus.Reply
-        /// </summary>
-        public string CorrelationId { get; set; }
 
         /// <summary>
         /// The time when the message should be delivered to the destination
@@ -57,11 +57,9 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Address where to send this message
         /// </summary>
-        public Address Destination { get; set; }
+        public string Destination { get; set; }
 
-        /// <summary>
-        /// The TTR to use for this message
-        /// </summary>
-        public TimeSpan? TimeToBeReceived { get; set; }
+
+
     }
 }

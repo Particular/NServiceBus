@@ -1,8 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Retries
 {
     using System;
-    using System.Collections.Generic;
-    using Faults;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Config;
@@ -13,12 +11,15 @@
         [Test]
         public void Should_not_retry_the_message_using_flr()
         {
-            var context = new Context();
+            var context = new Context
+            {
+                Id = Guid.NewGuid()
+            };
 
             Scenario.Define(context)
-                    .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, ctx) => bus.SendLocal(new MessageToBeRetried{ContextId = ctx.Id})))
                     .AllowExceptions()
-                    .Done(c => c.HandedOverToSlr)
+                    .Done(c => c.GaveUp)
                     .Run();
 
             Assert.AreEqual(1, context.NumberOfTimesInvoked,"No FLR should be in use if MaxRetries is set to 0");
@@ -26,44 +27,38 @@
 
         public class Context : ScenarioContext
         {
+            public Guid Id { get; set; }
             public int NumberOfTimesInvoked { get; set; }
 
-            public bool HandedOverToSlr { get; set; }
-
-            public Dictionary<string, string> HeadersOfTheFailedMessage { get; set; }
+            public bool GaveUp { get; set; }
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(
-                    b => b.RegisterComponents(r => r.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance)))
+                EndpointSetup<DefaultServer>(b => b.DisableFeature<Features.SecondLevelRetries>())
                     .WithConfig<TransportConfig>(c =>
                     {
                         c.MaxRetries = 0;
                     });
             }
 
-            class CustomFaultManager: IManageMessageFailures
+            class ErrorNotificationSpy: IWantToRunWhenBusStartsAndStops
             {
                 public Context  Context { get; set; }
 
-                public void SerializationFailedForMessage(TransportMessage message, Exception e)
+                public BusNotifications BusNotifications { get; set; }
+
+                public void Start()
                 {
-                    
+                    BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
+                    {
+                        Context.GaveUp = true;
+                    });
                 }
 
-                public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
-                {
-                    Context.HandedOverToSlr = true;
-                    Context.HeadersOfTheFailedMessage = message.Headers;
-                }
-
-                public void Init(Address address)
-                {
-                    
-                }
+                public void Stop(){}
             }
 
             class MessageToBeRetriedHandler:IHandleMessages<MessageToBeRetried>
@@ -71,6 +66,10 @@
                 public Context Context { get; set; }
                 public void Handle(MessageToBeRetried message)
                 {
+                    if (Context.Id != message.ContextId)
+                    {
+                        return;
+                    }
                     Context.NumberOfTimesInvoked++;
                     throw new Exception("Simulated exception");
                 }
@@ -80,6 +79,7 @@
         [Serializable]
         public class MessageToBeRetried : IMessage
         {
+            public Guid ContextId { get; set; }
         }
     }
 

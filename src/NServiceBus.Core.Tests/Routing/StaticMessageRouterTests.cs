@@ -23,7 +23,7 @@ namespace NServiceBus.Core.Tests.Sagas
         {
             var router = new StaticMessageRouter(new Type[0]);
 
-            Assert.Throws<InvalidOperationException>(() => router.RegisterMessageRoute(typeof(Message1), Address.Undefined));
+            Assert.Throws<InvalidOperationException>(() => router.RegisterMessageRoute(typeof(Message1), null));
         }
 
         [Test]
@@ -31,9 +31,9 @@ namespace NServiceBus.Core.Tests.Sagas
         {
             var router = new StaticMessageRouter(new Type[0]);
 
-            var overrideAddress = Address.Parse("override");
+            var overrideAddress = "override";
 
-            router.RegisterMessageRoute(typeof(Message1), Address.Parse("first"));
+            router.RegisterMessageRoute(typeof(Message1), "first");
             router.RegisterMessageRoute(typeof(Message1), overrideAddress);
 
             Assert.AreEqual(overrideAddress, router.GetDestinationFor(typeof(Message1)).Single());
@@ -56,7 +56,7 @@ namespace NServiceBus.Core.Tests.Sagas
             {
                 typeof(Message1)
             });
-            var address = new Address("a", "b");
+            var address = "a@b";
             router.RegisterMessageRoute(typeof(Message1), address);
             Assert.AreSame(address, router.GetDestinationFor(typeof(Message1)).Single());
         }
@@ -72,9 +72,9 @@ namespace NServiceBus.Core.Tests.Sagas
                 baseType,
                 inheritedType
             });
-            var baseAddress = new Address("baseAddress", "b");
+            var baseAddress = "baseAddress@b";
             router.RegisterMessageRoute(baseType, baseAddress);
-            var inheritedAddress = new Address("inheritedAddress", "b");
+            var inheritedAddress = "inheritedAddress@b";
             router.RegisterMessageRoute(inheritedType, inheritedAddress);
             Assert.Contains(baseAddress, router.GetDestinationFor(baseType));
             Assert.Contains(inheritedAddress, router.GetDestinationFor(baseType));
@@ -91,9 +91,9 @@ namespace NServiceBus.Core.Tests.Sagas
                 baseType,
                 inheritedType
             });
-            var inheritedAddress = new Address("inheritedAddress", "b");
+            var inheritedAddress = "inheritedAddress@b";
             router.RegisterEventRoute(inheritedType, inheritedAddress);
-            var baseAddress = new Address("baseAddress", "b");
+            var baseAddress = "baseAddress@b";
             router.RegisterEventRoute(baseType, baseAddress);
             Assert.Contains(baseAddress, router.GetDestinationFor(baseType));
             Assert.Contains(inheritedAddress, router.GetDestinationFor(baseType));
@@ -105,9 +105,9 @@ namespace NServiceBus.Core.Tests.Sagas
         {
             var baseType = typeof(BaseMessage);
             var router = new StaticMessageRouter(Enumerable.Empty<Type>());
-            var addressA = new Address("BaseMessage", "A");
+            var addressA = "BaseMessage@A";
             router.RegisterEventRoute(baseType, addressA);
-            var addressB = new Address("BaseMessage", "b");
+            var addressB = "BaseMessage@b";
             router.RegisterEventRoute(baseType, addressB);
 
             Assert.AreEqual(2, router.GetDestinationFor(baseType).Count);
@@ -118,9 +118,9 @@ namespace NServiceBus.Core.Tests.Sagas
         {
             var baseType = typeof(BaseMessage);
             var router = new StaticMessageRouter(Enumerable.Empty<Type>());
-            var addressA = new Address("BaseMessage", "A");
+            var addressA = "BaseMessage@A";
             router.RegisterMessageRoute(baseType, addressA);
-            var addressB = new Address("BaseMessage", "b");
+            var addressB = "BaseMessage@b";
             router.RegisterMessageRoute(baseType, addressB);
 
             Assert.AreEqual(1, router.GetDestinationFor(baseType).Count);

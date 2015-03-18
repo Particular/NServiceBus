@@ -10,6 +10,19 @@ namespace NServiceBus.Outbox
         {
             var result = new Dictionary<string, string>();
 
+            if (options.TimeToBeReceived.HasValue)
+            {
+                result["TimeToBeReceived"] = options.TimeToBeReceived.ToString();
+            }
+
+            if (options.NonDurable.HasValue && options.NonDurable.Value)
+            {
+                result["NonDurable"] = true.ToString();
+            }
+
+            result["EnlistInReceiveTransaction"] = options.EnlistInReceiveTransaction.ToString();
+            result["EnforceMessagingBestPractices"] = options.EnforceMessagingBestPractices.ToString();
+
             var sendOptions = options as SendOptions;
 
             string operation;
@@ -33,14 +46,7 @@ namespace NServiceBus.Outbox
                     result["DeliverAt"] = DateTimeExtensions.ToWireFormattedString(sendOptions.DeliverAt.Value);
                 }
 
-
-                if (sendOptions.TimeToBeReceived.HasValue)
-                {
-                    result["TimeToBeReceived"] = sendOptions.TimeToBeReceived.ToString();
-                }
-
-                result["CorrelationId"] = sendOptions.CorrelationId;
-                result["Destination"] = sendOptions.Destination.ToString();
+                result["Destination"] = sendOptions.Destination;
             }
             else
             {
@@ -55,11 +61,6 @@ namespace NServiceBus.Outbox
                 result["EventType"] = publishOptions.EventType.AssemblyQualifiedName;
             }
 
-            if (options.ReplyToAddress != null)
-            {
-                result["ReplyToAddress"] = options.ReplyToAddress.ToString();                
-            }
-
             result["Operation"] = operation;
 
 
@@ -70,36 +71,61 @@ namespace NServiceBus.Outbox
         {
             var operation = options["Operation"].ToLower();
 
+
+            DeliveryOptions result;
+
+
             switch (operation)
             {
                 case "publish":
-                    return new PublishOptions(Type.GetType(options["EventType"]))
-                    {
-                        ReplyToAddress = Address.Parse(options["ReplyToAddress"])
-                    };
-
+                    result = new PublishOptions(Type.GetType(options["EventType"]));
+                    break;
                 case "send":
                 case "audit":
                     var sendOptions = new SendOptions(options["Destination"]);
 
                     ApplySendOptionSettings(sendOptions, options);
 
-                    return sendOptions;
-
+                    result = sendOptions;
+                    break;
                 case "reply":
-                    var replyOptions = new ReplyOptions(Address.Parse(options["Destination"]), options["CorrelationId"])
-                    {
-                        ReplyToAddress = Address.Parse(options["ReplyToAddress"])
-                    };
+                    var replyOptions = new ReplyOptions(options["Destination"]);
                     ApplySendOptionSettings(replyOptions, options);
 
-                    return replyOptions;
+                    result = replyOptions;
+                    break;
 
                 default:
                     throw new Exception("Unknown operation: " + operation);
             }
 
 
+            string timeToBeReceived;
+            if (options.TryGetValue("TimeToBeReceived", out timeToBeReceived))
+            {
+                result.TimeToBeReceived = TimeSpan.Parse(timeToBeReceived);
+            }
+
+            string nonDurable;
+            if (options.TryGetValue("NonDurable", out nonDurable))
+            {
+                result.NonDurable = bool.Parse(nonDurable);
+            }
+
+            string enlistInReceiveTransaction;
+            if (options.TryGetValue("EnlistInReceiveTransaction", out enlistInReceiveTransaction))
+            {
+                result.EnlistInReceiveTransaction = bool.Parse(enlistInReceiveTransaction);
+            }
+
+            string enforceMessagingBestPractices;
+            if (options.TryGetValue("EnforceMessagingBestPractices", out enforceMessagingBestPractices))
+            {
+                result.EnforceMessagingBestPractices = bool.Parse(enforceMessagingBestPractices);
+            }
+
+
+            return result;
         }
         static void ApplySendOptionSettings(SendOptions sendOptions, Dictionary<string, string> options)
         {
@@ -114,23 +140,6 @@ namespace NServiceBus.Outbox
             {
                 sendOptions.DeliverAt = DateTimeExtensions.ToUtcDateTime(deliverAt);
             }
-
-            string timeToBeReceived;
-            if (options.TryGetValue("TimeToBeReceived", out timeToBeReceived))
-            {
-                sendOptions.TimeToBeReceived = TimeSpan.Parse(timeToBeReceived);
-            }
-
-            sendOptions.CorrelationId = options["CorrelationId"];
-           
-            string replyToAddress;
-            if (options.TryGetValue("ReplyToAddress", out replyToAddress))
-            {
-                sendOptions.ReplyToAddress = Address.Parse(replyToAddress);
-            }
-
-
-            sendOptions.CorrelationId = options["CorrelationId"];
         }
 
     }

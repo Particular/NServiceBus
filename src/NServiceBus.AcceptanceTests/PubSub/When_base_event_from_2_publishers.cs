@@ -52,8 +52,8 @@
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
-                    context.AddTrace("Publisher1 SubscriberReturnAddress=" + s.SubscriberReturnAddress.Queue);
-                    if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                    context.AddTrace("Publisher1 SubscriberReturnAddress=" + s.SubscriberReturnAddress);
+                    if (s.SubscriberReturnAddress.Contains("Subscriber1"))
                     {
                         context.SubscribedToPublisher1 = true;
                     }
@@ -67,9 +67,9 @@
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
-                    context.AddTrace("Publisher2 SubscriberReturnAddress=" + s.SubscriberReturnAddress.Queue);
+                    context.AddTrace("Publisher2 SubscriberReturnAddress=" + s.SubscriberReturnAddress);
 
-                    if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                    if (s.SubscriberReturnAddress.Contains("Subscriber1"))
                     {
                         context.SubscribedToPublisher2 = true;
                     }

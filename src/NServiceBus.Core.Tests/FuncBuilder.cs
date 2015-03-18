@@ -60,7 +60,7 @@
                 }
 
                 //enable property injection
-                var propertyInfos = result.GetType().GetProperties().Where(pi => pi.PropertyType != result.GetType());
+                var propertyInfos = result.GetType().GetProperties().Where(pi => pi.CanWrite).Where(pi => pi.PropertyType != result.GetType());
                 var propsWithoutFuncs = propertyInfos
                     .Select(p => p.PropertyType)
                     .Intersect(funcs.Select(f => f.Item1)).ToList();

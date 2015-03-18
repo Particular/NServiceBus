@@ -38,7 +38,6 @@ namespace NServiceBus.AcceptanceTesting
             return this;
         }
 
-
         public IEnumerable<TContext> Run(TimeSpan? testExecutionTimeout = null)
         {
             return Run(new RunSettings
@@ -46,6 +45,7 @@ namespace NServiceBus.AcceptanceTesting
                 TestExecutionTimeout = testExecutionTimeout
             });
         }
+
         public IEnumerable<TContext> Run(RunSettings settings)
         {
             var builder = new RunDescriptorsBuilder();
@@ -56,7 +56,7 @@ namespace NServiceBus.AcceptanceTesting
 
             if (!runDescriptors.Any())
             {
-                Console.Out.WriteLine("No active rundescriptors was found for this test, test will not be executed");
+                Console.WriteLine("No active rundescriptors was found for this test, test will not be executed");
                 return new List<TContext>();
             }
 
@@ -71,15 +71,12 @@ namespace NServiceBus.AcceptanceTesting
 
             sw.Start();
             ScenarioRunner.Run(runDescriptors, behaviors, shoulds, done, limitTestParallelismTo, reports, allowedExceptions);
-
             sw.Stop();
 
-            Console.Out.WriteLine("Total time for testrun: {0}", sw.Elapsed);
+            Console.WriteLine("Total time for testrun: {0}", sw.Elapsed);
 
             return runDescriptors.Select(r => (TContext)r.ScenarioContext);
         }
-
-  
 
         public IAdvancedScenarioWithEndpointBehavior<TContext> Repeat(Action<RunDescriptorsBuilder> action)
         {
@@ -106,7 +103,6 @@ namespace NServiceBus.AcceptanceTesting
             return this;
         }
 
-
         TContext IScenarioWithEndpointBehavior<TContext>.Run(TimeSpan? testExecutionTimeout)
         {
             return Run(new RunSettings
@@ -131,20 +127,17 @@ namespace NServiceBus.AcceptanceTesting
             return this;
         }
 
-
         public IAdvancedScenarioWithEndpointBehavior<TContext> Report(Action<RunSummary> reportActions)
         {
             reports = reportActions;
             return this;
         }
-
         
         int limitTestParallelismTo;
         readonly IList<EndpointBehavior> behaviors = new List<EndpointBehavior>();
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => builder.For(Conventions.DefaultRunDescriptor());
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
-        public Func<ScenarioContext, bool> done = context => true;
-
+        Func<ScenarioContext, bool> done = context => true;
         Func<TContext> contextFactory = () => new TContext();
         Action<RunSummary> reports;
         Func<Exception, bool> allowedExceptions = exception => false;

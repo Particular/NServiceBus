@@ -1,11 +1,14 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
     using System;
+    using System.Collections.Generic;
+    using System.IO;
     using System.Transactions;
+    using NServiceBus.Outbox;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast.Transport;
     using NUnit.Framework;
-    using Outbox;
-    using Unicast.Transport;
 
     [TestFixture]
     public class OutboxDeduplicationBehaviorTests
@@ -14,11 +17,9 @@
         [Test]
         public void Should_shortcut_the_pipeline_if_existing_message_is_found()
         {
-            var incomingTransportMessage = new TransportMessage();
+            fakeOutbox.ExistingMessage = new OutboxMessage("id");
 
-            fakeOutbox.ExistingMessage = new OutboxMessage(incomingTransportMessage.Id);
-
-            var context = new IncomingContext(null, incomingTransportMessage);
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), null));
 
             Invoke(context);
 
@@ -28,10 +29,7 @@
         [Test]
         public void Should_not_dispatch_the_message_if_handle_current_message_later_was_called()
         {
-            var incomingTransportMessage = new TransportMessage();
-
-
-            var context = new IncomingContext(null, incomingTransportMessage)
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), null))
             {
                 handleCurrentMessageLaterWasCalled = true
             };
@@ -45,15 +43,12 @@
         public void SetUp()
         {
             fakeOutbox = new FakeOutboxStorage();
+            var transactionSettings = new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, false, false);
 
-            behavior = new OutboxDeduplicationBehavior
-            {
-                OutboxStorage = fakeOutbox,
-                TransactionSettings = new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, 5, false,false)
-            };
+            behavior = new OutboxDeduplicationBehavior(fakeOutbox, null, null, transactionSettings);
         }
 
-        void Invoke(IncomingContext context, bool shouldAbort = false)
+        void Invoke(PhysicalMessageProcessingStageBehavior.Context context, bool shouldAbort = false)
         {
             behavior.Invoke(context, () =>
             {

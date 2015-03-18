@@ -2,21 +2,25 @@
 {
     using System;
     using System.Threading;
-    using Logging;
-    using Queuing;
-    using Transport;
-    using Transports;
+    using NServiceBus.Logging;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast.Queuing;
+    using NServiceBus.Unicast.Transport;
 
     class SubscriptionManager : IManageSubscriptions
     {
-        public ISendMessages MessageSender { get; set; }
-        public ISubscriptionStorage SubscriptionStorage { get; set; }
+        readonly string replyToAddress;
+        readonly ISendMessages messageSender;
 
-        public Configure Configure { get; set; }
-
-        public void Subscribe(Type eventType, Address publisherAddress)
+        public SubscriptionManager(string replyToAddress,ISendMessages messageSender)
         {
-            if (publisherAddress == Address.Undefined)
+            this.replyToAddress = replyToAddress;
+            this.messageSender = messageSender;
+        }
+
+        public void Subscribe(Type eventType, string publisherAddress)
+        {
+            if (publisherAddress == null)
             {
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
             }
@@ -30,9 +34,9 @@
                 SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName));
         }
 
-        public void Unsubscribe(Type eventType, Address publisherAddress)
+        public void Unsubscribe(Type eventType, string publisherAddress)
         {
-            if (publisherAddress == Address.Undefined)
+            if (publisherAddress == null)
             {
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
             }
@@ -42,28 +46,24 @@
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
 
-            MessageSender.Send(subscriptionMessage, new SendOptions(publisherAddress)
-            {
-                ReplyToAddress = Configure.PublicReturnAddress
-            });
+            messageSender.Send(new OutgoingMessage(subscriptionMessage.Headers,subscriptionMessage.Body), new SendOptions(publisherAddress));
         }
 
-        static TransportMessage CreateControlMessage(Type eventType)
+        TransportMessage CreateControlMessage(Type eventType)
         {
             var subscriptionMessage = ControlMessage.Create();
 
             subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
+            subscriptionMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
+
             return subscriptionMessage;
         }
 
-        void SendSubscribeMessageWithRetries(Address destination, TransportMessage subscriptionMessage, string messageType, int retriesCount = 0)
+        void SendSubscribeMessageWithRetries(string destination, TransportMessage subscriptionMessage, string messageType, int retriesCount = 0)
         {
             try
             {
-                MessageSender.Send(subscriptionMessage, new SendOptions(destination)
-                {
-                    ReplyToAddress = Configure.PublicReturnAddress
-                });
+                messageSender.Send(new OutgoingMessage(subscriptionMessage.Headers,subscriptionMessage.Body), new SendOptions(destination));
             }
             catch (QueueNotFoundException ex)
             {

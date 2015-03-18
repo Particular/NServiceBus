@@ -18,7 +18,7 @@ namespace NServiceBus.Features
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (context.Container.HasComponent<IMessageHandlerRegistry>())
+            if (context.Container.HasComponent<MessageHandlerRegistry>())
             {
                 return;
             }
@@ -98,7 +98,7 @@ namespace NServiceBus.Features
                 }
             }
 
-            context.Container.RegisterSingleton<IMessageHandlerRegistry>(handlerRegistry);
+            context.Container.RegisterSingleton(handlerRegistry);
         }
 
         public static bool IsMessageHandler(Type type)
@@ -108,31 +108,10 @@ namespace NServiceBus.Features
                 return false;
             }
 
-            return type.GetInterfaces()
-                .Select(GetMessageTypeFromMessageHandler)
-                .Any(messageType => messageType != null);
+            return type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == IHandleMessagesType);
         }
 
-        static Type GetMessageTypeFromMessageHandler(Type t)
-        {
-            if (t.IsGenericType)
-            {
-                var args = t.GetGenericArguments();
-                if (args.Length != 1)
-                {
-                    return null;
-                }
-
-                var handlerType = typeof(IHandleMessages<>).MakeGenericType(args[0]);
-                if (handlerType.IsAssignableFrom(t))
-                {
-                    return args[0];
-                }
-            }
-
-            return null;
-        }
-
+        static Type IHandleMessagesType = typeof(IHandleMessages<>);
         static ILog Logger = LogManager.GetLogger<RegisterHandlersInOrder>();
     }
 }

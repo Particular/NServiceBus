@@ -43,8 +43,6 @@
                 EndpointSetup<DefaultServer>();
             }
 
-
-
             public class TestSaga : Saga<TestSaga.SagaData>, IAmStartedByMessages<StartSagaMessageBase>
             {
                 public Context Context { get; set; }
@@ -70,7 +68,7 @@
                 public class SagaData : ContainSagaData
                 {
                     [Unique]
-                    public Guid SomeId { get; set; }
+                    public virtual Guid SomeId { get; set; }
                 }
             }
 

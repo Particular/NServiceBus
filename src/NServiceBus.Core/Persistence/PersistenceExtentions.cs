@@ -53,7 +53,7 @@
          [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            Replacement = "UsePersistence<T, S>()")]
+            ReplacementTypeOrMember = "UsePersistence<T, S>()")]
         public new PersistenceExtentions<T> For(params Storage[] specificStorages)
         {
             base.For(specificStorages);
@@ -109,7 +109,7 @@
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            Replacement = "UsePersistence<T, S>()")]
+            ReplacementTypeOrMember = "UsePersistence<T, S>()")]
         public PersistenceExtentions For(params Storage[] specificStorages)
         {
             if (specificStorages == null || specificStorages.Length == 0)

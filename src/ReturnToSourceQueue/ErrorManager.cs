@@ -1,15 +1,17 @@
 namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 {
     using System;
+    using System.Collections.Generic;
     using System.Messaging;
     using System.Transactions;
-    using Faults;
+    using NServiceBus.Faults;
+    using NServiceBus.Transports.Msmq;
 
-    public class ErrorManager
+    class ErrorManager
     {
         public bool ClusteredQueue { get; set; }
 
-        public virtual Address InputQueue
+        public virtual MsmqAddress InputQueue
         {
             set
             {
@@ -59,15 +61,15 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                 {
                     var message = queue.ReceiveById(messageId, TimeoutDuration, MessageQueueTransactionType.Automatic);
 
-                    var tm = MsmqUtilities.Convert(message);
+                    var headers = MsmqUtilities.ExtractHeaders(message);
                     string failedQ;
-                    if (!tm.Headers.TryGetValue(FaultsHeaderKeys.FailedQ, out failedQ))
+                    if (!headers.TryGetValue(FaultsHeaderKeys.FailedQ, out failedQ))
                     {
                         Console.WriteLine("ERROR: Message does not have a header indicating from which queue it came. Cannot be automatically returned to queue.");
                         return;
                     }
 
-                    using (var q = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(failedQ))))
+                    using (var q = new MessageQueue(MsmqUtilities.GetFullPath(MsmqAddress.Parse(failedQ))))
                     {
                         q.Send(message, MessageQueueTransactionType.Automatic);
                     }
@@ -85,9 +87,9 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                         foreach (var m in queue.GetAllMessages())
                         {
                             messageCount++;
-                            var tm = MsmqUtilities.Convert(m);
+                            var headers = MsmqUtilities.ExtractHeaders(m);
 
-                            var originalId = GetOriginalId(tm);
+                            var originalId = GetOriginalId(headers);
 
                             if (string.IsNullOrEmpty(originalId) || messageId != originalId)
                             {
@@ -103,8 +105,8 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 
                             using (var tx = new TransactionScope())
                             {
-                                var failedQueue = tm.Headers[FaultsHeaderKeys.FailedQ];
-                                using (var q = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(failedQueue))))
+                                var failedQueue = headers[FaultsHeaderKeys.FailedQ];
+                                using (var q = new MessageQueue(MsmqUtilities.GetFullPath(MsmqAddress.Parse(failedQueue))))
                                 {
                                     q.Send(m, MessageQueueTransactionType.Automatic);
                                 }
@@ -127,15 +129,15 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
             }
         }
 
-        string GetOriginalId(TransportMessage tm)
+        string GetOriginalId(Dictionary<string,string> headers)
         {
             string originalId;
 
-            if (tm.Headers.TryGetValue("NServiceBus.OriginalId", out originalId))
+            if (headers.TryGetValue("NServiceBus.OriginalId", out originalId))
             {
                 return originalId;
             }
-            if (tm.Headers.TryGetValue(Headers.MessageId, out originalId))
+            if (headers.TryGetValue(Headers.MessageId, out originalId))
             {
                 return originalId;
             }

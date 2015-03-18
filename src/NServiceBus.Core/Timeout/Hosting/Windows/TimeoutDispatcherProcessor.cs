@@ -2,6 +2,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Core;
+    using NServiceBus.Unicast;
     using Satellites;
     using Transports;
     using Unicast.Transport;
@@ -21,7 +22,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public Configure Configure { get; set; }
       
-        public Address InputAddress { get; set; }
+        public string InputAddress { get; set; }
 
         public bool Disabled { get; set; }
 
@@ -32,7 +33,13 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
             {
-                MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions(Configure.LocalAddress));
+                var sendOptions = new SendOptions(timeoutData.Destination);
+
+                timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+                timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
+            
+
+                MessageSender.Send(new OutgoingMessage(timeoutData.Headers, timeoutData.State), sendOptions);
             }
 
             return true;
@@ -52,9 +59,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             return receiver =>
             {
-                //TODO: The line below needs to change when we refactor the slr to be:
-                // transport.DisableSLR() or similar
-                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager, MessageSender, Configure);
             };
         }
     }

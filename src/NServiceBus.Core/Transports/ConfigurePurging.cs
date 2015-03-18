@@ -1,9 +1,11 @@
 namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Configures purging
     /// </summary>
-    public static partial class ConfigurePurging
+    public static class ConfigurePurging
     {
         /// <summary>
         /// Requests that the incoming queue be purged of all messages when the bus is started.
@@ -19,14 +21,11 @@ namespace NServiceBus
         /// <summary>
         /// Retrieves whether to purge the queues at startup or not.
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "6")]
+// ReSharper disable once UnusedParameter.Global
         public static bool PurgeOnStartup(this Configure config)
         {
-            bool purgeOnStartup;
-            if (config.Settings.TryGet("Transport.PurgeOnStartup", out purgeOnStartup))
-            {
-                return purgeOnStartup;
-            }
-            return false;
+            throw new NotImplementedException();
         }
     }
 }

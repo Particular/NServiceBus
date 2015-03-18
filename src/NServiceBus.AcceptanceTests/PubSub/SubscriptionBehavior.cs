@@ -4,7 +4,6 @@
     using System.Linq;
     using NServiceBus.AcceptanceTesting;
     using Pipeline;
-    using Pipeline.Contexts;
 
     static class SubscriptionBehaviorExtensions
     {
@@ -20,7 +19,7 @@
         }
     }
 
-    class SubscriptionBehavior<TContext> : IBehavior<IncomingContext> where TContext : ScenarioContext
+    class SubscriptionBehavior<TContext> : PhysicalMessageProcessingStageBehavior where TContext : ScenarioContext
     {
         readonly Action<SubscriptionEventArgs, TContext> action;
         readonly TContext scenarioContext;
@@ -31,7 +30,7 @@
             this.scenarioContext = scenarioContext;
         }
 
-        public void Invoke(IncomingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             next();
             var subscriptionMessageType = GetSubscriptionMessageTypeFrom(context.PhysicalMessage);

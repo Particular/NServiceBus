@@ -98,11 +98,5 @@ namespace NServiceBus
         /// of the message currently being handled on this thread.
         /// </summary>
         IMessageContext CurrentMessageContext { get; }
-
-        /// <summary>
-        /// Support for in-memory operations.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5.5", Message = "Removed to reduce complexity and API confusion.")]
-        IInMemoryOperations InMemory { get; }
     }
 }

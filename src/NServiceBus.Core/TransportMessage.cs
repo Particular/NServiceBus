@@ -12,7 +12,7 @@ namespace NServiceBus
     ///     received by the bus.
     /// </remarks>
     [Serializable]
-    public class TransportMessage
+    public partial class TransportMessage
     {
         /// <summary>
         ///     Initializes the transport message with a CombGuid as identifier
@@ -42,22 +42,10 @@ namespace NServiceBus
             id = existingId;
 
             //only update the "stable id" if there isn't one present already
-            if (!Headers.ContainsKey(NServiceBus.Headers.MessageId))
+            if (!Headers.ContainsKey(NServiceBus.Headers.MessageId) || string.IsNullOrWhiteSpace(Headers[NServiceBus.Headers.MessageId]))
             {
                 Headers[NServiceBus.Headers.MessageId] = existingId;
             }
-        }
-
-        /// <summary>
-        ///     Creates a new TransportMessage with the given id and headers and reply to address
-        /// </summary>
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "5.1", 
-            RemoveInVersion = "6", 
-            Message = "Use `headers[Headers.ReplyToAddress]=replyToAddress; var tm = new TransportMessage(id,headers)` instead.")]
-        public TransportMessage(string existingId, Dictionary<string, string> existingHeaders, Address replyToAddress):this(existingId,existingHeaders)
-        {
-            Headers[NServiceBus.Headers.ReplyToAddress] = replyToAddress.ToString();
         }
 
         /// <summary>
@@ -99,7 +87,7 @@ namespace NServiceBus
         /// <summary>
         ///     Gets/sets the reply-to address of the message bundle - replaces 'ReturnAddress'.
         /// </summary>
-        public Address ReplyToAddress
+        public string ReplyToAddress
         {
             get
             {
@@ -107,18 +95,12 @@ namespace NServiceBus
 
                 if (Headers.TryGetValue(NServiceBus.Headers.ReplyToAddress, out replyToAddress))
                 {
-                    return Address.Parse(replyToAddress);
+                    return replyToAddress;
                 }
 
                 return null;
             }
         }
-
-        /// <summary>
-        ///     Gets/sets whether or not the message is supposed to
-        ///     be guaranteed deliverable.
-        /// </summary>
-        public bool Recoverable { get; set; }
 
         /// <summary>
         ///     Indicates to the infrastructure the message intent (publish, or regular send).
@@ -138,17 +120,6 @@ namespace NServiceBus
                 return messageIntent;
             }
             set { Headers[NServiceBus.Headers.MessageIntent] = value.ToString(); }
-        }
-
-
-        /// <summary>
-        ///     Gets/sets the maximum time limit in which the message bundle
-        ///     must be received.
-        /// </summary>
-        public TimeSpan TimeToBeReceived
-        {
-            get { return timeToBeReceived; }
-            set { timeToBeReceived = value; }
         }
 
         /// <summary>
@@ -209,6 +180,5 @@ namespace NServiceBus
         byte[] body;
         string id;
         byte[] originalBody;
-        TimeSpan timeToBeReceived = TimeSpan.MaxValue;
     }
 }

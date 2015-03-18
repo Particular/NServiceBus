@@ -3,24 +3,23 @@
     using System;
     using NServiceBus.Unicast;
     using Pipeline;
-    using Pipeline.Contexts;
     using Transports;
 
-    class ForwardBehavior : IBehavior<IncomingContext>
+    class ForwardBehavior : PhysicalMessageProcessingStageBehavior
     {
         public IAuditMessages MessageAuditer { get; set; }
 
-        public Address ForwardReceivedMessagesTo { get; set; }
+        public string ForwardReceivedMessagesTo { get; set; }
 
         public TimeSpan? TimeToBeReceivedOnForwardedMessages { get; set; }
 
-        public void Invoke(IncomingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             next();
 
             MessageAuditer.Audit(new SendOptions(ForwardReceivedMessagesTo)
             {
-                TimeToBeReceived = TimeToBeReceivedOnForwardedMessages
+                TimeToBeReceived = TimeToBeReceivedOnForwardedMessages,
             }, context.PhysicalMessage);
 
         }

@@ -6,10 +6,8 @@
     using Logging;
     using NServiceBus.Unicast.Subscriptions;
     using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
-    using Pipeline;
-    using Pipeline.Contexts;
 
-    class SubscriptionReceiverBehavior : IBehavior<IncomingContext>
+    class SubscriptionReceiverBehavior : PhysicalMessageProcessingStageBehavior
     {
         public ISubscriptionStorage SubscriptionStorage { get; set; }
 
@@ -19,7 +17,7 @@
             set { subscriptionAuthorizer = value; }
         }
 
-        public void Invoke(IncomingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             var transportMessage = context.PhysicalMessage;
             var messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
@@ -44,11 +42,10 @@
 
             var subscriberAddress = transportMessage.ReplyToAddress;
 
-            if (subscriberAddress == null || subscriberAddress == Address.Undefined)
+            if (subscriberAddress == null)
             {
                 throw new InvalidOperationException("Subscription message arrived without a valid ReplyToAddress");
             }
-
 
             if (SubscriptionStorage == null)
             {
@@ -65,7 +62,7 @@
 
             if (transportMessage.MessageIntent == MessageIntentEnum.Subscribe)
             {
-                if (!SubscriptionAuthorizer.AuthorizeSubscribe(messageTypeString, subscriberAddress.ToString(), transportMessage.Headers))
+                if (!SubscriptionAuthorizer.AuthorizeSubscribe(messageTypeString, subscriberAddress, transportMessage.Headers))
                 {
                     Logger.Debug(string.Format("Subscription request from {0} on message type {1} was refused.", subscriberAddress, messageTypeString));
                 }
@@ -85,7 +82,7 @@
             }
 
 
-            if (!SubscriptionAuthorizer.AuthorizeUnsubscribe(messageTypeString, subscriberAddress.ToString(), transportMessage.Headers))
+            if (!SubscriptionAuthorizer.AuthorizeUnsubscribe(messageTypeString, subscriberAddress, transportMessage.Headers))
             {
                 Logger.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", subscriberAddress, messageTypeString));
                 return;

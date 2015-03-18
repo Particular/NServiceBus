@@ -38,14 +38,6 @@ namespace NServiceBus.Serializers.Json
         internal bool wrapMessagesInArray;
 
         /// <summary>
-        /// Removes the wrapping array if serializing a single message 
-        /// </summary>
-        [ObsoleteEx(
-            RemoveInVersion = "6.0",
-            Message = "In version 5 multi-message sends was removed. So Wrapping messages is no longer required. If you are communicating with version 3 ensure you are on the latets 3.3.x.")]
-        public bool SkipArrayWrappingForSingleMessages { get; set; }
-
-        /// <summary>
         /// Serializes the given set of messages into the given stream.
         /// </summary>
         /// <param name="message">Message to serialize.</param>

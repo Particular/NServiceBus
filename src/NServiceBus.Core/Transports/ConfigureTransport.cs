@@ -2,6 +2,8 @@ namespace NServiceBus.Transports
 {
     using System;
     using Features;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Pipeline;
     using NServiceBus.Settings;
     using Unicast.Transport;
 
@@ -16,7 +18,7 @@ namespace NServiceBus.Transports
         protected ConfigureTransport()
         {
             Defaults(s => s.SetDefault<TransportConnectionString>(TransportConnectionString.Default));
-            
+
             Defaults(s => s.SetDefault("NServiceBus.LocalAddress", GetDefaultEndpointAddress(s)));
 
             Defaults(s =>
@@ -44,8 +46,22 @@ namespace NServiceBus.Transports
 
             context.Container.RegisterSingleton(selectedTransportDefinition);
 
+            if (!context.Settings.Get<bool>("Endpoint.SendOnly"))
+            {
+                var receiveBehaviorFactory = GetReceiveBehaviorFactory(new ReceiveOptions(context.Settings));
+                var registration = new ReceiveBehavior.Registration();
+                registration.ContainerRegistration((b,s) => receiveBehaviorFactory(b));
+                context.Pipeline.Register(registration);
+                context.Container.RegisterSingleton(new TransportReceiveBehaviorDefinition(registration));
+            }
             Configure(context, connectionString);
         }
+
+        /// <summary>
+        /// Creates a <see cref="RegisterStep"/> for receive behavior.
+        /// </summary>
+        /// <returns></returns>
+        protected abstract Func<IBuilder, ReceiveBehavior> GetReceiveBehaviorFactory(ReceiveOptions receiveOptions);
 
         /// <summary>
         ///  Allows the transport to control the local address of the endpoint if needed
@@ -106,6 +122,23 @@ Here is an example of what is required:
   <connectionStrings>
     <add name=""NServiceBus/Transport"" connectionString=""{2}"" />
   </connectionStrings>";
+
+    }
+
+    class TransportReceiveBehaviorDefinition
+    {
+        readonly RegisterStep registration;
+
+        public TransportReceiveBehaviorDefinition(RegisterStep registration)
+        {
+            this.registration = registration;
+        }
+
+        public RegisterStep Registration
+        {
+            get { return registration; }
+        }
+
 
     }
 }

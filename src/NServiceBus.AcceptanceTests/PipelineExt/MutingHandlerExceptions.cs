@@ -5,7 +5,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
 
     /// <summary>
@@ -20,7 +19,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
             Scenario.Define(context)
                 .WithEndpoint<EndpointWithCustomExceptionMuting>(b => b.Given(bus => bus.SendLocal(new MessageThatWillBlowUpButExWillBeMuted())))
                 .WithEndpoint<AuditSpy>()
-                .Done(c => c.IsMessageHandlingComplete)
+                .Done(c => c.MessageAudited)
                 .Run();
 
             Assert.IsTrue(context.MessageAudited);
@@ -40,15 +39,13 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
 
                 public void Handle(MessageThatWillBlowUpButExWillBeMuted message)
                 {
-                    MyContext.IsMessageHandlingComplete = true;
-
                     throw new Exception("Lets filter on this text");
                 }
             }
 
-            class MyExceptionFilteringBehavior : IBehavior<IncomingContext>
+            class MyExceptionFilteringBehavior : PhysicalMessageProcessingStageBehavior
             {
-                public void Invoke(IncomingContext context, Action next)
+                public override void Invoke(Context context, Action next)
                 {
                     try
                     {
@@ -82,7 +79,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                     public MyExceptionFilteringRegistration() : base("ExceptionFiltering", typeof(MyExceptionFilteringBehavior), "Custom exception filtering")
                     {
                         InsertAfter(WellKnownStep.AuditProcessedMessage);
-                        InsertBefore(WellKnownStep.InvokeHandlers);
                     }
                 }
             }
@@ -108,7 +104,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
 
         public class Context : ScenarioContext
         {
-            public bool IsMessageHandlingComplete { get; set; }
             public bool MessageAudited { get; set; }
         }
 

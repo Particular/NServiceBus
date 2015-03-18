@@ -4,7 +4,6 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
-    using NServiceBus.Faults;
     using NServiceBus.Features;
     using NServiceBus.MessageMutator;
     using NServiceBus.Unicast.Messages;
@@ -29,10 +28,7 @@
         public class Context : ScenarioContext
         {
             public bool ExceptionReceived { get; set; }
-            public string StackTrace { get; set; }
             public Type ExceptionType { get; set; }
-            public string InnerExceptionStackTrace { get; set; }
-            public Type InnerExceptionType { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -41,12 +37,9 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.RegisterComponents(c =>
-                    {
-                        c.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance);
-                        c.ConfigureComponent<CorruptionMutator>(DependencyLifecycle.InstancePerCall);
-                    });
+                    b.RegisterComponents(c => c.ConfigureComponent<CorruptionMutator>(DependencyLifecycle.InstancePerCall));
                     b.DisableFeature<TimeoutManager>();
+                    b.DisableFeature<SecondLevelRetries>();
                 })
                     .WithConfig<TransportConfig>(c =>
                     {
@@ -54,30 +47,24 @@
                     });
             }
 
-            class CustomFaultManager : IManageMessageFailures
+            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
 
-                public void SerializationFailedForMessage(TransportMessage message, Exception e)
+                public BusNotifications BusNotifications { get; set; }
+
+                public void Start()
                 {
-                    Context.ExceptionType = e.GetType();
-                    Context.StackTrace = e.StackTrace;
-                    if (e.InnerException != null)
+                    BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
-                        Context.InnerExceptionType = e.InnerException.GetType();
-                        Context.InnerExceptionStackTrace = e.InnerException.StackTrace;
-                    }
-                    Context.ExceptionReceived = true;
+                        Context.ExceptionType = e.Exception.GetType();
+                        Context.ExceptionReceived = true;
+                    });
                 }
 
-                public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
-                {
-                }
-
-                public void Init(Address address)
-                {
-                }
+                public void Stop() { }
             }
+
 
             class CorruptionMutator : IMutateTransportMessages
             {
@@ -85,7 +72,7 @@
                 {
                     transportMessage.Body[1]++;
                 }
-                
+
                 public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
                 {
                 }
@@ -99,10 +86,9 @@
             }
         }
 
-        [Serializable]
         public class Message : IMessage
         {
         }
     }
-    
+
 }

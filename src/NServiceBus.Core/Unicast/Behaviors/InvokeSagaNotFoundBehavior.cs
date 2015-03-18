@@ -6,28 +6,20 @@ namespace NServiceBus
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Saga;
 
-    class InvokeSagaNotFoundBehavior : IBehavior<IncomingContext>
+    class InvokeSagaNotFoundBehavior : LogicalMessageProcessingStageBehavior
     {
         static ILog logger = LogManager.GetLogger<InvokeSagaNotFoundBehavior>();
 
-        public void Invoke(IncomingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
-            context.Set("Sagas.InvokeSagaNotFound", false);
+            var invocationResult = new SagaInvocationResult();
+            context.Set(invocationResult);
 
             next();
 
-            if (!context.Get<bool>("Sagas.InvokeSagaNotFound"))
+            if (invocationResult.WasFound)
             {
-               return; 
-            }
-
-            bool result;
-            if (context.TryGet("Sagas.SagaWasInvoked", out result))
-            {
-                if (result)
-                {
-                    return;
-                }
+                return;    
             }
 
             logger.InfoFormat("Could not find a started saga for '{0}' message type. Going to invoke SagaNotFoundHandlers.", context.IncomingLogicalMessage.MessageType.FullName);
@@ -44,7 +36,6 @@ namespace NServiceBus
             public Registration()
                 : base("InvokeSagaNotFound", typeof(InvokeSagaNotFoundBehavior), "Invokes saga not found logic")
             {
-                InsertBefore(WellKnownStep.LoadHandlers);
                 InsertAfter(WellKnownStep.MutateIncomingMessages);
             }
         }

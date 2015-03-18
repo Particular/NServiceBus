@@ -61,14 +61,12 @@ namespace NServiceBus.Saga
         /// <param name="action">Callback to execute after <paramref name="at"/> is reached.</param>
         [ObsoleteEx(
             Message = "Construct your message and pass it to the non Action overload.",
-            RemoveInVersion = "6.0",
+            RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            Replacement = "Saga.RequestTimeout<TTimeoutMessageType>(DateTime, TTimeoutMessageType)")]
+            ReplacementTypeOrMember = "Saga.RequestTimeout<TTimeoutMessageType>(DateTime, TTimeoutMessageType)")]
         protected void RequestTimeout<TTimeoutMessageType>(DateTime at, Action<TTimeoutMessageType> action) where TTimeoutMessageType : new()
         {
-            var instance = new TTimeoutMessageType();
-            action(instance);
-            RequestTimeout(at, instance);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -115,14 +113,12 @@ namespace NServiceBus.Saga
         /// <param name="messageConstructor">An <see cref="Action"/> which initializes properties of the message that is sent after <paramref name="within"/> expires.</param>
         [ObsoleteEx(
             Message = "Construct your message and pass it to the non Action overload.",
-            RemoveInVersion = "6.0",
+            RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            Replacement = "Saga.RequestTimeout<TTimeoutMessageType>(TimeSpan, TTimeoutMessageType)")]
+            ReplacementTypeOrMember = "Saga.RequestTimeout<TTimeoutMessageType>(TimeSpan, TTimeoutMessageType)")]
         protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, Action<TTimeoutMessageType> messageConstructor) where TTimeoutMessageType : new()
         {
-            var instance = new TTimeoutMessageType();
-            messageConstructor(instance);
-            RequestTimeout(within, instance);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -166,14 +162,12 @@ namespace NServiceBus.Saga
         /// <param name="messageConstructor">An <see cref="Action"/> which initializes properties of the message reply with.</param>
         [ObsoleteEx(
             Message = "Construct your message and pass it to the non Action overload.",
-            RemoveInVersion = "6.0",
+            RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            Replacement = "Saga.ReplyToOriginator(object)")]
+            ReplacementTypeOrMember = "Saga.ReplyToOriginator(object)")]
         protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor) where TMessage : new()
         {
-            var instance = new TMessage();
-            messageConstructor(instance);
-            ReplyToOriginator(instance);
+            throw new NotImplementedException();
         }
 
         /// <summary>

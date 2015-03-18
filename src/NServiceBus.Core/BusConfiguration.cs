@@ -33,8 +33,11 @@ namespace NServiceBus
             : base(new SettingsHolder())
         {
             configurationSourceToUse = new DefaultConfigurationSource();
-            Settings.Set<PipelineModifications>(new PipelineModifications());
-            Pipeline = new PipelineSettings(this);
+
+            var pipelineModifications = new PipelineModifications();
+
+            Settings.Set<PipelineModifications>(pipelineModifications);
+            Pipeline = new PipelineSettings(pipelineModifications);
 
             Settings.SetDefault("Endpoint.SendOnly", false);
             Settings.SetDefault("Transactions.Enabled", true);
@@ -48,6 +51,14 @@ namespace NServiceBus
         ///     Access to the pipeline configuration
         /// </summary>
         public PipelineSettings Pipeline { get; private set; }
+
+        /// <summary>
+        ///     Endpoint wide outgoing headers to be added to all sent messages.
+        /// </summary>
+        public IDictionary<string, string> OutgoingHeaders
+        {
+            get { return outgoingHeaders = outgoingHeaders ?? new Dictionary<string, string>(); }
+        }
 
         /// <summary>
         ///     Used to configure components in the container.
@@ -107,15 +118,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Defines the version of this endpoint.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5.2", Message = "This api does not do anything.")]
-        public void EndpointVersion(string version)
-        {
-            endpointVersion = version;
-        }
-
-        /// <summary>
         ///     Defines the conventions to use for this endpoint.
         /// </summary>
         public ConventionsBuilder Conventions()
@@ -161,7 +163,18 @@ namespace NServiceBus
         /// Sets the public return address of this endpoint.
         /// </summary>
         /// <param name="address">The public address.</param>
+        [ObsoleteEx(ReplacementTypeOrMember = "OverridePublicReturnAddress(string address)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        // ReSharper disable UnusedParameter.Global
         public void OverridePublicReturnAddress(Address address)
+        // ReSharper restore UnusedParameter.Global
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Sets the public return address of this endpoint.
+        /// </summary>
+        /// <param name="address">The public address.</param>
+        public void OverridePublicReturnAddress(string address)
         {
             publicReturnAddress = address;
         }
@@ -236,7 +249,7 @@ namespace NServiceBus
 
             Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
 
-            return new Configure(Settings, container, registrations, Pipeline);
+            return new Configure(Settings, container, registrations, Pipeline, outgoingHeaders);
         }
 
         IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
@@ -260,6 +273,7 @@ namespace NServiceBus
         string endpointName;
         string endpointVersion;
         IList<Type> scannedTypes;
-        Address publicReturnAddress;
+        string publicReturnAddress;
+        Dictionary<string, string> outgoingHeaders;
     }
 }

@@ -43,6 +43,14 @@
                                          && !t.HasSupportForDistributedTransactions.Value, Remove);
         }
     }
+    
+    public class AllNativeMultiQueueTransactionTransports : AllTransports
+    {
+        public AllNativeMultiQueueTransactionTransports()
+        {
+            AllTransportsFilter.Run(t => !t.HasSupportForMultiQueueNativeTransactions, Remove);
+        }
+    }
 
     public class AllBrokerTransports : AllTransports
     {

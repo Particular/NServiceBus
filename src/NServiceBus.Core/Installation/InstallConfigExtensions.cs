@@ -1,16 +1,15 @@
 namespace NServiceBus
 {
-    using Config;
     using Installation;
     using NServiceBus.Features;
 
     /// <summary>
     /// Convenience methods for configuring how instances of  <see cref="INeedToInstallSomething"/>s are run.
     /// </summary>
-    public static partial class InstallConfigExtensions
+    public static class InstallConfigExtensions
     {
         /// <summary>
-        /// Enable all <see cref="INeedToInstallSomething"/> to run when <see cref="IWantToRunWhenConfigurationIsComplete"/>.
+        /// Enable all <see cref="INeedToInstallSomething"/> to run when the configuration is complete
         /// </summary>
         /// <param name="config">The instance of <see cref="BusConfiguration"/> to apply these settings to.</param>
         /// <param name="username">The username to pass to <see cref="INeedToInstallSomething.Install"/></param>

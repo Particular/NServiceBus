@@ -1,117 +1,69 @@
 namespace NServiceBus.Transports.Msmq
 {
     using System;
-    using System.Diagnostics;
     using System.Messaging;
     using System.Security.Principal;
     using System.Threading;
-    using System.Threading.Tasks;
-    using System.Transactions;
     using Janitor;
     using NServiceBus.CircuitBreakers;
-    using NServiceBus.Logging;
-    using NServiceBus.Support;
-    using NServiceBus.Unicast.Transport;
 
     /// <summary>
     ///     Default implementation of <see cref="IDequeueMessages" /> for MSMQ.
     /// </summary>
-    public class MsmqDequeueStrategy : IDequeueMessages, IDisposable
+    class MsmqDequeueStrategy : IDequeueMessages, IDisposable
     {
+
         /// <summary>
         ///     Creates an instance of <see cref="MsmqDequeueStrategy" />.
         /// </summary>
-        /// <param name="configure">Configure</param>
         /// <param name="criticalError">CriticalError</param>
-        /// <param name="unitOfWork">MsmqUnitOfWork</param>
-        public MsmqDequeueStrategy(Configure configure, CriticalError criticalError, MsmqUnitOfWork unitOfWork)
+        /// <param name="isTransactional"></param>
+        /// <param name="errorQueueAddress"></param>
+        public MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional, MsmqAddress errorQueueAddress)
         {
-            this.configure = configure;
             this.criticalError = criticalError;
-            this.unitOfWork = unitOfWork;
+            this.isTransactional = isTransactional;
+            this.errorQueueAddress = errorQueueAddress;
         }
 
         /// <summary>
         ///     Initializes the <see cref="IDequeueMessages" />.
         /// </summary>
-        /// <param name="address">The address to listen on.</param>
-        /// <param name="settings">The <see cref="TransactionSettings" /> to be used by <see cref="IDequeueMessages" />.</param>
-        /// <param name="tryProcessMessage">Called when a message has been dequeued and is ready for processing.</param>
-        /// <param name="endProcessMessage">
-        ///     Needs to be called by <see cref="IDequeueMessages" /> after the message has been
-        ///     processed regardless if the outcome was successful or not.
-        /// </param>
-        public void Init(Address address, TransactionSettings settings, Func<TransportMessage, bool> tryProcessMessage,
-            Action<TransportMessage, Exception> endProcessMessage)
+        public void Init(DequeueSettings settings)
         {
-            this.tryProcessMessage = tryProcessMessage;
-            this.endProcessMessage = endProcessMessage;
-            transactionSettings = settings;
+            var msmqAddress = MsmqAddress.Parse(settings.QueueName);
 
-            if (address == null)
+            var queueName = msmqAddress.Queue;
+            if (!string.Equals(msmqAddress.Machine, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
             {
-                throw new ArgumentException("Input queue must be specified");
+                var message = string.Format("MSMQ Dequeing can only run against the local machine. Invalid queue name '{0}'", settings.QueueName);
+                throw new Exception(message);
+            }
+            publicReceiveAddress = queueName;
+
+            var fullPath = MsmqUtilities.GetFullPath(queueName);
+            queue = new MessageQueue(fullPath, false, true, QueueAccessMode.Receive);
+
+            if (isTransactional && !QueueIsTransactional())
+            {
+                throw new ArgumentException("Queue must be transactional if you configure your endpoint to be transactional (" + settings.QueueName + ").");
             }
 
-            if (!address.Machine.Equals(RuntimeEnvironment.MachineName, StringComparison.OrdinalIgnoreCase))
-            {
-                var error = string.Format("Input queue [{0}] must be on the same machine as this process [{1}].", address, RuntimeEnvironment.MachineName);
-                throw new InvalidOperationException(error);
-            }
+            queue.MessageReadPropertyFilter = DefaultReadPropertyFilter;
 
-            transactionOptions = new TransactionOptions
-            {
-                IsolationLevel = transactionSettings.IsolationLevel,
-                Timeout = transactionSettings.TransactionTimeout
-            };
-
-            queue = new MessageQueue(NServiceBus.MsmqUtilities.GetFullPath(address), false, true, QueueAccessMode.Receive);
-            errorQueue = new MessageQueue(NServiceBus.MsmqUtilities.GetFullPath(ErrorQueue), false, true, QueueAccessMode.Send);
-
-            if (transactionSettings.IsTransactional && !QueueIsTransactional())
-            {
-                throw new ArgumentException(
-                    "Queue must be transactional if you configure your endpoint to be transactional (" + address + ").");
-            }
-
-            var messageReadPropertyFilter = new MessagePropertyFilter
-            {
-                Body = true,
-                TimeToBeReceived = true,
-                Recoverable = true,
-                Id = true,
-                ResponseQueue = true,
-                CorrelationId = true,
-                Extension = true,
-                AppSpecific = true
-            };
-
-            queue.MessageReadPropertyFilter = messageReadPropertyFilter;
-
-            if (configure.PurgeOnStartup())
+            if (settings.PurgeOnStartup)
             {
                 queue.Purge();
             }
         }
 
         /// <summary>
-        /// The address of the configured error queue. 
+        ///     Starts the dequeuing of message using the specified
         /// </summary>
-        public Address ErrorQueue { get; set; }
-
-        /// <summary>
-        ///     Starts the dequeuing of message using the specified <paramref name="maximumConcurrencyLevel" />.
-        /// </summary>
-        /// <param name="maximumConcurrencyLevel">The maximum concurrency level supported.</param>
-        public void Start(int maximumConcurrencyLevel)
+        public void Start()
         {
             MessageQueue.ClearConnectionCache();
-
-            this.maximumConcurrencyLevel = maximumConcurrencyLevel;
-            throttlingSemaphore = new SemaphoreSlim(maximumConcurrencyLevel, maximumConcurrencyLevel);
-
             queue.PeekCompleted += OnPeekCompleted;
-
             CallPeekWithExceptionHandling(() => queue.BeginPeek());
         }
 
@@ -123,7 +75,6 @@ namespace NServiceBus.Transports.Msmq
             queue.PeekCompleted -= OnPeekCompleted;
 
             stopResetEvent.WaitOne();
-            DrainStopSemaphore();
             queue.Dispose();
         }
 
@@ -134,20 +85,6 @@ namespace NServiceBus.Transports.Msmq
         public void Dispose()
         {
             // Injected
-        }
-
-        void DrainStopSemaphore()
-        {
-            Logger.Debug("Drain stopping 'Throttling Semaphore'.");
-            for (var index = 0; index < maximumConcurrencyLevel; index++)
-            {
-                Logger.Debug(string.Format("Claiming Semaphore thread {0}/{1}.", index + 1, maximumConcurrencyLevel));
-                throttlingSemaphore.Wait();
-            }
-            Logger.Debug("Releasing all claimed Semaphore threads.");
-            throttlingSemaphore.Release(maximumConcurrencyLevel);
-
-            throttlingSemaphore.Dispose();
         }
 
         bool QueueIsTransactional()
@@ -165,150 +102,27 @@ namespace NServiceBus.Transports.Msmq
 
         void OnPeekCompleted(object sender, PeekCompletedEventArgs peekCompletedEventArgs)
         {
-            stopResetEvent.Reset();
-
-            CallPeekWithExceptionHandling(() => queue.EndPeek(peekCompletedEventArgs.AsyncResult));
-
-            throttlingSemaphore.Wait();
-
-            Task.Factory
-                .StartNew(Action, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default)
-                .ContinueWith(task => task.Exception.Handle(ex =>
-                {
-                    Logger.Error("Error processing message.", ex);
-                    return true;
-                }), TaskContinuationOptions.OnlyOnFaulted);
-
-            //We using an AutoResetEvent here to make sure we do not call another BeginPeek before the Receive has been called
-            peekResetEvent.WaitOne();
-
-            CallPeekWithExceptionHandling(() => queue.BeginPeek());
-
-            stopResetEvent.Set();
-        }
-
-        void Action()
-        {
-            TransportMessage transportMessage = null;
             try
             {
-                if (transactionSettings.IsTransactional)
+                stopResetEvent.Reset();
+
+                CallPeekWithExceptionHandling(() => queue.EndPeek(peekCompletedEventArgs.AsyncResult));
+
+                observable.OnNext(new MessageAvailable(publicReceiveAddress, c =>
                 {
-                    if (transactionSettings.SuppressDistributedTransactions)
-                    {
-                        using (var msmqTransaction = new MessageQueueTransaction())
-                        {
-                            msmqTransaction.Begin();
-                            
-                            Message message;
+                    c.Set(queue);
+                    c.Set("MsmqDequeueStrategy.PeekResetEvent",peekResetEvent);
+                    c.Set("MsmqDequeueStrategy.ErrorQueue",errorQueueAddress);
+                }));
 
-                            if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, msmqTransaction),out message))
-                            {
-                                msmqTransaction.Commit();
-                                return;
-                            }
+                peekResetEvent.WaitOne();
 
-                            try
-                            {
-                                unitOfWork.SetTransaction(msmqTransaction);
-
-                                try
-                                {
-                                    transportMessage = NServiceBus.MsmqUtilities.Convert(message);
-                                }
-                                catch (Exception exception)
-                                {
-                                    LogCorruptedMessage(message, exception);
-                                    errorQueue.Send(message, msmqTransaction);
-                                    msmqTransaction.Commit();
-                                    return;
-                                }
-
-                                if (tryProcessMessage(transportMessage))
-                                {
-                                    msmqTransaction.Commit();
-                                }
-                                else
-                                {
-                                    msmqTransaction.Abort();
-                                }
-                            }
-                            finally
-                            {
-                                unitOfWork.ClearTransaction();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
-                        {
-                            Message message;
-
-                            if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.Automatic),out message))
-                            {
-                                scope.Complete();
-                                return;
-                            }
-
-                            try
-                            {
-                                transportMessage = NServiceBus.MsmqUtilities.Convert(message);
-                            }
-                            catch (Exception ex)
-                            {
-                                LogCorruptedMessage(message, ex);
-                                errorQueue.Send(message, MessageQueueTransactionType.Automatic);
-                                scope.Complete();
-                                return;
-                            }
-
-                            if (tryProcessMessage(transportMessage))
-                            {
-                                scope.Complete();
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    Message message;
-
-                    if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.None),out message))
-                    {
-                        return;
-                    }
-
-                    try
-                    {
-                        transportMessage = NServiceBus.MsmqUtilities.Convert(message);
-                    }
-                    catch (Exception exception)
-                    {
-                        LogCorruptedMessage(message, exception);
-                        errorQueue.Send(message, MessageQueueTransactionType.None);
-                        return;
-                    }
-
-                    tryProcessMessage(transportMessage);
-                }
-
-                endProcessMessage(transportMessage, null);
-            }
-            catch (Exception ex)
-            {
-                endProcessMessage(transportMessage, ex);
+                CallPeekWithExceptionHandling(() => queue.BeginPeek());
             }
             finally
             {
-                throttlingSemaphore.Release();
+                stopResetEvent.Set();
             }
-        }
-
-        void LogCorruptedMessage(Message message, Exception ex)
-        {
-            var error = string.Format("Message '{0}' is corrupt and will be moved to '{1}'", message.Id, ErrorQueue.Queue);
-            Logger.Error(error, ex);
         }
 
         void CallPeekWithExceptionHandling(Action action)
@@ -321,37 +135,6 @@ namespace NServiceBus.Transports.Msmq
             {
                 RaiseCriticalException(messageQueueException);
             }
-        }
-        [DebuggerNonUserCode]
-        bool TryReceiveMessage(Func<Message> receive,out Message message)
-        {
-            message = null;
-
-            try
-            {
-                message = receive();
-                return true;
-            }
-            catch (MessageQueueException messageQueueException)
-            {
-                if (messageQueueException.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-                {
-                    //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
-                    return false;
-                }
-
-                RaiseCriticalException(messageQueueException);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Error in receiving messages.", ex);
-            }
-            finally
-            {
-                peekResetEvent.Set();
-            }
-
-            return false;
         }
 
         void RaiseCriticalException(MessageQueueException messageQueueException)
@@ -377,22 +160,40 @@ namespace NServiceBus.Transports.Msmq
                 : "Unknown User";
         }
 
-        static ILog Logger = LogManager.GetLogger<MsmqDequeueStrategy>();
-        Configure configure;
         CriticalError criticalError;
-        TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
+        readonly bool isTransactional;
+        readonly MsmqAddress errorQueueAddress;
+
         [SkipWeaving]
-        MsmqUnitOfWork unitOfWork;
         CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
-        Action<TransportMessage, Exception> endProcessMessage;
-        int maximumConcurrencyLevel;
-        AutoResetEvent peekResetEvent = new AutoResetEvent(false);
         MessageQueue queue;
-        MessageQueue errorQueue;
         ManualResetEvent stopResetEvent = new ManualResetEvent(true);
-        SemaphoreSlim throttlingSemaphore;
-        TransactionOptions transactionOptions;
-        TransactionSettings transactionSettings;
-        Func<TransportMessage, bool> tryProcessMessage;
+        AutoResetEvent peekResetEvent = new AutoResetEvent(false);
+
+        string publicReceiveAddress;
+        
+        Observable<MessageAvailable> observable = new Observable<MessageAvailable>();
+
+        static MessagePropertyFilter DefaultReadPropertyFilter = new MessagePropertyFilter
+        {
+            Body = true,
+            TimeToBeReceived = true,
+            Recoverable = true,
+            Id = true,
+            ResponseQueue = true,
+            CorrelationId = true,
+            Extension = true,
+            AppSpecific = true
+        };
+
+        /// <summary>
+        /// b
+        /// </summary>
+        /// <param name="observer"></param>
+        /// <returns></returns>
+        public IDisposable Subscribe(IObserver<MessageAvailable> observer)
+        {
+            return observable.Subscribe(observer);
+        }
     }
 }

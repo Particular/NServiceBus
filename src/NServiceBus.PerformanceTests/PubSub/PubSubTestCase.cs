@@ -45,7 +45,6 @@ public class PubSubTestCase : TestCase
 
         configuration.EndpointName("PubSubPerformanceTest");
         configuration.EnableInstallers();
-        configuration.DiscardFailedMessagesInsteadOfSendingToErrorQueue();
         configuration.UseTransport<MsmqTransport>();
         configuration.DisableFeature<Audit>();
 
@@ -104,7 +103,7 @@ public class PubSubTestCase : TestCase
 
         for (var i = 0; i < GetNumberOfSubscribers(); i++)
         {
-            var subscriberAddress = Address.Parse("PubSubPerformanceTest.Subscriber" + i);
+            var subscriberAddress = "PubSubPerformanceTest.Subscriber" + i;
             creator.CreateQueueIfNecessary(subscriberAddress, null);
 
             using (var tx = new TransactionScope())

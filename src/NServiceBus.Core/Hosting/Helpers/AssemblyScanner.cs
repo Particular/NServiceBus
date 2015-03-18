@@ -164,7 +164,7 @@ namespace NServiceBus.Hosting.Helpers
         internal static bool IsRuntimeAssembly(string assemblyPath)
         {
             var publicKeyToken = AssemblyName.GetAssemblyName(assemblyPath).GetPublicKeyToken();
-            var lowerInvariant = BitConverter.ToString(publicKeyToken).Replace("-", "").ToLowerInvariant();
+            var lowerInvariant = BitConverter.ToString(publicKeyToken).Replace("-", String.Empty).ToLowerInvariant();
             //System
             if (lowerInvariant == "b77a5c561934e089")
             {
@@ -199,7 +199,7 @@ namespace NServiceBus.Hosting.Helpers
             }
 
             var nsbAssemblyName = typeof(AssemblyScanner).Assembly.GetName();
-            var nsbPublicKeyToken = BitConverter.ToString(nsbAssemblyName.GetPublicKeyToken()).Replace("-", "").ToLowerInvariant();
+            var nsbPublicKeyToken = BitConverter.ToString(nsbAssemblyName.GetPublicKeyToken()).Replace("-", String.Empty).ToLowerInvariant();
             var displayBindingRedirects = false;
             var files = new List<string>();
             var sbFileLoadException = new StringBuilder();
@@ -212,7 +212,7 @@ namespace NServiceBus.Hosting.Helpers
                 if (loadException != null)
                 {
                     var assemblyName = new AssemblyName(loadException.FileName);
-                    var assemblyPublicKeyToken = BitConverter.ToString(assemblyName.GetPublicKeyToken()).Replace("-", "").ToLowerInvariant();
+                    var assemblyPublicKeyToken = BitConverter.ToString(assemblyName.GetPublicKeyToken()).Replace("-", String.Empty).ToLowerInvariant();
                     if (nsbAssemblyName.Name == assemblyName.Name &&
                         nsbAssemblyName.CultureInfo.ToString() == assemblyName.CultureInfo.ToString() &&
                         nsbPublicKeyToken == assemblyPublicKeyToken)

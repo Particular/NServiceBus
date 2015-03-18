@@ -2,12 +2,10 @@ namespace NServiceBus
 {
     using System;
     using ObjectBuilder;
-    using Pipeline;
-    using Pipeline.Contexts;
 
-    class ChildContainerBehavior : IBehavior<IncomingContext>
+    class ChildContainerBehavior : PhysicalMessageProcessingStageBehavior
     {
-        public void Invoke(IncomingContext context, Action next)
+        public override void Invoke(Context context, Action next)
         {
             using (var childBuilder = context.Builder.CreateChildBuilder())
             {

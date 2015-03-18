@@ -1,19 +1,23 @@
 namespace NServiceBus
 {
-    using NServiceBus.Features;
+    using System;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure
     /// </summary>
-    public static partial class ConfigureInMemoryFaultManagement
+    [ObsoleteEx(RemoveInVersion = "7",TreatAsErrorFromVersion = "6")]
+    public static class ConfigureInMemoryFaultManagement
     {
         /// <summary>
-        /// Use in-memory fault management.
+        /// Tells the endpoint to discard messages that fails
         /// </summary>
+        [ObsoleteEx(
+      Message = "This is no longer supported. If you want full control over what happens when a message fails (including retries) please override the MoveFaultsToErrorQueue behavior.",
+      RemoveInVersion = "7",
+      TreatAsErrorFromVersion = "6")]
         public static void DiscardFailedMessagesInsteadOfSendingToErrorQueue(this BusConfiguration config)
         {
-            config.EnableFeature<InMemoryFaultManager>();
-            config.DisableFeature<ForwarderFaultManager>();
+            throw new NotImplementedException();
         }
     }
 }

@@ -121,27 +121,11 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var p in props)
             {
-                logger.Debug("Handling property: " + p.Name);
-
-                DelegateFactory.CreateGet(p);
-                if (!isKeyValuePair)
-                {
-                    DelegateFactory.CreateSet(p);
-                }
-
                 InitType(p.PropertyType);
             }
 
             foreach (var f in fields)
             {
-                logger.Debug("Handling field: " + f.Name);
-
-                DelegateFactory.CreateGet(f);
-                if (!isKeyValuePair)
-                {
-                    DelegateFactory.CreateSet(f);
-                }
-
                 InitType(f.FieldType);
             }
         }

@@ -11,7 +11,6 @@
     {
         internal TransactionSettings(ReadOnlySettings settings)
         {
-            MaxRetries = 5;
             IsTransactional = settings.Get<bool>("Transactions.Enabled");
             TransactionTimeout = settings.Get<TimeSpan>("Transactions.DefaultTimeout");
             IsolationLevel = settings.Get<IsolationLevel>("Transactions.IsolationLevel");
@@ -25,15 +24,13 @@
         /// <param name="isTransactional">Is transactions on</param>
         /// <param name="transactionTimeout">The tx timeout</param>
         /// <param name="isolationLevel">The isolation level</param>
-        /// <param name="maxRetries">The number of FLR retries</param>
         /// <param name="suppressDistributedTransactions">Should DTC be suppressed</param>
         /// <param name="doNotWrapHandlersExecutionInATransactionScope">Should handlers be wrapped</param>
-        public TransactionSettings(bool isTransactional, TimeSpan transactionTimeout, IsolationLevel isolationLevel, int maxRetries, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope)
+        public TransactionSettings(bool isTransactional, TimeSpan transactionTimeout, IsolationLevel isolationLevel, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope)
         {
             IsTransactional = isTransactional;
             TransactionTimeout = transactionTimeout;
             IsolationLevel = isolationLevel;
-            MaxRetries = maxRetries;
             SuppressDistributedTransactions = suppressDistributedTransactions;
             DoNotWrapHandlersExecutionInATransactionScope = doNotWrapHandlersExecutionInATransactionScope;
         }
@@ -55,16 +52,6 @@
         /// Only relevant when <see cref="IsTransactional"/> is set to true.
         /// </summary>
         public IsolationLevel IsolationLevel { get; set; }
-
-        /// <summary>
-        /// Sets the maximum number of times a message will be retried
-        /// when an exception is thrown as a result of handling the message.
-        /// This value is only relevant when <see cref="IsTransactional"/> is true.
-        /// </summary>
-        /// <remarks>
-        /// Default value is 5.
-        /// </remarks>
-        public int MaxRetries { get; set; }
 
         /// <summary>
         /// If true the transport won't enlist in distributed transactions

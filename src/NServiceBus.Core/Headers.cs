@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System;
-
     /// <summary>
     /// Static class containing headers used by NServiceBus.
     /// </summary>
@@ -43,13 +41,6 @@
         public const string SagaId = "NServiceBus.SagaId";
 
         /// <summary>
-        /// Header containing a list of saga types and ids that this message invoked, the format is "{sagatype}={sagaid};{sagatype}={sagaid}"
-        /// This header is considered an applicative header.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.1", Message = "Enriching the headers for saga related information has been moved to the SagaAudit plugin in ServiceControl. Add a reference to the Saga audit plugin in your endpoint to get more information.")]
-        public const string InvokedSagas = "NServiceBus.InvokedSagas";
-
-        /// <summary>
         /// Header containing a stable message id for a message.
         /// </summary>
         public const string MessageId = "NServiceBus.MessageId";
@@ -63,7 +54,7 @@
         /// Header containing the ReplyToAddress for a message.
         /// </summary>
         public const string ReplyToAddress = "NServiceBus.ReplyToAddress";
-        
+
         /// <summary>
         /// Prefix included on the wire when sending applicative headers.
         /// </summary>
@@ -215,37 +206,16 @@
         public const string MessageIntent = "NServiceBus.MessageIntent";
 
         /// <summary>
-        /// Get the header with the given key. Cannot be used to change its value.
+        /// The time to be received for this message when it was sent the first time.
+        /// When moved to error and audit this header will be preserved to the original TTBR 
+        /// of the message can be known
         /// </summary>
-        /// <param name="msg">The message to retrieve a header from.</param>
-        /// <param name="key">The header key.</param>
-        /// <returns>The value assigned to the header.</returns>
-        [ObsoleteEx(
-            Replacement = "bus.GetMessageHeader(msg, key)",
-            TreatAsErrorFromVersion = "5.0", 
-            RemoveInVersion = "6.0")]
-// ReSharper disable UnusedParameter.Global
-        public static string GetMessageHeader(object msg, string key)
-// ReSharper restore UnusedParameter.Global
-        {
-            throw new InvalidOperationException();
-        }
+        public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
 
+       
         /// <summary>
-        /// Sets the value of the header for the given key.
+        /// Indicates that the message was sent as a non durable message
         /// </summary>
-        /// <param name="msg">The message to add a header to.</param>
-        /// <param name="key">The header key.</param>
-        /// <param name="value">The value to assign to the header.</param>
-        [ObsoleteEx(
-            Replacement = "bus.SetMessageHeader(msg, key, value)", 
-            TreatAsErrorFromVersion = "5.0",
-            RemoveInVersion = "6.0")]
-// ReSharper disable UnusedParameter.Global
-        public static void SetMessageHeader(object msg, string key, string value)
-// ReSharper restore UnusedParameter.Global
-        {
-            throw new InvalidOperationException();
-        }
+        public const string NonDurableMessage = "NServiceBus.NonDurableMessage";
     }
 }

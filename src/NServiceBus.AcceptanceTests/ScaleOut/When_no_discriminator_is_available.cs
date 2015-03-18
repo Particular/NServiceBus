@@ -5,6 +5,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
+    using NServiceBus.ObjectBuilder;
     using NServiceBus.Transports;
     using NUnit.Framework;
 
@@ -48,10 +49,20 @@
             {
                 config.EnableFeature<TransportThatDoesntSetADefaultDiscriminatorConfigurator>();
             }
+
+            public override string GetSubScope(string address, string qualifier)
+            {
+                return address + "." + qualifier;
+            }
         }
 
             public class TransportThatDoesntSetADefaultDiscriminatorConfigurator : ConfigureTransport
             {
+                protected override Func<IBuilder, ReceiveBehavior> GetReceiveBehaviorFactory(ReceiveOptions settings)
+                {
+                    throw new NotImplementedException();
+                }
+
                 protected override void Configure(FeatureConfigurationContext context, string connectionString)
                 {
                     

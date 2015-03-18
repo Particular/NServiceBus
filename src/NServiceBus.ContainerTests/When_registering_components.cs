@@ -129,6 +129,21 @@ namespace NServiceBus.ContainerTests
             }
         }
 
+        [Test]
+        public void Setter_dependencies_should_be_supported_when_resolving_interfaces()
+        {
+            using (var builder = TestContainerBuilder.ConstructBuilder())
+            {
+                builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerCall);
+                builder.RegisterSingleton(typeof(IWithSetterDependencies), new ClassWithSetterDependencies());
+
+                var component = (ClassWithSetterDependencies)builder.Build(typeof(IWithSetterDependencies));
+                Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
+                Assert.NotNull(component.InterfaceDependency, "Interfaces should be property injected");
+                Assert.NotNull(component.concreteDependencyWithSetOnly, "Set only properties should be supported");
+            }
+        }
+
 
         [Test]
         public void Setter_dependencies_should_be_supported()
@@ -342,7 +357,11 @@ namespace NServiceBus.ContainerTests
         public bool AnotherProperty { get; set; }
     }
 
-    public class ClassWithSetterDependencies
+    public interface IWithSetterDependencies
+    {
+    }
+
+    public class ClassWithSetterDependencies : IWithSetterDependencies
     {
         public SomeEnum EnumDependency { get; set; }
         public int SimpleDependency { get; set; }

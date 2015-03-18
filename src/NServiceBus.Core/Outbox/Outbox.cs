@@ -79,8 +79,12 @@ The reason you need to do this is because we need to ensure that you have read a
             context.Pipeline.Register<OutboxRecordBehavior.OutboxRecorderRegistration>();
             context.Pipeline.Replace(WellKnownStep.DispatchMessageToTransport, typeof(OutboxSendBehavior), "Sending behavior with a delay sending until all business transactions are committed to the outbox storage");
 
-            context.Container.ConfigureComponent<OutboxDeduplicationBehavior>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(t => t.TransactionSettings, new TransactionSettings(context.Settings));
+            context.Container.ConfigureComponent(
+                b => new OutboxDeduplicationBehavior(b.Build<IOutboxStorage>(),
+                    b.Build<DispatchMessageToTransportBehavior>(), 
+                    b.Build<DefaultMessageAuditer>(),
+                    new TransactionSettings(context.Settings)), 
+                DependencyLifecycle.InstancePerCall);
 
             //make the audit use the outbox as well
             context.Container.ConfigureComponent<OutboxAwareAuditer>(DependencyLifecycle.InstancePerCall);

@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using ScenarioDescriptors;
 
     public static class ConfigureExtensions
@@ -16,7 +18,7 @@
             return dictionary[key];
         }
 
-        public static void DefineTransport(this BusConfiguration builder, IDictionary<string, string> settings, Type endpointBuilderType)
+        public static void DefineTransport(this BusConfiguration config, IDictionary<string, string> settings, Type endpointBuilderType)
         {
             if (!settings.ContainsKey("Transport"))
             {
@@ -37,11 +39,13 @@
 
                 dynamic dc = configurer;
 
-                dc.Configure(builder);
+                dc.Configure(config);
+                var cleanupMethod = configurer.GetType().GetMethod("Cleanup", BindingFlags.Public | BindingFlags.Instance);
+                config.GetSettings().Set("CleanupTransport", cleanupMethod != null ? configurer : new Cleaner());
                 return;
             }
 
-            builder.UseTransport(transportType).ConnectionString(settings["Transport.ConnectionString"]);
+            config.UseTransport(transportType).ConnectionString(settings["Transport.ConnectionString"]);
         }
 
         public static void DefineTransactions(this BusConfiguration config, IDictionary<string, string> settings)
@@ -59,7 +63,7 @@
         public static void DefinePersistence(this BusConfiguration config, IDictionary<string, string> settings)
         {
             if (!settings.ContainsKey("Persistence"))
-            {
+            { 
                 settings = Persistence.Default.Settings;
             }
 
@@ -77,10 +81,20 @@
                 dynamic dc = configurer;
 
                 dc.Configure(config);
+
+                var cleanupMethod = configurer.GetType().GetMethod("Cleanup", BindingFlags.Public | BindingFlags.Instance);
+                config.GetSettings().Set("CleanupPersistence", cleanupMethod != null ? configurer : new Cleaner());
                 return;
             }
 
             config.UsePersistence(persistenceType);
+        }
+
+        private class Cleaner
+        {
+            public void Cleanup()
+            {
+            }
         }
 
         public static void DefineBuilder(this BusConfiguration config, IDictionary<string, string> settings)

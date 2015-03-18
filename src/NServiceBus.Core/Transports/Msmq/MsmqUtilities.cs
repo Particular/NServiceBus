@@ -9,8 +9,11 @@ namespace NServiceBus
     using System.Net.NetworkInformation;
     using System.Text;
     using System.Xml;
-    using Logging;
-    using Transports.Msmq;
+    using NServiceBus.Logging;
+    using NServiceBus.Support;
+    using NServiceBus.Transports;
+    using NServiceBus.Transports.Msmq;
+    using NServiceBus.Unicast;
 
     /// <summary>
     ///     MSMQ-related utility functions
@@ -21,7 +24,7 @@ namespace NServiceBus
         ///     Turns a '@' separated value into a full path.
         ///     Format is 'queue@machine', or 'queue@ipaddress'
         /// </summary>
-        public static string GetFullPath(Address value)
+        public static string GetFullPath(MsmqAddress value)
         {
             IPAddress ipAddress;
             if (IPAddress.TryParse(value.Machine, out ipAddress))
@@ -32,14 +35,9 @@ namespace NServiceBus
             return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
         }
 
-        /// <summary>
-        ///     Gets the name of the return address from the provided value.
-        ///     If the target includes a machine name, uses the local machine name in the returned value
-        ///     otherwise uses the local IP address in the returned value.
-        /// </summary>
-        public static string GetReturnAddress(string value, string target)
+        public static string GetFullPath(string queue)
         {
-            return GetReturnAddress(Address.Parse(value), Address.Parse(target));
+            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(queue,RuntimeEnvironment.MachineName);
         }
 
         /// <summary>
@@ -47,24 +45,23 @@ namespace NServiceBus
         ///     If the target includes a machine name, uses the local machine name in the returned value
         ///     otherwise uses the local IP address in the returned value.
         /// </summary>
-        public static string GetReturnAddress(Address value, Address target)
+        public static string GetReturnAddress(string replyToString, string detinationMachine)
         {
-            var machine = target.Machine;
-
+            var replyToAddress = MsmqAddress.Parse(replyToString);
             IPAddress targetIpAddress;
 
             //see if the target is an IP address, if so, get our own local ip address
-            if (IPAddress.TryParse(machine, out targetIpAddress))
+            if (IPAddress.TryParse(detinationMachine, out targetIpAddress))
             {
                 if (string.IsNullOrEmpty(localIp))
                 {
                     localIp = LocalIpAddress(targetIpAddress);
                 }
 
-                return PREFIX_TCP + localIp + PRIVATE + value.Queue;
+                return PREFIX_TCP + localIp + PRIVATE + replyToAddress.Queue;
             }
 
-            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
+            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(replyToAddress);
         }
 
         static string LocalIpAddress(IPAddress targetIpAddress)
@@ -96,27 +93,22 @@ namespace NServiceBus
             return "127.0.0.1";
         }
 
-       
-        static Address GetIndependentAddressForQueue(MessageQueue q)
-        {
-            if (q == null)
-            {
-                return null;
-            }
 
+        static MsmqAddress GetIndependentAddressForQueue(MessageQueue q)
+        {
             var arr = q.FormatName.Split('\\');
             var queueName = arr[arr.Length - 1];
 
             var directPrefixIndex = arr[0].IndexOf(DIRECTPREFIX);
             if (directPrefixIndex >= 0)
             {
-                return new Address(queueName, arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length));
+                return new MsmqAddress(queueName, arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length));
             }
 
             var tcpPrefixIndex = arr[0].IndexOf(DIRECTPREFIX_TCP);
             if (tcpPrefixIndex >= 0)
             {
-                return new Address(queueName, arr[0].Substring(tcpPrefixIndex + DIRECTPREFIX_TCP.Length));
+                return new MsmqAddress(queueName, arr[0].Substring(tcpPrefixIndex + DIRECTPREFIX_TCP.Length));
             }
 
             try
@@ -124,7 +116,7 @@ namespace NServiceBus
                 // the pessimistic approach failed, try the optimistic approach
                 arr = q.QueueName.Split('\\');
                 queueName = arr[arr.Length - 1];
-                return new Address(queueName, q.MachineName);
+                return new MsmqAddress(queueName, q.MachineName);
             }
             catch
             {
@@ -135,35 +127,24 @@ namespace NServiceBus
         /// <summary>
         ///     Converts an MSMQ message to a TransportMessage.
         /// </summary>
-        public static TransportMessage Convert(Message m)
+        public static Dictionary<string,string> ExtractHeaders(Message msmqMessage)
         {
-            var headers = DeserializeMessageHeaders(m);
-
-            
-            var result = new TransportMessage(m.Id, headers)
-            {
-                Recoverable = m.Recoverable,
-                TimeToBeReceived = m.TimeToBeReceived,
-                CorrelationId = GetCorrelationId(m, headers)
-            };
-
+            var headers = DeserializeMessageHeaders(msmqMessage);
+        
             //note: we can drop this line when we no longer support interop btw v3 + v4
-            if (m.ResponseQueue != null)
+            if (msmqMessage.ResponseQueue != null)
             {
-                result.Headers[Headers.ReplyToAddress] = GetIndependentAddressForQueue(m.ResponseQueue).ToString();    
-            }
-            
-
-            if (Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific))
-            {
-                result.MessageIntent = (MessageIntentEnum) m.AppSpecific;
+                headers[Headers.ReplyToAddress] = GetIndependentAddressForQueue(msmqMessage.ResponseQueue).ToString();    
             }
 
-            m.BodyStream.Position = 0;
-            result.Body = new byte[m.BodyStream.Length];
-            m.BodyStream.Read(result.Body, 0, result.Body.Length);
+            if (Enum.IsDefined(typeof(MessageIntentEnum), msmqMessage.AppSpecific))
+            {
+                headers[Headers.MessageIntent] = ((MessageIntentEnum)msmqMessage.AppSpecific).ToString();
+            }
 
-            return result;
+            headers[Headers.CorrelationId] = GetCorrelationId(msmqMessage, headers);
+
+            return headers;
         }
 
         static string GetCorrelationId(Message message, Dictionary<string, string> headers)
@@ -182,7 +163,7 @@ namespace NServiceBus
 
             //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end that the sender added to make it compatible
             //The replace can be removed in v5 since only v3 messages will need this
-            return message.CorrelationId.Replace("\\0", "");
+            return message.CorrelationId.Replace("\\0", String.Empty);
         }
 
         static Dictionary<string, string> DeserializeMessageHeaders(Message m)
@@ -224,7 +205,7 @@ namespace NServiceBus
         ///     Converts a TransportMessage to an Msmq message.
         ///     Doesn't set the ResponseQueue of the result.
         /// </summary>
-        public static Message Convert(TransportMessage message)
+        public static Message Convert(OutgoingMessage message, DeliveryOptions deliveryOptions)
         {
             var result = new Message();
 
@@ -234,13 +215,21 @@ namespace NServiceBus
             }
 
 
-            AssignMsmqNativeCorrelationId(message, result);
+            AssignMsmqNativeCorrelationId(message.Headers, result);
 
-            result.Recoverable = message.Recoverable;
-
-            if (message.TimeToBeReceived < MessageQueue.InfiniteTimeout)
+            if (deliveryOptions.NonDurable.HasValue)
             {
-                result.TimeToBeReceived = message.TimeToBeReceived;
+                result.Recoverable = deliveryOptions.NonDurable.Value;
+            }
+            else
+            {
+                //default for MSMQ is false but we want to be safe by default
+                result.Recoverable = true;
+            }
+      
+            if (deliveryOptions.TimeToBeReceived.HasValue &&  deliveryOptions.TimeToBeReceived.Value < MessageQueue.InfiniteTimeout)
+            {
+                result.TimeToBeReceived = deliveryOptions.TimeToBeReceived.Value;
             }
 
             using (var stream = new MemoryStream())
@@ -253,45 +242,63 @@ namespace NServiceBus
                 result.Extension = stream.ToArray();
             }
 
-            result.AppSpecific = (int) message.MessageIntent;
+            var messageIntent = default(MessageIntentEnum);
+
+            string messageIntentString;
+
+            if (message.Headers.TryGetValue(Headers.MessageIntent, out messageIntentString))
+            {
+
+                Enum.TryParse(messageIntentString, true, out messageIntent);
+            }
+
+            result.AppSpecific = (int)messageIntent;
+           
 
             return result;
         }
 
-        static void AssignMsmqNativeCorrelationId(TransportMessage message, Message result)
+        static void AssignMsmqNativeCorrelationId(Dictionary<string,string> headers, Message result)
         {
-            if (string.IsNullOrEmpty(message.CorrelationId))
+            string correlationIdHeader;
+
+            if (!headers.TryGetValue(Headers.CorrelationId, out correlationIdHeader))
+            {
+                return;
+            }
+
+            if (string.IsNullOrEmpty(correlationIdHeader))
             {
                 return;
             }
 
             Guid correlationId;
 
-            if (Guid.TryParse(message.CorrelationId, out correlationId))
+            if (Guid.TryParse(correlationIdHeader, out correlationId))
             {
                 //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible                
-                result.CorrelationId = message.CorrelationId + "\\0";
+                result.CorrelationId = correlationIdHeader + "\\0";
                 return;
             }
 
             try
             {
-                if (message.CorrelationId.Contains("\\"))
+                if (correlationIdHeader.Contains("\\"))
                 {
-                    var parts = message.CorrelationId.Split('\\');
+                    var parts = correlationIdHeader.Split('\\');
 
                     int number;
 
                     if (parts.Count() == 2 && Guid.TryParse(parts.First(), out correlationId) &&
                         int.TryParse(parts[1], out number))
                     {
-                        result.CorrelationId = message.CorrelationId;
+                        result.CorrelationId = correlationIdHeader;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Warn("Failed to assign a native correlation id for message: " + message.Id, ex);
+                Logger.Warn("Failed to assign a native correlation id for message: " + headers[Headers.MessageId], ex);
             }
         }
 
@@ -304,4 +311,5 @@ namespace NServiceBus
         static System.Xml.Serialization.XmlSerializer headerSerializer = new System.Xml.Serialization.XmlSerializer(typeof(List<HeaderInfo>));
         static ILog Logger = LogManager.GetLogger<MsmqUtilities>();
     }
+
 }

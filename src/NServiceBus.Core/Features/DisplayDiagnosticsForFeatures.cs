@@ -3,20 +3,17 @@ namespace NServiceBus.Features
     using System;
     using System.Linq;
     using System.Text;
-    using Config;
-    using Logging;
+    using NServiceBus.Logging;
 
-    class DisplayDiagnosticsForFeatures : IWantToRunWhenConfigurationIsComplete
+    class DisplayDiagnosticsForFeatures
     {
-        public FeaturesReport FeaturesReport { get; set; }
-
-        public void Run(Configure config)
+        public void Run(FeaturesReport report)
         {
             var statusText = new StringBuilder();
 
             statusText.AppendLine("------------- FEATURES ----------------");
 
-            foreach (var diagnosticData in FeaturesReport.Features)
+            foreach (var diagnosticData in report.Features)
             {
                 statusText.AppendLine(string.Format("Name: {0}", diagnosticData.Name));
                 statusText.AppendLine(string.Format("Version: {0}", diagnosticData.Version));

@@ -33,7 +33,7 @@ namespace NServiceBus.Core.Tests.Pipeline
 
             removals.Add(new RemoveStep("1"));
 
-            var model = coordinator.BuildRuntimeModel();
+            var model = coordinator.BuildPipelineModelFor<IncomingContext>();
 
             Assert.AreEqual(2, model.Count());
         }
@@ -45,7 +45,7 @@ namespace NServiceBus.Core.Tests.Pipeline
             coordinator.Register("2", typeof(FakeBehavior), "2");
             coordinator.Register("3", typeof(FakeBehavior), "3");
 
-            var model = coordinator.BuildRuntimeModel().ToList();
+            var model =  coordinator.BuildPipelineModelFor<IncomingContext>().ToList();
 
             Assert.AreEqual("1", model[0].StepId);
             Assert.AreEqual("2", model[1].StepId);
@@ -62,7 +62,7 @@ namespace NServiceBus.Core.Tests.Pipeline
             replacements.Add(new ReplaceBehavior("1", typeof(ReplacedBehavior), "new"));
             replacements.Add(new ReplaceBehavior("2", typeof(ReplacedBehavior)));
 
-            var model = coordinator.BuildRuntimeModel().ToList();
+            var model = coordinator.BuildPipelineModelFor<IncomingContext>().ToList();
 
             Assert.AreEqual(typeof(ReplacedBehavior).FullName, model[0].BehaviorType.FullName);
             Assert.AreEqual("new", model[0].Description);
@@ -79,8 +79,8 @@ namespace NServiceBus.Core.Tests.Pipeline
             coordinator.Register(new MyCustomRegistration("1.5", "2", "1"));
             coordinator.Register(new MyCustomRegistration("2.5", "3", "2"));
             coordinator.Register(new MyCustomRegistration("3.5", null, "3"));
-            
-            var model = coordinator.BuildRuntimeModel().ToList();
+
+            var model = coordinator.BuildPipelineModelFor<IncomingContext>().ToList();
 
             Assert.AreEqual("1", model[0].StepId);
             Assert.AreEqual("1.5", model[1].StepId);
@@ -100,7 +100,7 @@ namespace NServiceBus.Core.Tests.Pipeline
             coordinator.Register(new MyCustomRegistration("1.5", "2,3", null));
             coordinator.Register(new MyCustomRegistration("2.5", "3", null));
 
-            var model = coordinator.BuildRuntimeModel().ToList();
+            var model = coordinator.BuildPipelineModelFor<IncomingContext>().ToList();
 
             Assert.AreEqual("1", model[0].StepId);
             Assert.AreEqual("1.5", model[1].StepId);
@@ -120,7 +120,7 @@ namespace NServiceBus.Core.Tests.Pipeline
             coordinator.Register(new MyCustomRegistration("2.5", "3", "2,1"));
             coordinator.Register(new MyCustomRegistration("3.5", null, "1,2,3"));
 
-            var model = coordinator.BuildRuntimeModel().ToList();
+            var model = coordinator.BuildPipelineModelFor<IncomingContext>().ToList();
 
             Assert.AreEqual("1", model[0].StepId);
             Assert.AreEqual("1.5", model[1].StepId);
@@ -141,7 +141,7 @@ namespace NServiceBus.Core.Tests.Pipeline
             coordinator.Register(new MyCustomRegistration("1.6", "2", "1.5"));
             coordinator.Register(new MyCustomRegistration("1.1", "1.5", "1"));
 
-            var model = coordinator.BuildRuntimeModel().ToList();
+            var model = coordinator.BuildPipelineModelFor<IncomingContext>().ToList();
 
             Assert.AreEqual("1", model[0].StepId);
             Assert.AreEqual("1.1", model[1].StepId);
@@ -149,6 +149,40 @@ namespace NServiceBus.Core.Tests.Pipeline
             Assert.AreEqual("1.6", model[3].StepId);
             Assert.AreEqual("2", model[4].StepId);
             Assert.AreEqual("3", model[5].StepId);
+        }
+
+        [Test]
+        public void Should_throw_if_behavior_wants_to_go_before_connector()
+        {
+            coordinator.Register("connector", typeof(FakeStageConnector), "Connector");
+
+            coordinator.Register(new MyCustomRegistration("x","connector",""));
+
+
+            Assert.Throws<Exception>(() => coordinator.BuildPipelineModelFor<IncomingContext>());
+        }
+
+        [Test]
+        public void Should_throw_if_behavior_wants_to_go_after_connector()
+        {
+            coordinator.Register("connector", typeof(FakeStageConnector), "Connector");
+
+            coordinator.Register(new MyCustomRegistration("x", "", "connector"));
+
+
+            Assert.Throws<Exception>(() => coordinator.BuildPipelineModelFor<IncomingContext>());
+        }
+
+        [Test]
+        public void Show_detect_missing_stage_connectors()
+        {
+            coordinator.Register("connector", typeof(FakeStageConnector), "Connector");
+
+            coordinator.Register("fake", typeof(FakeBehavior), "x");
+            coordinator.Register("childfake", typeof(ChildFakeBehavior), "x"); 
+            coordinator.Register("child2fake", typeof(Child2FakeBehavior), "x");
+
+            Assert.Throws<Exception>(() => coordinator.BuildPipelineModelFor<IncomingContext>());
         }
 
         class MyCustomRegistration : RegisterStep
@@ -175,20 +209,56 @@ namespace NServiceBus.Core.Tests.Pipeline
                 }
             }
         }
-        class FakeBehavior:IBehavior<IncomingContext>
+        class FakeBehavior: Behavior<IncomingContext>
         {
-            public void Invoke(IncomingContext context, Action next)
+            public override void Invoke(IncomingContext context, Action next)
             {
                 throw new NotImplementedException();
             }
         }
 
-        class ReplacedBehavior : IBehavior<IncomingContext>
+        class ChildFakeBehavior : Behavior<ChildContext>
         {
-            public void Invoke(IncomingContext context, Action next)
+            public override void Invoke(ChildContext context, Action next)
             {
                 throw new NotImplementedException();
             }
         }
+        class Child2FakeBehavior : Behavior<Child2Context>
+        {
+            public override void Invoke(Child2Context context, Action next)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        class ReplacedBehavior : Behavior<IncomingContext>
+        {
+            public override void Invoke(IncomingContext context, Action next)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        class FakeStageConnector : StageConnector<IncomingContext,ChildContext>
+        {
+            public override void Invoke(IncomingContext context, Action<ChildContext> next)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        class ChildContext : IncomingContext
+        {
+            public ChildContext() : base(null)
+            {
+            }
+        }
+
+        class Child2Context : ChildContext
+        {
+        }
+
+     
     }
 }

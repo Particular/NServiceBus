@@ -7,10 +7,10 @@
     /// The registry that keeps track of all known message handlers
     /// </summary>
     [ObsoleteEx(
-        RemoveInVersion = "6.0",
+        RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
         Message = "Not a public API",
-        Replacement = "MessageHandlerRegistry")]
+        ReplacementTypeOrMember = "MessageHandlerRegistry")]
     public interface IMessageHandlerRegistry
     {
         /// <summary>

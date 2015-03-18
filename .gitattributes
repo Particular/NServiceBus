@@ -71,6 +71,3 @@
 *.snk 	-text -diff
 *.cub 	-text -diff
 *.wixlib	-text -diff
-
-
-*.approved.* binary

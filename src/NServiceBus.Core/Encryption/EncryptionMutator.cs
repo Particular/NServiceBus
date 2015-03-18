@@ -97,6 +97,12 @@ namespace NServiceBus.Encryption
                     continue;
                 }
 
+                // don't try to recurse over members of WireEncryptedString
+                if (member.DeclaringType == typeof(WireEncryptedString))
+                {
+                    continue;
+                }
+
                 if (IsIndexedProperty(member))
                 {
                     continue;
@@ -144,10 +150,6 @@ namespace NServiceBus.Encryption
             {
                 var encryptedString = wireEncryptedString;
                 EncryptWireEncryptedString(encryptedString);
-
-                //we clear the properties to avoid having the extra data serialized
-                encryptedString.EncryptedBase64Value = null;
-                encryptedString.Base64Iv = null;
             }
             else
             {
@@ -237,9 +239,9 @@ namespace NServiceBus.Encryption
             var messageType = target.GetType();
 
             IEnumerable<MemberInfo> members;
-            if (!cache.TryGetValue(messageType, out members))
+            if (!cache.TryGetValue(messageType.TypeHandle, out members))
             {
-                cache[messageType] = members = messageType.GetMembers(BindingFlags.Public | BindingFlags.Instance)
+                cache[messageType.TypeHandle] = members = messageType.GetMembers(BindingFlags.Public | BindingFlags.Instance)
                     .Where(m =>
                     {
                         var fieldInfo = m as FieldInfo;
@@ -264,7 +266,7 @@ namespace NServiceBus.Encryption
 
         HashSet<object> visitedMembers = new HashSet<object>();
 
-        static ConcurrentDictionary<Type, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<MemberInfo>>();
+        static ConcurrentDictionary<RuntimeTypeHandle, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<RuntimeTypeHandle, IEnumerable<MemberInfo>>();
 
         static ILog Log = LogManager.GetLogger<IEncryptionService>();
     }

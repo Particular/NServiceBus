@@ -13,12 +13,14 @@ namespace NServiceBus.Features
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var expiredLicense = true;
             try
             {
                 LicenseManager.InitializeLicense();
 
-                expiredLicense = LicenseManager.HasLicenseExpired();
+                if (LicenseManager.HasLicenseExpired())
+                {
+                    context.Pipeline.Register<NotifyOnInvalidLicenseBehavior.Registration>();
+                }
             }
             catch (Exception ex)
             {
@@ -26,10 +28,7 @@ namespace NServiceBus.Features
                 Logger.Fatal("Failed to initialize the license", ex);
             }
 
-            context.Container.ConfigureComponent<LicenseBehavior>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.LicenseExpired, expiredLicense);
-
-            context.Pipeline.Register("LicenseReminder", typeof(LicenseBehavior), "Reminds users if license has expired");
+            
         }
 
         static ILog Logger = LogManager.GetLogger<LicenseReminder>();

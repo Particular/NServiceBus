@@ -2,18 +2,23 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
+    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast.Transport;
-    using Pipeline;
-    using Pipeline.Contexts;
     using Unicast;
 
-    class CallbackInvocationBehavior : IBehavior<IncomingContext>
+    class CallbackInvocationBehavior : LogicalMessagesProcessingStageBehavior
     {
         public const string CallbackInvokedKey = "NServiceBus.CallbackInvocationBehavior.CallbackWasInvoked";
 
-        public UnicastBus UnicastBus { get; set; }
+        readonly CallbackMessageLookup callbackMessageLookup;
 
-        public void Invoke(IncomingContext context, Action next)
+        public CallbackInvocationBehavior(CallbackMessageLookup callbackMessageLookup)
+        {
+            this.callbackMessageLookup = callbackMessageLookup;
+        }
+
+        public override void Invoke(Context context, Action next)
         {
             var messageWasHandled = HandleCorrelatedMessage(context.PhysicalMessage, context);
 
@@ -22,7 +27,7 @@
             next();
         }
 
-        bool HandleCorrelatedMessage(TransportMessage transportMessage, IncomingContext context)
+        bool HandleCorrelatedMessage(TransportMessage transportMessage, Context context)
         {
             if (transportMessage.CorrelationId == null)
             {
@@ -38,7 +43,7 @@
             }
             else
             {
-                //older versions used "Send" as intent for replies. Therefor we need to check for id != cid to avoid 
+                //older versions used "Send" as intent for replies. Therefor we need to check for id != cid to avoid
                 // firing callbacks too soon
                 if (transportMessage.Id == transportMessage.CorrelationId)
                 {
@@ -46,9 +51,9 @@
                 }
             }
 
-            BusAsyncResult busAsyncResult;
+            TaskCompletionSource<CompletionResult> taskCompletionSource;
 
-            if (!UnicastBus.messageIdToAsyncResultLookup.TryRemove(transportMessage.CorrelationId, out busAsyncResult))
+            if (!callbackMessageLookup.TryGet(transportMessage.CorrelationId, out taskCompletionSource))
             {
                 return false;
             }
@@ -64,7 +69,11 @@
                 }
             }
 
-            busAsyncResult.Complete(statusCode, context.LogicalMessages.Select(lm => lm.Instance).ToArray());
+            var result = (CompletionResult)taskCompletionSource.Task.AsyncState;
+            result.ErrorCode = statusCode;
+            result.Messages = context.LogicalMessages.Select(lm => lm.Instance).ToArray();
+
+            taskCompletionSource.SetResult(result);
 
             return true;
         }

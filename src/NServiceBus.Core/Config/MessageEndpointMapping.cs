@@ -96,7 +96,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// Uses the configuration properties to configure the endpoint mapping
         /// </summary>
-        public void Configure(Action<Type, Address> mapTypeToEndpoint)
+        public void Configure(Action<Type, string> mapTypeToEndpoint)
         {
             if (!string.IsNullOrWhiteSpace(Messages))
             {
@@ -104,7 +104,7 @@ namespace NServiceBus.Config
                 return;
             }
 
-            var address = Address.Parse(Endpoint);
+            var address = Endpoint;
             var assemblyName = AssemblyName;
             var ns = Namespace;
             var typeFullName = TypeFullName;
@@ -146,9 +146,9 @@ namespace NServiceBus.Config
                 mapTypeToEndpoint(t, address);
         }
 
-        void ConfigureEndpointMappingUsingMessagesProperty(Action<Type, Address> mapTypeToEndpoint)
+        void ConfigureEndpointMappingUsingMessagesProperty(Action<Type, string> mapTypeToEndpoint)
         {
-            var address = Address.Parse(Endpoint);
+            var address = Endpoint;
             var messages = Messages;
 
             try

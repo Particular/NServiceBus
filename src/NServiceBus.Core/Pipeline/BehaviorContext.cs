@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using System;
     using System.Collections.Generic;
     using ObjectBuilder;
 
@@ -23,17 +22,11 @@
         /// </summary>
         public IBuilder Builder
         {
-            get { return Get<IBuilder>(); }
-        }
-
-        internal void SetChain(dynamic chain)
-        {
-            this.chain = chain;
-        }
-
-        internal IDisposable CreateSnapshotRegion()
-        {
-            return new SnapshotRegion(chain);
+            get
+            {
+                var rawBuilder = Get<IBuilder>();
+                return rawBuilder;
+            }
         }
 
         /// <summary>
@@ -149,7 +142,6 @@
         /// Access to the parent context
         /// </summary>
         protected readonly BehaviorContext parentContext;
-        dynamic chain;
 
         internal bool handleCurrentMessageLaterWasCalled;
 

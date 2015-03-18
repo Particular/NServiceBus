@@ -6,7 +6,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Serialization;
-    using Logging;
     using Utils.Reflection;
 
     /// <summary>
@@ -14,9 +13,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
     /// </summary>
     public class MessageMapper : IMessageMapper
     {
-
-        ConcreteProxyCreator concreteProxyCreator;
-
         /// <summary>
         /// Initializes a new instance of <see cref="MessageMapper"/>.
         /// </summary>
@@ -88,10 +84,14 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             }
             else
             {
-                typeToConstructor[t] = t.GetConstructor(Type.EmptyTypes);
+                var constructorInfo = t.GetConstructor(Type.EmptyTypes);
+                if (constructorInfo != null)
+                {
+                    typeToConstructor[t.TypeHandle] = constructorInfo.MethodHandle;
+                }
             }
 
-            nameToType[typeName] = t;
+            nameToType[typeName] = t.TypeHandle;
 
             foreach (var field in t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
             {
@@ -113,14 +113,17 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             if (interfaceType.GetMethods().Any(mi => !(mi.IsSpecialName && (mi.Name.StartsWith("set_") || mi.Name.StartsWith("get_")))))
             {
-                Logger.Warn(string.Format("Interface {0} contains methods and can there for not be mapped. Be aware that non mapped interface can't be used to send messages.",interfaceType.Name));
-                return;
+                throw new Exception(string.Format("We can only generate a concrete implementation for '{0}' because the interface contains methods. Make sure interface messages do not contain methods.", interfaceType.Name));
             }
 
             var mapped = concreteProxyCreator.CreateTypeFrom(interfaceType);
-            interfaceToConcreteTypeMapping[interfaceType] = mapped;
-            concreteToInterfaceTypeMapping[mapped] = interfaceType;
-            typeToConstructor[mapped] = mapped.GetConstructor(Type.EmptyTypes);
+            interfaceToConcreteTypeMapping[interfaceType.TypeHandle] = mapped.TypeHandle;
+            concreteToInterfaceTypeMapping[mapped.TypeHandle] = interfaceType.TypeHandle;
+            var constructorInfo = mapped.GetConstructor(Type.EmptyTypes);
+            if (constructorInfo != null)
+            {
+                typeToConstructor[mapped.TypeHandle] = constructorInfo.MethodHandle;
+            }
         }
 
         static string GetTypeName(Type t)
@@ -143,21 +146,28 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         public Type GetMappedTypeFor(Type t)
         {
+            RuntimeTypeHandle typeHandle;
             if (t.IsClass)
             {
-                Type result;
-                concreteToInterfaceTypeMapping.TryGetValue(t, out result);
-                if (result != null || t.IsGenericTypeDefinition)
+                if (t.IsGenericTypeDefinition)
                 {
-                    return result;
+                    return null;
+                }
+
+                if (concreteToInterfaceTypeMapping.TryGetValue(t.TypeHandle, out typeHandle))
+                {
+                    return Type.GetTypeFromHandle(typeHandle);
                 }
 
                 return t;
             }
 
-            Type toReturn;
-            interfaceToConcreteTypeMapping.TryGetValue(t, out toReturn);
-            return toReturn;
+            if (interfaceToConcreteTypeMapping.TryGetValue(t.TypeHandle, out typeHandle))
+            {
+                return Type.GetTypeFromHandle(typeHandle);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -171,10 +181,10 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 name = typeName.Substring(0, typeName.Length - ConcreteProxyCreator.SUFFIX.Length);
             }
 
-            Type type;
-            if (nameToType.TryGetValue(name, out type))
+            RuntimeTypeHandle typeHandle;
+            if (nameToType.TryGetValue(name, out typeHandle))
             {
-                return type;
+                return Type.GetTypeFromHandle(typeHandle);
             }
 
             return Type.GetType(name);
@@ -218,20 +228,19 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 }
             }
 
-            ConstructorInfo constructor;
-            typeToConstructor.TryGetValue(mapped, out constructor);
-            if (constructor != null)
+            RuntimeMethodHandle constructor;
+            if (typeToConstructor.TryGetValue(mapped.TypeHandle, out constructor))
             {
-                return constructor.Invoke(null);
+                return ((ConstructorInfo)MethodBase.GetMethodFromHandle(constructor, mapped.TypeHandle)).Invoke(null);
             }
-
+            
             return FormatterServices.GetUninitializedObject(mapped);
         }
 
-        Dictionary<Type, Type> interfaceToConcreteTypeMapping = new Dictionary<Type, Type>();
-        Dictionary<Type, Type> concreteToInterfaceTypeMapping = new Dictionary<Type, Type>();
-        Dictionary<string, Type> nameToType = new Dictionary<string, Type>();
-        Dictionary<Type, ConstructorInfo> typeToConstructor = new Dictionary<Type, ConstructorInfo>();
-        static ILog Logger = LogManager.GetLogger<MessageMapper>();
+        ConcreteProxyCreator concreteProxyCreator;
+        Dictionary<RuntimeTypeHandle, RuntimeTypeHandle> interfaceToConcreteTypeMapping = new Dictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
+        Dictionary<RuntimeTypeHandle, RuntimeTypeHandle> concreteToInterfaceTypeMapping = new Dictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
+        Dictionary<string, RuntimeTypeHandle> nameToType = new Dictionary<string, RuntimeTypeHandle>();
+        Dictionary<RuntimeTypeHandle, RuntimeMethodHandle> typeToConstructor = new Dictionary<RuntimeTypeHandle, RuntimeMethodHandle>();
     }
 }
