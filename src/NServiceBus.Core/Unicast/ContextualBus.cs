@@ -461,11 +461,6 @@ namespace NServiceBus.Unicast
           
             var sendOptions = new SendOptions(destination);
 
-            if (!string.IsNullOrEmpty(context.CorrelationId))
-            {
-                context.Headers[Headers.CorrelationId] = context.CorrelationId;
-            }
-
             if (!context.Headers.ContainsKey(Headers.MessageIntent))
             {
                 context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
@@ -476,6 +471,16 @@ namespace NServiceBus.Unicast
             {
                 messageId = CombGuid.Generate().ToString();
             }
+
+            if (!string.IsNullOrEmpty(context.CorrelationId))
+            {
+                context.Headers[Headers.CorrelationId] = context.CorrelationId;
+            }
+            else
+            {
+                context.Headers[Headers.CorrelationId] = messageId;
+            }
+
 
             if (context.Delay.HasValue)
             {
