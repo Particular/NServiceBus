@@ -66,14 +66,14 @@ namespace NServiceBus
         /// </summary>
         public void SetLocalEndpointAsDestination()
         {
-            sentToLocalEndpoint = true;
+            SendToLocalEndpoint = true;
             Destination = null;
         }
 
         internal TimeSpan? Delay;
         internal DateTime? At;
         internal string Destination;
-        internal bool sentToLocalEndpoint;
+        internal bool SendToLocalEndpoint;
         internal string CorrelationId;
         internal string MessageId;
         internal Dictionary<string, string> Headers = new Dictionary<string, string>();

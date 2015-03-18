@@ -12,6 +12,6 @@ namespace NServiceBus.Transports
         /// </summary>
         /// <param name="sendOptions">The send options of the message</param>
         /// <param name="message">The actual message</param>
-        void Audit(SendOptions sendOptions,TransportMessage message);
+        void Audit(SendOptions sendOptions,OutgoingMessage message);
     }
 }

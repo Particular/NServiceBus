@@ -21,6 +21,11 @@
 
         void VerifyBestPractices(OutgoingContext context)
         {
+            if (!context.IsControlMessage())
+            {
+                return;
+            }
+
             if (!context.DeliveryOptions.EnforceMessagingBestPractices)
             {
                 return;

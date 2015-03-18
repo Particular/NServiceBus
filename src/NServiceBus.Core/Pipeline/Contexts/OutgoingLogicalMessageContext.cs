@@ -52,7 +52,7 @@
         /// <returns></returns>
         public bool IsControlMessage()
         {
-            return Headers.ContainsKey(NServiceBus.Headers.ControlMessageHeader);
+            return OutgoingLogicalMessage is ControlMessage;
         }
     }
 }

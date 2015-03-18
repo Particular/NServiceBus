@@ -87,6 +87,7 @@
     <Compile Include="App_Packages\Particular.Licensing\TrialStartDateStore.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UniversalDateParser.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
+    <Compile Include="Audit\AuditerWrapper.cs" />
     <Compile Include="BufferedObservable.cs" />
     <Compile Include="Bus.cs" />
     <Compile Include="BusConfiguration.cs" />
@@ -120,6 +121,8 @@
     <Compile Include="FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
+    <Compile Include="MessageMutator\IMutateOutgoingPhysicalContext.cs" />
+    <Compile Include="MessageMutator\OutgoingPhysicalMutatorContext.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingLogicalMessageContext.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
@@ -329,11 +332,9 @@
     <Compile Include="Logging\RollingLogger.cs" />
     <Compile Include="Conventions.cs" />
     <Compile Include="MessageIntentEnum.cs" />
-    <Compile Include="MessageMutator\IMessageMutator.cs" />
     <Compile Include="MessageMutator\IMutateIncomingMessages.cs" />
     <Compile Include="MessageMutator\IMutateIncomingTransportMessages.cs" />
     <Compile Include="MessageMutator\IMutateOutgoingMessages.cs" />
-    <Compile Include="MessageMutator\IMutateOutgoingTransportMessages.cs" />
     <Compile Include="Outbox\IOutboxStorage.cs" />
     <Compile Include="Outbox\Outbox.cs" />
     <Compile Include="Outbox\OutboxAwareAuditer.cs" />
@@ -507,7 +508,6 @@
     <Compile Include="Logging\LogManager.cs" />
     <Compile Include="MessageInterfaces\IMessageMapper.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\MessageMapper.cs" />
-    <Compile Include="MessageMutator\IMutateTransportMessages.cs" />
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />

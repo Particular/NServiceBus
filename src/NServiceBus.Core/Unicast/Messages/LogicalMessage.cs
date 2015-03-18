@@ -62,8 +62,11 @@
 
     class ControlMessage : LogicalMessage
     {
-        internal ControlMessage() : base(null, null, null)
+        internal ControlMessage(string purpose) : base(null, null, null)
         {
+            Purpose = purpose;
         }
+
+        public string Purpose { get; private set; }
     }
 }
