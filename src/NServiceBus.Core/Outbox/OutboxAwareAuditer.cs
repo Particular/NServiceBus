@@ -20,10 +20,7 @@ namespace NServiceBus.Outbox
             OutboxMessage currentOutboxMessage;
 
             if (behaviorContext.TryGet(out currentOutboxMessage))
-            {
-                //todo: need to figure this one out
-                //message.RevertToOriginalBodyIfNeeded();
-                
+            {    
                 currentOutboxMessage.TransportOperations.Add(new TransportOperation(message.MessageId, sendOptions.ToTransportOperationOptions(true), message.Body, message.Headers));
             }
             else

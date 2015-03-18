@@ -11,17 +11,14 @@
 
         public string ForwardReceivedMessagesTo { get; set; }
 
-        public TimeSpan? TimeToBeReceivedOnForwardedMessages { get; set; }
 
         public override void Invoke(Context context, Action next)
         {
             next();
 
-            MessageAuditer.Audit(new SendOptions(ForwardReceivedMessagesTo)
-            {
-                TimeToBeReceived = TimeToBeReceivedOnForwardedMessages,
-            }, context.PhysicalMessage);
+            context.PhysicalMessage.RevertToOriginalBodyIfNeeded();
 
+            MessageAuditer.Audit(new SendOptions(ForwardReceivedMessagesTo), new OutgoingMessage(context.PhysicalMessage.Id,context.PhysicalMessage.Headers,context.PhysicalMessage.Body));
         }
 
         public class Registration : RegisterStep

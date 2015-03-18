@@ -96,7 +96,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                     {
                         return;
                     }
-                    MessageAuditer.Audit(new SendOptions("auditspy"), context.PhysicalMessage);
+                    MessageAuditer.Audit(new SendOptions("auditspy"), new OutgoingMessage(context.PhysicalMessage.Id, context.PhysicalMessage.Headers, context.PhysicalMessage.Body));
                 }
 
                 //here we inject our behavior

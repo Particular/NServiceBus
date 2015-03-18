@@ -4,7 +4,6 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.MessageMutator;
-    using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
 
     public class When_defining_outgoing_message_mutators : NServiceBusAcceptanceTest
@@ -20,7 +19,6 @@
                     .Run();
 
             Assert.True(context.TransportMutatorCalled);
-            Assert.IsTrue(context.OutgoingMessageLogicalMessageReceived);
             Assert.True(context.MessageMutatorCalled);
         }
 
@@ -29,7 +27,6 @@
             public bool MessageProcessed { get; set; }
             public bool TransportMutatorCalled { get; set; }
             public bool MessageMutatorCalled { get; set; }
-            public bool OutgoingMessageLogicalMessageReceived { get; set; }
         }
 
         public class OutgoingMutatorEndpoint : EndpointConfigurationBuilder
@@ -40,14 +37,13 @@
             }
 
 
-            class MyTransportMessageMutator : IMutateOutgoingTransportMessages, INeedInitialization
+            class MyTransportMessageMutator : IMutateOutgoingPhysicalContext, INeedInitialization
             {
 
                 public Context Context { get; set; }
 
-                public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
+                public void MutateOutgoing(OutgoingPhysicalMutatorContext context)
                 {
-                    Context.OutgoingMessageLogicalMessageReceived = logicalMessage != null;
                     Context.TransportMutatorCalled = true;
                 }
 
@@ -62,7 +58,7 @@
                 public IBus Bus { get; set; }
 
                 public Context Context { get; set; }
-             
+
                 public object MutateOutgoing(object message)
                 {
                     Context.MessageMutatorCalled = true;
@@ -86,7 +82,7 @@
 
                 public void Handle(MessageToBeMutated message)
                 {
-                   Context.MessageProcessed = true;
+                    Context.MessageProcessed = true;
                 }
             }
 

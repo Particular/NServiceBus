@@ -5,6 +5,7 @@
     using Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Messages;
     using Pipeline.Contexts;
 
     class LogOutgoingMessageBehavior : Behavior<OutgoingContext>
@@ -20,10 +21,10 @@
                 log.DebugFormat("Sending message '{0}' with id '{1}' to destination '{2}'.\n" +
                                 "ToString() of the message yields: {3}\n" +
                                 "Message headers:\n{4}",
-                                context.OutgoingLogicalMessage.MessageType != null ? context.OutgoingLogicalMessage.MessageType.AssemblyQualifiedName : "unknown",
+                                context.IsControlMessage() ?  "[Control message]" : context.OutgoingLogicalMessage.MessageType.AssemblyQualifiedName,
                     context.MessageId,
                     destination,
-                    context.OutgoingLogicalMessage.Instance,
+                    context.IsControlMessage() ? ((ControlMessage)context.OutgoingLogicalMessage).Purpose : context.OutgoingLogicalMessage.Instance,
                     string.Join(", ", context.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));
             }
 

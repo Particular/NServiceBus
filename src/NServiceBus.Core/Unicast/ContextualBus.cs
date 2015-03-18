@@ -273,7 +273,7 @@ namespace NServiceBus.Unicast
             context.SetCorrelationId(GetCorrelationId());
             context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Reply.ToString());
 
-            SendMessage(context, new ControlMessage());
+            SendMessage(context, new ControlMessage("Bus.Return(" + returnCode + ")"));
         }
 
         string GetCorrelationId()
@@ -446,16 +446,17 @@ namespace NServiceBus.Unicast
         {
             var destination = context.Destination;
 
+            if (context.SendToLocalEndpoint)
+            {
+                destination = sendLocalAddress;
+            }
+            
             if (string.IsNullOrEmpty(destination))
             {
                 destination = GetDestinationForSend(message.MessageType);
             }
 
-            if (context.sentToLocalEndpoint)
-            {
-                destination = sendLocalAddress;
-            }
-
+          
             var sendOptions = new SendOptions(destination);
 
             if (!string.IsNullOrEmpty(context.CorrelationId))
@@ -551,6 +552,11 @@ namespace NServiceBus.Unicast
 
         void ApplyDefaultDeliveryOptionsIfNeeded(DeliveryOptions options, LogicalMessage logicalMessage)
         {
+            if (logicalMessage is ControlMessage)
+            {
+                return;
+            }
+
             var messageDefinitions = messageMetadataRegistry.GetMessageMetadata(logicalMessage.MessageType);
 
             if (!options.TimeToBeReceived.HasValue)

@@ -22,10 +22,7 @@
                         var sendContext = new SendContext();
 
                         sendContext.SetHeader("MyHeader", "MyHeaderValue");
-                        bus.Send<MyMessage>(m=>
-                        {
-                            m.Id = c.Id;
-                        });
+                        bus.Send(new MyMessage{Id = c.Id},sendContext);
                     }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
