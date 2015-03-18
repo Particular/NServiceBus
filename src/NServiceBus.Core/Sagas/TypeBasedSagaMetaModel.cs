@@ -126,7 +126,7 @@ namespace NServiceBus.Sagas
                         continue;
                     }
 
-                    Type messageType = args[1];
+                    var messageType = args[1];
                     if (!conventions.IsMessageType(messageType))
                     {
                         var error = string.Format("A custom IFindSagas must target a valid message type as defined by the message conventions. Please change '{0}' to a valid message type or add it to the message conventions. Finder name '{1}'.",messageType.FullName, finderType.FullName);
