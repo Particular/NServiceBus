@@ -31,7 +31,7 @@ namespace NServiceBus.Unicast
         readonly ISendMessages messageSender;
         readonly StaticMessageRouter messageRouter;
         readonly CallbackMessageLookup callbackMessageLookup;
-        readonly PipelineBase<OutgoingContext> outgoing;
+        readonly PipelineBase<OutgoingContext> outgoingPipeline;
         readonly bool sendOnlyMode;
         readonly string sendLocalAddress;
 
@@ -49,7 +49,7 @@ namespace NServiceBus.Unicast
             this.messageSender = messageSender;
             this.messageRouter = messageRouter;
             this.callbackMessageLookup = callbackMessageLookup;
-            outgoing = new PipelineBase<OutgoingContext>(builder, settings.Get<PipelineModifications>());
+            outgoingPipeline = new PipelineBase<OutgoingContext>(builder, settings.Get<PipelineModifications>());
             sendOnlyMode = settings.Get<bool>("Endpoint.SendOnly");
             //if we're a worker, send to the distributor data bus
             if (settings.GetOrDefault<bool>("Worker.Enabled"))
@@ -111,9 +111,19 @@ namespace NServiceBus.Unicast
             ApplyDefaultDeliveryOptionsIfNeeded(options, logicalMessage);
 
             var headers = new Dictionary<string, string>();
+           
             ApplyStaticHeaders(headers);
 
-            InvokeSendPipeline(options, logicalMessage, headers,CombGuid.Generate().ToString());
+           
+            var outgoingContext = new OutgoingContext(
+                incomingContext,
+                options,
+                logicalMessage,
+                headers,
+                CombGuid.Generate().ToString());
+
+
+            outgoingPipeline.Invoke(outgoingContext);
         }
 
         void ApplyStaticHeaders(Dictionary<string, string> messageHeaders)
@@ -337,8 +347,7 @@ namespace NServiceBus.Unicast
 
         public ICallback Send<T>(Action<T> messageConstructor, SendContext context)
         {
-            object message = messageMapper.CreateInstance(messageConstructor);
-            return SendMessage(context, messageFactory.Create(message));
+            return Send(messageMapper.CreateInstance(messageConstructor), context);
         }
 
 
@@ -491,30 +500,6 @@ namespace NServiceBus.Unicast
             {
                 sendOptions.DeliverAt = context.At;
             }
-
-          
-            ApplyDefaultDeliveryOptionsIfNeeded(sendOptions, message);
-
-            ApplyStaticHeaders(context.Headers);
-
-            InvokeSendPipeline(sendOptions, message, context.Headers, messageId);
-            
-            return SetupCallback(messageId);
-        }
-
-        BehaviorContext InvokeSendPipeline(DeliveryOptions sendOptions, LogicalMessage message, Dictionary<string, string> headers,string messageId)
-        {
-
-            SetReplyToAddressHeader(headers);
-
-
-            var outgoingContext = new OutgoingContext(incomingContext, sendOptions, message, headers, messageId);
-
-            return outgoing.Invoke(outgoingContext);
-        }
-
-        void SetReplyToAddressHeader(Dictionary<string, string> headers)
-        {
             string replyToAddress = null;
 
             if (!SendOnlyMode)
@@ -528,8 +513,25 @@ namespace NServiceBus.Unicast
             }
             if (!string.IsNullOrEmpty(replyToAddress))
             {
-                headers[Headers.ReplyToAddress] = replyToAddress;
+                context.Headers[Headers.ReplyToAddress] = replyToAddress;
             }
+          
+            ApplyDefaultDeliveryOptionsIfNeeded(sendOptions, message);
+
+            ApplyStaticHeaders(context.Headers);
+            
+            var outgoingContext = new OutgoingContext(
+                incomingContext, 
+                sendOptions, 
+                message, 
+                context.Headers, 
+                messageId);
+
+            
+            outgoingPipeline.Invoke(outgoingContext);
+
+            
+            return SetupCallback(messageId);
         }
 
         ICallback SetupCallback(string transportMessageId)
