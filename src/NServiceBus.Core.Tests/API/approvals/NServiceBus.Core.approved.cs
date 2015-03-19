@@ -598,9 +598,9 @@ namespace NServiceBus
         where T : NServiceBus.Transports.TransportDefinition
     {
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
-        public new NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
-        public new NServiceBus.TransportExtensions ConnectionString(System.Func<string> connectionString) { }
-        public new NServiceBus.TransportExtensions ConnectionStringName(string name) { }
+        public NServiceBus.TransportExtensions<T> ConnectionString(string connectionString) { }
+        public NServiceBus.TransportExtensions<T> ConnectionString(System.Func<string> connectionString) { }
+        public NServiceBus.TransportExtensions<T> ConnectionStringName(string name) { }
     }
     public class TransportMessage
     {
