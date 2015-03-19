@@ -52,6 +52,9 @@ namespace NServiceBus
         /// </remarks>
         public HostInfoSettings UsingNames(string instanceName, string hostName)
         {
+            Guard.AgainstDefaultOrEmpty(instanceName, "instanceName");
+            Guard.AgainstDefaultOrEmpty(hostName, "hostName");
+
             config.Settings.Set(UnicastBus.HostIdSettingsKey, DeterministicGuid.Create(instanceName, hostName));
             return this;
         }
@@ -61,6 +64,7 @@ namespace NServiceBus
         /// </summary>
         public HostInfoSettings UsingCustomDisplayName(string displayName)
         {
+            Guard.AgainstDefaultOrEmpty(displayName, "displayName");
             config.Settings.Set("NServiceBus.HostInformation.DisplayName", displayName);
             return this;
         }

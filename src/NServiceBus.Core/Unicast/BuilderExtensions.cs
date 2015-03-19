@@ -13,6 +13,8 @@ namespace NServiceBus.Unicast
         /// </summary>
         public static void ForEach<T>(this IBuilder builder, Action<T> action)
         {
+            Guard.AgainstDefault(builder, "builder");
+            Guard.AgainstDefault(action, "action");
             foreach (var t in builder.BuildAll<T>())
             {
                 action(t);

@@ -48,6 +48,8 @@ namespace NServiceBus.Serializers.Json
         /// <param name="type"></param>
         public object DeserializeObject(string value, Type type)
         {
+            Guard.AgainstDefault(type, "type");
+            Guard.AgainstDefaultOrEmpty(value, "value");
             return JsonConvert.DeserializeObject(value, type);
         }
 
@@ -58,6 +60,7 @@ namespace NServiceBus.Serializers.Json
         /// <returns>The json string</returns>
         public string SerializeObject(object value)
         {
+            Guard.AgainstDefault(value, "value");
             return JsonConvert.SerializeObject(value);
         }
 

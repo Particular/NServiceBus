@@ -12,6 +12,7 @@
         /// </summary>
         protected ExposeSettings(SettingsHolder settings)
         {
+            Guard.AgainstDefault(settings, "settings");
             Settings = settings;
         }
 

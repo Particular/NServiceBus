@@ -49,6 +49,8 @@ namespace NServiceBus
         /// </summary>
         public virtual void Raise(string errorMessage, Exception exception)
         {
+            Guard.AgainstDefaultOrEmpty(errorMessage, "errorMessage");
+            Guard.AgainstDefault(exception, "exception");
             LogManager.GetLogger("NServiceBus").Fatal(errorMessage, exception);
 
             if (onCriticalErrorAction == null)

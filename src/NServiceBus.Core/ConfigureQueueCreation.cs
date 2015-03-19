@@ -10,6 +10,7 @@ namespace NServiceBus
         /// </summary>
         public static void DoNotCreateQueues(this BusConfiguration config)
         {
+            Guard.AgainstDefault(config, "config");
             config.Settings.Set("Transport.CreateQueues", false);
         }
 
@@ -18,6 +19,7 @@ namespace NServiceBus
         /// </summary>
         public static bool CreateQueues(this Configure config)
         {
+            Guard.AgainstDefault(config, "config");
             bool createQueues;
             if (config.Settings.TryGet("Transport.CreateQueues", out createQueues))
             {

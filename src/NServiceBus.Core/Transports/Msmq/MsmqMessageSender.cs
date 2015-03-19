@@ -21,6 +21,7 @@ namespace NServiceBus.Transports.Msmq
         /// <param name="context"></param>
         public MsmqMessageSender(BehaviorContext context)
         {
+            Guard.AgainstDefault(context, "context");
             this.context = context;
         }
 
@@ -40,6 +41,8 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         public void Send(OutgoingMessage message, SendOptions sendOptions)
         {
+            Guard.AgainstDefault(message, "message");
+            Guard.AgainstDefault(sendOptions, "sendOptions");
             var destination = sendOptions.Destination;
             var destinationAddress = MsmqAddress.Parse(destination);
             var queuePath = MsmqUtilities.GetFullPath(destinationAddress);

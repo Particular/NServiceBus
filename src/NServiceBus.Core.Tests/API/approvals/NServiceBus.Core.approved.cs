@@ -258,8 +258,8 @@ namespace NServiceBus
     public class static ExtensionMethods
     {
         public static object CurrentMessageBeingHandled { get; set; }
-        public static string GetMessageHeader(this NServiceBus.IBus bus, object msg, string key) { }
-        public static void SetMessageHeader(this NServiceBus.ISendOnlyBus bus, object msg, string key, string value) { }
+        public static string GetMessageHeader(this NServiceBus.IBus bus, object message, string key) { }
+        public static void SetMessageHeader(this NServiceBus.ISendOnlyBus bus, object message, string key, string value) { }
     }
     public class FileShareDataBus : NServiceBus.DataBus.DataBusDefinition
     {
@@ -2309,7 +2309,7 @@ namespace NServiceBus.Unicast.Transport
     }
     public class FailedMessageProcessingEventArgs : System.EventArgs
     {
-        public FailedMessageProcessingEventArgs(NServiceBus.TransportMessage m, System.Exception ex) { }
+        public FailedMessageProcessingEventArgs(NServiceBus.TransportMessage message, System.Exception exception) { }
         public NServiceBus.TransportMessage Message { get; }
         public System.Exception Reason { get; }
     }

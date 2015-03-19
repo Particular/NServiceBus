@@ -27,6 +27,7 @@ namespace NServiceBus.Pipeline
 
         public static implicit operator string(WellKnownStep step)
         {
+            Guard.AgainstDefault(step, "step");
             return step.stepId;
         }
 

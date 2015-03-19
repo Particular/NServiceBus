@@ -23,6 +23,7 @@ namespace NServiceBus
         /// </summary>
         public static DateTime ToUtcDateTime(string wireFormattedString)
         {
+            Guard.AgainstDefaultOrEmpty(wireFormattedString, "wireFormattedString");
             return DateTime.ParseExact(wireFormattedString, Format, CultureInfo.InvariantCulture).ToUniversalTime();
         }
     }

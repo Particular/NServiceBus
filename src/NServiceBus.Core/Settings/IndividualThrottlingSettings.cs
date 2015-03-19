@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -12,6 +11,7 @@ namespace NServiceBus
 
         internal IndividualThrottlingSettings(Dictionary<string, int?> overrides)
         {
+            Guard.AgainstDefault(overrides, "overrides");
             this.overrides = overrides;
         }
 
@@ -22,10 +22,10 @@ namespace NServiceBus
         /// <returns></returns>
         public IndividualThrottlingSettings ForMainPipeline(int maximumMessagesPerSecond)
         {
+            Guard.AgainstLessThanOrEqualZero(maximumMessagesPerSecond, "maximumMessagesPerSecond");
             overrides["Main"] = maximumMessagesPerSecond;
             return this;
         }
-
         
         /// <summary>
         /// Configures NServiceBus to limit throughput to <paramref name="maximumMessagesPerSecond"/> messages per second for satellite <paramref name="satelliteId"/>.
@@ -35,10 +35,8 @@ namespace NServiceBus
         /// <returns></returns>
         public IndividualThrottlingSettings ForSatellite(string satelliteId, int maximumMessagesPerSecond)
         {
-            if (satelliteId == null)
-            {
-                throw new ArgumentNullException("satelliteId");
-            }
+            Guard.AgainstLessThanOrEqualZero(maximumMessagesPerSecond, "maximumMessagesPerSecond");
+            Guard.AgainstDefaultOrEmpty(satelliteId, "satelliteId");
             overrides[satelliteId] = maximumMessagesPerSecond;
             return this;
         }
@@ -60,10 +58,7 @@ namespace NServiceBus
         /// <returns></returns>
         public IndividualThrottlingSettings DoNotLimit(string satelliteId)
         {
-            if (satelliteId == null)
-            {
-                throw new ArgumentNullException("satelliteId");
-            }
+            Guard.AgainstDefaultOrEmpty(satelliteId, "satelliteId");
             overrides[satelliteId] = null;
             return this;
         }

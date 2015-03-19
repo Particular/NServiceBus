@@ -12,6 +12,7 @@ namespace NServiceBus
         /// </summary>
         public static AutoSubscribeSettings AutoSubscribe(this BusConfiguration config)
         {
+            Guard.AgainstDefault(config, "config");
             return new AutoSubscribeSettings(config);
         }
     }

@@ -21,6 +21,7 @@ namespace NServiceBus.Settings.Concurrency
         /// <returns></returns>
         public IndividualConcurrencySettings ForMainPipeline(int maximumConcurrency)
         {
+            Guard.AgainstLessThanOrEqualZero(maximumConcurrency, "maximumConcurrency");
             overrides["Main"] = maximumConcurrency;
             return this;
         }
@@ -33,6 +34,8 @@ namespace NServiceBus.Settings.Concurrency
         /// <returns></returns>
         public IndividualConcurrencySettings ForSatellite(string satelliteId, int maximumConcurrency)
         {
+            Guard.AgainstLessThanOrEqualZero(maximumConcurrency, "maximumConcurrency");
+            Guard.AgainstDefaultOrEmpty(satelliteId, "satelliteId");
             overrides[satelliteId] = maximumConcurrency;
             return this;
         }

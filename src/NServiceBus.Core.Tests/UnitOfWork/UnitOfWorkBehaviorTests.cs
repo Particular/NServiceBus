@@ -145,7 +145,7 @@
         {
             var runner = new UnitOfWorkBehavior();
 
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage("",new Dictionary<string, string>(),new MemoryStream() ), new IncomingContext(new RootContext(builder))));
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage("fakeId",new Dictionary<string, string>(),new MemoryStream() ), new IncomingContext(new RootContext(builder))));
 
             runner.Invoke(context, () =>
             {

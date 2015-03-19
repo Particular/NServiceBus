@@ -29,6 +29,7 @@
         /// </summary>
         public IEnumerable<Type> GetHandlerTypes(Type messageType)
         {
+            Guard.AgainstDefault(messageType, "messageType");
             if (!conventions.IsMessageType(messageType))
             {
                 return Enumerable.Empty<Type>();
@@ -55,6 +56,7 @@
         /// </summary>
         public void RegisterHandler(Type handlerType)
         {
+            Guard.AgainstDefault(handlerType, "handlerType");
             if (handlerType.IsAbstract)
             {
                 return;
@@ -88,6 +90,8 @@
         /// <param name="message">The message instance.</param>
         public void InvokeHandle(object handler, object message)
         {
+            Guard.AgainstDefault(handler, "handler");
+            Guard.AgainstDefault(message, "message");
             Invoke(handler, message, handlerCache);
         }
 
@@ -98,6 +102,8 @@
         /// <param name="state">The message instance.</param>
         public void InvokeTimeout(object handler, object state)
         {
+            Guard.AgainstDefault(handler, "handler");
+            Guard.AgainstDefault(state, "state");
             Invoke(handler, state, timeoutCache);
         }
 
@@ -108,6 +114,8 @@
         /// <param name="messageType">the message type.</param>
         public void CacheMethodForHandler(Type handler, Type messageType)
         {
+            Guard.AgainstDefault(handler, "handler");
+            Guard.AgainstDefault(messageType, "messageType");
             CacheMethod(handler, messageType, typeof(IHandleMessages<>), handlerCache);
             CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), timeoutCache);
         }

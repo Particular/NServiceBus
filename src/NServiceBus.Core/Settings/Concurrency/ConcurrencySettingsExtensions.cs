@@ -14,6 +14,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static ConcurrencySettings Concurrency(this BusConfiguration config)
         {
+            Guard.AgainstDefault(config, "config");
             return new ConcurrencySettings(config);
         }
     }

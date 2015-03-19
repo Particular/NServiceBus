@@ -19,6 +19,8 @@ namespace NServiceBus.Serializers.XML
         /// <param name="conventions">The endpoint conventions.</param>
         public XmlMessageSerializer(IMessageMapper mapper, Conventions conventions)
         {
+            Guard.AgainstDefault(mapper, "mapper");
+            Guard.AgainstDefault(conventions, "conventions");
             this.mapper = mapper;
             this.conventions = conventions;
         }

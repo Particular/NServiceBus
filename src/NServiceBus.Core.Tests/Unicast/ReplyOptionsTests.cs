@@ -9,7 +9,7 @@
         [Test]
         public void Should_throw_if_destination_is_null()
         {
-            Assert.Throws<InvalidOperationException>(() => new ReplyOptions(null));
+            Assert.Throws<ArgumentNullException>(() => new ReplyOptions(null));
         }
     }
 }

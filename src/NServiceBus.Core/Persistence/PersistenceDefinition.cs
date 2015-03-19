@@ -16,6 +16,7 @@
         /// <typeparam name="T"><see cref="StorageType"/></typeparam>
         protected void Supports<T>(Action<SettingsHolder> action) where T : StorageType
         {
+            Guard.AgainstDefault(action, "action");
             if (storageToActionMap.ContainsKey(typeof(T)))
             {
                 throw new Exception(string.Format("Action for {0} already defined.", typeof(T)));
@@ -45,6 +46,7 @@
         /// </summary>
         protected void Defaults(Action<SettingsHolder> action)
         {
+            Guard.AgainstDefault(action, "action");
             defaults.Add(action);
         }
 
@@ -71,8 +73,9 @@
         /// <summary>
         /// True if supplied storage is supported
         /// </summary>
-        public bool HasSupportFor(Type storageType) 
+        public bool HasSupportFor(Type storageType)
         {
+            Guard.AgainstDefault(storageType, "storageType");
             return storageToActionMap.ContainsKey(storageType);
         }
 

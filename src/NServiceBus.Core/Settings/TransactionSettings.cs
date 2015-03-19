@@ -109,6 +109,7 @@ namespace NServiceBus.Settings
                     "Timeout requested is longer than the maximum value for this machine. Please override using the maxTimeout setting of the system.transactions section in machine.config");
             }
 
+            Guard.AgainstNegative(defaultTimeout, "defaultTimeout");
             config.Settings.Set("Transactions.DefaultTimeout", defaultTimeout);
             return this;
         }

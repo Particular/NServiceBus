@@ -10,6 +10,8 @@
         /// </summary>
         public static bool ShouldSerializationFeatureBeEnabled(this Feature serializationFeature, FeatureConfigurationContext context)
         {
+            Guard.AgainstDefault(serializationFeature, "serializationFeature");
+            Guard.AgainstDefault(context, "context");
             var serializationDefinition = context.Settings.GetSelectedSerializer();
             return serializationDefinition.ProvidedByFeature() == serializationFeature.GetType();
         }

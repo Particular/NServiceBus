@@ -31,6 +31,9 @@ namespace NServiceBus.CircuitBreakers
         public RepeatedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering,
             Action<Exception> triggerAction, TimeSpan delayAfterFailure)
         {
+            Guard.AgainstDefaultOrEmpty(name, "name");
+            Guard.AgainstDefault(triggerAction, "triggerAction");
+            Guard.AgainstDefault(delayAfterFailure, "delayAfterFailure");
             this.name = name;
             this.delayAfterFailure = delayAfterFailure;
             this.triggerAction = triggerAction;

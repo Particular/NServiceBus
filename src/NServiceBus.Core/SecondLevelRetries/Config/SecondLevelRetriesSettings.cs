@@ -19,6 +19,7 @@ namespace NServiceBus.SecondLevelRetries.Config
         /// </summary>
         public void CustomRetryPolicy(Func<TransportMessage, TimeSpan> customPolicy)
         {
+            Guard.AgainstDefault(customPolicy, "customPolicy");
             config.Settings.Set("SecondLevelRetries.RetryPolicy", customPolicy);
         }
     }

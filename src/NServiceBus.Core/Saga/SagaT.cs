@@ -17,7 +17,11 @@ namespace NServiceBus.Saga
         public TSagaData Data
         {
             get { return (TSagaData)Entity; }
-            set { Entity = value; }
+            set
+            {
+                Guard.AgainstDefault(value, "value");
+                Entity = value;
+            }
         }
 
 

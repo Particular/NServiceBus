@@ -98,6 +98,7 @@ namespace NServiceBus.Config
         /// </summary>
         public void Configure(Action<Type, string> mapTypeToEndpoint)
         {
+            Guard.AgainstDefault(mapTypeToEndpoint, "mapTypeToEndpoint");
             if (!string.IsNullOrWhiteSpace(Messages))
             {
                 ConfigureEndpointMappingUsingMessagesProperty(mapTypeToEndpoint);
