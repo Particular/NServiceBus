@@ -23,7 +23,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures the transport to use the given string as the connection string
         /// </summary>
-        public new TransportExtensions ConnectionString(string connectionString)
+        public new TransportExtensions<T> ConnectionString(string connectionString)
         {
             base.ConnectionString(connectionString);
             return this;
@@ -32,7 +32,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures the transport to use the connection string with the given name
         /// </summary>
-        public new TransportExtensions ConnectionStringName(string name)
+        public new TransportExtensions<T> ConnectionStringName(string name)
         {
             base.ConnectionStringName(name);
             return this;
@@ -41,7 +41,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures the transport to use the given func as the connection string
         /// </summary>
-        public new TransportExtensions ConnectionString(Func<string> connectionString)
+        public new TransportExtensions<T> ConnectionString(Func<string> connectionString)
         {
             base.ConnectionString(connectionString);
             return this;
