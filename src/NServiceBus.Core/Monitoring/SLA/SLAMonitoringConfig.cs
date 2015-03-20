@@ -14,7 +14,7 @@ namespace NServiceBus
         public static void EnableSLAPerformanceCounter(this BusConfiguration config, TimeSpan sla)
         {
             Guard.AgainstDefault(config, "config");
-            Guard.AgainstDefault(sla, "sla");
+            Guard.AgainstLessThanOrEqualZero(sla, "sla");
             config.Settings.Set(SLAMonitoring.EndpointSLAKey, sla);
             EnableSLAPerformanceCounter(config);
         }
