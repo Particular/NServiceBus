@@ -10,8 +10,11 @@
         public static void TypeHasDefaultConstructor(Type type, string argumentName)
         {
             if (type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                    .All(ctor => ctor.GetParameters().Length != 0))
-                throw new ArgumentException(String.Format("Type '{0}' must have a default constructor.", type.FullName), argumentName);
+                .All(ctor => ctor.GetParameters().Length != 0))
+            {
+                var error = string.Format("Type '{0}' must have a default constructor.", type.FullName);
+                throw new ArgumentException(error, argumentName);
+            }
         }
 
         // ReSharper disable UnusedParameter.Global

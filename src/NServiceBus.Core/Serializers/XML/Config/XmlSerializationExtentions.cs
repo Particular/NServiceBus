@@ -58,7 +58,6 @@
         public static SerializationExtentions<XmlSerializer> Namespace(this SerializationExtentions<XmlSerializer> config, string namespaceToUse)
         {
             Guard.AgainstNull(config, "config");
-            Guard.AgainstNullAndEmpty(namespaceToUse, "namespaceToUse");
 
             config.Settings.SetProperty<XmlMessageSerializer>(s => s.Namespace, namespaceToUse);
 
