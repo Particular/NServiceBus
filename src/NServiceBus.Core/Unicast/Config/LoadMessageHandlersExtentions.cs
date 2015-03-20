@@ -15,7 +15,7 @@ namespace NServiceBus
         /// </summary>
         public static void LoadMessageHandlers<TFirst>(this BusConfiguration config)
         {
-            Guard.AgainstDefault(config, "config");
+            Guard.AgainstNull(config, "config");
             var args = typeof(TFirst).GetGenericArguments();
             if (args.Length == 1)
             {
@@ -36,8 +36,8 @@ namespace NServiceBus
         /// </summary>
         public static void LoadMessageHandlers<T>(this BusConfiguration config, First<T> order)
         {
-            Guard.AgainstDefault(config, "config");
-            Guard.AgainstDefault(order, "order");
+            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull(order, "order");
             config.Settings.Set("LoadMessageHandlers.Order.Types", order.Types);
         }
     }

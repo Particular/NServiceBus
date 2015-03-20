@@ -20,7 +20,7 @@ namespace NServiceBus.Settings
         /// <param name="key">The key</param>
         public T Get<T>(string key)
         {
-            Guard.AgainstDefaultOrEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(key, "key");
             return (T)Get(key);
         }
 
@@ -43,7 +43,7 @@ namespace NServiceBus.Settings
         /// <returns>True if key is found</returns>
         public bool TryGet<T>(string key, out T val)
         {
-            Guard.AgainstDefaultOrEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(key, "key");
             val = default(T);
 
             object tmp;
@@ -79,7 +79,7 @@ namespace NServiceBus.Settings
         /// <returns>The value</returns>
         public object Get(string key)
         {
-            Guard.AgainstDefaultOrEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(key, "key");
             object result;
             if (Overrides.TryGetValue(key, out result))
             {
@@ -101,7 +101,7 @@ namespace NServiceBus.Settings
         /// <param name="value">The setting value.</param>
         public void Set(string key, object value)
         {
-            Guard.AgainstDefaultOrEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(key, "key");
             EnsureWriteEnabled(key);
 
             Overrides[key] = value;
@@ -131,7 +131,7 @@ namespace NServiceBus.Settings
         /// </summary>
         public void SetProperty<T>(Expression<Func<T, object>> property, object value)
         {
-            Guard.AgainstDefault(property, "property");
+            Guard.AgainstNull(property, "property");
             var prop = Reflect<T>.GetProperty(property);
 
             Set(typeof(T).FullName + "." + prop.Name, value);
@@ -142,7 +142,7 @@ namespace NServiceBus.Settings
         /// </summary>
         public void SetPropertyDefault<T>(Expression<Func<T, object>> property, object value)
         {
-            Guard.AgainstDefault(property, "property");
+            Guard.AgainstNull(property, "property");
             var prop = Reflect<T>.GetProperty(property);
 
             SetDefault(typeof(T).FullName + "." + prop.Name, value);
@@ -175,7 +175,7 @@ namespace NServiceBus.Settings
         /// <param name="value">The value</param>
         public void SetDefault(string key, object value)
         {
-            Guard.AgainstDefaultOrEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(key, "key");
             EnsureWriteEnabled(key);
 
             Defaults[key] = value;
@@ -199,7 +199,7 @@ namespace NServiceBus.Settings
         /// <returns>The value</returns>
         public T GetOrDefault<T>(string key)
         {
-            Guard.AgainstDefaultOrEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(key, "key");
             object result;
             if (Overrides.TryGetValue(key, out result))
             {
@@ -221,7 +221,7 @@ namespace NServiceBus.Settings
         /// <returns>True if found</returns>
         public bool HasSetting(string key)
         {
-            Guard.AgainstDefaultOrEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(key, "key");
             return Overrides.ContainsKey(key) || Defaults.ContainsKey(key);
         }
 
@@ -244,7 +244,7 @@ namespace NServiceBus.Settings
         /// <returns>True if found</returns>
         public bool HasExplicitValue(string key)
         {
-            Guard.AgainstDefaultOrEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(key, "key");
             return Overrides.ContainsKey(key);
         }
 
@@ -285,7 +285,7 @@ namespace NServiceBus.Settings
         /// <param name="config"></param>
         public void ApplyTo<T>(IComponentConfig config)
         {
-            Guard.AgainstDefault(config, "config");
+            Guard.AgainstNull(config, "config");
             var targetType = typeof(T);
 
             foreach (var property in targetType.GetProperties())

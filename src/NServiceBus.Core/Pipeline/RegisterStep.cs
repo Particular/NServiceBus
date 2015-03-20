@@ -46,7 +46,7 @@ namespace NServiceBus.Pipeline
         /// <param name="customRegistration"></param>
         public void ContainerRegistration<T>(Func<IBuilder,ReadOnlySettings,T> customRegistration)
         {
-            Guard.AgainstDefault(customRegistration, "customRegistration");
+            Guard.AgainstNull(customRegistration, "customRegistration");
             customContainerRegistration = (settings, container) => container.ConfigureComponent(builder => customRegistration(builder,settings), DependencyLifecycle.InstancePerCall);
         }
 

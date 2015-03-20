@@ -59,7 +59,7 @@
         /// <returns><code>true</code> if found, otherwise <code>false</code>.</returns>
         public bool TryGet<T>(string key, out T result)
         {
-            Guard.AgainstDefaultOrEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(key, "key");
             object value;
             if (stash.TryGetValue(key, out value))
             {
@@ -90,7 +90,7 @@
         /// <returns>The type instance.</returns>
         public T Get<T>(string key)
         {
-            Guard.AgainstDefaultOrEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(key, "key");
             T result;
 
             if (!TryGet(key, out result))
@@ -119,7 +119,7 @@
         /// <param name="t">The instance type to store.</param>
         public void Set<T>(string key, T t)
         {
-            Guard.AgainstDefaultOrEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(key, "key");
             stash[key] = t;
         }
 
@@ -138,7 +138,7 @@
         /// <param name="key">The custom key.</param>
         public void Remove(string key)
         {
-            Guard.AgainstDefaultOrEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(key, "key");
             stash.Remove(key);
         }
 

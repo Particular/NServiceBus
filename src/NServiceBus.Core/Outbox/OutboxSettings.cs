@@ -21,7 +21,7 @@
         /// <param name="time">The new duration to be used</param>
         public void TimeToKeepDeduplicationData(TimeSpan time)
         {
-            Guard.AgainstLessThanOrEqualZero(time, "time");
+            Guard.AgainstNegativeAndZero(time, "time");
             settings.Set(Features.Outbox.TimeToKeepDeduplicationEntries,time);
         }
     }

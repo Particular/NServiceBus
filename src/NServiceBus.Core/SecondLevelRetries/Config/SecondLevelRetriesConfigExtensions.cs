@@ -12,7 +12,7 @@ namespace NServiceBus
         /// </summary>
         public static SecondLevelRetriesSettings SecondLevelRetries(this BusConfiguration config)
         {
-            Guard.AgainstDefault(config, "config");
+            Guard.AgainstNull(config, "config");
             return new SecondLevelRetriesSettings(config);
         }
     }

@@ -39,7 +39,7 @@
         /// </summary>
         public TimeSpan GetTimeToBeReceived(Type messageType)
         {
-            Guard.AgainstDefault(messageType, "messageType");
+            Guard.AgainstNull(messageType, "messageType");
             return TimeToBeReceivedAction(messageType);
         }
 
@@ -48,7 +48,7 @@
         /// </summary>
         public bool IsMessageType(Type t)
         {
-            Guard.AgainstDefault(t, "t");
+            Guard.AgainstNull(t, "t");
             try
             {
                 return MessagesConventionCache.ApplyConvention(t,
@@ -80,7 +80,7 @@
         /// </summary>
         public bool IsInSystemConventionList(Type t)
         {
-            Guard.AgainstDefault(t, "t");
+            Guard.AgainstNull(t, "t");
             return IsSystemMessageActions.Any(isSystemMessageAction => isSystemMessageAction(t));
         }
 
@@ -90,7 +90,7 @@
         /// <param name="definesMessageType">Function to define system message convention</param>
         public void AddSystemMessagesConventions(Func<Type, bool> definesMessageType)
         {
-            Guard.AgainstDefault(definesMessageType, "definesMessageType");
+            Guard.AgainstNull(definesMessageType, "definesMessageType");
             if (!IsSystemMessageActions.Contains(definesMessageType))
             {
                 IsSystemMessageActions.Add(definesMessageType);
@@ -103,7 +103,7 @@
         /// </summary>
         public bool IsCommandType(Type t)
         {
-            Guard.AgainstDefault(t, "t");
+            Guard.AgainstNull(t, "t");
             try
             {
                 return CommandsConventionCache.ApplyConvention(t, typeHandle =>
@@ -127,7 +127,7 @@
         /// </summary>
         public bool IsExpressMessageType(Type t)
         {
-            Guard.AgainstDefault(t, "t");
+            Guard.AgainstNull(t, "t");
             try
             {
                 return ExpressConventionCache.ApplyConvention(t, typeHandle =>
@@ -151,7 +151,7 @@
         /// </summary>
         public bool IsEncryptedProperty(PropertyInfo property)
         {
-            Guard.AgainstDefault(property, "property");
+            Guard.AgainstNull(property, "property");
             try
             {
                 //the message mutator will cache the whole message so we don't need to cache here
@@ -168,7 +168,7 @@
         /// </summary>
         public bool IsDataBusProperty(PropertyInfo property)
         {
-            Guard.AgainstDefault(property, "property");
+            Guard.AgainstNull(property, "property");
             try
             {
                 return IsDataBusPropertyAction(property);
@@ -184,7 +184,7 @@
         /// </summary>
         public bool IsEventType(Type t)
         {
-            Guard.AgainstDefault(t, "t");
+            Guard.AgainstNull(t, "t");
             try
             {
                 return EventsConventionCache.ApplyConvention(t, typeHandle =>

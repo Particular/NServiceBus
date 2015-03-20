@@ -27,7 +27,7 @@ namespace NServiceBus
         /// </summary>
         public void Specify<T>(First<T> ordering)
         {
-            Guard.AgainstDefault(ordering, "ordering");
+            Guard.AgainstNull(ordering, "ordering");
             Types = ordering.Types;
         }
 
@@ -36,7 +36,7 @@ namespace NServiceBus
         /// </summary>
         public void Specify(params Type[] priorityHandlers)
         {
-            Guard.AgainstDefaultOrEmpty(priorityHandlers, "priorityHandlers");
+            Guard.AgainstNullAndEmpty(priorityHandlers, "priorityHandlers");
             Types = priorityHandlers;
         }
     }

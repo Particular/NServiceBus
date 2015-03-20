@@ -13,7 +13,7 @@
         /// </summary>
         public static DataBusExtentions<T> UseDataBus<T>(this BusConfiguration config) where T : DataBusDefinition, new()
         {
-            Guard.AgainstDefault(config, "config");
+            Guard.AgainstNull(config, "config");
             var type = typeof(DataBusExtentions<>).MakeGenericType(typeof(T));
             var extension = (DataBusExtentions<T>)Activator.CreateInstance(type, config.Settings);
             var definition = (DataBusDefinition)Activator.CreateInstance(typeof(T));
@@ -30,8 +30,8 @@
         /// </summary>
         public static DataBusExtentions UseDataBus(this BusConfiguration config, Type dataBusType)
         {
-            Guard.AgainstDefault(config, "config");
-            Guard.AgainstDefault(dataBusType, "dataBusType");
+            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull(dataBusType, "dataBusType");
 
             if (!typeof(IDataBus).IsAssignableFrom(dataBusType))
             {

@@ -29,7 +29,7 @@
         /// <returns>The <see cref="MessageMetadata" /> for the specified type.</returns>
         public MessageMetadata GetMessageMetadata(Type messageType)
         {
-            Guard.AgainstDefault(messageType, "messageType");
+            Guard.AgainstNull(messageType, "messageType");
             MessageMetadata metadata;
             if (messages.TryGetValue(messageType.TypeHandle, out metadata))
             {
@@ -52,7 +52,7 @@
         /// <returns>The <see cref="MessageMetadata" /> for the specified type.</returns>
         public MessageMetadata GetMessageMetadata(string messageTypeIdentifier)
         {
-            Guard.AgainstDefaultOrEmpty(messageTypeIdentifier, "messageTypeIdentifier");
+            Guard.AgainstNullAndEmpty(messageTypeIdentifier, "messageTypeIdentifier");
 
             var messageType = Type.GetType(messageTypeIdentifier, false);
 

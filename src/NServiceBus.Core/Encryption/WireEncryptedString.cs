@@ -20,8 +20,8 @@
         /// </summary>
         public WireEncryptedString(SerializationInfo info, StreamingContext context)
         {
-            Guard.AgainstDefault(info,"info");
-            Guard.AgainstDefault(context, "context");
+            Guard.AgainstNull(info,"info");
+            Guard.AgainstNull(context, "context");
             EncryptedValue = info.GetValue("EncryptedValue", typeof (EncryptedValue)) as EncryptedValue;
         }
         /// <summary>
@@ -82,8 +82,8 @@
         /// </summary>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            Guard.AgainstDefault(info, "info");
-            Guard.AgainstDefault(context, "context");
+            Guard.AgainstNull(info, "info");
+            Guard.AgainstNull(context, "context");
             info.AddValue("EncryptedValue", EncryptedValue);
         }
     }

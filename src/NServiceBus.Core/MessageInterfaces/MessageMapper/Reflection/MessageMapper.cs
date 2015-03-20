@@ -147,7 +147,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         public Type GetMappedTypeFor(Type t)
         {
-            Guard.AgainstDefault(t, "t");
+            Guard.AgainstNull(t, "t");
             RuntimeTypeHandle typeHandle;
             if (t.IsClass)
             {
@@ -177,7 +177,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         public Type GetMappedTypeFor(string typeName)
         {
-            Guard.AgainstDefaultOrEmpty(typeName, "typeName");
+            Guard.AgainstNullAndEmpty(typeName, "typeName");
             var name = typeName;
             if (typeName.EndsWith(ConcreteProxyCreator.SUFFIX, StringComparison.Ordinal))
             {

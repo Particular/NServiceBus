@@ -16,7 +16,7 @@
         /// </summary>
         public StaticMessageRouter(IEnumerable<Type> knownMessages)
         {
-            Guard.AgainstDefault(knownMessages, "knownMessages");
+            Guard.AgainstNull(knownMessages, "knownMessages");
             routes = new ConcurrentDictionary<Type, List<string>>();
             foreach (var knownMessage in knownMessages)
             {
@@ -30,7 +30,7 @@
         /// <param name="messageType">The <see cref="Type"/> of the message to get the destination <see cref="Address"/> list for.</param>
         public List<string> GetDestinationFor(Type messageType)
         {
-            Guard.AgainstDefault(messageType, "messageType");
+            Guard.AgainstNull(messageType, "messageType");
             List<string> address;
             if (!routes.TryGetValue(messageType, out address))
             {
@@ -47,7 +47,7 @@
         /// <param name="endpointAddress">The <see cref="Address"/> representing the logical owner for the event</param>
         public void RegisterEventRoute(Type eventType, string endpointAddress)
         {
-            Guard.AgainstDefault(eventType, "eventType");
+            Guard.AgainstNull(eventType, "eventType");
             if (endpointAddress == null)
             {
                 throw new InvalidOperationException(String.Format("'{0}' can't be registered with null route.", eventType.FullName));
@@ -86,7 +86,7 @@
         /// <param name="endpointAddress">The address of the logical owner</param>
         public void RegisterMessageRoute(Type messageType, string endpointAddress)
         {
-            Guard.AgainstDefault(messageType, "messageType");
+            Guard.AgainstNull(messageType, "messageType");
             if (endpointAddress == null)
             {
                 throw new InvalidOperationException(String.Format("'{0}' can't be registered with Address.Undefined route.", messageType.FullName));

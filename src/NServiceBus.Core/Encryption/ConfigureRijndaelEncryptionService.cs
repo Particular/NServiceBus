@@ -19,7 +19,7 @@ namespace NServiceBus
         /// </summary>
         public static void RijndaelEncryptionService(this BusConfiguration config)
         {
-            Guard.AgainstDefault(config, "config");
+            Guard.AgainstNull(config, "config");
             RegisterEncryptionService(config, context =>
             {
                 var section = context.Build<Configure>()
@@ -74,8 +74,8 @@ namespace NServiceBus
         /// </summary>
         public static void RijndaelEncryptionService(this BusConfiguration config, string encryptionKey, List<string> expiredKeys = null)
         {
-            Guard.AgainstDefault(config, "config");
-            Guard.AgainstDefaultOrEmpty(encryptionKey, "encryptionKey");
+            Guard.AgainstNull(config, "config");
+            Guard.AgainstNullAndEmpty(encryptionKey, "encryptionKey");
 
             if (expiredKeys == null)
             {
@@ -115,7 +115,7 @@ namespace NServiceBus
         /// </summary>
         public static void RegisterEncryptionService(this BusConfiguration config, Func<IBuilder, IEncryptionService> func)
         {
-            Guard.AgainstDefault(config, "config");
+            Guard.AgainstNull(config, "config");
             config.Settings.Set("EncryptionServiceConstructor", func);
         }
 

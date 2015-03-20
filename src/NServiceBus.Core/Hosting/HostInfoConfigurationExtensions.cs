@@ -11,7 +11,7 @@ namespace NServiceBus
         /// <param name="config"><see cref="Configure"/> instance.</param>
         public static HostInfoSettings UniquelyIdentifyRunningInstance(this BusConfiguration config)
         {
-            Guard.AgainstDefault(config, "config");
+            Guard.AgainstNull(config, "config");
             return new HostInfoSettings(config);
         }
     }

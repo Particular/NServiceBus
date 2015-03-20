@@ -144,7 +144,7 @@ namespace NServiceBus.Pipeline
         /// <param name="customInitializer">A function the returns a new instance of the behavior</param>
         public void Register<T,TBehavior>(Func<IBuilder, TBehavior> customInitializer) where T : RegisterStep, new()
         {
-            Guard.AgainstDefault(customInitializer, "customInitializer");
+            Guard.AgainstNull(customInitializer, "customInitializer");
             var registration = new T();
 
             registration.ContainerRegistration((b, s) => customInitializer(b));
@@ -159,7 +159,7 @@ namespace NServiceBus.Pipeline
         /// <param name="registration">The step registration</param>
         public void Register(RegisterStep registration)
         {
-            Guard.AgainstDefault(registration, "registration");
+            Guard.AgainstNull(registration, "registration");
             AddStep(registration);
         }
 

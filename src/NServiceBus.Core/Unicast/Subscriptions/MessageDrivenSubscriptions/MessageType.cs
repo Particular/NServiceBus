@@ -13,7 +13,7 @@ namespace NServiceBus.Unicast.Subscriptions
         /// </summary>
         public MessageType(Type type)
         {
-            Guard.AgainstDefault(type, "type");
+            Guard.AgainstNull(type, "type");
             Version = type.Assembly.GetName().Version;
             TypeName = type.FullName;
         }
@@ -23,7 +23,7 @@ namespace NServiceBus.Unicast.Subscriptions
         /// </summary>
         public MessageType(string messageTypeString)
         {
-            Guard.AgainstDefaultOrEmpty(messageTypeString, "messageTypeString");
+            Guard.AgainstNullAndEmpty(messageTypeString, "messageTypeString");
             var parts = messageTypeString.Split(',');
             Version = ParseVersion(messageTypeString); 
             TypeName = parts.First();
@@ -34,8 +34,8 @@ namespace NServiceBus.Unicast.Subscriptions
         /// </summary>
         public MessageType(string typeName, string versionString)
         {
-            Guard.AgainstDefaultOrEmpty(typeName, "typeName");
-            Guard.AgainstDefaultOrEmpty(versionString, "versionString");
+            Guard.AgainstNullAndEmpty(typeName, "typeName");
+            Guard.AgainstNullAndEmpty(versionString, "versionString");
             Version = ParseVersion(versionString);
             TypeName = typeName;
         }
@@ -45,8 +45,8 @@ namespace NServiceBus.Unicast.Subscriptions
         /// </summary>
         public MessageType(string typeName,Version version)
         {
-            Guard.AgainstDefaultOrEmpty(typeName, "typeName");
-            Guard.AgainstDefault(version, "version");
+            Guard.AgainstNullAndEmpty(typeName, "typeName");
+            Guard.AgainstNull(version, "version");
             Version = version;
             TypeName = typeName;
         }

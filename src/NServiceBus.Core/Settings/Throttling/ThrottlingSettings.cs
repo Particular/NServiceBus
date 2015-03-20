@@ -28,7 +28,7 @@ namespace NServiceBus.Settings.Throttling
         /// <param name="maximumMessagesPerSecond">Maximum messages per second</param>
         public void UseSingleTotalThroughputLimit(int maximumMessagesPerSecond)
         {
-            Guard.AgainstLessThanOrEqualZero(maximumMessagesPerSecond, "maximumMessagesPerSecond");
+            Guard.AgainstNegativeAndZero(maximumMessagesPerSecond, "maximumMessagesPerSecond");
             config.Settings.Set<IThrottlingConfig>(new SharedLimitThrottlingConfig(maximumMessagesPerSecond));
         }
 
@@ -52,7 +52,7 @@ namespace NServiceBus.Settings.Throttling
         /// <returns></returns>
         public IndividualThrottlingSettings UseSeparateThroughputLimitForMainPaipelineAndEachSetellite(int defaultMaximumMessagesPerSecond)
         {
-            Guard.AgainstLessThanOrEqualZero(defaultMaximumMessagesPerSecond, "defaultMaximumMessagesPerSecond");
+            Guard.AgainstNegativeAndZero(defaultMaximumMessagesPerSecond, "defaultMaximumMessagesPerSecond");
             var overrides = new Dictionary<string, int?>();
             var throttlingConfig = new IndividualLimitThrottlingConfig(defaultMaximumMessagesPerSecond, overrides);
             config.Settings.Set<IThrottlingConfig>(throttlingConfig);

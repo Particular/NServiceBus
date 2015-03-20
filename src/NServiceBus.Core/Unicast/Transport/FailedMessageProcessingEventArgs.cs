@@ -22,8 +22,8 @@ namespace NServiceBus.Unicast.Transport
         /// </summary>
         public FailedMessageProcessingEventArgs(TransportMessage message, Exception exception)
         {
-            Guard.AgainstDefault(message, "message");
-            Guard.AgainstDefault(exception, "exception");
+            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull(exception, "exception");
             Message = message;
             Reason = exception;
         }

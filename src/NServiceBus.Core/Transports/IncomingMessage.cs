@@ -31,7 +31,7 @@ namespace NServiceBus.Transports
         /// <param name="bodyStream">The message body stream</param>
         public IncomingMessage(string messageId,Dictionary<string,string> headers,Stream bodyStream)
         {
-            Guard.AgainstDefaultOrEmpty(messageId, "messageId");
+            Guard.AgainstNullAndEmpty(messageId, "messageId");
             MessageId = messageId;
             Headers = headers;
             BodyStream = bodyStream;

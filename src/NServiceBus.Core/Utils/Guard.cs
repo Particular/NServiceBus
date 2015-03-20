@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
 
@@ -16,22 +15,22 @@
         }
 
         // ReSharper disable UnusedParameter.Global
-        public static void AgainstDefault<T>(T value, string argumentName)
+        public static void AgainstNull(object value, string argumentName)
         {
-            if (EqualityComparer<T>.Default.Equals(value,default(T)))
+            if (value == null)
             {
                 throw new ArgumentNullException(argumentName);
             }
         }
 
-        public static void AgainstDefaultOrEmpty(string value, string argumentName)
+        public static void AgainstNullAndEmpty(string value, string argumentName)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
                 throw new ArgumentNullException(argumentName);
             }
         }
-        public static void AgainstDefaultOrEmpty(ICollection value, string argumentName)
+        public static void AgainstNullAndEmpty(ICollection value, string argumentName)
         {
             if (value == null)
             {
@@ -43,7 +42,7 @@
             }
         }
 
-        public static void AgainstLessThanOrEqualZero(int value, string argumentName)
+        public static void AgainstNegativeAndZero(int value, string argumentName)
         {
             if (value <= 0)
             {
@@ -58,7 +57,7 @@
             }
         }
 
-        public static void AgainstLessThanOrEqualZero(TimeSpan? value, string argumentName)
+        public static void AgainstNegativeAndZero(TimeSpan? value, string argumentName)
         {
             if (value <= TimeSpan.Zero)
             {

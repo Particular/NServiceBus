@@ -18,9 +18,9 @@ namespace NServiceBus
         /// <returns>The value assigned to the header.</returns>
         public static string GetMessageHeader(this IBus bus, object message, string key)
         {
-            Guard.AgainstDefault(bus, "bus");
-            Guard.AgainstDefault(message, "message");
-            Guard.AgainstDefaultOrEmpty(key, "key");
+            Guard.AgainstNull(bus, "bus");
+            Guard.AgainstNull(message, "message");
+            Guard.AgainstNullAndEmpty(key, "key");
             var manageMessageHeaders = bus as IManageMessageHeaders;
             if (manageMessageHeaders != null)
             {
@@ -39,9 +39,9 @@ namespace NServiceBus
         /// <param name="value">The value to assign to the header.</param>
         public static void SetMessageHeader(this ISendOnlyBus bus, object message, string key, string value)
         {
-            Guard.AgainstDefault(bus, "bus");
-            Guard.AgainstDefault(message, "message");
-            Guard.AgainstDefaultOrEmpty(key, "key");
+            Guard.AgainstNull(bus, "bus");
+            Guard.AgainstNull(message, "message");
+            Guard.AgainstNullAndEmpty(key, "key");
             var manageMessageHeaders = bus as IManageMessageHeaders;
             if (manageMessageHeaders != null)
             {
@@ -60,7 +60,7 @@ namespace NServiceBus
             get { return currentMessageBeingHandled; }
             set
             {
-                Guard.AgainstDefault(value, "value");
+                Guard.AgainstNull(value, "value");
                 currentMessageBeingHandled = value;
             }
         }

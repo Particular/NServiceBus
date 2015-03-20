@@ -14,7 +14,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static IStartableBus Create(BusConfiguration configuration)
         {
-            Guard.AgainstDefault(configuration, "configuration");
+            Guard.AgainstNull(configuration, "configuration");
             var config = configuration.BuildConfiguration();
 
             config.Initialize();
@@ -29,7 +29,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static ISendOnlyBus CreateSendOnly(BusConfiguration configuration)
         {
-            Guard.AgainstDefault(configuration, "configuration");
+            Guard.AgainstNull(configuration, "configuration");
             configuration.GetSettings().Set("Endpoint.SendOnly", true);
 
             var config = configuration.BuildConfiguration();

@@ -22,9 +22,9 @@ namespace NServiceBus.Faults
         /// <param name="retryAttempt">Number of retry attempt</param>
         public FirstLevelRetry(Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
         {
-            Guard.AgainstDefault(headers, "headers");
-            Guard.AgainstDefault(body, "body");
-            Guard.AgainstDefault(exception, "exception");
+            Guard.AgainstNull(headers, "headers");
+            Guard.AgainstNull(body, "body");
+            Guard.AgainstNull(exception, "exception");
             this.headers = headers;
             this.body = body;
             this.exception = exception;

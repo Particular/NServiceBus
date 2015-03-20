@@ -14,7 +14,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static ThrottlingSettings Throttling(this BusConfiguration config)
         {
-            Guard.AgainstDefault(config, "config");
+            Guard.AgainstNull(config, "config");
             return new ThrottlingSettings(config);
         }
     }

@@ -17,7 +17,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public PublishOptions(Type eventType)
         {
-            Guard.AgainstDefault(eventType, "eventType");
+            Guard.AgainstNull(eventType, "eventType");
             EventType = eventType;
         }
     }

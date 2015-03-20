@@ -10,7 +10,7 @@ namespace NServiceBus.Unicast
         /// <param name="message"></param>
         public void Publish(object message)
         {
-            Guard.AgainstDefault(message, "message");
+            Guard.AgainstNull(message, "message");
             busImpl.Publish(message);
         }
 
@@ -30,7 +30,7 @@ namespace NServiceBus.Unicast
         /// <param name="messageConstructor"></param>
         public void Publish<T>(Action<T> messageConstructor)
         {
-            Guard.AgainstDefault(messageConstructor, "messageConstructor");
+            Guard.AgainstNull(messageConstructor, "messageConstructor");
             busImpl.Publish(messageConstructor);
         }
 
@@ -41,7 +41,7 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Send(object message)
         {
-            Guard.AgainstDefault(message, "message");
+            Guard.AgainstNull(message, "message");
             return busImpl.Send(message);
         }
 
@@ -53,7 +53,7 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Send<T>(Action<T> messageConstructor)
         {
-            Guard.AgainstDefault(messageConstructor, "messageConstructor");
+            Guard.AgainstNull(messageConstructor, "messageConstructor");
             return busImpl.Send(messageConstructor);
         }
 
@@ -65,8 +65,8 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Send(string destination, object message)
         {
-            Guard.AgainstDefaultOrEmpty(destination, "destination");
-            Guard.AgainstDefault(message, "message");
+            Guard.AgainstNullAndEmpty(destination, "destination");
+            Guard.AgainstNull(message, "message");
             return busImpl.Send(destination, message);
         }
 
@@ -94,8 +94,8 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
-            Guard.AgainstDefaultOrEmpty(destination, "destination");
-            Guard.AgainstDefault(messageConstructor, "messageConstructor");
+            Guard.AgainstNullAndEmpty(destination, "destination");
+            Guard.AgainstNull(messageConstructor, "messageConstructor");
             return busImpl.Send(destination, messageConstructor);
         }
 
@@ -126,9 +126,9 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Send(string destination, string correlationId, object message)
         {
-            Guard.AgainstDefaultOrEmpty(destination, "destination");
-            Guard.AgainstDefaultOrEmpty(correlationId, "correlationId");
-            Guard.AgainstDefault(message, "message");
+            Guard.AgainstNullAndEmpty(destination, "destination");
+            Guard.AgainstNullAndEmpty(correlationId, "correlationId");
+            Guard.AgainstNull(message, "message");
             return busImpl.Send(destination, correlationId, message);
         }
 
@@ -160,9 +160,9 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
-            Guard.AgainstDefaultOrEmpty(destination, "destination");
-            Guard.AgainstDefaultOrEmpty(correlationId, "correlationId");
-            Guard.AgainstDefault(messageConstructor, "messageConstructor");
+            Guard.AgainstNullAndEmpty(destination, "destination");
+            Guard.AgainstNullAndEmpty(correlationId, "correlationId");
+            Guard.AgainstNull(messageConstructor, "messageConstructor");
             return busImpl.Send(destination, correlationId, messageConstructor);
         }
 
@@ -191,7 +191,7 @@ namespace NServiceBus.Unicast
         /// <param name="messageType"></param>
         public void Subscribe(Type messageType)
         {
-            Guard.AgainstDefault(messageType, "messageType");
+            Guard.AgainstNull(messageType, "messageType");
             busImpl.Subscribe(messageType);
         }
 
@@ -210,7 +210,7 @@ namespace NServiceBus.Unicast
         /// <param name="messageType"></param>
         public void Unsubscribe(Type messageType)
         {
-            Guard.AgainstDefault(messageType, "messageType");
+            Guard.AgainstNull(messageType, "messageType");
             busImpl.Unsubscribe(messageType);
         }
 
@@ -230,7 +230,7 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback SendLocal(object message)
         {
-            Guard.AgainstDefault(message, "message");
+            Guard.AgainstNull(message, "message");
             return busImpl.SendLocal(message);
         }
 
@@ -242,7 +242,7 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback SendLocal<T>(Action<T> messageConstructor)
         {
-            Guard.AgainstDefault(messageConstructor, "messageConstructor");
+            Guard.AgainstNull(messageConstructor, "messageConstructor");
             return busImpl.SendLocal(messageConstructor);
         }
 
@@ -254,7 +254,7 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Defer(TimeSpan delay, object message)
         {
-            Guard.AgainstDefault(message, "message");
+            Guard.AgainstNull(message, "message");
             return busImpl.Defer(delay, message);
         }
 
@@ -266,7 +266,7 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Defer(DateTime processAt, object message)
         {
-            Guard.AgainstDefault(message, "message");
+            Guard.AgainstNull(message, "message");
             return busImpl.Defer(processAt, message);
         }
 
@@ -276,7 +276,7 @@ namespace NServiceBus.Unicast
         /// <param name="message"></param>
         public void Reply(object message)
         {
-            Guard.AgainstDefault(message, "message");
+            Guard.AgainstNull(message, "message");
             busImpl.Reply(message);
         }
 
@@ -287,7 +287,7 @@ namespace NServiceBus.Unicast
         /// <param name="messageConstructor"></param>
         public void Reply<T>(Action<T> messageConstructor)
         {
-            Guard.AgainstDefault(messageConstructor, "messageConstructor");
+            Guard.AgainstNull(messageConstructor, "messageConstructor");
             busImpl.Reply(messageConstructor);
         }
 
@@ -315,7 +315,7 @@ namespace NServiceBus.Unicast
         /// <param name="destination"></param>
         public void ForwardCurrentMessageTo(string destination)
         {
-            Guard.AgainstDefaultOrEmpty(destination, "destination");
+            Guard.AgainstNullAndEmpty(destination, "destination");
             busImpl.ForwardCurrentMessageTo(destination);
         }
 

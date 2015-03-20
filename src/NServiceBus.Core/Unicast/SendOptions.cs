@@ -29,7 +29,7 @@ namespace NServiceBus.Unicast
         /// <param name="destination">Address where to send this message</param>
         public SendOptions(string destination)
         {
-            Guard.AgainstDefaultOrEmpty(destination, "destination");
+            Guard.AgainstNullAndEmpty(destination, "destination");
             Destination = destination;
         }
 

@@ -32,7 +32,7 @@
         /// <param name="newInstance">The new instance.</param>
         public void UpdateMessageInstance(object newInstance)
         {
-            Guard.AgainstDefault(newInstance, "newInstance");
+            Guard.AgainstNull(newInstance, "newInstance");
             var sameInstance = ReferenceEquals(Instance, newInstance);
             
             Instance = newInstance;

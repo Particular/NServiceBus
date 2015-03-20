@@ -13,7 +13,7 @@
         /// </summary>
         public static SettingsHolder EnableFeatureByDefault<T>(this SettingsHolder settings) where T : Feature
         {
-            Guard.AgainstDefault(settings, "settings");
+            Guard.AgainstNull(settings, "settings");
             settings.EnableFeatureByDefault(typeof(T));
             return settings;
         }
@@ -23,8 +23,8 @@
         /// </summary>
         public static SettingsHolder EnableFeatureByDefault(this SettingsHolder settings, Type featureType)
         {
-            Guard.AgainstDefault(settings, "settings");
-            Guard.AgainstDefault(featureType, "featureType");
+            Guard.AgainstNull(settings, "settings");
+            Guard.AgainstNull(featureType, "featureType");
             settings.SetDefault(featureType.FullName, true);
             return settings;
         }
