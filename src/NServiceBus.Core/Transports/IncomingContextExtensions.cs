@@ -16,6 +16,7 @@ namespace NServiceBus
         public static void SetPublicReceiveAddress(this IncomingContext context, string address)
         {
             Guard.AgainstNull(context, "context");
+            Guard.AgainstNullAndEmpty(address, "address");
             context.Set("Transport.PublicReceiveAddress", address);
         }
 
