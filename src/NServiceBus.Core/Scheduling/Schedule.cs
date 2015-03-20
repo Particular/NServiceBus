@@ -32,6 +32,7 @@ namespace NServiceBus
         public void Every(TimeSpan timeSpan, Action task)
         {
             Guard.AgainstNull(task, "task");
+            Guard.AgainstNegativeAndZero(timeSpan, "timeSpan");
             var declaringType = task.Method.DeclaringType;
 
             while (declaringType.DeclaringType != null &&
@@ -53,6 +54,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(task, "task");
             Guard.AgainstNullAndEmpty(name, "name");
+            Guard.AgainstNegativeAndZero(timeSpan, "timeSpan");
             builder.Build<DefaultScheduler>()
                 .Schedule(new TaskDefinition
                 {
