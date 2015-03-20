@@ -103,13 +103,13 @@ namespace NServiceBus.Settings
         /// </param>
         public TransactionSettings DefaultTimeout(TimeSpan defaultTimeout)
         {
+            Guard.AgainstNegative(defaultTimeout, "defaultTimeout");
             if (defaultTimeout > maxTimeout)
             {
                 throw new ConfigurationErrorsException(
                     "Timeout requested is longer than the maximum value for this machine. Please override using the maxTimeout setting of the system.transactions section in machine.config");
             }
 
-            Guard.AgainstNegative(defaultTimeout, "defaultTimeout");
             config.Settings.Set("Transactions.DefaultTimeout", defaultTimeout);
             return this;
         }

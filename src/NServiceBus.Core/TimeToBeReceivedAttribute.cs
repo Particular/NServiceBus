@@ -16,7 +16,14 @@ namespace NServiceBus
         public TimeToBeReceivedAttribute(string timeSpan)
         {
             Guard.AgainstDefaultOrEmpty(timeSpan, "timeSpan");
-            TimeToBeReceived = TimeSpan.Parse(timeSpan);
+            TimeSpan parsed;
+            if (!TimeSpan.TryParse(timeSpan, out parsed))
+            {
+                var error = string.Format("Could not parse '{0}' as a timespan.", timeSpan);
+                throw new ArgumentException(error);
+            }
+            Guard.AgainstLessThanOrEqualZero(parsed, "timeSpan");
+            TimeToBeReceived = parsed;
         }
 
         /// <summary>
