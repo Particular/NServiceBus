@@ -19,6 +19,7 @@ namespace NServiceBus.Unicast
     using Pipeline;
     using Pipeline.Contexts;
     using Settings;
+    using IServiceProvider = NServiceBus.IServiceProvider;
 
     interface IRealBus
     {
@@ -27,7 +28,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public partial class UnicastBus : IStartableBus, IRealBus
+    public partial class UnicastBus : IStartableBus, IRealBus, IServiceProvider
     {
         /// <summary>
         /// Initializes a new instance of <see cref="UnicastBus"/>.
@@ -240,6 +241,17 @@ namespace NServiceBus.Unicast
         public IBuilder Builder
         {
             get { return builder; }
+        }
+
+
+        /// <summary>
+        /// Gets the service object of the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type of service object to get.</typeparam>
+        /// <returns>A service object of type serviceType. -or- null if there is no service object of type serviceType.</returns>
+        public T GetService<T>()
+        {
+            return builder.Build<T>();
         }
     }
 }

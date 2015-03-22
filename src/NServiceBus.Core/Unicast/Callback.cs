@@ -7,15 +7,12 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using System.Web;
     using System.Web.UI;
-    using NServiceBus.Logging;
-    using Unicast;
 
     /// <summary>
     /// Implementation of the <see cref="ICallback"/> interface for the unicast bus.
     /// </summary>
     class Callback : ICallback
     {
-        static ILog log = LogManager.GetLogger<UnicastBus>();
         static Type AsyncControllerType;
 
         string messageId;
