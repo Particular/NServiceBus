@@ -18,8 +18,7 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent(builder=>new SubscriptionManager(builder.Build<Configure>().PublicReturnAddress.ToString(),
-                builder.Build<ISendMessages>()), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(builder => new SubscriptionManager(builder.Build<Configure>().PublicReturnAddress, builder.Build<ISendMessages>()), DependencyLifecycle.SingleInstance);
         }
     }
 }
