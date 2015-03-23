@@ -18,6 +18,9 @@
         /// <returns></returns>
         public static SendContext<TResponse> RequestResponse<TResponse>(this IBus bus, object requestMessage)
         {
+            Guard.AgainstNull(requestMessage, "requestMessage");
+            Guard.AgainstNull(bus, "bus");
+
             var correlationId = Guid.NewGuid().ToString();
 
             bus.SetMessageHeader(requestMessage, "NServiceBus.HasCallback", Boolean.TrueString);
