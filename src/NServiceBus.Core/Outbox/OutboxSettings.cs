@@ -21,11 +21,7 @@
         /// <param name="time">The new duration to be used</param>
         public void TimeToKeepDeduplicationData(TimeSpan time)
         {
-            if (time <= TimeSpan.Zero)
-            {
-                throw new Exception("Time must be greater than 0");
-            }
-
+            Guard.AgainstNegativeAndZero(time, "time");
             settings.Set(Features.Outbox.TimeToKeepDeduplicationEntries,time);
         }
     }

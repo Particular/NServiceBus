@@ -32,6 +32,8 @@ namespace NServiceBus.Serializers.Binary
         /// <param name="stream">Stream for <paramref name="message"/> to be serialized into.</param>
         public void Serialize(object message, Stream stream)
         {
+            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull(stream, "stream");
             binaryFormatter.Serialize(stream, new List<object> { message });
         }
 

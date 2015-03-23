@@ -15,6 +15,9 @@ namespace NServiceBus.Pipeline
         /// <param name="stepEnded">Observable for when step ends.</param>
         public StepStarted(string stepId, Type behavior, IObservable<StepEnded> stepEnded)
         {
+            Guard.AgainstNullAndEmpty(stepId, "stepId");
+            Guard.AgainstNull(behavior, "behavior");
+            Guard.AgainstNull(stepEnded, "stepEnded");
             this.stepId = stepId;
             this.behavior = behavior;
             this.stepEnded = stepEnded;

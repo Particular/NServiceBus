@@ -15,6 +15,8 @@ namespace NServiceBus
         /// <param name="address">The native transport address that should be used to address this receiver</param>
         public static void SetPublicReceiveAddress(this IncomingContext context, string address)
         {
+            Guard.AgainstNull(context, "context");
+            Guard.AgainstNullAndEmpty(address, "address");
             context.Set("Transport.PublicReceiveAddress", address);
         }
 
@@ -24,6 +26,7 @@ namespace NServiceBus
         /// <param name="context"></param>
         public static string PublicReceiveAddress(this IncomingContext context)
         {
+            Guard.AgainstNull(context, "context");
             return context.Get<string>("Transport.PublicReceiveAddress");
         }
     }

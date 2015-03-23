@@ -16,6 +16,7 @@ namespace NServiceBus
         /// </summary>
         public static T GetConfigSection<T>(this ReadOnlySettings settings) where T : class, new()
         {
+            Guard.AgainstNull(settings, "settings");
             var typesToScan = settings.GetAvailableTypes();
             var configurationSource = settings.Get<IConfigurationSource>();
 
@@ -47,6 +48,7 @@ namespace NServiceBus
         /// </summary>
         public static IList<Type> GetAvailableTypes(this ReadOnlySettings settings)
         {
+            Guard.AgainstNull(settings, "settings");
             return settings.Get<IList<Type>>("TypesToScan");
         }
 
@@ -55,6 +57,7 @@ namespace NServiceBus
         /// </summary>
         public static string EndpointName(this ReadOnlySettings settings)
         {
+            Guard.AgainstNull(settings, "settings");
             return settings.Get<string>("EndpointName");
         }
 
@@ -63,6 +66,7 @@ namespace NServiceBus
         /// </summary>
         public static string LocalAddress(this ReadOnlySettings settings)
         {
+            Guard.AgainstNull(settings, "settings");
             return settings.Get<string>("NServiceBus.LocalAddress");
         }
 

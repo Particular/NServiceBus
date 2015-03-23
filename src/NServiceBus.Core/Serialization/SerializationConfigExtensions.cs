@@ -16,6 +16,7 @@
         /// <param name="config"></param>
         public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config) where T : SerializationDefinition
         {
+            Guard.AgainstNull(config, "config");
             var type = typeof(SerializationExtentions<>).MakeGenericType(typeof(T));
             var extension = (SerializationExtentions<T>)Activator.CreateInstance(type, config.Settings);
             var definition = (SerializationDefinition)Activator.CreateInstance(typeof(T));
@@ -32,10 +33,8 @@
         /// <param name="serializerType">The custom serializer type to use for serialization that implements <see cref="IMessageSerializer"/> or a derived type from <see cref="SerializationDefinition"/>.</param>
         public static void UseSerialization(this BusConfiguration config, Type serializerType)
         {
-            if (serializerType == null)
-            {
-                throw new ArgumentNullException("serializerType");
-            }
+            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull(serializerType, "serializerType");
 
             if (typeof(SerializationDefinition).IsAssignableFrom(serializerType))
             {

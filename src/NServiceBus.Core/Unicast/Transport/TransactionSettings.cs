@@ -28,6 +28,7 @@
         /// <param name="doNotWrapHandlersExecutionInATransactionScope">Should handlers be wrapped</param>
         public TransactionSettings(bool isTransactional, TimeSpan transactionTimeout, IsolationLevel isolationLevel, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope)
         {
+            Guard.AgainstNegative(transactionTimeout, "transactionTimeout");
             IsTransactional = isTransactional;
             TransactionTimeout = transactionTimeout;
             IsolationLevel = isolationLevel;

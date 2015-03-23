@@ -19,6 +19,7 @@ namespace NServiceBus.Saga
         /// <returns>A <see cref="PropertyInfo"/> of the property marked with a <see cref="UniqueAttribute"/> or null if not used.</returns>
         public static PropertyInfo GetUniqueProperty(Type type)
         {
+            Guard.AgainstNull(type, "type");
             var properties = GetUniqueProperties(type)
                 .ToList();
 
@@ -38,6 +39,7 @@ namespace NServiceBus.Saga
         /// <returns>A <see cref="PropertyInfo"/> of the property marked with a <see cref="UniqueAttribute"/> or null if not used.</returns>
         public static KeyValuePair<string, object>? GetUniqueProperty(IContainSagaData entity)
         {
+            Guard.AgainstNull(entity, "entity");
             var prop = GetUniqueProperty(entity.GetType());
 
             return prop != null ? 
@@ -52,6 +54,7 @@ namespace NServiceBus.Saga
         /// <returns>A <see cref="IDictionary{TKey,TValue}"/> of property names and their values.</returns>
         public static IDictionary<string, object> GetUniqueProperties(IContainSagaData entity)
         {
+            Guard.AgainstNull(entity, "entity");
             return GetUniqueProperties(entity.GetType())
                 .ToDictionary(p => p.Name, p => p.GetValue(entity, null));
         }
@@ -63,6 +66,7 @@ namespace NServiceBus.Saga
         /// <returns>A <see cref="IQueryable"/> of <see cref="PropertyInfo"/>.</returns>
         public static IEnumerable<PropertyInfo> GetUniqueProperties(Type type)
         {
+            Guard.AgainstNull(type, "type");
             return type.GetProperties()
                 .Where(p => p.CanRead &&  GetCustomAttribute(p, typeof(UniqueAttribute)) != null);
         }

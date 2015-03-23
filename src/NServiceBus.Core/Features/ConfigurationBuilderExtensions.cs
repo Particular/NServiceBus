@@ -13,6 +13,7 @@
         /// </summary>
         public static void EnableFeature<T>(this BusConfiguration config) where T : Feature
         {
+            Guard.AgainstNull(config, "config");
             config.EnableFeature(typeof(T));
         }
 
@@ -23,6 +24,8 @@
         /// <param name="featureType">The feature to enable</param>
         public static void EnableFeature(this BusConfiguration config, Type featureType)
         {
+            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull(featureType, "featureType");
             config.Settings.Set(featureType.FullName, true);
         }
 
@@ -31,6 +34,7 @@
         /// </summary>
         public static void DisableFeature<T>(this BusConfiguration config) where T : Feature
         {
+            Guard.AgainstNull(config, "config");
             config.DisableFeature(typeof(T));
         }
 
@@ -41,6 +45,8 @@
         /// <param name="featureType">The feature to disable</param>
         public static void DisableFeature(this BusConfiguration config, Type featureType)
         {
+            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull(featureType, "featureType");
             config.Settings.Set(featureType.FullName, false);
         }
     }

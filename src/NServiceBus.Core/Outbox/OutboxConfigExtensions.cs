@@ -12,6 +12,7 @@
         /// </summary>
         public static OutboxSettings EnableOutbox(this BusConfiguration config)
         {
+            Guard.AgainstNull(config, "config");
             var outboxSettings = new OutboxSettings(config.Settings);
             config.Transactions()
                 .DisableDistributedTransactions()

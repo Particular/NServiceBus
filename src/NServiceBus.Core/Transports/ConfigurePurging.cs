@@ -15,6 +15,7 @@ namespace NServiceBus
         /// </summary>
         public static void PurgeOnStartup(this BusConfiguration config, bool value)
         {
+            Guard.AgainstNull(config, "config");
             config.Settings.Set("Transport.PurgeOnStartup", value);
         }
 

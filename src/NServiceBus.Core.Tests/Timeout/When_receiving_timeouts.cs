@@ -25,6 +25,7 @@ namespace NServiceBus.Core.Tests.Timeout
             manager.PushTimeout(new TimeoutData
                 {
                     Time = DateTime.UtcNow,
+                    Destination = "local"
                 });
 
             Assert.AreEqual(1, messageSender.MessagesSent);

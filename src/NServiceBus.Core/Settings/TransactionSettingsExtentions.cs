@@ -13,6 +13,7 @@ namespace NServiceBus
         /// <param name="config"><see cref="Configure"/> instance.</param>
         public static TransactionSettings Transactions(this BusConfiguration config)
         {
+            Guard.AgainstNull(config, "config");
             return new TransactionSettings(config);
         }
     }

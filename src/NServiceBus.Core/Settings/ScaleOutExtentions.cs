@@ -12,6 +12,7 @@ namespace NServiceBus
         /// </summary>
         public static ScaleOutSettings ScaleOut(this BusConfiguration config)
         {
+            Guard.AgainstNull(config, "config");
             return new ScaleOutSettings(config);
         }
     }
