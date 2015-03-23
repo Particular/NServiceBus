@@ -1,17 +1,18 @@
-﻿namespace NServiceBus.Callbacks
+﻿namespace NServiceBus
 {
     using System;
     using System.Linq;
+    using NServiceBus.Callbacks;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
 
-    class CallbackInvocationBehavior : LogicalMessagesProcessingStageBehavior
+    class RequestResponseInvocationBehavior : LogicalMessagesProcessingStageBehavior
     {
-        readonly CallbackMessageLookup callbackMessageLookup;
+        readonly RequestResponseMessageLookup requestResponseMessageLookup;
 
-        public CallbackInvocationBehavior(CallbackMessageLookup callbackMessageLookup)
+        public RequestResponseInvocationBehavior(RequestResponseMessageLookup requestResponseMessageLookup)
         {
-            this.callbackMessageLookup = callbackMessageLookup;
+            this.requestResponseMessageLookup = requestResponseMessageLookup;
         }
 
         public override void Invoke(Context context, Action next)
@@ -35,7 +36,7 @@
 
             object taskCompletionSource;
 
-            if (!callbackMessageLookup.TryGet(transportMessage.CorrelationId, out taskCompletionSource))
+            if (!requestResponseMessageLookup.TryGet(transportMessage.CorrelationId, out taskCompletionSource))
             {
                 return;
             }
@@ -50,7 +51,7 @@
         public class Registration : RegisterStep
         {
             public Registration()
-                : base("RequestResponse", typeof(CallbackInvocationBehavior), "Adds request/response messaging")
+                : base("RequestResponse", typeof(RequestResponseInvocationBehavior), "Adds request/response messaging")
             {
                 InsertAfterIfExists(WellKnownStep.MutateIncomingTransportMessage);
                 InsertBeforeIfExists(WellKnownStep.MutateIncomingMessages);

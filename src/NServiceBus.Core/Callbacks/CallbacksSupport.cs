@@ -1,7 +1,6 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus.Features
 {
     using NServiceBus.Callbacks;
-    using NServiceBus.Features;
 
     class CallbacksSupport : Feature
     {
@@ -12,8 +11,8 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<CallbackMessageLookup>(DependencyLifecycle.SingleInstance);
-            context.Pipeline.Register<Callbacks.CallbackInvocationBehavior.Registration>();
+            context.Container.ConfigureComponent<RequestResponseMessageLookup>(DependencyLifecycle.SingleInstance);
+            context.Pipeline.Register<RequestResponseInvocationBehavior.Registration>();
         }
     }
 }

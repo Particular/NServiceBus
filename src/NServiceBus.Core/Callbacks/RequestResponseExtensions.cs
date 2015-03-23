@@ -27,7 +27,7 @@
             bus.SetMessageHeader(requestMessage, Headers.CorrelationId, correlationId);
             bus.Send(requestMessage);
 
-            var callbackMessageLookup = ((IServiceProvider) bus).GetService<CallbackMessageLookup>();
+            var callbackMessageLookup = ((IServiceProvider) bus).GetService<RequestResponseMessageLookup>();
             var tcs = new TaskCompletionSource<TResponse>();
 
             callbackMessageLookup.RegisterResult(correlationId, tcs);

@@ -91,8 +91,8 @@
     <Compile Include="BufferedObservable.cs" />
     <Compile Include="Bus.cs" />
     <Compile Include="BusConfiguration.cs" />
-    <Compile Include="Callbacks\CallbackInvocationBehavior.cs" />
-    <Compile Include="Callbacks\CallbackMessageLookup.cs" />
+    <Compile Include="Callbacks\RequestResponseInvocationBehavior.cs" />
+    <Compile Include="Callbacks\RequestResponseMessageLookup.cs" />
     <Compile Include="Callbacks\CallbacksSupport.cs" />
     <Compile Include="Callbacks\RequestResponseExtensions.cs" />
     <Compile Include="Callbacks\SendContext.cs" />

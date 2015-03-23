@@ -2,7 +2,7 @@ namespace NServiceBus.Callbacks
 {
     using System.Collections.Concurrent;
 
-    class CallbackMessageLookup
+    class RequestResponseMessageLookup
     {
         readonly ConcurrentDictionary<string, object> messageIdToAsyncResultLookup = new ConcurrentDictionary<string, object>();
 
