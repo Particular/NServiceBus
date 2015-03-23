@@ -16,7 +16,7 @@
         /// <param name="bus"></param>
         /// <param name="requestMessage"></param>
         /// <returns></returns>
-        public static SendContext<TResponse> RequestResponse<TResponse>(this IBus bus, object requestMessage)
+        public static SendContext<TResponse> SynchronousRequestResponse<TResponse>(this IBus bus, object requestMessage)
         {
             Guard.AgainstNull(requestMessage, "requestMessage");
             Guard.AgainstNull(bus, "bus");
