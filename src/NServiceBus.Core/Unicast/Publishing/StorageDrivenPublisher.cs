@@ -24,9 +24,9 @@
         }
 
 
-        public void Publish(TransportMessage message, PublishOptions publishOptions)
+        public void Publish(OutgoingMessage message, PublishOptions publishOptions)
         {
-            var eventTypesToPublish = messageMetadataRegistry.GetMessageMetadata(publishOptions.EventType.FullName)
+            var eventTypesToPublish = messageMetadataRegistry.GetMessageMetadata(publishOptions.EventType)
                 .MessageHierarchy
                 .Distinct()
                 .ToList();
@@ -44,13 +44,11 @@
             foreach (var subscriber in subscribers)
             {
                 //this is unicast so we give the message a unique ID
-                message.ChangeMessageId(CombGuid.Generate().ToString());
+                message.Headers[Headers.MessageId] = CombGuid.Generate().ToString();
 
                 messageSender.Send(message, new SendOptions(subscriber)
                 {
-                    ReplyToAddress = publishOptions.ReplyToAddress,
-                    EnforceMessagingBestPractices = publishOptions.EnforceMessagingBestPractices,
-                    EnlistInReceiveTransaction = publishOptions.EnlistInReceiveTransaction,
+                    EnforceMessagingBestPractices = publishOptions.EnforceMessagingBestPractices
                 });
             }
         }

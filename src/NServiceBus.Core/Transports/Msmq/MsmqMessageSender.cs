@@ -3,10 +3,10 @@ namespace NServiceBus.Transports.Msmq
     using System;
     using System.Messaging;
     using System.Transactions;
-    using Config;
     using NServiceBus.Pipeline;
-    using Unicast;
-    using Unicast.Queuing;
+    using NServiceBus.Transports.Msmq.Config;
+    using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Queuing;
 
     /// <summary>
     /// Default MSMQ <see cref="ISendMessages"/> implementation.
@@ -21,6 +21,7 @@ namespace NServiceBus.Transports.Msmq
         /// <param name="context"></param>
         public MsmqMessageSender(BehaviorContext context)
         {
+            Guard.AgainstNull(context, "context");
             this.context = context;
         }
 
@@ -38,8 +39,10 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// Sends the given <paramref name="message"/>
         /// </summary>
-        public void Send(TransportMessage message, SendOptions sendOptions)
+        public void Send(OutgoingMessage message, SendOptions sendOptions)
         {
+            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull(sendOptions, "sendOptions");
             var destination = sendOptions.Destination;
             var destinationAddress = MsmqAddress.Parse(destination);
             var queuePath = MsmqUtilities.GetFullPath(destinationAddress);
@@ -52,9 +55,9 @@ namespace NServiceBus.Transports.Msmq
                     toSend.UseJournalQueue = Settings.UseJournalQueue;
                     toSend.TimeToReachQueue = Settings.TimeToReachQueue;
 
-                    var replyToAddress = sendOptions.ReplyToAddress ?? message.ReplyToAddress;
+                    string replyToAddress;
 
-                    if (replyToAddress != null)
+                    if (message.Headers.TryGetValue(Headers.ReplyToAddress,out replyToAddress))
                     {
                         var returnAddress = MsmqUtilities.GetReturnAddress(replyToAddress, destinationAddress.Machine);
                         toSend.ResponseQueue = new MessageQueue(returnAddress);

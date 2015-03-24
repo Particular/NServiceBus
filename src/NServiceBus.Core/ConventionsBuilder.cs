@@ -13,6 +13,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningMessagesAs(Func<Type, bool> definesMessageType)
         {
+            Guard.AgainstNull(definesMessageType, "definesMessageType");
             Conventions.IsMessageTypeAction = definesMessageType;
             return this;
         }
@@ -22,6 +23,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningCommandsAs(Func<Type, bool> definesCommandType)
         {
+            Guard.AgainstNull(definesCommandType, "definesCommandType");
             Conventions.IsCommandTypeAction = definesCommandType;
             return this;
         }
@@ -31,6 +33,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningEventsAs(Func<Type, bool> definesEventType)
         {
+            Guard.AgainstNull(definesEventType, "definesEventType");
             Conventions.IsEventTypeAction = definesEventType;
             return this;
         }
@@ -40,6 +43,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningEncryptedPropertiesAs(Func<PropertyInfo, bool> definesEncryptedProperty)
         {
+            Guard.AgainstNull(definesEncryptedProperty, "definesEncryptedProperty");
             Conventions.IsEncryptedPropertyAction = definesEncryptedProperty;
             return this;
         }
@@ -49,6 +53,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningDataBusPropertiesAs(Func<PropertyInfo, bool> definesDataBusProperty)
         {
+            Guard.AgainstNull(definesDataBusProperty, "definesDataBusProperty");
             Conventions.IsDataBusPropertyAction = definesDataBusProperty;
             return this;
         }
@@ -58,6 +63,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningTimeToBeReceivedAs(Func<Type, TimeSpan> retrieveTimeToBeReceived)
         {
+            Guard.AgainstNull(retrieveTimeToBeReceived, "retrieveTimeToBeReceived");
             Conventions.TimeToBeReceivedAction = retrieveTimeToBeReceived;
             return this;
         }
@@ -67,6 +73,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningExpressMessagesAs(Func<Type, bool> definesExpressMessageType)
         {
+            Guard.AgainstNull(definesExpressMessageType, "definesExpressMessageType");
             Conventions.IsExpressMessageAction = definesExpressMessageType;
             return this;
         }

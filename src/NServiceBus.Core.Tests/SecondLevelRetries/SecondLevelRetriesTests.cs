@@ -30,7 +30,7 @@
 
             behavior.Invoke(CreateContext("someid", 1), () => { throw new Exception("testex"); });
 
-            Assert.AreEqual("someid", deferrer.DeferredMessage.Id);
+            Assert.AreEqual("someid", deferrer.DeferredMessage.Headers[Headers.MessageId]);
             Assert.AreEqual(delay, deferrer.Delay);
             Assert.AreEqual("test-address-for-this-pipeline", deferrer.MessageRoutedTo);
 
@@ -106,7 +106,7 @@
 
         PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId, int currentRetryCount)
         {
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new ReceivedMessage(messageId, new Dictionary<string, string> { { Headers.Retries, currentRetryCount.ToString() } }, new MemoryStream()), null));
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string> { { Headers.Retries, currentRetryCount.ToString() } }, new MemoryStream()), null));
 
             context.SetPublicReceiveAddress("test-address-for-this-pipeline");
 
@@ -145,15 +145,19 @@
 
     class FakeMessageDeferrer : IDeferMessages
     {
+
+
+        public SendOptions SendOptions { get; private set; }
         public string MessageRoutedTo { get; private set; }
 
-        public TransportMessage DeferredMessage { get; private set; }
+        public OutgoingMessage DeferredMessage { get; private set; }
         public TimeSpan Delay { get; private set; }
 
-        public void Defer(TransportMessage message, SendOptions sendOptions)
+        public void Defer(OutgoingMessage message, SendOptions sendOptions)
         {
             MessageRoutedTo = sendOptions.Destination;
             DeferredMessage = message;
+            SendOptions = sendOptions;
 
             if (sendOptions.DelayDeliveryWith.HasValue)
             {

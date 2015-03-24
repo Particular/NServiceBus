@@ -9,7 +9,7 @@
     {
         internal const string IncomingPhysicalMessageKey = "NServiceBus.IncomingPhysicalMessage";
 
-        internal TransportReceiveContext(ReceivedMessage receivedMessage, BehaviorContext parentContext): base(parentContext)
+        internal TransportReceiveContext(IncomingMessage receivedMessage, BehaviorContext parentContext): base(parentContext)
         {
             PhysicalMessage = new TransportMessage(receivedMessage.MessageId, receivedMessage.Headers)
             {

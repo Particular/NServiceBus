@@ -165,7 +165,7 @@ namespace ApiApprover
             if (IsDelegate(publicType))
                 return CreateDelegateDeclaration(publicType);
 
-            var @static = false;
+            bool @static = false;
             TypeAttributes attributes = 0;
             if (publicType.IsPublic || publicType.IsNestedPublic)
                 attributes |= TypeAttributes.Public;

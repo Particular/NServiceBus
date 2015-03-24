@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using System.IO;
     using Licensing;
     using Logging;
@@ -17,14 +16,10 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The current <see cref="BusConfiguration"/>.</param>
         /// <param name="licenseText">The license text.</param>
-// ReSharper disable UnusedParameter.Global
         public static void License(this BusConfiguration config, string licenseText)
-// ReSharper restore UnusedParameter.Global
         {
-            if (string.IsNullOrWhiteSpace(licenseText))
-            {
-                throw new ArgumentException("licenseText is required", "licenseText");
-            }
+            Guard.AgainstNullAndEmpty(licenseText, "licenseText");
+            Guard.AgainstNull(config, "config");
             Logger.Info(@"Using license supplied via fluent API.");
             LicenseManager.InitializeLicenseText(licenseText);
         }
@@ -37,6 +32,8 @@ namespace NServiceBus
         /// <param name="licenseFile">A relative or absolute path to the license file.</param>
         public static void LicensePath(this BusConfiguration config, string licenseFile)
         {
+            Guard.AgainstNull(config, "config");
+            Guard.AgainstNullAndEmpty(licenseFile, "licenseFile");
             if (!File.Exists(licenseFile))
             {
                 throw new FileNotFoundException("License file not found", licenseFile);

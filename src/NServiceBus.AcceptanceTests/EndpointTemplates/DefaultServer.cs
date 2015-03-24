@@ -9,6 +9,7 @@
     using Logging;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting.Customization;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Configuration.AdvanceExtensibility;
 
@@ -39,7 +40,7 @@
             var builder = new BusConfiguration();
 
             builder.EndpointName(endpointConfiguration.EndpointName);
-            builder.TypesToScan(typesToInclude);
+            builder.TypesToIncludeInScan(typesToInclude);
             builder.CustomConfigurationSource(configSource);
             builder.EnableInstallers();
             builder.DefineTransport(settings, endpointConfiguration.BuilderType);

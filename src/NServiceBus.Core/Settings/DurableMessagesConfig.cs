@@ -13,6 +13,7 @@ namespace NServiceBus
         /// </summary>
         public static void EnableDurableMessages(this BusConfiguration config)
         {
+            Guard.AgainstNull(config, "config");
             config.Settings.Set("Endpoint.DurableMessages", true);
         }
 
@@ -21,11 +22,13 @@ namespace NServiceBus
         /// </summary>
         public static void DisableDurableMessages(this BusConfiguration config)
         {
+            Guard.AgainstNull(config, "config");
             config.Settings.Set("Endpoint.DurableMessages", false);
         }
 
         internal static bool GetDurableMessagesEnabled(ReadOnlySettings settings)
         {
+            Guard.AgainstNull(settings, "settings");
             bool durableMessagesEnabled;
             if (settings.TryGet("Endpoint.DurableMessages", out durableMessagesEnabled))
             {
@@ -39,6 +42,7 @@ namespace NServiceBus
         /// </summary>
         public static bool DurableMessagesEnabled(this Configure config)
         {
+            Guard.AgainstNull(config, "config");
             return GetDurableMessagesEnabled(config.Settings);
         }
     }

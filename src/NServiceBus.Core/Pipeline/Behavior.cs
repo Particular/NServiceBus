@@ -40,6 +40,8 @@
         /// <param name="next">The next <see cref="IBehavior{TIn,TOut}"/> in the chain to execute.</param>
         public void Invoke(TContext context, Action<TContext> next)
         {
+            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull(next, "next");
             Invoke(context, () => next(context));
         }
     }

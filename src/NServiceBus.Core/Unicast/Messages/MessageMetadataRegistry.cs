@@ -29,11 +29,18 @@
         /// <returns>The <see cref="MessageMetadata" /> for the specified type.</returns>
         public MessageMetadata GetMessageMetadata(Type messageType)
         {
+            Guard.AgainstNull(messageType, "messageType");
             MessageMetadata metadata;
             if (messages.TryGetValue(messageType.TypeHandle, out metadata))
             {
                 return metadata;
             }
+
+            if (conventions.IsMessageType(messageType))
+            {
+                return RegisterMessageType(messageType);
+            }
+
             var message = string.Format("Could not find metadata for '{0}'.{1}Please ensure the following:{1}1. '{0}' is included in initial scanning. {1}2. '{0}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode'.", messageType.FullName, Environment.NewLine);
             throw new Exception(message);
         }
@@ -45,10 +52,7 @@
         /// <returns>The <see cref="MessageMetadata" /> for the specified type.</returns>
         public MessageMetadata GetMessageMetadata(string messageTypeIdentifier)
         {
-            if (string.IsNullOrEmpty(messageTypeIdentifier))
-            {
-                throw new ArgumentException("MessageTypeIdentifier passed is null or empty");
-            }
+            Guard.AgainstNullAndEmpty(messageTypeIdentifier, "messageTypeIdentifier");
 
             var messageType = Type.GetType(messageTypeIdentifier, false);
 
@@ -62,6 +66,7 @@
             {
                 return metadata;
             }
+
             Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, please make sure the same message registration conventions are used in all endpoints, specially if you are using unobtrusive mode. ", messageType, messageType.FullName);
             return null;
         }
@@ -71,7 +76,7 @@
             return new List<MessageMetadata>(messages.Values);
         }
 
-        internal void RegisterMessageType(Type messageType)
+        internal MessageMetadata RegisterMessageType(Type messageType)
         {
             //get the parent types
             var parentMessages = GetParentTypes(messageType)
@@ -88,6 +93,8 @@
             }.Concat(parentMessages));
 
             messages[messageType.TypeHandle] = metadata;
+
+            return metadata;
         }
 
         int PlaceInMessageHierarchy(Type type)

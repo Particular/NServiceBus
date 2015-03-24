@@ -16,7 +16,6 @@
                 {
                     IncludeAppDomainAssemblies = false
                 };
-            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
 
             results = assemblyScanner
                 .GetScannableAssemblies();

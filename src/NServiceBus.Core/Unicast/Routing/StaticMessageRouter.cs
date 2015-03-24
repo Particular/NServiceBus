@@ -16,6 +16,7 @@
         /// </summary>
         public StaticMessageRouter(IEnumerable<Type> knownMessages)
         {
+            Guard.AgainstNull(knownMessages, "knownMessages");
             routes = new ConcurrentDictionary<Type, List<string>>();
             foreach (var knownMessage in knownMessages)
             {
@@ -24,16 +25,12 @@
         }
 
         /// <summary>
-        /// Set to true if the router should autosubscribe messages not defined as events
-        /// </summary>
-        public bool SubscribeToPlainMessages { get; set; }
-
-        /// <summary>
         /// Returns all the routes for a given message
         /// </summary>
         /// <param name="messageType">The <see cref="Type"/> of the message to get the destination <see cref="Address"/> list for.</param>
         public List<string> GetDestinationFor(Type messageType)
         {
+            Guard.AgainstNull(messageType, "messageType");
             List<string> address;
             if (!routes.TryGetValue(messageType, out address))
             {
@@ -50,6 +47,7 @@
         /// <param name="endpointAddress">The <see cref="Address"/> representing the logical owner for the event</param>
         public void RegisterEventRoute(Type eventType, string endpointAddress)
         {
+            Guard.AgainstNull(eventType, "eventType");
             if (endpointAddress == null)
             {
                 throw new InvalidOperationException(String.Format("'{0}' can't be registered with null route.", eventType.FullName));
@@ -88,6 +86,7 @@
         /// <param name="endpointAddress">The address of the logical owner</param>
         public void RegisterMessageRoute(Type messageType, string endpointAddress)
         {
+            Guard.AgainstNull(messageType, "messageType");
             if (endpointAddress == null)
             {
                 throw new InvalidOperationException(String.Format("'{0}' can't be registered with Address.Undefined route.", messageType.FullName));
@@ -112,6 +111,12 @@
                 route.Value.Add(endpointAddress);
             }
         }
+
+        /// <summary>
+        /// Obsolete
+        /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "config.AutoSubscribe().AutoSubscribePlainMessages()")]
+        public bool SubscribeToPlainMessages { get; set; }
 
         static ILog Logger = LogManager.GetLogger<StaticMessageRouter>();
         readonly ConcurrentDictionary<Type, List<string>> routes;

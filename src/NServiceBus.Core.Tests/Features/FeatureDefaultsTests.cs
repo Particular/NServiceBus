@@ -9,6 +9,48 @@
     [TestFixture]
     public class FeatureDefaultsTests
     {
+        public class FeatureThatEnablesAnother : Feature
+        {
+            public FeatureThatEnablesAnother()
+            {
+                EnableByDefault();
+                Defaults(s => s.EnableFeatureByDefault<FeatureThatIsEnabledByAnother>());
+            }
+
+            protected internal override void Setup(FeatureConfigurationContext context)
+            {
+            }
+        }
+
+        public class FeatureThatIsEnabledByAnother : Feature
+        {
+            public FeatureThatIsEnabledByAnother()
+            {
+                Defaults(s => DefaultCalled = true);
+            }
+
+            public bool DefaultCalled;
+            
+            protected internal override void Setup(FeatureConfigurationContext context)
+            {
+            }
+        }
+
+        [Test]
+        public void Feature_enabled_by_later_feature_should_have_default_called()
+        {
+            var featureThatIsEnabledByAnother = new FeatureThatIsEnabledByAnother();
+            var settings = new SettingsHolder();
+            var featureSettings = new FeatureActivator(settings);
+            //the orders matter here to expose a bug
+            featureSettings.Add(featureThatIsEnabledByAnother);
+            featureSettings.Add(new FeatureThatEnablesAnother());
+
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+
+            Assert.True(featureThatIsEnabledByAnother.DefaultCalled, "FeatureThatIsEnabledByAnother wasn't activated");
+        }
+
         [Test]
         public void Should_enable_features_in_defaults()
         {

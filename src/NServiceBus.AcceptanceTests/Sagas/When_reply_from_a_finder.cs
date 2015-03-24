@@ -41,12 +41,12 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class CustomFinder : IFindSagas<TestSaga.SagaData>.Using<StartSagaMessage>
+            class CustomFinder : IFindSagas<TestSagaWithCustomFinder.SagaData>.Using<StartSagaMessage>
             {
                 public IBus Bus { get; set; }
                 public Context Context { get; set; }
 
-                public TestSaga.SagaData FindBy(StartSagaMessage message)
+                public TestSagaWithCustomFinder.SagaData FindBy(StartSagaMessage message)
                 {
                     Bus.Reply(new SagaNotFoundMessage
                               {
@@ -56,7 +56,7 @@
                 }
             }
 
-            public class TestSaga : Saga<TestSaga.SagaData>,
+            public class TestSagaWithCustomFinder : Saga<TestSagaWithCustomFinder.SagaData>,
                 IAmStartedByMessages<StartSagaMessage>
             {
                 public Context Context { get; set; }

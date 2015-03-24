@@ -1,11 +1,13 @@
 ﻿namespace NServiceBus.Hosting.Helpers
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
 
     /// <summary>
-    /// Holds GetScannableAssemblies results.
-    /// Contains list of errors and list of scan-able assemblies.
+    /// Holds <see cref="AssemblyScanner.GetScannableAssemblies"/> results.
+    /// Contains list of errors and list of scannable assemblies.
     /// </summary>
     public class AssemblyScannerResults 
     {
@@ -15,6 +17,7 @@
         public AssemblyScannerResults()
         {
             Assemblies = new List<Assembly>();
+            Types = new List<Type>();
             SkippedFiles = new List<SkippedFile>();
         }
        
@@ -34,5 +37,16 @@
         /// True if errors where encountered during assembly scanning
         /// </summary>
         public bool ErrorsThrownDuringScanning { get; internal set; }
+
+        /// <summary>
+        /// List of types.
+        /// </summary>
+        public List<Type> Types { get; private set; }
+
+        internal void RemoveDuplicates()
+        {
+            Assemblies = Assemblies.Distinct().ToList();
+            Types = Types.Distinct().ToList();
+        }
     }
 }

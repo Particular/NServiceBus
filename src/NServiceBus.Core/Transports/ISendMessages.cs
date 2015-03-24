@@ -10,6 +10,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Sends the given <paramref name="message"/>
         /// </summary>
-        void Send(TransportMessage message, SendOptions sendOptions);
+        void Send(OutgoingMessage message, SendOptions sendOptions);
     }
 }

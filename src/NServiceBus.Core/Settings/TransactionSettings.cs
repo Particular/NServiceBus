@@ -14,7 +14,6 @@ namespace NServiceBus.Settings
         internal TransactionSettings(BusConfiguration config)
         {
             this.config = config;
-            maxTimeout = GetMaxTimeout();
         }
 
         /// <summary>
@@ -103,6 +102,8 @@ namespace NServiceBus.Settings
         /// </param>
         public TransactionSettings DefaultTimeout(TimeSpan defaultTimeout)
         {
+            Guard.AgainstNegative(defaultTimeout, "defaultTimeout");
+            var maxTimeout = GetMaxTimeout();
             if (defaultTimeout > maxTimeout)
             {
                 throw new ConfigurationErrorsException(
@@ -135,6 +136,5 @@ namespace NServiceBus.Settings
         }
 
         BusConfiguration config;
-        TimeSpan maxTimeout;
     }
 }

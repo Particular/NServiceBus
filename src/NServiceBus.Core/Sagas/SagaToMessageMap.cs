@@ -8,5 +8,10 @@ namespace NServiceBus.Sagas
         public string SagaPropName;
         public Type MessageType;
         public Type CustomFinderType;
+
+        public bool IsCustomFinderMap
+        {
+            get { return CustomFinderType != null; }
+        }
     }
 }

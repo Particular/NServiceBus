@@ -20,10 +20,12 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// Initialized the event arg with the actual exception
         /// </summary>
-        public FailedMessageProcessingEventArgs(TransportMessage m, Exception ex)
+        public FailedMessageProcessingEventArgs(TransportMessage message, Exception exception)
         {
-            Message = m;
-            Reason = ex;
+            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull(exception, "exception");
+            Message = message;
+            Reason = exception;
         }
     }
 }

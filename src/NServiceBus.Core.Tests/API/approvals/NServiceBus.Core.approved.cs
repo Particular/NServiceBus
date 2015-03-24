@@ -1,4 +1,5 @@
 ﻿[assembly: System.CLSCompliantAttribute(true)]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleToAttribute(@"NServiceBus.AcceptanceTesting, PublicKey=0024000004800000940000000602000000240000525341310004000001000100dde965e6172e019ac82c2639ffe494dd2e7dd16347c34762a05732b492e110f2e4e2e1b5ef2d85c848ccfb671ee20a47c8d1376276708dc30a90ff1121b647ba3b7259a6bc383b2034938ef0e275b58b920375ac605076178123693c6c4f1331661a62eba28c249386855637780e3ff5f23a6d854700eaa6803ef48907513b92")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleToAttribute(@"NServiceBus.Core.Tests, PublicKey=00240000048000009400000006020000002400005253413100040000010001007f16e21368ff041183fab592d9e8ed37e7be355e93323147a1d29983d6e591b04282e4da0c9e18bd901e112c0033925eb7d7872c2f1706655891c5c9d57297994f707d16ee9a8f40d978f064ee1ffc73c0db3f4712691b23bf596f75130f4ec978cf78757ec034625a5f27e6bb50c618931ea49f6f628fd74271c32959efb1c5")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleToAttribute(@"NServiceBus.Hosting.Tests, PublicKey=0024000004800000940000000602000000240000525341310004000001000100dde965e6172e019ac82c2639ffe494dd2e7dd16347c34762a05732b492e110f2e4e2e1b5ef2d85c848ccfb671ee20a47c8d1376276708dc30a90ff1121b647ba3b7259a6bc383b2034938ef0e275b58b920375ac605076178123693c6c4f1331661a62eba28c249386855637780e3ff5f23a6d854700eaa6803ef48907513b92")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleToAttribute(@"NServiceBus.PerformanceTests, PublicKey=00240000048000009400000006020000002400005253413100040000010001007f16e21368ff041183fab592d9e8ed37e7be355e93323147a1d29983d6e591b04282e4da0c9e18bd901e112c0033925eb7d7872c2f1706655891c5c9d57297994f707d16ee9a8f40d978f064ee1ffc73c0db3f4712691b23bf596f75130f4ec978cf78757ec034625a5f27e6bb50c618931ea49f6f628fd74271c32959efb1c5")]
@@ -17,11 +18,10 @@ namespace NServiceBus
         Local = 0,
         Remote = 1,
     }
-    public class AllAssemblies : NServiceBus.IExcludesBuilder, NServiceBus.IIncludesBuilder, System.Collections.Generic.IEnumerable<System.Reflection.Assembly>, System.Collections.IEnumerable
+    [System.ObsoleteAttribute("Please use `config.ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
+    public class AllAssemblies : NServiceBus.IExcludesBuilder, NServiceBus.IIncludesBuilder
     {
-        public static NServiceBus.IExcludesBuilder Except(string assemblyExpression) { }
-        public System.Collections.Generic.IEnumerator<System.Reflection.Assembly> GetEnumerator() { }
-        public static NServiceBus.IIncludesBuilder Matching(string assemblyExpression) { }
+        public AllAssemblies() { }
     }
     public class static AutoSubscribeSettingsExtensions
     {
@@ -42,6 +42,7 @@ namespace NServiceBus
         public static NServiceBus.IStartableBus Create(NServiceBus.BusConfiguration configuration) { }
         public static NServiceBus.ISendOnlyBus CreateSendOnly(NServiceBus.BusConfiguration configuration) { }
     }
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public class BusAsyncResultEventArgs : System.EventArgs
     {
         public BusAsyncResultEventArgs() { }
@@ -53,18 +54,24 @@ namespace NServiceBus
         public BusConfiguration() { }
         public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
+        [System.ObsoleteAttribute("Please use `ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
         public void AssembliesToScan(System.Collections.Generic.IEnumerable<System.Reflection.Assembly> assemblies) { }
+        [System.ObsoleteAttribute("Please use `ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
         public void AssembliesToScan(params System.Reflection.Assembly[] assemblies) { }
         public NServiceBus.ConventionsBuilder Conventions() { }
         public void CustomConfigurationSource(NServiceBus.Config.ConfigurationSource.IConfigurationSource configurationSource) { }
         public void EndpointName(string name) { }
+        public void ExcludeAssemblies(params string[] assemblies) { }
+        public void ExcludeTypes(params System.Type[] types) { }
         public void OverrideLocalAddress(string queue) { }
         [System.ObsoleteAttribute("Please use `OverridePublicReturnAddress(string address)` instead. Will be removed" +
             " in version 7.0.0.", true)]
         public void OverridePublicReturnAddress(NServiceBus.Address address) { }
         public void OverridePublicReturnAddress(string address) { }
         public void RegisterComponents(System.Action<NServiceBus.ObjectBuilder.IConfigureComponents> registration) { }
+        [System.ObsoleteAttribute("Please use `ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
         public void ScanAssembliesInDirectory(string probeDirectory) { }
+        [System.ObsoleteAttribute("Please use `ExcludeTypes` instead. Will be removed in version 7.0.0.", true)]
         public void TypesToScan(System.Collections.Generic.IEnumerable<System.Type> typesToScan) { }
         public void UseContainer<T>(System.Action<NServiceBus.Container.ContainerCustomizations> customizations = null)
             where T : NServiceBus.Container.ContainerDefinition, new () { }
@@ -251,8 +258,8 @@ namespace NServiceBus
     public class static ExtensionMethods
     {
         public static object CurrentMessageBeingHandled { get; set; }
-        public static string GetMessageHeader(this NServiceBus.IBus bus, object msg, string key) { }
-        public static void SetMessageHeader(this NServiceBus.ISendOnlyBus bus, object msg, string key, string value) { }
+        public static string GetMessageHeader(this NServiceBus.IBus bus, object message, string key) { }
+        public static void SetMessageHeader(this NServiceBus.ISendOnlyBus bus, object message, string key, string value) { }
     }
     public class FileShareDataBus : NServiceBus.DataBus.DataBusDefinition
     {
@@ -367,10 +374,8 @@ namespace NServiceBus
         void SetValue(object value);
     }
     public interface IEvent : NServiceBus.IMessage { }
-    public interface IExcludesBuilder : System.Collections.Generic.IEnumerable<System.Reflection.Assembly>, System.Collections.IEnumerable
-    {
-        NServiceBus.IExcludesBuilder And(string assemblyExpression);
-    }
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
+    public interface IExcludesBuilder { }
     public interface IHandle<T>
     {
         void Handle(T message, NServiceBus.IHandleContext context);
@@ -380,11 +385,8 @@ namespace NServiceBus
     {
         void Handle(T message);
     }
-    public interface IIncludesBuilder : System.Collections.Generic.IEnumerable<System.Reflection.Assembly>, System.Collections.IEnumerable
-    {
-        NServiceBus.IIncludesBuilder And(string assemblyExpression);
-        NServiceBus.IExcludesBuilder Except(string assemblyExpression);
-    }
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
+    public interface IIncludesBuilder { }
     public interface IManageMessageHeaders
     {
         System.Func<object, string, string> GetHeaderAction { get; }
@@ -623,9 +625,9 @@ namespace NServiceBus
         where T : NServiceBus.Transports.TransportDefinition
     {
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
-        public new NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
-        public new NServiceBus.TransportExtensions ConnectionString(System.Func<string> connectionString) { }
-        public new NServiceBus.TransportExtensions ConnectionStringName(string name) { }
+        public NServiceBus.TransportExtensions<T> ConnectionString(string connectionString) { }
+        public NServiceBus.TransportExtensions<T> ConnectionString(System.Func<string> connectionString) { }
+        public NServiceBus.TransportExtensions<T> ConnectionStringName(string name) { }
     }
     public class TransportMessage
     {
@@ -1155,6 +1157,8 @@ namespace NServiceBus.Hosting.Helpers
     {
         public AssemblyScanner() { }
         public AssemblyScanner(string baseDirectoryToScan) { }
+        [System.ObsoleteAttribute("This method is no longer required since deep scanning of assemblies is done to de" +
+            "tect an NServiceBus reference. Will be removed in version 7.0.0.", true)]
         public System.Collections.Generic.List<System.Reflection.Assembly> MustReferenceAtLeastOneAssembly { get; }
         public bool ThrowExceptions { get; set; }
         public NServiceBus.Hosting.Helpers.AssemblyScannerResults GetScannableAssemblies() { }
@@ -1165,6 +1169,7 @@ namespace NServiceBus.Hosting.Helpers
         public System.Collections.Generic.List<System.Reflection.Assembly> Assemblies { get; }
         public bool ErrorsThrownDuringScanning { get; }
         public System.Collections.Generic.List<NServiceBus.Hosting.Helpers.SkippedFile> SkippedFiles { get; }
+        public System.Collections.Generic.List<System.Type> Types { get; }
     }
     public class SkippedFile
     {
@@ -1834,8 +1839,8 @@ namespace NServiceBus.Settings.Concurrency
 {
     public class ConcurrencySettings
     {
-        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSetellite() { }
-        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSetellite(int defaultMaxiumConcurrencyLevel) { }
+        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSatteThreadPoolsForMainPipelineAndEachSatellite() { }
+        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSatteThreadPoolsForMainPipelineAndEachSatellite(int defaultMaxiumConcurrencyLevel) { }
         public void UseSingleThreadPool() { }
         public void UseSingleThreadPool(int maximumConcurrencyLevel) { }
     }
@@ -1933,6 +1938,7 @@ namespace NServiceBus.Timeout.Core
     }
     public class TimeoutData
     {
+        [System.ObsoleteAttribute("Not used anymore. Will be removed in version 7.0.0.", true)]
         public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
         public TimeoutData() { }
         public string Destination { get; set; }
@@ -1942,11 +1948,13 @@ namespace NServiceBus.Timeout.Core
         public System.Guid SagaId { get; set; }
         public byte[] State { get; set; }
         public System.DateTime Time { get; set; }
-        [System.ObsoleteAttribute("Please use `TimeoutData.ToSendOptions(string)` instead. Will be removed in versio" +
-            "n 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use new SendOptions() instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Unicast.SendOptions ToSendOptions(NServiceBus.Address replyToAddress) { }
+        [System.ObsoleteAttribute("Use new SendOptions() instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Unicast.SendOptions ToSendOptions(string replyToAddress) { }
         public override string ToString() { }
+        [System.ObsoleteAttribute("Use new OutgoingMessage(timeoutData.State) instead. Will be removed in version 7." +
+            "0.0.", true)]
         public NServiceBus.TransportMessage ToTransportMessage() { }
     }
 }
@@ -1979,7 +1987,7 @@ namespace NServiceBus.Transports
     public interface IDeferMessages
     {
         void ClearDeferredMessages(string headerKey, string headerValue);
-        void Defer(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
+        void Defer(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.SendOptions sendOptions);
     }
     public interface IDequeueMessages : System.IObservable<NServiceBus.Transports.MessageAvailable>
     {
@@ -1992,35 +2000,41 @@ namespace NServiceBus.Transports
         void Subscribe(System.Type eventType, string publisherAddress);
         void Unsubscribe(System.Type eventType, string publisherAddress);
     }
+    public class IncomingMessage
+    {
+        public IncomingMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream) { }
+        public System.IO.Stream BodyStream { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
+    }
     public interface IPublishMessages
     {
-        void Publish(NServiceBus.TransportMessage message, NServiceBus.Unicast.PublishOptions publishOptions);
+        void Publish(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.PublishOptions publishOptions);
     }
     public interface ISendMessages
     {
-        void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
+        void Send(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.SendOptions sendOptions);
     }
     public class MessageAvailable
     {
         public MessageAvailable(string publicReceiveAddress, System.Action<NServiceBus.Pipeline.Contexts.IncomingContext> contextAction) { }
         public string PublicReceiveAddress { get; }
     }
+    public class OutgoingMessage
+    {
+        public OutgoingMessage(System.Collections.Generic.Dictionary<string, string> headers, byte[] body) { }
+        public byte[] Body { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+    }
     public abstract class ReceiveBehavior : NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.Pipeline.Contexts.TransportReceiveContext>
     {
         protected ReceiveBehavior() { }
         public override void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Pipeline.Contexts.TransportReceiveContext> next) { }
-        protected abstract void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Transports.ReceivedMessage> onMessage);
+        protected abstract void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Transports.IncomingMessage> onMessage);
         public class Registration : NServiceBus.Pipeline.RegisterStep
         {
             public Registration() { }
         }
-    }
-    public class ReceivedMessage
-    {
-        public ReceivedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream) { }
-        public System.IO.Stream BodyStream { get; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
-        public string MessageId { get; }
     }
     public class ReceiveOptions
     {
@@ -2065,7 +2079,7 @@ namespace NServiceBus.Transports.Msmq
         public MsmqMessageSender(NServiceBus.Pipeline.BehaviorContext context) { }
         public NServiceBus.Transports.Msmq.Config.MsmqSettings Settings { get; set; }
         public bool SuppressDistributedTransactions { get; set; }
-        public void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions) { }
+        public void Send(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.SendOptions sendOptions) { }
     }
     public class MsmqUnitOfWork : System.IDisposable
     {
@@ -2095,8 +2109,10 @@ namespace NServiceBus.Unicast
     {
         public static void ForEach<T>(this NServiceBus.ObjectBuilder.IBuilder builder, System.Action<T> action) { }
     }
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public class BusAsyncResult : System.IAsyncResult
     {
+        [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
         public BusAsyncResult(System.AsyncCallback callback, object state) { }
         public object AsyncState { get; }
         public System.Threading.WaitHandle AsyncWaitHandle { get; }
@@ -2104,6 +2120,7 @@ namespace NServiceBus.Unicast
         public bool IsCompleted { get; }
         public void Complete(int errorCode, params object[] messages) { }
     }
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public class CallbackMessageLookup
     {
         public CallbackMessageLookup() { }
@@ -2114,6 +2131,8 @@ namespace NServiceBus.Unicast
         public bool EnforceMessagingBestPractices { get; set; }
         public bool EnlistInReceiveTransaction { get; set; }
         public System.Nullable<bool> NonDurable { get; set; }
+        [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.ReplyToAddress` header. Wi" +
+            "ll be removed in version 7.0.0.", true)]
         public string ReplyToAddress { get; set; }
         public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }
     }
@@ -2165,9 +2184,10 @@ namespace NServiceBus.Unicast
     }
     public class ReplyOptions : NServiceBus.Unicast.SendOptions
     {
-        [System.ObsoleteAttribute("Please use `ReplyOptions(string destination, string correlationId)` instead. Will" +
-            " be removed in version 7.0.0.", true)]
+        public ReplyOptions(string destination) { }
+        [System.ObsoleteAttribute("ReplyOptions(string destination). Will be removed in version 7.0.0.", true)]
         public ReplyOptions(NServiceBus.Address destination, string correlationId) { }
+        [System.ObsoleteAttribute("ReplyOptions(string destination). Will be removed in version 7.0.0.", true)]
         public ReplyOptions(string destination, string correlationId) { }
     }
     public class SendOptions : NServiceBus.Unicast.DeliveryOptions
@@ -2175,6 +2195,8 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("Please use `SendOptions(string)` instead. Will be removed in version 7.0.0.", true)]
         public SendOptions(NServiceBus.Address destination) { }
         public SendOptions(string destination) { }
+        [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.CorrelationId` header. Wil" +
+            "l be removed in version 7.0.0.", true)]
         public string CorrelationId { get; set; }
         public System.Nullable<System.TimeSpan> DelayDeliveryWith { get; set; }
         public System.Nullable<System.DateTime> DeliverAt { get; set; }
@@ -2285,6 +2307,8 @@ namespace NServiceBus.Unicast.Routing
     public class StaticMessageRouter
     {
         public StaticMessageRouter(System.Collections.Generic.IEnumerable<System.Type> knownMessages) { }
+        [System.ObsoleteAttribute("Please use `config.AutoSubscribe().AutoSubscribePlainMessages()` instead. Will be" +
+            " removed in version 7.0.0.", true)]
         public bool SubscribeToPlainMessages { get; set; }
         public System.Collections.Generic.List<string> GetDestinationFor(System.Type messageType) { }
         public void RegisterEventRoute(System.Type eventType, string endpointAddress) { }
@@ -2331,7 +2355,7 @@ namespace NServiceBus.Unicast.Transport
     }
     public class FailedMessageProcessingEventArgs : System.EventArgs
     {
-        public FailedMessageProcessingEventArgs(NServiceBus.TransportMessage m, System.Exception ex) { }
+        public FailedMessageProcessingEventArgs(NServiceBus.TransportMessage message, System.Exception exception) { }
         public NServiceBus.TransportMessage Message { get; }
         public System.Exception Reason { get; }
     }

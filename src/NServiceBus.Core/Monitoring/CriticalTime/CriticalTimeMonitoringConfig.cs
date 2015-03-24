@@ -13,6 +13,7 @@ namespace NServiceBus
         /// </summary>
         public static void EnableCriticalTimePerformanceCounter(this BusConfiguration config)
         {
+            Guard.AgainstNull(config, "config");
             config.EnableFeature<CriticalTimeMonitoring>();
         }
     }

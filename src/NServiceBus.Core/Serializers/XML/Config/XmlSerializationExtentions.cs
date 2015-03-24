@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System.Configuration;
     using NServiceBus.Serialization;
     using NServiceBus.Serializers.XML;
 
@@ -40,6 +39,7 @@
         /// </code>
         public static SerializationExtentions<XmlSerializer> DontWrapRawXml(this SerializationExtentions<XmlSerializer> config)
         {
+            Guard.AgainstNull(config, "config");
             config.Settings.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
 
             return config;
@@ -57,10 +57,7 @@
         /// </param>
         public static SerializationExtentions<XmlSerializer> Namespace(this SerializationExtentions<XmlSerializer> config, string namespaceToUse)
         {
-            if (string.IsNullOrEmpty(namespaceToUse))
-            {
-                throw new ConfigurationErrorsException("Can't use a null or empty string as the xml namespace");
-            }
+            Guard.AgainstNull(config, "config");
 
             config.Settings.SetProperty<XmlMessageSerializer>(s => s.Namespace, namespaceToUse);
 
@@ -72,6 +69,7 @@
         /// </summary>
         public static SerializationExtentions<XmlSerializer> SanitizeInput(this SerializationExtentions<XmlSerializer> config)
         {
+            Guard.AgainstNull(config, "config");
             config.Settings.SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);
 
             return config;

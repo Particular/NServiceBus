@@ -13,7 +13,7 @@ namespace NServiceBus.Core.Tests.Timeout
             set { messagesSent = value; }
         }
 
-        public void Send(TransportMessage message, SendOptions sendOptions)
+        public void Send(OutgoingMessage message, SendOptions sendOptions)
         {
             MessagesSent++;
         }

@@ -15,7 +15,7 @@
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>069004cc</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>fc0039f2</NuGetPackageImportStamp>
     <CreateDeploymentPackage>False</CreateDeploymentPackage>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -131,12 +131,13 @@
     <Compile Include="Transports\Msmq\MsmqReceiveBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNativeTransactionBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNoTransactionBehavior.cs" />
+    <Compile Include="Transports\OutgoingMessage.cs" />
     <Compile Include="Transports\ReceiveBehavior.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalOutgoingContext.cs" />
-    <Compile Include="Transports\ReceivedMessage.cs" />
     <Compile Include="Unicast\Behaviors\PrepareHandleContextBehavior.cs" />
     <Compile Include="Unicast\Behaviors\PrepareSubscribeContextBehavior.cs" />
     <Compile Include="Unicast\Behaviors\PrepareTimoutContextBehavior.cs" />
+    <Compile Include="Transports\IncomingMessage.cs" />
     <Compile Include="Unicast\Behaviors\SagaInvocationResult.cs" />
     <Compile Include="Unicast\Behaviors\TransportReceiveToPhysicalMessageProcessingConnector.cs" />
     <Compile Include="Pipeline\Contexts\LogicalMessageProcessingStageBehavior.cs" />
@@ -199,7 +200,6 @@
     <Compile Include="Observable.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />
-    <Compile Include="AllAssemblies.cs" />
     <Compile Include="Audit\Audit.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscribe.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettingsExtensions.cs" />
@@ -293,6 +293,7 @@
     <Compile Include="Unicast\Behaviors\MessageProcessingAbortedException.cs" />
     <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
     <Compile Include="Unicast\CallbackMessageLookup.cs" />
+    <Compile Include="Unicast\CallbackResultEventArgs.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
     <Compile Include="Monitoring\SLA\SLABehavior.cs" />
     <Compile Include="Monitoring\CriticalTime\CriticalTimeBehavior.cs" />
@@ -505,8 +506,6 @@
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
-    <Compile Include="IExcludesBuilder.cs" />
-    <Compile Include="IIncludesBuilder.cs" />
     <Compile Include="Impersonation\Windows\WindowsIdentityEnricher.cs" />
     <Compile Include="Installation\INeedToInstallSomething.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
@@ -669,9 +668,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\NuGetPackager.0.4.10\build\NuGetPackager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.4.10\build\NuGetPackager.targets'))" />
     <Error Condition="!Exists('..\packages\GitVersionTask.2.0.1\Build\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.2.0.1\Build\GitVersionTask.targets'))" />
-    <Error Condition="!Exists('..\packages\Fody.1.27.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.27.1\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Fody.1.28.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.28.1\build\Fody.targets'))" />
   </Target>
   <Import Project="..\packages\NuGetPackager.0.4.10\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.4.10\build\NuGetPackager.targets')" />
   <Import Project="..\packages\GitVersionTask.2.0.1\Build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.2.0.1\Build\GitVersionTask.targets')" />
-  <Import Project="..\packages\Fody.1.27.1\build\Fody.targets" Condition="Exists('..\packages\Fody.1.27.1\build\Fody.targets')" />
+  <Import Project="..\packages\Fody.1.28.1\build\Fody.targets" Condition="Exists('..\packages\Fody.1.28.1\build\Fody.targets')" />
 </Project>

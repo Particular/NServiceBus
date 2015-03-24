@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{75424F0A-458B-42DA-9DDD-600367893A93}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Server</RootNamespace>
     <AssemblyName>Server</AssemblyName>
@@ -33,13 +33,14 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Host">
-      <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,9 +52,9 @@
     <Compile Include="ExpressMessagesHandler.cs" />
     <Compile Include="LargeMessagesHandler.cs" />
     <Compile Include="MessagesThatMarkWithExpirationHandler.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="RequestMessageHandler.cs" />
     <Compile Include="CommandSender.cs" />
-    <Compile Include="EndpointConfig.cs" />
     <Compile Include="MyCommandHandler.cs" />
     <Compile Include="Saga\MyTimeOutState.cs" />
     <Compile Include="Saga\SimpleSaga.cs" />
@@ -88,5 +89,6 @@
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
     <StartArguments>NServiceBus.Integration</StartArguments>
     <Prefer32Bit>false</Prefer32Bit>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
 </Project>

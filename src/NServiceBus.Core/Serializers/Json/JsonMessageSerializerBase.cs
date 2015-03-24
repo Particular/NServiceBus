@@ -44,6 +44,8 @@ namespace NServiceBus.Serializers.Json
         /// <param name="stream">Stream for <paramref name="message"/> to be serialized into.</param>
         public void Serialize(object message, Stream stream)
         {
+            Guard.AgainstNull(stream, "stream");
+            Guard.AgainstNull(message, "message");
             var jsonSerializer = JsonSerializer.Create(serializerSettings);
             jsonSerializer.Binder = new MessageSerializationBinder(messageMapper);
 
@@ -73,6 +75,7 @@ namespace NServiceBus.Serializers.Json
         /// <returns>Deserialized messages.</returns>
         public object[] Deserialize(Stream stream, IList<Type> messageTypes)
         {
+            Guard.AgainstNull(stream, "stream");
             var settings = serializerSettings;
 
             var mostConcreteType = messageTypes != null ? messageTypes.FirstOrDefault() : null;

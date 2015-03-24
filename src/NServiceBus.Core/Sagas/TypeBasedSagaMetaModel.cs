@@ -76,11 +76,17 @@ namespace NServiceBus.Sagas
 
             foreach (var mapping in mapper.Mappings)
             {
-                if (uniquePropertiesOnEntity.All(p => p.Name != mapping.SagaPropName))
+                if (!mapping.IsCustomFinderMap)
                 {
-                    uniquePropertiesOnEntity.Add(new CorrelationProperty { Name = mapping.SagaPropName });    
+                    if (uniquePropertiesOnEntity.All(p => p.Name != mapping.SagaPropName))
+                    {
+                        uniquePropertiesOnEntity.Add(new CorrelationProperty
+                                                     {
+                                                         Name = mapping.SagaPropName
+                                                     });
+                    }
                 }
-                
+
 
                 SetFinderForMessage(mapping, sagaEntityType, finders);
             }
@@ -88,7 +94,7 @@ namespace NServiceBus.Sagas
             var associatedMessages = GetAssociatedMessages(sagaType)
                 .ToList();
 
-            var metadata = new SagaMetadata(associatedMessages, finders)
+            return new SagaMetadata(associatedMessages, finders)
             {
                 Name = sagaType.FullName,
                 EntityName = sagaEntityType.FullName,
@@ -96,12 +102,11 @@ namespace NServiceBus.Sagas
                 SagaEntityType = sagaEntityType,
                 SagaType = sagaType
             };
-            return metadata;
         }
 
         static void ApplyScannedFinders(SagaMapper mapper, Type sagaEntityType, IEnumerable<Type> availableTypes, Conventions conventions)
         {
-            var actualFinders = availableTypes.Where(t => typeof(IFinder).IsAssignableFrom(t))
+            var actualFinders = availableTypes.Where(t => typeof(IFinder).IsAssignableFrom(t) && t.IsClass)
                 .ToList();
 
             foreach (var finderType in actualFinders)
@@ -109,44 +114,32 @@ namespace NServiceBus.Sagas
                 foreach (var interfaceType in finderType.GetInterfaces())
                 {
                     var args = interfaceType.GetGenericArguments();
+                    //since we dont want to process the IFinder type
                     if (args.Length != 2)
                     {
                         continue;
                     }
 
-                    Type messageType = null;
-                    Type entityType = null;
-                    foreach (var type in args)
-                    {
-
-                        if (typeof(IContainSagaData).IsAssignableFrom(type))
-                        {
-                            entityType = type;
-                        }
-
-                        if (conventions.IsMessageType(type) || type == typeof(object))
-                        {
-                            messageType = type;
-                        }
-                    }
-
-                    if (entityType == null || messageType == null || entityType != sagaEntityType)
+                    var entityType = args[0];
+                    if (entityType != sagaEntityType)
                     {
                         continue;
                     }
 
-                    var existingMapping = mapper.Mappings.SingleOrDefault(m => m.MessageType == messageType);
+                    var messageType = args[1];
+                    if (!conventions.IsMessageType(messageType))
+                    {
+                        var error = string.Format("A custom IFindSagas must target a valid message type as defined by the message conventions. Please change '{0}' to a valid message type or add it to the message conventions. Finder name '{1}'.",messageType.FullName, finderType.FullName);
+                        throw new Exception(error);
+                    }
 
+                    var existingMapping = mapper.Mappings.SingleOrDefault(m => m.MessageType == messageType);
                     if (existingMapping != null)
                     {
-                        existingMapping.CustomFinderType = finderType;
+                        var bothMappingAndFinder = string.Format("A custom IFindSagas and an existing mapping where found for message '{0}'. Please either remove the message mapping for remove the finder. Finder name '{1}'.", messageType.FullName, finderType.FullName);
+                        throw new Exception(bothMappingAndFinder);
                     }
-                    else
-                    {
-                        mapper.ConfigureCustomFinder(finderType, messageType);
-                    }
-
-
+                    mapper.ConfigureCustomFinder(finderType, messageType);
                 }
             }
         }
@@ -158,10 +151,9 @@ namespace NServiceBus.Sagas
                 MessageType = mapping.MessageType.FullName
             };
 
-            if (mapping.CustomFinderType != null)
+            if (mapping.IsCustomFinderMap)
             {
                 finder.Type = typeof(CustomFinderAdapter<,>).MakeGenericType(sagaEntityType, mapping.MessageType);
-
                 finder.Properties["custom-finder-clr-type"] = mapping.CustomFinderType;
             }
             else
@@ -169,7 +161,6 @@ namespace NServiceBus.Sagas
                 finder.Type = typeof(PropertySagaFinder<>).MakeGenericType(sagaEntityType);
                 finder.Properties["property-accessor"] = mapping.MessageProp;
                 finder.Properties["saga-property-name"] = mapping.SagaPropName;
-
             }
 
             finders.Add(finder);

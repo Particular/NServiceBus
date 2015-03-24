@@ -12,7 +12,7 @@
         public string TimeoutManagerAddress { get; set; }
         public Configure Configure { get; set; }
 
-        public void Defer(TransportMessage message, SendOptions sendOptions)
+        public void Defer(OutgoingMessage message, SendOptions sendOptions)
         {
             message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = sendOptions.Destination;
 
@@ -55,7 +55,7 @@
             controlMessage.Headers[headerKey] = headerValue;
             controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = Boolean.TrueString;
 
-            MessageSender.Send(controlMessage, new SendOptions(TimeoutManagerAddress) { ReplyToAddress = Configure.PublicReturnAddress });
+            MessageSender.Send(new OutgoingMessage(controlMessage.Headers,controlMessage.Body), new SendOptions(TimeoutManagerAddress));
         }
 
         static ILog Log = LogManager.GetLogger<TimeoutManagerDeferrer>();

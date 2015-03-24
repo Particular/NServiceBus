@@ -39,6 +39,7 @@
         /// </summary>
         public IEnumerable<MessageHandler> GetHandlersFor(Type messageType)
         {
+       	    Guard.AgainstNull(messageType, "messageType");
             if (!conventions.IsMessageType(messageType))
             {
                 return Enumerable.Empty<MessageHandler>();
@@ -67,6 +68,7 @@
         /// </summary>
         public void RegisterHandler(Type handlerType)
         {
+            Guard.AgainstNull(handlerType, "handlerType");
             if (handlerType.IsAbstract)
             {
                 return;
@@ -107,6 +109,7 @@
         public void InvokeTimeout(object handler, object state)
         {
             throw new NotImplementedException();
+
         }
 
         /// <summary>

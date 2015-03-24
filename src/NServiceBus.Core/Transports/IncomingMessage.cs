@@ -6,7 +6,7 @@ namespace NServiceBus.Transports
     /// <summary>
     /// The raw message coming from the transport
     /// </summary>
-    public class ReceivedMessage
+    public class IncomingMessage
     {
         /// <summary>
         /// The native id of the message
@@ -29,8 +29,11 @@ namespace NServiceBus.Transports
         /// <param name="messageId">Native message id</param>
         /// <param name="headers">The message headers</param>
         /// <param name="bodyStream">The message body stream</param>
-        public ReceivedMessage(string messageId,Dictionary<string,string> headers,Stream bodyStream)
+        public IncomingMessage(string messageId,Dictionary<string,string> headers,Stream bodyStream)
         {
+            Guard.AgainstNullAndEmpty(messageId, "messageId");
+            Guard.AgainstNull(bodyStream, "bodyStream");
+            Guard.AgainstNull(headers, "headers");
             MessageId = messageId;
             Headers = headers;
             BodyStream = bodyStream;

@@ -13,15 +13,18 @@ namespace NServiceBus
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>
         /// <param name="bus">The <see cref="IBus"/>.</param>
-        /// <param name="msg">The message to retrieve a header from.</param>
+        /// <param name="message">The message to retrieve a header from.</param>
         /// <param name="key">The header key.</param>
         /// <returns>The value assigned to the header.</returns>
-        public static string GetMessageHeader(this IBus bus, object msg, string key)
+        public static string GetMessageHeader(this IBus bus, object message, string key)
         {
+            Guard.AgainstNull(bus, "bus");
+            Guard.AgainstNull(message, "message");
+            Guard.AgainstNullAndEmpty(key, "key");
             var manageMessageHeaders = bus as IManageMessageHeaders;
             if (manageMessageHeaders != null)
             {
-                return manageMessageHeaders.GetHeaderAction(msg, key);
+                return manageMessageHeaders.GetHeaderAction(message, key);
             }
 
             throw new InvalidOperationException("bus does not implement IManageMessageHeaders");
@@ -31,15 +34,18 @@ namespace NServiceBus
         /// Sets the value of the header for the given key.
         /// </summary>
         /// <param name="bus">The <see cref="IBus"/>.</param>
-        /// <param name="msg">The message to add a header to.</param>
+        /// <param name="message">The message to add a header to.</param>
         /// <param name="key">The header key.</param>
         /// <param name="value">The value to assign to the header.</param>
-        public static void SetMessageHeader(this ISendOnlyBus bus, object msg, string key, string value)
+        public static void SetMessageHeader(this ISendOnlyBus bus, object message, string key, string value)
         {
+            Guard.AgainstNull(bus, "bus");
+            Guard.AgainstNull(message, "message");
+            Guard.AgainstNullAndEmpty(key, "key");
             var manageMessageHeaders = bus as IManageMessageHeaders;
             if (manageMessageHeaders != null)
             {
-                manageMessageHeaders.SetHeaderAction(msg, key, value);
+                manageMessageHeaders.SetHeaderAction(message, key, value);
                 return;
             }
 
@@ -49,7 +55,15 @@ namespace NServiceBus
         /// <summary>
         /// The object used to see whether headers requested are for the handled message.
         /// </summary>
-        public static object CurrentMessageBeingHandled { get { return currentMessageBeingHandled; } set { currentMessageBeingHandled = value; } }
+        public static object CurrentMessageBeingHandled
+        {
+            get { return currentMessageBeingHandled; }
+            set
+            {
+                Guard.AgainstNull(value, "value");
+                currentMessageBeingHandled = value;
+            }
+        }
 
         [ThreadStatic]
         static object currentMessageBeingHandled;

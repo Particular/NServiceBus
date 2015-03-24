@@ -18,6 +18,9 @@ namespace NServiceBus
         /// <param name="value">The value to assign to the <paramref name="property"/>.</param>
         public static void InitializeHandlerProperty<THandler>(this BusConfiguration config, string property, object value)
         {
+            Guard.AgainstNull(config, "config");
+            Guard.AgainstNullAndEmpty(property, "property");
+            Guard.AgainstNull(value, "value");
             List<Action<IConfigureComponents>> list;
             if (!config.Settings.TryGet("NServiceBus.HandlerProperties", out list))
             {

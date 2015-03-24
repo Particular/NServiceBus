@@ -6,43 +6,10 @@
     using AcceptanceTesting;
     using MessageMutator;
     using NServiceBus.Config;
-    using NUnit.Framework;
     using Unicast.Messages;
 
     public class When_performing_slr : NServiceBusAcceptanceTest
     {
-        [Test]
-        public void Should_preserve_the_original_body_for_regular_exceptions()
-        {
-            var context = new Context();
-
-            Scenario.Define(context)
-                    .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
-                    .AllowExceptions()
-                    .Done(c => c.SlrChecksum != default(byte))
-                    .Run();
-
-            Assert.AreEqual(context.OriginalBodyChecksum, context.SlrChecksum, "The body of the message sent to slr should be the same as the original message coming off the queue");
-        }
-      
-        [Test]
-        public void Should_preserve_the_original_body_for_serialization_exceptions()
-        {
-            var context = new Context
-                {
-                    SimulateSerializationException = true
-                };
-
-            Scenario.Define(context)
-                    .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
-                    .AllowExceptions()
-                    .Done(c => c.SlrChecksum != default(byte))
-                    .Run();
-
-            Assert.AreEqual(context.OriginalBodyChecksum, context.SlrChecksum, "The body of the message sent to slr should be the same as the original message coming off the queue");
-
-        }
-
         public class Context : ScenarioContext
         {
             public bool FinishedMessageProcessingCalledAfterFaultManagerInvoked { get; set; }
