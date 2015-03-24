@@ -23,21 +23,18 @@
                                            DataId = dataId
                                        });
                     })
-                    .When(c => c.SagaStarted, (bus, c) => { bus.Publish<SomethingHappenedEvent>(m => m.DataId = dataId); })
                 )
-                .Done(c => c.SagaCompleted && c.SagaHandledEvent)
+                .Done(c => c.SagaCompleted)
                 .Run();
 
             Assert.IsTrue(context.SagaCompleted);
             Assert.IsTrue(context.SagaStarted);
-            Assert.IsTrue(context.SagaHandledEvent);
         }
 
         public class Context : ScenarioContext
         {
             public bool SagaCompleted { get; set; }
             public bool SagaStarted { get; set; }
-            public bool SagaHandledEvent { get; set; }
         }
 
         public class SagaEndpoint : EndpointConfigurationBuilder
@@ -49,7 +46,6 @@
 
             public class Saga1 : Saga<Saga1.Saga1Data>,
                 IAmStartedByMessage<StartSaga>,
-                IAmStartedByEvent<SomethingHappenedEvent>,
                 IHandleTimeout<Saga1.Timeout1>
             {
                 public Context Context { get; set; }
@@ -70,11 +66,6 @@
                     Context.SagaCompleted = true;
                 }
 
-                public void Handle(SomethingHappenedEvent message, ISubscribeContext context)
-                {
-                    Context.SagaHandledEvent = true;
-                }
-
                 public class Saga1Data : ContainSagaData
                 {
                     [Unique]
@@ -87,7 +78,6 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
                 {
-                    mapper.ConfigureMapping<SomethingHappenedEvent>(m => m.DataId).ToSaga(d => d.DataId);
                 }
             }
         }
@@ -96,15 +86,6 @@
         public class StartSaga : ICommand
         {
             public Guid DataId { get; set; }
-        }
-
-        public interface SomethingHappenedEvent : BaseEvent
-        {
-        }
-
-        public interface BaseEvent : IEvent
-        {
-            Guid DataId { get; set; }
         }
     }
 }
