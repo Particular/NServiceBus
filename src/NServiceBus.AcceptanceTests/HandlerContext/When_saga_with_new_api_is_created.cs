@@ -6,14 +6,15 @@
     using NServiceBus.Saga;
     using NUnit.Framework;
 
-    public class When_saga_with_old_and_new_api_is_created : NServiceBusAcceptanceTest
+    public class When_saga_with_new_api_is_created : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_process_the_saga_successfully()
         {
             var dataId = Guid.NewGuid();
+            var context = new Context();
 
-            Scenario.Define<Context>()
+            Scenario.Define(context)
                 .WithEndpoint<SagaEndpoint>(b =>
                     b.Given(bus =>
                     {
@@ -24,14 +25,19 @@
                     })
                     .When(c => c.SagaStarted, (bus, c) => { bus.Publish<SomethingHappenedEvent>(m => m.DataId = dataId); })
                 )
-                .Done(c => c.SagaCompleted)
-                .Run(TimeSpan.FromSeconds(10));
+                .Done(c => c.SagaCompleted && c.SagaHandledEvent)
+                .Run();
+
+            Assert.IsTrue(context.SagaCompleted);
+            Assert.IsTrue(context.SagaStarted);
+            Assert.IsTrue(context.SagaHandledEvent);
         }
 
         public class Context : ScenarioContext
         {
             public bool SagaCompleted { get; set; }
             public bool SagaStarted { get; set; }
+            public bool SagaHandledEvent { get; set; }
         }
 
         public class SagaEndpoint : EndpointConfigurationBuilder
@@ -41,20 +47,14 @@
                 EndpointSetup<DefaultPublisher>();
             }
 
-            public class Saga1 : Saga<Saga1.Saga1Data>, // Daniel: I think we need a new base class which doesn't have the IBus already predefined or should we use the same base and advice users to use the context information?
-                IAmStartedByMessages<StartSaga>, // Daniel: I think we shouldn't allow this. But technically it is possible
-                IAmStartedByMessage<StartSaga>, // Daniel: see above you need to pick and choose
-                IAmStartedByEvent<SomethingHappenedEvent>, // Daniel: I'm started by event?
-                IHandleTimeouts<Saga1.Timeout1>, // Daniel: I think we shouldn't allow this. But technically it is possible
-                IHandleTimeout<Saga1.Timeout1> // Daniel: see above you need to pick and choose
+            public class Saga1 : Saga<Saga1.Saga1Data>,
+                IAmStartedByMessage<StartSaga>,
+                IAmStartedByEvent<SomethingHappenedEvent>,
+                IHandleTimeout<Saga1.Timeout1>
             {
                 public Context Context { get; set; }
 
                 public void Handle(StartSaga message, IHandleContext context)
-                {
-                }
-
-                public void Handle(StartSaga message)
                 {
                     Data.DataId = message.DataId;
 
@@ -62,12 +62,6 @@
 
                     //Request a timeout
                     RequestTimeout<Timeout1>(TimeSpan.FromSeconds(5));
-                }
-
-                public void Timeout(Timeout1 state)
-                {
-                    MarkAsComplete();
-                    Context.SagaCompleted = true;
                 }
 
                 public void Timeout(Timeout1 state, ITimeoutContext context)
@@ -78,6 +72,7 @@
 
                 public void Handle(SomethingHappenedEvent message, ISubscribeContext context)
                 {
+                    Context.SagaHandledEvent = true;
                 }
 
                 public class Saga1Data : ContainSagaData

@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Saga;
     using NServiceBus.Unicast.Behaviors;
@@ -17,15 +16,6 @@
             }
 
             next();
-        }
-
-        public class Registration : RegisterStep
-        {
-            public Registration()
-                : base("PrepareTimeoutContext", typeof(PrepareTimoutContextBehavior), "If the current handler handles timeouts a timeout context is added as invocation context.")
-            {
-                InsertBeforeIfExists(WellKnownStep.InvokeHandlers);
-            }
         }
     }
 }

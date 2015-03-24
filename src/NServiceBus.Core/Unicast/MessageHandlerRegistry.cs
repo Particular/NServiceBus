@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -28,6 +29,7 @@
         ///     <paramref name="messageType" />
         /// </summary>
         [ObsoleteEx(ReplacementTypeOrMember = "MessageHandlerRegistry.GetHandlersFor(Type messageType)", RemoveInVersion = "7", TreatAsErrorFromVersion = "6")]
+        [SuppressMessage("ReSharper", "UnusedParameter.Global")]
         public IEnumerable<Type> GetHandlerTypes(Type messageType)
         {
             throw new NotImplementedException();
@@ -39,16 +41,16 @@
         /// </summary>
         public IEnumerable<MessageHandler> GetHandlersFor(Type messageType)
         {
-       	    Guard.AgainstNull(messageType, "messageType");
+            Guard.AgainstNull(messageType, "messageType");
             if (!conventions.IsMessageType(messageType))
             {
                 return Enumerable.Empty<MessageHandler>();
             }
 
             return from handlersAndMessages in handlerAndMessagesHandledByHandlerCache
-                from messagesBeingHandled in handlersAndMessages.Value
-                where Type.GetTypeFromHandle(messagesBeingHandled.MessageType).IsAssignableFrom(messageType)
-                select new MessageHandler(messagesBeingHandled.MethodDelegate, Type.GetTypeFromHandle(handlersAndMessages.Key), messagesBeingHandled.HandlerKind);
+                   from messagesBeingHandled in handlersAndMessages.Value
+                   where Type.GetTypeFromHandle(messagesBeingHandled.MessageType).IsAssignableFrom(messageType)
+                   select new MessageHandler(messagesBeingHandled.MethodDelegate, Type.GetTypeFromHandle(handlersAndMessages.Key), messagesBeingHandled.HandlerKind);
         }
 
         /// <summary>
@@ -57,10 +59,10 @@
         public IEnumerable<Type> GetMessageTypes()
         {
             return (from messagesBeingHandled in handlerAndMessagesHandledByHandlerCache.Values
-                   from typeHandled in messagesBeingHandled
-                   let messageType = Type.GetTypeFromHandle(typeHandled.MessageType)
-                   where conventions.IsMessageType(messageType)
-                   select messageType).Distinct();
+                    from typeHandled in messagesBeingHandled
+                    let messageType = Type.GetTypeFromHandle(typeHandled.MessageType)
+                    where conventions.IsMessageType(messageType)
+                    select messageType).Distinct();
         }
 
         /// <summary>
@@ -95,6 +97,7 @@
         /// <param name="handler">The handler instance.</param>
         /// <param name="message">The potentialHandlerKind instance.</param>
         [ObsoleteEx(ReplacementTypeOrMember = "MessageHandler.Invoke(object message, object context)", RemoveInVersion = "7", TreatAsErrorFromVersion = "6")]
+        [SuppressMessage("ReSharper", "UnusedParameter.Global")]
         public void InvokeHandle(object handler, object message)
         {
             throw new NotImplementedException();
@@ -106,10 +109,10 @@
         /// <param name="handler">The handler instance.</param>
         /// <param name="state">The potentialHandlerKind instance.</param>
         [ObsoleteEx(ReplacementTypeOrMember = "MessageHandler.Invoke(object message, object context)", RemoveInVersion = "7", TreatAsErrorFromVersion = "6")]
+        [SuppressMessage("ReSharper", "UnusedParameter.Global")]
         public void InvokeTimeout(object handler, object state)
         {
             throw new NotImplementedException();
-
         }
 
         /// <summary>

@@ -243,7 +243,7 @@
         }
 
         [Test]
-        public void DetectMessagesStartingTheSaga()
+        public void DetectMessagesStartingTheSagaWithOldApi()
         {
             var metadata = TypeBasedSagaMetaModel.Create(typeof(SagaWith2StartersAnd1Handler));
 
@@ -260,17 +260,31 @@
             Assert.False(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWith2StartersAnd1Handler.MyTimeout).FullName));
         }
 
+        [Test]
+        public void DetectMessagesStartingTheSagaWithNewApi()
+        {
+            var metadata = TypeBasedSagaMetaModel.Create(typeof(SagaWithNewStyleApi));
 
-        class SagaWithOldAndNewStyleApiMixedForSameMessage : Saga<SagaWithOldAndNewStyleApiMixedForSameMessage.SagaData>,
-            IAmStartedByMessages<SagaWithOldAndNewStyleApiMixedForSameMessage.StartMessage1>,
-            IAmStartedByMessage<SagaWithOldAndNewStyleApiMixedForSameMessage.StartMessage1>,
-            IAmStartedByMessages<SagaWithOldAndNewStyleApiMixedForSameMessage.StartEvent>,
-            IAmStartedByEvent<SagaWithOldAndNewStyleApiMixedForSameMessage.StartEvent>,
-            IHandleMessages<SagaWithOldAndNewStyleApiMixedForSameMessage.Message3>,
-            IHandle<SagaWithOldAndNewStyleApiMixedForSameMessage.Message3>,
-            ISubscribe<SagaWithOldAndNewStyleApiMixedForSameMessage.Event>,
-            IHandleTimeouts<SagaWithOldAndNewStyleApiMixedForSameMessage.MyTimeout>,
-            IHandleTimeout<SagaWithOldAndNewStyleApiMixedForSameMessage.MyTimeout>
+            var messages = metadata.AssociatedMessages;
+
+            Assert.AreEqual(4, messages.Count());
+
+            Assert.True(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWithNewStyleApi.StartMessage1).FullName));
+
+            Assert.True(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWithNewStyleApi.StartEvent).FullName));
+
+            Assert.False(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWithNewStyleApi.Message3).FullName));
+
+            Assert.False(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWithNewStyleApi.MyTimeout).FullName));
+        }
+
+
+        class SagaWithNewStyleApi : Saga<SagaWithNewStyleApi.SagaData>,
+            IAmStartedByMessage<SagaWithNewStyleApi.StartMessage1>,
+            IAmStartedByEvent<SagaWithNewStyleApi.StartEvent>,
+            IHandle<SagaWithNewStyleApi.Message3>,
+            ISubscribe<SagaWithNewStyleApi.Event>,
+            IHandleTimeout<SagaWithNewStyleApi.MyTimeout>
         {
             public class StartMessage1 : IMessage
             {
@@ -307,49 +321,24 @@
                     .ToSaga(s => s.SomeId);
             }
 
-            public void Handle(StartMessage1 message)
-            {
-                throw new NotImplementedException();
-            }
-
             public void Handle(StartMessage1 message, IHandleContext context)
             {
-                throw new NotImplementedException();
-            }
-
-            public void Handle(StartEvent message)
-            {
-                throw new NotImplementedException();
             }
 
             public void Handle(StartEvent message, ISubscribeContext context)
             {
-                throw new NotImplementedException();
-            }
-
-            public void Handle(Message3 message)
-            {
-                throw new NotImplementedException();
             }
 
             public void Handle(Message3 message, IHandleContext context)
             {
-                throw new NotImplementedException();
             }
 
             public void Handle(Event message, ISubscribeContext context)
             {
-                throw new NotImplementedException();
-            }
-
-            public void Timeout(MyTimeout state)
-            {
-                throw new NotImplementedException();
             }
 
             public void Timeout(MyTimeout state, ITimeoutContext context)
             {
-                throw new NotImplementedException();
             }
         }
 

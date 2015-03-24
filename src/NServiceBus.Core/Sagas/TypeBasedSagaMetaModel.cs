@@ -171,7 +171,43 @@ namespace NServiceBus.Sagas
             var result = GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>))
                 .Select(t => new SagaMessage(t.FullName, true)).ToList();
 
+            foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessage<>)))
+            {
+                if (result.Any(m => m.MessageType == messageType.FullName))
+                {
+                    continue;
+                }
+                result.Add(new SagaMessage(messageType.FullName, true));
+            }
+
+            foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByEvent<>)))
+            {
+                if (result.Any(m => m.MessageType == messageType.FullName))
+                {
+                    continue;
+                }
+                result.Add(new SagaMessage(messageType.FullName, true));
+            }
+
             foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleMessages<>)))
+            {
+                if (result.Any(m => m.MessageType == messageType.FullName))
+                {
+                    continue;
+                }
+                result.Add(new SagaMessage(messageType.FullName, false));
+            }
+
+            foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandle<>)))
+            {
+                if (result.Any(m => m.MessageType == messageType.FullName))
+                {
+                    continue;
+                }
+                result.Add(new SagaMessage(messageType.FullName, false));
+            }
+
+            foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(ISubscribe<>)))
             {
                 if (result.Any(m => m.MessageType == messageType.FullName))
                 {

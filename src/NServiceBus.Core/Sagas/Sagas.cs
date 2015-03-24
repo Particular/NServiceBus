@@ -72,7 +72,6 @@
             }
         }
 
-
         static bool IsSagaType(Type t)
         {
             return IsCompatible(t, typeof(Saga));
@@ -91,14 +90,16 @@
 
         static bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)
         {
-            var timeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
-            var messageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
+            var oldTimeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
+            var newTimeoutHandler = typeof(IHandleTimeout<>).MakeGenericType(type);
+            var oldMessageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
+            var newMessageHandler = typeof(IHandle<>).MakeGenericType(type);
+            var newEventHandler = typeof(ISubscribe<>).MakeGenericType(type);
 
-            return sagas.Any(t => timeoutHandler.IsAssignableFrom(t) && !messageHandler.IsAssignableFrom(t));
+            return sagas.Any(t => (oldTimeoutHandler.IsAssignableFrom(t) || newTimeoutHandler.IsAssignableFrom(t)) && 
+                (!oldMessageHandler.IsAssignableFrom(t) || !newMessageHandler.IsAssignableFrom(t) || !newEventHandler.IsAssignableFrom(t)));
         }
 
-     
-     
         Conventions conventions;
     }
 }
