@@ -64,7 +64,7 @@
 
                 public class SagaData : ContainSagaData
                 {
-                    public string Property { get; set; }
+                    public virtual string Property { get; set; }
                 }
 
                 public void Handle(SomeOtherMessage message)
