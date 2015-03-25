@@ -12,25 +12,25 @@
     using NServiceBus.MessageInterfaces;
     using NServiceBus.Utils.Reflection;
 
-    class Serializer
+    class Serializer:IDisposable
     {
         const string BaseType = "baseType";
 
         const string DefaultNamespace = "http://tempuri.net";
 
-        readonly List<Type> namespacesToAdd = new List<Type>();
-        readonly IMessageMapper mapper;
-        readonly StreamWriter writer;
-        readonly object message;
-        readonly Conventions conventions;
-        readonly XmlSerializerCache cache;
-        readonly bool skipWrappingRawXml;
-        readonly string @namespace;
+        List<Type> namespacesToAdd = new List<Type>();
+        IMessageMapper mapper;
+        StreamWriter writer;
+        object message;
+        Conventions conventions;
+        XmlSerializerCache cache;
+        bool skipWrappingRawXml;
+        string @namespace;
 
         public Serializer(IMessageMapper mapper, Stream stream, object message, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = DefaultNamespace)
         {
             this.mapper = mapper;
-            writer = new StreamWriter(stream);
+            writer = new StreamWriter(stream, Encoding.UTF8, 1024,true);
             this.message = message;
             this.conventions = conventions;
             this.cache = cache;
@@ -45,7 +45,6 @@
 
             WriteObject(t.SerializationFriendlyName(), t, message, true);
             writer.Flush();
-            
         }
 
         string GetNamespace(object target)
@@ -495,6 +494,11 @@
             }
 
             writer.WriteLine(">");
+        }
+
+        public void Dispose()
+        {
+            
         }
     }
 }
