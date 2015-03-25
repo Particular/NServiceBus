@@ -70,8 +70,10 @@ namespace NServiceBus.Serializers.XML
         /// </summary>
         public void Serialize(object message, Stream stream)
         {
-            var serializer = new Serializer(mapper,stream,message, conventions, cache, SkipWrappingRawXml, Namespace);
-            serializer.Serialize();
+            using (var serializer = new Serializer(mapper, stream, message, conventions, cache, SkipWrappingRawXml, Namespace))
+            {
+                serializer.Serialize();
+            }
         }
 
         /// <summary>
