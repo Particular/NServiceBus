@@ -120,7 +120,7 @@
             }
         }
 
-        class CompositeEvent : IEventA, IEventB
+        public class CompositeEvent : IEventA, IEventB
         {
             public Guid ContextId { get; set; }
             public int IntProperty { get; set; }
