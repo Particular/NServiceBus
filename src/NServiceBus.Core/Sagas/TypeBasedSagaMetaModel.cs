@@ -91,8 +91,8 @@ namespace NServiceBus.Sagas
                 SetFinderForMessage(mapping, sagaEntityType, finders);
             }
 
-            var associatedMessages = GetAssociatedMessages(sagaType)
-                .ToList();
+            var potentiallyAssociatedMessages = GetPotentiallyAssociatedMessagesForValidation(sagaType);
+            var associatedMessages = GetAssociatedMessages(potentiallyAssociatedMessages);
 
             return new SagaMetadata(associatedMessages, finders)
             {
@@ -166,66 +166,32 @@ namespace NServiceBus.Sagas
             finders.Add(finder);
         }
 
-        static IEnumerable<SagaMessage> GetAssociatedMessages(Type sagaType)
+        static List<SagaMessage> GetPotentiallyAssociatedMessagesForValidation(Type sagaType)
         {
-            var result = GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>))
-                .Select(t => new SagaMessage(t.FullName, true)).ToList();
+            // the order of filters matters!
+            return GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>)).Select(t => new SagaMessage(t.FullName, SagaMessageHandledBy.StartedByMessage | SagaMessageHandledBy.HandleMessage))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByConsumedMessage<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.StartedByConsumedMessage | SagaMessageHandledBy.ConsumeMessage)))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByConsumedEvent<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.StartedByConsumedEvent | SagaMessageHandledBy.ConsumeEvent)))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleMessages<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.HandleMessage)))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IConsumeMessage<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.ConsumeMessage)))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IConsumeEvent<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.ConsumeEvent)))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleTimeouts<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.HandleTimeout)))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IConsumeTimeout<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.ConsumeTimeout)))
+                .ToList();
+        }
 
-            foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessage<>)))
+        static IList<SagaMessage>  GetAssociatedMessages(IEnumerable<SagaMessage> sagaMessages)
+        {
+            Dictionary<string, SagaMessage> associatedMessages = new Dictionary<string, SagaMessage>();
+            foreach (var message in sagaMessages)
             {
-                if (result.Any(m => m.MessageType == messageType.FullName))
+                SagaMessage msg;
+                if (!associatedMessages.TryGetValue(message.MessageType, out msg))
                 {
-                    continue;
+                    associatedMessages[message.MessageType] = message;
                 }
-                result.Add(new SagaMessage(messageType.FullName, true));
             }
-
-            foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByEvent<>)))
-            {
-                if (result.Any(m => m.MessageType == messageType.FullName))
-                {
-                    continue;
-                }
-                result.Add(new SagaMessage(messageType.FullName, true));
-            }
-
-            foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleMessages<>)))
-            {
-                if (result.Any(m => m.MessageType == messageType.FullName))
-                {
-                    continue;
-                }
-                result.Add(new SagaMessage(messageType.FullName, false));
-            }
-
-            foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IConsumeMessage<>)))
-            {
-                if (result.Any(m => m.MessageType == messageType.FullName))
-                {
-                    continue;
-                }
-                result.Add(new SagaMessage(messageType.FullName, false));
-            }
-
-            foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IConsumeEvent<>)))
-            {
-                if (result.Any(m => m.MessageType == messageType.FullName))
-                {
-                    continue;
-                }
-                result.Add(new SagaMessage(messageType.FullName, false));
-            }
-
-            foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleTimeouts<>)))
-            {
-                if (result.Any(m => m.MessageType == messageType.FullName))
-                {
-                    continue;
-                }
-                result.Add(new SagaMessage(messageType.FullName, false));
-            }
-
-            return result;
+            return new List<SagaMessage>(associatedMessages.Values);
         }
 
         static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga(Type sagaType, Type filter)
