@@ -704,16 +704,22 @@ namespace NServiceBus.Serializers.XML.Test
 
             watch.Reset();
 
-            var s = new MemoryStream();
-            serializer.Serialize(message, s);
-            var buffer = s.GetBuffer();
-            s.Dispose();
+            byte[] buffer;
+            using (var s = new MemoryStream())
+            {
+                serializer.Serialize(message, s);
+                buffer = s.ToArray();
+            }
 
             watch.Start();
 
             for (var i = 0; i < numberOfIterations; i++)
+            {
                 using (var forDeserializing = new MemoryStream(buffer))
+                {
                     serializer.Deserialize(forDeserializing);
+                }
+            }
 
             watch.Stop();
             Debug.WriteLine("Deserializing: " + watch.Elapsed);
