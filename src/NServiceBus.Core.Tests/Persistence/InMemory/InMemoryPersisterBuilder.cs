@@ -3,7 +3,6 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
     using System;
     using NServiceBus.InMemory.SagaPersister;
     using NServiceBus.Saga;
-    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     class InMemoryPersisterBuilder
@@ -16,7 +15,9 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 
         public static InMemorySagaPersister Build(params Type[] sagaTypes)
         {
-            return new InMemorySagaPersister(new SagaMetaModel(TypeBasedSagaMetaModel.Create(sagaTypes, new Conventions())));
+            var inMemorySagaPersister = new InMemorySagaPersister();
+            inMemorySagaPersister.Initialize(new SagaMetaModel(TypeBasedSagaMetaModel.Create(sagaTypes, new Conventions())));
+            return inMemorySagaPersister;
         }
     }
 }

@@ -5,7 +5,6 @@
     using System.Linq;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Saga;
-    using NServiceBus.Sagas;
 
     /// <summary>
     ///     Used to configure saga.
@@ -28,6 +27,8 @@
             });
 
             Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas was found in scanned types");
+
+            RegisterStartupTask<CallISagaPersisterInitializeMethod>();
         }
 
         /// <summary>
@@ -72,13 +73,11 @@
             }
         }
 
-
         static bool IsSagaType(Type t)
         {
             return IsCompatible(t, typeof(Saga));
         }
 
-        
         static bool IsSagaNotFoundHandler(Type t)
         {
             return IsCompatible(t, typeof(IHandleSagaNotFound));
@@ -97,8 +96,23 @@
             return sagas.Any(t => timeoutHandler.IsAssignableFrom(t) && !messageHandler.IsAssignableFrom(t));
         }
 
-     
-     
         Conventions conventions;
+
+        class CallISagaPersisterInitializeMethod : FeatureStartupTask
+        {
+            readonly ISagaPersister persister;
+            readonly SagaMetaModel model;
+
+            public CallISagaPersisterInitializeMethod(ISagaPersister persister, SagaMetaModel model)
+            {
+                this.persister = persister;
+                this.model = model;
+            }
+
+            protected override void OnStart()
+            {
+                persister.Initialize(model);
+            }
+        }
     }
 }

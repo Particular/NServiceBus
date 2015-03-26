@@ -8,6 +8,7 @@ namespace NServiceBus.Saga
     public class ActiveSagaInstance
     {
         Guid sagaId;
+
         internal ActiveSagaInstance(Saga saga,SagaMetadata metadata)
         {
             Instance = saga;
