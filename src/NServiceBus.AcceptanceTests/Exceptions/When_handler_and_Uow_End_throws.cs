@@ -17,7 +17,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
+                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new StartMessage())))
                     .AllowExceptions()
                     .Done(c => c.ExceptionReceived)
                     .Run();
@@ -59,6 +59,7 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
             public Type InnerExceptionTwoType { get; set; }
             public bool FirstOneExecuted { get; set; }
             public string TypeName { get; set; }
+            public bool Enabled { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -113,6 +114,11 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
 
                 public void Begin()
                 {
+                    if (!Context.Enabled)
+                    {
+                        return;
+                    }
+
                     if (Context.FirstOneExecuted)
                     {
                         executedInSecondPlace = true;
@@ -140,6 +146,11 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
 
                 public void Begin()
                 {
+                    if (!Context.Enabled)
+                    {
+                        return;
+                    }
+
                     if (Context.FirstOneExecuted)
                     {
                         executedInSecondPlace = true;
@@ -167,10 +178,27 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
                 }
             }
 
+
+            class StartHandler : IHandleMessages<StartMessage>
+            {
+                public IBus Bus { get; set; }
+                public Context Context { get; set; }
+
+                public void Handle(StartMessage message)
+                {
+                    Context.Enabled = true;
+                    Bus.SendLocal(new Message());
+                }
+            }
         }
 
         [Serializable]
         public class Message : IMessage
+        {
+        }
+
+        [Serializable]
+        public class StartMessage : IMessage
         {
         }
 

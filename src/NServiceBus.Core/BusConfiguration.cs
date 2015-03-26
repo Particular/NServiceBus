@@ -22,7 +22,7 @@ namespace NServiceBus
     /// <summary>
     ///     Configuration used to create a bus instance
     /// </summary>
-    public class BusConfiguration : ExposeSettings
+    public partial class BusConfiguration : ExposeSettings
     {
         /// <summary>
         /// Initializes a fresh instance of the builder
@@ -98,38 +98,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Specifies the range of types that NServiceBus scans for handlers etc.
-        /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "ExcludeTypes")]
-        public void TypesToScan(IEnumerable<Type> typesToScan)
-        {
-        }
-
-        /// <summary>
-        ///     The assemblies to include when scanning for types.
-        /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "ExcludeAssemblies")]
-        public void AssembliesToScan(IEnumerable<Assembly> assemblies)
-        {
-        }
-
-        /// <summary>
-        ///     The assemblies to include when scanning for types.
-        /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "ExcludeAssemblies")]
-        public void AssembliesToScan(params Assembly[] assemblies)
-        {
-        }
-
-        /// <summary>
-        ///     Specifies the directory where NServiceBus scans for types.
-        /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "ExcludeAssemblies")]
-        public void ScanAssembliesInDirectory(string probeDirectory)
-        {
-        }
-
-        /// <summary>
         ///     Overrides the default configuration source.
         /// </summary>
         public void CustomConfigurationSource(IConfigurationSource configurationSource)
@@ -189,18 +157,6 @@ namespace NServiceBus
         {
             Guard.AgainstNull(builder, "builder");
             customBuilder = builder;
-        }
-
-        /// <summary>
-        /// Sets the public return address of this endpoint.
-        /// </summary>
-        /// <param name="address">The public address.</param>
-        [ObsoleteEx(ReplacementTypeOrMember = "OverridePublicReturnAddress(string address)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
-        // ReSharper disable UnusedParameter.Global
-        public void OverridePublicReturnAddress(Address address)
-        // ReSharper restore UnusedParameter.Global
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

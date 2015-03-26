@@ -1,19 +1,31 @@
 ﻿namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
 {
-    internal class StorageInitializer : IWantToRunWhenBusStartsAndStops
-    {
-        public ISubscriptionStorage SubscriptionStorage { get; set; }
+    using NServiceBus.Features;
 
-        public void Start()
+    internal class StorageInitializer : Feature
+    {
+        public StorageInitializer()
         {
-            if (SubscriptionStorage != null)
+            EnableByDefault();
+            RegisterStartupTask<CallInit>();
+        }
+
+        class CallInit : FeatureStartupTask
+        {
+            public ISubscriptionStorage SubscriptionStorage { get; set; }
+
+            protected override void OnStart()
             {
-                SubscriptionStorage.Init();
+                if (SubscriptionStorage != null)
+                {
+                    SubscriptionStorage.Init();
+                }
             }
         }
 
-        public void Stop()
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
+            
         }
     }
 }

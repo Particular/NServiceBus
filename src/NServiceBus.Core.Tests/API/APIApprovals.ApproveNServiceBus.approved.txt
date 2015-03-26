@@ -64,10 +64,10 @@ namespace NServiceBus
         public void ExcludeAssemblies(params string[] assemblies) { }
         public void ExcludeTypes(params System.Type[] types) { }
         public void OverrideLocalAddress(string queue) { }
+        public void OverridePublicReturnAddress(string address) { }
         [System.ObsoleteAttribute("Please use `OverridePublicReturnAddress(string address)` instead. Will be removed" +
             " in version 7.0.0.", true)]
         public void OverridePublicReturnAddress(NServiceBus.Address address) { }
-        public void OverridePublicReturnAddress(string address) { }
         public void RegisterComponents(System.Action<NServiceBus.ObjectBuilder.IConfigureComponents> registration) { }
         [System.ObsoleteAttribute("Please use `ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
         public void ScanAssembliesInDirectory(string probeDirectory) { }
