@@ -91,10 +91,10 @@
         static bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)
         {
             var oldTimeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
-            var newTimeoutHandler = typeof(IHandleTimeout<>).MakeGenericType(type);
+            var newTimeoutHandler = typeof(IConsumeTimeout<>).MakeGenericType(type);
             var oldMessageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
-            var newMessageHandler = typeof(IHandle<>).MakeGenericType(type);
-            var newEventHandler = typeof(ISubscribe<>).MakeGenericType(type);
+            var newMessageHandler = typeof(IConsumeMessage<>).MakeGenericType(type);
+            var newEventHandler = typeof(IConsumeEvent<>).MakeGenericType(type);
 
             return sagas.Any(t => (oldTimeoutHandler.IsAssignableFrom(t) || newTimeoutHandler.IsAssignableFrom(t)) && 
                 (!oldMessageHandler.IsAssignableFrom(t) || !newMessageHandler.IsAssignableFrom(t) || !newEventHandler.IsAssignableFrom(t)));

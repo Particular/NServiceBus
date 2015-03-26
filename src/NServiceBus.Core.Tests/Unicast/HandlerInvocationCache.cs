@@ -20,12 +20,12 @@
               cache.RegisterHandler(typeof(StubTimeoutHandlerOldStyle));
               cache.RegisterHandler(typeof(StubMessageHandlerNewStyle));
               cache.RegisterHandler(typeof(StubTimeoutHandlerNewStyle));
-              cache.RegisterHandler(typeof(StubSubscribe));
+              cache.RegisterHandler(typeof(StubConsumeEvent));
 
               var handlerQueue = new Queue<object>();
               handlerQueue.Enqueue(new StubMessageHandlerOldStyle());
               handlerQueue.Enqueue(new StubMessageHandlerNewStyle());
-              handlerQueue.Enqueue(new StubSubscribe());
+              handlerQueue.Enqueue(new StubConsumeEvent());
               handlerQueue.Enqueue(new StubTimeoutHandlerOldStyle());
               handlerQueue.Enqueue(new StubTimeoutHandlerNewStyle());
 
@@ -59,18 +59,18 @@
               }
           }
 
-          class StubMessageHandlerNewStyle : IHandle<StubMessage>
+          class StubMessageHandlerNewStyle : IConsumeMessage<StubMessage>
           {
 
-              public void Handle(StubMessage message, IHandleContext context)
+              public void Handle(StubMessage message, IConsumeMessageContext messageContext)
               {
               }
           }
 
-          class StubSubscribe : ISubscribe<StubMessage>
+          class StubConsumeEvent : IConsumeEvent<StubMessage>
           {
 
-              public void Handle(StubMessage message, ISubscribeContext context)
+              public void Handle(StubMessage message, IConsumeEventContext context)
               {
               }
           }
@@ -86,9 +86,9 @@
               }
           }
 
-          class StubTimeoutHandlerNewStyle : IHandleTimeout<StubTimeoutState>
+          class StubTimeoutHandlerNewStyle : IConsumeTimeout<StubTimeoutState>
           {
-              public void Timeout(StubTimeoutState state, ITimeoutContext context)
+              public void Timeout(StubTimeoutState state, IConsumeTimeoutContext context)
               {
               }
           }
@@ -107,11 +107,11 @@
               var cache = new MessageHandlerRegistry(new Conventions());
               cache.RegisterHandler(typeof(StubHandlerOldStyle));
               cache.RegisterHandler(typeof(StubHandlerNewStyle));
-              cache.RegisterHandler(typeof(StubSubscribe));
+              cache.RegisterHandler(typeof(StubConsumeEvent));
 
               var oldStyle = new StubHandlerOldStyle();
               var newStyle = new StubHandlerNewStyle();
-              var newStyleSubscribe = new StubSubscribe();
+              var newStyleSubscribe = new StubConsumeEvent();
               var queue = new Queue<object>();
               queue.Enqueue(oldStyle);
               queue.Enqueue(newStyle);
@@ -131,13 +131,13 @@
               var cache = new MessageHandlerRegistry(new Conventions());
               cache.RegisterHandler(typeof(StubHandlerOldStyle));
               cache.RegisterHandler(typeof(StubHandlerNewStyle));
-              cache.RegisterHandler(typeof(StubSubscribe));
+              cache.RegisterHandler(typeof(StubConsumeEvent));
 
               var stubMessage = new StubMessage();
 
               var oldStyle = new StubHandlerOldStyle();
               var newStyle = new StubHandlerNewStyle();
-              var newStyleSubscribe = new StubSubscribe();
+              var newStyleSubscribe = new StubConsumeEvent();
               var queue = new Queue<object>();
               queue.Enqueue(oldStyle);
               queue.Enqueue(newStyle);
@@ -156,16 +156,16 @@
           {
               var cache = new MessageHandlerRegistry(new Conventions());
               cache.RegisterHandler(typeof(StubHandlerNewStyle));
-              cache.RegisterHandler(typeof(StubSubscribe));
+              cache.RegisterHandler(typeof(StubConsumeEvent));
 
-              var handleContext = new StubHandleContext();
-              var subscribeContext = new StubSubscribeContext();
+              var handleContext = new StubConsumeMessageContext();
+              var subscribeContext = new StubConsumeEventContext();
               var contextQueue = new Queue<object>();
               contextQueue.Enqueue(handleContext);
               contextQueue.Enqueue(subscribeContext);
 
               var newStyle = new StubHandlerNewStyle();
-              var newStyleSubscribe = new StubSubscribe();
+              var newStyleSubscribe = new StubConsumeEvent();
               var handlerQueue = new Queue<object>();
               handlerQueue.Enqueue(newStyle);
               handlerQueue.Enqueue(newStyleSubscribe);
@@ -173,7 +173,7 @@
               var handlers = cache.GetHandlersFor(typeof(StubMessage));
               handlers.InvokeAll(h => handlerQueue.Dequeue(), h => new StubMessage(), h => contextQueue.Dequeue());
 
-              Assert.AreEqual(handleContext, newStyle.Context);
+              Assert.AreEqual(handleContext, newStyle.MessageContext);
               Assert.AreEqual(subscribeContext, newStyleSubscribe.Context);
           }
 
@@ -189,27 +189,27 @@
               }
           }
 
-          class StubHandlerNewStyle : IHandle<StubMessage>
+          class StubHandlerNewStyle : IConsumeMessage<StubMessage>
           {
               public bool HandleCalled;
               public StubMessage HandledMessage;
-              public IHandleContext Context;
+              public IConsumeMessageContext MessageContext;
 
-              public void Handle(StubMessage message, IHandleContext context)
+              public void Handle(StubMessage message, IConsumeMessageContext messageContext)
               {
                   HandleCalled = true;
                   HandledMessage = message;
-                  Context = context;
+                  MessageContext = messageContext;
               }
           }
 
-          class StubSubscribe : ISubscribe<StubMessage>
+          class StubConsumeEvent : IConsumeEvent<StubMessage>
           {
               public bool HandleCalled;
               public StubMessage HandledMessage;
-              public ISubscribeContext Context;
+              public IConsumeEventContext Context;
 
-              public void Handle(StubMessage message, ISubscribeContext context)
+              public void Handle(StubMessage message, IConsumeEventContext context)
               {
                   HandleCalled = true;
                   HandledMessage = message;
@@ -272,7 +272,7 @@
               var cache = new MessageHandlerRegistry(new Conventions());
               cache.RegisterHandler(typeof(StubHandlerNewStyle));
 
-              var timeoutContext = new StubTimeoutContext();
+              var timeoutContext = new StubConsumeTimeoutContext();
               var newStyle = new StubHandlerNewStyle();
 
               var handlers = cache.GetHandlersFor(typeof(StubTimeoutState));
@@ -293,13 +293,13 @@
               }
           }
 
-          class StubHandlerNewStyle : IHandleTimeout<StubTimeoutState>
+          class StubHandlerNewStyle : IConsumeTimeout<StubTimeoutState>
           {
               public bool TimeoutCalled;
               public StubTimeoutState HandledState;
-              public ITimeoutContext Context;
+              public IConsumeTimeoutContext Context;
 
-              public void Timeout(StubTimeoutState state, ITimeoutContext context)
+              public void Timeout(StubTimeoutState state, IConsumeTimeoutContext context)
               {
                   TimeoutCalled = true;
                   HandledState = state;
@@ -338,7 +338,7 @@
               Assert.AreEqual(1, newStyle.SubscribeOverloadIMessageCalled);
           }
 
-          class WorstCaseHandlerNewStyle : IHandle<StubMessage>, IHandle<IStubMessage>, IHandle<IMessage>, ISubscribe<StubMessage>, ISubscribe<IStubMessage>, ISubscribe<IMessage>, IHandleMessages<StubMessage>, IHandleMessages<IStubMessage>, IHandleMessages<IMessage>
+          class WorstCaseHandlerNewStyle : IConsumeMessage<StubMessage>, IConsumeMessage<IStubMessage>, IConsumeMessage<IMessage>, IConsumeEvent<StubMessage>, IConsumeEvent<IStubMessage>, IConsumeEvent<IMessage>, IHandleMessages<StubMessage>, IHandleMessages<IStubMessage>, IHandleMessages<IMessage>
           {
               public int OldStyleHandleCalled;
               public int OldStyleHandleOverloadIStubMessageCalled;
@@ -350,12 +350,12 @@
               public int SubscribeOverloadIStubMessageCalled;
               public int SubscribeOverloadIMessageCalled;
 
-              public void Handle(StubMessage state, IHandleContext context)
+              public void Handle(StubMessage state, IConsumeMessageContext messageContext)
               {
                   NewStyleHandleCalled += 1;
               }
 
-              public void Handle(StubMessage message, ISubscribeContext context)
+              public void Handle(StubMessage message, IConsumeEventContext context)
               {
                   SubscribeCalled += 1;
               }
@@ -375,22 +375,22 @@
                   OldStyleHandleOverloadIMessageCalled += 1;
               }
 
-              public void Handle(IStubMessage message, IHandleContext context)
+              public void Handle(IStubMessage message, IConsumeMessageContext messageContext)
               {
                   NewStyleHandleOverloadIStubMessageCalled += 1;
               }
 
-              public void Handle(IMessage message, IHandleContext context)
+              public void Handle(IMessage message, IConsumeMessageContext messageContext)
               {
                   NewStyleHandleOverloadIMessageCalled += 1;
               }
 
-              public void Handle(IStubMessage message, ISubscribeContext context)
+              public void Handle(IStubMessage message, IConsumeEventContext context)
               {
                   SubscribeOverloadIStubMessageCalled += 1;
               }
 
-              public void Handle(IMessage message, ISubscribeContext context)
+              public void Handle(IMessage message, IConsumeEventContext context)
               {
                   SubscribeOverloadIMessageCalled += 1;
               }
@@ -421,13 +421,13 @@
               switch (handler.HandlerKind)
               {
                   case HandlerKind.Message:
-                      context = new StubHandleContext();
+                      context = new StubConsumeMessageContext();
                       break;
                   case HandlerKind.Event:
-                      context = new StubSubscribeContext();
+                      context = new StubConsumeEventContext();
                       break;
                   case HandlerKind.Timeout:
-                      context = new StubTimeoutContext();
+                      context = new StubConsumeTimeoutContext();
                       break;
                   default:
                       throw new Exception();
@@ -435,8 +435,8 @@
               return context;
           }
       }
-      class StubTimeoutContext : ITimeoutContext { }
-      class StubSubscribeContext : ISubscribeContext { }
-      class StubHandleContext : IHandleContext { }
+      class StubConsumeTimeoutContext : IConsumeTimeoutContext { }
+      class StubConsumeEventContext : IConsumeEventContext { }
+      class StubConsumeMessageContext : IConsumeMessageContext { }
   }
 

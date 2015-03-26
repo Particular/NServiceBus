@@ -127,9 +127,9 @@
         {
             CacheMethod(handler, messageType, typeof(IHandleMessages<>), HandlerKind.Message, typeList);
             CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), HandlerKind.Timeout, typeList);
-            CacheMethod(handler, messageType, typeof(IHandleTimeout<>), HandlerKind.Timeout, typeList);
-            CacheMethod(handler, messageType, typeof(IHandle<>), HandlerKind.Message, typeList);
-            CacheMethod(handler, messageType, typeof(ISubscribe<>), HandlerKind.Event, typeList);
+            CacheMethod(handler, messageType, typeof(IConsumeTimeout<>), HandlerKind.Timeout, typeList);
+            CacheMethod(handler, messageType, typeof(IConsumeMessage<>), HandlerKind.Message, typeList);
+            CacheMethod(handler, messageType, typeof(IConsumeEvent<>), HandlerKind.Event, typeList);
         }
 
         static void CacheMethod(Type handler, Type messageType, Type interfaceGenericType, HandlerKind potentialHandlerKind, ICollection<DelegateHolder> methodList)
@@ -200,9 +200,9 @@
                     where
                         typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
                         typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                        typeof(IHandleTimeout<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                        typeof(IHandle<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                        typeof(ISubscribe<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
+                        typeof(IConsumeTimeout<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                        typeof(IConsumeMessage<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                        typeof(IConsumeEvent<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
 
                     select potentialMessageType)
                    .Distinct()

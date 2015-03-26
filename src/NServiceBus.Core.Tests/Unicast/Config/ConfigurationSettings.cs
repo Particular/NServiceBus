@@ -10,7 +10,7 @@
         [Test]
         [TestCase(typeof(SimpleOldStyleHandler))]
         [TestCase(typeof(SimpleNewStyleHandler))]
-        [TestCase(typeof(SimpleSubscribe))]
+        [TestCase(typeof(SimpleConsumeEvent))]
         public void Simple_handler_should_be_classified_as_a_handler(Type handlerType)
         {
             Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(handlerType));
@@ -19,7 +19,7 @@
         [Test]
         [TestCase(typeof(ConcreteImplementationOfAbstractOldStyleHandler))]
         [TestCase(typeof(ConcreteImplementationOfAbstractNewStyleHandler))]
-        [TestCase(typeof(ConcreteImplementationOfAbstractSubscribe))]
+        [TestCase(typeof(ConcreteImplementationOfAbstractConsumeEvent))]
         public void Concrete_implementation_of_abstract_handler_should_be_classified_as_a_handler(Type handlerType)
         {
             Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(handlerType));
@@ -28,7 +28,7 @@
         [Test]
         [TestCase(typeof(AbstractOldStyleHandler))]
         [TestCase(typeof(AbstractNewStyleHandler))]
-        [TestCase(typeof(AbstractSubscribe))]
+        [TestCase(typeof(AbstractConsumeEvent))]
         public void Abstract_handler_should_not_be_classified_as_a_handler(Type handlerType)
         {
             Assert.IsFalse(RegisterHandlersInOrder.IsMessageHandler(handlerType));
@@ -79,16 +79,16 @@
             }
         }
 
-        class SimpleNewStyleHandler : IHandle<SimpleMessage>
+        class SimpleNewStyleHandler : IConsumeMessage<SimpleMessage>
         {
-            public void Handle(SimpleMessage message, IHandleContext context)
+            public void Handle(SimpleMessage message, IConsumeMessageContext messageContext)
             {
             }
         }
 
-        class SimpleSubscribe : ISubscribe<SimpleMessage>
+        class SimpleConsumeEvent : IConsumeEvent<SimpleMessage>
         {
-            public void Handle(SimpleMessage message, ISubscribeContext context)
+            public void Handle(SimpleMessage message, IConsumeEventContext context)
             {
             }
         }
@@ -100,9 +100,9 @@
             }
         }
 
-        class GenericTypeDefinitionNewStyleHandler<T> : IHandle<SimpleMessage>
+        class GenericTypeDefinitionNewStyleHandler<T> : IConsumeMessage<SimpleMessage>
         {
-            public void Handle(SimpleMessage message, IHandleContext context)
+            public void Handle(SimpleMessage message, IConsumeMessageContext messageContext)
             {
             }
         }
@@ -119,11 +119,11 @@
         {
         }
 
-        interface NewStyleInterfaceHandler : IHandle<SimpleMessage>
+        interface NewStyleInterfaceHandler : IConsumeMessage<SimpleMessage>
         {
         }
 
-        interface InterfaceSubscribe : ISubscribe<SimpleMessage>
+        interface InterfaceConsumeEvent : IConsumeEvent<SimpleMessage>
         {
         }
 
@@ -135,7 +135,7 @@
         {
         }
 
-        class ConcreteImplementationOfAbstractSubscribe : AbstractSubscribe
+        class ConcreteImplementationOfAbstractConsumeEvent : AbstractConsumeEvent
         {
         }
 
@@ -146,16 +146,16 @@
             }
         }
 
-        abstract class AbstractNewStyleHandler : IHandle<SimpleMessage>
+        abstract class AbstractNewStyleHandler : IConsumeMessage<SimpleMessage>
         {
-            public void Handle(SimpleMessage message, IHandleContext context)
+            public void Handle(SimpleMessage message, IConsumeMessageContext messageContext)
             {
             }
         }
 
-        abstract class AbstractSubscribe : ISubscribe<SimpleMessage>
+        abstract class AbstractConsumeEvent : IConsumeEvent<SimpleMessage>
         {
-            public void Handle(SimpleMessage message, ISubscribeContext context)
+            public void Handle(SimpleMessage message, IConsumeEventContext context)
             {
             }
         }

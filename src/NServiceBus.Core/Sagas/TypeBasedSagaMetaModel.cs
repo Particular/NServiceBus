@@ -198,7 +198,7 @@ namespace NServiceBus.Sagas
                 result.Add(new SagaMessage(messageType.FullName, false));
             }
 
-            foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandle<>)))
+            foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IConsumeMessage<>)))
             {
                 if (result.Any(m => m.MessageType == messageType.FullName))
                 {
@@ -207,7 +207,7 @@ namespace NServiceBus.Sagas
                 result.Add(new SagaMessage(messageType.FullName, false));
             }
 
-            foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(ISubscribe<>)))
+            foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IConsumeEvent<>)))
             {
                 if (result.Any(m => m.MessageType == messageType.FullName))
                 {

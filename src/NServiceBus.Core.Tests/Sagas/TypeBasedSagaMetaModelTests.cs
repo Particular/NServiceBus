@@ -340,9 +340,9 @@
         class SagaWithNewStyleApi : Saga<SagaWithNewStyleApi.SagaData>,
             IAmStartedByMessage<SagaWithNewStyleApi.StartMessage1>,
             IAmStartedByEvent<SagaWithNewStyleApi.StartEvent>,
-            IHandle<SagaWithNewStyleApi.Message3>,
-            ISubscribe<SagaWithNewStyleApi.Event>,
-            IHandleTimeout<SagaWithNewStyleApi.MyTimeout>
+            IConsumeMessage<SagaWithNewStyleApi.Message3>,
+            IConsumeEvent<SagaWithNewStyleApi.Event>,
+            IConsumeTimeout<SagaWithNewStyleApi.MyTimeout>
         {
             public class StartMessage1 : IMessage
             {
@@ -379,23 +379,23 @@
                     .ToSaga(s => s.SomeId);
             }
 
-            public void Handle(StartMessage1 message, IHandleContext context)
+            public void Handle(StartMessage1 message, IConsumeMessageContext messageContext)
             {
             }
 
-            public void Handle(StartEvent message, ISubscribeContext context)
+            public void Handle(StartEvent message, IConsumeEventContext context)
             {
             }
 
-            public void Handle(Message3 message, IHandleContext context)
+            public void Handle(Message3 message, IConsumeMessageContext messageContext)
             {
             }
 
-            public void Handle(Event message, ISubscribeContext context)
+            public void Handle(Event message, IConsumeEventContext context)
             {
             }
 
-            public void Timeout(MyTimeout state, ITimeoutContext context)
+            public void Timeout(MyTimeout state, IConsumeTimeoutContext context)
             {
             }
         }
@@ -430,7 +430,7 @@
             {
             }
 
-            public void Handle(StartSaga message, IHandleContext context)
+            public void Handle(StartSaga message, IConsumeMessageContext messageContext)
             {
             }
         }
@@ -465,7 +465,7 @@
             {
             }
 
-            public void Handle(StartSaga message, ISubscribeContext context)
+            public void Handle(StartSaga message, IConsumeEventContext context)
             {
             }
         }
@@ -477,12 +477,12 @@
 
             Assert.True(ex.Message.Contains(typeof(SagaWithHandleMessageOldAndNew).Name));
             Assert.True(ex.Message.Contains(typeof(IHandleMessages<>).FullName));
-            Assert.True(ex.Message.Contains(typeof(IHandle<>).FullName));
+            Assert.True(ex.Message.Contains(typeof(IConsumeMessage<>).FullName));
         }
 
         class SagaWithHandleMessageOldAndNew : Saga<SagaWithHandleMessageOldAndNew.SagaData>,
             IHandleMessages<SagaWithHandleMessageOldAndNew.StartSaga>,
-            IHandle<SagaWithHandleMessageOldAndNew.StartSaga>
+            IConsumeMessage<SagaWithHandleMessageOldAndNew.StartSaga>
         {
             public class SagaData : ContainSagaData
             {
@@ -500,7 +500,7 @@
             {
             }
 
-            public void Handle(StartSaga message, IHandleContext context)
+            public void Handle(StartSaga message, IConsumeMessageContext messageContext)
             {
             }
         }
@@ -512,12 +512,12 @@
 
             Assert.True(ex.Message.Contains(typeof(SagaWithHandleEventOldAndNew).Name));
             Assert.True(ex.Message.Contains(typeof(IHandleMessages<>).FullName));
-            Assert.True(ex.Message.Contains(typeof(ISubscribe<>).FullName));
+            Assert.True(ex.Message.Contains(typeof(IConsumeEvent<>).FullName));
         }
 
         class SagaWithHandleEventOldAndNew : Saga<SagaWithHandleEventOldAndNew.SagaData>,
            IHandleMessages<SagaWithHandleEventOldAndNew.StartSaga>,
-           ISubscribe<SagaWithHandleEventOldAndNew.StartSaga>
+           IConsumeEvent<SagaWithHandleEventOldAndNew.StartSaga>
         {
             public class SagaData : ContainSagaData
             {
@@ -535,7 +535,7 @@
             {
             }
 
-            public void Handle(StartSaga message, ISubscribeContext context)
+            public void Handle(StartSaga message, IConsumeEventContext context)
             {
             }
         }
@@ -543,16 +543,16 @@
         [Test]
         public void ValidateSagaCannotUseHandleTimeoutOldAndNewForSameMessage()
         {
-            var ex = Assert.Throws<Exception>(() => TypeBasedSagaMetaModel.Create(typeof(SagaWithHandleTimeoutOldAndNew)));
+            var ex = Assert.Throws<Exception>(() => TypeBasedSagaMetaModel.Create(typeof(SagaWithConsumeTimeoutOldAndNew)));
 
-            Assert.True(ex.Message.Contains(typeof(SagaWithHandleTimeoutOldAndNew).Name));
+            Assert.True(ex.Message.Contains(typeof(SagaWithConsumeTimeoutOldAndNew).Name));
             Assert.True(ex.Message.Contains(typeof(IHandleTimeouts<>).FullName));
-            Assert.True(ex.Message.Contains(typeof(IHandleTimeout<>).FullName));
+            Assert.True(ex.Message.Contains(typeof(IConsumeTimeout<>).FullName));
         }
 
-        class SagaWithHandleTimeoutOldAndNew : Saga<SagaWithHandleTimeoutOldAndNew.SagaData>,
-            IHandleTimeouts<SagaWithHandleTimeoutOldAndNew.TimeoutData>,
-            IHandleTimeout<SagaWithHandleTimeoutOldAndNew.TimeoutData>
+        class SagaWithConsumeTimeoutOldAndNew : Saga<SagaWithConsumeTimeoutOldAndNew.SagaData>,
+            IHandleTimeouts<SagaWithConsumeTimeoutOldAndNew.TimeoutData>,
+            IConsumeTimeout<SagaWithConsumeTimeoutOldAndNew.TimeoutData>
         {
             public class SagaData : ContainSagaData
             {
@@ -570,7 +570,7 @@
             {
             }
 
-            public void Timeout(TimeoutData state, ITimeoutContext context)
+            public void Timeout(TimeoutData state, IConsumeTimeoutContext context)
             {
             }
         }

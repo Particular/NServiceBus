@@ -4,14 +4,14 @@
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast.Behaviors;
 
-    class PrepareSubscribeContextBehavior : HandlingStageBehavior
+    class PrepareConsumeMessageContextBehavior : HandlingStageBehavior
     {
         public override void Invoke(Context context, Action next)
         {
             var messageHandler = context.MessageHandler;
-            if (messageHandler.HandlerKind == HandlerKind.Event)
+            if (messageHandler.HandlerKind == HandlerKind.Message)
             {
-                context.Set("InvocationContext", new SubscribeContext());
+                context.Set("InvocationContext", new ConsumeMessageContext());
             }
 
             next();

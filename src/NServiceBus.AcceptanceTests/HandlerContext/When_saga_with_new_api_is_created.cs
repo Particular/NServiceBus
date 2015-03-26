@@ -46,11 +46,11 @@
 
             public class Saga1 : Saga<Saga1.Saga1Data>,
                 IAmStartedByMessage<StartSaga>,
-                IHandleTimeout<Saga1.Timeout1>
+                IConsumeTimeout<Saga1.Timeout1>
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga message, IHandleContext context)
+                public void Handle(StartSaga message, IConsumeMessageContext messageContext)
                 {
                     Data.DataId = message.DataId;
 
@@ -60,7 +60,7 @@
                     RequestTimeout<Timeout1>(TimeSpan.FromSeconds(5));
                 }
 
-                public void Timeout(Timeout1 state, ITimeoutContext context)
+                public void Timeout(Timeout1 state, IConsumeTimeoutContext context)
                 {
                     MarkAsComplete();
                     Context.SagaCompleted = true;
