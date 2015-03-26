@@ -239,7 +239,7 @@ namespace NServiceBus.Sagas
 
         static IList<SagaMessage>  GetAssociatedMessages(IEnumerable<SagaMessage> sagaMessages)
         {
-            Dictionary<string, SagaMessage> associatedMessages = new Dictionary<string, SagaMessage>();
+            var associatedMessages = new Dictionary<string, SagaMessage>();
             foreach (var message in sagaMessages)
             {
                 SagaMessage msg;
