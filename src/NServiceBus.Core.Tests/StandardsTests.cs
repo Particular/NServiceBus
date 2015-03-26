@@ -72,7 +72,7 @@
         static IEnumerable<Type> GetFeatures()
         {
             return typeof(UnicastBus).Assembly.GetTypes()
-                .Where(type => typeof(Feature).IsAssignableFrom(type) && !type.IsAbstract);
+                .Where(type => typeof(Feature).IsAssignableFrom(type) && type.IsPublic && !type.IsAbstract);
         }
 
         static IEnumerable<Type> GetAttributeTypes()
