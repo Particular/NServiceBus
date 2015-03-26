@@ -338,8 +338,8 @@
 
 
         class SagaWithNewStyleApi : Saga<SagaWithNewStyleApi.SagaData>,
-            IAmStartedByMessage<SagaWithNewStyleApi.StartMessage1>,
-            IAmStartedByEvent<SagaWithNewStyleApi.StartEvent>,
+            IAmStartedByConsumedMessage<SagaWithNewStyleApi.StartMessage1>,
+            IAmStartedByConsumedEvent<SagaWithNewStyleApi.StartEvent>,
             IConsumeMessage<SagaWithNewStyleApi.Message3>,
             IConsumeEvent<SagaWithNewStyleApi.Event>,
             IConsumeTimeout<SagaWithNewStyleApi.MyTimeout>
@@ -407,12 +407,12 @@
 
             Assert.True(ex.Message.Contains(typeof(SagaWithIAmStartedOldAndNew).Name));
             Assert.True(ex.Message.Contains(typeof(IAmStartedByMessages<>).FullName));
-            Assert.True(ex.Message.Contains(typeof(IAmStartedByMessage<>).FullName));
+            Assert.True(ex.Message.Contains(typeof(IAmStartedByConsumedMessage<>).FullName));
         }
 
         class SagaWithIAmStartedOldAndNew : Saga<SagaWithIAmStartedOldAndNew.SagaData>,
             IAmStartedByMessages<SagaWithIAmStartedOldAndNew.StartSaga>,
-            IAmStartedByMessage<SagaWithIAmStartedOldAndNew.StartSaga>
+            IAmStartedByConsumedMessage<SagaWithIAmStartedOldAndNew.StartSaga>
         {
             public class SagaData : ContainSagaData
             {
@@ -438,16 +438,16 @@
         [Test]
         public void ValidateSagaCannotUseIAmStartedByMessagesAndByEventsOldAndNewForSameMessage()
         {
-            var ex = Assert.Throws<Exception>(() => TypeBasedSagaMetaModel.Create(typeof(SagaWithIAmStartedWithEventOldAndNew)));
+            var ex = Assert.Throws<Exception>(() => TypeBasedSagaMetaModel.Create(typeof(SagaWithIAmStartedWithConsumedEventOldAndNew)));
 
-            Assert.True(ex.Message.Contains(typeof(SagaWithIAmStartedWithEventOldAndNew).Name));
+            Assert.True(ex.Message.Contains(typeof(SagaWithIAmStartedWithConsumedEventOldAndNew).Name));
             Assert.True(ex.Message.Contains(typeof(IAmStartedByMessages<>).FullName));
-            Assert.True(ex.Message.Contains(typeof(IAmStartedByEvent<>).FullName));
+            Assert.True(ex.Message.Contains(typeof(IAmStartedByConsumedEvent<>).FullName));
         }
 
-        class SagaWithIAmStartedWithEventOldAndNew : Saga<SagaWithIAmStartedWithEventOldAndNew.SagaData>,
-            IAmStartedByMessages<SagaWithIAmStartedWithEventOldAndNew.StartSaga>,
-            IAmStartedByEvent<SagaWithIAmStartedWithEventOldAndNew.StartSaga>
+        class SagaWithIAmStartedWithConsumedEventOldAndNew : Saga<SagaWithIAmStartedWithConsumedEventOldAndNew.SagaData>,
+            IAmStartedByMessages<SagaWithIAmStartedWithConsumedEventOldAndNew.StartSaga>,
+            IAmStartedByConsumedEvent<SagaWithIAmStartedWithConsumedEventOldAndNew.StartSaga>
         {
             public class SagaData : ContainSagaData
             {

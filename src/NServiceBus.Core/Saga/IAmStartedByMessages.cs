@@ -12,13 +12,12 @@ namespace NServiceBus.Saga
 
 #pragma warning disable 1591
 
-    // TODO: We need to discuss whether this makes sense. This is just a first shot.
-    public interface IAmStartedByMessage<T> : IConsumeMessage<T>
+    public interface IAmStartedByConsumedMessage<T> : IConsumeMessage<T>
     {
     }
 
 
-    public interface IAmStartedByEvent<T> : IConsumeEvent<T>
+    public interface IAmStartedByConsumedEvent<T> : IConsumeEvent<T>
     { }
 #pragma warning restore 1591
 }

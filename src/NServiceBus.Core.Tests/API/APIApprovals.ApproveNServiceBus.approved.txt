@@ -1612,8 +1612,8 @@ namespace NServiceBus.Saga
         public virtual string OriginalMessageId { get; set; }
         public virtual string Originator { get; set; }
     }
-    public interface IAmStartedByEvent<T> : NServiceBus.IConsumeEvent<T> { }
-    public interface IAmStartedByMessage<T> : NServiceBus.IConsumeMessage<T> { }
+    public interface IAmStartedByConsumedEvent<T> : NServiceBus.IConsumeEvent<T> { }
+    public interface IAmStartedByConsumedMessage<T> : NServiceBus.IConsumeMessage<T> { }
     public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
     public interface IConfigureHowToFindSagaWithMessage
     {

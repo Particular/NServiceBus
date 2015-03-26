@@ -5,7 +5,7 @@ namespace NServiceBus.Saga
     /// To handle more message types, implement <see cref="IConsumeMessage{T}"/>, <see cref="IConsumeEvent{T}"/> or <see cref="IHandleMessages{T}"/>
     /// for the relevant types.
     /// To signify that the receipt of a message should start this saga,
-    /// implement <see cref="IAmStartedByMessage{T}"/>, <see cref="IAmStartedByEvent{T}"/> or <see cref="IAmStartedByMessages{T}"/> for the relevant message type.
+    /// implement <see cref="IAmStartedByConsumedMessage{T}"/>, <see cref="IAmStartedByConsumedEvent{T}"/> or <see cref="IAmStartedByMessages{T}"/> for the relevant message type.
     /// </summary>
     /// <typeparam name="TSagaData">A type that implements <see cref="IContainSagaData"/>.</typeparam>
     public abstract class Saga<TSagaData> : Saga where TSagaData : IContainSagaData, new()

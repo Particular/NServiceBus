@@ -45,7 +45,7 @@
             }
 
             public class Saga1 : Saga<Saga1.Saga1Data>,
-                IAmStartedByMessage<StartSaga>,
+                IAmStartedByConsumedMessage<StartSaga>,
                 IConsumeTimeout<Saga1.Timeout1>
             {
                 public Context Context { get; set; }
