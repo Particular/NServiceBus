@@ -1,4 +1,4 @@
-namespace NServiceBus.Sagas
+namespace NServiceBus.Saga
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,7 @@ namespace NServiceBus.Sagas
     /// <summary>
     /// Defines a message finder
     /// </summary>
-    class SagaFinderDefinition   
+    public class SagaFinderDefinition   
     {
         internal SagaFinderDefinition()
         {

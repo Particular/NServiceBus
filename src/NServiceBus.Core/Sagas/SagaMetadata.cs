@@ -1,4 +1,4 @@
-namespace NServiceBus.Sagas
+namespace NServiceBus.Saga
 {
     using System;
     using System.Collections.Generic;
@@ -6,8 +6,13 @@ namespace NServiceBus.Sagas
     /// <summary>
     /// Contains metadata for known sagas
     /// </summary>
-    class SagaMetadata
+    public class SagaMetadata
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SagaMetadata"/> class.
+        /// </summary>
+        /// <param name="messages">The messages collection that a saga handles.</param>
+        /// <param name="finders">The finder definition collection that can find this saga.</param>
         public SagaMetadata(IEnumerable<SagaMessage> messages, IEnumerable<SagaFinderDefinition> finders)
         {
             CorrelationProperties = new List<CorrelationProperty>();
@@ -18,7 +23,6 @@ namespace NServiceBus.Sagas
             {
                 associatedMessages[sagaMessage.MessageType] = sagaMessage;
             }
-
 
             sagaFinders = new Dictionary<string, SagaFinderDefinition>();
 

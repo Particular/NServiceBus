@@ -1,9 +1,9 @@
-namespace NServiceBus.Sagas
+namespace NServiceBus.Saga
 {
     /// <summary>
     /// Representation of a message that is related to a saga
     /// </summary>
-    class SagaMessage
+    public class SagaMessage
     {
         /// <summary>
         /// True if the message can start the saga

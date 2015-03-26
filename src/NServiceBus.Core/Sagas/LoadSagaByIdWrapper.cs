@@ -1,7 +1,6 @@
-namespace NServiceBus.Sagas
+namespace NServiceBus.Saga
 {
     using System;
-    using NServiceBus.Saga;
 
  
     //this class in only here until we can move to a better saga persister api
