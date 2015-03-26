@@ -92,6 +92,7 @@ namespace NServiceBus.Sagas
             }
 
             var potentiallyAssociatedMessages = GetPotentiallyAssociatedMessagesForValidation(sagaType);
+            ValidateForCorrectUsageOfOldAndNewStyleApiCombinations(sagaType, potentiallyAssociatedMessages);
             var associatedMessages = GetAssociatedMessages(potentiallyAssociatedMessages);
 
             return new SagaMetadata(associatedMessages, finders)
@@ -102,6 +103,62 @@ namespace NServiceBus.Sagas
                 SagaEntityType = sagaEntityType,
                 SagaType = sagaType
             };
+        }
+
+        static void ValidateForCorrectUsageOfOldAndNewStyleApiCombinations(Type sagaEntityType, IList<SagaMessage> sagaMessages)
+        {
+            var groupedByMessageType = from msg in sagaMessages
+            group msg by msg.MessageType
+            into msgsByType
+            select new
+            {
+                MessageType = msgsByType.Key,
+                Messages = (IEnumerable<SagaMessage>)msgsByType
+            };
+
+            const string exceptionMessage = "The saga {0} implements {1} and {2} for the message type {3}. Change the saga to only implement {2}.";
+            foreach (var group in groupedByMessageType)
+            {
+                var handlesStartedByEventWithBothOldAndNewStyle =
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.StartedByMessage) &&
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.StartedByConsumedEvent);
+                if (handlesStartedByEventWithBothOldAndNewStyle)
+                {
+                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IAmStartedByMessages<>).FullName, typeof(IAmStartedByConsumedEvent<>).FullName, group.MessageType));
+                }
+
+                var handlesStartedByMessageWithBothOldAndNewStyle =
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.StartedByMessage) &&
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.StartedByConsumedMessage);
+                if (handlesStartedByMessageWithBothOldAndNewStyle)
+                {
+                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IAmStartedByMessages<>).FullName, typeof(IAmStartedByConsumedMessage<>).FullName, group.MessageType));
+                }
+
+                var handlesEventsWithBothOldAndNewStyle = 
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.HandleMessage) && 
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.ConsumeEvent);
+                if (handlesEventsWithBothOldAndNewStyle)
+                {
+                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IHandleMessages<>).FullName, typeof(IConsumeEvent<>).FullName, group.MessageType));
+                }
+
+                var handlesMessagesWithBothOldAndNewStyle =
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.HandleMessage) &&
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.ConsumeMessage);
+                if (handlesMessagesWithBothOldAndNewStyle)
+                {
+                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IHandleMessages<>).FullName, typeof(IConsumeMessage<>).FullName, group.MessageType));
+                }
+
+                var handlesTimeoutsWithBothOldAndNewStyle =
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.HandleTimeout) &&
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.ConsumeTimeout);
+                if (handlesTimeoutsWithBothOldAndNewStyle)
+                {
+                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IHandleTimeouts<>).FullName, typeof(IConsumeTimeout<>).FullName, group.MessageType));
+                }
+            }
         }
 
         static void ApplyScannedFinders(SagaMapper mapper, Type sagaEntityType, IEnumerable<Type> availableTypes, Conventions conventions)
@@ -169,9 +226,9 @@ namespace NServiceBus.Sagas
         static List<SagaMessage> GetPotentiallyAssociatedMessagesForValidation(Type sagaType)
         {
             // the order of filters matters!
-            return GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>)).Select(t => new SagaMessage(t.FullName, SagaMessageHandledBy.StartedByMessage | SagaMessageHandledBy.HandleMessage))
-                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByConsumedMessage<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.StartedByConsumedMessage | SagaMessageHandledBy.ConsumeMessage)))
-                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByConsumedEvent<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.StartedByConsumedEvent | SagaMessageHandledBy.ConsumeEvent)))
+            return GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>)).Select(t => new SagaMessage(t.FullName, SagaMessageHandledBy.StartedByMessage))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByConsumedMessage<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.StartedByConsumedMessage)))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByConsumedEvent<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.StartedByConsumedEvent)))
                 .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleMessages<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.HandleMessage)))
                 .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IConsumeMessage<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.ConsumeMessage)))
                 .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IConsumeEvent<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.ConsumeEvent)))

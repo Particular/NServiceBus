@@ -25,9 +25,9 @@ namespace NServiceBus.Sagas
             MessageType = messageType;
             MessageHandledBy = sagaMessageHandledBy;
             IsAllowedToStartSaga =
-                MessageHandledBy.HasFlag(SagaMessageHandledBy.StartedByMessage) || 
-                MessageHandledBy.HasFlag(SagaMessageHandledBy.StartedByConsumedEvent) || 
-                MessageHandledBy.HasFlag(SagaMessageHandledBy.StartedByMessage);
+                MessageHandledBy == SagaMessageHandledBy.StartedByConsumedMessage || 
+                MessageHandledBy == SagaMessageHandledBy.StartedByConsumedEvent || 
+                MessageHandledBy == SagaMessageHandledBy.StartedByMessage;
         }
     }
 }

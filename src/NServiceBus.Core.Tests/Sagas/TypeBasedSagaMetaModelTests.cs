@@ -325,13 +325,15 @@
 
             var messages = metadata.AssociatedMessages;
 
-            Assert.AreEqual(4, messages.Count());
+            Assert.AreEqual(5, messages.Count());
 
             Assert.True(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWithNewStyleApi.StartMessage1).FullName));
 
             Assert.True(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWithNewStyleApi.StartEvent).FullName));
 
             Assert.False(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWithNewStyleApi.Message3).FullName));
+
+            Assert.False(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWithNewStyleApi.Event).FullName));
 
             Assert.False(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWithNewStyleApi.MyTimeout).FullName));
         }
@@ -446,14 +448,14 @@
         }
 
         class SagaWithIAmStartedWithConsumedEventOldAndNew : Saga<SagaWithIAmStartedWithConsumedEventOldAndNew.SagaData>,
-            IAmStartedByMessages<SagaWithIAmStartedWithConsumedEventOldAndNew.StartSaga>,
-            IAmStartedByConsumedEvent<SagaWithIAmStartedWithConsumedEventOldAndNew.StartSaga>
+            IAmStartedByMessages<SagaWithIAmStartedWithConsumedEventOldAndNew.Event>,
+            IAmStartedByConsumedEvent<SagaWithIAmStartedWithConsumedEventOldAndNew.Event>
         {
             public class SagaData : ContainSagaData
             {
             }
 
-            public class StartSaga : ICommand
+            public class Event : IEvent
             {
             }
 
@@ -461,11 +463,11 @@
             {
             }
 
-            public void Handle(StartSaga message)
+            public void Handle(Event message)
             {
             }
 
-            public void Handle(StartSaga message, IConsumeEventContext context)
+            public void Handle(Event message, IConsumeEventContext context)
             {
             }
         }
@@ -516,14 +518,14 @@
         }
 
         class SagaWithHandleEventOldAndNew : Saga<SagaWithHandleEventOldAndNew.SagaData>,
-           IHandleMessages<SagaWithHandleEventOldAndNew.StartSaga>,
-           IConsumeEvent<SagaWithHandleEventOldAndNew.StartSaga>
+           IHandleMessages<SagaWithHandleEventOldAndNew.Event>,
+           IConsumeEvent<SagaWithHandleEventOldAndNew.Event>
         {
             public class SagaData : ContainSagaData
             {
             }
 
-            public class StartSaga : ICommand
+            public class Event : IEvent
             {
             }
 
@@ -531,11 +533,11 @@
             {
             }
 
-            public void Handle(StartSaga message)
+            public void Handle(Event message)
             {
             }
 
-            public void Handle(StartSaga message, IConsumeEventContext context)
+            public void Handle(Event message, IConsumeEventContext context)
             {
             }
         }
