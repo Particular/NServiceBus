@@ -22,7 +22,7 @@ namespace NServiceBus.Core.Tests.Timeout
             manager.PushTimeout(new TimeoutData
                 {
                     Time = DateTime.UtcNow,
-                    Destination = "local"
+                    Destination = "local",
                     Headers = new Dictionary<string, string> { {Headers.MessageId,"msg id"}}
                 });
 

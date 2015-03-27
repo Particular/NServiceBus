@@ -70,14 +70,6 @@ namespace NServiceBus
             Destination = null;
         }
 
-        internal TimeSpan? Delay;
-        internal DateTime? At;
-        internal string Destination;
-        internal bool SendToLocalEndpoint;
-        internal string CorrelationId;
-        internal string MessageId;
-        internal Dictionary<string, string> Headers = new Dictionary<string, string>();
-
         /// <summary>
         /// Sets a custom message id for this message
         /// </summary>
@@ -85,6 +77,22 @@ namespace NServiceBus
         public void SetMessageId(string messageId)
         {
             MessageId = messageId;
+        }
+
+        internal TimeSpan? Delay;
+        internal DateTime? At;
+        internal string Destination;
+        internal bool SendToLocalEndpoint;
+        internal string CorrelationId;
+        internal string MessageId;
+        internal MessageIntentEnum Intent = MessageIntentEnum.Send;
+        internal Dictionary<string, string> Headers = new Dictionary<string, string>();
+
+     
+        internal void AsReplyTo(string replyToAddress)
+        {
+            SetDestination(replyToAddress);
+            Intent = MessageIntentEnum.Reply;
         }
     }
 }

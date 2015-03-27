@@ -61,7 +61,7 @@
             settings.Set("EndpointName", "EndpointName");
             deferrer.Settings = settings;
 
-            deferrer.Invoke(new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, new SendOptions("Destination"),null,new Dictionary<string, string>(),null)), () => { });
+            deferrer.Invoke(new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, new SendOptions("Destination"),null,new Dictionary<string, string>(),null,MessageIntentEnum.Send)), () => { });
 
             Assert.AreEqual(1, sender.Messages.Count);
         }

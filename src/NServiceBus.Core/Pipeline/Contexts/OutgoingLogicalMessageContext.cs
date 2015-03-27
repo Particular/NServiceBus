@@ -17,13 +17,15 @@
         /// <param name="message">The actual message to be sent out.</param>
         /// <param name="headers">The headers fór the message</param>
         /// <param name="messageId">The id of the message</param>
-        public OutgoingContext(BehaviorContext parentContext, DeliveryOptions deliveryOptions, LogicalMessage message,Dictionary<string,string> headers,string messageId)
+        /// <param name="intent">The intent of the message</param>
+        public OutgoingContext(BehaviorContext parentContext, DeliveryOptions deliveryOptions, LogicalMessage message,Dictionary<string,string> headers,string messageId,MessageIntentEnum intent)
             : base(parentContext)
         {
             DeliveryOptions = deliveryOptions;
             OutgoingLogicalMessage = message;
             Headers = headers;
             MessageId = messageId;
+            Intent = intent;
         }
 
         /// <summary>
@@ -45,6 +47,11 @@
         /// This id of this message
         /// </summary>
         public string MessageId { get; private set; }
+
+        /// <summary>
+        /// The intent of the message
+        /// </summary>
+        public MessageIntentEnum Intent { get; private set; }
 
         /// <summary>
         /// Tells if this outgoing message is a control message

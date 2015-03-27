@@ -111,16 +111,17 @@ namespace NServiceBus.Unicast
             ApplyDefaultDeliveryOptionsIfNeeded(options, logicalMessage);
 
             var headers = new Dictionary<string, string>();
-           
+
             ApplyStaticHeaders(headers);
 
-           
+
             var outgoingContext = new OutgoingContext(
                 incomingContext,
                 options,
                 logicalMessage,
                 headers,
-                CombGuid.Generate().ToString());
+                CombGuid.Generate().ToString(),
+                MessageIntentEnum.Publish);
 
 
             outgoingPipeline.Invoke(outgoingContext);
@@ -238,9 +239,8 @@ namespace NServiceBus.Unicast
         {
             var context = new SendContext();
 
-            context.SetDestination(MessageBeingProcessed.ReplyToAddress);
+            context.AsReplyTo(MessageBeingProcessed.ReplyToAddress);
             context.SetCorrelationId(GetCorrelationId());
-            context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Reply.ToString());
 
             Send(message, context);
         }
@@ -251,9 +251,8 @@ namespace NServiceBus.Unicast
         public void Reply<T>(Action<T> messageConstructor)
         {
             var context = new SendContext();
-            context.SetDestination(MessageBeingProcessed.ReplyToAddress);
+            context.AsReplyTo(MessageBeingProcessed.ReplyToAddress);
             context.SetCorrelationId(GetCorrelationId());
-            context.SetHeader(Headers.MessageIntent,MessageIntentEnum.Reply.ToString());
 
             Send(messageConstructor, context);
         }
@@ -279,9 +278,8 @@ namespace NServiceBus.Unicast
             var context = new SendContext();
 
             context.SetHeader(Headers.ReturnMessageErrorCodeHeader, returnCode);
-            context.SetDestination(MessageBeingProcessed.ReplyToAddress);
+            context.AsReplyTo(MessageBeingProcessed.ReplyToAddress);
             context.SetCorrelationId(GetCorrelationId());
-            context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Reply.ToString());
 
             SendMessage(context, new ControlMessage("Bus.Return(" + returnCode + ")"));
         }
@@ -301,7 +299,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id,MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new SendOptions(sendLocalAddress));
+            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new SendOptions(sendLocalAddress));
 
             incomingContext.handleCurrentMessageLaterWasCalled = true;
 
@@ -313,7 +311,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void ForwardCurrentMessageTo(string destination)
         {
-            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id,MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new SendOptions(destination));
+            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new SendOptions(destination));
         }
 
         /// <summary>
@@ -333,7 +331,7 @@ namespace NServiceBus.Unicast
 
             context.SetLocalEndpointAsDestination();
 
-            return Send(message,context);
+            return Send(message, context);
         }
 
         /// <summary>
@@ -386,7 +384,7 @@ namespace NServiceBus.Unicast
             var context = new SendContext();
 
             context.SetDestination(destination);
-            return Send(messageConstructor,context);
+            return Send(messageConstructor, context);
         }
 
         /// <summary>
@@ -424,7 +422,7 @@ namespace NServiceBus.Unicast
             context.SetDestination(destination);
             context.SetCorrelationId(correlationId);
 
-            return Send(message,context);
+            return Send(message, context);
         }
 
         /// <summary>
@@ -461,19 +459,17 @@ namespace NServiceBus.Unicast
             {
                 destination = sendLocalAddress;
             }
-            
+
             if (string.IsNullOrEmpty(destination))
             {
                 destination = GetDestinationForSend(message.MessageType);
             }
 
-          
+
             var sendOptions = new SendOptions(destination);
 
-            if (!context.Headers.ContainsKey(Headers.MessageIntent))
-            {
-                context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
-            }
+            context.Headers[Headers.MessageIntent] = context.Intent.ToString();
+          
             var messageId = context.MessageId;
 
             if (string.IsNullOrEmpty(messageId))
@@ -515,22 +511,23 @@ namespace NServiceBus.Unicast
             {
                 context.Headers[Headers.ReplyToAddress] = replyToAddress;
             }
-          
+
             ApplyDefaultDeliveryOptionsIfNeeded(sendOptions, message);
 
             ApplyStaticHeaders(context.Headers);
-            
-            var outgoingContext = new OutgoingContext(
-                incomingContext, 
-                sendOptions, 
-                message, 
-                context.Headers, 
-                messageId);
 
-            
+            var outgoingContext = new OutgoingContext(
+                incomingContext,
+                sendOptions,
+                message,
+                context.Headers,
+                messageId,
+                context.Intent);
+
+
             outgoingPipeline.Invoke(outgoingContext);
 
-            
+
             return SetupCallback(messageId);
         }
 

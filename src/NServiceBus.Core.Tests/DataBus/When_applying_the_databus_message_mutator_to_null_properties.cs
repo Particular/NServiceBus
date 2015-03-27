@@ -17,7 +17,7 @@ namespace NServiceBus.Core.Tests.DataBus
         {
             var metadata = new MessageMetadata(timeToBeReceived: TimeSpan.FromDays(1));
             var message = new LogicalMessage(metadata, new MessageWithNullDataBusProperty(), null);
-            var context = new OutgoingContext(null, new SendOptions("MyEndpoint"), message, new Dictionary<string, string>(), "msg id");
+            var context = new OutgoingContext(null, new SendOptions("MyEndpoint"), message, new Dictionary<string, string>(), "msg id",MessageIntentEnum.Send);
 
             
             using (var stream = new MemoryStream())

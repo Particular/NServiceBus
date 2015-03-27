@@ -1581,9 +1581,10 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryOptions deliveryOptions, NServiceBus.Unicast.Messages.LogicalMessage message, System.Collections.Generic.Dictionary<string, string> headers, string messageId) { }
+        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryOptions deliveryOptions, NServiceBus.Unicast.Messages.LogicalMessage message, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent) { }
         public NServiceBus.Unicast.DeliveryOptions DeliveryOptions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public NServiceBus.MessageIntentEnum Intent { get; }
         public string MessageId { get; }
         public NServiceBus.Unicast.Messages.LogicalMessage OutgoingLogicalMessage { get; }
         public bool IsControlMessage() { }

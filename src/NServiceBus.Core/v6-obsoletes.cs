@@ -2,6 +2,57 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Reflection;
+
+    public partial class BusConfiguration
+    {
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "ExcludeTypes")]
+        public void TypesToScan(IEnumerable<Type> typesToScan)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "ExcludeAssemblies")]
+        public void AssembliesToScan(IEnumerable<Assembly> assemblies)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "ExcludeAssemblies")]
+        public void AssembliesToScan(params Assembly[] assemblies)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "ExcludeAssemblies")]
+        public void ScanAssembliesInDirectory(string probeDirectory)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OverridePublicReturnAddress(string address)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void OverridePublicReturnAddress(Address address)
+        {
+            throw new NotImplementedException();
+        }
+
+    }
 
     [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "config.ExcludeAssemblies")]
     public class AllAssemblies : IExcludesBuilder, IIncludesBuilder
