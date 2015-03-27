@@ -120,6 +120,7 @@
     <Compile Include="FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
+    <Compile Include="IReply.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingHeaders.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />

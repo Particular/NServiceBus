@@ -183,6 +183,7 @@ namespace NServiceBus
         public bool IsExpressMessageType(System.Type t) { }
         public bool IsInSystemConventionList(System.Type t) { }
         public bool IsMessageType(System.Type t) { }
+        public bool IsReplyType(System.Type t) { }
     }
     public class ConventionsBuilder
     {
@@ -193,6 +194,7 @@ namespace NServiceBus
         public NServiceBus.ConventionsBuilder DefiningEventsAs(System.Func<System.Type, bool> definesEventType) { }
         public NServiceBus.ConventionsBuilder DefiningExpressMessagesAs(System.Func<System.Type, bool> definesExpressMessageType) { }
         public NServiceBus.ConventionsBuilder DefiningMessagesAs(System.Func<System.Type, bool> definesMessageType) { }
+        public NServiceBus.ConventionsBuilder DefiningRepliesAs(System.Func<System.Type, bool> definesReplyType) { }
         public NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
     }
     public class CriticalError
@@ -431,6 +433,7 @@ namespace NServiceBus
     {
         public static void EnableInstallers(this NServiceBus.BusConfiguration config, string username = null) { }
     }
+    public interface IReply { }
     public interface IRunContext
     {
         void Publish(object message);

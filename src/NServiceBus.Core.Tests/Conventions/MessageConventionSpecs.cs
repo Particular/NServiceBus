@@ -76,6 +76,30 @@
                 Assert.AreEqual(1, timesCalled);
             }
         }
+
+        [TestFixture]
+        public class When_applying_message_conventions_to_replies : MessageConventionTestBase
+        {
+            [Test]
+            public void Should_cache_the_message_convention()
+            {
+                var timesCalled = 0;
+                conventions = new Conventions
+                {
+                    IsReplyTypeAction = t =>
+                    {
+                        timesCalled++;
+                        return false;
+                    }
+                };
+
+                conventions.IsReplyType(GetType());
+                Assert.AreEqual(1, timesCalled);
+
+                conventions.IsReplyType(GetType());
+                Assert.AreEqual(1, timesCalled);
+            }
+        }
     }
 }
 

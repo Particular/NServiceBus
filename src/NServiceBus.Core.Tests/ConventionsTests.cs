@@ -99,6 +99,16 @@
 
         }
 
+        [Test]
+        public void IsReplyType_should_return_true_for_IResponse()
+        {
+            var conventions = new NServiceBus.Conventions();
+            Assert.IsTrue(conventions.IsReplyType(typeof(MyReply)));
+        }
+
+        public class MyReply : IReply
+        {
+        }
 
         [TestFixture]
         public class When_using_a_greedy_convention_that_overlaps_with_NServiceBus
@@ -141,6 +151,16 @@
                     IsEventTypeAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly
                 };
                 Assert.IsFalse(conventions.IsEventType(typeof(NServiceBus.Conventions)));
+            }
+
+            [Test]
+            public void IsReplyType_should_return_false_for_NServiceBus_types()
+            {
+                var conventions = new NServiceBus.Conventions
+                {
+                    IsReplyTypeAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly
+                };
+                Assert.IsFalse(conventions.IsReplyType(typeof(NServiceBus.Conventions)));
             }
 
             [Test]
@@ -200,6 +220,21 @@
             }
 
             public class MyConventionEvent
+            {
+            }
+
+            [Test]
+            public void IsReplyType_should_return_true_for_matching_type()
+            {
+                var conventions = new NServiceBus.Conventions
+                {
+                    IsReplyTypeAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly ||
+                                               t == typeof(MyConventionReply)
+                };
+                Assert.IsTrue(conventions.IsReplyTypeAction(typeof(MyConventionReply)));
+            }
+
+            public class MyConventionReply
             {
             }
         }
