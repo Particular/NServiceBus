@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.HandlerContext
 {
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using global::NServiceBus.AcceptanceTesting;
     using global::NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -18,27 +19,17 @@
                     .Run();
 
             Verify.AssertOldAndNewStyleStartAndStopsAreInvoked(context);
-            Verify.AssertOldStyleStartAndStopsAreInvokedFirst(context);
-            Verify.AssertNewStyleStartAndStopsAreInvokedSecond(context);
         }
 
         static class Verify
         {
-            public static void AssertOldStyleStartAndStopsAreInvokedFirst(Context context)
-            {
-                Assert.AreEqual("OldStyle.Start", context.StartsAndStopsExecuted[0]);
-                Assert.AreEqual("OldStyle.Stop", context.StartsAndStopsExecuted[2]);
-            }
-
-            public static void AssertNewStyleStartAndStopsAreInvokedSecond(Context context)
-            {
-                Assert.AreEqual("NewStyle.Start", context.StartsAndStopsExecuted[1]);
-                Assert.AreEqual("NewStyle.Stop", context.StartsAndStopsExecuted[3]);
-            }
-
             public static void AssertOldAndNewStyleStartAndStopsAreInvoked(Context context)
             {
                 Assert.AreEqual(4, context.StartsAndStopsExecuted.Count, "Old and new style starts and stops should be invoked");
+                CollectionAssert.Contains(context.StartsAndStopsExecuted, "NewStyle.Start");
+                CollectionAssert.Contains(context.StartsAndStopsExecuted, "NewStyle.Stop");
+                CollectionAssert.Contains(context.StartsAndStopsExecuted, "OldStyle.Start");
+                CollectionAssert.Contains(context.StartsAndStopsExecuted, "OldStyle.Stop");
             }
         }
 
