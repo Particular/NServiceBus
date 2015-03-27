@@ -364,20 +364,14 @@ namespace NServiceBus
         void Register<T>(System.Action<T> callback, object synchronizer);
     }
     public interface ICommand : NServiceBus.IMessage { }
+    public interface ICommandContext
+    {
+        void Reply(object message);
+    }
     public interface IConfigureThisEndpoint
     {
         void Customize(NServiceBus.BusConfiguration configuration);
     }
-    public interface IConsumeEvent<T>
-    {
-        void Handle(T message, NServiceBus.IConsumeEventContext context);
-    }
-    public interface IConsumeEventContext { }
-    public interface IConsumeMessage<T>
-    {
-        void Handle(T message, NServiceBus.IConsumeMessageContext messageContext);
-    }
-    public interface IConsumeMessageContext { }
     public interface IDataBusProperty
     {
         bool HasValue { get; set; }
@@ -386,6 +380,7 @@ namespace NServiceBus
         void SetValue(object value);
     }
     public interface IEvent : NServiceBus.IMessage { }
+    public interface IEventContext { }
     [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public interface IExcludesBuilder { }
     public interface IHandleMessages<T>
@@ -433,7 +428,20 @@ namespace NServiceBus
     {
         public static void EnableInstallers(this NServiceBus.BusConfiguration config, string username = null) { }
     }
+    public interface IProcessCommands<T>
+    {
+        void Handle(T message, NServiceBus.ICommandContext context);
+    }
+    public interface IProcessEvents<T>
+    {
+        void Handle(T message, NServiceBus.IEventContext context);
+    }
+    public interface IProcessReplies<T>
+    {
+        void Handle(T message, NServiceBus.IReplyContext context);
+    }
     public interface IReply { }
+    public interface IReplyContext { }
     public interface IRunContext
     {
         void Publish(object message);
@@ -1615,8 +1623,8 @@ namespace NServiceBus.Saga
         public virtual string OriginalMessageId { get; set; }
         public virtual string Originator { get; set; }
     }
-    public interface IAmStartedByConsumedEvent<T> : NServiceBus.IConsumeEvent<T> { }
-    public interface IAmStartedByConsumedMessage<T> : NServiceBus.IConsumeMessage<T> { }
+    public interface IAmStartedByCommands<T> : NServiceBus.IProcessCommands<T> { }
+    public interface IAmStartedByEvents<T> : NServiceBus.IProcessEvents<T> { }
     public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
     public interface IConfigureHowToFindSagaWithMessage
     {
@@ -1624,11 +1632,6 @@ namespace NServiceBus.Saga
             where TSagaEntity : NServiceBus.Saga.IContainSagaData
         ;
     }
-    public interface IConsumeTimeout<T>
-    {
-        void Timeout(T state, NServiceBus.Saga.IConsumeTimeoutContext context);
-    }
-    public interface IConsumeTimeoutContext { }
     public interface IContainSagaData
     {
         System.Guid Id { get; set; }
@@ -1654,6 +1657,10 @@ namespace NServiceBus.Saga
     {
         void Timeout(T state);
     }
+    public interface IProcessTimeouts<T>
+    {
+        void Timeout(T state, NServiceBus.Saga.ITimeoutContext context);
+    }
     public interface ISagaPersister
     {
         void Complete(NServiceBus.Saga.IContainSagaData saga);
@@ -1664,6 +1671,7 @@ namespace NServiceBus.Saga
         void Save(NServiceBus.Saga.IContainSagaData saga);
         void Update(NServiceBus.Saga.IContainSagaData saga);
     }
+    public interface ITimeoutContext { }
     public abstract class Saga
     {
         protected Saga() { }
