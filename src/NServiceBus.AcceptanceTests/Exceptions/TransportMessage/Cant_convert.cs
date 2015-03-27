@@ -8,7 +8,7 @@
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
-    public class When_cant_convert_to_TransportMessage_SuppressedDTC : NServiceBusAcceptanceTest
+    public class Cant_convert : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_send_message_to_error_queue()
@@ -33,12 +33,12 @@
         public class Context : ScenarioContext
         {
         }
-
+        
         public class Sender : EndpointConfigurationBuilder
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(b => b.Transactions().DisableDistributedTransactions())
+                EndpointSetup<DefaultServer>()
                     .AddMapping<Message>(typeof(Receiver));
             }
         }
@@ -48,8 +48,9 @@
             public Receiver()
             {
                 SerializerCorrupter.Corrupt();
-                EndpointSetup<DefaultServer>(b => b.Transactions().DisableDistributedTransactions());
+                EndpointSetup<DefaultServer>();
             }
+        
         }
 
         [Serializable]

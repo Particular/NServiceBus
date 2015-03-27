@@ -1,29 +1,32 @@
 ﻿namespace NServiceBus.AcceptanceTests.Exceptions
 {
     using System;
-    using System.Runtime.Serialization;
+    using System.Runtime.CompilerServices;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
     using NServiceBus.Features;
     using NUnit.Framework;
 
-    public class When_handler_throws : NServiceBusAcceptanceTest
+    public class Handler_throws_AggregateEx : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_exception_from_handler()
+        public void Should_receive_exact_AggregateException_exception_from_handler()
         {
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
+                .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
                     .AllowExceptions()
-                    .Done(c => c.ExceptionReceived)
-                    .Run();
-            Assert.AreEqual(typeof(HandlerException), context.ExceptionType);
-
+                .Done(c => c.ExceptionReceived)
+                .Run();
+            Assert.AreEqual(typeof(AggregateException), context.ExceptionType);
+            Assert.AreEqual(typeof(Exception), context.InnerExceptionType);
+            Assert.AreEqual("My Exception", context.ExceptionMessage);
+            Assert.AreEqual("My Inner Exception", context.InnerExceptionMessage);
+      
             StackTraceAssert.StartsWith(
-@"at NServiceBus.AcceptanceTests.Exceptions.When_handler_throws.Endpoint.Handler.Handle(Message message)
+                @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.Handle(Message message)
 at NServiceBus.Unicast.MessageHandlerRegistry.Invoke(Object handler, Object message, Dictionary`2 dictionary)
 at NServiceBus.InvokeHandlersBehavior.Invoke(Context context, Action next)
 at NServiceBus.HandlerTransactionScopeWrapperBehavior.Invoke(Context context, Action next)
@@ -39,12 +42,20 @@ at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)
 at NServiceBus.EnforceMessageIdBehavior.Invoke(Context context, Action next)
 at NServiceBus.HostInformationBehavior.Invoke(Context context, Action next)
 at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action next)", context.StackTrace);
+
+            StackTraceAssert.StartsWith(
+                @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.MethodThatThrows()
+at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.Handle(Message message)", context.InnerStackTrace);
         }
 
         public class Context : ScenarioContext
         {
             public bool ExceptionReceived { get; set; }
             public string StackTrace { get; set; }
+            public string InnerStackTrace { get; set; }
+            public Type InnerExceptionType { get; set; }
+            public string ExceptionMessage { get; set; }
+            public string InnerExceptionMessage { get; set; }
             public Type ExceptionType { get; set; }
         }
 
@@ -63,8 +74,6 @@ at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action nex
                     });
             }
 
-          
-
             class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
@@ -75,8 +84,15 @@ at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action nex
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
-                        Context.ExceptionType = e.Exception.GetType();
+                        Context.ExceptionMessage = e.Exception.Message;
                         Context.StackTrace = e.Exception.StackTrace;
+                        Context.ExceptionType = e.Exception.GetType();
+                        if (e.Exception.InnerException != null)
+                        {
+                            Context.InnerExceptionMessage = e.Exception.InnerException.Message;
+                            Context.InnerExceptionType = e.Exception.InnerException.GetType();
+                            Context.InnerStackTrace = e.Exception.InnerException.StackTrace;
+                        }
                         Context.ExceptionReceived = true;
                     });
                 }
@@ -84,11 +100,25 @@ at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action nex
                 public void Stop() { }
             }
 
+
             class Handler : IHandleMessages<Message>
             {
                 public void Handle(Message message)
                 {
-                    throw new HandlerException();
+                    try
+                    {
+                        MethodThatThrows();
+                    }
+                    catch (Exception exception)
+                    {
+                        throw new AggregateException("My Exception", exception);
+                    }
+                }
+
+                [MethodImpl(MethodImplOptions.NoInlining)]
+                void MethodThatThrows()
+                {
+                    throw new Exception("My Inner Exception");
                 }
             }
         }
@@ -97,20 +127,5 @@ at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action nex
         public class Message : IMessage
         {
         }
-
-        [Serializable]
-        public class HandlerException : Exception
-        {
-            public HandlerException()
-                : base("HandlerException")
-            {
-
-            }
-
-            protected HandlerException(SerializationInfo info, StreamingContext context)
-            {
-            }
-        }
     }
-    
 }

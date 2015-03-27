@@ -6,7 +6,7 @@
     using AcceptanceTesting;
     using NUnit.Framework;
 
-    public class When_handler_throws_serialization_exception : NServiceBusAcceptanceTest
+    public class Handler_throws_SerializationException : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_retry_the_message_using_flr()

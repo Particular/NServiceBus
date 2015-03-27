@@ -9,7 +9,7 @@
     using NUnit.Framework;
     using IMessage = NServiceBus.IMessage;
 
-    public class When_cant_convert_to_TransportMessage_NoTransactions : NServiceBusAcceptanceTest
+    public class Cant_convert_NoTransactions : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_send_message_to_error_queue()

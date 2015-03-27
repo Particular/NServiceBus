@@ -9,7 +9,7 @@
     using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
 
-    public class When_serialization_throws : NServiceBusAcceptanceTest
+    public class Serialization_throws : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_MessageDeserializationException()

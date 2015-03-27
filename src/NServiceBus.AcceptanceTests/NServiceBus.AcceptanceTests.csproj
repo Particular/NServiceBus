@@ -110,14 +110,14 @@
     <Compile Include="CriticalError\When_registering_a_custom_criticalErrorHandler.cs" />
     <Compile Include="DataBus\When_using_custom_IDataBus.cs" />
     <Compile Include="DeterministicGuid.cs" />
-    <Compile Include="Exceptions\Cant_convert_to_TransportMessage\SerializerCorrupter.cs" />
-    <Compile Include="Exceptions\Cant_convert_to_TransportMessage\When_cant_convert_to_TransportMessage_NoTransactions.cs" />
-    <Compile Include="Exceptions\Cant_convert_to_TransportMessage\When_cant_convert_to_TransportMessage_SuppressedDTC.cs" />
-    <Compile Include="Exceptions\When_handler_throws_serialization_exception.cs" />
+    <Compile Include="Exceptions\TransportMessage\SerializerCorrupter.cs" />
+    <Compile Include="Exceptions\TransportMessage\Cant_convert_NoTransactions.cs" />
+    <Compile Include="Exceptions\TransportMessage\Cant_convert_SuppressedDTC.cs" />
+    <Compile Include="Exceptions\Handler_throws_SerializationEx.cs" />
     <Compile Include="MessageId\When_message_has_no_id_header.cs" />
     <Compile Include="HostInformation\When_feature_overrides_hostinfo.cs" />
     <Compile Include="Sagas\When_reply_from_a_finder.cs" />
-    <Compile Include="Exceptions\Cant_convert_to_TransportMessage\When_cant_convert_to_TransportMessage.cs" />
+    <Compile Include="Exceptions\TransportMessage\Cant_convert.cs" />
     <Compile Include="Sagas\When_message_has_a_saga_id.cs" />
     <Compile Include="Retries\When_Subscribing_to_errors.cs" />
     <Compile Include="Sagas\When_timeout_hit_not_found_saga.cs" />
@@ -135,25 +135,25 @@
     <Compile Include="Encryption\When_using_Rijndael_with_config.cs" />
     <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
     <Compile Include="Exceptions\StackTraceAssert.cs" />
-    <Compile Include="Exceptions\When_handler_and_Uow_End_throws.cs">
+    <Compile Include="Exceptions\Handler_and_UowEnd_throws.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Exceptions\When_handler_throws.cs">
+    <Compile Include="Exceptions\Handler_throws.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Exceptions\When_handler_throws_AggregateException.cs">
+    <Compile Include="Exceptions\Handler_throws_AggregateEx.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Exceptions\When_serialization_throws.cs">
+    <Compile Include="Exceptions\Serialization_throws.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Exceptions\When_Uow_Begin_and_different_End_throws.cs">
+    <Compile Include="Exceptions\Uow_Begin_and_diff_End_throws.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Exceptions\When_Uow_Begin_throws.cs">
+    <Compile Include="Exceptions\Uow_Begin_throws.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Exceptions\When_Uow_End_throws.cs">
+    <Compile Include="Exceptions\Uow_End_throws.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Mutators\Issue_1980.cs" />

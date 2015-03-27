@@ -9,7 +9,7 @@
     using NServiceBus.UnitOfWork;
     using NUnit.Framework;
 
-    public class When_Uow_Begin_throws : NServiceBusAcceptanceTest
+    public class Uow_Begin_throws : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_exception_thrown_from_begin()
@@ -24,7 +24,7 @@
 
             Assert.AreEqual(typeof(BeginException), context.ExceptionType);
             StackTraceAssert.StartsWith(
-@"at NServiceBus.AcceptanceTests.Exceptions.When_Uow_Begin_throws.Endpoint.UnitOfWorkThatThrowsInBegin.Begin()
+@"at NServiceBus.AcceptanceTests.Exceptions.Uow_Begin_throws.Endpoint.UnitOfWorkThatThrowsInBegin.Begin()
 at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
 at NServiceBus.ChildContainerBehavior.Invoke(Context context, Action next)
 at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)", context.StackTrace);
