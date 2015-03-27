@@ -73,8 +73,9 @@
     /// </summary>
     internal enum HandlerKind
     {
-        Message = 1,
-        Event = 2,
-        Timeout = 3
+        Message,
+        Command,
+        Event,
+        Timeout
     }
 }

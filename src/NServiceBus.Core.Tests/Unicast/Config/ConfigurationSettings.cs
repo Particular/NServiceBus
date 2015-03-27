@@ -10,7 +10,7 @@
         [Test]
         [TestCase(typeof(SimpleOldStyleHandler))]
         [TestCase(typeof(SimpleNewStyleHandler))]
-        [TestCase(typeof(SimpleConsumeEvent))]
+        [TestCase(typeof(SimpleProcessEvents))]
         public void Simple_handler_should_be_classified_as_a_handler(Type handlerType)
         {
             Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(handlerType));
@@ -19,7 +19,7 @@
         [Test]
         [TestCase(typeof(ConcreteImplementationOfAbstractOldStyleHandler))]
         [TestCase(typeof(ConcreteImplementationOfAbstractNewStyleHandler))]
-        [TestCase(typeof(ConcreteImplementationOfAbstractConsumeEvent))]
+        [TestCase(typeof(ConcreteImplementationOfAbstractProcessEvents))]
         public void Concrete_implementation_of_abstract_handler_should_be_classified_as_a_handler(Type handlerType)
         {
             Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(handlerType));
@@ -28,7 +28,7 @@
         [Test]
         [TestCase(typeof(AbstractOldStyleHandler))]
         [TestCase(typeof(AbstractNewStyleHandler))]
-        [TestCase(typeof(AbstractConsumeEvent))]
+        [TestCase(typeof(AbstractProcessEvents))]
         public void Abstract_handler_should_not_be_classified_as_a_handler(Type handlerType)
         {
             Assert.IsFalse(RegisterHandlersInOrder.IsMessageHandler(handlerType));
@@ -79,16 +79,16 @@
             }
         }
 
-        class SimpleNewStyleHandler : IConsumeMessage<SimpleMessage>
+        class SimpleNewStyleHandler : IProcessCommands<SimpleMessage>
         {
-            public void Handle(SimpleMessage message, IConsumeMessageContext messageContext)
+            public void Handle(SimpleMessage message, ICommandContext context)
             {
             }
         }
 
-        class SimpleConsumeEvent : IConsumeEvent<SimpleMessage>
+        class SimpleProcessEvents : IProcessEvents<SimpleMessage>
         {
-            public void Handle(SimpleMessage message, IConsumeEventContext context)
+            public void Handle(SimpleMessage message, IEventContext context)
             {
             }
         }
@@ -100,9 +100,9 @@
             }
         }
 
-        class GenericTypeDefinitionNewStyleHandler<T> : IConsumeMessage<SimpleMessage>
+        class GenericTypeDefinitionNewStyleHandler<T> : IProcessCommands<SimpleMessage>
         {
-            public void Handle(SimpleMessage message, IConsumeMessageContext messageContext)
+            public void Handle(SimpleMessage message, ICommandContext context)
             {
             }
         }
@@ -119,11 +119,11 @@
         {
         }
 
-        interface NewStyleInterfaceHandler : IConsumeMessage<SimpleMessage>
+        interface NewStyleInterfaceHandler : IProcessCommands<SimpleMessage>
         {
         }
 
-        interface InterfaceConsumeEvent : IConsumeEvent<SimpleMessage>
+        interface INterfaceProcessEvents : IProcessEvents<SimpleMessage>
         {
         }
 
@@ -135,7 +135,7 @@
         {
         }
 
-        class ConcreteImplementationOfAbstractConsumeEvent : AbstractConsumeEvent
+        class ConcreteImplementationOfAbstractProcessEvents : AbstractProcessEvents
         {
         }
 
@@ -146,16 +146,16 @@
             }
         }
 
-        abstract class AbstractNewStyleHandler : IConsumeMessage<SimpleMessage>
+        abstract class AbstractNewStyleHandler : IProcessCommands<SimpleMessage>
         {
-            public void Handle(SimpleMessage message, IConsumeMessageContext messageContext)
+            public void Handle(SimpleMessage message, ICommandContext context)
             {
             }
         }
 
-        abstract class AbstractConsumeEvent : IConsumeEvent<SimpleMessage>
+        abstract class AbstractProcessEvents : IProcessEvents<SimpleMessage>
         {
-            public void Handle(SimpleMessage message, IConsumeEventContext context)
+            public void Handle(SimpleMessage message, IEventContext context)
             {
             }
         }

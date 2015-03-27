@@ -17,25 +17,50 @@ namespace NServiceBus
     }
 
 #pragma warning disable 1591
-    public interface IConsumeEvent<T>
+    public interface IProcessEvents<T>
     {
-        void Handle(T message, IConsumeEventContext context);
+        void Handle(T message, IEventContext context);
     }
 
-    public interface IConsumeEventContext { }
+    public interface IEventContext { }
 
-    internal class ConsumeEventContext : IConsumeEventContext
+    internal class EventContext : IEventContext
     {
     }
 
-    public interface IConsumeMessage<T>
+    public interface IProcessCommands<T>
     {
-        void Handle(T message, IConsumeMessageContext messageContext);
+        void Handle(T message, ICommandContext context);
     }
 
-    public interface IConsumeMessageContext { }
+    public interface ICommandContext
+    {
+        void Reply(object message);
+    }
 
-    internal class ConsumeMessageContext : IConsumeMessageContext
+    internal class CommandContext : ICommandContext
+    {
+        IBus bus;
+
+        public CommandContext(IBus bus)
+        {
+            this.bus = bus;
+        }
+
+        public void Reply(object message)
+        {
+            bus.Reply(message);
+        }
+    }
+
+    public interface IProcessReplies<T>
+    {
+        void Handle(T message, IReplyContext context);
+    }
+
+    public interface IReplyContext { }
+
+    internal class ReplyContext : IReplyContext
     {
     }
 #pragma warning restore 1591

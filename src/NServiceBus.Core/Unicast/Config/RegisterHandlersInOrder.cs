@@ -109,15 +109,17 @@ namespace NServiceBus.Features
             return (from @interface in type.GetInterfaces()
                 where @interface.IsGenericType
                 let genericTypeDefinition = @interface.GetGenericTypeDefinition()
-                where genericTypeDefinition == IConsumeMessageType ||
-                       genericTypeDefinition == IConsumeEventType ||
+                where genericTypeDefinition == IProcessCommandsType ||
+                       genericTypeDefinition == IProcessEventsType ||
+                       genericTypeDefinition == IProcessRepliesType ||
                        genericTypeDefinition == IHandleMessagesType
                 select @interface).Any();
         }
 
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
-        static Type IConsumeMessageType = typeof(IConsumeMessage<>);
-        static Type IConsumeEventType = typeof(IConsumeEvent<>);
+        static Type IProcessCommandsType = typeof(IProcessCommands<>);
+        static Type IProcessEventsType = typeof(IProcessEvents<>);
+        static Type IProcessRepliesType = typeof(IProcessReplies<>);
         static ILog Logger = LogManager.GetLogger<RegisterHandlersInOrder>();
     }
 }

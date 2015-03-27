@@ -11,14 +11,14 @@ namespace NServiceBus.Saga
         void Timeout(T state);
     }
 #pragma warning disable 1591
-    public interface IConsumeTimeout<T>
+    public interface IProcessTimeouts<T>
     {
-        void Timeout(T state, IConsumeTimeoutContext context);
+        void Timeout(T state, ITimeoutContext context);
     }
 
-    public interface IConsumeTimeoutContext { }
+    public interface ITimeoutContext { }
 
-    internal class ConsumeTimeoutContext : IConsumeTimeoutContext
+    internal class TimeoutContext : ITimeoutContext
     {
     }
 #pragma warning restore 1591

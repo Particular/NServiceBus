@@ -12,12 +12,12 @@ namespace NServiceBus.Saga
 
 #pragma warning disable 1591
 
-    public interface IAmStartedByConsumedMessage<T> : IConsumeMessage<T>
+    public interface IAmStartedByCommands<T> : IProcessCommands<T>
     {
     }
 
 
-    public interface IAmStartedByConsumedEvent<T> : IConsumeEvent<T>
+    public interface IAmStartedByEvents<T> : IProcessEvents<T>
     { }
 #pragma warning restore 1591
 }

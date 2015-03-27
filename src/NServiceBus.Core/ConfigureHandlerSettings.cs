@@ -5,14 +5,14 @@ namespace NServiceBus
     using NServiceBus.ObjectBuilder;
 
     /// <summary>
-    /// Extension methods for injecting props in <see cref="IHandleMessages{T}"/>, <see cref="IConsumeMessage{T}"/> or <see cref="IConsumeEvent{T}"/>.
+    /// Extension methods for injecting props in <see cref="IHandleMessages{T}"/>, <see cref="IProcessCommands{T}"/> or <see cref="IProcessEvents{T}"/>.
     /// </summary>
     public static class ConfigureHandlerSettings
     {
         /// <summary>
-        /// Initializes <see cref="IHandleMessages{T}"/>, <see cref="IConsumeMessage{T}"/> or <see cref="IConsumeEvent{T}"/> with the specified properties.
+        /// Initializes <see cref="IHandleMessages{T}"/>, <see cref="IProcessCommands{T}"/> or <see cref="IProcessEvents{T}"/> with the specified properties.
         /// </summary>
-        /// <typeparam name="THandler">The <see cref="IHandleMessages{T}"/>, <see cref="IConsumeMessage{T}"/> or <see cref="IConsumeEvent{T}"/> type.</typeparam>
+        /// <typeparam name="THandler">The <see cref="IHandleMessages{T}"/>, <see cref="IProcessCommands{T}"/> or <see cref="IProcessEvents{T}"/> type.</typeparam>
         /// <param name="config">The configuration instance.</param>
         /// <param name="property">The property name to be injected.</param>
         /// <param name="value">The value to assign to the <paramref name="property"/>.</param>

@@ -136,9 +136,10 @@
     <Compile Include="Transports\OutgoingMessage.cs" />
     <Compile Include="Transports\ReceiveBehavior.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalOutgoingContext.cs" />
-    <Compile Include="Unicast\Behaviors\PrepareConsumeMessageContextBehavior.cs" />
-    <Compile Include="Unicast\Behaviors\PrepareConsumeEventContextBehavior.cs" />
-    <Compile Include="Unicast\Behaviors\PrepareConsumeTimoutContextBehavior.cs" />
+    <Compile Include="Unicast\Behaviors\PrepareProcessCommandContextBehavior.cs" />
+    <Compile Include="Unicast\Behaviors\PrepareEventContextBehavior.cs" />
+    <Compile Include="Unicast\Behaviors\PrepareReplyContextBehavior.cs" />
+    <Compile Include="Unicast\Behaviors\PrepareTimoutContextBehavior.cs" />
     <Compile Include="Transports\IncomingMessage.cs" />
     <Compile Include="Unicast\Behaviors\SagaInvocationResult.cs" />
     <Compile Include="Unicast\Behaviors\TransportReceiveToPhysicalMessageProcessingConnector.cs" />

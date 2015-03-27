@@ -126,10 +126,11 @@
         static void CacheMethodForHandler(Type handler, Type messageType, ICollection<DelegateHolder> typeList)
         {
             CacheMethod(handler, messageType, typeof(IHandleMessages<>), HandlerKind.Message, typeList);
+            CacheMethod(handler, messageType, typeof(IProcessReplies<>), HandlerKind.Message, typeList);
             CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), HandlerKind.Timeout, typeList);
-            CacheMethod(handler, messageType, typeof(IConsumeTimeout<>), HandlerKind.Timeout, typeList);
-            CacheMethod(handler, messageType, typeof(IConsumeMessage<>), HandlerKind.Message, typeList);
-            CacheMethod(handler, messageType, typeof(IConsumeEvent<>), HandlerKind.Event, typeList);
+            CacheMethod(handler, messageType, typeof(IProcessTimeouts<>), HandlerKind.Timeout, typeList);
+            CacheMethod(handler, messageType, typeof(IProcessCommands<>), HandlerKind.Command, typeList);
+            CacheMethod(handler, messageType, typeof(IProcessEvents<>), HandlerKind.Event, typeList);
         }
 
         static void CacheMethod(Type handler, Type messageType, Type interfaceGenericType, HandlerKind potentialHandlerKind, ICollection<DelegateHolder> methodList)
@@ -200,9 +201,10 @@
                     where
                         typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
                         typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                        typeof(IConsumeTimeout<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                        typeof(IConsumeMessage<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                        typeof(IConsumeEvent<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
+                        typeof(IProcessTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                        typeof(IProcessCommands<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                        typeof(IProcessEvents<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                        typeof(IProcessReplies<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
 
                     select potentialMessageType)
                    .Distinct()

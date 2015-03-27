@@ -121,42 +121,42 @@ namespace NServiceBus.Sagas
             {
                 var handlesStartedByEventWithBothOldAndNewStyle =
                     group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.StartedByMessage) &&
-                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.StartedByConsumedEvent);
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.StartedByEvent);
                 if (handlesStartedByEventWithBothOldAndNewStyle)
                 {
-                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IAmStartedByMessages<>).FullName, typeof(IAmStartedByConsumedEvent<>).FullName, group.MessageType));
+                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IAmStartedByMessages<>).FullName, typeof(IAmStartedByEvents<>).FullName, group.MessageType));
                 }
 
                 var handlesStartedByMessageWithBothOldAndNewStyle =
                     group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.StartedByMessage) &&
-                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.StartedByConsumedMessage);
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.StartedByCommand);
                 if (handlesStartedByMessageWithBothOldAndNewStyle)
                 {
-                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IAmStartedByMessages<>).FullName, typeof(IAmStartedByConsumedMessage<>).FullName, group.MessageType));
+                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IAmStartedByMessages<>).FullName, typeof(IAmStartedByCommands<>).FullName, group.MessageType));
                 }
 
                 var handlesEventsWithBothOldAndNewStyle = 
                     group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.HandleMessage) && 
-                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.ConsumeEvent);
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.ProcessEvent);
                 if (handlesEventsWithBothOldAndNewStyle)
                 {
-                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IHandleMessages<>).FullName, typeof(IConsumeEvent<>).FullName, group.MessageType));
+                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IHandleMessages<>).FullName, typeof(IProcessEvents<>).FullName, group.MessageType));
                 }
 
                 var handlesMessagesWithBothOldAndNewStyle =
                     group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.HandleMessage) &&
-                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.ConsumeMessage);
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.ProcessCommand);
                 if (handlesMessagesWithBothOldAndNewStyle)
                 {
-                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IHandleMessages<>).FullName, typeof(IConsumeMessage<>).FullName, group.MessageType));
+                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IHandleMessages<>).FullName, typeof(IProcessCommands<>).FullName, group.MessageType));
                 }
 
                 var handlesTimeoutsWithBothOldAndNewStyle =
                     group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.HandleTimeout) &&
-                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.ConsumeTimeout);
+                    group.Messages.Any(x => x.MessageHandledBy == SagaMessageHandledBy.ProcessTimeout);
                 if (handlesTimeoutsWithBothOldAndNewStyle)
                 {
-                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IHandleTimeouts<>).FullName, typeof(IConsumeTimeout<>).FullName, group.MessageType));
+                    throw new Exception(string.Format(exceptionMessage, sagaEntityType.Name, typeof(IHandleTimeouts<>).FullName, typeof(IProcessTimeouts<>).FullName, group.MessageType));
                 }
             }
         }
@@ -227,13 +227,13 @@ namespace NServiceBus.Sagas
         {
             // the order of filters matters!
             return GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>)).Select(t => new SagaMessage(t.FullName, SagaMessageHandledBy.StartedByMessage))
-                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByConsumedMessage<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.StartedByConsumedMessage)))
-                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByConsumedEvent<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.StartedByConsumedEvent)))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByCommands<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.StartedByCommand)))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByEvents<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.StartedByEvent)))
                 .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleMessages<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.HandleMessage)))
-                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IConsumeMessage<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.ConsumeMessage)))
-                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IConsumeEvent<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.ConsumeEvent)))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IProcessCommands<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.ProcessCommand)))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IProcessEvents<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.ProcessEvent)))
                 .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleTimeouts<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.HandleTimeout)))
-                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IConsumeTimeout<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.ConsumeTimeout)))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IProcessTimeouts<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.ProcessTimeout)))
                 .ToList();
         }
 

@@ -3,12 +3,12 @@ namespace NServiceBus.Sagas
     enum SagaMessageHandledBy
     {
         StartedByMessage,
-        StartedByConsumedMessage,
-        StartedByConsumedEvent,
-        ConsumeTimeout,
+        StartedByCommand,
+        StartedByEvent,
+        ProcessTimeout,
         HandleTimeout,
-        ConsumeEvent,
-        ConsumeMessage,
+        ProcessEvent,
+        ProcessCommand,
         HandleMessage
     }
 }

@@ -90,14 +90,15 @@
 
         static bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)
         {
-            var oldTimeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
-            var newTimeoutHandler = typeof(IConsumeTimeout<>).MakeGenericType(type);
-            var oldMessageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
-            var newMessageHandler = typeof(IConsumeMessage<>).MakeGenericType(type);
-            var newEventHandler = typeof(IConsumeEvent<>).MakeGenericType(type);
+            var handleTimeouts = typeof(IHandleTimeouts<>).MakeGenericType(type);
+            var processTimeouts = typeof(IProcessTimeouts<>).MakeGenericType(type);
+            var handleMessages = typeof(IHandleMessages<>).MakeGenericType(type);
+            var processCommands = typeof(IProcessCommands<>).MakeGenericType(type);
+            var processEvents = typeof(IProcessEvents<>).MakeGenericType(type);
+            var processReplies = typeof(IProcessReplies<>).MakeGenericType(type);
 
-            return sagas.Any(t => (oldTimeoutHandler.IsAssignableFrom(t) || newTimeoutHandler.IsAssignableFrom(t)) && 
-                (!oldMessageHandler.IsAssignableFrom(t) || !newMessageHandler.IsAssignableFrom(t) || !newEventHandler.IsAssignableFrom(t)));
+            return sagas.Any(t => (handleTimeouts.IsAssignableFrom(t) || processTimeouts.IsAssignableFrom(t)) &&
+                (!handleMessages.IsAssignableFrom(t) || !processCommands.IsAssignableFrom(t) || !processEvents.IsAssignableFrom(t) || !processReplies.IsAssignableFrom(t)));
         }
 
         Conventions conventions;

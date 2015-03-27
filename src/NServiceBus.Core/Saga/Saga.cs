@@ -4,10 +4,10 @@ namespace NServiceBus.Saga
 
     /// <summary>
     /// This class is used to define sagas containing data and handling a message.
-    /// To handle more message types, implement <see cref="IConsumeMessage{T}"/>, <see cref="IConsumeEvent{T}"/> or <see cref="IHandleMessages{T}"/>
+    /// To handle more message types, implement <see cref="IProcessCommands{T}"/>, <see cref="IProcessEvents{T}"/> or <see cref="IHandleMessages{T}"/>
     /// for the relevant types.
     /// To signify that the receipt of a message should start this saga,
-    /// implement <see cref="IAmStartedByConsumedMessage{T}"/>, <see cref="IAmStartedByConsumedEvent{T}"/> or <see cref="IAmStartedByMessages{T}"/> for the relevant message type.
+    /// implement <see cref="IAmStartedByCommands{T}"/>, <see cref="IAmStartedByEvents{T}"/> or <see cref="IAmStartedByMessages{T}"/> for the relevant message type.
     /// </summary>
     public abstract class Saga 
     {
@@ -89,7 +89,7 @@ namespace NServiceBus.Saga
 
         void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage) 
         {
-            var canHandleTimeoutMessage = this is IHandleTimeouts<TTimeoutMessageType> || this is IConsumeTimeout<TTimeoutMessageType>;
+            var canHandleTimeoutMessage = this is IHandleTimeouts<TTimeoutMessageType> || this is IProcessTimeouts<TTimeoutMessageType>;
             if (!canHandleTimeoutMessage)
             {
                 var message = string.Format("The type '{0}' cannot request timeouts for '{1}' because it does not implement 'IHandleTimeout<{2}>' or 'IHandleTimeouts<{2}>'", GetType().Name, timeoutMessage, typeof(TTimeoutMessageType).FullName);
