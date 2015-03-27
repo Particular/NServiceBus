@@ -10,10 +10,10 @@ namespace NServiceBus.Saga
     public class SagaMetaModel : IEnumerable<SagaMetadata>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SagaMetaModel"/> class.
+        /// Populates the model with saga metadata.
         /// </summary>
         /// <param name="foundSagas">Collection of Sagas metadata found.</param>
-        public SagaMetaModel(IEnumerable<SagaMetadata> foundSagas)
+        public void Initialize(IEnumerable<SagaMetadata> foundSagas)
         {
             var sagas = foundSagas.ToList();
 

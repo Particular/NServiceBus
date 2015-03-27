@@ -26,6 +26,8 @@
                 }
             });
 
+            Defaults(s => s.Set<SagaMetaModel>(new SagaMetaModel()));
+           
             Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas was found in scanned types");
 
             RegisterStartupTask<CallISagaPersisterInitializeMethod>();
@@ -42,7 +44,8 @@
 
             var typeBasedSagas = TypeBasedSagaMetaModel.Create(context.Settings.GetAvailableTypes(),conventions);
 
-            var sagaMetaModel = new SagaMetaModel(typeBasedSagas);
+            var sagaMetaModel = context.Settings.Get<SagaMetaModel>();
+            sagaMetaModel.Initialize(typeBasedSagas);
 
             RegisterCustomFindersInContainer(context.Container, sagaMetaModel);
 
@@ -55,7 +58,6 @@
                     context.Container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
                 }
             }
-
         }
 
         static void RegisterCustomFindersInContainer(IConfigureComponents container, IEnumerable<SagaMetadata> sagaMetaModel)
