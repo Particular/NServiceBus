@@ -42,7 +42,6 @@ namespace NServiceBus.Unicast.Messages
         /// <returns>A new <see cref="LogicalMessage"/>.</returns>
         public LogicalMessage Create(Type messageType, object message)
         {
-            Guard.AgainstNull(headers, "headers");
             Guard.AgainstNull(messageType, "messageType");
             Guard.AgainstNull(message, "message");
 

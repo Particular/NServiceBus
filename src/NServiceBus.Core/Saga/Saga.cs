@@ -88,6 +88,7 @@ namespace NServiceBus.Saga
             SetTimeoutHeaders(context);
 
             context.DeliverAt(at);
+            context.SetLocalEndpointAsDestination();
 
             Bus.Send(timeoutMessage,context);
         }
@@ -141,6 +142,7 @@ namespace NServiceBus.Saga
             SetTimeoutHeaders(context);
 
             context.DelayDeliveryWith(within);
+            context.SetLocalEndpointAsDestination();
 
             Bus.Send(timeoutMessage,context);
         }

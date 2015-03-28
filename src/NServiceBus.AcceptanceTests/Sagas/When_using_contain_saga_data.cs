@@ -1,11 +1,10 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using EndpointTemplates;
-    using AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Saga;
     using NUnit.Framework;
-    using Saga;
-    using ScenarioDescriptors;
 
     // Repro for #SB-191
     public class When_using_contain_saga_data : NServiceBusAcceptanceTest
@@ -13,18 +12,18 @@
         [Test]
         public void Should_handle_timeouts_properly()
         {
-            Scenario.Define<Context>()
+            var context = Scenario.Define<Context>()
                     .WithEndpoint<EndpointThatHostsASaga>(
                         b => b.Given(bus => bus.SendLocal(new StartSaga {DataId = Guid.NewGuid()})))
-                    .Done(c => c.DidAllSagaInstancesReceiveTimeouts)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.True(c.DidAllSagaInstancesReceiveTimeouts))
+                    .Done(c => c.TimeoutReceived)
                     .Run();
+
+            Assert.True(context.TimeoutReceived);
         }
 
         public class Context : ScenarioContext
         {
-            public bool DidAllSagaInstancesReceiveTimeouts { get; set; }
+            public bool TimeoutReceived { get; set; }
         }
 
         public class EndpointThatHostsASaga : EndpointConfigurationBuilder
@@ -35,8 +34,8 @@
             }
 
             public class MySaga : Saga<MySaga.MySagaData>,
-                                                             IAmStartedByMessages<StartSaga>,
-                                                             IHandleTimeouts<MySaga.TimeHasPassed>
+                                        IAmStartedByMessages<StartSaga>,
+                                        IHandleTimeouts<MySaga.TimeHasPassed>
             {
                 public Context Context { get; set; }
 
@@ -51,7 +50,7 @@
                 {
                     MarkAsComplete();
 
-                    Context.DidAllSagaInstancesReceiveTimeouts = true;
+                    Context.TimeoutReceived = true;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
@@ -61,7 +60,6 @@
 
                 public class MySagaData : ContainSagaData
                 {
-                    [Unique]
                     public virtual Guid DataId { get; set; }
                 }
 
@@ -72,8 +70,7 @@
             }
         }
 
-        [Serializable]
-        public class StartSaga : ICommand
+        public class StartSaga : IMessage
         {
             public Guid DataId { get; set; }
         }
