@@ -38,10 +38,7 @@ namespace NServiceBus.Unicast.Messages
         /// <returns>A new <see cref="LogicalMessage"/>.</returns>
         public LogicalMessage Create(object message)
         {
-            if (message == null)
-            {
-                throw new ArgumentNullException("message");
-            }
+            Guard.AgainstNull(message, "message");
 
             var headers = GetMessageHeaders(message);
 
@@ -57,20 +54,9 @@ namespace NServiceBus.Unicast.Messages
         /// <returns>A new <see cref="LogicalMessage"/>.</returns>
         public LogicalMessage Create(Type messageType, object message, Dictionary<string, string> headers)
         {
-            if (message == null)
-            {
-                throw new ArgumentNullException("message");
-            }
-
-            if (messageType == null)
-            {
-                throw new ArgumentNullException("messageType");
-            }
-
-            if (headers == null)
-            {
-                throw new ArgumentNullException("headers");
-            }
+            Guard.AgainstNull(headers, "headers");
+            Guard.AgainstNull(messageType, "messageType");
+            Guard.AgainstNull(message, "message");
 
             var realMessageType = messageMapper.GetMappedTypeFor(messageType);
 

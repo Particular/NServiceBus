@@ -26,10 +26,7 @@ namespace NServiceBus.Pipeline
         public void Remove(string stepId)
         {
             // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
-            if (string.IsNullOrEmpty(stepId))
-            {
-                throw new ArgumentNullException("stepId");
-            }
+            Guard.AgainstNullAndEmpty(stepId, "stepId");
 
             modifications.Removals.Add(new RemoveStep(stepId));
         }
@@ -41,10 +38,7 @@ namespace NServiceBus.Pipeline
         public void Remove(WellKnownStep wellKnownStep)
         {
             // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
-            if (wellKnownStep == null)
-            {
-                throw new ArgumentNullException("wellKnownStep");
-            }
+            Guard.AgainstNull(wellKnownStep, "wellKnownStep");
 
             Remove((string)wellKnownStep);
         }
@@ -58,11 +52,7 @@ namespace NServiceBus.Pipeline
         public void Replace(string stepId, Type newBehavior, string description = null)
         {
             BehaviorTypeChecker.ThrowIfInvalid(newBehavior, "newBehavior");
-
-            if (string.IsNullOrEmpty(stepId))
-            {
-                throw new ArgumentNullException("stepId");
-            }
+            Guard.AgainstNullAndEmpty(stepId, "stepId");
 
             registeredBehaviors.Add(newBehavior);
             modifications.Replacements.Add(new ReplaceBehavior(stepId, newBehavior, description));
@@ -76,10 +66,7 @@ namespace NServiceBus.Pipeline
         /// <param name="description">The description of the new behavior.</param>
         public void Replace(WellKnownStep wellKnownStep, Type newBehavior, string description = null)
         {
-            if (wellKnownStep == null)
-            {
-                throw new ArgumentNullException("wellKnownStep");
-            }
+            Guard.AgainstNull(wellKnownStep, "wellKnownStep");
 
             Replace((string)wellKnownStep, newBehavior, description);
         }
@@ -95,15 +82,8 @@ namespace NServiceBus.Pipeline
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
-            if (string.IsNullOrEmpty(stepId))
-            {
-                throw new ArgumentNullException("stepId");
-            }
-
-            if (string.IsNullOrEmpty(description))
-            {
-                throw new ArgumentNullException("description");
-            }
+            Guard.AgainstNullAndEmpty(stepId, "stepId");
+            Guard.AgainstNullAndEmpty(description, "description");
 
             AddStep(RegisterStep.Create(stepId, behavior, description, isStatic));
             return new StepRegistrationSequence(AddStep);
@@ -118,10 +98,7 @@ namespace NServiceBus.Pipeline
         /// <param name="isStatic">Is this behavior pipeline-static</param>
         public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description, bool isStatic = false)
         {
-            if (wellKnownStep == null)
-            {
-                throw new ArgumentNullException("wellKnownStep");
-            }
+            Guard.AgainstNull(wellKnownStep, "wellKnownStep");
 
             return Register((string)wellKnownStep, behavior, description, isStatic);
         }

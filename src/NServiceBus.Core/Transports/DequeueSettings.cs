@@ -14,10 +14,7 @@
         /// <param name="purgeOnStartup"><code>true</code> to purge <paramref name="queue"/> at startup.</param>
         public DequeueSettings(string queue, bool purgeOnStartup)
         {
-            if (string.IsNullOrEmpty(queue))
-            {
-                throw new ArgumentException("Input queue must be specified");
-            }
+            Guard.AgainstNullAndEmpty(queue, "queue");
             PurgeOnStartup = purgeOnStartup;
             QueueName = queue;
         }

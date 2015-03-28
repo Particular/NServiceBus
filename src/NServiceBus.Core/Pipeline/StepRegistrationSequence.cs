@@ -25,15 +25,8 @@ namespace NServiceBus.Pipeline
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
-            if (string.IsNullOrEmpty(stepId))
-            {
-                throw new ArgumentNullException("stepId");
-            }
-
-            if (string.IsNullOrEmpty(description))
-            {
-                throw new ArgumentNullException("description");
-            }
+            Guard.AgainstNullAndEmpty(stepId, "stepId");
+            Guard.AgainstNullAndEmpty(description, "description");
 
             var step = RegisterStep.Create(stepId, behavior, description, isStatic);
             addStep(step);
@@ -50,10 +43,7 @@ namespace NServiceBus.Pipeline
         /// <param name="isStatic">Is this behavior pipeline-static</param>
         public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description, bool isStatic = false)
         {
-            if (wellKnownStep == null)
-            {
-                throw new ArgumentNullException("wellKnownStep");
-            }
+            Guard.AgainstNull(wellKnownStep, "wellKnownStep");
 
             Register((string)wellKnownStep, behavior, description, isStatic);
             return this;

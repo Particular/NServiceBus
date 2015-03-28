@@ -46,10 +46,7 @@ namespace NServiceBus
 
         public IDisposable Subscribe(IObserver<T> observer)
         {
-            if (observer == null)
-            {
-                throw new ArgumentNullException("observer", "observer is null.");
-            }
+            Guard.AgainstNull(observer, "observer");
 
             CheckDisposed();
 

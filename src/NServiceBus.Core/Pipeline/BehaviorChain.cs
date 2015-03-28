@@ -66,10 +66,7 @@
 
         BehaviorContext InvokeNext(BehaviorContext context, BehaviorContextStacker contextStacker, int currentIndex)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException("context");
-            }
+            Guard.AgainstNull(context, "context");
 
             if (currentIndex == itemDescriptors.Length)
             {

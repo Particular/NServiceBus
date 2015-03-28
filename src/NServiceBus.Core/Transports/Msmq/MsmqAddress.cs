@@ -27,10 +27,7 @@ namespace NServiceBus.Transports.Msmq
         /// <returns>A new instance of <see cref="Address"/>.</returns>
         public static MsmqAddress Parse(string address)
         {
-            if (string.IsNullOrEmpty(address))
-            {
-                throw new ArgumentException("Invalid destination address specified", "address");
-            }
+            Guard.AgainstNullAndEmpty(address, "address");
 
             var split = address.Split('@');
 

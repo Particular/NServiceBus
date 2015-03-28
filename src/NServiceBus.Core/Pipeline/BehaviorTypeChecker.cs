@@ -7,10 +7,7 @@ namespace NServiceBus.Pipeline
     {
         public static void ThrowIfInvalid(Type behavior, string paramName)
         {
-            if (behavior == null)
-            {
-                throw new ArgumentNullException(paramName);
-            }
+            Guard.AgainstNull(behavior, "behavior");
             //if (behavior.IsAbstract)
             //{
             //    throw new ArgumentException(string.Format("The behavior '{0}' is invalid since it is abstract.", behavior.Name), paramName);

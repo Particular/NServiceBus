@@ -23,10 +23,7 @@ namespace NServiceBus
         /// <param name="builder">The <see cref="IBuilder"/> instance.</param>
         public CriticalError(Action<string, Exception> onCriticalErrorAction, IBuilder builder)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException("builder");
-            }
+            Guard.AgainstNull(builder, "builder");
 
             this.onCriticalErrorAction = onCriticalErrorAction;
             this.builder = builder;

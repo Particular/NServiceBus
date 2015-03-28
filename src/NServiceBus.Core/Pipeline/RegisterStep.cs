@@ -22,16 +22,8 @@ namespace NServiceBus.Pipeline
         protected RegisterStep(string stepId, Type behavior, string description, bool isStatic = false)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
-
-            if (String.IsNullOrEmpty(stepId))
-            {
-                throw new ArgumentNullException("stepId");
-            }
-
-            if (String.IsNullOrEmpty(description))
-            {
-                throw new ArgumentNullException("description");
-            }
+            Guard.AgainstNullAndEmpty(stepId, "stepId");
+            Guard.AgainstNullAndEmpty(description, "description");
 
             BehaviorType = behavior;
             StepId = stepId;
@@ -92,10 +84,7 @@ namespace NServiceBus.Pipeline
         /// <param name="step">The <see cref="WellKnownStep"/> that we want to insert before.</param>
         public void InsertBeforeIfExists(WellKnownStep step)
         {
-            if (step == null)
-            {
-                throw new ArgumentNullException("step");
-            }
+            Guard.AgainstNull(step, "step");
 
             InsertBeforeIfExists((string) step);
         }
@@ -106,10 +95,7 @@ namespace NServiceBus.Pipeline
         /// <param name="id">The unique identifier of the step that we want to insert before.</param>
         public void InsertBeforeIfExists(string id)
         {
-            if (String.IsNullOrEmpty(id))
-            {
-                throw new ArgumentNullException("id");
-            }
+            Guard.AgainstNullAndEmpty(id, "id");
 
             if (Befores == null)
             {
@@ -124,10 +110,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public void InsertBefore(WellKnownStep step)
         {
-            if (step == null)
-            {
-                throw new ArgumentNullException("step");
-            }
+            Guard.AgainstNull(step, "step");
 
             InsertBefore((string)step);
         }
@@ -137,10 +120,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public void InsertBefore(string id)
         {
-            if (String.IsNullOrEmpty(id))
-            {
-                throw new ArgumentNullException("id");
-            }
+            Guard.AgainstNullAndEmpty(id, "id");
 
             if (Befores == null)
             {
@@ -156,10 +136,7 @@ namespace NServiceBus.Pipeline
         /// <param name="step">The unique identifier of the step that we want to insert after.</param>
         public void InsertAfterIfExists(WellKnownStep step)
         {
-            if (step == null)
-            {
-                throw new ArgumentNullException("step");
-            }
+            Guard.AgainstNull(step, "step");
 
             InsertAfterIfExists((string)step);
         }
@@ -170,10 +147,7 @@ namespace NServiceBus.Pipeline
         /// <param name="id">The unique identifier of the step that we want to insert after.</param>
         public void InsertAfterIfExists(string id)
         {
-            if (String.IsNullOrEmpty(id))
-            {
-                throw new ArgumentNullException("id");
-            }
+            Guard.AgainstNullAndEmpty(id, "id");
 
             if (Afters == null)
             {
@@ -188,10 +162,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public void InsertAfter(WellKnownStep step)
         {
-            if (step == null)
-            {
-                throw new ArgumentNullException("step");
-            }
+            Guard.AgainstNull(step, "step");
 
             InsertAfter((string)step);
         }
@@ -201,10 +172,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public void InsertAfter(string id)
         {
-            if (String.IsNullOrEmpty(id))
-            {
-                throw new ArgumentNullException("id");
-            }
+            Guard.AgainstNullAndEmpty(id, "id");
 
             if (Afters == null)
             {

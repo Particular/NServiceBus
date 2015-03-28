@@ -49,10 +49,7 @@ namespace NServiceBus.Settings
         /// <param name="discriminator">The discriminator to use</param>
         public void UniqueQueuePerEndpointInstance(string discriminator)
         {
-            if (discriminator == null)
-            {
-                throw new ArgumentException("Discriminator can't be null");
-            }
+            Guard.AgainstNullAndEmpty(discriminator, "discriminator");
 
             config.Settings.Set("EndpointInstanceDiscriminator", discriminator);
             UniqueQueuePerEndpointInstance();
