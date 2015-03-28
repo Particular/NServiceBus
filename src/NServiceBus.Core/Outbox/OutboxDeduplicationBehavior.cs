@@ -86,6 +86,7 @@
             {
                 InsertAfter(WellKnownStep.CreateChildContainer);
                 InsertBefore(WellKnownStep.ExecuteUnitOfWork);
+                InsertBeforeIfExists(WellKnownStep.AuditProcessedMessage);
             }
         }
     }
