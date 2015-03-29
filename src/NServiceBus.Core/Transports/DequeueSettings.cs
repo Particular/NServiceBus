@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Transports
 {
-    using System;
-
     /// <summary>
     /// Contains information necessary to set up a message pump for receiving messages.
     /// </summary>

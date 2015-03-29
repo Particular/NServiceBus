@@ -1,7 +1,5 @@
 namespace NServiceBus.Settings
 {
-    using System;
-
     /// <summary>
     /// Placeholder for the various settings related to how a endpoint is scaled out
     /// </summary>

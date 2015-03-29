@@ -1,10 +1,9 @@
 ﻿#pragma warning disable 1591
 namespace NServiceBus
 {
-    using System;
     using System.Text;
     using NServiceBus.Serialization;
-    using Serializers.Json;
+    using NServiceBus.Serializers.Json;
 
     public static class JsonSerializerConfigurationExtensions
     {
