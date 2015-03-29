@@ -70,6 +70,7 @@
                 public override void Invoke(Context context, Action next)
                 {
                     context.PhysicalMessage.Body[1]++;
+                    next();
                 }
             }
 
