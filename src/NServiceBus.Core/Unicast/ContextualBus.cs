@@ -315,25 +315,7 @@ namespace NServiceBus.Unicast
             messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new SendOptions(destination));
         }
 
-        /// <summary>
-        /// <see cref="IBus.SendLocal{T}(Action{T})"/>
-        /// </summary>
-        public ICallback SendLocal<T>(Action<T> messageConstructor)
-        {
-            return SendLocal(messageMapper.CreateInstance(messageConstructor));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public ICallback SendLocal(object message)
-        {
-            var context = new SendContext();
-
-            context.SetLocalEndpointAsDestination();
-
-            return Send(message, context);
-        }
+     
 
         public ICallback Send<T>(Action<T> messageConstructor, SendContext context)
         {

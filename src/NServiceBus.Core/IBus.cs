@@ -34,19 +34,6 @@ namespace NServiceBus
         void Unsubscribe<T>();
 
         /// <summary>
-        /// Sends the message back to the current bus.
-        /// </summary>
-        /// <param name="message">The message to send.</param>
-        ICallback SendLocal(object message);
-
-        /// <summary>
-        /// Instantiates a message of type T and sends it back to the current bus.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        ICallback SendLocal<T>(Action<T> messageConstructor);
-
-        /// <summary>
         /// Defers the processing of the message for the given delay. This feature is using the timeout manager so make sure that you enable timeouts
         /// </summary>
         ICallback Defer(TimeSpan delay, object message);
@@ -98,5 +85,44 @@ namespace NServiceBus
         /// of the message currently being handled on this thread.
         /// </summary>
         IMessageContext CurrentMessageContext { get; }
+    }
+
+    /// <summary>
+    /// Syntactic sugar for IBus
+    /// </summary>
+    public static class IBusExtensions
+    {
+        /// <summary>
+        /// Sends the message back to the current bus.
+        /// </summary>
+        /// <param name="bus">Object beeing extended</param>
+        /// <param name="message">The message to send.</param>
+        public static ICallback SendLocal(this IBus bus, object message)
+        {
+            Guard.AgainstNull(message, "message");
+
+            var context = new SendContext();
+
+            context.SetLocalEndpointAsDestination();
+
+            return bus.Send(message, context);
+        }
+
+        /// <summary>
+        /// Instantiates a message of type T and sends it back to the current bus.
+        /// </summary>
+        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+        /// <param name="bus">Object beeing extended</param>
+        /// <param name="messageConstructor">An action which initializes properties of the message</param>
+        public static ICallback SendLocal<T>(this IBus bus, Action<T> messageConstructor)
+        {
+            Guard.AgainstNull(messageConstructor, "messageConstructor");
+            var context = new SendContext();
+
+            context.SetLocalEndpointAsDestination();
+
+            return bus.Send(messageConstructor, context);
+        }
+
     }
 }

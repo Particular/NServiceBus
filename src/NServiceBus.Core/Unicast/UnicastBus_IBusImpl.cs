@@ -96,29 +96,7 @@ namespace NServiceBus.Unicast
             busImpl.Unsubscribe<T>();
         }
 
-        /// <summary>
-        /// <see cref="IBus.SendLocal(object)"/>
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public ICallback SendLocal(object message)
-        {
-            Guard.AgainstNull(message, "message");
-            return busImpl.SendLocal(message);
-        }
-
-        /// <summary>
-        /// <see cref="IBus.SendLocal{T}(Action{T})"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="messageConstructor"></param>
-        /// <returns></returns>
-        public ICallback SendLocal<T>(Action<T> messageConstructor)
-        {
-            Guard.AgainstNull(messageConstructor, "messageConstructor");
-            return busImpl.SendLocal(messageConstructor);
-        }
-
+      
         /// <summary>
         /// <see cref="IBus.Defer(TimeSpan, object)"/>
         /// </summary>
