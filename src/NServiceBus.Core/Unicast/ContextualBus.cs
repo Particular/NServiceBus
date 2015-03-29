@@ -467,8 +467,11 @@ namespace NServiceBus.Unicast
 
 
             var sendOptions = new SendOptions(destination);
+            var headers = new Dictionary<string, string>(context.Headers);
 
-            context.Headers[Headers.MessageIntent] = context.Intent.ToString();
+
+
+            headers[Headers.MessageIntent] = context.Intent.ToString();
           
             var messageId = context.MessageId;
 
@@ -479,11 +482,11 @@ namespace NServiceBus.Unicast
 
             if (!string.IsNullOrEmpty(context.CorrelationId))
             {
-                context.Headers[Headers.CorrelationId] = context.CorrelationId;
+                headers[Headers.CorrelationId] = context.CorrelationId;
             }
             else
             {
-                context.Headers[Headers.CorrelationId] = messageId;
+                headers[Headers.CorrelationId] = messageId;
             }
 
 
@@ -509,18 +512,18 @@ namespace NServiceBus.Unicast
             }
             if (!string.IsNullOrEmpty(replyToAddress))
             {
-                context.Headers[Headers.ReplyToAddress] = replyToAddress;
+                headers[Headers.ReplyToAddress] = replyToAddress;
             }
 
             ApplyDefaultDeliveryOptionsIfNeeded(sendOptions, message);
 
-            ApplyStaticHeaders(context.Headers);
+            ApplyStaticHeaders(headers);
 
             var outgoingContext = new OutgoingContext(
                 incomingContext,
                 sendOptions,
                 message,
-                context.Headers,
+                headers,
                 messageId,
                 context.Intent);
 
