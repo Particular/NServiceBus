@@ -241,3 +241,83 @@ namespace NServiceBus.MessageMutator
         void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage);
     }
 }
+
+
+namespace NServiceBus.Unicast
+{
+
+    using System;
+    public partial class UnicastBus
+    {   
+        /// <summary>
+        /// Obsoleted
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Send(string destination, object message)", 
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public ICallback Send(Address address, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obsoleted
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="address"></param>
+        /// <param name="messageConstructor"></param>
+        /// <returns></returns>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Send<T>(string destination, Action<T> messageConstructor)", 
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        // ReSharper disable UnusedParameter.Global
+        public ICallback Send<T>(Address address, Action<T> messageConstructor)
+        // ReSharper restore UnusedParameter.Global
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obsoleted
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="correlationId"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Send<T>(string destination, string correlationId, object message)", 
+            RemoveInVersion = "7.0", 
+            TreatAsErrorFromVersion = "6.0")]
+        // ReSharper disable UnusedParameter.Global
+        public ICallback Send(Address address, string correlationId, object message)
+        // ReSharper restore UnusedParameter.Global
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obsolete
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="address"></param>
+        /// <param name="correlationId"></param>
+        /// <param name="messageConstructor"></param>
+        /// <returns></returns>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Send<T>(string destination, string correlationId, Action<T> messageConstructor)", 
+            RemoveInVersion = "7.0", 
+            TreatAsErrorFromVersion = "6.0")]
+        // ReSharper disable UnusedParameter.Global
+        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
+        // ReSharper restore UnusedParameter.Global
+        {
+            throw new NotImplementedException();
+        }
+
+     }
+}
