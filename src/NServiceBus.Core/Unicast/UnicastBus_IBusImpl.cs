@@ -80,21 +80,9 @@ namespace NServiceBus.Unicast
             return busImpl.Send(messageConstructor,context);
         }
 
+       
         /// <summary>
-        /// <see cref="ISendOnlyBus.Send(string, object)"/>
-        /// </summary>
-        /// <param name="destination"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public ICallback Send(string destination, object message)
-        {
-            Guard.AgainstNullAndEmpty(destination, "destination");
-            Guard.AgainstNull(message, "message");
-            return busImpl.Send(destination, message);
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send(string, object)"/>
+        /// Obsoleted
         /// </summary>
         /// <param name="address"></param>
         /// <param name="message"></param>
@@ -109,21 +97,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(string, Action{T})"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="destination"></param>
-        /// <param name="messageConstructor"></param>
-        /// <returns></returns>
-        public ICallback Send<T>(string destination, Action<T> messageConstructor)
-        {
-            Guard.AgainstNullAndEmpty(destination, "destination");
-            Guard.AgainstNull(messageConstructor, "messageConstructor");
-            return busImpl.Send(destination, messageConstructor);
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(string, Action{T})"/>
+        /// Obsoleted
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="address"></param>

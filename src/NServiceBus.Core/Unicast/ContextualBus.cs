@@ -378,29 +378,6 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(string,Action{T})"/>
-        /// </summary>
-        public ICallback Send<T>(string destination, Action<T> messageConstructor)
-        {
-            var context = new SendContext();
-
-            context.SetDestination(destination);
-            return Send(messageConstructor, context);
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send(string,object)"/>
-        /// </summary>
-        public ICallback Send(string destination, object message)
-        {
-            var context = new SendContext();
-
-            context.SetDestination(destination);
-
-            return Send(message, context);
-        }
-
-        /// <summary>
         /// <see cref="ISendOnlyBus.Send{T}(string,string,Action{T})"/>
         /// </summary>
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
