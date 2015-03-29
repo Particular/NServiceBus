@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Objects of this interface are returned from calling IBus.Send.
     /// The interface allows the caller to register for a callback when a response
-    /// is received to their original call to <see cref="ISendOnlyBus.Send(object)"/>.
+    /// is received to their original message beeing sent"/>.
     /// </summary>
     public interface ICallback
     {

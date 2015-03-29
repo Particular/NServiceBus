@@ -121,6 +121,7 @@
     <Compile Include="FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
+    <Compile Include="ISendOnlyBusExtensions.cs" />
     <Compile Include="MessageMutator\IMutateOutgoingPhysicalContext.cs" />
     <Compile Include="MessageMutator\OutgoingPhysicalMutatorContext.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingLogicalMessageContext.cs" />

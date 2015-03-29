@@ -35,16 +35,6 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Send(object)"/>
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public ICallback Send(object message)
-        {
-            Guard.AgainstNull(message, "message");
-            return busImpl.Send(message);
-        }
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="message"></param>
@@ -55,18 +45,6 @@ namespace NServiceBus.Unicast
             return busImpl.Send(message, context);
         }
 
-      
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="messageConstructor"></param>
-        /// <returns></returns>
-        public ICallback Send<T>(Action<T> messageConstructor)
-        {
-            Guard.AgainstNull(messageConstructor, "messageConstructor");
-            return busImpl.Send(messageConstructor);
-        }
 
         /// <summary>
         /// 
@@ -115,22 +93,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Send(string, string, object)"/>
-        /// </summary>
-        /// <param name="destination"></param>
-        /// <param name="correlationId"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public ICallback Send(string destination, string correlationId, object message)
-        {
-            Guard.AgainstNullAndEmpty(destination, "destination");
-            Guard.AgainstNullAndEmpty(correlationId, "correlationId");
-            Guard.AgainstNull(message, "message");
-            return busImpl.Send(destination, correlationId, message);
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send(string, string, object)"/>
+        /// Obsoleted
         /// </summary>
         /// <param name="address"></param>
         /// <param name="correlationId"></param>
@@ -148,23 +111,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(string, string, Action{T})"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="destination"></param>
-        /// <param name="correlationId"></param>
-        /// <param name="messageConstructor"></param>
-        /// <returns></returns>
-        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
-        {
-            Guard.AgainstNullAndEmpty(destination, "destination");
-            Guard.AgainstNullAndEmpty(correlationId, "correlationId");
-            Guard.AgainstNull(messageConstructor, "messageConstructor");
-            return busImpl.Send(destination, correlationId, messageConstructor);
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(string, string, Action{T})"/>
+        /// Obsolete
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="address"></param>

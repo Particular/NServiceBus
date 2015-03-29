@@ -324,7 +324,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Send(object)"/>
+        /// 
         /// </summary>
         public ICallback SendLocal(object message)
         {
@@ -335,30 +335,10 @@ namespace NServiceBus.Unicast
             return Send(message, context);
         }
 
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(Action{T})"/>
-        /// </summary>
-        public ICallback Send<T>(Action<T> messageConstructor)
-        {
-
-            return Send(messageConstructor, new SendContext());
-        }
-
         public ICallback Send<T>(Action<T> messageConstructor, SendContext context)
         {
             return Send(messageMapper.CreateInstance(messageConstructor), context);
         }
-
-
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send(object)"/>
-        /// </summary>
-        public ICallback Send(object message)
-        {
-            return Send(message, new SendContext());
-        }
-
 
         public ICallback Send(object message, SendContext context)
         {
@@ -375,32 +355,6 @@ namespace NServiceBus.Unicast
             }
 
             return destinations.SingleOrDefault();
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send{T}(string,string,Action{T})"/>
-        /// </summary>
-        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
-        {
-            var context = new SendContext();
-
-            context.SetDestination(destination);
-            context.SetCorrelationId(correlationId);
-
-            return Send(messageConstructor, context);
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Send(string,string,object)"/>
-        /// </summary>
-        public ICallback Send(string destination, string correlationId, object message)
-        {
-            var context = new SendContext();
-
-            context.SetDestination(destination);
-            context.SetCorrelationId(correlationId);
-
-            return Send(message, context);
         }
 
         /// <summary>
