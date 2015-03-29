@@ -38,6 +38,8 @@ namespace NServiceBus
         /// <param name="destination"></param>
         public void SetDestination(string destination)
         {
+            Guard.AgainstNull(destination, "destination");
+
             Destination = destination;
         }
 
@@ -91,6 +93,8 @@ namespace NServiceBus
      
         internal void AsReplyTo(string replyToAddress)
         {
+            Guard.AgainstNull(replyToAddress, "replyToAddress");
+
             SetDestination(replyToAddress);
             Intent = MessageIntentEnum.Reply;
         }

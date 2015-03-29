@@ -113,6 +113,7 @@ namespace NServiceBus.Unicast
             var headers = new Dictionary<string, string>();
 
             ApplyStaticHeaders(headers);
+            ApplyReplyToAddress(headers);
 
 
             var outgoingContext = new OutgoingContext(
@@ -499,21 +500,8 @@ namespace NServiceBus.Unicast
             {
                 sendOptions.DeliverAt = context.At;
             }
-            string replyToAddress = null;
 
-            if (!SendOnlyMode)
-            {
-                replyToAddress = configure.PublicReturnAddress;
-            }
-
-            if (PropagateReturnAddressOnSend && CurrentMessageContext != null)
-            {
-                replyToAddress = CurrentMessageContext.ReplyToAddress;
-            }
-            if (!string.IsNullOrEmpty(replyToAddress))
-            {
-                headers[Headers.ReplyToAddress] = replyToAddress;
-            }
+            ApplyReplyToAddress(headers);
 
             ApplyDefaultDeliveryOptionsIfNeeded(sendOptions, message);
 
@@ -532,6 +520,25 @@ namespace NServiceBus.Unicast
 
 
             return SetupCallback(messageId);
+        }
+
+        private void ApplyReplyToAddress(Dictionary<string, string> headers)
+        {
+            string replyToAddress = null;
+
+            if (!SendOnlyMode)
+            {
+                replyToAddress = configure.PublicReturnAddress;
+            }
+
+            if (PropagateReturnAddressOnSend && CurrentMessageContext != null)
+            {
+                replyToAddress = CurrentMessageContext.ReplyToAddress;
+            }
+            if (!string.IsNullOrEmpty(replyToAddress))
+            {
+                headers[Headers.ReplyToAddress] = replyToAddress;
+            }
         }
 
         ICallback SetupCallback(string transportMessageId)
