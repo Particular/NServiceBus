@@ -61,7 +61,7 @@
 
                         if (LicenseExpirationChecker.HasLicenseExpired(license))
                         {
-                            var message = string.Format("The license you provided has expired, please select another file.");
+                            var message = "The license you provided has expired, please select another file.";
                             Logger.Warn(message);
                             MessageBox.Show(this, message, "License expired", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             return;
