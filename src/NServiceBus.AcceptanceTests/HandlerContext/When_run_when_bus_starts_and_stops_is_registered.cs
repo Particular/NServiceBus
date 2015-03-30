@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.HandlerContext
 {
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using global::NServiceBus.AcceptanceTesting;
     using global::NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
