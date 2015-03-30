@@ -16,16 +16,18 @@
           public void RunNew()
           {
               var cache = new MessageHandlerRegistry(new Conventions());
-              cache.RegisterHandler(typeof(StubMessageHandlerOldStyle));
+              cache.RegisterHandler(typeof(StubMessageHandler));
               cache.RegisterHandler(typeof(StubTimeoutHandlerOldStyle));
-              cache.RegisterHandler(typeof(StubMessageHandlerNewStyle));
+              cache.RegisterHandler(typeof(StubCommandHandler));
               cache.RegisterHandler(typeof(StubTimeoutHandlerNewStyle));
-              cache.RegisterHandler(typeof(StubProcessEvents));
+              cache.RegisterHandler(typeof(StubEventHandler));
+              cache.RegisterHandler(typeof(StubResponseHandler));
 
               var handlerQueue = new Queue<object>();
-              handlerQueue.Enqueue(new StubMessageHandlerOldStyle());
-              handlerQueue.Enqueue(new StubMessageHandlerNewStyle());
-              handlerQueue.Enqueue(new StubProcessEvents());
+              handlerQueue.Enqueue(new StubMessageHandler());
+              handlerQueue.Enqueue(new StubCommandHandler());
+              handlerQueue.Enqueue(new StubEventHandler());
+              handlerQueue.Enqueue(new StubResponseHandler());
               handlerQueue.Enqueue(new StubTimeoutHandlerOldStyle());
               handlerQueue.Enqueue(new StubTimeoutHandlerNewStyle());
 
@@ -51,7 +53,7 @@
               Trace.WriteLine(startNew.ElapsedMilliseconds);
           }
 
-          class StubMessageHandlerOldStyle : IHandleMessages<StubMessage>
+          class StubMessageHandler : IHandleMessages<StubMessage>
           {
 
               public void Handle(StubMessage message)
@@ -59,7 +61,7 @@
               }
           }
 
-          class StubMessageHandlerNewStyle : IProcessCommands<StubMessage>
+          class StubCommandHandler : IProcessCommands<StubMessage>
           {
 
               public void Handle(StubMessage message, ICommandContext context)
@@ -67,10 +69,18 @@
               }
           }
 
-          class StubProcessEvents : IProcessEvents<StubMessage>
+          class StubEventHandler : IProcessEvents<StubMessage>
           {
 
               public void Handle(StubMessage message, IEventContext context)
+              {
+              }
+          }
+
+          class StubResponseHandler : IProcessResponses<StubMessage>
+          {
+
+              public void Handle(StubMessage message, IResponseContext context)
               {
               }
           }
@@ -105,79 +115,93 @@
           public void Should_invoke_handle_method()
           {
               var cache = new MessageHandlerRegistry(new Conventions());
-              cache.RegisterHandler(typeof(StubHandlerOldStyle));
-              cache.RegisterHandler(typeof(StubHandlerNewStyle));
-              cache.RegisterHandler(typeof(StubProcessEvents));
+              cache.RegisterHandler(typeof(StubHandler));
+              cache.RegisterHandler(typeof(StubCommandHandler));
+              cache.RegisterHandler(typeof(StubEventHandler));
+              cache.RegisterHandler(typeof(StubResponseHandler));
 
-              var oldStyle = new StubHandlerOldStyle();
-              var newStyle = new StubHandlerNewStyle();
-              var newStyleSubscribe = new StubProcessEvents();
+              var handler = new StubHandler();
+              var commandHandler = new StubCommandHandler();
+              var eventHandler = new StubEventHandler();
+              var responseHandler = new StubResponseHandler();
               var queue = new Queue<object>();
-              queue.Enqueue(oldStyle);
-              queue.Enqueue(newStyle);
-              queue.Enqueue(newStyleSubscribe);
+              queue.Enqueue(handler);
+              queue.Enqueue(commandHandler);
+              queue.Enqueue(eventHandler);
+              queue.Enqueue(responseHandler);
 
               var handlers = cache.GetHandlersFor(typeof(StubMessage));
               handlers.InvokeAll(h => queue.Dequeue(), h => new StubMessage());
 
-              Assert.IsTrue(oldStyle.HandleCalled);
-              Assert.IsTrue(newStyle.HandleCalled);
-              Assert.IsTrue(newStyleSubscribe.HandleCalled);
+              Assert.IsTrue(handler.HandleCalled);
+              Assert.IsTrue(commandHandler.HandleCalled);
+              Assert.IsTrue(eventHandler.HandleCalled);
+              Assert.IsTrue(responseHandler.HandleCalled);
           }
 
           [Test]
           public void Should_have_passed_through_correct_message()
           {
               var cache = new MessageHandlerRegistry(new Conventions());
-              cache.RegisterHandler(typeof(StubHandlerOldStyle));
-              cache.RegisterHandler(typeof(StubHandlerNewStyle));
-              cache.RegisterHandler(typeof(StubProcessEvents));
+              cache.RegisterHandler(typeof(StubHandler));
+              cache.RegisterHandler(typeof(StubCommandHandler));
+              cache.RegisterHandler(typeof(StubEventHandler));
+              cache.RegisterHandler(typeof(StubResponseHandler));
 
               var stubMessage = new StubMessage();
 
-              var oldStyle = new StubHandlerOldStyle();
-              var newStyle = new StubHandlerNewStyle();
-              var newStyleSubscribe = new StubProcessEvents();
+              var handler = new StubHandler();
+              var commandHandler = new StubCommandHandler();
+              var eventHandler = new StubEventHandler();
+              var responseHandler = new StubResponseHandler();
               var queue = new Queue<object>();
-              queue.Enqueue(oldStyle);
-              queue.Enqueue(newStyle);
-              queue.Enqueue(newStyleSubscribe);
+              queue.Enqueue(handler);
+              queue.Enqueue(commandHandler);
+              queue.Enqueue(eventHandler);
+              queue.Enqueue(responseHandler);
 
               var handlers = cache.GetHandlersFor(typeof(StubMessage));
               handlers.InvokeAll(h => queue.Dequeue(), h => stubMessage);
 
-              Assert.AreEqual(stubMessage, oldStyle.HandledMessage);
-              Assert.AreEqual(stubMessage, newStyle.HandledMessage);
-              Assert.AreEqual(stubMessage, newStyleSubscribe.HandledMessage);
+              Assert.AreEqual(stubMessage, handler.HandledMessage);
+              Assert.AreEqual(stubMessage, commandHandler.HandledMessage);
+              Assert.AreEqual(stubMessage, eventHandler.HandledMessage);
+              Assert.AreEqual(stubMessage, responseHandler.HandledMessage);
           }
 
           [Test]
           public void Should_have_passed_through_context()
           {
               var cache = new MessageHandlerRegistry(new Conventions());
-              cache.RegisterHandler(typeof(StubHandlerNewStyle));
-              cache.RegisterHandler(typeof(StubProcessEvents));
+              cache.RegisterHandler(typeof(StubCommandHandler));
+              cache.RegisterHandler(typeof(StubEventHandler));
+              cache.RegisterHandler(typeof(StubResponseHandler));
 
-              var handleContext = new StubCommandContext();
-              var subscribeContext = new StubEventContext();
+              var commandContext = new StubCommandContext();
+              var eventContext = new StubEventContext();
+              var responseContext = new StubResponseContext();
               var contextQueue = new Queue<object>();
-              contextQueue.Enqueue(handleContext);
-              contextQueue.Enqueue(subscribeContext);
+              contextQueue.Enqueue(commandContext);
+              contextQueue.Enqueue(eventContext);
+              contextQueue.Enqueue(responseContext);
 
-              var newStyle = new StubHandlerNewStyle();
-              var newStyleSubscribe = new StubProcessEvents();
+              var commandHandler = new StubCommandHandler();
+              var eventHandler = new StubEventHandler();
+              var responseHandler = new StubResponseHandler();
               var handlerQueue = new Queue<object>();
-              handlerQueue.Enqueue(newStyle);
-              handlerQueue.Enqueue(newStyleSubscribe);
+              handlerQueue.Enqueue(commandHandler);
+              handlerQueue.Enqueue(eventHandler);
+              handlerQueue.Enqueue(responseHandler);
 
               var handlers = cache.GetHandlersFor(typeof(StubMessage));
               handlers.InvokeAll(h => handlerQueue.Dequeue(), h => new StubMessage(), h => contextQueue.Dequeue());
 
-              Assert.AreEqual(handleContext, newStyle.MessageContext);
-              Assert.AreEqual(subscribeContext, newStyleSubscribe.Context);
+              Assert.AreEqual(commandContext, commandHandler.MessageContext);
+              Assert.AreEqual(eventContext, eventHandler.Context);
+              Assert.AreEqual(responseContext, responseHandler.Context);
           }
 
-          class StubHandlerOldStyle : IHandleMessages<StubMessage>
+          class StubHandler : IHandleMessages<StubMessage>
           {
               public bool HandleCalled;
               public StubMessage HandledMessage;
@@ -189,7 +213,7 @@
               }
           }
 
-          class StubHandlerNewStyle : IProcessCommands<StubMessage>
+          class StubCommandHandler : IProcessCommands<StubMessage>
           {
               public bool HandleCalled;
               public StubMessage HandledMessage;
@@ -203,13 +227,27 @@
               }
           }
 
-          class StubProcessEvents : IProcessEvents<StubMessage>
+          class StubEventHandler : IProcessEvents<StubMessage>
           {
               public bool HandleCalled;
               public StubMessage HandledMessage;
               public IEventContext Context;
 
               public void Handle(StubMessage message, IEventContext context)
+              {
+                  HandleCalled = true;
+                  HandledMessage = message;
+                  Context = context;
+              }
+          }
+
+          class StubResponseHandler : IProcessResponses<StubMessage>
+          {
+              public bool HandleCalled;
+              public StubMessage HandledMessage;
+              public IResponseContext Context;
+
+              public void Handle(StubMessage message, IResponseContext context)
               {
                   HandleCalled = true;
                   HandledMessage = message;
@@ -326,73 +364,94 @@
               var newStyle = new WorstCaseHandlerNewStyle();
               handlers.InvokeAll(h => newStyle, h => new StubMessage());
 
-              Assert.AreEqual(9, handlers.Count());
-              Assert.AreEqual(1, newStyle.OldStyleHandleCalled);
-              Assert.AreEqual(1, newStyle.OldStyleHandleOverloadIStubMessageCalled);
-              Assert.AreEqual(1, newStyle.OldStyleHandleOverloadIMessageCalled);
-              Assert.AreEqual(1, newStyle.NewStyleHandleCalled);
-              Assert.AreEqual(1, newStyle.NewStyleHandleOverloadIStubMessageCalled);
-              Assert.AreEqual(1, newStyle.NewStyleHandleOverloadIMessageCalled);
-              Assert.AreEqual(1, newStyle.SubscribeCalled);
-              Assert.AreEqual(1, newStyle.SubscribeOverloadIStubMessageCalled);
-              Assert.AreEqual(1, newStyle.SubscribeOverloadIMessageCalled);
+              Assert.AreEqual(12, handlers.Count());
+              Assert.AreEqual(1, newStyle.HandleCalled);
+              Assert.AreEqual(1, newStyle.HandleOverloadIStubMessageCalled);
+              Assert.AreEqual(1, newStyle.HandleOverloadIMessageCalled);
+              Assert.AreEqual(1, newStyle.CommandHandleCalled);
+              Assert.AreEqual(1, newStyle.CommandHandleOverloadIStubMessageCalled);
+              Assert.AreEqual(1, newStyle.CommandHandleOverloadIMessageCalled);
+              Assert.AreEqual(1, newStyle.EventHandleCalled);
+              Assert.AreEqual(1, newStyle.EventHandleOverloadIStubMessageCalled);
+              Assert.AreEqual(1, newStyle.EventHandleOverloadIMessageCalled);
+              Assert.AreEqual(1, newStyle.ResponseHandleCalled);
+              Assert.AreEqual(1, newStyle.ResponseHandleOverloadIStubMessageCalled);
+              Assert.AreEqual(1, newStyle.ResponseHandleOverloadIMessageCalled);
           }
 
-          class WorstCaseHandlerNewStyle : IProcessCommands<StubMessage>, IProcessCommands<IStubMessage>, IProcessCommands<IMessage>, IProcessEvents<StubMessage>, IProcessEvents<IStubMessage>, IProcessEvents<IMessage>, IHandleMessages<StubMessage>, IHandleMessages<IStubMessage>, IHandleMessages<IMessage>
+          class WorstCaseHandlerNewStyle : IProcessCommands<StubMessage>, IProcessCommands<IStubMessage>, IProcessCommands<IMessage>, IProcessEvents<StubMessage>, IProcessEvents<IStubMessage>, IProcessEvents<IMessage>, IProcessResponses<StubMessage>, IProcessResponses<IStubMessage>, IProcessResponses<IMessage>, IHandleMessages<StubMessage>, IHandleMessages<IStubMessage>, IHandleMessages<IMessage>
           {
-              public int OldStyleHandleCalled;
-              public int OldStyleHandleOverloadIStubMessageCalled;
-              public int OldStyleHandleOverloadIMessageCalled;
-              public int NewStyleHandleCalled;
-              public int SubscribeCalled;
-              public int NewStyleHandleOverloadIStubMessageCalled;
-              public int NewStyleHandleOverloadIMessageCalled;
-              public int SubscribeOverloadIStubMessageCalled;
-              public int SubscribeOverloadIMessageCalled;
+              public int HandleCalled;
+              public int HandleOverloadIStubMessageCalled;
+              public int HandleOverloadIMessageCalled;
+              public int CommandHandleCalled;
+              public int CommandHandleOverloadIStubMessageCalled;
+              public int CommandHandleOverloadIMessageCalled;
+              public int EventHandleCalled;
+              public int EventHandleOverloadIStubMessageCalled;
+              public int EventHandleOverloadIMessageCalled;
+              public int ResponseHandleCalled;
+              public int ResponseHandleOverloadIStubMessageCalled;
+              public int ResponseHandleOverloadIMessageCalled;
 
               public void Handle(StubMessage state, ICommandContext context)
               {
-                  NewStyleHandleCalled += 1;
+                  CommandHandleCalled++;
               }
 
               public void Handle(StubMessage message, IEventContext context)
               {
-                  SubscribeCalled += 1;
+                  EventHandleCalled++;
               }
 
               public void Handle(StubMessage message)
               {
-                  OldStyleHandleCalled += 1;
+                  HandleCalled++;
               }
 
               public void Handle(IStubMessage message)
               {
-                  OldStyleHandleOverloadIStubMessageCalled += 1;
+                  HandleOverloadIStubMessageCalled++;
               }
 
               public void Handle(IMessage message)
               {
-                  OldStyleHandleOverloadIMessageCalled += 1;
+                  HandleOverloadIMessageCalled++;
               }
 
               public void Handle(IStubMessage message, ICommandContext context)
               {
-                  NewStyleHandleOverloadIStubMessageCalled += 1;
+                  CommandHandleOverloadIStubMessageCalled++;
               }
 
               public void Handle(IMessage message, ICommandContext context)
               {
-                  NewStyleHandleOverloadIMessageCalled += 1;
+                  CommandHandleOverloadIMessageCalled++;
               }
 
               public void Handle(IStubMessage message, IEventContext context)
               {
-                  SubscribeOverloadIStubMessageCalled += 1;
+                  EventHandleOverloadIStubMessageCalled++;
               }
 
               public void Handle(IMessage message, IEventContext context)
               {
-                  SubscribeOverloadIMessageCalled += 1;
+                  EventHandleOverloadIMessageCalled++;
+              }
+
+              public void Handle(StubMessage message, IResponseContext context)
+              {
+                  ResponseHandleCalled++;
+              }
+
+              public void Handle(IStubMessage message, IResponseContext context)
+              {
+                  ResponseHandleOverloadIStubMessageCalled++;
+              }
+
+              public void Handle(IMessage message, IResponseContext context)
+              {
+                  ResponseHandleOverloadIMessageCalled++;
               }
           }
 
