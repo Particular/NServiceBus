@@ -31,44 +31,14 @@
             sendOnlyBus.Publish(messageConstructor);
         }
 
-        public ICallback Send(object message)
-        {
-            return sendOnlyBus.Send(message);
-        }
-
         public ICallback Send(object message, SendContext context)
         {
-            throw new NotImplementedException();
-        }
-
-        public ICallback Send<T>(Action<T> messageConstructor)
-        {
-            return sendOnlyBus.Send(messageConstructor);
+            return sendOnlyBus.Send(message, context);
         }
 
         public ICallback Send<T>(Action<T> messageConstructor, SendContext context)
         {
-            throw new NotImplementedException();
-        }
-
-        public ICallback Send(string destination, object message)
-        {
-            return sendOnlyBus.Send(destination, message);
-        }
-        
-        public ICallback Send<T>(string destination, Action<T> messageConstructor)
-        {
-            return sendOnlyBus.Send(destination, messageConstructor);
-        }
-        
-        public ICallback Send(string destination, string correlationId, object message)
-        {
-            return sendOnlyBus.Send(destination, correlationId, message);
-        }
-
-        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
-        {
-            return sendOnlyBus.Send(destination, correlationId, messageConstructor);
+            return sendOnlyBus.Send(messageConstructor, context);
         }
 
         public void Subscribe(Type messageType)
@@ -87,16 +57,6 @@
         }
 
         public void Unsubscribe<T>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICallback SendLocal(object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICallback SendLocal<T>(Action<T> messageConstructor)
         {
             throw new NotImplementedException();
         }
