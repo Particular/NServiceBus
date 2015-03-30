@@ -436,12 +436,12 @@ namespace NServiceBus
     {
         void Handle(T message, NServiceBus.IEventContext context);
     }
-    public interface IProcessReplies<T>
+    public interface IProcessResponses<T>
     {
-        void Handle(T message, NServiceBus.IReplyContext context);
+        void Handle(T message, NServiceBus.IResponseContext context);
     }
-    public interface IReply { }
-    public interface IReplyContext { }
+    public interface IResponse { }
+    public interface IResponseContext { }
     public interface IRunContext
     {
         void Publish(object message);

@@ -100,13 +100,13 @@
         }
 
         [Test]
-        public void IsReplyType_should_return_true_for_IResponse()
+        public void IsResponseType_should_return_true_for_IResponse()
         {
             var conventions = new NServiceBus.Conventions();
-            Assert.IsTrue(conventions.IsReplyType(typeof(MyReply)));
+            Assert.IsTrue(conventions.IsResponseType(typeof(MyResponse)));
         }
 
-        public class MyReply : IReply
+        public class MyResponse : IResponse
         {
         }
 
@@ -154,13 +154,13 @@
             }
 
             [Test]
-            public void IsReplyType_should_return_false_for_NServiceBus_types()
+            public void IsResponseType_should_return_false_for_NServiceBus_types()
             {
                 var conventions = new NServiceBus.Conventions
                 {
-                    IsReplyTypeAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly
+                    IsResponseTypeAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly
                 };
-                Assert.IsFalse(conventions.IsReplyType(typeof(NServiceBus.Conventions)));
+                Assert.IsFalse(conventions.IsResponseType(typeof(NServiceBus.Conventions)));
             }
 
             [Test]
@@ -224,17 +224,17 @@
             }
 
             [Test]
-            public void IsReplyType_should_return_true_for_matching_type()
+            public void IsResponseType_should_return_true_for_matching_type()
             {
                 var conventions = new NServiceBus.Conventions
                 {
-                    IsReplyTypeAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly ||
-                                               t == typeof(MyConventionReply)
+                    IsResponseTypeAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly ||
+                                               t == typeof(MyConventionResponse)
                 };
-                Assert.IsTrue(conventions.IsReplyTypeAction(typeof(MyConventionReply)));
+                Assert.IsTrue(conventions.IsResponseTypeAction(typeof(MyConventionResponse)));
             }
 
-            public class MyConventionReply
+            public class MyConventionResponse
             {
             }
         }

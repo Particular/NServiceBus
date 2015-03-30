@@ -67,7 +67,7 @@
                         return IsMessageTypeAction(type) ||
                                IsCommandTypeAction(type) ||
                                IsEventTypeAction(type) ||
-                               IsReplyTypeAction(type);
+                               IsResponseTypeAction(type);
                     });
             }
             catch (Exception ex)
@@ -124,21 +124,21 @@
         }
 
         /// <summary>
-        ///     Returns true if the given type is a reply type.
+        ///     Returns true if the given type is a response type.
         /// </summary>
-        public bool IsReplyType(Type t)
+        public bool IsResponseType(Type t)
         {
             Guard.AgainstNull(t, "t");
             try
             {
-                return RepliesConventionCache.ApplyConvention(t, typeHandle =>
+                return ResponseConventionCache.ApplyConvention(t, typeHandle =>
                 {
                     var type = Type.GetTypeFromHandle(typeHandle);
                     if (type.IsFromParticularAssembly())
                     {
                         return false;
                     }
-                    return IsReplyTypeAction(type);
+                    return IsResponseTypeAction(type);
                 });
             }
             catch (Exception ex)
@@ -233,7 +233,7 @@
         ConventionCache CommandsConventionCache = new ConventionCache();
         ConventionCache EventsConventionCache = new ConventionCache();
         ConventionCache ExpressConventionCache = new ConventionCache();
-        ConventionCache RepliesConventionCache = new ConventionCache();
+        ConventionCache ResponseConventionCache = new ConventionCache();
 
         internal Func<Type, bool> IsCommandTypeAction = t => typeof(ICommand).IsAssignableFrom(t) && typeof(ICommand) != t;
 
@@ -246,13 +246,13 @@
         internal Func<Type, bool> IsExpressMessageAction = t => t.GetCustomAttributes(typeof(ExpressAttribute), true)
             .Any();
 
-        internal Func<Type, bool> IsReplyTypeAction = t => typeof(IReply).IsAssignableFrom(t) && typeof(IReply) != t;
+        internal Func<Type, bool> IsResponseTypeAction = t => typeof(IResponse).IsAssignableFrom(t) && typeof(IResponse) != t;
 
         internal Func<Type, bool> IsMessageTypeAction = t => typeof(IMessage).IsAssignableFrom(t) &&
                                                              typeof(IMessage) != t &&
                                                              typeof(IEvent) != t &&
                                                              typeof(ICommand) != t &&
-                                                             typeof(IReply) != t;
+                                                             typeof(IResponse) != t;
 
         List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
         ConventionCache MessagesConventionCache = new ConventionCache();

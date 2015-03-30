@@ -95,10 +95,10 @@
             var handleMessages = typeof(IHandleMessages<>).MakeGenericType(type);
             var processCommands = typeof(IProcessCommands<>).MakeGenericType(type);
             var processEvents = typeof(IProcessEvents<>).MakeGenericType(type);
-            var processReplies = typeof(IProcessReplies<>).MakeGenericType(type);
+            var processResponses = typeof(IProcessResponses<>).MakeGenericType(type);
 
             return sagas.Any(t => (handleTimeouts.IsAssignableFrom(t) || processTimeouts.IsAssignableFrom(t)) &&
-                (!handleMessages.IsAssignableFrom(t) || !processCommands.IsAssignableFrom(t) || !processEvents.IsAssignableFrom(t) || !processReplies.IsAssignableFrom(t)));
+                (!handleMessages.IsAssignableFrom(t) || !processCommands.IsAssignableFrom(t) || !processEvents.IsAssignableFrom(t) || !processResponses.IsAssignableFrom(t)));
         }
 
         Conventions conventions;

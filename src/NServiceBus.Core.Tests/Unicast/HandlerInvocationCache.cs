@@ -427,7 +427,7 @@
                       context = new StubEventContext();
                       break;
                   case HandlerKind.Message:
-                      context = new StubReplyContext();
+                      context = new StubResponseContext();
                       break;
                   case HandlerKind.Timeout:
                       context = new StubTimeoutContext();
@@ -440,7 +440,7 @@
       }
       class StubTimeoutContext : ITimeoutContext { }
       class StubEventContext : IEventContext { }
-      class StubReplyContext : IReplyContext { }
+      class StubResponseContext : IResponseContext { }
       class StubCommandContext : ICommandContext {
           public void Reply(object message)
           {

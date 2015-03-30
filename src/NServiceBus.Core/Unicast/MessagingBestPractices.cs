@@ -7,7 +7,7 @@ namespace NServiceBus.Unicast
     {
         public static void AssertIsValidForSend(Type messageType, Conventions conventions)
         {
-            if (conventions.IsEventType(messageType) || conventions.IsReplyType(messageType))
+            if (conventions.IsEventType(messageType) || conventions.IsResponseType(messageType))
             {
                 throw new InvalidOperationException("Send is neither supported for Messages, Replies nor Events. Commands should be sent to their logical owner using bus.Send, Replies should be Replied with bus.Reply and Events should be Published with bus.Publish.");
             }
@@ -28,7 +28,7 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("Pub/Sub is not supported for Commands. They should be sent direct to their logical owner.");
             }
 
-            if (conventions.IsReplyType(messageType))
+            if (conventions.IsResponseType(messageType))
             {
                 throw new InvalidOperationException("Pub/Sub is not supported for Responses. They should be replied to their logical owner.");
             }

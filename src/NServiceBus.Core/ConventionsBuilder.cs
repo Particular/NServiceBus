@@ -19,12 +19,12 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Sets the function to be used to evaluate whether a type is a reply.
+        ///     Sets the function to be used to evaluate whether a type is a response.
         /// </summary>
-        public ConventionsBuilder DefiningRepliesAs(Func<Type, bool> definesReplyType)
+        public ConventionsBuilder DefiningResponsesAs(Func<Type, bool> definesResponseType)
         {
-            Guard.AgainstNull(definesReplyType, "definesResponseType");
-            Conventions.IsReplyTypeAction = definesReplyType;
+            Guard.AgainstNull(definesResponseType, "definesResponseType");
+            Conventions.IsResponseTypeAction = definesResponseType;
             return this;
         }
 

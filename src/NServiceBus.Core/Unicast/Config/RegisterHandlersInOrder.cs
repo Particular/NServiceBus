@@ -111,7 +111,7 @@ namespace NServiceBus.Features
                 let genericTypeDefinition = @interface.GetGenericTypeDefinition()
                 where genericTypeDefinition == IProcessCommandsType ||
                        genericTypeDefinition == IProcessEventsType ||
-                       genericTypeDefinition == IProcessRepliesType ||
+                       genericTypeDefinition == IProcessResponsesType ||
                        genericTypeDefinition == IHandleMessagesType
                 select @interface).Any();
         }
@@ -119,7 +119,7 @@ namespace NServiceBus.Features
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
         static Type IProcessCommandsType = typeof(IProcessCommands<>);
         static Type IProcessEventsType = typeof(IProcessEvents<>);
-        static Type IProcessRepliesType = typeof(IProcessReplies<>);
+        static Type IProcessResponsesType = typeof(IProcessResponses<>);
         static ILog Logger = LogManager.GetLogger<RegisterHandlersInOrder>();
     }
 }

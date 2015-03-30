@@ -66,11 +66,11 @@
             }
 
 
-            public class OldHandlerApiHandler : IHandleMessages<MyReply>
+            public class OldHandlerApiHandler : IHandleMessages<MyResponse>
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyReply message)
+                public void Handle(MyResponse message)
                 {
                     if (Context.Id != message.Id)
                         return;
@@ -79,11 +79,11 @@
                 }
             }
 
-            public class NewHandlerApi : IProcessReplies<MyReply>
+            public class NewHandlerApi : IProcessResponses<MyResponse>
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyReply message, IReplyContext context)
+                public void Handle(MyResponse message, IResponseContext context)
                 {
                     if (Context.Id != message.Id)
                         return;
@@ -111,7 +111,7 @@
 
                     Context.HandlersExecuted.Add("CommandProcessor");
 
-                    context.Reply(new MyReply { Id = message.Id });
+                    context.Reply(new MyResponse { Id = message.Id });
                 }
             }
         }
@@ -123,7 +123,7 @@
         }
 
         [Serializable]
-        public class MyReply : IReply
+        public class MyResponse : IResponse
         {
             public Guid Id { get; set; }
         }

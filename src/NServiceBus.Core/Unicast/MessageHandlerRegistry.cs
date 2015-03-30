@@ -126,7 +126,7 @@
         static void CacheMethodForHandler(Type handler, Type messageType, ICollection<DelegateHolder> typeList)
         {
             CacheMethod(handler, messageType, typeof(IHandleMessages<>), HandlerKind.Message, typeList);
-            CacheMethod(handler, messageType, typeof(IProcessReplies<>), HandlerKind.Message, typeList);
+            CacheMethod(handler, messageType, typeof(IProcessResponses<>), HandlerKind.Message, typeList);
             CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), HandlerKind.Timeout, typeList);
             CacheMethod(handler, messageType, typeof(IProcessTimeouts<>), HandlerKind.Timeout, typeList);
             CacheMethod(handler, messageType, typeof(IProcessCommands<>), HandlerKind.Command, typeList);
@@ -204,7 +204,7 @@
                         typeof(IProcessTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
                         typeof(IProcessCommands<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
                         typeof(IProcessEvents<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                        typeof(IProcessReplies<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
+                        typeof(IProcessResponses<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
 
                     select potentialMessageType)
                    .Distinct()

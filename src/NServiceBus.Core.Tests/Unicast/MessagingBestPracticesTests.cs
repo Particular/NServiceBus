@@ -27,7 +27,7 @@
             [Test]
             public void Should_throw_for_replies()
             {
-                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForSend(typeof(MyReply), new Conventions()));
+                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForSend(typeof(MyResponse), new Conventions()));
                 Assert.AreEqual("Send is neither supported for Messages, Replies nor Events. Commands should be sent to their logical owner using bus.Send, Replies should be Replied with bus.Reply and Events should be Published with bus.Publish.", invalidOperationException.Message);
             }
 
@@ -64,7 +64,7 @@
             [Test]
             public void Should_not_throw_for_replies()
             {
-                Assert.DoesNotThrow(() => MessagingBestPractices.AssertIsValidForReply(typeof(MyReply), new Conventions()));
+                Assert.DoesNotThrow(() => MessagingBestPractices.AssertIsValidForReply(typeof(MyResponse), new Conventions()));
             }
         }
 
@@ -93,7 +93,7 @@
             [Test]
             public void Should_throw_for_replies()
             {
-                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForPubSub(typeof(MyReply), new Conventions()));
+                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForPubSub(typeof(MyResponse), new Conventions()));
                 Assert.AreEqual("Pub/Sub is not supported for Replies. They should be replied to their logical owner.", invalidOperationException.Message);
             }
         }
@@ -110,7 +110,7 @@
         {
 
         }
-        public class MyReply : IReply
+        public class MyResponse : IResponse
         {
 
         }

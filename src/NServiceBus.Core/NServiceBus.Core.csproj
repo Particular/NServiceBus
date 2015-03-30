@@ -120,7 +120,7 @@
     <Compile Include="FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
-    <Compile Include="IReply.cs" />
+    <Compile Include="IResponse.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingHeaders.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
@@ -138,7 +138,7 @@
     <Compile Include="Pipeline\Contexts\PhysicalOutgoingContext.cs" />
     <Compile Include="Unicast\Behaviors\PrepareProcessCommandContextBehavior.cs" />
     <Compile Include="Unicast\Behaviors\PrepareEventContextBehavior.cs" />
-    <Compile Include="Unicast\Behaviors\PrepareReplyContextBehavior.cs" />
+    <Compile Include="Unicast\Behaviors\PrepareResponseContextBehavior.cs" />
     <Compile Include="Unicast\Behaviors\PrepareTimoutContextBehavior.cs" />
     <Compile Include="Transports\IncomingMessage.cs" />
     <Compile Include="Unicast\Behaviors\SagaInvocationResult.cs" />

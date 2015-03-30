@@ -86,17 +86,17 @@
                 var timesCalled = 0;
                 conventions = new Conventions
                 {
-                    IsReplyTypeAction = t =>
+                    IsResponseTypeAction = t =>
                     {
                         timesCalled++;
                         return false;
                     }
                 };
 
-                conventions.IsReplyType(GetType());
+                conventions.IsResponseType(GetType());
                 Assert.AreEqual(1, timesCalled);
 
-                conventions.IsReplyType(GetType());
+                conventions.IsResponseType(GetType());
                 Assert.AreEqual(1, timesCalled);
             }
         }
