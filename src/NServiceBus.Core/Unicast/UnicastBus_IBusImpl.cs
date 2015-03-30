@@ -97,29 +97,7 @@ namespace NServiceBus.Unicast
         }
 
       
-        /// <summary>
-        /// <see cref="IBus.Defer(TimeSpan, object)"/>
-        /// </summary>
-        /// <param name="delay"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public ICallback Defer(TimeSpan delay, object message)
-        {
-            Guard.AgainstNull(message, "message");
-            return busImpl.Defer(delay, message);
-        }
-
-        /// <summary>
-        /// <see cref="IBus.Defer(System.TimeSpan,object)"/>
-        /// </summary>
-        /// <param name="processAt"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public ICallback Defer(DateTime processAt, object message)
-        {
-            Guard.AgainstNull(message, "message");
-            return busImpl.Defer(processAt, message);
-        }
+      
 
         /// <summary>
         /// <see cref="IBus.Reply"/>

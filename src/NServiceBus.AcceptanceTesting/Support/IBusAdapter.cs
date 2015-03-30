@@ -61,16 +61,6 @@
             throw new NotImplementedException();
         }
 
-        public ICallback Defer(TimeSpan delay, object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICallback Defer(DateTime processAt, object message)
-        {
-            throw new NotImplementedException();
-        }
-
         public void Reply(object message)
         {
             throw new NotImplementedException();

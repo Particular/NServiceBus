@@ -34,16 +34,6 @@ namespace NServiceBus
         void Unsubscribe<T>();
 
         /// <summary>
-        /// Defers the processing of the message for the given delay. This feature is using the timeout manager so make sure that you enable timeouts
-        /// </summary>
-        ICallback Defer(TimeSpan delay, object message);
-
-        /// <summary>
-        /// Defers the processing of the message until the specified time. This feature is using the timeout manager so make sure that you enable timeouts
-        /// </summary>
-        ICallback Defer(DateTime processAt, object message);
-
-        /// <summary>
         /// Sends the message to the endpoint which sent the message currently being handled on this thread.
         /// </summary>
         /// <param name="message">The message to send.</param>
@@ -124,5 +114,36 @@ namespace NServiceBus
             return bus.Send(messageConstructor, context);
         }
 
+        /// <summary>
+        /// Defers the processing of the message for the given delay. This feature is using the timeout manager so make sure that you enable timeouts
+        /// </summary>
+        public static ICallback Defer(this IBus bus, TimeSpan delay, object message)
+        {
+            Guard.AgainstNull(message, "message");
+            Guard.AgainstNegativeAndZero(delay,"delay");
+            
+            var context = new SendContext();
+
+            context.DelayDeliveryWith(delay);
+            context.SetLocalEndpointAsDestination();
+
+            return bus.Send(message, context);
+        }
+
+        /// <summary>
+        /// Defers the processing of the message until the specified time. This feature is using the timeout manager so make sure that you enable timeouts
+        /// </summary>
+        public static ICallback Defer(this IBus bus, DateTime processAt, object message)
+        {
+            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull(processAt, "processAt");
+        
+            var context = new SendContext();
+
+            context.DeliverAt(processAt);
+            context.SetLocalEndpointAsDestination();
+
+            return bus.Send(message, context);
+        }
     }
 }

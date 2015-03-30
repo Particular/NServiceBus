@@ -339,32 +339,7 @@ namespace NServiceBus.Unicast
             return destinations.SingleOrDefault();
         }
 
-        /// <summary>
-        /// <see cref="IBus.Defer(System.TimeSpan,object)"/>
-        /// </summary>
-        public ICallback Defer(TimeSpan delay, object message)
-        {
-            var context = new SendContext();
-
-            context.DelayDeliveryWith(delay);
-            context.SetLocalEndpointAsDestination();
-
-            return SendMessage(context, messageFactory.Create(message));
-        }
-
-        /// <summary>
-        /// <see cref="IBus.Defer(DateTime,object)"/>
-        /// </summary>
-        public ICallback Defer(DateTime processAt, object message)
-        {
-            var context = new SendContext();
-
-            context.DeliverAt(processAt);
-            context.SetLocalEndpointAsDestination();
-
-            return Send(message, context);
-        }
-
+        
         ICallback SendMessage(SendContext context, LogicalMessage message)
         {
             var destination = context.Destination;
