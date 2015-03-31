@@ -94,7 +94,7 @@
             public void Should_throw_for_replies()
             {
                 var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForPubSub(typeof(MyResponse), new Conventions()));
-                Assert.AreEqual("Pub/Sub is not supported for Replies. They should be replied to their logical owner.", invalidOperationException.Message);
+                Assert.AreEqual("Pub/Sub is not supported for Responses. They should be replied to their logical owner.", invalidOperationException.Message);
             }
         }
 
