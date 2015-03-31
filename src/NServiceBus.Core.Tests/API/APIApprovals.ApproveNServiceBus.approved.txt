@@ -1805,8 +1805,8 @@ namespace NServiceBus.Settings.Concurrency
 {
     public class ConcurrencySettings
     {
-        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSatteThreadPoolsForMainPipelineAndEachSatellite() { }
-        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSatteThreadPoolsForMainPipelineAndEachSatellite(int defaultMaxiumConcurrencyLevel) { }
+        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSatellite() { }
+        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSatellite(int defaultMaxiumConcurrencyLevel) { }
         public void UseSingleThreadPool() { }
         public void UseSingleThreadPool(int maximumConcurrencyLevel) { }
     }
