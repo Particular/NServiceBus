@@ -38,7 +38,7 @@ namespace NServiceBus.Settings.Concurrency
         /// If not explicitly overridden, each thread pool will have the default concurrency limit of 1.
         /// </summary>
         /// <returns></returns>
-        public IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSatteThreadPoolsForMainPipelineAndEachSatellite()
+        public IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSatellite()
         {
             var overrides = new Dictionary<string, int>();
             var concurrencyConfig = new IndividualConcurrencyConfig(null, overrides);
@@ -52,7 +52,7 @@ namespace NServiceBus.Settings.Concurrency
         /// </summary>
         /// <param name="defaultMaxiumConcurrencyLevel">Defaut maximum concurrency if not overridden.</param>
         /// <returns></returns>
-        public IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSatteThreadPoolsForMainPipelineAndEachSatellite(int defaultMaxiumConcurrencyLevel)
+        public IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSatellite(int defaultMaxiumConcurrencyLevel)
         {
             Guard.AgainstNegativeAndZero(defaultMaxiumConcurrencyLevel, "defaultMaxiumConcurrencyLevel");
             var overrides = new Dictionary<string, int>();
