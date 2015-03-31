@@ -18,7 +18,11 @@
             scheduler = new DefaultScheduler(bus);
             handler = new ScheduledTaskMessageHandler(scheduler);
 
-            var task = new TaskDefinition{Task = () => { }};
+            var task = new TaskDefinition
+            {
+                Every = TimeSpan.FromSeconds(5),
+                Task = () => { }
+            };
             taskId = task.Id;
             scheduler.Schedule(task);
         }
@@ -26,8 +30,12 @@
         [Test]
         public void When_a_scheduledTask_message_is_handled_the_task_should_be_defer()
         {
-            handler.Handle(new Messages.ScheduledTask{TaskId = taskId});
-            Assert.That(((Messages.ScheduledTask)bus.DeferMessages[0]).TaskId, Is.EqualTo(taskId));
+            handler.Handle(new Messages.ScheduledTask
+            {
+                Every = TimeSpan.FromSeconds(5),
+                TaskId = taskId
+            });
+            Assert.That(((Messages.ScheduledTask)bus.DeferedMessage).TaskId, Is.EqualTo(taskId));
         }
     }
 }

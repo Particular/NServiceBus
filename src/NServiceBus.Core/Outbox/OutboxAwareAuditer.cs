@@ -25,7 +25,7 @@ namespace NServiceBus.Outbox
             }
             else
             {
-                defaultMessageAuditer.Audit(sendOptions, message);
+                defaultMessageAuditer.Audit(new TransportSendOptions(sendOptions.Destination), message);
             }
         }
     }

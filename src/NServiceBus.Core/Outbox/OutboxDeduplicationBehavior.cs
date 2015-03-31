@@ -73,7 +73,8 @@
                 }
                 else
                 {
-                    defaultAuditer.Audit(deliveryOptions as SendOptions, message);
+                    var sendOptions = deliveryOptions as SendOptions;
+                    defaultAuditer.Audit(new TransportSendOptions(sendOptions.Destination), message);
                 }
                 
             }

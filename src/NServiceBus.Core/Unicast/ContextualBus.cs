@@ -300,7 +300,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new SendOptions(sendLocalAddress));
+            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new TransportSendOptions(sendLocalAddress));
 
             incomingContext.handleCurrentMessageLaterWasCalled = true;
 
@@ -312,7 +312,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void ForwardCurrentMessageTo(string destination)
         {
-            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new SendOptions(destination));
+            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new TransportSendOptions(destination));
         }
 
      

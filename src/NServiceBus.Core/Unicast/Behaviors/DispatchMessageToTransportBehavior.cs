@@ -48,13 +48,14 @@
 
             if (deliveryOptions.TimeToBeReceived.HasValue)
             {
-                message.Headers[Headers.TimeToBeReceived] =deliveryOptions.TimeToBeReceived.Value.ToString("c");   
+                message.Headers[Headers.TimeToBeReceived] = deliveryOptions.TimeToBeReceived.Value.ToString("c");   
             }
 
             if (deliveryOptions.NonDurable.HasValue && deliveryOptions.NonDurable.Value)
             {
                 message.Headers[Headers.NonDurableMessage] = true.ToString();
             }
+
           
             try
             {
@@ -64,6 +65,7 @@
                 }
                 else
                 {
+                    
                     SendOrDefer(message, deliveryOptions as SendOptions);
                 }
             }
@@ -73,14 +75,16 @@
             }
         }
 
-        void SendOrDefer(OutgoingMessage message, SendOptions sendOptions)
+        void SendOrDefer(OutgoingMessage message, SendOptions options)
         {
-            if (sendOptions.DelayDeliveryWith.HasValue)
+            var sendOptions = new TransportSendOptions(options.Destination, options.TimeToBeReceived, options.NonDurable ?? true, options.EnlistInReceiveTransaction);
+
+            if (options.DelayDeliveryWith.HasValue)
             {
-                if (sendOptions.DelayDeliveryWith > TimeSpan.Zero)
+                if (options.DelayDeliveryWith > TimeSpan.Zero)
                 {
                     SetIsDeferredHeader(message.Headers);
-                    MessageDeferral.Defer(message, sendOptions);
+                    MessageDeferral.Defer(message, options);
                 }
                 else
                 {
@@ -90,13 +94,13 @@
                 return;
             }
 
-            if (sendOptions.DeliverAt.HasValue)
+            if (options.DeliverAt.HasValue)
             {
-                var deliverAt = sendOptions.DeliverAt.Value.ToUniversalTime();
+                var deliverAt = options.DeliverAt.Value.ToUniversalTime();
                 if (deliverAt > DateTime.UtcNow)
                 {
                     SetIsDeferredHeader(message.Headers);
-                    MessageDeferral.Defer(message, sendOptions);
+                    MessageDeferral.Defer(message, options);
                 }
                 else
                 {

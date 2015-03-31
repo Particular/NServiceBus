@@ -1,11 +1,10 @@
 namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
-    using Core;
-    using NServiceBus.Unicast;
-    using Satellites;
-    using Transports;
-    using Unicast.Transport;
+    using NServiceBus.Satellites;
+    using NServiceBus.Timeout.Core;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast.Transport;
 
     class TimeoutDispatcherProcessor : IAdvancedSatellite
     {
@@ -33,7 +32,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
             {
-                var sendOptions = new SendOptions(timeoutData.Destination);
+                var sendOptions = new TransportSendOptions(timeoutData.Destination);
 
                 timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;

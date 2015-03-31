@@ -5,7 +5,6 @@ namespace NServiceBus
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast;
 
     class MoveFaultsToErrorQueueBehavior : PhysicalMessageProcessingStageBehavior
     {
@@ -41,7 +40,7 @@ namespace NServiceBus
                     message.Headers[Headers.HostId] = hostInformation.HostId.ToString("N");
                     message.Headers[Headers.HostDisplayName] = hostInformation.DisplayName;
 
-                    sender.Send(new OutgoingMessage("msg id",message.Headers,message.Body), new SendOptions(errorQueueAddress));
+                    sender.Send(new OutgoingMessage("msg id",message.Headers,message.Body), new TransportSendOptions(errorQueueAddress));
 
                     notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message,exception);
                 }

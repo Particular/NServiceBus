@@ -1,9 +1,8 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.Unicast;
-    using Pipeline;
-    using Transports;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Transports;
 
     class ForwardBehavior : PhysicalMessageProcessingStageBehavior
     {
@@ -18,7 +17,7 @@
 
             context.PhysicalMessage.RevertToOriginalBodyIfNeeded();
 
-            MessageAuditer.Audit(new SendOptions(ForwardReceivedMessagesTo), new OutgoingMessage(context.PhysicalMessage.Id,context.PhysicalMessage.Headers,context.PhysicalMessage.Body));
+            MessageAuditer.Audit(new OutgoingMessage(context.PhysicalMessage.Id,context.PhysicalMessage.Headers,context.PhysicalMessage.Body),new TransportSendOptions(ForwardReceivedMessagesTo));
         }
 
         public class Registration : RegisterStep

@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.ContainerTests", "NServiceBus.ContainerTests\NServiceBus.ContainerTests.csproj", "{0A282BF4-0957-4074-8D5E-C2FB8634A3AA}"
 EndProject
@@ -28,6 +28,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.PerformanceTests", "NServiceBus.PerformanceTests\NServiceBus.PerformanceTests.csproj", "{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.PowerShell.Development", "NServiceBus.PowerShell.Development\NServiceBus.PowerShell.Development.csproj", "{5E51EFBF-329F-4D3A-B86E-CC111697746F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{ACCDE2E1-3F56-47BA-8CFF-199931BAC6B0}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

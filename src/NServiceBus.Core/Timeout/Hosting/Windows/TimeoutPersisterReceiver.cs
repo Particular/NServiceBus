@@ -3,12 +3,11 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using CircuitBreakers;
-    using Core;
-    using Logging;
-    using Transports;
-    using Unicast;
-    using Unicast.Transport;
+    using NServiceBus.CircuitBreakers;
+    using NServiceBus.Logging;
+    using NServiceBus.Timeout.Core;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast.Transport;
 
     class TimeoutPersisterReceiver : IDisposable
     {
@@ -99,7 +98,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
                     dispatchRequest.Headers["Timeout.Id"] = timeoutData.Item1;
 
-                    MessageSender.Send(dispatchRequest, new SendOptions(DispatcherAddress));
+                    MessageSender.Send(dispatchRequest, new TransportSendOptions(DispatcherAddress));
                 }
 
                 lock (lockObject)

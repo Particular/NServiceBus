@@ -8,7 +8,6 @@ namespace NServiceBus.Core.Tests
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast;
     using NUnit.Framework;
 
     [TestFixture]
@@ -138,10 +137,10 @@ namespace NServiceBus.Core.Tests
         {
             public OutgoingMessage MessageSent { get; set; }
 
-            public SendOptions OptionsUsed { get; set; }
+            public TransportSendOptions OptionsUsed { get; set; }
             public bool ThrowOnSend { get; set; }
 
-            public void Send(OutgoingMessage message, SendOptions sendOptions)
+            public void Send(OutgoingMessage message, TransportSendOptions sendOptions)
             {
                 MessageSent = message;
                 OptionsUsed = sendOptions;

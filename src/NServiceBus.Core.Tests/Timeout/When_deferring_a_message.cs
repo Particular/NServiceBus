@@ -69,10 +69,10 @@
         class FakeMessageSender : ISendMessages
         {
 
-            public List<OutgoingMessage> Messages = new List<OutgoingMessage>(); 
-            
+            public List<OutgoingMessage> Messages = new List<OutgoingMessage>();
 
-            public void Send(OutgoingMessage message, SendOptions sendOptions)
+
+            public void Send(OutgoingMessage message, TransportSendOptions sendOptions)
             {
                 Messages.Add(message);
             }

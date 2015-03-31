@@ -45,7 +45,7 @@
 
             var subscriptionMessage = CreateControlMessage(eventType,MessageIntentEnum.Unsubscribe);
    
-            messageSender.Send(subscriptionMessage, new SendOptions(publisherAddress));
+            messageSender.Send(subscriptionMessage, new TransportSendOptions(publisherAddress));
         }
 
         OutgoingMessage CreateControlMessage(Type eventType,MessageIntentEnum intent)
@@ -62,7 +62,7 @@
         {
             try
             {
-                messageSender.Send(subscriptionMessage, new SendOptions(destination));
+                messageSender.Send(subscriptionMessage, new TransportSendOptions(destination));
             }
             catch (QueueNotFoundException ex)
             {

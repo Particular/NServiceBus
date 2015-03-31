@@ -1,14 +1,12 @@
 namespace NServiceBus.Transports
 {
-    using NServiceBus.Unicast;
-
     class DefaultMessageAuditer
     {
         public ISendMessages MessageSender { get; set; }
 
-        public void Audit(SendOptions sendOptions, OutgoingMessage message)
+        public void Audit(TransportSendOptions sendOptions, OutgoingMessage message)
         {
-            MessageSender.Send(message, new SendOptions(sendOptions.Destination));
+            MessageSender.Send(message, new TransportSendOptions(sendOptions.Destination));
         }
 
         class Initialization : INeedInitialization

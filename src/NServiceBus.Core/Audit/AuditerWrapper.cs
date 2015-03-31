@@ -2,7 +2,6 @@ namespace NServiceBus.Transports
 {
     using System;
     using NServiceBus.ObjectBuilder;
-    using NServiceBus.Unicast;
 
     class AuditerWrapper : IAuditMessages
     {
@@ -15,7 +14,7 @@ namespace NServiceBus.Transports
             this.builder = builder;
         }
 
-        public void Audit(SendOptions sendOptions, OutgoingMessage message)
+        public void Audit(OutgoingMessage message,TransportSendOptions sendOptions)
         {
             ((dynamic)builder.Build(AuditerImplType)).Audit(sendOptions, message);
         }

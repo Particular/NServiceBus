@@ -8,7 +8,6 @@
     using System.Net.NetworkInformation;
     using System.Net.Sockets;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast;
     using NUnit.Framework;
 
     [TestFixture]
@@ -19,7 +18,7 @@
         {
             var expected = String.Format("Can u see this '{0}' character!", (char)0x19);
             
-            var options = new SendOptions("destination");
+            var options = new TransportSendOptions("destination");
 
 
             var message = MsmqUtilities.Convert(new OutgoingMessage("message id",new Dictionary<string, string> { { "NServiceBus.ExceptionInfo.Message" ,expected} }, new byte[0]), options);
@@ -32,7 +31,7 @@
         public void Should_convert_message_headers_that_contain_nulls_at_the_end()
         {
             var expected = "Hello World!";
-            var options = new SendOptions("destination");
+            var options = new TransportSendOptions("destination");
 
             Console.Out.WriteLine(sizeof(char));
             var message = MsmqUtilities.Convert(new OutgoingMessage("message id",new Dictionary<string, string> { { "NServiceBus.ExceptionInfo.Message", expected } }, new byte[0]), options);
@@ -50,7 +49,7 @@
         [Test]
         public void Should_fetch_the_replytoaddress_from_responsequeue_for_backwards_compatibility()
         {
-            var message = MsmqUtilities.Convert(new OutgoingMessage("message id",new Dictionary<string, string>(),  new byte[0]), new SendOptions("destination"));
+            var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), new TransportSendOptions("destination"));
 
             message.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress("local", Environment.MachineName));
             var headers = MsmqUtilities.ExtractHeaders(message);
@@ -61,14 +60,22 @@
         [Test]
         public void Should_use_the_TTBR_in_the_send_options_if_set()
         {
-            var options = new SendOptions("destination")
-            {
-                TimeToBeReceived = TimeSpan.FromDays(1)
-            };
+            var options = new TransportSendOptions("destination", TimeSpan.FromDays(1));
 
             var message = MsmqUtilities.Convert(new OutgoingMessage("message id",new Dictionary<string, string>(),  new byte[0]), options);
 
             Assert.AreEqual(options.TimeToBeReceived.Value, message.TimeToBeReceived);
+        }
+
+
+        [Test]
+        public void Should_use_the_non_durable_setting()
+        {
+            var options = new TransportSendOptions("destination", nonDurable:true);
+
+      
+            Assert.False(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), options).Recoverable);
+            Assert.True(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), new TransportSendOptions("destination")).Recoverable);
         }
 
   

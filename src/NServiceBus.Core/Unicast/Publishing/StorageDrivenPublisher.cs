@@ -43,10 +43,7 @@
 
             foreach (var subscriber in subscribers)
             {
-                messageSender.Send(message, new SendOptions(subscriber)
-                {
-                    EnforceMessagingBestPractices = publishOptions.EnforceMessagingBestPractices
-                });
+                messageSender.Send(message, new TransportSendOptions(subscriber));
             }
         }
     }
