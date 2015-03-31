@@ -6,12 +6,13 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
     using NServiceBus.Features;
+    using NServiceBus.UnitOfWork;
     using NUnit.Framework;
 
-    public class When_handler_throws : NServiceBusAcceptanceTest
+    public class Uow_Begin_throws : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_exception_from_handler()
+        public void Should_receive_exception_thrown_from_begin()
         {
             var context = new Context();
 
@@ -20,25 +21,13 @@
                     .AllowExceptions()
                     .Done(c => c.ExceptionReceived)
                     .Run();
-            Assert.AreEqual(typeof(HandlerException), context.ExceptionType);
 
+            Assert.AreEqual(typeof(BeginException), context.ExceptionType);
             StackTraceAssert.StartsWith(
-@"at NServiceBus.AcceptanceTests.Exceptions.When_handler_throws.Endpoint.Handler.Handle(Message message)
-at NServiceBus.Unicast.Behaviors.MessageHandler.Invoke(Object message, Object context)
-at NServiceBus.InvokeHandlersBehavior.Invoke(Context context, Action next)
-at NServiceBus.HandlerTransactionScopeWrapperBehavior.Invoke(Context context, Action next)
-at NServiceBus.LoadHandlersConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.ApplyIncomingMessageMutatorsBehavior.Invoke(Context context, Action next)
-at NServiceBus.ExecuteLogicalMessagesConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.CallbackInvocationBehavior.Invoke(Context context, Action next)
-at NServiceBus.ApplyIncomingTransportMessageMutatorsBehavior.Invoke(Context context, Action next)
-at NServiceBus.SubscriptionReceiverBehavior.Invoke(Context context, Action next)
+@"at NServiceBus.AcceptanceTests.Exceptions.Uow_Begin_throws.Endpoint.UnitOfWorkThatThrowsInBegin.Begin()
 at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
 at NServiceBus.ChildContainerBehavior.Invoke(Context context, Action next)
-at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)
-at NServiceBus.EnforceMessageIdBehavior.Invoke(Context context, Action next)
-at NServiceBus.HostInformationBehavior.Invoke(Context context, Action next)
-at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action next)", context.StackTrace);
+at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)", context.StackTrace);
         }
 
         public class Context : ScenarioContext
@@ -54,6 +43,7 @@ at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action nex
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
+                    b.RegisterComponents(c => c.ConfigureComponent<UnitOfWorkThatThrowsInBegin>(DependencyLifecycle.InstancePerUnitOfWork));
                     b.DisableFeature<TimeoutManager>();
                     b.DisableFeature<SecondLevelRetries>();
                 })
@@ -63,7 +53,7 @@ at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action nex
                     });
             }
 
-          
+
 
             class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
             {
@@ -84,11 +74,22 @@ at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action nex
                 public void Stop() { }
             }
 
+            public class UnitOfWorkThatThrowsInBegin : IManageUnitsOfWork
+            {
+                public void Begin()
+                {
+                    throw new BeginException();
+                }
+
+                public void End(Exception ex = null)
+                {
+                }
+            }
+
             class Handler : IHandleMessages<Message>
             {
                 public void Handle(Message message)
                 {
-                    throw new HandlerException();
                 }
             }
         }
@@ -99,18 +100,18 @@ at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action nex
         }
 
         [Serializable]
-        public class HandlerException : Exception
+        public class BeginException : Exception
         {
-            public HandlerException()
-                : base("HandlerException")
+            public BeginException()
+                : base("BeginException")
             {
 
             }
 
-            protected HandlerException(SerializationInfo info, StreamingContext context)
+            protected BeginException(SerializationInfo info, StreamingContext context)
             {
             }
         }
     }
-    
+
 }

@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Outbox
 {
-    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -14,10 +13,7 @@
         /// <param name="messageId">The message identifier of the incoming message.</param>
         public OutboxMessage(string messageId)
         {
-            if (messageId == null)
-            {
-                throw new ArgumentNullException("messageId");
-            }
+            Guard.AgainstNullAndEmpty(messageId, "messageId");
 
             MessageId = messageId;
         }

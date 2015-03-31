@@ -80,10 +80,7 @@ namespace NServiceBus.Serializers.Json
             get { return encoding; }
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
+                Guard.AgainstNull(value, "value");
                 encoding = value;
             }
         }

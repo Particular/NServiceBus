@@ -12,7 +12,6 @@
     {
         public class Context : ScenarioContext
         {
-            public bool FinishedMessageProcessingCalledAfterFaultManagerInvoked { get; set; }
             public bool FaultManagerInvoked { get; set; }
 
             public byte OriginalBodyChecksum { get; set; }

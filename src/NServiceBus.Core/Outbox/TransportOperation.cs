@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Outbox
 {
-    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -18,10 +17,7 @@
         /// .
         public TransportOperation(string messageId, Dictionary<string, string> options, byte[] body, Dictionary<string, string> headers)
         {
-            if (messageId == null)
-            {
-                throw new ArgumentNullException("messageId");
-            }
+            Guard.AgainstNullAndEmpty(messageId, "messageId");
 
             MessageId = messageId;
             Options = options;

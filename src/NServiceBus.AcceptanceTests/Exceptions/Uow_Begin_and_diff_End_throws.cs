@@ -9,7 +9,7 @@
     using NServiceBus.UnitOfWork;
     using NUnit.Framework;
 
-    public class When_handler_and_Uow_End_throws : NServiceBusAcceptanceTest
+    public class Uow_Begin_and_diff_End_throws : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_AggregateException_with_both_exceptions()
@@ -17,12 +17,12 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new StartMessage())))
+                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
                     .AllowExceptions()
                     .Done(c => c.ExceptionReceived)
                     .Run();
 
-            Assert.AreEqual(typeof(HandlerException), context.InnerExceptionOneType);
+            Assert.AreEqual(typeof(BeginException), context.InnerExceptionOneType);
             Assert.AreEqual(typeof(EndException), context.InnerExceptionTwoType);
 
             StackTraceAssert.StartsWith(
@@ -31,20 +31,7 @@ at NServiceBus.ChildContainerBehavior.Invoke(Context context, Action next)
 at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)", context.StackTrace);
 
             StackTraceAssert.StartsWith(
-@"at NServiceBus.AcceptanceTests.Exceptions.When_handler_and_Uow_End_throws.Endpoint.Handler.Handle(Message message)
-at NServiceBus.Unicast.Behaviors.MessageHandler.Invoke(Object message, Object context)
-at NServiceBus.InvokeHandlersBehavior.Invoke(Context context, Action next)
-at NServiceBus.HandlerTransactionScopeWrapperBehavior.Invoke(Context context, Action next)
-at NServiceBus.LoadHandlersConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.ApplyIncomingMessageMutatorsBehavior.Invoke(Context context, Action next)
-at NServiceBus.ExecuteLogicalMessagesConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.CallbackInvocationBehavior.Invoke(Context context, Action next)
-at NServiceBus.ApplyIncomingTransportMessageMutatorsBehavior.Invoke(Context context, Action next)
-at NServiceBus.SubscriptionReceiverBehavior.Invoke(Context context, Action next)
-at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)", context.InnerExceptionOneStackTrace);
-
-            StackTraceAssert.StartsWith(
-string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.When_handler_and_Uow_End_throws.Endpoint.{0}.End(Exception ex)
+string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.Uow_Begin_and_diff_End_throws.Endpoint.{0}.End(Exception ex)
 at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initialException)", context.TypeName), context.InnerExceptionTwoStackTrace);
 
         }
@@ -53,13 +40,13 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
         {
             public bool ExceptionReceived { get; set; }
             public string StackTrace { get; set; }
+            public Type ExceptionType { get; set; }
             public string InnerExceptionOneStackTrace { get; set; }
             public string InnerExceptionTwoStackTrace { get; set; }
             public Type InnerExceptionOneType { get; set; }
             public Type InnerExceptionTwoType { get; set; }
             public bool FirstOneExecuted { get; set; }
             public string TypeName { get; set; }
-            public bool Enabled { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -70,8 +57,8 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
                 {
                     b.RegisterComponents(c =>
                     {
-                        c.ConfigureComponent<UnitOfWorkThatThrows2>(DependencyLifecycle.InstancePerUnitOfWork);
                         c.ConfigureComponent<UnitOfWorkThatThrows1>(DependencyLifecycle.InstancePerUnitOfWork);
+                        c.ConfigureComponent<UnitOfWorkThatThrows2>(DependencyLifecycle.InstancePerUnitOfWork);
                     });
                     b.DisableFeature<TimeoutManager>();
                     b.DisableFeature<SecondLevelRetries>();
@@ -94,11 +81,11 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
                     {
                         var aggregateException = (AggregateException)e.Exception;
                         Context.StackTrace = aggregateException.StackTrace;
-                        var exceptions = aggregateException.InnerExceptions;
-                        Context.InnerExceptionOneStackTrace = exceptions[0].StackTrace;
-                        Context.InnerExceptionTwoStackTrace = exceptions[1].StackTrace;
-                        Context.InnerExceptionOneType = exceptions[0].GetType();
-                        Context.InnerExceptionTwoType = exceptions[1].GetType();
+                        var innerExceptions = aggregateException.InnerExceptions;
+                        Context.InnerExceptionOneStackTrace = innerExceptions[0].StackTrace;
+                        Context.InnerExceptionTwoStackTrace = innerExceptions[1].StackTrace;
+                        Context.InnerExceptionOneType = innerExceptions[0].GetType();
+                        Context.InnerExceptionTwoType = innerExceptions[1].GetType();
                         Context.ExceptionReceived = true;
                     });
                 }
@@ -109,27 +96,22 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
             public class UnitOfWorkThatThrows1 : IManageUnitsOfWork
             {
                 public Context Context { get; set; }
-
-                bool executedInSecondPlace;
+                
+                bool throwAtEnd;
 
                 public void Begin()
                 {
-                    if (!Context.Enabled)
-                    {
-                        return;
-                    }
-
                     if (Context.FirstOneExecuted)
                     {
-                        executedInSecondPlace = true;
+                        throw new BeginException();
                     }
 
-                    Context.FirstOneExecuted = true;
+                    Context.FirstOneExecuted = throwAtEnd = true;
                 }
 
                 public void End(Exception ex = null)
                 {
-                    if (executedInSecondPlace)
+                    if (throwAtEnd)
                     {
                         Context.TypeName = GetType().Name;
 
@@ -137,31 +119,25 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
                     }
                 }
             }
-
             public class UnitOfWorkThatThrows2 : IManageUnitsOfWork
             {
                 public Context Context { get; set; }
 
-                bool executedInSecondPlace;
+                bool throwAtEnd;
 
                 public void Begin()
                 {
-                    if (!Context.Enabled)
-                    {
-                        return;
-                    }
-
                     if (Context.FirstOneExecuted)
                     {
-                        executedInSecondPlace = true;
+                        throw new BeginException();
                     }
 
-                    Context.FirstOneExecuted = true;
+                    Context.FirstOneExecuted = throwAtEnd = true;
                 }
 
                 public void End(Exception ex = null)
                 {
-                    if (executedInSecondPlace)
+                    if (throwAtEnd)
                     {
                         Context.TypeName = GetType().Name;
 
@@ -174,22 +150,9 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
             {
                 public void Handle(Message message)
                 {
-                    throw new HandlerException();
                 }
             }
 
-
-            class StartHandler : IHandleMessages<StartMessage>
-            {
-                public IBus Bus { get; set; }
-                public Context Context { get; set; }
-
-                public void Handle(StartMessage message)
-                {
-                    Context.Enabled = true;
-                    Bus.SendLocal(new Message());
-                }
-            }
         }
 
         [Serializable]
@@ -198,20 +161,15 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
         }
 
         [Serializable]
-        public class StartMessage : IMessage
+        public class BeginException : Exception
         {
-        }
-
-        [Serializable]
-        public class HandlerException : Exception
-        {
-            public HandlerException()
-                : base("HandlerException")
+            public BeginException()
+                : base("BeginException")
             {
 
             }
 
-            protected HandlerException(SerializationInfo info, StreamingContext context)
+            protected BeginException(SerializationInfo info, StreamingContext context)
             {
             }
         }

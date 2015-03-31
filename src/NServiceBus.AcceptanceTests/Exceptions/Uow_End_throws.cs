@@ -9,10 +9,10 @@
     using NServiceBus.UnitOfWork;
     using NUnit.Framework;
 
-    public class When_Uow_Begin_throws : NServiceBusAcceptanceTest
+    public class Uow_End_throws : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_exception_thrown_from_begin()
+        public void Should_receive_exception_thrown_from_end()
         {
             var context = new Context();
 
@@ -22,9 +22,9 @@
                     .Done(c => c.ExceptionReceived)
                     .Run();
 
-            Assert.AreEqual(typeof(BeginException), context.ExceptionType);
+            Assert.AreEqual(typeof(EndException), context.ExceptionType);
             StackTraceAssert.StartsWith(
-@"at NServiceBus.AcceptanceTests.Exceptions.When_Uow_Begin_throws.Endpoint.UnitOfWorkThatThrowsInBegin.Begin()
+@"at NServiceBus.AcceptanceTests.Exceptions.Uow_End_throws.Endpoint.UnitOfWorkThatThrowsInEnd.End(Exception ex)
 at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
 at NServiceBus.ChildContainerBehavior.Invoke(Context context, Action next)
 at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)", context.StackTrace);
@@ -43,7 +43,7 @@ at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.RegisterComponents(c => c.ConfigureComponent<UnitOfWorkThatThrowsInBegin>(DependencyLifecycle.InstancePerUnitOfWork));
+                    b.RegisterComponents(c => c.ConfigureComponent<UnitOfWorkThatThrowsInEnd>(DependencyLifecycle.InstancePerUnitOfWork));
                     b.DisableFeature<TimeoutManager>();
                     b.DisableFeature<SecondLevelRetries>();
                 })
@@ -52,7 +52,6 @@ at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)
                         c.MaxRetries = 0;
                     });
             }
-
 
 
             class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
@@ -74,18 +73,18 @@ at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)
                 public void Stop() { }
             }
 
-            public class UnitOfWorkThatThrowsInBegin : IManageUnitsOfWork
+
+            class UnitOfWorkThatThrowsInEnd : IManageUnitsOfWork
             {
                 public void Begin()
                 {
-                    throw new BeginException();
                 }
 
                 public void End(Exception ex = null)
                 {
+                    throw new EndException();
                 }
             }
-
             class Handler : IHandleMessages<Message>
             {
                 public void Handle(Message message)
@@ -100,15 +99,15 @@ at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)
         }
 
         [Serializable]
-        public class BeginException : Exception
+        public class EndException : Exception
         {
-            public BeginException()
-                : base("BeginException")
+            public EndException()
+                : base("EndException")
             {
 
             }
 
-            protected BeginException(SerializationInfo info, StreamingContext context)
+            protected EndException(SerializationInfo info, StreamingContext context)
             {
             }
         }

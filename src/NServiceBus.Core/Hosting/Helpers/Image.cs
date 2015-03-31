@@ -42,10 +42,7 @@ namespace NServiceBus.Hosting.Helpers
 
         public static CompilationMode GetCompilationMode(string file)
         {
-            if (file == null)
-            {
-                throw new ArgumentNullException("file", "You must specify a file name");
-            }
+            Guard.AgainstNull(file, "file");
 
             using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (var image = new Image(stream))

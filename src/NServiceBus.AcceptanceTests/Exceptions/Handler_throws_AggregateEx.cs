@@ -8,7 +8,7 @@
     using NServiceBus.Features;
     using NUnit.Framework;
 
-    public class When_handler_throws_AggregateException : NServiceBusAcceptanceTest
+    public class Handler_throws_AggregateEx : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_exact_AggregateException_exception_from_handler()
@@ -26,7 +26,7 @@
             Assert.AreEqual("My Inner Exception", context.InnerExceptionMessage);
       
             StackTraceAssert.StartsWith(
-                @"at NServiceBus.AcceptanceTests.Exceptions.When_handler_throws_AggregateException.Endpoint.Handler.Handle(Message message)
+                @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.Handle(Message message)
 at NServiceBus.Unicast.Behaviors.MessageHandler.Invoke(Object message, Object context)
 at NServiceBus.InvokeHandlersBehavior.Invoke(Context context, Action next)
 at NServiceBus.HandlerTransactionScopeWrapperBehavior.Invoke(Context context, Action next)
@@ -44,8 +44,8 @@ at NServiceBus.HostInformationBehavior.Invoke(Context context, Action next)
 at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action next)", context.StackTrace);
 
             StackTraceAssert.StartsWith(
-                @"at NServiceBus.AcceptanceTests.Exceptions.When_handler_throws_AggregateException.Endpoint.Handler.MethodThatThrows()
-at NServiceBus.AcceptanceTests.Exceptions.When_handler_throws_AggregateException.Endpoint.Handler.Handle(Message message)", context.InnerStackTrace);
+                @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.MethodThatThrows()
+at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.Handle(Message message)", context.InnerStackTrace);
         }
 
         public class Context : ScenarioContext

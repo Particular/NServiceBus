@@ -114,19 +114,11 @@ namespace NServiceBus.Serializers.XML {
 		// extracting by disassembling it in Reflector
 	
 		public override int Read(char[] buffer, int index, int count)
-		{
-			if (buffer == null)
-			{
-				throw new ArgumentNullException("buffer");
-			}
-			if (index < 0)
-			{
-				throw new ArgumentOutOfRangeException("index");
-			}
-			if (count < 0)
-			{
-				throw new ArgumentOutOfRangeException("count");
-			}
+        {
+            Guard.AgainstNull(buffer, "buffer");
+            Guard.AgainstNegative(index, "index");
+            Guard.AgainstNegative(count, "count");
+
 			if ((buffer.Length - index) < count)
 			{
 				throw new ArgumentException();
