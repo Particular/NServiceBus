@@ -48,9 +48,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Hosting.Profiles", "NServiceBus.Hosting.Profiles\NServiceBus.Hosting.Profiles.csproj", "{60826589-EB19-46F7-9567-69F46C3668B9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{8B8CDBEC-862C-4A0A-83FF-90FB4CAEAB39}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Deploy", "NServiceBus.Deploy\NServiceBus.Deploy.csproj", "{E6C51638-C377-4977-9163-674B89DEEF4C}"
 	ProjectSection(ProjectDependencies) = postProject
