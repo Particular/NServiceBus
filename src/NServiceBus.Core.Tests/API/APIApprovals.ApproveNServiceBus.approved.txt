@@ -1291,22 +1291,44 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 namespace NServiceBus.MessageMutator
 {
     public interface IMessageMutator : NServiceBus.MessageMutator.IMutateIncomingMessages, NServiceBus.MessageMutator.IMutateOutgoingMessages { }
+    public interface IMessagesMutator : NServiceBus.MessageMutator.IMutateIncomingMessage, NServiceBus.MessageMutator.IMutateOutgoingMessage { }
+    public interface IMutateIncomingMessage
+    {
+        object MutateIncoming(object message, NServiceBus.MessageMutator.IMutateIncomingMessageContext context);
+    }
+    public interface IMutateIncomingMessageContext { }
     public interface IMutateIncomingMessages
     {
         object MutateIncoming(object message);
     }
+    public interface IMutateIncomingTransportMessage
+    {
+        void MutateIncoming(NServiceBus.TransportMessage transportMessage, NServiceBus.MessageMutator.IMutateIncomingTransportMessageContext context);
+    }
+    public interface IMutateIncomingTransportMessageContext { }
     public interface IMutateIncomingTransportMessages
     {
         void MutateIncoming(NServiceBus.TransportMessage transportMessage);
     }
+    public interface IMutateOutgoingMessage
+    {
+        object MutateOutgoing(object message, NServiceBus.MessageMutator.IMutateOutgoingMessageContext context);
+    }
+    public interface IMutateOutgoingMessageContext { }
     public interface IMutateOutgoingMessages
     {
         object MutateOutgoing(object message);
     }
+    public interface IMutateOutgoingTransportMessage
+    {
+        void MutateOutgoing(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, NServiceBus.TransportMessage transportMessage, NServiceBus.MessageMutator.IMutateOutgoingTransportMessageContext context);
+    }
+    public interface IMutateOutgoingTransportMessageContext { }
     public interface IMutateOutgoingTransportMessages
     {
         void MutateOutgoing(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, NServiceBus.TransportMessage transportMessage);
     }
+    public interface IMutateTransportMessage : NServiceBus.MessageMutator.IMutateIncomingTransportMessage, NServiceBus.MessageMutator.IMutateOutgoingTransportMessage { }
     public interface IMutateTransportMessages : NServiceBus.MessageMutator.IMutateIncomingTransportMessages, NServiceBus.MessageMutator.IMutateOutgoingTransportMessages { }
 }
 namespace NServiceBus.ObjectBuilder.Common
