@@ -25,6 +25,12 @@
                 context.OutgoingLogicalMessage.UpdateMessageInstance(currentMessageToSend);
             }
 
+            foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingMessage>())
+            {
+                currentMessageToSend = mutator.MutateOutgoing(currentMessageToSend, new MutateOutgoingMessageContext());
+                context.OutgoingLogicalMessage.UpdateMessageInstance(currentMessageToSend);
+            }
+
             next();
         }
     }

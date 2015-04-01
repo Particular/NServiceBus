@@ -13,6 +13,11 @@
                 mutator.MutateOutgoing(context.OutgoingLogicalMessage, context.OutgoingMessage);
             }
 
+            foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingTransportMessage>())
+            {
+                mutator.MutateOutgoing(context.OutgoingLogicalMessage, context.OutgoingMessage, new MutateOutgoingTransportMessageContext());
+            }
+
             next();
         }
     }
