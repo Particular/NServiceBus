@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.HandlerContext
 {
-    using System.Collections.Generic;
     using global::NServiceBus.AcceptanceTesting;
     using global::NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -24,27 +23,19 @@
         {
             public static void AssertOldAndNewStyleStartAndStopsAreInvoked(Context context)
             {
-                Assert.AreEqual(4, context.StartsAndStopsExecuted.Count, "Old and new style starts and stops should be invoked");
-                CollectionAssert.Contains(context.StartsAndStopsExecuted, "NewStyle.Start");
-                CollectionAssert.Contains(context.StartsAndStopsExecuted, "NewStyle.Stop");
-                CollectionAssert.Contains(context.StartsAndStopsExecuted, "OldStyle.Start");
-                CollectionAssert.Contains(context.StartsAndStopsExecuted, "OldStyle.Stop");
+                Assert.IsTrue(context.OldStyleStartCalled);
+                Assert.IsTrue(context.OldStyleStopCalled);
+                Assert.IsTrue(context.NewStyleStartCalled);
+                Assert.IsTrue(context.NewStyleStopCalled);
             }
         }
 
         public class Context : ScenarioContext
         {
-            public Context()
-            {
-                StartsAndStopsExecuted = new List<string>();
-            }
-
             public bool NewStyleStopCalled { get; set; }
             public bool NewStyleStartCalled { get; set; }
             public bool OldStyleStartCalled { get; set; }
             public bool OldStyleStopCalled { get; set; }
-
-            public List<string> StartsAndStopsExecuted { get; private set; }
         }
 
         public class StartedEndpoint : EndpointConfigurationBuilder
@@ -60,13 +51,11 @@
 
                 public void Start(IRunContext context)
                 {
-                    Context.StartsAndStopsExecuted.Add("NewStyle.Start");
                     Context.NewStyleStartCalled = true;
                 }
 
                 public void Stop(IRunContext context)
                 {
-                    Context.StartsAndStopsExecuted.Add("NewStyle.Stop");
                     Context.NewStyleStopCalled = true;
                 }
             }
@@ -77,13 +66,11 @@
 
                 public void Start()
                 {
-                    Context.StartsAndStopsExecuted.Add("OldStyle.Start");
                     Context.OldStyleStartCalled = true;
                 }
 
                 public void Stop()
                 {
-                    Context.StartsAndStopsExecuted.Add("OldStyle.Stop");
                     Context.OldStyleStopCalled = true;
                 }
             }
