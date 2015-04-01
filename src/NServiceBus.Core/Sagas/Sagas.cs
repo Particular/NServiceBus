@@ -80,7 +80,7 @@
         
         static bool IsSagaNotFoundHandler(Type t)
         {
-            return IsCompatible(t, typeof(IHandleSagaNotFound));
+            return IsCompatible(t, typeof(IHandleSagaNotFound)) || IsCompatible(t, typeof(IProcessSagaNotFound));
         }
 
         static bool IsCompatible(Type t, Type source)
