@@ -1679,10 +1679,15 @@ namespace NServiceBus.Saga
     {
         void Timeout(T state);
     }
+    public interface IProcessSagaNotFound
+    {
+        void Handle(object message, NServiceBus.Saga.ISagaNotFoundContext context);
+    }
     public interface IProcessTimeouts<T>
     {
         void Timeout(T state, NServiceBus.Saga.ITimeoutContext context);
     }
+    public interface ISagaNotFoundContext { }
     public interface ISagaPersister
     {
         void Complete(NServiceBus.Saga.IContainSagaData saga);
