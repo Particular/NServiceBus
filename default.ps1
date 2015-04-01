@@ -272,7 +272,16 @@ task CompileNHibernate -depends InitEnvironment -description "Builds NServiceBus
 		$solutionFile = $_.FullName
 		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\NServiceBus.NHibernate\" /p:Configuration=$buildConfiguration }		
 	}
-	$assemblies = dir $buildBase\NServiceBus.NHibernate\NServiceBus.**NHibernate**.dll -Exclude **Tests.dll
+	
+	$assemblies = @(
+		"$buildBase\NServiceBus.NHibernate\NServiceBus.SagaPersisters.NHibernate.Config.dll",
+		"$buildBase\NServiceBus.NHibernate\NServiceBus.SagaPersisters.NHibernate.AutoPersistence.dll", 
+		"$buildBase\NServiceBus.NHibernate\NServiceBus.SagaPersisters.NHibernate.dll", 
+		"$buildBase\NServiceBus.NHibernate\NServiceBus.TimeoutPersisters.NHibernate.dll", 
+		"$buildBase\NServiceBus.NHibernate\NServiceBus.Unicast.Subscriptions.NHibernate.dll", 
+		"$buildBase\NServiceBus.NHibernate\NServiceBus.UnitOfWork.NHibernate.Config.dll", 
+		"$buildBase\NServiceBus.NHibernate\NServiceBus.UnitOfWork.NHibernate.dll"  )
+
 	Ilmerge  $ilMergeKey $outDir "NServiceBus.NHibernate" $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusNHibernateMergeLog.txt"  $ilMergeExclude
 	
 	Copy-Item $outDir\NServiceBus.NHibernate.dll $binariesDir -Force;
