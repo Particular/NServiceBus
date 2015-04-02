@@ -508,6 +508,10 @@
           public void Reply(object message)
           {
           }
+
+          public void DoNotContinueDispatchingCurrentMessageToHandlers()
+          {
+          }
       }
   }
 

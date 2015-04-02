@@ -38,6 +38,8 @@ namespace NServiceBus
         void Return<T>(T errorEnum);
 
         void Reply(object message);
+
+        void DoNotContinueDispatchingCurrentMessageToHandlers();
     }
 
     internal class CommandContext : ICommandContext
@@ -57,6 +59,11 @@ namespace NServiceBus
         public void Reply(object message)
         {
             bus.Reply(message);
+        }
+
+        public void DoNotContinueDispatchingCurrentMessageToHandlers()
+        {
+            bus.DoNotContinueDispatchingCurrentMessageToHandlers();
         }
     }
 
