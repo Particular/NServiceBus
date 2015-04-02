@@ -512,6 +512,10 @@
           public void DoNotContinueDispatchingCurrentMessageToHandlers()
           {
           }
+
+          public void HandleCurrentMessageLater()
+          {
+          }
       }
   }
 

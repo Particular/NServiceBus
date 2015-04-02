@@ -40,6 +40,7 @@ namespace NServiceBus
         void Reply(object message);
 
         void DoNotContinueDispatchingCurrentMessageToHandlers();
+        void HandleCurrentMessageLater();
     }
 
     internal class CommandContext : ICommandContext
@@ -64,6 +65,11 @@ namespace NServiceBus
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             bus.DoNotContinueDispatchingCurrentMessageToHandlers();
+        }
+
+        public void HandleCurrentMessageLater()
+        {
+            bus.HandleCurrentMessageLater();
         }
     }
 
