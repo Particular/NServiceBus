@@ -71,6 +71,7 @@
     <Compile Include="Audit\When_using_audit_message_is_received.cs" />
     <Compile Include="Basic\When_aborting_the_behavior_chain_new.cs" />
     <Compile Include="Basic\When_handling_current_message_later_new.cs" />
+    <Compile Include="Basic\When_handling_message_with_several_messagehandlers_new.cs" />
     <Compile Include="Basic\When_receiving_with_catch_all_handlers_registered.cs" />
     <Compile Include="Basic\When_handling_message_with_several_messagehandlers.cs" />
     <Compile Include="Basic\When_registering_custom_serializer.cs" />
