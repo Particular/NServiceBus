@@ -53,11 +53,11 @@ namespace NServiceBus.AcceptanceTests.Audit
 
             }
 
-            class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+            class MessageToBeAuditedHandler : IProcessCommands<MessageToBeAudited>
             {
                 public Context MyContext { get; set; }
 
-                public void Handle(MessageToBeAudited message)
+                public void Handle(MessageToBeAudited message, ICommandContext context)
                 {
                     MyContext.IsMessageHandlingComplete = true;
                 }
@@ -73,11 +73,11 @@ namespace NServiceBus.AcceptanceTests.Audit
                     .AuditTo<EndpointThatHandlesAuditMessages>();
             }
 
-            class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+            class MessageToBeAuditedHandler : IProcessCommands<MessageToBeAudited>
             {
                 public Context MyContext { get; set; }
 
-                public void Handle(MessageToBeAudited message)
+                public void Handle(MessageToBeAudited message, ICommandContext context)
                 {
                     MyContext.IsMessageHandlingComplete = true;
                 }
@@ -92,11 +92,11 @@ namespace NServiceBus.AcceptanceTests.Audit
                 EndpointSetup<DefaultServer>();
             }
 
-            class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
+            class AuditMessageHandler : IProcessCommands<MessageToBeAudited>
             {
                 public Context MyContext { get; set; }
 
-                public void Handle(MessageToBeAudited message)
+                public void Handle(MessageToBeAudited message, ICommandContext context)
                 {
                     MyContext.IsMessageHandledByTheAuditEndpoint = true;
                 }
@@ -104,7 +104,7 @@ namespace NServiceBus.AcceptanceTests.Audit
         }
 
         [Serializable]
-        public class MessageToBeAudited : IMessage
+        public class MessageToBeAudited : ICommand
         {
         }
     }
