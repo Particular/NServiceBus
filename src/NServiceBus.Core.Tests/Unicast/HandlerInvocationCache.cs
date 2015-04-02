@@ -501,6 +501,10 @@
       class StubEventContext : IEventContext { }
       class StubResponseContext : IResponseContext { }
       class StubCommandContext : ICommandContext {
+          public void Return<T>(T errorEnum)
+          {
+          }
+
           public void Reply(object message)
           {
           }

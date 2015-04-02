@@ -35,6 +35,8 @@ namespace NServiceBus
 
     public interface ICommandContext
     {
+        void Return<T>(T errorEnum);
+
         void Reply(object message);
     }
 
@@ -45,6 +47,11 @@ namespace NServiceBus
         public CommandContext(IBus bus)
         {
             this.bus = bus;
+        }
+
+        public void Return<T>(T errorEnum)
+        {
+            bus.Return(errorEnum);
         }
 
         public void Reply(object message)

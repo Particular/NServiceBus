@@ -186,6 +186,7 @@
     <Compile Include="Basic\When_aborting_the_behavior_chain.cs" />
     <Compile Include="Basic\When_handling_current_message_later.cs" />
     <Compile Include="Basic\When_a_callback_for_local_message.cs" />
+    <Compile Include="Basic\When_a_callback_for_local_message_new.cs" />
     <Compile Include="Basic\When_multiple_mappings_exists.cs" />
     <Compile Include="Basic\When_using_a_custom_correlation_id.cs" />
     <Compile Include="Basic\When_using_callbacks_in_a_scaleout.cs" />
