@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus", "NServiceBus\NServiceBus.csproj", "{73867D40-8CBB-48E9-BFFA-12BBDD48A341}"
 EndProject
@@ -59,8 +59,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Core.x86.Tests", "NServiceBus.Core.Tests.x86\NServiceBus.Core.x86.Tests.csproj", "{389628F6-2FB4-4AFF-BACC-16726C44FFA4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.PerformanceTests", "NServiceBus.PerformanceTests\NServiceBus.PerformanceTests.csproj", "{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Distributor.MSMQ", "NServiceBus.Distributor.MSMQ\NServiceBus.Distributor.MSMQ.csproj", "{5A2F57E3-4D2B-439C-9481-1DE2DD101789}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Hosting.WindowsX86", "NServiceBus.Hosting.Windows\NServiceBus.Hosting.WindowsX86.csproj", "{79487CAA-C060-49C8-B689-6250C61A46D5}"
 EndProject
@@ -313,16 +311,6 @@ Global
 		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Release|x86.ActiveCfg = Release|Any CPU
-		{5A2F57E3-4D2B-439C-9481-1DE2DD101789}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5A2F57E3-4D2B-439C-9481-1DE2DD101789}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5A2F57E3-4D2B-439C-9481-1DE2DD101789}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{5A2F57E3-4D2B-439C-9481-1DE2DD101789}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{5A2F57E3-4D2B-439C-9481-1DE2DD101789}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5A2F57E3-4D2B-439C-9481-1DE2DD101789}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5A2F57E3-4D2B-439C-9481-1DE2DD101789}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5A2F57E3-4D2B-439C-9481-1DE2DD101789}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{5A2F57E3-4D2B-439C-9481-1DE2DD101789}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{5A2F57E3-4D2B-439C-9481-1DE2DD101789}.Release|x86.ActiveCfg = Release|Any CPU
 		{79487CAA-C060-49C8-B689-6250C61A46D5}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{79487CAA-C060-49C8-B689-6250C61A46D5}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{79487CAA-C060-49C8-B689-6250C61A46D5}.Debug|Mixed Platforms.Build.0 = Debug|x86
@@ -361,7 +349,6 @@ Global
 		{C4693C58-BB66-4630-984E-313E1BCC2474} = {EF5E77D7-74B1-422D-B34E-AED35E19249E}
 		{389628F6-2FB4-4AFF-BACC-16726C44FFA4} = {258A3F0E-FAFA-4C13-9D5A-9E46661B22D2}
 		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
-		{5A2F57E3-4D2B-439C-9481-1DE2DD101789} = {258A3F0E-FAFA-4C13-9D5A-9E46661B22D2}
 		{79487CAA-C060-49C8-B689-6250C61A46D5} = {5F77E8FE-0DCB-4E91-8F91-D3C9E767F5EF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
