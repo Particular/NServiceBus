@@ -74,6 +74,7 @@
     <Compile Include="Basic\When_handling_message_with_several_messagehandlers_new.cs" />
     <Compile Include="Basic\When_incoming_headers_should_be_shared_new.cs" />
     <Compile Include="Basic\When_injecting_handler_props_new.cs" />
+    <Compile Include="Basic\When_multiple_mappings_exists_new.cs" />
     <Compile Include="Basic\When_receiving_with_catch_all_handlers_registered.cs" />
     <Compile Include="Basic\When_handling_message_with_several_messagehandlers.cs" />
     <Compile Include="Basic\When_registering_custom_serializer.cs" />
