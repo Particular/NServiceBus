@@ -39,7 +39,7 @@
                     .AuditTo<EndpointThatHandlesAuditMessages>();
             }
 
-            class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+            class MessageToBeAuditedHandler : IProcessCommands<MessageToBeAudited>
             {
                 Context context;
 
@@ -48,9 +48,9 @@
                     this.context = context;
                 }
 
-                public void Handle(MessageToBeAudited message)
+                public void Handle(MessageToBeAudited message, ICommandContext context)
                 {
-                    context.IsMessageHandlingComplete = true;
+                    this.context.IsMessageHandlingComplete = true;
                 }
             }
         }
@@ -63,7 +63,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
+            class AuditMessageHandler : IProcessCommands<MessageToBeAudited>
             {
                 Context context;
                 IBus bus;
@@ -74,16 +74,17 @@
                     this.bus = bus;
                 }
 
-                public void Handle(MessageToBeAudited message)
+                public void Handle(MessageToBeAudited message, ICommandContext context)
                 {
-                    context.IsMessageHandledByTheAuditEndpoint = true;
-                    context.Headers = bus.CurrentMessageContext.Headers;
+                    // TODO: Design a good API to access headers
+                    this.context.IsMessageHandledByTheAuditEndpoint = true;
+                    this.context.Headers = bus.CurrentMessageContext.Headers;
                 }
             }
         }
 
         [Serializable]
-        public class MessageToBeAudited : IMessage
+        public class MessageToBeAudited : ICommand
         {
         }
     }
