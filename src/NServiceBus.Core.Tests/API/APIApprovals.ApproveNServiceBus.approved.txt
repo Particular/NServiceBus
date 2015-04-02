@@ -1709,10 +1709,11 @@ namespace NServiceBus.Saga
     }
     public class SagaMetaModel : System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMetadata>, System.Collections.IEnumerable
     {
-        public SagaMetaModel(System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMetadata> foundSagas) { }
+        public SagaMetaModel() { }
         public NServiceBus.Saga.SagaMetadata FindByEntityName(string name) { }
         public NServiceBus.Saga.SagaMetadata FindByName(string name) { }
         public System.Collections.Generic.IEnumerator<NServiceBus.Saga.SagaMetadata> GetEnumerator() { }
+        public void Initialize(System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMetadata> foundSagas) { }
     }
     public class SagaPropertyMapper<TSagaData>
         where TSagaData : NServiceBus.Saga.IContainSagaData
@@ -1726,12 +1727,18 @@ namespace NServiceBus.Saga
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
     }
     [System.AttributeUsageAttribute(System.AttributeTargets.Property | System.AttributeTargets.All)]
+    [System.ObsoleteAttribute("There is no need for this attribute anymore, all mapped properties are automatica" +
+        "lly correlated. Will be removed in version 7.0.0.", true)]
     public sealed class UniqueAttribute : System.Attribute
     {
         public UniqueAttribute() { }
+        [System.ObsoleteAttribute("Use the new SagaMetadata. Will be removed in version 7.0.0.", true)]
         public static System.Collections.Generic.IDictionary<string, object> GetUniqueProperties(NServiceBus.Saga.IContainSagaData entity) { }
+        [System.ObsoleteAttribute("Use the new SagaMetadata. Will be removed in version 7.0.0.", true)]
         public static System.Collections.Generic.IEnumerable<System.Reflection.PropertyInfo> GetUniqueProperties(System.Type type) { }
+        [System.ObsoleteAttribute("Use the new SagaMetadata. Will be removed in version 7.0.0.", true)]
         public static System.Reflection.PropertyInfo GetUniqueProperty(System.Type type) { }
+        [System.ObsoleteAttribute("Use the new SagaMetadata. Will be removed in version 7.0.0.", true)]
         public static System.Nullable<System.Collections.Generic.KeyValuePair<string, object>> GetUniqueProperty(NServiceBus.Saga.IContainSagaData entity) { }
     }
 }

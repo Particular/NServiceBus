@@ -9,7 +9,7 @@ namespace NServiceBus.Saga
         public Type MessageType;
         public Type CustomFinderType;
 
-        public bool IsCustomFinderMap
+        public bool HasCustomFinderMap
         {
             get { return CustomFinderType != null; }
         }

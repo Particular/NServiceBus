@@ -22,12 +22,24 @@
             Assert.AreEqual("Cannot store saga with id '895e60e0-7be3-490a-afca-fe69184474ca' since the unique property 'Property' has a null value.", exception.Message);
         }
 
-        class Saga : Saga<SagaData>
+        class Saga : Saga<SagaData>, IHandleMessages<M1>
         {
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
             {
+                mapper.ConfigureMapping<M1>(m => m.Property).ToSaga(s => s.Property);
+            }
+
+            public void Handle(M1 message)
+            {
+                throw new NotImplementedException();
             }
         }
+
+        class M1
+        {
+            public string Property { get; set; }
+        }
+
         public class SagaData : IContainSagaData
         {
             public Guid Id { get; set; }
@@ -36,7 +48,6 @@
 
             public string OriginalMessageId { get; set; }
 
-            [Unique]
             public string Property { get; set; }
         }
     }

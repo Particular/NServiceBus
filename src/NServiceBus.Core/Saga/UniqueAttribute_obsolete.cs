@@ -10,6 +10,7 @@ namespace NServiceBus.Saga
     /// This will ensure that 2 saga instances don't get persisted when using the property to correlate between multiple message types
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "There is no need for this attribute anymore, all mapped properties are automatically correlated.")]
     public sealed class UniqueAttribute : Attribute
     {
         /// <summary>
@@ -17,19 +18,10 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="type">The <see cref="Type"/> to evaluate.</param>
         /// <returns>A <see cref="PropertyInfo"/> of the property marked with a <see cref="UniqueAttribute"/> or null if not used.</returns>
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Use the new SagaMetadata")]
         public static PropertyInfo GetUniqueProperty(Type type)
         {
-            Guard.AgainstNull(type, "type");
-            var properties = GetUniqueProperties(type)
-                .ToList();
-
-            if (properties.Count > 1)
-            {
-                var message = string.Format("More than one UniqueAttribute property was found on the type '{0}'. However, only one property is supported.", type.FullName);
-                throw new InvalidOperationException(message);
-            }
-
-            return properties.SingleOrDefault();
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -37,14 +29,10 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="entity">A saga entity.</param>
         /// <returns>A <see cref="PropertyInfo"/> of the property marked with a <see cref="UniqueAttribute"/> or null if not used.</returns>
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Use the new SagaMetadata")]
         public static KeyValuePair<string, object>? GetUniqueProperty(IContainSagaData entity)
         {
-            Guard.AgainstNull(entity, "entity");
-            var prop = GetUniqueProperty(entity.GetType());
-
-            return prop != null ? 
-                new KeyValuePair<string, object>(prop.Name, prop.GetValue(entity, null)) : 
-                (KeyValuePair<string, object>?) null;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -52,11 +40,10 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="entity">A <see cref="IContainSagaData"/>.</param>
         /// <returns>A <see cref="IDictionary{TKey,TValue}"/> of property names and their values.</returns>
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Use the new SagaMetadata")]
         public static IDictionary<string, object> GetUniqueProperties(IContainSagaData entity)
         {
-            Guard.AgainstNull(entity, "entity");
-            return GetUniqueProperties(entity.GetType())
-                .ToDictionary(p => p.Name, p => p.GetValue(entity, null));
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -64,11 +51,10 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="type">The type to evaluate.</param>
         /// <returns>A <see cref="IQueryable"/> of <see cref="PropertyInfo"/>.</returns>
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Use the new SagaMetadata")]
         public static IEnumerable<PropertyInfo> GetUniqueProperties(Type type)
         {
-            Guard.AgainstNull(type, "type");
-            return type.GetProperties()
-                .Where(p => p.CanRead &&  GetCustomAttribute(p, typeof(UniqueAttribute)) != null);
+            throw new NotImplementedException();
         }
     }
 }

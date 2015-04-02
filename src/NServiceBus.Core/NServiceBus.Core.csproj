@@ -384,7 +384,7 @@
     <Compile Include="Saga\SagaPropertyMapper.cs" />
     <Compile Include="Saga\SagaT.cs" />
     <Compile Include="Saga\ToSagaExpression.cs" />
-    <Compile Include="Saga\UniqueAttribute.cs" />
+    <Compile Include="Saga\UniqueAttribute_obsolete.cs" />
     <Compile Include="Serialization\IMessageSerializer.cs" />
     <Compile Include="SettingsExtentions.cs" />
     <Compile Include="Settings\ReadOnlySettings.cs" />

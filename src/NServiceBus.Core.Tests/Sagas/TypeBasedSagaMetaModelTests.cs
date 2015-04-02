@@ -49,14 +49,18 @@
         {
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
             {
+                mapper.ConfigureMapping<M1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
             }
 
             internal class MyEntity : ContainSagaData
             {
-                [Unique]
                 public int UniqueProperty { get; set; }
             }
+        }
 
+        class M1
+        {
+            public int UniqueProperty { get; set; }
         }
 
         [Test]
@@ -162,7 +166,6 @@
         {
             public class SagaData : ContainSagaData
             {
-                [Unique]
                 public int UniqueProperty { get; set; }
             }
 

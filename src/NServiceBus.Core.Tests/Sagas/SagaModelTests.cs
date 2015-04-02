@@ -50,16 +50,16 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
             Assert.AreEqual(1, model.Count());
         }
 
-        class MySaga : Saga<MySaga.MyEntity>,IHandleMessages<Message1>
+        class MySaga : Saga<MySaga.MyEntity>,IHandleMessages<Message1>,IHandleMessages<Message2>
         {
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
             {
-
+                mapper.ConfigureMapping<Message1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
+                mapper.ConfigureMapping<Message2>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
             }
 
             public class MyEntity : ContainSagaData
             {
-                [Unique]
                 public int UniqueProperty { get; set; }
             }
 
@@ -74,9 +74,14 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
             }
         }
 
-        class Message1 : IMessage { }
-        class Message2 : IMessage { }
+        class Message1 : IMessage
+        {
+            public int UniqueProperty { get; set; }
+        }
 
-
+        class Message2 : IMessage
+        {
+            public int UniqueProperty { get; set; }
+        }
     }
 }
