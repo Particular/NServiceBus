@@ -24,7 +24,7 @@
         /// <param name="invocationWithContext">The invocation with context delegate</param>
         /// <param name="handlerType">The handler type</param>
         /// <param name="handlerKind">The handler kind</param>
-        // Daniel: Should we expose that to public?
+        // TODO: Should we expose that to public?
         internal MessageHandler(Action<object, object, object> invocationWithContext, Type handlerType, HandlerKind handlerKind)
         {
             HandlerKind = handlerKind;
@@ -43,7 +43,7 @@
         public Type HandlerType { get; private set; }
 
         /// <summary>
-        /// Daniel: Should we expose that to public?
+        /// TODO: Should we expose that to public?
         /// </summary>
         internal HandlerKind HandlerKind { get; private set; }
 
@@ -69,7 +69,7 @@
     }
 
     /// <summary>
-    /// Daniel: Should we expose that to public?
+    /// TODO: Should we expose that to public?
     /// </summary>
     internal enum HandlerKind
     {

@@ -131,17 +131,19 @@
                 }
             }
 
-            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+            public class MessageToBeAuditedHandler : IProcessCommands<MessageToBeAudited>
             {
                 public Context Context { get; set; }
                 public IBus Bus { get; set; }
 
-                public void Handle(MessageToBeAudited message)
+                public void Handle(MessageToBeAudited message, ICommandContext context)
                 {
                     if (message.RunId != Context.RunId)
                     {
                         return;
                     }
+
+                    // TODO: We need to come up with a good API to get the header from the context
                     Context.HostId = Bus.GetMessageHeader(message, Headers.HostId);
                     Context.HostName = Bus.GetMessageHeader(message, Headers.HostDisplayName);
                     Context.Done = true;
@@ -156,7 +158,7 @@
         }
 
         [Serializable]
-        public class MessageToBeAudited : IMessage
+        public class MessageToBeAudited : ICommand
         {
             public Guid RunId { get; set; }
         }
