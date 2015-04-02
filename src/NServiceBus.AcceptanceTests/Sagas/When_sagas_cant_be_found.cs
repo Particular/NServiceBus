@@ -18,7 +18,8 @@
                     .Done(c => c.Done)
                     .Run();
 
-            Assert.AreEqual(1, context.TimesFired);
+            Assert.AreEqual(1, context.OldTimesFired);
+            Assert.AreEqual(1, context.NewTimesFired);
         }
 
         [Test]
@@ -31,12 +32,14 @@
                     .Done(c => c.Done)
                     .Run();
 
-            Assert.AreEqual(0, context.TimesFired);
+            Assert.AreEqual(0, context.OldTimesFired);
+            Assert.AreEqual(0, context.NewTimesFired);
         }
 
         public class Context : ScenarioContext
         {
-            public int TimesFired { get; set; }
+            public int OldTimesFired { get; set; }
+            public int NewTimesFired { get; set; }
             public bool Done { get; set; }
         }
 
@@ -107,13 +110,23 @@
                 }
             }
 
-            public class SagaNotFound : IHandleSagaNotFound
+            public class OldSagaNotFound : IHandleSagaNotFound
             {
                 public Context Context { get; set; }
 
                 public void Handle(object message)
                 {
-                    Context.TimesFired++;
+                    Context.OldTimesFired++;
+                }
+            }
+
+            public class NewSagaNotFound : IProcessSagaNotFound
+            {
+                public Context Context { get; set; }
+
+                public void Handle(object message, ISagaNotFoundContext context)
+                {
+                    Context.NewTimesFired++;
                 }
             }
         }
@@ -193,13 +206,23 @@
                 }
             }
 
-            public class SagaNotFound : IHandleSagaNotFound
+            public class OldSagaNotFound : IHandleSagaNotFound
             {
                 public Context Context { get; set; }
 
                 public void Handle(object message)
                 {
-                    Context.TimesFired++;
+                    Context.OldTimesFired++;
+                }
+            }
+
+            public class NewSagaNotFound : IProcessSagaNotFound
+            {
+                public Context Context { get; set; }
+
+                public void Handle(object message, ISagaNotFoundContext context)
+                {
+                    Context.NewTimesFired++;
                 }
             }
         }

@@ -72,7 +72,6 @@
             }
         }
 
-
         static bool IsSagaType(Type t)
         {
             return IsCompatible(t, typeof(Saga));
@@ -81,7 +80,7 @@
         
         static bool IsSagaNotFoundHandler(Type t)
         {
-            return IsCompatible(t, typeof(IHandleSagaNotFound));
+            return IsCompatible(t, typeof(IHandleSagaNotFound)) || IsCompatible(t, typeof(IProcessSagaNotFound));
         }
 
         static bool IsCompatible(Type t, Type source)
@@ -91,14 +90,17 @@
 
         static bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)
         {
-            var timeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
-            var messageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
+            var handleTimeouts = typeof(IHandleTimeouts<>).MakeGenericType(type);
+            var processTimeouts = typeof(IProcessTimeouts<>).MakeGenericType(type);
+            var handleMessages = typeof(IHandleMessages<>).MakeGenericType(type);
+            var processCommands = typeof(IProcessCommands<>).MakeGenericType(type);
+            var processEvents = typeof(IProcessEvents<>).MakeGenericType(type);
+            var processResponses = typeof(IProcessResponses<>).MakeGenericType(type);
 
-            return sagas.Any(t => timeoutHandler.IsAssignableFrom(t) && !messageHandler.IsAssignableFrom(t));
+            return sagas.Any(t => (handleTimeouts.IsAssignableFrom(t) || processTimeouts.IsAssignableFrom(t)) &&
+                (!handleMessages.IsAssignableFrom(t) || !processCommands.IsAssignableFrom(t) || !processEvents.IsAssignableFrom(t) || !processResponses.IsAssignableFrom(t)));
         }
 
-     
-     
         Conventions conventions;
     }
 }

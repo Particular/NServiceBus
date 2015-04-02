@@ -80,13 +80,11 @@ namespace NServiceBus.Features
         static void ConfigureMessageHandlersIn(FeatureConfigurationContext context, IEnumerable<Type> types)
         {
             var handlerRegistry = new MessageHandlerRegistry(context.Settings.Get<Conventions>());
-            var handlers = new List<Type>();
 
             foreach (var t in types.Where(IsMessageHandler))
             {
                 context.Container.ConfigureComponent(t, DependencyLifecycle.InstancePerUnitOfWork);
                 handlerRegistry.RegisterHandler(t);
-                handlers.Add(t);
             }
 
             List<Action<IConfigureComponents>> propertiesToInject;
@@ -108,10 +106,20 @@ namespace NServiceBus.Features
                 return false;
             }
 
-            return type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == IHandleMessagesType);
+            return (from @interface in type.GetInterfaces()
+                where @interface.IsGenericType
+                let genericTypeDefinition = @interface.GetGenericTypeDefinition()
+                where genericTypeDefinition == IProcessCommandsType ||
+                       genericTypeDefinition == IProcessEventsType ||
+                       genericTypeDefinition == IProcessResponsesType ||
+                       genericTypeDefinition == IHandleMessagesType
+                select @interface).Any();
         }
 
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
+        static Type IProcessCommandsType = typeof(IProcessCommands<>);
+        static Type IProcessEventsType = typeof(IProcessEvents<>);
+        static Type IProcessResponsesType = typeof(IProcessResponses<>);
         static ILog Logger = LogManager.GetLogger<RegisterHandlersInOrder>();
     }
 }

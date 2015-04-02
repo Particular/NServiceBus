@@ -15,10 +15,19 @@ namespace NServiceBus.Sagas
         /// </summary>
         public readonly string MessageType;
 
-        internal SagaMessage(string messageType, bool isAllowedToStart)
+        /// <summary>
+        /// The message kind indicating how the given message type is handled
+        /// </summary>
+        public readonly SagaMessageHandledBy MessageHandledBy;
+
+        internal SagaMessage(string messageType, SagaMessageHandledBy sagaMessageHandledBy)
         {
             MessageType = messageType;
-            IsAllowedToStartSaga = isAllowedToStart;
+            MessageHandledBy = sagaMessageHandledBy;
+            IsAllowedToStartSaga =
+                MessageHandledBy == SagaMessageHandledBy.StartedByCommand || 
+                MessageHandledBy == SagaMessageHandledBy.StartedByEvent || 
+                MessageHandledBy == SagaMessageHandledBy.StartedByMessage;
         }
     }
 }

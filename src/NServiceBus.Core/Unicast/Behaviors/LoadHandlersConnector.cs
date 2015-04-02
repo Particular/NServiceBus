@@ -2,10 +2,9 @@
 {
     using System;
     using System.Linq;
-    using NServiceBus.Unicast.Behaviors;
-    using Pipeline;
-    using Pipeline.Contexts;
-    using Unicast;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Unicast;
 
     class LoadHandlersConnector : StageConnector<LogicalMessageProcessingStageBehavior.Context, HandlingStageBehavior.Context>
     {
@@ -22,14 +21,13 @@
 
             bool callbackInvoked;
 
-
             // for now we cheat and pull it from the behavior context:
             if (!context.TryGet(CallbackInvocationBehavior.CallbackInvokedKey, out callbackInvoked))
             {
                 callbackInvoked = false;
             }
 
-            var handlerTypedToInvoke = messageHandlerRegistry.GetHandlerTypes(messageToHandle.MessageType).ToList();
+            var handlerTypedToInvoke = messageHandlerRegistry.GetHandlersFor(messageToHandle.MessageType).ToList();
 
             if (!callbackInvoked && !handlerTypedToInvoke.Any())
             {
@@ -37,13 +35,9 @@
                 throw new InvalidOperationException(error);
             }
 
-            foreach (var handlerType in handlerTypedToInvoke)
+            foreach (var loadedHandler in handlerTypedToInvoke)
             {
-                var loadedHandler = new MessageHandler
-                {
-                    Instance = context.Builder.Build(handlerType),
-                    Invocation = (handlerInstance, message) => messageHandlerRegistry.InvokeHandle(handlerInstance, message)
-                };
+                loadedHandler.Instance = context.Builder.Build(loadedHandler.HandlerType);
 
                 var handlingContext = new HandlingStageBehavior.Context(loadedHandler, context);
                 next(handlingContext);

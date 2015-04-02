@@ -79,11 +79,6 @@
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
             }
 
-            if (IsTimeoutMessage(context.IncomingLogicalMessage))
-            {
-                context.MessageHandler.Invocation = MessageHandlerRegistry.InvokeTimeout;
-            }
-
             next();
 
             if (sagaInstanceState.NotFound)

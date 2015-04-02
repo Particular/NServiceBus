@@ -111,6 +111,8 @@ namespace NServiceBus
 
             ForAllTypes<Feature>(TypesToScan, t => featureActivator.Add(t.Construct<Feature>()));
 
+            ForAllTypes<IRunWhenBusStartsAndStops>(TypesToScan, t => container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(TypesToScan, t => container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(TypesToScan, t => t.Run(this));

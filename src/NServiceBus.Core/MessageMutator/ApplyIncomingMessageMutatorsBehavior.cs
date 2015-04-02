@@ -16,6 +16,12 @@
                 current = mutator.MutateIncoming(current);
                 context.IncomingLogicalMessage.UpdateMessageInstance(current);
             }
+
+            foreach (var mutator in context.Builder.BuildAll<IMutateIncomingMessage>())
+            {
+                current = mutator.MutateIncoming(current, new MutateIncomingMessageContext());
+                context.IncomingLogicalMessage.UpdateMessageInstance(current);
+            }
           
             //we'll soon remove this when we add SendOptions
             ExtensionMethods.CurrentMessageBeingHandled = current;

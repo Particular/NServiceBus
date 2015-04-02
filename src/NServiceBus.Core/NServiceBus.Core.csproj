@@ -120,6 +120,7 @@
     <Compile Include="FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
+    <Compile Include="IResponse.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingHeaders.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="Pipeline\Contexts\TransportReceiveContext.cs" />
     <Compile Include="Pipeline\PipelineModelBuilder.cs" />
     <Compile Include="Pipeline\StageConnector.cs" />
+    <Compile Include="Sagas\SagaMessageHandledBy.cs" />
     <Compile Include="Transports\Msmq\MsmqAddress.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNativeTransactionBehavior.cs" />
@@ -134,6 +136,10 @@
     <Compile Include="Transports\OutgoingMessage.cs" />
     <Compile Include="Transports\ReceiveBehavior.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalOutgoingContext.cs" />
+    <Compile Include="Unicast\Behaviors\PrepareProcessCommandContextBehavior.cs" />
+    <Compile Include="Unicast\Behaviors\PrepareEventContextBehavior.cs" />
+    <Compile Include="Unicast\Behaviors\PrepareResponseContextBehavior.cs" />
+    <Compile Include="Unicast\Behaviors\PrepareTimoutContextBehavior.cs" />
     <Compile Include="Transports\IncomingMessage.cs" />
     <Compile Include="Unicast\Behaviors\SagaInvocationResult.cs" />
     <Compile Include="Unicast\Behaviors\TransportReceiveToPhysicalMessageProcessingConnector.cs" />

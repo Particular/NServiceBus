@@ -183,6 +183,7 @@ namespace NServiceBus
         public bool IsExpressMessageType(System.Type t) { }
         public bool IsInSystemConventionList(System.Type t) { }
         public bool IsMessageType(System.Type t) { }
+        public bool IsResponseType(System.Type t) { }
     }
     public class ConventionsBuilder
     {
@@ -193,6 +194,7 @@ namespace NServiceBus
         public NServiceBus.ConventionsBuilder DefiningEventsAs(System.Func<System.Type, bool> definesEventType) { }
         public NServiceBus.ConventionsBuilder DefiningExpressMessagesAs(System.Func<System.Type, bool> definesExpressMessageType) { }
         public NServiceBus.ConventionsBuilder DefiningMessagesAs(System.Func<System.Type, bool> definesMessageType) { }
+        public NServiceBus.ConventionsBuilder DefiningResponsesAs(System.Func<System.Type, bool> definesResponseType) { }
         public NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
     }
     public class CriticalError
@@ -362,6 +364,10 @@ namespace NServiceBus
         void Register<T>(System.Action<T> callback, object synchronizer);
     }
     public interface ICommand : NServiceBus.IMessage { }
+    public interface ICommandContext
+    {
+        void Reply(object message);
+    }
     public interface IConfigureThisEndpoint
     {
         void Customize(NServiceBus.BusConfiguration configuration);
@@ -374,6 +380,7 @@ namespace NServiceBus
         void SetValue(object value);
     }
     public interface IEvent : NServiceBus.IMessage { }
+    public interface IEventContext { }
     [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public interface IExcludesBuilder { }
     public interface IHandleMessages<T>
@@ -420,6 +427,37 @@ namespace NServiceBus
     public class static InstallConfigExtensions
     {
         public static void EnableInstallers(this NServiceBus.BusConfiguration config, string username = null) { }
+    }
+    public interface IProcessCommands<T>
+    {
+        void Handle(T message, NServiceBus.ICommandContext context);
+    }
+    public interface IProcessEvents<T>
+    {
+        void Handle(T message, NServiceBus.IEventContext context);
+    }
+    public interface IProcessResponses<T>
+    {
+        void Handle(T message, NServiceBus.IResponseContext context);
+    }
+    public interface IResponse { }
+    public interface IResponseContext { }
+    public interface IRunContext
+    {
+        void Publish(object message);
+        void Publish<T>();
+        void Publish<T>(System.Action<T> messageConstructor);
+        NServiceBus.ICallback Send(object message);
+        NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor);
+        NServiceBus.ICallback Send(string destination, object message);
+        NServiceBus.ICallback Send<T>(string destination, System.Action<T> messageConstructor);
+        NServiceBus.ICallback Send(string destination, string correlationId, object message);
+        NServiceBus.ICallback Send<T>(string destination, string correlationId, System.Action<T> messageConstructor);
+    }
+    public interface IRunWhenBusStartsAndStops
+    {
+        void Start(NServiceBus.IRunContext context);
+        void Stop(NServiceBus.IRunContext context);
     }
     public interface ISendOnlyBus : System.IDisposable
     {
@@ -1253,22 +1291,44 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 namespace NServiceBus.MessageMutator
 {
     public interface IMessageMutator : NServiceBus.MessageMutator.IMutateIncomingMessages, NServiceBus.MessageMutator.IMutateOutgoingMessages { }
+    public interface IMessagesMutator : NServiceBus.MessageMutator.IMutateIncomingMessage, NServiceBus.MessageMutator.IMutateOutgoingMessage { }
+    public interface IMutateIncomingMessage
+    {
+        object MutateIncoming(object message, NServiceBus.MessageMutator.IMutateIncomingMessageContext context);
+    }
+    public interface IMutateIncomingMessageContext { }
     public interface IMutateIncomingMessages
     {
         object MutateIncoming(object message);
     }
+    public interface IMutateIncomingTransportMessage
+    {
+        void MutateIncoming(NServiceBus.TransportMessage transportMessage, NServiceBus.MessageMutator.IMutateIncomingTransportMessageContext context);
+    }
+    public interface IMutateIncomingTransportMessageContext { }
     public interface IMutateIncomingTransportMessages
     {
         void MutateIncoming(NServiceBus.TransportMessage transportMessage);
     }
+    public interface IMutateOutgoingMessage
+    {
+        object MutateOutgoing(object message, NServiceBus.MessageMutator.IMutateOutgoingMessageContext context);
+    }
+    public interface IMutateOutgoingMessageContext { }
     public interface IMutateOutgoingMessages
     {
         object MutateOutgoing(object message);
     }
+    public interface IMutateOutgoingTransportMessage
+    {
+        void MutateOutgoing(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, NServiceBus.TransportMessage transportMessage, NServiceBus.MessageMutator.IMutateOutgoingTransportMessageContext context);
+    }
+    public interface IMutateOutgoingTransportMessageContext { }
     public interface IMutateOutgoingTransportMessages
     {
         void MutateOutgoing(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, NServiceBus.TransportMessage transportMessage);
     }
+    public interface IMutateTransportMessage : NServiceBus.MessageMutator.IMutateIncomingTransportMessage, NServiceBus.MessageMutator.IMutateOutgoingTransportMessage { }
     public interface IMutateTransportMessages : NServiceBus.MessageMutator.IMutateIncomingTransportMessages, NServiceBus.MessageMutator.IMutateOutgoingTransportMessages { }
 }
 namespace NServiceBus.ObjectBuilder.Common
@@ -1585,6 +1645,8 @@ namespace NServiceBus.Saga
         public virtual string OriginalMessageId { get; set; }
         public virtual string Originator { get; set; }
     }
+    public interface IAmStartedByCommands<T> : NServiceBus.IProcessCommands<T> { }
+    public interface IAmStartedByEvents<T> : NServiceBus.IProcessEvents<T> { }
     public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
     public interface IConfigureHowToFindSagaWithMessage
     {
@@ -1617,6 +1679,15 @@ namespace NServiceBus.Saga
     {
         void Timeout(T state);
     }
+    public interface IProcessSagaNotFound
+    {
+        void Handle(object message, NServiceBus.Saga.ISagaNotFoundContext context);
+    }
+    public interface IProcessTimeouts<T>
+    {
+        void Timeout(T state, NServiceBus.Saga.ITimeoutContext context);
+    }
+    public interface ISagaNotFoundContext { }
     public interface ISagaPersister
     {
         void Complete(NServiceBus.Saga.IContainSagaData saga);
@@ -1627,6 +1698,7 @@ namespace NServiceBus.Saga
         void Save(NServiceBus.Saga.IContainSagaData saga);
         void Update(NServiceBus.Saga.IContainSagaData saga);
     }
+    public interface ITimeoutContext { }
     public abstract class Saga
     {
         protected Saga() { }
@@ -2059,9 +2131,14 @@ namespace NServiceBus.Unicast.Behaviors
 {
     public class MessageHandler
     {
+        [System.ObsoleteAttribute("Please use `MessageHandler(Action<object, object, object> invocationWithContext, " +
+            "Type handlerType)` instead. Will be removed in version 7.0.0.", true)]
         public MessageHandler() { }
+        public System.Type HandlerType { get; }
         public object Instance { get; set; }
+        [System.ObsoleteAttribute("Please use `MessageHandler.Invoke` instead. Will be removed in version 7.0.0.", true)]
         public System.Action<object, object> Invocation { get; set; }
+        public void Invoke(object message, object context) { }
     }
 }
 namespace NServiceBus.Unicast
@@ -2118,11 +2195,17 @@ namespace NServiceBus.Unicast
     }
     public class MessageHandlerRegistry
     {
-        public void CacheMethodForHandler(System.Type handler, System.Type messageType) { }
         public void Clear() { }
+        public System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Behaviors.MessageHandler> GetHandlersFor(System.Type messageType) { }
+        [System.ObsoleteAttribute("Please use `MessageHandlerRegistry.GetHandlersFor(Type messageType)` instead. Wil" +
+            "l be removed in version 7.0.0.", true)]
         public System.Collections.Generic.IEnumerable<System.Type> GetHandlerTypes(System.Type messageType) { }
         public System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes() { }
+        [System.ObsoleteAttribute("Please use `MessageHandler.Invoke(object message, object context)` instead. Will " +
+            "be removed in version 7.0.0.", true)]
         public void InvokeHandle(object handler, object message) { }
+        [System.ObsoleteAttribute("Please use `MessageHandler.Invoke(object message, object context)` instead. Will " +
+            "be removed in version 7.0.0.", true)]
         public void InvokeTimeout(object handler, object state) { }
         public void RegisterHandler(System.Type handlerType) { }
     }

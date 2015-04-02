@@ -243,7 +243,7 @@
         }
 
         [Test]
-        public void DetectMessagesStartingTheSaga()
+        public void DetectMessagesStartingTheSagaWithOldApi()
         {
             var metadata = TypeBasedSagaMetaModel.Create(typeof(SagaWith2StartersAnd1Handler));
 
@@ -259,7 +259,6 @@
 
             Assert.False(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWith2StartersAnd1Handler.MyTimeout).FullName));
         }
-
 
         class SagaWith2StartersAnd1Handler : Saga<SagaWith2StartersAnd1Handler.SagaData>,
             IAmStartedByMessages<SagaWith2StartersAnd1Handler.StartMessage1>,
@@ -315,6 +314,265 @@
             }
 
             public void Timeout(MyTimeout state)
+            {
+            }
+        }
+
+        [Test]
+        public void DetectMessagesStartingTheSagaWithNewApi()
+        {
+            var metadata = TypeBasedSagaMetaModel.Create(typeof(SagaWithNewStyleApi));
+
+            var messages = metadata.AssociatedMessages;
+
+            Assert.AreEqual(5, messages.Count());
+
+            Assert.True(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWithNewStyleApi.StartMessage1).FullName));
+
+            Assert.True(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWithNewStyleApi.StartEvent).FullName));
+
+            Assert.False(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWithNewStyleApi.Message3).FullName));
+
+            Assert.False(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWithNewStyleApi.Event).FullName));
+
+            Assert.False(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWithNewStyleApi.MyTimeout).FullName));
+        }
+
+
+        class SagaWithNewStyleApi : Saga<SagaWithNewStyleApi.SagaData>,
+            IAmStartedByCommands<SagaWithNewStyleApi.StartMessage1>,
+            IAmStartedByEvents<SagaWithNewStyleApi.StartEvent>,
+            IProcessCommands<SagaWithNewStyleApi.Message3>,
+            IProcessEvents<SagaWithNewStyleApi.Event>,
+            IProcessTimeouts<SagaWithNewStyleApi.MyTimeout>
+        {
+            public class StartMessage1 : IMessage
+            {
+                public string SomeId { get; set; }
+            }
+
+            public class StartEvent : IMessage
+            {
+                public string SomeId { get; set; }
+            }
+
+            public class Message3 : IMessage
+            {
+            }
+
+            public class Event : IEvent
+            {
+            }
+
+            public class MyTimeout
+            {
+            }
+
+            public class SagaData : ContainSagaData
+            {
+                public string SomeId { get; set; }
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+                mapper.ConfigureMapping<StartMessage1>(m => m.SomeId)
+                    .ToSaga(s => s.SomeId);
+                mapper.ConfigureMapping<StartEvent>(m => m.SomeId)
+                    .ToSaga(s => s.SomeId);
+            }
+
+            public void Handle(StartMessage1 message, ICommandContext context)
+            {
+            }
+
+            public void Handle(StartEvent message, IEventContext context)
+            {
+            }
+
+            public void Handle(Message3 message, ICommandContext context)
+            {
+            }
+
+            public void Handle(Event message, IEventContext context)
+            {
+            }
+
+            public void Timeout(MyTimeout state, ITimeoutContext context)
+            {
+            }
+        }
+
+        [Test]
+        public void ValidateSagaCannotUseIAmStartedByMessagesOldAndNewForSameMessage()
+        {
+            var ex = Assert.Throws<Exception>(() => TypeBasedSagaMetaModel.Create(typeof(SagaWithIAmStartedOldAndNew)));
+
+            Assert.True(ex.Message.Contains(typeof(SagaWithIAmStartedOldAndNew).Name));
+            Assert.True(ex.Message.Contains(typeof(IAmStartedByMessages<>).FullName));
+            Assert.True(ex.Message.Contains(typeof(IAmStartedByCommands<>).FullName));
+        }
+
+        class SagaWithIAmStartedOldAndNew : Saga<SagaWithIAmStartedOldAndNew.SagaData>,
+            IAmStartedByMessages<SagaWithIAmStartedOldAndNew.StartSaga>,
+            IAmStartedByCommands<SagaWithIAmStartedOldAndNew.StartSaga>
+        {
+            public class SagaData : ContainSagaData
+            {
+            }
+
+            public class StartSaga : ICommand
+            {
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+            }
+
+            public void Handle(StartSaga message)
+            {
+            }
+
+            public void Handle(StartSaga message, ICommandContext context)
+            {
+            }
+        }
+
+        [Test]
+        public void ValidateSagaCannotUseIAmStartedByMessagesAndByEventsOldAndNewForSameMessage()
+        {
+            var ex = Assert.Throws<Exception>(() => TypeBasedSagaMetaModel.Create(typeof(SagaWithIAmStartedWithEventsOldAndNew)));
+
+            Assert.True(ex.Message.Contains(typeof(SagaWithIAmStartedWithEventsOldAndNew).Name));
+            Assert.True(ex.Message.Contains(typeof(IAmStartedByMessages<>).FullName));
+            Assert.True(ex.Message.Contains(typeof(IAmStartedByEvents<>).FullName));
+        }
+
+        class SagaWithIAmStartedWithEventsOldAndNew : Saga<SagaWithIAmStartedWithEventsOldAndNew.SagaData>,
+            IAmStartedByMessages<SagaWithIAmStartedWithEventsOldAndNew.Event>,
+            IAmStartedByEvents<SagaWithIAmStartedWithEventsOldAndNew.Event>
+        {
+            public class SagaData : ContainSagaData
+            {
+            }
+
+            public class Event : IEvent
+            {
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+            }
+
+            public void Handle(Event message)
+            {
+            }
+
+            public void Handle(Event message, IEventContext context)
+            {
+            }
+        }
+
+        [Test]
+        public void ValidateSagaCannotUseHandleMessagesOldAndNewForSameMessage()
+        {
+            var ex = Assert.Throws<Exception>(() => TypeBasedSagaMetaModel.Create(typeof(SagaWithHandleMessageOldAndNew)));
+
+            Assert.True(ex.Message.Contains(typeof(SagaWithHandleMessageOldAndNew).Name));
+            Assert.True(ex.Message.Contains(typeof(IHandleMessages<>).FullName));
+            Assert.True(ex.Message.Contains(typeof(IProcessCommands<>).FullName));
+        }
+
+        class SagaWithHandleMessageOldAndNew : Saga<SagaWithHandleMessageOldAndNew.SagaData>,
+            IHandleMessages<SagaWithHandleMessageOldAndNew.StartSaga>,
+            IProcessCommands<SagaWithHandleMessageOldAndNew.StartSaga>
+        {
+            public class SagaData : ContainSagaData
+            {
+            }
+
+            public class StartSaga : ICommand
+            {
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+            }
+
+            public void Handle(StartSaga message)
+            {
+            }
+
+            public void Handle(StartSaga message, ICommandContext context)
+            {
+            }
+        }
+
+        [Test]
+        public void ValidateSagaCannotUseHandleEventOldAndNewForSameMessage()
+        {
+            var ex = Assert.Throws<Exception>(() => TypeBasedSagaMetaModel.Create(typeof(SagaWithHandleEventOldAndNew)));
+
+            Assert.True(ex.Message.Contains(typeof(SagaWithHandleEventOldAndNew).Name));
+            Assert.True(ex.Message.Contains(typeof(IHandleMessages<>).FullName));
+            Assert.True(ex.Message.Contains(typeof(IProcessEvents<>).FullName));
+        }
+
+        class SagaWithHandleEventOldAndNew : Saga<SagaWithHandleEventOldAndNew.SagaData>,
+           IHandleMessages<SagaWithHandleEventOldAndNew.Event>,
+           IProcessEvents<SagaWithHandleEventOldAndNew.Event>
+        {
+            public class SagaData : ContainSagaData
+            {
+            }
+
+            public class Event : IEvent
+            {
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+            }
+
+            public void Handle(Event message)
+            {
+            }
+
+            public void Handle(Event message, IEventContext context)
+            {
+            }
+        }
+
+        [Test]
+        public void ValidateSagaCannotUseHandleTimeoutOldAndNewForSameMessage()
+        {
+            var ex = Assert.Throws<Exception>(() => TypeBasedSagaMetaModel.Create(typeof(SagaWithProcessTimeoutsOldAndNew)));
+
+            Assert.True(ex.Message.Contains(typeof(SagaWithProcessTimeoutsOldAndNew).Name));
+            Assert.True(ex.Message.Contains(typeof(IHandleTimeouts<>).FullName));
+            Assert.True(ex.Message.Contains(typeof(IProcessTimeouts<>).FullName));
+        }
+
+        class SagaWithProcessTimeoutsOldAndNew : Saga<SagaWithProcessTimeoutsOldAndNew.SagaData>,
+            IHandleTimeouts<SagaWithProcessTimeoutsOldAndNew.TimeoutData>,
+            IProcessTimeouts<SagaWithProcessTimeoutsOldAndNew.TimeoutData>
+        {
+            public class SagaData : ContainSagaData
+            {
+            }
+
+            public class TimeoutData
+            {
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+            }
+
+            public void Timeout(TimeoutData state)
+            {
+            }
+
+            public void Timeout(TimeoutData state, ITimeoutContext context)
             {
             }
         }

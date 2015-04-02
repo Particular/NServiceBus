@@ -24,7 +24,7 @@
 
             StackTraceAssert.StartsWith(
 @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws.Endpoint.Handler.Handle(Message message)
-at NServiceBus.Unicast.MessageHandlerRegistry.Invoke(Object handler, Object message, Dictionary`2 dictionary)
+at NServiceBus.Unicast.Behaviors.MessageHandler.Invoke(Object message, Object context)
 at NServiceBus.InvokeHandlersBehavior.Invoke(Context context, Action next)
 at NServiceBus.HandlerTransactionScopeWrapperBehavior.Invoke(Context context, Action next)
 at NServiceBus.LoadHandlersConnector.Invoke(Context context, Action`1 next)
