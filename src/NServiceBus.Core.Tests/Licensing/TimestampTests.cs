@@ -11,7 +11,7 @@
 		public void Ensure_timestamp_is_embedded()
 		{
 		    var dateTime = TimestampReader.GetBuildTimestamp();
-            Assert.AreEqual(DateTime.UtcNow.Date,dateTime.Date);
+            Assert.LessOrEqual(dateTime.Date, DateTime.UtcNow);
 		}
 	}
 }
