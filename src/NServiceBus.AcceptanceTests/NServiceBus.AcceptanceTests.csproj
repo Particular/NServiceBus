@@ -123,6 +123,7 @@
     <Compile Include="PubSub\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />
     <Compile Include="Sagas\When_a_base_new.cs" />
     <Compile Include="Sagas\When_a_exist_new.cs" />
+    <Compile Include="Sagas\When_a_finder_exists_and_found_saga_new.cs" />
     <Compile Include="Sagas\When_a_finder_exists_and_found_saga.cs" />
     <Compile Include="Retries\When_performing_slr_with_regular_exception.cs" />
     <Compile Include="Retries\When_performing_slr_with_serialization_exception.cs" />
