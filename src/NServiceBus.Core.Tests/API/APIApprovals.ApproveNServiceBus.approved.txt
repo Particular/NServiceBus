@@ -366,7 +366,12 @@ namespace NServiceBus
     public interface ICommand : NServiceBus.IMessage { }
     public interface ICommandContext
     {
+        void DoNotContinueDispatchingCurrentMessageToHandlers();
+        void HandleCurrentMessageLater();
         void Reply(object message);
+        void Return<T>(T errorEnum);
+        NServiceBus.ICallback Send(string destination, object message);
+        void SendLocal(object message);
     }
     public interface IConfigureThisEndpoint
     {
