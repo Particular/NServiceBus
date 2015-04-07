@@ -81,6 +81,7 @@
     <Compile Include="Basic\When_registering_custom_serializer.cs" />
     <Compile Include="Basic\When_callback_from_a_send_only.cs" />
     <Compile Include="Basic\When_injecting_handler_props.cs" />
+    <Compile Include="Basic\When_sending_from_a_send_only_new.cs" />
     <Compile Include="Basic\When_using_ineedinitialization.cs" />
     <Compile Include="Basic\When_sending_with_conventions.cs" />
     <Compile Include="Basic\When_using_callbacks_with_messageid_eq_cid_.cs" />
