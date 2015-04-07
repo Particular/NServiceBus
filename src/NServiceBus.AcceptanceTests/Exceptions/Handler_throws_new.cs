@@ -92,7 +92,7 @@ at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action nex
         }
 
         [Serializable]
-        public class Message : IMessage
+        public class Message : ICommand
         {
         }
 
