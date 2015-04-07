@@ -521,6 +521,10 @@
           public void HandleCurrentMessageLater()
           {
           }
+
+          public void SendLocal(object message)
+          {
+          }
       }
   }
 

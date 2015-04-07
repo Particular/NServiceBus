@@ -104,6 +104,7 @@
     <Compile Include="Basic\When_Deferring_a_message.cs" />
     <Compile Include="Basic\When_using_callback_to_get_message.cs" />
     <Compile Include="ConfigureMsmqTransport.cs" />
+    <Compile Include="Exceptions\Handler_and_UowEnd_throws_new.cs" />
     <Compile Include="HandlerContext\When_replying_to_handlers_with_old_and_new_api_with_order_override.cs" />
     <Compile Include="HandlerContext\When_replying_to_handlers_with_old_and_new_api.cs" />
     <Compile Include="HandlerContext\When_handling_pub_msg_handlers_with_old_and_new_api_with_order_override.cs" />
