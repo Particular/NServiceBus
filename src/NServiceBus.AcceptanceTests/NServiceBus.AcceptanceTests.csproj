@@ -96,6 +96,7 @@
     <Compile Include="Basic\When_using_a_greedy_convention.cs" />
     <Compile Include="Basic\When_incoming_headers_should_be_shared.cs" />
     <Compile Include="Basic\When_sending_ensure_proper_headers.cs" />
+    <Compile Include="Config\When_startup_is_complete_new.cs" />
     <Compile Include="DeliveryOptions\When_sending_a_non_durable_message.cs" />
     <Compile Include="DeliveryOptions\When_TimeToBeReceived_has_not_expired.cs" />
     <Compile Include="DeliveryOptions\When_TimeToBeReceived_has_expired.cs" />
@@ -128,7 +129,7 @@
     <Compile Include="ScaleOut\When_no_discriminator_is_available.cs" />
     <Compile Include="ScaleOut\When_individualization_is_enabled.cs" />
     <Compile Include="Config\When_IWantToRunWhenBusStartsAndStops_Start_throws.cs" />
-    <Compile Include="Config\When__startup_is_complete.cs" />
+    <Compile Include="Config\When_startup_is_complete.cs" />
     <Compile Include="CriticalError\When_registering_a_custom_criticalErrorHandler.cs" />
     <Compile Include="DataBus\When_using_custom_IDataBus.cs" />
     <Compile Include="DeterministicGuid.cs" />
