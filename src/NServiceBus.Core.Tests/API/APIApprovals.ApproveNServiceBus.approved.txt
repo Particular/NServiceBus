@@ -1599,8 +1599,8 @@ namespace NServiceBus.Saga
     }
     public class CorrelationProperty
     {
-        public string Name;
-        public CorrelationProperty() { }
+        public CorrelationProperty(string name) { }
+        public string Name { get; }
     }
     public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
     public interface IConfigureHowToFindSagaWithMessage
@@ -1685,25 +1685,27 @@ namespace NServiceBus.Saga
     }
     public class SagaFinderDefinition
     {
-        public System.Collections.Generic.Dictionary<string, object> Properties;
-        public string MessageType { get; set; }
-        public System.Type Type { get; set; }
+        public SagaFinderDefinition(System.Type type, string messageType, System.Collections.Generic.Dictionary<string, object> properties) { }
+        public string MessageType { get; }
+        public System.Collections.Generic.Dictionary<string, object> Properties { get; }
+        public System.Type Type { get; }
     }
     public class SagaMessage
     {
-        public readonly bool IsAllowedToStartSaga;
-        public readonly string MessageType;
+        public SagaMessage(string messageType, bool isAllowedToStart) { }
+        public bool IsAllowedToStartSaga { get; }
+        public string MessageType { get; }
     }
     public class SagaMetadata
     {
-        public System.Collections.Generic.List<NServiceBus.Saga.CorrelationProperty> CorrelationProperties;
-        public string EntityName;
-        public string Name;
-        public System.Type SagaEntityType;
-        public System.Type SagaType;
-        public SagaMetadata(System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMessage> messages, System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaFinderDefinition> finders) { }
+        public SagaMetadata(string name, System.Type sagaType, string entityName, System.Type sagaEntityType, System.Collections.Generic.List<NServiceBus.Saga.CorrelationProperty> correlationProperties, System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMessage> messages, System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaFinderDefinition> finders) { }
         public System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMessage> AssociatedMessages { get; }
+        public System.Collections.Generic.List<NServiceBus.Saga.CorrelationProperty> CorrelationProperties { get; }
+        public string EntityName { get; }
         public System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaFinderDefinition> Finders { get; }
+        public string Name { get; }
+        public System.Type SagaEntityType { get; }
+        public System.Type SagaType { get; }
         public bool IsMessageAllowedToStartTheSaga(string messageType) { }
         public bool TryGetFinder(string messageType, out NServiceBus.Saga.SagaFinderDefinition finderDefinition) { }
     }

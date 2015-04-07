@@ -75,10 +75,7 @@ namespace NServiceBus.Saga
             {
                 if (!mapping.HasCustomFinderMap)
                 {
-                    correlationProperties.Add(new CorrelationProperty
-                                                     {
-                                                         Name = mapping.SagaPropName
-                                                     });
+                    correlationProperties.Add(new CorrelationProperty(mapping.SagaPropName));
                 }
 
                 SetFinderForMessage(mapping, sagaEntityType, finders);
@@ -87,14 +84,7 @@ namespace NServiceBus.Saga
             var associatedMessages = GetAssociatedMessages(sagaType)
                 .ToList();
 
-            return new SagaMetadata(associatedMessages, finders)
-            {
-                Name = sagaType.FullName,
-                EntityName = sagaEntityType.FullName,
-                CorrelationProperties = correlationProperties,
-                SagaEntityType = sagaEntityType,
-                SagaType = sagaType
-            };
+            return new SagaMetadata(sagaType.FullName, sagaType, sagaEntityType.FullName, sagaEntityType, correlationProperties, associatedMessages, finders);
         }
 
         static void ApplyScannedFinders(SagaMapper mapper, Type sagaEntityType, IEnumerable<Type> availableTypes, Conventions conventions)
@@ -139,24 +129,22 @@ namespace NServiceBus.Saga
 
         static void SetFinderForMessage(SagaToMessageMap mapping, Type sagaEntityType, List<SagaFinderDefinition> finders)
         {
-            var finder = new SagaFinderDefinition
-            {
-                MessageType = mapping.MessageType.FullName
-            };
-
             if (mapping.HasCustomFinderMap)
             {
-                finder.Type = typeof(CustomFinderAdapter<,>).MakeGenericType(sagaEntityType, mapping.MessageType);
-                finder.Properties["custom-finder-clr-type"] = mapping.CustomFinderType;
+                finders.Add(new SagaFinderDefinition(typeof(CustomFinderAdapter<,>).MakeGenericType(sagaEntityType, mapping.MessageType), mapping.MessageType.FullName, new Dictionary<string, object>
+                {
+                    {"custom-finder-clr-type", mapping.CustomFinderType}
+                }));
+
             }
             else
             {
-                finder.Type = typeof(PropertySagaFinder<>).MakeGenericType(sagaEntityType);
-                finder.Properties["property-accessor"] = mapping.MessageProp;
-                finder.Properties["saga-property-name"] = mapping.SagaPropName;
+                finders.Add(new SagaFinderDefinition(typeof(PropertySagaFinder<>).MakeGenericType(sagaEntityType), mapping.MessageType.FullName, new Dictionary<string, object>
+                {
+                    {"property-accessor", mapping.MessageProp},
+                    {"saga-property-name", mapping.SagaPropName}
+                }));
             }
-
-            finders.Add(finder);
         }
 
         static IEnumerable<SagaMessage> GetAssociatedMessages(Type sagaType)
