@@ -39,7 +39,10 @@
             
             try
             {
-                MessageSender.Send(message, new SendOptions(TimeoutManagerAddress));
+                MessageSender.Send(message, new SendOptions(TimeoutManagerAddress)
+                {
+                    EnlistInReceiveTransaction = sendOptions.EnlistInReceiveTransaction
+                });
             }
             catch (Exception ex)
             {
