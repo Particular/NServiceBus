@@ -1744,6 +1744,15 @@ namespace NServiceBus.Saga
         public static System.Nullable<System.Collections.Generic.KeyValuePair<string, object>> GetUniqueProperty(NServiceBus.Saga.IContainSagaData entity) { }
     }
 }
+namespace NServiceBus.Sagas
+{
+    [System.ObsoleteAttribute("Please use `NServiceBus.Saga.ActiveSagaInstance` instead. Will be removed in vers" +
+        "ion 7.0.0.", true)]
+    public class ActiveSagaInstance
+    {
+        public ActiveSagaInstance() { }
+    }
+}
 namespace NServiceBus.Satellites
 {
     public interface IAdvancedSatellite : NServiceBus.Satellites.ISatellite
