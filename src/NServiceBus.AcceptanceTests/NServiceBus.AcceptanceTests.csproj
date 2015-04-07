@@ -85,6 +85,7 @@
     <Compile Include="Basic\When_sending_to_another_endpoint_new.cs" />
     <Compile Include="Basic\When_sending_with_conventions_new.cs" />
     <Compile Include="Basic\When_using_callbacks_from_older_versions_new.cs" />
+    <Compile Include="Basic\When_using_callbacks_in_a_scaleout_new.cs" />
     <Compile Include="Basic\When_using_callback_to_get_message_new.cs" />
     <Compile Include="Basic\When_using_ineedinitialization.cs" />
     <Compile Include="Basic\When_sending_with_conventions.cs" />
