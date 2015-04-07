@@ -6,7 +6,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_sending_to_another_endpoint : NServiceBusAcceptanceTest
+    public class When_sending_to_another_endpoint_new : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_the_message()
@@ -65,13 +65,13 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class MyMessageHandler : IHandleMessages<MyMessage>
+            public class MyMessageHandler : IProcessCommands<MyMessage>
             {
                 public Context Context { get; set; }
 
                 public IBus Bus { get; set; }
 
-                public void Handle(MyMessage message)
+                public void Handle(MyMessage message, ICommandContext context)
                 {
                     if (Context.Id != message.Id)
                         return;
