@@ -509,6 +509,11 @@
           {
           }
 
+          public ICallback Send(string destination, object message)
+          {
+              return default(ICallback);
+          }
+
           public void DoNotContinueDispatchingCurrentMessageToHandlers()
           {
           }
