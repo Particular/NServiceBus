@@ -5,13 +5,13 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_sending_with_conventions : NServiceBusAcceptanceTest
+    public class When_sending_with_conventions_new : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_the_message()
         {
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, context) => bus.SendLocal(new MyCommand
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, context) => bus.SendLocal(new MyMessage
                     {
                         Id = context.Id
                     })))
@@ -29,22 +29,21 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(b => b.Conventions().DefiningCommandsAs(type => type == typeof(MyCommand)));
+                EndpointSetup<DefaultServer>(b => b.Conventions().DefiningCommandsAs(type => type == typeof(MyMessage)));
             }
         }
 
         [Serializable]
-        public class MyCommand
+        public class MyMessage
         {
             public Guid Id { get; set; }
         }
 
-        public class MyMessageHandler : IHandleMessages<MyCommand>
+        public class MyMessageHandler : IProcessCommands<MyMessage>
         {
             public Context Context { get; set; }
 
-
-            public void Handle(MyCommand message)
+            public void Handle(MyMessage message, ICommandContext context)
             {
                 if (Context.Id != message.Id)
                     return;
