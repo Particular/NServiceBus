@@ -563,14 +563,10 @@ namespace NServiceBus
     }
     public class SendOptions
     {
-        public SendOptions() { }
-        public void DelayDeliveryWith(System.TimeSpan within) { }
-        public void DeliverAt(System.DateTime at) { }
-        public void SetCorrelationId(string correlationId) { }
-        public void SetDestination(string destination) { }
-        public void SetHeader(string key, string value) { }
+        public SendOptions(string destination = null, string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
+        public void AddHeader(string key, string value) { }
+        public void SetCustomMessageId(string messageId) { }
         public void SetLocalEndpointAsDestination() { }
-        public void SetMessageId(string messageId) { }
     }
     public class static SerializationConfigExtensions
     {

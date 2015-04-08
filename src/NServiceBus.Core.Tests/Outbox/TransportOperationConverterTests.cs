@@ -9,7 +9,7 @@
     class TransportOperationConverterTests
     {
         [Test]
-        public void SendOptions()
+        public void SendMessageOptions()
         {
             var options = new SendMessageOptions("destination", DateTime.UtcNow.AddDays(1))
             {
@@ -41,7 +41,7 @@
         }
 
         [Test]
-        public void PublishOptions()
+        public void PublishMessageOptions()
         {
 
             var options = new PublishMessageOptions(typeof(MyMessage))

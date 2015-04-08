@@ -121,10 +121,8 @@ namespace NServiceBus
         {
             Guard.AgainstNull(message, "message");
             Guard.AgainstNegativeAndZero(delay,"delay");
-            
-            var context = new SendOptions();
 
-            context.DelayDeliveryWith(delay);
+            var context = new SendOptions(delayDeliveryFor: delay);
             context.SetLocalEndpointAsDestination();
 
             return bus.Send(message, context);
@@ -137,10 +135,8 @@ namespace NServiceBus
         {
             Guard.AgainstNull(message, "message");
             Guard.AgainstNull(processAt, "processAt");
-        
-            var context = new SendOptions();
 
-            context.DeliverAt(processAt);
+            var context = new SendOptions(deliverAt: processAt);
             context.SetLocalEndpointAsDestination();
 
             return bus.Send(message, context);

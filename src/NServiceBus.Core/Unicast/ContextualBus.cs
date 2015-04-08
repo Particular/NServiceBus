@@ -238,10 +238,9 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply(object message)
         {
-            var context = new NServiceBus.SendOptions();
+            var context = new NServiceBus.SendOptions(correlationId: GetCorrelationId());
 
             context.AsReplyTo(MessageBeingProcessed.ReplyToAddress);
-            context.SetCorrelationId(GetCorrelationId());
 
             Send(message, context);
         }
@@ -251,9 +250,8 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply<T>(Action<T> messageConstructor)
         {
-            var context = new NServiceBus.SendOptions();
+            var context = new NServiceBus.SendOptions(correlationId: GetCorrelationId());
             context.AsReplyTo(MessageBeingProcessed.ReplyToAddress);
-            context.SetCorrelationId(GetCorrelationId());
 
             Send(messageConstructor, context);
         }
@@ -276,11 +274,10 @@ namespace NServiceBus.Unicast
             }
 
 
-            var context = new NServiceBus.SendOptions();
+            var context = new NServiceBus.SendOptions(correlationId: GetCorrelationId());
 
-            context.SetHeader(Headers.ReturnMessageErrorCodeHeader, returnCode);
+            context.AddHeader(Headers.ReturnMessageErrorCodeHeader, returnCode);
             context.AsReplyTo(MessageBeingProcessed.ReplyToAddress);
-            context.SetCorrelationId(GetCorrelationId());
 
             SendMessage(context, new ControlMessage("Bus.Return(" + returnCode + ")"));
         }

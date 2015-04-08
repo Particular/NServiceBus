@@ -14,10 +14,9 @@
                     .WithEndpoint<EndpointWithLocalCallback>(b=>b.Given(
                         (bus,c)=>
                         {
-                            var sendContext = new SendOptions();
                             var id = Guid.NewGuid().ToString();
-                            sendContext.SetMessageId(id);
-                            sendContext.SetCorrelationId(id);
+                            var sendContext = new SendOptions(correlationId: id);
+                            sendContext.SetCustomMessageId(id);
                             sendContext.SetLocalEndpointAsDestination();
 
                             bus.Send(new MyRequest(), sendContext).Register(r =>

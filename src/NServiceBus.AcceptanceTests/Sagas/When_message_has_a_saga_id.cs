@@ -18,8 +18,8 @@
 
                     var sendContext = new SendOptions();
 
-                    sendContext.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
-                    sendContext.SetHeader(Headers.SagaType, typeof(MySaga).AssemblyQualifiedName);
+                    sendContext.AddHeader(Headers.SagaId, Guid.NewGuid().ToString());
+                    sendContext.AddHeader(Headers.SagaType, typeof(MySaga).AssemblyQualifiedName);
                     sendContext.SetLocalEndpointAsDestination();
                     bus.Send(message,sendContext);
                 }))

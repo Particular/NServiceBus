@@ -21,7 +21,7 @@
                     {
                         var sendContext = new SendOptions();
 
-                        sendContext.SetHeader("MyHeader", "MyHeaderValue");
+                        sendContext.AddHeader("MyHeader", "MyHeaderValue");
                         bus.Send(new MyMessage{Id = c.Id},sendContext);
                     }))
                     .WithEndpoint<Receiver>()

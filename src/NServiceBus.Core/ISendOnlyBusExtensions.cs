@@ -49,9 +49,7 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(destination, "destination");
             Guard.AgainstNull(message, "message");
 
-            var options = new SendOptions();
-
-            options.SetDestination(destination);
+            var options = new SendOptions(destination);
 
             return bus.Send(message, options);
         }
@@ -68,9 +66,7 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(destination, "destination");
             Guard.AgainstNull(messageConstructor, "messageConstructor");
 
-            var context = new SendOptions();
-
-            context.SetDestination(destination);
+            var context = new SendOptions(destination);
 
             return bus.Send(messageConstructor, context);
 
@@ -86,10 +82,7 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(correlationId, "correlationId");
             Guard.AgainstNull(message, "message");
 
-            var context = new SendOptions();
-
-            context.SetDestination(destination);
-            context.SetCorrelationId(correlationId);
+            var context = new SendOptions(destination, correlationId);
 
             return bus.Send(message, context);
         }
@@ -104,11 +97,8 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(destination, "destination");
             Guard.AgainstNullAndEmpty(correlationId, "correlationId");
             Guard.AgainstNull(messageConstructor, "messageConstructor");
-     
-            var context = new SendOptions();
 
-            context.SetDestination(destination);
-            context.SetCorrelationId(correlationId);
+            var context = new SendOptions(destination, correlationId);
 
             return bus.Send(messageConstructor, context);
         }
