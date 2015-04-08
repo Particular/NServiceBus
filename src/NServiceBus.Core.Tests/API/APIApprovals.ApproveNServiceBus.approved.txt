@@ -370,6 +370,7 @@ namespace NServiceBus
         void HandleCurrentMessageLater();
         void Reply(object message);
         void Return<T>(T errorEnum);
+        NServiceBus.ICallback Send(object message);
         NServiceBus.ICallback Send(string destination, object message);
         void SendLocal(object message);
     }
@@ -1640,13 +1641,13 @@ namespace NServiceBus.Saga
         public virtual string OriginalMessageId { get; set; }
         public virtual string Originator { get; set; }
     }
-    public interface IAmStartedByCommands<T> : NServiceBus.IProcessCommands<T> { }
-    public interface IAmStartedByEvents<T> : NServiceBus.IProcessEvents<T> { }
     public class CorrelationProperty
     {
         public CorrelationProperty(string name) { }
         public string Name { get; }
     }
+    public interface IAmStartedByCommands<T> : NServiceBus.IProcessCommands<T> { }
+    public interface IAmStartedByEvents<T> : NServiceBus.IProcessEvents<T> { }
     public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
     public interface IConfigureHowToFindSagaWithMessage
     {
@@ -1694,7 +1695,10 @@ namespace NServiceBus.Saga
         void Save(NServiceBus.Saga.IContainSagaData saga);
         void Update(NServiceBus.Saga.IContainSagaData saga);
     }
-    public interface ITimeoutContext { }
+    public interface ITimeoutContext
+    {
+        NServiceBus.ICallback SendLocal(object message);
+    }
     public abstract class Saga
     {
         protected Saga() { }
@@ -1742,8 +1746,9 @@ namespace NServiceBus.Saga
     }
     public class SagaMessage
     {
-        public SagaMessage(string messageType, bool isAllowedToStart) { }
+        public SagaMessage(string messageType, NServiceBus.Sagas.SagaMessageHandledBy sagaMessageHandledBy) { }
         public bool IsAllowedToStartSaga { get; }
+        public NServiceBus.Sagas.SagaMessageHandledBy MessageHandledBy { get; }
         public string MessageType { get; }
     }
     public class SagaMetadata
@@ -1801,6 +1806,17 @@ namespace NServiceBus.Sagas
     public class ActiveSagaInstance
     {
         public ActiveSagaInstance() { }
+    }
+    public enum SagaMessageHandledBy
+    {
+        StartedByMessage = 0,
+        StartedByCommand = 1,
+        StartedByEvent = 2,
+        ProcessTimeout = 3,
+        HandleTimeout = 4,
+        ProcessEvent = 5,
+        ProcessCommand = 6,
+        HandleMessage = 7,
     }
 }
 namespace NServiceBus.Satellites

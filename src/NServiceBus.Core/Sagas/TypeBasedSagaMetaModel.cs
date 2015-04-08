@@ -6,6 +6,7 @@ namespace NServiceBus.Saga
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Runtime.Serialization;
+    using NServiceBus.Sagas;
     using NServiceBus.Utils.Reflection;
 
     class TypeBasedSagaMetaModel

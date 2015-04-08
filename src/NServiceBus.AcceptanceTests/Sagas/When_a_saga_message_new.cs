@@ -76,7 +76,6 @@
                 public virtual string Originator { get; set; }
                 public virtual string OriginalMessageId { get; set; }
                 
-                [Unique]
                 public virtual Guid SomeId { get; set; }
             }
         }

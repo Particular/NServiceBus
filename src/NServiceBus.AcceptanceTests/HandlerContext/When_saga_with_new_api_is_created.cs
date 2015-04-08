@@ -68,7 +68,6 @@
 
                 public class Saga1Data : ContainSagaData
                 {
-                    [Unique]
                     public virtual Guid DataId { get; set; }
                 }
 
