@@ -59,14 +59,15 @@
           
             try
             {
-                if(deliveryOptions is PublishOptions)
+                var publishOptions = deliveryOptions as PublishOptions;
+                if(publishOptions != null)
                 {
-                    Publish(message, deliveryOptions as PublishOptions);
+                    Publish(message, publishOptions);
                 }
                 else
                 {
-                    
-                    SendOrDefer(message, deliveryOptions as SendOptions);
+
+                    SendOrDefer(message, (SendOptions)deliveryOptions);
                 }
             }
             catch (QueueNotFoundException ex)
