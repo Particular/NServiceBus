@@ -136,6 +136,7 @@
     <Compile Include="Sagas\When_receiving_that_should_start_a_saga_with_interception.cs" />
     <Compile Include="Sagas\When_sagas_cant_be_found.cs" />
     <Compile Include="Sagas\When_sending_from_a_saga_timeout_new.cs" />
+    <Compile Include="Sagas\When_started_by_base_event_from_other_saga_new.cs" />
     <Compile Include="ScaleOut\When_individualization_is_enabled_for_msmq.cs" />
     <Compile Include="ScaleOut\When_no_discriminator_is_available.cs" />
     <Compile Include="ScaleOut\When_individualization_is_enabled.cs" />
