@@ -58,6 +58,7 @@
                     });
             }
 
+            // TODO: Do we still support Replying to an event?
             class DidSomethingHandler : IHandleMessages<DidSomething>
             {
                 public IBus Bus { get; set; }
