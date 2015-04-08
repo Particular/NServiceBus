@@ -8,7 +8,7 @@
 
     // Repro for issue  https://github.com/NServiceBus/NServiceBus/issues/1277 to test the fix
     // making sure that the saga correlation still works.
-    public class When_an_endpoint_replies_to_a_saga : NServiceBusAcceptanceTest
+    public class When_endpoint_replies_to_a_saga : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_correlate_all_saga_messages_properly()

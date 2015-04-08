@@ -509,6 +509,11 @@
           {
           }
 
+          public ICallback Send(object message)
+          {
+              return default(ICallback);
+          }
+
           public ICallback Send(string destination, object message)
           {
               return default(ICallback);

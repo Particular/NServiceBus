@@ -39,6 +39,7 @@ namespace NServiceBus
 
         void Reply(object message);
 
+        ICallback Send(object message);
         ICallback Send(string destination, object message);
 
         void DoNotContinueDispatchingCurrentMessageToHandlers();
@@ -63,6 +64,11 @@ namespace NServiceBus
         public void Reply(object message)
         {
             bus.Reply(message);
+        }
+
+        public ICallback Send(object message)
+        {
+            return bus.Send(message);
         }
 
         public ICallback Send(string destination, object message)
