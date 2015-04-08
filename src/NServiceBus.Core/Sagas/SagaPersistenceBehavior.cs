@@ -7,7 +7,6 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Saga;
-    using NServiceBus.Sagas;
     using NServiceBus.Timeout;
     using NServiceBus.Transports;
     using NServiceBus.Unicast;

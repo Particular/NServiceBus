@@ -1615,12 +1615,29 @@ namespace NServiceBus.Pipeline.Contexts
 }
 namespace NServiceBus.Saga
 {
+    public class ActiveSagaInstance
+    {
+        [System.ObsoleteAttribute("Please use `context.MessageHandler.Instance` instead. Will be removed in version " +
+            "7.0.0.", true)]
+        public NServiceBus.Saga.Saga Instance { get; }
+        public bool IsNew { get; }
+        public bool NotFound { get; }
+        public string SagaId { get; }
+        [System.ObsoleteAttribute("Please use `.Metadata.SagaType` instead. Will be removed in version 7.0.0.", true)]
+        public System.Type SagaType { get; }
+        public void AttachNewEntity(NServiceBus.Saga.IContainSagaData sagaEntity) { }
+    }
     public abstract class ContainSagaData : NServiceBus.Saga.IContainSagaData
     {
         protected ContainSagaData() { }
         public virtual System.Guid Id { get; set; }
         public virtual string OriginalMessageId { get; set; }
         public virtual string Originator { get; set; }
+    }
+    public class CorrelationProperty
+    {
+        public CorrelationProperty(string name) { }
+        public string Name { get; }
     }
     public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
     public interface IConfigureHowToFindSagaWithMessage
@@ -1661,6 +1678,7 @@ namespace NServiceBus.Saga
             where TSagaData : NServiceBus.Saga.IContainSagaData;
         TSagaData Get<TSagaData>(string propertyName, object propertyValue)
             where TSagaData : NServiceBus.Saga.IContainSagaData;
+        void Initialize(NServiceBus.Saga.SagaMetaModel model);
         void Save(NServiceBus.Saga.IContainSagaData saga);
         void Update(NServiceBus.Saga.IContainSagaData saga);
     }
@@ -1702,6 +1720,40 @@ namespace NServiceBus.Saga
         protected internal override void ConfigureHowToFindSaga(NServiceBus.Saga.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
         protected abstract void ConfigureHowToFindSaga(NServiceBus.Saga.SagaPropertyMapper<TSagaData> mapper);
     }
+    public class SagaFinderDefinition
+    {
+        public SagaFinderDefinition(System.Type type, string messageType, System.Collections.Generic.Dictionary<string, object> properties) { }
+        public string MessageType { get; }
+        public System.Collections.Generic.Dictionary<string, object> Properties { get; }
+        public System.Type Type { get; }
+    }
+    public class SagaMessage
+    {
+        public SagaMessage(string messageType, bool isAllowedToStart) { }
+        public bool IsAllowedToStartSaga { get; }
+        public string MessageType { get; }
+    }
+    public class SagaMetadata
+    {
+        public SagaMetadata(string name, System.Type sagaType, string entityName, System.Type sagaEntityType, System.Collections.Generic.List<NServiceBus.Saga.CorrelationProperty> correlationProperties, System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMessage> messages, System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaFinderDefinition> finders) { }
+        public System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMessage> AssociatedMessages { get; }
+        public System.Collections.Generic.List<NServiceBus.Saga.CorrelationProperty> CorrelationProperties { get; }
+        public string EntityName { get; }
+        public System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaFinderDefinition> Finders { get; }
+        public string Name { get; }
+        public System.Type SagaEntityType { get; }
+        public System.Type SagaType { get; }
+        public bool IsMessageAllowedToStartTheSaga(string messageType) { }
+        public bool TryGetFinder(string messageType, out NServiceBus.Saga.SagaFinderDefinition finderDefinition) { }
+    }
+    public class SagaMetaModel : System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMetadata>, System.Collections.IEnumerable
+    {
+        public SagaMetaModel() { }
+        public NServiceBus.Saga.SagaMetadata FindByEntityName(string name) { }
+        public NServiceBus.Saga.SagaMetadata FindByName(string name) { }
+        public System.Collections.Generic.IEnumerator<NServiceBus.Saga.SagaMetadata> GetEnumerator() { }
+        public void Initialize(System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMetadata> foundSagas) { }
+    }
     public class SagaPropertyMapper<TSagaData>
         where TSagaData : NServiceBus.Saga.IContainSagaData
     {
@@ -1714,28 +1766,28 @@ namespace NServiceBus.Saga
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
     }
     [System.AttributeUsageAttribute(System.AttributeTargets.Property | System.AttributeTargets.All)]
+    [System.ObsoleteAttribute("There is no need for this attribute anymore, all mapped properties are automatica" +
+        "lly correlated. Will be removed in version 7.0.0.", true)]
     public sealed class UniqueAttribute : System.Attribute
     {
         public UniqueAttribute() { }
+        [System.ObsoleteAttribute("Use the new SagaMetadata. Will be removed in version 7.0.0.", true)]
         public static System.Collections.Generic.IDictionary<string, object> GetUniqueProperties(NServiceBus.Saga.IContainSagaData entity) { }
+        [System.ObsoleteAttribute("Use the new SagaMetadata. Will be removed in version 7.0.0.", true)]
         public static System.Collections.Generic.IEnumerable<System.Reflection.PropertyInfo> GetUniqueProperties(System.Type type) { }
+        [System.ObsoleteAttribute("Use the new SagaMetadata. Will be removed in version 7.0.0.", true)]
         public static System.Reflection.PropertyInfo GetUniqueProperty(System.Type type) { }
+        [System.ObsoleteAttribute("Use the new SagaMetadata. Will be removed in version 7.0.0.", true)]
         public static System.Nullable<System.Collections.Generic.KeyValuePair<string, object>> GetUniqueProperty(NServiceBus.Saga.IContainSagaData entity) { }
     }
 }
 namespace NServiceBus.Sagas
 {
+    [System.ObsoleteAttribute("Please use `NServiceBus.Saga.ActiveSagaInstance` instead. Will be removed in vers" +
+        "ion 7.0.0.", true)]
     public class ActiveSagaInstance
     {
-        [System.ObsoleteAttribute("Please use `context.MessageHandler.Instance` instead. Will be removed in version " +
-            "7.0.0.", true)]
-        public NServiceBus.Saga.Saga Instance { get; }
-        public bool IsNew { get; }
-        public bool NotFound { get; }
-        public string SagaId { get; }
-        [System.ObsoleteAttribute("Please use `.Metadata.SagaType` instead. Will be removed in version 7.0.0.", true)]
-        public System.Type SagaType { get; }
-        public void AttachNewEntity(NServiceBus.Saga.IContainSagaData sagaEntity) { }
+        public ActiveSagaInstance() { }
     }
 }
 namespace NServiceBus.Satellites

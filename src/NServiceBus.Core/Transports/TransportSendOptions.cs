@@ -14,7 +14,7 @@ namespace NServiceBus.Transports
         /// <param name="timeToBeReceived">Optional TTBR for the message</param>
         /// <param name="nonDurable">Message durability, default is `true`</param>
         /// <param name="enlistInReceiveTransaction">Tells the transport to enlist the send in its native transaction if supported</param>
-        public TransportSendOptions(string destination,TimeSpan? timeToBeReceived = null,bool nonDurable = false,bool enlistInReceiveTransaction = true)
+        public TransportSendOptions(string destination, TimeSpan? timeToBeReceived = null, bool nonDurable = false, bool enlistInReceiveTransaction = true)
         {
             Destination = destination;
             TimeToBeReceived = timeToBeReceived;

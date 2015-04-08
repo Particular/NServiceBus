@@ -220,7 +220,6 @@
     <Compile Include="Outbox\FakeOutboxStorage.cs" />
     <Compile Include="Outbox\OutboxDeduplicationBehaviorTests.cs" />
     <Compile Include="Routing\StaticMessageRouterTests.cs" />
-    <Compile Include="Sagas\UniqueAttributeTests.cs" />
     <Compile Include="Scheduler\DefaultSchedulerTests.cs" />
     <Compile Include="Scheduler\ScheduledTaskMessageHandlerTests.cs" />
     <Compile Include="Scheduler\ScheduleTests.cs" />

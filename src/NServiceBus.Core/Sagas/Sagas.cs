@@ -5,7 +5,6 @@
     using System.Linq;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Saga;
-    using NServiceBus.Sagas;
 
     /// <summary>
     ///     Used to configure saga.
@@ -27,7 +26,11 @@
                 }
             });
 
+            Defaults(s => s.Set<SagaMetaModel>(new SagaMetaModel()));
+           
             Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas was found in scanned types");
+
+            RegisterStartupTask<CallISagaPersisterInitializeMethod>();
         }
 
         /// <summary>
@@ -41,7 +44,8 @@
 
             var typeBasedSagas = TypeBasedSagaMetaModel.Create(context.Settings.GetAvailableTypes(),conventions);
 
-            var sagaMetaModel = new SagaMetaModel(typeBasedSagas);
+            var sagaMetaModel = context.Settings.Get<SagaMetaModel>();
+            sagaMetaModel.Initialize(typeBasedSagas);
 
             RegisterCustomFindersInContainer(context.Container, sagaMetaModel);
 
@@ -54,7 +58,6 @@
                     context.Container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
                 }
             }
-
         }
 
         static void RegisterCustomFindersInContainer(IConfigureComponents container, IEnumerable<SagaMetadata> sagaMetaModel)
@@ -72,13 +75,11 @@
             }
         }
 
-
         static bool IsSagaType(Type t)
         {
             return IsCompatible(t, typeof(Saga));
         }
 
-        
         static bool IsSagaNotFoundHandler(Type t)
         {
             return IsCompatible(t, typeof(IHandleSagaNotFound));
@@ -97,8 +98,23 @@
             return sagas.Any(t => timeoutHandler.IsAssignableFrom(t) && !messageHandler.IsAssignableFrom(t));
         }
 
-     
-     
         Conventions conventions;
+
+        class CallISagaPersisterInitializeMethod : FeatureStartupTask
+        {
+            readonly ISagaPersister persister;
+            readonly SagaMetaModel model;
+
+            public CallISagaPersisterInitializeMethod(ISagaPersister persister, SagaMetaModel model)
+            {
+                this.persister = persister;
+                this.model = model;
+            }
+
+            protected override void OnStart()
+            {
+                persister.Initialize(model);
+            }
+        }
     }
 }

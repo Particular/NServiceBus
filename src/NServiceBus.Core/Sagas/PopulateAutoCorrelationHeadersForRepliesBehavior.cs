@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Sagas;
+    using NServiceBus.Saga;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     class PopulateAutoCorrelationHeadersForRepliesBehavior : Behavior<OutgoingContext>
     {

@@ -1,24 +1,38 @@
-namespace NServiceBus.Sagas
+namespace NServiceBus.Saga
 {
     /// <summary>
     /// Representation of a message that is related to a saga
     /// </summary>
-    class SagaMessage
+    public class SagaMessage
     {
-        /// <summary>
-        /// True if the message can start the saga
-        /// </summary>
-        public readonly bool IsAllowedToStartSaga;
+        readonly bool isAllowedToStartSaga;
+        readonly string messageType;
 
         /// <summary>
-        /// The type of the message
+        /// Creates a new instance of <see cref="SagaMessage"/>.
         /// </summary>
-        public readonly string MessageType;
-
-        internal SagaMessage(string messageType, bool isAllowedToStart)
+        /// <param name="messageType">Type of the message</param>
+        /// <param name="isAllowedToStart"><code>true</code> if the message can start the saga, <code>false</code> otherwise.</param>
+        public SagaMessage(string messageType, bool isAllowedToStart)
         {
-            MessageType = messageType;
-            IsAllowedToStartSaga = isAllowedToStart;
+            this.messageType = messageType;
+            isAllowedToStartSaga = isAllowedToStart;
+        }
+
+        /// <summary>
+        /// The type of the message.
+        /// </summary>
+        public string MessageType
+        {
+            get { return messageType; }
+        }
+
+        /// <summary>
+        /// True if the message can start the saga.
+        /// </summary>
+        public bool IsAllowedToStartSaga
+        {
+            get { return isAllowedToStartSaga; }
         }
     }
 }

@@ -2,7 +2,6 @@
 {
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Saga;
-    using NServiceBus.Sagas;
 
     abstract class SagaFinder
     {
