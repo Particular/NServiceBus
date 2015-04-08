@@ -33,17 +33,17 @@ namespace NServiceBus
         }
         
         /// <summary>
-        ///     Set a header for the message to be send
+        ///     Adds a header for the message to be send.
         /// </summary>
-        /// <param name="key">The header key</param>
-        /// <param name="value">The header value</param>
+        /// <param name="key">The header key.</param>
+        /// <param name="value">The header value.</param>
         public void AddHeader(string key, string value)
         {
             Headers[key] = value;
         }
 
         /// <summary>
-        ///     Sets the destination of the message to the local endpoint
+        ///     Sets the destination of the message to the local endpoint.
         /// </summary>
         public void SetLocalEndpointAsDestination()
         {
@@ -52,7 +52,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Sets a custom message id for this message
+        ///     Sets a custom message id for this message.
         /// </summary>
         /// <param name="messageId"></param>
         public void SetCustomMessageId(string messageId)
