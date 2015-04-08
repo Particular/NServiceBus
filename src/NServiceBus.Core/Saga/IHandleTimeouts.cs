@@ -16,10 +16,24 @@ namespace NServiceBus.Saga
         void Timeout(T state, ITimeoutContext context);
     }
 
-    public interface ITimeoutContext { }
+    public interface ITimeoutContext
+    {
+        ICallback SendLocal(object message);
+    }
 
     internal class TimeoutContext : ITimeoutContext
     {
+        readonly IBus bus;
+
+        public TimeoutContext(IBus bus)
+        {
+            this.bus = bus;
+        }
+
+        public ICallback SendLocal(object message)
+        {
+            return bus.SendLocal(message);
+        }
     }
 #pragma warning restore 1591
 }

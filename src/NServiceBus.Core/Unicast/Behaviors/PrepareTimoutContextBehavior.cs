@@ -12,7 +12,7 @@
             var messageHandler = context.MessageHandler;
             if (messageHandler.HandlerKind == HandlerKind.Timeout)
             {
-                context.Set("InvocationContext", new TimeoutContext());
+                context.Set("InvocationContext", new TimeoutContext(context.Builder.Build<IBus>()));
             }
 
             next();

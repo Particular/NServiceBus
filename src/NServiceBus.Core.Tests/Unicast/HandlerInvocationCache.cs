@@ -497,7 +497,12 @@
               return context;
           }
       }
-      class StubTimeoutContext : ITimeoutContext { }
+      class StubTimeoutContext : ITimeoutContext {
+          public ICallback SendLocal(object message)
+          {
+              return default(ICallback);
+          }
+      }
       class StubEventContext : IEventContext { }
       class StubResponseContext : IResponseContext { }
       class StubCommandContext : ICommandContext {
