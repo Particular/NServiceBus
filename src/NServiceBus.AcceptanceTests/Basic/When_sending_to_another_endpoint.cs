@@ -19,10 +19,10 @@
             Scenario.Define(context)
                     .WithEndpoint<Sender>(b => b.Given((bus, c) =>
                     {
-                        var sendContext = new SendOptions();
-
-                        sendContext.AddHeader("MyHeader", "MyHeaderValue");
-                        bus.Send(new MyMessage{Id = c.Id},sendContext);
+                        var sendOptions = new SendOptions()
+                            .AddHeader("MyHeader", "MyHeaderValue");
+                        
+                        bus.Send(new MyMessage{Id = c.Id}, sendOptions);
                     }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)

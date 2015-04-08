@@ -11,7 +11,12 @@ namespace NServiceBus
         readonly DateTime? at;
         readonly string correlationId;
         readonly TimeSpan? delay;
-        
+        internal Dictionary<string, object> Context = new Dictionary<string, object>();
+        internal Dictionary<string, string> Headers = new Dictionary<string, string>();
+        internal MessageIntentEnum Intent = MessageIntentEnum.Send;
+        internal string MessageId;
+        internal bool SendToLocalEndpoint;
+
         /// <summary>
         ///     Creates an instance of <see cref="SendOptions" />.
         /// </summary>
@@ -31,34 +36,6 @@ namespace NServiceBus
             at = deliverAt;
             this.correlationId = correlationId;
         }
-        
-        /// <summary>
-        ///     Adds a header for the message to be send.
-        /// </summary>
-        /// <param name="key">The header key.</param>
-        /// <param name="value">The header value.</param>
-        public void AddHeader(string key, string value)
-        {
-            Headers[key] = value;
-        }
-
-        /// <summary>
-        ///     Sets the destination of the message to the local endpoint.
-        /// </summary>
-        public void SetLocalEndpointAsDestination()
-        {
-            SendToLocalEndpoint = true;
-            Destination = null;
-        }
-
-        /// <summary>
-        ///     Sets a custom message id for this message.
-        /// </summary>
-        /// <param name="messageId"></param>
-        public void SetCustomMessageId(string messageId)
-        {
-            MessageId = messageId;
-        }
 
         internal TimeSpan? Delay
         {
@@ -77,6 +54,37 @@ namespace NServiceBus
 
         internal string Destination { get; private set; }
 
+        /// <summary>
+        ///     Adds a header for the message to be send.
+        /// </summary>
+        /// <param name="key">The header key.</param>
+        /// <param name="value">The header value.</param>
+        public SendOptions AddHeader(string key, string value)
+        {
+            Headers[key] = value;
+            return this;
+        }
+
+        /// <summary>
+        ///     Sets the destination of the message to the local endpoint.
+        /// </summary>
+        public SendOptions SetLocalEndpointAsDestination()
+        {
+            SendToLocalEndpoint = true;
+            Destination = null;
+            return this;
+        }
+
+        /// <summary>
+        ///     Sets a custom message id for this message.
+        /// </summary>
+        /// <param name="messageId"></param>
+        public SendOptions SetCustomMessageId(string messageId)
+        {
+            MessageId = messageId;
+            return this;
+        }
+
         internal void AsReplyTo(string replyToAddress)
         {
             Guard.AgainstNull(replyToAddress, "replyToAddress");
@@ -84,10 +92,5 @@ namespace NServiceBus
             Destination = replyToAddress;
             Intent = MessageIntentEnum.Reply;
         }
-
-        internal Dictionary<string, string> Headers = new Dictionary<string, string>();
-        internal MessageIntentEnum Intent = MessageIntentEnum.Send;
-        internal string MessageId;
-        internal bool SendToLocalEndpoint;
     }
 }

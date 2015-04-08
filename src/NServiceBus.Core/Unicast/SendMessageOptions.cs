@@ -1,6 +1,7 @@
 namespace NServiceBus.Unicast
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Controls how a message will be sent by the transport
@@ -8,7 +9,8 @@ namespace NServiceBus.Unicast
     public class SendMessageOptions : DeliveryMessageOptions
     {
         readonly TimeSpan? delayDeliveryFor;
-        readonly string destination;
+        readonly Dictionary<string, object> context;
+        string destination;
         readonly DateTime? deliverAt;
 
         /// <summary>
@@ -17,7 +19,8 @@ namespace NServiceBus.Unicast
         /// <param name="destination">Address where to send this message.</param>
         /// <param name="deliverAt">The time when the message should be delivered to the destination.</param>
         /// <param name="delayDeliveryFor">How long to delay delivery of the message.</param>
-        public SendMessageOptions(string destination, DateTime? deliverAt = null, TimeSpan? delayDeliveryFor = null)
+        /// <param name="context"><see cref="NServiceBus.SendOptions"/> contextual items.</param>
+        public SendMessageOptions(string destination, DateTime? deliverAt = null, TimeSpan? delayDeliveryFor = null, Dictionary<string, object> context = null)
         {
             Guard.AgainstNullAndEmpty(destination, "destination");
             this.destination = destination;
@@ -31,6 +34,7 @@ namespace NServiceBus.Unicast
 
             Guard.AgainstNegative(delayDeliveryFor, "delayDeliveryFor");
             this.delayDeliveryFor = delayDeliveryFor;
+            this.context = context;
         }
 
         /// <summary>
@@ -55,6 +59,20 @@ namespace NServiceBus.Unicast
         public string Destination
         {
             get { return destination; }
+            set
+            {
+                Guard.AgainstNullAndEmpty(value, "value");
+                
+                destination = value;
+            }
+        }
+
+        /// <summary>
+        /// <see cref="NServiceBus.SendOptions"/> contextual items.
+        /// </summary>
+        public Dictionary<string, object> Context
+        {
+            get { return context; }
         }
     }
 }

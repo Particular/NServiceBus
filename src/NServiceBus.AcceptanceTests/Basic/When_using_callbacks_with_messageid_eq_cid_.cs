@@ -15,9 +15,9 @@
                         (bus,c)=>
                         {
                             var id = Guid.NewGuid().ToString();
-                            var sendContext = new SendOptions(correlationId: id);
-                            sendContext.SetCustomMessageId(id);
-                            sendContext.SetLocalEndpointAsDestination();
+                            var sendContext = new SendOptions(correlationId: id)
+                                .SetCustomMessageId(id)
+                                .SetLocalEndpointAsDestination();
 
                             bus.Send(new MyRequest(), sendContext).Register(r =>
                             {

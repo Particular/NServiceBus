@@ -564,9 +564,9 @@ namespace NServiceBus
     public class SendOptions
     {
         public SendOptions(string destination = null, string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
-        public void AddHeader(string key, string value) { }
-        public void SetCustomMessageId(string messageId) { }
-        public void SetLocalEndpointAsDestination() { }
+        public NServiceBus.SendOptions AddHeader(string key, string value) { }
+        public NServiceBus.SendOptions SetCustomMessageId(string messageId) { }
+        public NServiceBus.SendOptions SetLocalEndpointAsDestination() { }
     }
     public class static SerializationConfigExtensions
     {
@@ -863,6 +863,10 @@ namespace NServiceBus.Configuration.AdvanceExtensibility
     public abstract class ExposeSettings
     {
         protected ExposeSettings(NServiceBus.Settings.SettingsHolder settings) { }
+    }
+    public class static SendOptionsExtensions
+    {
+        public static System.Collections.Generic.Dictionary<string, object> GetContext(this NServiceBus.SendOptions options) { }
     }
 }
 namespace NServiceBus.Container
@@ -2250,10 +2254,11 @@ namespace NServiceBus.Unicast
     }
     public class SendMessageOptions : NServiceBus.Unicast.DeliveryMessageOptions
     {
-        public SendMessageOptions(string destination, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
+        public SendMessageOptions(string destination, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null, System.Collections.Generic.Dictionary<string, object> context = null) { }
+        public System.Collections.Generic.Dictionary<string, object> Context { get; }
         public System.Nullable<System.TimeSpan> DelayDeliveryFor { get; }
         public System.Nullable<System.DateTime> DeliverAt { get; }
-        public string Destination { get; }
+        public string Destination { get; set; }
     }
     [System.ObsoleteAttribute("Please use `NServiceBus.UnicastBus.SendMessageOptions` instead. Will be removed i" +
         "n version 7.0.0.", true)]

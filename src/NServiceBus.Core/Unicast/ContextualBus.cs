@@ -363,7 +363,7 @@ namespace NServiceBus.Unicast
                 deliverAt = options.At;
             }
 
-            var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
+            var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor, options.Context);
             var headers = new Dictionary<string, string>(options.Headers);
 
             headers[Headers.MessageIntent] = options.Intent.ToString();
