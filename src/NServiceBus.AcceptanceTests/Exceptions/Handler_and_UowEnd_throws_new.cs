@@ -24,38 +24,11 @@
 
             Assert.AreEqual(typeof(HandlerException), context.InnerExceptionOneType);
             Assert.AreEqual(typeof(EndException), context.InnerExceptionTwoType);
-
-
-            StackTraceAssert.StartsWith(
-@"at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
-at NServiceBus.ChildContainerBehavior.Invoke(Context context, Action next)
-at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)", context.StackTrace);
-
-            StackTraceAssert.StartsWith(
-@"at NServiceBus.AcceptanceTests.Exceptions.Handler_and_UowEnd_throws_new.Endpoint.Handler.Handle(Message message, ICommandContext context)
-at NServiceBus.Unicast.Behaviors.MessageHandler.Invoke(Object message, Object context)
-at NServiceBus.InvokeHandlersBehavior.Invoke(Context context, Action next)
-at NServiceBus.HandlerTransactionScopeWrapperBehavior.Invoke(Context context, Action next)
-at NServiceBus.LoadHandlersConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.ApplyIncomingMessageMutatorsBehavior.Invoke(Context context, Action next)
-at NServiceBus.ExecuteLogicalMessagesConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.CallbackInvocationBehavior.Invoke(Context context, Action next)
-at NServiceBus.ApplyIncomingTransportMessageMutatorsBehavior.Invoke(Context context, Action next)
-at NServiceBus.SubscriptionReceiverBehavior.Invoke(Context context, Action next)
-at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)", context.InnerExceptionOneStackTrace);
-
-            StackTraceAssert.StartsWith(
-string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.Handler_and_UowEnd_throws_new.Endpoint.{0}.End(Exception ex)
-at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initialException)", context.TypeName), context.InnerExceptionTwoStackTrace);
-
         }
 
         public class Context : ScenarioContext
         {
             public bool ExceptionReceived { get; set; }
-            public string StackTrace { get; set; }
-            public string InnerExceptionOneStackTrace { get; set; }
-            public string InnerExceptionTwoStackTrace { get; set; }
             public Type InnerExceptionOneType { get; set; }
             public Type InnerExceptionTwoType { get; set; }
             public bool FirstOneExecuted { get; set; }
@@ -95,10 +68,7 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
                         var aggregateException = (AggregateException)e.Exception;
-                        Context.StackTrace = aggregateException.StackTrace;
                         var exceptions = aggregateException.InnerExceptions;
-                        Context.InnerExceptionOneStackTrace = exceptions[0].StackTrace;
-                        Context.InnerExceptionTwoStackTrace = exceptions[1].StackTrace;
                         Context.InnerExceptionOneType = exceptions[0].GetType();
                         Context.InnerExceptionTwoType = exceptions[1].GetType();
                         Context.ExceptionReceived = true;

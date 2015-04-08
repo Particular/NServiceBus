@@ -23,17 +23,11 @@
                     .Run();
 
             Assert.AreEqual(typeof(BeginException), context.ExceptionType);
-            StackTraceAssert.StartsWith(
-@"at NServiceBus.AcceptanceTests.Exceptions.Uow_Begin_throws.Endpoint.UnitOfWorkThatThrowsInBegin.Begin()
-at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
-at NServiceBus.ChildContainerBehavior.Invoke(Context context, Action next)
-at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)", context.StackTrace);
         }
 
         public class Context : ScenarioContext
         {
             public bool ExceptionReceived { get; set; }
-            public string StackTrace { get; set; }
             public Type ExceptionType { get; set; }
         }
 
@@ -66,7 +60,6 @@ at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
                         Context.ExceptionType = e.Exception.GetType();
-                        Context.StackTrace = e.Exception.StackTrace;
                         Context.ExceptionReceived = true;
                     });
                 }

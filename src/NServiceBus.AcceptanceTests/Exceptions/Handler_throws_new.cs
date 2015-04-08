@@ -21,30 +21,11 @@
                     .Done(c => c.ExceptionReceived)
                     .Run();
             Assert.AreEqual(typeof(HandlerException), context.ExceptionType);
-
-            StackTraceAssert.StartsWith(
-@"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_new.Endpoint.Handler.Handle(Message message, ICommandContext context)
-at NServiceBus.Unicast.Behaviors.MessageHandler.Invoke(Object message, Object context)
-at NServiceBus.InvokeHandlersBehavior.Invoke(Context context, Action next)
-at NServiceBus.HandlerTransactionScopeWrapperBehavior.Invoke(Context context, Action next)
-at NServiceBus.LoadHandlersConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.ApplyIncomingMessageMutatorsBehavior.Invoke(Context context, Action next)
-at NServiceBus.ExecuteLogicalMessagesConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.CallbackInvocationBehavior.Invoke(Context context, Action next)
-at NServiceBus.ApplyIncomingTransportMessageMutatorsBehavior.Invoke(Context context, Action next)
-at NServiceBus.SubscriptionReceiverBehavior.Invoke(Context context, Action next)
-at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
-at NServiceBus.ChildContainerBehavior.Invoke(Context context, Action next)
-at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)
-at NServiceBus.EnforceMessageIdBehavior.Invoke(Context context, Action next)
-at NServiceBus.HostInformationBehavior.Invoke(Context context, Action next)
-at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action next)", context.StackTrace);
         }
 
         public class Context : ScenarioContext
         {
             public bool ExceptionReceived { get; set; }
-            public string StackTrace { get; set; }
             public Type ExceptionType { get; set; }
         }
 
@@ -74,7 +55,6 @@ at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action nex
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
                         Context.ExceptionType = e.Exception.GetType();
-                        Context.StackTrace = e.Exception.StackTrace;
                         Context.ExceptionReceived = true;
                     });
                 }

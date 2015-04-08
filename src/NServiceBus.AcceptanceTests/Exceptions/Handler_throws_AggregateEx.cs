@@ -24,35 +24,11 @@
             Assert.AreEqual(typeof(Exception), context.InnerExceptionType);
             Assert.AreEqual("My Exception", context.ExceptionMessage);
             Assert.AreEqual("My Inner Exception", context.InnerExceptionMessage);
-      
-            StackTraceAssert.StartsWith(
-                @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.Handle(Message message)
-at NServiceBus.Unicast.Behaviors.MessageHandler.Invoke(Object message, Object context)
-at NServiceBus.InvokeHandlersBehavior.Invoke(Context context, Action next)
-at NServiceBus.HandlerTransactionScopeWrapperBehavior.Invoke(Context context, Action next)
-at NServiceBus.LoadHandlersConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.ApplyIncomingMessageMutatorsBehavior.Invoke(Context context, Action next)
-at NServiceBus.ExecuteLogicalMessagesConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.CallbackInvocationBehavior.Invoke(Context context, Action next)
-at NServiceBus.ApplyIncomingTransportMessageMutatorsBehavior.Invoke(Context context, Action next)
-at NServiceBus.SubscriptionReceiverBehavior.Invoke(Context context, Action next)
-at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
-at NServiceBus.ChildContainerBehavior.Invoke(Context context, Action next)
-at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)
-at NServiceBus.EnforceMessageIdBehavior.Invoke(Context context, Action next)
-at NServiceBus.HostInformationBehavior.Invoke(Context context, Action next)
-at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action next)", context.StackTrace);
-
-            StackTraceAssert.StartsWith(
-                @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.MethodThatThrows()
-at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.Handle(Message message)", context.InnerStackTrace);
         }
 
         public class Context : ScenarioContext
         {
             public bool ExceptionReceived { get; set; }
-            public string StackTrace { get; set; }
-            public string InnerStackTrace { get; set; }
             public Type InnerExceptionType { get; set; }
             public string ExceptionMessage { get; set; }
             public string InnerExceptionMessage { get; set; }
@@ -85,13 +61,11 @@ at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Ha
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
                         Context.ExceptionMessage = e.Exception.Message;
-                        Context.StackTrace = e.Exception.StackTrace;
                         Context.ExceptionType = e.Exception.GetType();
                         if (e.Exception.InnerException != null)
                         {
                             Context.InnerExceptionMessage = e.Exception.InnerException.Message;
                             Context.InnerExceptionType = e.Exception.InnerException.GetType();
-                            Context.InnerStackTrace = e.Exception.InnerException.StackTrace;
                         }
                         Context.ExceptionReceived = true;
                     });

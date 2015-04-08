@@ -170,7 +170,6 @@
     <Compile Include="Encryption\When_using_Rijndael_with_custom.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_config.cs" />
     <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
-    <Compile Include="Exceptions\StackTraceAssert.cs" />
     <Compile Include="Exceptions\Handler_and_UowEnd_throws.cs">
       <SubType>Code</SubType>
     </Compile>
