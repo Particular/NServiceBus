@@ -106,7 +106,7 @@ namespace NServiceBus.Unicast
         {
             var logicalMessage = messageFactory.Create(message);
 
-            var options = new PublishOptions(logicalMessage.MessageType);
+            var options = new PublishMessageOptions(logicalMessage.MessageType);
 
             ApplyDefaultDeliveryOptionsIfNeeded(options, logicalMessage);
 
@@ -238,7 +238,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply(object message)
         {
-            var context = new SendContext();
+            var context = new NServiceBus.SendOptions();
 
             context.AsReplyTo(MessageBeingProcessed.ReplyToAddress);
             context.SetCorrelationId(GetCorrelationId());
@@ -251,7 +251,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply<T>(Action<T> messageConstructor)
         {
-            var context = new SendContext();
+            var context = new NServiceBus.SendOptions();
             context.AsReplyTo(MessageBeingProcessed.ReplyToAddress);
             context.SetCorrelationId(GetCorrelationId());
 
@@ -276,7 +276,7 @@ namespace NServiceBus.Unicast
             }
 
 
-            var context = new SendContext();
+            var context = new NServiceBus.SendOptions();
 
             context.SetHeader(Headers.ReturnMessageErrorCodeHeader, returnCode);
             context.AsReplyTo(MessageBeingProcessed.ReplyToAddress);
@@ -317,14 +317,14 @@ namespace NServiceBus.Unicast
 
      
 
-        public ICallback Send<T>(Action<T> messageConstructor, SendContext context)
+        public ICallback Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
         {
-            return Send(messageMapper.CreateInstance(messageConstructor), context);
+            return Send(messageMapper.CreateInstance(messageConstructor), options);
         }
 
-        public ICallback Send(object message, SendContext context)
+        public ICallback Send(object message, NServiceBus.SendOptions options)
         {
-            return SendMessage(context, messageFactory.Create(message));
+            return SendMessage(options, messageFactory.Create(message));
         }
 
         string GetDestinationForSend(Type messageType)
@@ -340,11 +340,11 @@ namespace NServiceBus.Unicast
         }
 
         
-        ICallback SendMessage(SendContext context, LogicalMessage message)
+        ICallback SendMessage(NServiceBus.SendOptions options, LogicalMessage message)
         {
-            var destination = context.Destination;
+            var destination = options.Destination;
 
-            if (context.SendToLocalEndpoint)
+            if (options.SendToLocalEndpoint)
             {
                 destination = sendLocalAddress;
             }
@@ -355,32 +355,32 @@ namespace NServiceBus.Unicast
             }
 
             TimeSpan? delayDeliveryFor = null;
-            if (context.Delay.HasValue)
+            if (options.Delay.HasValue)
             {
-                delayDeliveryFor = context.Delay;
+                delayDeliveryFor = options.Delay;
             }
 
             DateTime? deliverAt = null;
-            if (context.At.HasValue)
+            if (options.At.HasValue)
             {
-                deliverAt = context.At;
+                deliverAt = options.At;
             }
 
-            var sendOptions = new SendOptions(destination, deliverAt, delayDeliveryFor);
-            var headers = new Dictionary<string, string>(context.Headers);
+            var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
+            var headers = new Dictionary<string, string>(options.Headers);
 
-            headers[Headers.MessageIntent] = context.Intent.ToString();
+            headers[Headers.MessageIntent] = options.Intent.ToString();
           
-            var messageId = context.MessageId;
+            var messageId = options.MessageId;
 
             if (string.IsNullOrEmpty(messageId))
             {
                 messageId = CombGuid.Generate().ToString();
             }
 
-            if (!string.IsNullOrEmpty(context.CorrelationId))
+            if (!string.IsNullOrEmpty(options.CorrelationId))
             {
-                headers[Headers.CorrelationId] = context.CorrelationId;
+                headers[Headers.CorrelationId] = options.CorrelationId;
             }
             else
             {
@@ -401,7 +401,7 @@ namespace NServiceBus.Unicast
                 message,
                 headers,
                 messageId,
-                context.Intent);
+                options.Intent);
 
 
             outgoingPipeline.Invoke(outgoingContext);
@@ -464,7 +464,7 @@ namespace NServiceBus.Unicast
         }
 
 
-        void ApplyDefaultDeliveryOptionsIfNeeded(DeliveryOptions options, LogicalMessage logicalMessage)
+        void ApplyDefaultDeliveryOptionsIfNeeded(DeliveryMessageOptions options, LogicalMessage logicalMessage)
         {
             if (logicalMessage is ControlMessage)
             {

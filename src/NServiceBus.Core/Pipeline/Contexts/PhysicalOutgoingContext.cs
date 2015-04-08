@@ -13,17 +13,17 @@
         /// </summary>
         public class Context : BehaviorContext
         {
-          
+
             /// <summary>
             /// 
             /// </summary>
             /// <param name="body"></param>
             /// <param name="parentContext"></param>
-            public Context( byte[] body,OutgoingContext parentContext)
+            public Context(byte[] body, OutgoingContext parentContext)
                 : base(parentContext)
             {
                 Body = body;
-                DeliveryOptions = parentContext.DeliveryOptions;
+                DeliveryMessageOptions = parentContext.DeliveryMessageOptions;
                 Headers = parentContext.Headers;
                 MessageId = parentContext.MessageId;
             }
@@ -31,7 +31,7 @@
             /// <summary>
             /// 
             /// </summary>
-            public DeliveryOptions DeliveryOptions { get; private set; }
+            public DeliveryMessageOptions DeliveryMessageOptions { get; private set; }
 
             /// <summary>
             /// 

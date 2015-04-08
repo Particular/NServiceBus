@@ -30,7 +30,7 @@ namespace NServiceBus.Core.Tests.DataBus
         void Invoke(LogicalMessage message,Dictionary<string,string> headers)
         {
 
-            var context = new OutgoingContext(null, new SendOptions("MyEndpoint"), message, headers, "msg id",MessageIntentEnum.Send);
+            var context = new OutgoingContext(null, new SendMessageOptions("MyEndpoint"), message, headers, "msg id",MessageIntentEnum.Send);
 
             sendBehavior.Invoke(context, () => { });
         }

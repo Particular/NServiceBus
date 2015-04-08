@@ -31,14 +31,14 @@
             sendOnlyBus.Publish(messageConstructor);
         }
 
-        public ICallback Send(object message, SendContext context)
+        public ICallback Send(object message, SendOptions options)
         {
-            return sendOnlyBus.Send(message, context);
+            return sendOnlyBus.Send(message, options);
         }
 
-        public ICallback Send<T>(Action<T> messageConstructor, SendContext context)
+        public ICallback Send<T>(Action<T> messageConstructor, SendOptions options)
         {
-            return sendOnlyBus.Send(messageConstructor, context);
+            return sendOnlyBus.Send(messageConstructor, options);
         }
 
         public void Subscribe(Type messageType)

@@ -12,7 +12,7 @@
     {
         public override void Invoke(OutgoingContext context, Action next)
         {
-            var options = context.DeliveryOptions as SendOptions;
+            var options = context.DeliveryMessageOptions as SendMessageOptions;
 
             if (options != null && log.IsDebugEnabled && context.OutgoingLogicalMessage != null)
             {

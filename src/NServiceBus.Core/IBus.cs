@@ -91,7 +91,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(message, "message");
 
-            var context = new SendContext();
+            var context = new SendOptions();
 
             context.SetLocalEndpointAsDestination();
 
@@ -107,7 +107,7 @@ namespace NServiceBus
         public static ICallback SendLocal<T>(this IBus bus, Action<T> messageConstructor)
         {
             Guard.AgainstNull(messageConstructor, "messageConstructor");
-            var context = new SendContext();
+            var context = new SendOptions();
 
             context.SetLocalEndpointAsDestination();
 
@@ -122,7 +122,7 @@ namespace NServiceBus
             Guard.AgainstNull(message, "message");
             Guard.AgainstNegativeAndZero(delay,"delay");
             
-            var context = new SendContext();
+            var context = new SendOptions();
 
             context.DelayDeliveryWith(delay);
             context.SetLocalEndpointAsDestination();
@@ -138,7 +138,7 @@ namespace NServiceBus
             Guard.AgainstNull(message, "message");
             Guard.AgainstNull(processAt, "processAt");
         
-            var context = new SendContext();
+            var context = new SendOptions();
 
             context.DeliverAt(processAt);
             context.SetLocalEndpointAsDestination();

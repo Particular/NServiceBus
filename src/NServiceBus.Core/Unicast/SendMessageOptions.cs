@@ -5,19 +5,19 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// Controls how a message will be sent by the transport
     /// </summary>
-    public partial class SendOptions : DeliveryOptions
+    public class SendMessageOptions : DeliveryMessageOptions
     {
         readonly TimeSpan? delayDeliveryFor;
         readonly string destination;
         readonly DateTime? deliverAt;
 
         /// <summary>
-        /// Creates an instance of <see cref="SendOptions"/>.
+        /// Creates an instance of <see cref="SendMessageOptions"/>.
         /// </summary>
         /// <param name="destination">Address where to send this message.</param>
         /// <param name="deliverAt">The time when the message should be delivered to the destination.</param>
         /// <param name="delayDeliveryFor">How long to delay delivery of the message.</param>
-        public SendOptions(string destination, DateTime? deliverAt = null, TimeSpan? delayDeliveryFor = null)
+        public SendMessageOptions(string destination, DateTime? deliverAt = null, TimeSpan? delayDeliveryFor = null)
         {
             Guard.AgainstNullAndEmpty(destination, "destination");
             this.destination = destination;

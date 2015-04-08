@@ -26,12 +26,12 @@
                 return;
             }
 
-            if (!context.DeliveryOptions.EnforceMessagingBestPractices)
+            if (!context.DeliveryMessageOptions.EnforceMessagingBestPractices)
             {
                 return;
             }
 
-            var sendOptions = context.DeliveryOptions as SendOptions;
+            var sendOptions = context.DeliveryMessageOptions as SendMessageOptions;
 
             if (sendOptions == null)
             {

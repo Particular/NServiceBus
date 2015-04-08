@@ -16,7 +16,7 @@
         {
             var behavior = new SerializeMessagesBehavior(new FakeSerializer("myContentType"));
           
-            var context = new OutgoingContext(null, new SendOptions("test"), new LogicalMessage(new MessageMetadata(),null,null),new Dictionary<string, string>(),"msg id",MessageIntentEnum.Send);
+            var context = new OutgoingContext(null, new SendMessageOptions("test"), new LogicalMessage(new MessageMetadata(),null,null),new Dictionary<string, string>(),"msg id",MessageIntentEnum.Send);
 
             behavior.Invoke(context, c =>
             {

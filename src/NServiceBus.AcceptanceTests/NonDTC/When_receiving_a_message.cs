@@ -29,7 +29,7 @@
                     {
                         var duplicateMessageId = Guid.NewGuid().ToString();
 
-                        var duplicateSendContext = new SendContext();
+                        var duplicateSendContext = new SendOptions();
 
                         duplicateSendContext.SetMessageId(duplicateMessageId);
                         duplicateSendContext.SetLocalEndpointAsDestination();

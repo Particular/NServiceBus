@@ -24,7 +24,7 @@
         }
 
 
-        public void Publish(OutgoingMessage message, PublishOptions publishOptions)
+        public void Publish(OutgoingMessage message, PublishMessageOptions publishOptions)
         {
             var eventTypesToPublish = messageMetadataRegistry.GetMessageMetadata(publishOptions.EventType)
                 .MessageHierarchy

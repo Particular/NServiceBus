@@ -12,21 +12,21 @@
         public string TimeoutManagerAddress { get; set; }
         public Configure Configure { get; set; }
 
-        public void Defer(OutgoingMessage message, SendOptions sendOptions)
+        public void Defer(OutgoingMessage message, SendMessageOptions sendMessageOptions)
         {
-            message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = sendOptions.Destination;
+            message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = sendMessageOptions.Destination;
 
             DateTime deliverAt;
 
-            if (sendOptions.DelayDeliveryFor.HasValue)
+            if (sendMessageOptions.DelayDeliveryFor.HasValue)
             {
-                deliverAt = DateTime.UtcNow + sendOptions.DelayDeliveryFor.Value;
+                deliverAt = DateTime.UtcNow + sendMessageOptions.DelayDeliveryFor.Value;
             }
             else
             {
-                if (sendOptions.DeliverAt.HasValue)
+                if (sendMessageOptions.DeliverAt.HasValue)
                 {
-                    deliverAt = sendOptions.DeliverAt.Value;    
+                    deliverAt = sendMessageOptions.DeliverAt.Value;    
                 }
                 else
                 {
@@ -39,7 +39,7 @@
             
             try
             {
-                MessageSender.Send(message, new TransportSendOptions(TimeoutManagerAddress, enlistInReceiveTransaction: sendOptions.EnlistInReceiveTransaction));
+                MessageSender.Send(message, new TransportSendOptions(TimeoutManagerAddress, enlistInReceiveTransaction: sendMessageOptions.EnlistInReceiveTransaction));
             }
             catch (Exception ex)
             {

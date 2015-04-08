@@ -73,13 +73,13 @@ namespace NServiceBus
     {
 
         [ObsoleteEx(
-            Message = "For sending purposes use DeliveryOptions.NonDurable (note the negation). When receiving look at the new 'NServiceBus.NonDurableMessage' header",
+            Message = "For sending purposes use DeliveryMessageOptions.NonDurable (note the negation). When receiving look at the new 'NServiceBus.NonDurableMessage' header",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public bool Recoverable { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
 
         [ObsoleteEx(
-            Message = "For sending purposes use DeliveryOptions.TimeToBeReceived. When receiving look at the new 'NServiceBus.TimeToBeReceived' header",
+            Message = "For sending purposes use DeliveryMessageOptions.TimeToBeReceived. When receiving look at the new 'NServiceBus.TimeToBeReceived' header",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public TimeSpan TimeToBeReceived { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
@@ -104,7 +104,11 @@ namespace NServiceBus.Unicast
 {
     using System;
 
-    public abstract partial class DeliveryOptions
+    [ObsoleteEx(
+            ReplacementTypeOrMember = "NServiceBus.UnicastBus.DeliveryMessageOptions",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+    public abstract class DeliveryOptions
     {
         [ObsoleteEx(
            Message = "Reply to address can be get/set using the `NServiceBus.ReplyToAddress` header",
@@ -112,17 +116,23 @@ namespace NServiceBus.Unicast
            TreatAsErrorFromVersion = "6.0")]
         public string ReplyToAddress { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
     }
-}
 
+    [ObsoleteEx(
+            ReplacementTypeOrMember = "NServiceBus.UnicastBus.PublishMessageOptions",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+    public class PublishOptions : DeliveryOptions
+    {
+    }
 
-namespace NServiceBus.Unicast
-{
-    using System;
-
-    public partial class SendOptions
+    [ObsoleteEx(
+            ReplacementTypeOrMember = "NServiceBus.UnicastBus.SendMessageOptions",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+    public class SendOptions : DeliveryOptions
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "SendOptions(string)",
+            ReplacementTypeOrMember = "SendMessageOptions(string)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         // ReSharper disable once UnusedParameter.Local
@@ -160,8 +170,6 @@ namespace NServiceBus.Timeout.Core
 
     public partial class TimeoutData
     {
-
-
         [ObsoleteEx(Message = "Use new OutgoingMessage(timeoutData.State) instead", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
         public TransportMessage ToTransportMessage()
         {
@@ -172,7 +180,7 @@ namespace NServiceBus.Timeout.Core
             Message = "Use new SendOptions() instead",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public SendOptions ToSendOptions(Address replyToAddress)
+        public SendMessageOptions ToSendOptions(Address replyToAddress)
         {
             throw new NotImplementedException();
         }
@@ -181,12 +189,10 @@ namespace NServiceBus.Timeout.Core
             Message = "Use new SendOptions() instead",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public SendOptions ToSendOptions(string replyToAddress)
+        public SendMessageOptions ToSendOptions(string replyToAddress)
         {
             throw new NotImplementedException();
         }
-
-
 
         [ObsoleteEx(
             Message = "Not used anymore",
@@ -199,36 +205,12 @@ namespace NServiceBus.Timeout.Core
 
 namespace NServiceBus.Unicast
 {
-    using System;
-
-
     [ObsoleteEx(
             Message = "Not used anymore, use the 'NServiceBus.MessageIntent' header to detect if the message is a reply",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-    public class ReplyOptions : SendOptions
+    public class ReplyOptions : DeliveryOptions
     {
-
-
-        public ReplyOptions(string destination)
-            : base(destination)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public ReplyOptions(Address destination, string correlationId)
-            : base(destination)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public ReplyOptions(string destination, string correlationId)
-            : base(destination)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 

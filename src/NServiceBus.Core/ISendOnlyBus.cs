@@ -28,8 +28,8 @@ namespace NServiceBus
         /// Sends the provided message.
         /// </summary>
         /// <param name="message">The message to send.</param>
-        /// <param name="context">The context for the send</param>
-        ICallback Send(object message, SendContext context);
+        /// <param name="options">The options for the send.</param>
+        ICallback Send(object message, SendOptions options);
 
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace NServiceBus
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        /// <param name="context">The context for the send</param>
-        ICallback Send<T>(Action<T> messageConstructor, SendContext context);
+        /// <param name="options">The options for the send.</param>
+        ICallback Send<T>(Action<T> messageConstructor, SendOptions options);
     }
 }

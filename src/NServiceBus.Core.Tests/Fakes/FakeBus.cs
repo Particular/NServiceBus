@@ -41,12 +41,12 @@
             throw new NotImplementedException();
         }
 
-        public ICallback Send(object message, SendContext context)
+        public ICallback Send(object message, SendOptions options)
         {
-            if (context.Delay.HasValue)
+            if (options.Delay.HasValue)
             {
                 Interlocked.Increment(ref _deferWasCalled);
-                deferDelay = context.Delay.Value;
+                deferDelay = options.Delay.Value;
                 deferedMessage = message;
                 
             }
@@ -54,7 +54,7 @@
         }
 
         
-        public ICallback Send<T>(Action<T> messageConstructor, SendContext context)
+        public ICallback Send<T>(Action<T> messageConstructor, SendOptions options)
         {
             throw new NotImplementedException();
         }

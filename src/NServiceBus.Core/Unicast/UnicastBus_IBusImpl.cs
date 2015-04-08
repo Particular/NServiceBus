@@ -38,11 +38,11 @@ namespace NServiceBus.Unicast
         /// 
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="context"></param>
+        /// <param name="options"></param>
         /// <returns></returns>
-        public ICallback Send(object message,SendContext context)
+        public ICallback Send(object message,NServiceBus.SendOptions options)
         {
-            return busImpl.Send(message, context);
+            return busImpl.Send(message, options);
         }
 
 
@@ -51,11 +51,11 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="messageConstructor"></param>
-        /// <param name="context"></param>
+        /// <param name="options"></param>
         /// <returns></returns>
-        public ICallback Send<T>(Action<T> messageConstructor, SendContext context)
+        public ICallback Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
         {
-            return busImpl.Send(messageConstructor,context);
+            return busImpl.Send(messageConstructor,options);
         }
 
         /// <summary>

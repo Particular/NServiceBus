@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Allows the users to control how the send is performed
     /// </summary>
-    public class SendContext
+    public class SendOptions
     {
         /// <summary>
         /// Set a header for the message to be send

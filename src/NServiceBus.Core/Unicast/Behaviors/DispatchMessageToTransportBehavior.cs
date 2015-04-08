@@ -24,12 +24,12 @@
 
         public override void Invoke(Context context, Action next)
         {
-            InvokeNative(context.DeliveryOptions, new OutgoingMessage(context.MessageId,context.Headers,context.Body));
+            InvokeNative(context.DeliveryMessageOptions, new OutgoingMessage(context.MessageId,context.Headers,context.Body));
 
             next();
         }
 
-        public void InvokeNative(DeliveryOptions deliveryOptions, OutgoingMessage message)
+        public void InvokeNative(DeliveryMessageOptions deliveryMessageOptions, OutgoingMessage message)
         {
             var messageDescription = "ControlMessage";
 
@@ -46,12 +46,12 @@
             message.Headers[Headers.MessageId] = message.MessageId;
 
 
-            if (deliveryOptions.TimeToBeReceived.HasValue)
+            if (deliveryMessageOptions.TimeToBeReceived.HasValue)
             {
-                message.Headers[Headers.TimeToBeReceived] = deliveryOptions.TimeToBeReceived.Value.ToString("c");   
+                message.Headers[Headers.TimeToBeReceived] = deliveryMessageOptions.TimeToBeReceived.Value.ToString("c");   
             }
 
-            if (deliveryOptions.NonDurable.HasValue && deliveryOptions.NonDurable.Value)
+            if (deliveryMessageOptions.NonDurable.HasValue && deliveryMessageOptions.NonDurable.Value)
             {
                 message.Headers[Headers.NonDurableMessage] = true.ToString();
             }
@@ -59,7 +59,7 @@
           
             try
             {
-                var publishOptions = deliveryOptions as PublishOptions;
+                var publishOptions = deliveryMessageOptions as PublishMessageOptions;
                 if(publishOptions != null)
                 {
                     Publish(message, publishOptions);
@@ -67,7 +67,7 @@
                 else
                 {
 
-                    SendOrDefer(message, (SendOptions)deliveryOptions);
+                    SendOrDefer(message, (SendMessageOptions)deliveryMessageOptions);
                 }
             }
             catch (QueueNotFoundException ex)
@@ -76,7 +76,7 @@
             }
         }
 
-        void SendOrDefer(OutgoingMessage message, SendOptions options)
+        void SendOrDefer(OutgoingMessage message, SendMessageOptions options)
         {
             var sendOptions = new TransportSendOptions(options.Destination, options.TimeToBeReceived, options.NonDurable ?? true, options.EnlistInReceiveTransaction);
 
@@ -119,7 +119,7 @@
             headers[Headers.IsDeferredMessage] = true.ToString();
         }
 
-        void Publish(OutgoingMessage message, PublishOptions publishOptions)
+        void Publish(OutgoingMessage message, PublishMessageOptions publishOptions)
         {
             if (MessagePublisher == null)
             {

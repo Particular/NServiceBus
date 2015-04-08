@@ -5,7 +5,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// Additional options that only applies when publishing messages
     /// </summary>
-    public class PublishOptions : DeliveryOptions
+    public class PublishMessageOptions : DeliveryMessageOptions
     {
         readonly Type eventType;
 
@@ -20,7 +20,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The event type is required for a publish.
         /// </summary>
-        public PublishOptions(Type eventType)
+        public PublishMessageOptions(Type eventType)
         {
             Guard.AgainstNull(eventType, "eventType");
             this.eventType = eventType;

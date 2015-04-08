@@ -16,7 +16,7 @@ namespace NServiceBus
         public static ICallback Send(this ISendOnlyBus bus, object message)
         {
             Guard.AgainstNull(message, "message");
-            return bus.Send(message, new SendContext());
+            return bus.Send(message, new SendOptions());
         }
 
 
@@ -33,7 +33,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(messageConstructor, "messageConstructor");
 
-            return bus.Send(messageConstructor, new SendContext());
+            return bus.Send(messageConstructor, new SendOptions());
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(destination, "destination");
             Guard.AgainstNull(message, "message");
 
-            var options = new SendContext();
+            var options = new SendOptions();
 
             options.SetDestination(destination);
 
@@ -68,7 +68,7 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(destination, "destination");
             Guard.AgainstNull(messageConstructor, "messageConstructor");
 
-            var context = new SendContext();
+            var context = new SendOptions();
 
             context.SetDestination(destination);
 
@@ -86,7 +86,7 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(correlationId, "correlationId");
             Guard.AgainstNull(message, "message");
 
-            var context = new SendContext();
+            var context = new SendOptions();
 
             context.SetDestination(destination);
             context.SetCorrelationId(correlationId);
@@ -105,7 +105,7 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(correlationId, "correlationId");
             Guard.AgainstNull(messageConstructor, "messageConstructor");
      
-            var context = new SendContext();
+            var context = new SendOptions();
 
             context.SetDestination(destination);
             context.SetCorrelationId(correlationId);

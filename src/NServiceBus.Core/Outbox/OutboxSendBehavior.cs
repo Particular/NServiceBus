@@ -15,11 +15,11 @@ namespace NServiceBus
 
             if (context.TryGet(out currentOutboxMessage))
             {
-                currentOutboxMessage.TransportOperations.Add( new TransportOperation(context.MessageId, context.DeliveryOptions.ToTransportOperationOptions(), context.Body, context.Headers)); 
+                currentOutboxMessage.TransportOperations.Add( new TransportOperation(context.MessageId, context.DeliveryMessageOptions.ToTransportOperationOptions(), context.Body, context.Headers)); 
             }
             else
             {
-                DispatchMessageToTransportBehavior.InvokeNative(context.DeliveryOptions, new OutgoingMessage(context.MessageId,context.Headers,context.Body));
+                DispatchMessageToTransportBehavior.InvokeNative(context.DeliveryMessageOptions, new OutgoingMessage(context.MessageId,context.Headers,context.Body));
 
                 next();
             }

@@ -16,7 +16,7 @@
                 {
                     var message = new MessageWithSagaId();
 
-                    var sendContext = new SendContext();
+                    var sendContext = new SendOptions();
 
                     sendContext.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
                     sendContext.SetHeader(Headers.SagaType, typeof(MySaga).AssemblyQualifiedName);

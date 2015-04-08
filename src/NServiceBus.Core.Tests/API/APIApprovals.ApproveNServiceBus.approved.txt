@@ -422,8 +422,8 @@ namespace NServiceBus
         void Publish(object message);
         void Publish<T>();
         void Publish<T>(System.Action<T> messageConstructor);
-        NServiceBus.ICallback Send(object message, NServiceBus.SendContext context);
-        NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor, NServiceBus.SendContext context);
+        NServiceBus.ICallback Send(object message, NServiceBus.SendOptions options);
+        NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
     }
     public class static ISendOnlyBusExtensions
     {
@@ -561,9 +561,9 @@ namespace NServiceBus
     {
         public static NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.BusConfiguration config) { }
     }
-    public class SendContext
+    public class SendOptions
     {
-        public SendContext() { }
+        public SendOptions() { }
         public void DelayDeliveryWith(System.TimeSpan within) { }
         public void DeliverAt(System.DateTime at) { }
         public void SetCorrelationId(string correlationId) { }
@@ -631,14 +631,14 @@ namespace NServiceBus
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string Id { get; }
         public NServiceBus.MessageIntentEnum MessageIntent { get; set; }
-        [System.ObsoleteAttribute("For sending purposes use DeliveryOptions.NonDurable (note the negation). When rec" +
-            "eiving look at the new \'NServiceBus.NonDurableMessage\' header. Will be removed i" +
-            "n version 7.0.0.", true)]
+        [System.ObsoleteAttribute("For sending purposes use DeliveryMessageOptions.NonDurable (note the negation). W" +
+            "hen receiving look at the new \'NServiceBus.NonDurableMessage\' header. Will be re" +
+            "moved in version 7.0.0.", true)]
         public bool Recoverable { get; set; }
         public string ReplyToAddress { get; }
-        [System.ObsoleteAttribute("For sending purposes use DeliveryOptions.TimeToBeReceived. When receiving look at" +
-            " the new \'NServiceBus.TimeToBeReceived\' header. Will be removed in version 7.0.0" +
-            ".", true)]
+        [System.ObsoleteAttribute("For sending purposes use DeliveryMessageOptions.TimeToBeReceived. When receiving " +
+            "look at the new \'NServiceBus.TimeToBeReceived\' header. Will be removed in versio" +
+            "n 7.0.0.", true)]
         public System.TimeSpan TimeToBeReceived { get; set; }
     }
     public class static UseDataBusExtensions
@@ -1587,8 +1587,8 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryOptions deliveryOptions, NServiceBus.Unicast.Messages.LogicalMessage message, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent) { }
-        public NServiceBus.Unicast.DeliveryOptions DeliveryOptions { get; }
+        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, NServiceBus.Unicast.Messages.LogicalMessage message, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent) { }
+        public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.MessageIntentEnum Intent { get; }
         public string MessageId { get; }
@@ -1602,7 +1602,7 @@ namespace NServiceBus.Pipeline.Contexts
         {
             public Context(byte[] body, NServiceBus.Pipeline.Contexts.OutgoingContext parentContext) { }
             public byte[] Body { get; set; }
-            public NServiceBus.Unicast.DeliveryOptions DeliveryOptions { get; }
+            public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
             public System.Collections.Generic.Dictionary<string, string> Headers { get; }
             public string MessageId { get; }
         }
@@ -2004,9 +2004,9 @@ namespace NServiceBus.Timeout.Core
         public byte[] State { get; set; }
         public System.DateTime Time { get; set; }
         [System.ObsoleteAttribute("Use new SendOptions() instead. Will be removed in version 7.0.0.", true)]
-        public NServiceBus.Unicast.SendOptions ToSendOptions(NServiceBus.Address replyToAddress) { }
+        public NServiceBus.Unicast.SendMessageOptions ToSendOptions(NServiceBus.Address replyToAddress) { }
         [System.ObsoleteAttribute("Use new SendOptions() instead. Will be removed in version 7.0.0.", true)]
-        public NServiceBus.Unicast.SendOptions ToSendOptions(string replyToAddress) { }
+        public NServiceBus.Unicast.SendMessageOptions ToSendOptions(string replyToAddress) { }
         public override string ToString() { }
         [System.ObsoleteAttribute("Use new OutgoingMessage(timeoutData.State) instead. Will be removed in version 7." +
             "0.0.", true)]
@@ -2042,7 +2042,7 @@ namespace NServiceBus.Transports
     public interface IDeferMessages
     {
         void ClearDeferredMessages(string headerKey, string headerValue);
-        void Defer(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.SendOptions sendOptions);
+        void Defer(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.SendMessageOptions sendMessageOptions);
     }
     public interface IDequeueMessages : System.IObservable<NServiceBus.Transports.MessageAvailable>
     {
@@ -2064,7 +2064,7 @@ namespace NServiceBus.Transports
     }
     public interface IPublishMessages
     {
-        void Publish(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.PublishOptions publishOptions);
+        void Publish(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.PublishMessageOptions publishOptions);
     }
     public interface ISendMessages
     {
@@ -2184,16 +2184,22 @@ namespace NServiceBus.Unicast
     {
         public CallbackMessageLookup() { }
     }
-    public abstract class DeliveryOptions
+    public abstract class DeliveryMessageOptions
     {
-        protected DeliveryOptions() { }
+        protected DeliveryMessageOptions() { }
         public bool EnforceMessagingBestPractices { get; set; }
         public bool EnlistInReceiveTransaction { get; set; }
         public System.Nullable<bool> NonDurable { get; set; }
+        public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }
+    }
+    [System.ObsoleteAttribute("Please use `NServiceBus.UnicastBus.DeliveryMessageOptions` instead. Will be remov" +
+        "ed in version 7.0.0.", true)]
+    public abstract class DeliveryOptions
+    {
+        protected DeliveryOptions() { }
         [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.ReplyToAddress` header. Wi" +
             "ll be removed in version 7.0.0.", true)]
         public string ReplyToAddress { get; set; }
-        public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }
     }
     [System.ObsoleteAttribute("Not a public API. Please use `MessageHandlerRegistry` instead. Will be removed in" +
         " version 7.0.0.", true)]
@@ -2229,32 +2235,42 @@ namespace NServiceBus.Unicast
         public MessagesEventArgs(object[] messages) { }
         public object[] Messages { get; }
     }
+    public class PublishMessageOptions : NServiceBus.Unicast.DeliveryMessageOptions
+    {
+        public PublishMessageOptions(System.Type eventType) { }
+        public System.Type EventType { get; }
+    }
+    [System.ObsoleteAttribute("Please use `NServiceBus.UnicastBus.PublishMessageOptions` instead. Will be remove" +
+        "d in version 7.0.0.", true)]
     public class PublishOptions : NServiceBus.Unicast.DeliveryOptions
     {
-        public PublishOptions(System.Type eventType) { }
-        public System.Type EventType { get; }
+        public PublishOptions() { }
     }
     [System.ObsoleteAttribute("Not used anymore, use the \'NServiceBus.MessageIntent\' header to detect if the mes" +
         "sage is a reply. Will be removed in version 7.0.0.", true)]
-    public class ReplyOptions : NServiceBus.Unicast.SendOptions
+    public class ReplyOptions : NServiceBus.Unicast.DeliveryOptions
     {
-        public ReplyOptions(string destination) { }
-        public ReplyOptions(NServiceBus.Address destination, string correlationId) { }
-        public ReplyOptions(string destination, string correlationId) { }
+        public ReplyOptions() { }
     }
+    public class SendMessageOptions : NServiceBus.Unicast.DeliveryMessageOptions
+    {
+        public SendMessageOptions(string destination, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
+        public System.Nullable<System.TimeSpan> DelayDeliveryFor { get; }
+        public System.Nullable<System.DateTime> DeliverAt { get; }
+        public string Destination { get; }
+    }
+    [System.ObsoleteAttribute("Please use `NServiceBus.UnicastBus.SendMessageOptions` instead. Will be removed i" +
+        "n version 7.0.0.", true)]
     public class SendOptions : NServiceBus.Unicast.DeliveryOptions
     {
-        public SendOptions(string destination, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
-        [System.ObsoleteAttribute("Please use `SendOptions(string)` instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `SendMessageOptions(string)` instead. Will be removed in version 7.0.0" +
+            ".", true)]
         public SendOptions(NServiceBus.Address destination) { }
         [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.CorrelationId` header. Wil" +
             "l be removed in version 7.0.0.", true)]
         public string CorrelationId { get; set; }
-        public System.Nullable<System.TimeSpan> DelayDeliveryFor { get; }
         [System.ObsoleteAttribute("Please use `DelayDeliveryFor` instead. Will be removed in version 7.0.0.", true)]
         public System.Nullable<System.TimeSpan> DelayDeliveryWith { get; set; }
-        public System.Nullable<System.DateTime> DeliverAt { get; }
-        public string Destination { get; }
     }
     public class UnicastBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, NServiceBus.Unicast.IRealBus, System.IDisposable
     {
@@ -2275,8 +2291,8 @@ namespace NServiceBus.Unicast
         public void Reply(object message) { }
         public void Reply<T>(System.Action<T> messageConstructor) { }
         public void Return<T>(T errorEnum) { }
-        public NServiceBus.ICallback Send(object message, NServiceBus.SendContext context) { }
-        public NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor, NServiceBus.SendContext context) { }
+        public NServiceBus.ICallback Send(object message, NServiceBus.SendOptions options) { }
+        public NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
         [System.ObsoleteAttribute("Please use `Send(string destination, object message)` instead. Will be removed in" +
             " version 7.0.0.", true)]
         public NServiceBus.ICallback Send(NServiceBus.Address address, object message) { }

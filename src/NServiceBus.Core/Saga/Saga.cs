@@ -83,7 +83,7 @@ namespace NServiceBus.Saga
 
             VerifySagaCanHandleTimeout(timeoutMessage);
 
-            var context = new SendContext();
+            var context = new SendOptions();
 
             SetTimeoutHeaders(context);
 
@@ -136,7 +136,7 @@ namespace NServiceBus.Saga
         {
             VerifySagaCanHandleTimeout(timeoutMessage);
 
-            var context = new SendContext();
+            var context = new SendOptions();
 
 
             SetTimeoutHeaders(context);
@@ -148,11 +148,11 @@ namespace NServiceBus.Saga
         }
 
 
-        void SetTimeoutHeaders(SendContext context)
+        void SetTimeoutHeaders(SendOptions options)
         {
-            context.SetHeader(Headers.SagaId, Entity.Id.ToString());
-            context.SetHeader(Headers.IsSagaTimeoutMessage, bool.TrueString);
-            context.SetHeader(Headers.SagaType, GetType().AssemblyQualifiedName);
+            options.SetHeader(Headers.SagaId, Entity.Id.ToString());
+            options.SetHeader(Headers.IsSagaTimeoutMessage, bool.TrueString);
+            options.SetHeader(Headers.SagaType, GetType().AssemblyQualifiedName);
         }
 
         /// <summary>

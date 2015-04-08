@@ -11,7 +11,7 @@
         [Test]
         public void SendOptions()
         {
-            var options = new SendOptions("destination", DateTime.UtcNow.AddDays(1))
+            var options = new SendMessageOptions("destination", DateTime.UtcNow.AddDays(1))
             {
                 TimeToBeReceived = TimeSpan.FromMinutes(1),
                 NonDurable = true,
@@ -19,7 +19,7 @@
                 EnforceMessagingBestPractices = false
             };
 
-            var converted = (SendOptions)options.ToTransportOperationOptions().ToDeliveryOptions();
+            var converted = (SendMessageOptions)options.ToTransportOperationOptions().ToDeliveryOptions();
 
             Assert.AreEqual(converted.DeliverAt.ToString(), options.DeliverAt.ToString()); //the ticks will be off
             Assert.AreEqual(converted.Destination, options.Destination);
@@ -28,7 +28,7 @@
             Assert.AreEqual(converted.EnforceMessagingBestPractices, options.EnforceMessagingBestPractices);
             Assert.AreEqual(converted.EnlistInReceiveTransaction, options.EnlistInReceiveTransaction);
 
-            options = new SendOptions("destination", delayDeliveryFor: TimeSpan.FromMinutes(1))
+            options = new SendMessageOptions("destination", delayDeliveryFor: TimeSpan.FromMinutes(1))
             {
                 TimeToBeReceived = TimeSpan.FromMinutes(1),
                 NonDurable = true,
@@ -36,7 +36,7 @@
                 EnforceMessagingBestPractices = false
             };
 
-            converted = (SendOptions)options.ToTransportOperationOptions().ToDeliveryOptions();
+            converted = (SendMessageOptions)options.ToTransportOperationOptions().ToDeliveryOptions();
             Assert.AreEqual(converted.DelayDeliveryFor, options.DelayDeliveryFor);
         }
 
@@ -44,14 +44,14 @@
         public void PublishOptions()
         {
 
-            var options = new PublishOptions(typeof(MyMessage))
+            var options = new PublishMessageOptions(typeof(MyMessage))
             {
                 TimeToBeReceived = TimeSpan.FromMinutes(1),
                 NonDurable = true,
                 EnforceMessagingBestPractices = false,
             };
 
-            var converted = (PublishOptions)options.ToTransportOperationOptions().ToDeliveryOptions();
+            var converted = (PublishMessageOptions)options.ToTransportOperationOptions().ToDeliveryOptions();
 
 
             Assert.AreEqual(typeof(MyMessage), options.EventType);

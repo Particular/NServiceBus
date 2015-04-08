@@ -13,15 +13,15 @@
         /// Creates a new instance of <see cref="OutgoingContext"/>.
         /// </summary>
         /// <param name="parentContext">The parent context.</param>
-        /// <param name="deliveryOptions">The delivery options.</param>
+        /// <param name="deliveryMessageOptions">The delivery options.</param>
         /// <param name="message">The actual message to be sent out.</param>
         /// <param name="headers">The headers fór the message</param>
         /// <param name="messageId">The id of the message</param>
         /// <param name="intent">The intent of the message</param>
-        public OutgoingContext(BehaviorContext parentContext, DeliveryOptions deliveryOptions, LogicalMessage message,Dictionary<string,string> headers,string messageId,MessageIntentEnum intent)
+        public OutgoingContext(BehaviorContext parentContext, DeliveryMessageOptions deliveryMessageOptions, LogicalMessage message,Dictionary<string,string> headers,string messageId,MessageIntentEnum intent)
             : base(parentContext)
         {
-            DeliveryOptions = deliveryOptions;
+            DeliveryMessageOptions = deliveryMessageOptions;
             OutgoingLogicalMessage = message;
             Headers = headers;
             MessageId = messageId;
@@ -31,7 +31,7 @@
         /// <summary>
         /// Sending options.
         /// </summary>
-        public DeliveryOptions DeliveryOptions { get; private set; }
+        public DeliveryMessageOptions DeliveryMessageOptions { get; private set; }
 
         /// <summary>
         /// Outgoing logical message.

@@ -19,7 +19,7 @@
             Scenario.Define(context)
                     .WithEndpoint<Sender>(b => b.Given((bus, c) =>
                     {
-                        var sendContext = new SendContext();
+                        var sendContext = new SendOptions();
 
                         sendContext.SetHeader("MyHeader", "MyHeaderValue");
                         bus.Send(new MyMessage{Id = c.Id},sendContext);

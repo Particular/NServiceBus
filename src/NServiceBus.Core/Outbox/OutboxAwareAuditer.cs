@@ -15,17 +15,17 @@ namespace NServiceBus.Outbox
             this.behaviorContext = behaviorContext;
         }
 
-        public void Audit( SendOptions sendOptions, OutgoingMessage message)
+        public void Audit( SendMessageOptions sendMessageOptions, OutgoingMessage message)
         {
             OutboxMessage currentOutboxMessage;
 
             if (behaviorContext.TryGet(out currentOutboxMessage))
             {    
-                currentOutboxMessage.TransportOperations.Add(new TransportOperation(message.MessageId, sendOptions.ToTransportOperationOptions(true), message.Body, message.Headers));
+                currentOutboxMessage.TransportOperations.Add(new TransportOperation(message.MessageId, sendMessageOptions.ToTransportOperationOptions(true), message.Body, message.Headers));
             }
             else
             {
-                defaultMessageAuditer.Audit(new TransportSendOptions(sendOptions.Destination), message);
+                defaultMessageAuditer.Audit(new TransportSendOptions(sendMessageOptions.Destination), message);
             }
         }
     }

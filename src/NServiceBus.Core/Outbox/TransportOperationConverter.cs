@@ -6,7 +6,7 @@ namespace NServiceBus.Outbox
 
     static class TransportOperationConverter
     {
-        public static Dictionary<string, string> ToTransportOperationOptions(this DeliveryOptions options, bool isAudit = false)
+        public static Dictionary<string, string> ToTransportOperationOptions(this DeliveryMessageOptions options, bool isAudit = false)
         {
             var result = new Dictionary<string, string>();
 
@@ -23,7 +23,7 @@ namespace NServiceBus.Outbox
             result["EnlistInReceiveTransaction"] = options.EnlistInReceiveTransaction.ToString();
             result["EnforceMessagingBestPractices"] = options.EnforceMessagingBestPractices.ToString();
 
-            var sendOptions = options as SendOptions;
+            var sendOptions = options as SendMessageOptions;
 
             string operation;
 
@@ -50,7 +50,7 @@ namespace NServiceBus.Outbox
             }
             else
             {
-                var publishOptions = options as PublishOptions;
+                var publishOptions = options as PublishMessageOptions;
 
                 if (publishOptions == null)
                 {
@@ -67,18 +67,18 @@ namespace NServiceBus.Outbox
             return result;
         }
 
-        public static DeliveryOptions ToDeliveryOptions(this Dictionary<string, string> options)
+        public static DeliveryMessageOptions ToDeliveryOptions(this Dictionary<string, string> options)
         {
             var operation = options["Operation"].ToLower();
 
 
-            DeliveryOptions result;
+            DeliveryMessageOptions result;
 
 
             switch (operation)
             {
                 case "publish":
-                    result = new PublishOptions(Type.GetType(options["EventType"]));
+                    result = new PublishMessageOptions(Type.GetType(options["EventType"]));
                     break;
                 case "send":
                 case "audit":
@@ -96,7 +96,7 @@ namespace NServiceBus.Outbox
                         deliverAt = DateTimeExtensions.ToUtcDateTime(deliverAtString);
                     }
 
-                    result = new SendOptions(options["Destination"], deliverAt, delayDeliveryFor);
+                    result = new SendMessageOptions(options["Destination"], deliverAt, delayDeliveryFor);
 
                     break;
                 default:
