@@ -55,7 +55,7 @@
                 }));
             }
 
-            public class Saga1 : Saga<Saga1.Saga1Data>, IProcessCommands<StartSaga>, IProcessTimeouts<Saga1.Timeout1>
+            public class Saga1 : Saga<Saga1.Saga1Data>, IAmStartedByCommands<StartSaga>, IProcessTimeouts<Saga1.Timeout1>
             {
                 public Context Context { get; set; }
 
