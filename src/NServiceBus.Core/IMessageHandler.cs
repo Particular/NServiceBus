@@ -1,5 +1,7 @@
 namespace NServiceBus
 {
+    using System;
+
     /// <summary>
 	/// Defines a message handler.
 	/// </summary>
@@ -42,6 +44,8 @@ namespace NServiceBus
         ICallback Send(object message);
         ICallback Send(string destination, object message);
 
+        void Publish<T>(Action<T> messageConstructor);
+
         void DoNotContinueDispatchingCurrentMessageToHandlers();
         void HandleCurrentMessageLater();
         void SendLocal(object message);
@@ -74,6 +78,11 @@ namespace NServiceBus
         public ICallback Send(string destination, object message)
         {
             return bus.Send(destination, message);
+        }
+
+        public void Publish<T>(Action<T> messageConstructor)
+        {
+            bus.Publish(messageConstructor);
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()

@@ -368,6 +368,7 @@ namespace NServiceBus
     {
         void DoNotContinueDispatchingCurrentMessageToHandlers();
         void HandleCurrentMessageLater();
+        void Publish<T>(System.Action<T> messageConstructor);
         void Reply(object message);
         void Return<T>(T errorEnum);
         NServiceBus.ICallback Send(object message);

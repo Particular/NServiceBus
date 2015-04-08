@@ -524,6 +524,10 @@
               return default(ICallback);
           }
 
+          public void Publish<T>(Action<T> messageConstructor)
+          {
+          }
+
           public void DoNotContinueDispatchingCurrentMessageToHandlers()
           {
           }
