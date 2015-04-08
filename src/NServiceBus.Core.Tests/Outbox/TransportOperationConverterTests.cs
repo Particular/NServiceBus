@@ -11,11 +11,8 @@
         [Test]
         public void SendOptions()
         {
-
-            var options = new SendOptions("destination")
+            var options = new SendOptions("destination", DateTime.UtcNow.AddDays(1))
             {
-                DelayDeliveryWith = TimeSpan.FromMinutes(1),
-                DeliverAt = DateTime.UtcNow.AddDays(1),
                 TimeToBeReceived = TimeSpan.FromMinutes(1),
                 NonDurable = true,
                 EnlistInReceiveTransaction = false,
@@ -24,13 +21,23 @@
 
             var converted = (SendOptions)options.ToTransportOperationOptions().ToDeliveryOptions();
 
-            Assert.AreEqual(converted.DelayDeliveryWith, options.DelayDeliveryWith);
             Assert.AreEqual(converted.DeliverAt.ToString(), options.DeliverAt.ToString()); //the ticks will be off
             Assert.AreEqual(converted.Destination, options.Destination);
             Assert.AreEqual(converted.TimeToBeReceived, options.TimeToBeReceived); 
             Assert.AreEqual(converted.NonDurable, options.NonDurable);
             Assert.AreEqual(converted.EnforceMessagingBestPractices, options.EnforceMessagingBestPractices);
             Assert.AreEqual(converted.EnlistInReceiveTransaction, options.EnlistInReceiveTransaction);
+
+            options = new SendOptions("destination", delayDeliveryFor: TimeSpan.FromMinutes(1))
+            {
+                TimeToBeReceived = TimeSpan.FromMinutes(1),
+                NonDurable = true,
+                EnlistInReceiveTransaction = false,
+                EnforceMessagingBestPractices = false
+            };
+
+            converted = (SendOptions)options.ToTransportOperationOptions().ToDeliveryOptions();
+            Assert.AreEqual(converted.DelayDeliveryFor, options.DelayDeliveryFor);
         }
 
         [Test]

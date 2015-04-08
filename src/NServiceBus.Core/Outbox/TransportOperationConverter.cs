@@ -36,9 +36,9 @@ namespace NServiceBus.Outbox
                     operation = "Audit";
                 }
 
-                if (sendOptions.DelayDeliveryWith.HasValue)
+                if (sendOptions.DelayDeliveryFor.HasValue)
                 {
-                    result["DelayDeliveryWith"] = sendOptions.DelayDeliveryWith.Value.ToString();
+                    result["DelayDeliveryFor"] = sendOptions.DelayDeliveryFor.Value.ToString();
                 }
 
                 if (sendOptions.DeliverAt.HasValue)
@@ -82,16 +82,26 @@ namespace NServiceBus.Outbox
                     break;
                 case "send":
                 case "audit":
-                    var sendOptions = new SendOptions(options["Destination"]);
+                    string delayDeliveryForString;
+                    TimeSpan? delayDeliveryFor = null;
+                    if (options.TryGetValue("DelayDeliveryFor", out delayDeliveryForString))
+                    {
+                        delayDeliveryFor = TimeSpan.Parse(delayDeliveryForString);
+                    }
 
-                    ApplySendOptionSettings(sendOptions, options);
+                    string deliverAtString;
+                    DateTime? deliverAt = null;
+                    if (options.TryGetValue("DeliverAt", out deliverAtString))
+                    {
+                        deliverAt = DateTimeExtensions.ToUtcDateTime(deliverAtString);
+                    }
 
-                    result = sendOptions;
+                    result = new SendOptions(options["Destination"], deliverAt, delayDeliveryFor);
+
                     break;
                 default:
                     throw new Exception("Unknown operation: " + operation);
             }
-
 
             string timeToBeReceived;
             if (options.TryGetValue("TimeToBeReceived", out timeToBeReceived))
@@ -117,23 +127,7 @@ namespace NServiceBus.Outbox
                 result.EnforceMessagingBestPractices = bool.Parse(enforceMessagingBestPractices);
             }
 
-
             return result;
         }
-        static void ApplySendOptionSettings(SendOptions sendOptions, Dictionary<string, string> options)
-        {
-            string delayDeliveryWith;
-            if (options.TryGetValue("DelayDeliveryWith", out delayDeliveryWith))
-            {
-                sendOptions.DelayDeliveryWith = TimeSpan.Parse(delayDeliveryWith);
-            }
-
-            string deliverAt;
-            if (options.TryGetValue("DeliverAt", out deliverAt))
-            {
-                sendOptions.DeliverAt = DateTimeExtensions.ToUtcDateTime(deliverAt);
-            }
-        }
-
     }
 }

@@ -7,56 +7,54 @@ namespace NServiceBus.Unicast
     /// </summary>
     public partial class SendOptions : DeliveryOptions
     {
-        TimeSpan? delayDeliveryWith;
+        readonly TimeSpan? delayDeliveryFor;
+        readonly string destination;
+        readonly DateTime? deliverAt;
 
         /// <summary>
         /// Creates an instance of <see cref="SendOptions"/>.
         /// </summary>
-        /// <param name="destination">Address where to send this message</param>
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "SendOptions(string)", 
-            RemoveInVersion = "7.0", 
-            TreatAsErrorFromVersion = "6.0")]
-        // ReSharper disable once UnusedParameter.Local
-        public SendOptions(Address destination)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Creates an instance of <see cref="SendOptions"/>.
-        /// </summary>
-        /// <param name="destination">Address where to send this message</param>
-        public SendOptions(string destination)
+        /// <param name="destination">Address where to send this message.</param>
+        /// <param name="deliverAt">The time when the message should be delivered to the destination.</param>
+        /// <param name="delayDeliveryFor">How long to delay delivery of the message.</param>
+        public SendOptions(string destination, DateTime? deliverAt = null, TimeSpan? delayDeliveryFor = null)
         {
             Guard.AgainstNullAndEmpty(destination, "destination");
-            Destination = destination;
-        }
+            this.destination = destination;
 
-        /// <summary>
-        /// The time when the message should be delivered to the destination
-        /// </summary>
-        public DateTime? DeliverAt { get; set; }
-
-        /// <summary>
-        /// How long to delay delivery of the message
-        /// </summary>
-        public TimeSpan? DelayDeliveryWith
-        {
-            get { return delayDeliveryWith; }
-            set
+            if (deliverAt != null && delayDeliveryFor != null)
             {
-                Guard.AgainstNegative(value,"value");
-                delayDeliveryWith = value;
+                throw new ArgumentException("Ensure you either set `deliverAt` or `delayDeliveryFor`, but not both.");
             }
+
+            this.deliverAt = deliverAt;
+
+            Guard.AgainstNegative(delayDeliveryFor, "delayDeliveryFor");
+            this.delayDeliveryFor = delayDeliveryFor;
         }
 
         /// <summary>
-        /// Address where to send this message
+        /// The time when the message should be delivered to the destination.
         /// </summary>
-        public string Destination { get; set; }
+        public DateTime? DeliverAt
+        {
+            get { return deliverAt; }
+        }
 
+        /// <summary>
+        /// How long to delay delivery of the message.
+        /// </summary>
+        public TimeSpan? DelayDeliveryFor
+        {
+            get { return delayDeliveryFor; }
+        }
 
-
+        /// <summary>
+        /// Address where to send this message.
+        /// </summary>
+        public string Destination
+        {
+            get { return destination; }
+        }
     }
 }

@@ -159,9 +159,9 @@
             DeferredMessage = message;
             SendOptions = sendOptions;
 
-            if (sendOptions.DelayDeliveryWith.HasValue)
+            if (sendOptions.DelayDeliveryFor.HasValue)
             {
-                Delay = sendOptions.DelayDeliveryWith.Value;
+                Delay = sendOptions.DelayDeliveryFor.Value;
             }
         }
 

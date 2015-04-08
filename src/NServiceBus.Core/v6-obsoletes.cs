@@ -121,13 +121,35 @@ namespace NServiceBus.Unicast
 
     public partial class SendOptions
     {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "SendOptions(string)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        // ReSharper disable once UnusedParameter.Local
+        public SendOptions(Address destination)
+        {
+            throw new NotImplementedException();
+        }
 
         [ObsoleteEx(
-    Message = "Reply to address can be get/set using the `NServiceBus.CorrelationId` header",
-    RemoveInVersion = "7.0",
-    TreatAsErrorFromVersion = "6.0")]
-        public string CorrelationId { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
+            Message = "Reply to address can be get/set using the `NServiceBus.CorrelationId` header",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public string CorrelationId
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
 
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "DelayDeliveryFor",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public TimeSpan? DelayDeliveryWith
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
     }
 }
 

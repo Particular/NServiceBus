@@ -27,13 +27,10 @@ namespace NServiceBus.Unicast
         /// </summary>
         public bool EnlistInReceiveTransaction { get; set; }
 
-
-
         /// <summary>
         /// The TTBR to use for this message
         /// </summary>
         public TimeSpan? TimeToBeReceived { get; set; }
-
 
         /// <summary>
         /// Controls if the transport should be requested to handle the message in a way that it survives restarts

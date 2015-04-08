@@ -7,18 +7,23 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class PublishOptions : DeliveryOptions
     {
-        /// <summary>
-        /// The type of event to publish
-        /// </summary>
-        public Type EventType { get; private set; }
+        readonly Type eventType;
 
         /// <summary>
-        /// The event type is required for a publish
+        /// The type of event to publish.
+        /// </summary>
+        public Type EventType
+        {
+            get { return eventType; }
+        }
+
+        /// <summary>
+        /// The event type is required for a publish.
         /// </summary>
         public PublishOptions(Type eventType)
         {
             Guard.AgainstNull(eventType, "eventType");
-            EventType = eventType;
+            this.eventType = eventType;
         }
     }
 }

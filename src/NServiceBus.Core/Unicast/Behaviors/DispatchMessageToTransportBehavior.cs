@@ -79,9 +79,9 @@
         {
             var sendOptions = new TransportSendOptions(options.Destination, options.TimeToBeReceived, options.NonDurable ?? true, options.EnlistInReceiveTransaction);
 
-            if (options.DelayDeliveryWith.HasValue)
+            if (options.DelayDeliveryFor.HasValue)
             {
-                if (options.DelayDeliveryWith > TimeSpan.Zero)
+                if (options.DelayDeliveryFor > TimeSpan.Zero)
                 {
                     SetIsDeferredHeader(message.Headers);
                     MessageDeferral.Defer(message, options);

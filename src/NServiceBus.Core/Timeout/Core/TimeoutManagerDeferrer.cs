@@ -18,9 +18,9 @@
 
             DateTime deliverAt;
 
-            if (sendOptions.DelayDeliveryWith.HasValue)
+            if (sendOptions.DelayDeliveryFor.HasValue)
             {
-                deliverAt = DateTime.UtcNow + sendOptions.DelayDeliveryWith.Value;
+                deliverAt = DateTime.UtcNow + sendOptions.DelayDeliveryFor.Value;
             }
             else
             {

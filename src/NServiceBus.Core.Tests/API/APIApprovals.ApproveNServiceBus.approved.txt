@@ -2244,15 +2244,17 @@ namespace NServiceBus.Unicast
     }
     public class SendOptions : NServiceBus.Unicast.DeliveryOptions
     {
+        public SendOptions(string destination, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
         [System.ObsoleteAttribute("Please use `SendOptions(string)` instead. Will be removed in version 7.0.0.", true)]
         public SendOptions(NServiceBus.Address destination) { }
-        public SendOptions(string destination) { }
         [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.CorrelationId` header. Wil" +
             "l be removed in version 7.0.0.", true)]
         public string CorrelationId { get; set; }
+        public System.Nullable<System.TimeSpan> DelayDeliveryFor { get; }
+        [System.ObsoleteAttribute("Please use `DelayDeliveryFor` instead. Will be removed in version 7.0.0.", true)]
         public System.Nullable<System.TimeSpan> DelayDeliveryWith { get; set; }
-        public System.Nullable<System.DateTime> DeliverAt { get; set; }
-        public string Destination { get; set; }
+        public System.Nullable<System.DateTime> DeliverAt { get; }
+        public string Destination { get; }
     }
     public class UnicastBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, NServiceBus.Unicast.IRealBus, System.IDisposable
     {

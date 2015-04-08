@@ -354,11 +354,20 @@ namespace NServiceBus.Unicast
                 destination = GetDestinationForSend(message.MessageType);
             }
 
+            TimeSpan? delayDeliveryFor = null;
+            if (context.Delay.HasValue)
+            {
+                delayDeliveryFor = context.Delay;
+            }
 
-            var sendOptions = new SendOptions(destination);
+            DateTime? deliverAt = null;
+            if (context.At.HasValue)
+            {
+                deliverAt = context.At;
+            }
+
+            var sendOptions = new SendOptions(destination, deliverAt, delayDeliveryFor);
             var headers = new Dictionary<string, string>(context.Headers);
-
-
 
             headers[Headers.MessageIntent] = context.Intent.ToString();
           
@@ -378,16 +387,7 @@ namespace NServiceBus.Unicast
                 headers[Headers.CorrelationId] = messageId;
             }
 
-
-            if (context.Delay.HasValue)
-            {
-                sendOptions.DelayDeliveryWith = context.Delay;
-            }
-
-            if (context.At.HasValue)
-            {
-                sendOptions.DeliverAt = context.At;
-            }
+            
 
             ApplyReplyToAddress(headers);
 
