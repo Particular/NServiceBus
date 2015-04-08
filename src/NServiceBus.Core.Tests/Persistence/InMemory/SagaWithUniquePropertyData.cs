@@ -7,9 +7,15 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithUniquePropertyData> mapper)
         {
-            
+            mapper.ConfigureMapping<M12>(m => m.UniqueString).ToSaga(s => s.UniqueString);
         }
     }
+
+    class M12
+    {
+        public string UniqueString { get; set; }
+    }
+
     public class SagaWithUniquePropertyData : IContainSagaData
     {
         public Guid Id { get; set; }
@@ -18,7 +24,6 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 
         public string OriginalMessageId { get; set; }
 
-        [Unique]
         public string UniqueString { get; set; }
     }
 }

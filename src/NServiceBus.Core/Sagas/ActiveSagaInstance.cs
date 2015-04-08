@@ -1,7 +1,6 @@
-namespace NServiceBus.Sagas
+namespace NServiceBus.Saga
 {
     using System;
-    using Saga;
 
     /// <summary>
     /// Represents a saga instance being processed on the pipeline
@@ -9,6 +8,7 @@ namespace NServiceBus.Sagas
     public class ActiveSagaInstance
     {
         Guid sagaId;
+
         internal ActiveSagaInstance(Saga saga,SagaMetadata metadata)
         {
             Instance = saga;

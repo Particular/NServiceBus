@@ -37,6 +37,12 @@ namespace NServiceBus.Saga
 		/// </summary>
 		/// <param name="saga">The saga to complete.</param>
         void Complete(IContainSagaData saga);
+
+        /// <summary>
+        /// Implementers can initialize the persistence with the given meta model.
+        /// </summary>
+        /// <param name="model">The sagas meta model.</param>
+        void Initialize(SagaMetaModel model);
     }
 
 }

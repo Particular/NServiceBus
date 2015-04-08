@@ -4,9 +4,8 @@ namespace NServiceBus.InMemory.SagaPersister
     using System.Collections.Concurrent;
     using System.Linq;
     using System.Threading;
-    using NServiceBus.Sagas;
+    using NServiceBus.Saga;
     using NServiceBus.Utils;
-    using Saga;
     using Serializers.Json;
 
     /// <summary>
@@ -16,19 +15,18 @@ namespace NServiceBus.InMemory.SagaPersister
     {
         SagaMetaModel sagaModel;
         int version;
-
         JsonMessageSerializer serializer = new JsonMessageSerializer(null);
         ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
-
-        public InMemorySagaPersister(SagaMetaModel sagaModel)
-        {
-            this.sagaModel = sagaModel;
-        }
 
         public void Complete(IContainSagaData saga)
         {
             VersionedSagaEntity value;
             data.TryRemove(saga.Id, out value);
+        }
+
+        public void Initialize(SagaMetaModel model)
+        {
+            sagaModel = model;
         }
 
         public TSagaData Get<TSagaData>(string propertyName, object propertyValue) where TSagaData : IContainSagaData

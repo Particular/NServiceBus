@@ -40,7 +40,6 @@
 
                 public class TestSagaData : ContainSagaData
                 {
-                    [Unique]
                     public virtual string SomeId { get; set; }
                 }
             }
