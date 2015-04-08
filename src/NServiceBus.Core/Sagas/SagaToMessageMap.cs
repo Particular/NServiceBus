@@ -1,4 +1,4 @@
-namespace NServiceBus.Sagas
+namespace NServiceBus.Saga
 {
     using System;
 
@@ -9,7 +9,7 @@ namespace NServiceBus.Sagas
         public Type MessageType;
         public Type CustomFinderType;
 
-        public bool IsCustomFinderMap
+        public bool HasCustomFinderMap
         {
             get { return CustomFinderType != null; }
         }

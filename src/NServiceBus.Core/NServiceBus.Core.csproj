@@ -129,6 +129,7 @@
     <Compile Include="Pipeline\PipelineModelBuilder.cs" />
     <Compile Include="Pipeline\StageConnector.cs" />
     <Compile Include="Sagas\SagaMessageHandledBy.cs" />
+    <Compile Include="Sagas\ActiveSagaInstance_obsolete.cs" />
     <Compile Include="Transports\Msmq\MsmqAddress.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNativeTransactionBehavior.cs" />
@@ -390,7 +391,7 @@
     <Compile Include="Saga\SagaPropertyMapper.cs" />
     <Compile Include="Saga\SagaT.cs" />
     <Compile Include="Saga\ToSagaExpression.cs" />
-    <Compile Include="Saga\UniqueAttribute.cs" />
+    <Compile Include="Saga\UniqueAttribute_obsolete.cs" />
     <Compile Include="Serialization\IMessageSerializer.cs" />
     <Compile Include="SettingsExtentions.cs" />
     <Compile Include="Settings\ReadOnlySettings.cs" />

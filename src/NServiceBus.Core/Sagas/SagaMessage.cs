@@ -1,33 +1,41 @@
-namespace NServiceBus.Sagas
+namespace NServiceBus.Saga
 {
     /// <summary>
     /// Representation of a message that is related to a saga
     /// </summary>
-    class SagaMessage
+    public class SagaMessage
     {
-        /// <summary>
-        /// True if the message can start the saga
-        /// </summary>
-        public readonly bool IsAllowedToStartSaga;
+        readonly bool isAllowedToStartSaga;
+        readonly string messageType;
 
         /// <summary>
-        /// The type of the message
+        /// Creates a new instance of <see cref="SagaMessage"/>.
         /// </summary>
-        public readonly string MessageType;
+        /// <param name="messageType">Type of the message</param>
+        public SagaMessage(string messageType, SagaMessageHandledBy sagaMessageHandledBy)
+        {
+            this.messageType = messageType;
+            isAllowedToStartSaga =
+                MessageHandledBy == SagaMessageHandledBy.StartedByCommand || 
+                MessageHandledBy == SagaMessageHandledBy.StartedByEvent || 
+                MessageHandledBy == SagaMessageHandledBy.StartedByMessage;;
+        }
+
+        /// <summary>
+        /// The type of the message.
+        /// </summary>
+        public string MessageType
+        {
+            get { return messageType; }
+        }
 
         /// <summary>
         /// The message kind indicating how the given message type is handled
         /// </summary>
-        public readonly SagaMessageHandledBy MessageHandledBy;
-
-        internal SagaMessage(string messageType, SagaMessageHandledBy sagaMessageHandledBy)
+        public bool IsAllowedToStartSaga
         {
-            MessageType = messageType;
-            MessageHandledBy = sagaMessageHandledBy;
-            IsAllowedToStartSaga =
-                MessageHandledBy == SagaMessageHandledBy.StartedByCommand || 
-                MessageHandledBy == SagaMessageHandledBy.StartedByEvent || 
-                MessageHandledBy == SagaMessageHandledBy.StartedByMessage;
+            get { return isAllowedToStartSaga; }
+
         }
     }
 }

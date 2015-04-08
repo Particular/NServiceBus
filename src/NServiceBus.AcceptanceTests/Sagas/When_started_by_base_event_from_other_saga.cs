@@ -68,15 +68,12 @@
 
                 public void Handle(BaseEvent message)
                 {
-                    Data.DataId = message.DataId;
                     MarkAsComplete();
                     Context.DidSagaComplete = true;
                 }
 
                 public class SagaData : ContainSagaData
                 {
-                    [Unique]
-                    public virtual Guid DataId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
@@ -88,7 +85,6 @@
         [Serializable]
         public class StartSaga : ICommand
         {
-            public Guid DataId { get; set; }
         }
 
         public interface SomethingHappenedEvent : BaseEvent

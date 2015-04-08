@@ -78,7 +78,6 @@
 
                 public class Saga1Data : ContainSagaData
                 {
-                    [Unique]
                     public virtual Guid DataId { get; set; }
                 }
 
@@ -88,6 +87,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
                 {
+                    mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
                 }
             }
         }
@@ -107,7 +107,6 @@
 
                 public void Handle(SomethingHappenedEvent message)
                 {
-                    Data.DataId = message.DataId;
 
                     //Request a timeout
                     RequestTimeout<Saga2Timeout>(TimeSpan.FromSeconds(5));
@@ -121,8 +120,6 @@
 
                 public class Saga2Data : ContainSagaData
                 {
-                    [Unique]
-                    public virtual Guid DataId { get; set; }
                 }
 
                 public class Saga2Timeout
