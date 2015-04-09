@@ -18,7 +18,7 @@
         /// <param name="headers">The headers fór the message</param>
         /// <param name="messageId">The id of the message</param>
         /// <param name="intent">The intent of the message</param>
-        public OutgoingContext(BehaviorContext parentContext, DeliveryMessageOptions deliveryMessageOptions, LogicalMessage message,Dictionary<string,string> headers,string messageId,MessageIntentEnum intent)
+        public OutgoingContext(BehaviorContext parentContext, DeliveryMessageOptions deliveryMessageOptions, LogicalMessage message, Dictionary<string, string> headers, string messageId, MessageIntentEnum intent)
             : base(parentContext)
         {
             DeliveryMessageOptions = deliveryMessageOptions;

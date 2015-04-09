@@ -15,11 +15,10 @@
                         (bus,c)=>
                         {
                             var id = Guid.NewGuid().ToString();
-                            var sendContext = new SendOptions(correlationId: id)
-                                .SetCustomMessageId(id)
-                                .SetLocalEndpointAsDestination();
+                            var sendContext = new SendLocalOptions(correlationId: id)
+                                .SetCustomMessageId(id);
 
-                            bus.Send(new MyRequest(), sendContext).Register(r =>
+                            bus.SendLocal(new MyRequest(), sendContext).Register(r =>
                             {
                                 c.CallbackFired = true;
                             });

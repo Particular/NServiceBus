@@ -40,7 +40,7 @@ namespace NServiceBus.Unicast
         /// <param name="message"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public ICallback Send(object message,NServiceBus.SendOptions options)
+        public ICallback Send(object message, NServiceBus.SendOptions options)
         {
             return busImpl.Send(message, options);
         }
@@ -55,7 +55,7 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
         {
-            return busImpl.Send(messageConstructor,options);
+            return busImpl.Send(messageConstructor, options);
         }
 
         /// <summary>
@@ -96,9 +96,6 @@ namespace NServiceBus.Unicast
             busImpl.Unsubscribe<T>();
         }
 
-      
-      
-
         /// <summary>
         /// <see cref="IBus.Reply"/>
         /// </summary>
@@ -131,6 +128,27 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
+        /// Sends the message back to the current bus.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <param name="options">The options for the send.</param>
+        public ICallback SendLocal(object message, SendLocalOptions options)
+        {
+            return busImpl.SendLocal(message, options);
+        }
+
+        /// <summary>
+        /// Instantiates a message of type T and sends it back to the current bus.
+        /// </summary>
+        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+        /// <param name="messageConstructor">An action which initializes properties of the message</param>
+        /// <param name="options">The options for the send.</param>
+        public ICallback SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
+        {
+            return busImpl.SendLocal(messageConstructor, options);
+        }
+
+        /// <summary>
         /// <see cref="IBus.HandleCurrentMessageLater"/>
         /// </summary>
         public void HandleCurrentMessageLater()
@@ -153,12 +171,15 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
-           busImpl.DoNotContinueDispatchingCurrentMessageToHandlers();
+            busImpl.DoNotContinueDispatchingCurrentMessageToHandlers();
         }
 
         /// <summary>
         /// <see cref="IBus.CurrentMessageContext"/>
         /// </summary>
-        public IMessageContext CurrentMessageContext { get { return busImpl.CurrentMessageContext; } }
+        public IMessageContext CurrentMessageContext
+        {
+            get { return busImpl.CurrentMessageContext; }
+        }
     }
 }

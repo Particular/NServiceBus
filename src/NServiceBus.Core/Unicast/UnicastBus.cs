@@ -79,8 +79,6 @@ namespace NServiceBus.Unicast
             get; set;
         }
 
-        
-
         /// <summary>
         /// <see cref="IStartableBus.Start()"/>
         /// </summary>

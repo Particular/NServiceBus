@@ -324,6 +324,16 @@ namespace NServiceBus.Unicast
             return SendMessage(options, messageFactory.Create(message));
         }
 
+        public ICallback SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
+        {
+            return SendLocal(messageMapper.CreateInstance(messageConstructor), options);
+        }
+
+        public ICallback SendLocal(object message, SendLocalOptions options)
+        {
+            return SendMessage(options, messageFactory.Create(message));
+        }
+
         string GetDestinationForSend(Type messageType)
         {
             var destinations = GetAtLeastOneAddressForMessageType(messageType);
@@ -336,20 +346,9 @@ namespace NServiceBus.Unicast
             return destinations.SingleOrDefault();
         }
 
-        
-        ICallback SendMessage(NServiceBus.SendOptions options, LogicalMessage message)
+        ICallback SendMessage(SendLocalOptions options, LogicalMessage message)
         {
-            var destination = options.Destination;
-
-            if (options.SendToLocalEndpoint)
-            {
-                destination = sendLocalAddress;
-            }
-
-            if (string.IsNullOrEmpty(destination))
-            {
-                destination = GetDestinationForSend(message.MessageType);
-            }
+            var destination = sendLocalAddress;
 
             TimeSpan? delayDeliveryFor = null;
             if (options.Delay.HasValue)
@@ -364,27 +363,43 @@ namespace NServiceBus.Unicast
             }
 
             var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor, options.Context);
-            var headers = new Dictionary<string, string>(options.Headers);
 
-            headers[Headers.MessageIntent] = options.Intent.ToString();
-          
-            var messageId = options.MessageId;
+            return SendMessage(options.MessageId, options.CorrelationId, MessageIntentEnum.Send, options.Headers, sendOptions, message);
+        }
+
+        ICallback SendMessage(NServiceBus.SendOptions options, LogicalMessage message)
+        {
+            var destination = options.Destination;
+
+            if (string.IsNullOrEmpty(destination))
+            {
+                destination = GetDestinationForSend(message.MessageType);
+            }
+
+            var sendOptions = new SendMessageOptions(destination, context: options.Context);
+
+            return SendMessage(options.MessageId, options.CorrelationId, options.Intent, options.Headers, sendOptions, message);
+        }
+
+        ICallback SendMessage(string messageId, string correlationId, MessageIntentEnum intent, Dictionary<string, string> messageHeaders, SendMessageOptions sendOptions, LogicalMessage message)
+        {
+            var headers = new Dictionary<string, string>(messageHeaders);
+
+            headers[Headers.MessageIntent] = intent.ToString();
 
             if (string.IsNullOrEmpty(messageId))
             {
                 messageId = CombGuid.Generate().ToString();
             }
 
-            if (!string.IsNullOrEmpty(options.CorrelationId))
+            if (!string.IsNullOrEmpty(correlationId))
             {
-                headers[Headers.CorrelationId] = options.CorrelationId;
+                headers[Headers.CorrelationId] = correlationId;
             }
             else
             {
                 headers[Headers.CorrelationId] = messageId;
             }
-
-            
 
             ApplyReplyToAddress(headers);
 
@@ -398,11 +413,9 @@ namespace NServiceBus.Unicast
                 message,
                 headers,
                 messageId,
-                options.Intent);
-
+                intent);
 
             outgoingPipeline.Invoke(outgoingContext);
-
 
             return SetupCallback(messageId);
         }

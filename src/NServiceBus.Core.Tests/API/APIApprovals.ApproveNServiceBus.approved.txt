@@ -336,6 +336,8 @@ namespace NServiceBus
         void Reply(object message);
         void Reply<T>(System.Action<T> messageConstructor);
         void Return<T>(T errorEnum);
+        NServiceBus.ICallback SendLocal(object message, NServiceBus.SendLocalOptions options);
+        NServiceBus.ICallback SendLocal<T>(System.Action<T> messageConstructor, NServiceBus.SendLocalOptions options);
         void Subscribe(System.Type messageType);
         void Subscribe<T>();
         void Unsubscribe(System.Type messageType);
@@ -561,12 +563,17 @@ namespace NServiceBus
     {
         public static NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.BusConfiguration config) { }
     }
+    public class SendLocalOptions
+    {
+        public SendLocalOptions(string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
+        public NServiceBus.SendLocalOptions AddHeader(string key, string value) { }
+        public NServiceBus.SendLocalOptions SetCustomMessageId(string messageId) { }
+    }
     public class SendOptions
     {
-        public SendOptions(string destination = null, string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
+        public SendOptions(string destination = null, string correlationId = null) { }
         public NServiceBus.SendOptions AddHeader(string key, string value) { }
         public NServiceBus.SendOptions SetCustomMessageId(string messageId) { }
-        public NServiceBus.SendOptions SetLocalEndpointAsDestination() { }
     }
     public class static SerializationConfigExtensions
     {
@@ -867,6 +874,7 @@ namespace NServiceBus.Configuration.AdvanceExtensibility
     public class static SendOptionsExtensions
     {
         public static System.Collections.Generic.Dictionary<string, object> GetContext(this NServiceBus.SendOptions options) { }
+        public static System.Collections.Generic.Dictionary<string, object> GetContext(this NServiceBus.SendLocalOptions options) { }
     }
 }
 namespace NServiceBus.Container
@@ -2306,6 +2314,8 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("Please use `Send<T>(string destination, string correlationId, Action<T> messageCo" +
             "nstructor)` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.ICallback Send<T>(NServiceBus.Address address, string correlationId, System.Action<T> messageConstructor) { }
+        public NServiceBus.ICallback SendLocal(object message, NServiceBus.SendLocalOptions options) { }
+        public NServiceBus.ICallback SendLocal<T>(System.Action<T> messageConstructor, NServiceBus.SendLocalOptions options) { }
         public NServiceBus.IBus Start() { }
         public void Subscribe(System.Type messageType) { }
         public void Subscribe<T>() { }

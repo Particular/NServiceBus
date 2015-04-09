@@ -29,14 +29,12 @@
                     {
                         var duplicateMessageId = Guid.NewGuid().ToString();
 
-                        var duplicateSendContext = new SendOptions();
+                        var duplicateSendContext = new SendLocalOptions();
 
                         duplicateSendContext.SetCustomMessageId(duplicateMessageId);
-                        duplicateSendContext.SetLocalEndpointAsDestination();
 
-                        bus.Send(new PlaceOrder(),duplicateSendContext);
-                        bus.Send(new PlaceOrder(), duplicateSendContext);
-
+                        bus.SendLocal(new PlaceOrder(), duplicateSendContext);
+                        bus.SendLocal(new PlaceOrder(), duplicateSendContext);
                         bus.SendLocal(new PlaceOrder());
                     }))
                     .AllowExceptions()

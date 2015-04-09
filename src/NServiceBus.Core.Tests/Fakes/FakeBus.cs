@@ -4,8 +4,35 @@
     using System.Collections.Generic;
     using System.Threading;
 
-    public class FakeBus : IBus 
+    public class FakeBus : IBus
     {
+        DateTime _deferProcessAt = DateTime.MinValue;
+        int _deferWasCalled;
+        TimeSpan deferDelay = TimeSpan.MinValue;
+
+        public int DeferWasCalled
+        {
+            get { return _deferWasCalled; }
+            set { _deferWasCalled = value; }
+        }
+
+        public TimeSpan DeferDelay
+        {
+            get { return deferDelay; }
+        }
+
+        public object DeferedMessage { get; set; }
+
+        public DateTime DeferProcessAt
+        {
+            get { return _deferProcessAt; }
+        }
+
+        public IDictionary<string, string> OutgoingHeaders
+        {
+            get { throw new NotImplementedException(); }
+        }
+
         public void Publish(object message)
         {
             throw new NotImplementedException();
@@ -43,43 +70,28 @@
 
         public ICallback Send(object message, SendOptions options)
         {
-            if (options.Delay.HasValue)
-            {
-                Interlocked.Increment(ref _deferWasCalled);
-                deferDelay = options.Delay.Value;
-                deferedMessage = message;
-                
-            }
             return null;
         }
 
-        
         public ICallback Send<T>(Action<T> messageConstructor, SendOptions options)
         {
             throw new NotImplementedException();
         }
 
-        private int _deferWasCalled;
-        public int DeferWasCalled
+        public ICallback SendLocal(object message, SendLocalOptions options)
         {
-            get { return _deferWasCalled; }
-            set { _deferWasCalled = value; }
-        }
-        private TimeSpan deferDelay = TimeSpan.MinValue;
-        public TimeSpan DeferDelay
-        {
-            get { return deferDelay; }
-        }
-        object deferedMessage;
-        public object DeferedMessage
-        {
-            get { return deferedMessage; }
+            if (options.Delay.HasValue)
+            {
+                Interlocked.Increment(ref _deferWasCalled);
+                deferDelay = options.Delay.Value;
+                DeferedMessage = message;
+            }
+            return null;
         }
 
-        private DateTime _deferProcessAt = DateTime.MinValue;
-        public DateTime DeferProcessAt
+        public ICallback SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
         {
-            get { return _deferProcessAt; }
+            throw new NotImplementedException();
         }
 
         public void Reply(object message)
@@ -112,11 +124,6 @@
             throw new NotImplementedException();
         }
 
-        public IDictionary<string, string> OutgoingHeaders
-        {
-            get { throw new NotImplementedException(); }
-        }
-
         public IMessageContext CurrentMessageContext
         {
             get { throw new NotImplementedException(); }
@@ -124,7 +131,6 @@
 
         public void Dispose()
         {
-            
         }
     }
 }

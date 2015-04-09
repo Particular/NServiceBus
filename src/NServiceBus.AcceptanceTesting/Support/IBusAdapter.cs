@@ -76,6 +76,16 @@
             throw new NotImplementedException();
         }
 
+        public ICallback SendLocal(object message, SendLocalOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ICallback SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
         public void HandleCurrentMessageLater()
         {
             throw new NotImplementedException();

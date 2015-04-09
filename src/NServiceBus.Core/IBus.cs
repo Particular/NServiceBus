@@ -53,6 +53,21 @@ namespace NServiceBus
         void Return<T>(T errorEnum);
 
         /// <summary>
+        /// Sends the message back to the current bus.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <param name="options">The options for the send.</param>
+        ICallback SendLocal(object message, SendLocalOptions options);
+
+        /// <summary>
+        /// Instantiates a message of type T and sends it back to the current bus.
+        /// </summary>
+        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+        /// <param name="messageConstructor">An action which initializes properties of the message</param>
+        /// <param name="options">The options for the send.</param>
+        ICallback SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options);
+        
+        /// <summary>
         /// Moves the message being handled to the back of the list of available 
         /// messages so it can be handled later.
         /// </summary>
@@ -91,11 +106,10 @@ namespace NServiceBus
         {
             Guard.AgainstNull(message, "message");
 
-            var context = new SendOptions();
+            var context = new SendLocalOptions();
 
-            context.SetLocalEndpointAsDestination();
 
-            return bus.Send(message, context);
+            return bus.SendLocal(message, context);
         }
 
         /// <summary>
@@ -107,11 +121,9 @@ namespace NServiceBus
         public static ICallback SendLocal<T>(this IBus bus, Action<T> messageConstructor)
         {
             Guard.AgainstNull(messageConstructor, "messageConstructor");
-            var context = new SendOptions();
+            var context = new SendLocalOptions();
 
-            context.SetLocalEndpointAsDestination();
-
-            return bus.Send(messageConstructor, context);
+            return bus.SendLocal(messageConstructor, context);
         }
 
         /// <summary>
@@ -122,10 +134,9 @@ namespace NServiceBus
             Guard.AgainstNull(message, "message");
             Guard.AgainstNegativeAndZero(delay,"delay");
 
-            var context = new SendOptions(delayDeliveryFor: delay);
-            context.SetLocalEndpointAsDestination();
+            var context = new SendLocalOptions(delayDeliveryFor: delay);
 
-            return bus.Send(message, context);
+            return bus.SendLocal(message, context);
         }
 
         /// <summary>
@@ -136,10 +147,9 @@ namespace NServiceBus
             Guard.AgainstNull(message, "message");
             Guard.AgainstNull(processAt, "processAt");
 
-            var context = new SendOptions(deliverAt: processAt);
-            context.SetLocalEndpointAsDestination();
+            var context = new SendLocalOptions(deliverAt: processAt);
 
-            return bus.Send(message, context);
+            return bus.SendLocal(message, context);
         }
     }
 }

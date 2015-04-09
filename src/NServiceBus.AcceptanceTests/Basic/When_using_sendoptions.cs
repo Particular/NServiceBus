@@ -8,7 +8,6 @@
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast;
     using NUnit.Framework;
-    using SendOptions = NServiceBus.SendOptions;
 
     public class When_using_sendoptions : NServiceBusAcceptanceTest
     {
@@ -20,11 +19,10 @@
             Scenario.Define(context)
                     .WithEndpoint<SendOptionsExtensions>(b => b.Given((bus, c) =>
                     {
-                        var sendOptions = new SendOptions();
-                        sendOptions.SetLocalEndpointAsDestination();
+                        var sendOptions = new SendLocalOptions();
                         sendOptions.GetContext()["MySpecialExtension"] = "I did it!";
 
-                        bus.Send(new SendMessage(), sendOptions);
+                        bus.SendLocal(new SendMessage(), sendOptions);
                     }))
                     .Done(c => c.WasCalled)
                     .Run();
