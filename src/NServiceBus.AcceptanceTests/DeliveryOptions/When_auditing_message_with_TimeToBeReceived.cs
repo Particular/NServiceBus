@@ -25,14 +25,14 @@
             return bus => bus.SendLocal(new MessageToBeAudited());
         }
 
-        public class Context : ScenarioContext
+        class Context : ScenarioContext
         {
             public bool IsMessageHandlingComplete { get; set; }
             public DateTime? FirstTimeProcessedByAudit { get; set; }
             public bool TTBRHasExpiredAndMessageIsStillInAuditQueue { get; set; }
         }
 
-        public class EndpointWithAuditOn : EndpointConfigurationBuilder
+        class EndpointWithAuditOn : EndpointConfigurationBuilder
         {
 
             public EndpointWithAuditOn()
@@ -57,7 +57,7 @@
             }
         }
 
-        public class EndpointThatHandlesAuditMessages : EndpointConfigurationBuilder
+        class EndpointThatHandlesAuditMessages : EndpointConfigurationBuilder
         {
 
             public EndpointThatHandlesAuditMessages()
@@ -102,7 +102,7 @@
 
         [Serializable]
         [TimeToBeReceived("00:00:03")]
-        public class MessageToBeAudited : IMessage
+        class MessageToBeAudited : IMessage
         {
         }
     }

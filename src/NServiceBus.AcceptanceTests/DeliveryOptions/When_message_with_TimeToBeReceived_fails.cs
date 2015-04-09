@@ -28,14 +28,14 @@
             return bus => bus.SendLocal(new MessageThatFails());
         }
 
-        public class Context : ScenarioContext
+        class Context : ScenarioContext
         {
             public bool MessageFailed { get; set; }
             public DateTime? FirstTimeProcessedByErrorHandler { get; set; }
             public bool TTBRHasExpiredAndMessageIsStillInErrorQueue { get; set; }
         }
 
-        public class EndpointThatThrows : EndpointConfigurationBuilder
+        class EndpointThatThrows : EndpointConfigurationBuilder
         {
             public EndpointThatThrows()
             {
@@ -63,7 +63,7 @@
             }
         }
 
-        public class EndpointThatHandlesErrorMessages : EndpointConfigurationBuilder
+        class EndpointThatHandlesErrorMessages : EndpointConfigurationBuilder
         {
 
             public EndpointThatHandlesErrorMessages()
@@ -109,7 +109,7 @@
 
         [Serializable]
         [TimeToBeReceived("00:00:03")]
-        public class MessageThatFails : IMessage
+        class MessageThatFails : IMessage
         {
         }
     }
