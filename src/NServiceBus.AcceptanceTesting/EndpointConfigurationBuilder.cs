@@ -105,6 +105,13 @@
             return this;
         }
 
+        public EndpointConfigurationBuilder ExcludeTypesFromNamespace(string fullyQualifiedNamespace)
+        {
+            configuration.NamespaceTypesToExclude.Add(fullyQualifiedNamespace);
+
+            return this;
+        }
+
         public EndpointConfigurationBuilder SendOnly()
         {
             configuration.SendOnly = true;
