@@ -92,7 +92,7 @@
                     }
 
                     var ttbr = TimeSpan.Parse(bus.CurrentMessageContext.Headers[Headers.TimeToBeReceived]);
-                    bool ttbrExpired = errorProcessingStarted > (context.FirstTimeProcessedByErrorHandler.Value + ttbr);
+                    var ttbrExpired = errorProcessingStarted > (context.FirstTimeProcessedByErrorHandler.Value + ttbr);
                     if (ttbrExpired)
                     {
                         context.TTBRHasExpiredAndMessageIsStillInErrorQueue = true;
