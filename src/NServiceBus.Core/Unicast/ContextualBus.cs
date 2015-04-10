@@ -466,6 +466,8 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback Defer(TimeSpan delay, object message)
         {
+            MessagingBestPractices.AssertIsValidForDefer(message.GetType(), builder.Build<Conventions>());
+
             var options = new SendOptions(sendLocalAddress)
             {
                 DelayDeliveryWith = delay,
@@ -480,6 +482,8 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ICallback Defer(DateTime processAt, object message)
         {
+            MessagingBestPractices.AssertIsValidForDefer(message.GetType(), builder.Build<Conventions>());
+
             var options = new SendOptions(sendLocalAddress)
             {
                 DeliverAt = processAt,

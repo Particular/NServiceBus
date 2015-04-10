@@ -7,6 +7,24 @@
     public class MessagingBestPracticesTests
     {
         [TestFixture]
+        public class When_defering
+        {
+            [Test]
+            public void Should_throw_for_TimeToBeReceived_set()
+            {
+                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForDefer(typeof(MyDeferredMessage), new Conventions()));
+                Assert.AreEqual("Defering messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to defer messages of this type.", invalidOperationException.Message);
+            }
+
+            [Test]
+            public void Should_not_throw_for_TimeToBeReceived_no_set()
+            {
+                MessagingBestPractices.AssertIsValidForDefer(typeof(MyMessage), new Conventions());
+            }
+        }
+
+
+        [TestFixture]
         public class When_replying
         {
             [Test]
@@ -54,6 +72,11 @@
             }
 
      
+        }
+
+        [TimeToBeReceived("00:00:01")]
+        public class MyDeferredMessage : IMessage
+        {
         }
 
         public class MyMessage : IMessage

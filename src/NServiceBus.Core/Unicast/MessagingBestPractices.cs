@@ -34,6 +34,14 @@ namespace NServiceBus.Unicast
             }
         }
 
+        public static void AssertIsValidForDefer(Type messageType, Conventions conventions)
+        {
+            if (conventions.GetTimeToBeReceived(messageType) < TimeSpan.MaxValue)
+            {
+                throw new InvalidOperationException("Defering messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to defer messages of this type.");
+            }
+        }
+
         static ILog Log = LogManager.GetLogger<MessagingBestPractices>();
     }
 }
