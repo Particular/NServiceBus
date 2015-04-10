@@ -18,7 +18,7 @@ namespace NServiceBus.Unicast
     }
 
     [SkipWeaving]
-    class ContextualBus : IBus, IContextualBus
+    partial class ContextualBus : IBus, IContextualBus
     {
         readonly IMessageMapper messageMapper;
         readonly Func<BehaviorContext> contextGetter;
@@ -311,8 +311,6 @@ namespace NServiceBus.Unicast
         {
             messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new TransportSendOptions(destination));
         }
-
-     
 
         public ICallback Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
         {

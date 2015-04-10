@@ -249,18 +249,78 @@ namespace NServiceBus.MessageMutator
 
 namespace NServiceBus.Unicast
 {
-
     using System;
-    public partial class UnicastBus
-    {   
-        /// <summary>
-        /// Obsoleted
-        /// </summary>
-        /// <param name="address"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
+
+    partial class ContextualBus
+    {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "Send(string destination, object message)", 
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public ICallback Send(Address address, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public ICallback Send<T>(string destination, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public ICallback Send<T>(Address address, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public ICallback Send(string destination, string correlationId, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public ICallback Send(Address address, string correlationId, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public partial class UnicastBus
+    {
+        /// <summary>
+        /// Sends the provided message.
+        /// </summary>
+        /// <param name="address">
+        /// The address to which the message will be sent.
+        /// </param>
+        /// <param name="message">The message to send.</param>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Send(object message, SendOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public ICallback Send(Address address, object message)
@@ -269,59 +329,72 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Obsoleted
+        /// Instantiates a message of type T and sends it to the given address.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="address"></param>
-        /// <param name="messageConstructor"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">The type of message, usually an interface</typeparam>
+        /// <param name="address">The address to which the message will be sent.</param>
+        /// <param name="messageConstructor">An action which initializes properties of the message</param>
         [ObsoleteEx(
-            ReplacementTypeOrMember = "Send<T>(string destination, Action<T> messageConstructor)", 
+            ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        // ReSharper disable UnusedParameter.Global
         public ICallback Send<T>(Address address, Action<T> messageConstructor)
-        // ReSharper restore UnusedParameter.Global
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Obsoleted
+        /// Sends the message to the destination as well as identifying this
+        /// as a response to a message containing the Id found in correlationId.
         /// </summary>
-        /// <param name="address"></param>
-        /// <param name="correlationId"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
         [ObsoleteEx(
-            ReplacementTypeOrMember = "Send<T>(string destination, string correlationId, object message)", 
-            RemoveInVersion = "7.0", 
+            ReplacementTypeOrMember = "Send(object message, SendOptions options)",
+            RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        // ReSharper disable UnusedParameter.Global
+        public ICallback Send(string destination, string correlationId, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Sends the message to the given address as well as identifying this
+        /// as a response to a message containing the Id found in correlationId.
+        /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Send(object message, SendOptions options)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
         public ICallback Send(Address address, string correlationId, object message)
-        // ReSharper restore UnusedParameter.Global
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Obsolete
+        /// Instantiates a message of the type T using the given messageConstructor,
+        /// and sends it to the destination identifying it as a response to a message
+        /// containing the Id found in correlationId.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="address"></param>
-        /// <param name="correlationId"></param>
-        /// <param name="messageConstructor"></param>
-        /// <returns></returns>
         [ObsoleteEx(
-            ReplacementTypeOrMember = "Send<T>(string destination, string correlationId, Action<T> messageConstructor)", 
-            RemoveInVersion = "7.0", 
+            ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
+            RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        // ReSharper disable UnusedParameter.Global
-        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
-        // ReSharper restore UnusedParameter.Global
+        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Instantiates a message of the type T using the given messageConstructor,
+        /// and sends it to the given address identifying it as a response to a message
+        /// containing the Id found in correlationId.
+        /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
      }
 }

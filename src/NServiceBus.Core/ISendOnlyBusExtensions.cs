@@ -7,7 +7,6 @@ namespace NServiceBus
     /// </summary>
     public static class ISendOnlyBusExtensions
     {
-
         /// <summary>
         /// Sends the provided message.
         /// </summary>
@@ -18,7 +17,6 @@ namespace NServiceBus
             Guard.AgainstNull(message, "message");
             return bus.Send(message, new SendOptions());
         }
-
 
         /// <summary>
         /// Instantiates a message of type T and sends it.
@@ -71,37 +69,5 @@ namespace NServiceBus
             return bus.Send(messageConstructor, context);
 
         }
-
-        /// <summary>
-        /// Sends the message to the destination as well as identifying this
-        /// as a response to a message containing the Id found in correlationId.
-        /// </summary>
-        public static ICallback Send(this ISendOnlyBus bus, string destination, string correlationId, object message)
-        {
-            Guard.AgainstNullAndEmpty(destination, "destination");
-            Guard.AgainstNullAndEmpty(correlationId, "correlationId");
-            Guard.AgainstNull(message, "message");
-
-            var context = new SendOptions(destination, correlationId);
-
-            return bus.Send(message, context);
-        }
-
-        /// <summary>
-        /// Instantiates a message of the type T using the given messageConstructor,
-        /// and sends it to the destination identifying it as a response to a message
-        /// containing the Id found in correlationId.
-        /// </summary>
-        public static ICallback Send<T>(this ISendOnlyBus bus, string destination, string correlationId, Action<T> messageConstructor)
-        {
-            Guard.AgainstNullAndEmpty(destination, "destination");
-            Guard.AgainstNullAndEmpty(correlationId, "correlationId");
-            Guard.AgainstNull(messageConstructor, "messageConstructor");
-
-            var context = new SendOptions(destination, correlationId);
-
-            return bus.Send(messageConstructor, context);
-        }
-
     }
 }

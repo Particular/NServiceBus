@@ -426,6 +426,24 @@ namespace NServiceBus
         void Publish<T>(System.Action<T> messageConstructor);
         NServiceBus.ICallback Send(object message, NServiceBus.SendOptions options);
         NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+        [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
+            "n version 7.0.0.", true)]
+        NServiceBus.ICallback Send(NServiceBus.Address address, object message);
+        [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor, SendOptions options)` instead. " +
+            "Will be removed in version 7.0.0.", true)]
+        NServiceBus.ICallback Send<T>(NServiceBus.Address address, System.Action<T> messageConstructor);
+        [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
+            "n version 7.0.0.", true)]
+        NServiceBus.ICallback Send(string destination, string correlationId, object message);
+        [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
+            "n version 7.0.0.", true)]
+        NServiceBus.ICallback Send(NServiceBus.Address address, string correlationId, object message);
+        [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor, SendOptions options)` instead. " +
+            "Will be removed in version 7.0.0.", true)]
+        NServiceBus.ICallback Send<T>(string destination, string correlationId, System.Action<T> messageConstructor);
+        [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor, SendOptions options)` instead. " +
+            "Will be removed in version 7.0.0.", true)]
+        NServiceBus.ICallback Send<T>(NServiceBus.Address address, string correlationId, System.Action<T> messageConstructor);
     }
     public class static ISendOnlyBusExtensions
     {
@@ -433,8 +451,6 @@ namespace NServiceBus
         public static NServiceBus.ICallback Send<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
         public static NServiceBus.ICallback Send(this NServiceBus.ISendOnlyBus bus, string destination, object message) { }
         public static NServiceBus.ICallback Send<T>(this NServiceBus.ISendOnlyBus bus, string destination, System.Action<T> messageConstructor) { }
-        public static NServiceBus.ICallback Send(this NServiceBus.ISendOnlyBus bus, string destination, string correlationId, object message) { }
-        public static NServiceBus.ICallback Send<T>(this NServiceBus.ISendOnlyBus bus, string destination, string correlationId, System.Action<T> messageConstructor) { }
     }
     public interface ISpecifyMessageHandlerOrdering
     {
@@ -2302,17 +2318,23 @@ namespace NServiceBus.Unicast
         public void Return<T>(T errorEnum) { }
         public NServiceBus.ICallback Send(object message, NServiceBus.SendOptions options) { }
         public NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
-        [System.ObsoleteAttribute("Please use `Send(string destination, object message)` instead. Will be removed in" +
-            " version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
+            "n version 7.0.0.", true)]
         public NServiceBus.ICallback Send(NServiceBus.Address address, object message) { }
-        [System.ObsoleteAttribute("Please use `Send<T>(string destination, Action<T> messageConstructor)` instead. W" +
-            "ill be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor, SendOptions options)` instead. " +
+            "Will be removed in version 7.0.0.", true)]
         public NServiceBus.ICallback Send<T>(NServiceBus.Address address, System.Action<T> messageConstructor) { }
-        [System.ObsoleteAttribute("Please use `Send<T>(string destination, string correlationId, object message)` in" +
-            "stead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
+            "n version 7.0.0.", true)]
+        public NServiceBus.ICallback Send(string destination, string correlationId, object message) { }
+        [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
+            "n version 7.0.0.", true)]
         public NServiceBus.ICallback Send(NServiceBus.Address address, string correlationId, object message) { }
-        [System.ObsoleteAttribute("Please use `Send<T>(string destination, string correlationId, Action<T> messageCo" +
-            "nstructor)` instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor, SendOptions options)` instead. " +
+            "Will be removed in version 7.0.0.", true)]
+        public NServiceBus.ICallback Send<T>(string destination, string correlationId, System.Action<T> messageConstructor) { }
+        [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor, SendOptions options)` instead. " +
+            "Will be removed in version 7.0.0.", true)]
         public NServiceBus.ICallback Send<T>(NServiceBus.Address address, string correlationId, System.Action<T> messageConstructor) { }
         public NServiceBus.ICallback SendLocal(object message, NServiceBus.SendLocalOptions options) { }
         public NServiceBus.ICallback SendLocal<T>(System.Action<T> messageConstructor, NServiceBus.SendLocalOptions options) { }

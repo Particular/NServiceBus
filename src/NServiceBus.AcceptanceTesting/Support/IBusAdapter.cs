@@ -41,6 +41,40 @@
             return sendOnlyBus.Send(messageConstructor, options);
         }
 
+        [Obsolete("", true)]
+        ICallback ISendOnlyBus.Send(Address address, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Obsolete("", true)]
+        ICallback ISendOnlyBus.Send<T>(Address address, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ICallback Send(string destination, string correlationId, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Obsolete("", true)]
+        ICallback ISendOnlyBus.Send(Address address, string correlationId, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Obsolete("", true)]
+        ICallback ISendOnlyBus.Send<T>(Address address, string correlationId, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Subscribe(Type messageType)
         {
             throw new NotImplementedException();

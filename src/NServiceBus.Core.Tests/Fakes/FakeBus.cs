@@ -78,6 +78,41 @@
             throw new NotImplementedException();
         }
 
+        [Obsolete("", true)]
+        public ICallback Send(Address address, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Obsolete("", true)]
+        public ICallback Send<T>(Address address, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ICallback Send(string destination, string correlationId, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Obsolete("", true)]
+        public ICallback Send(Address address, string correlationId, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        [Obsolete("", true)]
+        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
         public ICallback SendLocal(object message, SendLocalOptions options)
         {
             if (options.Delay.HasValue)
