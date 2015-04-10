@@ -52,7 +52,6 @@ namespace NServiceBus
         {
             throw new NotImplementedException();
         }
-
     }
 
     [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "config.ExcludeAssemblies")]
@@ -72,7 +71,6 @@ namespace NServiceBus
 
     public partial class TransportMessage
     {
-
         [ObsoleteEx(
             Message = "For sending purposes use DeliveryMessageOptions.NonDurable (note the negation). When receiving look at the new 'NServiceBus.NonDurableMessage' header",
             RemoveInVersion = "7.0",
@@ -85,18 +83,14 @@ namespace NServiceBus
             TreatAsErrorFromVersion = "6.0")]
         public TimeSpan TimeToBeReceived { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
 
-
-
         [ObsoleteEx(
           Message = "Not used anymore, you most likely should use a `OutgoingMessageInstead`",
           RemoveInVersion = "7.0",
           TreatAsErrorFromVersion = "6.0")]
-
         public TransportMessage()
         {
             throw new NotImplementedException();
         }
-
     }
 }
 
