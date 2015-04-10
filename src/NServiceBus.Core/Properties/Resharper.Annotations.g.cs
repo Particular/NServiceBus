@@ -712,7 +712,7 @@ namespace JetBrains.Annotations
   }
 
   [Flags]
-  public enum CollectionAccessType
+  internal enum CollectionAccessType
   {
     /// <summary>Method does not use or modify content of the collection</summary>
     None = 0,
@@ -754,7 +754,7 @@ namespace JetBrains.Annotations
   /// Specifies assertion type. If the assertion method argument satisfies the condition,
   /// then the execution continues. Otherwise, execution is assumed to be halted
   /// </summary>
-  public enum AssertionConditionType
+  internal enum AssertionConditionType
   {
     /// <summary>Marked parameter should be evaluated to true</summary>
     IS_TRUE = 0,
