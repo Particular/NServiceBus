@@ -211,26 +211,20 @@ namespace NServiceBus.Unicast
 
 namespace NServiceBus.MessageMutator
 {
+    using NServiceBus.Unicast.Messages;
+
     [ObsoleteEx(
               Message = "Just have your mutator implement both IMutateOutgoingMessages and IMutateIncomingMessages ",
               RemoveInVersion = "7.0",
               TreatAsErrorFromVersion = "6.0")]
     public interface IMessageMutator : IMutateOutgoingMessages, IMutateIncomingMessages { }
-}
 
-namespace NServiceBus.MessageMutator
-{
     [ObsoleteEx(
-                Message = "Just have your mutator implement both IMutateIncomingTransportMessages and IMutateOutgoingTransportMessages ",
+                Message = "Just have your mutator implement both IMutateIncomingTransportMessages and IMutateOutgoingPhysicalContext ",
                 RemoveInVersion = "7.0",
                 TreatAsErrorFromVersion = "6.0")]
     public interface IMutateTransportMessages : IMutateIncomingTransportMessages, IMutateOutgoingTransportMessages { }
-}
 
-namespace NServiceBus.MessageMutator
-{
-    using Unicast.Messages;
-    
     [ObsoleteEx(
                 ReplacementTypeOrMember = "IMutateOutgoingPhysicalContext",
                 RemoveInVersion = "7.0",

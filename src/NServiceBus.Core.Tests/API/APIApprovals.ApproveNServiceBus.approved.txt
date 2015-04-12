@@ -1318,7 +1318,7 @@ namespace NServiceBus.MessageMutator
         void MutateOutgoing(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, NServiceBus.TransportMessage transportMessage);
     }
     [System.ObsoleteAttribute("Just have your mutator implement both IMutateIncomingTransportMessages and IMutat" +
-        "eOutgoingTransportMessages. Will be removed in version 7.0.0.", true)]
+        "eOutgoingPhysicalContext. Will be removed in version 7.0.0.", true)]
     public interface IMutateTransportMessages : NServiceBus.MessageMutator.IMutateIncomingTransportMessages, NServiceBus.MessageMutator.IMutateOutgoingTransportMessages { }
 }
 namespace NServiceBus.ObjectBuilder.Common

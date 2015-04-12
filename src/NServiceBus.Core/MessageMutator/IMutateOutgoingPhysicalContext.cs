@@ -1,8 +1,11 @@
 namespace NServiceBus
 {
+    using JetBrains.Annotations;
+
     /// <summary>
     /// Provides a way to mutate the context for outgoing messages in the physical stage
     /// </summary>
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public interface IMutateOutgoingPhysicalContext
     {
         /// <summary>
