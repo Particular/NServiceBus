@@ -66,6 +66,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeliveryOptions\When_message_with_TimeToBeReceived_fails.cs" />
+    <Compile Include="DeliveryOptions\When_auditing_message_with_TimeToBeReceived.cs" />
     <Compile Include="Audit\When_ForwardReceivedMessagesTo_is_set.cs" />
     <Compile Include="Audit\When_a_replymessage_is_audited.cs" />
     <Compile Include="Audit\When_using_audit_message_is_received.cs" />

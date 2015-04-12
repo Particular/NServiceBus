@@ -629,6 +629,7 @@
     <Folder Include="SecondLevelRetries\Helpers\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\Resharper.Annotations.g.cs" />
     <None Include="Resources\NServiceBus_Logo-  white.png" />
     <None Include="Resources\NServiceBus.png" />
     <None Include="Resources\logo.bmp" />
