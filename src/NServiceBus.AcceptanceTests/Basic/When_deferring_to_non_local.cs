@@ -41,11 +41,11 @@
             {
                 EndpointSetup<DefaultServer>();
             }
-            public class MyMessageHandler : IProcessCommands<MyMessage>
+            public class MyMessageHandler : IHandleMessages<MyMessage>
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyMessage message, ICommandContext context)
+                public void Handle(MyMessage message)
                 {
                     Context.WasCalled = true;
                 }
