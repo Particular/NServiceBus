@@ -1808,9 +1808,8 @@ namespace NServiceBus.Saga
     }
     public class SagaMessage
     {
-        public SagaMessage(string messageType, NServiceBus.Sagas.SagaMessageHandledBy sagaMessageHandledBy) { }
+        public SagaMessage(string messageType, bool isAllowedToStartSaga) { }
         public bool IsAllowedToStartSaga { get; }
-        public NServiceBus.Sagas.SagaMessageHandledBy MessageHandledBy { get; }
         public string MessageType { get; }
     }
     public class SagaMetadata
@@ -1868,17 +1867,6 @@ namespace NServiceBus.Sagas
     public class ActiveSagaInstance
     {
         public ActiveSagaInstance() { }
-    }
-    public enum SagaMessageHandledBy
-    {
-        StartedByMessage = 0,
-        StartedByCommand = 1,
-        StartedByEvent = 2,
-        ProcessTimeout = 3,
-        HandleTimeout = 4,
-        ProcessEvent = 5,
-        ProcessCommand = 6,
-        HandleMessage = 7,
     }
 }
 namespace NServiceBus.Satellites
