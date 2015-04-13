@@ -12,11 +12,11 @@
         public void Should_set_the_conversation_id_to_new_guid_when_not_sent_from_handler()
         {
             var behavior = new AttachCausationHeadersBehavior();
-            var context = new PhysicalOutgoingContextStageBehavior.Context(new TransportMessage(),null);
+            var context = new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, null, null, new Dictionary<string, string>(), null,MessageIntentEnum.Send));
 
             behavior.Invoke(context,()=>{});
 
-            Assert.AreNotEqual(Guid.Empty,Guid.Parse(context.OutgoingMessage.Headers[Headers.ConversationId]));
+            Assert.AreNotEqual(Guid.Empty,Guid.Parse(context.Headers[Headers.ConversationId]));
         }
 
         [Test]
@@ -25,13 +25,13 @@
             var incomingConvId = Guid.NewGuid().ToString();
 
             var behavior = new AttachCausationHeadersBehavior();
-            var context = new PhysicalOutgoingContextStageBehavior.Context(new TransportMessage(),null);
+            var context = new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, null, null, new Dictionary<string, string>(), null,MessageIntentEnum.Send));
 
             context.Set(TransportReceiveContext.IncomingPhysicalMessageKey,new TransportMessage("xyz",new Dictionary<string, string>{{Headers.ConversationId,incomingConvId}}));
 
             behavior.Invoke(context, () => { });
 
-            Assert.AreEqual(incomingConvId, context.OutgoingMessage.Headers[Headers.ConversationId]);
+            Assert.AreEqual(incomingConvId, context.Headers[Headers.ConversationId]);
         }
 
         [Test]
@@ -40,13 +40,12 @@
             var userConvId = Guid.NewGuid().ToString();
 
             var behavior = new AttachCausationHeadersBehavior();
-            var context = new PhysicalOutgoingContextStageBehavior.Context(new TransportMessage("xyz", 
-                new Dictionary<string, string> { { Headers.ConversationId, userConvId } }), null);
+            var context = new PhysicalOutgoingContextStageBehavior.Context(null,new OutgoingContext(null,null, null, new Dictionary<string, string> { { Headers.ConversationId, userConvId } },null,MessageIntentEnum.Send));
 
             
             behavior.Invoke(context, () => { });
 
-            Assert.AreEqual(userConvId, context.OutgoingMessage.Headers[Headers.ConversationId]);
+            Assert.AreEqual(userConvId, context.Headers[Headers.ConversationId]);
             
         }
 
@@ -55,13 +54,13 @@
         {
             
             var behavior = new AttachCausationHeadersBehavior();
-            var context = new PhysicalOutgoingContextStageBehavior.Context(new TransportMessage(), null);
+            var context = new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, null, null, new Dictionary<string, string>(), null,MessageIntentEnum.Send));
 
             context.Set(TransportReceiveContext.IncomingPhysicalMessageKey, new TransportMessage("the message id", new Dictionary<string, string>()));
 
             behavior.Invoke(context, () => { });
 
-            Assert.AreEqual("the message id", context.OutgoingMessage.Headers[Headers.RelatedTo]);
+            Assert.AreEqual("the message id", context.Headers[Headers.RelatedTo]);
         
         }
     }

@@ -19,18 +19,18 @@ namespace NServiceBus.Core.Tests.DataBus
             var message = new LogicalMessage(metadata, new MessageWithDataBusProperty
             {
                 DataBusProperty = new DataBusProperty<string>("test")
-            }, new Dictionary<string, string>(), null);
+            }, null);
 
-            Invoke(message);
+            Invoke(message, new Dictionary<string, string>());
 
             dataBus.AssertWasCalled(
                 x => x.Put(Arg<Stream>.Is.Anything, Arg<TimeSpan>.Is.Equal(TimeSpan.MaxValue)));
         }
 
-        void Invoke(LogicalMessage message)
+        void Invoke(LogicalMessage message,Dictionary<string,string> headers)
         {
-           
-            var context = new OutgoingContext(null, new SendOptions("MyEndpoint"), message);
+
+            var context = new OutgoingContext(null, new SendMessageOptions("MyEndpoint"), message, headers, "msg id",MessageIntentEnum.Send);
 
             sendBehavior.Invoke(context, () => { });
         }
@@ -42,9 +42,9 @@ namespace NServiceBus.Core.Tests.DataBus
             var message = new LogicalMessage(metadata, new MessageWithExplicitTimeToLive
             {
                 DataBusProperty = new DataBusProperty<string>("test")
-            }, new Dictionary<string, string>(), null);
+            }, null);
 
-            Invoke(message);
+            Invoke(message,new Dictionary<string, string>());
            
             dataBus.AssertWasCalled(
                 x => x.Put(Arg<Stream>.Is.Anything, Arg<TimeSpan>.Is.Equal(TimeSpan.FromMinutes(1))));

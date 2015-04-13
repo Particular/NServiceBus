@@ -173,17 +173,6 @@ namespace NServiceBus.Core.Tests.Pipeline
             Assert.Throws<Exception>(() => coordinator.BuildPipelineModelFor<IncomingContext>());
         }
 
-        [Test]
-        public void Show_detect_missing_stage_connectors()
-        {
-            coordinator.Register("connector", typeof(FakeStageConnector), "Connector");
-
-            coordinator.Register("fake", typeof(FakeBehavior), "x");
-            coordinator.Register("childfake", typeof(ChildFakeBehavior), "x"); 
-            coordinator.Register("child2fake", typeof(Child2FakeBehavior), "x");
-
-            Assert.Throws<Exception>(() => coordinator.BuildPipelineModelFor<IncomingContext>());
-        }
 
         class MyCustomRegistration : RegisterStep
         {
@@ -217,20 +206,6 @@ namespace NServiceBus.Core.Tests.Pipeline
             }
         }
 
-        class ChildFakeBehavior : Behavior<ChildContext>
-        {
-            public override void Invoke(ChildContext context, Action next)
-            {
-                throw new NotImplementedException();
-            }
-        }
-        class Child2FakeBehavior : Behavior<Child2Context>
-        {
-            public override void Invoke(Child2Context context, Action next)
-            {
-                throw new NotImplementedException();
-            }
-        }
 
         class ReplacedBehavior : Behavior<IncomingContext>
         {
@@ -253,10 +228,6 @@ namespace NServiceBus.Core.Tests.Pipeline
             public ChildContext() : base(null)
             {
             }
-        }
-
-        class Child2Context : ChildContext
-        {
         }
 
      

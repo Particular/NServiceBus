@@ -12,21 +12,21 @@
         public string TimeoutManagerAddress { get; set; }
         public Configure Configure { get; set; }
 
-        public void Defer(OutgoingMessage message, SendOptions sendOptions)
+        public void Defer(OutgoingMessage message, SendMessageOptions sendMessageOptions)
         {
-            message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = sendOptions.Destination;
+            message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = sendMessageOptions.Destination;
 
             DateTime deliverAt;
 
-            if (sendOptions.DelayDeliveryWith.HasValue)
+            if (sendMessageOptions.DelayDeliveryFor.HasValue)
             {
-                deliverAt = DateTime.UtcNow + sendOptions.DelayDeliveryWith.Value;
+                deliverAt = DateTime.UtcNow + sendMessageOptions.DelayDeliveryFor.Value;
             }
             else
             {
-                if (sendOptions.DeliverAt.HasValue)
+                if (sendMessageOptions.DeliverAt.HasValue)
                 {
-                    deliverAt = sendOptions.DeliverAt.Value;    
+                    deliverAt = sendMessageOptions.DeliverAt.Value;    
                 }
                 else
                 {
@@ -39,10 +39,7 @@
             
             try
             {
-                MessageSender.Send(message, new SendOptions(TimeoutManagerAddress)
-                {
-                    EnlistInReceiveTransaction = sendOptions.EnlistInReceiveTransaction
-                });
+                MessageSender.Send(message, new TransportSendOptions(TimeoutManagerAddress, enlistInReceiveTransaction: sendMessageOptions.EnlistInReceiveTransaction));
             }
             catch (Exception ex)
             {
@@ -53,12 +50,12 @@
 
         public void ClearDeferredMessages(string headerKey, string headerValue)
         {
-            var controlMessage = ControlMessage.Create();
+            var controlMessage = ControlMessageFactory.Create(MessageIntentEnum.Send);
 
             controlMessage.Headers[headerKey] = headerValue;
-            controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = Boolean.TrueString;
+            controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = bool.TrueString;
 
-            MessageSender.Send(new OutgoingMessage(controlMessage.Headers,controlMessage.Body), new SendOptions(TimeoutManagerAddress));
+            MessageSender.Send(controlMessage, new TransportSendOptions(TimeoutManagerAddress));
         }
 
         static ILog Log = LogManager.GetLogger<TimeoutManagerDeferrer>();

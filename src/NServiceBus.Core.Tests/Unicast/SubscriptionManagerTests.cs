@@ -32,11 +32,11 @@
 
             public OutgoingMessage MessageSent { get; private set; }
 
-            public SendOptions SendOptions { get; private set; }
+            public TransportSendOptions SendOptions { get; private set; }
 
             public AutoResetEvent MessageAvailable { get; private set; }
 
-            public void Send(OutgoingMessage message, SendOptions sendOptions)
+            public void Send(OutgoingMessage message, TransportSendOptions sendOptions)
             {
                 MessageSent = message;
 

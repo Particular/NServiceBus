@@ -4,9 +4,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
-    using NServiceBus.MessageMutator;
     using NServiceBus.Pipeline;
-    using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
 
     public class When_message_has_empty_id_header : NServiceBusAcceptanceTest
@@ -27,14 +25,14 @@
             Assert.IsFalse(string.IsNullOrWhiteSpace(context.MessageId));
         }
 
-        public class CorruptionMutator : IMutateOutgoingTransportMessages
+        public class CorruptionMutator : IMutateOutgoingPhysicalContext
         {
             public Context ScenarioContext { get; set; }
 
-            public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
+            public void MutateOutgoing(OutgoingPhysicalMutatorContext context)
             {
-                transportMessage.Headers["ScenarioContextId"] = ScenarioContext.Id.ToString();
-                transportMessage.Headers[Headers.MessageId] = "";
+                context.Headers["ScenarioContextId"] = ScenarioContext.Id.ToString();
+                context.Headers[Headers.MessageId] = "";
             }
         }
 

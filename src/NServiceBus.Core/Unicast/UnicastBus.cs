@@ -27,7 +27,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public partial class UnicastBus : IStartableBus, IManageMessageHeaders, IRealBus
+    public partial class UnicastBus : IStartableBus, IRealBus
     {
         /// <summary>
         /// Initializes a new instance of <see cref="UnicastBus"/>.
@@ -78,8 +78,6 @@ namespace NServiceBus.Unicast
             // but some containers try to inject on public properties
             get; set;
         }
-
-        
 
         /// <summary>
         /// <see cref="IStartableBus.Start()"/>
@@ -225,14 +223,6 @@ namespace NServiceBus.Unicast
             }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.LongRunning);
         }
 
-        /// <summary>
-        /// <see cref="IManageMessageHeaders.SetHeaderAction"/>
-        /// </summary>
-        public Action<object, string, string> SetHeaderAction { get { return busImpl.SetHeaderAction; } }
-        /// <summary>
-        /// <see cref="IManageMessageHeaders.GetHeaderAction"/>
-        /// </summary>
-        public Func<object, string, string> GetHeaderAction { get { return busImpl.GetHeaderAction; } }
 
         /// <summary>
         /// Only for tests

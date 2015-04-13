@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Scheduling.Tests
 {
+    using System;
     using System.Threading;
     using Core.Tests.Fakes;
     using NUnit.Framework;
@@ -19,7 +20,7 @@
         [Test]
         public void When_scheduling_a_task_it_should_be_added_to_the_storage()
         {
-            var task = new TaskDefinition();
+            var task = new TaskDefinition{Every = TimeSpan.FromSeconds(5)};
             var taskId = task.Id;
             scheduler.Schedule(task);
 
@@ -29,14 +30,17 @@
         [Test]
         public void When_scheduling_a_task_defer_should_be_called()
         {
-            scheduler.Schedule(new TaskDefinition());
+            scheduler.Schedule(new TaskDefinition{Every = TimeSpan.FromSeconds(5)});
             Assert.That(bus.DeferWasCalled > 0);
         }
 
         [Test]
         public void When_starting_a_task_defer_should_be_called()
         {
-            var task = new TaskDefinition {Task = () => { }};
+            var task = new TaskDefinition
+            {Every = TimeSpan.FromSeconds(5),
+                Task = () => { }
+            };
             var taskId = task.Id;
 
             scheduler.Schedule(task);
@@ -52,7 +56,11 @@
         {
             var i = 1;
 
-            var task = new TaskDefinition { Task = () => { i++; } };
+            var task = new TaskDefinition
+            {
+                Every = TimeSpan.FromSeconds(5),
+                Task = () => { i++; }
+            };
             var taskId = task.Id;
 
             scheduler.Schedule(task);            

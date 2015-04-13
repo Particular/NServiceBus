@@ -5,7 +5,6 @@ namespace NServiceBus.Transports.Msmq
     using System.Transactions;
     using NServiceBus.Pipeline;
     using NServiceBus.Transports.Msmq.Config;
-    using NServiceBus.Unicast;
     using NServiceBus.Unicast.Queuing;
 
     /// <summary>
@@ -39,7 +38,7 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// Sends the given <paramref name="message"/>
         /// </summary>
-        public void Send(OutgoingMessage message, SendOptions sendOptions)
+        public void Send(OutgoingMessage message, TransportSendOptions sendOptions)
         {
             Guard.AgainstNull(message, "message");
             Guard.AgainstNull(sendOptions, "sendOptions");

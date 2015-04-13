@@ -18,7 +18,7 @@
 
             var messageHandler = context.MessageHandler;
 
-            messageHandler.Invocation(messageHandler.Instance, context.IncomingLogicalMessage.Instance);
+            messageHandler.Invocation(messageHandler.Instance, context.MessageBeingHandled);
             next();
         }
     }

@@ -150,6 +150,7 @@
     <Compile Include="Persistence\PersistenceStorageMergerTests.cs" />
     <Compile Include="Pipeline\HandlerTransactionScopeWrapperBehaviorTests.cs" />
     <Compile Include="Pipeline\PipelineExecutorTests.cs" />
+    <Compile Include="Pipeline\PipelineModelBuilderTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
     <Compile Include="Sagas\TypeBasedSagaMetaModelTests.cs" />
     <Compile Include="SecondLevelRetries\DefaultRetryPolicyTests.cs" />
@@ -264,7 +265,6 @@
     <Compile Include="Unicast\Contexts\EventMessage.cs" />
     <Compile Include="Unicast\Contexts\InterfaceMessage.cs" />
     <Compile Include="Unicast\LoadHandlersBehaviorTests.cs" />
-    <Compile Include="Unicast\ReplyOptionsTests.cs" />
     <Compile Include="Unicast\SubscriptionManagerTests.cs" />
     <Compile Include="Unicast\TransportMessageTests.cs" />
     <Compile Include="Unicast\MessageTypeTests.cs" />

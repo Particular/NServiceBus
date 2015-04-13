@@ -13,7 +13,6 @@ namespace NServiceBus
     using NServiceBus.Support;
     using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq;
-    using NServiceBus.Unicast;
 
     /// <summary>
     ///     MSMQ-related utility functions
@@ -37,7 +36,7 @@ namespace NServiceBus
 
         public static string GetFullPath(string queue)
         {
-            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(queue,RuntimeEnvironment.MachineName);
+            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(queue, RuntimeEnvironment.MachineName);
         }
 
         /// <summary>
@@ -127,14 +126,14 @@ namespace NServiceBus
         /// <summary>
         ///     Converts an MSMQ message to a TransportMessage.
         /// </summary>
-        public static Dictionary<string,string> ExtractHeaders(Message msmqMessage)
+        public static Dictionary<string, string> ExtractHeaders(Message msmqMessage)
         {
             var headers = DeserializeMessageHeaders(msmqMessage);
-        
+
             //note: we can drop this line when we no longer support interop btw v3 + v4
             if (msmqMessage.ResponseQueue != null)
             {
-                headers[Headers.ReplyToAddress] = GetIndependentAddressForQueue(msmqMessage.ResponseQueue).ToString();    
+                headers[Headers.ReplyToAddress] = GetIndependentAddressForQueue(msmqMessage.ResponseQueue).ToString();
             }
 
             if (Enum.IsDefined(typeof(MessageIntentEnum), msmqMessage.AppSpecific))
@@ -205,7 +204,7 @@ namespace NServiceBus
         ///     Converts a TransportMessage to an Msmq message.
         ///     Doesn't set the ResponseQueue of the result.
         /// </summary>
-        public static Message Convert(OutgoingMessage message, DeliveryOptions deliveryOptions)
+        public static Message Convert(OutgoingMessage message, TransportSendOptions deliveryOptions)
         {
             var result = new Message();
 
@@ -215,19 +214,10 @@ namespace NServiceBus
             }
 
 
-            AssignMsmqNativeCorrelationId(message.Headers, result);
+            AssignMsmqNativeCorrelationId(message, result);
+            result.Recoverable = !deliveryOptions.NonDurable;
 
-            if (deliveryOptions.NonDurable.HasValue)
-            {
-                result.Recoverable = deliveryOptions.NonDurable.Value;
-            }
-            else
-            {
-                //default for MSMQ is false but we want to be safe by default
-                result.Recoverable = true;
-            }
-      
-            if (deliveryOptions.TimeToBeReceived.HasValue &&  deliveryOptions.TimeToBeReceived.Value < MessageQueue.InfiniteTimeout)
+            if (deliveryOptions.TimeToBeReceived.HasValue && deliveryOptions.TimeToBeReceived.Value < MessageQueue.InfiniteTimeout)
             {
                 result.TimeToBeReceived = deliveryOptions.TimeToBeReceived.Value;
             }
@@ -253,16 +243,16 @@ namespace NServiceBus
             }
 
             result.AppSpecific = (int)messageIntent;
-           
+
 
             return result;
         }
 
-        static void AssignMsmqNativeCorrelationId(Dictionary<string,string> headers, Message result)
+        static void AssignMsmqNativeCorrelationId(OutgoingMessage message, Message result)
         {
             string correlationIdHeader;
 
-            if (!headers.TryGetValue(Headers.CorrelationId, out correlationIdHeader))
+            if (!message.Headers.TryGetValue(Headers.CorrelationId, out correlationIdHeader))
             {
                 return;
             }
@@ -298,7 +288,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                Logger.Warn("Failed to assign a native correlation id for message: " + headers[Headers.MessageId], ex);
+                Logger.Warn("Failed to assign a native correlation id for message: " + message.MessageId, ex);
             }
         }
 

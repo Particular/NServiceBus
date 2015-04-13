@@ -1,7 +1,5 @@
 namespace NServiceBus.Transports
 {
-    using Unicast;
-
     /// <summary>
     /// Allows fine grained control on how messages are audited
     /// </summary>
@@ -12,6 +10,6 @@ namespace NServiceBus.Transports
         /// </summary>
         /// <param name="sendOptions">The send options of the message</param>
         /// <param name="message">The actual message</param>
-        void Audit(SendOptions sendOptions,TransportMessage message);
+        void Audit(OutgoingMessage message,TransportSendOptions sendOptions);
     }
 }

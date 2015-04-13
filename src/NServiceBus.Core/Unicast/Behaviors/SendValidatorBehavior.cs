@@ -1,10 +1,9 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.Unicast.Transport;
-    using Pipeline;
-    using Pipeline.Contexts;
-    using Unicast;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Unicast;
 
     class SendValidatorBehavior : Behavior<OutgoingContext>
     {
@@ -12,7 +11,7 @@
 
         public override void Invoke(OutgoingContext context, Action next)
         {
-            if (!context.OutgoingLogicalMessage.IsControlMessage())
+            if (!context.IsControlMessage())
             {
                 VerifyBestPractices(context);
             }
@@ -22,12 +21,17 @@
 
         void VerifyBestPractices(OutgoingContext context)
         {
-            if (!context.DeliveryOptions.EnforceMessagingBestPractices)
+            if (!context.IsControlMessage())
             {
                 return;
             }
 
-            var sendOptions = context.DeliveryOptions as SendOptions;
+            if (!context.DeliveryMessageOptions.EnforceMessagingBestPractices)
+            {
+                return;
+            }
+
+            var sendOptions = context.DeliveryMessageOptions as SendMessageOptions;
 
             if (sendOptions == null)
             {
@@ -40,7 +44,7 @@
                 throw new InvalidOperationException("No destination specified for message: " + context.OutgoingLogicalMessage.MessageType);
             }
 
-            if (sendOptions is ReplyOptions)
+            if (context.Intent == MessageIntentEnum.Reply)
             {
                 MessagingBestPractices.AssertIsValidForReply(context.OutgoingLogicalMessage.MessageType, Conventions);
             }

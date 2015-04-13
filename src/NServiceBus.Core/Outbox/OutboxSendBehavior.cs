@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using NServiceBus.Outbox;
+    using NServiceBus.Transports;
     using Pipeline.Contexts;
 
     class OutboxSendBehavior : PhysicalOutgoingContextStageBehavior
@@ -14,11 +15,11 @@ namespace NServiceBus
 
             if (context.TryGet(out currentOutboxMessage))
             {
-                currentOutboxMessage.TransportOperations.Add( new TransportOperation(context.OutgoingMessage.Id, context.DeliveryOptions.ToTransportOperationOptions(), context.OutgoingMessage.Body, context.OutgoingMessage.Headers)); 
+                currentOutboxMessage.TransportOperations.Add( new TransportOperation(context.MessageId, context.DeliveryMessageOptions.ToTransportOperationOptions(), context.Body, context.Headers)); 
             }
             else
             {
-                DispatchMessageToTransportBehavior.InvokeNative(context.DeliveryOptions, context.OutgoingMessage);
+                DispatchMessageToTransportBehavior.InvokeNative(context.DeliveryMessageOptions, new OutgoingMessage(context.MessageId,context.Headers,context.Body));
 
                 next();
             }

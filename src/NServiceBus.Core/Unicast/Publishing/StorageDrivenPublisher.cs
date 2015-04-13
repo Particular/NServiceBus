@@ -24,7 +24,7 @@
         }
 
 
-        public void Publish(OutgoingMessage message, PublishOptions publishOptions)
+        public void Publish(OutgoingMessage message, PublishMessageOptions publishOptions)
         {
             var eventTypesToPublish = messageMetadataRegistry.GetMessageMetadata(publishOptions.EventType)
                 .MessageHierarchy
@@ -43,13 +43,7 @@
 
             foreach (var subscriber in subscribers)
             {
-                //this is unicast so we give the message a unique ID
-                message.Headers[Headers.MessageId] = CombGuid.Generate().ToString();
-
-                messageSender.Send(message, new SendOptions(subscriber)
-                {
-                    EnforceMessagingBestPractices = publishOptions.EnforceMessagingBestPractices
-                });
+                messageSender.Send(message, new TransportSendOptions(subscriber));
             }
         }
     }

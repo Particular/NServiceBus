@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Features
 {
-    using System;
     using NServiceBus.Config;
     using NServiceBus.Unicast.Queuing.Installers;
 
@@ -25,26 +24,15 @@
             context.Pipeline.Register<ForwardBehavior.Registration>();
 
             var forwardReceivedMessagesQueue = GetConfiguredForwardMessageQueue(context);
-            var timeToBeReceived = GetConfiguredTimeToBeReceivedValue(context);
-
+     
             context.Container.ConfigureComponent<ForwardReceivedMessagesToQueueCreator>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.Enabled, true)
                 .ConfigureProperty(t => t.Address, forwardReceivedMessagesQueue);
 
             context.Container.ConfigureComponent<ForwardBehavior>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.ForwardReceivedMessagesTo, forwardReceivedMessagesQueue)
-                .ConfigureProperty(p => p.TimeToBeReceivedOnForwardedMessages, timeToBeReceived);
+                .ConfigureProperty(p => p.ForwardReceivedMessagesTo, forwardReceivedMessagesQueue);
         }
 
-        TimeSpan? GetConfiguredTimeToBeReceivedValue(FeatureConfigurationContext context)
-        {
-            var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
-            if (unicastBusConfig != null && unicastBusConfig.TimeToBeReceivedOnForwardedMessages > TimeSpan.Zero)
-            {
-                return unicastBusConfig.TimeToBeReceivedOnForwardedMessages;
-            }
-            return TimeSpan.MaxValue;
-        }
         string GetConfiguredForwardMessageQueue(FeatureConfigurationContext context)
         {
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();

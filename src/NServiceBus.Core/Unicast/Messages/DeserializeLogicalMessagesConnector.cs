@@ -101,7 +101,7 @@
             {
                 var messageTypesToDeserialize = messageMetadata.Select(metadata => metadata.MessageType).ToList();
                 return MessageSerializer.Deserialize(stream, messageTypesToDeserialize)
-                    .Select(x => LogicalMessageFactory.Create(x.GetType(), x, physicalMessage.Headers))
+                    .Select(x => LogicalMessageFactory.Create(x.GetType(), x))
                     .ToList();
 
             }
