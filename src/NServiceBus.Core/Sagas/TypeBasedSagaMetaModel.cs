@@ -208,14 +208,14 @@ namespace NServiceBus.Saga
         static List<SagaMessage> GetPotentiallyAssociatedMessagesForValidation(Type sagaType)
         {
             // the order of filters matters!
-            return GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>)).Select(t => new SagaMessage(t.FullName, SagaMessageHandledBy.StartedByMessage))
-                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByCommands<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.StartedByCommand)))
-                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByEvents<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.StartedByEvent)))
-                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleMessages<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.HandleMessage)))
-                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IProcessCommands<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.ProcessCommand)))
-                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IProcessEvents<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.ProcessEvent)))
-                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleTimeouts<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.HandleTimeout)))
-                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IProcessTimeouts<>)).Select(messageType => new SagaMessage(messageType.FullName, SagaMessageHandledBy.ProcessTimeout)))
+            return GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>)).Select(messageType => new SagaMessage(messageType.FullName, isAllowedToStartSaga: true) { MessageHandledBy = SagaMessageHandledBy.StartedByMessage})
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByCommands<>)).Select(messageType => new SagaMessage(messageType.FullName, isAllowedToStartSaga: true) { MessageHandledBy = SagaMessageHandledBy.StartedByCommand }))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByEvents<>)).Select(messageType => new SagaMessage(messageType.FullName, isAllowedToStartSaga: true) { MessageHandledBy = SagaMessageHandledBy.StartedByEvent }))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleMessages<>)).Select(messageType => new SagaMessage(messageType.FullName,isAllowedToStartSaga: false) { MessageHandledBy = SagaMessageHandledBy.HandleMessage }))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IProcessCommands<>)).Select(messageType => new SagaMessage(messageType.FullName, isAllowedToStartSaga: false){ MessageHandledBy =  SagaMessageHandledBy.ProcessCommand }))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IProcessEvents<>)).Select(messageType => new SagaMessage(messageType.FullName, isAllowedToStartSaga: false){ MessageHandledBy = SagaMessageHandledBy.ProcessEvent }))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleTimeouts<>)).Select(messageType => new SagaMessage(messageType.FullName, isAllowedToStartSaga: false) { MessageHandledBy = SagaMessageHandledBy.HandleTimeout }))
+                .Union(GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IProcessTimeouts<>)).Select(messageType => new SagaMessage(messageType.FullName, isAllowedToStartSaga: false) { MessageHandledBy = SagaMessageHandledBy.ProcessTimeout }))
                 .ToList();
         }
 

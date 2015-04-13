@@ -3,7 +3,7 @@ namespace NServiceBus.Sagas
     /// <summary>
     /// Exposes meta information about how a given saga message is handled on the saga
     /// </summary>
-    public enum SagaMessageHandledBy
+    internal enum SagaMessageHandledBy
     {
         /// <summary>
         /// Indicates that the saga message is a message which starts the saga representing the old style API
