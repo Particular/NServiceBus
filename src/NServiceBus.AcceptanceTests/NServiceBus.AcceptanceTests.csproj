@@ -66,6 +66,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeliveryOptions\When_message_with_TimeToBeReceived_fails.cs" />
+    <Compile Include="DeliveryOptions\When_auditing_message_with_TimeToBeReceived.cs" />
     <Compile Include="Audit\When_ForwardReceivedMessagesTo_is_set.cs" />
     <Compile Include="Audit\When_a_replymessage_is_audited.cs" />
     <Compile Include="Audit\When_using_audit_message_is_received.cs" />
@@ -88,6 +90,7 @@
     <Compile Include="Basic\When_using_callbacks_in_a_scaleout_new.cs" />
     <Compile Include="Basic\When_using_callback_to_get_message_new.cs" />
     <Compile Include="Basic\When_using_ineedinitialization_new.cs" />
+    <Compile Include="Basic\When_using_sendoptions.cs" />
     <Compile Include="Basic\When_using_ineedinitialization.cs" />
     <Compile Include="Basic\When_sending_with_conventions.cs" />
     <Compile Include="Basic\When_using_callbacks_with_messageid_eq_cid_.cs" />

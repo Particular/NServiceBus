@@ -1,8 +1,11 @@
 namespace NServiceBus.MessageMutator
 {
+    using JetBrains.Annotations;
+
     /// <summary>
     /// Mutates incoming messages
     /// </summary>
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public interface IMutateIncomingMessages
     {
         /// <summary>

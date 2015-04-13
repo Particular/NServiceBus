@@ -15,20 +15,6 @@ namespace NServiceBus
     public partial class TransportMessage
     {
         /// <summary>
-        ///     Initializes the transport message with a CombGuid as identifier
-        /// </summary>
-        public TransportMessage()
-        {
-            id = CombGuid.Generate().ToString();
-            Headers[NServiceBus.Headers.MessageId] = id;
-            CorrelationId = id;
-            MessageIntent = MessageIntentEnum.Send;
-            Headers[NServiceBus.Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
-            Headers[NServiceBus.Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
-        }
-
-
-        /// <summary>
         ///     Creates a new TransportMessage with the given id and headers
         /// </summary>
         public TransportMessage(string existingId, Dictionary<string, string> existingHeaders)

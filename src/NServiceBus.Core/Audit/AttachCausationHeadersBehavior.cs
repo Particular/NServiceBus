@@ -4,9 +4,6 @@ namespace NServiceBus
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
 
-    /// <summary>
-    /// Mutator to set the related to header
-    /// </summary>
     class AttachCausationHeadersBehavior :PhysicalOutgoingContextStageBehavior
     {
 
@@ -19,9 +16,7 @@ namespace NServiceBus
 
         void ApplyHeaders(Context context)
         {
-            var transportMessage = context.OutgoingMessage;
- 
-            if (transportMessage.Headers.ContainsKey(Headers.ConversationId))
+            if (context.Headers.ContainsKey(Headers.ConversationId))
                 return;
 
             var conversationId = CombGuid.Generate().ToString();
@@ -30,7 +25,7 @@ namespace NServiceBus
 
             if (context.TryGet(TransportReceiveContext.IncomingPhysicalMessageKey,out incomingMessage))
             {
-                transportMessage.Headers[Headers.RelatedTo] = incomingMessage.Id;
+                context.Headers[Headers.RelatedTo] = incomingMessage.Id;
 
                 string conversationIdFromCurrentMessageContext;
                 if (incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext))
@@ -39,7 +34,7 @@ namespace NServiceBus
                 }
             }
 
-            transportMessage.Headers[Headers.ConversationId] = conversationId;
+            context.Headers[Headers.ConversationId] = conversationId;
         }
 
         public class Registration : RegisterStep

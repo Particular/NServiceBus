@@ -1,11 +1,13 @@
 namespace NServiceBus
 {
     using System;
+    using JetBrains.Annotations;
 
     /// <summary>
 	/// Defines a message handler.
 	/// </summary>
 	/// <typeparam name="T">The type of message to be handled.</typeparam>
+	[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public interface IHandleMessages<T>
     {
 		/// <summary>

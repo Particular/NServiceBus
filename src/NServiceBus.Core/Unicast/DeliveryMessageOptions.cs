@@ -5,12 +5,12 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// Base class for options to deliver messages.
     /// </summary>
-    public abstract partial class DeliveryOptions
+    public abstract class DeliveryMessageOptions
     {
         /// <summary>
-        /// Creates an instance of <see cref="DeliveryOptions"/>.
+        /// Creates an instance of <see cref="DeliveryMessageOptions"/>.
         /// </summary>
-        protected DeliveryOptions()
+        protected DeliveryMessageOptions()
         {
             EnforceMessagingBestPractices = true;
             EnlistInReceiveTransaction = true;
@@ -27,13 +27,10 @@ namespace NServiceBus.Unicast
         /// </summary>
         public bool EnlistInReceiveTransaction { get; set; }
 
-
-
         /// <summary>
         /// The TTBR to use for this message
         /// </summary>
         public TimeSpan? TimeToBeReceived { get; set; }
-
 
         /// <summary>
         /// Controls if the transport should be requested to handle the message in a way that it survives restarts

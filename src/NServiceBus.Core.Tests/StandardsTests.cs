@@ -84,6 +84,8 @@
                                !type.Namespace.Contains("log4net") &&
                                //Ignore Newtonsoft attributes
                                !type.Namespace.Contains("Newtonsoft") &&
+                               //Ignore Resharper annotations
+                               !type.Namespace.Contains("JetBrains") &&
                                //TODO: remove when gitversion is updated
                                !type.Name.EndsWith("ReleaseDateAttribute") &&
                                !type.Name.EndsWith("NugetVersionAttribute"));

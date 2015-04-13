@@ -59,7 +59,7 @@
 
                 public void Handle(SendMessageWithCorrelation message)
                 {
-                    Bus.Send(Configure.LocalAddress, CorrelationId, new MyRequest());
+                    Bus.SendLocal(new MyRequest(), new SendLocalOptions(CorrelationId));
                 }
             }
 

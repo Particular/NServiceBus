@@ -2,10 +2,10 @@
 {
     using System;
     using NServiceBus.Hosting;
-    using Pipeline;
-    using Transports;
-    using Unicast;
-
+    using NServiceBus.Pipeline;
+    using NServiceBus.Settings;
+    using NServiceBus.Support;
+    using NServiceBus.Transports;
 
     class AuditBehavior : PhysicalMessageProcessingStageBehavior
     {
@@ -17,23 +17,27 @@
 
         public TimeSpan? TimeToBeReceivedOnForwardedMessages { get; set; }
 
+        public ReadOnlySettings Settings { get; set; }
+
         public override void Invoke(Context context, Action next)
         {
             next();
 
-            var sendOptions = new SendOptions(AuditQueue)
-            {
-                TimeToBeReceived = TimeToBeReceivedOnForwardedMessages
-            };
+            context.PhysicalMessage.RevertToOriginalBodyIfNeeded();
 
+            var outgoingMessage = new OutgoingMessage(context.PhysicalMessage.Id, context.PhysicalMessage.Headers, context.PhysicalMessage.Body);
+            
             //set audit related headers
-            context.PhysicalMessage.Headers[Headers.ProcessingStarted] = DateTimeExtensions.ToWireFormattedString(context.Get<DateTime>("IncomingMessage.ProcessingStarted"));
+            outgoingMessage.Headers[Headers.ProcessingStarted] = DateTimeExtensions.ToWireFormattedString(context.Get<DateTime>("IncomingMessage.ProcessingStarted"));
             context.PhysicalMessage.Headers[Headers.ProcessingEnded] = DateTimeExtensions.ToWireFormattedString(context.Get<DateTime>("IncomingMessage.ProcessingEnded"));
 
-            context.PhysicalMessage.Headers[Headers.HostId] = HostInformation.HostId.ToString("N");
-            context.PhysicalMessage.Headers[Headers.HostDisplayName] = HostInformation.DisplayName;
+            outgoingMessage.Headers[Headers.HostId] = HostInformation.HostId.ToString("N");
+            outgoingMessage.Headers[Headers.HostDisplayName] = HostInformation.DisplayName;
+            outgoingMessage.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
+            outgoingMessage.Headers[Headers.ProcessingEndpoint] = Settings.EndpointName();
 
-            MessageAuditer.Audit(sendOptions, context.PhysicalMessage);
+
+            MessageAuditer.Audit(outgoingMessage, new TransportSendOptions(AuditQueue,TimeToBeReceivedOnForwardedMessages));
         }
 
         public class Registration:RegisterStep

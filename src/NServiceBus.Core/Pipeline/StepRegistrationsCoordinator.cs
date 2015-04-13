@@ -24,7 +24,10 @@ namespace NServiceBus.Pipeline
 
         public IList<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext:BehaviorContext
         {
-            var relevantAdditions = additions.Where(addition => typeof(TRootContext).IsAssignableFrom(GetInputType(addition.BehaviorType))).ToList();
+            var reachableContexts = ContextsReachableFrom<TRootContext>(additions)
+                .ToList();
+
+            var relevantAdditions = additions.Where(addition => reachableContexts.Contains(addition.BehaviorType.GetInputContext())).ToList();
             var relevantRemovals = removals.Where(removal => relevantAdditions.Any(a=>a.StepId == removal.RemoveId)).ToList();
             var relevantReplacements = replacements.Where(removal => relevantAdditions.Any(a => a.StepId == removal.ReplaceId)).ToList();
 
@@ -33,6 +36,26 @@ namespace NServiceBus.Pipeline
 
 
             return piplineModelBuilder.Build();
+        }
+
+        static IEnumerable<Type> ContextsReachableFrom<TRootContext>(List<RegisterStep> registerSteps)
+        {
+            var stageConnectors = registerSteps.Where(s => s.IsStageConnector())
+                .ToList();
+
+            var currentContext = typeof(TRootContext);
+
+         
+            while (currentContext != null)
+            {
+                yield return currentContext;
+                
+                var context = currentContext;
+                
+                currentContext = stageConnectors.Where(sc=>sc.GetInputContext() == context)
+                    .Select(sc=>sc.GetOutputContext())
+                    .FirstOrDefault();
+            }
         }
 
         static Type GetInputType(Type behaviorType)

@@ -5,8 +5,6 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
     using NServiceBus.Features;
-    using NServiceBus.MessageMutator;
-    using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
 
     public class Serialization_throws_new : NServiceBusAcceptanceTest
@@ -37,7 +35,8 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.RegisterComponents(c => c.ConfigureComponent<CorruptionMutator>(DependencyLifecycle.InstancePerCall));
+                    b.Pipeline.Register("Corruption", typeof(CorruptionBehavior), "The corruption behavior");
+                    b.RegisterComponents(c => c.ConfigureComponent<CorruptionBehavior>(DependencyLifecycle.InstancePerCall));
                     b.DisableFeature<TimeoutManager>();
                     b.DisableFeature<SecondLevelRetries>();
                 })
@@ -53,7 +52,7 @@
 
                 public BusNotifications BusNotifications { get; set; }
 
-                public void Start(IRunContext context)
+                public void Start(IRunContext _)
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
@@ -62,19 +61,16 @@
                     });
                 }
 
-                public void Stop(IRunContext context) { }
+                public void Stop(IRunContext _) { }
             }
 
 
-            class CorruptionMutator : IMutateTransportMessages
+            class CorruptionBehavior : PhysicalMessageProcessingStageBehavior
             {
-                public void MutateIncoming(TransportMessage transportMessage)
+                public override void Invoke(Context context, Action next)
                 {
-                    transportMessage.Body[1]++;
-                }
-
-                public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
-                {
+                    context.PhysicalMessage.Body[1]++;
+                    next();
                 }
             }
 

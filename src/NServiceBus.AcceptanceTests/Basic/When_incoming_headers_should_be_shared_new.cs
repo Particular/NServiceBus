@@ -48,7 +48,7 @@
                 public void Handle(Message message, ICommandContext context)
                 {
                     // TODO: Come up with a good API to handle headers
-                    Bus.SetMessageHeader(message, "Key", "Value");
+                    Bus.CurrentMessageContext.Headers["Key"] = "Value";
                 }
             }
 
@@ -61,7 +61,7 @@
                 public void Handle(Message message, ICommandContext context)
                 {
                     // TODO: Come up with a good API to handle headers
-                    var header = Bus.GetMessageHeader(message, "Key");
+                    var header = Bus.CurrentMessageContext.Headers["Key"];
                     Context.SecondHandlerCanReadHeaderSetByFirstHandler = header == "Value";
                     Context.GotMessage = true;
                 }

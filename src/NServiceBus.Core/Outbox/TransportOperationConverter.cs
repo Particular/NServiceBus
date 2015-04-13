@@ -6,7 +6,7 @@ namespace NServiceBus.Outbox
 
     static class TransportOperationConverter
     {
-        public static Dictionary<string, string> ToTransportOperationOptions(this DeliveryOptions options, bool isAudit = false)
+        public static Dictionary<string, string> ToTransportOperationOptions(this DeliveryMessageOptions options, bool isAudit = false)
         {
             var result = new Dictionary<string, string>();
 
@@ -23,22 +23,22 @@ namespace NServiceBus.Outbox
             result["EnlistInReceiveTransaction"] = options.EnlistInReceiveTransaction.ToString();
             result["EnforceMessagingBestPractices"] = options.EnforceMessagingBestPractices.ToString();
 
-            var sendOptions = options as SendOptions;
+            var sendOptions = options as SendMessageOptions;
 
             string operation;
 
             if (sendOptions != null)
             {
-                operation = sendOptions is ReplyOptions ? "Reply" : "Send";
+                operation = "Send";
 
                 if (isAudit)
                 {
                     operation = "Audit";
                 }
 
-                if (sendOptions.DelayDeliveryWith.HasValue)
+                if (sendOptions.DelayDeliveryFor.HasValue)
                 {
-                    result["DelayDeliveryWith"] = sendOptions.DelayDeliveryWith.Value.ToString();
+                    result["DelayDeliveryFor"] = sendOptions.DelayDeliveryFor.Value.ToString();
                 }
 
                 if (sendOptions.DeliverAt.HasValue)
@@ -50,7 +50,7 @@ namespace NServiceBus.Outbox
             }
             else
             {
-                var publishOptions = options as PublishOptions;
+                var publishOptions = options as PublishMessageOptions;
 
                 if (publishOptions == null)
                 {
@@ -67,38 +67,41 @@ namespace NServiceBus.Outbox
             return result;
         }
 
-        public static DeliveryOptions ToDeliveryOptions(this Dictionary<string, string> options)
+        public static DeliveryMessageOptions ToDeliveryOptions(this Dictionary<string, string> options)
         {
             var operation = options["Operation"].ToLower();
 
 
-            DeliveryOptions result;
+            DeliveryMessageOptions result;
 
 
             switch (operation)
             {
                 case "publish":
-                    result = new PublishOptions(Type.GetType(options["EventType"]));
+                    result = new PublishMessageOptions(Type.GetType(options["EventType"]));
                     break;
                 case "send":
                 case "audit":
-                    var sendOptions = new SendOptions(options["Destination"]);
+                    string delayDeliveryForString;
+                    TimeSpan? delayDeliveryFor = null;
+                    if (options.TryGetValue("DelayDeliveryFor", out delayDeliveryForString))
+                    {
+                        delayDeliveryFor = TimeSpan.Parse(delayDeliveryForString);
+                    }
 
-                    ApplySendOptionSettings(sendOptions, options);
+                    string deliverAtString;
+                    DateTime? deliverAt = null;
+                    if (options.TryGetValue("DeliverAt", out deliverAtString))
+                    {
+                        deliverAt = DateTimeExtensions.ToUtcDateTime(deliverAtString);
+                    }
 
-                    result = sendOptions;
+                    result = new SendMessageOptions(options["Destination"], deliverAt, delayDeliveryFor);
+
                     break;
-                case "reply":
-                    var replyOptions = new ReplyOptions(options["Destination"]);
-                    ApplySendOptionSettings(replyOptions, options);
-
-                    result = replyOptions;
-                    break;
-
                 default:
                     throw new Exception("Unknown operation: " + operation);
             }
-
 
             string timeToBeReceived;
             if (options.TryGetValue("TimeToBeReceived", out timeToBeReceived))
@@ -124,23 +127,7 @@ namespace NServiceBus.Outbox
                 result.EnforceMessagingBestPractices = bool.Parse(enforceMessagingBestPractices);
             }
 
-
             return result;
         }
-        static void ApplySendOptionSettings(SendOptions sendOptions, Dictionary<string, string> options)
-        {
-            string delayDeliveryWith;
-            if (options.TryGetValue("DelayDeliveryWith", out delayDeliveryWith))
-            {
-                sendOptions.DelayDeliveryWith = TimeSpan.Parse(delayDeliveryWith);
-            }
-
-            string deliverAt;
-            if (options.TryGetValue("DeliverAt", out deliverAt))
-            {
-                sendOptions.DeliverAt = DateTimeExtensions.ToUtcDateTime(deliverAt);
-            }
-        }
-
     }
 }

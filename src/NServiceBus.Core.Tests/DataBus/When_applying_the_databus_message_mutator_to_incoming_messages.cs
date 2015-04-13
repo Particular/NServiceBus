@@ -24,7 +24,7 @@ namespace NServiceBus.Core.Tests.DataBus
                                   {
                                       Key = propertyKey
                                   }
-                              }, new Dictionary<string, string> { { "NServiceBus.DataBus." + propertyKey, databusKey } }, null);
+                              }, null);
                 
             
             using (var stream = new MemoryStream())
@@ -34,7 +34,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
                 dataBus.Stub(s => s.Get(databusKey)).Return(stream);
 
-                receiveBehavior.Invoke(new LogicalMessageProcessingStageBehavior.Context(message,null), () => { });
+                receiveBehavior.Invoke(new LogicalMessageProcessingStageBehavior.Context(message,new Dictionary<string, string> { { "NServiceBus.DataBus." + propertyKey, databusKey } },null), () => { });
             }
 
             var instance = (MessageWithDataBusProperty)message.Instance;

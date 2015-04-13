@@ -82,7 +82,7 @@ namespace NServiceBus.Pipeline
                 registrations.Remove(metadata.RemoveId);
             }
 
-            var stages = registrations.Values.GroupBy(r => GetInputType(r.BehaviorType))
+            var stages = registrations.Values.GroupBy(r => r.GetInputContext())
                 .ToList();
 
 
@@ -106,9 +106,6 @@ namespace NServiceBus.Pipeline
 
             while (currentStage != null)
             {
-                var stageStartType = currentStage.Key;
-
-
                 var stageSteps = currentStage.Where(stageStep => !IsStageConnector(stageStep)).ToList();
 
                 //add the stage connector
@@ -116,7 +113,14 @@ namespace NServiceBus.Pipeline
 
 
                 //todo: add tests and better ex for missing stage connector
-                var stageConnector = currentStage.SingleOrDefault(IsStageConnector);
+                var stageConnectors = currentStage.Where(IsStageConnector).ToList();
+
+                if (stageConnectors.Count() > 1)
+                {
+                    throw new Exception(string.Format("Multiple stage connectors found for stage {0}. Please remove one of: {1}", currentStage.Key.FullName,string.Join(";",stageConnectors.Select(sc=>sc.BehaviorType.FullName))));
+                }
+
+                var stageConnector = stageConnectors.FirstOrDefault();
 
                 if (stageConnector == null)
                 {
@@ -124,19 +128,21 @@ namespace NServiceBus.Pipeline
                     {
                         throw new Exception(string.Format("No stage connector found for stage {0}", currentStage.Key.FullName));    
                     }
+
+                    currentStage = null;
                 }
                 else
                 {
                     finalOrder.Add(stageConnector);
+
+                    var args = stageConnector.BehaviorType.BaseType.GetGenericArguments();
+                    var stageEndType = args[1];
+
+                    currentStage = stages.SingleOrDefault(stage => stage.Key == stageEndType);         
                 }
-                
-
-
-             
-                //todo: add check for gaps in the stages
-                currentStage = stages.SingleOrDefault(stage => stage.Key.BaseType == stageStartType);
 
                 stageNumber++;
+
             }
 
             return finalOrder;
@@ -146,7 +152,6 @@ namespace NServiceBus.Pipeline
         {
             return typeof(IStageConnector).IsAssignableFrom(stageStep.BehaviorType);
         }
-
 
         static IEnumerable<RegisterStep> Sort(IList<RegisterStep> registrations)
         {
@@ -235,8 +240,8 @@ namespace NServiceBus.Pipeline
                 var previousBehavior = output[i - 1].BehaviorType;
                 var thisBehavior = output[i].BehaviorType;
 
-                var incomingType = GetOutputType(previousBehavior);
-                var inputType = GetInputType(thisBehavior);
+                var incomingType = previousBehavior.GetOutputContext();
+                var inputType = thisBehavior.GetInputContext();
 
                 if (!inputType.IsAssignableFrom(incomingType))
                 {
@@ -248,29 +253,6 @@ namespace NServiceBus.Pipeline
                 }
             }
             return output;
-        }
-
-        static Type GetOutputType(Type behaviorType)
-        {
-            var behaviorInterface = GetBehaviorInterface(behaviorType);
-            
-            var type= behaviorInterface.GetGenericArguments()[1];
-
-            return type;
-        }
-
-        static Type GetBehaviorInterface(Type behaviorType)
-        {
-            var behaviorInterface = behaviorType.GetInterfaces().First(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IBehavior<,>));
-            return behaviorInterface;
-        }
-        static Type GetInputType(Type behaviorType)
-        {
-            var behaviorInterface = GetBehaviorInterface(behaviorType);
-
-            var type = behaviorInterface.GetGenericArguments()[0];
-
-            return type;
         }
 
         readonly Type rootContextType;
@@ -306,7 +288,7 @@ namespace NServiceBus.Pipeline
                 Afters = registerStep.Afters;
                 StepId = registerStep.StepId;
 
-                OutputContext = GetBehaviorInterface(registerStep.BehaviorType).GenericTypeArguments[1];
+                OutputContext = registerStep.GetOutputContext();
             }
 
             public readonly string StepId;
@@ -331,6 +313,57 @@ namespace NServiceBus.Pipeline
             {
                 return obj.RemoveId.ToLower().GetHashCode();
             }
+        }
+
+    }
+
+    static class RegisterStepExtensions
+    {
+        public static bool IsStageConnector(this RegisterStep step)
+        {
+            return typeof(IStageConnector).IsAssignableFrom(step.BehaviorType);
+        }
+
+        public  static Type GetContextType(this Type behaviorType)
+        {
+            var behaviorInterface = behaviorType.GetBehaviorInterface();
+
+            var type = behaviorInterface.GetGenericArguments()[0];
+
+            return type;
+        }
+        public static Type GetBehaviorInterface(this Type behaviorType)
+        {
+            var behaviorInterface = behaviorType.GetInterfaces().First(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IBehavior<,>));
+            return behaviorInterface;
+        }
+
+        public static Type GetOutputContext(this RegisterStep step)
+        {
+            return step.BehaviorType.GetOutputContext();
+        }
+
+        public static Type GetOutputContext(this Type behaviorType)
+        {
+            var behaviorInterface = GetBehaviorInterface(behaviorType);
+
+            var type = behaviorInterface.GetGenericArguments()[1];
+
+            return type;
+        }
+
+        public static Type GetInputContext(this RegisterStep step)
+        {
+            return step.BehaviorType.GetInputContext();
+        }
+
+        public static Type GetInputContext(this Type behaviorType)
+        {
+            var behaviorInterface = GetBehaviorInterface(behaviorType);
+
+            var type = behaviorInterface.GetGenericArguments()[0];
+
+            return type;
         }
 
     }

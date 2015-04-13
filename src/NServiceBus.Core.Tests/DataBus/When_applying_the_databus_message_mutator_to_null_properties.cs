@@ -16,8 +16,8 @@ namespace NServiceBus.Core.Tests.DataBus
         public void Should_not_blow_up()
         {
             var metadata = new MessageMetadata(timeToBeReceived: TimeSpan.FromDays(1));
-            var message = new LogicalMessage(metadata, new MessageWithNullDataBusProperty(), new Dictionary<string, string>(), null);
-            var context = new OutgoingContext(null,new SendOptions("MyEndpoint"), message);
+            var message = new LogicalMessage(metadata, new MessageWithNullDataBusProperty(), null);
+            var context = new OutgoingContext(null, new SendMessageOptions("MyEndpoint"), message, new Dictionary<string, string>(), "msg id",MessageIntentEnum.Send);
 
             
             using (var stream = new MemoryStream())

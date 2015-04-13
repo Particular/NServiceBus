@@ -3,8 +3,6 @@
     using System;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.MessageMutator;
-    using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
 
     public class When_using_callbacks_with_messageid_eq_cid_ : NServiceBusAcceptanceTest
@@ -14,10 +12,17 @@
         {
             var context = Scenario.Define<Context>()
                     .WithEndpoint<EndpointWithLocalCallback>(b=>b.Given(
-                        (bus,c)=>bus.SendLocal(new MyRequest()).Register(r =>
+                        (bus,c)=>
                         {
-                            c.CallbackFired = true;
-                        })))
+                            var id = Guid.NewGuid().ToString();
+                            var sendContext = new SendLocalOptions(correlationId: id)
+                                .SetCustomMessageId(id);
+
+                            bus.SendLocal(new MyRequest(), sendContext).Register(r =>
+                            {
+                                c.CallbackFired = true;
+                            });
+                        }))
                     .Done(c => c.CallbackFired)
                     .Run();
 
@@ -50,24 +55,6 @@
                 }
             }
         }
-
-        class BodyMutator : IMutateOutgoingTransportMessages, INeedInitialization
-        {
-            public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
-            {
-                //to simulate native interop cases where MessageId == CorrelationId
-                transportMessage.Headers[Headers.MessageId] = transportMessage.Headers[Headers.CorrelationId];
-            }
-
-            public void Customize(BusConfiguration configuration)
-            {
-                configuration.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
-            }
-
-         
-        }
-
-        [Serializable]
         public class MyRequest : IMessage{}
     }
 }

@@ -144,8 +144,8 @@
                     }
 
                     // TODO: We need to come up with a good API to get the header from the context
-                    Context.HostId = Bus.GetMessageHeader(message, Headers.HostId);
-                    Context.HostName = Bus.GetMessageHeader(message, Headers.HostDisplayName);
+                    Context.HostId = Bus.CurrentMessageContext.Headers[Headers.HostId];
+                    Context.HostName = Bus.CurrentMessageContext.Headers[Headers.HostDisplayName];
                     Context.Done = true;
                 }
             }

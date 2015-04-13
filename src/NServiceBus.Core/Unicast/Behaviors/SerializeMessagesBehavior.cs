@@ -3,13 +3,14 @@
     using System;
     using System.IO;
     using System.Linq;
+    using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Serialization;
     using NServiceBus.Unicast.Messages;
-    using NServiceBus.Unicast.Transport;
-    using Serialization;
 
-    class SerializeMessagesBehavior : PhysicalOutgoingContextStageBehavior
+    class SerializeMessagesBehavior : StageConnector<OutgoingContext, PhysicalOutgoingContextStageBehavior.Context>
     {
+
         readonly IMessageSerializer messageSerializer;
 
         public SerializeMessagesBehavior(IMessageSerializer messageSerializer)
@@ -17,35 +18,30 @@
             this.messageSerializer = messageSerializer;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override void Invoke(OutgoingContext context, Action<PhysicalOutgoingContextStageBehavior.Context> next)
         {
-            if (!context.OutgoingMessage.IsControlMessage())
+            if (context.IsControlMessage())
             {
-                using (var ms = new MemoryStream())
-                {
-                    
-                    messageSerializer.Serialize(context.OutgoingLogicalMessage.Instance, ms);
-
-                    context.OutgoingMessage.Headers[Headers.ContentType] = messageSerializer.ContentType;
-
-                    context.OutgoingMessage.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.OutgoingLogicalMessage);
-
-                    context.OutgoingMessage.Body = ms.ToArray();
-                }
-
-                foreach (var headerEntry in context.OutgoingLogicalMessage.Headers)
-                {
-                    context.OutgoingMessage.Headers[headerEntry.Key] = headerEntry.Value;
-                }
+                next(new PhysicalOutgoingContextStageBehavior.Context(new byte[0], context));
+                return;
             }
 
-            next();
+            using (var ms = new MemoryStream())
+            {
+
+                messageSerializer.Serialize(context.OutgoingLogicalMessage.Instance, ms);
+
+                context.Headers[Headers.ContentType] = messageSerializer.ContentType;
+
+                context.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.OutgoingLogicalMessage);
+                next(new PhysicalOutgoingContextStageBehavior.Context(ms.ToArray(), context));
+            }
         }
 
         string SerializeEnclosedMessageTypes(LogicalMessage message)
         {
             var distinctTypes = message.Metadata.MessageHierarchy.Distinct();
-            
+
             return string.Join(";", distinctTypes.Select(t => t.AssemblyQualifiedName));
         }
 

@@ -27,9 +27,9 @@
 
             Logger.Info("Subscribing to " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
 
-            var subscriptionMessage = CreateControlMessage(eventType);
-            subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
+            var subscriptionMessage = CreateControlMessage(eventType, MessageIntentEnum.Subscribe);
 
+           
             ThreadPool.QueueUserWorkItem(state =>
                 SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName));
         }
@@ -43,15 +43,14 @@
 
             Logger.Info("Unsubscribing from " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
 
-            var subscriptionMessage = CreateControlMessage(eventType);
-            subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
-
-            messageSender.Send(new OutgoingMessage(subscriptionMessage.Headers,subscriptionMessage.Body), new SendOptions(publisherAddress));
+            var subscriptionMessage = CreateControlMessage(eventType,MessageIntentEnum.Unsubscribe);
+   
+            messageSender.Send(subscriptionMessage, new TransportSendOptions(publisherAddress));
         }
 
-        TransportMessage CreateControlMessage(Type eventType)
+        OutgoingMessage CreateControlMessage(Type eventType,MessageIntentEnum intent)
         {
-            var subscriptionMessage = ControlMessage.Create();
+            var subscriptionMessage = ControlMessageFactory.Create(intent);
 
             subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
             subscriptionMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
@@ -59,11 +58,11 @@
             return subscriptionMessage;
         }
 
-        void SendSubscribeMessageWithRetries(string destination, TransportMessage subscriptionMessage, string messageType, int retriesCount = 0)
+        void SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, int retriesCount = 0)
         {
             try
             {
-                messageSender.Send(new OutgoingMessage(subscriptionMessage.Headers,subscriptionMessage.Body), new SendOptions(destination));
+                messageSender.Send(subscriptionMessage, new TransportSendOptions(destination));
             }
             catch (QueueNotFoundException ex)
             {

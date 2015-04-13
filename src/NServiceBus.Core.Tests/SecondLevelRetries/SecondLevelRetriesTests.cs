@@ -147,21 +147,21 @@
     {
 
 
-        public SendOptions SendOptions { get; private set; }
+        public SendMessageOptions SendMessageOptions { get; private set; }
         public string MessageRoutedTo { get; private set; }
 
         public OutgoingMessage DeferredMessage { get; private set; }
         public TimeSpan Delay { get; private set; }
 
-        public void Defer(OutgoingMessage message, SendOptions sendOptions)
+        public void Defer(OutgoingMessage message, SendMessageOptions sendMessageOptions)
         {
-            MessageRoutedTo = sendOptions.Destination;
+            MessageRoutedTo = sendMessageOptions.Destination;
             DeferredMessage = message;
-            SendOptions = sendOptions;
+            SendMessageOptions = sendMessageOptions;
 
-            if (sendOptions.DelayDeliveryWith.HasValue)
+            if (sendMessageOptions.DelayDeliveryFor.HasValue)
             {
-                Delay = sendOptions.DelayDeliveryWith.Value;
+                Delay = sendMessageOptions.DelayDeliveryFor.Value;
             }
         }
 
