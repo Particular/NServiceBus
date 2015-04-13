@@ -374,7 +374,19 @@ namespace NServiceBus.Unicast
                 destination = GetDestinationForSend(message.MessageType);
             }
 
-            var sendOptions = new SendMessageOptions(destination, context: options.Context);
+            TimeSpan? delayDeliveryFor = null;
+            if (options.Delay.HasValue)
+            {
+                delayDeliveryFor = options.Delay;
+            }
+
+            DateTime? deliverAt = null;
+            if (options.At.HasValue)
+            {
+                deliverAt = options.At;
+            }
+
+            var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor, options.Context);
 
             return SendMessage(options.MessageId, options.CorrelationId, options.Intent, options.Headers, sendOptions, message);
         }

@@ -585,9 +585,9 @@ namespace NServiceBus
         public NServiceBus.SendLocalOptions AddHeader(string key, string value) { }
         public NServiceBus.SendLocalOptions SetCustomMessageId(string messageId) { }
     }
-    public class SendOptions
+    public class SendOptions : NServiceBus.SendLocalOptions
     {
-        public SendOptions(string destination = null, string correlationId = null) { }
+        public SendOptions(string destination = null, string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
         public NServiceBus.SendOptions AddHeader(string key, string value) { }
         public NServiceBus.SendOptions SetCustomMessageId(string messageId) { }
     }
