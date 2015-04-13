@@ -74,9 +74,6 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Rhino.Mocks">
-      <HintPath>..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
@@ -199,7 +196,6 @@
     <Compile Include="DataBus\MessageWithExplicitTimeToLive.cs" />
     <Compile Include="DataBus\MessageWithNonSerializableDataBusProperty.cs" />
     <Compile Include="DataBus\MessageWithoutDataBusProperty.cs" />
-    <Compile Include="DataBus\on_the_bus.cs" />
     <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_incoming_messages.cs" />
     <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_null_properties.cs" />
     <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_outgoing_messages.cs" />

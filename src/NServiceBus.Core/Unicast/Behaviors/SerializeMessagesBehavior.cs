@@ -12,15 +12,17 @@
     {
 
         readonly IMessageSerializer messageSerializer;
+        readonly MessageMetadataRegistry messageMetadataRegistry;
 
-        public SerializeMessagesBehavior(IMessageSerializer messageSerializer)
+        public SerializeMessagesBehavior(IMessageSerializer messageSerializer,MessageMetadataRegistry messageMetadataRegistry)
         {
             this.messageSerializer = messageSerializer;
+            this.messageMetadataRegistry = messageMetadataRegistry;
         }
 
         public override void Invoke(OutgoingContext context, Action<PhysicalOutgoingContextStageBehavior.Context> next)
         {
-            if (context.IsControlMessage())
+            if (context.IsControlMessage)
             {
                 next(new PhysicalOutgoingContextStageBehavior.Context(new byte[0], context));
                 return;
@@ -29,18 +31,19 @@
             using (var ms = new MemoryStream())
             {
 
-                messageSerializer.Serialize(context.OutgoingLogicalMessage.Instance, ms);
+                messageSerializer.Serialize(context.MessageInstance, ms);
 
                 context.Headers[Headers.ContentType] = messageSerializer.ContentType;
 
-                context.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.OutgoingLogicalMessage);
+                context.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.MessageType);
                 next(new PhysicalOutgoingContextStageBehavior.Context(ms.ToArray(), context));
             }
         }
 
-        string SerializeEnclosedMessageTypes(LogicalMessage message)
+        string SerializeEnclosedMessageTypes(Type messageType)
         {
-            var distinctTypes = message.Metadata.MessageHierarchy.Distinct();
+            var metadata = messageMetadataRegistry.GetMessageMetadata(messageType);
+            var distinctTypes = metadata.MessageHierarchy.Distinct();
 
             return string.Join(";", distinctTypes.Select(t => t.AssemblyQualifiedName));
         }

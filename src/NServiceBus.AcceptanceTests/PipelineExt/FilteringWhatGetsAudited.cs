@@ -57,7 +57,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
             {
                 public override void Invoke(Context context, Action next)
                 {
-                    if (context.IncomingLogicalMessage.MessageType == typeof(MessageToBeAudited))
+                    if (context.MessageType == typeof(MessageToBeAudited))
                     {
                         context.Get<AuditFilterResult>().DoNotAuditMessage = true;
                     }

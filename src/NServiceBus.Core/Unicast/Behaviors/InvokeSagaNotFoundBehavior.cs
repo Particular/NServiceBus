@@ -22,7 +22,7 @@ namespace NServiceBus
                 return;    
             }
 
-            logger.InfoFormat("Could not find a started saga for '{0}' message type. Going to invoke SagaNotFoundHandlers.", context.IncomingLogicalMessage.MessageType.FullName);
+            logger.InfoFormat("Could not find a started saga for '{0}' message type. Going to invoke SagaNotFoundHandlers.", context.MessageType.FullName);
 
             foreach (var handler in context.Builder.BuildAll<IHandleSagaNotFound>())
             {

@@ -9,7 +9,7 @@
     {
         public override void Invoke(OutgoingContext context, Action next)
         {
-            if (context.IsControlMessage())
+            if (context.IsControlMessage)
             {
                 next();
                 return;
