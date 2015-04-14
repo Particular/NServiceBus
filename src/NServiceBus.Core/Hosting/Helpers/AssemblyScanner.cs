@@ -44,7 +44,7 @@ namespace NServiceBus.Hosting.Helpers
         string baseDirectoryToScan;
         internal bool IncludeAppDomainAssemblies;
         internal bool IncludeExesInScan = true;
-        internal bool ScanNestedDirectories = false;
+        internal bool ScanNestedDirectories;
         internal List<Type> TypesToSkip = new List<Type>();
 
         /// <summary>
