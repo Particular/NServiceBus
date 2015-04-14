@@ -64,12 +64,12 @@ namespace NServiceBus.Scheduling
 
         void DeferTask(TaskDefinition taskDefinition)
         {
-            bus.Defer(taskDefinition.Every, new Messages.ScheduledTask
+            bus.SendLocal(new Messages.ScheduledTask
             {
                 TaskId = taskDefinition.Id,
                 Name = taskDefinition.Name,
                 Every = taskDefinition.Every
-            });
+            }, new SendLocalOptions(delayDeliveryFor: taskDefinition.Every));
         }
 
         static ILog logger = LogManager.GetLogger<DefaultScheduler>();

@@ -297,6 +297,18 @@ namespace NServiceBus.Unicast
         {
             throw new NotImplementedException();
         }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+        public ICallback Defer(TimeSpan delay, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+        public ICallback Defer(DateTime processAt, object message)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public partial class UnicastBus
@@ -385,5 +397,17 @@ namespace NServiceBus.Unicast
         {
             throw new NotImplementedException();
         }
-     }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+        public ICallback Defer(TimeSpan delay, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+        public ICallback Defer(DateTime processAt, object message)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

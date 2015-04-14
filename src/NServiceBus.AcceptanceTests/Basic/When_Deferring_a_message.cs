@@ -13,7 +13,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.Defer(TimeSpan.FromSeconds(3), new MyMessage())))
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new MyMessage(), new SendLocalOptions(delayDeliveryFor: TimeSpan.FromSeconds(3)))))
                     .Done(c => c.WasCalled)
                     .Run();
 

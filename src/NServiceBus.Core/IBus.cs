@@ -66,7 +66,23 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
         /// <param name="options">The options for the send.</param>
         ICallback SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options);
-        
+
+        /// <summary>
+        /// Defers the processing of the message for the given delay. This feature is using the timeout manager so make sure that you enable timeouts
+        /// </summary>
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+        // ReSharper disable UnusedParameter.Global
+        ICallback Defer(TimeSpan delay, object message);
+        // ReSharper restore UnusedParameter.Global
+
+        /// <summary>
+        /// Defers the processing of the message until the specified time. This feature is using the timeout manager so make sure that you enable timeouts
+        /// </summary>
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+        // ReSharper disable UnusedParameter.Global
+        ICallback Defer(DateTime processAt, object message);
+        // ReSharper restore UnusedParameter.Global
+
         /// <summary>
         /// Moves the message being handled to the back of the list of available 
         /// messages so it can be handled later.
@@ -90,66 +106,5 @@ namespace NServiceBus
         /// of the message currently being handled on this thread.
         /// </summary>
         IMessageContext CurrentMessageContext { get; }
-    }
-
-    /// <summary>
-    /// Syntactic sugar for IBus
-    /// </summary>
-    public static class IBusExtensions
-    {
-        /// <summary>
-        /// Sends the message back to the current bus.
-        /// </summary>
-        /// <param name="bus">Object beeing extended</param>
-        /// <param name="message">The message to send.</param>
-        public static ICallback SendLocal(this IBus bus, object message)
-        {
-            Guard.AgainstNull(message, "message");
-
-            var context = new SendLocalOptions();
-
-
-            return bus.SendLocal(message, context);
-        }
-
-        /// <summary>
-        /// Instantiates a message of type T and sends it back to the current bus.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="bus">Object beeing extended</param>
-        /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        public static ICallback SendLocal<T>(this IBus bus, Action<T> messageConstructor)
-        {
-            Guard.AgainstNull(messageConstructor, "messageConstructor");
-            var context = new SendLocalOptions();
-
-            return bus.SendLocal(messageConstructor, context);
-        }
-
-        /// <summary>
-        /// Defers the processing of the message for the given delay. This feature is using the timeout manager so make sure that you enable timeouts
-        /// </summary>
-        public static ICallback Defer(this IBus bus, TimeSpan delay, object message)
-        {
-            Guard.AgainstNull(message, "message");
-            Guard.AgainstNegativeAndZero(delay,"delay");
-
-            var context = new SendLocalOptions(delayDeliveryFor: delay);
-
-            return bus.SendLocal(message, context);
-        }
-
-        /// <summary>
-        /// Defers the processing of the message until the specified time. This feature is using the timeout manager so make sure that you enable timeouts
-        /// </summary>
-        public static ICallback Defer(this IBus bus, DateTime processAt, object message)
-        {
-            Guard.AgainstNull(message, "message");
-            Guard.AgainstNull(processAt, "processAt");
-
-            var context = new SendLocalOptions(deliverAt: processAt);
-
-            return bus.SendLocal(message, context);
-        }
     }
 }

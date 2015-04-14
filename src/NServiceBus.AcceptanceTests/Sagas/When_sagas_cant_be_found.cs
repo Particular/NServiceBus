@@ -53,7 +53,7 @@
 
                 public void Handle(MessageToSaga message)
                 {
-                    Bus.Defer(TimeSpan.FromSeconds(10), new FinishMessage());
+                    Bus.SendLocal(new FinishMessage(), new SendLocalOptions(delayDeliveryFor: TimeSpan.FromSeconds(10)));
                 }
             }
 
@@ -139,7 +139,7 @@
 
                 public void Handle(MessageToSaga message)
                 {
-                    Bus.Defer(TimeSpan.FromSeconds(10), new FinishMessage());
+                    Bus.SendLocal(new FinishMessage(), new SendLocalOptions(delayDeliveryFor: TimeSpan.FromSeconds(10)));
                 }
             }
 

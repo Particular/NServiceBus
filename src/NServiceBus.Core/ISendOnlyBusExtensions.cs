@@ -14,7 +14,9 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         public static ICallback Send(this ISendOnlyBus bus, object message)
         {
+            Guard.AgainstNull(bus, "bus");
             Guard.AgainstNull(message, "message");
+
             return bus.Send(message, new SendOptions());
         }
 
@@ -29,6 +31,7 @@ namespace NServiceBus
         /// </remarks>
         public static ICallback Send<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
         {
+            Guard.AgainstNull(bus, "bus");
             Guard.AgainstNull(messageConstructor, "messageConstructor");
 
             return bus.Send(messageConstructor, new SendOptions());
@@ -44,12 +47,11 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         public static ICallback Send(this ISendOnlyBus bus, string destination, object message)
         {
+            Guard.AgainstNull(bus, "bus");
             Guard.AgainstNullAndEmpty(destination, "destination");
             Guard.AgainstNull(message, "message");
 
-            var options = new SendOptions(destination);
-
-            return bus.Send(message, options);
+            return bus.Send(message, new SendOptions(destination));
         }
 
         /// <summary>
@@ -61,12 +63,11 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
         public static ICallback Send<T>(this ISendOnlyBus bus, string destination, Action<T> messageConstructor)
         {
+            Guard.AgainstNull(bus, "bus");
             Guard.AgainstNullAndEmpty(destination, "destination");
             Guard.AgainstNull(messageConstructor, "messageConstructor");
 
-            var context = new SendOptions(destination);
-
-            return bus.Send(messageConstructor, context);
+            return bus.Send(messageConstructor, new SendOptions(destination));
 
         }
     }
