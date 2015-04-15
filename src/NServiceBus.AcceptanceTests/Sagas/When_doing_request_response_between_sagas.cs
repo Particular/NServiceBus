@@ -81,6 +81,8 @@ namespace NServiceBus.AcceptanceTests.Sagas
                         return;
                     }
 
+                    Data.CorrIdForRequest = Guid.NewGuid();
+
                     // Both reply and reply to originator work here since the sender of the incoming message is the requesting saga
                     // also note we don't set the correlation ID since auto correlation happens to work for this special case 
                     // where we reply from the first handler
