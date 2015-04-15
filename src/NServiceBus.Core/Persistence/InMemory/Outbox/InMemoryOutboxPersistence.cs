@@ -9,6 +9,8 @@
     /// </summary>
     public class InMemoryOutboxPersistence : Feature
     {
+        internal const string TimeToKeepDeduplicationEntries = "Outbox.TimeToKeepDeduplicationEntries";
+
         internal InMemoryOutboxPersistence()
         {
             DependsOn<Outbox>();
@@ -22,7 +24,7 @@
         {
             context.Container.ConfigureComponent<InMemoryOutboxStorage>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<OutboxCleaner>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(t => t.TimeToKeepDeduplicationData, context.Settings.Get<TimeSpan>(Outbox.TimeToKeepDeduplicationEntries));
+                .ConfigureProperty(t => t.TimeToKeepDeduplicationData, context.Settings.Get<TimeSpan>(TimeToKeepDeduplicationEntries));
         }
 
         class OutboxCleaner : FeatureStartupTask

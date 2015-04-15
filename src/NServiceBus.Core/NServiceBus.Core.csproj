@@ -200,6 +200,10 @@
     <Compile Include="Routing\MessagingBestPractices\BestPracticesOptionExtensions.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingContext.cs" />
     <Compile Include="PerformanceCounters\PerformanceCounterInstance.cs" />
+    <Compile Include="MessageMutator\IMutateOutgoingPhysicalContext.cs" />
+    <Compile Include="MessageMutator\OutgoingPhysicalMutatorContext.cs" />
+    <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxSettingsExtensions.cs" />
+    <Compile Include="Pipeline\Contexts\OutgoingLogicalMessageContext.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
     <Compile Include="Pipeline\Contexts\IncomingContext.cs" />

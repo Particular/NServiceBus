@@ -18,7 +18,7 @@
     {
         internal Outbox()
         {
-            Defaults(s => s.SetDefault(TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5)));
+            Defaults(s => s.SetDefault(InMemoryOutboxPersistence.TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5)));
 
             Prerequisite(c => c.Settings.Get<bool>("Transactions.Enabled"), "Outbox isn't needed since the receive transactions has been turned off");
 
@@ -64,7 +64,7 @@ The reason you need to do this is because we need to ensure that you have read a
             return result;
         }
 
-        internal const string TimeToKeepDeduplicationEntries = "Outbox.TimeToKeepDeduplicationEntries";
+       
 
         /// <summary>
         /// See <see cref="Feature.Setup"/>
