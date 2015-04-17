@@ -98,6 +98,14 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Specify to scan nested directories when performing assembly scanning
+        /// </summary>
+        public void ScanAssembliesInNestedDirectories()
+        {
+            scanAssembliesInNestedDirectories = true;
+        }
+
+        /// <summary>
         ///     Overrides the default configuration source.
         /// </summary>
         public void CustomConfigurationSource(IConfigurationSource configurationSource)
@@ -248,7 +256,8 @@ namespace NServiceBus
             var assemblyScanner = new AssemblyScanner(path)
                                   {
                                       AssembliesToSkip = excludedAssemblies,
-                                      TypesToSkip = excludedTypes
+                                      TypesToSkip = excludedTypes,
+                                      ScanNestedDirectories = scanAssembliesInNestedDirectories
                                   };
             return assemblyScanner
                 .GetScannableAssemblies()
@@ -259,7 +268,8 @@ namespace NServiceBus
         {
             var assemblyScanner = new AssemblyScanner(Assembly.GetExecutingAssembly())
             {
-                TypesToSkip = excludedTypes
+                TypesToSkip = excludedTypes,
+                ScanNestedDirectories = scanAssembliesInNestedDirectories
             };
             return assemblyScanner
                 .GetScannableAssemblies()
@@ -275,6 +285,7 @@ namespace NServiceBus
         IList<Type> scannedTypes;
         List<Type> excludedTypes = new List<Type>();
         List<string> excludedAssemblies = new List<string>();
+        bool scanAssembliesInNestedDirectories;
         string publicReturnAddress;
         Dictionary<string, string> outgoingHeaders;
     }
