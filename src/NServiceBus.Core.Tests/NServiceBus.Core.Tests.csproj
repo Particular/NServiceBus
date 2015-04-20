@@ -318,7 +318,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="TestDlls\Nested\nested.dll">
+    <None Include="TestDlls\Nested\Nested.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
