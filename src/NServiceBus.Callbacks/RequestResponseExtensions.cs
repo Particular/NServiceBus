@@ -18,8 +18,15 @@
         /// <returns></returns>
         public static SendContext<TResponse> SynchronousRequestResponse<TResponse>(this IBus bus, object requestMessage)
         {
-            Guard.AgainstNull(requestMessage, "requestMessage");
-            Guard.AgainstNull(bus, "bus");
+            if (requestMessage == null)
+            {
+                throw new ArgumentNullException("requestMessage");
+            }
+
+            if (bus == null)
+            {
+                throw new ArgumentNullException("bus");
+            }
 
             var customId = Guid.NewGuid().ToString();
 
