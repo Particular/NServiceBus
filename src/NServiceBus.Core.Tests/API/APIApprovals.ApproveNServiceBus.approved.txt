@@ -458,6 +458,10 @@ namespace NServiceBus
         public static NServiceBus.ICallback Send(this NServiceBus.ISendOnlyBus bus, string destination, object message) { }
         public static NServiceBus.ICallback Send<T>(this NServiceBus.ISendOnlyBus bus, string destination, System.Action<T> messageConstructor) { }
     }
+    public interface IServiceProvider
+    {
+        T GetService<T>();
+    }
     public interface ISpecifyMessageHandlerOrdering
     {
         void SpecifyOrder(NServiceBus.Order order);
@@ -575,6 +579,10 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
+    public class static RequestResponseExtensions
+    {
+        public static NServiceBus.SendContext<TResponse> SynchronousRequestResponse<TResponse>(this NServiceBus.IBus bus, object requestMessage) { }
+    }
     public class static ScaleOutExtentions
     {
         public static NServiceBus.Settings.ScaleOutSettings ScaleOut(this NServiceBus.BusConfiguration config) { }
@@ -590,6 +598,12 @@ namespace NServiceBus
         public static NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.BusConfiguration config) { }
     }
     public class SendLocalOptions : NServiceBus.Extensibility.ExtendableOptions
+    public class SendContext<TResponse>
+    {
+        public SendContext(System.Threading.Tasks.TaskCompletionSource<TResponse> taskCompletionSource) { }
+        public System.Threading.Tasks.Task<TResponse> ResponseTask { get; }
+    }
+    public class SendLocalOptions
     {
         public SendLocalOptions(string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
         public NServiceBus.SendLocalOptions AddHeader(string key, string value) { }
@@ -2330,7 +2344,7 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("Please use `DelayDeliveryFor` instead. Will be removed in version 7.0.0.", true)]
         public System.Nullable<System.TimeSpan> DelayDeliveryWith { get; set; }
     }
-    public class UnicastBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, NServiceBus.Unicast.IRealBus, System.IDisposable
+    public class UnicastBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, NServiceBus.IServiceProvider, NServiceBus.IStartableBus, NServiceBus.Unicast.IRealBus, System.IDisposable
     {
         public UnicastBus(NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.PipelineFactory> pipelineFactories, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.ISendMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter, NServiceBus.Unicast.CallbackMessageLookup callbackMessageLookup, NServiceBus.Hosting.HostInformation hostInformation) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
@@ -2348,6 +2362,7 @@ namespace NServiceBus.Unicast
         public void Dispose() { }
         public void DoNotContinueDispatchingCurrentMessageToHandlers() { }
         public void ForwardCurrentMessageTo(string destination) { }
+        public T GetService<T>() { }
         public void HandleCurrentMessageLater() { }
         public void Publish(object message, NServiceBus.PublishOptions options) { }
         public void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions options) { }

@@ -9,7 +9,7 @@
 
     class CallbackInvocationBehavior : LogicalMessagesProcessingStageBehavior
     {
-        public const string CallbackInvokedKey = "NServiceBus.CallbackInvocationBehavior.CallbackWasInvoked";
+        public const string CallbackInvokedKey = "NServiceBus.CallbackInvocation.CallbackWasInvoked";
 
         readonly CallbackMessageLookup callbackMessageLookup;
 

@@ -17,28 +17,30 @@
 
         public override void Invoke(Context context, Action next)
         {
-            HandleCorrelatedMessage(context.PhysicalMessage, context);
+            var invoked = HandleCorrelatedMessage(context.PhysicalMessage, context);
+
+            context.Set("NServiceBus.CallbackInvocation.CallbackWasInvoked", invoked);
 
             next();
         }
 
-        void HandleCorrelatedMessage(TransportMessage transportMessage, Context context)
+        bool HandleCorrelatedMessage(TransportMessage transportMessage, Context context)
         {
             if (transportMessage.CorrelationId == null)
             {
-                return;
+                return false;
             }
 
             if (transportMessage.MessageIntent != MessageIntentEnum.Reply)
             {
-                return;
+                return false;
             }
 
             object taskCompletionSource;
 
             if (!requestResponseMessageLookup.TryGet(transportMessage.CorrelationId, out taskCompletionSource))
             {
-                return;
+                return false;
             }
 
             var method = taskCompletionSource.GetType().GetMethod("SetResult");
@@ -46,15 +48,16 @@
             {
                 context.LogicalMessages.First().Instance
             });
+
+            return true;
         }
 
         public class Registration : RegisterStep
         {
             public Registration()
-                : base("RequestResponse", typeof(RequestResponseInvocationBehavior), "Adds request/response messaging")
+                : base("RequestResponse", typeof(RequestResponseInvocationBehavior), "Adds synchronous request/response messaging")
             {
-                InsertAfterIfExists(WellKnownStep.MutateIncomingTransportMessage);
-                InsertBeforeIfExists(WellKnownStep.MutateIncomingMessages);
+                InsertAfterIfExists("InvokeRegisteredCallbacks");
             }
         }
     }

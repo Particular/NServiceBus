@@ -136,7 +136,6 @@
     <Compile Include="Pipeline\Contexts\OutgoingContext.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingLogicalMessageContext.cs" />
     <Compile Include="IServiceProvider.cs" />
-    <Compile Include="Pipeline\Contexts\OutgoingHeaders.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
     <Compile Include="Pipeline\Contexts\IncomingContext.cs" />

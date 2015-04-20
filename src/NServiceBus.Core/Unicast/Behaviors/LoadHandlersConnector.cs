@@ -20,7 +20,6 @@
         {
             bool callbackInvoked;
 
-
             // for now we cheat and pull it from the behavior context:
             if (!context.TryGet(CallbackInvocationBehavior.CallbackInvokedKey, out callbackInvoked))
             {

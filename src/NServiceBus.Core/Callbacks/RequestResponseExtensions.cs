@@ -21,16 +21,16 @@
             Guard.AgainstNull(requestMessage, "requestMessage");
             Guard.AgainstNull(bus, "bus");
 
-            var correlationId = Guid.NewGuid().ToString();
+            var customId = Guid.NewGuid().ToString();
 
-            bus.SetMessageHeader(requestMessage, "NServiceBus.HasCallback", Boolean.TrueString);
-            bus.SetMessageHeader(requestMessage, Headers.CorrelationId, correlationId);
-            bus.Send(requestMessage);
+            bus.Send(requestMessage, new SendOptions()
+                .AddHeader("NServiceBus.HasCallback", Boolean.TrueString)
+                .SetCustomMessageId(customId));
 
             var callbackMessageLookup = ((IServiceProvider) bus).GetService<RequestResponseMessageLookup>();
             var tcs = new TaskCompletionSource<TResponse>();
 
-            callbackMessageLookup.RegisterResult(correlationId, tcs);
+            callbackMessageLookup.RegisterResult(customId, tcs);
 
             return new SendContext<TResponse>(tcs);
         }
