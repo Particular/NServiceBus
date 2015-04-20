@@ -323,6 +323,7 @@
     </None>
     <None Include="TestDlls\RoslynX86.dll">
     <None Include="TestDlls\Nested\nested.dll">
+    <None Include="TestDlls\Nested\Nested.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
