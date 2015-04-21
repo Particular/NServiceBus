@@ -15,7 +15,7 @@
     <copyright>Copyright (C) NServiceBus 2010-2012</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
-      <dependency id="NHibernate" version="3.3.1.4000" />
+      <dependency id="NHibernate" version="3.3.0.4000" />
       <dependency id="NServiceBus" version="4.0.0-alpha0" />
     </dependencies>
   </metadata>
