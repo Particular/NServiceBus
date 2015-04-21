@@ -302,9 +302,6 @@
     <Compile Include="FirstLevelRetries\FirstLevelRetriesBehavior.cs" />
     <Compile Include="Pipeline\Contexts\HandlingContext.cs" />
     <Compile Include="Unicast\Behaviors\MessageProcessingAbortedException.cs" />
-    <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
-    <Compile Include="Unicast\CallbackMessageLookup.cs" />
-    <Compile Include="Unicast\CallbackResultEventArgs.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
     <Compile Include="Monitoring\SLA\SLABehavior.cs" />
     <Compile Include="Monitoring\CriticalTime\CriticalTimeBehavior.cs" />
@@ -409,7 +406,6 @@
     <Compile Include="Audit\DefaultMessageAuditer.cs" />
     <Compile Include="Audit\IAuditMessages.cs" />
     <Compile Include="Transports\Msmq\Config\CheckMachineNameForComplianceWithDtcLimitation.cs" />
-    <Compile Include="Unicast\Behaviors\CallbackInvocationBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ForwardBehavior.cs" />
     <Compile Include="Unicast\Behaviors\InvokeHandlersBehavior.cs" />
     <Compile Include="Unicast\Behaviors\LoadHandlersConnector.cs" />
@@ -571,8 +567,6 @@
     </Compile>
     <Compile Include="Unicast\BackwardCompatibility\MutateMessageContentTypeOfIncomingTransportMessages.cs" />
     <Compile Include="Unicast\BuilderExtensions.cs" />
-    <Compile Include="Unicast\BusAsyncResult.cs" />
-    <Compile Include="Unicast\Callback.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions.cs" />
     <Compile Include="Timeout\Core\TimeoutManagerDeferrer.cs" />
     <Compile Include="Unicast\MessagesEventArgs.cs" />

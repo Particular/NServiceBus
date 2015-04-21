@@ -45,12 +45,12 @@ namespace NServiceBus
         /// </summary>
         /// <param name="bus">Object beeing extended</param>
         /// <param name="message">The message to send.</param>
-        public static ICallback Send(this ISendOnlyBus bus, object message)
+        public static void Send(this ISendOnlyBus bus, object message)
         {
             Guard.AgainstNull(bus, "bus");
             Guard.AgainstNull(message, "message");
 
-            return bus.Send(message, new SendOptions());
+            bus.Send(message, new SendOptions());
         }
 
         /// <summary>
@@ -62,12 +62,12 @@ namespace NServiceBus
         /// <remarks>
         /// The message will be sent to the destination configured for T
         /// </remarks>
-        public static ICallback Send<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
+        public static void Send<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
         {
             Guard.AgainstNull(bus, "bus");
             Guard.AgainstNull(messageConstructor, "messageConstructor");
 
-            return bus.Send(messageConstructor, new SendOptions());
+            bus.Send(messageConstructor, new SendOptions());
         }
 
         /// <summary>
@@ -78,13 +78,13 @@ namespace NServiceBus
         /// The address of the destination to which the message will be sent.
         /// </param>
         /// <param name="message">The message to send.</param>
-        public static ICallback Send(this ISendOnlyBus bus, string destination, object message)
+        public static void Send(this ISendOnlyBus bus, string destination, object message)
         {
             Guard.AgainstNull(bus, "bus");
             Guard.AgainstNullAndEmpty(destination, "destination");
             Guard.AgainstNull(message, "message");
 
-            return bus.Send(message, new SendOptions(destination));
+            bus.Send(message, new SendOptions(destination));
         }
 
         /// <summary>
@@ -94,14 +94,13 @@ namespace NServiceBus
         /// <param name="bus"></param>
         /// <param name="destination">The destination to which the message will be sent.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        public static ICallback Send<T>(this ISendOnlyBus bus, string destination, Action<T> messageConstructor)
+        public static void Send<T>(this ISendOnlyBus bus, string destination, Action<T> messageConstructor)
         {
             Guard.AgainstNull(bus, "bus");
             Guard.AgainstNullAndEmpty(destination, "destination");
             Guard.AgainstNull(messageConstructor, "messageConstructor");
 
-            return bus.Send(messageConstructor, new SendOptions(destination));
-
+            bus.Send(messageConstructor, new SendOptions(destination));
         }
     }
 }

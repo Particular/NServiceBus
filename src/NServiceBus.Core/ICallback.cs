@@ -8,6 +8,7 @@ namespace NServiceBus
     /// The interface allows the caller to register for a callback when a response
     /// is received to their original message beeing sent"/>.
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Replaced by NServiceBus.Callbacks package")]
     public interface ICallback
     {
         /// <summary>

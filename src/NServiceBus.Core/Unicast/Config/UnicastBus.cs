@@ -87,8 +87,6 @@ namespace NServiceBus.Features
 
             context.Container.ConfigureComponent(b => b.Build<BehaviorContextStacker>().GetCurrentContext(), DependencyLifecycle.InstancePerCall);
 
-            context.Container.ConfigureComponent<CallbackMessageLookup>(DependencyLifecycle.SingleInstance);
-
             //Hack because we can't register as IStartableBus because it would automatically register as IBus and overrode the proper IBus registration.
             context.Container.ConfigureComponent<IRealBus>(b => CreateBus(b, hostInfo), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => (IStartableBus)b.Build<IRealBus>(), DependencyLifecycle.SingleInstance);
@@ -154,9 +152,7 @@ namespace NServiceBus.Features
                 builder.Build<ReadOnlySettings>(),
                 builder.Build<TransportDefinition>(),
                 builder.Build<ISendMessages>(),
-                builder.Build<StaticMessageRouter>(),
-                builder.Build<CallbackMessageLookup>(),
-                hostInfo)
+                builder.Build<StaticMessageRouter>(),hostInfo)
             {
                 HostInformation = hostInfo
             };
@@ -174,9 +170,7 @@ namespace NServiceBus.Features
                 builder.Build<ReadOnlySettings>(),
                 builder.Build<TransportDefinition>(),
                 builder.Build<ISendMessages>(),
-                builder.Build<StaticMessageRouter>(),
-                builder.Build<CallbackMessageLookup>(),
-                hostInfo);
+                builder.Build<StaticMessageRouter>(),hostInfo);
         }
 
         static Guid GenerateDefaultHostId(out string fullPathToStartingExe)
