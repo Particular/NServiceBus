@@ -30,7 +30,6 @@ at NServiceBus.HandlerTransactionScopeWrapperBehavior.Invoke(Context context, Ac
 at NServiceBus.LoadHandlersConnector.Invoke(Context context, Action`1 next)
 at NServiceBus.ApplyIncomingMessageMutatorsBehavior.Invoke(Context context, Action next)
 at NServiceBus.ExecuteLogicalMessagesConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.CallbackInvocationBehavior.Invoke(Context context, Action next)
 at NServiceBus.ApplyIncomingTransportMessageMutatorsBehavior.Invoke(Context context, Action next)
 at NServiceBus.SubscriptionReceiverBehavior.Invoke(Context context, Action next)
 at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
