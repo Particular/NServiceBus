@@ -57,6 +57,7 @@
     <Compile Include="ScenarioDescriptors\Serializers.cs" />
     <Compile Include="ScenarioDescriptors\TransactionSettings.cs" />
     <Compile Include="ScenarioDescriptors\Transports.cs" />
+    <Compile Include="When_using_callbacks_in_a_scaleout.cs" />
     <Compile Include="When_using_callback_vnext_to_get_message.cs" />
   </ItemGroup>
   <ItemGroup>

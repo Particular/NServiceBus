@@ -16,11 +16,25 @@
             //to avoid processing each others callbacks
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<Client>(b => b.CustomConfig(c => RuntimeEnvironment.MachineNameAction = () => "ClientA")
-                        .Given((bus, context) => bus.Send(new MyRequest { Id = context.Id, Client = RuntimeEnvironment.MachineName })
-                                                        .Register(r => context.CallbackAFired = true)))
+                        .Given((bus, context) =>
+                        {
+                            bus.SynchronousRequestResponse<MyResponse>(new MyRequest
+                            {
+                                Id = context.Id,
+                                Client = RuntimeEnvironment.MachineName
+                            }).ResponseTask
+                                .ContinueWith(t => context.CallbackAFired = true);
+                        }))
                     .WithEndpoint<Client>(b => b.CustomConfig(c => RuntimeEnvironment.MachineNameAction = () => "ClientB")
-                        .Given((bus, context) => bus.Send(new MyRequest { Id = context.Id, Client = RuntimeEnvironment.MachineName })
-                         .Register(r => context.CallbackBFired = true)))
+                        .Given((bus, context) =>
+                        {
+                            bus.SynchronousRequestResponse<MyResponse>(new MyRequest
+                            {
+                                Id = context.Id,
+                                Client = RuntimeEnvironment.MachineName
+                            }).ResponseTask
+                                .ContinueWith(t => context.CallbackBFired = true);
+                        }))
                     .WithEndpoint<Server>()
                     .Done(c => c.ClientAGotResponse && c.ClientBGotResponse)
                     .Repeat(r => r.For<AllBrokerTransports>()
@@ -66,7 +80,9 @@
                 public void Handle(MyResponse response)
                 {
                     if (Context.Id != response.Id)
+                    {
                         return;
+                    }
 
                     if (RuntimeEnvironment.MachineName == "ClientA")
                         Context.ClientAGotResponse = true;
@@ -76,7 +92,9 @@
                     }
 
                     if (RuntimeEnvironment.MachineName != response.Client)
+                    {
                         Context.ResponseEndedUpAtTheWrongClient = true;
+                    }
                 }
             }
         }
@@ -97,8 +115,9 @@
                 public void Handle(MyRequest request)
                 {
                     if (Context.Id != request.Id)
+                    {
                         return;
-
+                    }
 
                     Bus.Reply(new MyResponse { Id = request.Id, Client = request.Client });
                 }
@@ -120,8 +139,5 @@
 
             public string Client { get; set; }
         }
-
-
-
     }
 }
