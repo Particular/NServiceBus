@@ -7,18 +7,17 @@ namespace NServiceBus
     /// </summary>
     public class SynchronousLocalOptions
     {
-        readonly string correlationId;
         internal Dictionary<string, string> Headers = new Dictionary<string, string>();
+        readonly string correlationId;
         internal string MessageId;
 
         /// <summary>
-        ///     Creates an instance of <see cref="NServiceBus.SynchronousLocalOptions" />.
+        ///     Creates an instance of <see cref="NServiceBus.SynchronousOptions" />.
         /// </summary>
         /// <param name="correlationId">Specifies a custom currelation id for the message.</param>
         public SynchronousLocalOptions(string correlationId = null)
         {
-
-            this.correlationId = correlationId;
+            this.correlationId = correlationId;            
         }
 
         internal string CorrelationId

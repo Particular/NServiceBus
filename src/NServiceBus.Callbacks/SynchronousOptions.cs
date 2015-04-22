@@ -7,8 +7,8 @@ namespace NServiceBus
     /// </summary>
     public class SynchronousOptions
     {
-        readonly string correlationId;
         internal Dictionary<string, string> Headers = new Dictionary<string, string>();
+        readonly string correlationId;
         internal string MessageId;
 
         /// <summary>
@@ -18,8 +18,7 @@ namespace NServiceBus
         /// <param name="correlationId">Specifies a custom currelation id for the message.</param>
         public SynchronousOptions(string destination = null, string correlationId = null)
         {
-            
-            this.correlationId = correlationId;
+            this.correlationId = correlationId;            
             Destination = destination;
         }
 

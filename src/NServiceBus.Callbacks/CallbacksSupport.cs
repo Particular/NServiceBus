@@ -13,6 +13,7 @@
         {
             context.Container.ConfigureComponent<RequestResponseMessageLookup>(DependencyLifecycle.SingleInstance);
             context.Pipeline.Register<RequestResponseInvocationBehavior.Registration>();
+            context.Pipeline.Register<UpdateRequestResponseCorrelationTableBehavior.Registration>();
         }
     }
 }

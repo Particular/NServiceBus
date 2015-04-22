@@ -5,7 +5,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_using_callback_vnext_to_get_message : NServiceBusAcceptanceTest
+    public class When_using_callback_to_get_message : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_message()

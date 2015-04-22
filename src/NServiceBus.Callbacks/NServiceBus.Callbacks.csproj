@@ -49,6 +49,7 @@
     <Compile Include="SendContext.cs" />
     <Compile Include="SynchronousLocalOptions.cs" />
     <Compile Include="SynchronousOptions.cs" />
+    <Compile Include="UpdateRequestResponseCorrelationTableBehavior.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">

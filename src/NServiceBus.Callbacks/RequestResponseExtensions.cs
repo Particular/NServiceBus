@@ -2,7 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Callbacks;
+    using NServiceBus.Configuration.AdvanceExtensibility;
 
     /// <summary>
     /// Synchronous request/response extension methods.
@@ -34,23 +34,22 @@
                 throw new ArgumentNullException("bus");
             }
 
-            var customId = Guid.NewGuid().ToString();
-
-            var sendOptions = new SendOptions(options.Destination, options.CorrelationId)
-                .AddHeader("NServiceBus.HasCallback", Boolean.TrueString)
-                .SetCustomMessageId(options.MessageId);
-
+            var sendOptions = new SendOptions(options.Destination, options.CorrelationId);
+                
             foreach (var header in options.Headers)
             {
                 sendOptions.AddHeader(header.Key, header.Value);
             }
 
-            bus.Send(requestMessage, sendOptions);
-            
-            var callbackMessageLookup = ((IServiceProvider) bus).GetService<RequestResponseMessageLookup>();
+            sendOptions
+                .AddHeader("NServiceBus.HasCallback", Boolean.TrueString)
+                .SetCustomMessageId(options.MessageId);
+
             var tcs = new TaskCompletionSource<TResponse>();
 
-            callbackMessageLookup.RegisterResult(customId, tcs);
+            sendOptions.GetContext().Add("NServiceBus.RequestResponse.TCS", tcs);
+
+            bus.Send(requestMessage, sendOptions);
 
             return new SendContext<TResponse>(tcs);
         }
@@ -80,24 +79,23 @@
                 throw new ArgumentNullException("bus");
             }
 
-            var customId = Guid.NewGuid().ToString();
-
-            var sendLocalOptions = new SendLocalOptions(options.CorrelationId)
-                .AddHeader("NServiceBus.HasCallback", Boolean.TrueString)
-                .SetCustomMessageId(options.MessageId);
+            var sendLocalOptions = new SendLocalOptions(options.CorrelationId);
 
             foreach (var header in options.Headers)
             {
                 sendLocalOptions.AddHeader(header.Key, header.Value);
             }
 
-            bus.SendLocal(requestMessage, sendLocalOptions);
+            sendLocalOptions
+                .AddHeader("NServiceBus.HasCallback", Boolean.TrueString)
+                .SetCustomMessageId(options.MessageId);
 
-            var callbackMessageLookup = ((IServiceProvider)bus).GetService<RequestResponseMessageLookup>();
             var tcs = new TaskCompletionSource<TResponse>();
 
-            callbackMessageLookup.RegisterResult(customId, tcs);
+            sendLocalOptions.GetContext().Add("NServiceBus.RequestResponse.TCS", tcs);
 
+            bus.SendLocal(requestMessage, sendLocalOptions);
+            
             return new SendContext<TResponse>(tcs);
         }
     }

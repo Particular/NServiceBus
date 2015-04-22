@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.Callbacks
 {
     using System;
     using NServiceBus.AcceptanceTesting;
