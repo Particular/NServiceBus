@@ -25,7 +25,7 @@
                     activeTransports = new List<RunDescriptor>
                     {
                         Transports.Default
-                    }; 
+                    };
                 }
 
                 return activeTransports;
@@ -43,7 +43,7 @@
                                          && !t.HasSupportForDistributedTransactions.Value, Remove);
         }
     }
-    
+
     public class AllNativeMultiQueueTransactionTransports : AllTransports
     {
         public AllNativeMultiQueueTransactionTransports()
@@ -93,7 +93,7 @@
         public static IEnumerable<Type> GetAllTypesAssignableTo<T>()
         {
             return AvailableAssemblies.SelectMany(a => a.GetTypes())
-                                      .Where(t => typeof (T).IsAssignableFrom(t) && t != typeof(T))
+                                      .Where(t => typeof(T).IsAssignableFrom(t) && t != typeof(T))
                                       .ToList();
         }
 
@@ -105,9 +105,14 @@
                 {
                     var result = new AssemblyScanner().GetScannableAssemblies();
 
-                    assemblies = result.Assemblies;
+                    assemblies = result.Assemblies.Where(a =>
+                    {
+                        var references = a.GetReferencedAssemblies();
+
+                        return references.All(an => an.Name != "nunit.framework");
+                    }).ToList();
                 }
-                    
+
                 return assemblies;
             }
         }

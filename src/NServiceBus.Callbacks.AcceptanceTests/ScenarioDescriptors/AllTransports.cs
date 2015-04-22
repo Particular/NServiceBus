@@ -105,7 +105,12 @@
                 {
                     var result = new AssemblyScanner().GetScannableAssemblies();
 
-                    assemblies = result.Assemblies;
+                    assemblies = result.Assemblies.Where(a =>
+                    {
+                        var references = a.GetReferencedAssemblies();
+
+                        return references.All(an => an.Name != "nunit.framework");
+                    }).ToList();
                 }
                     
                 return assemblies;

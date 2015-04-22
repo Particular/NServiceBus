@@ -74,7 +74,12 @@
 
             var types = assemblies.Assemblies
                 //exclude all test types by default
-                                  .Where(a => a != Assembly.GetExecutingAssembly())
+                                  .Where(a =>
+                                  {
+                                      var references = a.GetReferencedAssemblies();
+
+                                      return references.All(an => an.Name != "nunit.framework");
+                                  })
                                   .SelectMany(a => a.GetTypes());
 
 
