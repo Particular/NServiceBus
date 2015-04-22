@@ -47,6 +47,8 @@
     <Compile Include="RequestResponseInvocationBehavior.cs" />
     <Compile Include="RequestResponseMessageLookup.cs" />
     <Compile Include="SendContext.cs" />
+    <Compile Include="SynchronousLocalOptions.cs" />
+    <Compile Include="SynchronousOptions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">

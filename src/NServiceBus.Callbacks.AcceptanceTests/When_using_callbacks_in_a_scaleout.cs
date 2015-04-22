@@ -22,7 +22,7 @@
                             {
                                 Id = context.Id,
                                 Client = RuntimeEnvironment.MachineName
-                            }).ResponseTask
+                            }, new SynchronousOptions()).ResponseTask
                                 .ContinueWith(t => context.CallbackAFired = true);
                         }))
                     .WithEndpoint<Client>(b => b.CustomConfig(c => RuntimeEnvironment.MachineNameAction = () => "ClientB")
@@ -32,7 +32,7 @@
                             {
                                 Id = context.Id,
                                 Client = RuntimeEnvironment.MachineName
-                            }).ResponseTask
+                            }, new SynchronousOptions()).ResponseTask
                                 .ContinueWith(t => context.CallbackBFired = true);
                         }))
                     .WithEndpoint<Server>()
