@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using NServiceBus.Outbox;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Unicast;
 
     class OutboxSendBehavior : PhysicalOutgoingContextStageBehavior
     {
@@ -19,7 +20,33 @@ namespace NServiceBus
 
             if (context.TryGet(out currentOutboxMessage))
             {
-                currentOutboxMessage.TransportOperations.Add( new TransportOperation(context.MessageId, context.DeliveryMessageOptions.ToTransportOperationOptions(), context.Body, context.Headers)); 
+                var options = context.DeliveryMessageOptions.ToTransportOperationOptions();
+
+                if (context.Intent == MessageIntentEnum.Publish)
+                {
+                    options["Operation"] = "Publish";
+                    options["EventType"] = context.MessageType.AssemblyQualifiedName;
+                }
+                else
+                {
+                    var sendOptions = (SendMessageOptions)context.DeliveryMessageOptions;
+         
+                    options["Operation"] = "Send";
+                    options["Destination"] = sendOptions.Destination;
+          
+                    if (sendOptions.DelayDeliveryFor.HasValue)
+                    {
+                        options["DelayDeliveryFor"] = sendOptions.DelayDeliveryFor.Value.ToString();
+                    }
+
+                    if (sendOptions.DeliverAt.HasValue)
+                    {
+                        options["DeliverAt"] = DateTimeExtensions.ToWireFormattedString(sendOptions.DeliverAt.Value);
+                    }
+
+                }
+
+                currentOutboxMessage.TransportOperations.Add( new TransportOperation(context.MessageId, options, context.Body, context.Headers)); 
             }
             else
             {

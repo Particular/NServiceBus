@@ -28,6 +28,7 @@
                 Headers = parentContext.Headers;
                 MessageId = parentContext.MessageId;
                 MessageType = parentContext.MessageType;
+                Intent = parentContext.Intent;
             }
 
             /// <summary>
@@ -54,6 +55,11 @@
             /// This id of this message
             /// </summary>
             public string MessageId { get; private set; }
+
+            /// <summary>
+            /// The intent of this message
+            /// </summary>
+            public MessageIntentEnum Intent { get; private set; }
         }
     }
 }

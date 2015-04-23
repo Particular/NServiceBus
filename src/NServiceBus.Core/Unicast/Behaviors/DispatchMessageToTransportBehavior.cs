@@ -26,7 +26,7 @@
         {
             var message = new OutgoingMessage(context.MessageId, context.Headers, context.Body);
 
-            if (context.DeliveryMessageOptions is PublishMessageOptions)
+            if (context.Intent == MessageIntentEnum.Publish)
             {
                 NativePublish(new TransportPublishOptions(context.MessageType, context.DeliveryMessageOptions.TimeToBeReceived, context.DeliveryMessageOptions.NonDurable ?? false), message);
             }

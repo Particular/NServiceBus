@@ -3,14 +3,14 @@ namespace NServiceBus.Unicast
     using System;
 
     /// <summary>
-    /// Base class for options to deliver messages.
+    /// Options to deliver messages.
     /// </summary>
-    public abstract class DeliveryMessageOptions
+    public class DeliveryMessageOptions
     {
         /// <summary>
         /// Creates an instance of <see cref="DeliveryMessageOptions"/>.
         /// </summary>
-        protected DeliveryMessageOptions()
+        public DeliveryMessageOptions()
         {
             EnforceMessagingBestPractices = true;
             EnlistInReceiveTransaction = true;

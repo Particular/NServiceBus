@@ -1634,6 +1634,7 @@ namespace NServiceBus.Pipeline.Contexts
             public byte[] Body { get; set; }
             public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
             public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+            public NServiceBus.MessageIntentEnum Intent { get; }
             public string MessageId { get; }
             public System.Type MessageType { get; }
         }
@@ -2223,9 +2224,9 @@ namespace NServiceBus.Unicast
     {
         public CallbackMessageLookup() { }
     }
-    public abstract class DeliveryMessageOptions
+    public class DeliveryMessageOptions
     {
-        protected DeliveryMessageOptions() { }
+        public DeliveryMessageOptions() { }
         public bool EnforceMessagingBestPractices { get; set; }
         public bool EnlistInReceiveTransaction { get; set; }
         public System.Nullable<bool> NonDurable { get; set; }
@@ -2274,13 +2275,9 @@ namespace NServiceBus.Unicast
         public MessagesEventArgs(object[] messages) { }
         public object[] Messages { get; }
     }
-    public class PublishMessageOptions : NServiceBus.Unicast.DeliveryMessageOptions
-    {
-        public PublishMessageOptions(System.Type eventType) { }
-        public System.Type EventType { get; }
-    }
-    [System.ObsoleteAttribute("Please use `NServiceBus.UnicastBus.PublishMessageOptions` instead. Will be remove" +
-        "d in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use context.Intent to detect of the message is a event beeing published and use c" +
+        "ontext.MessageType to get the actual event type. Will be removed in version 7.0." +
+        "0.", true)]
     public class PublishOptions : NServiceBus.Unicast.DeliveryOptions
     {
         public PublishOptions() { }

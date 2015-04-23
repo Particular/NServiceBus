@@ -112,7 +112,7 @@ namespace NServiceBus.Unicast
         {
             var messageType = message.GetType();
 
-            var options = new PublishMessageOptions(messageType);
+            var options = new DeliveryMessageOptions();
 
             ApplyDefaultDeliveryOptionsIfNeeded(options, messageType);
 
