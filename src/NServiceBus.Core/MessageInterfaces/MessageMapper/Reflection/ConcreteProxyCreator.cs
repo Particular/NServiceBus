@@ -187,17 +187,18 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 props.AddRange(GetAllProperties(interfaceType));
             }
 
-            var names = new List<string>(props.Count);
+            var names = new List<PropertyInfo>(props.Count);
             var duplicates = new List<PropertyInfo>(props.Count);
             foreach (var p in props)
             {
-                if (names.Contains(p.Name))
+                var duplicate = names.SingleOrDefault(n => n.Name == p.Name && n.PropertyType == p.PropertyType);
+                if (duplicate != null)
                 {
                     duplicates.Add(p);
                 }
                 else
                 {
-                    names.Add(p.Name);
+                    names.Add(p);
                 }
             }
 
