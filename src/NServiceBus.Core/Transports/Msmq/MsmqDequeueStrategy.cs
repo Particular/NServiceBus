@@ -29,7 +29,7 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         ///     Initializes the <see cref="IDequeueMessages" />.
         /// </summary>
-        public void Init(DequeueSettings settings)
+        public DequeueInfo Init(DequeueSettings settings)
         {
             var msmqAddress = MsmqAddress.Parse(settings.QueueName);
 
@@ -39,7 +39,6 @@ namespace NServiceBus.Transports.Msmq
                 var message = string.Format("MSMQ Dequeing can only run against the local machine. Invalid queue name '{0}'", settings.QueueName);
                 throw new Exception(message);
             }
-            publicReceiveAddress = queueName;
 
             var fullPath = MsmqUtilities.GetFullPath(queueName);
             queue = new MessageQueue(fullPath, false, true, QueueAccessMode.Receive);
@@ -55,6 +54,7 @@ namespace NServiceBus.Transports.Msmq
             {
                 queue.Purge();
             }
+            return new DequeueInfo(settings.PublicAddress ?? queueName);
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace NServiceBus.Transports.Msmq
 
                 CallPeekWithExceptionHandling(() => queue.EndPeek(peekCompletedEventArgs.AsyncResult));
 
-                observable.OnNext(new MessageAvailable(publicReceiveAddress, c =>
+                observable.OnNext(new MessageAvailable(c =>
                 {
                     c.Set(queue);
                     c.Set("MsmqDequeueStrategy.PeekResetEvent",peekResetEvent);
@@ -170,8 +170,6 @@ namespace NServiceBus.Transports.Msmq
         ManualResetEvent stopResetEvent = new ManualResetEvent(true);
         AutoResetEvent peekResetEvent = new AutoResetEvent(false);
 
-        string publicReceiveAddress;
-        
         Observable<MessageAvailable> observable = new Observable<MessageAvailable>();
 
         static MessagePropertyFilter DefaultReadPropertyFilter = new MessagePropertyFilter

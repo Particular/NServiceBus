@@ -16,7 +16,7 @@
             Guard.AgainstNullAndEmpty(queue, "queue");
             PurgeOnStartup = purgeOnStartup;
             QueueName = queue;
-            PublicAddress = publicAddress ?? queue;
+            PublicAddress = publicAddress;
         }
 
         /// <summary>
@@ -30,7 +30,7 @@
         public bool PurgeOnStartup { get; private set; }
 
         /// <summary>
-        /// An address other endpoints should use to sent messages to this queue.
+        /// An address other endpoints should use to sent messages to this endpoint.
         /// </summary>
         public string PublicAddress { get; private set; }
     }

@@ -8,6 +8,7 @@ namespace NServiceBus.Core.Tests
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
+    using NServiceBus.Unicast.Transport;
     using NUnit.Framework;
 
     [TestFixture]
@@ -26,6 +27,7 @@ namespace NServiceBus.Core.Tests
                 new BusNotifications(), errorQueueAddress);
 
             var context = CreateContext("someid");
+            behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
             behavior.Invoke(context, () =>
             {
@@ -45,7 +47,7 @@ namespace NServiceBus.Core.Tests
             {
                 ThrowOnSend = true
             }, new HostInformation(Guid.NewGuid(), "my host"), new BusNotifications(), "error");
-
+            behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
             //the ex should bubble to force the transport to rollback. If not the message will be lost
             Assert.Throws<Exception>(() => behavior.Invoke(CreateContext("someid"), () =>
@@ -66,7 +68,7 @@ namespace NServiceBus.Core.Tests
 
 
             var behavior = new MoveFaultsToErrorQueueBehavior(new FakeCriticalError(), sender, hostInfo, new BusNotifications(), "error");
-
+            behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
             behavior.Invoke(context, () =>
             {
                 throw new Exception("testex");
@@ -76,7 +78,7 @@ namespace NServiceBus.Core.Tests
             Assert.AreEqual(hostInfo.HostId.ToString("N"), sender.MessageSent.Headers[Headers.HostId]);
             Assert.AreEqual(hostInfo.DisplayName, sender.MessageSent.Headers[Headers.HostDisplayName]);
 
-            Assert.AreEqual(context.PublicReceiveAddress(), sender.MessageSent.Headers[FaultsHeaderKeys.FailedQ]);
+            Assert.AreEqual("public-receive-address", sender.MessageSent.Headers[FaultsHeaderKeys.FailedQ]);
             //exception details
             Assert.AreEqual("testex", sender.MessageSent.Headers["NServiceBus.ExceptionInfo.Message"]);
 
@@ -97,6 +99,7 @@ namespace NServiceBus.Core.Tests
 
             notifications.Errors.MessageSentToErrorQueue.Subscribe(f => { failedMessageNotification = f; });
 
+            behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
             behavior.Invoke(CreateContext("someid"), () =>
             {
                 throw new Exception("testex");
@@ -114,8 +117,6 @@ namespace NServiceBus.Core.Tests
         PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId)
         {
             var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null));
-
-            context.SetPublicReceiveAddress("public-receive-address");
             return context;
         }
 

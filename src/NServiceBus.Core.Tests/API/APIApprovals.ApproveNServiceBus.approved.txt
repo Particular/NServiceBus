@@ -400,11 +400,6 @@ namespace NServiceBus
     {
         void MutateOutgoing(NServiceBus.OutgoingPhysicalMutatorContext context);
     }
-    public class static IncomingContextExtensions
-    {
-        public static string PublicReceiveAddress(this NServiceBus.Pipeline.Contexts.IncomingContext context) { }
-        public static void SetPublicReceiveAddress(this NServiceBus.Pipeline.Contexts.IncomingContext context, string address) { }
-    }
     public class IndividualThrottlingSettings
     {
         public NServiceBus.IndividualThrottlingSettings DoNotLimit(string satelliteId) { }
@@ -1468,12 +1463,16 @@ namespace NServiceBus.Persistence
 }
 namespace NServiceBus.Pipeline
 {
-    public abstract class Behavior<TContext> : NServiceBus.Pipeline.IBehavior<TContext, TContext>
+    public abstract class Behavior<TContext> : NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TContext, TContext>
         where TContext : NServiceBus.Pipeline.BehaviorContext
     {
         protected Behavior() { }
+        protected NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
+        public void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo) { }
         public abstract void Invoke(TContext context, System.Action next);
         public void Invoke(TContext context, System.Action<TContext> next) { }
+        public virtual void OnStarting() { }
+        public virtual void OnStopped() { }
     }
     public abstract class BehaviorContext
     {
@@ -1500,7 +1499,13 @@ namespace NServiceBus.Pipeline
         public int CurrentConcurrencyLevel { get; }
         public string[] PipelineIds { get; }
     }
-    public interface IBehavior<in TIn, out TOut>
+    public interface IBehavior
+    {
+        void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo);
+        void OnStarting();
+        void OnStopped();
+    }
+    public interface IBehavior<in TIn, out TOut> : NServiceBus.Pipeline.IBehavior
         where in TIn : NServiceBus.Pipeline.BehaviorContext
         where out TOut : NServiceBus.Pipeline.BehaviorContext
     {
@@ -1554,12 +1559,16 @@ namespace NServiceBus.Pipeline
         public void InsertBeforeIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertBeforeIfExists(string id) { }
     }
-    public abstract class StageConnector<TFrom, TTo> : NServiceBus.Pipeline.IBehavior<TFrom, TTo>, NServiceBus.Pipeline.IStageConnector
+    public abstract class StageConnector<TFrom, TTo> : NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFrom, TTo>, NServiceBus.Pipeline.IStageConnector
         where TFrom : NServiceBus.Pipeline.BehaviorContext
         where TTo : NServiceBus.Pipeline.BehaviorContext
     {
         protected StageConnector() { }
+        protected NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
+        public void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo) { }
         public abstract void Invoke(TFrom context, System.Action<TTo> next);
+        public virtual void OnStarting() { }
+        public virtual void OnStopped() { }
     }
     public struct StepEnded
     {
@@ -2083,9 +2092,15 @@ namespace NServiceBus.Transports
         protected abstract System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.ReceiveBehavior> GetReceiveBehaviorFactory(NServiceBus.Transports.ReceiveOptions receiveOptions);
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    public class DequeueInfo
+    {
+        public readonly string PublicAddress;
+        public DequeueInfo(string publicAddress) { }
+    }
     public class DequeueSettings
     {
-        public DequeueSettings(string queue, bool purgeOnStartup) { }
+        public DequeueSettings(string queue, string publicAddress, bool purgeOnStartup) { }
+        public string PublicAddress { get; }
         public bool PurgeOnStartup { get; }
         public string QueueName { get; }
     }
@@ -2104,7 +2119,7 @@ namespace NServiceBus.Transports
     }
     public interface IDequeueMessages : System.IObservable<NServiceBus.Transports.MessageAvailable>
     {
-        void Init(NServiceBus.Transports.DequeueSettings settings);
+        NServiceBus.Transports.DequeueInfo Init(NServiceBus.Transports.DequeueSettings settings);
         void Start();
         void Stop();
     }
@@ -2130,8 +2145,7 @@ namespace NServiceBus.Transports
     }
     public class MessageAvailable
     {
-        public MessageAvailable(string publicReceiveAddress, System.Action<NServiceBus.Pipeline.Contexts.IncomingContext> contextAction) { }
-        public string PublicReceiveAddress { get; }
+        public MessageAvailable(System.Action<NServiceBus.Pipeline.Contexts.IncomingContext> contextAction) { }
     }
     public class OutgoingMessage
     {
@@ -2487,6 +2501,12 @@ namespace NServiceBus.Unicast.Transport
         public FailedMessageProcessingEventArgs(NServiceBus.TransportMessage message, System.Exception exception) { }
         public NServiceBus.TransportMessage Message { get; }
         public System.Exception Reason { get; }
+    }
+    public class PipelineInfo
+    {
+        public PipelineInfo(string name, string publicAddress) { }
+        public string Name { get; }
+        public string PublicAddress { get; }
     }
     public class TransactionSettings
     {

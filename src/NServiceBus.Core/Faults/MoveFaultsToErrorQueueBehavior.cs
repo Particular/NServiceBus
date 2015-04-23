@@ -32,7 +32,7 @@ namespace NServiceBus
                     Logger.Error("Failed to process message with ID: " + message.Id, exception);
                     message.RevertToOriginalBodyIfNeeded();
 
-                    message.SetExceptionHeaders(exception, context.PublicReceiveAddress());
+                    message.SetExceptionHeaders(exception, PipelineInfo.PublicAddress);
 
                     message.Headers.Remove(Headers.Retries);
 

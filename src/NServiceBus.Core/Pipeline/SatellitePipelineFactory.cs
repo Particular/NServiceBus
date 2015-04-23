@@ -29,7 +29,8 @@
                 {
                     var pipelineExecutor = BuildPipeline(builder);
 
-                    var dequeueSettings = new DequeueSettings(satellite.InputAddress, 
+                    var dequeueSettings = new DequeueSettings(satellite.InputAddress,
+                        settings.GetOrDefault<string>("MasterNode.Address"),
                         settings.GetOrDefault<bool>("Transport.PurgeOnStartup"));
 
 

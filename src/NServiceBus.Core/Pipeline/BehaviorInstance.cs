@@ -3,16 +3,19 @@
     using System;
     using System.Diagnostics;
     using System.Linq;
+    using NServiceBus.Unicast.Transport;
 
     [DebuggerDisplay("{type.Name}")]
-    abstract class BehaviorInstance
+    class BehaviorInstance
     {
+        readonly IBehavior instance;
         readonly Type type;
         readonly IBehaviorInvoker invoker;
 
-        protected BehaviorInstance(Type type)
+        public BehaviorInstance(Type behaviorType, IBehavior instance)
         {
-            this.type = type;
+            this.instance = instance;
+            type = behaviorType;
             invoker = CreateInvoker(type);
         }
 
@@ -23,13 +26,26 @@
             return (IBehaviorInvoker) Activator.CreateInstance(invokerType);
         }
 
-        public abstract object GetInstance();
-
         public Type Type { get { return type; } }
 
-        public void Invoke(object behavior, BehaviorContext context, Action<BehaviorContext> next)
+        public void Invoke(BehaviorContext context, Action<BehaviorContext> next)
         {
-            invoker.Invoke(behavior, context, next);
+            invoker.Invoke(instance, context, next);
+        }
+
+        public void Initialize(PipelineInfo pipelineInfo)
+        {
+            instance.Initialize(pipelineInfo);
+        }
+
+        public void OnStopped()
+        {
+            instance.OnStopped();
+        }
+
+        public void OnStarting()
+        {
+            instance.OnStarting();
         }
     }
 }

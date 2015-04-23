@@ -141,6 +141,8 @@
     <Compile Include="SendLocalOptions.cs" />
     <Compile Include="SendOptions.cs" />
     <Compile Include="Sagas\ActiveSagaInstance_obsolete.cs" />
+    <Compile Include="SendOptionsExtensions.cs" />
+    <Compile Include="Transports\DequeueInfo.cs" />
     <Compile Include="Transports\Msmq\MsmqAddress.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNativeTransactionBehavior.cs" />
@@ -165,7 +167,6 @@
     <Compile Include="FirstLevelRetries\FirstLevelRetryPolicy.cs" />
     <Compile Include="Pipeline\ExecutorNotifications.cs" />
     <Compile Include="Pipeline\ExecutorState.cs" />
-    <Compile Include="Pipeline\PerCallBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInstance.cs" />
     <Compile Include="Pipeline\IExecutor.cs" />
     <Compile Include="Pipeline\IndividualLimitThreadPoolExecutor.cs" />
@@ -174,7 +175,6 @@
     <Compile Include="Pipeline\PipelineFactory.cs" />
     <Compile Include="Pipeline\Pipeline.cs" />
     <Compile Include="Pipeline\SatellitePipelineFactory.cs" />
-    <Compile Include="Pipeline\StaticBehavior.cs" />
     <Compile Include="Pipeline\StepRegistrationSequence.cs" />
     <Compile Include="Pipeline\SynchronousExecutor.cs" />
     <Compile Include="Pipeline\PipelineCollection.cs" />
@@ -195,7 +195,6 @@
     <Compile Include="SecondLevelRetries\SecondLevelRetryPolicy.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetriesBehavior.cs" />
     <Compile Include="Transports\DequeueSettings.cs" />
-    <Compile Include="Transports\IncomingContextExtensions.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
     <Compile Include="Hosting\HostInfoConfigurationExtensions.cs" />
     <Compile Include="Hosting\HostInfoSettings.cs" />
@@ -311,7 +310,6 @@
     <Compile Include="Unicast\ContextualBus.cs" />
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Unicast\Messages\HostInformationBehavior.cs" />
-    <Compile Include="Unicast\Transport\PipelineAwareBuilder.cs" />
     <Compile Include="Unicast\Transport\PipelineInfo.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\PathUtilities.cs" />

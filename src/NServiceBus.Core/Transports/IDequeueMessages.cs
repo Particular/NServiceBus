@@ -12,7 +12,7 @@
         /// <summary>
         /// Initializes the <see cref="IDequeueMessages"/>.
         /// </summary>
-        void Init(DequeueSettings settings);
+        DequeueInfo Init(DequeueSettings settings);
         
         /// <summary>
         /// Starts the dequeuing of message/>.

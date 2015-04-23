@@ -184,11 +184,7 @@ namespace NServiceBus.Pipeline
 
         internal BehaviorInstance CreateBehavior(IBuilder defaultBuilder)
         {
-            if (IsStatic)
-            {
-                return new StaticBehavior(BehaviorType, defaultBuilder);
-            }
-            return new PerCallBehavior(BehaviorType, defaultBuilder);
+            return new BehaviorInstance(BehaviorType, (IBehavior) defaultBuilder.Build(BehaviorType));
         }
 
         internal static RegisterStep Create(WellKnownStep wellKnownStep, Type behavior, string description, bool isStatic)
