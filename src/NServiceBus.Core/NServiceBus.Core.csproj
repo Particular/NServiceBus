@@ -308,6 +308,8 @@
     <Compile Include="Unicast\DefaultHostIdGenerator.cs" />
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Unicast\Messages\HostInformationBehavior.cs" />
+    <Compile Include="Unicast\Transport\PipelineAwareBuilder.cs" />
+    <Compile Include="Unicast\Transport\PipelineInfo.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\WeakKeyDictionary.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
