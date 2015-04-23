@@ -11,7 +11,10 @@
     {
         public virtual IEnumerable<TransportReceiver> BuildPipelines(IBuilder builder, ReadOnlySettings settings, IExecutor executor)
         {
-            var dequeueSettings = new DequeueSettings(settings.LocalAddress(), settings.GetOrDefault<bool>("Transport.PurgeOnStartup"));
+            var dequeueSettings = new DequeueSettings(
+                settings.LocalAddress(), 
+                settings.GetOrDefault<string>("MasterNode.Address"),
+                settings.GetOrDefault<bool>("Transport.PurgeOnStartup"));
 
             var incomingPipeline = new PipelineBase<IncomingContext>(builder, settings.Get<PipelineModifications>());
 

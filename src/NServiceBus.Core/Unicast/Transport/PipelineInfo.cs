@@ -1,17 +1,6 @@
 namespace NServiceBus.Unicast.Transport
 {
     /// <summary>
-    /// Shows interest in pipeline information.
-    /// </summary>
-    public interface IRequirePipelineInfo
-    {
-        /// <summary>
-        /// Injects the pipeline information.
-        /// </summary>
-        void SetPipelineInfo(PipelineInfo pipelineInfo);
-    }
-
-    /// <summary>
     /// Contains information about pipeline.
     /// </summary>
     public class PipelineInfo

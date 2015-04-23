@@ -80,12 +80,10 @@
             {
                 steps.OnNext(new StepStarted(lookupSteps[behavior.Type], behavior.Type, stepEnded));
 
-                var instance = behavior.GetInstance();
-
                 var duration = Stopwatch.StartNew();
 
                 BehaviorContext innermostContext = null;
-                behavior.Invoke(instance, context, newContext =>
+                behavior.Invoke(context, newContext =>
                 {
                     duration.Stop();
                     innermostContext = InvokeNext(newContext, contextStacker, currentIndex + 1);

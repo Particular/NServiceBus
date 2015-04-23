@@ -20,7 +20,7 @@ namespace NServiceBus.Unicast.Transport
             this.executor = executor;
             this.dequeueSettings = dequeueSettings;
             this.receiver = receiver;
-            this.builder = new PipelineAwareBuilder(new PipelineInfo(id, dequeueSettings.PublicAddress), builder);
+            this.builder = builder;
         }
 
 
@@ -54,7 +54,6 @@ namespace NServiceBus.Unicast.Transport
             var context = new IncomingContext(new RootContext(builder));
 
             messageAvailable.InitializeContext(context);
-            context.SetPublicReceiveAddress(messageAvailable.PublicReceiveAddress);
             context.Set(currentReceivePerformanceDiagnostics);
             SetContext(context);
 
@@ -101,7 +100,13 @@ namespace NServiceBus.Unicast.Transport
 
             Logger.DebugFormat("Pipeline {0} is starting receiver for queue {0}.", Id, dequeueSettings.QueueName);
 
-            receiver.Init(dequeueSettings);
+            var dequeueInfo = receiver.Init(dequeueSettings);
+            if (dequeueSettings.PublicAddress != null && dequeueInfo.PublicAddress != dequeueSettings.PublicAddress)
+            {
+                throw new Exception("The transport cannot override the public receive address if it is provided externally.");
+            }
+            pipeline.Initialize(new PipelineInfo(id, dequeueInfo.PublicAddress));
+            pipeline.OnStarting();
 
             StartReceiver();
 
@@ -137,6 +142,7 @@ namespace NServiceBus.Unicast.Transport
             }
 
             receiver.Stop();
+            pipeline.OnStopped();
 
             isStarted = false;
         }

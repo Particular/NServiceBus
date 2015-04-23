@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Unicast.Transport;
     using ObjectBuilder;
 
 
@@ -23,14 +24,36 @@
             behaviors = steps.Select(r => r.CreateBehavior(builder)).ToArray();
         }
 
-        public  BehaviorContext Invoke(T context)
+        public void Initialize(PipelineInfo pipelineInfo)
+        {
+            foreach (var behaviorInstance in behaviors)
+            {
+                behaviorInstance.Initialize(pipelineInfo);
+            }
+        }
+
+        public void OnStarting()
+        {
+            foreach (var behaviorInstance in behaviors)
+            {
+                behaviorInstance.OnStarting();
+            }
+        }
+
+        public void OnStopped()
+        {
+            foreach (var behaviorInstance in behaviors)
+            {
+                behaviorInstance.OnStopped();
+            }
+        }
+
+        public void Invoke(T context)
         {
             var lookupSteps = steps.ToDictionary(rs => rs.BehaviorType, ss => ss.StepId);
             var pipeline = new BehaviorChain(behaviors, context, lookupSteps, busNotifications);
-            return pipeline.Invoke(contextStacker);
+            pipeline.Invoke(contextStacker);
         }
-
-
 
         BehaviorInstance[] behaviors;
         BusNotifications busNotifications;
