@@ -18,7 +18,7 @@ namespace NServiceBus
         {
             var queue = context.Get<MessageQueue>();
 
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))
             {
                 Message message;
 

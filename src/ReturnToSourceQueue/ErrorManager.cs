@@ -55,7 +55,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         /// </summary>
         public void ReturnMessageToSourceQueue(string messageId)
         {
-            using (var scope = new TransactionScope())
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
@@ -103,7 +103,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                             Console.WriteLine();
                             Console.WriteLine("Found message - going to return to queue.");
 
-                            using (var tx = new TransactionScope())
+                            using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                             {
                                 var failedQueue = headers[FaultsHeaderKeys.FailedQ];
                                 using (var q = new MessageQueue(MsmqUtilities.GetFullPath(MsmqAddress.Parse(failedQueue))))

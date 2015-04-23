@@ -106,7 +106,7 @@ public class PubSubTestCase : TestCase
             var subscriberAddress = "PubSubPerformanceTest.Subscriber" + i;
             creator.CreateQueueIfNecessary(subscriberAddress, null);
 
-            using (var tx = new TransactionScope())
+            using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
                 {
