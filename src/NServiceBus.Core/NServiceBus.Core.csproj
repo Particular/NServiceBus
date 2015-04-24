@@ -118,6 +118,7 @@
     <Compile Include="Faults\ErrorsNotifications.cs" />
     <Compile Include="Faults\ErrorSubscribers.cs" />
     <Compile Include="Features\FeatureRunner.cs" />
+    <Compile Include="Features\FeatureState.cs" />
     <Compile Include="FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
@@ -130,8 +131,11 @@
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
     <Compile Include="Pipeline\Contexts\IncomingContext.cs" />
     <Compile Include="Pipeline\Contexts\TransportReceiveContext.cs" />
+    <Compile Include="Pipeline\FeatureDependentRegisterStep.cs" />
     <Compile Include="Pipeline\PipelineModelBuilder.cs" />
+    <Compile Include="Pipeline\PipelinesCollection.cs" />
     <Compile Include="Pipeline\StageConnector.cs" />
+    <Compile Include="Satellites\SatelliteBehavior.cs" />
     <Compile Include="SendLocalOptions.cs" />
     <Compile Include="SendOptions.cs" />
     <Compile Include="Sagas\ActiveSagaInstance_obsolete.cs" />
@@ -166,7 +170,6 @@
     <Compile Include="Pipeline\MainPipelineFactory.cs" />
     <Compile Include="Pipeline\PipelineFactory.cs" />
     <Compile Include="Pipeline\Pipeline.cs" />
-    <Compile Include="Pipeline\SatellitePipelineFactory.cs" />
     <Compile Include="Pipeline\StepRegistrationSequence.cs" />
     <Compile Include="Pipeline\SynchronousExecutor.cs" />
     <Compile Include="Pipeline\PipelineCollection.cs" />
@@ -310,13 +313,11 @@
     <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\WeakKeyDictionary.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
-    <Compile Include="Satellites\ExecuteSatelliteHandlerBehavior.cs" />
     <Compile Include="Pipeline\LimitedThreadPoolExecutor.cs" />
     <Compile Include="Pipeline\ThroughputLimitExecutor.cs" />
     <Compile Include="Unicast\Transport\SuppressAmbientTransactionBehavior.cs" />
     <Compile Include="Unicast\Transport\ReceivePerformanceDiagnosticsBehavior.cs" />
     <Compile Include="Unicast\Transport\HandlerTransactionScopeWrapperBehavior.cs" />
-    <Compile Include="Satellites\SatelliteTransportReceiver.cs" />
     <Compile Include="Unicast\UnicastBus_IBusImpl.cs" />
     <Compile Include="Utils\Guard.cs" />
     <Compile Include="Utils\ExceptionHeaderHelper.cs" />
@@ -462,7 +463,6 @@
     <Compile Include="Config\MessageEndpointMappingCollection.cs" />
     <Compile Include="Config\MessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="Sagas\Sagas.cs" />
-    <Compile Include="Satellites\IAdvancedSatellite.cs" />
     <Compile Include="Settings\SettingsHolder.cs" />
     <Compile Include="Transports\ICreateQueues.cs" />
     <Compile Include="Transports\IDeferMessages.cs" />
@@ -481,7 +481,6 @@
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Config\MsmqSubscriptionStorageConfig.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
-    <Compile Include="Config\SatelliteConfigurer.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesConfig.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetries.cs" />
     <Compile Include="Config\TransportConfig.cs" />
@@ -528,7 +527,6 @@
     </Compile>
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersister.cs" />
     <Compile Include="Sagas\PropertySagaFinder.cs" />
-    <Compile Include="Satellites\ISatellite.cs" />
     <Compile Include="Satellites\SatellitesQueuesCreator.cs" />
     <Compile Include="Scheduling\Schedule.cs" />
     <Compile Include="Scheduling\DefaultScheduler.cs" />

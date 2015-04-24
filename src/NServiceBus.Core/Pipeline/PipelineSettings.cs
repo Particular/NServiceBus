@@ -77,30 +77,28 @@ namespace NServiceBus.Pipeline
         /// <param name="stepId">The identifier of the new step to add.</param>
         /// <param name="behavior">The <see cref="Behavior{TContext}"/> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
-        /// <param name="isStatic">Is this behavior pipeline-static</param>
-        public StepRegistrationSequence Register(string stepId, Type behavior, string description, bool isStatic = false)
+        public StepRegistrationSequence Register(string stepId, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
             Guard.AgainstNullAndEmpty(stepId, "stepId");
             Guard.AgainstNullAndEmpty(description, "description");
 
-            AddStep(RegisterStep.Create(stepId, behavior, description, isStatic));
+            AddStep(RegisterStep.Create(stepId, behavior, description));
             return new StepRegistrationSequence(AddStep);
         }
 
         /// <summary>
-        /// <see cref="Register(string,System.Type,string, bool)"/>
+        /// <see cref="Register(string,System.Type,string)"/>
         /// </summary>
         /// <param name="wellKnownStep">The identifier of the step to add.</param>
         /// <param name="behavior">The <see cref="Behavior{TContext}"/> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
-        /// <param name="isStatic">Is this behavior pipeline-static</param>
-        public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description, bool isStatic = false)
+        public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description)
         {
             Guard.AgainstNull(wellKnownStep, "wellKnownStep");
 
-            return Register((string)wellKnownStep, behavior, description, isStatic);
+            return Register((string)wellKnownStep, behavior, description);
         }
 
 
@@ -145,20 +143,6 @@ namespace NServiceBus.Pipeline
             registeredSteps.Add(step);
 
             modifications.Additions.Add(step);
-        }
-
-        internal void RegisterBehaviorsInContainer(ReadOnlySettings settings, IConfigureComponents container)
-        {
-            foreach (var registeredBehavior in registeredBehaviors)
-            {
-                container.ConfigureComponent(registeredBehavior, DependencyLifecycle.InstancePerCall);
-            }
-
-            foreach (var step in registeredSteps)
-            {
-                step.ApplyContainerRegistration(settings, container);
-            }
-
         }
 
         List<RegisterStep> registeredSteps = new List<RegisterStep>();

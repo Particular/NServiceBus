@@ -19,7 +19,7 @@ namespace NServiceBus.Features
 
                 if (LicenseManager.HasLicenseExpired())
                 {
-                    context.Pipeline.Register<NotifyOnInvalidLicenseBehavior.Registration>();
+                    context.PipelinesCollection.Register<NotifyOnInvalidLicenseBehavior.Registration>();
                 }
             }
             catch (Exception ex)

@@ -49,7 +49,8 @@ namespace NServiceBus.Unicast
             this.messageSender = messageSender;
             this.messageRouter = messageRouter;
             this.callbackMessageLookup = callbackMessageLookup;
-            outgoingPipeline = new PipelineBase<OutgoingContext>(builder, settings.Get<PipelineModifications>());
+            var pipelinesCollection = settings.Get<PipelinesCollection>();
+            outgoingPipeline = new PipelineBase<OutgoingContext>(builder,  settings, pipelinesCollection.MainPipeline);
             sendOnlyMode = settings.Get<bool>("Endpoint.SendOnly");
             //if we're a worker, send to the distributor data bus
             if (settings.GetOrDefault<bool>("Worker.Enabled"))

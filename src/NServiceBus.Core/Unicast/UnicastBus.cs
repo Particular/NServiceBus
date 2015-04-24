@@ -17,7 +17,6 @@ namespace NServiceBus.Unicast
     using NServiceBus.Unicast.Routing;
     using ObjectBuilder;
     using Pipeline;
-    using Pipeline.Contexts;
     using Settings;
 
     interface IRealBus
@@ -33,6 +32,7 @@ namespace NServiceBus.Unicast
         /// Initializes a new instance of <see cref="UnicastBus"/>.
         /// </summary>
         public UnicastBus(
+            BehaviorContext rootContext,
             IExecutor executor,
             CriticalError criticalError,
             IEnumerable<PipelineFactory> pipelineFactories,
@@ -53,7 +53,6 @@ namespace NServiceBus.Unicast
             this.settings = settings;
             this.builder = builder;
 
-            var rootContext = new RootContext(builder);
             busImpl = new ContextualBus( 
                 () => rootContext,
                 messageMapper, 
@@ -239,5 +238,6 @@ namespace NServiceBus.Unicast
         {
             get { return builder; }
         }
+
     }
 }

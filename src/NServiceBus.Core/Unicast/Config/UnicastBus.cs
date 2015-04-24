@@ -9,6 +9,7 @@ namespace NServiceBus.Features
     using NServiceBus.Hosting;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Settings;
     using NServiceBus.Settings.Concurrency;
     using NServiceBus.Settings.Throttling;
@@ -52,7 +53,7 @@ namespace NServiceBus.Features
                 context.Settings.Get<Dictionary<string, string>>("NServiceBus.HostInformation.Properties"));
 
             context.Container.RegisterSingleton(hostInfo);
-            context.Pipeline.Register<HostInformationBehavior.Registration>();
+            context.PipelinesCollection.Register<HostInformationBehavior.Registration>();
 
             context.Container.ConfigureComponent<BusNotifications>(DependencyLifecycle.SingleInstance);
            
@@ -81,11 +82,10 @@ namespace NServiceBus.Features
             context.Container.ConfigureComponent(b => throttlingConfig.WrapExecutor(concurrencyConfig.BuildExecutor(b.Build<BusNotifications>())), DependencyLifecycle.SingleInstance);
 
             context.Container.ConfigureComponent<MainPipelineFactory>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<SatellitePipelineFactory>(DependencyLifecycle.SingleInstance);
 
             context.Container.ConfigureComponent<BehaviorContextStacker>(DependencyLifecycle.SingleInstance);
 
-            context.Container.ConfigureComponent(b => b.Build<BehaviorContextStacker>().GetCurrentContext(), DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent(b => b.Build<BehaviorContextStacker>().GetCurrentOrRootContext(), DependencyLifecycle.InstancePerCall);
 
             context.Container.ConfigureComponent<CallbackMessageLookup>(DependencyLifecycle.SingleInstance);
 
@@ -115,7 +115,7 @@ namespace NServiceBus.Features
 
             ConfigureMessageRegistry(context, knownMessages);
 
-            HardcodedPipelineSteps.RegisterOutgoingCoreBehaviors(context.Pipeline);
+            HardcodedPipelineSteps.RegisterOutgoingCoreBehaviors(context.PipelinesCollection);
             
             if (context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
             {
@@ -124,25 +124,26 @@ namespace NServiceBus.Features
 
 
 
-            HardcodedPipelineSteps.RegisterIncomingCoreBehaviors(context.Pipeline);
+            HardcodedPipelineSteps.RegisterIncomingCoreBehaviors(context.PipelinesCollection);
 
             var transactionSettings = new TransactionSettings(context.Settings);
 
             if (transactionSettings.DoNotWrapHandlersExecutionInATransactionScope)
             {
-                context.Pipeline.Register<SuppressAmbientTransactionBehavior.Registration>();
+                context.PipelinesCollection.Register<SuppressAmbientTransactionBehavior.Registration>();
             }
             else
             {
-                context.Pipeline.Register<HandlerTransactionScopeWrapperBehavior.Registration>();
+                context.PipelinesCollection.Register<HandlerTransactionScopeWrapperBehavior.Registration>();
             }
            
-            context.Pipeline.Register<EnforceMessageIdBehavior.Registration>();   
+            context.PipelinesCollection.Register<EnforceMessageIdBehavior.Registration>();   
         }
 
         Unicast.UnicastBus CreateBus(IBuilder builder, HostInformation hostInfo)
         {
             var bus = new Unicast.UnicastBus(
+                builder.Build<BehaviorContextStacker>().Root,
                 builder.Build<IExecutor>(),
                 builder.Build<CriticalError>(),
                 builder.BuildAll<PipelineFactory>(),

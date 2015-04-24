@@ -20,32 +20,30 @@ namespace NServiceBus.Pipeline
         /// <param name="stepId">The identifier of the new step to add.</param>
         /// <param name="behavior">The <see cref="Behavior{TContext}"/> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
-        /// <param name="isStatic">Is this behavior pipeline-static</param>
-        public StepRegistrationSequence Register(string stepId, Type behavior, string description, bool isStatic = false)
+        public StepRegistrationSequence Register(string stepId, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
             Guard.AgainstNullAndEmpty(stepId, "stepId");
             Guard.AgainstNullAndEmpty(description, "description");
 
-            var step = RegisterStep.Create(stepId, behavior, description, isStatic);
+            var step = RegisterStep.Create(stepId, behavior, description);
             addStep(step);
             return this;
         }
 
 
         /// <summary>
-        /// <see cref="Register(string,System.Type,string, bool)"/>
+        /// <see cref="Register(string,System.Type,string)"/>
         /// </summary>
         /// <param name="wellKnownStep">The identifier of the step to add.</param>
         /// <param name="behavior">The <see cref="Behavior{TContext}"/> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
-        /// <param name="isStatic">Is this behavior pipeline-static</param>
-        public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description, bool isStatic = false)
+        public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description)
         {
             Guard.AgainstNull(wellKnownStep, "wellKnownStep");
 
-            Register((string)wellKnownStep, behavior, description, isStatic);
+            Register((string)wellKnownStep, behavior, description);
             return this;
         }
     }

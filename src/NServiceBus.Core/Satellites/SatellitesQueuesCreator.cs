@@ -1,8 +1,8 @@
 
 namespace NServiceBus.Satellites
 {
-    using System.Linq;
     using Installation;
+    using NServiceBus.Pipeline;
     using Transports;
 
     class SatellitesQueuesCreator : INeedToInstallSomething
@@ -21,13 +21,11 @@ namespace NServiceBus.Satellites
                 return;
             }
 
-            var satellites = config.Builder
-                 .BuildAll<ISatellite>()
-                 .ToList();
+            var satellites = config.Settings.Get<PipelinesCollection>().SatellitePipelines;
 
-            foreach (var satellite in satellites.Where(satellite => !satellite.Disabled && satellite.InputAddress != null))
+            foreach (var satellite in satellites)
             {
-                QueueCreator.CreateQueueIfNecessary(satellite.InputAddress, identity);
+                QueueCreator.CreateQueueIfNecessary(satellite.ReceiveAddress, identity);
             }
         }
     }
