@@ -118,8 +118,6 @@ namespace MessageMapperTests
             void MethodOnInterface(T myMessage);
         }
 
-
-
         [Test]
         public void Interfaces_with_only_properties_should_be_mapped()
         {
@@ -132,6 +130,30 @@ namespace MessageMapperTests
         public interface InterfaceWithOnlyProperties : IMessage
         {
             string SomeProperty { get; set; }
+        }
+
+        [Test]
+        public void Interfaces_with_inheritance_and_property_overload_should_be_mapped()
+        {
+            var mapper = new MessageMapper();
+            var genericInterfaceType = typeof(InterfaceWithGenericProperty<ISpecific>);
+            mapper.Initialize(new[] { genericInterfaceType });
+            Assert.NotNull(mapper.GetMappedTypeFor(genericInterfaceType));
+        }
+
+        public interface InterfaceWithGenericProperty
+        {
+            object Original { get; set; }
+        }
+
+        public interface InterfaceWithGenericProperty<T> : InterfaceWithGenericProperty
+        {
+            new T Original { get; set; }
+        }
+
+        public interface ISpecific
+        {
+            string Value { get; set; }
         }
     }
 

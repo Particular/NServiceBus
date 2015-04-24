@@ -179,7 +179,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <summary>
         /// Returns all properties on the given type, going up the inheritance hierarchy.
         /// </summary>
-        static IEnumerable<PropertyInfo> GetAllProperties(Type type)
+       static IEnumerable<PropertyInfo> GetAllProperties(Type type)
         {
             var props = new List<PropertyInfo>(type.GetProperties());
             foreach (var interfaceType in type.GetInterfaces())
@@ -187,17 +187,18 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 props.AddRange(GetAllProperties(interfaceType));
             }
 
-            var names = new List<string>(props.Count);
+            var tracked = new List<PropertyInfo>(props.Count);
             var duplicates = new List<PropertyInfo>(props.Count);
             foreach (var p in props)
             {
-                if (names.Contains(p.Name))
+                var duplicate = tracked.SingleOrDefault(n => n.Name == p.Name && n.PropertyType == p.PropertyType);
+                if (duplicate != null)
                 {
                     duplicates.Add(p);
                 }
                 else
                 {
-                    names.Add(p.Name);
+                    tracked.Add(p);
                 }
             }
 
@@ -208,6 +209,5 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             return props;
         }
-
     }
 }

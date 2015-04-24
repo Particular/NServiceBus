@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using System.Linq;
+    using NServiceBus.MessageInterfaces;
     using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Serializers.XML;
@@ -31,7 +32,7 @@
         /// </summary>
         class MessageTypesInitializer : FeatureStartupTask
         {
-            public MessageMapper Mapper { get; set; }
+            public IMessageMapper Mapper { get; set; }
             public XmlMessageSerializer Serializer { get; set; }
             public Configure Config { get; set; }
 
