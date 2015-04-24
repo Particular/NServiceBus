@@ -1,13 +1,16 @@
 ﻿namespace NServiceBus.Pipeline
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Janitor;
     using NServiceBus.Settings;
     using NServiceBus.Unicast.Transport;
     using ObjectBuilder;
 
-
-    class PipelineBase<T>where T:BehaviorContext
+    [SkipWeaving]
+    class PipelineBase<T> : IDisposable
+        where T : BehaviorContext
     {
         public PipelineBase(IBuilder builder, ReadOnlySettings settings, PipelineModifications pipelineModifications, RegisterStep receiveBehavior = null)
         {
@@ -53,6 +56,14 @@
             }
         }
 
+        public void Dispose()
+        {
+            foreach (var behaviorInstance in behaviors)
+            {
+                behaviorInstance.Dispose();
+            }
+        }
+
         public void Invoke(T context)
         {
             var lookupSteps = steps.ToDictionary(rs => rs.BehaviorType, ss => ss.StepId);
@@ -62,6 +73,7 @@
 
         BehaviorInstance[] behaviors;
         BusNotifications busNotifications;
-        BehaviorContextStacker contextStacker; IList<RegisterStep> steps;
+        BehaviorContextStacker contextStacker;
+        IList<RegisterStep> steps;
     }
 }

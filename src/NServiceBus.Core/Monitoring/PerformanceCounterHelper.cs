@@ -17,9 +17,15 @@ namespace NServiceBus
             return counter;
         }
 
-        public static bool TryToInstantiatePerformanceCounter(string counterName, string instanceName, out PerformanceCounter counter)
+        public static IPerformanceCounterInstance TryToInstantiatePerformanceCounter(string counterName, string instanceName)
         {
-            return TryToInstantiatePerformanceCounter(counterName, instanceName, out counter, false);
+            PerformanceCounter counter;
+            var success = TryToInstantiatePerformanceCounter(counterName, instanceName, out counter, false);
+            if (success)
+            {
+                return new PerformanceCounterInstance(counter);
+            }
+            return new NonFunctionalPerformanceCounterInstance();
         }
 
         static bool TryToInstantiatePerformanceCounter(string counterName, string instanceName, out PerformanceCounter counter, bool throwIfFails)
@@ -47,7 +53,7 @@ namespace NServiceBus
 
                 return false;
             }
-            
+            logger.DebugFormat("'{0}' counter initialized for '{1}'", counterName, instanceName);
             return true;
         }
     }

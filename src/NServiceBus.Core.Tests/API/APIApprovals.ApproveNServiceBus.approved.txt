@@ -1515,10 +1515,6 @@ namespace NServiceBus.Pipeline
         void Stop();
     }
     public interface IStageConnector { }
-    public interface PipelineFactory
-    {
-        System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Transport.TransportReceiver> BuildPipelines(NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Pipeline.IExecutor executor);
-    }
     public class PipelineNotifications : System.IDisposable
     {
         public PipelineNotifications() { }
@@ -2076,8 +2072,7 @@ namespace NServiceBus.Transports
     }
     public class DequeueSettings
     {
-        public DequeueSettings(string queue, string publicAddress, bool purgeOnStartup) { }
-        public string PublicAddress { get; }
+        public DequeueSettings(string queue, bool purgeOnStartup) { }
         public bool PurgeOnStartup { get; }
         public string QueueName { get; }
     }
@@ -2324,7 +2319,7 @@ namespace NServiceBus.Unicast
     }
     public class UnicastBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, NServiceBus.Unicast.IRealBus, System.IDisposable
     {
-        public UnicastBus(NServiceBus.Pipeline.BehaviorContext rootContext, NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.PipelineFactory> pipelineFactories, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.ISendMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter, NServiceBus.Unicast.CallbackMessageLookup callbackMessageLookup) { }
+        public UnicastBus(NServiceBus.Pipeline.BehaviorContext rootContext, NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.ISendMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter, NServiceBus.Unicast.CallbackMessageLookup callbackMessageLookup) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public NServiceBus.IMessageContext CurrentMessageContext { get; }
         [System.ObsoleteAttribute("We have introduced a more explicit API to set the host identifier, see busConfigu" +

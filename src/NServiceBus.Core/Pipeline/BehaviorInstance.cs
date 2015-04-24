@@ -6,7 +6,7 @@
     using NServiceBus.Unicast.Transport;
 
     [DebuggerDisplay("{type.Name}")]
-    class BehaviorInstance
+    class BehaviorInstance : IDisposable
     {
         readonly IBehavior instance;
         readonly Type type;
@@ -46,6 +46,20 @@
         public void OnStarting()
         {
             instance.OnStarting();
+        }
+
+        void DisposeManaged()
+        {
+            var disposableBehavior = instance as IDisposable;
+            if (disposableBehavior != null)
+            {
+                disposableBehavior.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            //Injected via Fody
         }
     }
 }

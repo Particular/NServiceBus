@@ -1,37 +1,30 @@
 namespace NServiceBus
 {
     using System;
-    using System.Diagnostics;
-    using NServiceBus.Logging;
-    using NServiceBus.Unicast.Transport.Monitoring;
+    using Janitor;
 
-    class ReceivePerformanceDiagnosticsBehavior : PhysicalMessageProcessingStageBehavior
+    [SkipWeaving]
+    class ReceivePerformanceDiagnosticsBehavior : PhysicalMessageProcessingStageBehavior, IDisposable
     {
-        static ILog Logger = LogManager.GetLogger<ReceivePerformanceDiagnostics>();
-
-        bool enabled;
-        PerformanceCounter counter;
+        IPerformanceCounterInstance counter;
 
         public override void OnStarting()
         {
-            const string counterName = "# of msgs pulled from the input queue /sec";
-            if (!PerformanceCounterHelper.TryToInstantiatePerformanceCounter(counterName, PipelineInfo.Name, out counter))
-            {
-                enabled = false;
-            }
-
-            Logger.DebugFormat("'{0}' counter initialized for '{1}'", counterName, PipelineInfo.Name);
-
-            enabled = true;
+            counter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter("# of msgs pulled from the input queue /sec", PipelineInfo.Name);
         }
 
         public override void Invoke(Context context, Action next)
         {
-            if (enabled)
-            {
-                counter.Increment();
-            }
+            counter.Increment();
             next();
+        }
+
+        public void Dispose()
+        {
+            if (counter != null)
+            {
+                counter.Dispose();
+            }
         }
     }
 }

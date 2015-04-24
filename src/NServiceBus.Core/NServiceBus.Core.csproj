@@ -126,6 +126,7 @@
     <Compile Include="ISendOnlyBusExtensions.cs" />
     <Compile Include="MessageMutator\IMutateOutgoingPhysicalContext.cs" />
     <Compile Include="MessageMutator\OutgoingPhysicalMutatorContext.cs" />
+    <Compile Include="Monitoring\PerformanceCounterInstance.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingLogicalMessageContext.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
@@ -600,7 +601,6 @@
     <Compile Include="Unicast\Transport\FailedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\Config\UseTransportExtensions.cs" />
     <Compile Include="FirstLevelRetries\FlrStatusStorage.cs" />
-    <Compile Include="Unicast\Transport\Monitoring\ReceivePerformanceDiagnostics.cs" />
     <Compile Include="Unicast\Transport\ThroughputLimiter.cs" />
     <Compile Include="Unicast\Transport\TransportReceiver.cs" />
     <Compile Include="Unicast\Transport\TransactionSettings.cs" />
