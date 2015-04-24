@@ -54,7 +54,7 @@ namespace NServiceBus.Transports.Msmq
             {
                 queue.Purge();
             }
-            return new DequeueInfo(settings.PublicAddress ?? queueName);
+            return new DequeueInfo(queueName);
         }
 
         /// <summary>

@@ -101,10 +101,6 @@ namespace NServiceBus.Unicast.Transport
             Logger.DebugFormat("Pipeline {0} is starting receiver for queue {0}.", Id, dequeueSettings.QueueName);
 
             var dequeueInfo = receiver.Init(dequeueSettings);
-            if (dequeueSettings.PublicAddress != null && dequeueInfo.PublicAddress != dequeueSettings.PublicAddress)
-            {
-                throw new Exception("The transport cannot override the public receive address if it is provided externally.");
-            }
             pipeline.Initialize(new PipelineInfo(id, dequeueInfo.PublicAddress));
             pipeline.OnStarting();
 

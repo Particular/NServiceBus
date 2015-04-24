@@ -86,8 +86,6 @@ namespace NServiceBus.Features
 
             context.Container.ConfigureComponent(b => throttlingConfig.WrapExecutor(concurrencyConfig.BuildExecutor(b.Build<BusNotifications>())), DependencyLifecycle.SingleInstance);
 
-            context.Container.ConfigureComponent<MainPipelineFactory>(DependencyLifecycle.SingleInstance);
-
             context.Container.ConfigureComponent<BehaviorContextStacker>(DependencyLifecycle.SingleInstance);
 
             context.Container.ConfigureComponent(b => b.Build<BehaviorContextStacker>().GetCurrentOrRootContext(), DependencyLifecycle.InstancePerCall);
@@ -145,7 +143,6 @@ namespace NServiceBus.Features
                 builder.Build<BehaviorContextStacker>().Root,
                 builder.Build<IExecutor>(),
                 builder.Build<CriticalError>(),
-                builder.BuildAll<PipelineFactory>(),
                 builder.Build<IMessageMapper>(),
                 builder,
                 builder.Build<Configure>(),

@@ -105,7 +105,6 @@ namespace NServiceBus
     }
     public class Configure
     {
-        public Configure(NServiceBus.Settings.SettingsHolder settings, NServiceBus.ObjectBuilder.Common.IContainer container, System.Collections.Generic.List<System.Action<NServiceBus.ObjectBuilder.IConfigureComponents>> registrations, NServiceBus.Pipeline.PipelineSettings pipeline, System.Collections.Generic.Dictionary<string, string> outgoingHeaders) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public string LocalAddress { get; }
         public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
@@ -1057,8 +1056,10 @@ namespace NServiceBus.Features
     public class FeatureConfigurationContext
     {
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
-        public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
+        public NServiceBus.Pipeline.PipelineSettings PipelinesCollection { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
+        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string receiveAddress) { }
+        public void RegisterReceiveBehavior(System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.ReceiveBehavior> receiveBehaviorFactory) { }
     }
     public class FeatureDiagnosticData
     {
@@ -1081,6 +1082,13 @@ namespace NServiceBus.Features
         protected FeatureStartupTask() { }
         protected abstract void OnStart();
         protected virtual void OnStop() { }
+    }
+    public enum FeatureState
+    {
+        Disabled = 0,
+        Enabled = 1,
+        Active = 2,
+        Deactivated = 3,
     }
     public class FirstLevelRetries : NServiceBus.Features.Feature
     {
@@ -1163,6 +1171,8 @@ namespace NServiceBus.Features
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault<T>(this NServiceBus.Settings.SettingsHolder settings)
             where T : NServiceBus.Features.Feature { }
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault(this NServiceBus.Settings.SettingsHolder settings, System.Type featureType) { }
+        public static bool IsFeatureActive(this NServiceBus.Settings.ReadOnlySettings settings, System.Type featureType) { }
+        public static bool IsFeatureEnabled(this NServiceBus.Settings.ReadOnlySettings settings, System.Type featureType) { }
     }
     public class SLAMonitoring : NServiceBus.Features.Feature
     {
@@ -1499,6 +1509,12 @@ namespace NServiceBus.Pipeline
         public int CurrentConcurrencyLevel { get; }
         public string[] PipelineIds { get; }
     }
+    public abstract class FeatureDependentRegisterStep<T> : NServiceBus.Pipeline.RegisterStep
+        where T : NServiceBus.Features.Feature
+    {
+        protected FeatureDependentRegisterStep(string stepId, System.Type behavior, string description) { }
+        public override bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
+    }
     public interface IBehavior
     {
         void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo);
@@ -1529,8 +1545,8 @@ namespace NServiceBus.Pipeline
     }
     public class PipelineSettings
     {
-        public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description, bool isStatic = False) { }
-        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description, bool isStatic = False) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
         public void Register<T>()
             where T : NServiceBus.Pipeline.RegisterStep, new () { }
         public void Register<T, TBehavior>(System.Func<NServiceBus.ObjectBuilder.IBuilder, TBehavior> customInitializer)
@@ -1544,10 +1560,9 @@ namespace NServiceBus.Pipeline
     [System.Diagnostics.DebuggerDisplayAttribute("{StepId}({BehaviorType.FullName}) - {Description}")]
     public abstract class RegisterStep
     {
-        protected RegisterStep(string stepId, System.Type behavior, string description, bool isStatic = False) { }
+        protected RegisterStep(string stepId, System.Type behavior, string description) { }
         public System.Type BehaviorType { get; }
         public string Description { get; }
-        public bool IsStatic { get; }
         public string StepId { get; }
         public void ContainerRegistration<T>(System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Settings.ReadOnlySettings, T> customRegistration) { }
         public void InsertAfter(NServiceBus.Pipeline.WellKnownStep step) { }
@@ -1558,6 +1573,7 @@ namespace NServiceBus.Pipeline
         public void InsertBefore(string id) { }
         public void InsertBeforeIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertBeforeIfExists(string id) { }
+        public virtual bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public abstract class StageConnector<TFrom, TTo> : NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFrom, TTo>, NServiceBus.Pipeline.IStageConnector
         where TFrom : NServiceBus.Pipeline.BehaviorContext
@@ -1577,8 +1593,8 @@ namespace NServiceBus.Pipeline
     }
     public class StepRegistrationSequence
     {
-        public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description, bool isStatic = False) { }
-        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description, bool isStatic = False) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
     }
     public struct StepStarted
     {
@@ -1855,21 +1871,6 @@ namespace NServiceBus.Sagas
     public class ActiveSagaInstance
     {
         public ActiveSagaInstance() { }
-    }
-}
-namespace NServiceBus.Satellites
-{
-    public interface IAdvancedSatellite : NServiceBus.Satellites.ISatellite
-    {
-        System.Action<NServiceBus.Unicast.Transport.TransportReceiver> GetReceiverCustomization();
-    }
-    public interface ISatellite
-    {
-        bool Disabled { get; }
-        string InputAddress { get; }
-        bool Handle(NServiceBus.TransportMessage message);
-        void Start();
-        void Stop();
     }
 }
 namespace NServiceBus.SecondLevelRetries.Config

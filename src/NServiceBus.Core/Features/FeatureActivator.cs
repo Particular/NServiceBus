@@ -123,12 +123,11 @@ namespace NServiceBus.Features
                 }
             }
 
-            settings.PreventChanges();
-
             foreach (var feature in enabledFeatures)
             {
                 ActivateFeature(feature, enabledFeatures, context);
             }
+            settings.PreventChanges();
 
             return new FeaturesReport(features.Select(t => t.Diagnostics));
         }
@@ -282,6 +281,11 @@ namespace NServiceBus.Features
 
             public FeatureDiagnosticData Diagnostics { get; private set; }
             public Feature Feature { get; private set; }
+
+            public override string ToString()
+            {
+                return string.Format("{0} [{1}]", Feature.Name, Feature.Version);
+            }
         }
 
         class Node
