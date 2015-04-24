@@ -6,7 +6,6 @@ namespace NServiceBus.Unicast.Transport
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport.Monitoring;
 
     /// <summary>
     ///     Default implementation of a NServiceBus transport.
@@ -52,9 +51,7 @@ namespace NServiceBus.Unicast.Transport
         void InvokePipeline(MessageAvailable messageAvailable)
         {
             var context = new IncomingContext(new RootContext(builder));
-
             messageAvailable.InitializeContext(context);
-            context.Set(currentReceivePerformanceDiagnostics);
             SetContext(context);
 
             executor.Execute(Id, () =>
@@ -96,8 +93,6 @@ namespace NServiceBus.Unicast.Transport
                 throw new InvalidOperationException("The transport is already started");
             }
 
-            InitializePerformanceCounters(dequeueSettings.QueueName);
-
             Logger.DebugFormat("Pipeline {0} is starting receiver for queue {0}.", Id, dequeueSettings.QueueName);
 
             var dequeueInfo = receiver.Init(dequeueSettings);
@@ -117,11 +112,6 @@ namespace NServiceBus.Unicast.Transport
             InnerStop();
         }
 
-        void InitializePerformanceCounters(string queueName)
-        {
-            currentReceivePerformanceDiagnostics = new ReceivePerformanceDiagnostics(queueName);
-        }
-
         void StartReceiver()
         {
             receiver.Subscribe(this);
@@ -139,6 +129,7 @@ namespace NServiceBus.Unicast.Transport
 
             receiver.Stop();
             pipeline.OnStopped();
+            pipeline.Dispose();
 
             isStarted = false;
         }
@@ -146,11 +137,6 @@ namespace NServiceBus.Unicast.Transport
         void DisposeManaged()
         {
             InnerStop();
-
-            if (currentReceivePerformanceDiagnostics != null)
-            {
-                currentReceivePerformanceDiagnostics.Dispose();
-            }
         }
 
         /// <summary>
@@ -162,15 +148,11 @@ namespace NServiceBus.Unicast.Transport
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
 
-
-
         readonly string id;
         readonly IBuilder builder;
         readonly PipelineBase<IncomingContext> pipeline;
         readonly IExecutor executor;
         readonly IDequeueMessages receiver;
-
-        ReceivePerformanceDiagnostics currentReceivePerformanceDiagnostics;
 
         bool isStarted;
         readonly DequeueSettings dequeueSettings;

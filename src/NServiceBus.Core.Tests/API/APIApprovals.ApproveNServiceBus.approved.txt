@@ -1534,10 +1534,6 @@ namespace NServiceBus.Pipeline
         void Stop();
     }
     public interface IStageConnector { }
-    public interface PipelineFactory
-    {
-        System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Transport.TransportReceiver> BuildPipelines(NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Pipeline.IExecutor executor);
-    }
     public class PipelineNotifications : System.IDisposable
     {
         public PipelineNotifications() { }
@@ -2100,8 +2096,7 @@ namespace NServiceBus.Transports
     }
     public class DequeueSettings
     {
-        public DequeueSettings(string queue, string publicAddress, bool purgeOnStartup) { }
-        public string PublicAddress { get; }
+        public DequeueSettings(string queue, bool purgeOnStartup) { }
         public bool PurgeOnStartup { get; }
         public string QueueName { get; }
     }
