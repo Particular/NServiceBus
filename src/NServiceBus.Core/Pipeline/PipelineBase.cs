@@ -2,19 +2,24 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Settings;
     using NServiceBus.Unicast.Transport;
     using ObjectBuilder;
 
 
     class PipelineBase<T>where T:BehaviorContext
     {
-        public PipelineBase(IBuilder builder, PipelineModifications pipelineModifications)
+        public PipelineBase(IBuilder builder, ReadOnlySettings settings, PipelineModifications pipelineModifications, RegisterStep receiveBehavior = null)
         {
             busNotifications = builder.Build<BusNotifications>();
             contextStacker = builder.Build<BehaviorContextStacker>();
 
             var coordinator = new StepRegistrationsCoordinator(pipelineModifications.Removals, pipelineModifications.Replacements);
-            foreach (var rego in pipelineModifications.Additions)
+            if (receiveBehavior != null)
+            {
+                coordinator.Register(receiveBehavior);
+            }
+            foreach (var rego in pipelineModifications.Additions.Where(x => x.IsEnabled(settings)))
             {
                 coordinator.Register(rego);
             }

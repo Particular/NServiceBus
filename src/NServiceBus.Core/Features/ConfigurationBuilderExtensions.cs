@@ -26,7 +26,8 @@
         {
             Guard.AgainstNull(config, "config");
             Guard.AgainstNull(featureType, "featureType");
-            config.Settings.Set(featureType.FullName, true);
+
+            config.Settings.EnableFeature(featureType);
         }
 
         /// <summary>
@@ -47,7 +48,8 @@
         {
             Guard.AgainstNull(config, "config");
             Guard.AgainstNull(featureType, "featureType");
-            config.Settings.Set(featureType.FullName, false);
+
+            config.Settings.DisableFeature(featureType);
         }
     }
 }

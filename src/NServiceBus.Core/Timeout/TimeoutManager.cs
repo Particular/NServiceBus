@@ -41,18 +41,27 @@
             var dispatcherAddress = selectedTransportDefinition.GetSubScope(localAddress,"TimeoutsDispatcher");
             var inputAddress = selectedTransportDefinition.GetSubScope(localAddress, "Timeouts");
 
+            var messageProcessorPipeline = context.AddSatellitePipeline("TImeout Message Processor", inputAddress);
+            messageProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
+            messageProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
+            messageProcessorPipeline.Register<TimeoutMessageProcessor.Registration>();
+
             context.Container.ConfigureComponent<TimeoutMessageProcessor>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(t => t.Disabled, false)
                 .ConfigureProperty(t => t.InputAddress, inputAddress)
                 .ConfigureProperty(t => t.EndpointName, context.Settings.EndpointName());
 
+            var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", dispatcherAddress);
+            dispatcherProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
+            dispatcherProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
+            dispatcherProcessorPipeline.Register<TimeoutDispatcherProcessor.Registration>();
+
             context.Container.ConfigureComponent<TimeoutDispatcherProcessor>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(t => t.Disabled, false)
                 .ConfigureProperty(t => t.InputAddress, dispatcherAddress);
 
             context.Container.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(t => t.TimeToWaitBeforeTriggeringCriticalError, context.Settings.Get<TimeSpan>("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver"))
-                .ConfigureProperty(t => t.DispatcherAddress, dispatcherAddress);
+                .ConfigureProperty(t => t.DispatcherAddress, dispatcherAddress)
+                ;
             context.Container.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
         }
 

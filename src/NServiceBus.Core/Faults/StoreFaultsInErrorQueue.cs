@@ -29,7 +29,7 @@ namespace NServiceBus.Features
                 .ConfigureProperty(p => p.Enabled, true)
                 .ConfigureProperty(t => t.ErrorQueue, errorQueue);
 
-            context.Pipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
+            context.PipelinesCollection.Register<MoveFaultsToErrorQueueBehavior.Registration>();
         }
 
 

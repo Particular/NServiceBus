@@ -32,10 +32,9 @@ namespace NServiceBus
         {
             configurationSourceToUse = new DefaultConfigurationSource();
 
-            var pipelineModifications = new PipelineModifications();
-
-            Settings.Set<PipelineModifications>(pipelineModifications);
-            Pipeline = new PipelineSettings(pipelineModifications);
+            pipelineCollection = new PipelinesCollection();
+            Settings.Set<PipelinesCollection>(pipelineCollection);
+            Pipeline = new PipelineSettings(pipelineCollection.MainPipeline);
 
             Settings.SetDefault("Endpoint.SendOnly", false);
             Settings.SetDefault("Transactions.Enabled", true);
@@ -240,7 +239,7 @@ namespace NServiceBus
 
             Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
 
-            return new Configure(Settings, container, registrations, Pipeline, outgoingHeaders);
+            return new Configure(Settings, container, registrations, Pipeline, pipelineCollection, outgoingHeaders);
         }
 
         List<Type> GetAllowedTypes(string path)
@@ -277,5 +276,6 @@ namespace NServiceBus
         List<string> excludedAssemblies = new List<string>();
         string publicReturnAddress;
         Dictionary<string, string> outgoingHeaders;
+        PipelinesCollection pipelineCollection;
     }
 }

@@ -1,31 +1,19 @@
 namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
-    using NServiceBus.Satellites;
+    using NServiceBus.Pipeline;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
 
-    class TimeoutDispatcherProcessor : IAdvancedSatellite
+    class TimeoutDispatcherProcessor : SatelliteBehavior
     {
-        public TimeoutDispatcherProcessor()
-        {
-            Disabled = true;
-        }
-
         public ISendMessages MessageSender { get; set; }
-
         public IPersistTimeouts TimeoutsPersister { get; set; }
-
         public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
-
         public Configure Configure { get; set; }
-      
         public string InputAddress { get; set; }
 
-        public bool Disabled { get; set; }
-
-        public bool Handle(TransportMessage message)
+        protected override bool Handle(TransportMessage message)
         {
             var timeoutId = message.Headers["Timeout.Id"];
             TimeoutData timeoutData;
@@ -44,21 +32,24 @@ namespace NServiceBus.Timeout.Hosting.Windows
             return true;
         }
 
-        public void Start()
+        public override void OnStarting()
         {
             TimeoutPersisterReceiver.Start();
         }
 
-        public void Stop()
+        public override void OnStopped()
         {
             TimeoutPersisterReceiver.Stop();
         }
 
-        public Action<TransportReceiver> GetReceiverCustomization()
+        public class Registration : RegisterStep
         {
-            return receiver =>
+            public Registration()
+                : base("TimeoutDispatcherProcessor", typeof(TimeoutDispatcherProcessor), "Dispatches timeout messages")
             {
-            };
+                InsertBeforeIfExists("FirstLevelRetries");
+                InsertBeforeIfExists("ReceivePerformanceDiagnosticsBehavior");
+            }
         }
     }
 }

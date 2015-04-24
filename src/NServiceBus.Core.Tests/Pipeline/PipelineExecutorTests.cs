@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Tests.Pipeline
     using NServiceBus.Core.Tests.Features;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Settings;
     using NUnit.Framework;
 
     [TestFixture,Ignore("Will soon be irrelevant since all behaviors would be pipeline static")]
@@ -16,8 +17,8 @@ namespace NServiceBus.Core.Tests.Pipeline
 
             var modifications = new PipelineModifications();
             var settings = new PipelineSettings(modifications);
-            settings.Register("Static", typeof(SumBehavior), "A static behavior", true);
-            var executor = new PipelineBase<IncomingContext>(builder, modifications);
+            settings.Register("Static", typeof(SumBehavior), "A static behavior");
+            var executor = new PipelineBase<IncomingContext>(builder, new SettingsHolder(), modifications);
 
             var ctx1 = new IncomingContext(new RootContext(builder));
             ctx1.Set("Value",2);
@@ -39,7 +40,7 @@ namespace NServiceBus.Core.Tests.Pipeline
             var modifications = new PipelineModifications();
             var settings = new PipelineSettings(modifications);
             settings.Register("NonStatic", typeof(SumBehavior), "A non-static behavior");
-            var executor = new PipelineBase<IncomingContext>(builder, modifications);
+            var executor = new PipelineBase<IncomingContext>(builder, new SettingsHolder(),  modifications);
 
             var ctx1 = new IncomingContext(new RootContext(builder));
             ctx1.Set("Value",2);
