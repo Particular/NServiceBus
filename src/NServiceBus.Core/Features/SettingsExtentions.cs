@@ -25,7 +25,7 @@
         {
             Guard.AgainstNull(settings, "settings");
             Guard.AgainstNull(featureType, "featureType");
-            EnableFeature(settings, featureType);
+            settings.SetDefault(featureType.FullName, FeatureState.Enabled);
             return settings;
         }
 
@@ -53,22 +53,22 @@
 
         internal static void EnableFeature(this SettingsHolder settings, Type featureType)
         {
-            settings.SetDefault(featureType.FullName, FeatureState.Enabled);
+            settings.Set(featureType.FullName, FeatureState.Enabled);
         }
         
         internal static void DisableFeature(this SettingsHolder settings, Type featureType)
         {
-            settings.SetDefault(featureType.FullName, FeatureState.Disabled);
+            settings.Set(featureType.FullName, FeatureState.Disabled);
         }
 
         internal static void MarkFeatureAsActive(this SettingsHolder settings, Type featureType)
         {
-            settings.SetDefault(featureType.FullName, FeatureState.Active);
+            settings.Set(featureType.FullName, FeatureState.Active);
         }
         
         internal static void MarkFeatureAsDeactivated(this SettingsHolder settings, Type featureType)
         {
-            settings.SetDefault(featureType.FullName, FeatureState.Deactivated);
+            settings.Set(featureType.FullName, FeatureState.Deactivated);
         }
 
     }
