@@ -12,9 +12,11 @@ namespace NServiceBus.Unicast
     using Logging;
     using NServiceBus.Features;
     using NServiceBus.MessageInterfaces;
+    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Messages;
     using NServiceBus.Unicast.Routing;
+    using NServiceBus.Unicast.Transport;
     using ObjectBuilder;
     using Pipeline;
     using Settings;
@@ -35,7 +37,6 @@ namespace NServiceBus.Unicast
             BehaviorContext rootContext,
             IExecutor executor,
             CriticalError criticalError,
-            IEnumerable<PipelineFactory> pipelineFactories,
             IMessageMapper messageMapper, 
             IBuilder builder, 
             Configure configure, 
@@ -49,7 +50,6 @@ namespace NServiceBus.Unicast
         {
             this.executor = executor;
             this.criticalError = criticalError;
-            this.pipelineFactories = pipelineFactories;
             this.settings = settings;
             this.builder = builder;
 
@@ -98,7 +98,7 @@ namespace NServiceBus.Unicast
                 }
 
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
-                var pipelines = pipelineFactories.SelectMany(x => x.BuildPipelines(Builder, Settings, executor)).ToArray();
+                var pipelines = BuildPipelines().ToArray();
                 executor.Start(pipelines.Select(x => x.Id).ToArray());
 
                 pipelineCollection = new PipelineCollection(pipelines);
@@ -119,6 +119,33 @@ namespace NServiceBus.Unicast
                 startCompletedEvent);
 
             return this;
+        }
+
+        IEnumerable<TransportReceiver> BuildPipelines()
+        {
+            var pipelinesCollection = settings.Get<PipelinesCollection>();
+
+            yield return BuildPipelineInstance(pipelinesCollection.MainPipeline, pipelinesCollection.ReceiveBehavior, "Main", settings.LocalAddress());
+
+            foreach (var satellite in pipelinesCollection.SatellitePipelines)
+            {
+                yield return BuildPipelineInstance(satellite, pipelinesCollection.ReceiveBehavior, satellite.Name, satellite.ReceiveAddress);
+            }
+        }
+
+        TransportReceiver BuildPipelineInstance(PipelineModifications modifications, RegisterStep receiveBehavior, string name, string address)
+        {
+            var dequeueSettings = new DequeueSettings(address, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"));
+
+            var pipelineInstance = new PipelineBase<IncomingContext>(builder, settings, modifications, receiveBehavior);
+            var receiver = new TransportReceiver(
+                name,
+                builder,
+                builder.Build<IDequeueMessages>(),
+                dequeueSettings,
+                pipelineInstance,
+                executor);
+            return receiver;
         }
 
         void ExecuteIWantToRunAtStartupStopMethods()
@@ -201,7 +228,6 @@ namespace NServiceBus.Unicast
         PipelineCollection pipelineCollection;
         ContextualBus busImpl;
         ReadOnlySettings settings;
-        IEnumerable<PipelineFactory> pipelineFactories;
         IExecutor executor;
         CriticalError criticalError;
         IBuilder builder;

@@ -41,7 +41,7 @@
             var dispatcherAddress = selectedTransportDefinition.GetSubScope(localAddress,"TimeoutsDispatcher");
             var inputAddress = selectedTransportDefinition.GetSubScope(localAddress, "Timeouts");
 
-            var messageProcessorPipeline = context.AddSatellitePipeline("TImeout Message Processor", inputAddress);
+            var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", inputAddress);
             messageProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
             messageProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
             messageProcessorPipeline.Register<TimeoutMessageProcessorBehavior.Registration>();
