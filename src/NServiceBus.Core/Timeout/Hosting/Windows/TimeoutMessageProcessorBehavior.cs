@@ -1,11 +1,12 @@
-namespace NServiceBus.Timeout.Hosting.Windows
+namespace NServiceBus
 {
     using System;
     using NServiceBus.Pipeline;
+    using NServiceBus.Timeout;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Transports;
 
-    class TimeoutMessageProcessor : SatelliteBehavior
+    class TimeoutMessageProcessorBehavior : SatelliteBehavior
     {
         public ISendMessages MessageSender { get; set; }
 
@@ -107,7 +108,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public class Registration : RegisterStep
         {
             public Registration()
-                : base("TimeoutMessageProcessor", typeof(TimeoutMessageProcessor), "Processes timeout messages")
+                : base("TimeoutMessageProcessor", typeof(TimeoutMessageProcessorBehavior), "Processes timeout messages")
             {
                 InsertBeforeIfExists("FirstLevelRetries");
                 InsertBeforeIfExists("ReceivePerformanceDiagnosticsBehavior");

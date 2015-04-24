@@ -550,8 +550,8 @@
     <Compile Include="Timeout\Core\IPersistTimeouts.cs" />
     <Compile Include="Timeout\Core\TimeoutData.cs" />
     <Compile Include="Persistence\InMemory\TimeoutPersister\InMemoryTimeoutPersister.cs" />
-    <Compile Include="Timeout\Hosting\Windows\TimeoutDispatcherProcessor.cs" />
-    <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessor.cs" />
+    <Compile Include="Timeout\Hosting\Windows\TimeoutDispatcherProcessorBehavior.cs" />
+    <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessorBehavior.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutPersisterReceiver.cs" />
     <Compile Include="Timeout\Core\TimeoutManagerHeaders.cs" />
     <Compile Include="TransportMessage.cs" />

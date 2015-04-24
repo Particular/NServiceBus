@@ -44,18 +44,18 @@
             var messageProcessorPipeline = context.AddSatellitePipeline("TImeout Message Processor", inputAddress);
             messageProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
             messageProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
-            messageProcessorPipeline.Register<TimeoutMessageProcessor.Registration>();
+            messageProcessorPipeline.Register<TimeoutMessageProcessorBehavior.Registration>();
 
-            context.Container.ConfigureComponent<TimeoutMessageProcessor>(DependencyLifecycle.SingleInstance)
+            context.Container.ConfigureComponent<TimeoutMessageProcessorBehavior>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(t => t.InputAddress, inputAddress)
                 .ConfigureProperty(t => t.EndpointName, context.Settings.EndpointName());
 
             var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", dispatcherAddress);
             dispatcherProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
             dispatcherProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
-            dispatcherProcessorPipeline.Register<TimeoutDispatcherProcessor.Registration>();
+            dispatcherProcessorPipeline.Register<TimeoutDispatcherProcessorBehavior.Registration>();
 
-            context.Container.ConfigureComponent<TimeoutDispatcherProcessor>(DependencyLifecycle.SingleInstance)
+            context.Container.ConfigureComponent<TimeoutDispatcherProcessorBehavior>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(t => t.InputAddress, dispatcherAddress);
 
             context.Container.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance)
