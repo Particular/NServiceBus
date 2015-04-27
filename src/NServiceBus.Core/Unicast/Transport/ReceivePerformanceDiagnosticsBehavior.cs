@@ -10,7 +10,7 @@ namespace NServiceBus
 
         public override void OnStarting()
         {
-            counter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter("# of msgs pulled from the input queue /sec", PipelineInfo.Name);
+            counter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter("# of msgs pulled from the input queue /sec", PipelineInfo.PublicAddress);
         }
 
         public override void Invoke(Context context, Action next)
