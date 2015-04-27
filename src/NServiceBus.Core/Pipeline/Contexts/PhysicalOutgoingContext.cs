@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
+    using System;
     using System.Collections.Generic;
     using NServiceBus.Unicast;
 
@@ -26,7 +27,14 @@
                 DeliveryMessageOptions = parentContext.DeliveryMessageOptions;
                 Headers = parentContext.Headers;
                 MessageId = parentContext.MessageId;
+                MessageType = parentContext.MessageType;
+                Intent = parentContext.Intent;
             }
+
+            /// <summary>
+            /// The logical message type
+            /// </summary>
+            public Type MessageType { get; private set; }
 
             /// <summary>
             /// 
@@ -38,7 +46,6 @@
             /// </summary>
             public byte[] Body { get; set; }
 
-
             /// <summary>
             ///     Gets other applicative out-of-band information.
             /// </summary>
@@ -48,6 +55,11 @@
             /// This id of this message
             /// </summary>
             public string MessageId { get; private set; }
+
+            /// <summary>
+            /// The intent of this message
+            /// </summary>
+            public MessageIntentEnum Intent { get; private set; }
         }
     }
 }

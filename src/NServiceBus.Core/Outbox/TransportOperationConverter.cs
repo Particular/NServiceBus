@@ -6,7 +6,7 @@ namespace NServiceBus.Outbox
 
     static class TransportOperationConverter
     {
-        public static Dictionary<string, string> ToTransportOperationOptions(this DeliveryMessageOptions options, bool isAudit = false)
+        public static Dictionary<string, string> ToTransportOperationOptions(this DeliveryMessageOptions options)
         {
             var result = new Dictionary<string, string>();
 
@@ -20,87 +20,35 @@ namespace NServiceBus.Outbox
                 result["NonDurable"] = true.ToString();
             }
 
-            result["EnlistInReceiveTransaction"] = options.EnlistInReceiveTransaction.ToString();
-            result["EnforceMessagingBestPractices"] = options.EnforceMessagingBestPractices.ToString();
-
-            var sendOptions = options as SendMessageOptions;
-
-            string operation;
-
-            if (sendOptions != null)
-            {
-                operation = "Send";
-
-                if (isAudit)
-                {
-                    operation = "Audit";
-                }
-
-                if (sendOptions.DelayDeliveryFor.HasValue)
-                {
-                    result["DelayDeliveryFor"] = sendOptions.DelayDeliveryFor.Value.ToString();
-                }
-
-                if (sendOptions.DeliverAt.HasValue)
-                {
-                    result["DeliverAt"] = DateTimeExtensions.ToWireFormattedString(sendOptions.DeliverAt.Value);
-                }
-
-                result["Destination"] = sendOptions.Destination;
-            }
-            else
-            {
-                var publishOptions = options as PublishMessageOptions;
-
-                if (publishOptions == null)
-                {
-                    throw new Exception("Unknown delivery option: " + options.GetType().FullName);
-                }
-
-                operation = "Publish";
-                result["EventType"] = publishOptions.EventType.AssemblyQualifiedName;
-            }
-
-            result["Operation"] = operation;
-
-
             return result;
         }
 
         public static DeliveryMessageOptions ToDeliveryOptions(this Dictionary<string, string> options)
         {
-            var operation = options["Operation"].ToLower();
-
-
             DeliveryMessageOptions result;
 
-
-            switch (operation)
+            string destination;
+            if (options.TryGetValue("Destination", out destination))
             {
-                case "publish":
-                    result = new PublishMessageOptions(Type.GetType(options["EventType"]));
-                    break;
-                case "send":
-                case "audit":
-                    string delayDeliveryForString;
-                    TimeSpan? delayDeliveryFor = null;
-                    if (options.TryGetValue("DelayDeliveryFor", out delayDeliveryForString))
-                    {
-                        delayDeliveryFor = TimeSpan.Parse(delayDeliveryForString);
-                    }
+                string delayDeliveryForString;
+                TimeSpan? delayDeliveryFor = null;
+                if (options.TryGetValue("DelayDeliveryFor", out delayDeliveryForString))
+                {
+                    delayDeliveryFor = TimeSpan.Parse(delayDeliveryForString);
+                }
 
-                    string deliverAtString;
-                    DateTime? deliverAt = null;
-                    if (options.TryGetValue("DeliverAt", out deliverAtString))
-                    {
-                        deliverAt = DateTimeExtensions.ToUtcDateTime(deliverAtString);
-                    }
+                string deliverAtString;
+                DateTime? deliverAt = null;
+                if (options.TryGetValue("DeliverAt", out deliverAtString))
+                {
+                    deliverAt = DateTimeExtensions.ToUtcDateTime(deliverAtString);
+                }
 
-                    result = new SendMessageOptions(options["Destination"], deliverAt, delayDeliveryFor);
-
-                    break;
-                default:
-                    throw new Exception("Unknown operation: " + operation);
+                result = new SendMessageOptions(options["Destination"], deliverAt, delayDeliveryFor);
+            }
+            else
+            {
+                result = new DeliveryMessageOptions();
             }
 
             string timeToBeReceived;

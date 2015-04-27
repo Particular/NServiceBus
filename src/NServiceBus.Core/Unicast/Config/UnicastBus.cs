@@ -98,7 +98,7 @@ namespace NServiceBus.Features
                 var stacker = b.Build<BehaviorContextStacker>();
                 if (stacker.Current != null)
                 {
-                    return CreateContextualBus(b, () => stacker.Current);
+                    return CreateContextualBus(hostInfo,b, () => stacker.Current);
                 }
                 return (IBus)b.Build<IRealBus>();
             }, DependencyLifecycle.InstancePerCall);
@@ -155,14 +155,15 @@ namespace NServiceBus.Features
                 builder.Build<TransportDefinition>(),
                 builder.Build<ISendMessages>(),
                 builder.Build<StaticMessageRouter>(),
-                builder.Build<CallbackMessageLookup>())
+                builder.Build<CallbackMessageLookup>(),
+                hostInfo)
             {
                 HostInformation = hostInfo
             };
             return bus;
         }
 
-        ContextualBus CreateContextualBus(IBuilder builder, Func<BehaviorContext> currentContextGetter)
+        ContextualBus CreateContextualBus(HostInformation hostInfo, IBuilder builder, Func<BehaviorContext> currentContextGetter)
         {
             return new ContextualBus(currentContextGetter,
                 builder.Build<IMessageMapper>(),
@@ -174,7 +175,8 @@ namespace NServiceBus.Features
                 builder.Build<TransportDefinition>(),
                 builder.Build<ISendMessages>(),
                 builder.Build<StaticMessageRouter>(),
-                builder.Build<CallbackMessageLookup>());
+                builder.Build<CallbackMessageLookup>(),
+                hostInfo);
         }
 
         static Guid GenerateDefaultHostId(out string fullPathToStartingExe)

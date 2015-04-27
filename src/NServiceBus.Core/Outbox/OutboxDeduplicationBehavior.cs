@@ -6,16 +6,11 @@
     using NServiceBus.Outbox;
     using NServiceBus.Pipeline;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast;
     using NServiceBus.Unicast.Transport;
 
     class OutboxDeduplicationBehavior : PhysicalMessageProcessingStageBehavior
     {
-        readonly IOutboxStorage outboxStorage;
-        readonly DispatchMessageToTransportBehavior defaultDispatcher;
-        readonly DefaultMessageAuditer defaultAuditer;
-        readonly TransactionSettings transactionSettings;
-
+    
         public OutboxDeduplicationBehavior(IOutboxStorage outboxStorage, DispatchMessageToTransportBehavior defaultDispatcher, DefaultMessageAuditer defaultAuditer, TransactionSettings transactionSettings)
         {
             this.outboxStorage = outboxStorage;
@@ -37,12 +32,12 @@
                 context.Set(outboxMessage);
 
                 //we use this scope to make sure that we escalate to DTC if the user is talking to another resource by misstake
-                using (var checkForEscalationScope = new TransactionScope(TransactionScopeOption.RequiresNew,new TransactionOptions{IsolationLevel = transactionSettings.IsolationLevel,Timeout = transactionSettings.TransactionTimeout}))
+                using (var checkForEscalationScope = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout }))
                 {
                     next();
                     checkForEscalationScope.Complete();
                 }
-                
+
 
                 if (context.handleCurrentMessageLaterWasCalled)
                 {
@@ -63,22 +58,34 @@
 
                 deliveryOptions.EnlistInReceiveTransaction = false;
 
-                var message = new OutgoingMessage(transportOperation.MessageId,transportOperation.Headers, transportOperation.Body);
+                var message = new OutgoingMessage(transportOperation.MessageId, transportOperation.Headers, transportOperation.Body);
 
-                //dispatch to transport
+                var operationType = transportOperation.Options["Operation"];
 
-                if (transportOperation.Options["Operation"] != "Audit")
+                switch (operationType)
                 {
-                    defaultDispatcher.InvokeNative(deliveryOptions, message);    
+                    case "Audit":
+                        defaultAuditer.Audit(new TransportSendOptions(transportOperation.Options["Destination"],null,false,false), message);
+                        break;
+                    case "Send":
+                        defaultDispatcher.NativeSendOrDefer(deliveryOptions, message);
+                        break;
+                    case "Publish":
+                        
+                        var options= new TransportPublishOptions(Type.GetType(transportOperation.Options["EventType"]));
+
+                        defaultDispatcher.NativePublish(options, message);
+                        break;
+                    default:
+                        throw new InvalidOperationException("Unknown operation type: " + operationType);
                 }
-                else
-                {
-                    var sendOptions = deliveryOptions as SendMessageOptions;
-                    defaultAuditer.Audit(new TransportSendOptions(sendOptions.Destination), message);
-                }
-                
             }
         }
+
+        readonly IOutboxStorage outboxStorage;
+        readonly DispatchMessageToTransportBehavior defaultDispatcher;
+        readonly DefaultMessageAuditer defaultAuditer;
+        readonly TransactionSettings transactionSettings;
 
         public class OutboxDeduplicationRegistration : RegisterStep
         {

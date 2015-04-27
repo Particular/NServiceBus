@@ -68,7 +68,7 @@
                 var options = (SendMessageOptions)context.DeliveryMessageOptions;
                 var secret = (string)options.Context["MySpecialExtension"];
 
-                context.OutgoingLogicalMessage.UpdateMessageInstance(new SendMessage {Secret = secret});
+                context.MessageInstance = new SendMessage {Secret = secret};
 
                 next();
             }

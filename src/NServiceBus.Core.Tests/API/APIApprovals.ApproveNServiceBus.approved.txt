@@ -1596,10 +1596,11 @@ namespace NServiceBus.Pipeline.Contexts
         protected LogicalMessageProcessingStageBehavior() { }
         public class Context : NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context
         {
-            public Context(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context parentContext) { }
+            public Context(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, System.Collections.Generic.Dictionary<string, string> headers, System.Type messageType, NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context parentContext) { }
             protected Context(NServiceBus.Pipeline.BehaviorContext parentContext) { }
             public System.Collections.Generic.Dictionary<string, string> Headers { get; }
             public NServiceBus.Unicast.Messages.LogicalMessage IncomingLogicalMessage { get; }
+            public System.Type MessageType { get; set; }
             public bool IsControlMessage() { }
         }
     }
@@ -1615,13 +1616,14 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, NServiceBus.Unicast.Messages.LogicalMessage message, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent) { }
+        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, bool isControlMessage = False) { }
         public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.MessageIntentEnum Intent { get; }
+        public bool IsControlMessage { get; }
         public string MessageId { get; }
-        public NServiceBus.Unicast.Messages.LogicalMessage OutgoingLogicalMessage { get; }
-        public bool IsControlMessage() { }
+        public object MessageInstance { get; set; }
+        public System.Type MessageType { get; set; }
     }
     public abstract class PhysicalOutgoingContextStageBehavior : NServiceBus.Pipeline.Behavior<NServiceBus.Pipeline.Contexts.PhysicalOutgoingContextStageBehavior.Context>
     {
@@ -1632,7 +1634,9 @@ namespace NServiceBus.Pipeline.Contexts
             public byte[] Body { get; set; }
             public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
             public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+            public NServiceBus.MessageIntentEnum Intent { get; }
             public string MessageId { get; }
+            public System.Type MessageType { get; }
         }
     }
     public class TransportReceiveContext : NServiceBus.Pipeline.Contexts.IncomingContext
@@ -2092,7 +2096,7 @@ namespace NServiceBus.Transports
     }
     public interface IPublishMessages
     {
-        void Publish(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.PublishMessageOptions publishOptions);
+        void Publish(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.TransportPublishOptions publishOptions);
     }
     public interface ISendMessages
     {
@@ -2136,6 +2140,14 @@ namespace NServiceBus.Transports
         public bool RequireOutboxConsent { get; set; }
         protected internal void Configure(NServiceBus.BusConfiguration config) { }
         public abstract string GetSubScope(string address, string qualifier);
+    }
+    public class TransportPublishOptions
+    {
+        public TransportPublishOptions(System.Type eventType, System.Nullable<System.TimeSpan> timeToBeReceived = null, bool nonDurable = False, bool enlistInReceiveTransaction = True) { }
+        public bool EnlistInReceiveTransaction { get; }
+        public System.Type EventType { get; }
+        public bool NonDurable { get; }
+        public System.Nullable<System.TimeSpan> TimeToBeReceived { get; }
     }
     public class TransportSendOptions
     {
@@ -2212,9 +2224,9 @@ namespace NServiceBus.Unicast
     {
         public CallbackMessageLookup() { }
     }
-    public abstract class DeliveryMessageOptions
+    public class DeliveryMessageOptions
     {
-        protected DeliveryMessageOptions() { }
+        public DeliveryMessageOptions() { }
         public bool EnforceMessagingBestPractices { get; set; }
         public bool EnlistInReceiveTransaction { get; set; }
         public System.Nullable<bool> NonDurable { get; set; }
@@ -2263,13 +2275,9 @@ namespace NServiceBus.Unicast
         public MessagesEventArgs(object[] messages) { }
         public object[] Messages { get; }
     }
-    public class PublishMessageOptions : NServiceBus.Unicast.DeliveryMessageOptions
-    {
-        public PublishMessageOptions(System.Type eventType) { }
-        public System.Type EventType { get; }
-    }
-    [System.ObsoleteAttribute("Please use `NServiceBus.UnicastBus.PublishMessageOptions` instead. Will be remove" +
-        "d in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use context.Intent to detect of the message is a event beeing published and use c" +
+        "ontext.MessageType to get the actual event type. Will be removed in version 7.0." +
+        "0.", true)]
     public class PublishOptions : NServiceBus.Unicast.DeliveryOptions
     {
         public PublishOptions() { }
@@ -2303,7 +2311,7 @@ namespace NServiceBus.Unicast
     }
     public class UnicastBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, NServiceBus.Unicast.IRealBus, System.IDisposable
     {
-        public UnicastBus(NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.PipelineFactory> pipelineFactories, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.ISendMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter, NServiceBus.Unicast.CallbackMessageLookup callbackMessageLookup) { }
+        public UnicastBus(NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.PipelineFactory> pipelineFactories, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.ISendMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter, NServiceBus.Unicast.CallbackMessageLookup callbackMessageLookup, NServiceBus.Hosting.HostInformation hostInformation) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public NServiceBus.IMessageContext CurrentMessageContext { get; }
         [System.ObsoleteAttribute("We have introduced a more explicit API to set the host identifier, see busConfigu" +

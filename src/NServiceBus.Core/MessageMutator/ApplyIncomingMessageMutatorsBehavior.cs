@@ -16,7 +16,8 @@
                 current = mutator.MutateIncoming(current);
                 context.IncomingLogicalMessage.UpdateMessageInstance(current);
             }
-          
+
+            context.MessageType = context.IncomingLogicalMessage.Metadata.MessageType;
             next();
         }
     }

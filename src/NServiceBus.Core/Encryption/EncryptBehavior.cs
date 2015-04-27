@@ -16,15 +16,15 @@
 
         public override void Invoke(OutgoingContext context, Action next)
         {
-            if (context.IsControlMessage())
+            if (context.IsControlMessage)
             {
                 next();
                 return;
             }
 
-            var currentMessageToSend = context.OutgoingLogicalMessage.Instance;
+            var currentMessageToSend = context.MessageInstance;
             currentMessageToSend = messageMutator.MutateOutgoing(currentMessageToSend);
-            context.OutgoingLogicalMessage.UpdateMessageInstance(currentMessageToSend);
+            context.MessageInstance = currentMessageToSend;
             next();
         }
 

@@ -113,7 +113,7 @@ namespace NServiceBus.Unicast
     }
 
     [ObsoleteEx(
-            ReplacementTypeOrMember = "NServiceBus.UnicastBus.PublishMessageOptions",
+            Message = "Use context.Intent to detect of the message is a event beeing published and use context.MessageType to get the actual event type",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
     public class PublishOptions : DeliveryOptions

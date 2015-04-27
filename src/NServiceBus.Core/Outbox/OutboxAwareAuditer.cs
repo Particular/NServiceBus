@@ -20,8 +20,12 @@ namespace NServiceBus.Outbox
             OutboxMessage currentOutboxMessage;
 
             if (behaviorContext.TryGet(out currentOutboxMessage))
-            {    
-                currentOutboxMessage.TransportOperations.Add(new TransportOperation(message.MessageId, sendMessageOptions.ToTransportOperationOptions(true), message.Body, message.Headers));
+            {
+                var options = sendMessageOptions.ToTransportOperationOptions();
+
+                options["Operation"] = "Audit";
+
+                currentOutboxMessage.TransportOperations.Add(new TransportOperation(message.MessageId,options, message.Body, message.Headers));
             }
             else
             {
