@@ -29,7 +29,7 @@
             
             //set audit related headers
             outgoingMessage.Headers[Headers.ProcessingStarted] = DateTimeExtensions.ToWireFormattedString(context.Get<DateTime>("IncomingMessage.ProcessingStarted"));
-            context.PhysicalMessage.Headers[Headers.ProcessingEnded] = DateTimeExtensions.ToWireFormattedString(context.Get<DateTime>("IncomingMessage.ProcessingEnded"));
+            outgoingMessage.Headers[Headers.ProcessingEnded] = DateTimeExtensions.ToWireFormattedString(context.Get<DateTime>("IncomingMessage.ProcessingEnded"));
 
             outgoingMessage.Headers[Headers.HostId] = HostInformation.HostId.ToString("N");
             outgoingMessage.Headers[Headers.HostDisplayName] = HostInformation.DisplayName;
