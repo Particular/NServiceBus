@@ -425,9 +425,8 @@ namespace NServiceBus
     }
     public interface ISendOnlyBus : System.IDisposable
     {
-        void Publish(object message);
-        void Publish<T>();
-        void Publish<T>(System.Action<T> messageConstructor);
+        void Publish(object message, NServiceBus.PublishOptions options);
+        void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         NServiceBus.ICallback Send(object message, NServiceBus.SendOptions options);
         NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
         [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
@@ -451,6 +450,9 @@ namespace NServiceBus
     }
     public class static ISendOnlyBusExtensions
     {
+        public static void Publish(this NServiceBus.ISendOnlyBus bus, object message) { }
+        public static void Publish<T>(this NServiceBus.ISendOnlyBus bus) { }
+        public static void Publish<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
         public static NServiceBus.ICallback Send(this NServiceBus.ISendOnlyBus bus, object message) { }
         public static NServiceBus.ICallback Send<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
         public static NServiceBus.ICallback Send(this NServiceBus.ISendOnlyBus bus, string destination, object message) { }
@@ -569,6 +571,10 @@ namespace NServiceBus
             public void AbortReceiveOperation() { }
         }
     }
+    public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
+    {
+        public PublishOptions() { }
+    }
     public class static ScaleOutExtentions
     {
         public static NServiceBus.Settings.ScaleOutSettings ScaleOut(this NServiceBus.BusConfiguration config) { }
@@ -583,13 +589,13 @@ namespace NServiceBus
     {
         public static NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.BusConfiguration config) { }
     }
-    public class SendLocalOptions
+    public class SendLocalOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public SendLocalOptions(string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
         public NServiceBus.SendLocalOptions AddHeader(string key, string value) { }
         public NServiceBus.SendLocalOptions SetCustomMessageId(string messageId) { }
     }
-    public class SendOptions
+    public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public SendOptions(string destination = null, string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
         public NServiceBus.SendOptions AddHeader(string key, string value) { }
@@ -891,11 +897,6 @@ namespace NServiceBus.Configuration.AdvanceExtensibility
     {
         protected ExposeSettings(NServiceBus.Settings.SettingsHolder settings) { }
     }
-    public class static SendOptionsExtensions
-    {
-        public static System.Collections.Generic.Dictionary<string, object> GetContext(this NServiceBus.SendOptions options) { }
-        public static System.Collections.Generic.Dictionary<string, object> GetContext(this NServiceBus.SendLocalOptions options) { }
-    }
 }
 namespace NServiceBus.Container
 {
@@ -943,6 +944,25 @@ namespace NServiceBus.Encryption
     {
         string Decrypt(NServiceBus.EncryptedValue encryptedValue);
         NServiceBus.EncryptedValue Encrypt(string value);
+    }
+}
+namespace NServiceBus.Extensibility
+{
+    public abstract class ExtendableOptions
+    {
+        protected ExtendableOptions() { }
+    }
+    public class ExtensionContext
+    {
+        public ExtensionContext() { }
+        public void Set<T>(T data)
+            where T :  class { }
+        public bool TryGet<T>(out T data)
+            where T :  class { }
+    }
+    public class static ExtensionContextExtensions
+    {
+        public static NServiceBus.Extensibility.ExtensionContext GetContext(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
 }
 namespace NServiceBus.Faults
@@ -1616,8 +1636,9 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, bool isControlMessage = False) { }
+        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, bool isControlMessage = False, NServiceBus.Extensibility.ExtensionContext extensionContext = null) { }
         public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
+        public NServiceBus.Extensibility.ExtensionContext Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.MessageIntentEnum Intent { get; }
         public bool IsControlMessage { get; }
@@ -1633,6 +1654,7 @@ namespace NServiceBus.Pipeline.Contexts
             public Context(byte[] body, NServiceBus.Pipeline.Contexts.OutgoingContext parentContext) { }
             public byte[] Body { get; set; }
             public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
+            public NServiceBus.Extensibility.ExtensionContext Extensions { get; }
             public System.Collections.Generic.Dictionary<string, string> Headers { get; }
             public NServiceBus.MessageIntentEnum Intent { get; }
             public string MessageId { get; }
@@ -2290,8 +2312,7 @@ namespace NServiceBus.Unicast
     }
     public class SendMessageOptions : NServiceBus.Unicast.DeliveryMessageOptions
     {
-        public SendMessageOptions(string destination, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null, System.Collections.Generic.Dictionary<string, object> context = null) { }
-        public System.Collections.Generic.Dictionary<string, object> Context { get; }
+        public SendMessageOptions(string destination, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
         public System.Nullable<System.TimeSpan> DelayDeliveryFor { get; }
         public System.Nullable<System.DateTime> DeliverAt { get; }
         public string Destination { get; set; }
@@ -2328,9 +2349,8 @@ namespace NServiceBus.Unicast
         public void DoNotContinueDispatchingCurrentMessageToHandlers() { }
         public void ForwardCurrentMessageTo(string destination) { }
         public void HandleCurrentMessageLater() { }
-        public void Publish(object message) { }
-        public void Publish<T>() { }
-        public void Publish<T>(System.Action<T> messageConstructor) { }
+        public void Publish(object message, NServiceBus.PublishOptions options) { }
+        public void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions options) { }
         public void Reply(object message) { }
         public void Reply<T>(System.Action<T> messageConstructor) { }
         public void Return<T>(T errorEnum) { }

@@ -16,19 +16,14 @@
             sendOnlyBus.Dispose();
         }
 
-        public void Publish(object message)
+        public void Publish(object message,PublishOptions options)
         {
-            sendOnlyBus.Publish(message);
+            sendOnlyBus.Publish(message,options);
         }
 
-        public void Publish<T>()
+        public void Publish<T>(Action<T> messageConstructor,PublishOptions options)
         {
-            sendOnlyBus.Publish<T>();
-        }
-
-        public void Publish<T>(Action<T> messageConstructor)
-        {
-            sendOnlyBus.Publish(messageConstructor);
+            sendOnlyBus.Publish(messageConstructor,options);
         }
 
         public ICallback Send(object message, SendOptions options)

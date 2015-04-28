@@ -1,15 +1,14 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.ApiExtension
 {
     using System;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Unicast;
     using NUnit.Framework;
 
-    public class When_using_sendoptions : NServiceBusAcceptanceTest
+    public class When_extending_sendoptions : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_be_able_to_set_context_items_and_retrieve_it_via_a_behavior()
@@ -20,7 +19,7 @@
                     .WithEndpoint<SendOptionsExtensions>(b => b.Given((bus, c) =>
                     {
                         var sendOptions = new SendLocalOptions();
-                        sendOptions.GetContext()["MySpecialExtension"] = "I did it!";
+                        sendOptions.GetContext().Set(new SendOptionsExtensions.TestingSendOptionsExtensionBehavior.Context { SomeValue = "I did it!" });
 
                         bus.SendLocal(new SendMessage(), sendOptions);
                     }))
@@ -36,11 +35,13 @@
             public string Secret { get; set; }
         }
 
+
+
         public class SendOptionsExtensions : EndpointConfigurationBuilder
         {
             public SendOptionsExtensions()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("TestingSendOptionsExtension", typeof(TestingSendOptionsExtensionBehavior), "Testing send options extensions"));
             }
 
             class SendMessageHandler : IHandleMessages<SendMessage>
@@ -53,33 +54,32 @@
                     Context.WasCalled = true;
                 }
             }
+
+            public class TestingSendOptionsExtensionBehavior : Behavior<OutgoingContext>
+            {
+                public override void Invoke(OutgoingContext context, Action next)
+                {
+                    Context data;
+                    if (context.Extensions.TryGet(out data))
+                    {
+
+                        context.MessageInstance = new SendMessage { Secret = data.SomeValue };
+                    }
+
+                    next();
+                }
+
+                public class Context
+                {
+                    public string SomeValue { get; set; }
+                }
+            }
         }
 
         [Serializable]
         public class SendMessage : ICommand
         {
             public string Secret { get; set; }
-        }
-
-        class TestingSendOptionsExtensionBehavior : Behavior<OutgoingContext>
-        {
-            public override void Invoke(OutgoingContext context, Action next)
-            {
-                var options = (SendMessageOptions)context.DeliveryMessageOptions;
-                var secret = (string)options.Context["MySpecialExtension"];
-
-                context.MessageInstance = new SendMessage {Secret = secret};
-
-                next();
-            }
-
-            class AddPipelineExtension : INeedInitialization
-            {
-                public void Customize(BusConfiguration configuration)
-                {
-                    configuration.Pipeline.Register("TestingSendOptionsExtension", typeof(TestingSendOptionsExtensionBehavior), "Crazy extensions");
-                }
-            }
         }
     }
 }

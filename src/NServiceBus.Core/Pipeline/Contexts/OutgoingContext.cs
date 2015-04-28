@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Extensibility;
     using NServiceBus.Unicast;
 
     /// <summary>
@@ -20,7 +21,8 @@
         /// <param name="messageType">The message type</param>
         /// <param name="messageInstance">The message instance</param>
         /// <param name="isControlMessage">Tells if this is a control message</param>
-        public OutgoingContext(BehaviorContext parentContext, DeliveryMessageOptions deliveryMessageOptions,Dictionary<string, string> headers, string messageId, MessageIntentEnum intent,Type messageType,object messageInstance,bool isControlMessage = false)
+        /// <param name="extensionContext">Extension data provided via options</param>
+        public OutgoingContext(BehaviorContext parentContext, DeliveryMessageOptions deliveryMessageOptions,Dictionary<string, string> headers, string messageId, MessageIntentEnum intent,Type messageType,object messageInstance,bool isControlMessage = false,ExtensionContext extensionContext = null)
             : base(parentContext)
         {
             DeliveryMessageOptions = deliveryMessageOptions;
@@ -30,6 +32,15 @@
             MessageType = messageType;
             MessageInstance = messageInstance;
             IsControlMessage = isControlMessage;
+
+            if (extensionContext == null)
+            {
+                Extensions =new ExtensionContext();
+            }
+            else
+            {
+                Extensions = extensionContext;
+            }
         }
 
         /// <summary>
@@ -67,5 +78,10 @@
         /// </summary>
         /// <returns></returns>
         public bool IsControlMessage { get; private set; }
+
+        /// <summary>
+        /// Place for extensions to store their data
+        /// </summary>
+        public ExtensionContext Extensions { get; private set; }
     }
 }

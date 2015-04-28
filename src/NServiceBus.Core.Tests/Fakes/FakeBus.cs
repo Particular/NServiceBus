@@ -33,17 +33,12 @@
             get { throw new NotImplementedException(); }
         }
 
-        public void Publish(object message)
+        public void Publish(object message,PublishOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public void Publish<T>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Publish<T>(Action<T> messageConstructor)
+        public void Publish<T>(Action<T> messageConstructor,PublishOptions options)
         {
             throw new NotImplementedException();
         }

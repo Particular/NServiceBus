@@ -114,6 +114,8 @@
     <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
     <Compile Include="BusNotifications.cs" />
+    <Compile Include="Extensibility\ExtendableOptions.cs" />
+    <Compile Include="Extensibility\ExtensionContextExtensions.cs" />
     <Compile Include="Faults\FailedMessage.cs" />
     <Compile Include="Faults\ErrorsNotifications.cs" />
     <Compile Include="Faults\ErrorSubscribers.cs" />
@@ -125,6 +127,7 @@
     <Compile Include="ISendOnlyBusExtensions.cs" />
     <Compile Include="MessageMutator\IMutateOutgoingPhysicalContext.cs" />
     <Compile Include="MessageMutator\OutgoingPhysicalMutatorContext.cs" />
+    <Compile Include="Extensibility\ExtensionContext.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingContext.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
@@ -132,10 +135,10 @@
     <Compile Include="Pipeline\Contexts\TransportReceiveContext.cs" />
     <Compile Include="Pipeline\PipelineModelBuilder.cs" />
     <Compile Include="Pipeline\StageConnector.cs" />
+    <Compile Include="PublishOptions.cs" />
     <Compile Include="SendLocalOptions.cs" />
     <Compile Include="SendOptions.cs" />
     <Compile Include="Sagas\ActiveSagaInstance_obsolete.cs" />
-    <Compile Include="SendOptionsExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqAddress.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNativeTransactionBehavior.cs" />

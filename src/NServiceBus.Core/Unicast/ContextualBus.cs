@@ -4,6 +4,7 @@ namespace NServiceBus.Unicast
     using System.Collections.Generic;
     using System.Linq;
     using Janitor;
+    using NServiceBus.Extensibility;
     using NServiceBus.Hosting;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.ObjectBuilder;
@@ -90,31 +91,23 @@ namespace NServiceBus.Unicast
         public bool PropagateReturnAddressOnSend { get; set; }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Publish{T}(Action{T})"/>
+        /// <see cref="ISendOnlyBus.Publish"/>
         /// </summary>
-        public void Publish<T>(Action<T> messageConstructor)
+        public void Publish<T>(Action<T> messageConstructor,NServiceBus.PublishOptions options)
         {
-            Publish(messageMapper.CreateInstance(messageConstructor));
+            Publish(messageMapper.CreateInstance(messageConstructor),options);
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Publish{T}()"/>
+        /// <see cref="ISendOnlyBus.Publish"/>
         /// </summary>
-        public virtual void Publish<T>()
-        {
-            Publish(messageMapper.CreateInstance<T>());
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Publish(object)"/>
-        /// </summary>
-        public virtual void Publish(object message)
+        public void Publish(object message,NServiceBus.PublishOptions options)
         {
             var messageType = message.GetType();
 
-            var options = new DeliveryMessageOptions();
+            var deliveryOptions = new DeliveryMessageOptions();
 
-            ApplyDefaultDeliveryOptionsIfNeeded(options, messageType);
+            ApplyDefaultDeliveryOptionsIfNeeded(deliveryOptions, messageType);
 
             var headers = new Dictionary<string, string>();
 
@@ -124,12 +117,14 @@ namespace NServiceBus.Unicast
 
             var outgoingContext = new OutgoingContext(
                 incomingContext,
-                options,
+                deliveryOptions,
                 headers,
                 CombGuid.Generate().ToString(),
                 MessageIntentEnum.Publish,
                 messageType,
-                message);
+                message,
+                false,
+                options.ExtensionContext);
 
 
             outgoingPipeline.Invoke(outgoingContext);
@@ -367,9 +362,9 @@ namespace NServiceBus.Unicast
                 deliverAt = options.At;
             }
 
-            var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor, options.Context);
+            var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
 
-            return SendMessage(options.MessageId, options.CorrelationId, MessageIntentEnum.Send, options.Headers, sendOptions, messageType, message);
+            return SendMessage(options.MessageId, options.CorrelationId, MessageIntentEnum.Send, options.Headers, sendOptions, messageType, message, options.ExtensionContext);
         }
 
         ICallback SendMessage(NServiceBus.SendOptions options, Type messageType, object message)
@@ -393,12 +388,12 @@ namespace NServiceBus.Unicast
                 deliverAt = options.At;
             }
 
-            var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor, options.Context);
+            var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
 
-            return SendMessage(options.MessageId, options.CorrelationId, options.Intent, options.Headers, sendOptions,messageType,message);
+            return SendMessage(options.MessageId, options.CorrelationId, options.Intent, options.Headers, sendOptions,messageType,message,options.ExtensionContext);
         }
 
-        ICallback SendMessage(string messageId, string correlationId, MessageIntentEnum intent, Dictionary<string, string> messageHeaders, SendMessageOptions sendOptions,Type messageType,object message)
+        ICallback SendMessage(string messageId, string correlationId, MessageIntentEnum intent, Dictionary<string, string> messageHeaders, SendMessageOptions sendOptions, Type messageType, object message, ExtensionContext context)
         {
             var isControlMessage = message is ControlMessage;
 
@@ -440,7 +435,8 @@ namespace NServiceBus.Unicast
                 intent,
                 messageType,
                 message,
-                isControlMessage);
+                isControlMessage,
+                context);
 
             outgoingPipeline.Invoke(outgoingContext);
 
