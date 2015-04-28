@@ -16,12 +16,6 @@
 
         public override void Invoke(OutgoingContext context, Action next)
         {
-            if (context.IsControlMessage)
-            {
-                next();
-                return;
-            }
-
             var currentMessageToSend = context.MessageInstance;
             currentMessageToSend = messageMutator.MutateOutgoing(currentMessageToSend);
             context.MessageInstance = currentMessageToSend;

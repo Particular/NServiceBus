@@ -115,16 +115,6 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Return{T}"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="errorEnum"></param>
-        public void Return<T>(T errorEnum)
-        {
-            busImpl.Return(errorEnum);
-        }
-
-        /// <summary>
         /// Sends the message back to the current bus.
         /// </summary>
         /// <param name="message">The message to send.</param>

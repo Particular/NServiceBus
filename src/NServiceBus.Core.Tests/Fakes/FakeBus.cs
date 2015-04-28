@@ -147,6 +147,7 @@
             throw new NotImplementedException();
         }
 
+        [Obsolete("", true)]
         public void Return<T>(T errorEnum)
         {
             throw new NotImplementedException();

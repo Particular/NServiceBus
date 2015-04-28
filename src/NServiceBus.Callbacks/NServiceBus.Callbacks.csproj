@@ -42,6 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CallbacksSupport.cs" />
+    <Compile Include="CaptureOutgoingLogicalMessageInstanceBehavior.cs" />
+    <Compile Include="ConvertLegacyEnumResponseToLegacyControlMessageBehavior.cs" />
+    <Compile Include="LegacyEnumResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestResponseExtensions.cs" />
     <Compile Include="RequestResponseInvocationBehavior.cs" />

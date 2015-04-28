@@ -256,32 +256,6 @@ namespace NServiceBus.Unicast
             Send(messageConstructor, context);
         }
 
-        /// <summary>
-        /// <see cref="IBus.Return{T}"/>
-        /// </summary>
-        public void Return<T>(T errorCode)
-        {
-            var tType = errorCode.GetType();
-            if (!(tType.IsEnum || tType == typeof(Int32) || tType == typeof(Int16) || tType == typeof(Int64)))
-            {
-                throw new ArgumentException("The errorCode can only be an enum or an integer.", "errorCode");
-            }
-
-            var returnCode = errorCode.ToString();
-            if (tType.IsEnum)
-            {
-                returnCode = Enum.Format(tType, errorCode, "D");
-            }
-
-
-            var context = new NServiceBus.SendOptions(correlationId: GetCorrelationId());
-
-            context.AddHeader(Headers.ReturnMessageErrorCodeHeader, returnCode);
-            context.AsReplyTo(MessageBeingProcessed.ReplyToAddress);
-
-            SendMessage(context, typeof(ControlMessage), new ControlMessage("Bus.Return(" + returnCode + ")"));
-        }
-
         string GetCorrelationId()
         {
             return !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;

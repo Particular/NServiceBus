@@ -9,12 +9,6 @@
     {
         public override void Invoke(OutgoingContext context, Action next)
         {
-            if (context.IsControlMessage)
-            {
-                next();
-                return;
-            }
-
             var instanceType = context.MessageInstance.GetType();
 
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingMessages>())

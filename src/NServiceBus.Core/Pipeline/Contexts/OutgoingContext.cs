@@ -72,13 +72,6 @@
         /// The actual message instance
         /// </summary>
         public object MessageInstance { get; set; }
-
-        /// <summary>
-        /// Tells if this outgoing message is a control message
-        /// </summary>
-        /// <returns></returns>
-        public bool IsControlMessage { get; private set; }
-
         /// <summary>
         /// Place for extensions to store their data
         /// </summary>

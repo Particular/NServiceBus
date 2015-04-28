@@ -50,6 +50,7 @@ namespace NServiceBus
         /// Returns a completion message with the specified error code to the sender
         /// of the message being handled. The type T can only be an enum or an integer.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Replaced by NServiceBus.Callbacks package")]
         void Return<T>(T errorEnum);
 
         /// <summary>

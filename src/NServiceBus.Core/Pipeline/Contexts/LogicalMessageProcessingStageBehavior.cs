@@ -60,16 +60,6 @@
             /// The message type of the message beeing processed
             /// </summary>
             public Type MessageType { get; set; }
-
-
-            /// <summary>
-            /// Tells if this incoming message is a control message
-            /// </summary>
-            /// <returns></returns>
-            public bool IsControlMessage()
-            {
-                return Headers.ContainsKey(NServiceBus.Headers.ControlMessageHeader);
-            }
         }
     }
 }

@@ -309,6 +309,12 @@ namespace NServiceBus.Unicast
         {
             throw new NotImplementedException();
         }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Replaced by NServiceBus.Callbacks package")]
+        public void Return<T>(T errorCode)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public partial class UnicastBus
@@ -406,6 +412,12 @@ namespace NServiceBus.Unicast
 
         [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
         public ICallback Defer(DateTime processAt, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Replaced by NServiceBus.Callbacks package")]
+        public void Return<T>(T errorEnum)
         {
             throw new NotImplementedException();
         }

@@ -22,12 +22,6 @@
 
         public override void Invoke(OutgoingContext context, Action<PhysicalOutgoingContextStageBehavior.Context> next)
         {
-            if (context.IsControlMessage)
-            {
-                next(new PhysicalOutgoingContextStageBehavior.Context(new byte[0], context));
-                return;
-            }
-
             using (var ms = new MemoryStream())
             {
 

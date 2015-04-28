@@ -20,10 +20,10 @@
                 log.DebugFormat("Sending message '{0}' with id '{1}' to destination '{2}'.\n" +
                                 "ToString() of the message yields: {3}\n" +
                                 "Message headers:\n{4}",
-                                context.IsControlMessage ?  "[Control message]" : context.MessageType.AssemblyQualifiedName,
+                                context.MessageType.AssemblyQualifiedName,
                     context.MessageId,
                     destination,
-                    context.IsControlMessage ? "" : context.MessageInstance,
+                    context.MessageInstance,
                     string.Join(", ", context.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));
             }
 
