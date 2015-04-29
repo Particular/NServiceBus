@@ -6,13 +6,9 @@ namespace NServiceBus.Unicast.Config
     using System.Linq;
     using Features;
     using Logging;
-    using Messages;
-    using NServiceBus.Config;
     using ObjectBuilder;
     using Pipeline.Behaviors;
-    using Routing;
     using Sagas;
-    using Settings;
     using UnitOfWork;
 
     /// <summary>
@@ -30,19 +26,11 @@ namespace NServiceBus.Unicast.Config
             busConfig = Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(p => p.MasterNodeAddress, config.GetMasterNodeAddress());
 
-            var knownMessages = TypesToScan
-                .Where(MessageConventionExtensions.IsMessageType)
-                .ToList();
-
             ConfigureSubscriptionAuthorization();
 
             RegisterMessageModules();
 
             ConfigureBehaviors();
-            RegisterMessageOwnersAndBusAddress(knownMessages);
-          
-            ConfigureMessageRegistry(knownMessages);
-
         }
 
         void ConfigureBehaviors()
@@ -52,7 +40,7 @@ namespace NServiceBus.Unicast.Config
             Configurer.ConfigureComponent<AuditBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<CallbackInvocationBehavior>(DependencyLifecycle.InstancePerCall);
             extractLogicalMessagesConfig = Configurer.ConfigureComponent<ExtractLogicalMessagesBehavior>(DependencyLifecycle.InstancePerCall);
-            forwardConfig = Configurer.ConfigureComponent<ForwardBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<ForwardBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<ImpersonateSenderBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<InvokeHandlersBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<LoadHandlersBehavior>(DependencyLifecycle.InstancePerCall);
@@ -60,31 +48,6 @@ namespace NServiceBus.Unicast.Config
             Configurer.ConfigureComponent<UnitOfWorkBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<RaiseMessageReceivedBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<SagaPersistenceBehavior>(DependencyLifecycle.InstancePerCall);
-        }
-
-        void ConfigureMessageRegistry(List<Type> knownMessages)
-        {
-            var messageRegistry = new MessageMetadataRegistry
-                {
-                    DefaultToNonPersistentMessages = !SettingsHolder.Get<bool>("Endpoint.DurableMessages")
-                };
-
-            knownMessages.ForEach(messageRegistry.RegisterMessageType);
-
-            Configurer.RegisterSingleton<MessageMetadataRegistry>(messageRegistry);
-            
-            if(!Logger.IsInfoEnabled)
-                return;
-            
-            var messageDefinitions = messageRegistry.GetAllMessages().ToList();
-
-            Logger.InfoFormat("Number of messages found: {0}" , messageDefinitions.Count());
-
-            if (!Logger.IsDebugEnabled)
-                return;
-
-
-            Logger.DebugFormat("Message definitions: \n {0}",string.Concat(messageDefinitions.Select(md => md.ToString() + "\n")));
         }
 
 #pragma warning disable 0618
@@ -106,47 +69,6 @@ namespace NServiceBus.Unicast.Config
         }
 
 
-        void RegisterMessageOwnersAndBusAddress(IEnumerable<Type> knownMessages)
-        {
-            var unicastConfig = GetConfigSection<UnicastBusConfig>();
-            var router = new StaticMessageRouter(knownMessages);
-
-            Configurer.RegisterSingleton<IRouteMessages>(router);
-
-            if (unicastConfig == null)
-            {
-                return;
-            }
-            if (!string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
-            {
-                var forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
-                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
-                forwardConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
-            }
-            busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
-            forwardConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
-
-            var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()
-                .OrderByDescending(m=>m)
-                .ToList();
-
-            foreach (var mapping in messageEndpointMappings)
-            {
-                mapping.Configure((messageType, address) =>
-                    {
-                        if (!MessageConventionExtensions.IsMessageType(messageType))
-                        {
-                            return;
-                        }
-
-                        router.RegisterRoute(messageType,address);
-                    });
-            }
-        }
-
-
-
-        IComponentConfig<ForwardBehavior> forwardConfig;
         IComponentConfig<UnicastBus> busConfig;
         IComponentConfig<ExtractLogicalMessagesBehavior> extractLogicalMessagesConfig;
 
@@ -167,10 +89,10 @@ namespace NServiceBus.Unicast.Config
                     ((ISpecifyMessageHandlerOrdering)Activator.CreateInstance(t)).SpecifyOrder(order);
 
                     order.Types.ToList().ForEach(ht =>
-                                      {
-                                          if (types.Contains(ht))
-                                              throw new ConfigurationErrorsException(string.Format("The order in which the type {0} should be invoked was already specified by a previous implementor of ISpecifyMessageHandlerOrdering. Check the debug logs to see which other specifiers have been invoked.", ht));
-                                      });
+                    {
+                        if (types.Contains(ht))
+                            throw new ConfigurationErrorsException(string.Format("The order in which the type {0} should be invoked was already specified by a previous implementor of ISpecifyMessageHandlerOrdering. Check the debug logs to see which other specifiers have been invoked.", ht));
+                    });
 
                     types.AddRange(order.Types);
                 });
@@ -293,7 +215,7 @@ namespace NServiceBus.Unicast.Config
             busConfig.ConfigureProperty(b => b.PropagateReturnAddressOnSend, value);
             return this;
         }
-        
+
         /// <summary>
         /// Set this if you want this endpoint to serve as something of a proxy;
         /// recipients of messages sent by this endpoint will see the address
@@ -341,7 +263,7 @@ namespace NServiceBus.Unicast.Config
             //ApplyDefaultAutoSubscriptionStrategy.DoNotAutoSubscribeSagas = true;
             return this;
         }
-       
+
         /// <summary>
         /// Allow the bus to subscribe to itself
         /// </summary>

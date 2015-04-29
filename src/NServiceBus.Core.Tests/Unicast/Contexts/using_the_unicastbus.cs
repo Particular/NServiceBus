@@ -197,7 +197,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
         protected void RegisterOwnedMessageType<T>()
         {
-            router.RegisterRoute(typeof(T), Address.Local);
+            router.RegisterMessageRoute(typeof(T), Address.Local);
         }
         protected Address RegisterMessageType<T>()
         {
@@ -211,7 +211,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             MessageMapper.Initialize(new[] { typeof(T) });
             MessageSerializer.Initialize(new[] { typeof(T) });
-            router.RegisterRoute(typeof(T), address);
+            router.RegisterMessageRoute(typeof(T), address);
             MessageMetadataRegistry.RegisterMessageType(typeof(T));
 
         }

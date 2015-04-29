@@ -26,15 +26,14 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
 
         protected void RegisterMessageHandlerType<T>()
         {
-            ((MessageHandlerRegistry)autoSubscriptionStrategy.HandlerRegistry).RegisterHandler(typeof(T));
+            ((MessageHandlerRegistry) autoSubscriptionStrategy.HandlerRegistry).RegisterHandler(typeof(T));
         }
 
         protected void RegisterMessageType<T>(Address address)
         {
-            ((StaticMessageRouter)autoSubscriptionStrategy.MessageRouter).RegisterRoute(typeof(T),address);
+            ((StaticMessageRouter)autoSubscriptionStrategy.MessageRouter).RegisterMessageRoute(typeof(T), address);
         }
 
         protected DefaultAutoSubscriptionStrategy autoSubscriptionStrategy;
-
     }
 }

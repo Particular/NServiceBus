@@ -3,70 +3,113 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using Logging;
 
     /// <summary>
-    /// The default message router
+    ///     The default message router
     /// </summary>
     public class StaticMessageRouter : IRouteMessages
     {
         /// <summary>
-        /// Initializes the router with all known messages
+        ///     Initializes the router with all known messages
         /// </summary>
         public StaticMessageRouter(IEnumerable<Type> knownMessages)
         {
-            routes = new ConcurrentDictionary<Type, Address>();
+            routes = new ConcurrentDictionary<Type, List<Address>>();
             foreach (var knownMessage in knownMessages)
             {
-                routes[knownMessage] = Address.Undefined;
+                routes[knownMessage] = new List<Address>();
             }
         }
 
+		public bool SubscribeToPlainMessages { get; set; }
+
         public Address GetDestinationFor(Type messageType)
         {
-            Address address;
-            if (!routes.TryGetValue(messageType, out address))
+            var address = GetMultiDestinationFor(messageType).FirstOrDefault();
+        
+            if (address == null)
+            {
                 return Address.Undefined;
+            }
 
             return address;
 
         }
 
-        public void RegisterRoute(Type messageType, Address endpointAddress)
+        internal List<Address> GetMultiDestinationFor(Type messageType)
         {
-            Address currentAddress;
-
-            if (!routes.TryGetValue(messageType, out currentAddress))
-                currentAddress = Address.Undefined;
-
-            if(currentAddress == Address.Undefined)
+            List<Address> address;
+            if (!routes.TryGetValue(messageType, out address))
             {
-                Logger.DebugFormat("Routing for message: {0} set to {1}", messageType, endpointAddress); 
-            }
-            else
-            {
-                Logger.InfoFormat("Routing for message: {0} updated from {1} to {2}", messageType, currentAddress, endpointAddress);
+                return new List<Address>();
             }
 
-            routes[messageType] = endpointAddress;
-
-            //go through the existing routes and see if this means that we can route any of those
-            foreach (var route in routes)
-            {
-                if (messageType != route.Key && route.Key.IsAssignableFrom(messageType))
-                {
-                    if(route.Value == Address.Undefined)
-                        Logger.DebugFormat("Routing for inherited message: {0}({1}) set to {2}",route.Key, messageType, endpointAddress);
-                    else
-                        Logger.InfoFormat("Routing for inherited message: {0}({1}) updated from {2} to {3}", route.Key, messageType,route.Value,endpointAddress);
-
-                    routes[route.Key] = endpointAddress;
-                }
-            }
-
+            return address;
         }
 
-        readonly IDictionary<Type, Address> routes;
-        readonly static ILog Logger = LogManager.GetLogger(typeof(StaticMessageRouter));
+        public void RegisterEventRoute(Type eventType, Address endpointAddress)
+        {
+            if (endpointAddress == null || endpointAddress == Address.Undefined)
+            {
+                throw new InvalidOperationException(String.Format("'{0}' can't be registered with Address.Undefined route.", eventType.FullName));
+            }
+
+            List<Address> currentAddress;
+
+            if (!routes.TryGetValue(eventType, out currentAddress))
+            {
+                routes[eventType] = currentAddress = new List<Address>();
+            }
+
+            Logger.DebugFormat(currentAddress.Any() ? "Routing for message: {0} appending {1}" : "Routing for message: {0} set to {1}", eventType, endpointAddress);
+
+            currentAddress.Add(endpointAddress);
+
+            foreach (var route in routes.Where(route => eventType != route.Key && route.Key.IsAssignableFrom(eventType)))
+            {
+                if (route.Value.Any())
+                {
+                    Logger.InfoFormat("Routing for inherited message: {0}({1}) appending {2}", route.Key, eventType, endpointAddress);
+                }
+                else
+                {
+                    Logger.DebugFormat("Routing for inherited message: {0}({1}) set to {2}", route.Key, eventType, endpointAddress);
+                }
+
+                route.Value.Add(endpointAddress);
+            }
+        }
+
+        public void RegisterMessageRoute(Type messageType, Address endpointAddress)
+        {
+            if (endpointAddress == null || endpointAddress == Address.Undefined)
+            {
+                throw new InvalidOperationException(String.Format("'{0}' can't be registered with Address.Undefined route.", messageType.FullName));
+            }
+
+            List<Address> currentAddress;
+
+            if (!routes.TryGetValue(messageType, out currentAddress))
+            {
+                routes[messageType] = currentAddress = new List<Address>();
+            }
+
+            Logger.DebugFormat("Routing for message: {0} set to {1}", messageType, endpointAddress);
+            currentAddress.Clear();
+            currentAddress.Add(endpointAddress);
+
+            //go through the existing routes and see if this means that we can route any of those
+            foreach (var route in routes.Where(route => messageType != route.Key && route.Key.IsAssignableFrom(messageType)))
+            {
+                Logger.DebugFormat("Routing for inherited message: {0}({1}) set to {2}", route.Key, messageType, endpointAddress);
+                route.Value.Clear();
+                route.Value.Add(endpointAddress);
+            }
+        }
+
+        static readonly ILog Logger = LogManager.GetLogger(typeof(StaticMessageRouter));
+        readonly ConcurrentDictionary<Type, List<Address>> routes;
     }
 }
