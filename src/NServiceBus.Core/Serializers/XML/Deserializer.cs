@@ -234,7 +234,6 @@
                 return mappedType;
             }
 
-
             logger.Debug("Could not load " + typeName + ". Trying base types...");
             foreach (var baseType in messageBaseTypes)
             {
@@ -243,7 +242,7 @@
                     logger.Debug("Trying to deserialize message to " + baseType.FullName);
                     return baseType;
                 }
-                    // ReSharper disable once EmptyGeneralCatchClause
+                // ReSharper disable once EmptyGeneralCatchClause
                 catch
                 {
                     // intentionally swallow exception
@@ -255,7 +254,7 @@
 
         object GetObjectOfTypeFromNode(Type t, XmlNode node)
         {
-            if (t.IsSimpleType() || t == typeof(Uri))
+            if (t.IsSimpleType() || t == typeof(Uri) || t.IsNullableType())
             {
                 return GetPropertyValue(t, node);
             }
@@ -340,7 +339,7 @@
                     var nullableType = typeof(Nullable<>).MakeGenericType(args);
                     if (type == nullableType)
                     {
-                        if (text.ToLower() == "null")
+                        if (text.Trim().ToLower() == "null")
                         {
                             return null;
                         }

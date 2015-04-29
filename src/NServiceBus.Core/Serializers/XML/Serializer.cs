@@ -74,77 +74,81 @@
 
         static string FormatAsString(object value)
         {
+            if (value == null)
+            {
+                return "null";
+            }
             if (value is bool)
             {
-                return XmlConvert.ToString((bool) value);
+                return XmlConvert.ToString((bool)value);
             }
             if (value is byte)
             {
-                return XmlConvert.ToString((byte) value);
+                return XmlConvert.ToString((byte)value);
             }
             if (value is char)
             {
-                return Escape((char) value);
+                return Escape((char)value);
             }
             if (value is double)
             {
-                return XmlConvert.ToString((double) value);
+                return XmlConvert.ToString((double)value);
             }
             if (value is ulong)
             {
-                return XmlConvert.ToString((ulong) value);
+                return XmlConvert.ToString((ulong)value);
             }
             if (value is uint)
             {
-                return XmlConvert.ToString((uint) value);
+                return XmlConvert.ToString((uint)value);
             }
             if (value is ushort)
             {
-                return XmlConvert.ToString((ushort) value);
+                return XmlConvert.ToString((ushort)value);
             }
             if (value is long)
             {
-                return XmlConvert.ToString((long) value);
+                return XmlConvert.ToString((long)value);
             }
             if (value is int)
             {
-                return XmlConvert.ToString((int) value);
+                return XmlConvert.ToString((int)value);
             }
             if (value is short)
             {
-                return XmlConvert.ToString((short) value);
+                return XmlConvert.ToString((short)value);
             }
             if (value is sbyte)
             {
-                return XmlConvert.ToString((sbyte) value);
+                return XmlConvert.ToString((sbyte)value);
             }
             if (value is decimal)
             {
-                return XmlConvert.ToString((decimal) value);
+                return XmlConvert.ToString((decimal)value);
             }
             if (value is float)
             {
-                return XmlConvert.ToString((float) value);
+                return XmlConvert.ToString((float)value);
             }
             if (value is Guid)
             {
-                return XmlConvert.ToString((Guid) value);
+                return XmlConvert.ToString((Guid)value);
             }
             if (value is DateTime)
             {
-                return XmlConvert.ToString((DateTime) value, XmlDateTimeSerializationMode.RoundtripKind);
+                return XmlConvert.ToString((DateTime)value, XmlDateTimeSerializationMode.RoundtripKind);
             }
             if (value is DateTimeOffset)
             {
-                return XmlConvert.ToString((DateTimeOffset) value);
+                return XmlConvert.ToString((DateTimeOffset)value);
             }
             if (value is TimeSpan)
             {
-                return XmlConvert.ToString((TimeSpan) value);
+                return XmlConvert.ToString((TimeSpan)value);
             }
             if (value is string)
             {
-                return Escape(value as string);
+                return Escape((string)value);
             }
 
             return Escape(value.ToString());
@@ -166,15 +170,19 @@
                     case '<':
                         ss = "&lt;";
                         break;
+
                     case '>':
                         ss = "&gt;";
                         break;
+
                     case '"':
                         ss = "&quot;";
                         break;
+
                     case '\'':
                         ss = "&apos;";
                         break;
+
                     case '&':
                         ss = "&amp;";
                         break;
@@ -186,7 +194,7 @@
             }
             else
             {
-                return String.Format("&#x{0:X};", (int) c);
+                return String.Format("&#x{0:X};", (int)c);
             }
 
             //Should not get here but just in case!
@@ -218,15 +226,19 @@
                         case '<':
                             ss = "&lt;";
                             break;
+
                         case '>':
                             ss = "&gt;";
                             break;
+
                         case '"':
                             ss = "&quot;";
                             break;
+
                         case '\'':
                             ss = "&apos;";
                             break;
+
                         case '&':
                             ss = "&amp;";
                             break;
@@ -257,7 +269,7 @@
                         builder.Append(stringToEscape, startIndex, i - startIndex);
                     }
                     startIndex = i + 1;
-                    builder.AppendFormat("&#x{0:X};", (int) c);
+                    builder.AppendFormat("&#x{0:X};", (int)c);
                 }
             }
 
@@ -318,7 +330,7 @@
         {
             var element = name;
 
-            if (type == typeof(object) && (value.GetType().IsSimpleType()))
+            if (type == typeof(object) && value.GetType().IsSimpleType())
             {
                 if (!namespacesToAdd.Contains(value.GetType()))
                 {
@@ -331,7 +343,6 @@
 
                 return;
             }
-
 
             if (useNS)
             {
@@ -353,6 +364,11 @@
         {
             if (obj == null)
             {
+                // For null entries in a nullable array
+                // See https://github.com/Particular/NServiceBus/issues/2706
+                if (t.IsNullableType())
+                    builder.Append("null");
+
                 return;
             }
 
@@ -402,7 +418,7 @@
 
             if (typeof(XContainer).IsAssignableFrom(type))
             {
-                var container = (XContainer) value;
+                var container = (XContainer)value;
                 if (SkipWrappingRawXml)
                 {
                     builder.AppendFormat("{0}\n", container);
@@ -427,7 +443,7 @@
 
                 if (type == typeof(byte[]))
                 {
-                    var base64String = Convert.ToBase64String((byte[]) value);
+                    var base64String = Convert.ToBase64String((byte[])value);
                     builder.Append(base64String);
                 }
                 else
@@ -459,8 +475,7 @@
                         }
                     }
 
-
-                    foreach (var obj in ((IEnumerable) value))
+                    foreach (var obj in ((IEnumerable)value))
                     {
                         if (obj != null && obj.GetType().IsSimpleType())
                         {
