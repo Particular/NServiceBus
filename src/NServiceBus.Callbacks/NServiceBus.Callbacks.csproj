@@ -41,7 +41,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CallbacksSupport.cs" />
+    <Compile Include="CallbackSupport.cs" />
     <Compile Include="SetLegacyReturnCodeBehavior.cs" />
     <Compile Include="ConvertLegacyEnumResponseToLegacyControlMessageBehavior.cs" />
     <Compile Include="LegacyEnumResponse.cs" />

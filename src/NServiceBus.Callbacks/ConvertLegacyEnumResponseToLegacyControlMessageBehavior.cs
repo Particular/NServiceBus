@@ -9,7 +9,7 @@
     {
         public override void Invoke(Context context, Action next)
         {
-            if (CallbacksSupport.IsLegacyEnumResponse(context.MessageType))
+            if (CallbackSupport.IsLegacyEnumResponse(context.MessageType))
             {
                 context.Headers[Headers.ControlMessageHeader] = true.ToString();
 

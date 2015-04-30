@@ -62,7 +62,7 @@
                 var taskCompletionSourceType = taskCompletionSource.GetType();
                 var legacyEnumResponseType = taskCompletionSourceType.GenericTypeArguments[0];
 
-                if (!CallbacksSupport.IsLegacyEnumResponse(legacyEnumResponseType))
+                if (!CallbackSupport.IsLegacyEnumResponse(legacyEnumResponseType))
                 {
                     var methodSetException = taskCompletionSource.GetType().GetMethod("SetException");
                     methodSetException.Invoke(taskCompletionSource, new object[]

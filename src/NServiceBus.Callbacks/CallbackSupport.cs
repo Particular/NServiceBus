@@ -3,9 +3,9 @@
     using System;
     using NServiceBus.Callbacks;
 
-    class CallbacksSupport : Feature
+    class CallbackSupport : Feature
     {
-        public CallbacksSupport()
+        public CallbackSupport()
         {
             EnableByDefault();
         }
