@@ -8,13 +8,13 @@ namespace NServiceBus.Utils.Reflection
     /// <summary>
     /// Contains extension methods
     /// </summary>
-    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message= "These will be made internal in version 5.0")]
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "These will be made internal in version 5.0")]
     public static class ExtensionMethods
     {
         /// <summary>
         /// Useful for finding if a type is (for example) IMessageHandler{T} where T : IMessage.
-        /// </summary>  
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.3", Message= "No longer used. to be deleted")]
+        /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.3", Message = "No longer used. to be deleted")]
         public static bool IsGenericallyEquivalent(this Type type, Type openGenericType, Type genericArg)
         {
             var result = false;
@@ -69,13 +69,23 @@ namespace NServiceBus.Utils.Reflection
                     type.IsEnum);
         }
 
+        public static bool IsNullableType(this Type type)
+        {
+            var args = type.GetGenericArguments();
+            if (args.Length == 1 && args[0].IsValueType)
+            {
+                return type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            }
+            return false;
+        }
+
         /// <summary>
         /// Takes the name of the given type and makes it friendly for serialization
         /// by removing problematic characters.
         /// </summary>
         public static string SerializationFriendlyName(this Type t)
         {
-            lock(TypeToNameLookup)
+            lock (TypeToNameLookup)
             {
                 string typeName;
                 if (TypeToNameLookup.TryGetValue(t, out typeName))
@@ -100,13 +110,13 @@ namespace NServiceBus.Utils.Reflection
                     if (typeof(KeyValuePair<,>).MakeGenericType(args) == t)
                         result = "NServiceBus." + result;
 
-                lock(TypeToNameLookup)  
+                lock (TypeToNameLookup)
                     TypeToNameLookup[t] = result;
 
                 return result;
             }
 
-            lock(TypeToNameLookup)
+            lock (TypeToNameLookup)
                 TypeToNameLookup[t] = t.Name;
 
             return t.Name;
