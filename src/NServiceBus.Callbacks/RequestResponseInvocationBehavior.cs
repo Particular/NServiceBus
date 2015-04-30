@@ -32,7 +32,18 @@
                 return false;
             }
 
-            if (transportMessage.MessageIntent != MessageIntentEnum.Reply)
+            string version;
+            var checkMessageIntent = true;
+
+            if (transportMessage.Headers.TryGetValue(Headers.NServiceBusVersion, out version))
+            {
+                if (version.StartsWith("3."))
+                {
+                    checkMessageIntent = false;
+                }
+            }
+
+            if (checkMessageIntent && transportMessage.MessageIntent != MessageIntentEnum.Reply)
             {
                 return false;
             }

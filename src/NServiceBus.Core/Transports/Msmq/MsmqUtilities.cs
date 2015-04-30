@@ -222,13 +222,22 @@ namespace NServiceBus
                 result.TimeToBeReceived = deliveryOptions.TimeToBeReceived.Value;
             }
 
+            var addCorrIdHeader = !message.Headers.ContainsKey("CorrId");
+
             using (var stream = new MemoryStream())
             {
-                headerSerializer.Serialize(stream, message.Headers.Select(pair => new HeaderInfo
+                var headerInfos = message.Headers.Select(pair => new HeaderInfo
                 {
                     Key = pair.Key,
                     Value = pair.Value
-                }).ToList());
+                }).ToList();
+
+                if (addCorrIdHeader)
+                {
+                    headerInfos.Add(new HeaderInfo { Key = "CorrId", Value = result.CorrelationId });
+                }
+
+                headerSerializer.Serialize(stream, headerInfos);
                 result.Extension = stream.ToArray();
             }
 
