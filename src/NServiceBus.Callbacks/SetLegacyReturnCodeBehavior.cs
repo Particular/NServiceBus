@@ -19,7 +19,7 @@
         public class Registration : RegisterStep
         {
             public Registration()
-                : base("SetLegacyReturnCodeBehavior", typeof(SetLegacyReturnCodeBehavior), "Promotes the legacy return code to a header in order to be backwards compatible with v5 and below")
+                : base("SetLegacyReturnCode", typeof(SetLegacyReturnCodeBehavior), "Promotes the legacy return code to a header in order to be backwards compatible with v5 and below")
             {
 
             }

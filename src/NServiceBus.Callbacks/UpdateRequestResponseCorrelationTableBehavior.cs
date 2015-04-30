@@ -39,7 +39,7 @@
         public class Registration : RegisterStep
         {
             public Registration()
-                : base("RequestResponse_update_correlation_table", typeof(UpdateRequestResponseCorrelationTableBehavior), "Updates the correlation table that keeps track of synchronous request/response callbacks")
+                : base("UpdateRequestResponseCorrelationTable", typeof(UpdateRequestResponseCorrelationTableBehavior), "Updates the correlation table that keeps track of synchronous request/response callbacks")
             {
                 InsertAfterIfExists(WellKnownStep.MutateOutgoingTransportMessage);
                 InsertBefore(WellKnownStep.DispatchMessageToTransport);

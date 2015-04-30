@@ -100,9 +100,8 @@
         public class Registration : RegisterStep
         {
             public Registration()
-                : base("RequestResponse_CallbackInvocation", typeof(RequestResponseInvocationBehavior), "Invokes the callback of a synchronous request/response")
+                : base("RequestResponseInvocation", typeof(RequestResponseInvocationBehavior), "Invokes the callback of a synchronous request/response")
             {
-                InsertAfterIfExists("InvokeRegisteredCallbacks");
             }
         }
     }

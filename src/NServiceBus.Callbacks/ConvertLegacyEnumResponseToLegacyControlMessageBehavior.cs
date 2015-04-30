@@ -26,7 +26,7 @@
         public class Registration : RegisterStep
         {
             public Registration()
-                : base("ConvertLegacyEnumResponseToLegacyControlMessageBehavior", typeof(ConvertLegacyEnumResponseToLegacyControlMessageBehavior), "Converts the legacy response message to a control message to support backward compatibiliy")
+                : base("ConvertLegacyEnumResponseToLegacyControlMessage", typeof(ConvertLegacyEnumResponseToLegacyControlMessageBehavior), "Converts the legacy response message to a control message to support backward compatibiliy")
             {
                 InsertAfterIfExists(WellKnownStep.MutateOutgoingTransportMessage);
                 InsertBefore(WellKnownStep.DispatchMessageToTransport);
