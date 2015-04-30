@@ -42,7 +42,7 @@
             }
 
             sendOptions
-                .AddHeader("NServiceBus.HasCallback", Boolean.TrueString)
+                .AddHeader("$Routing.RouteReplyToSpecificEndpointInstance", Boolean.TrueString)
                 .SetCustomMessageId(options.MessageId);
 
             var tcs = new TaskCompletionSource<TResponse>();
@@ -87,7 +87,7 @@
             }
 
             sendLocalOptions
-                .AddHeader("NServiceBus.HasCallback", Boolean.TrueString)
+                .AddHeader("$Routing.RouteReplyToSpecificEndpointInstance", Boolean.TrueString)
                 .SetCustomMessageId(options.MessageId);
 
             var tcs = new TaskCompletionSource<TResponse>();
