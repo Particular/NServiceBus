@@ -5,7 +5,7 @@
     <title>NServiceBus CastleWindsor</title>
     <version>$version$</version>
     <authors>NServiceBus Ltd</authors>
-    <owners>NServiceBus Ltd</owners>
+    <owners>UdiNServiceBus Ltd</owners>
     <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
     <projectUrl>http://particular.net/</projectUrl>
     <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
