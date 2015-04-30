@@ -14,12 +14,15 @@
         [Test]
         public void Should_preserve_the_original_body()
         {
-            var context = new Context();
+            var context = new Context
+            {
+                RunId = Guid.NewGuid()
+            };
 
             Scenario.Define(context)
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given((bus, c) => bus.SendLocal(new MessageToBeAudited{RunId = c.RunId})))
                     .WithEndpoint<AuditSpyEndpoint>()
-                    .Done(c => c.AuditChecksum != default(byte))
+                    .Done(c => c.Done)
                     .Run();
 
             Assert.AreEqual(context.OriginalBodyChecksum, context.AuditChecksum, "The body of the message sent to audit should be the same as the original message coming off the queue");
@@ -31,6 +34,8 @@
             public byte OriginalBodyChecksum { get; set; }
 
             public byte AuditChecksum { get; set; }
+            public bool Done { get; set; }
+            public Guid RunId { get; set; }
         }
 
         public class EndpointWithAuditOn : EndpointConfigurationBuilder
@@ -41,32 +46,24 @@
                     .AuditTo<AuditSpyEndpoint>();
             }
 
-            class BodyMutator : IMutateTransportMessages, NServiceBus.INeedInitialization
+            class BodyMutator : IMutateIncomingTransportMessages, INeedInitialization
             {
                 public Context Context { get; set; }
 
                 public void MutateIncoming(TransportMessage transportMessage)
                 {
-
                     var originalBody = transportMessage.Body;
 
                     Context.OriginalBodyChecksum = Checksum(originalBody);
 
-                    var decryptedBody = new byte[originalBody.Length];
+                    // modifying the body by adding a line break
+                    var modifiedBody = new byte[originalBody.Length + 1];
 
-                    Buffer.BlockCopy(originalBody,0,decryptedBody,0,originalBody.Length);
-                   
-                    //decrypt
-                    decryptedBody[0]++;
+                    Buffer.BlockCopy(originalBody, 0, modifiedBody, 0, originalBody.Length);
 
-                    transportMessage.Body = decryptedBody;
-                }
+                    modifiedBody[modifiedBody.Length - 1] = 13;
 
-
-                public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
-                {
-                    //not the way to do it for real but good enough for this test
-                    transportMessage.Body[0]--;
+                    transportMessage.Body = modifiedBody;
                 }
 
                 public void Init()
@@ -76,7 +73,12 @@
             }
 
 
-            class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>{ public void Handle(MessageToBeAudited message) {}}
+            class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+            {
+                public void Handle(MessageToBeAudited message)
+                {
+                }
+            }
         }
 
         class AuditSpyEndpoint : EndpointConfigurationBuilder
@@ -86,7 +88,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class BodySpy : IMutateIncomingTransportMessages, NServiceBus.INeedInitialization
+            class BodySpy : IMutateIncomingTransportMessages, INeedInitialization
             {
                 public Context Context { get; set; }
 
@@ -100,6 +102,20 @@
                     Configure.Component<BodySpy>(DependencyLifecycle.InstancePerCall);
                 }
             }
+
+            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+            {
+                public Context Context { get; set; }
+
+                public void Handle(MessageToBeAudited message)
+                {
+                    if (message.RunId != Context.RunId)
+                    {
+                        return;
+                    }
+                    Context.Done = true;
+                }
+            }
         }
 
         public static byte Checksum(byte[] data)
@@ -111,6 +127,7 @@
         [Serializable]
         public class MessageToBeAudited : IMessage
         {
+            public Guid RunId { get; set; }
         }
     }
 
