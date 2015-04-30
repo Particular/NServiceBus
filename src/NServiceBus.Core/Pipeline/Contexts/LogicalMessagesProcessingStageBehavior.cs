@@ -44,6 +44,11 @@
                 get { return Get<List<LogicalMessage>>(); }
                 private set { Set(value); }
             }
+
+            /// <summary>
+            /// True if the message was handled
+            /// </summary>
+            public bool MessageHandled { get; set; }
         }
     }
 }

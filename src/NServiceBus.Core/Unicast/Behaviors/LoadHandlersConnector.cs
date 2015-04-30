@@ -18,16 +18,9 @@
 
         public override void Invoke(LogicalMessageProcessingStageBehavior.Context context, Action<HandlingStageBehavior.Context> next)
         {
-            bool callbackInvoked;
-
-            if (!context.TryGet("NServiceBus.CallbackInvocation.CallbackWasInvoked", out callbackInvoked))
-            {
-                callbackInvoked = false;
-            }
-
             var handlerTypedToInvoke = messageHandlerRegistry.GetHandlerTypes(context.MessageType).ToList();
 
-            if (!callbackInvoked && !handlerTypedToInvoke.Any())
+            if (!context.MessageHandled && !handlerTypedToInvoke.Any())
             {
                 var error = string.Format("No handlers could be found for message type: {0}", context.MessageType);
                 throw new InvalidOperationException(error);
@@ -50,6 +43,8 @@
                     break;
                 }
             }
+
+            context.MessageHandled = true;
         }
     }
 }

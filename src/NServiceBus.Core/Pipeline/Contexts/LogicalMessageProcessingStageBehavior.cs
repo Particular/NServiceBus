@@ -30,6 +30,10 @@
                 MessageType = messageType;
                 IncomingLogicalMessage = logicalMessage;
 
+                if (parentContext != null)
+                {
+                    MessageHandled = parentContext.MessageHandled;
+                }
             }
 
             /// <summary>

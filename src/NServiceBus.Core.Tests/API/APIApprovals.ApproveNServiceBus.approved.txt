@@ -563,8 +563,7 @@ namespace NServiceBus
         public class Context : NServiceBus.Pipeline.Contexts.TransportReceiveContext
         {
             protected Context(NServiceBus.Pipeline.BehaviorContext parentContext) { }
-            public bool MessageHandledSuccessfully { get; }
-            public void AbortReceiveOperation() { }
+            public bool AbortReceiveOperation { get; set; }
         }
     }
     public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
@@ -1627,6 +1626,7 @@ namespace NServiceBus.Pipeline.Contexts
             public Context(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Messages.LogicalMessage> logicalMessages, NServiceBus.PhysicalMessageProcessingStageBehavior.Context parentContext) { }
             protected Context(NServiceBus.Pipeline.BehaviorContext parentContext) { }
             public System.Collections.Generic.List<NServiceBus.Unicast.Messages.LogicalMessage> LogicalMessages { get; }
+            public bool MessageHandled { get; set; }
         }
     }
     public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext

@@ -18,9 +18,11 @@
 
         public override void Invoke(Context context, Action next)
         {
-            var invoked = HandleCorrelatedMessage(context.PhysicalMessage, context);
+            if (HandleCorrelatedMessage(context.PhysicalMessage, context))
+            {
+                context.MessageHandled = true;
+            }
 
-            context.Set("NServiceBus.CallbackInvocation.CallbackWasInvoked", invoked);
 
             next();
         }
