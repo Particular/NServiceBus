@@ -45,7 +45,6 @@ namespace NServiceBus.Unicast
             TransportDefinition transportDefinition,
             ISendMessages messageSender,
             StaticMessageRouter messageRouter,
-            CallbackMessageLookup callbackMessageLookup,
             HostInformation hostInformation)
         {
             this.executor = executor;
@@ -66,7 +65,6 @@ namespace NServiceBus.Unicast
                 transportDefinition,
                 messageSender,
                 messageRouter,
-                callbackMessageLookup,
                 hostInformation);
         }
 

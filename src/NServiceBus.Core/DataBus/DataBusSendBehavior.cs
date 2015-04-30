@@ -17,12 +17,6 @@
 
         public override void Invoke(OutgoingContext context, Action next)
         {
-            if (context.IsControlMessage)
-            {
-                next();
-                return;
-            }
-
             var timeToBeReceived = context.DeliveryMessageOptions.TimeToBeReceived;
             var message = context.MessageInstance;
 

@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.Callbacks
 {
     using System;
-    using System.Linq;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -14,27 +13,29 @@
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<EndpointWithLocalCallback>(b => b.Given(
-                    (bus, c) => bus.SendLocal(new MyRequest()).Register(r =>
+                .WithEndpoint<EndpointWithLocalCallback>(b => b.Given(async (bus, c) =>
                     {
-                        c.Reply = (MyReply)r.Messages.Single();
+                        var response = bus.SynchronousRequestResponse<MyResponse>(new MyRequest(), new SynchronousOptions());
+
+                        c.Response = await response.ResponseTask;
                         c.CallbackFired = true;
-                    })))
+                    }))
+                .WithEndpoint<Replier>()
                 .Done(c => c.CallbackFired)
                 .Run();
 
-            Assert.IsNotNull(context.Reply);
+            Assert.IsNotNull(context.Response);
         }
 
         public class Context : ScenarioContext
         {
             public bool CallbackFired { get; set; }
-            public MyReply Reply { get; set; }
+            public MyResponse Response { get; set; }
         }
 
-        public class EndpointWithLocalCallback : EndpointConfigurationBuilder
+        public class Replier : EndpointConfigurationBuilder
         {
-            public EndpointWithLocalCallback()
+            public Replier()
             {
                 EndpointSetup<DefaultServer>();
             }
@@ -45,8 +46,17 @@
 
                 public void Handle(MyRequest request)
                 {
-                    Bus.Reply(new MyReply());
+                    Bus.Reply(new MyResponse());
                 }
+            }
+        }
+
+        public class EndpointWithLocalCallback : EndpointConfigurationBuilder
+        {
+            public EndpointWithLocalCallback()
+            {
+                EndpointSetup<DefaultServer>()
+                    .AddMapping<MyRequest>(typeof(Replier));
             }
         }
 
@@ -54,6 +64,6 @@
         public class MyRequest : IMessage { }
 
         [Serializable]
-        public class MyReply : IMessage { }
+        public class MyResponse : IMessage { }
     }
 }

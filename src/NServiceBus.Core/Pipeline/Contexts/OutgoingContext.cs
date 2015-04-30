@@ -20,9 +20,8 @@
         /// <param name="intent">The intent of the message</param>
         /// <param name="messageType">The message type</param>
         /// <param name="messageInstance">The message instance</param>
-        /// <param name="isControlMessage">Tells if this is a control message</param>
         /// <param name="extensionContext">Extension data provided via options</param>
-        public OutgoingContext(BehaviorContext parentContext, DeliveryMessageOptions deliveryMessageOptions,Dictionary<string, string> headers, string messageId, MessageIntentEnum intent,Type messageType,object messageInstance,bool isControlMessage = false,ExtensionContext extensionContext = null)
+        public OutgoingContext(BehaviorContext parentContext, DeliveryMessageOptions deliveryMessageOptions, Dictionary<string, string> headers, string messageId, MessageIntentEnum intent, Type messageType, object messageInstance, ExtensionContext extensionContext)
             : base(parentContext)
         {
             DeliveryMessageOptions = deliveryMessageOptions;
@@ -31,16 +30,7 @@
             Intent = intent;
             MessageType = messageType;
             MessageInstance = messageInstance;
-            IsControlMessage = isControlMessage;
-
-            if (extensionContext == null)
-            {
-                Extensions =new ExtensionContext();
-            }
-            else
-            {
-                Extensions = extensionContext;
-            }
+            Extensions = extensionContext;
         }
 
         /// <summary>
@@ -72,13 +62,6 @@
         /// The actual message instance
         /// </summary>
         public object MessageInstance { get; set; }
-
-        /// <summary>
-        /// Tells if this outgoing message is a control message
-        /// </summary>
-        /// <returns></returns>
-        public bool IsControlMessage { get; private set; }
-
         /// <summary>
         /// Place for extensions to store their data
         /// </summary>

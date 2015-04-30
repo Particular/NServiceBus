@@ -9,12 +9,6 @@
     {
         public override void Invoke(OutgoingContext context, Action next)
         {
-            if (context.IsControlMessage)
-            {
-                next();
-                return;
-            }
-
             AttachSagaDetailsToOutGoingMessage(context);
 
             FlowDetailsForRequestingSagaToOutgoingMessage(context);

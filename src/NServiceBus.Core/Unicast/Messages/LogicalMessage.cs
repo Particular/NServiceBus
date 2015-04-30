@@ -59,14 +59,4 @@
         /// </summary>
         public object Instance { get; private set; }
     }
-
-    class ControlMessage : LogicalMessage
-    {
-        internal ControlMessage(string purpose) : base(null, null, null)
-        {
-            Purpose = purpose;
-        }
-
-        public string Purpose { get; private set; }
-    }
 }

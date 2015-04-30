@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+namespace NServiceBus.AcceptanceTests.Callbacks
 {
     using System;
     using NServiceBus.AcceptanceTesting;
@@ -12,14 +12,17 @@
         public void Should_trigger_the_callback_when_the_response_comes_back()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<EndpointWithLocalCallback>(b=>b.Given(
-                        (bus,context)=>bus.SendLocal(new MyRequest()).Register(r =>
+                    .WithEndpoint<EndpointWithLocalCallback>(b => b.Given(async (bus, context) =>
                         {
+                            var sendContext = bus.SynchronousRequestResponse<MyResponse>(new MyRequest(), new SynchronousLocalOptions());
+
+                            await sendContext.ResponseTask;
+                            
                             Assert.True(context.HandlerGotTheRequest);
                             context.CallbackFired = true;
-                        })))
+                        }))
                     .Done(c => c.CallbackFired)
-                    .Repeat(r =>r.For(Transports.Default))
+                    .Repeat(r => r.For(Transports.Default))
                     .Should(c =>
                     {
                         Assert.True(c.CallbackFired);
@@ -53,12 +56,15 @@
                     Assert.False(Context.CallbackFired);
                     Context.HandlerGotTheRequest = true;
 
-                    Bus.Return(1);
+                    Bus.Reply(new MyResponse());
                 }
             }
         }
 
         [Serializable]
-        public class MyRequest : IMessage{}
+        public class MyRequest : IMessage { }
+
+        [Serializable]
+        public class MyResponse : IMessage { }
     }
 }

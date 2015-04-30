@@ -37,9 +37,9 @@ namespace NServiceBus.Unicast
         /// <param name="message"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public ICallback Send(object message, NServiceBus.SendOptions options)
+        public void Send(object message, NServiceBus.SendOptions options)
         {
-            return busImpl.Send(message, options);
+            busImpl.Send(message, options);
         }
 
 
@@ -50,9 +50,9 @@ namespace NServiceBus.Unicast
         /// <param name="messageConstructor"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public ICallback Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
+        public void Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
         {
-            return busImpl.Send(messageConstructor, options);
+            busImpl.Send(messageConstructor, options);
         }
 
         /// <summary>
@@ -115,23 +115,13 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Return{T}"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="errorEnum"></param>
-        public void Return<T>(T errorEnum)
-        {
-            busImpl.Return(errorEnum);
-        }
-
-        /// <summary>
         /// Sends the message back to the current bus.
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <param name="options">The options for the send.</param>
-        public ICallback SendLocal(object message, SendLocalOptions options)
+        public void SendLocal(object message, SendLocalOptions options)
         {
-            return busImpl.SendLocal(message, options);
+            busImpl.SendLocal(message, options);
         }
 
         /// <summary>
@@ -140,9 +130,9 @@ namespace NServiceBus.Unicast
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
         /// <param name="options">The options for the send.</param>
-        public ICallback SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
+        public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
         {
-            return busImpl.SendLocal(messageConstructor, options);
+            busImpl.SendLocal(messageConstructor, options);
         }
 
         /// <summary>

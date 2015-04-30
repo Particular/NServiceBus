@@ -29,7 +29,7 @@
         {
             var transportMessage = context.PhysicalMessage;
 
-            if (transportMessage.IsControlMessage())
+            if (TransportMessageExtensions.IsControlMessage(transportMessage.Headers))
             {
                 log.Info("Received a control message. Skipping deserialization as control message data is contained in the header.");
                 next(new LogicalMessagesProcessingStageBehavior.Context(Enumerable.Empty<LogicalMessage>(), context));

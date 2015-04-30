@@ -33,7 +33,7 @@
                 throw new Exception("test"); 
             });
 
-            Assert.False(context.MessageHandledSuccessfully);
+            Assert.True(context.AbortReceiveOperation);
         }
 
         [Test]

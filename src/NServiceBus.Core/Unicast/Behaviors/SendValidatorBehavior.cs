@@ -11,21 +11,13 @@
 
         public override void Invoke(OutgoingContext context, Action next)
         {
-            if (!context.IsControlMessage)
-            {
-                VerifyBestPractices(context);
-            }
-
+            VerifyBestPractices(context);
+            
             next();
         }
 
         void VerifyBestPractices(OutgoingContext context)
         {
-            if (!context.IsControlMessage)
-            {
-                return;
-            }
-
             if (!context.DeliveryMessageOptions.EnforceMessagingBestPractices)
             {
                 return;

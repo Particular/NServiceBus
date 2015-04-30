@@ -39,8 +39,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -75,13 +76,10 @@
     <Compile Include="Basic\When_receiving_with_catch_all_handlers_registered.cs" />
     <Compile Include="Basic\When_handling_message_with_several_messagehandlers.cs" />
     <Compile Include="Basic\When_registering_custom_serializer.cs" />
-    <Compile Include="Basic\When_callback_from_a_send_only.cs" />
     <Compile Include="Basic\When_injecting_handler_props.cs" />
     <Compile Include="ApiExtension\When_extending_sendoptions.cs" />
     <Compile Include="Basic\When_using_ineedinitialization.cs" />
     <Compile Include="Basic\When_sending_with_conventions.cs" />
-    <Compile Include="Basic\When_using_callbacks_with_messageid_eq_cid_.cs" />
-    <Compile Include="Basic\When_using_callbacks_from_older_versions.cs" />
     <Compile Include="Basic\When_sending_from_a_send_only.cs" />
     <Compile Include="Basic\When_using_a_greedy_convention.cs" />
     <Compile Include="Basic\When_incoming_headers_should_be_shared.cs" />
@@ -90,7 +88,6 @@
     <Compile Include="DeliveryOptions\When_TimeToBeReceived_has_not_expired.cs" />
     <Compile Include="DeliveryOptions\When_TimeToBeReceived_has_expired.cs" />
     <Compile Include="Basic\When_Deferring_a_message.cs" />
-    <Compile Include="Basic\When_using_callback_to_get_message.cs" />
     <Compile Include="ConfigureMsmqTransport.cs" />
     <Compile Include="NonDTC\When_dispatching_transport_operations.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
@@ -182,10 +179,8 @@
     <Compile Include="Basic\When_sending_with_no_correlation_id.cs" />
     <Compile Include="Basic\When_aborting_the_behavior_chain.cs" />
     <Compile Include="Basic\When_handling_current_message_later.cs" />
-    <Compile Include="Basic\When_a_callback_for_local_message.cs" />
     <Compile Include="Basic\When_multiple_mappings_exists.cs" />
     <Compile Include="Basic\When_using_a_custom_correlation_id.cs" />
-    <Compile Include="Basic\When_using_callbacks_in_a_scaleout.cs" />
     <Compile Include="Config\When_a_config_override_is_found.cs" />
     <Compile Include="Encryption\When_using_encryption_with_custom_service.cs" />
     <Compile Include="EndpointTemplates\ContextAppender.cs" />

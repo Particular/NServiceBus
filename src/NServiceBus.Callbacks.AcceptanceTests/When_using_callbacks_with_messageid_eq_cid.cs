@@ -1,30 +1,28 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.Callbacks
 {
     using System;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_using_callbacks_with_messageid_eq_cid_ : NServiceBusAcceptanceTest
+    public class When_using_callbacks_with_messageid_eq_cid : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_trigger_the_callback()
         {
             var context = Scenario.Define<Context>()
-                    .WithEndpoint<EndpointWithLocalCallback>(b=>b.Given(
-                        (bus,c)=>
-                        {
-                            var id = Guid.NewGuid().ToString();
-                            var sendContext = new SendLocalOptions(correlationId: id)
-                                .SetCustomMessageId(id);
+                .WithEndpoint<EndpointWithLocalCallback>(b=>b.Given(async (bus,c)=>
+                    {
+                        var id = Guid.NewGuid().ToString();
+                        var options = new SynchronousLocalOptions(id)
+                            .SetCustomMessageId(id);
 
-                            bus.SendLocal(new MyRequest(), sendContext).Register(r =>
-                            {
-                                c.CallbackFired = true;
-                            });
-                        }))
-                    .Done(c => c.CallbackFired)
-                    .Run();
+                        await bus.SynchronousRequestResponse<MyResponse>(new MyRequest(), options).ResponseTask;
+
+                        c.CallbackFired = true;
+                    }))
+                .Done(c => c.CallbackFired)
+                .Run();
 
             Assert.True(context.CallbackFired);
         }
@@ -51,10 +49,12 @@
                 {
                     Assert.False(Context.CallbackFired);
 
-                    Bus.Return(1);
+                    Bus.Reply(new MyResponse());
                 }
             }
         }
         public class MyRequest : IMessage{}
+
+        public class MyResponse : IMessage { }
     }
 }

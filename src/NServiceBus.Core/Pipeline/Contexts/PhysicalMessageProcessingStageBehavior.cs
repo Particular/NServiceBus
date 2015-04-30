@@ -13,8 +13,6 @@
         /// </summary>
         public class Context : TransportReceiveContext
         {
-            const string MessageHandledSuccessfullyKey = "TransportReceiver.MessageHandledSuccessfully";
-
             /// <summary>
             /// Creates new instance.
             /// </summary>
@@ -36,32 +34,10 @@
             }
 
             /// <summary>
-            /// True if the message was handled successfully and the MQ operations should be committed
+            /// If set to true the receive operation will be aborted
             /// </summary>
-            /// <value></value>
-            public bool MessageHandledSuccessfully
-            {
-                get
-                {
-                    bool messageHandledSuccessfully;
+            public bool AbortReceiveOperation { get; set; }
 
-                    if (!TryGet(MessageHandledSuccessfullyKey, out messageHandledSuccessfully))
-                    {
-                        return true;
-                    }
-
-                    return messageHandledSuccessfully;
-                }
-            }
-
-
-            /// <summary>
-            /// Tells the transport to rollback the current receive operation
-            /// </summary>
-            public void AbortReceiveOperation()
-            {
-                Set(MessageHandledSuccessfullyKey, false);
-            }
         }
     }
 }

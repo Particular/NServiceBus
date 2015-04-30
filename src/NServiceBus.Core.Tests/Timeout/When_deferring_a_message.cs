@@ -53,7 +53,7 @@
             var sender = new FakeMessageSender();
             deferrer.MessageSender = sender;
 
-            deferrer.Invoke(new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, new SendMessageOptions("Destination"), new Dictionary<string, string>(), null, MessageIntentEnum.Send, null, null)), () => { });
+            deferrer.Invoke(new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, new SendMessageOptions("Destination"), new Dictionary<string, string>(), null, MessageIntentEnum.Send, null, null, null)), () => { });
 
             Assert.AreEqual(1, sender.Messages.Count);
         }
