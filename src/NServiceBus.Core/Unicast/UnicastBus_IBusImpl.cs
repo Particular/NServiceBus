@@ -5,33 +5,30 @@ namespace NServiceBus.Unicast
     public partial class UnicastBus
     {
         /// <summary>
-        /// <see cref="ISendOnlyBus.Publish{T}()"/>
+        /// <see cref="ISendOnlyBus.Publish"/>
         /// </summary>
-        /// <param name="message"></param>
-        public void Publish(object message)
+        /// <param name="message">The message to publish</param>
+        /// <param name="options">The options for this message</param>
+        public void Publish(object message,NServiceBus.PublishOptions options)
         {
             Guard.AgainstNull(message, "message");
-            busImpl.Publish(message);
+            Guard.AgainstNull(options, "options");
+
+            busImpl.Publish(message,options);
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Publish{T}()"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        public void Publish<T>()
-        {
-            busImpl.Publish<T>();
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.Publish{T}(Action{T})"/>
+        /// <see cref="ISendOnlyBus.Publish"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="messageConstructor"></param>
-        public void Publish<T>(Action<T> messageConstructor)
+        /// <param name="options">Options for this event</param>
+        public void Publish<T>(Action<T> messageConstructor,NServiceBus.PublishOptions options)
         {
             Guard.AgainstNull(messageConstructor, "messageConstructor");
-            busImpl.Publish(messageConstructor);
+            Guard.AgainstNull(options, "options");
+
+            busImpl.Publish(messageConstructor,options);
         }
 
         /// <summary>

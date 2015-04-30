@@ -2,17 +2,17 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-
+    using NServiceBus.Extensibility;
+  
     /// <summary>
     ///     Allows the users to control how the send is performed
     /// </summary>
-    public class SendOptions
+    public class SendOptions:ExtendableOptions
     {
         internal MessageIntentEnum Intent = MessageIntentEnum.Send;
         readonly DateTime? at;
         readonly string correlationId;
         readonly TimeSpan? delay;
-        internal Dictionary<string, object> Context = new Dictionary<string, object>();
         internal Dictionary<string, string> Headers = new Dictionary<string, string>();
         internal string MessageId;
 

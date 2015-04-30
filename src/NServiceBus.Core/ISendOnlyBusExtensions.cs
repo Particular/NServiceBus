@@ -7,6 +7,39 @@ namespace NServiceBus
     /// </summary>
     public static class ISendOnlyBusExtensions
     {
+       
+        /// <summary>
+        /// Publish the message to subscribers.
+        /// </summary>
+        /// <param name="bus">The object beeing extended</param>
+        /// <param name="message">The message to publish</param>
+        public static void Publish(this ISendOnlyBus bus, object message)
+        {
+            bus.Publish(message, new PublishOptions());
+        }
+
+       
+        /// <summary>
+        /// Publish the message to subscribers.
+        /// </summary>
+        /// <param name="bus">Object beeing extended</param>
+        /// <typeparam name="T">The message type</typeparam>
+        public static void Publish<T>(this ISendOnlyBus bus)
+        {
+            bus.Publish<T>(_=>{},new PublishOptions());
+        }
+
+        /// <summary>
+        /// Instantiates a message of type T and publishes it.
+        /// </summary>
+        /// <typeparam name="T">The type of message, usually an interface</typeparam>
+        /// <param name="bus">Object beeing extended</param>
+        /// <param name="messageConstructor">An action which initializes properties of the message</param>
+        public static void Publish<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
+        {
+            bus.Publish(messageConstructor,new PublishOptions());
+        }
+
         /// <summary>
         /// Sends the provided message.
         /// </summary>

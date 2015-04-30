@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Extensibility;
     using NServiceBus.Unicast;
 
     /// <summary>
@@ -29,6 +30,7 @@
                 MessageId = parentContext.MessageId;
                 MessageType = parentContext.MessageType;
                 Intent = parentContext.Intent;
+                Extensions = parentContext.Extensions;
             }
 
             /// <summary>
@@ -60,6 +62,11 @@
             /// The intent of this message
             /// </summary>
             public MessageIntentEnum Intent { get; private set; }
+
+            /// <summary>
+            /// Place for extensions to store their data
+            /// </summary>
+            public ExtensionContext Extensions { get; private set; }
         }
     }
 }

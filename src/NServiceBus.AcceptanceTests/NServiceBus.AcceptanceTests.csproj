@@ -77,7 +77,7 @@
     <Compile Include="Basic\When_registering_custom_serializer.cs" />
     <Compile Include="Basic\When_callback_from_a_send_only.cs" />
     <Compile Include="Basic\When_injecting_handler_props.cs" />
-    <Compile Include="Basic\When_using_sendoptions.cs" />
+    <Compile Include="ApiExtension\When_extending_sendoptions.cs" />
     <Compile Include="Basic\When_using_ineedinitialization.cs" />
     <Compile Include="Basic\When_sending_with_conventions.cs" />
     <Compile Include="Basic\When_using_callbacks_with_messageid_eq_cid_.cs" />
@@ -97,6 +97,7 @@
     <Compile Include="PubSub\When_publishing_from_sendonly.cs" />
     <Compile Include="MessageId\When_message_has_empty_id_header.cs" />
     <Compile Include="PubSub\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />
+    <Compile Include="ApiExtension\When_extending_the_publish_api.cs" />
     <Compile Include="Sagas\When_a_finder_exists_and_found_saga.cs" />
     <Compile Include="Retries\When_performing_slr_with_regular_exception.cs" />
     <Compile Include="Retries\When_performing_slr_with_serialization_exception.cs" />
