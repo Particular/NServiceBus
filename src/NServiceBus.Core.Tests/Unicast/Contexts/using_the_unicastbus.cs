@@ -167,10 +167,12 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             unicastBus.MessageDispatcherMappings[typeof(T)] = typeof(DefaultDispatcherFactory);
         }
+
         protected void RegisterOwnedMessageType<T>()
         {
-            router.RegisterRoute(typeof(T), Address.Local);
+            router.RegisterMessageRoute(typeof(T), Address.Local);
         }
+
         protected Address RegisterMessageType<T>()
         {
             var address = new Address(typeof(T).Name, "localhost");
@@ -183,7 +185,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             MessageMapper.Initialize(new[] { typeof(T) });
             MessageSerializer.Initialize(new[] { typeof(T) });
-            router.RegisterRoute(typeof(T), address);
+            router.RegisterMessageRoute(typeof(T), address);
             MessageMetadataRegistry.RegisterMessageType(typeof(T));
 
         }

@@ -6,18 +6,15 @@ namespace NServiceBus.Unicast.Config
     using System.Linq;
     using Features;
     using Logging;
-    using Messages;
-    using NServiceBus.Config;
     using ObjectBuilder;
-    using Settings;
-    using Routing;
-    using Utils;
 
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
     /// </summary>
     public class ConfigUnicastBus : Configure
     {
+        IComponentConfig<UnicastBus> busConfig;
+
         /// <summary>
         /// Wrap the given configure object storing its builder and configurer.
         /// </summary>
@@ -36,37 +33,6 @@ namespace NServiceBus.Unicast.Config
             ConfigureSubscriptionAuthorization();
 
             RegisterMessageModules();
-
-
-            RegisterMessageOwnersAndBusAddress(knownMessages);
-
-          
-            ConfigureMessageRegistry(knownMessages);
-        }
-
-        void ConfigureMessageRegistry(List<Type> knownMessages)
-        {
-            var messageRegistry = new MessageMetadataRegistry
-                {
-                    DefaultToNonPersistentMessages = !SettingsHolder.Get<bool>("Endpoint.DurableMessages")
-                };
-
-            knownMessages.ForEach(messageRegistry.RegisterMessageType);
-
-            Configurer.RegisterSingleton<MessageMetadataRegistry>(messageRegistry);
-            
-            if(!Logger.IsInfoEnabled)
-                return;
-            
-            var messageDefinitions = messageRegistry.GetAllMessages().ToList();
-
-            Logger.InfoFormat("Number of messages found: {0}" , messageDefinitions.Count());
-
-            if (!Logger.IsDebugEnabled)
-                return;
-
-
-            Logger.DebugFormat("Message definitions: \n {0}",string.Concat(messageDefinitions.Select(md => md.ToString() + "\n")));
         }
 
         void RegisterMessageModules()
@@ -84,64 +50,6 @@ namespace NServiceBus.Unicast.Config
             if (authType != null)
                 Configurer.ConfigureComponent(authType, DependencyLifecycle.SingleInstance);
         }
-
-
-        void RegisterMessageOwnersAndBusAddress(IEnumerable<Type> knownMessages)
-        {
-            var unicastConfig = GetConfigSection<UnicastBusConfig>();
-            var router = new StaticMessageRouter(knownMessages);
-
-            Configurer.RegisterSingleton<IRouteMessages>(router);
-
-            Address forwardAddress = null;
-            if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
-            {
-                forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
-            }
-            else
-            {
-                var forwardQueue = RegistryReader<string>.Read("AuditQueue");
-                if (!string.IsNullOrWhiteSpace(forwardQueue))
-                {
-                    forwardAddress = Address.Parse(forwardQueue);
-                }
-            }
-
-            if (forwardAddress != null)
-            {
-                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
-            }
-
-            if (unicastConfig == null)
-            {
-                return;
-            }
-
-            busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
-
-            var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()
-                .OrderByDescending(m=>m)
-                .ToList();
-
-            foreach (var mapping in messageEndpointMappings)
-            {
-                mapping.Configure((messageType, address) =>
-                    {
-                        if (!MessageConventionExtensions.IsMessageType(messageType))
-                        {
-                            return;
-                        }
-
-                        router.RegisterRoute(messageType,address);
-                    });
-            }
-        }
-        
-       
-        /// <summary>
-        /// Used to configure the bus.
-        /// </summary>
-        IComponentConfig<UnicastBus> busConfig;
 
         /// <summary>
         /// 
