@@ -4,7 +4,6 @@
     using NServiceBus.Callbacks;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Unicast;
 
     class UpdateRequestResponseCorrelationTableBehavior : PhysicalOutgoingContextStageBehavior
     {
@@ -17,24 +16,24 @@
 
         public override void Invoke(Context context, Action next)
         {
-            var sendOptions = context.DeliveryMessageOptions as SendMessageOptions;
+            ExtensionState state;
 
-            if (sendOptions == null)
+            if (context.Extensions.TryGet(out state))
             {
-                next();
-                return;
+                lookup.RegisterResult(context.MessageId, state.TaskCompletionSource);
             }
-
-            object tcs;
-            if (!sendOptions.Context.TryGetValue("NServiceBus.RequestResponse.TCS", out tcs))
-            {
-                next();
-                return;
-            }
-
-            lookup.RegisterResult(context.MessageId, tcs);
-
+    
             next();
+        }
+
+        public class ExtensionState
+        {
+            public ExtensionState(object taskCompletionSource)
+            {
+                TaskCompletionSource = taskCompletionSource;
+            }
+
+            public object TaskCompletionSource { get; private set; }
         }
 
         public class Registration : RegisterStep

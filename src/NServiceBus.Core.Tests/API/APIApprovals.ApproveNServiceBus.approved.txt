@@ -335,6 +335,7 @@ namespace NServiceBus
         void HandleCurrentMessageLater();
         void Reply(object message);
         void Reply<T>(System.Action<T> messageConstructor);
+        [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
         void Return<T>(T errorEnum);
         void SendLocal(object message, NServiceBus.SendLocalOptions options);
         void SendLocal<T>(System.Action<T> messageConstructor, NServiceBus.SendLocalOptions options);
@@ -448,10 +449,6 @@ namespace NServiceBus
         public static void Publish(this NServiceBus.ISendOnlyBus bus, object message) { }
         public static void Publish<T>(this NServiceBus.ISendOnlyBus bus) { }
         public static void Publish<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
-        public static NServiceBus.ICallback Send(this NServiceBus.ISendOnlyBus bus, object message) { }
-        public static NServiceBus.ICallback Send<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
-        public static NServiceBus.ICallback Send(this NServiceBus.ISendOnlyBus bus, string destination, object message) { }
-        public static NServiceBus.ICallback Send<T>(this NServiceBus.ISendOnlyBus bus, string destination, System.Action<T> messageConstructor) { }
         public static void Send(this NServiceBus.ISendOnlyBus bus, object message) { }
         public static void Send<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
         public static void Send(this NServiceBus.ISendOnlyBus bus, string destination, object message) { }
@@ -574,10 +571,6 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
-    public class static RequestResponseExtensions
-    {
-        public static NServiceBus.SendContext<TResponse> SynchronousRequestResponse<TResponse>(this NServiceBus.IBus bus, object requestMessage) { }
-    }
     public class static ScaleOutExtentions
     {
         public static NServiceBus.Settings.ScaleOutSettings ScaleOut(this NServiceBus.BusConfiguration config) { }
@@ -593,12 +586,6 @@ namespace NServiceBus
         public static NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.BusConfiguration config) { }
     }
     public class SendLocalOptions : NServiceBus.Extensibility.ExtendableOptions
-    public class SendContext<TResponse>
-    {
-        public SendContext(System.Threading.Tasks.TaskCompletionSource<TResponse> taskCompletionSource) { }
-        public System.Threading.Tasks.Task<TResponse> ResponseTask { get; }
-    }
-    public class SendLocalOptions
     {
         public SendLocalOptions(string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
         public NServiceBus.SendLocalOptions AddHeader(string key, string value) { }
@@ -1630,7 +1617,6 @@ namespace NServiceBus.Pipeline.Contexts
             public System.Collections.Generic.Dictionary<string, string> Headers { get; }
             public NServiceBus.Unicast.Messages.LogicalMessage IncomingLogicalMessage { get; }
             public System.Type MessageType { get; set; }
-            public bool IsControlMessage() { }
         }
     }
     public abstract class LogicalMessagesProcessingStageBehavior : NServiceBus.Pipeline.Behavior<NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context>
@@ -1645,12 +1631,11 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, bool isControlMessage = False, NServiceBus.Extensibility.ExtensionContext extensionContext = null) { }
+        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, NServiceBus.Extensibility.ExtensionContext extensionContext) { }
         public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
         public NServiceBus.Extensibility.ExtensionContext Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.MessageIntentEnum Intent { get; }
-        public bool IsControlMessage { get; }
         public string MessageId { get; }
         public object MessageInstance { get; set; }
         public System.Type MessageType { get; set; }
@@ -2325,7 +2310,7 @@ namespace NServiceBus.Unicast
     }
     public class UnicastBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, NServiceBus.Unicast.IRealBus, System.IDisposable
     {
-        public UnicastBus(NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.PipelineFactory> pipelineFactories, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.ISendMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter, NServiceBus.Unicast.CallbackMessageLookup callbackMessageLookup, NServiceBus.Hosting.HostInformation hostInformation) { }
+        public UnicastBus(NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.PipelineFactory> pipelineFactories, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.ISendMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter, NServiceBus.Hosting.HostInformation hostInformation) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public NServiceBus.IMessageContext CurrentMessageContext { get; }
         [System.ObsoleteAttribute("We have introduced a more explicit API to set the host identifier, see busConfigu" +
@@ -2346,6 +2331,7 @@ namespace NServiceBus.Unicast
         public void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions options) { }
         public void Reply(object message) { }
         public void Reply<T>(System.Action<T> messageConstructor) { }
+        [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
         public void Return<T>(T errorEnum) { }
         public void Send(object message, NServiceBus.SendOptions options) { }
         public void Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }

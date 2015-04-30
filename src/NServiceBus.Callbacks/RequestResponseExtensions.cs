@@ -2,7 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.Extensibility;
 
     /// <summary>
     /// Synchronous request/response extension methods.
@@ -47,7 +47,7 @@
 
             var tcs = new TaskCompletionSource<TResponse>();
 
-            sendOptions.GetContext().Add("NServiceBus.RequestResponse.TCS", tcs);
+            sendOptions.GetContext().Set(new UpdateRequestResponseCorrelationTableBehavior.ExtensionState(tcs));
 
             bus.Send(requestMessage, sendOptions);
 
@@ -92,10 +92,10 @@
 
             var tcs = new TaskCompletionSource<TResponse>();
 
-            sendLocalOptions.GetContext().Add("NServiceBus.RequestResponse.TCS", tcs);
+            sendLocalOptions.GetContext().Set(new UpdateRequestResponseCorrelationTableBehavior.ExtensionState(tcs));
 
             bus.SendLocal(requestMessage, sendLocalOptions);
-            
+
             return new SendContext<TResponse>(tcs);
         }
     }

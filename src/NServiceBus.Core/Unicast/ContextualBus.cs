@@ -38,9 +38,9 @@ namespace NServiceBus.Unicast
         readonly string sendLocalAddress;
         readonly string endpointName;
 
-      
+
         public ContextualBus(Func<BehaviorContext> contextGetter, IMessageMapper messageMapper, IBuilder builder, Configure configure, IManageSubscriptions subscriptionManager,
-            MessageMetadataRegistry messageMetadataRegistry, ReadOnlySettings settings, TransportDefinition transportDefinition, ISendMessages messageSender, StaticMessageRouter messageRouter,HostInformation hostInformation)
+            MessageMetadataRegistry messageMetadataRegistry, ReadOnlySettings settings, TransportDefinition transportDefinition, ISendMessages messageSender, StaticMessageRouter messageRouter, HostInformation hostInformation)
         {
             this.messageMapper = messageMapper;
             this.contextGetter = contextGetter;
@@ -91,15 +91,15 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="ISendOnlyBus.Publish"/>
         /// </summary>
-        public void Publish<T>(Action<T> messageConstructor,NServiceBus.PublishOptions options)
+        public void Publish<T>(Action<T> messageConstructor, NServiceBus.PublishOptions options)
         {
-            Publish(messageMapper.CreateInstance(messageConstructor),options);
+            Publish(messageMapper.CreateInstance(messageConstructor), options);
         }
 
         /// <summary>
         /// <see cref="ISendOnlyBus.Publish"/>
         /// </summary>
-        public void Publish(object message,NServiceBus.PublishOptions options)
+        public void Publish(object message, NServiceBus.PublishOptions options)
         {
             var messageType = message.GetType();
 
@@ -121,7 +121,6 @@ namespace NServiceBus.Unicast
                 MessageIntentEnum.Publish,
                 messageType,
                 message,
-                false,
                 options.ExtensionContext);
 
 
@@ -293,7 +292,7 @@ namespace NServiceBus.Unicast
 
         public void Send(object message, NServiceBus.SendOptions options)
         {
-            SendMessage(options,message.GetType(),message);
+            SendMessage(options, message.GetType(), message);
         }
 
         public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
@@ -303,7 +302,7 @@ namespace NServiceBus.Unicast
 
         public void SendLocal(object message, SendLocalOptions options)
         {
-            SendMessage(options,message.GetType(),message);
+            SendMessage(options, message.GetType(), message);
         }
 
         string GetDestinationForSend(Type messageType)
@@ -318,7 +317,7 @@ namespace NServiceBus.Unicast
             return destinations.SingleOrDefault();
         }
 
-        void SendMessage(SendLocalOptions options,Type messageType,object message)
+        void SendMessage(SendLocalOptions options, Type messageType, object message)
         {
             var destination = sendLocalAddress;
 
@@ -362,13 +361,11 @@ namespace NServiceBus.Unicast
 
             var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
 
-            SendMessage(options.MessageId, options.CorrelationId, options.Intent, options.Headers, sendOptions,messageType,message,options.ExtensionContext);
+            SendMessage(options.MessageId, options.CorrelationId, options.Intent, options.Headers, sendOptions, messageType, message, options.ExtensionContext);
         }
 
         void SendMessage(string messageId, string correlationId, MessageIntentEnum intent, Dictionary<string, string> messageHeaders, SendMessageOptions sendOptions, Type messageType, object message, ExtensionContext context)
         {
-            var isControlMessage = message is ControlMessage;
-
             var headers = new Dictionary<string, string>(messageHeaders);
 
             headers[Headers.MessageIntent] = intent.ToString();
@@ -389,12 +386,8 @@ namespace NServiceBus.Unicast
 
             ApplyReplyToAddress(headers);
 
-            if (!isControlMessage)
-            {
-                ApplyDefaultDeliveryOptionsIfNeeded(sendOptions, messageType);
-     
-            }
-           
+            ApplyDefaultDeliveryOptionsIfNeeded(sendOptions, messageType);
+
             ApplyStaticHeaders(headers);
 
             ApplyHostRelatedHeaders(headers);
@@ -407,7 +400,6 @@ namespace NServiceBus.Unicast
                 intent,
                 messageType,
                 message,
-                isControlMessage,
                 context);
 
             outgoingPipeline.Invoke(outgoingContext);
@@ -418,8 +410,8 @@ namespace NServiceBus.Unicast
 
             headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
             headers.Add(Headers.OriginatingEndpoint, endpointName);
-            headers.Add(Headers.OriginatingHostId,hostInformation.HostId.ToString("N"));
-         
+            headers.Add(Headers.OriginatingHostId, hostInformation.HostId.ToString("N"));
+
         }
 
         private void ApplyReplyToAddress(Dictionary<string, string> headers)
