@@ -67,7 +67,7 @@
                     var methodSetException = taskCompletionSource.GetType().GetMethod("SetException");
                     methodSetException.Invoke(taskCompletionSource, new object[]
                     {
-                        new Exception(string.Format("Invalid response in control message. Expected '{0}' as the response type.", typeof(LegacyEnumResponse<>))),
+                        new Exception(string.Format("Invalid response in control message. Expected '{0}' as the response type.", typeof(LegacyEnumResponse<>)))
                     });
                 }
 
