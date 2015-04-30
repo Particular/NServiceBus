@@ -6,11 +6,7 @@ namespace NServiceBus.Unicast.Config
     using System.Linq;
     using Features;
     using Logging;
-    using Messages;
-    using NServiceBus.Config;
     using ObjectBuilder;
-    using Routing;
-    using Settings;
 
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
@@ -28,43 +24,12 @@ namespace NServiceBus.Unicast.Config
             busConfig = Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(p => p.MasterNodeAddress, config.GetMasterNodeAddress());
 
-            var knownMessages = TypesToScan
-                .Where(MessageConventionExtensions.IsMessageType)
-                .ToList();
-
             ConfigureSubscriptionAuthorization();
 
             RegisterMessageModules();
-
-            RegisterMessageOwnersAndBusAddress(knownMessages);
-          
-            ConfigureMessageRegistry(knownMessages);
         }
 
-        void ConfigureMessageRegistry(List<Type> knownMessages)
-        {
-            var messageRegistry = new MessageMetadataRegistry
-                {
-                    DefaultToNonPersistentMessages = !SettingsHolder.Get<bool>("Endpoint.DurableMessages")
-                };
-
-            knownMessages.ForEach(messageRegistry.RegisterMessageType);
-
-            Configurer.RegisterSingleton<MessageMetadataRegistry>(messageRegistry);
-            
-            if(!Logger.IsInfoEnabled)
-                return;
-            
-            var messageDefinitions = messageRegistry.GetAllMessages().ToList();
-
-            Logger.InfoFormat("Number of messages found: {0}" , messageDefinitions.Count());
-
-            if (!Logger.IsDebugEnabled)
-                return;
-
-
-            Logger.DebugFormat("Message definitions: \n {0}",string.Concat(messageDefinitions.Select(md => md.ToString() + "\n")));
-        }
+        
 
 #pragma warning disable 0618
         void RegisterMessageModules()
@@ -83,44 +48,6 @@ namespace NServiceBus.Unicast.Config
             if (authType != null)
                 Configurer.ConfigureComponent(authType, DependencyLifecycle.SingleInstance);
         }
-
-
-        void RegisterMessageOwnersAndBusAddress(IEnumerable<Type> knownMessages)
-        {
-            var unicastConfig = GetConfigSection<UnicastBusConfig>();
-            var router = new StaticMessageRouter(knownMessages);
-
-            Configurer.RegisterSingleton<IRouteMessages>(router);
-
-            if (unicastConfig == null)
-            {
-                return;
-            }
-            if (!string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
-            {
-                var forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
-                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
-            }
-            busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
-
-            var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()
-                .OrderByDescending(m=>m)
-                .ToList();
-
-            foreach (var mapping in messageEndpointMappings)
-            {
-                mapping.Configure((messageType, address) =>
-                    {
-                        if (!MessageConventionExtensions.IsMessageType(messageType))
-                        {
-                            return;
-                        }
-
-                        router.RegisterRoute(messageType,address);
-                    });
-            }
-        }
-        
        
         /// <summary>
         /// Used to configure the bus.

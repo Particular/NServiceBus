@@ -110,6 +110,7 @@
   <ItemGroup>
     <Compile Include="Audit\When_using_auditing_as_a_feature.cs" />
     <Compile Include="Audit\When_a_message_is_audited.cs" />
+    <Compile Include="BasicMessaging\When_sending_a_message_that_is_registered_multiple_times_to_another_endpoint.cs" />
     <Compile Include="BasicMessaging\When_starting_a_send_only.cs" />
     <Compile Include="BasicMessaging\When_registering_a_callback_for_a_local_message.cs" />
     <Compile Include="BasicMessaging\When_using_a_custom_correlation_id.cs" />
@@ -134,9 +135,11 @@
     <Compile Include="Performance\NServiceBusPerformanceTest.cs" />
     <Compile Include="Performance\Receive\Receive_performance.cs" />
     <Compile Include="Performance\Sagas\Saga_performance.cs" />
+    <Compile Include="PubSub\When_multi_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="PubSub\When_publishing_an_event_with_only_local_messagehandlers.cs" />
     <Compile Include="PubSub\When_publishing_an_event_with_the_subscriber_scaled_out.cs" />
     <Compile Include="PubSub\PubSubAcceptanceTest.cs" />
+    <Compile Include="PubSub\When_subscribing_to_a_base_event_from_different_publishers.cs" />
     <Compile Include="PubSub\When_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="PubSub\When_publishing_an_event_using_a_broker_transport_with_centralized_routing.cs" />
     <Compile Include="PubSub\When_publishing_an_event.cs" />
