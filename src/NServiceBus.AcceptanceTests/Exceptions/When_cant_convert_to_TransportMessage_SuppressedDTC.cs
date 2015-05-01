@@ -32,9 +32,12 @@
          {
              public Sender()
              {
-                 Configure.Transactions.Advanced(settings => settings.DisableDistributedTransactions());
-                 EndpointSetup<DefaultServer>()
-                     .AddMapping<Message>(typeof(Receiver));
+                 EndpointSetup<DefaultServer>(
+                     configure =>
+                     {
+                         Configure.Transactions.Advanced(settings => settings.DisableDistributedTransactions());
+                     })
+                     .AddMapping<Message>(typeof (Receiver));
              }
          }
 
@@ -43,8 +46,11 @@
              public Receiver()
              {
                  SerializerCorrupter.Corrupt();
-                 Configure.Transactions.Advanced(settings => settings.DisableDistributedTransactions());
-                 EndpointSetup<DefaultServer>()
+                 EndpointSetup<DefaultServer>(
+                     configure =>
+                     {
+                         Configure.Transactions.Advanced(settings => settings.DisableDistributedTransactions());
+                     })
                      .AllowExceptions();
              }
          }
