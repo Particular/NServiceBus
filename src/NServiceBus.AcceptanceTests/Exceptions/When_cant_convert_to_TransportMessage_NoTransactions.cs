@@ -33,9 +33,11 @@
         {
             public Sender()
             {
-                Configure.Transactions.Disable();
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<Message>(typeof(Receiver));
+                EndpointSetup<DefaultServer>(configure =>
+                {
+                    Configure.Transactions.Disable();
+                })
+                    .AddMapping<Message>(typeof (Receiver));
             }
         }
 
@@ -44,8 +46,10 @@
             public Receiver()
             {
                 SerializerCorrupter.Corrupt();
-                Configure.Transactions.Disable();
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(configure =>
+                {
+                    Configure.Transactions.Disable();
+                })
                     .AllowExceptions();
             }
         }
