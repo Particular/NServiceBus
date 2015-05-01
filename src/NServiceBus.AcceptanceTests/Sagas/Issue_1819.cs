@@ -36,7 +36,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>(c => c.ExecuteTheseHandlersFirst(typeof(CatchAllMessageHandler)));
             }
 
             public class Saga1 : Saga<Saga1.Saga1Data>, IAmStartedByMessages<StartSaga1>, IHandleTimeouts<Saga1Timeout>, IHandleTimeouts<Saga2Timeout>
@@ -93,14 +93,6 @@
 
                 }
             }
-
-            public class Foo : ISpecifyMessageHandlerOrdering
-            {
-                public void SpecifyOrder(Order order)
-                {
-                    order.SpecifyFirst<CatchAllMessageHandler>();
-                }
-            }
         }
 
         [Serializable]
@@ -108,7 +100,6 @@
         {
             public Guid ContextId { get; set; }
         }
-
 
         public class Saga1Timeout
         {

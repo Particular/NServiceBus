@@ -30,17 +30,9 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => c.ExecuteTheseHandlersFirst(typeof(FirstHandler), typeof(SecondHandler)));
             }
 
-            class EnsureOrdering : ISpecifyMessageHandlerOrdering
-            {
-                public void SpecifyOrder(Order order)
-                {
-                    order.Specify(First<FirstHandler>.Then<SecondHandler>());
-                }
-            }
-       
             class FirstHandler : IHandleMessages<Message>
             {
                 public IBus Bus { get; set; }

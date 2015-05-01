@@ -499,6 +499,8 @@ namespace NServiceBus
         public static void Send(this NServiceBus.ISendOnlyBus bus, string destination, object message) { }
         public static void Send<T>(this NServiceBus.ISendOnlyBus bus, string destination, System.Action<T> messageConstructor) { }
     }
+    [System.ObsoleteAttribute("Please use `BusConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed " +
+        "in version 7.0.0.", true)]
     public interface ISpecifyMessageHandlerOrdering
     {
         void SpecifyOrder(NServiceBus.Order order);
@@ -527,7 +529,13 @@ namespace NServiceBus
     }
     public class static LoadMessageHandlersExtentions
     {
+        public static void ExecuteTheseHandlersFirst(this NServiceBus.BusConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
+        public static void ExecuteTheseHandlersFirst(this NServiceBus.BusConfiguration config, params System.Type[] handlerTypes) { }
+        [System.ObsoleteAttribute("Please use `ExecuteTheseHandlersFirst` instead. Will be removed in version 7.0.0." +
+            "", true)]
         public static void LoadMessageHandlers<TFirst>(this NServiceBus.BusConfiguration config) { }
+        [System.ObsoleteAttribute("Please use `ExecuteTheseHandlersFirst` instead. Will be removed in version 7.0.0." +
+            "", true)]
         public static void LoadMessageHandlers<T>(this NServiceBus.BusConfiguration config, NServiceBus.First<T> order) { }
     }
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
@@ -568,6 +576,8 @@ namespace NServiceBus
         public NonDurableDelivery() { }
         public override void Serialize(System.Collections.Generic.Dictionary<string, string> options) { }
     }
+    [System.ObsoleteAttribute("Please use `BusConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed " +
+        "in version 7.0.0.", true)]
     public class Order
     {
         public Order() { }

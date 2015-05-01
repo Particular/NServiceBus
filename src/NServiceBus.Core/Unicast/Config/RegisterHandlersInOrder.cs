@@ -2,11 +2,8 @@ namespace NServiceBus.Features
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Linq;
-    using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
-    using NServiceBus.Settings;
     using NServiceBus.Unicast;
 
     class RegisterHandlersInOrder : Feature
@@ -23,44 +20,14 @@ namespace NServiceBus.Features
                 return;
             }
 
-            IEnumerable<Type> order;
+            List<Type> order;
 
-            if (!context.Settings.TryGet("LoadMessageHandlers.Order.Types", out order))
+            if (!context.Settings.TryGet("NServiceBus.ExecuteTheseHandlersFirst", out order))
             {
-                order = ISpecifyMessageHandlerOrdering(context.Settings);
+                order = new List<Type>(0);
             }
 
             LoadMessageHandlers(context, order);
-        }
-
-        static IEnumerable<Type> ISpecifyMessageHandlerOrdering(ReadOnlySettings settings)
-        {
-            var types = new List<Type>();
-
-            foreach (var t in settings.GetAvailableTypes().Where(TypeSpecifiesMessageHandlerOrdering))
-            {
-                Logger.DebugFormat("Going to ask for message handler ordering from '{0}'.", t);
-
-                var order = new Order();
-                ((ISpecifyMessageHandlerOrdering)Activator.CreateInstance(t)).SpecifyOrder(order);
-
-                foreach (var ht in order.Types)
-                {
-                    if (types.Contains(ht))
-                    {
-                        throw new ConfigurationErrorsException(string.Format("The order in which the type '{0}' should be invoked was already specified by a previous implementor of ISpecifyMessageHandlerOrdering. Check the debug logs to see which other specifiers have been invoked.", ht));
-                    }
-                }
-
-                types.AddRange(order.Types);
-            }
-
-            return types;
-        }
-
-        static bool TypeSpecifiesMessageHandlerOrdering(Type t)
-        {
-            return typeof(ISpecifyMessageHandlerOrdering).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface;
         }
 
         static void LoadMessageHandlers(FeatureConfigurationContext context, IEnumerable<Type> orderedTypes)
@@ -112,6 +79,5 @@ namespace NServiceBus.Features
         }
 
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
-        static ILog Logger = LogManager.GetLogger<RegisterHandlersInOrder>();
     }
 }

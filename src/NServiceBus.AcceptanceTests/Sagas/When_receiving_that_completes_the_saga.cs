@@ -81,7 +81,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(b => b.LoadMessageHandlers<First<TestSaga>>());
+                EndpointSetup<DefaultServer>(b => b.ExecuteTheseHandlersFirst(typeof(TestSaga)));
             }
 
             public class TestSaga : Saga<TestSagaData>, 
