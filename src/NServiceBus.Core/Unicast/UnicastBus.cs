@@ -204,7 +204,6 @@ namespace NServiceBus.Unicast
             remove { throw new NotImplementedException(); }
         }
 
-
         /// <summary>
         /// Handles the filtering of messages on the subscriber side
         /// </summary>
@@ -347,11 +346,12 @@ namespace NServiceBus.Unicast
             var p = new Predicate<object>(m =>
             {
                 if (m is T)
-                    return condition((T)m);
+                {
+                    return condition((T) m);
+                }
 
                 return true;
-            }
-            );
+            });
 
             Subscribe(typeof(T), p);
         }
@@ -367,22 +367,37 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
 
             if (Configure.SendOnlyMode)
+            {
                 throw new InvalidOperationException("It's not allowed for a send only endpoint to be a subscriber");
+            }
 
             AssertHasLocalAddress();
 
-            var destination = GetAddressForMessageType(messageType);
-            if (Address.Self == destination)
-                throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
-
-
             if (SubscriptionManager == null)
+            {
                 throw new InvalidOperationException("No subscription manager is available");
+            }
 
-            SubscriptionManager.Subscribe(messageType, destination);
+            var addresses = GetAddressForMessageType(messageType);
+            if (addresses.Count == 0)
+            {
+                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
+            }
 
-            if (SubscriptionPredicatesEvaluator != null)
-                SubscriptionPredicatesEvaluator.AddConditionForSubscriptionToMessageType(messageType, condition);
+            foreach (var destination in addresses)
+            {
+                if (Address.Self == destination)
+                {
+                    throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
+                }
+
+                SubscriptionManager.Subscribe(messageType, destination);
+
+                if (SubscriptionPredicatesEvaluator != null)
+                {
+                    SubscriptionPredicatesEvaluator.AddConditionForSubscriptionToMessageType(messageType, condition);
+                }
+            }
         }
 
         /// <summary>
@@ -401,18 +416,30 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
 
             if (Configure.SendOnlyMode)
+            {
                 throw new InvalidOperationException("It's not allowed for a send only endpoint to unsubscribe");
+            }
 
             AssertHasLocalAddress();
 
-            var destination = GetAddressForMessageType(messageType);
 
             if (SubscriptionManager == null)
+            {
                 throw new InvalidOperationException("No subscription manager is available");
+            }
 
-            SubscriptionManager.Unsubscribe(messageType, destination);
+            var addresses = GetAddressForMessageType(messageType);
+            if (addresses.Count == 0)
+            {
+                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
+            }
+
+            foreach (var destination in addresses)
+            {
+                SubscriptionManager.Unsubscribe(messageType, destination);    
+            }
+
         }
-
 
         public void Reply(params object[] messages)
         {
@@ -506,9 +533,31 @@ namespace NServiceBus.Unicast
 
         public ICallback Send(params object[] messages)
         {
-            var destination = GetAddressForMessages(messages);
+            var destinations = GetAddressForMessages(messages)
+                .Distinct()
+                .ToList();
+
+            if (destinations.Count > 1)
+            {
+                throw new InvalidOperationException("Sends can only target one address.");
+            }
+
+            var destination = destinations.SingleOrDefault();
 
             return SendMessage(destination, null, MessageIntentEnum.Send, messages);
+        }
+
+        IEnumerable<Address> GetAddressForMessages(IEnumerable<object> messages)
+        {
+            if (messages == null)
+            {
+                yield break;
+            }
+
+            foreach (var address in messages.SelectMany(message => GetAddressForMessageType(message.GetType())))
+            {
+                yield return address;
+            }
         }
 
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
@@ -1253,37 +1302,29 @@ namespace NServiceBus.Unicast
             }
         }
 
-        /// <summary>
-        /// Uses the first message in the array to pass to <see cref="GetAddressForMessageType"/>.
-        /// </summary>
-        Address GetAddressForMessages(object[] messages)
-        {
-            if (messages == null || messages.Length == 0)
-                return Address.Undefined;
-
-            return GetAddressForMessageType(messages[0].GetType());
-        }
 
         /// <summary>
         /// Gets the destination address For a message type.
         /// </summary>
         /// <param name="messageType">The message type to get the destination for.</param>
         /// <returns>The address of the destination associated with the message type.</returns>
-        Address GetAddressForMessageType(Type messageType)
+        List<Address> GetAddressForMessageType(Type messageType)
         {
-            var destination = MessageRouter.GetDestinationFor(messageType);
+            var destination = ((StaticMessageRouter)MessageRouter).GetMultiDestinationFor(messageType);
 
-            if (destination != Address.Undefined)
+            if (destination.Any())
+            {
                 return destination;
-
+            }
 
             if (messageMapper != null && !messageType.IsInterface)
             {
                 var t = messageMapper.GetMappedTypeFor(messageType);
                 if (t != null && t != messageType)
+                {
                     return GetAddressForMessageType(t);
+                }
             }
-
 
             return destination;
         }
