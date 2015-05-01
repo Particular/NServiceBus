@@ -110,6 +110,12 @@ namespace NServiceBus.Unicast
            RemoveInVersion = "7.0",
            TreatAsErrorFromVersion = "6.0")]
         public string ReplyToAddress { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
+
+        [ObsoleteEx(
+           Message = "Turn best practices check off using configuration.DisableFeature<BestPracticesEnforcement>()",
+           RemoveInVersion = "7.0",
+           TreatAsErrorFromVersion = "6.0")]
+        public bool EnforceMessagingBestPractices { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } } 
     }
 
     [ObsoleteEx(

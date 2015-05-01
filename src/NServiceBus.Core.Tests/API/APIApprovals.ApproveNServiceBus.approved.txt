@@ -1011,6 +1011,10 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    public class BestPracticesEnforcement : NServiceBus.Features.Feature
+    {
+        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
     public class BinarySerialization : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -2229,7 +2233,6 @@ namespace NServiceBus.Unicast
     public class DeliveryMessageOptions
     {
         public DeliveryMessageOptions() { }
-        public bool EnforceMessagingBestPractices { get; set; }
         public bool EnlistInReceiveTransaction { get; set; }
         public System.Nullable<bool> NonDurable { get; set; }
         public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }
@@ -2239,6 +2242,9 @@ namespace NServiceBus.Unicast
     public abstract class DeliveryOptions
     {
         protected DeliveryOptions() { }
+        [System.ObsoleteAttribute("Turn best practices check off using configuration.DisableFeature<BestPracticesEnf" +
+            "orcement>(). Will be removed in version 7.0.0.", true)]
+        public bool EnforceMessagingBestPractices { get; set; }
         [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.ReplyToAddress` header. Wi" +
             "ll be removed in version 7.0.0.", true)]
         public string ReplyToAddress { get; set; }
