@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Security.Principal;
-    using JetBrains.Annotations;
 
     /// <summary>
     /// Implementer will be called by the infrastructure in order to authorize
@@ -10,7 +9,7 @@
     /// 
     /// Infrastructure automatically registers one implementing type in the container as a singleton.
     /// </summary>
-    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "This feature has been removed. To support authorization on a per subscription message type use a pipeline step instead.")]
     public interface IAuthorizeSubscriptions
     {
         /// <summary>

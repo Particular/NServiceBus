@@ -11,12 +11,6 @@
     {
         public ISubscriptionStorage SubscriptionStorage { get; set; }
 
-        public IAuthorizeSubscriptions SubscriptionAuthorizer
-        {
-            get { return subscriptionAuthorizer ?? (subscriptionAuthorizer = new NoopSubscriptionAuthorizer()); }
-            set { subscriptionAuthorizer = value; }
-        }
-
         public override void Invoke(Context context, Action next)
         {
             var transportMessage = context.PhysicalMessage;
@@ -62,29 +56,15 @@
 
             if (transportMessage.MessageIntent == MessageIntentEnum.Subscribe)
             {
-                if (!SubscriptionAuthorizer.AuthorizeSubscribe(messageTypeString, subscriberAddress, transportMessage.Headers))
+                Logger.Info("Subscribing " + subscriberAddress + " to message type " + messageTypeString);
+
+                var mt = new MessageType(messageTypeString);
+
+                SubscriptionStorage.Subscribe(transportMessage.ReplyToAddress, new[]
                 {
-                    Logger.Debug(string.Format("Subscription request from {0} on message type {1} was refused.", subscriberAddress, messageTypeString));
-                }
-                else
-                {
-                    Logger.Info("Subscribing " + subscriberAddress + " to message type " + messageTypeString);
+                    mt
+                });
 
-                    var mt = new MessageType(messageTypeString);
-
-                    SubscriptionStorage.Subscribe(transportMessage.ReplyToAddress, new[]
-                    {
-                        mt
-                    });
-                }
-
-                return;
-            }
-
-
-            if (!SubscriptionAuthorizer.AuthorizeUnsubscribe(messageTypeString, subscriberAddress, transportMessage.Headers))
-            {
-                Logger.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", subscriberAddress, messageTypeString));
                 return;
             }
 
@@ -102,6 +82,5 @@
         }
 
         static ILog Logger = LogManager.GetLogger<SubscriptionReceiverBehavior>();
-        IAuthorizeSubscriptions subscriptionAuthorizer;
     }
 }

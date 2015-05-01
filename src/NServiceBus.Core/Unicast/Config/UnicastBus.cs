@@ -101,10 +101,6 @@ namespace NServiceBus.Features
                 return (IBus)b.Build<IRealBus>();
             }, DependencyLifecycle.InstancePerCall);
 
-
-			ConfigureSubscriptionAuthorization(context);
-
-
             var knownMessages = context.Settings.GetAvailableTypes()
                 .Where(context.Settings.Get<Conventions>().IsMessageType)
                 .ToList();
@@ -180,16 +176,6 @@ namespace NServiceBus.Features
             fullPathToStartingExe = gen.FullPathToStartingExe;
 
             return gen.HostId;
-        }
-
-        void ConfigureSubscriptionAuthorization(FeatureConfigurationContext context)
-        {
-            var authType = context.Settings.GetAvailableTypes().FirstOrDefault(t => typeof(IAuthorizeSubscriptions).IsAssignableFrom(t) && !t.IsInterface);
-
-            if (authType != null)
-            {
-                context.Container.ConfigureComponent(authType, DependencyLifecycle.SingleInstance);
-            }
         }
 
         void RegisterMessageOwnersAndBusAddress(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)
