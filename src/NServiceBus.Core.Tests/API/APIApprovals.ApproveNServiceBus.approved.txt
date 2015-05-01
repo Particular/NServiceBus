@@ -316,6 +316,8 @@ namespace NServiceBus
         public NServiceBus.HostInfoSettings UsingInstalledFilePath() { }
         public NServiceBus.HostInfoSettings UsingNames(string instanceName, string hostName) { }
     }
+    [System.ObsoleteAttribute("This feature has been removed. To support authorization on a per subscription mes" +
+        "sage type use a pipeline step instead. Will be removed in version 7.0.0.", true)]
     public interface IAuthorizeSubscriptions
     {
         bool AuthorizeSubscribe(string messageType, string clientEndpoint, System.Collections.Generic.IDictionary<string, string> headers);
