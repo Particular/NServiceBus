@@ -22,6 +22,12 @@
 
             if (context.TryGet(TransportReceiveContext.IncomingPhysicalMessageKey, out incomingMessage))
             {
+                Saga.Saga.WrapperForReplyToOriginator flagContainer;
+                if (context.Extensions.TryGet(out flagContainer) && flagContainer.ReplyToOriginator)
+                {
+                    return;
+                }
+
                 //flow the the saga id of the calling saga (if any) to outgoing message in order to support autocorrelation
                 if (context.Intent == MessageIntentEnum.Reply)
                 {
