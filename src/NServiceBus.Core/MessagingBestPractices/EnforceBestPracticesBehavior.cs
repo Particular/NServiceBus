@@ -6,11 +6,11 @@
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast;
 
-    class SendValidatorBehavior : Behavior<OutgoingContext>
+    class EnforceBestPracticesBehavior : Behavior<OutgoingContext>
     {
         readonly Validations validations;
 
-        public SendValidatorBehavior(Validations validations)
+        public EnforceBestPracticesBehavior(Validations validations)
         {
             this.validations = validations;
         }
@@ -20,12 +20,17 @@
             //note: this check doesn't belong here. Will be moved in a different pull
             ValidateDestination(context);
 
-            VerifyBestPractices(context.MessageType, context.Intent);
+            Options options;
+
+            if (!context.Extensions.TryGet(out options) || options.Enabled)
+            {
+                Verify(context.MessageType, context.Intent);       
+            }
             
             next();
         }
 
-        void VerifyBestPractices(Type messageType, MessageIntentEnum intent)
+        void Verify(Type messageType, MessageIntentEnum intent)
         {
 
             switch (intent)
@@ -50,6 +55,16 @@
             {
                 throw new InvalidOperationException("No destination specified for message: " + context.MessageType);
             }
+        }
+
+        public class Options
+        {
+            public Options()
+            {
+                Enabled = true;
+            }
+
+            public bool Enabled { get; set; }
         }
     }
 }

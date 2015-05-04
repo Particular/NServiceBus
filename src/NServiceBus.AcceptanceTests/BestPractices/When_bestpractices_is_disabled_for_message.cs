@@ -3,10 +3,9 @@
     using System;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
     using NUnit.Framework;
 
-    public class When_bestpractices_is_disabled : NServiceBusAcceptanceTest
+    public class When_bestpractices_is_disabled_for_message : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_allow_all_ops()
@@ -16,10 +15,18 @@
             Scenario.Define(context)
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
-                        bus.Subscribe<MyCommand>();
-                        bus.Unsubscribe<MyCommand>();
-                        bus.Send(new MyEvent());
-                        bus.Publish(new MyCommand());
+                        var sendOptions = new SendOptions();
+
+                        sendOptions.DoNotEnforceBestPractices();
+
+                        bus.Send(new MyEvent(), sendOptions);
+
+
+                        var publishOptions = new PublishOptions();
+
+                        publishOptions.DoNotEnforceBestPractices();
+
+                        bus.Publish(new MyCommand(), publishOptions);
                     }))
                     .Done(c => c.EndpointsStarted)
                     .Run();
@@ -36,7 +43,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<BestPracticeEnforcement>())
+                EndpointSetup<DefaultServer>()
                     .AddMapping<MyCommand>(typeof(Endpoint))
                      .AddMapping<MyEvent>(typeof(Endpoint));
             }

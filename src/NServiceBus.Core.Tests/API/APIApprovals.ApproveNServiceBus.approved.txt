@@ -512,6 +512,10 @@ namespace NServiceBus
         protected internal override void Configure(NServiceBus.BusConfiguration config) { }
         public override string GetSubScope(string address, string qualifier) { }
     }
+    public class static OptionExtensions
+    {
+        public static void DoNotEnforceBestPractices(this NServiceBus.Extensibility.ExtendableOptions options) { }
+    }
     public class Order
     {
         public Order() { }
@@ -1011,7 +1015,7 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class BestPracticesEnforcement : NServiceBus.Features.Feature
+    public class BestPracticeEnforcement : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
@@ -2242,8 +2246,8 @@ namespace NServiceBus.Unicast
     public abstract class DeliveryOptions
     {
         protected DeliveryOptions() { }
-        [System.ObsoleteAttribute("Turn best practices check off using configuration.DisableFeature<BestPracticesEnf" +
-            "orcement>(). Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Turn best practices check off using configuration.DisableFeature<BestPracticeEnfo" +
+            "rcement>(). Will be removed in version 7.0.0.", true)]
         public bool EnforceMessagingBestPractices { get; set; }
         [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.ReplyToAddress` header. Wi" +
             "ll be removed in version 7.0.0.", true)]

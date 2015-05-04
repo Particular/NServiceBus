@@ -112,7 +112,7 @@ namespace NServiceBus.Unicast
         public string ReplyToAddress { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
 
         [ObsoleteEx(
-           Message = "Turn best practices check off using configuration.DisableFeature<BestPracticesEnforcement>()",
+           Message = "Turn best practices check off using configuration.DisableFeature<BestPracticeEnforcement>()",
            RemoveInVersion = "7.0",
            TreatAsErrorFromVersion = "6.0")]
         public bool EnforceMessagingBestPractices { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } } 

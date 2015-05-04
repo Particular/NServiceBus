@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
+    <Compile Include="BestPractices\When_bestpractices_is_disabled_for_message.cs" />
     <Compile Include="BestPractices\When_bestpractices_is_disabled.cs" />
     <Compile Include="BestPractices\When_unsubscribing_to_command.cs" />
     <Compile Include="BestPractices\When_subscribing_to_command.cs" />
