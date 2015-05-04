@@ -113,8 +113,6 @@
     <Compile Include="AssemblyLocation.cs" />
     <Compile Include="AssemblyScanner\AssemblyScannerTests.cs" />
     <Compile Include="AssemblyScanner\When_checking_image_type.cs" />
-    <Compile Include="AssemblyScanner\When_directory_is_scanned_with_nested_scanning_setting_set_to_true.cs" />
-    <Compile Include="AssemblyScanner\When_directory_is_scanned_with_nested_scanning_setting_set_to_default.cs" />
     <Compile Include="AssemblyScanner\When_directory_with_no_reference_dlls_is_scanned.cs" />
     <Compile Include="AssemblyScanner\When_directory_with_handler_dll_is_scanned.cs" />
     <Compile Include="AssemblyScanner\When_directory__with_non_dot_net_dll_is_scanned.cs" />
@@ -322,7 +320,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestDlls\RoslynX86.dll">
-    <None Include="TestDlls\Nested\nested.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestDlls\Nested\Nested.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

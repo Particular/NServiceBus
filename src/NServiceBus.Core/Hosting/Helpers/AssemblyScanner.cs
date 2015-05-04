@@ -2,7 +2,6 @@ namespace NServiceBus.Hosting.Helpers
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -63,23 +62,12 @@ namespace NServiceBus.Hosting.Helpers
         {
             ThrowExceptions = true;
             this.baseDirectoryToScan = baseDirectoryToScan;
-            DetermineIfNestedDirectoriesShouldBeExcluded();
         }
 
         internal AssemblyScanner(Assembly assemblyToScan)
         {
             this.assemblyToScan = assemblyToScan;
             ThrowExceptions = true;
-        }
-
-        void DetermineIfNestedDirectoriesShouldBeExcluded()
-        {
-            bool scanNestedDirectories;
-            var appSetting = ConfigurationManager.AppSettings["NServiceBus/AssemblyScanning/ScanNestedDirectories"];
-            if (bool.TryParse(appSetting, out scanNestedDirectories))
-            {
-                ScanNestedDirectories = scanNestedDirectories;
-            }
         }
 
         /// <summary>
