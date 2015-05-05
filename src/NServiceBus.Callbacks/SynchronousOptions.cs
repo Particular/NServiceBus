@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System.Collections.Generic;
+    using System.Threading;
 
     /// <summary>
     ///     Allows the users to control how the send is performed
@@ -10,16 +11,25 @@ namespace NServiceBus
         internal Dictionary<string, string> Headers = new Dictionary<string, string>();
         readonly string correlationId;
         internal string MessageId;
+        internal CancellationToken CancellationToken;
 
         /// <summary>
         ///     Creates an instance of <see cref="NServiceBus.SynchronousOptions" />.
         /// </summary>
         /// <param name="destination">Specifies a specific destination for the message.</param>
         /// <param name="correlationId">Specifies a custom currelation id for the message.</param>
-        public SynchronousOptions(string destination = null, string correlationId = null)
+        /// <param name="cancellationToken">The cancellation token which allows to cancel the callback</param>
+        public SynchronousOptions(string destination = null, string correlationId = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             this.correlationId = correlationId;            
             Destination = destination;
+
+            if (cancellationToken == default(CancellationToken))
+            {
+                cancellationToken = CancellationToken.None;
+            }
+
+            CancellationToken = cancellationToken;
         }
 
         internal string Destination { get; private set; }

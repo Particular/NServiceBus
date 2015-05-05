@@ -9,11 +9,11 @@
 
     class RequestResponseInvocationBehavior : LogicalMessagesProcessingStageBehavior
     {
-        readonly RequestResponseMessageLookup requestResponseMessageLookup;
+        readonly RequestResponseStateLookup requestResponseStateLookup;
 
-        public RequestResponseInvocationBehavior(RequestResponseMessageLookup requestResponseMessageLookup)
+        public RequestResponseInvocationBehavior(RequestResponseStateLookup requestResponseStateLookup)
         {
-            this.requestResponseMessageLookup = requestResponseMessageLookup;
+            this.requestResponseStateLookup = requestResponseStateLookup;
         }
 
         public override void Invoke(Context context, Action next)
@@ -22,7 +22,6 @@
             {
                 context.MessageHandled = true;
             }
-
 
             next();
         }
@@ -50,9 +49,9 @@
                 return false;
             }
 
-            object taskCompletionSource;
+            RequestResponse.State requestResponseState;
 
-            if (!requestResponseMessageLookup.TryGet(transportMessage.CorrelationId, out taskCompletionSource))
+            if (!requestResponseStateLookup.TryGet(transportMessage.CorrelationId, out requestResponseState))
             {
                 return false;
             }
@@ -61,16 +60,11 @@
 
             if (IsControlMessage(context.PhysicalMessage))
             {
-                var taskCompletionSourceType = taskCompletionSource.GetType();
-                var legacyEnumResponseType = taskCompletionSourceType.GenericTypeArguments[0];
+                var legacyEnumResponseType = requestResponseState.ResponseType;
 
                 if (!CallbackSupport.IsLegacyEnumResponse(legacyEnumResponseType))
                 {
-                    var methodSetException = taskCompletionSource.GetType().GetMethod("SetException");
-                    methodSetException.Invoke(taskCompletionSource, new object[]
-                    {
-                        new Exception(string.Format("Invalid response in control message. Expected '{0}' as the response type.", typeof(LegacyEnumResponse<>)))
-                    });
+                    requestResponseState.SetException(new Exception(string.Format("Invalid response in control message. Expected '{0}' as the response type.", typeof(LegacyEnumResponse<>))));
                 }
 
                 var enumType = legacyEnumResponseType.GenericTypeArguments[0];
@@ -82,16 +76,12 @@
                 result = context.LogicalMessages.First().Instance;
             }
 
-            var method = taskCompletionSource.GetType().GetMethod("SetResult");
-            method.Invoke(taskCompletionSource, new[]
-            {
-                result
-            });
+            requestResponseState.SetResult(result);
 
             return true;
         }
 
-        public static bool IsControlMessage(TransportMessage transportMessage)
+        static bool IsControlMessage(TransportMessage transportMessage)
         {
             return transportMessage.Headers != null &&
                    transportMessage.Headers.ContainsKey(Headers.ControlMessageHeader);

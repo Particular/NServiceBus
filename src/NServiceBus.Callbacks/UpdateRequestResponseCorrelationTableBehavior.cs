@@ -7,33 +7,23 @@
 
     class UpdateRequestResponseCorrelationTableBehavior : PhysicalOutgoingContextStageBehavior
     {
-        readonly RequestResponseMessageLookup lookup;
+        readonly RequestResponseStateLookup lookup;
 
-        public UpdateRequestResponseCorrelationTableBehavior(RequestResponseMessageLookup lookup)
+        public UpdateRequestResponseCorrelationTableBehavior(RequestResponseStateLookup lookup)
         {
             this.lookup = lookup;
         }
 
         public override void Invoke(Context context, Action next)
         {
-            ExtensionState state;
+            RequestResponse.State state;
 
             if (context.Extensions.TryGet(out state))
             {
-                lookup.RegisterResult(context.MessageId, state.TaskCompletionSource);
+                lookup.RegisterState(context.MessageId, state);
             }
     
             next();
-        }
-
-        public class ExtensionState
-        {
-            public ExtensionState(object taskCompletionSource)
-            {
-                TaskCompletionSource = taskCompletionSource;
-            }
-
-            public object TaskCompletionSource { get; private set; }
         }
 
         public class Registration : RegisterStep

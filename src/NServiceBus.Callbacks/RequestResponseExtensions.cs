@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
 
@@ -47,7 +48,7 @@
 
             var tcs = new TaskCompletionSource<TResponse>();
 
-            sendOptions.GetContext().Set(new UpdateRequestResponseCorrelationTableBehavior.ExtensionState(tcs));
+            sendOptions.GetContext().Set(new RequestResponse.State(tcs, options.CancellationToken));
 
             bus.Send(requestMessage, sendOptions);
 
@@ -92,7 +93,7 @@
 
             var tcs = new TaskCompletionSource<TResponse>();
 
-            sendLocalOptions.GetContext().Set(new UpdateRequestResponseCorrelationTableBehavior.ExtensionState(tcs));
+            sendLocalOptions.GetContext().Set(new RequestResponse.State(tcs, options.CancellationToken));
 
             bus.SendLocal(requestMessage, sendLocalOptions);
 
