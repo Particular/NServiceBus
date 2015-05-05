@@ -6,6 +6,7 @@ namespace NServiceBus.Unicast
     using Janitor;
     using NServiceBus.Extensibility;
     using NServiceBus.Hosting;
+    using NServiceBus.Logging;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
@@ -37,7 +38,7 @@ namespace NServiceBus.Unicast
         readonly bool sendOnlyMode;
         readonly string sendLocalAddress;
         readonly string endpointName;
-
+        static readonly ILog log = LogManager.GetLogger<ContextualBus>();
 
         public ContextualBus(Func<BehaviorContext> contextGetter, IMessageMapper messageMapper, IBuilder builder, Configure configure, IManageSubscriptions subscriptionManager,
             MessageMetadataRegistry messageMetadataRegistry, ReadOnlySettings settings, TransportDefinition transportDefinition, ISendMessages messageSender, StaticMessageRouter messageRouter, HostInformation hostInformation)
@@ -270,11 +271,21 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new TransportSendOptions(sendLocalAddress));
+            var context = incomingContext as HandlingStageBehavior.Context;
+            if (context != null)
+            {
+                messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new TransportSendOptions(sendLocalAddress));
 
-            incomingContext.handleCurrentMessageLaterWasCalled = true;
+                incomingContext.handleCurrentMessageLaterWasCalled = true;
 
-            ((HandlingStageBehavior.Context)incomingContext).DoNotInvokeAnyMoreHandlers();
+                context.DoNotInvokeAnyMoreHandlers();
+            }
+            else
+            {
+                log.Info("Noop for HandleCurrentMessageLater because there is no incoming message.");
+            }
+
+            
         }
 
         /// <summary>
@@ -438,7 +449,15 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
-            ((HandlingStageBehavior.Context)incomingContext).DoNotInvokeAnyMoreHandlers();
+            var context = incomingContext as HandlingStageBehavior.Context;
+            if (context != null)
+            {
+                context.DoNotInvokeAnyMoreHandlers();
+            }
+            else
+            {
+                log.Info("Noop for DoNotContinueDispatchingCurrentMessageToHandlers because there is no incoming message.");
+            }
         }
 
         /// <summary>
