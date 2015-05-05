@@ -57,9 +57,14 @@
     <Compile Include="ScenarioDescriptors\Serializers.cs" />
     <Compile Include="ScenarioDescriptors\TransactionSettings.cs" />
     <Compile Include="ScenarioDescriptors\Transports.cs" />
+    <Compile Include="When_a_callback_for_local_message_new.cs" />
     <Compile Include="When_a_callback_for_local_message.cs" />
+    <Compile Include="When_using_callbacks_in_a_scaleout_new.cs" />
     <Compile Include="When_using_callbacks_in_a_scaleout.cs" />
+    <Compile Include="When_using_callbacks_with_messageid_eq_cid_new.cs" />
     <Compile Include="When_using_callbacks_with_messageid_eq_cid.cs" />
+    <Compile Include="When_using_callback_to_get_message_new.cs" />
+    <Compile Include="When_using_LegacyEnumResponse_new.cs" />
     <Compile Include="When_using_LegacyEnumResponse.cs" />
     <Compile Include="When_using_callback_to_get_message.cs" />
   </ItemGroup>
