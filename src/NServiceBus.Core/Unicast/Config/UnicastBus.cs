@@ -15,6 +15,7 @@ namespace NServiceBus.Features
     using NServiceBus.Support;
     using NServiceBus.Transports;
     using NServiceBus.Unicast;
+    using NServiceBus.Utils;
     using Pipeline;
     using Unicast.Messages;
     using Unicast.Routing;
@@ -30,8 +31,12 @@ namespace NServiceBus.Features
 
             Defaults(s =>
             {
-                string fullPathToStartingExe;
-                s.SetDefault(HostIdSettingsKey, GenerateDefaultHostId(out fullPathToStartingExe));
+                var fullPathToStartingExe = PathUtilities.SanitizedPath(Environment.CommandLine);
+
+                if (!s.HasExplicitValue(HostIdSettingsKey))
+                {
+                  s.SetDefault(HostIdSettingsKey, DeterministicGuid.Create(fullPathToStartingExe, RuntimeEnvironment.MachineName));
+                }
                 s.SetDefault("NServiceBus.HostInformation.DisplayName", RuntimeEnvironment.MachineName);
                 s.SetDefault("NServiceBus.HostInformation.Properties", new Dictionary<string, string>
                 {
@@ -167,15 +172,6 @@ namespace NServiceBus.Features
                 builder.Build<TransportDefinition>(),
                 builder.Build<ISendMessages>(),
                 builder.Build<StaticMessageRouter>(),hostInfo);
-        }
-
-        static Guid GenerateDefaultHostId(out string fullPathToStartingExe)
-        {
-            var gen = new DefaultHostIdGenerator(Environment.CommandLine, RuntimeEnvironment.MachineName);
-
-            fullPathToStartingExe = gen.FullPathToStartingExe;
-
-            return gen.HostId;
         }
 
         void RegisterMessageOwnersAndBusAddress(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)

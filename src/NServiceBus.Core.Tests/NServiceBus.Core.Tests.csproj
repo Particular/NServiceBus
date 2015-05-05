@@ -162,7 +162,7 @@
     <Compile Include="Features\FeatureSettingsTests.cs" />
     <Compile Include="Features\FeatureStartupTests.cs" />
     <Compile Include="Features\FeatureTests.cs" />
-    <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
+    <Compile Include="Hosting\PathUtilities_Tests.cs" />
     <Compile Include="Logging\RollingLoggerTests.cs" />
     <Compile Include="Outbox\OutboxRecordBehaviorTests.cs" />
     <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniquePropertiesData.cs" />

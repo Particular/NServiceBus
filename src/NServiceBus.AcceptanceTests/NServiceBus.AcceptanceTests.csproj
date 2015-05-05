@@ -89,6 +89,7 @@
     <Compile Include="DeliveryOptions\When_TimeToBeReceived_has_expired.cs" />
     <Compile Include="Basic\When_Deferring_a_message.cs" />
     <Compile Include="ConfigureMsmqTransport.cs" />
+    <Compile Include="HostInformation\When_feature_overrides_hostid.cs" />
     <Compile Include="NonDTC\When_dispatching_transport_operations.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="PubSub\When_publishing_from_sendonly.cs" />
