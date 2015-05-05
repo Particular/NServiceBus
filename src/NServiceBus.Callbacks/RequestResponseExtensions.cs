@@ -5,19 +5,19 @@
     using NServiceBus.Extensibility;
 
     /// <summary>
-    /// Synchronous request/response extension methods.
+    ///  Request/response extension methods.
     /// </summary>
     public static class RequestResponseExtensions
     {
         /// <summary>
-        /// Sends a <paramref name="requestMessage"/> to the configured destination and returns back a <see cref="SendContext{TResponse}"/> that allows the use user to wait on.
+        /// Sends a <paramref name="requestMessage"/> to the configured destination and returns back a <see cref="Task{TResponse}"/> which can be awaited.
         /// </summary>
         /// <typeparam name="TResponse">The response type.</typeparam>
         /// <param name="bus">Object beeing extended.</param>
         /// <param name="requestMessage">The request message.</param>
         /// <param name="options">The options for the send.</param>
-        /// <returns>A synchronous request/response context.</returns>
-        public static SendContext<TResponse> SynchronousRequestResponse<TResponse>(this IBus bus, object requestMessage, SynchronousOptions options)
+        /// <returns>A task which contains the response when it is completed.</returns>
+        public static Task<TResponse> RequestResponseAsync<TResponse>(this IBus bus, object requestMessage, SynchronousOptions options)
         {
             if (requestMessage == null)
             {
@@ -51,18 +51,18 @@
 
             bus.Send(requestMessage, sendOptions);
 
-            return new SendContext<TResponse>(tcs);
+            return tcs.Task;
         }
 
         /// <summary>
-        /// Sends a <paramref name="requestMessage"/> to the configured destination and returns back a <see cref="SendContext{TResponse}"/> that allows the use user to wait on.
+        /// Sends a <paramref name="requestMessage"/> to the configured destination and returns back a <see cref="Task{TResponse}"/> which can be awaited.
         /// </summary>
         /// <typeparam name="TResponse">The response type.</typeparam>
         /// <param name="bus">Object beeing extended.</param>
         /// <param name="requestMessage">The request message.</param>
         /// <param name="options">The options for the send.</param>
-        /// <returns>A synchronous request/response context.</returns>
-        public static SendContext<TResponse> SynchronousRequestResponse<TResponse>(this IBus bus, object requestMessage, SynchronousLocalOptions options)
+        /// <returns>A task which contains the response when it is completed.</returns>
+        public static Task<TResponse> RequestResponseAsync<TResponse>(this IBus bus, object requestMessage, SynchronousLocalOptions options)
         {
             if (requestMessage == null)
             {
@@ -96,7 +96,7 @@
 
             bus.SendLocal(requestMessage, sendLocalOptions);
 
-            return new SendContext<TResponse>(tcs);
+            return tcs.Task;
         }
     }
 }
