@@ -11,21 +11,13 @@
 
         public override void Invoke(OutgoingContext context, Action next)
         {
-            if (!context.IsControlMessage())
-            {
-                VerifyBestPractices(context);
-            }
-
+            VerifyBestPractices(context);
+            
             next();
         }
 
         void VerifyBestPractices(OutgoingContext context)
         {
-            if (!context.IsControlMessage())
-            {
-                return;
-            }
-
             if (!context.DeliveryMessageOptions.EnforceMessagingBestPractices)
             {
                 return;
@@ -35,22 +27,22 @@
 
             if (sendOptions == null)
             {
-                MessagingBestPractices.AssertIsValidForPubSub(context.OutgoingLogicalMessage.MessageType, Conventions);
+                MessagingBestPractices.AssertIsValidForPubSub(context.MessageType, Conventions);
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(sendOptions.Destination))
             {
-                throw new InvalidOperationException("No destination specified for message: " + context.OutgoingLogicalMessage.MessageType);
+                throw new InvalidOperationException("No destination specified for message: " + context.MessageType);
             }
 
             if (context.Intent == MessageIntentEnum.Reply)
             {
-                MessagingBestPractices.AssertIsValidForReply(context.OutgoingLogicalMessage.MessageType, Conventions);
+                MessagingBestPractices.AssertIsValidForReply(context.MessageType, Conventions);
             }
             else
             {
-                MessagingBestPractices.AssertIsValidForSend(context.OutgoingLogicalMessage.MessageType, Conventions);
+                MessagingBestPractices.AssertIsValidForSend(context.MessageType, Conventions);
             }
         }
     }

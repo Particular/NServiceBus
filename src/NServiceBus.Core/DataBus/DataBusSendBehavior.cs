@@ -17,14 +17,8 @@
 
         public override void Invoke(OutgoingContext context, Action next)
         {
-            if (context.IsControlMessage())
-            {
-                next();
-                return;
-            }
-
-            var timeToBeReceived = context.OutgoingLogicalMessage.Metadata.TimeToBeReceived;
-            var message = context.OutgoingLogicalMessage.Instance;
+            var timeToBeReceived = context.DeliveryMessageOptions.TimeToBeReceived;
+            var message = context.MessageInstance;
 
             foreach (var property in Conventions.GetDataBusProperties(message))
             {
@@ -49,7 +43,7 @@
 
                     using (new TransactionScope(TransactionScopeOption.Suppress))
                     {
-                        headerValue = DataBus.Put(stream, timeToBeReceived);
+                        headerValue = DataBus.Put(stream, timeToBeReceived ?? TimeSpan.MaxValue);
                     }
 
                     string headerKey;

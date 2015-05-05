@@ -17,7 +17,7 @@ namespace NServiceBus.Scheduling
         public void Schedule(TaskDefinition taskDefinition)
         {
             scheduledTasks[taskDefinition.Id] = taskDefinition;
-            logger.DebugFormat("Task {0}/{1} scheduled with timeSpan {2}", taskDefinition.Name, taskDefinition.Id, taskDefinition.Every);
+            logger.DebugFormat("Task '{0}' (with id {1}) scheduled with timeSpan {2}", taskDefinition.Name, taskDefinition.Id, taskDefinition.Every);
             DeferTask(taskDefinition);
         }
 
@@ -27,7 +27,7 @@ namespace NServiceBus.Scheduling
 
             if (!scheduledTasks.TryGetValue(taskId, out taskDefinition))
             {
-                logger.InfoFormat("Could not find any scheduled task {0} with with Id. The DefaultScheduler does not persist tasks between restarts.", taskId);
+                logger.InfoFormat("Could not find any scheduled task with id {0}. The DefaultScheduler does not persist tasks between restarts.", taskId);
                 return;
             }
 
@@ -37,7 +37,7 @@ namespace NServiceBus.Scheduling
 
         static void ExecuteTask(TaskDefinition taskDefinition)
         {
-            logger.InfoFormat("Start executing scheduled task {0}", taskDefinition.Name);
+            logger.InfoFormat("Start executing scheduled task named '{0}'.", taskDefinition.Name);
             var sw = new Stopwatch();
             sw.Start();
 
@@ -51,25 +51,25 @@ namespace NServiceBus.Scheduling
                     {
                         task.Exception.Handle(ex =>
                         {
-                            logger.Error(String.Format("Failed to execute scheduled task {0}", taskDefinition.Name), ex);
+                            logger.Error(String.Format("Failed to execute scheduled task '{0}'.", taskDefinition.Name), ex);
                             return true;
                         });
                     }
                     else
                     {
-                        logger.InfoFormat("Scheduled task {0} run for {1}", taskDefinition.Name, sw.Elapsed.ToString());
+                        logger.InfoFormat("Scheduled task '{0}' run for {1}", taskDefinition.Name, sw.Elapsed.ToString());
                     }
                 });
         }
 
         void DeferTask(TaskDefinition taskDefinition)
         {
-            bus.Defer(taskDefinition.Every, new Messages.ScheduledTask
+            bus.SendLocal(new Messages.ScheduledTask
             {
                 TaskId = taskDefinition.Id,
                 Name = taskDefinition.Name,
                 Every = taskDefinition.Every
-            });
+            }, new SendLocalOptions(delayDeliveryFor: taskDefinition.Every));
         }
 
         static ILog logger = LogManager.GetLogger<DefaultScheduler>();

@@ -114,6 +114,8 @@
     <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
     <Compile Include="BusNotifications.cs" />
+    <Compile Include="Extensibility\ExtendableOptions.cs" />
+    <Compile Include="Extensibility\ExtensionContextExtensions.cs" />
     <Compile Include="Faults\FailedMessage.cs" />
     <Compile Include="Faults\ErrorsNotifications.cs" />
     <Compile Include="Faults\ErrorSubscribers.cs" />
@@ -122,10 +124,12 @@
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
     <Compile Include="IResponse.cs" />
+    <Compile Include="IBusExtensions.cs" />
     <Compile Include="ISendOnlyBusExtensions.cs" />
     <Compile Include="MessageMutator\IMutateOutgoingPhysicalContext.cs" />
     <Compile Include="MessageMutator\OutgoingPhysicalMutatorContext.cs" />
-    <Compile Include="Pipeline\Contexts\OutgoingLogicalMessageContext.cs" />
+    <Compile Include="Extensibility\ExtensionContext.cs" />
+    <Compile Include="Pipeline\Contexts\OutgoingContext.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
     <Compile Include="Pipeline\Contexts\IncomingContext.cs" />
@@ -133,10 +137,10 @@
     <Compile Include="Pipeline\PipelineModelBuilder.cs" />
     <Compile Include="Pipeline\StageConnector.cs" />
     <Compile Include="Sagas\SagaMessageHandledBy.cs" />
+    <Compile Include="PublishOptions.cs" />
     <Compile Include="SendLocalOptions.cs" />
     <Compile Include="SendOptions.cs" />
     <Compile Include="Sagas\ActiveSagaInstance_obsolete.cs" />
-    <Compile Include="SendOptionsExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqAddress.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNativeTransactionBehavior.cs" />
@@ -149,6 +153,7 @@
     <Compile Include="Unicast\Behaviors\PrepareResponseContextBehavior.cs" />
     <Compile Include="Unicast\Behaviors\PrepareTimoutContextBehavior.cs" />
     <Compile Include="Transports\IncomingMessage.cs" />
+    <Compile Include="Transports\TransportPublishOptions.cs" />
     <Compile Include="Transports\TransportSendOptions.cs" />
     <Compile Include="Unicast\Behaviors\SagaInvocationResult.cs" />
     <Compile Include="Unicast\Behaviors\TransportReceiveToPhysicalMessageProcessingConnector.cs" />
@@ -301,9 +306,6 @@
     <Compile Include="FirstLevelRetries\FirstLevelRetriesBehavior.cs" />
     <Compile Include="Pipeline\Contexts\HandlingContext.cs" />
     <Compile Include="Unicast\Behaviors\MessageProcessingAbortedException.cs" />
-    <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
-    <Compile Include="Unicast\CallbackMessageLookup.cs" />
-    <Compile Include="Unicast\CallbackResultEventArgs.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
     <Compile Include="Monitoring\SLA\SLABehavior.cs" />
     <Compile Include="Monitoring\CriticalTime\CriticalTimeBehavior.cs" />
@@ -408,7 +410,6 @@
     <Compile Include="Audit\DefaultMessageAuditer.cs" />
     <Compile Include="Audit\IAuditMessages.cs" />
     <Compile Include="Transports\Msmq\Config\CheckMachineNameForComplianceWithDtcLimitation.cs" />
-    <Compile Include="Unicast\Behaviors\CallbackInvocationBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ForwardBehavior.cs" />
     <Compile Include="Unicast\Behaviors\InvokeHandlersBehavior.cs" />
     <Compile Include="Unicast\Behaviors\LoadHandlersConnector.cs" />
@@ -430,7 +431,6 @@
     <Compile Include="Sagas\ActiveSagaInstance.cs" />
     <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
     <Compile Include="Unicast\Messages\LogicalMessageFactory.cs" />
-    <Compile Include="Unicast\PublishMessageOptions.cs" />
     <Compile Include="Unicast\SendMessageOptions.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubscriptionManager.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageInitializer.cs" />
@@ -571,15 +571,12 @@
     </Compile>
     <Compile Include="Unicast\BackwardCompatibility\MutateMessageContentTypeOfIncomingTransportMessages.cs" />
     <Compile Include="Unicast\BuilderExtensions.cs" />
-    <Compile Include="Unicast\BusAsyncResult.cs" />
-    <Compile Include="Unicast\Callback.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions.cs" />
     <Compile Include="Timeout\Core\TimeoutManagerDeferrer.cs" />
     <Compile Include="Unicast\MessagesEventArgs.cs" />
     <Compile Include="Unicast\Queuing\Installers\ForwardReceivedMessagesToQueueCreator.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageDrivenPublishing.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageDrivenSubscriptions.cs" />
-    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\NoopSubscriptionAuthorizer.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\MessageContext.cs" />
     <Compile Include="Unicast\MessageEventArgs.cs" />

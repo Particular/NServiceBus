@@ -3,9 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Hosting;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Settings;
     using NServiceBus.Timeout;
     using NServiceBus.Transports;
     using NServiceBus.Unicast;
@@ -54,12 +52,8 @@
             var deferrer = new DispatchMessageToTransportBehavior();
             var sender = new FakeMessageSender();
             deferrer.MessageSender = sender;
-            deferrer.HostInfo = new HostInformation(Guid.NewGuid(),"Display name");
-            var settings = new SettingsHolder();
-            settings.Set("EndpointName", "EndpointName");
-            deferrer.Settings = settings;
 
-            deferrer.Invoke(new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, new SendMessageOptions("Destination"),null,new Dictionary<string, string>(),null,MessageIntentEnum.Send)), () => { });
+            deferrer.Invoke(new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, new SendMessageOptions("Destination"), new Dictionary<string, string>(), null, MessageIntentEnum.Send, null, null, null)), () => { });
 
             Assert.AreEqual(1, sender.Messages.Count);
         }

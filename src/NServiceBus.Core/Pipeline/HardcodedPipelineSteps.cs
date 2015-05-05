@@ -20,7 +20,6 @@ namespace NServiceBus.Pipeline
                 .Register(WellKnownStep.ExecuteUnitOfWork, typeof(UnitOfWorkBehavior), "Executes the UoW")
                 .Register("ProcessSubscriptionRequests", typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.")
                 .Register(WellKnownStep.MutateIncomingTransportMessage, typeof(ApplyIncomingTransportMessageMutatorsBehavior), "Executes IMutateIncomingTransportMessages")
-                .Register("InvokeRegisteredCallbacks", typeof(CallbackInvocationBehavior), "Updates the callback inmemory dictionary")
                 .Register(WellKnownStep.MutateIncomingMessages, typeof(ApplyIncomingMessageMutatorsBehavior), "Executes IMutateIncomingMessages")
                 .Register("PrepareCommandContext", typeof(PrepareCommandContextBehavior), "If the current handler handles commands a command context is added as invocation context.")
                 .Register("PrepareEventContext", typeof(PrepareEventContextBehavior), "If the current handler handles events a event context is added as invocation context.")

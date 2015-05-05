@@ -87,8 +87,6 @@ namespace NServiceBus.Features
 
             context.Container.ConfigureComponent(b => b.Build<BehaviorContextStacker>().GetCurrentContext(), DependencyLifecycle.InstancePerCall);
 
-            context.Container.ConfigureComponent<CallbackMessageLookup>(DependencyLifecycle.SingleInstance);
-
             //Hack because we can't register as IStartableBus because it would automatically register as IBus and overrode the proper IBus registration.
             context.Container.ConfigureComponent<IRealBus>(b => CreateBus(b, hostInfo), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => (IStartableBus)b.Build<IRealBus>(), DependencyLifecycle.SingleInstance);
@@ -98,14 +96,10 @@ namespace NServiceBus.Features
                 var stacker = b.Build<BehaviorContextStacker>();
                 if (stacker.Current != null)
                 {
-                    return CreateContextualBus(b, () => stacker.Current);
+                    return CreateContextualBus(hostInfo,b, () => stacker.Current);
                 }
                 return (IBus)b.Build<IRealBus>();
             }, DependencyLifecycle.InstancePerCall);
-
-
-			ConfigureSubscriptionAuthorization(context);
-
 
             var knownMessages = context.Settings.GetAvailableTypes()
                 .Where(context.Settings.Get<Conventions>().IsMessageType)
@@ -154,15 +148,14 @@ namespace NServiceBus.Features
                 builder.Build<ReadOnlySettings>(),
                 builder.Build<TransportDefinition>(),
                 builder.Build<ISendMessages>(),
-                builder.Build<StaticMessageRouter>(),
-                builder.Build<CallbackMessageLookup>())
+                builder.Build<StaticMessageRouter>(),hostInfo)
             {
                 HostInformation = hostInfo
             };
             return bus;
         }
 
-        ContextualBus CreateContextualBus(IBuilder builder, Func<BehaviorContext> currentContextGetter)
+        ContextualBus CreateContextualBus(HostInformation hostInfo, IBuilder builder, Func<BehaviorContext> currentContextGetter)
         {
             return new ContextualBus(currentContextGetter,
                 builder.Build<IMessageMapper>(),
@@ -173,8 +166,7 @@ namespace NServiceBus.Features
                 builder.Build<ReadOnlySettings>(),
                 builder.Build<TransportDefinition>(),
                 builder.Build<ISendMessages>(),
-                builder.Build<StaticMessageRouter>(),
-                builder.Build<CallbackMessageLookup>());
+                builder.Build<StaticMessageRouter>(),hostInfo);
         }
 
         static Guid GenerateDefaultHostId(out string fullPathToStartingExe)
@@ -184,16 +176,6 @@ namespace NServiceBus.Features
             fullPathToStartingExe = gen.FullPathToStartingExe;
 
             return gen.HostId;
-        }
-
-        void ConfigureSubscriptionAuthorization(FeatureConfigurationContext context)
-        {
-            var authType = context.Settings.GetAvailableTypes().FirstOrDefault(t => typeof(IAuthorizeSubscriptions).IsAssignableFrom(t) && !t.IsInterface);
-
-            if (authType != null)
-            {
-                context.Container.ConfigureComponent(authType, DependencyLifecycle.SingleInstance);
-            }
         }
 
         void RegisterMessageOwnersAndBusAddress(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)

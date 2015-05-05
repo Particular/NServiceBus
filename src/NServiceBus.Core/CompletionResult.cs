@@ -6,6 +6,7 @@ namespace NServiceBus
     /// The object found in <see cref="IAsyncResult"/>.AsyncState returned by the <see cref="AsyncCallback"/> 
     /// passed to the Send method of the bus.
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Replaced by NServiceBus.Callbacks package")]
     public class CompletionResult
     {
         /// <summary>

@@ -46,7 +46,7 @@ namespace NServiceBus.Unicast
             TransportDefinition transportDefinition,
             ISendMessages messageSender,
             StaticMessageRouter messageRouter,
-            CallbackMessageLookup callbackMessageLookup)
+            HostInformation hostInformation)
         {
             this.executor = executor;
             this.criticalError = criticalError;
@@ -66,7 +66,7 @@ namespace NServiceBus.Unicast
                 transportDefinition,
                 messageSender,
                 messageRouter,
-                callbackMessageLookup);
+                hostInformation);
         }
 
         /// <summary>

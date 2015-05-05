@@ -113,7 +113,7 @@ namespace NServiceBus.Unicast
     }
 
     [ObsoleteEx(
-            ReplacementTypeOrMember = "NServiceBus.UnicastBus.PublishMessageOptions",
+            Message = "Use context.Intent to detect of the message is a event beeing published and use context.MessageType to get the actual event type",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
     public class PublishOptions : DeliveryOptions
@@ -297,6 +297,24 @@ namespace NServiceBus.Unicast
         {
             throw new NotImplementedException();
         }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+        public ICallback Defer(TimeSpan delay, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+        public ICallback Defer(DateTime processAt, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Replaced by NServiceBus.Callbacks package")]
+        public void Return<T>(T errorCode)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public partial class UnicastBus
@@ -385,5 +403,23 @@ namespace NServiceBus.Unicast
         {
             throw new NotImplementedException();
         }
-     }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+        public ICallback Defer(TimeSpan delay, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+        public ICallback Defer(DateTime processAt, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Replaced by NServiceBus.Callbacks package")]
+        public void Return<T>(T errorEnum)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

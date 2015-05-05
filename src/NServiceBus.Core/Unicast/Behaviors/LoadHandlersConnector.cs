@@ -17,21 +17,11 @@
 
         public override void Invoke(LogicalMessageProcessingStageBehavior.Context context, Action<HandlingStageBehavior.Context> next)
         {
-            var messageToHandle = context.IncomingLogicalMessage;
+            var handlerTypedToInvoke = messageHandlerRegistry.GetHandlersFor(context.MessageType).ToList();
 
-            bool callbackInvoked;
-
-            // for now we cheat and pull it from the behavior context:
-            if (!context.TryGet(CallbackInvocationBehavior.CallbackInvokedKey, out callbackInvoked))
+            if (!context.MessageHandled && !handlerTypedToInvoke.Any())
             {
-                callbackInvoked = false;
-            }
-
-            var handlerTypedToInvoke = messageHandlerRegistry.GetHandlersFor(messageToHandle.MessageType).ToList();
-
-            if (!callbackInvoked && !handlerTypedToInvoke.Any())
-            {
-                var error = string.Format("No handlers could be found for message type: {0}", messageToHandle.MessageType);
+                var error = string.Format("No handlers could be found for message type: {0}", context.MessageType);
                 throw new InvalidOperationException(error);
             }
 
@@ -48,6 +38,8 @@
                     break;
                 }
             }
+
+            context.MessageHandled = true;
         }
     }
 }

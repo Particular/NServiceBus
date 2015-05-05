@@ -56,7 +56,7 @@ namespace NServiceBus
                 //question: should we invoke this the first time around? feels like the naming is off?
                 notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfRetries,context.PhysicalMessage,ex);
 
-                context.AbortReceiveOperation();
+                context.AbortReceiveOperation = true;
             }
 
         }

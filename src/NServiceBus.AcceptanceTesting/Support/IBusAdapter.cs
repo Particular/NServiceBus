@@ -16,29 +16,24 @@
             sendOnlyBus.Dispose();
         }
 
-        public void Publish(object message)
+        public void Publish(object message,PublishOptions options)
         {
-            sendOnlyBus.Publish(message);
+            sendOnlyBus.Publish(message,options);
         }
 
-        public void Publish<T>()
+        public void Publish<T>(Action<T> messageConstructor,PublishOptions options)
         {
-            sendOnlyBus.Publish<T>();
+            sendOnlyBus.Publish(messageConstructor,options);
         }
 
-        public void Publish<T>(Action<T> messageConstructor)
+        public void Send(object message, SendOptions options)
         {
-            sendOnlyBus.Publish(messageConstructor);
+            sendOnlyBus.Send(message, options);
         }
 
-        public ICallback Send(object message, SendOptions options)
+        public void Send<T>(Action<T> messageConstructor, SendOptions options)
         {
-            return sendOnlyBus.Send(message, options);
-        }
-
-        public ICallback Send<T>(Action<T> messageConstructor, SendOptions options)
-        {
-            return sendOnlyBus.Send(messageConstructor, options);
+            sendOnlyBus.Send(messageConstructor, options);
         }
 
         [Obsolete("", true)]
@@ -53,6 +48,7 @@
             throw new NotImplementedException();
         }
 
+        [Obsolete("", true)]
         public ICallback Send(string destination, string correlationId, object message)
         {
             throw new NotImplementedException();
@@ -64,6 +60,7 @@
             throw new NotImplementedException();
         }
 
+        [Obsolete("", true)]
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
             throw new NotImplementedException();
@@ -105,17 +102,30 @@
             throw new NotImplementedException();
         }
 
+        [Obsolete("", true)]
         public void Return<T>(T errorEnum)
         {
             throw new NotImplementedException();
         }
 
-        public ICallback SendLocal(object message, SendLocalOptions options)
+        public void SendLocal(object message, SendLocalOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public ICallback SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
+        public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Obsolete("", true)]
+        public ICallback Defer(TimeSpan delay, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Obsolete("", true)]
+        public ICallback Defer(DateTime processAt, object message)
         {
             throw new NotImplementedException();
         }

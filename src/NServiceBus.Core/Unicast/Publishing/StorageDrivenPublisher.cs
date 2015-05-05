@@ -10,11 +10,6 @@
 
     class StorageDrivenPublisher:IPublishMessages
     {
-        readonly ISubscriptionStorage subscriptionStorage;
-        readonly ISendMessages messageSender;
-        readonly MessageMetadataRegistry messageMetadataRegistry;
-        readonly BehaviorContext context;
-
         public StorageDrivenPublisher(ISubscriptionStorage subscriptionStorage, ISendMessages messageSender, MessageMetadataRegistry messageMetadataRegistry, BehaviorContext context)
         {
             this.subscriptionStorage = subscriptionStorage;
@@ -24,7 +19,7 @@
         }
 
 
-        public void Publish(OutgoingMessage message, PublishMessageOptions publishOptions)
+        public void Publish(OutgoingMessage message, TransportPublishOptions publishOptions)
         {
             var eventTypesToPublish = messageMetadataRegistry.GetMessageMetadata(publishOptions.EventType)
                 .MessageHierarchy
@@ -43,8 +38,13 @@
 
             foreach (var subscriber in subscribers)
             {
-                messageSender.Send(message, new TransportSendOptions(subscriber));
+                messageSender.Send(message, new TransportSendOptions(subscriber,publishOptions.TimeToBeReceived,publishOptions.NonDurable,publishOptions.EnlistInReceiveTransaction));
             }
         }
+
+        readonly ISubscriptionStorage subscriptionStorage;
+        readonly ISendMessages messageSender;
+        readonly MessageMetadataRegistry messageMetadataRegistry;
+        readonly BehaviorContext context;
     }
 }

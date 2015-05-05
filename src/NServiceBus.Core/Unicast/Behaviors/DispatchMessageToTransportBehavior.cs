@@ -2,13 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Hosting;
+    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Transports;
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Queuing;
-    using Settings;
-    using Pipeline.Contexts;
-    using Support;
-    using Transports;
 
     class DispatchMessageToTransportBehavior : PhysicalOutgoingContextStageBehavior
     {
@@ -18,61 +15,84 @@
 
         public IDeferMessages MessageDeferral { get; set; }
 
-        public ReadOnlySettings Settings { get; set; }
-
-        public HostInformation HostInfo { get; set; }
-
         public override void Invoke(Context context, Action next)
         {
-            InvokeNative(context.DeliveryMessageOptions, new OutgoingMessage(context.MessageId,context.Headers,context.Body));
-
+           InvokeNative(context);
+         
             next();
         }
 
-        public void InvokeNative(DeliveryMessageOptions deliveryMessageOptions, OutgoingMessage message)
+        public void InvokeNative(Context context)
         {
-            var messageDescription = "ControlMessage";
+            var message = new OutgoingMessage(context.MessageId, context.Headers, context.Body);
 
-            string enclosedMessageTypes;
-
-            if (message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out enclosedMessageTypes))
+            if (context.Intent == MessageIntentEnum.Publish)
             {
-                messageDescription = enclosedMessageTypes;
+                NativePublish(new TransportPublishOptions(context.MessageType, context.DeliveryMessageOptions.TimeToBeReceived, context.DeliveryMessageOptions.NonDurable ?? false), message);
             }
-
-            message.Headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
-            message.Headers.Add(Headers.OriginatingEndpoint, Settings.EndpointName());
-            message.Headers.Add(Headers.OriginatingHostId, HostInfo.HostId.ToString("N"));
-            message.Headers[Headers.MessageId] = message.MessageId;
-
-
-            if (deliveryMessageOptions.TimeToBeReceived.HasValue)
+            else
             {
-                message.Headers[Headers.TimeToBeReceived] = deliveryMessageOptions.TimeToBeReceived.Value.ToString("c");   
+                NativeSendOrDefer(context.DeliveryMessageOptions, message);
             }
+        }
 
-            if (deliveryMessageOptions.NonDurable.HasValue && deliveryMessageOptions.NonDurable.Value)
-            {
-                message.Headers[Headers.NonDurableMessage] = true.ToString();
-            }
+        public void NativePublish(TransportPublishOptions publishOptions, OutgoingMessage message)
+        {
+            SetTransportHeaders(publishOptions.TimeToBeReceived, publishOptions.NonDurable, message);
 
-          
             try
             {
-                var publishOptions = deliveryMessageOptions as PublishMessageOptions;
-                if(publishOptions != null)
-                {
-                    Publish(message, publishOptions);
-                }
-                else
-                {
-
-                    SendOrDefer(message, (SendMessageOptions)deliveryMessageOptions);
-                }
+                Publish(message, publishOptions);
             }
             catch (QueueNotFoundException ex)
             {
+                var messageDescription = "ControlMessage";
+
+                string enclosedMessageTypes;
+
+                if (message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out enclosedMessageTypes))
+                {
+                    messageDescription = enclosedMessageTypes;
+                }
                 throw new Exception(string.Format("The destination queue '{0}' could not be found. You may have misconfigured the destination for this kind of message ({1}) in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " + "It may also be the case that the given queue just hasn't been created yet, or has been deleted.", ex.Queue, messageDescription), ex);
+            }
+        }
+
+        public void NativeSendOrDefer(DeliveryMessageOptions deliveryMessageOptions, OutgoingMessage message)
+        {
+            SetTransportHeaders(deliveryMessageOptions.TimeToBeReceived, deliveryMessageOptions.NonDurable, message);
+
+            try
+            {
+                SendOrDefer(message, deliveryMessageOptions as SendMessageOptions);
+            }
+            catch (QueueNotFoundException ex)
+            {
+                var messageDescription = "ControlMessage";
+
+                string enclosedMessageTypes;
+
+                if (message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out enclosedMessageTypes))
+                {
+                    messageDescription = enclosedMessageTypes;
+                }
+                throw new Exception(string.Format("The destination queue '{0}' could not be found. You may have misconfigured the destination for this kind of message ({1}) in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " + "It may also be the case that the given queue just hasn't been created yet, or has been deleted.", ex.Queue, messageDescription), ex);
+            }
+        }
+
+        void SetTransportHeaders(TimeSpan? timeToBeReceived, bool? nonDurable, OutgoingMessage message)
+        {
+            message.Headers[Headers.MessageId] = message.MessageId;
+
+
+            if (timeToBeReceived.HasValue)
+            {
+                message.Headers[Headers.TimeToBeReceived] = timeToBeReceived.Value.ToString("c");
+            }
+
+            if (nonDurable.HasValue && nonDurable.Value)
+            {
+                message.Headers[Headers.NonDurableMessage] = true.ToString();
             }
         }
 
@@ -114,12 +134,12 @@
             MessageSender.Send(message, sendOptions);
         }
 
-        static void SetIsDeferredHeader(Dictionary<string,string> headers)
+        static void SetIsDeferredHeader(Dictionary<string, string> headers)
         {
             headers[Headers.IsDeferredMessage] = true.ToString();
         }
 
-        void Publish(OutgoingMessage message, PublishMessageOptions publishOptions)
+        void Publish(OutgoingMessage message, TransportPublishOptions publishOptions)
         {
             if (MessagePublisher == null)
             {
@@ -127,5 +147,7 @@
             }
             MessagePublisher.Publish(message, publishOptions);
         }
+
+     
     }
 }

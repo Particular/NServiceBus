@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
+    using System;
     using System.Collections.Generic;
     using NServiceBus.Unicast.Messages;
 
@@ -20,13 +21,19 @@
             /// </summary>
             /// <param name="logicalMessage">The logical message</param>
             /// <param name="headers">The headers for the incoming message</param>
+            /// <param name="messageType">The message type</param>
             /// <param name="parentContext">The wrapped context</param>
-            public Context(LogicalMessage logicalMessage,Dictionary<string,string> headers, LogicalMessagesProcessingStageBehavior.Context parentContext)
+            public Context(LogicalMessage logicalMessage,Dictionary<string,string> headers,Type messageType, LogicalMessagesProcessingStageBehavior.Context parentContext)
                 : base(parentContext)
             {
                 Headers = headers;
+                MessageType = messageType;
                 IncomingLogicalMessage = logicalMessage;
 
+                if (parentContext != null)
+                {
+                    MessageHandled = parentContext.MessageHandled;
+                }
             }
 
             /// <summary>
@@ -53,15 +60,10 @@
             /// </summary>
             public Dictionary<string, string> Headers { get; private set; }
 
-
             /// <summary>
-            /// Tells if this incoming message is a control message
+            /// The message type of the message beeing processed
             /// </summary>
-            /// <returns></returns>
-            public bool IsControlMessage()
-            {
-                return Headers.ContainsKey(NServiceBus.Headers.ControlMessageHeader);
-            }
+            public Type MessageType { get; set; }
         }
     }
 }

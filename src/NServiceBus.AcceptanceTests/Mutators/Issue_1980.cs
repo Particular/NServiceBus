@@ -15,7 +15,7 @@
 
             Scenario.Define(context)
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new V1Message())))
-                    .Done(c => c.V2MessageReceived)
+                    .Done(c => c.V2MessageReceived || c.V1MessageReceived)
                     .Run();
 
             Assert.IsTrue(context.V2MessageReceived);

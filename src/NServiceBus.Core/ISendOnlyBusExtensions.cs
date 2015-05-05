@@ -7,15 +7,50 @@ namespace NServiceBus
     /// </summary>
     public static class ISendOnlyBusExtensions
     {
+       
+        /// <summary>
+        /// Publish the message to subscribers.
+        /// </summary>
+        /// <param name="bus">The object beeing extended</param>
+        /// <param name="message">The message to publish</param>
+        public static void Publish(this ISendOnlyBus bus, object message)
+        {
+            bus.Publish(message, new PublishOptions());
+        }
+
+       
+        /// <summary>
+        /// Publish the message to subscribers.
+        /// </summary>
+        /// <param name="bus">Object beeing extended</param>
+        /// <typeparam name="T">The message type</typeparam>
+        public static void Publish<T>(this ISendOnlyBus bus)
+        {
+            bus.Publish<T>(_=>{},new PublishOptions());
+        }
+
+        /// <summary>
+        /// Instantiates a message of type T and publishes it.
+        /// </summary>
+        /// <typeparam name="T">The type of message, usually an interface</typeparam>
+        /// <param name="bus">Object beeing extended</param>
+        /// <param name="messageConstructor">An action which initializes properties of the message</param>
+        public static void Publish<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
+        {
+            bus.Publish(messageConstructor,new PublishOptions());
+        }
+
         /// <summary>
         /// Sends the provided message.
         /// </summary>
         /// <param name="bus">Object beeing extended</param>
         /// <param name="message">The message to send.</param>
-        public static ICallback Send(this ISendOnlyBus bus, object message)
+        public static void Send(this ISendOnlyBus bus, object message)
         {
+            Guard.AgainstNull(bus, "bus");
             Guard.AgainstNull(message, "message");
-            return bus.Send(message, new SendOptions());
+
+            bus.Send(message, new SendOptions());
         }
 
         /// <summary>
@@ -27,11 +62,12 @@ namespace NServiceBus
         /// <remarks>
         /// The message will be sent to the destination configured for T
         /// </remarks>
-        public static ICallback Send<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
+        public static void Send<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
         {
+            Guard.AgainstNull(bus, "bus");
             Guard.AgainstNull(messageConstructor, "messageConstructor");
 
-            return bus.Send(messageConstructor, new SendOptions());
+            bus.Send(messageConstructor, new SendOptions());
         }
 
         /// <summary>
@@ -42,14 +78,13 @@ namespace NServiceBus
         /// The address of the destination to which the message will be sent.
         /// </param>
         /// <param name="message">The message to send.</param>
-        public static ICallback Send(this ISendOnlyBus bus, string destination, object message)
+        public static void Send(this ISendOnlyBus bus, string destination, object message)
         {
+            Guard.AgainstNull(bus, "bus");
             Guard.AgainstNullAndEmpty(destination, "destination");
             Guard.AgainstNull(message, "message");
 
-            var options = new SendOptions(destination);
-
-            return bus.Send(message, options);
+            bus.Send(message, new SendOptions(destination));
         }
 
         /// <summary>
@@ -59,15 +94,13 @@ namespace NServiceBus
         /// <param name="bus"></param>
         /// <param name="destination">The destination to which the message will be sent.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        public static ICallback Send<T>(this ISendOnlyBus bus, string destination, Action<T> messageConstructor)
+        public static void Send<T>(this ISendOnlyBus bus, string destination, Action<T> messageConstructor)
         {
+            Guard.AgainstNull(bus, "bus");
             Guard.AgainstNullAndEmpty(destination, "destination");
             Guard.AgainstNull(messageConstructor, "messageConstructor");
 
-            var context = new SendOptions(destination);
-
-            return bus.Send(messageConstructor, context);
-
+            bus.Send(messageConstructor, new SendOptions(destination));
         }
     }
 }

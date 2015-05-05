@@ -71,11 +71,9 @@
       <HintPath>TestDlls\NServiceBus.OldCompilerBits.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Rhino.Mocks">
-      <HintPath>..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
+    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -114,6 +112,7 @@
     <Compile Include="App_Packages\ApiApprover.3.0.1\PublicApiGenerator.cs" />
     <Compile Include="AssemblyLocation.cs" />
     <Compile Include="AssemblyScanner\AssemblyScannerTests.cs" />
+    <Compile Include="AssemblyScanner\When_checking_image_type.cs" />
     <Compile Include="AssemblyScanner\When_directory_with_no_reference_dlls_is_scanned.cs" />
     <Compile Include="AssemblyScanner\When_directory_with_handler_dll_is_scanned.cs" />
     <Compile Include="AssemblyScanner\When_directory__with_non_dot_net_dll_is_scanned.cs" />
@@ -198,7 +197,6 @@
     <Compile Include="DataBus\MessageWithExplicitTimeToLive.cs" />
     <Compile Include="DataBus\MessageWithNonSerializableDataBusProperty.cs" />
     <Compile Include="DataBus\MessageWithoutDataBusProperty.cs" />
-    <Compile Include="DataBus\on_the_bus.cs" />
     <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_incoming_messages.cs" />
     <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_null_properties.cs" />
     <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_outgoing_messages.cs" />
@@ -313,6 +311,14 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestDlls\Tail.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestDlls\RoslynX64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDlls\RoslynX86.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

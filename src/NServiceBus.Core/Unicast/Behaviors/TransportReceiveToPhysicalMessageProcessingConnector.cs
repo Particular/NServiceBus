@@ -9,8 +9,10 @@ namespace NServiceBus
         public override void Invoke(TransportReceiveContext context, Action<PhysicalMessageProcessingStageBehavior.Context> next)
         {
             var physicalMessageContext = new PhysicalMessageProcessingStageBehavior.Context(context);
+            
             next(physicalMessageContext);
-            if (!physicalMessageContext.MessageHandledSuccessfully)
+            
+            if (physicalMessageContext.AbortReceiveOperation)
             {
                 throw new MessageProcessingAbortedException();
             }

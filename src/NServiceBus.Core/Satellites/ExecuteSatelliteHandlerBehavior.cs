@@ -10,7 +10,10 @@ namespace NServiceBus
         {
             var satellite = context.Get<ISatellite>();
 
-            context.Set("TransportReceiver.MessageHandledSuccessfully", satellite.Handle(context.PhysicalMessage));
+            if (!satellite.Handle(context.PhysicalMessage))
+            {
+                context.AbortReceiveOperation = true;
+            }
         }
 
         public class Registration : RegisterStep
