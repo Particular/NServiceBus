@@ -372,8 +372,8 @@ namespace NServiceBus
         void Publish<T>(System.Action<T> messageConstructor);
         void Reply(object message);
         void Return<T>(T errorEnum);
-        NServiceBus.ICallback Send(object message);
-        NServiceBus.ICallback Send(string destination, object message);
+        void Send(object message);
+        void Send(string destination, object message);
         void SendLocal(object message);
     }
     public interface IConfigureThisEndpoint
@@ -454,12 +454,12 @@ namespace NServiceBus
         void Publish(object message);
         void Publish<T>();
         void Publish<T>(System.Action<T> messageConstructor);
-        NServiceBus.ICallback Send(object message);
-        NServiceBus.ICallback Send<T>(System.Action<T> messageConstructor);
-        NServiceBus.ICallback Send(string destination, object message);
-        NServiceBus.ICallback Send<T>(string destination, System.Action<T> messageConstructor);
-        NServiceBus.ICallback Send(string destination, string correlationId, object message);
-        NServiceBus.ICallback Send<T>(string destination, string correlationId, System.Action<T> messageConstructor);
+        void Send(object message);
+        void Send<T>(System.Action<T> messageConstructor);
+        void Send(string destination, object message);
+        void Send<T>(string destination, System.Action<T> messageConstructor);
+        void Send(string destination, string correlationId, object message);
+        void Send<T>(string destination, string correlationId, System.Action<T> messageConstructor);
     }
     public interface IRunWhenBusStartsAndStops
     {
@@ -1785,7 +1785,7 @@ namespace NServiceBus.Saga
     }
     public interface ITimeoutContext
     {
-        NServiceBus.ICallback SendLocal(object message);
+        void SendLocal(object message);
     }
     public abstract class Saga
     {

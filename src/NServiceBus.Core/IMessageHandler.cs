@@ -43,8 +43,8 @@ namespace NServiceBus
 
         void Reply(object message);
 
-        ICallback Send(object message);
-        ICallback Send(string destination, object message);
+        void Send(object message);
+        void Send(string destination, object message);
 
         void Publish<T>(Action<T> messageConstructor);
 
@@ -72,14 +72,14 @@ namespace NServiceBus
             bus.Reply(message);
         }
 
-        public ICallback Send(object message)
+        public void Send(object message)
         {
-            return bus.Send(message);
+            bus.Send(message);
         }
 
-        public ICallback Send(string destination, object message)
+        public void Send(string destination, object message)
         {
-            return bus.Send(destination, message);
+            bus.Send(destination, message);
         }
 
         public void Publish<T>(Action<T> messageConstructor)

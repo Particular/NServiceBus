@@ -498,9 +498,8 @@
           }
       }
       class StubTimeoutContext : ITimeoutContext {
-          public ICallback SendLocal(object message)
+          public void SendLocal(object message)
           {
-              return default(ICallback);
           }
       }
       class StubEventContext : IEventContext { }
@@ -514,14 +513,12 @@
           {
           }
 
-          public ICallback Send(object message)
+          public void Send(object message)
           {
-              return default(ICallback);
           }
 
-          public ICallback Send(string destination, object message)
+          public void Send(string destination, object message)
           {
-              return default(ICallback);
           }
 
           public void Publish<T>(Action<T> messageConstructor)

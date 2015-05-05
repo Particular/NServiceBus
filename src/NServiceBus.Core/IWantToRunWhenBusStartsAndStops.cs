@@ -62,7 +62,7 @@
         /// Sends the provided message.
         /// </summary>
         /// <param name="message">The message to send.</param>
-        ICallback Send(object message);
+        void Send(object message);
 
         /// <summary>
         /// Instantiates a message of type T and sends it.
@@ -72,7 +72,7 @@
         /// <remarks>
         /// The message will be sent to the destination configured for T
         /// </remarks>
-        ICallback Send<T>(Action<T> messageConstructor);
+        void Send<T>(Action<T> messageConstructor);
 
         /// <summary>
         /// Sends the message.
@@ -81,7 +81,7 @@
         /// The address of the destination to which the message will be sent.
         /// </param>
         /// <param name="message">The message to send.</param>
-        ICallback Send(string destination, object message);
+        void Send(string destination, object message);
 
         /// <summary>
         /// Instantiates a message of type T and sends it to the given destination.
@@ -89,20 +89,20 @@
         /// <typeparam name="T">The type of message, usually an interface</typeparam>
         /// <param name="destination">The destination to which the message will be sent.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        ICallback Send<T>(string destination, Action<T> messageConstructor);
+        void Send<T>(string destination, Action<T> messageConstructor);
 
         /// <summary>
         /// Sends the message to the destination as well as identifying this
         /// as a response to a message containing the Id found in correlationId.
         /// </summary>
-        ICallback Send(string destination, string correlationId, object message);
+        void Send(string destination, string correlationId, object message);
 
         /// <summary>
         /// Instantiates a message of the type T using the given messageConstructor,
         /// and sends it to the destination identifying it as a response to a message
         /// containing the Id found in correlationId.
         /// </summary>
-        ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor);
+        void Send<T>(string destination, string correlationId, Action<T> messageConstructor);
     }
 
     class RunContext : IRunContext
@@ -129,33 +129,33 @@
             bus.Publish(messageConstructor);
         }
 
-        public ICallback Send(object message)
+        public void Send(object message)
         {
-            return bus.Send(message);
+            bus.Send(message);
         }
 
-        public ICallback Send<T>(Action<T> messageConstructor)
+        public void Send<T>(Action<T> messageConstructor)
         {
-            return bus.Send(messageConstructor);
+            bus.Send(messageConstructor);
         }
 
-        public ICallback Send(string destination, object message)
+        public void Send(string destination, object message)
         {
-            return bus.Send(destination, message);
+            bus.Send(destination, message);
         }
 
-        public ICallback Send<T>(string destination, Action<T> messageConstructor)
+        public void Send<T>(string destination, Action<T> messageConstructor)
         {
-            return bus.Send(destination, messageConstructor);
+            bus.Send(destination, messageConstructor);
         }
 
-        public ICallback Send(string destination, string correlationId, object message)
+        public void Send(string destination, string correlationId, object message)
         {
-            return bus.Send(destination, correlationId, message);
+            bus.Send(destination, correlationId, message);
         }
-        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
+        public void Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
-            return bus.Send(destination, correlationId, messageConstructor);
+            bus.Send(destination, correlationId, messageConstructor);
         }
     }
 #pragma warning restore 1591
