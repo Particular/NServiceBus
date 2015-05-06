@@ -12,15 +12,10 @@ namespace NServiceBus.Unicast
         /// </summary>
         public DeliveryMessageOptions()
         {
-            EnforceMessagingBestPractices = true;
             EnlistInReceiveTransaction = true;
         }
 
-        /// <summary>
-        /// If set messaging best practices will be enforces (on by default)
-        /// </summary>
-        public bool EnforceMessagingBestPractices { get; set; }
-
+    
         /// <summary>
         /// Tells the transport to enlist the outgoing operation in the current receive transaction if possible.
         /// This is enabled by default

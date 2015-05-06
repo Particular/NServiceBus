@@ -69,12 +69,6 @@ namespace NServiceBus.Outbox
                 result.EnlistInReceiveTransaction = bool.Parse(enlistInReceiveTransaction);
             }
 
-            string enforceMessagingBestPractices;
-            if (options.TryGetValue("EnforceMessagingBestPractices", out enforceMessagingBestPractices))
-            {
-                result.EnforceMessagingBestPractices = bool.Parse(enforceMessagingBestPractices);
-            }
-
             return result;
         }
     }
