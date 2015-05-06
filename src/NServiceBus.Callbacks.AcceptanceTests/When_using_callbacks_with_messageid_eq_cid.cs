@@ -17,7 +17,7 @@
                         var options = new SynchronousLocalOptions(id)
                             .SetCustomMessageId(id);
 
-                        await bus.SynchronousRequestResponse<MyResponse>(new MyRequest(), options).ResponseTask;
+                        await bus.RequestResponseAsync<MyResponse>(new MyRequest(), options);
 
                         c.CallbackFired = true;
                     }))

@@ -49,7 +49,6 @@
     <Compile Include="RequestResponseExtensions.cs" />
     <Compile Include="RequestResponseInvocationBehavior.cs" />
     <Compile Include="RequestResponseMessageLookup.cs" />
-    <Compile Include="SendContext.cs" />
     <Compile Include="SynchronousLocalOptions.cs" />
     <Compile Include="SynchronousOptions.cs" />
     <Compile Include="UpdateRequestResponseCorrelationTableBehavior.cs" />
