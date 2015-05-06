@@ -10,7 +10,7 @@ namespace NServiceBus.AcceptanceTests.Callbacks
     public class When_a_callback_for_local_message_canceled : NServiceBusAcceptanceTest
     {
         [Test]
-        public void ShouldNot_trigger_the_callback_when_cancelled()
+        public void ShouldNot_trigger_the_callback_when_canceled()
         {
             OperationCanceledException exception = null;
             Scenario.Define<Context>()
@@ -19,7 +19,7 @@ namespace NServiceBus.AcceptanceTests.Callbacks
                             var cs = new CancellationTokenSource();
                             context.TokenSource = cs;
 
-                            var response = bus.RequestWithTransientlyHandledResponseAsync<MyResponse>(new MyRequest(), new RequestResponseLocalOptions(cancellationToken: cs.Token));
+                            var response = bus.RequestWithTransientlyHandledResponseAsync<MyResponse>(new MyRequest(), new SendLocalOptions().RegisterToken(cs.Token));
 
                             try
                             {

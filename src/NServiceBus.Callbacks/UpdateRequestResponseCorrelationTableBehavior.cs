@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using NServiceBus.Callbacks;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -16,14 +17,35 @@
 
         public override void Invoke(Context context, Action next)
         {
-            RequestResponse.State state;
+            RequestResponseParameters parameters;
 
-            if (context.Extensions.TryGet(out state))
+            if (context.Extensions.TryGet(out parameters) && !parameters.CancellationToken.IsCancellationRequested)
             {
-                lookup.RegisterState(context.MessageId, state);
+                var messageId = context.MessageId;
+                parameters.CancellationToken.Register(() =>
+                {
+                    TaskCompletionSourceAdapter tcs;
+                    if (lookup.TryGet(messageId, out tcs))
+                    {
+                        tcs.SetCancelled();
+                    }
+                });
+                lookup.RegisterState(messageId, parameters.TaskCompletionSource);
             }
-    
+
             next();
+        }
+
+        public class RequestResponseParameters
+        {
+            public RequestResponseParameters()
+            {
+                CancellationToken = CancellationToken.None;
+            }
+
+            public TaskCompletionSourceAdapter TaskCompletionSource;
+
+            public CancellationToken CancellationToken;
         }
 
         public class Registration : RegisterStep

@@ -22,7 +22,7 @@
                             {
                                 Id = context.Id,
                                 Client = RuntimeEnvironment.MachineName
-                            }, new RequestResponseOptions())
+                            }, new SendOptions())
                                 .ContinueWith(t => context.CallbackAFired = true);
                         }))
                     .WithEndpoint<Client>(b => b.CustomConfig(c => RuntimeEnvironment.MachineNameAction = () => "ClientB")
@@ -32,7 +32,7 @@
                             {
                                 Id = context.Id,
                                 Client = RuntimeEnvironment.MachineName
-                            }, new RequestResponseOptions())
+                            }, new SendOptions())
                                 .ContinueWith(t => context.CallbackBFired = true);
                         }))
                     .WithEndpoint<Server>()

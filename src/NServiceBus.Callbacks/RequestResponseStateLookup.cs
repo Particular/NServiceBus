@@ -4,26 +4,16 @@ namespace NServiceBus.Callbacks
 
     class RequestResponseStateLookup
     {
-        readonly ConcurrentDictionary<string, RequestResponse.State> messageIdToAsyncResultLookup = new ConcurrentDictionary<string, RequestResponse.State>();
+        readonly ConcurrentDictionary<string, TaskCompletionSourceAdapter> messageIdToCompletionSource = new ConcurrentDictionary<string, TaskCompletionSourceAdapter>();
 
-        internal void RegisterState(string messageId, RequestResponse.State state)
+        public void RegisterState(string messageId, TaskCompletionSourceAdapter state)
         {
-            if (state.CancellationToken.IsCancellationRequested)
-            {
-                return;
-            }
-
-            state.CancellationToken.Register(() =>
-            {
-                RequestResponse.State s;
-                TryGet(messageId, out s);
-            });
-            messageIdToAsyncResultLookup[messageId] = state;
+            messageIdToCompletionSource[messageId] = state;
         }
 
-        internal bool TryGet(string messageId, out RequestResponse.State state)
+        public bool TryGet(string messageId, out TaskCompletionSourceAdapter state)
         {
-            return messageIdToAsyncResultLookup.TryRemove(messageId, out state);
+            return messageIdToCompletionSource.TryRemove(messageId, out state);
         }
     }
 }

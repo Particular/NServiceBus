@@ -115,7 +115,7 @@
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
     <Compile Include="BusNotifications.cs" />
     <Compile Include="Extensibility\ExtendableOptions.cs" />
-    <Compile Include="Extensibility\ExtensionContextExtensions.cs" />
+    <Compile Include="Extensibility\ExtendableOptionsExtensions.cs" />
     <Compile Include="Faults\FailedMessage.cs" />
     <Compile Include="Faults\ErrorsNotifications.cs" />
     <Compile Include="Faults\ErrorSubscribers.cs" />
@@ -127,7 +127,7 @@
     <Compile Include="ISendOnlyBusExtensions.cs" />
     <Compile Include="MessageMutator\IMutateOutgoingPhysicalContext.cs" />
     <Compile Include="MessageMutator\OutgoingPhysicalMutatorContext.cs" />
-    <Compile Include="Extensibility\ExtensionContext.cs" />
+    <Compile Include="Extensibility\OptionExtensionContext.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingContext.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />

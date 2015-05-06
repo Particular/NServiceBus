@@ -49,9 +49,8 @@
                 return false;
             }
 
-            RequestResponse.State requestResponseState;
-
-            if (!requestResponseStateLookup.TryGet(transportMessage.CorrelationId, out requestResponseState))
+            TaskCompletionSourceAdapter tcs;
+            if (!requestResponseStateLookup.TryGet(transportMessage.CorrelationId, out tcs))
             {
                 return false;
             }
@@ -60,11 +59,11 @@
 
             if (IsControlMessage(context.PhysicalMessage))
             {
-                var legacyEnumResponseType = requestResponseState.ResponseType;
+                var legacyEnumResponseType = tcs.ResponseType;
 
                 if (!CallbackSupport.IsLegacyEnumResponse(legacyEnumResponseType))
                 {
-                    requestResponseState.SetException(new Exception(string.Format("Invalid response in control message. Expected '{0}' as the response type.", typeof(LegacyEnumResponse<>))));
+                    tcs.SetException(new Exception(string.Format("Invalid response in control message. Expected '{0}' as the response type.", typeof(LegacyEnumResponse<>))));
                 }
 
                 var enumType = legacyEnumResponseType.GenericTypeArguments[0];
@@ -76,7 +75,7 @@
                 result = context.LogicalMessages.First().Instance;
             }
 
-            requestResponseState.SetResult(result);
+            tcs.SetResult(result);
 
             return true;
         }
