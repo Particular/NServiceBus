@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Message response wrapper used for comaptibiliy purposes with previous versions of the core callback.
+    /// Message response wrapper used for compatibility purposes with previous versions of the core callback.
     /// </summary>
     public class LegacyEnumResponse<T>
     {
