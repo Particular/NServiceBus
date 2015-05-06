@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Unicast.Transport;
 
     /// <summary>
@@ -34,17 +35,19 @@
         }
 
         /// <summary>
-        /// Notifies the behavior that the pipeline it is part of has been constructed is going to start processing messages.
+        /// Allows a behavior to perform any necessary warm-up activities (such as priming a cache), possibly in an async way.
         /// </summary>
-        public virtual void OnStarting()
+        public virtual Task Warmup()
         {
+            return Task.FromResult(true);
         }
 
         /// <summary>
-        /// Notifies the behavior that the pipeline it is part of is going to stop processing messages.
+        /// Allows a behavior to perform any necessary cool-down activities, possibly in an async way.
         /// </summary>
-        public virtual void OnStopped()
+        public virtual Task Cooldown()
         {
+            return Task.FromResult(true);
         }
     }
 

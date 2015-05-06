@@ -29,7 +29,7 @@ namespace NServiceBus.Features
             var retryPolicy = new FirstLevelRetryPolicy(maxRetries);
 
             context.Container.RegisterSingleton(retryPolicy);
-            context.PipelinesCollection.Register<FirstLevelRetriesBehavior.Registration>();
+            context.MainPipeline.Register<FirstLevelRetriesBehavior.Registration>();
         }
        
 

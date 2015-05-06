@@ -4,7 +4,7 @@
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Settings;
 
-    class PipelinesCollection
+    class PipelineConfiguration
     {
         public readonly PipelineModifications MainPipeline = new PipelineModifications();
         public readonly List<SatellitePipelineModifications> SatellitePipelines = new List<SatellitePipelineModifications>();

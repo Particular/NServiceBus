@@ -1,6 +1,7 @@
 namespace NServiceBus.Unicast.Transport
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
@@ -10,7 +11,7 @@ namespace NServiceBus.Unicast.Transport
     /// <summary>
     ///     Default implementation of a NServiceBus transport.
     /// </summary>
-    public class TransportReceiver : IDisposable, IObserver<MessageAvailable>
+    public class TransportReceiver : IObserver<MessageAvailable>
     {
         internal TransportReceiver(string id, IBuilder builder, IDequeueMessages receiver, DequeueSettings dequeueSettings, PipelineBase<IncomingContext> pipeline, IExecutor executor)
         {
@@ -31,14 +32,6 @@ namespace NServiceBus.Unicast.Transport
             get { return id; }
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        /// <filterpriority>2</filterpriority>
-        void IDisposable.Dispose()
-        {
-            //Injected at compile time
-        }
 
         void IObserver<MessageAvailable>.OnNext(MessageAvailable value)
         {
@@ -86,7 +79,7 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         ///     Starts the transport listening for messages on the given local address.
         /// </summary>
-        public virtual void Start()
+        public async Task Start()
         {
             if (isStarted)
             {
@@ -97,7 +90,7 @@ namespace NServiceBus.Unicast.Transport
 
             var dequeueInfo = receiver.Init(dequeueSettings);
             pipeline.Initialize(new PipelineInfo(id, dequeueInfo.PublicAddress));
-            pipeline.OnStarting();
+            await pipeline.Warmup();
 
             StartReceiver();
 
@@ -107,20 +100,7 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         ///     Stops the transport.
         /// </summary>
-        public virtual void Stop()
-        {
-            InnerStop();
-        }
-
-        void StartReceiver()
-        {
-            receiver.Subscribe(this);
-            receiver.Start();
-        }
-
-        /// <summary>
-        /// </summary>
-        protected virtual void InnerStop()
+        public async Task Stop()
         {
             if (!isStarted)
             {
@@ -128,15 +108,15 @@ namespace NServiceBus.Unicast.Transport
             }
 
             receiver.Stop();
-            pipeline.OnStopped();
-            pipeline.Dispose();
+            await pipeline.Cooldown();
 
             isStarted = false;
         }
 
-        void DisposeManaged()
+        void StartReceiver()
         {
-            InnerStop();
+            receiver.Subscribe(this);
+            receiver.Start();
         }
 
         /// <summary>

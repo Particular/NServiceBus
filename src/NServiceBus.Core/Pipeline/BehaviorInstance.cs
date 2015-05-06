@@ -3,10 +3,11 @@
     using System;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Unicast.Transport;
 
     [DebuggerDisplay("{type.Name}")]
-    class BehaviorInstance : IDisposable
+    class BehaviorInstance
     {
         readonly IBehavior instance;
         readonly Type type;
@@ -38,28 +39,14 @@
             instance.Initialize(pipelineInfo);
         }
 
-        public void OnStopped()
+        public Task Cooldown()
         {
-            instance.OnStopped();
+            return instance.Cooldown();
         }
 
-        public void OnStarting()
+        public Task Warmup()
         {
-            instance.OnStarting();
-        }
-
-        void DisposeManaged()
-        {
-            var disposableBehavior = instance as IDisposable;
-            if (disposableBehavior != null)
-            {
-                disposableBehavior.Dispose();
-            }
-        }
-
-        public void Dispose()
-        {
-            //Injected via Fody
+            return instance.Warmup();
         }
     }
 }

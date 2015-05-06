@@ -21,7 +21,7 @@ namespace NServiceBus.Satellites
                 return;
             }
 
-            var satellites = config.Settings.Get<PipelinesCollection>().SatellitePipelines;
+            var satellites = config.Settings.Get<PipelineConfiguration>().SatellitePipelines;
 
             foreach (var satellite in satellites)
             {

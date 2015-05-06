@@ -14,10 +14,10 @@
         {
             context.Settings.Get<Conventions>().AddSystemMessagesConventions(IsLegacyEnumResponse);
             context.Container.ConfigureComponent<RequestResponseStateLookup>(DependencyLifecycle.SingleInstance);
-            context.Pipeline.Register<RequestResponseInvocationBehavior.Registration>();
-            context.Pipeline.Register<UpdateRequestResponseCorrelationTableBehavior.Registration>();
-            context.Pipeline.Register<ConvertLegacyEnumResponseToLegacyControlMessageBehavior.Registration>();
-            context.Pipeline.Register<SetLegacyReturnCodeBehavior.Registration>();
+            context.MainPipeline.Register<RequestResponseInvocationBehavior.Registration>();
+            context.MainPipeline.Register<UpdateRequestResponseCorrelationTableBehavior.Registration>();
+            context.MainPipeline.Register<ConvertLegacyEnumResponseToLegacyControlMessageBehavior.Registration>();
+            context.MainPipeline.Register<SetLegacyReturnCodeBehavior.Registration>();
         }
 
         internal static bool IsLegacyEnumResponse(Type instanceType)

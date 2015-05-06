@@ -32,8 +32,8 @@ namespace NServiceBus
         {
             configurationSourceToUse = new DefaultConfigurationSource();
 
-            pipelineCollection = new PipelinesCollection();
-            Settings.Set<PipelinesCollection>(pipelineCollection);
+            pipelineCollection = new PipelineConfiguration();
+            Settings.Set<PipelineConfiguration>(pipelineCollection);
             Pipeline = new PipelineSettings(pipelineCollection.MainPipeline);
 
             Settings.SetDefault("Endpoint.SendOnly", false);
@@ -276,6 +276,6 @@ namespace NServiceBus
         List<string> excludedAssemblies = new List<string>();
         string publicReturnAddress;
         Dictionary<string, string> outgoingHeaders;
-        PipelinesCollection pipelineCollection;
+        PipelineConfiguration pipelineCollection;
     }
 }

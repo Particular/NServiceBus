@@ -31,7 +31,7 @@
         /// <summary>
         /// Access to the pipeline in order to customize it
         /// </summary>
-        public PipelineSettings PipelinesCollection { get { return config.pipelineSettings; } }
+        public PipelineSettings MainPipeline { get { return config.pipelineSettings; } }
 
         /// <summary>
         /// Registers the receive behavior to use for that endpoint.
@@ -41,7 +41,7 @@
         {
             var receiveBehavior = new ReceiveBehavior.Registration();
             receiveBehavior.ContainerRegistration((b, s) => receiveBehaviorFactory(b));
-            config.Settings.Get<PipelinesCollection>().ReceiveBehavior = receiveBehavior;
+            config.Settings.Get<PipelineConfiguration>().ReceiveBehavior = receiveBehavior;
         }
 
         /// <summary>
@@ -51,7 +51,7 @@
         public PipelineSettings AddSatellitePipeline(string name, string receiveAddress)
         {
             var pipelineModifications = new SatellitePipelineModifications(name, receiveAddress);
-            config.Settings.Get<PipelinesCollection>().SatellitePipelines.Add(pipelineModifications);
+            config.Settings.Get<PipelineConfiguration>().SatellitePipelines.Add(pipelineModifications);
             var newPipeline = new PipelineSettings(pipelineModifications);
 
             newPipeline.RegisterConnector<TransportReceiveToPhysicalMessageProcessingConnector>("Allows to abort processing the message");

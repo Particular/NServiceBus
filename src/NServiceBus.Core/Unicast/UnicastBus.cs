@@ -102,7 +102,7 @@ namespace NServiceBus.Unicast
                 executor.Start(pipelines.Select(x => x.Id).ToArray());
 
                 pipelineCollection = new PipelineCollection(pipelines);
-                pipelineCollection.Start();
+                pipelineCollection.Start().GetAwaiter().GetResult();
 
                 started = true;
             }
@@ -123,7 +123,7 @@ namespace NServiceBus.Unicast
 
         IEnumerable<TransportReceiver> BuildPipelines()
         {
-            var pipelinesCollection = settings.Get<PipelinesCollection>();
+            var pipelinesCollection = settings.Get<PipelineConfiguration>();
 
             yield return BuildPipelineInstance(pipelinesCollection.MainPipeline, pipelinesCollection.ReceiveBehavior, "Main", settings.LocalAddress());
 
@@ -198,7 +198,7 @@ namespace NServiceBus.Unicast
             }
 
             Log.Info("Initiating shutdown.");
-            pipelineCollection.Stop();
+            pipelineCollection.Stop().GetAwaiter().GetResult();
             executor.Stop();
             ExecuteIWantToRunAtStartupStopMethods();
 

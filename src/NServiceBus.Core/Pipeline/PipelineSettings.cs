@@ -3,7 +3,6 @@ namespace NServiceBus.Pipeline
     using System;
     using System.Collections.Generic;
     using NServiceBus.ObjectBuilder;
-    using NServiceBus.Settings;
 
 
     /// <summary>

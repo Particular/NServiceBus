@@ -34,7 +34,7 @@ namespace NServiceBus.Features
             var  retryPolicy = GetRetryPolicy(context.Settings);
 
             context.Container.RegisterSingleton(typeof(SecondLevelRetryPolicy), retryPolicy);
-            context.PipelinesCollection.Register<SecondLevelRetriesBehavior.Registration>();
+            context.MainPipeline.Register<SecondLevelRetriesBehavior.Registration>();
         }
 
         bool IsEnabledInConfig(FeatureConfigurationContext context)

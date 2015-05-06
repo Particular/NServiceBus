@@ -570,6 +570,12 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
+    public abstract class SatelliteBehavior : NServiceBus.PhysicalMessageProcessingStageBehavior
+    {
+        protected SatelliteBehavior() { }
+        protected abstract bool Handle(NServiceBus.TransportMessage physicalMessage);
+        public override void Invoke(NServiceBus.PhysicalMessageProcessingStageBehavior.Context context, System.Action next) { }
+    }
     public class static ScaleOutExtentions
     {
         public static NServiceBus.Settings.ScaleOutSettings ScaleOut(this NServiceBus.BusConfiguration config) { }
@@ -1056,7 +1062,7 @@ namespace NServiceBus.Features
     public class FeatureConfigurationContext
     {
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
-        public NServiceBus.Pipeline.PipelineSettings PipelinesCollection { get; }
+        public NServiceBus.Pipeline.PipelineSettings MainPipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
         public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string receiveAddress) { }
         public void RegisterReceiveBehavior(System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.ReceiveBehavior> receiveBehaviorFactory) { }
@@ -1478,11 +1484,11 @@ namespace NServiceBus.Pipeline
     {
         protected Behavior() { }
         protected NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
+        public virtual System.Threading.Tasks.Task Cooldown() { }
         public void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo) { }
         public abstract void Invoke(TContext context, System.Action next);
         public void Invoke(TContext context, System.Action<TContext> next) { }
-        public virtual void OnStarting() { }
-        public virtual void OnStopped() { }
+        public virtual System.Threading.Tasks.Task Warmup() { }
     }
     public abstract class BehaviorContext
     {
@@ -1517,9 +1523,9 @@ namespace NServiceBus.Pipeline
     }
     public interface IBehavior
     {
+        System.Threading.Tasks.Task Cooldown();
         void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo);
-        void OnStarting();
-        void OnStopped();
+        System.Threading.Tasks.Task Warmup();
     }
     public interface IBehavior<in TIn, out TOut> : NServiceBus.Pipeline.IBehavior
         where in TIn : NServiceBus.Pipeline.BehaviorContext
@@ -1577,10 +1583,10 @@ namespace NServiceBus.Pipeline
     {
         protected StageConnector() { }
         protected NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
+        public virtual System.Threading.Tasks.Task Cooldown() { }
         public void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo) { }
         public abstract void Invoke(TFrom context, System.Action<TTo> next);
-        public virtual void OnStarting() { }
-        public virtual void OnStopped() { }
+        public virtual System.Threading.Tasks.Task Warmup() { }
     }
     public struct StepEnded
     {
@@ -2341,7 +2347,7 @@ namespace NServiceBus.Unicast
     }
     public class UnicastBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, NServiceBus.Unicast.IRealBus, System.IDisposable
     {
-        public UnicastBus(NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.PipelineFactory> pipelineFactories, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.ISendMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter, NServiceBus.Hosting.HostInformation hostInformation) { }
+        public UnicastBus(NServiceBus.Pipeline.BehaviorContext rootContext, NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.ISendMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter, NServiceBus.Hosting.HostInformation hostInformation) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public NServiceBus.IMessageContext CurrentMessageContext { get; }
         [System.ObsoleteAttribute("We have introduced a more explicit API to set the host identifier, see busConfigu" +
@@ -2513,13 +2519,12 @@ namespace NServiceBus.Unicast.Transport
         public bool SuppressDistributedTransactions { get; set; }
         public System.TimeSpan TransactionTimeout { get; set; }
     }
-    public class TransportReceiver : System.IDisposable, System.IObserver<NServiceBus.Transports.MessageAvailable>
+    public class TransportReceiver : System.IObserver<NServiceBus.Transports.MessageAvailable>
     {
         public string Id { get; }
-        protected virtual void InnerStop() { }
         protected virtual void SetContext(NServiceBus.Pipeline.Contexts.IncomingContext context) { }
-        public virtual void Start() { }
-        public virtual void Stop() { }
+        public async System.Threading.Tasks.Task Start() { }
+        public async System.Threading.Tasks.Task Stop() { }
         public override string ToString() { }
     }
 }

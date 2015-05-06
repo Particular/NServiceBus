@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Timeout.Hosting.Windows;
@@ -33,14 +34,16 @@ namespace NServiceBus
             return true;
         }
 
-        public override void OnStarting()
+        public override Task Warmup()
         {
             TimeoutPersisterReceiver.Start();
+            return base.Warmup();
         }
 
-        public override void OnStopped()
+        public override Task Cooldown()
         {
             TimeoutPersisterReceiver.Stop();
+            return base.Cooldown();
         }
 
         public class Registration : RegisterStep

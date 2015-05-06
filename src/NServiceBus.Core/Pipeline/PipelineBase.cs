@@ -1,15 +1,15 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using Janitor;
     using NServiceBus.Settings;
     using NServiceBus.Unicast.Transport;
     using ObjectBuilder;
 
     [SkipWeaving]
-    class PipelineBase<T> : IDisposable
+    class PipelineBase<T>
         where T : BehaviorContext
     {
         public PipelineBase(IBuilder builder, ReadOnlySettings settings, PipelineModifications pipelineModifications, RegisterStep receiveBehavior = null)
@@ -40,27 +40,19 @@
             }
         }
 
-        public void OnStarting()
+        public async Task Warmup()
         {
-            foreach (var behaviorInstance in behaviors)
+            foreach (var result in behaviors.Select(x => x.Warmup()))
             {
-                behaviorInstance.OnStarting();
+                await result;
             }
         }
 
-        public void OnStopped()
+        public async Task Cooldown()
         {
-            foreach (var behaviorInstance in behaviors)
+            foreach (var result in behaviors.Select(x => x.Cooldown()))
             {
-                behaviorInstance.OnStopped();
-            }
-        }
-
-        public void Dispose()
-        {
-            foreach (var behaviorInstance in behaviors)
-            {
-                behaviorInstance.Dispose();
+                await result;
             }
         }
 

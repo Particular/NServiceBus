@@ -33,7 +33,7 @@ namespace NServiceBus.Features
             var slaBreachCounter = PerformanceCounterHelper.InstantiatePerformanceCounter("SLA violation countdown", context.Settings.EndpointName());
             var timeToSLABreachCalculator = new EstimatedTimeToSLABreachCalculator(endpointSla, slaBreachCounter);
             context.Container.RegisterSingleton(timeToSLABreachCalculator);
-            context.PipelinesCollection.Register<SLABehavior.Registration>();
+            context.MainPipeline.Register<SLABehavior.Registration>();
         }
 
         static bool TryGetSLA(FeatureConfigurationContext context, out TimeSpan endpointSla)
