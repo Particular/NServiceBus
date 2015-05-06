@@ -5,7 +5,6 @@
 
     static class RequestResponse
     {
-        // Currently tricking around restriction in core
         internal class State
         {
             readonly object taskCompletionSource;

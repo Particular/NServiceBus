@@ -13,7 +13,6 @@ namespace NServiceBus.Callbacks
                 return;
             }
 
-            // Need to check for memory leak.
             state.CancellationToken.Register(() =>
             {
                 RequestResponse.State s;
