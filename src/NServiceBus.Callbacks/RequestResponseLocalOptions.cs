@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     ///     Allows the users to control how the send is performed
     /// </summary>
-    public class SynchronousOptions
+    public class RequestResponseLocalOptions
     {
         internal Dictionary<string, string> Headers = new Dictionary<string, string>();
         readonly string correlationId;
@@ -14,25 +14,21 @@ namespace NServiceBus
         internal CancellationToken CancellationToken;
 
         /// <summary>
-        ///     Creates an instance of <see cref="NServiceBus.SynchronousOptions" />.
+        ///     Creates an instance of <see cref="RequestResponseOptions" />.
         /// </summary>
-        /// <param name="destination">Specifies a specific destination for the message.</param>
         /// <param name="correlationId">Specifies a custom currelation id for the message.</param>
         /// <param name="cancellationToken">The cancellation token which allows to cancel the callback</param>
-        public SynchronousOptions(string destination = null, string correlationId = null, CancellationToken cancellationToken = default(CancellationToken))
+        public RequestResponseLocalOptions(string correlationId = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            this.correlationId = correlationId;            
-            Destination = destination;
+            this.correlationId = correlationId;
 
             if (cancellationToken == default(CancellationToken))
             {
-                cancellationToken = CancellationToken.None;
+                cancellationToken = CancellationToken.None;  
             }
 
             CancellationToken = cancellationToken;
         }
-
-        internal string Destination { get; private set; }
 
         internal string CorrelationId
         {
@@ -44,7 +40,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="key">The header key.</param>
         /// <param name="value">The header value.</param>
-        public SynchronousOptions AddHeader(string key, string value)
+        public RequestResponseLocalOptions AddHeader(string key, string value)
         {
             Headers[key] = value;
             return this;
@@ -54,7 +50,7 @@ namespace NServiceBus
         ///     Sets a custom message id for this message.
         /// </summary>
         /// <param name="messageId"></param>
-        public SynchronousOptions SetCustomMessageId(string messageId)
+        public RequestResponseLocalOptions SetCustomMessageId(string messageId)
         {
             MessageId = messageId;
             return this;

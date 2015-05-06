@@ -50,8 +50,8 @@
     <Compile Include="RequestResponseExtensions.cs" />
     <Compile Include="RequestResponseInvocationBehavior.cs" />
     <Compile Include="RequestResponseStateLookup.cs" />
-    <Compile Include="SynchronousLocalOptions.cs" />
-    <Compile Include="SynchronousOptions.cs" />
+    <Compile Include="RequestResponseLocalOptions.cs" />
+    <Compile Include="RequestResponseOptions.cs" />
     <Compile Include="UpdateRequestResponseCorrelationTableBehavior.cs" />
   </ItemGroup>
   <ItemGroup>

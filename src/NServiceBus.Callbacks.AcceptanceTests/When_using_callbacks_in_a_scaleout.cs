@@ -18,21 +18,21 @@
                     .WithEndpoint<Client>(b => b.CustomConfig(c => RuntimeEnvironment.MachineNameAction = () => "ClientA")
                         .Given((bus, context) =>
                         {
-                            bus.RequestResponseAsync<MyResponse>(new MyRequest
+                            bus.RequestWithTransientlyHandledResponseAsync<MyResponse>(new MyRequest
                             {
                                 Id = context.Id,
                                 Client = RuntimeEnvironment.MachineName
-                            }, new SynchronousOptions())
+                            }, new RequestResponseOptions())
                                 .ContinueWith(t => context.CallbackAFired = true);
                         }))
                     .WithEndpoint<Client>(b => b.CustomConfig(c => RuntimeEnvironment.MachineNameAction = () => "ClientB")
                         .Given((bus, context) =>
                         {
-                            bus.RequestResponseAsync<MyResponse>(new MyRequest
+                            bus.RequestWithTransientlyHandledResponseAsync<MyResponse>(new MyRequest
                             {
                                 Id = context.Id,
                                 Client = RuntimeEnvironment.MachineName
-                            }, new SynchronousOptions())
+                            }, new RequestResponseOptions())
                                 .ContinueWith(t => context.CallbackBFired = true);
                         }))
                     .WithEndpoint<Server>()

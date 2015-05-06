@@ -14,7 +14,7 @@ namespace NServiceBus.AcceptanceTests.Callbacks
             Scenario.Define<Context>()
                     .WithEndpoint<EndpointWithLocalCallback>(b => b.Given(async (bus, context) =>
                         {
-                            var response = bus.RequestResponseAsync<MyResponse>(new MyRequest(), new SynchronousLocalOptions());
+                            var response = bus.RequestWithTransientlyHandledResponseAsync<MyResponse>(new MyRequest(), new RequestResponseLocalOptions());
 
                             await response;
                             

@@ -15,7 +15,7 @@
             Scenario.Define(context)
                 .WithEndpoint<EndpointWithLocalCallback>(b => b.Given(async (bus, c) =>
                     {
-                        var response = bus.RequestResponseAsync<MyResponse>(new MyRequest(), new SynchronousOptions());
+                        var response = bus.RequestWithTransientlyHandledResponseAsync<MyResponse>(new MyRequest(), new RequestResponseOptions());
 
                         c.Response = await response;
                         c.CallbackFired = true;
