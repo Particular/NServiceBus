@@ -1,11 +1,18 @@
-namespace NServiceBus.Unicast
+namespace NServiceBus.MessagingBestPractices
 {
     using System;
-    using Logging;
+    using NServiceBus.Logging;
 
-    class MessagingBestPractices
+    class Validations
     {
-        public static void AssertIsValidForSend(Type messageType, Conventions conventions)
+        readonly Conventions conventions;
+
+        public Validations(Conventions conventions)
+        {
+            this.conventions = conventions;
+        }
+
+        public void AssertIsValidForSend(Type messageType)
         {
             if (conventions.IsEventType(messageType))
             {
@@ -13,7 +20,7 @@ namespace NServiceBus.Unicast
             }
         }
 
-        public static void AssertIsValidForReply(Type messageType, Conventions conventions)
+        public void AssertIsValidForReply(Type messageType)
         {
             if (conventions.IsCommandType(messageType) || conventions.IsEventType(messageType))
             {
@@ -21,7 +28,7 @@ namespace NServiceBus.Unicast
             }
         }
 
-        public static void AssertIsValidForPubSub(Type messageType, Conventions conventions)
+        public void AssertIsValidForPubSub(Type messageType)
         {
             if (conventions.IsCommandType(messageType))
             {
@@ -34,6 +41,6 @@ namespace NServiceBus.Unicast
             }
         }
 
-        static ILog Log = LogManager.GetLogger<MessagingBestPractices>();
+        static ILog Log = LogManager.GetLogger<Validations>();
     }
 }

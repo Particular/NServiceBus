@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
+    using NServiceBus.MessagingBestPractices;
     using NUnit.Framework;
 
     [TestFixture]
@@ -12,21 +13,24 @@
             [Test]
             public void Should_throw_for_command()
             {
-                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForReply(typeof(MyCommand), new Conventions()));
+                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => 
+                    new Validations(new Conventions()).AssertIsValidForReply(typeof(MyCommand)));
                 Assert.AreEqual("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.", invalidOperationException.Message);
             }
 
             [Test]
             public void Should_throw_for_event()
             {
-                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForReply(typeof(MyEvent), new Conventions()));
+                var invalidOperationException = Assert.Throws<InvalidOperationException>(() =>
+                    new Validations(new Conventions()).AssertIsValidForReply(typeof(MyEvent)));
                 Assert.AreEqual("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.", invalidOperationException.Message);
             }
 
             [Test]
             public void Should_not_throw_for_message()
             {
-                MessagingBestPractices.AssertIsValidForReply(typeof(MyMessage), new Conventions());
+                new Validations(new Conventions())
+                    .AssertIsValidForReply(typeof(MyMessage));
             }
         }
 
@@ -36,21 +40,22 @@
             [Test]
             public void Should_throw_for_command()
             {
-                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForPubSub(typeof(MyCommand), new Conventions()));
+                var invalidOperationException = Assert.Throws<InvalidOperationException>(() =>
+                    new Validations(new Conventions()).AssertIsValidForPubSub(typeof(MyCommand)));
                 Assert.AreEqual("Pub/Sub is not supported for Commands. They should be be sent direct to their logical owner.", invalidOperationException.Message);
             }
 
             [Test]
             public void Should_not_throw_for_event()
             {
-                MessagingBestPractices.AssertIsValidForPubSub(typeof(MyEvent), new Conventions());
+                new Validations(new Conventions()).AssertIsValidForPubSub(typeof(MyEvent));
                 //TODO: verify log
             }
 
             [Test]
             public void Should_not_throw_for_message()
             {
-                MessagingBestPractices.AssertIsValidForPubSub(typeof(MyMessage), new Conventions());
+                new Validations(new Conventions()).AssertIsValidForPubSub(typeof(MyMessage));
             }
 
      

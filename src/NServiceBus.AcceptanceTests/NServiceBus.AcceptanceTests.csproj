@@ -68,6 +68,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
+    <Compile Include="BestPractices\When_bestpractices_is_disabled_for_message.cs" />
+    <Compile Include="BestPractices\When_bestpractices_is_disabled.cs" />
+    <Compile Include="BestPractices\When_unsubscribing_to_command.cs" />
+    <Compile Include="BestPractices\When_subscribing_to_command.cs" />
+    <Compile Include="BestPractices\When_publishing_command.cs" />
+    <Compile Include="BestPractices\When_sending_event.cs" />
     <Compile Include="DeliveryOptions\When_message_with_TimeToBeReceived_fails.cs" />
     <Compile Include="DeliveryOptions\When_auditing_message_with_TimeToBeReceived.cs" />
     <Compile Include="Audit\When_ForwardReceivedMessagesTo_is_set.cs" />
