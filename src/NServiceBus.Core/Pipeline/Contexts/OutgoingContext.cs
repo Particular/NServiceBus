@@ -21,7 +21,7 @@
         /// <param name="messageType">The message type</param>
         /// <param name="messageInstance">The message instance</param>
         /// <param name="extensionContext">Extension data provided via options</param>
-        public OutgoingContext(BehaviorContext parentContext, DeliveryMessageOptions deliveryMessageOptions, Dictionary<string, string> headers, string messageId, MessageIntentEnum intent, Type messageType, object messageInstance, ExtensionContext extensionContext)
+        public OutgoingContext(BehaviorContext parentContext, DeliveryMessageOptions deliveryMessageOptions, Dictionary<string, string> headers, string messageId, MessageIntentEnum intent, Type messageType, object messageInstance, OptionExtensionContext extensionContext)
             : base(parentContext)
         {
             DeliveryMessageOptions = deliveryMessageOptions;
@@ -65,6 +65,6 @@
         /// <summary>
         /// Place for extensions to store their data
         /// </summary>
-        public ExtensionContext Extensions { get; private set; }
+        public OptionExtensionContext Extensions { get; private set; }
     }
 }

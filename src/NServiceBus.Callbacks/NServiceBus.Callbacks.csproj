@@ -41,16 +41,18 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExtendableOptionsExtensions.cs" />
     <Compile Include="CallbackSupport.cs" />
+    <Compile Include="SendLocalOptionsExtensions.cs" />
+    <Compile Include="SendOptionsExtensions.cs" />
     <Compile Include="SetLegacyReturnCodeBehavior.cs" />
     <Compile Include="ConvertLegacyEnumResponseToLegacyControlMessageBehavior.cs" />
     <Compile Include="LegacyEnumResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RequestResponseExtensions.cs" />
+    <Compile Include="TaskCompletionSourceAdapter.cs" />
+    <Compile Include="TransientRequestResponseExtensions.cs" />
     <Compile Include="RequestResponseInvocationBehavior.cs" />
-    <Compile Include="RequestResponseMessageLookup.cs" />
-    <Compile Include="SynchronousLocalOptions.cs" />
-    <Compile Include="SynchronousOptions.cs" />
+    <Compile Include="RequestResponseStateLookup.cs" />
     <Compile Include="UpdateRequestResponseCorrelationTableBehavior.cs" />
   </ItemGroup>
   <ItemGroup>

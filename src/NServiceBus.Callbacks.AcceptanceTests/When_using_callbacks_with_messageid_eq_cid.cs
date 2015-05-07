@@ -14,10 +14,10 @@
                 .WithEndpoint<EndpointWithLocalCallback>(b=>b.Given(async (bus,c)=>
                     {
                         var id = Guid.NewGuid().ToString();
-                        var options = new SynchronousLocalOptions(id)
+                        var options = new SendLocalOptions()
                             .SetCustomMessageId(id);
 
-                        await bus.RequestResponseAsync<MyResponse>(new MyRequest(), options);
+                        await bus.RequestWithTransientlyHandledResponseAsync<MyResponse>(new MyRequest(), options);
 
                         c.CallbackFired = true;
                     }))

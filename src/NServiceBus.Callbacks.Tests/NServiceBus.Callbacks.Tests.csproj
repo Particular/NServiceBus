@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{43A533C4-AAEF-449C-A1C9-4BF00EB063BE}</ProjectGuid>
+    <ProjectGuid>{AE0CB75D-1052-4715-97A0-0099B36BD597}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Callbacks.AcceptanceTests</RootNamespace>
-    <AssemblyName>NServiceBus.Callbacks.AcceptanceTests</AssemblyName>
+    <RootNamespace>NServiceBus.Callbacks.Tests</RootNamespace>
+    <AssemblyName>NServiceBus.Callbacks.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,12 +30,32 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ApprovalTests">
+      <HintPath>..\packages\ApprovalTests.3.0.8\lib\net40\ApprovalTests.dll</HintPath>
+    </Reference>
+    <Reference Include="ApprovalUtilities">
+      <HintPath>..\packages\ApprovalUtilities.3.0.8\lib\net45\ApprovalUtilities.dll</HintPath>
+    </Reference>
+    <Reference Include="ApprovalUtilities.Net45">
+      <HintPath>..\packages\ApprovalUtilities.3.0.8\lib\net45\ApprovalUtilities.Net45.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net45\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net45\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net45\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net45\Mono.Cecil.Rocks.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Messaging" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -43,46 +63,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigureMsmqTransport.cs" />
-    <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
-    <Compile Include="EndpointTemplates\ContextAppender.cs" />
-    <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
-    <Compile Include="EndpointTemplates\DefaultServer.cs" />
-    <Compile Include="NServiceBusAcceptanceTest.cs" />
-    <Compile Include="ScenarioDescriptors\AllOutboxCapableStorages.cs" />
-    <Compile Include="ScenarioDescriptors\AllTransactionSettings.cs" />
-    <Compile Include="ScenarioDescriptors\AllTransports.cs" />
-    <Compile Include="ScenarioDescriptors\Builders.cs" />
-    <Compile Include="ScenarioDescriptors\Persistence.cs" />
-    <Compile Include="ScenarioDescriptors\Serializers.cs" />
-    <Compile Include="ScenarioDescriptors\TransactionSettings.cs" />
-    <Compile Include="ScenarioDescriptors\Transports.cs" />
-    <Compile Include="When_a_callback_for_local_message_canceled.cs" />
-    <Compile Include="When_a_callback_for_local_message.cs" />
-    <Compile Include="When_using_callbacks_in_a_scaleout.cs" />
-    <Compile Include="When_using_callbacks_with_messageid_eq_cid.cs" />
-    <Compile Include="When_using_LegacyEnumResponse.cs" />
-    <Compile Include="When_using_callback_to_get_message.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj">
-      <Project>{758357f6-cd31-4337-80c4-ba377fc257af}</Project>
-      <Name>NServiceBus.AcceptanceTesting</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Callbacks\NServiceBus.Callbacks.csproj">
-      <Project>{b465a2ef-27a9-402b-bac7-a660be93c931}</Project>
-      <Name>NServiceBus.Callbacks</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
-      <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
-      <Name>NServiceBus.Core</Name>
-    </ProjectReference>
+    <Compile Include="API\APIApprovals.cs" />
+    <Compile Include="App_Packages\ApiApprover.3.0.1\PublicApiApprover.cs" />
+    <Compile Include="App_Packages\ApiApprover.3.0.1\PublicApiGenerator.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <ProjectReference Include="..\NServiceBus.Callbacks\NServiceBus.Callbacks.csproj">
+      <Project>{b465a2ef-27a9-402b-bac7-a660be93c931}</Project>
+      <Name>NServiceBus.Callbacks</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

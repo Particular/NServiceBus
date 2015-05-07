@@ -6,7 +6,7 @@
     /// <summary>
     /// Holds data added by various extentions
     /// </summary>
-    public class ExtensionContext
+    public class OptionExtensionContext
     {
 
         Dictionary<string, object> context = new Dictionary<string, object>();

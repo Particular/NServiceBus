@@ -122,7 +122,7 @@ namespace NServiceBus.Unicast
                 MessageIntentEnum.Publish,
                 messageType,
                 message,
-                options.ExtensionContext);
+                options.Extensions);
 
 
             outgoingPipeline.Invoke(outgoingContext);
@@ -321,7 +321,7 @@ namespace NServiceBus.Unicast
 
             var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
 
-            SendMessage(options.MessageId, options.CorrelationId, MessageIntentEnum.Send, options.Headers, sendOptions, messageType, message, options.ExtensionContext);
+            SendMessage(options.MessageId, options.CorrelationId, MessageIntentEnum.Send, options.Headers, sendOptions, messageType, message, options.Extensions);
         }
 
         void SendMessage(NServiceBus.SendOptions options, Type messageType, object message)
@@ -347,10 +347,10 @@ namespace NServiceBus.Unicast
 
             var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
 
-            SendMessage(options.MessageId, options.CorrelationId, options.Intent, options.Headers, sendOptions, messageType, message, options.ExtensionContext);
+            SendMessage(options.MessageId, options.CorrelationId, options.Intent, options.Headers, sendOptions, messageType, message, options.Extensions);
         }
 
-        void SendMessage(string messageId, string correlationId, MessageIntentEnum intent, Dictionary<string, string> messageHeaders, SendMessageOptions sendOptions, Type messageType, object message, ExtensionContext context)
+        void SendMessage(string messageId, string correlationId, MessageIntentEnum intent, Dictionary<string, string> messageHeaders, SendMessageOptions sendOptions, Type messageType, object message, OptionExtensionContext context)
         {
             var headers = new Dictionary<string, string>(messageHeaders);
 

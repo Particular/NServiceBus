@@ -13,7 +13,7 @@
         /// <param name="options"></param>
         public static void DoNotEnforceBestPractices(this ExtendableOptions options)
         {
-            options.ExtensionContext.Set(new EnforceBestPracticesBehavior.Options{Enabled = false});
+            options.Extensions.Set(new EnforceBestPracticesBehavior.Options{Enabled = false});
         }
     }
 }
