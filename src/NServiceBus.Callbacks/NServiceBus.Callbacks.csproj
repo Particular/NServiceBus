@@ -53,8 +53,6 @@
     <Compile Include="TransientRequestResponseExtensions.cs" />
     <Compile Include="RequestResponseInvocationBehavior.cs" />
     <Compile Include="RequestResponseStateLookup.cs" />
-    <Compile Include="RequestResponseLocalOptions.cs" />
-    <Compile Include="RequestResponseOptions.cs" />
     <Compile Include="UpdateRequestResponseCorrelationTableBehavior.cs" />
   </ItemGroup>
   <ItemGroup>
