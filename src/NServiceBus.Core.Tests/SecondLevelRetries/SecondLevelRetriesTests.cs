@@ -7,7 +7,6 @@
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.SecondLevelRetries;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast;
     using NUnit.Framework;
 
     [TestFixture]
@@ -145,23 +144,21 @@
 
     class FakeMessageDeferrer : IDeferMessages
     {
-
-
-        public SendMessageOptions SendMessageOptions { get; private set; }
+        public TransportDeferOptions SendMessageOptions { get; private set; }
         public string MessageRoutedTo { get; private set; }
 
         public OutgoingMessage DeferredMessage { get; private set; }
         public TimeSpan Delay { get; private set; }
 
-        public void Defer(OutgoingMessage message, SendMessageOptions sendMessageOptions)
+        public void Defer(OutgoingMessage message, TransportDeferOptions options)
         {
-            MessageRoutedTo = sendMessageOptions.Destination;
+            MessageRoutedTo = options.Destination;
             DeferredMessage = message;
-            SendMessageOptions = sendMessageOptions;
+            SendMessageOptions = options;
 
-            if (sendMessageOptions.DelayDeliveryFor.HasValue)
+            if (options.DelayDeliveryFor.HasValue)
             {
-                Delay = sendMessageOptions.DelayDeliveryFor.Value;
+                Delay = options.DelayDeliveryFor.Value;
             }
         }
 

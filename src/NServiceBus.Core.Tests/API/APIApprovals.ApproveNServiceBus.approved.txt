@@ -2100,7 +2100,7 @@ namespace NServiceBus.Transports
     public interface IDeferMessages
     {
         void ClearDeferredMessages(string headerKey, string headerValue);
-        void Defer(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.SendMessageOptions sendMessageOptions);
+        void Defer(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.TransportDeferOptions options);
     }
     public interface IDequeueMessages : System.IObservable<NServiceBus.Transports.MessageAvailable>
     {
@@ -2155,6 +2155,15 @@ namespace NServiceBus.Transports
         public string ErrorQueue { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
         public NServiceBus.Unicast.Transport.TransactionSettings Transactions { get; }
+    }
+    public class TransportDeferOptions
+    {
+        public TransportDeferOptions(string destination, System.Nullable<System.TimeSpan> delayDeliveryFor = null, System.Nullable<System.DateTime> deliverAt = null, bool nonDurable = False, bool enlistInReceiveTransaction = True) { }
+        public System.Nullable<System.TimeSpan> DelayDeliveryFor { get; }
+        public System.Nullable<System.DateTime> DeliverAt { get; }
+        public string Destination { get; }
+        public bool EnlistInReceiveTransaction { get; }
+        public bool NonDurable { get; }
     }
     public abstract class TransportDefinition
     {

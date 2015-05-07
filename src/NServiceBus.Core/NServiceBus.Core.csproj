@@ -149,6 +149,7 @@
     <Compile Include="Transports\ReceiveBehavior.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalOutgoingContext.cs" />
     <Compile Include="Transports\IncomingMessage.cs" />
+    <Compile Include="Transports\TransportDeferOptions.cs" />
     <Compile Include="Transports\TransportPublishOptions.cs" />
     <Compile Include="Transports\TransportSendOptions.cs" />
     <Compile Include="Unicast\Behaviors\SagaInvocationResult.cs" />

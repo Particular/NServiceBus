@@ -1,18 +1,20 @@
 ﻿namespace NServiceBus.Timeout
 {
     using System;
-    using Logging;
-    using Transports;
-    using Unicast;
-    using Unicast.Transport;
+    using NServiceBus.Logging;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast.Transport;
 
     class TimeoutManagerDeferrer : IDeferMessages
     {
-        public ISendMessages MessageSender { get; set; }
-        public string TimeoutManagerAddress { get; set; }
-        public Configure Configure { get; set; }
+        public TimeoutManagerDeferrer(ISendMessages messageSender, string timeoutManagerAddress)
+        {
+            this.messageSender = messageSender;
+            this.timeoutManagerAddress = timeoutManagerAddress;
+        }
 
-        public void Defer(OutgoingMessage message, SendMessageOptions sendMessageOptions)
+       
+        public void Defer(OutgoingMessage message, TransportDeferOptions sendMessageOptions)
         {
             message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = sendMessageOptions.Destination;
 
@@ -39,7 +41,7 @@
             
             try
             {
-                MessageSender.Send(message, new TransportSendOptions(TimeoutManagerAddress, enlistInReceiveTransaction: sendMessageOptions.EnlistInReceiveTransaction));
+                messageSender.Send(message, new TransportSendOptions(timeoutManagerAddress, enlistInReceiveTransaction: sendMessageOptions.EnlistInReceiveTransaction));
             }
             catch (Exception ex)
             {
@@ -55,9 +57,12 @@
             controlMessage.Headers[headerKey] = headerValue;
             controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = bool.TrueString;
 
-            MessageSender.Send(controlMessage, new TransportSendOptions(TimeoutManagerAddress));
+            messageSender.Send(controlMessage, new TransportSendOptions(timeoutManagerAddress));
         }
 
+        ISendMessages messageSender;
+        string timeoutManagerAddress;
+     
         static ILog Log = LogManager.GetLogger<TimeoutManagerDeferrer>();
     }
 }
