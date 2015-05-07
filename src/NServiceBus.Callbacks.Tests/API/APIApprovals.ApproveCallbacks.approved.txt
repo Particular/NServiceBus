@@ -8,18 +8,6 @@ namespace NServiceBus
         public LegacyEnumResponse(T status) { }
         public T Status { get; }
     }
-    public class RequestResponseLocalOptions
-    {
-        public RequestResponseLocalOptions(string correlationId = null, System.Threading.CancellationToken cancellationToken = null) { }
-        public NServiceBus.RequestResponseLocalOptions AddHeader(string key, string value) { }
-        public NServiceBus.RequestResponseLocalOptions SetCustomMessageId(string messageId) { }
-    }
-    public class RequestResponseOptions
-    {
-        public RequestResponseOptions(string destination = null, string correlationId = null, System.Threading.CancellationToken cancellationToken = null) { }
-        public NServiceBus.RequestResponseOptions AddHeader(string key, string value) { }
-        public NServiceBus.RequestResponseOptions SetCustomMessageId(string messageId) { }
-    }
     public class static SendLocalOptionsExtensions
     {
         public static NServiceBus.SendLocalOptions RegisterToken(this NServiceBus.SendLocalOptions options, System.Threading.CancellationToken cancellationToken) { }
