@@ -308,10 +308,10 @@
     <Compile Include="Monitoring\SLA\SLAMonitoring.cs" />
     <Compile Include="Monitoring\ProcessingStatisticsBehavior.cs" />
     <Compile Include="Unicast\ContextualBus.cs" />
-    <Compile Include="Unicast\DefaultHostIdGenerator.cs" />
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Unicast\Messages\HostInformationBehavior.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
+    <Compile Include="Utils\PathUtilities.cs" />
     <Compile Include="Utils\WeakKeyDictionary.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
     <Compile Include="Satellites\ExecuteSatelliteHandlerBehavior.cs" />
