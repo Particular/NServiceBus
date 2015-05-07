@@ -953,17 +953,17 @@ namespace NServiceBus.Extensibility
     {
         protected ExtendableOptions() { }
     }
-    public class ExtensionContext
+    public class static ExtendableOptionsExtensions
     {
-        public ExtensionContext() { }
+        public static NServiceBus.Extensibility.OptionExtensionContext GetExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
+    }
+    public class OptionExtensionContext
+    {
+        public OptionExtensionContext() { }
         public void Set<T>(T data)
             where T :  class { }
         public bool TryGet<T>(out T data)
             where T :  class { }
-    }
-    public class static ExtensionContextExtensions
-    {
-        public static NServiceBus.Extensibility.ExtensionContext GetContext(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
 }
 namespace NServiceBus.Faults
@@ -1641,9 +1641,9 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, NServiceBus.Extensibility.ExtensionContext extensionContext) { }
+        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, NServiceBus.Extensibility.OptionExtensionContext extensionContext) { }
         public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
-        public NServiceBus.Extensibility.ExtensionContext Extensions { get; }
+        public NServiceBus.Extensibility.OptionExtensionContext Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.MessageIntentEnum Intent { get; }
         public string MessageId { get; }
@@ -1658,7 +1658,7 @@ namespace NServiceBus.Pipeline.Contexts
             public Context(byte[] body, NServiceBus.Pipeline.Contexts.OutgoingContext parentContext) { }
             public byte[] Body { get; set; }
             public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
-            public NServiceBus.Extensibility.ExtensionContext Extensions { get; }
+            public NServiceBus.Extensibility.OptionExtensionContext Extensions { get; }
             public System.Collections.Generic.Dictionary<string, string> Headers { get; }
             public NServiceBus.MessageIntentEnum Intent { get; }
             public string MessageId { get; }
