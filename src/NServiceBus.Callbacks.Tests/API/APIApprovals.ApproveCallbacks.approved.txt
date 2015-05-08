@@ -10,11 +10,11 @@ namespace NServiceBus
     }
     public class static SendLocalOptionsExtensions
     {
-        public static NServiceBus.SendLocalOptions RegisterToken(this NServiceBus.SendLocalOptions options, System.Threading.CancellationToken cancellationToken) { }
+        public static NServiceBus.SendLocalOptions RegisterCancellationToken(this NServiceBus.SendLocalOptions options, System.Threading.CancellationToken cancellationToken) { }
     }
     public class static SendOptionsExtensions
     {
-        public static NServiceBus.SendOptions RegisterToken(this NServiceBus.SendOptions options, System.Threading.CancellationToken cancellationToken) { }
+        public static NServiceBus.SendOptions RegisterCancellationToken(this NServiceBus.SendOptions options, System.Threading.CancellationToken cancellationToken) { }
     }
     public class static TransientRequestResponseExtensions
     {
