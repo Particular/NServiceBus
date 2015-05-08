@@ -22,7 +22,7 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<Validations>(DependencyLifecycle.SingleInstance);
-            context.Pipeline.Register(WellKnownStep.EnforceBestPractices, typeof(EnforceBestPracticesBehavior), "Enforces messaging best practices");
+            context.MainPipeline.Register(WellKnownStep.EnforceBestPractices, typeof(EnforceBestPracticesBehavior), "Enforces messaging best practices");
         }
 
     }

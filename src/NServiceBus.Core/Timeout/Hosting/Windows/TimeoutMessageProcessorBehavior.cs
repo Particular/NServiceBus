@@ -1,18 +1,13 @@
-namespace NServiceBus.Timeout.Hosting.Windows
+namespace NServiceBus
 {
     using System;
-    using NServiceBus.Satellites;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Timeout;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
 
-    class TimeoutMessageProcessor : IAdvancedSatellite
+    class TimeoutMessageProcessorBehavior : SatelliteBehavior
     {
-        public TimeoutMessageProcessor()
-        {
-            Disabled = true;
-        }
-
         public ISendMessages MessageSender { get; set; }
 
         public string InputAddress { get; set; }
@@ -21,27 +16,9 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public Configure Configure { get; set; }
 
-        public bool Disabled { get; set; }
         public string EndpointName{ get; set; }
 
-        public void Start()
-        {
-
-        }
-
-        public void Stop()
-        {
-            
-        }
-
-        public Action<TransportReceiver> GetReceiverCustomization()
-        {
-            return receiver =>
-            {
-            };
-        }
-
-        public bool Handle(TransportMessage message)
+        protected override bool Handle(TransportMessage message)
         {
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
             if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
@@ -127,5 +104,15 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
         const string TimeoutIdToDispatchHeader = "NServiceBus.Timeout.TimeoutIdToDispatch";
+
+        public class Registration : RegisterStep
+        {
+            public Registration()
+                : base("TimeoutMessageProcessor", typeof(TimeoutMessageProcessorBehavior), "Processes timeout messages")
+            {
+                InsertBeforeIfExists("FirstLevelRetries");
+                InsertBeforeIfExists("ReceivePerformanceDiagnosticsBehavior");
+            }
+        }
     }
 }

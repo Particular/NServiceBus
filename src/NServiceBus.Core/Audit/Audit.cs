@@ -31,8 +31,8 @@
                 Logger.Warn("Endpoint auditing is configured using the registry on this machine, please ensure that you either run Set-NServiceBusLocalMachineSettings cmdlet on the target deployment machine or specify the QueueName attribute in the AuditConfig section in your app.config file. To quickly add the AuditConfig section to your app.config, in Package Manager Console type: add-NServiceBusAuditConfig.");
             }
 
-            context.Pipeline.Register<AuditBehavior.Registration>();
-            context.Pipeline.Register<AttachCausationHeadersBehavior.Registration>();
+            context.MainPipeline.Register<AuditBehavior.Registration>();
+            context.MainPipeline.Register<AttachCausationHeadersBehavior.Registration>();
 
             var auditQueue = GetConfiguredAuditQueue(context);
 

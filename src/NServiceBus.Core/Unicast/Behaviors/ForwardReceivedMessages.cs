@@ -21,7 +21,7 @@
         /// <param name="context">The feature context</param>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Pipeline.Register<ForwardBehavior.Registration>();
+            context.MainPipeline.Register<ForwardBehavior.Registration>();
 
             var forwardReceivedMessagesQueue = GetConfiguredForwardMessageQueue(context);
      

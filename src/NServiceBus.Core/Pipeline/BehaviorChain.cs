@@ -18,7 +18,7 @@
             itemDescriptors = behaviorList.ToArray();
         }
 
-        public BehaviorContext Invoke(BehaviorContextStacker contextStacker)
+        public void Invoke(BehaviorContextStacker contextStacker)
         {
             var outerPipe = false;
 
@@ -32,14 +32,12 @@
                     notifications.Pipeline.InvokeReceiveStarted(steps);
                 }
 
-                var result = InvokeNext(context, contextStacker, 0);
+                InvokeNext(context, contextStacker, 0);
 
                 if (outerPipe)
                 {
                     steps.OnCompleted();
                 }
-
-                return result;
             }
             catch (Exception ex)
             {
@@ -80,12 +78,10 @@
             {
                 steps.OnNext(new StepStarted(lookupSteps[behavior.Type], behavior.Type, stepEnded));
 
-                var instance = behavior.GetInstance();
-
                 var duration = Stopwatch.StartNew();
 
                 BehaviorContext innermostContext = null;
-                behavior.Invoke(instance, context, newContext =>
+                behavior.Invoke(context, newContext =>
                 {
                     duration.Stop();
                     innermostContext = InvokeNext(newContext, contextStacker, currentIndex + 1);
@@ -114,6 +110,7 @@
         [SkipWeaving]
         readonly BusNotifications notifications;
         readonly BehaviorContext context;
+        [SkipWeaving]
         readonly BehaviorInstance[] itemDescriptors;
         readonly Dictionary<Type, string> lookupSteps;
         Observable<StepStarted> steps;

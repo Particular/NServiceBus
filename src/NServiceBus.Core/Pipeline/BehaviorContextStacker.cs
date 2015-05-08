@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Janitor;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline.Contexts;
 
@@ -11,7 +10,12 @@
     {
         public BehaviorContextStacker(IBuilder rootBuilder)
         {
-            this.rootBuilder = rootBuilder;
+            rootContext = new RootContext(rootBuilder);
+        }
+
+        public BehaviorContext Root
+        {
+            get { return rootContext; }
         }
 
         public BehaviorContext Current
@@ -27,7 +31,7 @@
             }
         }
 
-        public BehaviorContext GetCurrentContext()
+        public BehaviorContext GetCurrentOrRootContext()
         {
             var current = Current;
 
@@ -35,10 +39,7 @@
             {
                 return current;
             }
-
-            Push(new RootContext(rootBuilder));
-
-            return Current;
+            return rootContext;
         }
 
         public void Push(BehaviorContext item)
@@ -55,9 +56,8 @@
         {
         }
 
-        [SkipWeaving]
-        readonly IBuilder rootBuilder;
         //until we get the internal container going we
         ThreadLocal<Stack<BehaviorContext>> behaviorContextStack = new ThreadLocal<Stack<BehaviorContext>>(() => new Stack<BehaviorContext>());
+        RootContext rootContext;
     }
 }

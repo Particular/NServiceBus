@@ -120,6 +120,7 @@
     <Compile Include="Faults\ErrorsNotifications.cs" />
     <Compile Include="Faults\ErrorSubscribers.cs" />
     <Compile Include="Features\FeatureRunner.cs" />
+    <Compile Include="Features\FeatureState.cs" />
     <Compile Include="FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
@@ -131,16 +132,21 @@
     <Compile Include="MessagingBestPractices\BestPracticeEnforcement.cs" />
     <Compile Include="MessagingBestPractices\OptionExtensions.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingContext.cs" />
+    <Compile Include="Monitoring\PerformanceCounterInstance.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
     <Compile Include="Pipeline\Contexts\IncomingContext.cs" />
     <Compile Include="Pipeline\Contexts\TransportReceiveContext.cs" />
+    <Compile Include="Pipeline\FeatureDependentRegisterStep.cs" />
     <Compile Include="Pipeline\PipelineModelBuilder.cs" />
+    <Compile Include="Pipeline\PipelineConfiguration.cs" />
     <Compile Include="Pipeline\StageConnector.cs" />
     <Compile Include="PublishOptions.cs" />
+    <Compile Include="Satellites\SatelliteBehavior.cs" />
     <Compile Include="SendLocalOptions.cs" />
     <Compile Include="SendOptions.cs" />
     <Compile Include="Sagas\ActiveSagaInstance_obsolete.cs" />
+    <Compile Include="Transports\DequeueInfo.cs" />
     <Compile Include="Transports\Msmq\MsmqAddress.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNativeTransactionBehavior.cs" />
@@ -165,16 +171,11 @@
     <Compile Include="FirstLevelRetries\FirstLevelRetryPolicy.cs" />
     <Compile Include="Pipeline\ExecutorNotifications.cs" />
     <Compile Include="Pipeline\ExecutorState.cs" />
-    <Compile Include="Pipeline\PerCallBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInstance.cs" />
     <Compile Include="Pipeline\IExecutor.cs" />
     <Compile Include="Pipeline\IndividualLimitThreadPoolExecutor.cs" />
     <Compile Include="Pipeline\IndividualThroughputLimitExecutor.cs" />
-    <Compile Include="Pipeline\MainPipelineFactory.cs" />
-    <Compile Include="Pipeline\PipelineFactory.cs" />
     <Compile Include="Pipeline\Pipeline.cs" />
-    <Compile Include="Pipeline\SatellitePipelineFactory.cs" />
-    <Compile Include="Pipeline\StaticBehavior.cs" />
     <Compile Include="Pipeline\StepRegistrationSequence.cs" />
     <Compile Include="Pipeline\SynchronousExecutor.cs" />
     <Compile Include="Pipeline\PipelineCollection.cs" />
@@ -195,7 +196,6 @@
     <Compile Include="SecondLevelRetries\SecondLevelRetryPolicy.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetriesBehavior.cs" />
     <Compile Include="Transports\DequeueSettings.cs" />
-    <Compile Include="Transports\IncomingContextExtensions.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
     <Compile Include="Hosting\HostInfoConfigurationExtensions.cs" />
     <Compile Include="Hosting\HostInfoSettings.cs" />
@@ -311,17 +311,16 @@
     <Compile Include="Unicast\ContextualBus.cs" />
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Unicast\Messages\HostInformationBehavior.cs" />
+    <Compile Include="Unicast\Transport\PipelineInfo.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\PathUtilities.cs" />
     <Compile Include="Utils\WeakKeyDictionary.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
-    <Compile Include="Satellites\ExecuteSatelliteHandlerBehavior.cs" />
     <Compile Include="Pipeline\LimitedThreadPoolExecutor.cs" />
     <Compile Include="Pipeline\ThroughputLimitExecutor.cs" />
     <Compile Include="Unicast\Transport\SuppressAmbientTransactionBehavior.cs" />
     <Compile Include="Unicast\Transport\ReceivePerformanceDiagnosticsBehavior.cs" />
     <Compile Include="Unicast\Transport\HandlerTransactionScopeWrapperBehavior.cs" />
-    <Compile Include="Satellites\SatelliteTransportReceiver.cs" />
     <Compile Include="Unicast\UnicastBus_IBusImpl.cs" />
     <Compile Include="Utils\Guard.cs" />
     <Compile Include="Utils\ExceptionHeaderHelper.cs" />
@@ -465,7 +464,6 @@
     <Compile Include="Config\MessageEndpointMappingCollection.cs" />
     <Compile Include="Config\MessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="Sagas\Sagas.cs" />
-    <Compile Include="Satellites\IAdvancedSatellite.cs" />
     <Compile Include="Settings\SettingsHolder.cs" />
     <Compile Include="Transports\ICreateQueues.cs" />
     <Compile Include="Transports\IDeferMessages.cs" />
@@ -484,7 +482,6 @@
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Config\MsmqSubscriptionStorageConfig.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
-    <Compile Include="Config\SatelliteConfigurer.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesConfig.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetries.cs" />
     <Compile Include="Config\TransportConfig.cs" />
@@ -531,7 +528,6 @@
     </Compile>
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersister.cs" />
     <Compile Include="Sagas\PropertySagaFinder.cs" />
-    <Compile Include="Satellites\ISatellite.cs" />
     <Compile Include="Satellites\SatellitesQueuesCreator.cs" />
     <Compile Include="Scheduling\Schedule.cs" />
     <Compile Include="Scheduling\DefaultScheduler.cs" />
@@ -555,8 +551,8 @@
     <Compile Include="Timeout\Core\IPersistTimeouts.cs" />
     <Compile Include="Timeout\Core\TimeoutData.cs" />
     <Compile Include="Persistence\InMemory\TimeoutPersister\InMemoryTimeoutPersister.cs" />
-    <Compile Include="Timeout\Hosting\Windows\TimeoutDispatcherProcessor.cs" />
-    <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessor.cs" />
+    <Compile Include="Timeout\Hosting\Windows\TimeoutDispatcherProcessorBehavior.cs" />
+    <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessorBehavior.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutPersisterReceiver.cs" />
     <Compile Include="Timeout\Core\TimeoutManagerHeaders.cs" />
     <Compile Include="TransportMessage.cs" />
@@ -604,7 +600,6 @@
     <Compile Include="Unicast\Transport\FailedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\Config\UseTransportExtensions.cs" />
     <Compile Include="FirstLevelRetries\FlrStatusStorage.cs" />
-    <Compile Include="Unicast\Transport\Monitoring\ReceivePerformanceDiagnostics.cs" />
     <Compile Include="Unicast\Transport\ThroughputLimiter.cs" />
     <Compile Include="Unicast\Transport\TransportReceiver.cs" />
     <Compile Include="Unicast\Transport\TransactionSettings.cs" />

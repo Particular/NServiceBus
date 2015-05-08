@@ -17,7 +17,7 @@ namespace NServiceBus.Features
             var criticalTimeCounter = PerformanceCounterHelper.InstantiatePerformanceCounter("Critical Time", context.Settings.EndpointName());
             var criticalTimeCalculator = new CriticalTimeCalculator(criticalTimeCounter);
             context.Container.RegisterSingleton(criticalTimeCalculator);
-            context.Pipeline.Register<CriticalTimeBehavior.Registration>();
+            context.MainPipeline.Register<CriticalTimeBehavior.Registration>();
         }
     }
 }

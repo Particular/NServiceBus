@@ -13,10 +13,10 @@
         {
             var builder = new PipelineModelBuilder(typeof(RootContext), new List<RegisterStep>
             {
-                   RegisterStep.Create("Root1",typeof(RootBehavior),"desc",false),
-                  RegisterStep.Create("RootToChildConnector",typeof(RootToChildConnector),"desc",false),
-                    RegisterStep.Create("RootToChild2Connector",typeof(RootToChild2Connector),"desc",false),
-              
+                RegisterStep.Create("Root1", typeof(RootBehavior), "desc"),
+                RegisterStep.Create("RootToChildConnector", typeof(RootToChildConnector), "desc"),
+                RegisterStep.Create("RootToChild2Connector", typeof(RootToChild2Connector), "desc"),
+
             }, new List<RemoveStep>(), new List<ReplaceBehavior>());
 
 
@@ -30,9 +30,9 @@
         {
             var builder = new PipelineModelBuilder(typeof(RootContext), new List<RegisterStep>
             {
-                   RegisterStep.Create("Root",typeof(RootBehavior),"desc",false),
-                    RegisterStep.Create("RootToChildConnector",typeof(RootToChild2Connector),"desc",false),
-                  RegisterStep.Create("Child",typeof(NonReachableChildBehavior),"desc",false),
+                RegisterStep.Create("Root", typeof(RootBehavior), "desc"),
+                RegisterStep.Create("RootToChildConnector", typeof(RootToChild2Connector), "desc"),
+                RegisterStep.Create("Child", typeof(NonReachableChildBehavior), "desc"),
             }, new List<RemoveStep>(), new List<ReplaceBehavior>());
 
 

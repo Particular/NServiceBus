@@ -1,31 +1,21 @@
-namespace NServiceBus.Timeout.Hosting.Windows
+namespace NServiceBus
 {
     using System;
-    using NServiceBus.Satellites;
+    using System.Threading.Tasks;
+    using NServiceBus.Pipeline;
     using NServiceBus.Timeout.Core;
+    using NServiceBus.Timeout.Hosting.Windows;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
 
-    class TimeoutDispatcherProcessor : IAdvancedSatellite
+    class TimeoutDispatcherProcessorBehavior : SatelliteBehavior
     {
-        public TimeoutDispatcherProcessor()
-        {
-            Disabled = true;
-        }
-
         public ISendMessages MessageSender { get; set; }
-
         public IPersistTimeouts TimeoutsPersister { get; set; }
-
         public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
-
         public Configure Configure { get; set; }
-      
         public string InputAddress { get; set; }
 
-        public bool Disabled { get; set; }
-
-        public bool Handle(TransportMessage message)
+        protected override bool Handle(TransportMessage message)
         {
             var timeoutId = message.Headers["Timeout.Id"];
             TimeoutData timeoutData;
@@ -44,21 +34,26 @@ namespace NServiceBus.Timeout.Hosting.Windows
             return true;
         }
 
-        public void Start()
+        public override Task Warmup()
         {
             TimeoutPersisterReceiver.Start();
+            return base.Warmup();
         }
 
-        public void Stop()
+        public override Task Cooldown()
         {
             TimeoutPersisterReceiver.Stop();
+            return base.Cooldown();
         }
 
-        public Action<TransportReceiver> GetReceiverCustomization()
+        public class Registration : RegisterStep
         {
-            return receiver =>
+            public Registration()
+                : base("TimeoutDispatcherProcessor", typeof(TimeoutDispatcherProcessorBehavior), "Dispatches timeout messages")
             {
-            };
+                InsertBeforeIfExists("FirstLevelRetries");
+                InsertBeforeIfExists("ReceivePerformanceDiagnosticsBehavior");
+            }
         }
     }
 }
