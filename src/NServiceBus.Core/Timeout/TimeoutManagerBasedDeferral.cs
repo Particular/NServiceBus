@@ -19,8 +19,10 @@
         /// <param name="context">The feature context</param>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<TimeoutManagerDeferrer>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.TimeoutManagerAddress, GetTimeoutManagerAddress(context));
+            var timeoutManagerAddress = GetTimeoutManagerAddress(context);
+
+            context.Container.ConfigureComponent(b =>new TimeoutManagerDeferrer(b.Build<ISendMessages>(), timeoutManagerAddress), 
+                DependencyLifecycle.InstancePerCall);
         }
 
         static string GetTimeoutManagerAddress(FeatureConfigurationContext context)
