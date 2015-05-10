@@ -92,12 +92,12 @@
             throw new NotImplementedException();
         }
 
-        public void Reply(object message)
+        public void Reply(object message,ReplyOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public void Reply<T>(Action<T> messageConstructor)
+        public void Reply<T>(Action<T> messageConstructor, ReplyOptions options)
         {
             throw new NotImplementedException();
         }

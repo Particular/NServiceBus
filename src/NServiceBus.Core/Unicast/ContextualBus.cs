@@ -202,36 +202,29 @@ namespace NServiceBus.Unicast
             //we don't have any extension points for subscribe/unsubscribe but this does the trick for now
             if (configure.container.HasComponent<Validations>())
             {
-                builder.Build<Validations>();
+                builder.Build<Validations>()
+                    .AssertIsValidForPubSub(messageType);
             }
         }
 
         /// <summary>
-        /// <see cref="IBus.Reply(object)"/>
+        /// <see cref="IBus.Reply"/>
         /// </summary>
-        public void Reply(object message)
+        public void Reply<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
         {
-            var context = new NServiceBus.SendOptions(correlationId: GetCorrelationId());
-
-            context.AsReplyTo(MessageBeingProcessed.ReplyToAddress);
-
-            Send(message, context);
+            Reply(messageMapper.CreateInstance(messageConstructor), options);
         }
 
         /// <summary>
-        /// <see cref="IBus.Reply{T}(Action{T})"/>
+        /// <see cref="IBus.Reply"/>
         /// </summary>
-        public void Reply<T>(Action<T> messageConstructor)
+        public void Reply(object message,NServiceBus.ReplyOptions options)
         {
-            var context = new NServiceBus.SendOptions(correlationId: GetCorrelationId());
-            context.AsReplyTo(MessageBeingProcessed.ReplyToAddress);
+            var correlationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
 
-            Send(messageConstructor, context);
-        }
+            var sendOptions = new SendMessageOptions(MessageBeingProcessed.ReplyToAddress);
 
-        string GetCorrelationId()
-        {
-            return !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
+            SendMessage(null, correlationId, MessageIntentEnum.Reply, new Dictionary<string, string>(), sendOptions, message.GetType(), message, options.Extensions);
         }
 
         /// <summary>
@@ -266,7 +259,29 @@ namespace NServiceBus.Unicast
 
         public void Send(object message, NServiceBus.SendOptions options)
         {
-            SendMessage(options, message.GetType(), message);
+            var messageType = message.GetType();
+            var destination = options.Destination;
+
+            if (string.IsNullOrEmpty(destination))
+            {
+                destination = GetDestinationForSend(messageType);
+            }
+
+            TimeSpan? delayDeliveryFor = null;
+            if (options.Delay.HasValue)
+            {
+                delayDeliveryFor = options.Delay;
+            }
+
+            DateTime? deliverAt = null;
+            if (options.At.HasValue)
+            {
+                deliverAt = options.At;
+            }
+
+            var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
+
+            SendMessage(options.MessageId, options.CorrelationId, options.Intent, options.Headers, sendOptions, messageType, message, options.Extensions);
         }
 
         public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
@@ -276,7 +291,23 @@ namespace NServiceBus.Unicast
 
         public void SendLocal(object message, SendLocalOptions options)
         {
-            SendMessage(options, message.GetType(), message);
+            var destination = sendLocalAddress;
+
+            TimeSpan? delayDeliveryFor = null;
+            if (options.Delay.HasValue)
+            {
+                delayDeliveryFor = options.Delay;
+            }
+
+            DateTime? deliverAt = null;
+            if (options.At.HasValue)
+            {
+                deliverAt = options.At;
+            }
+
+            var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
+
+            SendMessage(options.MessageId, options.CorrelationId, MessageIntentEnum.Send, options.Headers, sendOptions, message.GetType(), message, options.Extensions);
         }
 
         List<string> GetAtLeastOneAddressForMessageType(Type messageType)
@@ -304,52 +335,7 @@ namespace NServiceBus.Unicast
             return destinations.SingleOrDefault();
         }
 
-        void SendMessage(SendLocalOptions options, Type messageType, object message)
-        {
-            var destination = sendLocalAddress;
-
-            TimeSpan? delayDeliveryFor = null;
-            if (options.Delay.HasValue)
-            {
-                delayDeliveryFor = options.Delay;
-            }
-
-            DateTime? deliverAt = null;
-            if (options.At.HasValue)
-            {
-                deliverAt = options.At;
-            }
-
-            var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
-
-            SendMessage(options.MessageId, options.CorrelationId, MessageIntentEnum.Send, options.Headers, sendOptions, messageType, message, options.Extensions);
-        }
-
-        void SendMessage(NServiceBus.SendOptions options, Type messageType, object message)
-        {
-            var destination = options.Destination;
-
-            if (string.IsNullOrEmpty(destination))
-            {
-                destination = GetDestinationForSend(messageType);
-            }
-
-            TimeSpan? delayDeliveryFor = null;
-            if (options.Delay.HasValue)
-            {
-                delayDeliveryFor = options.Delay;
-            }
-
-            DateTime? deliverAt = null;
-            if (options.At.HasValue)
-            {
-                deliverAt = options.At;
-            }
-
-            var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
-
-            SendMessage(options.MessageId, options.CorrelationId, options.Intent, options.Headers, sendOptions, messageType, message, options.Extensions);
-        }
+      
 
         void SendMessage(string messageId, string correlationId, MessageIntentEnum intent, Dictionary<string, string> messageHeaders, SendMessageOptions sendOptions, Type messageType, object message, OptionExtensionContext context)
         {
