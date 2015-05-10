@@ -17,14 +17,18 @@
 
         public override void Invoke(Context context, Action next)
         {
-           InvokeNative(context);
-         
+            InvokeNative(context);
+
             next();
         }
 
         public void InvokeNative(Context context)
         {
+            context.Headers[Headers.MessageIntent] = context.Intent.ToString();
+
             var message = new OutgoingMessage(context.MessageId, context.Headers, context.Body);
+
+
 
             if (context.Intent == MessageIntentEnum.Publish)
             {
@@ -98,23 +102,23 @@
 
         void SendOrDefer(OutgoingMessage message, SendMessageOptions options)
         {
-            if ((options.DelayDeliveryFor.HasValue && options.DelayDeliveryFor > TimeSpan.Zero) || 
-                (options.DeliverAt.HasValue &&  options.DeliverAt.Value.ToUniversalTime() > DateTime.UtcNow))
+            if ((options.DelayDeliveryFor.HasValue && options.DelayDeliveryFor > TimeSpan.Zero) ||
+                (options.DeliverAt.HasValue && options.DeliverAt.Value.ToUniversalTime() > DateTime.UtcNow))
             {
                 SetIsDeferredHeader(message.Headers);
                 MessageDeferral.Defer(message, new TransportDeferOptions(
-                    options.Destination, 
+                    options.Destination,
                     options.DelayDeliveryFor,
                     options.DeliverAt,
-                    options.NonDurable ?? true, 
+                    options.NonDurable ?? true,
                     options.EnlistInReceiveTransaction));
 
                 return;
             }
 
-            MessageSender.Send(message, new TransportSendOptions(   options.Destination, 
-                                                                    options.TimeToBeReceived, 
-                                                                    options.NonDurable ?? true, 
+            MessageSender.Send(message, new TransportSendOptions(options.Destination,
+                                                                    options.TimeToBeReceived,
+                                                                    options.NonDurable ?? true,
                                                                     options.EnlistInReceiveTransaction));
         }
 
@@ -132,6 +136,6 @@
             MessagePublisher.Publish(message, publishOptions);
         }
 
-     
+
     }
 }

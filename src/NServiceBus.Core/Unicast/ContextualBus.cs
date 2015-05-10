@@ -341,8 +341,6 @@ namespace NServiceBus.Unicast
         {
             var headers = new Dictionary<string, string>(messageHeaders);
 
-            headers[Headers.MessageIntent] = intent.ToString();
-
             if (string.IsNullOrEmpty(messageId))
             {
                 messageId = CombGuid.Generate().ToString();
