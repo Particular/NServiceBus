@@ -499,8 +499,29 @@
               return context;
           }
       }
-      class StubTimeoutContext : ITimeoutContext {
-          public void SendLocal(object message)
+      class StubTimeoutContext : ITimeoutContext 
+      {
+          public void Publish(object message, PublishOptions options)
+          {
+          }
+
+          public void Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+          {
+          }
+
+          public void Send(object message, SendOptions options)
+          {
+          }
+
+          public void Send<T>(Action<T> messageConstructor, SendOptions options)
+          {
+          }
+
+          public void SendLocal(object message, SendLocalOptions options)
+          {
+          }
+
+          public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
           {
           }
       }

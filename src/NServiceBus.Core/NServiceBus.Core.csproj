@@ -160,6 +160,10 @@
     <Compile Include="RunContext.cs" />
     <Compile Include="Sagas\SagaMessageHandledBy.cs" />
     <Compile Include="PublishOptions.cs" />
+    <Compile Include="Saga\IProcessTimeouts.cs" />
+    <Compile Include="Saga\ITimeoutContext.cs" />
+    <Compile Include="Saga\ITimeoutContextExtensions.cs" />
+    <Compile Include="Saga\TimeoutContext.cs" />
     <Compile Include="Satellites\SatelliteBehavior.cs" />
     <Compile Include="SendLocalOptions.cs" />
     <Compile Include="SendOptions.cs" />
