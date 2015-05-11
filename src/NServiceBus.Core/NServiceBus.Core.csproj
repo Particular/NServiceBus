@@ -91,6 +91,7 @@
     <Compile Include="BufferedObservable.cs" />
     <Compile Include="Bus.cs" />
     <Compile Include="BusConfiguration.cs" />
+    <Compile Include="CommandContext.cs" />
     <Compile Include="ConfigureHandlerSettings.cs" />
     <Compile Include="Config\MsmqConnectionStringBuilder.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
@@ -124,6 +125,8 @@
     <Compile Include="FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
+    <Compile Include="ICommandContext.cs" />
+    <Compile Include="IProcessCommands.cs" />
     <Compile Include="IResponse.cs" />
     <Compile Include="IBusExtensions.cs" />
     <Compile Include="ICommandContextExtensions.cs" />
