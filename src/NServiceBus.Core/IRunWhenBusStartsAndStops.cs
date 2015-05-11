@@ -1,4 +1,4 @@
-﻿namespace NServiceBus
+namespace NServiceBus
 {
     using JetBrains.Annotations;
 
@@ -7,16 +7,16 @@
     /// Dependency injection is provided for these types.
     /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public interface IWantToRunWhenBusStartsAndStops
+    public interface IRunWhenBusStartsAndStops
     {
         /// <summary>
         /// Method called at startup.
         /// </summary>
-        void Start();
+        void Start(IRunContext context);
 
         /// <summary>
         /// Method called on shutdown.
         /// </summary>
-        void Stop();
+        void Stop(IRunContext context);
     }
 }
