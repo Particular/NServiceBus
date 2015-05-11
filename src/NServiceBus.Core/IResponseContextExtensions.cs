@@ -5,14 +5,14 @@ namespace NServiceBus
     /// <summary>
     /// Syntactic sugar for ICommandContextExtensions
     /// </summary>
-    public static class ICommandContextExtensions
+    public static class IResponseContextExtensions
     {
         /// <summary>
         /// Sends the message back to the current bus.
         /// </summary>
         /// <param name="context">Object beeing extended</param>
         /// <param name="message">The message to send.</param>
-        public static void SendLocal(this ICommandContext context, object message)
+        public static void SendLocal(this IResponseContext context, object message)
         {
             Guard.AgainstNull(context, "context");
             Guard.AgainstNull(message, "message");
@@ -26,7 +26,7 @@ namespace NServiceBus
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="context">Object beeing extended</param>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        public static void SendLocal<T>(this ICommandContext context, Action<T> messageConstructor)
+        public static void SendLocal<T>(this IResponseContext context, Action<T> messageConstructor)
         {
             Guard.AgainstNull(context, "context");
             Guard.AgainstNull(messageConstructor, "messageConstructor");
@@ -39,7 +39,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">The object beeing extended</param>
         /// <param name="message">The message to publish</param>
-        public static void Publish(this ICommandContext context, object message)
+        public static void Publish(this IResponseContext context, object message)
         {
             context.Publish(message, new PublishOptions());
         }
@@ -50,7 +50,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">Object beeing extended</param>
         /// <typeparam name="T">The message type</typeparam>
-        public static void Publish<T>(this ICommandContext context)
+        public static void Publish<T>(this IResponseContext context)
         {
             context.Publish<T>(_=>{},new PublishOptions());
         }
@@ -61,7 +61,7 @@ namespace NServiceBus
         /// <typeparam name="T">The type of message, usually an interface</typeparam>
         /// <param name="context">Object beeing extended</param>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        public static void Publish<T>(this ICommandContext context, Action<T> messageConstructor)
+        public static void Publish<T>(this IResponseContext context, Action<T> messageConstructor)
         {
             context.Publish(messageConstructor,new PublishOptions());
         }
@@ -71,7 +71,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">Object beeing extended</param>
         /// <param name="message">The message to send.</param>
-        public static void Send(this ICommandContext context, object message)
+        public static void Send(this IResponseContext context, object message)
         {
             Guard.AgainstNull(context, "bus");
             Guard.AgainstNull(message, "message");
@@ -88,7 +88,7 @@ namespace NServiceBus
         /// <remarks>
         /// The message will be sent to the destination configured for T
         /// </remarks>
-        public static void Send<T>(this ICommandContext context, Action<T> messageConstructor)
+        public static void Send<T>(this IResponseContext context, Action<T> messageConstructor)
         {
             Guard.AgainstNull(context, "bus");
             Guard.AgainstNull(messageConstructor, "messageConstructor");
@@ -104,7 +104,7 @@ namespace NServiceBus
         /// The address of the destination to which the message will be sent.
         /// </param>
         /// <param name="message">The message to send.</param>
-        public static void Send(this ICommandContext context, string destination, object message)
+        public static void Send(this IResponseContext context, string destination, object message)
         {
             Guard.AgainstNull(context, "bus");
             Guard.AgainstNullAndEmpty(destination, "destination");
@@ -120,7 +120,7 @@ namespace NServiceBus
         /// <param name="context"></param>
         /// <param name="destination">The destination to which the message will be sent.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        public static void Send<T>(this ICommandContext context, string destination, Action<T> messageConstructor)
+        public static void Send<T>(this IResponseContext context, string destination, Action<T> messageConstructor)
         {
             Guard.AgainstNull(context, "bus");
             Guard.AgainstNullAndEmpty(destination, "destination");

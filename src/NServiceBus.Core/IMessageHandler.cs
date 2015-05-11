@@ -31,15 +31,5 @@ namespace NServiceBus
     {
     }
 
-    public interface IProcessResponses<T>
-    {
-        void Handle(T message, IResponseContext context);
-    }
-
-    public interface IResponseContext { }
-
-    internal class ResponseContext : IResponseContext
-    {
-    }
 #pragma warning restore 1591
 }

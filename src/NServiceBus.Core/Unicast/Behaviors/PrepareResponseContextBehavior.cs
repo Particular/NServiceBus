@@ -12,7 +12,7 @@
             // For backwards compat let's treat responses like messages
             if (messageHandler.HandlerKind == HandlerKind.Message)
             {
-                context.Set("InvocationContext", new ResponseContext());
+                context.Set("InvocationContext", new ResponseContext(context.Builder.Build<IBus>()));
             }
 
             next();

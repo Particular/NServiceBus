@@ -7,6 +7,8 @@
       using NServiceBus.Saga;
       using NServiceBus.Unicast.Behaviors;
       using NUnit.Framework;
+      using PublishOptions = NServiceBus.PublishOptions;
+      using SendOptions = NServiceBus.SendOptions;
 
       [TestFixture]
       [Explicit("Performance Tests")]
@@ -503,9 +505,22 @@
           }
       }
       class StubEventContext : IEventContext { }
-      class StubResponseContext : IResponseContext { }
-      class StubCommandContext : ICommandContext {
-          public void Return<T>(T errorEnum)
+
+      class StubResponseContext : IResponseContext
+      {
+          public void Publish(object message, PublishOptions options)
+          {
+          }
+
+          public void Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+          {
+          }
+
+          public void Send(object message, SendOptions options)
+          {
+          }
+
+          public void Send<T>(Action<T> messageConstructor, SendOptions options)
           {
           }
 
@@ -513,19 +528,15 @@
           {
           }
 
-          public void Send(object message)
+          public void Reply<T>(Action<T> messageConstructor)
           {
           }
 
-          public void Send(string destination, object message)
+          public void SendLocal(object message, SendLocalOptions options)
           {
           }
 
-          public void Publish<T>(Action<T> messageConstructor)
-          {
-          }
-
-          public void DoNotContinueDispatchingCurrentMessageToHandlers()
+          public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
           {
           }
 
@@ -533,7 +544,56 @@
           {
           }
 
-          public void SendLocal(object message)
+          public void ForwardCurrentMessageTo(string destination)
+          {
+          }
+
+          public void DoNotContinueDispatchingCurrentMessageToHandlers()
+          {
+          }
+      }          
+      class StubCommandContext : ICommandContext {
+          public void Publish(object message, PublishOptions options)
+          {
+          }
+
+          public void Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+          {
+          }
+
+          public void Send(object message, SendOptions options)
+          {
+          }
+
+          public void Send<T>(Action<T> messageConstructor, SendOptions options)
+          {
+          }
+
+          public void Reply(object message)
+          {
+          }
+
+          public void Reply<T>(Action<T> messageConstructor)
+          {
+          }
+
+          public void SendLocal(object message, SendLocalOptions options)
+          {
+          }
+
+          public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
+          {
+          }
+
+          public void HandleCurrentMessageLater()
+          {
+          }
+
+          public void ForwardCurrentMessageTo(string destination)
+          {
+          }
+
+          public void DoNotContinueDispatchingCurrentMessageToHandlers()
           {
           }
       }

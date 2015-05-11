@@ -8,7 +8,6 @@
     /// </summary>
     public class OptionExtensionContext
     {
-
         Dictionary<string, object> context = new Dictionary<string, object>();
 
         /// <summary>

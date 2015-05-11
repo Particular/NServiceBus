@@ -126,10 +126,13 @@
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
     <Compile Include="ICommandContext.cs" />
+    <Compile Include="IResponseContextExtensions.cs" />
     <Compile Include="IProcessCommands.cs" />
+    <Compile Include="IProcessResponses.cs" />
     <Compile Include="IResponse.cs" />
     <Compile Include="IBusExtensions.cs" />
     <Compile Include="ICommandContextExtensions.cs" />
+    <Compile Include="IResponseContext.cs" />
     <Compile Include="ISendOnlyBusExtensions.cs" />
     <Compile Include="MessageMutator\IMutateOutgoingPhysicalContext.cs" />
     <Compile Include="MessageMutator\OutgoingPhysicalMutatorContext.cs" />
@@ -146,6 +149,7 @@
     <Compile Include="Pipeline\PipelineModelBuilder.cs" />
     <Compile Include="Pipeline\PipelineConfiguration.cs" />
     <Compile Include="Pipeline\StageConnector.cs" />
+    <Compile Include="ResponseContext.cs" />
     <Compile Include="Sagas\SagaMessageHandledBy.cs" />
     <Compile Include="PublishOptions.cs" />
     <Compile Include="Satellites\SatelliteBehavior.cs" />
