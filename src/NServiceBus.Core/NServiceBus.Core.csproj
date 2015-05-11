@@ -126,6 +126,7 @@
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
     <Compile Include="IResponse.cs" />
     <Compile Include="IBusExtensions.cs" />
+    <Compile Include="ICommandContextExtensions.cs" />
     <Compile Include="ISendOnlyBusExtensions.cs" />
     <Compile Include="MessageMutator\IMutateOutgoingPhysicalContext.cs" />
     <Compile Include="MessageMutator\OutgoingPhysicalMutatorContext.cs" />

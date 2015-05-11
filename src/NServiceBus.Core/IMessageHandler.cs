@@ -39,18 +39,81 @@ namespace NServiceBus
 
     public interface ICommandContext
     {
-        void Return<T>(T errorEnum);
+        /// <summary>
+        ///  Publish the message to subscribers.
+        /// </summary>
+        /// <param name="message">The message to publish</param>
+        /// <param name="options">The options for the publish</param>
+        void Publish(object message, PublishOptions options);
 
+        /// <summary>
+        /// Instantiates a message of type T and publishes it.
+        /// </summary>
+        /// <typeparam name="T">The type of message, usually an interface</typeparam>
+        /// <param name="messageConstructor">An action which initializes properties of the message</param>
+        /// <param name="publishOptions">Specific options for this event</param>
+        void Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions);
+
+        /// <summary>
+        /// Sends the provided message.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <param name="options">The options for the send.</param>
+        void Send(object message, SendOptions options);
+
+        /// <summary>
+        /// Instantiates a message of type T and sends it.
+        /// </summary>
+        /// <typeparam name="T">The type of message, usually an interface</typeparam>
+        /// <param name="messageConstructor">An action which initializes properties of the message</param>
+        /// <param name="options">The options for the send.</param>
+        void Send<T>(Action<T> messageConstructor, SendOptions options);
+
+        /// <summary>
+        /// Sends the message to the endpoint which sent the message currently being handled on this thread.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
         void Reply(object message);
 
-        void Send(object message);
-        void Send(string destination, object message);
+        /// <summary>
+        /// Instantiates a message of type T and performs a regular <see cref="Reply(object)"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of message, usually an interface</typeparam>
+        /// <param name="messageConstructor">An action which initializes properties of the message</param>
+        void Reply<T>(Action<T> messageConstructor);
 
-        void Publish<T>(Action<T> messageConstructor);
+        /// <summary>
+        /// Sends the message back to the current bus.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <param name="options">The options for the send.</param>
+        void SendLocal(object message, SendLocalOptions options);
 
-        void DoNotContinueDispatchingCurrentMessageToHandlers();
+        /// <summary>
+        /// Instantiates a message of type T and sends it back to the current bus.
+        /// </summary>
+        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+        /// <param name="messageConstructor">An action which initializes properties of the message</param>
+        /// <param name="options">The options for the send.</param>
+        void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options);
+
+        /// <summary>
+        /// Moves the message being handled to the back of the list of available 
+        /// messages so it can be handled later.
+        /// </summary>
         void HandleCurrentMessageLater();
-        void SendLocal(object message);
+
+        /// <summary>
+        /// Forwards the current message being handled to the destination maintaining
+        /// all of its transport-level properties and headers.
+        /// </summary>
+        void ForwardCurrentMessageTo(string destination);
+
+        /// <summary>
+        /// Tells the bus to stop dispatching the current message to additional
+        /// handlers.
+        /// </summary>
+        void DoNotContinueDispatchingCurrentMessageToHandlers();
     }
 
     internal class CommandContext : ICommandContext
@@ -62,9 +125,24 @@ namespace NServiceBus
             this.bus = bus;
         }
 
-        public void Return<T>(T errorEnum)
+        public void Publish(object message, PublishOptions options)
         {
-            bus.Return(errorEnum);
+            bus.Publish(message, options);
+        }
+
+        public void Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+        {
+            bus.Publish(messageConstructor, publishOptions);
+        }
+
+        public void Send(object message, SendOptions options)
+        {
+            bus.Send(message, options);
+        }
+
+        public void Send<T>(Action<T> messageConstructor, SendOptions options)
+        {
+            bus.Send(messageConstructor, options);
         }
 
         public void Reply(object message)
@@ -72,24 +150,19 @@ namespace NServiceBus
             bus.Reply(message);
         }
 
-        public void Send(object message)
+        public void Reply<T>(Action<T> messageConstructor)
         {
-            bus.Send(message);
+            bus.Reply(messageConstructor);
         }
 
-        public void Send(string destination, object message)
+        public void SendLocal(object message, SendLocalOptions options)
         {
-            bus.Send(destination, message);
+            bus.SendLocal(message, options);
         }
 
-        public void Publish<T>(Action<T> messageConstructor)
+        public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
         {
-            bus.Publish(messageConstructor);
-        }
-
-        public void DoNotContinueDispatchingCurrentMessageToHandlers()
-        {
-            bus.DoNotContinueDispatchingCurrentMessageToHandlers();
+            bus.SendLocal(messageConstructor, options);
         }
 
         public void HandleCurrentMessageLater()
@@ -97,9 +170,14 @@ namespace NServiceBus
             bus.HandleCurrentMessageLater();
         }
 
-        public void SendLocal(object message)
+        public void ForwardCurrentMessageTo(string destination)
         {
-            bus.SendLocal(message);
+            bus.ForwardCurrentMessageTo(destination);
+        }
+
+        public void DoNotContinueDispatchingCurrentMessageToHandlers()
+        {
+            bus.DoNotContinueDispatchingCurrentMessageToHandlers();
         }
     }
 
