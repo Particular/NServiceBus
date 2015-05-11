@@ -11,7 +11,7 @@
             var messageHandler = context.MessageHandler;
             if (messageHandler.HandlerKind == HandlerKind.Event)
             {
-                context.Set("InvocationContext", new EventContext());
+                context.Set("InvocationContext", new EventContext(context.Builder.Build<IBus>()));
             }
 
             next();

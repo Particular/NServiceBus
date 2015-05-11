@@ -3,9 +3,9 @@ namespace NServiceBus
     using System;
 
     /// <summary>
-    /// Defines the context which can be used when handling a response.
+    /// Defines the context which can be used when handling an event.
     /// </summary>
-    public interface IResponseContext
+    public interface IEventContext
     {
         /// <summary>
         ///  Publish the message to subscribers.

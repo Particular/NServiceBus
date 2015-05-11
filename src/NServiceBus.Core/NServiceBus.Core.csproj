@@ -115,6 +115,7 @@
     <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
     <Compile Include="BusNotifications.cs" />
+    <Compile Include="EventContext.cs" />
     <Compile Include="Extensibility\ExtendableOptions.cs" />
     <Compile Include="Extensibility\ExtendableOptionsExtensions.cs" />
     <Compile Include="Faults\FailedMessage.cs" />
@@ -126,6 +127,9 @@
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
     <Compile Include="ICommandContext.cs" />
+    <Compile Include="IEventContext.cs" />
+    <Compile Include="IProcessEvents.cs" />
+    <Compile Include="IEventContextExtensions.cs" />
     <Compile Include="IResponseContextExtensions.cs" />
     <Compile Include="IProcessCommands.cs" />
     <Compile Include="IProcessResponses.cs" />

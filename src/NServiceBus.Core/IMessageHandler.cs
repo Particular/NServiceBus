@@ -18,18 +18,4 @@ namespace NServiceBus
 		/// the custom logic to execute when the message is received.</remarks>
         void Handle(T message);
     }
-
-#pragma warning disable 1591
-    public interface IProcessEvents<T>
-    {
-        void Handle(T message, IEventContext context);
-    }
-
-    public interface IEventContext { }
-
-    internal class EventContext : IEventContext
-    {
-    }
-
-#pragma warning restore 1591
 }

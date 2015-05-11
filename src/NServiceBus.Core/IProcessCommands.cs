@@ -12,7 +12,7 @@ namespace NServiceBus
         /// <summary>
         /// Handles a command.
         /// </summary>
-        /// <param name="message">The message to handle.</param>
+        /// <param name="message">The command to handle.</param>
         /// <param name="context">The command context</param>
         /// <remarks>
         /// This method will be called when a command arrives on the bus and should contain
