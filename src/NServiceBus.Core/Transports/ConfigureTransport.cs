@@ -49,10 +49,7 @@ namespace NServiceBus.Transports
             if (!context.Settings.Get<bool>("Endpoint.SendOnly"))
             {
                 var receiveBehaviorFactory = GetReceiveBehaviorFactory(new ReceiveOptions(context.Settings));
-                var registration = new ReceiveBehavior.Registration();
-                registration.ContainerRegistration((b,s) => receiveBehaviorFactory(b));
-                context.Pipeline.Register(registration);
-                context.Container.RegisterSingleton(new TransportReceiveBehaviorDefinition(registration));
+                context.RegisterReceiveBehavior(receiveBehaviorFactory);
             }
             Configure(context, connectionString);
         }
@@ -122,23 +119,6 @@ Here is an example of what is required:
   <connectionStrings>
     <add name=""NServiceBus/Transport"" connectionString=""{2}"" />
   </connectionStrings>";
-
-    }
-
-    class TransportReceiveBehaviorDefinition
-    {
-        readonly RegisterStep registration;
-
-        public TransportReceiveBehaviorDefinition(RegisterStep registration)
-        {
-            this.registration = registration;
-        }
-
-        public RegisterStep Registration
-        {
-            get { return registration; }
-        }
-
 
     }
 }

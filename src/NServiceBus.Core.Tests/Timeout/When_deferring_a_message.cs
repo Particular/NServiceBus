@@ -14,15 +14,11 @@
         [Test]
         public void Should_set_the_expiry_header_to_a_absolute_utc_time()
         {
-            var deferrer = new TimeoutManagerDeferrer
-                           {
-                               TimeoutManagerAddress = "TimeoutManager"
-                           };
             var sender = new FakeMessageSender();
-            deferrer.MessageSender = sender;
+            var deferrer = new TimeoutManagerDeferrer(sender, "TimeoutManager");
 
             var deliverAt = DateTime.Now.AddDays(1);
-            var options = new SendMessageOptions("destination", deliverAt);
+            var options = new TransportDeferOptions("destination", deliverAt:deliverAt);
             deferrer.Defer(new OutgoingMessage("message id",new Dictionary<string, string>(),new byte[0]), options);
 
             Assert.AreEqual(DateTimeExtensions.ToWireFormattedString(deliverAt), sender.Messages.First().Headers[TimeoutManagerHeaders.Expire]);
@@ -31,15 +27,11 @@
         [Test]
         public void Should_set_the_expiry_header_to_a_absolute_utc_time_calculated_based_on_delay()
         {
-            var deferrer = new TimeoutManagerDeferrer
-            {
-                TimeoutManagerAddress = "TimeoutManager"
-            };
             var sender = new FakeMessageSender();
-            deferrer.MessageSender = sender;
+            var deferrer = new TimeoutManagerDeferrer(sender, "TimeoutManager");
 
             var delay = TimeSpan.FromDays(1);
-            var options = new SendMessageOptions("destination", delayDeliveryFor: delay);
+            var options = new TransportDeferOptions("destination", delay);
             deferrer.Defer(new OutgoingMessage("message id",new Dictionary<string, string>(),new byte[0]), options);
 
             var expireAt = DateTimeExtensions.ToUtcDateTime(sender.Messages.First().Headers[TimeoutManagerHeaders.Expire]);

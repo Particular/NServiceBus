@@ -19,7 +19,7 @@
                     .WithEndpoint<SendOptionsExtensions>(b => b.Given((bus, c) =>
                     {
                         var sendOptions = new SendLocalOptions();
-                        sendOptions.GetContext().Set(new SendOptionsExtensions.TestingSendOptionsExtensionBehavior.Context { SomeValue = "I did it!" });
+                        sendOptions.GetExtensions().Set(new SendOptionsExtensions.TestingSendOptionsExtensionBehavior.Context { SomeValue = "I did it!" });
 
                         bus.SendLocal(new SendMessage(), sendOptions);
                     }))
@@ -62,7 +62,6 @@
                     Context data;
                     if (context.Extensions.TryGet(out data))
                     {
-
                         context.MessageInstance = new SendMessage { Secret = data.SomeValue };
                     }
 

@@ -20,10 +20,11 @@ namespace NServiceBus
         /// <summary>
         ///     Creates a new instance of <see cref="Configure"/>.
         /// </summary>
-        public Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipeline, Dictionary<string, string> outgoingHeaders)
+        internal Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration, Dictionary<string, string> outgoingHeaders)
         {
             Settings = settings;
-            this.pipeline = pipeline;
+            this.pipelineSettings = pipelineSettings;
+            this.pipelineConfiguration = pipelineConfiguration;
             this.outgoingHeaders = outgoingHeaders;
 
             RegisterContainerAdapter(container);
@@ -119,7 +120,7 @@ namespace NServiceBus
 
             var featureStats = featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
 
-            pipeline.RegisterBehaviorsInContainer(Settings, container);
+            pipelineConfiguration.RegisterBehaviorsInContainer(Settings, container);
 
             container.RegisterSingleton(featureStats);
 
@@ -198,7 +199,8 @@ namespace NServiceBus
 
         internal IConfigureComponents container;
 
-        internal PipelineSettings pipeline;
+        internal PipelineSettings pipelineSettings;
+        readonly PipelineConfiguration pipelineConfiguration;
         Dictionary<string, string> outgoingHeaders;
 
         //HACK: Set by the tests

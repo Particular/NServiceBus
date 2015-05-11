@@ -98,40 +98,24 @@
 
         void SendOrDefer(OutgoingMessage message, SendMessageOptions options)
         {
-            var sendOptions = new TransportSendOptions(options.Destination, options.TimeToBeReceived, options.NonDurable ?? true, options.EnlistInReceiveTransaction);
-
-            if (options.DelayDeliveryFor.HasValue)
+            if ((options.DelayDeliveryFor.HasValue && options.DelayDeliveryFor > TimeSpan.Zero) || 
+                (options.DeliverAt.HasValue &&  options.DeliverAt.Value.ToUniversalTime() > DateTime.UtcNow))
             {
-                if (options.DelayDeliveryFor > TimeSpan.Zero)
-                {
-                    SetIsDeferredHeader(message.Headers);
-                    MessageDeferral.Defer(message, options);
-                }
-                else
-                {
-                    MessageSender.Send(message, sendOptions);
-                }
+                SetIsDeferredHeader(message.Headers);
+                MessageDeferral.Defer(message, new TransportDeferOptions(
+                    options.Destination, 
+                    options.DelayDeliveryFor,
+                    options.DeliverAt,
+                    options.NonDurable ?? true, 
+                    options.EnlistInReceiveTransaction));
 
                 return;
             }
 
-            if (options.DeliverAt.HasValue)
-            {
-                var deliverAt = options.DeliverAt.Value.ToUniversalTime();
-                if (deliverAt > DateTime.UtcNow)
-                {
-                    SetIsDeferredHeader(message.Headers);
-                    MessageDeferral.Defer(message, options);
-                }
-                else
-                {
-                    MessageSender.Send(message, sendOptions);
-                }
-
-                return;
-            }
-
-            MessageSender.Send(message, sendOptions);
+            MessageSender.Send(message, new TransportSendOptions(   options.Destination, 
+                                                                    options.TimeToBeReceived, 
+                                                                    options.NonDurable ?? true, 
+                                                                    options.EnlistInReceiveTransaction));
         }
 
         static void SetIsDeferredHeader(Dictionary<string, string> headers)

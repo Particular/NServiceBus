@@ -2,6 +2,8 @@
 {
     using System;
 
+    //public class Dequeue
+
     /// <summary>
     /// Interface to implement when developing custom dequeuing strategies.
     /// </summary>
@@ -10,7 +12,7 @@
         /// <summary>
         /// Initializes the <see cref="IDequeueMessages"/>.
         /// </summary>
-        void Init(DequeueSettings settings);
+        DequeueInfo Init(DequeueSettings settings);
         
         /// <summary>
         /// Starts the dequeuing of message/>.

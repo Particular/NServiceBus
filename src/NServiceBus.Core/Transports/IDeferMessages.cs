@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Transports
 {
-    using Unicast;
-
     /// <summary>
     /// Called when the bus wants to defer a message
     /// </summary>
@@ -10,7 +8,7 @@
         /// <summary>
         /// Defers the given message
         /// </summary>
-        void Defer(OutgoingMessage message, SendMessageOptions sendMessageOptions);
+        void Defer(OutgoingMessage message, TransportDeferOptions options);
 
         /// <summary>
         /// Clears all timeouts for the given header

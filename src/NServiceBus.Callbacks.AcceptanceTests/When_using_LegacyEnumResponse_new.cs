@@ -15,9 +15,9 @@
             Scenario.Define(context)
                 .WithEndpoint<EndpointWithLocalCallback>(b => b.Given(async (bus, c) =>
                     {
-                        var response = bus.SynchronousRequestResponse<LegacyEnumResponse<OldEnum>>(new MyRequest(), new SynchronousOptions());
+                        var response = bus.RequestWithTransientlyHandledResponseAsync<LegacyEnumResponse<OldEnum>>(new MyRequest(), new SendOptions());
 
-                        c.Response = await response.ResponseTask;
+                        c.Response = await response;
                         c.CallbackFired = true;
                     }))
                 .WithEndpoint<Replier>()

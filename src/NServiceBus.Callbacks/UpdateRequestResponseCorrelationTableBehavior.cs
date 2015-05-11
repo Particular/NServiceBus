@@ -1,39 +1,51 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using NServiceBus.Callbacks;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
 
     class UpdateRequestResponseCorrelationTableBehavior : PhysicalOutgoingContextStageBehavior
     {
-        readonly RequestResponseMessageLookup lookup;
+        readonly RequestResponseStateLookup lookup;
 
-        public UpdateRequestResponseCorrelationTableBehavior(RequestResponseMessageLookup lookup)
+        public UpdateRequestResponseCorrelationTableBehavior(RequestResponseStateLookup lookup)
         {
             this.lookup = lookup;
         }
 
         public override void Invoke(Context context, Action next)
         {
-            ExtensionState state;
+            RequestResponseParameters parameters;
 
-            if (context.Extensions.TryGet(out state))
+            if (context.Extensions.TryGet(out parameters) && !parameters.CancellationToken.IsCancellationRequested)
             {
-                lookup.RegisterResult(context.MessageId, state.TaskCompletionSource);
+                var messageId = context.MessageId;
+                parameters.CancellationToken.Register(() =>
+                {
+                    TaskCompletionSourceAdapter tcs;
+                    if (lookup.TryGet(messageId, out tcs))
+                    {
+                        tcs.SetCancelled();
+                    }
+                });
+                lookup.RegisterState(messageId, parameters.TaskCompletionSource);
             }
-    
+
             next();
         }
 
-        public class ExtensionState
+        public class RequestResponseParameters
         {
-            public ExtensionState(object taskCompletionSource)
+            public RequestResponseParameters()
             {
-                TaskCompletionSource = taskCompletionSource;
+                CancellationToken = CancellationToken.None;
             }
 
-            public object TaskCompletionSource { get; private set; }
+            public TaskCompletionSourceAdapter TaskCompletionSource;
+
+            public CancellationToken CancellationToken;
         }
 
         public class Registration : RegisterStep

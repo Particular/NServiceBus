@@ -22,7 +22,7 @@
                         {
                             var options = new PublishOptions();
 
-                            options.GetContext().Set(new Publisher.PublishExtensionBehavior.Context { SomeProperty = "ItWorks" });
+                            options.GetExtensions().Set(new Publisher.PublishExtensionBehavior.Context { SomeProperty = "ItWorks" });
 
                             bus.Publish(new MyEvent(), options);
                         })

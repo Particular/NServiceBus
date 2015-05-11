@@ -14,7 +14,7 @@ namespace NServiceBus.Pipeline
 
         public void Register(string pipelineStep, Type behavior, string description)
         {
-            additions.Add(RegisterStep.Create(pipelineStep, behavior, description, false));
+            additions.Add(RegisterStep.Create(pipelineStep, behavior, description));
         }
 
         public void Register(RegisterStep rego)

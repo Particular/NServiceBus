@@ -105,7 +105,6 @@ namespace NServiceBus
     }
     public class Configure
     {
-        public Configure(NServiceBus.Settings.SettingsHolder settings, NServiceBus.ObjectBuilder.Common.IContainer container, System.Collections.Generic.List<System.Action<NServiceBus.ObjectBuilder.IConfigureComponents>> registrations, NServiceBus.Pipeline.PipelineSettings pipeline, System.Collections.Generic.Dictionary<string, string> outgoingHeaders) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public string LocalAddress { get; }
         public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
@@ -414,11 +413,6 @@ namespace NServiceBus
     {
         void MutateOutgoing(NServiceBus.OutgoingPhysicalMutatorContext context);
     }
-    public class static IncomingContextExtensions
-    {
-        public static string PublicReceiveAddress(this NServiceBus.Pipeline.Contexts.IncomingContext context) { }
-        public static void SetPublicReceiveAddress(this NServiceBus.Pipeline.Contexts.IncomingContext context, string address) { }
-    }
     public class IndividualThrottlingSettings
     {
         public NServiceBus.IndividualThrottlingSettings DoNotLimit(string satelliteId) { }
@@ -557,6 +551,10 @@ namespace NServiceBus
         protected internal override void Configure(NServiceBus.BusConfiguration config) { }
         public override string GetSubScope(string address, string qualifier) { }
     }
+    public class static OptionExtensions
+    {
+        public static void DoNotEnforceBestPractices(this NServiceBus.Extensibility.ExtendableOptions options) { }
+    }
     public class Order
     {
         public Order() { }
@@ -616,6 +614,12 @@ namespace NServiceBus
     public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public PublishOptions() { }
+    }
+    public abstract class SatelliteBehavior : NServiceBus.PhysicalMessageProcessingStageBehavior
+    {
+        protected SatelliteBehavior() { }
+        protected abstract bool Handle(NServiceBus.TransportMessage physicalMessage);
+        public override void Invoke(NServiceBus.PhysicalMessageProcessingStageBehavior.Context context, System.Action next) { }
     }
     public class static ScaleOutExtentions
     {
@@ -994,17 +998,17 @@ namespace NServiceBus.Extensibility
     {
         protected ExtendableOptions() { }
     }
-    public class ExtensionContext
+    public class static ExtendableOptionsExtensions
     {
-        public ExtensionContext() { }
+        public static NServiceBus.Extensibility.OptionExtensionContext GetExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
+    }
+    public class OptionExtensionContext
+    {
+        public OptionExtensionContext() { }
         public void Set<T>(T data)
             where T :  class { }
         public bool TryGet<T>(out T data)
             where T :  class { }
-    }
-    public class static ExtensionContextExtensions
-    {
-        public static NServiceBus.Extensibility.ExtensionContext GetContext(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
 }
 namespace NServiceBus.Faults
@@ -1056,6 +1060,10 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    public class BestPracticeEnforcement : NServiceBus.Features.Feature
+    {
+        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
     public class BinarySerialization : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1099,8 +1107,10 @@ namespace NServiceBus.Features
     public class FeatureConfigurationContext
     {
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
-        public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
+        public NServiceBus.Pipeline.PipelineSettings MainPipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
+        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string receiveAddress) { }
+        public void RegisterReceiveBehavior(System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.ReceiveBehavior> receiveBehaviorFactory) { }
     }
     public class FeatureDiagnosticData
     {
@@ -1123,6 +1133,13 @@ namespace NServiceBus.Features
         protected FeatureStartupTask() { }
         protected abstract void OnStart();
         protected virtual void OnStop() { }
+    }
+    public enum FeatureState
+    {
+        Disabled = 0,
+        Enabled = 1,
+        Active = 2,
+        Deactivated = 3,
     }
     public class FirstLevelRetries : NServiceBus.Features.Feature
     {
@@ -1205,6 +1222,8 @@ namespace NServiceBus.Features
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault<T>(this NServiceBus.Settings.SettingsHolder settings)
             where T : NServiceBus.Features.Feature { }
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault(this NServiceBus.Settings.SettingsHolder settings, System.Type featureType) { }
+        public static bool IsFeatureActive(this NServiceBus.Settings.ReadOnlySettings settings, System.Type featureType) { }
+        public static bool IsFeatureEnabled(this NServiceBus.Settings.ReadOnlySettings settings, System.Type featureType) { }
     }
     public class SLAMonitoring : NServiceBus.Features.Feature
     {
@@ -1505,12 +1524,16 @@ namespace NServiceBus.Persistence
 }
 namespace NServiceBus.Pipeline
 {
-    public abstract class Behavior<TContext> : NServiceBus.Pipeline.IBehavior<TContext, TContext>
+    public abstract class Behavior<TContext> : NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TContext, TContext>
         where TContext : NServiceBus.Pipeline.BehaviorContext
     {
         protected Behavior() { }
+        protected NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
+        public virtual System.Threading.Tasks.Task Cooldown() { }
+        public void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo) { }
         public abstract void Invoke(TContext context, System.Action next);
         public void Invoke(TContext context, System.Action<TContext> next) { }
+        public virtual System.Threading.Tasks.Task Warmup() { }
     }
     public abstract class BehaviorContext
     {
@@ -1537,7 +1560,19 @@ namespace NServiceBus.Pipeline
         public int CurrentConcurrencyLevel { get; }
         public string[] PipelineIds { get; }
     }
-    public interface IBehavior<in TIn, out TOut>
+    public abstract class FeatureDependentRegisterStep<T> : NServiceBus.Pipeline.RegisterStep
+        where T : NServiceBus.Features.Feature
+    {
+        protected FeatureDependentRegisterStep(string stepId, System.Type behavior, string description) { }
+        public override bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
+    }
+    public interface IBehavior
+    {
+        System.Threading.Tasks.Task Cooldown();
+        void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo);
+        System.Threading.Tasks.Task Warmup();
+    }
+    public interface IBehavior<in TIn, out TOut> : NServiceBus.Pipeline.IBehavior
         where in TIn : NServiceBus.Pipeline.BehaviorContext
         where out TOut : NServiceBus.Pipeline.BehaviorContext
     {
@@ -1550,10 +1585,6 @@ namespace NServiceBus.Pipeline
         void Stop();
     }
     public interface IStageConnector { }
-    public interface PipelineFactory
-    {
-        System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Transport.TransportReceiver> BuildPipelines(NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Pipeline.IExecutor executor);
-    }
     public class PipelineNotifications : System.IDisposable
     {
         public PipelineNotifications() { }
@@ -1561,8 +1592,8 @@ namespace NServiceBus.Pipeline
     }
     public class PipelineSettings
     {
-        public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description, bool isStatic = False) { }
-        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description, bool isStatic = False) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
         public void Register<T>()
             where T : NServiceBus.Pipeline.RegisterStep, new () { }
         public void Register<T, TBehavior>(System.Func<NServiceBus.ObjectBuilder.IBuilder, TBehavior> customInitializer)
@@ -1576,10 +1607,9 @@ namespace NServiceBus.Pipeline
     [System.Diagnostics.DebuggerDisplayAttribute("{StepId}({BehaviorType.FullName}) - {Description}")]
     public abstract class RegisterStep
     {
-        protected RegisterStep(string stepId, System.Type behavior, string description, bool isStatic = False) { }
+        protected RegisterStep(string stepId, System.Type behavior, string description) { }
         public System.Type BehaviorType { get; }
         public string Description { get; }
-        public bool IsStatic { get; }
         public string StepId { get; }
         public void ContainerRegistration<T>(System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Settings.ReadOnlySettings, T> customRegistration) { }
         public void InsertAfter(NServiceBus.Pipeline.WellKnownStep step) { }
@@ -1590,13 +1620,18 @@ namespace NServiceBus.Pipeline
         public void InsertBefore(string id) { }
         public void InsertBeforeIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertBeforeIfExists(string id) { }
+        public virtual bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
-    public abstract class StageConnector<TFrom, TTo> : NServiceBus.Pipeline.IBehavior<TFrom, TTo>, NServiceBus.Pipeline.IStageConnector
+    public abstract class StageConnector<TFrom, TTo> : NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFrom, TTo>, NServiceBus.Pipeline.IStageConnector
         where TFrom : NServiceBus.Pipeline.BehaviorContext
         where TTo : NServiceBus.Pipeline.BehaviorContext
     {
         protected StageConnector() { }
+        protected NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
+        public virtual System.Threading.Tasks.Task Cooldown() { }
+        public void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo) { }
         public abstract void Invoke(TFrom context, System.Action<TTo> next);
+        public virtual System.Threading.Tasks.Task Warmup() { }
     }
     public struct StepEnded
     {
@@ -1605,8 +1640,8 @@ namespace NServiceBus.Pipeline
     }
     public class StepRegistrationSequence
     {
-        public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description, bool isStatic = False) { }
-        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description, bool isStatic = False) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
     }
     public struct StepStarted
     {
@@ -1678,9 +1713,9 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, NServiceBus.Extensibility.ExtensionContext extensionContext) { }
+        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, NServiceBus.Extensibility.OptionExtensionContext extensionContext) { }
         public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
-        public NServiceBus.Extensibility.ExtensionContext Extensions { get; }
+        public NServiceBus.Extensibility.OptionExtensionContext Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.MessageIntentEnum Intent { get; }
         public string MessageId { get; }
@@ -1695,7 +1730,7 @@ namespace NServiceBus.Pipeline.Contexts
             public Context(byte[] body, NServiceBus.Pipeline.Contexts.OutgoingContext parentContext) { }
             public byte[] Body { get; set; }
             public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
-            public NServiceBus.Extensibility.ExtensionContext Extensions { get; }
+            public NServiceBus.Extensibility.OptionExtensionContext Extensions { get; }
             public System.Collections.Generic.Dictionary<string, string> Headers { get; }
             public NServiceBus.MessageIntentEnum Intent { get; }
             public string MessageId { get; }
@@ -1893,21 +1928,6 @@ namespace NServiceBus.Sagas
     public class ActiveSagaInstance
     {
         public ActiveSagaInstance() { }
-    }
-}
-namespace NServiceBus.Satellites
-{
-    public interface IAdvancedSatellite : NServiceBus.Satellites.ISatellite
-    {
-        System.Action<NServiceBus.Unicast.Transport.TransportReceiver> GetReceiverCustomization();
-    }
-    public interface ISatellite
-    {
-        bool Disabled { get; }
-        string InputAddress { get; }
-        bool Handle(NServiceBus.TransportMessage message);
-        void Start();
-        void Stop();
     }
 }
 namespace NServiceBus.SecondLevelRetries.Config
@@ -2130,6 +2150,11 @@ namespace NServiceBus.Transports
         protected abstract System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.ReceiveBehavior> GetReceiveBehaviorFactory(NServiceBus.Transports.ReceiveOptions receiveOptions);
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    public class DequeueInfo
+    {
+        public readonly string PublicAddress;
+        public DequeueInfo(string publicAddress) { }
+    }
     public class DequeueSettings
     {
         public DequeueSettings(string queue, bool purgeOnStartup) { }
@@ -2147,11 +2172,11 @@ namespace NServiceBus.Transports
     public interface IDeferMessages
     {
         void ClearDeferredMessages(string headerKey, string headerValue);
-        void Defer(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Unicast.SendMessageOptions sendMessageOptions);
+        void Defer(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.TransportDeferOptions options);
     }
     public interface IDequeueMessages : System.IObservable<NServiceBus.Transports.MessageAvailable>
     {
-        void Init(NServiceBus.Transports.DequeueSettings settings);
+        NServiceBus.Transports.DequeueInfo Init(NServiceBus.Transports.DequeueSettings settings);
         void Start();
         void Stop();
     }
@@ -2177,8 +2202,7 @@ namespace NServiceBus.Transports
     }
     public class MessageAvailable
     {
-        public MessageAvailable(string publicReceiveAddress, System.Action<NServiceBus.Pipeline.Contexts.IncomingContext> contextAction) { }
-        public string PublicReceiveAddress { get; }
+        public MessageAvailable(System.Action<NServiceBus.Pipeline.Contexts.IncomingContext> contextAction) { }
     }
     public class OutgoingMessage
     {
@@ -2202,6 +2226,15 @@ namespace NServiceBus.Transports
         public string ErrorQueue { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
         public NServiceBus.Unicast.Transport.TransactionSettings Transactions { get; }
+    }
+    public class TransportDeferOptions
+    {
+        public TransportDeferOptions(string destination, System.Nullable<System.TimeSpan> delayDeliveryFor = null, System.Nullable<System.DateTime> deliverAt = null, bool nonDurable = False, bool enlistInReceiveTransaction = True) { }
+        public System.Nullable<System.TimeSpan> DelayDeliveryFor { get; }
+        public System.Nullable<System.DateTime> DeliverAt { get; }
+        public string Destination { get; }
+        public bool EnlistInReceiveTransaction { get; }
+        public bool NonDurable { get; }
     }
     public abstract class TransportDefinition
     {
@@ -2289,7 +2322,6 @@ namespace NServiceBus.Unicast
     public class DeliveryMessageOptions
     {
         public DeliveryMessageOptions() { }
-        public bool EnforceMessagingBestPractices { get; set; }
         public bool EnlistInReceiveTransaction { get; set; }
         public System.Nullable<bool> NonDurable { get; set; }
         public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }
@@ -2299,6 +2331,9 @@ namespace NServiceBus.Unicast
     public abstract class DeliveryOptions
     {
         protected DeliveryOptions() { }
+        [System.ObsoleteAttribute("Turn best practices check off using configuration.DisableFeature<BestPracticeEnfo" +
+            "rcement>(). Will be removed in version 7.0.0.", true)]
+        public bool EnforceMessagingBestPractices { get; set; }
         [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.ReplyToAddress` header. Wi" +
             "ll be removed in version 7.0.0.", true)]
         public string ReplyToAddress { get; set; }
@@ -2378,7 +2413,7 @@ namespace NServiceBus.Unicast
     }
     public class UnicastBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, NServiceBus.Unicast.IRealBus, System.IDisposable
     {
-        public UnicastBus(NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.PipelineFactory> pipelineFactories, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.ISendMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter, NServiceBus.Hosting.HostInformation hostInformation) { }
+        public UnicastBus(NServiceBus.Pipeline.BehaviorContext rootContext, NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.ISendMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter, NServiceBus.Hosting.HostInformation hostInformation) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public NServiceBus.IMessageContext CurrentMessageContext { get; }
         [System.ObsoleteAttribute("We have introduced a more explicit API to set the host identifier, see busConfigu" +
@@ -2535,6 +2570,12 @@ namespace NServiceBus.Unicast.Transport
         public NServiceBus.TransportMessage Message { get; }
         public System.Exception Reason { get; }
     }
+    public class PipelineInfo
+    {
+        public PipelineInfo(string name, string publicAddress) { }
+        public string Name { get; }
+        public string PublicAddress { get; }
+    }
     public class TransactionSettings
     {
         public TransactionSettings(bool isTransactional, System.TimeSpan transactionTimeout, System.Transactions.IsolationLevel isolationLevel, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope) { }
@@ -2544,13 +2585,12 @@ namespace NServiceBus.Unicast.Transport
         public bool SuppressDistributedTransactions { get; set; }
         public System.TimeSpan TransactionTimeout { get; set; }
     }
-    public class TransportReceiver : System.IDisposable, System.IObserver<NServiceBus.Transports.MessageAvailable>
+    public class TransportReceiver : System.IObserver<NServiceBus.Transports.MessageAvailable>
     {
         public string Id { get; }
-        protected virtual void InnerStop() { }
         protected virtual void SetContext(NServiceBus.Pipeline.Contexts.IncomingContext context) { }
-        public virtual void Start() { }
-        public virtual void Stop() { }
+        public async System.Threading.Tasks.Task Start() { }
+        public async System.Threading.Tasks.Task Stop() { }
         public override string ToString() { }
     }
 }

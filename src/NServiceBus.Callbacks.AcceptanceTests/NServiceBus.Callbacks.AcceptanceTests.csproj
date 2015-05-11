@@ -58,6 +58,7 @@
     <Compile Include="ScenarioDescriptors\TransactionSettings.cs" />
     <Compile Include="ScenarioDescriptors\Transports.cs" />
     <Compile Include="When_a_callback_for_local_message_new.cs" />
+    <Compile Include="When_a_callback_for_local_message_canceled.cs" />
     <Compile Include="When_a_callback_for_local_message.cs" />
     <Compile Include="When_using_callbacks_in_a_scaleout_new.cs" />
     <Compile Include="When_using_callbacks_in_a_scaleout.cs" />

@@ -92,7 +92,7 @@ namespace NServiceBus.Features
                 settings.EnableFeatureByDefault(feature.GetType());
             }
 
-            features.Add(new FeatureState(feature, new FeatureDiagnosticData
+            features.Add(new FeatureInfo(feature, new FeatureDiagnosticData
             {
                 EnabledByDefault = feature.IsEnabledByDefault,
                 Name = feature.Name,
@@ -107,10 +107,10 @@ namespace NServiceBus.Features
             // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
             var sourceFeatures = Sort(features);
 
-            var enabledFeatures = new List<FeatureState>();
+            var enabledFeatures = new List<FeatureInfo>();
             while (true)
             {
-                var featureToActivate = sourceFeatures.FirstOrDefault(x => IsEnabled(x.Feature.GetType()));
+                var featureToActivate = sourceFeatures.FirstOrDefault(x => settings.IsFeatureEnabled(x.Feature.GetType()));
                 if (featureToActivate == null)
                 {
                     break;
@@ -123,12 +123,11 @@ namespace NServiceBus.Features
                 }
             }
 
-            settings.PreventChanges();
-
             foreach (var feature in enabledFeatures)
             {
                 ActivateFeature(feature, enabledFeatures, context);
             }
+            settings.PreventChanges();
 
             return new FeaturesReport(features.Select(t => t.Diagnostics));
         }
@@ -181,7 +180,7 @@ namespace NServiceBus.Features
             }
         }
 
-        static List<FeatureState> Sort(IEnumerable<FeatureState> features)
+        static List<FeatureInfo> Sort(IEnumerable<FeatureInfo> features)
         {
             // Step 1: create nodes for graph
             var nameToNodeDict = new Dictionary<string, Node>();
@@ -212,7 +211,7 @@ namespace NServiceBus.Features
             }
 
             // Step 3: Perform Topological Sort
-            var output = new List<FeatureState>();
+            var output = new List<FeatureInfo>();
             foreach (var node in allNodes)
             {
                 node.Visit(output);
@@ -221,16 +220,16 @@ namespace NServiceBus.Features
             return output;
         }
 
-        static bool ActivateFeature(FeatureState featureState, List<FeatureState> featuresToActivate, FeatureConfigurationContext context)
+        bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, FeatureConfigurationContext context)
         {
-            if (featureState.Feature.IsActive)
+            if (featureInfo.Feature.IsActive)
             {
                 return true;
             }
 
             Func<List<string>, bool> dependencyActivator = dependencies =>
             {
-                var dependantFeaturesToActivate = new List<FeatureState>();
+                var dependantFeaturesToActivate = new List<FeatureInfo>();
 
                 foreach (var dependency in dependencies.Select(dependencyName => featuresToActivate
                     .SingleOrDefault(f => f.Feature.Name == dependencyName))
@@ -242,30 +241,24 @@ namespace NServiceBus.Features
 
                 return hasAllUpstreamDepsBeenActivated;
             };
-
-            if (featureState.Feature.Dependencies.All(dependencyActivator))
+            var featureType = featureInfo.Feature.GetType();
+            if (featureInfo.Feature.Dependencies.All(dependencyActivator))
             {
-                featureState.Diagnostics.DependenciesAreMeet = true;
+                featureInfo.Diagnostics.DependenciesAreMeet = true;
 
-                if (!HasAllPrerequisitesSatisfied(featureState.Feature, featureState.Diagnostics, context))
+                if (!HasAllPrerequisitesSatisfied(featureInfo.Feature, featureInfo.Diagnostics, context))
                 {
+                    settings.MarkFeatureAsDeactivated(featureType);
                     return false;
                 }
-
-                featureState.Feature.SetupFeature(context);
-                featureState.Diagnostics.Active = true;
-
+                settings.MarkFeatureAsActive(featureType);
+                featureInfo.Feature.SetupFeature(context);
+                featureInfo.Diagnostics.Active = true;
                 return true;
             }
-
-            featureState.Diagnostics.DependenciesAreMeet = false;
-
+            settings.MarkFeatureAsDeactivated(featureType);
+            featureInfo.Diagnostics.DependenciesAreMeet = false;
             return false;
-        }
-
-        bool IsEnabled(Type featureType)
-        {
-            return settings.GetOrDefault<bool>(featureType.FullName);
         }
 
         static bool HasAllPrerequisitesSatisfied(Feature feature, FeatureDiagnosticData diagnosticData, FeatureConfigurationContext context)
@@ -275,12 +268,12 @@ namespace NServiceBus.Features
             return diagnosticData.PrerequisiteStatus.IsSatisfied;
         }
 
-        readonly List<FeatureState> features = new List<FeatureState>();
+        readonly List<FeatureInfo> features = new List<FeatureInfo>();
         readonly SettingsHolder settings;
 
-        class FeatureState
+        class FeatureInfo
         {
-            public FeatureState(Feature feature, FeatureDiagnosticData diagnostics)
+            public FeatureInfo(Feature feature, FeatureDiagnosticData diagnostics)
             {
                 Diagnostics = diagnostics;
                 Feature = feature;
@@ -288,11 +281,16 @@ namespace NServiceBus.Features
 
             public FeatureDiagnosticData Diagnostics { get; private set; }
             public Feature Feature { get; private set; }
+
+            public override string ToString()
+            {
+                return string.Format("{0} [{1}]", Feature.Name, Feature.Version);
+            }
         }
 
         class Node
         {
-            internal void Visit(ICollection<FeatureState> output)
+            internal void Visit(ICollection<FeatureInfo> output)
             {
                 if (visited)
                 {
@@ -306,7 +304,7 @@ namespace NServiceBus.Features
                 output.Add(FeatureState);
             }
 
-            internal FeatureState FeatureState;
+            internal FeatureInfo FeatureState;
             internal List<Node> previous = new List<Node>();
             bool visited;
         }

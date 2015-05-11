@@ -7,6 +7,7 @@ namespace NServiceBus.Unicast
     using NServiceBus.Extensibility;
     using NServiceBus.Hosting;
     using NServiceBus.MessageInterfaces;
+    using NServiceBus.MessagingBestPractices;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -52,7 +53,8 @@ namespace NServiceBus.Unicast
             this.messageSender = messageSender;
             this.messageRouter = messageRouter;
             this.hostInformation = hostInformation;
-            outgoingPipeline = new PipelineBase<OutgoingContext>(builder, settings.Get<PipelineModifications>());
+            var pipelinesCollection = settings.Get<PipelineConfiguration>();
+            outgoingPipeline = new PipelineBase<OutgoingContext>(builder,  settings, pipelinesCollection.MainPipeline);
             sendOnlyMode = settings.Get<bool>("Endpoint.SendOnly");
             //if we're a worker, send to the distributor data bus
             if (settings.GetOrDefault<bool>("Worker.Enabled"))
@@ -121,7 +123,7 @@ namespace NServiceBus.Unicast
                 MessageIntentEnum.Publish,
                 messageType,
                 message,
-                options.ExtensionContext);
+                options.Extensions);
 
 
             outgoingPipeline.Invoke(outgoingContext);
@@ -143,22 +145,13 @@ namespace NServiceBus.Unicast
             Subscribe(typeof(T));
         }
 
-        bool SendOnlyMode { get { return sendOnlyMode; } }
-
         /// <summary>
         /// <see cref="IBus.Subscribe(Type)"/>
         /// </summary>
         public virtual void Subscribe(Type messageType)
         {
-            MessagingBestPractices.AssertIsValidForPubSub(messageType, builder.Build<Conventions>());
-
-            if (SendOnlyMode)
-            {
-                throw new InvalidOperationException("It's not allowed for a send only endpoint to be a subscriber");
-            }
-
-            AssertHasLocalAddress();
-
+            AssertIsValidForPubSub(messageType);
+         
             if (transportDefinition.HasSupportForCentralizedPubSub)
             {
                 // We are dealing with a brokered transport wired for auto pub/sub.
@@ -174,27 +167,6 @@ namespace NServiceBus.Unicast
             }
         }
 
-        void AssertHasLocalAddress()
-        {
-            if (configure.LocalAddress == null)
-            {
-                throw new InvalidOperationException("Cannot start subscriber without a queue configured. Please specify the LocalAddress property of UnicastBusConfig.");
-            }
-        }
-
-        List<string> GetAtLeastOneAddressForMessageType(Type messageType)
-        {
-            var addresses = GetAddressForMessageType(messageType)
-                .Distinct()
-                .ToList();
-            if (addresses.Count == 0)
-            {
-                var error = string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType);
-                throw new InvalidOperationException(error);
-            }
-            return addresses;
-        }
-
         /// <summary>
         /// <see cref="IBus.Unsubscribe{T}()"/>
         /// </summary>
@@ -208,14 +180,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public virtual void Unsubscribe(Type messageType)
         {
-            MessagingBestPractices.AssertIsValidForPubSub(messageType, builder.Build<Conventions>());
-
-            if (SendOnlyMode)
-            {
-                throw new InvalidOperationException("It's not allowed for a send only endpoint to unsubscribe");
-            }
-
-            AssertHasLocalAddress();
+            AssertIsValidForPubSub(messageType);
 
             if (transportDefinition.HasSupportForCentralizedPubSub)
             {
@@ -229,6 +194,15 @@ namespace NServiceBus.Unicast
             foreach (var destination in addresses)
             {
                 subscriptionManager.Unsubscribe(messageType, destination);
+            }
+        }
+
+        void AssertIsValidForPubSub(Type messageType)
+        {
+            //we don't have any extension points for subscribe/unsubscribe but this does the trick for now
+            if (configure.container.HasComponent<Validations>())
+            {
+                builder.Build<Validations>();
             }
         }
 
@@ -305,6 +279,19 @@ namespace NServiceBus.Unicast
             SendMessage(options, message.GetType(), message);
         }
 
+        List<string> GetAtLeastOneAddressForMessageType(Type messageType)
+        {
+            var addresses = GetAddressForMessageType(messageType)
+                .Distinct()
+                .ToList();
+            if (addresses.Count == 0)
+            {
+                var error = string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType);
+                throw new InvalidOperationException(error);
+            }
+            return addresses;
+        }
+
         string GetDestinationForSend(Type messageType)
         {
             var destinations = GetAtLeastOneAddressForMessageType(messageType);
@@ -335,7 +322,7 @@ namespace NServiceBus.Unicast
 
             var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
 
-            SendMessage(options.MessageId, options.CorrelationId, MessageIntentEnum.Send, options.Headers, sendOptions, messageType, message, options.ExtensionContext);
+            SendMessage(options.MessageId, options.CorrelationId, MessageIntentEnum.Send, options.Headers, sendOptions, messageType, message, options.Extensions);
         }
 
         void SendMessage(NServiceBus.SendOptions options, Type messageType, object message)
@@ -361,10 +348,10 @@ namespace NServiceBus.Unicast
 
             var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
 
-            SendMessage(options.MessageId, options.CorrelationId, options.Intent, options.Headers, sendOptions, messageType, message, options.ExtensionContext);
+            SendMessage(options.MessageId, options.CorrelationId, options.Intent, options.Headers, sendOptions, messageType, message, options.Extensions);
         }
 
-        void SendMessage(string messageId, string correlationId, MessageIntentEnum intent, Dictionary<string, string> messageHeaders, SendMessageOptions sendOptions, Type messageType, object message, ExtensionContext context)
+        void SendMessage(string messageId, string correlationId, MessageIntentEnum intent, Dictionary<string, string> messageHeaders, SendMessageOptions sendOptions, Type messageType, object message, OptionExtensionContext context)
         {
             var headers = new Dictionary<string, string>(messageHeaders);
 
@@ -407,18 +394,16 @@ namespace NServiceBus.Unicast
 
         void ApplyHostRelatedHeaders(Dictionary<string, string> headers)
         {
-
             headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
             headers.Add(Headers.OriginatingEndpoint, endpointName);
             headers.Add(Headers.OriginatingHostId, hostInformation.HostId.ToString("N"));
-
         }
 
         private void ApplyReplyToAddress(Dictionary<string, string> headers)
         {
             string replyToAddress = null;
 
-            if (!SendOnlyMode)
+            if (!sendOnlyMode)
             {
                 replyToAddress = configure.PublicReturnAddress;
             }

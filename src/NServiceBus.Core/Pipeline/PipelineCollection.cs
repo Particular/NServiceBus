@@ -16,32 +16,32 @@ namespace NServiceBus.Pipeline
             this.pipelines = pipelines.ToArray();
         }
 
-        public void Start()
+        public async Task Start()
         {
-            Parallel.ForEach(pipelines, (pipeline, state, index) =>
+            foreach (var pipeline in pipelines)
             {
-                Logger.DebugFormat("Starting {1}/{2} {0} pipeline", pipeline.Id, index + 1, pipelines.Length);
+                Logger.DebugFormat("Starting {0} pipeline", pipeline.Id);
                 try
                 {
-                    pipeline.Start();
-                    Logger.InfoFormat("Started {1}/{2} {0} pipeline", pipeline.Id, index + 1, pipelines.Length);
+                    await pipeline.Start();
+                    Logger.InfoFormat("Started {0} pipeline", pipeline.Id);
                 }
                 catch (Exception ex)
                 {
                     Logger.Fatal(string.Format("Pipeline {0} failed to start.", pipeline.Id), ex);
                     throw;
                 }
-            });
+            }
         }
 
-        public void Stop()
+        public async Task Stop()
         {
-            Parallel.ForEach(pipelines, (pipeline, state, index) =>
+            foreach (var pipeline in pipelines)
             {
-                Logger.DebugFormat("Stopping {1}/{2} {0} pipeline", pipeline.Id, index + 1, pipelines.Length);
-                pipeline.Stop();
-                Logger.InfoFormat("Stopped {1}/{2} {0} pipeline", pipeline.Id, index + 1, pipelines.Length);
-            });
+                Logger.DebugFormat("Stopping {0} pipeline", pipeline.Id);
+                await pipeline.Stop();
+                Logger.InfoFormat("Stopped {0} pipeline", pipeline.Id);
+            }
         }
 
 

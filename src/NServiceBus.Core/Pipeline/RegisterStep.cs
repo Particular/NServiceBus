@@ -18,8 +18,7 @@ namespace NServiceBus.Pipeline
         /// <param name="stepId">The unique identifier for this steps.</param>
         /// <param name="behavior">The type of <see cref="Behavior{TContext}"/> to register.</param>
         /// <param name="description">A brief description of what this step does.</param>
-        /// <param name="isStatic">If a behavior is pipeline-static (shared between executions)</param>
-        protected RegisterStep(string stepId, Type behavior, string description, bool isStatic = false)
+        protected RegisterStep(string stepId, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
             Guard.AgainstNullAndEmpty(stepId, "stepId");
@@ -28,7 +27,6 @@ namespace NServiceBus.Pipeline
             BehaviorType = behavior;
             StepId = stepId;
             Description = description;
-            IsStatic = isStatic;
         }
 
 
@@ -44,6 +42,10 @@ namespace NServiceBus.Pipeline
 
         internal void ApplyContainerRegistration(ReadOnlySettings settings, IConfigureComponents container)
         {
+            if (!IsEnabled(settings))
+            {
+                return;
+            }
             if (customContainerRegistration != null)
             {
                 customContainerRegistration(settings, container);
@@ -61,9 +63,14 @@ namespace NServiceBus.Pipeline
         public string StepId { get; private set; }
 
         /// <summary>
-        /// Gets if the behavior is pipeline-static (shared between all executions of the pipeline)
+        /// Checks if this behavior is enabled.
         /// </summary>
-        public bool IsStatic { get; private set; }
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        public virtual bool IsEnabled(ReadOnlySettings settings)
+        {
+            return true;
+        }
         
         /// <summary>
         /// Gets the description for this registration.
@@ -184,26 +191,22 @@ namespace NServiceBus.Pipeline
 
         internal BehaviorInstance CreateBehavior(IBuilder defaultBuilder)
         {
-            if (IsStatic)
-            {
-                return new StaticBehavior(BehaviorType, defaultBuilder);
-            }
-            return new PerCallBehavior(BehaviorType, defaultBuilder);
+            return new BehaviorInstance(BehaviorType, (IBehavior) defaultBuilder.Build(BehaviorType));
         }
 
-        internal static RegisterStep Create(WellKnownStep wellKnownStep, Type behavior, string description, bool isStatic)
+        internal static RegisterStep Create(WellKnownStep wellKnownStep, Type behavior, string description)
         {
-            return new DefaultRegisterStep(behavior, wellKnownStep, description, isStatic);
+            return new DefaultRegisterStep(behavior, wellKnownStep, description);
         }
-        internal static RegisterStep Create(string pipelineStep, Type behavior, string description, bool isStatic)
+        internal static RegisterStep Create(string pipelineStep, Type behavior, string description)
         {
-            return new DefaultRegisterStep(behavior, pipelineStep, description, isStatic);
+            return new DefaultRegisterStep(behavior, pipelineStep, description);
         }
         
         class DefaultRegisterStep : RegisterStep
         {
-            public DefaultRegisterStep(Type behavior, string stepId, string description, bool isStatic)
-                : base(stepId, behavior, description, isStatic)
+            public DefaultRegisterStep(Type behavior, string stepId, string description)
+                : base(stepId, behavior, description)
             {
             }
         }

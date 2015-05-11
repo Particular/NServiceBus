@@ -69,8 +69,8 @@ Perhaps you forgot to define your encryption message conventions or to define me
             context.Container.ConfigureComponent(serviceConstructor, DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<EncryptionMutator>(DependencyLifecycle.InstancePerCall);
 
-            context.Pipeline.Register<EncryptBehavior.EncryptRegistration>();
-            context.Pipeline.Register<DecryptBehavior.DecryptRegistration>();
+            context.MainPipeline.Register<EncryptBehavior.EncryptRegistration>();
+            context.MainPipeline.Register<DecryptBehavior.DecryptRegistration>();
         }
         static ILog log = LogManager.GetLogger<Encryptor>();
     }

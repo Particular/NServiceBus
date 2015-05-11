@@ -5,6 +5,6 @@ namespace NServiceBus.Extensibility
     /// </summary>
     public abstract class ExtendableOptions
     {
-        internal ExtensionContext ExtensionContext = new ExtensionContext();
+        internal OptionExtensionContext Extensions = new OptionExtensionContext();
     }
 }

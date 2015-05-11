@@ -68,6 +68,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
+    <Compile Include="BestPractices\When_bestpractices_is_disabled_for_message.cs" />
+    <Compile Include="BestPractices\When_bestpractices_is_disabled.cs" />
+    <Compile Include="BestPractices\When_unsubscribing_to_command.cs" />
+    <Compile Include="BestPractices\When_subscribing_to_command.cs" />
+    <Compile Include="BestPractices\When_publishing_command.cs" />
+    <Compile Include="BestPractices\When_sending_event.cs" />
     <Compile Include="DeliveryOptions\When_message_with_TimeToBeReceived_fails.cs" />
     <Compile Include="DeliveryOptions\When_auditing_message_with_TimeToBeReceived.cs" />
     <Compile Include="Audit\When_ForwardReceivedMessagesTo_is_set.cs" />
@@ -114,6 +120,7 @@
     <Compile Include="HandlerContext\When_handling_pub_msg_handlers_with_old_and_new_api.cs" />
     <Compile Include="HandlerContext\When_handling_a_sent_message_with_handlers_with_old_and_new_api.cs" />
     <Compile Include="HandlerContext\When_handling_sent_msg_handlers_with_old_and_new_api_with_order_override.cs" />
+    <Compile Include="HostInformation\When_feature_overrides_hostid.cs" />
     <Compile Include="NonDTC\When_dispatching_transport_operations.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="PubSub\When_publishing_from_sendonly.cs" />

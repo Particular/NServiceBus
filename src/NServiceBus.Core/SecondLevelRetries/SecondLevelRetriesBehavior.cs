@@ -5,7 +5,6 @@ namespace NServiceBus
     using NServiceBus.Pipeline;
     using NServiceBus.SecondLevelRetries;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast;
 
     class SecondLevelRetriesBehavior : PhysicalMessageProcessingStageBehavior
     {
@@ -40,12 +39,12 @@ namespace NServiceBus
 
                 if (retryPolicy.TryGetDelay(message, ex, currentRetry, out delay))
                 {
-                    var receiveAddress = context.PublicReceiveAddress();
+                    var receiveAddress = PipelineInfo.PublicAddress;
 
                     message.Headers[Headers.Retries] = currentRetry.ToString();
                     message.Headers[RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
-                    deferer.Defer(new OutgoingMessage(context.PhysicalMessage.Id, message.Headers, message.Body), new SendMessageOptions(receiveAddress, delayDeliveryFor: delay));
+                    deferer.Defer(new OutgoingMessage(context.PhysicalMessage.Id, message.Headers, message.Body), new TransportDeferOptions(receiveAddress, delay));
 
                     notifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(currentRetry,message,ex);
 

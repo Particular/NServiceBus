@@ -35,7 +35,7 @@ namespace NServiceBus.Transports
             /// <summary>
             /// 
             /// </summary>
-            public Registration(): base("ReceiveMessage", typeof(ReceiveBehavior), "Try receive message from transport", false)
+            public Registration(): base("ReceiveMessage", typeof(ReceiveBehavior), "Try receive message from transport")
             {
             }
         }

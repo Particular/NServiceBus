@@ -61,10 +61,10 @@ namespace NServiceBus
 
         }
 
-        public class Registration : RegisterStep
+        public class Registration : FeatureDependentRegisterStep<Features.FirstLevelRetries>
         {
             public Registration()
-                : base("FirstLevelRetries", typeof(FirstLevelRetriesBehavior), "Performs first level retries", true)
+                : base("FirstLevelRetries", typeof(FirstLevelRetriesBehavior), "Performs first level retries")
             {
                 InsertBeforeIfExists("ReceivePerformanceDiagnosticsBehavior");
             }

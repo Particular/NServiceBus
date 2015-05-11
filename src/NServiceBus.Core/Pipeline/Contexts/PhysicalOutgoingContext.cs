@@ -66,7 +66,7 @@
             /// <summary>
             /// Place for extensions to store their data
             /// </summary>
-            public ExtensionContext Extensions { get; private set; }
+            public OptionExtensionContext Extensions { get; private set; }
         }
     }
 }

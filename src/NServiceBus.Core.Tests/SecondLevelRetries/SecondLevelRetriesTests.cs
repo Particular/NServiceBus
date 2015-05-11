@@ -7,7 +7,7 @@
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.SecondLevelRetries;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Transport;
     using NUnit.Framework;
 
     [TestFixture]
@@ -21,6 +21,7 @@
             var deferrer = new FakeMessageDeferrer();
             var delay = TimeSpan.FromSeconds(5);
             var behavior = new SecondLevelRetriesBehavior(deferrer, new FakePolicy(delay), notifications);
+            behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
 
             var slrNotification = new SecondLevelRetry();
 
@@ -43,6 +44,7 @@
             var deferrer = new FakeMessageDeferrer();
             var delay = TimeSpan.FromSeconds(5);
             var behavior = new SecondLevelRetriesBehavior(deferrer, new FakePolicy(delay),new BusNotifications());
+            behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
 
             behavior.Invoke(CreateContext("someid", 0), () => { throw new Exception("testex"); });
 
@@ -54,6 +56,7 @@
         {
             var deferrer = new FakeMessageDeferrer();
             var behavior = new SecondLevelRetriesBehavior(deferrer, new FakePolicy(), new BusNotifications());
+            behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
             var context = CreateContext("someid", 1);
 
             Assert.Throws<Exception>(() => behavior.Invoke(context, () => { throw new Exception("testex"); }));
@@ -65,6 +68,7 @@
         {
             var deferrer = new FakeMessageDeferrer();
             var behavior = new SecondLevelRetriesBehavior(deferrer, new FakePolicy(TimeSpan.FromSeconds(5)), new BusNotifications());
+            behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
             var context = CreateContext("someid", 1);
 
             Assert.Throws<MessageDeserializationException>(() => behavior.Invoke(context, () => { throw new MessageDeserializationException("testex"); }));
@@ -78,6 +82,8 @@
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
 
             var behavior = new SecondLevelRetriesBehavior(deferrer, retryPolicy, new BusNotifications());
+            behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
+
             var currentRetry = 3;
 
             behavior.Invoke(CreateContext("someid", currentRetry), () => { throw new Exception("testex"); });
@@ -96,6 +102,7 @@
 
 
             var behavior = new SecondLevelRetriesBehavior(deferrer, retryPolicy, new BusNotifications());
+            behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
 
             behavior.Invoke(context, () => { throw new Exception("testex"); });
 
@@ -107,9 +114,6 @@
         PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId, int currentRetryCount)
         {
             var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string> { { Headers.Retries, currentRetryCount.ToString() } }, new MemoryStream()), null));
-
-            context.SetPublicReceiveAddress("test-address-for-this-pipeline");
-
             return context;
         }
     }
@@ -145,23 +149,21 @@
 
     class FakeMessageDeferrer : IDeferMessages
     {
-
-
-        public SendMessageOptions SendMessageOptions { get; private set; }
+        public TransportDeferOptions SendMessageOptions { get; private set; }
         public string MessageRoutedTo { get; private set; }
 
         public OutgoingMessage DeferredMessage { get; private set; }
         public TimeSpan Delay { get; private set; }
 
-        public void Defer(OutgoingMessage message, SendMessageOptions sendMessageOptions)
+        public void Defer(OutgoingMessage message, TransportDeferOptions options)
         {
-            MessageRoutedTo = sendMessageOptions.Destination;
+            MessageRoutedTo = options.Destination;
             DeferredMessage = message;
-            SendMessageOptions = sendMessageOptions;
+            SendMessageOptions = options;
 
-            if (sendMessageOptions.DelayDeliveryFor.HasValue)
+            if (options.DelayDeliveryFor.HasValue)
             {
-                Delay = sendMessageOptions.DelayDeliveryFor.Value;
+                Delay = options.DelayDeliveryFor.Value;
             }
         }
 

@@ -1,31 +1,26 @@
 namespace NServiceBus.Unicast.Transport
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport.Monitoring;
-
-    //Shared thread pool dispatcher
-    //Individual thread pool dispatcher
-    //Shared throughput limit
-    //Individual throughput limit
 
     /// <summary>
     ///     Default implementation of a NServiceBus transport.
     /// </summary>
-    public class TransportReceiver : IDisposable, IObserver<MessageAvailable>
+    public class TransportReceiver : IObserver<MessageAvailable>
     {
         internal TransportReceiver(string id, IBuilder builder, IDequeueMessages receiver, DequeueSettings dequeueSettings, PipelineBase<IncomingContext> pipeline, IExecutor executor)
         {
             this.id = id;
-            this.builder = builder;
             this.pipeline = pipeline;
             this.executor = executor;
             this.dequeueSettings = dequeueSettings;
             this.receiver = receiver;
+            this.builder = builder;
         }
 
 
@@ -37,14 +32,6 @@ namespace NServiceBus.Unicast.Transport
             get { return id; }
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        /// <filterpriority>2</filterpriority>
-        void IDisposable.Dispose()
-        {
-            //Injected at compile time
-        }
 
         void IObserver<MessageAvailable>.OnNext(MessageAvailable value)
         {
@@ -57,10 +44,7 @@ namespace NServiceBus.Unicast.Transport
         void InvokePipeline(MessageAvailable messageAvailable)
         {
             var context = new IncomingContext(new RootContext(builder));
-
             messageAvailable.InitializeContext(context);
-            context.SetPublicReceiveAddress(messageAvailable.PublicReceiveAddress);
-            context.Set(currentReceivePerformanceDiagnostics);
             SetContext(context);
 
             executor.Execute(Id, () =>
@@ -95,18 +79,18 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         ///     Starts the transport listening for messages on the given local address.
         /// </summary>
-        public virtual void Start()
+        public async Task Start()
         {
             if (isStarted)
             {
                 throw new InvalidOperationException("The transport is already started");
             }
 
-            InitializePerformanceCounters(dequeueSettings.QueueName);
-
             Logger.DebugFormat("Pipeline {0} is starting receiver for queue {0}.", Id, dequeueSettings.QueueName);
 
-            receiver.Init(dequeueSettings);
+            var dequeueInfo = receiver.Init(dequeueSettings);
+            pipeline.Initialize(new PipelineInfo(id, dequeueInfo.PublicAddress));
+            await pipeline.Warmup();
 
             StartReceiver();
 
@@ -116,25 +100,7 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         ///     Stops the transport.
         /// </summary>
-        public virtual void Stop()
-        {
-            InnerStop();
-        }
-
-        void InitializePerformanceCounters(string queueName)
-        {
-            currentReceivePerformanceDiagnostics = new ReceivePerformanceDiagnostics(queueName);
-        }
-
-        void StartReceiver()
-        {
-            receiver.Subscribe(this);
-            receiver.Start();
-        }
-
-        /// <summary>
-        /// </summary>
-        protected virtual void InnerStop()
+        public async Task Stop()
         {
             if (!isStarted)
             {
@@ -142,18 +108,15 @@ namespace NServiceBus.Unicast.Transport
             }
 
             receiver.Stop();
+            await pipeline.Cooldown();
 
             isStarted = false;
         }
 
-        void DisposeManaged()
+        void StartReceiver()
         {
-            InnerStop();
-
-            if (currentReceivePerformanceDiagnostics != null)
-            {
-                currentReceivePerformanceDiagnostics.Dispose();
-            }
+            receiver.Subscribe(this);
+            receiver.Start();
         }
 
         /// <summary>
@@ -165,15 +128,11 @@ namespace NServiceBus.Unicast.Transport
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
 
-
-
         readonly string id;
         readonly IBuilder builder;
         readonly PipelineBase<IncomingContext> pipeline;
         readonly IExecutor executor;
         readonly IDequeueMessages receiver;
-
-        ReceivePerformanceDiagnostics currentReceivePerformanceDiagnostics;
 
         bool isStarted;
         readonly DequeueSettings dequeueSettings;
