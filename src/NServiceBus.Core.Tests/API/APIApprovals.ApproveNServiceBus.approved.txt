@@ -510,15 +510,26 @@ namespace NServiceBus
     }
     public interface IRunContext
     {
-        void Publish(object message);
-        void Publish<T>();
-        void Publish<T>(System.Action<T> messageConstructor);
-        void Send(object message);
-        void Send<T>(System.Action<T> messageConstructor);
-        void Send(string destination, object message);
-        void Send<T>(string destination, System.Action<T> messageConstructor);
-        void Send(string destination, string correlationId, object message);
-        void Send<T>(string destination, string correlationId, System.Action<T> messageConstructor);
+        void Publish(object message, NServiceBus.PublishOptions options);
+        void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
+        void Reply(object message);
+        void Reply<T>(System.Action<T> messageConstructor);
+        void Send(object message, NServiceBus.SendOptions options);
+        void Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+        void SendLocal(object message, NServiceBus.SendLocalOptions options);
+        void SendLocal<T>(System.Action<T> messageConstructor, NServiceBus.SendLocalOptions options);
+    }
+    public class static IRunContextExtensions
+    {
+        public static void Publish(this NServiceBus.IRunContext context, object message) { }
+        public static void Publish<T>(this NServiceBus.IRunContext context) { }
+        public static void Publish<T>(this NServiceBus.IRunContext context, System.Action<T> messageConstructor) { }
+        public static void Send(this NServiceBus.IRunContext context, object message) { }
+        public static void Send<T>(this NServiceBus.IRunContext context, System.Action<T> messageConstructor) { }
+        public static void Send(this NServiceBus.IRunContext context, string destination, object message) { }
+        public static void Send<T>(this NServiceBus.IRunContext context, string destination, System.Action<T> messageConstructor) { }
+        public static void SendLocal(this NServiceBus.IRunContext context, object message) { }
+        public static void SendLocal<T>(this NServiceBus.IRunContext context, System.Action<T> messageConstructor) { }
     }
     public interface IRunWhenBusStartsAndStops
     {
@@ -1885,7 +1896,24 @@ namespace NServiceBus.Saga
     }
     public interface ITimeoutContext
     {
-        void SendLocal(object message);
+        void Publish(object message, NServiceBus.PublishOptions options);
+        void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
+        void Send(object message, NServiceBus.SendOptions options);
+        void Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+        void SendLocal(object message, NServiceBus.SendLocalOptions options);
+        void SendLocal<T>(System.Action<T> messageConstructor, NServiceBus.SendLocalOptions options);
+    }
+    public class static ITimeoutContextExtensions
+    {
+        public static void Publish(this NServiceBus.Saga.ITimeoutContext context, object message) { }
+        public static void Publish<T>(this NServiceBus.Saga.ITimeoutContext context) { }
+        public static void Publish<T>(this NServiceBus.Saga.ITimeoutContext context, System.Action<T> messageConstructor) { }
+        public static void Send(this NServiceBus.Saga.ITimeoutContext context, object message) { }
+        public static void Send<T>(this NServiceBus.Saga.ITimeoutContext context, System.Action<T> messageConstructor) { }
+        public static void Send(this NServiceBus.Saga.ITimeoutContext context, string destination, object message) { }
+        public static void Send<T>(this NServiceBus.Saga.ITimeoutContext context, string destination, System.Action<T> messageConstructor) { }
+        public static void SendLocal(this NServiceBus.Saga.ITimeoutContext context, object message) { }
+        public static void SendLocal<T>(this NServiceBus.Saga.ITimeoutContext context, System.Action<T> messageConstructor) { }
     }
     public abstract class Saga
     {
