@@ -6,7 +6,7 @@ namespace NServiceBus
 
     class OutboxRecordBehavior : PhysicalMessageProcessingStageBehavior
     {
-        public IOutboxStorage OutboxStorage { get; set; }
+        public IStoreOutboxMessages OutboxStorage { get; set; }
 
         public override void Invoke(Context context, Action next)
         {

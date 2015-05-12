@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using NServiceBus.Outbox;
 
-    internal class FakeOutboxStorage : IOutboxStorage
+    internal class FakeOutboxStorage : IStoreOutboxMessages, IDeduplicateMessages
     {
         public OutboxMessage ExistingMessage { get; set; }
         public OutboxMessage StoredMessage { get; set; }

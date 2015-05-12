@@ -80,7 +80,7 @@ The reason you need to do this is because we need to ensure that you have read a
             context.MainPipeline.Replace(WellKnownStep.DispatchMessageToTransport, typeof(OutboxSendBehavior), "Sending behavior with a delay sending until all business transactions are committed to the outbox storage");
 
             context.Container.ConfigureComponent(
-                b => new OutboxDeduplicationBehavior(b.Build<IOutboxStorage>(),
+                b => new OutboxDeduplicationBehavior(b.Build<IDeduplicateMessages>(),
                     b.Build<DispatchMessageToTransportBehavior>(), 
                     b.Build<DefaultMessageAuditer>(),
                     new TransactionSettings(context.Settings)), 

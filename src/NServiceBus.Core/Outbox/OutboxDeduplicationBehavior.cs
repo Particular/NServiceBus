@@ -11,9 +11,9 @@
     class OutboxDeduplicationBehavior : PhysicalMessageProcessingStageBehavior
     {
     
-        public OutboxDeduplicationBehavior(IOutboxStorage outboxStorage, DispatchMessageToTransportBehavior defaultDispatcher, DefaultMessageAuditer defaultAuditer, TransactionSettings transactionSettings)
+        public OutboxDeduplicationBehavior(IDeduplicateMessages outboxDeduplicator, DispatchMessageToTransportBehavior defaultDispatcher, DefaultMessageAuditer defaultAuditer, TransactionSettings transactionSettings)
         {
-            this.outboxStorage = outboxStorage;
+            this.outboxDeduplicator = outboxDeduplicator;
             this.defaultDispatcher = defaultDispatcher;
             this.defaultAuditer = defaultAuditer;
             this.transactionSettings = transactionSettings;
@@ -25,7 +25,7 @@
             var messageId = context.PhysicalMessage.Id;
             OutboxMessage outboxMessage;
 
-            if (!outboxStorage.TryGet(messageId, out outboxMessage))
+            if (!outboxDeduplicator.TryGet(messageId, out outboxMessage))
             {
                 outboxMessage = new OutboxMessage(messageId);
 
@@ -47,7 +47,7 @@
 
             DispatchOperationToTransport(outboxMessage.TransportOperations);
 
-            outboxStorage.SetAsDispatched(messageId);
+            outboxDeduplicator.SetAsDispatched(messageId);
         }
 
         void DispatchOperationToTransport(IEnumerable<TransportOperation> operations)
@@ -82,7 +82,7 @@
             }
         }
 
-        readonly IOutboxStorage outboxStorage;
+        readonly IDeduplicateMessages outboxDeduplicator;
         readonly DispatchMessageToTransportBehavior defaultDispatcher;
         readonly DefaultMessageAuditer defaultAuditer;
         readonly TransactionSettings transactionSettings;
