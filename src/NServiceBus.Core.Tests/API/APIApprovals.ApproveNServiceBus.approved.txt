@@ -64,6 +64,7 @@ namespace NServiceBus
         public void RegisterComponents(System.Action<NServiceBus.ObjectBuilder.IConfigureComponents> registration) { }
         [System.ObsoleteAttribute("Please use `ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
         public void ScanAssembliesInDirectory(string probeDirectory) { }
+        public void ScanAssembliesInNestedDirectories() { }
         [System.ObsoleteAttribute("Please use `ExcludeTypes` instead. Will be removed in version 7.0.0.", true)]
         public void TypesToScan(System.Collections.Generic.IEnumerable<System.Type> typesToScan) { }
         public void UseContainer<T>(System.Action<NServiceBus.Container.ContainerCustomizations> customizations = null)

@@ -117,6 +117,7 @@
     <Compile Include="AssemblyScanner\When_directory_with_handler_dll_is_scanned.cs" />
     <Compile Include="AssemblyScanner\When_directory__with_non_dot_net_dll_is_scanned.cs" />
     <Compile Include="AssemblyScanner\When_exclusion_predicate_is_used.cs" />
+    <Compile Include="AssemblyScanner\When_scanning_directory_with_nested_directories.cs" />
     <Compile Include="AssemblyScanner\When_scanning_for_dlls_only.cs" />
     <Compile Include="AssemblyScanner\When_scanning_top_level_only.cs" />
     <Compile Include="AssemblyScanner\When_told_to_scan_app_domain.cs" />
@@ -319,6 +320,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestDlls\RoslynX86.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDlls\Nested\Nested.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
