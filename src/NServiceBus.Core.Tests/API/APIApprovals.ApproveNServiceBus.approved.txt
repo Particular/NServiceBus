@@ -518,6 +518,10 @@ namespace NServiceBus
         void Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
         void SendLocal(object message, NServiceBus.SendLocalOptions options);
         void SendLocal<T>(System.Action<T> messageConstructor, NServiceBus.SendLocalOptions options);
+        void Subscribe(System.Type messageType);
+        void Subscribe<T>();
+        void Unsubscribe(System.Type messageType);
+        void Unsubscribe<T>();
     }
     public class static IRunContextExtensions
     {

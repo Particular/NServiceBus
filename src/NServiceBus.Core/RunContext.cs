@@ -11,6 +11,26 @@
             this.bus = bus;
         }
 
+        public void Subscribe(Type messageType)
+        {
+            bus.Subscribe(messageType);
+        }
+
+        public void Subscribe<T>()
+        {
+            bus.Subscribe<T>();
+        }
+
+        public void Unsubscribe(Type messageType)
+        {
+            bus.Unsubscribe(messageType);
+        }
+
+        public void Unsubscribe<T>()
+        {
+            bus.Unsubscribe<T>();
+        }
+
         public void Publish(object message, PublishOptions options)
         {
             bus.Publish(message, options);

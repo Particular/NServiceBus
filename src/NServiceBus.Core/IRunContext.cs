@@ -8,6 +8,32 @@
     public interface IRunContext
     {
         /// <summary>
+        /// Subscribes to receive published messages of the specified type.
+        /// This method is only necessary if you turned off auto-subscribe.
+        /// </summary>
+        /// <param name="messageType">The type of message to subscribe to.</param>
+        void Subscribe(Type messageType);
+
+        /// <summary>
+        /// Subscribes to receive published messages of type T.
+        /// This method is only necessary if you turned off auto-subscribe.
+        /// </summary>
+        /// <typeparam name="T">The type of message to subscribe to.</typeparam>
+        void Subscribe<T>();
+
+        /// <summary>
+        /// Unsubscribes from receiving published messages of the specified type.
+        /// </summary>
+        /// <param name="messageType">The type of message to subscribe to.</param>
+        void Unsubscribe(Type messageType);
+
+        /// <summary>
+        /// Unsubscribes from receiving published messages of the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type of message to unsubscribe from.</typeparam>
+        void Unsubscribe<T>();
+
+        /// <summary>
         ///  Publish the message to subscribers.
         /// </summary>
         /// <param name="message">The message to publish</param>
