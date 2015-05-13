@@ -1413,11 +1413,17 @@ namespace NServiceBus.ObjectBuilder
 }
 namespace NServiceBus.Outbox
 {
-    public interface IOutboxStorage
+    public interface IDeduplicateMessages
     {
         void SetAsDispatched(string messageId);
-        void Store(string messageId, System.Collections.Generic.IEnumerable<NServiceBus.Outbox.TransportOperation> transportOperations);
         bool TryGet(string messageId, out NServiceBus.Outbox.OutboxMessage message);
+    }
+    [System.ObsoleteAttribute("IOutboxStorage has been split into IStoreOutboxMessages and IDeduplicateMessages " +
+        "to segregate storage concerns. Will be removed in version 7.0.0.", true)]
+    public interface IOutboxStorage : NServiceBus.Outbox.IDeduplicateMessages, NServiceBus.Outbox.IStoreOutboxMessages { }
+    public interface IStoreOutboxMessages
+    {
+        void Store(string messageId, System.Collections.Generic.IEnumerable<NServiceBus.Outbox.TransportOperation> transportOperations);
     }
     public class OutboxMessage
     {
