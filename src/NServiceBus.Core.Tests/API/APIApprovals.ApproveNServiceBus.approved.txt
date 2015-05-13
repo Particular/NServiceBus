@@ -335,8 +335,8 @@ namespace NServiceBus
         void DoNotContinueDispatchingCurrentMessageToHandlers();
         void ForwardCurrentMessageTo(string destination);
         void HandleCurrentMessageLater();
-        void Reply(object message);
-        void Reply<T>(System.Action<T> messageConstructor);
+        void Reply(object message, NServiceBus.ReplyOptions options);
+        void Reply<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options);
         [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
         void Return<T>(T errorEnum);
         void SendLocal(object message, NServiceBus.SendLocalOptions options);
@@ -348,6 +348,8 @@ namespace NServiceBus
     }
     public class static IBusExtensions
     {
+        public static void Reply(this NServiceBus.IBus bus, object message) { }
+        public static void Reply<T>(this NServiceBus.IBus bus, System.Action<T> messageConstructor) { }
         public static void SendLocal(this NServiceBus.IBus bus, object message) { }
         public static void SendLocal<T>(this NServiceBus.IBus bus, System.Action<T> messageConstructor) { }
     }
@@ -570,6 +572,10 @@ namespace NServiceBus
     public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public PublishOptions() { }
+    }
+    public class ReplyOptions : NServiceBus.Extensibility.ExtendableOptions
+    {
+        public ReplyOptions() { }
     }
     public abstract class SatelliteBehavior : NServiceBus.PhysicalMessageProcessingStageBehavior
     {
@@ -2367,8 +2373,8 @@ namespace NServiceBus.Unicast
         public void HandleCurrentMessageLater() { }
         public void Publish(object message, NServiceBus.PublishOptions options) { }
         public void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions options) { }
-        public void Reply(object message) { }
-        public void Reply<T>(System.Action<T> messageConstructor) { }
+        public void Reply(object message, NServiceBus.ReplyOptions options) { }
+        public void Reply<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options) { }
         [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
         public void Return<T>(T errorEnum) { }
         public void Send(object message, NServiceBus.SendOptions options) { }

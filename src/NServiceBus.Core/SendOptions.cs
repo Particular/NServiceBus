@@ -73,13 +73,5 @@ namespace NServiceBus
             MessageId = messageId;
             return this;
         }
-
-        internal void AsReplyTo(string replyToAddress)
-        {
-            Guard.AgainstNull(replyToAddress, "replyToAddress");
-
-            Destination = replyToAddress;
-            Intent = MessageIntentEnum.Reply;
-        }
     }
 }

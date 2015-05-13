@@ -142,6 +142,7 @@
     <Compile Include="Pipeline\PipelineConfiguration.cs" />
     <Compile Include="Pipeline\StageConnector.cs" />
     <Compile Include="PublishOptions.cs" />
+    <Compile Include="ReplyOptions.cs" />
     <Compile Include="Satellites\SatelliteBehavior.cs" />
     <Compile Include="SendLocalOptions.cs" />
     <Compile Include="SendOptions.cs" />
