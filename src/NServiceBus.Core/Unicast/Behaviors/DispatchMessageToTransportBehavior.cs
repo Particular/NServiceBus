@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
     using NServiceBus.Unicast;
@@ -22,13 +23,19 @@
             next();
         }
 
+        public OutgoingMessage GetOutgoingMessage(Context context)
+        {
+            var state = context.Extensions.GetOrCreate<State>();
+
+            state.Headers[Headers.MessageIntent] = context.Intent.ToString();
+
+         
+           return new OutgoingMessage(context.MessageId, state.Headers, context.Body);
+        }
+
         public void InvokeNative(Context context)
         {
-            context.Headers[Headers.MessageIntent] = context.Intent.ToString();
-
-            var message = new OutgoingMessage(context.MessageId, context.Headers, context.Body);
-
-
+            var message = GetOutgoingMessage(context);
 
             if (context.Intent == MessageIntentEnum.Publish)
             {
@@ -136,6 +143,55 @@
             MessagePublisher.Publish(message, publishOptions);
         }
 
+        public class State
+        {
+            public State()
+            {
+                Headers = new Dictionary<string, string>();
+            }
+            public Dictionary<string, string> Headers { get; private set; }
+        }
+    }
 
+    /// <summary>
+    /// Extensions to the outgoing pipeline
+    /// </summary>
+    public static class DispatchContextExtensions
+    {
+        /// <summary>
+        /// Allows headers to be set
+        /// </summary>
+        /// <param name="context">Context to extend</param>
+        /// <param name="key">The header key</param>
+        /// <param name="value">The header value</param>
+        public static void SetHeader(this OutgoingContext context, string key, string value)
+        {
+            context.Extensions.GetOrCreate<DispatchMessageToTransportBehavior.State>()
+                .Headers[key] = value;
+        }
+
+        /// <summary>
+        /// Allows headers to be set
+        /// </summary>
+        /// <param name="context">Context to extend</param>
+        /// <param name="key">The header key</param>
+        /// <param name="value">The header value</param>
+        public static void SetHeader(this ExtendableOptions context, string key, string value)
+        {
+            context.Extensions.GetOrCreate<DispatchMessageToTransportBehavior.State>()
+                .Headers[key] = value;
+        }
+
+        /// <summary>
+        /// Allows headers to be set
+        /// </summary>
+        /// <param name="context">Context to extend</param>
+        /// <param name="key">The header key</param>
+        /// <param name="value">The header value</param>
+        public static void SetHeader(this PhysicalOutgoingContextStageBehavior.Context context, string key, string value)
+        {
+            context.Extensions.GetOrCreate<DispatchMessageToTransportBehavior.State>()
+                .Headers[key] = value;
+        }
     }
 }

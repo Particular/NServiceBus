@@ -43,7 +43,11 @@
                 public IBus Bus { get; set; }
                 public void Handle(Request message)
                 {
-                    Bus.Reply(new ResponseToBeAudited());
+                    var replyOptions = new ReplyOptions();
+                   
+                    replyOptions.SetHeader("MyHeader", "SomeValue");
+
+                    Bus.Reply(new ResponseToBeAudited(), replyOptions);
                 }
             }
         }
@@ -52,17 +56,19 @@
         {
             public EndpointWithAuditOn()
             {
-                EndpointSetup<DefaultServer>(c=>c.DisableFeature<Outbox>())
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<Outbox>())
                     .AddMapping<Request>(typeof(Server))
                     .AuditTo<AuditSpyEndpoint>();
             }
 
-          
+
             public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
             {
+                public IBus Bus { get; set; }
+
                 public void Handle(ResponseToBeAudited message)
                 {
-
+                    Assert.AreEqual(Bus.CurrentMessageContext.Headers["MyHeader"], "SomeValue");
                 }
             }
         }

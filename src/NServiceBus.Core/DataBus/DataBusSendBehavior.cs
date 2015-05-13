@@ -61,7 +61,7 @@
                     }
 
                     //we use the headers to in order to allow the infrastructure (eg. the gateway) to modify the actual key
-                    context.Headers["NServiceBus.DataBus." + headerKey] = headerValue;
+                    context.SetHeader("NServiceBus.DataBus." + headerKey,headerValue);
                 }
             }
 

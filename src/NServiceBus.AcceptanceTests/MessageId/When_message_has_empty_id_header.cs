@@ -31,8 +31,8 @@
 
             public void MutateOutgoing(OutgoingPhysicalMutatorContext context)
             {
-                context.Headers["ScenarioContextId"] = ScenarioContext.Id.ToString();
-                context.Headers[Headers.MessageId] = "";
+                context.SetHeader("ScenarioContextId",ScenarioContext.Id.ToString());
+                context.SetHeader(Headers.MessageId,"");
             }
         }
 

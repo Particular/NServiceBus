@@ -1,9 +1,8 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using NServiceBus.Extensibility;
-  
+
     /// <summary>
     ///     Allows the users to control how the send is performed
     /// </summary>
@@ -13,7 +12,6 @@ namespace NServiceBus
         readonly DateTime? at;
         readonly string correlationId;
         readonly TimeSpan? delay;
-        internal Dictionary<string, string> Headers = new Dictionary<string, string>();
         internal string MessageId;
 
         /// <summary>
@@ -51,17 +49,6 @@ namespace NServiceBus
         internal string CorrelationId
         {
             get { return correlationId; }
-        }
-
-        /// <summary>
-        ///     Adds a header for the message to be send.
-        /// </summary>
-        /// <param name="key">The header key.</param>
-        /// <param name="value">The header value.</param>
-        public SendOptions AddHeader(string key, string value)
-        {
-            Headers[key] = value;
-            return this;
         }
 
         /// <summary>

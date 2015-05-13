@@ -13,7 +13,6 @@ namespace NServiceBus
         readonly string correlationId;
         readonly TimeSpan? delay;
         internal Dictionary<string, object> Context = new Dictionary<string, object>();
-        internal Dictionary<string, string> Headers = new Dictionary<string, string>();
         internal string MessageId;
 
         /// <summary>
@@ -47,17 +46,6 @@ namespace NServiceBus
         internal string CorrelationId
         {
             get { return correlationId; }
-        }
-
-        /// <summary>
-        ///     Adds a header for the message to be send.
-        /// </summary>
-        /// <param name="key">The header key.</param>
-        /// <param name="value">The header value.</param>
-        public SendLocalOptions AddHeader(string key, string value)
-        {
-            Headers[key] = value;
-            return this;
         }
 
         /// <summary>

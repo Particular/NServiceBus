@@ -40,7 +40,11 @@
                         b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (bus, c) =>
                         {
                             c.AddTrace("Both subscribers is subscribed, going to publish MyEvent");
-                            bus.Publish(new MyEvent());
+
+                            var options = new PublishOptions();
+
+                            options.SetHeader("MyHeader","SomeValue");
+                            bus.Publish(new MyEvent(), options);
                         })
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
@@ -163,8 +167,11 @@
             {
                 public Context Context { get; set; }
 
+                public IBus Bus { get; set; }
+
                 public void Handle(MyEvent messageThatIsEnlisted)
                 {
+                    Assert.AreEqual(Bus.CurrentMessageContext.Headers["MyHeader"], "SomeValue");
                     Context.Subscriber1GotTheEvent = true;
                 }
             }

@@ -221,6 +221,12 @@ namespace NServiceBus
         InstancePerUnitOfWork = 1,
         InstancePerCall = 2,
     }
+    public class static DispatchContextExtensions
+    {
+        public static void SetHeader(this NServiceBus.Pipeline.Contexts.OutgoingContext context, string key, string value) { }
+        public static void SetHeader(this NServiceBus.Extensibility.ExtendableOptions context, string key, string value) { }
+        public static void SetHeader(this NServiceBus.Pipeline.Contexts.PhysicalOutgoingContextStageBehavior.Context context, string key, string value) { }
+    }
     public class static DurableMessagesConfig
     {
         public static void DisableDurableMessages(this NServiceBus.BusConfiguration config) { }
@@ -529,7 +535,7 @@ namespace NServiceBus
     {
         public OutgoingPhysicalMutatorContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
         public byte[] Body { get; set; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public void SetHeader(string key, string value) { }
     }
     public class static PersistenceConfig
     {
@@ -600,13 +606,11 @@ namespace NServiceBus
     public class SendLocalOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public SendLocalOptions(string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
-        public NServiceBus.SendLocalOptions AddHeader(string key, string value) { }
         public NServiceBus.SendLocalOptions SetCustomMessageId(string messageId) { }
     }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public SendOptions(string destination = null, string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
-        public NServiceBus.SendOptions AddHeader(string key, string value) { }
         public NServiceBus.SendOptions SetCustomMessageId(string messageId) { }
     }
     public class static SerializationConfigExtensions
@@ -614,6 +618,10 @@ namespace NServiceBus
         public static NServiceBus.Serialization.SerializationExtentions<T> UseSerialization<T>(this NServiceBus.BusConfiguration config)
             where T : NServiceBus.Serialization.SerializationDefinition { }
         public static void UseSerialization(this NServiceBus.BusConfiguration config, System.Type serializerType) { }
+    }
+    public class static SerializationContextExtensions
+    {
+        public static void SkipSerialization(this NServiceBus.Pipeline.Contexts.OutgoingContext context) { }
     }
     public class static SettingsExtentions
     {
@@ -967,6 +975,8 @@ namespace NServiceBus.Extensibility
     public class OptionExtensionContext
     {
         public OptionExtensionContext() { }
+        public T GetOrCreate<T>()
+            where T :  class, new () { }
         public void Set<T>(T data)
             where T :  class { }
         public bool TryGet<T>(out T data)
@@ -1675,10 +1685,9 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, NServiceBus.Extensibility.OptionExtensionContext extensionContext) { }
+        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, string messageId, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, NServiceBus.Extensibility.OptionExtensionContext extensionContext) { }
         public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
         public NServiceBus.Extensibility.OptionExtensionContext Extensions { get; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.MessageIntentEnum Intent { get; }
         public string MessageId { get; }
         public object MessageInstance { get; set; }
@@ -1693,7 +1702,6 @@ namespace NServiceBus.Pipeline.Contexts
             public byte[] Body { get; set; }
             public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
             public NServiceBus.Extensibility.OptionExtensionContext Extensions { get; }
-            public System.Collections.Generic.Dictionary<string, string> Headers { get; }
             public NServiceBus.MessageIntentEnum Intent { get; }
             public string MessageId { get; }
             public System.Type MessageType { get; }

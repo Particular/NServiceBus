@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Serialization;
     using NServiceBus.Unicast;
@@ -21,14 +22,14 @@
 
             var behavior = new SerializeMessagesBehavior(new FakeSerializer("myContentType"),registry);
 
-            var context = new OutgoingContext(null, new SendMessageOptions("test"), new Dictionary<string, string>(), "msg id", MessageIntentEnum.Send, typeof(MyMessage), null, null);
+            var context = new OutgoingContext(null, new SendMessageOptions("test"), "msg id", MessageIntentEnum.Send, typeof(MyMessage), null, new OptionExtensionContext());
 
             behavior.Invoke(context, c =>
             {
                 
             });
 
-            Assert.AreEqual("myContentType", context.Headers[Headers.ContentType]);
+            Assert.AreEqual("myContentType", context.Extensions.GetOrCreate<DispatchMessageToTransportBehavior.State>().Headers[Headers.ContentType]);
         }
 
         public class FakeSerializer : IMessageSerializer

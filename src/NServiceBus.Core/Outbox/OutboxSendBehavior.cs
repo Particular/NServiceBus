@@ -46,7 +46,9 @@ namespace NServiceBus
 
                 }
 
-                currentOutboxMessage.TransportOperations.Add( new TransportOperation(context.MessageId, options, context.Body, context.Headers)); 
+                var messageToSend = dispatchMessageToTransportBehavior.GetOutgoingMessage(context);
+
+                currentOutboxMessage.TransportOperations.Add(new TransportOperation(messageToSend.MessageId, options, messageToSend.Body, messageToSend.Headers)); 
             }
             else
             {

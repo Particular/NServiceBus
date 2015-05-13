@@ -48,7 +48,6 @@
     <Compile Include="SendLocalOptionsExtensions.cs" />
     <Compile Include="SendOptionsExtensions.cs" />
     <Compile Include="SetLegacyReturnCodeBehavior.cs" />
-    <Compile Include="ConvertLegacyEnumResponseToLegacyControlMessageBehavior.cs" />
     <Compile Include="LegacyEnumResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TaskCompletionSourceAdapter.cs" />

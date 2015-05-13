@@ -1,8 +1,8 @@
 namespace NServiceBus.Core.Tests.DataBus
 {
-    using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast;
     using NUnit.Framework;
@@ -14,7 +14,7 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public void Should_not_blow_up()
         {
-            var context = new OutgoingContext(null, new SendMessageOptions("MyEndpoint"), new Dictionary<string, string>(), "msg id", MessageIntentEnum.Send, null, new MessageWithNullDataBusProperty(), null);
+            var context = new OutgoingContext(null, new SendMessageOptions("MyEndpoint"),"msg id", MessageIntentEnum.Send, null, new MessageWithNullDataBusProperty(),new OptionExtensionContext());
             var sendBehavior = new DataBusSendBehavior
             {
                 DataBus = null,

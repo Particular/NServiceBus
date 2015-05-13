@@ -22,14 +22,20 @@
 
         public override void Invoke(OutgoingContext context, Action<PhysicalOutgoingContextStageBehavior.Context> next)
         {
+            if (context.Extensions.GetOrCreate<State>().SkipSerialization)
+            {
+                next(new PhysicalOutgoingContextStageBehavior.Context(new byte[0], context));
+                return;
+            }
+
             using (var ms = new MemoryStream())
             {
 
                 messageSerializer.Serialize(context.MessageInstance, ms);
 
-                context.Headers[Headers.ContentType] = messageSerializer.ContentType;
+                context.SetHeader(Headers.ContentType,messageSerializer.ContentType);
 
-                context.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.MessageType);
+                context.SetHeader(Headers.EnclosedMessageTypes,SerializeEnclosedMessageTypes(context.MessageType));
                 next(new PhysicalOutgoingContextStageBehavior.Context(ms.ToArray(), context));
             }
         }
@@ -42,5 +48,25 @@
             return string.Join(";", distinctTypes.Select(t => t.AssemblyQualifiedName));
         }
 
+        public class State
+        {
+            public bool SkipSerialization { get; set; }
+        }
+
+    }
+
+    /// <summary>
+    /// Allows users to control serilization
+    /// </summary>
+    public static class SerializationContextExtensions
+    {
+        /// <summary>
+        /// Requests the serializer to skip serializing the message
+        /// </summary>
+        /// <param name="context"></param>
+        public static void SkipSerialization(this OutgoingContext context)
+        {
+            context.Extensions.GetOrCreate<SerializeMessagesBehavior.State>().SkipSerialization = true;
+        }
     }
 }

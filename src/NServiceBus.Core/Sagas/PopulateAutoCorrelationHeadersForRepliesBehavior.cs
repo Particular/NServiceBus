@@ -29,14 +29,14 @@
 
                     if (incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out sagaId))
                     {
-                        context.Headers[Headers.SagaId] = sagaId;
+                        context.SetHeader(Headers.SagaId,sagaId);
                     }
 
                     string sagaType;
 
                     if (incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out sagaType))
                     {
-                        context.Headers[Headers.SagaType] = sagaType;
+                        context.SetHeader(Headers.SagaType,sagaType);
                     }
                 }
             }
@@ -50,8 +50,8 @@
             //attach the current saga details to the outgoing headers for correlation
             if (context.TryGet(out saga) && HasBeenFound(saga))
             {
-                context.Headers[Headers.OriginatingSagaId] = saga.SagaId;
-                context.Headers[Headers.OriginatingSagaType] = saga.Metadata.SagaType.AssemblyQualifiedName;
+                context.SetHeader(Headers.OriginatingSagaId,saga.SagaId);
+                context.SetHeader(Headers.OriginatingSagaType,saga.Metadata.SagaType.AssemblyQualifiedName);
             }
         }
 

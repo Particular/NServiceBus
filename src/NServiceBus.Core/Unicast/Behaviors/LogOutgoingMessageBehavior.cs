@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Linq;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -18,13 +17,11 @@
                 var destination = options.Destination;
 
                 log.DebugFormat("Sending message '{0}' with id '{1}' to destination '{2}'.\n" +
-                                "ToString() of the message yields: {3}\n" +
-                                "Message headers:\n{4}",
+                                "ToString() of the message yields: {3}",
                                 context.MessageType.AssemblyQualifiedName,
                     context.MessageId,
                     destination,
-                    context.MessageInstance,
-                    string.Join(", ", context.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));
+                    context.MessageInstance);
             }
 
             next();

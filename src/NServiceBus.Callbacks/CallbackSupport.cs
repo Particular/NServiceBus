@@ -16,7 +16,6 @@
             context.Container.ConfigureComponent<RequestResponseStateLookup>(DependencyLifecycle.SingleInstance);
             context.MainPipeline.Register<RequestResponseInvocationBehavior.Registration>();
             context.MainPipeline.Register<UpdateRequestResponseCorrelationTableBehavior.Registration>();
-            context.MainPipeline.Register<ConvertLegacyEnumResponseToLegacyControlMessageBehavior.Registration>();
             context.MainPipeline.Register<SetLegacyReturnCodeBehavior.Registration>();
         }
 

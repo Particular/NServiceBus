@@ -19,8 +19,9 @@
             Scenario.Define(context)
                     .WithEndpoint<Sender>(b => b.Given((bus, c) =>
                     {
-                        var sendOptions = new SendOptions()
-                            .AddHeader("MyHeader", "MyHeaderValue");
+                        var sendOptions = new SendOptions();
+
+                        sendOptions.SetHeader("MyHeader", "MyHeaderValue");
                         
                         bus.Send(new MyMessage{Id = c.Id}, sendOptions);
                     }))

@@ -1,9 +1,9 @@
 namespace NServiceBus.Core.Tests.DataBus
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using NServiceBus.DataBus;
+    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast;
     using NUnit.Framework;
@@ -20,7 +20,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 DataBusProperty = new DataBusProperty<string>("test")
             };
 
-            var context = new OutgoingContext(null, new SendMessageOptions("MyEndpoint"), new Dictionary<string, string>(), "msg id", MessageIntentEnum.Send, null, message, null);
+            var context = new OutgoingContext(null, new SendMessageOptions("MyEndpoint"), "msg id", MessageIntentEnum.Send, null, message, new OptionExtensionContext());
             
             var fakeDatabus = new FakeDataBus();
            
@@ -43,7 +43,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 DataBusProperty = new DataBusProperty<string>("test")
             };
 
-           var context = new OutgoingContext(null, new SendMessageOptions("MyEndpoint") { TimeToBeReceived = TimeSpan.FromMinutes(1) }, new Dictionary<string, string>(), "msg id", MessageIntentEnum.Send, null, message, null);
+           var context = new OutgoingContext(null, new SendMessageOptions("MyEndpoint") { TimeToBeReceived = TimeSpan.FromMinutes(1) },"msg id", MessageIntentEnum.Send, null, message, new OptionExtensionContext());
 
            var fakeDatabus = new FakeDataBus();
            

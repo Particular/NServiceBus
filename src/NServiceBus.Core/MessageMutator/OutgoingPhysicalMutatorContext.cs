@@ -7,6 +7,7 @@ namespace NServiceBus
     /// </summary>
     public class OutgoingPhysicalMutatorContext
     {
+
         /// <summary>
         /// Ctor
         /// </summary>
@@ -14,8 +15,8 @@ namespace NServiceBus
         /// <param name="headers"></param>
         public OutgoingPhysicalMutatorContext(byte[] body, Dictionary<string, string> headers)
         {
+            this.headers = headers;
             Body = body;
-            Headers = headers;
         }
 
         /// <summary>
@@ -24,8 +25,15 @@ namespace NServiceBus
         public byte[] Body { get; set; }
 
         /// <summary>
-        /// The headers of the message
+        /// Allows headers to be set
         /// </summary>
-        public Dictionary<string,string> Headers { get; private set; }
+        /// <param name="key">The header key</param>
+        /// <param name="value">The header value</param>
+        public void SetHeader(string key, string value)
+        {
+            headers[key] = value;
+        }
+
+        readonly Dictionary<string, string> headers;
     }
 }

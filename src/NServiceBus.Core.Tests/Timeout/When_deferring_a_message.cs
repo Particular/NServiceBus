@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Timeout;
     using NServiceBus.Transports;
@@ -45,7 +46,7 @@
             var sender = new FakeMessageSender();
             deferrer.MessageSender = sender;
 
-            deferrer.Invoke(new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, new SendMessageOptions("Destination"), new Dictionary<string, string>(), null, MessageIntentEnum.Send, null, null, null)), () => { });
+            deferrer.Invoke(new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, new SendMessageOptions("Destination"), null, MessageIntentEnum.Send, null, null, new OptionExtensionContext())), () => { });
 
             Assert.AreEqual(1, sender.Messages.Count);
         }
