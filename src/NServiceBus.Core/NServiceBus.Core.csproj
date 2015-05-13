@@ -415,7 +415,6 @@
     <Compile Include="Unicast\Messages\ExecuteLogicalMessagesConnector.cs" />
     <Compile Include="Unicast\Messages\LogicalMessage.cs" />
     <Compile Include="Unicast\Behaviors\MessageHandler.cs" />
-    <Compile Include="Unicast\Behaviors\LogOutgoingMessageBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ChildContainerBehavior.cs" />
     <Compile Include="Unicast\Behaviors\SerializeMessagesBehavior.cs" />
     <Compile Include="Unicast\Behaviors\DispatchMessageToTransportBehavior.cs" />
