@@ -67,15 +67,4 @@
             invocationWithContext(Instance, message, context);
         }
     }
-
-    /// <summary>
-    /// TODO: Should we expose that to public?
-    /// </summary>
-    internal enum HandlerKind
-    {
-        Message,
-        Command,
-        Event,
-        Timeout
-    }
 }

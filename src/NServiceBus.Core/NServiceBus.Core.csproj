@@ -176,6 +176,7 @@
     <Compile Include="Transports\OutgoingMessage.cs" />
     <Compile Include="Transports\ReceiveBehavior.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalOutgoingContext.cs" />
+    <Compile Include="Unicast\Behaviors\HandlerKind.cs" />
     <Compile Include="Unicast\Behaviors\PrepareProcessCommandContextBehavior.cs" />
     <Compile Include="Unicast\Behaviors\PrepareEventContextBehavior.cs" />
     <Compile Include="Unicast\Behaviors\PrepareResponseContextBehavior.cs" />
