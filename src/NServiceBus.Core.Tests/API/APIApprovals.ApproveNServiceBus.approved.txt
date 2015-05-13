@@ -640,6 +640,7 @@ namespace NServiceBus
     public abstract class SatelliteBehavior : NServiceBus.Pipeline.PipelineTerminator<NServiceBus.PhysicalMessageProcessingStageBehavior.Context>
     {
         protected SatelliteBehavior() { }
+        public override System.Threading.Tasks.Task Invoke(NServiceBus.PhysicalMessageProcessingStageBehavior.Context context, System.Func<System.Threading.Tasks.Task> next) { }
     }
     public class static ScaleOutExtentions
     {
@@ -1706,8 +1707,8 @@ namespace NServiceBus.Pipeline
         protected NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
         public virtual System.Threading.Tasks.Task Cooldown() { }
         public void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo) { }
-        public abstract void Invoke(TContext context, System.Action next);
-        public void Invoke(TContext context, System.Action<TContext> next) { }
+        public abstract System.Threading.Tasks.Task Invoke(TContext context, System.Func<System.Threading.Tasks.Task> next);
+        public System.Threading.Tasks.Task Invoke(TContext context, System.Func<TContext, System.Threading.Tasks.Task> next) { }
         public virtual System.Threading.Tasks.Task Warmup() { }
     }
     public abstract class BehaviorContext : NServiceBus.Extensibility.ContextBag
@@ -1725,7 +1726,7 @@ namespace NServiceBus.Pipeline
         where in TIn : NServiceBus.Pipeline.BehaviorContext
         where out TOut : NServiceBus.Pipeline.BehaviorContext
     {
-        void Invoke(TIn context, System.Action<TOut> next);
+        System.Threading.Tasks.Task Invoke(TIn context, System.Func<TOut, System.Threading.Tasks.Task> next);
     }
     public interface IPipelineTerminator { }
     public class PipelineNotifications : System.IDisposable
@@ -1785,7 +1786,7 @@ namespace NServiceBus.Pipeline
         protected NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
         public virtual System.Threading.Tasks.Task Cooldown() { }
         public void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo) { }
-        public abstract void Invoke(TFrom context, System.Action<TTo> next);
+        public abstract System.Threading.Tasks.Task Invoke(TFrom context, System.Func<TTo, System.Threading.Tasks.Task> next);
         public virtual System.Threading.Tasks.Task Warmup() { }
     }
     public struct StepEnded
@@ -2444,8 +2445,8 @@ namespace NServiceBus.Transports
     public abstract class ReceiveBehavior : NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.Pipeline.Contexts.TransportReceiveContext>
     {
         protected ReceiveBehavior() { }
-        public override void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Pipeline.Contexts.TransportReceiveContext> next) { }
-        protected abstract void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Transports.IncomingMessage> onMessage);
+        public override System.Threading.Tasks.Task Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Func<NServiceBus.Pipeline.Contexts.TransportReceiveContext, System.Threading.Tasks.Task> next) { }
+        protected abstract System.Threading.Tasks.Task Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Func<NServiceBus.Transports.IncomingMessage, System.Threading.Tasks.Task> onMessage);
         public class Registration : NServiceBus.Pipeline.RegisterStep
         {
             public Registration() { }

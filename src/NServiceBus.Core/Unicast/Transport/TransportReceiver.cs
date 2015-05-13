@@ -55,7 +55,7 @@ namespace NServiceBus.Unicast.Transport
                         messageAvailable.InitializeContext(context);
                         SetContext(context);
 
-                        pipeline.Invoke(context);
+                        pipeline.Invoke(context).GetAwaiter().GetResult();
                     }
                 }
                 catch (MessageProcessingAbortedException)

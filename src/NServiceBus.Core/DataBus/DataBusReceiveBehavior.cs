@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.DataBus;
     using Pipeline;
@@ -14,7 +15,7 @@
 
         public Conventions Conventions { get; set; }
 
-        public override void Invoke(Context context, Action next)
+        public override Task Invoke(Context context, Func<Task> next)
         {
             var message = context.GetLogicalMessage().Instance;
 
@@ -57,7 +58,7 @@
                 }
             }
 
-            next();
+            return next();
         }
 
         public class Registration : RegisterStep

@@ -64,7 +64,7 @@
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
             var context = CreateContext("someid", 1);
 
-            Assert.Throws<Exception>(() => behavior.Invoke(context, () => { throw new Exception("testex"); }));
+            Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => { throw new Exception("testex"); }));
 
             Assert.False(context.GetPhysicalMessage().Headers.ContainsKey(Headers.Retries));
         }
@@ -76,12 +76,12 @@
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
             var context = CreateContext("someid", 1);
 
-            Assert.Throws<MessageDeserializationException>(() => behavior.Invoke(context, () => { throw new MessageDeserializationException("testex"); }));
+            Assert.Throws<MessageDeserializationException>(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException("testex"); }));
             Assert.False(context.GetPhysicalMessage().Headers.ContainsKey(Headers.Retries));
         }
 
         [Test]
-        public void ShouldPullCurrentRetryCountFromHeaders()
+        public async void ShouldPullCurrentRetryCountFromHeaders()
         {
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
 
@@ -91,13 +91,13 @@
 
             var currentRetry = 3;
 
-            behavior.Invoke(CreateContext("someid", currentRetry), () => { throw new Exception("testex"); });
+            await behavior.Invoke(CreateContext("someid", currentRetry), () => { throw new Exception("testex"); });
 
             Assert.AreEqual(currentRetry + 1, retryPolicy.InvokedWithCurrentRetry);
         }
 
         [Test]
-        public void ShouldDefaultRetryCountToZeroIfNoHeaderIsFound()
+        public async void ShouldDefaultRetryCountToZeroIfNoHeaderIsFound()
         {
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
             var context = CreateContext("someid", 2);
@@ -109,7 +109,7 @@
             var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, retryPolicy, new BusNotifications());
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
 
-            behavior.Invoke(context, () => { throw new Exception("testex"); });
+            await behavior.Invoke(context, () => { throw new Exception("testex"); });
 
             Assert.AreEqual(1, retryPolicy.InvokedWithCurrentRetry);
             Assert.AreEqual("1", fakeDispatchPipeline.DispatchContext.Get<OutgoingMessage>().Headers[Headers.Retries]);

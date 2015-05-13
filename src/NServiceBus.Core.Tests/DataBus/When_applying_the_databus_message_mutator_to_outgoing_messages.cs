@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.DataBus
 {
     using System;
     using System.IO;
+    using System.Threading.Tasks;
     using NServiceBus.DataBus;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
@@ -12,7 +13,7 @@ namespace NServiceBus.Core.Tests.DataBus
     class When_applying_the_databus_message_mutator_to_outgoing_messages
     {
         [Test]
-        public void Outgoing_databus_properties_should_be_dehydrated()
+        public async void Outgoing_databus_properties_should_be_dehydrated()
         {
             var message = new MessageWithDataBusProperty
             {
@@ -29,13 +30,13 @@ namespace NServiceBus.Core.Tests.DataBus
                 Conventions = new Conventions(),
                 DataBusSerializer = new DefaultDataBusSerializer(),
             };
-            sendBehavior.Invoke(context, () => { });
+            await sendBehavior.Invoke(context, () => Task.FromResult(true));
 
             Assert.AreEqual(TimeSpan.MaxValue, fakeDatabus.TTBRUsed);
         }
 
         [Test]
-        public void Time_to_live_should_be_passed_on_the_databus()
+        public async void Time_to_live_should_be_passed_on_the_databus()
         {
            var message = new MessageWithExplicitTimeToLive
             {
@@ -55,7 +56,7 @@ namespace NServiceBus.Core.Tests.DataBus
                DataBusSerializer = new DefaultDataBusSerializer(),
            };
 
-           sendBehavior.Invoke(context, () => { });
+           await sendBehavior.Invoke(context, () => Task.FromResult(true));
 
            Assert.AreEqual(TimeSpan.FromMinutes(1),fakeDatabus.TTBRUsed);
         }

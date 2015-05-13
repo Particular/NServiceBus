@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
     using NServiceBus.Serialization;
     using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
@@ -11,7 +12,7 @@
     public class SerializeMessagesBehaviorTests
     {
         [Test]
-        public void Should_set_content_type_header()
+        public async void Should_set_content_type_header()
         {
             var registry = new MessageMetadataRegistry(new Conventions());
 
@@ -20,10 +21,7 @@
             var behavior = new SerializeMessagesBehavior(new FakeSerializer("myContentType"),registry);
 
             var context = ContextHelpers.GetOutgoingContext(new MyMessage());
-            behavior.Invoke(context, c =>
-            {
-                
-            });
+            await behavior.Invoke(context, c => Task.FromResult(true));
 
             Assert.AreEqual("myContentType", context.GetOrCreate<DispatchMessageToTransportConnector.State>().Headers[Headers.ContentType]);
         }

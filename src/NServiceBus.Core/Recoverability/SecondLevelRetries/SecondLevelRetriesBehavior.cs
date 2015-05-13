@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Pipeline;
@@ -19,11 +20,11 @@ namespace NServiceBus
             this.notifications = notifications;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             try
             {
-                next();
+                await next();
             }
             catch (MessageDeserializationException)
             {
@@ -84,11 +85,9 @@ namespace NServiceBus
             return 0;
         }
 
-
         readonly IPipelineBase<DispatchContext> dispatchPipeline;
         readonly SecondLevelRetryPolicy retryPolicy;
         readonly BusNotifications notifications;
-
         public const string RetriesTimestamp = "NServiceBus.Retries.Timestamp";
 
         public class Registration : RegisterStep

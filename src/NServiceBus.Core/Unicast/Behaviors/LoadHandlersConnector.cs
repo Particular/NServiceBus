@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Unicast.Behaviors;
     using Pipeline;
     using Pipeline.Contexts;
@@ -16,7 +17,7 @@
             this.messageHandlerRegistry = messageHandlerRegistry;
         }
 
-        public override void Invoke(LogicalMessageProcessingStageBehavior.Context context, Action<HandlingStageBehavior.Context> next)
+        public override async Task Invoke(LogicalMessageProcessingStageBehavior.Context context, Func<HandlingStageBehavior.Context, Task> next)
         {
             var handlerTypedToInvoke = messageHandlerRegistry.GetHandlerTypes(context.MessageType).ToList();
 
@@ -35,7 +36,7 @@
                 };
 
                 var handlingContext = new HandlingStageBehavior.Context(loadedHandler, context);
-                next(handlingContext);
+                await next(handlingContext);
 
                 if (handlingContext.HandlerInvocationAborted)
                 {

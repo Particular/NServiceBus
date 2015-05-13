@@ -40,8 +40,7 @@
         /// </summary>
         /// <param name="context">The current context.</param>
         /// <param name="next">The next <see cref="IBehavior{TIn,TOut}"/> in the chain to execute.</param>
-        void Invoke(TIn context, Action<TOut> next);
-
+        Task Invoke(TIn context, Func<TOut, Task> next);
     }
 
     /// <summary>
@@ -60,18 +59,18 @@
         /// </summary>
         /// <param name="context">The current context.</param>
         /// <param name="next">The next <see cref="!:IBehavior{TContext}" /> in the chain to execute.</param>
-        public abstract void Invoke(TContext context, Action next);
+        public abstract Task Invoke(TContext context, Func<Task> next);
 
         /// <summary>
         /// Called when the behavior is executed.
         /// </summary>
         /// <param name="context">The current context.</param>
         /// <param name="next">The next <see cref="IBehavior{TIn,TOut}"/> in the chain to execute.</param>
-        public void Invoke(TContext context, Action<TContext> next)
+        public Task Invoke(TContext context, Func<TContext, Task> next)
         {
             Guard.AgainstNull("context", context);
             Guard.AgainstNull("next", next);
-            Invoke(context, () => next(context));
+            return Invoke(context, () => next(context));
         }
 
         /// <summary>

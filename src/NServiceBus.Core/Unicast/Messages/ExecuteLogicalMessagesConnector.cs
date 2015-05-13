@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Reflection;
+    using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Unicast.Transport;
     using Pipeline;
@@ -10,13 +11,13 @@
 
     class ExecuteLogicalMessagesConnector : StageConnector<LogicalMessagesProcessingStageBehavior.Context, LogicalMessageProcessingStageBehavior.Context>
     {
-        public override void Invoke(LogicalMessagesProcessingStageBehavior.Context context, Action<LogicalMessageProcessingStageBehavior.Context> next)
+        public override async Task Invoke(LogicalMessagesProcessingStageBehavior.Context context, Func<LogicalMessageProcessingStageBehavior.Context, Task> next)
         {
             var logicalMessages = context.LogicalMessages;
 
             foreach (var message in logicalMessages)
             {
-                next(new LogicalMessageProcessingStageBehavior.Context(message, context.GetPhysicalMessage().Headers, message.MessageType, context));
+                await next(new LogicalMessageProcessingStageBehavior.Context(message, context.GetPhysicalMessage().Headers, message.MessageType, context));
             }
 
             if (!TransportMessageExtensions.IsControlMessage(context.GetPhysicalMessage().Headers))

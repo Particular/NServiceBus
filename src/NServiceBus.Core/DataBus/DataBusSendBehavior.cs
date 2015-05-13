@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.DataBus;
     using NServiceBus.DeliveryConstraints;
@@ -19,7 +20,7 @@
 
         public Conventions Conventions { get; set; }
 
-        public override void Invoke(OutgoingContext context, Action next)
+        public override Task Invoke(OutgoingContext context, Func<Task> next)
         {
             var timeToBeReceived = TimeSpan.MaxValue;
 
@@ -77,7 +78,7 @@
                 }
             }
 
-            next();
+            return next();
         }
 
         public class Registration : RegisterStep

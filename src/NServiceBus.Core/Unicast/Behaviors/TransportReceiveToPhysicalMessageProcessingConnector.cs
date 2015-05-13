@@ -8,11 +8,11 @@ namespace NServiceBus
     {
 
 
-        public override void Invoke(TransportReceiveContext context, Action<PhysicalMessageProcessingStageBehavior.Context> next)
+        public override async Task Invoke(TransportReceiveContext context, Func<PhysicalMessageProcessingStageBehavior.Context, Task> next)
         {
             var physicalMessageContext = new PhysicalMessageProcessingStageBehavior.Context(context);
 
-            next(physicalMessageContext);
+            await next(physicalMessageContext);
 
             if (physicalMessageContext.AbortReceiveOperation)
             {

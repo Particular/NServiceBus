@@ -2,6 +2,7 @@
 namespace NServiceBus.AcceptanceTests.PipelineExt
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Pipeline;
@@ -45,12 +46,12 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
 
             class MyExceptionFilteringBehavior : PhysicalMessageProcessingStageBehavior
             {
-                public override void Invoke(Context context, Action next)
+                public override async Task Invoke(Context context, Func<Task> next)
                 {
                     try
                     {
                         //invoke the handler/rest of the pipeline
-                        next();
+                        await next();
                     }
                     //catch specifix exceptions or
                     catch (Exception ex)

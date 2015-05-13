@@ -2,6 +2,7 @@
 namespace NServiceBus.AcceptanceTests.PipelineExt
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Audit;
@@ -74,14 +75,14 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
 
             class SetFiltering : LogicalMessageProcessingStageBehavior
             {
-                public override void Invoke(Context context, Action next)
+                public override Task Invoke(Context context, Func<Task> next)
                 {
                     if (context.MessageType == typeof(MessageToBeAudited))
                     {
                         context.Get<AuditFilterResult>().DoNotAuditMessage = true;
                     }
 
-                    next();
+                    return next();
                 }
 
               
@@ -94,7 +95,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
 
             class FilteringAuditBehavior : Behavior<AuditContext>
             {
-                public override void Invoke(AuditContext context, Action next)
+                public override Task Invoke(AuditContext context, Func<Task> next)
                 {
                     AuditFilterResult result;
 
@@ -102,7 +103,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                     {
                         return;
                     }
-                    next();
+                    return next();
                 }
 
 

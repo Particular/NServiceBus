@@ -3,12 +3,13 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Messaging;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
 
     class MsmqReceiveWithNoTransactionBehavior : MsmqReceiveBehavior
     {
-        protected override void Invoke(IncomingContext context, Action<IncomingMessage> onMessage)
+        protected override async Task Invoke(IncomingContext context, Func<IncomingMessage, Task> onMessage)
         {
             var queue = context.Get<MessageQueue>();
 
@@ -33,7 +34,7 @@ namespace NServiceBus
 
             using (var bodyStream = message.BodyStream)
             {
-                onMessage(new IncomingMessage(message.Id,headers,bodyStream));
+                await onMessage(new IncomingMessage(message.Id,headers,bodyStream));
             }
         }
     }

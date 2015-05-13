@@ -57,6 +57,7 @@ namespace NServiceBus.Unicast
                 incomingContext,
                 new OutgoingLogicalMessage(message),
                 options);
+            outgoingPipeline.Invoke(outgoingContext).GetAwaiter().GetResult();
 
             pipeline.Invoke(publishContext);
         }
@@ -154,6 +155,7 @@ namespace NServiceBus.Unicast
                 incomingContext,
                 new OutgoingLogicalMessage(messageType, message),
                 options);
+            outgoingPipeline.Invoke(outgoingContext).GetAwaiter().GetResult();
 
             pipeline.Invoke(outgoingContext);
         }

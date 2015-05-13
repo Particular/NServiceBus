@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -56,11 +57,11 @@
                     }
                 }
 
-                public override void Invoke(Context context, Action next)
+                public override async Task Invoke(Context context, Func<Task> next)
                 {
                     if (!context.GetPhysicalMessage().Headers[Headers.EnclosedMessageTypes].Contains(typeof(PlaceOrder).Name))
                     {
-                        next();
+                        await next();
                         return;
                     }
 
@@ -73,7 +74,7 @@
                     }
                     else
                     {
-                        next();
+                        await next();
                     }
 
 

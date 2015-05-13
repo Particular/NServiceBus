@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Tests.DataBus
     using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+    using System.Threading.Tasks;
     using NServiceBus.DataBus;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast.Messages;
@@ -14,7 +15,7 @@ namespace NServiceBus.Core.Tests.DataBus
     class When_applying_the_databus_message_mutator_to_incoming_messages
     {
         [Test]
-        public void Incoming_databus_properties_should_be_hydrated()
+        public async void Incoming_databus_properties_should_be_hydrated()
         {
             var propertyKey = Guid.NewGuid().ToString();
             var databusKey = Guid.NewGuid().ToString();
@@ -43,7 +44,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 fakeDatabus.StreamsToReturn[databusKey] = stream;
 
               
-                receiveBehavior.Invoke(new LogicalMessageProcessingStageBehavior.Context(message,new Dictionary<string, string> { { "NServiceBus.DataBus." + propertyKey, databusKey } },null,null), () => { });
+                await receiveBehavior.Invoke(new LogicalMessageProcessingStageBehavior.Context(message,new Dictionary<string, string> { { "NServiceBus.DataBus." + propertyKey, databusKey } },null,null), () => Task.FromResult(true));
             }
 
             var instance = (MessageWithDataBusProperty)message.Instance;

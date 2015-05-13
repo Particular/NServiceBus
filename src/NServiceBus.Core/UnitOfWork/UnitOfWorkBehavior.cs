@@ -3,12 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.UnitOfWork;
 
 
     class UnitOfWorkBehavior : PhysicalMessageProcessingStageBehavior
     {
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             try
             {
@@ -18,7 +19,7 @@
                     uow.Begin();
                 }
 
-                next();
+                await next();
 
                 while (unitsOfWork.Count > 0)
                 {

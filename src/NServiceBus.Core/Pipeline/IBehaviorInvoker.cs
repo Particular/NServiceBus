@@ -1,9 +1,10 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
+    using System.Threading.Tasks;
 
     interface IBehaviorInvoker
     {
-        void Invoke(object behavior, BehaviorContext context, Action<BehaviorContext> next);
+        Task Invoke(object behavior, BehaviorContext context, Func<BehaviorContext, Task> next);
     }
 }

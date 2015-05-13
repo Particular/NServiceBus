@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.Pipeline;
 
@@ -30,9 +31,9 @@
             this.scenarioContext = scenarioContext;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
-            next();
+            await next();
             var subscriptionMessageType = GetSubscriptionMessageTypeFrom(context.GetPhysicalMessage());
             if (subscriptionMessageType != null)
             {
