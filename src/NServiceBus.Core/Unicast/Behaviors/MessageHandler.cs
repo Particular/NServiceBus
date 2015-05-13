@@ -23,8 +23,18 @@
         /// </summary>
         /// <param name="invocationWithContext">The invocation with context delegate</param>
         /// <param name="handlerType">The handler type</param>
+        public MessageHandler(Action<object, object, object> invocationWithContext, Type handlerType)
+            // ReSharper disable once IntroduceOptionalParameters.Global
+            : this(invocationWithContext, handlerType, HandlerKind.Command)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance of the message handler with predefined invocation delegate and handler type
+        /// </summary>
+        /// <param name="invocationWithContext">The invocation with context delegate</param>
+        /// <param name="handlerType">The handler type</param>
         /// <param name="handlerKind">The handler kind</param>
-        // TODO: Should we expose that to public?
         internal MessageHandler(Action<object, object, object> invocationWithContext, Type handlerType, HandlerKind handlerKind)
         {
             HandlerKind = handlerKind;
@@ -42,9 +52,6 @@
         /// </summary>
         public Type HandlerType { get; private set; }
 
-        /// <summary>
-        /// TODO: Should we expose that to public?
-        /// </summary>
         internal HandlerKind HandlerKind { get; private set; }
 
         /// <summary>

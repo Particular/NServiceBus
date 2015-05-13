@@ -2403,6 +2403,7 @@ namespace NServiceBus.Unicast.Behaviors
         [System.ObsoleteAttribute("Please use `MessageHandler(Action<object, object, object> invocationWithContext, " +
             "Type handlerType)` instead. Will be removed in version 7.0.0.", true)]
         public MessageHandler() { }
+        public MessageHandler(System.Action<object, object, object> invocationWithContext, System.Type handlerType) { }
         public System.Type HandlerType { get; }
         public object Instance { get; set; }
         [System.ObsoleteAttribute("Please use `MessageHandler.Invoke` instead. Will be removed in version 7.0.0.", true)]
