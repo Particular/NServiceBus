@@ -29,8 +29,7 @@
 
             state.Headers[Headers.MessageIntent] = context.Intent.ToString();
 
-         
-           return new OutgoingMessage(context.MessageId, state.Headers, context.Body);
+            return new OutgoingMessage(state.MessageId, state.Headers, context.Body);
         }
 
         public void InvokeNative(Context context)
@@ -148,8 +147,10 @@
             public State()
             {
                 Headers = new Dictionary<string, string>();
+                MessageId = CombGuid.Generate().ToString();
             }
             public Dictionary<string, string> Headers { get; private set; }
+            public string MessageId { get; set; }
         }
     }
 
@@ -193,5 +194,38 @@
             context.Extensions.GetOrCreate<DispatchMessageToTransportBehavior.State>()
                 .Headers[key] = value;
         }
+
+        /// <summary>
+        /// Returns the id for this message
+        /// </summary>
+        /// <param name="context">Context beeing extended</param>
+        /// <returns>The message id</returns>
+        public static string GetMessageId(this PhysicalOutgoingContextStageBehavior.Context context)
+        {
+            return context.Extensions.GetOrCreate<DispatchMessageToTransportBehavior.State>().MessageId;
+        }
+        /// <summary>
+        /// Returns the id for this message
+        /// </summary>
+        /// <param name="context">Context beeing extended</param>
+        /// <returns>The message id</returns>
+        public static string GetMessageId(this OutgoingContext context)
+        {
+            return context.Extensions.GetOrCreate<DispatchMessageToTransportBehavior.State>().MessageId;
+        }
+
+        /// <summary>
+        /// Allows the user to set the message id
+        /// </summary>
+        /// <param name="context">Context to extend</param>
+        /// <param name="messageId">The message id to use</param>
+        public static void SetMessageId(this ExtendableOptions context, string messageId)
+        {
+            Guard.AgainstNullAndEmpty(messageId,messageId);
+
+            context.Extensions.GetOrCreate<DispatchMessageToTransportBehavior.State>()
+                .MessageId = messageId;
+        }
+
     }
 }

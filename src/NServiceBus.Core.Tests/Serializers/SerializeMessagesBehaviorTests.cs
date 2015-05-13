@@ -22,7 +22,7 @@
 
             var behavior = new SerializeMessagesBehavior(new FakeSerializer("myContentType"),registry);
 
-            var context = new OutgoingContext(null, new SendMessageOptions("test"), "msg id", MessageIntentEnum.Send, typeof(MyMessage), null, new OptionExtensionContext());
+            var context = new OutgoingContext(null, new SendMessageOptions("test"), MessageIntentEnum.Send, typeof(MyMessage), null, new OptionExtensionContext());
 
             behavior.Invoke(context, c =>
             {

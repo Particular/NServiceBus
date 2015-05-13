@@ -12,8 +12,7 @@ namespace NServiceBus
         readonly DateTime? at;
         readonly string correlationId;
         readonly TimeSpan? delay;
-        internal string MessageId;
-
+      
         /// <summary>
         ///     Creates an instance of <see cref="SendOptions" />.
         /// </summary>
@@ -49,16 +48,6 @@ namespace NServiceBus
         internal string CorrelationId
         {
             get { return correlationId; }
-        }
-
-        /// <summary>
-        ///     Sets a custom message id for this message.
-        /// </summary>
-        /// <param name="messageId"></param>
-        public SendOptions SetCustomMessageId(string messageId)
-        {
-            MessageId = messageId;
-            return this;
         }
     }
 }

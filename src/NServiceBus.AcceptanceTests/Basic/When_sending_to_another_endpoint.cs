@@ -22,6 +22,7 @@
                         var sendOptions = new SendOptions();
 
                         sendOptions.SetHeader("MyHeader", "MyHeaderValue");
+                        sendOptions.SetMessageId("MyMessageId");
                         
                         bus.Send(new MyMessage{Id = c.Id}, sendOptions);
                     }))
@@ -75,6 +76,8 @@
                 {
                     if (Context.Id != message.Id)
                         return;
+
+                    Assert.AreEqual(Bus.CurrentMessageContext.Id,"MyMessageId");
 
                     Context.TimesCalled++;
 

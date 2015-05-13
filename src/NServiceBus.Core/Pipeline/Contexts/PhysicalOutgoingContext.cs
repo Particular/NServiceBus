@@ -25,7 +25,6 @@
             {
                 Body = body;
                 DeliveryMessageOptions = parentContext.DeliveryMessageOptions;
-                MessageId = parentContext.MessageId;
                 MessageType = parentContext.MessageType;
                 Intent = parentContext.Intent;
                 Extensions = parentContext.Extensions;
@@ -45,11 +44,6 @@
             /// 
             /// </summary>
             public byte[] Body { get; set; }
-
-            /// <summary>
-            /// This id of this message
-            /// </summary>
-            public string MessageId { get; private set; }
 
             /// <summary>
             /// The intent of this message

@@ -67,7 +67,7 @@
 
         static PhysicalOutgoingContextStageBehavior.Context InitializeContext()
         {
-            var context = new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, null, null, MessageIntentEnum.Send, null, null, new OptionExtensionContext()));
+            var context = new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, null, MessageIntentEnum.Send, null, null, new OptionExtensionContext()));
             return context;
         }
 

@@ -67,7 +67,6 @@ namespace NServiceBus
 
                 return null;
             }
-            set { Headers[NServiceBus.Headers.CorrelationId] = value; }
         }
 
         /// <summary>
@@ -105,7 +104,6 @@ namespace NServiceBus
 
                 return messageIntent;
             }
-            set { Headers[NServiceBus.Headers.MessageIntent] = value.ToString(); }
         }
 
         /// <summary>
@@ -124,15 +122,6 @@ namespace NServiceBus
         {
             get { return body; }
             set { UpdateBody(value); }
-        }
-
-        /// <summary>
-        ///     Use this method to change the stable ID of the given message.
-        /// </summary>
-        internal void ChangeMessageId(string newId)
-        {
-            id = newId;
-            CorrelationId = newId;
         }
 
         /// <summary>

@@ -46,7 +46,7 @@
             var sender = new FakeMessageSender();
             deferrer.MessageSender = sender;
 
-            deferrer.Invoke(new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, new SendMessageOptions("Destination"), null, MessageIntentEnum.Send, null, null, new OptionExtensionContext())), () => { });
+            deferrer.Invoke(new PhysicalOutgoingContextStageBehavior.Context(null, new OutgoingContext(null, new SendMessageOptions("Destination"), MessageIntentEnum.Send, null, null, new OptionExtensionContext())), () => { });
 
             Assert.AreEqual(1, sender.Messages.Count);
         }

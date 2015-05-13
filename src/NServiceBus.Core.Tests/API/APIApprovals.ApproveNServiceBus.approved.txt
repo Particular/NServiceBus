@@ -223,9 +223,12 @@ namespace NServiceBus
     }
     public class static DispatchContextExtensions
     {
+        public static string GetMessageId(this NServiceBus.Pipeline.Contexts.PhysicalOutgoingContextStageBehavior.Context context) { }
+        public static string GetMessageId(this NServiceBus.Pipeline.Contexts.OutgoingContext context) { }
         public static void SetHeader(this NServiceBus.Pipeline.Contexts.OutgoingContext context, string key, string value) { }
         public static void SetHeader(this NServiceBus.Extensibility.ExtendableOptions context, string key, string value) { }
         public static void SetHeader(this NServiceBus.Pipeline.Contexts.PhysicalOutgoingContextStageBehavior.Context context, string key, string value) { }
+        public static void SetMessageId(this NServiceBus.Extensibility.ExtendableOptions context, string messageId) { }
     }
     public class static DurableMessagesConfig
     {
@@ -606,12 +609,10 @@ namespace NServiceBus
     public class SendLocalOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public SendLocalOptions(string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
-        public NServiceBus.SendLocalOptions SetCustomMessageId(string messageId) { }
     }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public SendOptions(string destination = null, string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
-        public NServiceBus.SendOptions SetCustomMessageId(string messageId) { }
     }
     public class static SerializationConfigExtensions
     {
@@ -672,10 +673,10 @@ namespace NServiceBus
             "removed in version 7.0.0.", true)]
         public TransportMessage() { }
         public byte[] Body { get; set; }
-        public string CorrelationId { get; set; }
+        public string CorrelationId { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string Id { get; }
-        public NServiceBus.MessageIntentEnum MessageIntent { get; set; }
+        public NServiceBus.MessageIntentEnum MessageIntent { get; }
         [System.ObsoleteAttribute("For sending purposes use DeliveryMessageOptions.NonDurable (note the negation). W" +
             "hen receiving look at the new \'NServiceBus.NonDurableMessage\' header. Will be re" +
             "moved in version 7.0.0.", true)]
@@ -1685,11 +1686,10 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, string messageId, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, NServiceBus.Extensibility.OptionExtensionContext extensionContext) { }
+        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, NServiceBus.Extensibility.OptionExtensionContext extensionContext) { }
         public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
         public NServiceBus.Extensibility.OptionExtensionContext Extensions { get; }
         public NServiceBus.MessageIntentEnum Intent { get; }
-        public string MessageId { get; }
         public object MessageInstance { get; set; }
         public System.Type MessageType { get; set; }
     }
@@ -1703,7 +1703,6 @@ namespace NServiceBus.Pipeline.Contexts
             public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
             public NServiceBus.Extensibility.OptionExtensionContext Extensions { get; }
             public NServiceBus.MessageIntentEnum Intent { get; }
-            public string MessageId { get; }
             public System.Type MessageType { get; }
         }
     }

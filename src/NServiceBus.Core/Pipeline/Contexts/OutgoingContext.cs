@@ -14,18 +14,16 @@
         /// </summary>
         /// <param name="parentContext">The parent context.</param>
         /// <param name="deliveryMessageOptions">The delivery options.</param>
-        /// <param name="messageId">The id of the message</param>
         /// <param name="intent">The intent of the message</param>
         /// <param name="messageType">The message type</param>
         /// <param name="messageInstance">The message instance</param>
         /// <param name="extensionContext">Extension data provided via options</param>
-        public OutgoingContext(BehaviorContext parentContext, DeliveryMessageOptions deliveryMessageOptions,string messageId, MessageIntentEnum intent, Type messageType, object messageInstance, OptionExtensionContext extensionContext)
+        public OutgoingContext(BehaviorContext parentContext, DeliveryMessageOptions deliveryMessageOptions, MessageIntentEnum intent, Type messageType, object messageInstance, OptionExtensionContext extensionContext)
             : base(parentContext)
         {
             Guard.AgainstNull(extensionContext, "extensionContext");
 
             DeliveryMessageOptions = deliveryMessageOptions;
-            MessageId = messageId;
             Intent = intent;
             MessageType = messageType;
             MessageInstance = messageInstance;
@@ -36,11 +34,6 @@
         /// Sending options.
         /// </summary>
         public DeliveryMessageOptions DeliveryMessageOptions { get; private set; }
-
-        /// <summary>
-        /// This id of this message
-        /// </summary>
-        public string MessageId { get; private set; }
 
         /// <summary>
         /// The intent of the message

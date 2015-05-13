@@ -118,7 +118,6 @@ namespace NServiceBus.Unicast
             var outgoingContext = new OutgoingContext(
                 incomingContext,
                 deliveryOptions,
-                CombGuid.Generate().ToString(),
                 MessageIntentEnum.Publish,
                 messageType,
                 message,
@@ -228,7 +227,7 @@ namespace NServiceBus.Unicast
 
             var sendOptions = new SendMessageOptions(MessageBeingProcessed.ReplyToAddress);
 
-            SendMessage(null, correlationId, MessageIntentEnum.Reply, sendOptions, message.GetType(), message, options.Extensions);
+            SendMessage(correlationId, MessageIntentEnum.Reply, sendOptions, message.GetType(), message, options.Extensions);
         }
 
         /// <summary>
@@ -285,7 +284,7 @@ namespace NServiceBus.Unicast
 
             var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
 
-            SendMessage(options.MessageId, options.CorrelationId, options.Intent, sendOptions, messageType, message, options.Extensions);
+            SendMessage(options.CorrelationId, options.Intent, sendOptions, messageType, message, options.Extensions);
         }
 
         public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
@@ -311,7 +310,7 @@ namespace NServiceBus.Unicast
 
             var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
 
-            SendMessage(options.MessageId, options.CorrelationId, MessageIntentEnum.Send, sendOptions, message.GetType(), message, options.Extensions);
+            SendMessage(options.CorrelationId, MessageIntentEnum.Send, sendOptions, message.GetType(), message, options.Extensions);
         }
 
         List<string> GetAtLeastOneAddressForMessageType(Type messageType)
@@ -341,24 +340,11 @@ namespace NServiceBus.Unicast
 
       
 
-        void SendMessage(string messageId, string correlationId, MessageIntentEnum intent, SendMessageOptions sendOptions, Type messageType, object message, OptionExtensionContext context)
+        void SendMessage(string correlationId, MessageIntentEnum intent, SendMessageOptions sendOptions, Type messageType, object message, OptionExtensionContext context)
         {
             var headers = new Dictionary<string, string>();
 
-            if (string.IsNullOrEmpty(messageId))
-            {
-                messageId = CombGuid.Generate().ToString();
-            }
-
-            if (!string.IsNullOrEmpty(correlationId))
-            {
-                headers[Headers.CorrelationId] = correlationId;
-            }
-            else
-            {
-                headers[Headers.CorrelationId] = messageId;
-            }
-
+         
             ApplyReplyToAddress(headers);
 
             ApplyDefaultDeliveryOptionsIfNeeded(sendOptions, messageType);
@@ -372,7 +358,6 @@ namespace NServiceBus.Unicast
             var outgoingContext = new OutgoingContext(
                 incomingContext,
                 sendOptions,
-                messageId,
                 intent,
                 messageType,
                 message,
@@ -383,6 +368,18 @@ namespace NServiceBus.Unicast
             {
                 outgoingContext.SetHeader(header.Key,header.Value);
             }
+
+            //todo: for now
+            if (!string.IsNullOrEmpty(correlationId))
+            {
+                outgoingContext.SetHeader(Headers.CorrelationId,correlationId);
+            }
+            else
+            {
+                //todo
+                outgoingContext.SetHeader(Headers.CorrelationId,outgoingContext.GetMessageId());
+            }
+
 
             outgoingPipeline.Invoke(outgoingContext);
         }

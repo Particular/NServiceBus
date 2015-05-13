@@ -21,7 +21,7 @@
 
             if (context.Extensions.TryGet(out parameters) && !parameters.CancellationToken.IsCancellationRequested)
             {
-                var messageId = context.MessageId;
+                var messageId = context.GetMessageId();
                 parameters.CancellationToken.Register(() =>
                 {
                     TaskCompletionSourceAdapter tcs;
