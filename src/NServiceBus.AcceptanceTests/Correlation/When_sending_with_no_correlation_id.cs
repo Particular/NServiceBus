@@ -1,9 +1,8 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.Correlation
 {
     using System;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.MessageMutator;
     using NUnit.Framework;
 
     public class When_sending_with_no_correlation_id : NServiceBusAcceptanceTest
@@ -35,22 +34,6 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class GetValueOfIncomingCorrelationId : IMutateIncomingTransportMessages, INeedInitialization
-            {
-                public Context Context { get; set; }
-
-                public void MutateIncoming(TransportMessage transportMessage)
-                {
-                    Context.CorrelationIdReceived = transportMessage.CorrelationId;
-                    Context.MessageIdReceived = transportMessage.Id;
-                }
-
-                public void Customize(BusConfiguration configuration)
-                {
-                    configuration.RegisterComponents(c => c.ConfigureComponent<GetValueOfIncomingCorrelationId>(DependencyLifecycle.InstancePerCall));
-                }
-            }
-
             public class MyResponseHandler : IHandleMessages<MyRequest>
             {
                 public Context Context { get; set; }
@@ -59,6 +42,8 @@
 
                 public void Handle(MyRequest response)
                 {
+                    Context.CorrelationIdReceived = Bus.CurrentMessageContext.Headers[Headers.CorrelationId];
+                    Context.MessageIdReceived = Bus.CurrentMessageContext.Id;
                     Context.GotRequest = true;
                 }
             }

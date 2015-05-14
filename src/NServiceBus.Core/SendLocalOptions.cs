@@ -10,17 +10,15 @@ namespace NServiceBus
     public class SendLocalOptions:ExtendableOptions
     {
         readonly DateTime? at;
-        readonly string correlationId;
         readonly TimeSpan? delay;
         internal Dictionary<string, object> Context = new Dictionary<string, object>();
     
         /// <summary>
         ///     Creates an instance of <see cref="SendOptions" />.
         /// </summary>
-        /// <param name="correlationId">Specifies a custom currelation id for the message.</param>
         /// <param name="deliverAt">Tells the bus to deliver the message at the given time.</param>
         /// <param name="delayDeliveryFor">Tells the bus to wait the specified amount of time before delivering the message.</param>
-        public SendLocalOptions(string correlationId = null, DateTime? deliverAt = null, TimeSpan? delayDeliveryFor = null)
+        public SendLocalOptions(DateTime? deliverAt = null, TimeSpan? delayDeliveryFor = null)
         {
             if (deliverAt != null && delayDeliveryFor != null)
             {
@@ -29,7 +27,6 @@ namespace NServiceBus
 
             delay = delayDeliveryFor;
             at = deliverAt;
-            this.correlationId = correlationId;
         }
 
         internal TimeSpan? Delay
@@ -40,11 +37,6 @@ namespace NServiceBus
         internal DateTime? At
         {
             get { return at; }
-        }
-
-        internal string CorrelationId
-        {
-            get { return correlationId; }
         }
     }
 }

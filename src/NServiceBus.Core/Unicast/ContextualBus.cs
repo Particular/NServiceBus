@@ -124,11 +124,11 @@ namespace NServiceBus.Unicast
                 options.Extensions);
 
 
-            //todo: just for now
             foreach (var header in headers)
             {
                 outgoingContext.SetHeader(header.Key, header.Value);
             }
+       
             outgoingPipeline.Invoke(outgoingContext);
         }
 
@@ -223,11 +223,9 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply(object message,NServiceBus.ReplyOptions options)
         {
-            var correlationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
-
             var sendOptions = new SendMessageOptions(MessageBeingProcessed.ReplyToAddress);
 
-            SendMessage(correlationId, MessageIntentEnum.Reply, sendOptions, message.GetType(), message, options.Extensions);
+            SendMessage(MessageIntentEnum.Reply, sendOptions, message.GetType(), message, options.Extensions);
         }
 
         /// <summary>
@@ -284,7 +282,7 @@ namespace NServiceBus.Unicast
 
             var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
 
-            SendMessage(options.CorrelationId, options.Intent, sendOptions, messageType, message, options.Extensions);
+            SendMessage(options.Intent, sendOptions, messageType, message, options.Extensions);
         }
 
         public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
@@ -310,7 +308,7 @@ namespace NServiceBus.Unicast
 
             var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
 
-            SendMessage(options.CorrelationId, MessageIntentEnum.Send, sendOptions, message.GetType(), message, options.Extensions);
+            SendMessage(MessageIntentEnum.Send, sendOptions, message.GetType(), message, options.Extensions);
         }
 
         List<string> GetAtLeastOneAddressForMessageType(Type messageType)
@@ -340,7 +338,7 @@ namespace NServiceBus.Unicast
 
       
 
-        void SendMessage(string correlationId, MessageIntentEnum intent, SendMessageOptions sendOptions, Type messageType, object message, OptionExtensionContext context)
+        void SendMessage(MessageIntentEnum intent, SendMessageOptions sendOptions, Type messageType, object message, OptionExtensionContext context)
         {
             var headers = new Dictionary<string, string>();
 
@@ -353,8 +351,6 @@ namespace NServiceBus.Unicast
 
             ApplyHostRelatedHeaders(headers);
 
-            
-
             var outgoingContext = new OutgoingContext(
                 incomingContext,
                 sendOptions,
@@ -363,23 +359,10 @@ namespace NServiceBus.Unicast
                 message,
                 context);
 
-            //todo: just for now
             foreach (var header in headers)
             {
                 outgoingContext.SetHeader(header.Key,header.Value);
             }
-
-            //todo: for now
-            if (!string.IsNullOrEmpty(correlationId))
-            {
-                outgoingContext.SetHeader(Headers.CorrelationId,correlationId);
-            }
-            else
-            {
-                //todo
-                outgoingContext.SetHeader(Headers.CorrelationId,outgoingContext.GetMessageId());
-            }
-
 
             outgoingPipeline.Invoke(outgoingContext);
         }

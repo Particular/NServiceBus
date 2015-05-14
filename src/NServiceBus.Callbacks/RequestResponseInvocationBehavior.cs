@@ -28,7 +28,9 @@
 
         bool HandleCorrelatedMessage(TransportMessage transportMessage, Context context)
         {
-            if (transportMessage.CorrelationId == null)
+            var correlationId = context.GetCorrelationId();
+
+            if (correlationId == null)
             {
                 return false;
             }
@@ -50,7 +52,7 @@
             }
 
             TaskCompletionSourceAdapter tcs;
-            if (!requestResponseStateLookup.TryGet(transportMessage.CorrelationId, out tcs))
+            if (!requestResponseStateLookup.TryGet(correlationId, out tcs))
             {
                 return false;
             }

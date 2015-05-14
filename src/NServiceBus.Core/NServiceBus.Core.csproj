@@ -96,6 +96,8 @@
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />
     <Compile Include="ConventionsBuilder.cs" />
+    <Compile Include="Correlation\AttachCorrelationIdBehavior.cs" />
+    <Compile Include="Correlation\CorrelationContextExtensions.cs" />
     <Compile Include="CriticalError\CriticalErrorHandling.cs" />
     <Compile Include="CriticalError\CriticalError.cs" />
     <Compile Include="DataBusPropertyInfo.cs" />

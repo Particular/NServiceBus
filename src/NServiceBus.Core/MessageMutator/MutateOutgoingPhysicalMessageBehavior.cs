@@ -8,8 +8,6 @@
     {
         public override void Invoke(Context context, Action next)
         {
-            //todo: Should we merge this into the dispatch  behavior?
-
             var headersSetByMutators = new Dictionary<string,string>();
 
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingPhysicalContext>())

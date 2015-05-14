@@ -51,25 +51,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Gets/sets the unique identifier of another message bundle
-        ///     this message bundle is associated with.
-        /// </summary>
-        public string CorrelationId
-        {
-            get
-            {
-                string correlationId;
-
-                if (Headers.TryGetValue(NServiceBus.Headers.CorrelationId, out correlationId))
-                {
-                    return correlationId;
-                }
-
-                return null;
-            }
-        }
-
-        /// <summary>
         ///     Gets/sets the reply-to address of the message bundle - replaces 'ReturnAddress'.
         /// </summary>
         public string ReplyToAddress

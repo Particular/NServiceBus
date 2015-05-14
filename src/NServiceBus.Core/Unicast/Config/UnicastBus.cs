@@ -58,6 +58,8 @@ namespace NServiceBus.Features
 
             context.Container.RegisterSingleton(hostInfo);
             context.MainPipeline.Register<HostInformationBehavior.Registration>();
+            context.MainPipeline.Register<AttachCorrelationIdBehavior.Registration>();
+            
 
             context.Container.ConfigureComponent<BusNotifications>(DependencyLifecycle.SingleInstance);
            

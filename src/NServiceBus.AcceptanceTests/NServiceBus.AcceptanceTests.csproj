@@ -183,11 +183,11 @@
     <Compile Include="PipelineExt\FilteringWhatGetsAudited.cs" />
     <Compile Include="Audit\When_auditing.cs" />
     <Compile Include="Audit\When_a_message_is_audited.cs" />
-    <Compile Include="Basic\When_sending_with_no_correlation_id.cs" />
+    <Compile Include="Correlation\When_sending_with_no_correlation_id.cs" />
     <Compile Include="Basic\When_aborting_the_behavior_chain.cs" />
     <Compile Include="Basic\When_handling_current_message_later.cs" />
     <Compile Include="Basic\When_multiple_mappings_exists.cs" />
-    <Compile Include="Basic\When_using_a_custom_correlation_id.cs" />
+    <Compile Include="Correlation\When_using_a_custom_correlation_id.cs" />
     <Compile Include="Config\When_a_config_override_is_found.cs" />
     <Compile Include="Encryption\When_using_encryption_with_custom_service.cs" />
     <Compile Include="EndpointTemplates\ContextAppender.cs" />

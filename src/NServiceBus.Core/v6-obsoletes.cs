@@ -83,6 +83,13 @@ namespace NServiceBus
             TreatAsErrorFromVersion = "6.0")]
         public TimeSpan TimeToBeReceived { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
 
+
+        [ObsoleteEx(
+            Message = "Use the value of the 'NServiceBus.CorrelationId' header instead",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public string CorrelationId { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
+
         [ObsoleteEx(
           Message = "Not used anymore, you most likely should use a `OutgoingMessageInstead`",
           RemoveInVersion = "7.0",

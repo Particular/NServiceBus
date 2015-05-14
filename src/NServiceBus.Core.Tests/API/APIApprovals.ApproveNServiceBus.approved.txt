@@ -189,6 +189,12 @@ namespace NServiceBus
         public NServiceBus.ConventionsBuilder DefiningMessagesAs(System.Func<System.Type, bool> definesMessageType) { }
         public NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
     }
+    public class static CorrelationContextExtensions
+    {
+        public static string GetCorrelationId(this NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context context) { }
+        public static void SetCorrelationId(this NServiceBus.SendOptions options, string correlationId) { }
+        public static void SetCorrelationId(this NServiceBus.SendLocalOptions options, string correlationId) { }
+    }
     public class CriticalError
     {
         public CriticalError(System.Action<string, System.Exception> onCriticalErrorAction, NServiceBus.ObjectBuilder.IBuilder builder) { }
@@ -608,11 +614,11 @@ namespace NServiceBus
     }
     public class SendLocalOptions : NServiceBus.Extensibility.ExtendableOptions
     {
-        public SendLocalOptions(string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
+        public SendLocalOptions(System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
     }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
-        public SendOptions(string destination = null, string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
+        public SendOptions(string destination = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
     }
     public class static SerializationConfigExtensions
     {
@@ -673,7 +679,9 @@ namespace NServiceBus
             "removed in version 7.0.0.", true)]
         public TransportMessage() { }
         public byte[] Body { get; set; }
-        public string CorrelationId { get; }
+        [System.ObsoleteAttribute("Use the value of the \'NServiceBus.CorrelationId\' header instead. Will be removed " +
+            "in version 7.0.0.", true)]
+        public string CorrelationId { get; set; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string Id { get; }
         public NServiceBus.MessageIntentEnum MessageIntent { get; }
