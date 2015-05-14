@@ -14,7 +14,7 @@
             };
 
             Scenario.Define(context)
-                .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+                .WithEndpoint<RetryEndpoint>()
                 .AllowExceptions()
                 .Done(c => c.SlrChecksum != default(byte))
                 .Run();
