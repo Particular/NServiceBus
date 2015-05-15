@@ -15,31 +15,22 @@ namespace NServiceBus
     /// <summary>
     ///     Central configuration entry point.
     /// </summary>
-    public class Configure
+    public partial class Configure
     {
         /// <summary>
         ///     Creates a new instance of <see cref="Configure"/>.
         /// </summary>
-        internal Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration, Dictionary<string, string> outgoingHeaders)
+        internal Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration)
         {
             Settings = settings;
             this.pipelineSettings = pipelineSettings;
             this.pipelineConfiguration = pipelineConfiguration;
-            this.outgoingHeaders = outgoingHeaders;
-
+         
             RegisterContainerAdapter(container);
             RunUserRegistrations(registrations);
 
             this.container.RegisterSingleton(this);
             this.container.RegisterSingleton<ReadOnlySettings>(settings);
-        }
-
-        /// <summary>
-        ///     Endpoint wide outgoing headers to be added to all sent messages.
-        /// </summary>
-        public IDictionary<string, string> OutgoingHeaders
-        {
-            get { return outgoingHeaders = outgoingHeaders ?? new Dictionary<string, string>(); }
         }
 
         /// <summary>
@@ -199,7 +190,6 @@ namespace NServiceBus
 
         internal PipelineSettings pipelineSettings;
         readonly PipelineConfiguration pipelineConfiguration;
-        Dictionary<string, string> outgoingHeaders;
 
         //HACK: Set by the tests
         internal string localAddress;

@@ -52,6 +52,36 @@ namespace NServiceBus
         {
             throw new NotImplementedException();
         }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "SetOutgoingHeaders(string key,string value)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public IDictionary<string, string> OutgoingHeaders
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+    }
+
+    public partial class Configure
+    {
+
+        [ObsoleteEx(
+            Message = "Static headers is no longer accessible via this object",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public IDictionary<string, string> OutgoingHeaders
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
     }
 
     [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "config.ExcludeAssemblies")]

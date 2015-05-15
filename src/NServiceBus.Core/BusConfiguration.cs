@@ -49,14 +49,7 @@ namespace NServiceBus
         /// </summary>
         public PipelineSettings Pipeline { get; private set; }
 
-        /// <summary>
-        ///     Endpoint wide outgoing headers to be added to all sent messages.
-        /// </summary>
-        public IDictionary<string, string> OutgoingHeaders
-        {
-            get { return outgoingHeaders = outgoingHeaders ?? new Dictionary<string, string>(); }
-        }
-
+     
         /// <summary>
         ///     Used to configure components in the container.
         /// </summary>
@@ -247,7 +240,7 @@ namespace NServiceBus
 
             Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
 
-            return new Configure(Settings, container, registrations, Pipeline, pipelineCollection, outgoingHeaders);
+            return new Configure(Settings, container, registrations, Pipeline, pipelineCollection);
         }
 
         List<Type> GetAllowedTypes(string path)
@@ -286,7 +279,6 @@ namespace NServiceBus
         List<string> excludedAssemblies = new List<string>();
         bool scanAssembliesInNestedDirectories;
         string publicReturnAddress;
-        Dictionary<string, string> outgoingHeaders;
         PipelineConfiguration pipelineCollection;
     }
 }

@@ -149,6 +149,9 @@
     <Compile Include="SendLocalOptions.cs" />
     <Compile Include="SendOptions.cs" />
     <Compile Include="Sagas\ActiveSagaInstance_obsolete.cs" />
+    <Compile Include="StaticHeaders\ApplyStaticHeadersBehavior.cs" />
+    <Compile Include="StaticHeaders\StaticHeadersConfigExtensions.cs" />
+    <Compile Include="StaticHeaders\CurrentStaticHeaders.cs" />
     <Compile Include="Transports\DequeueInfo.cs" />
     <Compile Include="Transports\Msmq\MsmqAddress.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveBehavior.cs" />
@@ -161,6 +164,8 @@
     <Compile Include="Transports\TransportDeferOptions.cs" />
     <Compile Include="Transports\TransportPublishOptions.cs" />
     <Compile Include="Transports\TransportSendOptions.cs" />
+    <Compile Include="TransportDispatch\HeaderExtensions.cs" />
+    <Compile Include="TransportDispatch\MessageIdExtensions.cs" />
     <Compile Include="Unicast\Behaviors\SagaInvocationResult.cs" />
     <Compile Include="Unicast\Behaviors\TransportReceiveToPhysicalMessageProcessingConnector.cs" />
     <Compile Include="Pipeline\Contexts\LogicalMessageProcessingStageBehavior.cs" />
@@ -419,7 +424,7 @@
     <Compile Include="Unicast\Behaviors\MessageHandler.cs" />
     <Compile Include="Unicast\Behaviors\ChildContainerBehavior.cs" />
     <Compile Include="Unicast\Behaviors\SerializeMessagesBehavior.cs" />
-    <Compile Include="Unicast\Behaviors\DispatchMessageToTransportBehavior.cs" />
+    <Compile Include="TransportDispatch\DispatchMessageToTransportBehavior.cs" />
     <Compile Include="MessageMutator\MutateOutgoingMessageBehavior.cs" />
     <Compile Include="MessageMutator\MutateOutgoingPhysicalMessageBehavior.cs" />
     <Compile Include="Pipeline\Contexts\LogicalMessagesProcessingStageBehavior.cs" />

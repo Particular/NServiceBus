@@ -111,7 +111,6 @@ namespace NServiceBus.Unicast
 
             var headers = new Dictionary<string, string>();
 
-            ApplyStaticHeaders(headers);
             ApplyReplyToAddress(headers);
             ApplyHostRelatedHeaders(headers);
 
@@ -130,14 +129,6 @@ namespace NServiceBus.Unicast
             }
        
             outgoingPipeline.Invoke(outgoingContext);
-        }
-
-        void ApplyStaticHeaders(Dictionary<string, string> messageHeaders)
-        {
-            foreach (var staticHeader in configure.OutgoingHeaders)
-            {
-                messageHeaders[staticHeader.Key] = staticHeader.Value;
-            }
         }
 
         /// <summary>
@@ -346,8 +337,6 @@ namespace NServiceBus.Unicast
             ApplyReplyToAddress(headers);
 
             ApplyDefaultDeliveryOptionsIfNeeded(sendOptions, messageType);
-
-            ApplyStaticHeaders(headers);
 
             ApplyHostRelatedHeaders(headers);
 

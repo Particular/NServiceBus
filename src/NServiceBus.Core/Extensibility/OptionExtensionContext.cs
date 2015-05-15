@@ -59,7 +59,9 @@
             {
                 return value;
             }
-            var newInstance = Activator.CreateInstance<T>();
+            
+            var newInstance = new T();
+
             Set(newInstance);
 
             return newInstance;

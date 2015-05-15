@@ -22,6 +22,7 @@
                     .Done(c => c.MessageAudited)
                     .Run();
 
+            Assert.True(context.MessageProcessed);
             Assert.True(context.MessageAudited);
         }
 
@@ -29,6 +30,7 @@
         public class Context : ScenarioContext
         {
             public bool MessageAudited { get; set; }
+            public bool MessageProcessed { get; set; }
         }
 
         public class Server : EndpointConfigurationBuilder
@@ -66,9 +68,12 @@
             {
                 public IBus Bus { get; set; }
 
+                public Context Context { get; set; }
+
                 public void Handle(ResponseToBeAudited message)
                 {
                     Assert.AreEqual(Bus.CurrentMessageContext.Headers["MyHeader"], "SomeValue");
+                    Context.MessageProcessed = true;
                 }
             }
         }
