@@ -17,10 +17,12 @@ namespace NServiceBus.Features
             {
                 LicenseManager.InitializeLicense();
 
-                if (LicenseManager.HasLicenseExpired())
-                {
-                    context.MainPipeline.Register<NotifyOnInvalidLicenseBehavior.Registration>();
-                }
+                var licenseExpired = LicenseManager.HasLicenseExpired();
+
+                context.Pipeline.Register<NotifyOnInvalidLicenseBehavior.Registration>();
+
+                context.Container.ConfigureComponent(b => new NotifyOnInvalidLicenseBehavior(licenseExpired),DependencyLifecycle.SingleInstance);
+
             }
             catch (Exception ex)
             {
@@ -28,7 +30,7 @@ namespace NServiceBus.Features
                 Logger.Fatal("Failed to initialize the license", ex);
             }
 
-            
+
         }
 
         static ILog Logger = LogManager.GetLogger<LicenseReminder>();

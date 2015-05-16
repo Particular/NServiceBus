@@ -1,9 +1,10 @@
 namespace NServiceBus
 {
     using System;
+    using NServiceBus.Pipeline;
 
     /// <summary>
-    /// A base class for setellite behaviors
+    /// A base class for satellite behaviors
     /// </summary>
     public abstract class SatelliteBehavior: PhysicalMessageProcessingStageBehavior
     {
@@ -14,7 +15,7 @@ namespace NServiceBus
         /// <param name="next">The next <see cref="!:IBehavior{TContext}" /> in the chain to execute.</param>
         public override void Invoke(Context context, Action next)
         {
-            context.Set("TransportReceiver.MessageHandledSuccessfully", Handle(context.PhysicalMessage));
+            Handle(context.GetIncomingPhysicalMessage());
         }
 
         /// <summary>

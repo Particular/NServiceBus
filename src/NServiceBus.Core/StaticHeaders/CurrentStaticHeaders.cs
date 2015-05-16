@@ -17,7 +17,7 @@ namespace NServiceBus.StaticHeaders
             var headers = context.Settings.Get<CurrentStaticHeaders>();
 
             context.Container.ConfigureComponent(b => new ApplyStaticHeadersBehavior(headers), DependencyLifecycle.SingleInstance);
-            context.MainPipeline.Register("ApplyStaticHeaders", typeof(ApplyStaticHeadersBehavior), "Applies static headers to outgoing messages");
+            context.Pipeline.Register("ApplyStaticHeaders", typeof(ApplyStaticHeadersBehavior), "Applies static headers to outgoing messages");
         }
     }
 

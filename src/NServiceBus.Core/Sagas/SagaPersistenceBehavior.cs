@@ -15,7 +15,7 @@
     {
         public ISagaPersister SagaPersister { get; set; }
 
-        public IDeferMessages MessageDeferrer { get; set; }
+        public ICancelDeferredMessages TimeoutCancellation { get; set; }
 
         public MessageHandlerRegistry MessageHandlerRegistry { get; set; }
 
@@ -95,7 +95,7 @@
 
                 if (saga.Entity.Id != Guid.Empty)
                 {
-                    NotifyTimeoutManagerThatSagaHasCompleted(saga);
+                    TimeoutCancellation.CancelDeferredMessages(saga.Entity.Id.ToString(),context);
                 }
 
                 logger.DebugFormat("Saga: '{0}' with Id: '{1}' has completed.", sagaInstanceState.Metadata.Name, saga.Entity.Id);
@@ -237,11 +237,6 @@
             var finder = currentContext.Builder.Build(finderType);
 
             return ((SagaFinder)finder).Find(currentContext.Builder, finderDefinition, context.MessageBeingHandled);
-        }
-
-        void NotifyTimeoutManagerThatSagaHasCompleted(Saga.Saga saga)
-        {
-            MessageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
         }
 
         IContainSagaData CreateNewSagaEntity(SagaMetadata metadata, Context context)

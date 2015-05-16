@@ -13,7 +13,13 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.Send(new MyMessage(), new SendOptions(delayDeliveryFor: TimeSpan.FromSeconds(3)))))
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    {
+                        var options = new SendOptions();
+
+                        options.DelayDeliveryWith(TimeSpan.FromSeconds(3));
+                        bus.Send(new MyMessage(), options);
+                    }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Run();

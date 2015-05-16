@@ -15,8 +15,8 @@
             {
                 RegisterStep.Create("Root1", typeof(RootBehavior), "desc"),
                 RegisterStep.Create("RootToChildConnector", typeof(RootToChildConnector), "desc"),
-                RegisterStep.Create("RootToChild2Connector", typeof(RootToChild2Connector), "desc"),
-
+                RegisterStep.Create("RootToChild2Connector", typeof(RootToChild2Connector), "desc")
+        
             }, new List<RemoveStep>(), new List<ReplaceBehavior>());
 
 
@@ -32,7 +32,7 @@
             {
                 RegisterStep.Create("Root", typeof(RootBehavior), "desc"),
                 RegisterStep.Create("RootToChildConnector", typeof(RootToChild2Connector), "desc"),
-                RegisterStep.Create("Child", typeof(NonReachableChildBehavior), "desc"),
+                RegisterStep.Create("Child", typeof(NonReachableChildBehavior), "desc")
             }, new List<RemoveStep>(), new List<ReplaceBehavior>());
 
 
@@ -40,6 +40,25 @@
 
             Assert.AreEqual(3, model.Count);
         }
+
+        [Test]
+        public void ShouldHandleTheTerminator()
+        {
+            var builder = new PipelineModelBuilder(typeof(RootContext), new List<RegisterStep>
+            {
+                RegisterStep.Create("Root1", typeof(RootBehavior), "desc"),
+                RegisterStep.Create("RootToChildConnector", typeof(RootToChildConnector), "desc"),
+                RegisterStep.Create("Terminator", typeof(Terminator), "desc")
+        
+            }, new List<RemoveStep>(), new List<ReplaceBehavior>());
+
+
+            var model = builder.Build();
+
+            Assert.AreEqual(3, model.Count);
+        }
+
+
 
         public class RootContext : BehaviorContext
         {
@@ -72,7 +91,13 @@
             }
         }
 
-
+        public class Terminator : PipelineTerminator<ChildContext>
+        {
+            public override void Terminate(ChildContext context)
+            {
+                throw new NotImplementedException();
+            }
+        }
         public class RootToChild2Connector : StageConnector<RootContext, ChildContextReachableButNotInheritingFromRootContext>
         {
             public override void Invoke(RootContext context, Action<ChildContextReachableButNotInheritingFromRootContext> next)

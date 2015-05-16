@@ -21,7 +21,14 @@
             {
                 var context = new Context();
                 Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new MyMessage(), new SendLocalOptions(delayDeliveryFor: TimeSpan.FromSeconds(5)))))
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    {
+                        var options = new SendLocalOptions();
+
+                        options.DelayDeliveryWith(TimeSpan.FromSeconds(5));
+
+                        bus.SendLocal(new MyMessage(), options);
+                    }))
                     .Done(c => c.WasCalled)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))

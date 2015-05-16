@@ -9,47 +9,22 @@
 
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
-        Context context;
-
-        [SetUp]
-        public new void SetUp()
+      
+        [Test]
+        public void Should_preserve_the_original_body()
         {
-            context = new Context
+            var context = new Context
             {
                 RunId = Guid.NewGuid()
             };
 
             Scenario.Define(context)
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited{RunId = context.RunId})))
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited { RunId = context.RunId })))
                     .WithEndpoint<AuditSpyEndpoint>()
                     .Done(c => c.Done)
                     .Run();
-        }
-
-        [Test]
-        public void Should_preserve_the_original_body()
-        {
             Assert.AreEqual(context.OriginalBodyChecksum, context.AuditChecksum, "The body of the message sent to audit should be the same as the original message coming off the queue");
         }
-
-        [Test]
-        public void Should_be_stamped_with_host_id_and_host_name()
-        {
-            Assert.IsNotNull(context.HostId);
-            Assert.IsNotNull(context.HostName);
-        }
-
-        [Test, Ignore("To be fixed by Andreas")]
-        public void Should_add_the_license_diagnostic_headers()
-        {
-            Scenario.Define(context)
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
-                    .WithEndpoint<AuditSpyEndpoint>()
-                    .Done(c => c.HasDiagnosticLicensingHeaders)
-                    .Run();
-            Assert.IsTrue(context.HasDiagnosticLicensingHeaders);
-        }
-
 
         public class Context : ScenarioContext
         {
@@ -57,9 +32,6 @@
             public bool Done { get; set; }
             public byte OriginalBodyChecksum { get; set; }
             public byte AuditChecksum { get; set; }
-            public bool HasDiagnosticLicensingHeaders { get; set; }
-            public string HostId { get; set; }
-            public string HostName { get; set; }
         }
 
         public class EndpointWithAuditOn : EndpointConfigurationBuilder
@@ -119,8 +91,6 @@
                 public void MutateIncoming(TransportMessage transportMessage)
                 {
                     Context.AuditChecksum = Checksum(transportMessage.Body);
-                    string licenseExpired;
-                    Context.HasDiagnosticLicensingHeaders = transportMessage.Headers.TryGetValue(Headers.HasLicenseExpired, out licenseExpired);
                 }
 
                 public void Customize(BusConfiguration configuration)
@@ -140,8 +110,6 @@
                     {
                         return;
                     }
-                    Context.HostId = Bus.CurrentMessageContext.Headers[Headers.HostId];
-                    Context.HostName = Bus.CurrentMessageContext.Headers[Headers.HostDisplayName];
                     Context.Done = true;
                 }
             }

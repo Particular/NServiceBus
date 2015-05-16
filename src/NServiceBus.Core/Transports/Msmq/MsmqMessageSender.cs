@@ -4,61 +4,56 @@ namespace NServiceBus.Transports.Msmq
     using System.Collections.ObjectModel;
     using System.Messaging;
     using System.Transactions;
-    using NServiceBus.Pipeline;
+    using NServiceBus.ConsistencyGuarantees;
+    using NServiceBus.Routing;
     using NServiceBus.Transports.Msmq.Config;
     using NServiceBus.Unicast.Queuing;
 
     /// <summary>
-    /// Default MSMQ <see cref="ISendMessages"/> implementation.
+    /// Default MSMQ <see cref="IDispatchMessages"/> implementation.
     /// </summary>
-    public class MsmqMessageSender : ISendMessages
+    public class MsmqMessageSender : IDispatchMessages
     {
-        BehaviorContext context;
-
         /// <summary>
         /// Creates a new sender.
         /// </summary>
-        /// <param name="context"></param>
-        public MsmqMessageSender(BehaviorContext context)
+        /// <param name="settings">The current msmq settings</param>
+        /// <param name="messageLabelGenerator"></param>
+        public MsmqMessageSender(MsmqSettings settings, MsmqLabelGenerator messageLabelGenerator)
         {
-            Guard.AgainstNull(context, "context");
-            this.context = context;
+            Guard.AgainstNull(settings, "settings");
+    
+            this.settings = settings;
+            this.messageLabelGenerator = messageLabelGenerator;
         }
-
-        /// <summary>
-        /// MsmqSettings
-        /// </summary>
-        public MsmqSettings Settings { get; set; }
-
-
-        /// <summary>
-        /// SuppressDistributedTransactions
-        /// </summary>
-        public bool SuppressDistributedTransactions { get; set; }
-
-        /// <summary>
-        /// Stores the value set by <see cref="MsmqConfigurationExtensions.ApplyLabelToMessages"/>
-        /// </summary>
-        public MsmqLabelGenerator MessageLabelConvention { get; set; }
 
         /// <summary>
         /// Sends the given <paramref name="message"/>
         /// </summary>
-        public void Send(OutgoingMessage message, TransportSendOptions sendOptions)
+        public void Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions)
         {
             Guard.AgainstNull(message, "message");
-            Guard.AgainstNull(sendOptions, "sendOptions");
-            var destination = sendOptions.Destination;
+            Guard.AgainstNull(dispatchOptions, "sendOptions");
+            
+            var routingStrategy = dispatchOptions.RoutingStrategy as DirectToTargetDestination;
+
+            if (routingStrategy == null)
+            {
+                throw new Exception("The MSMQ transport only supports the `DirectRoutingStrategy`, strategy required " + dispatchOptions.RoutingStrategy.GetType().Name);
+            }
+
+            var destination = routingStrategy.Destination;
+            
             var destinationAddress = MsmqAddress.Parse(destination);
             var queuePath = MsmqUtilities.GetFullPath(destinationAddress);
             try
             {
-                using (var q = new MessageQueue(queuePath, false, Settings.UseConnectionCache, QueueAccessMode.Send))
-                using (var toSend = MsmqUtilities.Convert(message, sendOptions))
+                using (var q = new MessageQueue(queuePath, false, settings.UseConnectionCache, QueueAccessMode.Send))
+                using (var toSend = MsmqUtilities.Convert(message,dispatchOptions))
                 {
-                    toSend.UseDeadLetterQueue = Settings.UseDeadLetterQueue;
-                    toSend.UseJournalQueue = Settings.UseJournalQueue;
-                    toSend.TimeToReachQueue = Settings.TimeToReachQueue;
+                    toSend.UseDeadLetterQueue = settings.UseDeadLetterQueue;
+                    toSend.UseJournalQueue = settings.UseJournalQueue;
+                    toSend.TimeToReachQueue = settings.TimeToReachQueue;
 
                     string replyToAddress;
 
@@ -69,11 +64,12 @@ namespace NServiceBus.Transports.Msmq
                     }
 
                     MessageQueueTransaction receiveTransaction;
-                    context.TryGet(out receiveTransaction);
+                    dispatchOptions.Context.TryGet(out receiveTransaction);
 
 
                     var label = GetLabel(message);
-                    if (sendOptions.EnlistInReceiveTransaction && receiveTransaction != null)
+
+                    if (dispatchOptions.MinimumConsistencyGuarantee is AtomicWithReceiveOperation && receiveTransaction != null)
                     {
                         q.Send(toSend, label, receiveTransaction);
                     }
@@ -106,11 +102,11 @@ namespace NServiceBus.Transports.Msmq
 
         string GetLabel(OutgoingMessage message)
         {
-            if (MessageLabelConvention == null)
+            if (messageLabelGenerator == null)
             {
                 return string.Empty;
             }
-            var messageLabel = MessageLabelConvention(new ReadOnlyDictionary<string, string>(message.Headers));
+            var messageLabel = messageLabelGenerator(new ReadOnlyDictionary<string, string>(message.Headers));
             if (messageLabel == null)
             {
                 throw new Exception("MSMQ label convention returned a null. Either return a valid value or a String.Empty to indicate 'no value'.");
@@ -133,7 +129,7 @@ namespace NServiceBus.Transports.Msmq
 
         MessageQueueTransactionType GetTransactionTypeForSend()
         {
-            if (!Settings.UseTransactionalQueues)
+            if (!settings.UseTransactionalQueues)
             {
                 return MessageQueueTransactionType.None;
             }
@@ -142,5 +138,8 @@ namespace NServiceBus.Transports.Msmq
                        ? MessageQueueTransactionType.Automatic
                        : MessageQueueTransactionType.Single;
         }
+
+        MsmqSettings settings;
+        readonly MsmqLabelGenerator messageLabelGenerator;
     }
 }

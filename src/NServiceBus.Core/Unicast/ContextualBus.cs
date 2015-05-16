@@ -4,17 +4,17 @@ namespace NServiceBus.Unicast
     using System.Collections.Generic;
     using System.Linq;
     using Janitor;
+    using NServiceBus.ConsistencyGuarantees;
+    using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
-    using NServiceBus.Hosting;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.MessagingBestPractices;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Settings;
-    using NServiceBus.Support;
+    using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Messages;
     using NServiceBus.Unicast.Routing;
 
     interface IContextualBus
@@ -29,30 +29,25 @@ namespace NServiceBus.Unicast
         IBuilder builder;
         Configure configure;
         IManageSubscriptions subscriptionManager;
-        MessageMetadataRegistry messageMetadataRegistry;
         TransportDefinition transportDefinition;
-        ISendMessages messageSender;
+        IDispatchMessages messageSender;
         StaticMessageRouter messageRouter;
-        HostInformation hostInformation;
         PipelineBase<OutgoingContext> outgoingPipeline;
         bool sendOnlyMode;
         string sendLocalAddress;
-        string endpointName;
-
+      
 
         public ContextualBus(Func<BehaviorContext> contextGetter, IMessageMapper messageMapper, IBuilder builder, Configure configure, IManageSubscriptions subscriptionManager,
-            MessageMetadataRegistry messageMetadataRegistry, ReadOnlySettings settings, TransportDefinition transportDefinition, ISendMessages messageSender, StaticMessageRouter messageRouter, HostInformation hostInformation)
+            ReadOnlySettings settings, TransportDefinition transportDefinition, IDispatchMessages messageSender, StaticMessageRouter messageRouter)
         {
             this.messageMapper = messageMapper;
             this.contextGetter = contextGetter;
             this.builder = builder;
             this.configure = configure;
             this.subscriptionManager = subscriptionManager;
-            this.messageMetadataRegistry = messageMetadataRegistry;
             this.transportDefinition = transportDefinition;
             this.messageSender = messageSender;
             this.messageRouter = messageRouter;
-            this.hostInformation = hostInformation;
             var pipelinesCollection = settings.Get<PipelineConfiguration>();
             outgoingPipeline = new PipelineBase<OutgoingContext>(builder,  settings, pipelinesCollection.MainPipeline);
             sendOnlyMode = settings.Get<bool>("Endpoint.SendOnly");
@@ -65,8 +60,6 @@ namespace NServiceBus.Unicast
             {
                 sendLocalAddress = configure.LocalAddress;
             }
-
-            endpointName = settings.EndpointName();
         }
 
         BehaviorContext incomingContext
@@ -105,22 +98,15 @@ namespace NServiceBus.Unicast
         {
             var messageType = message.GetType();
 
-            var deliveryOptions = new DeliveryMessageOptions();
-
-            ApplyDefaultDeliveryOptionsIfNeeded(deliveryOptions, messageType);
-
             var headers = new Dictionary<string, string>();
 
             ApplyReplyToAddress(headers);
-            ApplyHostRelatedHeaders(headers);
-
+        
             var outgoingContext = new OutgoingContext(
                 incomingContext,
-                deliveryOptions,
-                MessageIntentEnum.Publish,
                 messageType,
                 message,
-                options.Extensions);
+                options);
 
 
             foreach (var header in headers)
@@ -191,15 +177,6 @@ namespace NServiceBus.Unicast
             }
         }
 
-        void AssertIsValidForPostponedDelivery(Type messageType)
-        {
-            if (configure.container.HasComponent<Validations>())
-            {
-                 builder.Build<Validations>()
-                    .AssertIsValidForPostponedDelivery(messageType);
-            }
-        }
-
         void AssertIsValidForPubSub(Type messageType)
         {
             //we don't have any extension points for subscribe/unsubscribe but this does the trick for now
@@ -223,9 +200,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply(object message,NServiceBus.ReplyOptions options)
         {
-            var sendOptions = new SendMessageOptions(MessageBeingProcessed.ReplyToAddress);
-
-            SendMessage(MessageIntentEnum.Reply, sendOptions, message.GetType(), message, options.Extensions);
+            SendMessage(message.GetType(), message, options);
         }
 
         /// <summary>
@@ -238,7 +213,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new TransportSendOptions(sendLocalAddress));
+            messageSender.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(sendLocalAddress,new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
 
             incomingContext.handleCurrentMessageLaterWasCalled = true;
 
@@ -250,7 +225,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void ForwardCurrentMessageTo(string destination)
         {
-            messageSender.Send(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new TransportSendOptions(destination));
+            messageSender.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
         }
 
         public void Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
@@ -261,34 +236,8 @@ namespace NServiceBus.Unicast
         public void Send(object message, NServiceBus.SendOptions options)
         {
             var messageType = message.GetType();
-            var destination = options.Destination;
-
-            if (string.IsNullOrEmpty(destination))
-            {
-                destination = GetDestinationForSend(messageType);
-            }
-
-            TimeSpan? delayDeliveryFor = null;
-            if (options.Delay.HasValue)
-            {
-                delayDeliveryFor = options.Delay;
-            }
-
-            DateTime? deliverAt = null;
-            if (options.At.HasValue)
-            {
-                deliverAt = options.At;
-            }
-
-            var postponedDeliveryWasRequested = (deliverAt != null) || (delayDeliveryFor != null);
-            if (postponedDeliveryWasRequested)
-            {
-                AssertIsValidForPostponedDelivery(message.GetType());
-            }
-
-            var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
-
-            SendMessage(options.Intent, sendOptions, messageType, message, options.Extensions);
+   
+            SendMessage(messageType, message, options);
         }
 
         public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
@@ -298,29 +247,15 @@ namespace NServiceBus.Unicast
 
         public void SendLocal(object message, SendLocalOptions options)
         {
-            var destination = sendLocalAddress;
-
-            TimeSpan? delayDeliveryFor = null;
-            if (options.Delay.HasValue)
+            var sendOptions = new NServiceBus.SendOptions
             {
-                delayDeliveryFor = options.Delay;
-            }
+                Extensions = options.Extensions
+            };
 
-            DateTime? deliverAt = null;
-            if (options.At.HasValue)
-            {
-                deliverAt = options.At;
-            }
 
-            var postponedDeliveryWasRequested = (deliverAt != null) || (delayDeliveryFor != null);
-            if (postponedDeliveryWasRequested)
-            {
-                AssertIsValidForPostponedDelivery(message.GetType());
-            }
+            sendOptions.RouteToLocalEndpointInstance();
 
-            var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
-
-            SendMessage(MessageIntentEnum.Send, sendOptions, message.GetType(), message, options.Extensions);
+            Send(message, sendOptions);
         }
 
         List<string> GetAtLeastOneAddressForMessageType(Type messageType)
@@ -336,38 +271,20 @@ namespace NServiceBus.Unicast
             return addresses;
         }
 
-        string GetDestinationForSend(Type messageType)
-        {
-            var destinations = GetAtLeastOneAddressForMessageType(messageType);
-
-            if (destinations.Count > 1)
-            {
-                throw new InvalidOperationException("Sends can only target one address.");
-            }
-
-            return destinations.SingleOrDefault();
-        }
-
       
-
-        void SendMessage(MessageIntentEnum intent, SendMessageOptions sendOptions, Type messageType, object message, OptionExtensionContext context)
+        void SendMessage(Type messageType, object message, ExtendableOptions options)
         {
             var headers = new Dictionary<string, string>();
 
          
+            //todo: move to routing
             ApplyReplyToAddress(headers);
-
-            ApplyDefaultDeliveryOptionsIfNeeded(sendOptions, messageType);
-
-            ApplyHostRelatedHeaders(headers);
-
+            
             var outgoingContext = new OutgoingContext(
                 incomingContext,
-                sendOptions,
-                intent,
                 messageType,
                 message,
-                context);
+                options);
 
             foreach (var header in headers)
             {
@@ -377,14 +294,7 @@ namespace NServiceBus.Unicast
             outgoingPipeline.Invoke(outgoingContext);
         }
 
-        void ApplyHostRelatedHeaders(Dictionary<string, string> headers)
-        {
-            headers.Add(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
-            headers.Add(Headers.OriginatingEndpoint, endpointName);
-            headers.Add(Headers.OriginatingHostId, hostInformation.HostId.ToString("N"));
-        }
-
-        private void ApplyReplyToAddress(Dictionary<string, string> headers)
+        void ApplyReplyToAddress(Dictionary<string, string> headers)
         {
             string replyToAddress = null;
 
@@ -420,31 +330,12 @@ namespace NServiceBus.Unicast
             {
                 TransportMessage current;
 
-                if (!incomingContext.TryGet(TransportReceiveContext.IncomingPhysicalMessageKey, out current))
+                if (!incomingContext.TryGet(out current))
                 {
                     return null;
                 }
 
                 return new MessageContext(current);
-            }
-        }
-
-
-        void ApplyDefaultDeliveryOptionsIfNeeded(DeliveryMessageOptions options, Type messageType)
-        {
-            var messageDefinitions = messageMetadataRegistry.GetMessageMetadata(messageType);
-
-            if (!options.TimeToBeReceived.HasValue)
-            {
-                if (messageDefinitions.TimeToBeReceived < TimeSpan.MaxValue)
-                {
-                    options.TimeToBeReceived = messageDefinitions.TimeToBeReceived;
-                }
-            }
-
-            if (!options.NonDurable.HasValue)
-            {
-                options.NonDurable = !messageDefinitions.Recoverable;
             }
         }
 
@@ -475,7 +366,7 @@ namespace NServiceBus.Unicast
             {
                 TransportMessage current;
 
-                if (!incomingContext.TryGet(TransportReceiveContext.IncomingPhysicalMessageKey, out current))
+                if (!incomingContext.TryGet(out current))
                 {
                     throw new InvalidOperationException("There is no current message being processed");
                 }

@@ -82,7 +82,11 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(destination, "destination");
             Guard.AgainstNull(message, "message");
 
-            bus.Send(message, new SendOptions(destination));
+            var options = new SendOptions();
+
+            options.SetDestination(destination);
+
+            bus.Send(message, options);
         }
 
         /// <summary>
@@ -98,7 +102,11 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(destination, "destination");
             Guard.AgainstNull(messageConstructor, "messageConstructor");
 
-            bus.Send(messageConstructor, new SendOptions(destination));
+            var options = new SendOptions();
+
+            options.SetDestination(destination);
+
+            bus.Send(messageConstructor, options);
         }
     }
 }

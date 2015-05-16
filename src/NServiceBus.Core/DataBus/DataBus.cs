@@ -48,8 +48,8 @@ namespace NServiceBus.Features
                 context.Container.ConfigureComponent<DefaultDataBusSerializer>(DependencyLifecycle.SingleInstance);
             }
 
-            context.MainPipeline.Register<DataBusReceiveBehavior.Registration>();
-            context.MainPipeline.Register<DataBusSendBehavior.Registration>();
+            context.Pipeline.Register<DataBusReceiveBehavior.Registration>();
+            context.Pipeline.Register<DataBusSendBehavior.Registration>();
         }
     }
 }

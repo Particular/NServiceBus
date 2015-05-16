@@ -9,15 +9,15 @@
     {
         public override void Invoke(Context context, Action next)
         {
-            var current = context.IncomingLogicalMessage.Instance;
+            var current = context.GetIncomingLogicalMessage().Instance;
 
             foreach (var mutator in context.Builder.BuildAll<IMutateIncomingMessages>())
             {
                 current = mutator.MutateIncoming(current);
-                context.IncomingLogicalMessage.UpdateMessageInstance(current);
+                context.GetIncomingLogicalMessage().UpdateMessageInstance(current);
             }
 
-            context.MessageType = context.IncomingLogicalMessage.Metadata.MessageType;
+            context.MessageType = context.GetIncomingLogicalMessage().Metadata.MessageType;
             next();
         }
     }

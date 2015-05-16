@@ -4,6 +4,7 @@
     using NServiceBus.Features;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.TransportDispatch;
 
     class SetLegacyReturnCodeBehavior : Behavior<OutgoingContext>
     {

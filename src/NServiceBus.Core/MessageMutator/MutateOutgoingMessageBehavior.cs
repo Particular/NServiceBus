@@ -4,6 +4,7 @@
     using NServiceBus.MessageMutator;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.TransportDispatch;
 
     class MutateOutgoingMessageBehavior : Behavior<OutgoingContext>
     {

@@ -19,9 +19,9 @@
             {
                 MessageHandler = handler;
                 Headers = parentContext.Headers;
-                MessageBeingHandled = parentContext.IncomingLogicalMessage.Instance;
-                MessageMetadata = parentContext.IncomingLogicalMessage.Metadata;
-                MessageId = parentContext.PhysicalMessage.Id;
+                MessageBeingHandled = parentContext.GetIncomingLogicalMessage().Instance;
+                MessageMetadata = parentContext.GetIncomingLogicalMessage().Metadata;
+                MessageId = parentContext.GetIncomingPhysicalMessage().Id;
             }
 
             /// <summary>

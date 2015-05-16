@@ -3,6 +3,8 @@
     using System;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.TransportDispatch;
+
     class AttachCorrelationIdBehavior : Behavior<OutgoingContext>
     {
         public override void Invoke(OutgoingContext context, Action next)
@@ -15,7 +17,7 @@
                 TransportMessage current;
 
                 //try to get it from the incoming message
-                if (context.TryGet(TransportReceiveContext.IncomingPhysicalMessageKey, out current))
+                if (context.TryGetIncomingPhysicalMessage(out current))
                 {
                     string incomingCorrelationId;
                         

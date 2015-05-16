@@ -15,7 +15,7 @@
         /// <returns>The message id</returns>
         public static string GetMessageId(this PhysicalOutgoingContextStageBehavior.Context context)
         {
-            return context.Extensions.GetOrCreate<DispatchMessageToTransportBehavior.State>().MessageId;
+            return context.Extensions.GetOrCreate<DispatchMessageToTransportConnector.State>().MessageId;
         }
         /// <summary>
         /// Returns the id for this message
@@ -24,7 +24,7 @@
         /// <returns>The message id</returns>
         public static string GetMessageId(this OutgoingContext context)
         {
-            return context.Extensions.GetOrCreate<DispatchMessageToTransportBehavior.State>().MessageId;
+            return context.Extensions.GetOrCreate<DispatchMessageToTransportConnector.State>().MessageId;
         }
 
         /// <summary>
@@ -36,7 +36,7 @@
         {
             Guard.AgainstNullAndEmpty(messageId,messageId);
 
-            context.Extensions.GetOrCreate<DispatchMessageToTransportBehavior.State>()
+            context.Extensions.GetOrCreate<DispatchMessageToTransportConnector.State>()
                 .MessageId = messageId;
         }
 

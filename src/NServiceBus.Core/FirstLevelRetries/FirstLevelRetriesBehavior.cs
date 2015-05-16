@@ -41,22 +41,22 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                var messageId = context.PhysicalMessage.Id;
+                var messageId = context.GetIncomingPhysicalMessage().Id;
 
                 var numberOfRetries = storage.GetRetriesForMessage(messageId);
 
                 if (retryPolicy.ShouldGiveUp(numberOfRetries))
                 {
                     storage.ClearFailuresForMessage(messageId);
-                    context.PhysicalMessage.Headers[Headers.FLRetries] = numberOfRetries.ToString();
-                    notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfRetries, context.PhysicalMessage, ex);
+                    context.GetIncomingPhysicalMessage().Headers[Headers.FLRetries] = numberOfRetries.ToString();
+                    notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfRetries, context.GetIncomingPhysicalMessage(), ex);
                     throw;
                 }
 
                 storage.IncrementFailuresForMessage(messageId, ex);
 
                 //question: should we invoke this the first time around? feels like the naming is off?
-                notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfRetries,context.PhysicalMessage,ex);
+                notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfRetries,context.GetIncomingPhysicalMessage(),ex);
 
                 context.AbortReceiveOperation = true;
             }

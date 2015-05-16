@@ -27,7 +27,7 @@ namespace NServiceBus
             foreach (var handler in context.Builder.BuildAll<IHandleSagaNotFound>())
             {
                 logger.DebugFormat("Invoking SagaNotFoundHandler ('{0}')", handler.GetType().FullName);
-                handler.Handle(context.IncomingLogicalMessage.Instance);
+                handler.Handle(context.GetIncomingLogicalMessage().Instance);
             }
         }
 

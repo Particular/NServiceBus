@@ -1,0 +1,53 @@
+﻿namespace NServiceBus.AcceptanceTests.Performance.TimeToBeReceived
+{
+    using System;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NUnit.Framework;
+
+    public class When_TimeToBeReceived_has_expired_convention : NServiceBusAcceptanceTest
+    {
+        [Test]
+        public void Message_should_not_be_received()
+        {
+            var context = new Context();
+            Scenario.Define(context)
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new MyMessage())))
+                    .Run(TimeSpan.FromSeconds(10));
+            Assert.IsFalse(context.WasCalled);
+        }
+
+        public class Context : ScenarioContext
+        {
+            public bool WasCalled { get; set; }
+        }
+        public class Endpoint : EndpointConfigurationBuilder
+        {
+            public Endpoint()
+            {
+                EndpointSetup<DefaultServer>(c=>c.Conventions().DefiningTimeToBeReceivedAs(messageType =>
+                {
+                    if (messageType == typeof(MyMessage))
+                    {
+                        return TimeSpan.Parse("00:00:00.0000001");
+                    }
+                    return TimeSpan.MaxValue;
+                }));
+            }
+            public class MyMessageHandler : IHandleMessages<MyMessage>
+            {
+                public Context Context { get; set; }
+
+                public IBus Bus { get; set; }
+
+                public void Handle(MyMessage message)
+                {
+                    Context.WasCalled = true;
+                }
+            }
+        }
+        public class MyMessage : IMessage
+        {
+        }
+    }
+}

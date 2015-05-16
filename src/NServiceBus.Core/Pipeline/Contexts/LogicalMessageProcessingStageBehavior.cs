@@ -14,8 +14,6 @@
         /// </summary>
         public class Context : LogicalMessagesProcessingStageBehavior.Context
         {
-            const string IncomingLogicalMessageKey = "NServiceBus.IncomingLogicalMessageKey";
-
             /// <summary>
             /// Creates new instance.
             /// </summary>
@@ -28,7 +26,7 @@
             {
                 Headers = headers;
                 MessageType = messageType;
-                IncomingLogicalMessage = logicalMessage;
+                Set(logicalMessage);
 
                 if (parentContext != null)
                 {
@@ -43,16 +41,6 @@
                 : base(parentContext)
             {
             }
-
-            /// <summary>
-            /// The current logical message being processed.
-            /// </summary>
-            public LogicalMessage IncomingLogicalMessage
-            {
-                get { return Get<LogicalMessage>(IncomingLogicalMessageKey); }
-                private set { Set(IncomingLogicalMessageKey, value); }
-            }
-
 
             /// <summary>
             ///    Headers for the incoming message

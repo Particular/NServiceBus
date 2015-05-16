@@ -3,7 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Messaging;
+    using NServiceBus.ConsistencyGuarantees;
+    using NServiceBus.DeliveryConstraints;
     using NServiceBus.Pipeline;
+    using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq;
     using NServiceBus.Transports.Msmq.Config;
@@ -30,19 +33,16 @@
             {
                 DeleteQueue(path);
                 CreateQueue(path);
-                var messageSender = new MsmqMessageSender(new FakeContext())
-                {
-                    Settings = new MsmqSettings(),
-                    MessageLabelConvention = _ => "mylabel",
-                };
+                var messageSender = new MsmqMessageSender(new MsmqSettings(), _ => "mylabel");
+
                 var bytes = new byte[]
                 {
                     1
                 };
                 var headers = new Dictionary<string, string>();
                 var outgoingMessage = new OutgoingMessage("1", headers, bytes);
-                var sendOptions = new TransportSendOptions(queueName);
-                messageSender.Send(outgoingMessage, sendOptions);
+                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(queueName),new AtomicWithReceiveOperation(), new List<DeliveryConstraint>() );
+                messageSender.Dispatch(outgoingMessage, dispatchOptions);
                 var messageLabel = ReadMessageLabel(path);
                 Assert.AreEqual("mylabel", messageLabel);
 
@@ -61,18 +61,16 @@
             {
                 DeleteQueue(path);
                 CreateQueue(path);
-                var messageSender = new MsmqMessageSender(new FakeContext())
-                {
-                    Settings = new MsmqSettings(),
-                };
+                var messageSender = new MsmqMessageSender(new MsmqSettings(),null);
+
                 var bytes = new byte[]
                 {
                     1
                 };
                 var headers = new Dictionary<string, string>();
                 var outgoingMessage = new OutgoingMessage("1", headers, bytes);
-                var sendOptions = new TransportSendOptions(queueName);
-                messageSender.Send(outgoingMessage, sendOptions);
+                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(queueName), new AtomicWithReceiveOperation(), new List<DeliveryConstraint>());
+                messageSender.Dispatch(outgoingMessage, dispatchOptions);
                 var messageLabel = ReadMessageLabel(path);
                 Assert.IsEmpty(messageLabel);
 

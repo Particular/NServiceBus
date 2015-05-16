@@ -65,16 +65,16 @@
 
                 public override void Invoke(Context ctx, Action next)
                 {
-                    if (!ctx.PhysicalMessage.Headers.ContainsKey("ScenarioContextId"))
+                    if (!ctx.GetIncomingPhysicalMessage().Headers.ContainsKey("ScenarioContextId"))
                     {
                         return;
                     }
-                    var id = new Guid(ctx.PhysicalMessage.Headers["ScenarioContextId"]);
+                    var id = new Guid(ctx.GetIncomingPhysicalMessage().Headers["ScenarioContextId"]);
                     if (id != ScenarioContext.Id)
                     {
                         return;
                     }
-                    ScenarioContext.MessageId = ctx.PhysicalMessage.Id;
+                    ScenarioContext.MessageId = ctx.GetIncomingPhysicalMessage().Id;
                     ScenarioContext.MessageReceived = true;
                 }
 

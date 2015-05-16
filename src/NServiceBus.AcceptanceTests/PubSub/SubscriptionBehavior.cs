@@ -33,13 +33,13 @@
         public override void Invoke(Context context, Action next)
         {
             next();
-            var subscriptionMessageType = GetSubscriptionMessageTypeFrom(context.PhysicalMessage);
+            var subscriptionMessageType = GetSubscriptionMessageTypeFrom(context.GetIncomingPhysicalMessage());
             if (subscriptionMessageType != null)
             {
                 action(new SubscriptionEventArgs
                 {
                     MessageType = subscriptionMessageType,
-                    SubscriberReturnAddress = context.PhysicalMessage.ReplyToAddress
+                    SubscriberReturnAddress = context.GetIncomingPhysicalMessage().ReplyToAddress
                 }, scenarioContext);
             }
         }

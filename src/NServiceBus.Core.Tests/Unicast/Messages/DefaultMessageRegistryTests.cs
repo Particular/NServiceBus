@@ -14,26 +14,25 @@
             [Test]
             public void Should_throw_an_exception_for_a_unmapped_type()
             {
-                var defaultMessageRegistry = new MessageMetadataRegistry(false, new Conventions());
+                var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions());
                 Assert.Throws<Exception>(() => defaultMessageRegistry.GetMessageMetadata(typeof(int)));
             }
 
             [Test]
             public void Should_return_metadata_for_a_mapped_type()
             {
-                var defaultMessageRegistry = new MessageMetadataRegistry(false, new Conventions());
+                var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions());
                 defaultMessageRegistry.RegisterMessageType(typeof(int));
                 var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(int));
                 Assert.AreEqual(typeof(int), messageMetadata.MessageType);
                 Assert.AreEqual(1, messageMetadata.MessageHierarchy.Count());
-                Assert.True(messageMetadata.Recoverable, "Messages should be persistent by default");
             }
 
 
             [Test]
             public void Should_return_the_correct_parent_hierarchy()
             {
-                var defaultMessageRegistry = new MessageMetadataRegistry(false, new Conventions());
+                var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions());
 
                 defaultMessageRegistry.RegisterMessageType(typeof(MyEvent));
                 var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(MyEvent));

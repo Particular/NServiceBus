@@ -54,7 +54,6 @@
                 : base("UpdateRequestResponseCorrelationTable", typeof(UpdateRequestResponseCorrelationTableBehavior), "Updates the correlation table that keeps track of synchronous request/response callbacks")
             {
                 InsertAfterIfExists(WellKnownStep.MutateOutgoingTransportMessage);
-                InsertBefore(WellKnownStep.DispatchMessageToTransport);
             }
         }
     }

@@ -5,6 +5,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
     using NServiceBus.Features;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     public class Serialization_throws : NServiceBusAcceptanceTest
@@ -69,7 +70,7 @@
             {
                 public override void Invoke(Context context, Action next)
                 {
-                    context.PhysicalMessage.Body[1]++;
+                    context.GetIncomingPhysicalMessage().Body[1]++;
                     next();
                 }
             }

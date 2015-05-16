@@ -1,9 +1,9 @@
-namespace NServiceBus.Core.Tests.Sagas
+namespace NServiceBus.Core.Tests.Routing
 {
     using System;
     using System.Linq;
+    using NServiceBus.Unicast.Routing;
     using NUnit.Framework;
-    using Unicast.Routing;
 
     [TestFixture]
     public class StaticMessageRouterTests

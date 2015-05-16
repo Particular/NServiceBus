@@ -2,7 +2,6 @@
 {
     using System;
     using NServiceBus.Extensibility;
-    using NServiceBus.Unicast;
 
     /// <summary>
     /// Outgoing pipeline context.
@@ -13,32 +12,21 @@
         /// Creates a new instance of <see cref="OutgoingContext"/>.
         /// </summary>
         /// <param name="parentContext">The parent context.</param>
-        /// <param name="deliveryMessageOptions">The delivery options.</param>
-        /// <param name="intent">The intent of the message</param>
         /// <param name="messageType">The message type</param>
         /// <param name="messageInstance">The message instance</param>
-        /// <param name="extensionContext">Extension data provided via options</param>
-        public OutgoingContext(BehaviorContext parentContext, DeliveryMessageOptions deliveryMessageOptions, MessageIntentEnum intent, Type messageType, object messageInstance, OptionExtensionContext extensionContext)
+        /// <param name="options">The options for the operation</param>
+        public OutgoingContext(BehaviorContext parentContext,Type messageType, object messageInstance, ExtendableOptions options)
             : base(parentContext)
         {
-            Guard.AgainstNull(extensionContext, "extensionContext");
+            Guard.AgainstNull(messageType, "messageType");
+            Guard.AgainstNull(messageInstance, "messageInstance");
+            Guard.AgainstNull(options, "options");
+         
+            Set(options);
 
-            DeliveryMessageOptions = deliveryMessageOptions;
-            Intent = intent;
             MessageType = messageType;
             MessageInstance = messageInstance;
-            Extensions = extensionContext;
         }
-
-        /// <summary>
-        /// Sending options.
-        /// </summary>
-        public DeliveryMessageOptions DeliveryMessageOptions { get; private set; }
-
-        /// <summary>
-        /// The intent of the message
-        /// </summary>
-        public MessageIntentEnum Intent { get; private set; }
 
         /// <summary>
         /// The message type for this message
@@ -52,6 +40,6 @@
         /// <summary>
         /// Place for extensions to store their data
         /// </summary>
-        public OptionExtensionContext Extensions { get; private set; }
+        public OptionExtensionContext Extensions { get { return Get<ExtendableOptions>().Extensions; } }
     }
 }

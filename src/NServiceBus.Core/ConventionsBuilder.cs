@@ -2,11 +2,13 @@ namespace NServiceBus
 {
     using System;
     using System.Reflection;
+    using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Conventions builder class.
     /// </summary>
-    public class ConventionsBuilder
+    public class ConventionsBuilder : ExposeSettings
     {
         /// <summary>
         ///     Sets the function to be used to evaluate whether a type is a message.
@@ -58,26 +60,12 @@ namespace NServiceBus
             return this;
         }
 
-        /// <summary>
-        ///     Sets the function to be used to evaluate whether a message has a time to be received.
-        /// </summary>
-        public ConventionsBuilder DefiningTimeToBeReceivedAs(Func<Type, TimeSpan> retrieveTimeToBeReceived)
-        {
-            Guard.AgainstNull(retrieveTimeToBeReceived, "retrieveTimeToBeReceived");
-            Conventions.TimeToBeReceivedAction = retrieveTimeToBeReceived;
-            return this;
-        }
-
-        /// <summary>
-        ///     Sets the function to be used to evaluate whether a type is an express message or not.
-        /// </summary>
-        public ConventionsBuilder DefiningExpressMessagesAs(Func<Type, bool> definesExpressMessageType)
-        {
-            Guard.AgainstNull(definesExpressMessageType, "definesExpressMessageType");
-            Conventions.IsExpressMessageAction = definesExpressMessageType;
-            return this;
-        }
+      
 
         internal Conventions Conventions = new Conventions();
+
+        internal ConventionsBuilder(SettingsHolder settings):base(settings)
+        {
+        }
     }
 }

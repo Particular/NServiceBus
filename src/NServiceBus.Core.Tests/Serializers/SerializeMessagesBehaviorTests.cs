@@ -3,10 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Serialization;
-    using NServiceBus.Unicast;
     using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
@@ -16,20 +13,19 @@
         [Test]
         public void Should_set_content_type_header()
         {
-            var registry = new MessageMetadataRegistry(true,new Conventions());
+            var registry = new MessageMetadataRegistry(new Conventions());
 
             registry.RegisterMessageType(typeof(MyMessage));
 
             var behavior = new SerializeMessagesBehavior(new FakeSerializer("myContentType"),registry);
 
-            var context = new OutgoingContext(null, new SendMessageOptions("test"), MessageIntentEnum.Send, typeof(MyMessage), null, new OptionExtensionContext());
-
+            var context = ContextHelpers.GetOutgoingContext(new MyMessage());
             behavior.Invoke(context, c =>
             {
                 
             });
 
-            Assert.AreEqual("myContentType", context.Extensions.GetOrCreate<DispatchMessageToTransportBehavior.State>().Headers[Headers.ContentType]);
+            Assert.AreEqual("myContentType", context.Extensions.GetOrCreate<DispatchMessageToTransportConnector.State>().Headers[Headers.ContentType]);
         }
 
         public class FakeSerializer : IMessageSerializer

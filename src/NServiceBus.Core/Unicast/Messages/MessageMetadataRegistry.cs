@@ -10,16 +10,9 @@
     /// </summary>
     public class MessageMetadataRegistry
     {
-        internal MessageMetadataRegistry(bool defaultToNonPersistentMessages, Conventions conventions)
+        internal MessageMetadataRegistry(Conventions conventions)
         {
-            this.defaultToNonPersistentMessages = defaultToNonPersistentMessages;
             this.conventions = conventions;
-        }
-
-        internal bool DefaultToNonPersistentMessages
-        {
-            get { return defaultToNonPersistentMessages; }
-            set { defaultToNonPersistentMessages = value; }
         }
 
         /// <summary>
@@ -84,10 +77,7 @@
                 .OrderByDescending(PlaceInMessageHierarchy)
                 .ToList();
 
-            var timeToBeReceived = conventions.GetTimeToBeReceived(messageType);
-            var isExpressMessageType = conventions.IsExpressMessageType(messageType);
-            var recoverable = !isExpressMessageType && !defaultToNonPersistentMessages;
-            var metadata = new MessageMetadata(messageType, recoverable, timeToBeReceived, new[]
+            var metadata = new MessageMetadata(messageType, new[]
             {
                 messageType
             }.Concat(parentMessages));
@@ -135,6 +125,5 @@
         static ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
         Conventions conventions;
         Dictionary<RuntimeTypeHandle, MessageMetadata> messages = new Dictionary<RuntimeTypeHandle, MessageMetadata>();
-        bool defaultToNonPersistentMessages;
     }
 }

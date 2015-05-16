@@ -135,10 +135,18 @@ namespace NServiceBus.Pipeline
                 {
                     finalOrder.Add(stageConnector);
 
-                    var args = stageConnector.BehaviorType.BaseType.GetGenericArguments();
-                    var stageEndType = args[1];
+                    if (typeof(IPipelineTerminator).IsAssignableFrom(stageConnector.BehaviorType))
+                    {
+                        currentStage = null;
+                    }
+                    else
+                    {
 
-                    currentStage = stages.SingleOrDefault(stage => stage.Key == stageEndType);         
+                        var args = stageConnector.BehaviorType.BaseType.GetGenericArguments();
+                        var stageEndType = args[1];
+
+                        currentStage = stages.SingleOrDefault(stage => stage.Key == stageEndType);      
+                    }      
                 }
 
                 stageNumber++;

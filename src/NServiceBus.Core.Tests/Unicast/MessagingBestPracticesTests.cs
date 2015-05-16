@@ -7,24 +7,7 @@
     [TestFixture]
     public class MessagingBestPracticesTests
     {
-        [TestFixture]
-        public class When_postponing_delivery
-        {
-            [Test]
-            public void Should_throw_for_TimeToBeReceived_set()
-            {
-                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => new Validations(new Conventions()).AssertIsValidForPostponedDelivery(typeof(MyDeferredMessage)));
-                Assert.AreEqual("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type.", invalidOperationException.Message);
-            }
-
-            [Test]
-            public void Should_not_throw_for_TimeToBeReceived_no_set()
-            {
-                new Validations(new Conventions()).AssertIsValidForPostponedDelivery(typeof(MyMessage));
-            }
-        }
-
-
+       
         [TestFixture]
         public class When_replying
         {

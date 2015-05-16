@@ -18,7 +18,7 @@
 
         public override void Invoke(Context context, Action next)
         {
-            if (HandleCorrelatedMessage(context.PhysicalMessage, context))
+            if (HandleCorrelatedMessage(context.GetIncomingPhysicalMessage(), context))
             {
                 context.MessageHandled = true;
             }
@@ -59,7 +59,7 @@
 
             object result;
 
-            if (IsControlMessage(context.PhysicalMessage))
+            if (IsControlMessage(context.GetIncomingPhysicalMessage()))
             {
                 var legacyEnumResponseType = tcs.ResponseType;
 
