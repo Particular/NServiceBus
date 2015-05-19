@@ -77,7 +77,7 @@ namespace NServiceBus.Config
         }
 
         /// <summary>
-        /// The message type. Define this if you want to map all the types in the namespace to the endpoint.
+        /// The message namespace. Define this if you want to map all the types in the namespace to the endpoint.
         /// </summary>
         /// <remarks>Sub-namespaces will not be mapped.</remarks>
         [ConfigurationProperty("Namespace", IsRequired = false)]

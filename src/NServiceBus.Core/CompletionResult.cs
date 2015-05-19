@@ -15,7 +15,7 @@ namespace NServiceBus
         public int ErrorCode { get; set; }
 
         /// <summary>
-        /// If <see cref="IBus.Reply(object)"/> was called, this contains the messages passed to it.
+        /// If <see cref="IBus.Reply(object,NServiceBus.ReplyOptions)"/> was called, this contains the messages passed to it.
         /// </summary>
         public object[] Messages { get; set; }
 

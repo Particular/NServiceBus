@@ -96,22 +96,23 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="IBus.Reply"/>
         /// </summary>
-        /// <param name="message"></param>
-        public void Reply(object message)
+        public void Reply(object message, NServiceBus.ReplyOptions options)
         {
             Guard.AgainstNull(message, "message");
-            busImpl.Reply(message);
+            Guard.AgainstNull(options, "options");
+         
+            busImpl.Reply(message, options);
         }
 
         /// <summary>
-        /// <see cref="IBus.Reply{T}(Action{T})"/>
+        /// <see cref="IBus.Reply"/>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="messageConstructor"></param>
-        public void Reply<T>(Action<T> messageConstructor)
+        public void Reply<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
         {
             Guard.AgainstNull(messageConstructor, "messageConstructor");
-            busImpl.Reply(messageConstructor);
+            Guard.AgainstNull(options, "options");
+
+            busImpl.Reply(messageConstructor, options);
         }
 
         /// <summary>

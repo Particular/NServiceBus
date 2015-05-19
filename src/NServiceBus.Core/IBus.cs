@@ -37,14 +37,16 @@ namespace NServiceBus
         /// Sends the message to the endpoint which sent the message currently being handled on this thread.
         /// </summary>
         /// <param name="message">The message to send.</param>
-        void Reply(object message);
+        /// <param name="options">Options for this reply</param>
+        void Reply(object message,ReplyOptions options);
 
         /// <summary>
-        /// Instantiates a message of type T and performs a regular <see cref="Reply(object)"/>.
+        /// Instantiates a message of type T and performs a regular <see cref="Reply(object,ReplyOptions)"/>.
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        void Reply<T>(Action<T> messageConstructor);
+        /// <param name="options">Options for this reply</param>
+        void Reply<T>(Action<T> messageConstructor, ReplyOptions options);
 
         /// <summary>
         /// Returns a completion message with the specified error code to the sender

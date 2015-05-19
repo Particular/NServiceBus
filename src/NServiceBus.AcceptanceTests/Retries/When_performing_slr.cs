@@ -75,7 +75,7 @@
             class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
-
+                public IBus Bus { get; set; }
                 public BusNotifications BusNotifications { get; set; }
 
                 public void Start()
@@ -85,6 +85,7 @@
                         Context.FaultManagerInvoked = true;
                         Context.SlrChecksum = Checksum(e.Body);
                     });
+                    Bus.SendLocal(new MessageToBeRetried());
                 }
 
                 public void Stop() { }

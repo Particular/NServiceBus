@@ -17,7 +17,7 @@
             };
 
             Scenario.Define(context)
-                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, ctx) => bus.SendLocal(new MessageToBeRetried{ContextId = ctx.Id})))
+                    .WithEndpoint<RetryEndpoint>()
                     .AllowExceptions()
                     .Done(c => c.GaveUp)
                     .Run();
@@ -49,12 +49,17 @@
                 public Context  Context { get; set; }
 
                 public BusNotifications BusNotifications { get; set; }
+                public IBus Bus { get; set; }
 
                 public void Start()
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
                         Context.GaveUp = true;
+                    });
+                    Bus.SendLocal(new MessageToBeRetried
+                    {
+                        ContextId = Context.Id
                     });
                 }
 

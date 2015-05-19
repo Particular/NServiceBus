@@ -164,6 +164,7 @@
     <Compile Include="Saga\ITimeoutContext.cs" />
     <Compile Include="Saga\ITimeoutContextExtensions.cs" />
     <Compile Include="Saga\TimeoutContext.cs" />
+    <Compile Include="ReplyOptions.cs" />
     <Compile Include="Satellites\SatelliteBehavior.cs" />
     <Compile Include="SendLocalOptions.cs" />
     <Compile Include="SendOptions.cs" />
