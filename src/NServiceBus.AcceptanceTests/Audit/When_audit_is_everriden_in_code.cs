@@ -22,7 +22,7 @@
         {
             public UserEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo("auditspy"));
+                EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo("audit_with_code_source"));
             }
 
             class Handler : IHandleMessages<MessageToBeAudited>
@@ -40,7 +40,7 @@
         {
             public AuditSpy()
             {
-                EndpointSetup<DefaultServer>(c => c.EndpointName("auditspy"));
+                EndpointSetup<DefaultServer>(c => c.EndpointName("audit_with_code_target"));
             }
 
             class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
