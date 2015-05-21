@@ -114,7 +114,7 @@ namespace NServiceBus
     }
     public class static ConfigureAudit
     {
-        public static void Audit(this NServiceBus.BusConfiguration config, string auditQueue, System.Nullable<System.TimeSpan> timeToBeReceived = null) { }
+        public static void AuditProcessedMessagesTo(this NServiceBus.BusConfiguration config, string auditQueue, System.Nullable<System.TimeSpan> timeToBeReceived = null) { }
     }
     public class static ConfigureCriticalErrorAction
     {
