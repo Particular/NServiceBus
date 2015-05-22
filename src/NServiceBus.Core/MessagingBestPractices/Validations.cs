@@ -41,6 +41,15 @@ namespace NServiceBus.MessagingBestPractices
             }
         }
 
+        public void AssertIsValidForPostponedDelivery(Type messageType)
+        {
+            if (conventions.GetTimeToBeReceived(messageType) < TimeSpan.MaxValue)
+            {
+                throw new InvalidOperationException("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type.");
+            }
+        }
+
+
         static ILog Log = LogManager.GetLogger<Validations>();
     }
 }
