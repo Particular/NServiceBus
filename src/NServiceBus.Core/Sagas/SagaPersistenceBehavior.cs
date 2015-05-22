@@ -37,7 +37,7 @@
 
             if (saga == null)
             {
-                await next();
+                await next().ConfigureAwait(false);
                 return;
             }
 
@@ -85,7 +85,7 @@
                 context.MessageHandler.Invocation = messageHandlerRegistry.InvokeTimeout;
             }
 
-            await next();
+            await next().ConfigureAwait(false);
 
             if (sagaInstanceState.NotFound)
             {

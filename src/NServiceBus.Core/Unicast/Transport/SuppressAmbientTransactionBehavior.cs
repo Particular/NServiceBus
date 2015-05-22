@@ -11,13 +11,13 @@ namespace NServiceBus
         {
             if (Transaction.Current == null)
             {
-                await next();
+                await next().ConfigureAwait(false);
                 return;
             }
 
             using (var tx = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                await next();
+                await next().ConfigureAwait(false);
 
                 tx.Complete();
             }

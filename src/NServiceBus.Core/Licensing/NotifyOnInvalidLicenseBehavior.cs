@@ -18,7 +18,7 @@
         {
             context.AddAuditData(Headers.HasLicenseExpired,licenseExpired.ToString().ToLower());
 
-            await next();
+            await next().ConfigureAwait(false);
 
             if (licenseExpired && Debugger.IsAttached)
             {

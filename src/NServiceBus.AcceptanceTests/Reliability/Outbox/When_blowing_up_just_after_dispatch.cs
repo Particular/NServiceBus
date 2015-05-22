@@ -61,7 +61,7 @@
                 {
                     if (!context.GetPhysicalMessage().Headers[Headers.EnclosedMessageTypes].Contains(typeof(PlaceOrder).Name))
                     {
-                        await next();
+                        await next().ConfigureAwait(false);
                         return;
                     }
 
@@ -74,7 +74,7 @@
                     }
                     else
                     {
-                        await next();
+                        await next().ConfigureAwait(false);
                     }
 
 

@@ -45,7 +45,7 @@ namespace NServiceBus
                     
                     using (var bodyStream = message.BodyStream)
                     {
-                        await onMessage(new IncomingMessage(message.Id, headers, bodyStream));
+                        await onMessage(new IncomingMessage(message.Id, headers, bodyStream)).ConfigureAwait(false);
                     }
 
                     msmqTransaction.Commit();

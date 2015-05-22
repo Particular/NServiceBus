@@ -13,14 +13,14 @@
 
             if (context.TryGet(out saga) && saga.NotFound && saga.SagaType == context.MessageHandler.Instance.GetType())
             {
-                await next();
+                await next().ConfigureAwait(false);
                 return;
             }
 
             var messageHandler = context.MessageHandler;
 
             messageHandler.Invocation(messageHandler.Instance, context.MessageBeingHandled);
-            await next();
+            await next().ConfigureAwait(false);
         }
     }
 }

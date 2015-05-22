@@ -29,11 +29,11 @@
             if (TransportMessageExtensions.IsControlMessage(transportMessage.Headers))
             {
                 log.Info("Received a control message. Skipping deserialization as control message data is contained in the header.");
-                await next(new LogicalMessagesProcessingStageBehavior.Context(Enumerable.Empty<LogicalMessage>(), context));
+                await next(new LogicalMessagesProcessingStageBehavior.Context(Enumerable.Empty<LogicalMessage>(), context)).ConfigureAwait(false);
                 return;
             }
             var messages = ExtractWithExceptionHandling(transportMessage);
-            await next(new LogicalMessagesProcessingStageBehavior.Context(messages, context));
+            await next(new LogicalMessagesProcessingStageBehavior.Context(messages, context)).ConfigureAwait(false);
         }
 
         List<LogicalMessage> ExtractWithExceptionHandling(TransportMessage transportMessage)

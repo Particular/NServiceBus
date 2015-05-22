@@ -28,7 +28,7 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
 
             public override async Task Invoke(OutgoingContext context, Func<Task> next)
             {
-                await next();
+                await next().ConfigureAwait(false);
 
                 SubscribersForEvent subscribersForEvent;
 

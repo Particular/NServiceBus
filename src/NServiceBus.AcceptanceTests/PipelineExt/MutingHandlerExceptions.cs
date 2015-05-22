@@ -51,7 +51,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                     try
                     {
                         //invoke the handler/rest of the pipeline
-                        await next();
+                        await next().ConfigureAwait(false);
                     }
                     //catch specifix exceptions or
                     catch (Exception ex)

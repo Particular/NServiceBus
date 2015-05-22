@@ -36,7 +36,7 @@
                 };
 
                 var handlingContext = new HandlingStageBehavior.Context(loadedHandler, context);
-                await next(handlingContext);
+                await next(handlingContext).ConfigureAwait(false);
 
                 if (handlingContext.HandlerInvocationAborted)
                 {

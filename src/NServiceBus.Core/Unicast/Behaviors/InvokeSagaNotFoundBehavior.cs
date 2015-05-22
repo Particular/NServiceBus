@@ -16,7 +16,7 @@ namespace NServiceBus
             var invocationResult = new SagaInvocationResult();
             context.Set(invocationResult);
 
-            await next();
+            await next().ConfigureAwait(false);
 
             if (invocationResult.WasFound)
             {

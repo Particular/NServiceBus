@@ -19,7 +19,7 @@
                     uow.Begin();
                 }
 
-                await next();
+                await next().ConfigureAwait(false);
 
                 while (unitsOfWork.Count > 0)
                 {

@@ -34,7 +34,7 @@
                     notifications.Pipeline.InvokeReceiveStarted(diagnostics.StepsDiagnostics);
                 }
 
-                await InvokeNext(context, contextStacker, 0);
+                await InvokeNext(context, contextStacker, 0).ConfigureAwait(false);
 
                 if (outerPipe)
                 {
@@ -86,9 +86,9 @@
                 await behavior.Invoke(context, async newContext =>
                 {
                     duration.Stop();
-                    innermostContext = await InvokeNext(newContext, contextStacker, currentIndex + 1);
+                    innermostContext = await InvokeNext(newContext, contextStacker, currentIndex + 1).ConfigureAwait(false);
                     duration.Start();
-                });
+                }).ConfigureAwait(false);
 
                 duration.Stop();
 

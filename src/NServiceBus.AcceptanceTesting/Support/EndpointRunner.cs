@@ -79,7 +79,7 @@
                             }
 
                             //we spin around each 5s since the callback mechanism seems to be shaky
-                            await contextChanged.WaitAsync(TimeSpan.FromSeconds(5), stopToken);
+                            await contextChanged.WaitAsync(TimeSpan.FromSeconds(5), stopToken).ConfigureAwait(false);
 
                             if (stopToken.IsCancellationRequested)
                                 break;
