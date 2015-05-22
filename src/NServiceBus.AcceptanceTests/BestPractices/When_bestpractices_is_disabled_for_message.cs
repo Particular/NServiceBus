@@ -13,20 +13,20 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    .WithEndpoint<Endpoint>(b => b.Given(async (bus, c) =>
                     {
                         var sendOptions = new SendOptions();
 
                         sendOptions.DoNotEnforceBestPractices();
 
-                        bus.Send(new MyEvent(), sendOptions);
+                        await bus.Send(new MyEvent(), sendOptions);
 
 
                         var publishOptions = new PublishOptions();
 
                         publishOptions.DoNotEnforceBestPractices();
 
-                        bus.Publish(new MyCommand(), publishOptions);
+                        await bus.Publish(new MyCommand(), publishOptions);
                     }))
                     .Done(c => c.EndpointsStarted)
                     .Run();

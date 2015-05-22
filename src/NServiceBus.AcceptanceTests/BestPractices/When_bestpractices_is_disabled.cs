@@ -14,12 +14,12 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    .WithEndpoint<Endpoint>(b => b.Given(async (bus, c) =>
                     {
                         bus.Subscribe<MyCommand>();
                         bus.Unsubscribe<MyCommand>();
-                        bus.Send(new MyEvent());
-                        bus.Publish(new MyCommand());
+                        await bus.Send(new MyEvent());
+                        await bus.Publish(new MyCommand());
                     }))
                     .Done(c => c.EndpointsStarted)
                     .Run();

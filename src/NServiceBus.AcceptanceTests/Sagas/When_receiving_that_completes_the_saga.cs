@@ -16,11 +16,11 @@
                     .WithEndpoint<SagaEndpoint>(b =>
                         {
                             b.Given((bus, context) => bus.SendLocal(new StartSagaMessage { SomeId = context.Id }));
-                            b.When(context => context.StartSagaMessageReceived, (bus, context) =>
+                            b.When(context => context.StartSagaMessageReceived, async (bus, context) =>
                             {
                                 context.AddTrace("CompleteSagaMessage sent");
 
-                                bus.SendLocal(new CompleteSagaMessage
+                                await bus.SendLocal(new CompleteSagaMessage
                                 {
                                     SomeId = context.Id
                                 });
@@ -45,10 +45,10 @@
                     {
                         SomeId = c.Id
                     }));
-                    b.When(c => c.StartSagaMessageReceived, (bus, c) =>
+                    b.When(c => c.StartSagaMessageReceived, async (bus, c) =>
                     {
                         c.AddTrace("CompleteSagaMessage sent");
-                        bus.SendLocal(new CompleteSagaMessage
+                        await bus.SendLocal(new CompleteSagaMessage
                         {
                             SomeId = c.Id
                         });

@@ -2,6 +2,7 @@ namespace NServiceBus.Unicast
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Janitor;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
@@ -41,15 +42,15 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="ISendOnlyBus.Publish"/>
         /// </summary>
-        public void Publish<T>(Action<T> messageConstructor, NServiceBus.PublishOptions options)
+        public Task Publish<T>(Action<T> messageConstructor, NServiceBus.PublishOptions options)
         {
-            Publish(messageMapper.CreateInstance(messageConstructor), options);
+            return Publish(messageMapper.CreateInstance(messageConstructor), options);
         }
 
         /// <summary>
         /// <see cref="ISendOnlyBus.Publish"/>
         /// </summary>
-        public void Publish(object message, NServiceBus.PublishOptions options)
+        public Task Publish(object message, NServiceBus.PublishOptions options)
         {
             var pipeline = new PipelineBase<OutgoingPublishContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
          
@@ -57,7 +58,7 @@ namespace NServiceBus.Unicast
                 incomingContext,
                 new OutgoingLogicalMessage(message),
                 options);
-            outgoingPipeline.Invoke(outgoingContext).GetAwaiter().GetResult();
+            return outgoingPipeline.Invoke(outgoingContext);
 
             pipeline.Invoke(publishContext);
         }
@@ -90,15 +91,15 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="IBus.Reply"/>
         /// </summary>
-        public void Reply<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
+        public Task Reply<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
         {
-            Reply(messageMapper.CreateInstance(messageConstructor), options);
+            return Reply(messageMapper.CreateInstance(messageConstructor), options);
         }
 
         /// <summary>
         /// <see cref="IBus.Reply"/>
         /// </summary>
-        public void Reply(object message, NServiceBus.ReplyOptions options)
+        public Task Reply(object message, NServiceBus.ReplyOptions options)
         {
             var pipeline = new PipelineBase<OutgoingReplyContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
@@ -107,20 +108,21 @@ namespace NServiceBus.Unicast
                 new OutgoingLogicalMessage(message),
                 options);
 
-            pipeline.Invoke(outgoingContext);
+            return pipeline.Invoke(outgoingContext);
         }
 
         /// <summary>
         /// <see cref="IBus.HandleCurrentMessageLater"/>
         /// </summary>
-        public void HandleCurrentMessageLater()
+        public async Task HandleCurrentMessageLater()
         {
             if (incomingContext.handleCurrentMessageLaterWasCalled)
             {
                 return;
             }
 
-            dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(sendLocalAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
+            await dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(sendLocalAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()))
+                .ConfigureAwait(false);
 
             incomingContext.handleCurrentMessageLaterWasCalled = true;
 
@@ -130,21 +132,21 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="IBus.ForwardCurrentMessageTo(string)"/>
         /// </summary>
-        public void ForwardCurrentMessageTo(string destination)
+        public Task ForwardCurrentMessageTo(string destination)
         {
-            dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
+            return dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
         }
 
-        public void Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
+        public Task Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
         {
-            Send(messageMapper.CreateInstance(messageConstructor), options);
+            return Send(messageMapper.CreateInstance(messageConstructor), options);
         }
 
-        public void Send(object message, NServiceBus.SendOptions options)
+        public Task Send(object message, NServiceBus.SendOptions options)
         {
             var messageType = message.GetType();
 
-            SendMessage(messageType, message, options);
+            return SendMessage(messageType, message, options);
         }
 
         void SendMessage(Type messageType, object message, NServiceBus.SendOptions options)
@@ -155,7 +157,7 @@ namespace NServiceBus.Unicast
                 incomingContext,
                 new OutgoingLogicalMessage(messageType, message),
                 options);
-            outgoingPipeline.Invoke(outgoingContext).GetAwaiter().GetResult();
+            return outgoingPipeline.Invoke(outgoingContext);
 
             pipeline.Invoke(outgoingContext);
         }

@@ -67,7 +67,7 @@
                 }
                 else
                 {
-                    executeWhens = Task.Factory.StartNew(async () =>
+                    executeWhens = Task.Run(async () =>
                     {
                         var executedWhens = new List<Guid>();
 
@@ -91,13 +91,13 @@
                                     continue;
                                 }
 
-                                if (when.ExecuteAction(scenarioContext, bus))
+                                if (await when.ExecuteAction(scenarioContext, bus))
                                 {
                                     executedWhens.Add(when.Id);
                                 }
                             }
                         }
-                    }, stopToken).Unwrap();
+                    }, stopToken);
                 }
                 return Result.Success();
             }
@@ -108,28 +108,28 @@
             }
         }
 
-        public Result Start()
+        public async Task<Result> Start()
         {
             try
             {
                 foreach (var given in behavior.Givens)
                 {
-                    var action = given.GetAction(scenarioContext);
+                    var function = given.GetFunction(scenarioContext);
 
                     if (configuration.SendOnly)
                     {
-                        action(new IBusAdapter(sendOnlyBus));
+                        await function(new IBusAdapter(sendOnlyBus));
                     }
                     else
                     {
 
-                        action(bus);
+                        await function(bus);
                     }
                 }
 
                 if (!configuration.SendOnly)
                 {
-                    bus.Start();
+                    await bus.StartAsync().ConfigureAwait(false);
                 }
 
                 return Result.Success();

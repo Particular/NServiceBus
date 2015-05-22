@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Audit
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -20,7 +21,7 @@
             Assert.IsTrue(context.IsMessageHandlingComplete);
         }
 
-        static Action<IBus> Send()
+        static Func<IBus, Task> Send()
         {
             return bus => bus.SendLocal(new MessageToBeAudited());
         }

@@ -13,17 +13,17 @@
         public void Should_not_deliver_them_until_the_commit_phase()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>(b => b.Given((bus, context) =>
+                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(async (bus, context) =>
                         {
                             using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                             {
-                                bus.Send(new MessageThatIsEnlisted { SequenceNumber = 1 });
-                                bus.Send(new MessageThatIsEnlisted { SequenceNumber = 2 });
+                                await bus.Send(new MessageThatIsEnlisted { SequenceNumber = 1 });
+                                await bus.Send(new MessageThatIsEnlisted { SequenceNumber = 2 });
 
                                 //send another message as well so that we can check the order in the receiver
                                 using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                                 {
-                                    bus.Send(new MessageThatIsNotEnlisted());
+                                    await bus.Send(new MessageThatIsNotEnlisted());
                                 }
 
                                 tx.Complete();
@@ -39,16 +39,16 @@
         public void Should_not_deliver_them_on_rollback()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(bus =>
+                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(async bus =>
                         {
                             using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                             {
-                                bus.Send(new MessageThatIsEnlisted());
+                                await bus.Send(new MessageThatIsEnlisted());
 
                                 //rollback
                             }
 
-                            bus.Send(new MessageThatIsNotEnlisted());
+                            await bus.Send(new MessageThatIsNotEnlisted());
 
                         }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled)

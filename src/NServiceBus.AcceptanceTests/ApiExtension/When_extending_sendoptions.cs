@@ -25,7 +25,7 @@
                         options.GetExtensions().Set(new SendOptionsExtensions.TestingSendOptionsExtensionBehavior.Context { SomeValue = "I did it!" });
                         options.RouteToLocalEndpointInstance();
 
-                        bus.Send(new SendMessage(), options);
+                        return bus.Send(new SendMessage(), options);
                     }))
                     .Done(c => c.WasCalled)
                     .Run();

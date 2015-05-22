@@ -12,10 +12,10 @@
         public void Should_not_do_any_retries_if_transactions_are_off()
         {
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
-                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, context) =>
+                    .WithEndpoint<RetryEndpoint>(b => b.Given(async (bus, context) =>
                     {
-                        bus.SendLocal(new MessageToBeRetried { Id = context.Id });
-                        bus.SendLocal(new MessageToBeRetried { Id = context.Id, SecondMessage = true });
+                        await bus.SendLocal(new MessageToBeRetried { Id = context.Id });
+                        await bus.SendLocal(new MessageToBeRetried { Id = context.Id, SecondMessage = true });
                     }))
                     .AllowExceptions()
                     .Done(c => c.SecondMessageReceived || c.NumberOfTimesInvoked > 1)

@@ -1,5 +1,6 @@
 namespace NServiceBus.Core.Tests.Timeout
 {
+    using System.Threading.Tasks;
     using NServiceBus.Transports;
 
     public class FakeMessageSender : IDispatchMessages
@@ -12,9 +13,10 @@ namespace NServiceBus.Core.Tests.Timeout
             set { messagesSent = value; }
         }
 
-        public void Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions)
+        public Task Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions)
         {
             MessagesSent++;
+            return Task.FromResult(true);
         }
     }
 }

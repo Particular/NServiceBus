@@ -258,9 +258,9 @@
 
         static void StartEndpoints(IEnumerable<EndpointRunner> endpoints)
         {
-            var tasks = endpoints.Select(endpoint => Task.Factory.StartNew(() =>
+            var tasks = endpoints.Select(endpoint => Task.Run(async () =>
             {
-                var result = endpoint.Start();
+                var result = await endpoint.Start().ConfigureAwait(false);
 
                 if (result.Failed)
                     throw new ScenarioException("Endpoint failed to start", result.Exception);

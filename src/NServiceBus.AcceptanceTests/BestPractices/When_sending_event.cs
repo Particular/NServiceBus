@@ -13,11 +13,11 @@
             var context = new Context();
             
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    .WithEndpoint<Endpoint>(b => b.Given(async (bus, c) =>
                     {
                         try
                         {
-                            bus.SendLocal(new MyEvent());
+                            await bus.SendLocal(new MyEvent());
                         }
                         catch (Exception ex)
                         {

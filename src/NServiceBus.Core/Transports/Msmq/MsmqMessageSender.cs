@@ -3,6 +3,7 @@ namespace NServiceBus.Transports.Msmq
     using System;
     using System.Collections.ObjectModel;
     using System.Messaging;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Routing;
@@ -28,7 +29,7 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// Sends the given <paramref name="message"/>.
         /// </summary>
-        public void Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions)
+        public Task Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions)
         {
             Guard.AgainstNull("message", message);
             Guard.AgainstNull("dispatchOptions", dispatchOptions);
@@ -78,6 +79,8 @@ namespace NServiceBus.Transports.Msmq
                         q.Send(toSend, label, transactionType);
                     }
                 }
+
+                return Task.FromResult(true);
             }
             catch (MessageQueueException ex)
             {
@@ -96,6 +99,8 @@ namespace NServiceBus.Transports.Msmq
             {
                 ThrowFailedToSendException(destination, ex);
             }
+
+            return Task.FromResult(true);
         }
 
         string GetLabel(OutgoingMessage message)

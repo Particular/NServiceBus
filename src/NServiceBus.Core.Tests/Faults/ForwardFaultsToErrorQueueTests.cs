@@ -3,6 +3,7 @@ namespace NServiceBus.Core.Tests
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
     using NServiceBus.Core.Tests.Features;
     using NServiceBus.Faults;
     using NServiceBus.Hosting;
@@ -153,5 +154,7 @@ namespace NServiceBus.Core.Tests
 
             public bool ErrorRaised { get; private set; }
         }
+
+                return Task.FromResult(true);
     }
 }

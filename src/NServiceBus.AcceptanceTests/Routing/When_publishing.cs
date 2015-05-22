@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -24,6 +25,8 @@
                         {
                             context.Subscriber3Subscribed = true;
                         }
+
+                        return Task.FromResult(true);
                     }))
 
                     .Done(c => c.Subscriber3GotTheEvent)
@@ -44,7 +47,7 @@
                             var options = new PublishOptions();
 
                             options.SetHeader("MyHeader","SomeValue");
-                            bus.Publish(new MyEvent(), options);
+                            return bus.Publish(new MyEvent(), options);
                         })
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
@@ -59,6 +62,7 @@
                             {
                                 context.AddTrace("Subscriber1 has now asked to be subscribed to MyEvent");
                             }
+                            return Task.FromResult(true);
                         }))
                       .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
                       {
@@ -73,6 +77,7 @@
                           {
                               context.AddTrace("Subscriber2 has now asked to be subscribed to MyEvent");
                           }
+                          return Task.FromResult(true);
                       }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
                     .Repeat(r => r.For(Transports.Default))
