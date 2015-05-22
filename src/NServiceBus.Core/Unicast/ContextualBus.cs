@@ -197,6 +197,15 @@ namespace NServiceBus.Unicast
             }
         }
 
+        void AssertIsValidForPostponedDelivery(Type messageType)
+        {
+            if (configure.container.HasComponent<Validations>())
+            {
+                 builder.Build<Validations>()
+                    .AssertIsValidForPostponedDelivery(messageType);
+            }
+        }
+
         void AssertIsValidForPubSub(Type messageType)
         {
             //we don't have any extension points for subscribe/unsubscribe but this does the trick for now
@@ -279,6 +288,12 @@ namespace NServiceBus.Unicast
                 deliverAt = options.At;
             }
 
+            var postponedDeliveryWasRequested = (deliverAt != null) || (delayDeliveryFor != null);
+            if (postponedDeliveryWasRequested)
+            {
+                AssertIsValidForPostponedDelivery(message.GetType());
+            }
+
             var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
 
             SendMessage(options.MessageId, options.CorrelationId, options.Intent, options.Headers, sendOptions, messageType, message, options.Extensions);
@@ -303,6 +318,12 @@ namespace NServiceBus.Unicast
             if (options.At.HasValue)
             {
                 deliverAt = options.At;
+            }
+
+            var postponedDeliveryWasRequested = (deliverAt != null) || (delayDeliveryFor != null);
+            if (postponedDeliveryWasRequested)
+            {
+                AssertIsValidForPostponedDelivery(message.GetType());
             }
 
             var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
