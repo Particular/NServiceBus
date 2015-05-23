@@ -157,7 +157,20 @@ namespace NServiceBus.Saga
                 throw new Exception("Entity.Originator cannot be null. Perhaps the sender is a SendOnly endpoint.");
             }
 
-            Bus.Send(message, new SendOptions(Entity.Originator, Entity.OriginalMessageId));
+            var sendOptions = new SendOptions(correlationId: Entity.OriginalMessageId);
+            sendOptions.AsReplyTo(Entity.Originator);
+            sendOptions.ExtensionContext.Set(new WrapperForReplyToOriginator(true));
+            Bus.Send(message, sendOptions);
+        }
+
+        internal class WrapperForReplyToOriginator
+        {
+            internal bool ReplyToOriginator;
+
+            public WrapperForReplyToOriginator(bool replyToOriginator)
+            {
+                ReplyToOriginator = replyToOriginator;
+            }
         }
 
         /// <summary>

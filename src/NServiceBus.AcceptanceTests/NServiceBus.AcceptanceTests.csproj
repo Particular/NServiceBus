@@ -105,6 +105,7 @@
     <Compile Include="Sagas\When_a_finder_exists_and_found_saga.cs" />
     <Compile Include="Retries\When_performing_slr_with_regular_exception.cs" />
     <Compile Include="Retries\When_performing_slr_with_serialization_exception.cs" />
+    <Compile Include="Sagas\When_using_ReplyToOriginator.cs" />
     <Compile Include="Sagas\When_doing_request_response_between_sagas_first_handler_responding.cs" />
     <Compile Include="Sagas\When_doing_request_response_between_sagas_response_from_noninitiating.cs" />
     <Compile Include="Sagas\When_doing_request_response_between_sagas_with_timeout.cs" />
