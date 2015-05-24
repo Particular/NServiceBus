@@ -1,5 +1,7 @@
 namespace NServiceBus.Saga
 {
+    using NServiceBus.Sagas;
+
     /// <summary>
     /// Representation of a message that is related to a saga
     /// </summary>
@@ -12,11 +14,11 @@ namespace NServiceBus.Saga
         /// Creates a new instance of <see cref="SagaMessage"/>.
         /// </summary>
         /// <param name="messageType">Type of the message</param>
-        /// <param name="isAllowedToStart"><code>true</code> if the message can start the saga, <code>false</code> otherwise.</param>
-        public SagaMessage(string messageType, bool isAllowedToStart)
+        /// <param name="isAllowedToStartSaga">Flag which indicates whether the current message type is allowed to start the saga</param>
+        public SagaMessage(string messageType, bool isAllowedToStartSaga)
         {
             this.messageType = messageType;
-            isAllowedToStartSaga = isAllowedToStart;
+            this.isAllowedToStartSaga = isAllowedToStartSaga;
         }
 
         /// <summary>
@@ -28,11 +30,16 @@ namespace NServiceBus.Saga
         }
 
         /// <summary>
-        /// True if the message can start the saga.
+        /// true when the message is starting a saga; otherwise false.
         /// </summary>
         public bool IsAllowedToStartSaga
         {
             get { return isAllowedToStartSaga; }
         }
+
+        /// <summary>
+        /// The message kind indicating how the given message type is handled
+        /// </summary>
+        internal SagaMessageHandledBy MessageHandledBy { get; set; }
     }
 }

@@ -24,25 +24,12 @@
 
             Assert.AreEqual(typeof(BeginException), context.InnerExceptionOneType);
             Assert.AreEqual(typeof(EndException), context.InnerExceptionTwoType);
-
-            StackTraceAssert.StartsWith(
-@"at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
-at NServiceBus.ChildContainerBehavior.Invoke(Context context, Action next)
-at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)", context.StackTrace);
-
-            StackTraceAssert.StartsWith(
-string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.Uow_Begin_and_diff_End_throws.Endpoint.{0}.End(Exception ex)
-at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initialException)", context.TypeName), context.InnerExceptionTwoStackTrace);
-
         }
 
         public class Context : ScenarioContext
         {
             public bool ExceptionReceived { get; set; }
-            public string StackTrace { get; set; }
             public Type ExceptionType { get; set; }
-            public string InnerExceptionOneStackTrace { get; set; }
-            public string InnerExceptionTwoStackTrace { get; set; }
             public Type InnerExceptionOneType { get; set; }
             public Type InnerExceptionTwoType { get; set; }
             public bool FirstOneExecuted { get; set; }
@@ -80,10 +67,7 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
                         var aggregateException = (AggregateException)e.Exception;
-                        Context.StackTrace = aggregateException.StackTrace;
                         var innerExceptions = aggregateException.InnerExceptions;
-                        Context.InnerExceptionOneStackTrace = innerExceptions[0].StackTrace;
-                        Context.InnerExceptionTwoStackTrace = innerExceptions[1].StackTrace;
                         Context.InnerExceptionOneType = innerExceptions[0].GetType();
                         Context.InnerExceptionTwoType = innerExceptions[1].GetType();
                         Context.ExceptionReceived = true;

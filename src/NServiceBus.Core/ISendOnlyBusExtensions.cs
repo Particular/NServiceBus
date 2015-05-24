@@ -7,7 +7,6 @@ namespace NServiceBus
     /// </summary>
     public static class ISendOnlyBusExtensions
     {
-       
         /// <summary>
         /// Publish the message to subscribers.
         /// </summary>
@@ -17,7 +16,6 @@ namespace NServiceBus
         {
             bus.Publish(message, new PublishOptions());
         }
-
        
         /// <summary>
         /// Publish the message to subscribers.

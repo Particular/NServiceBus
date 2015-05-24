@@ -46,7 +46,7 @@
                 //get messages that has routing if required
                 .Where(t => DoNotRequireExplicitRouting || MessageRouter.GetDestinationFor(t).Any())
                 //get messages with other handlers than sagas if needed
-                .Where(t => !DoNotAutoSubscribeSagas || HandlerRegistry.GetHandlerTypes(t).Any(handler => !typeof(Saga.Saga).IsAssignableFrom(handler)))
+                .Where(t => !DoNotAutoSubscribeSagas || HandlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga.Saga).IsAssignableFrom(handler.HandlerType)))
                 .ToList();
         }
     }

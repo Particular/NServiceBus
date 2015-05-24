@@ -5,7 +5,7 @@
     using NServiceBus.Settings;
     using NUnit.Framework;
 
-    public class When__startup_is_complete : NServiceBusAcceptanceTest
+    public class When_startup_is_complete_new : NServiceBusAcceptanceTest
     {
         [Test]
         public void Configure_and_setting_should_be_available_via_DI()
@@ -33,7 +33,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class AfterConfigIsComplete:IWantToRunWhenBusStartsAndStops
+            class AfterConfigIsComplete:IRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
 
@@ -41,8 +41,7 @@
 
                 public ReadOnlySettings Settings { get; set; }
 
-
-                public void Start()
+                public void Start(IRunContext context)
                 {
                     Context.ConfigureIsAvailable = Configure != null;
 
@@ -51,7 +50,7 @@
                     Context.IsDone = true;
                 }
 
-                public void Stop()
+                public void Stop(IRunContext context)
                 {
                 }
             }

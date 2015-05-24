@@ -37,11 +37,11 @@
                     EndpointSetup<DefaultServer>(c => c.EndpointName("forward_receiver"));
                 }
 
-                public class MessageToForwardHandler : IHandleMessages<MessageToForward>
+                public class MessageToForwardHandler : IProcessCommands<MessageToForward>
                 {
                     public Context Context { get; set; }
 
-                    public void Handle(MessageToForward message)
+                    public void Handle(MessageToForward message, ICommandContext context)
                     {
                         Context.GotForwardedMessage = true;
                     }
@@ -56,16 +56,16 @@
                         .WithConfig<UnicastBusConfig>(c => c.ForwardReceivedMessagesTo = "forward_receiver");
                 }
 
-                public class MessageToForwardHandler : IHandleMessages<MessageToForward>
+                public class MessageToForwardHandler : IProcessCommands<MessageToForward>
                 {
-                    public void Handle(MessageToForward message)
+                    public void Handle(MessageToForward message, ICommandContext context)
                     {
                     }
                 }
             }
 
             [Serializable]
-            public class MessageToForward : IMessage
+            public class MessageToForward : ICommand
             {
             }
         }

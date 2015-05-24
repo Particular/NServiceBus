@@ -7,14 +7,71 @@
     /// </summary>
     public class MessageHandler
     {
+        Action<object, object, object> invocationWithContext;
+
         /// <summary>
-        /// The actual instance, can be a saga or just a plain handler
+        /// Creates a new instance of the message handler
+        /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "MessageHandler(Action<object, object, object> invocationWithContext, Type handlerType)")]
+        public MessageHandler()
+        {
+            throw new NotImplementedException("Creator of the message handler must assign the handler type and the invocation delegate");
+        }
+
+        /// <summary>
+        /// Creates a new instance of the message handler with predefined invocation delegate and handler type
+        /// </summary>
+        /// <param name="invocationWithContext">The invocation with context delegate</param>
+        /// <param name="handlerType">The handler type</param>
+        public MessageHandler(Action<object, object, object> invocationWithContext, Type handlerType)
+            // ReSharper disable once IntroduceOptionalParameters.Global
+            : this(invocationWithContext, handlerType, HandlerKind.Command)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance of the message handler with predefined invocation delegate and handler type
+        /// </summary>
+        /// <param name="invocationWithContext">The invocation with context delegate</param>
+        /// <param name="handlerType">The handler type</param>
+        /// <param name="handlerKind">The handler kind</param>
+        internal MessageHandler(Action<object, object, object> invocationWithContext, Type handlerType, HandlerKind handlerKind)
+        {
+            HandlerKind = handlerKind;
+            HandlerType = handlerType;
+            this.invocationWithContext = invocationWithContext;
+        }
+
+        /// <summary>
+        /// The actual instance, can be a saga, a timeout or just a plain handler
         /// </summary>
         public object Instance { get; set; }
-        
+
+        /// <summary>
+        /// The handler type, can be a saga, a timeout or just a plain handler
+        /// </summary>
+        public Type HandlerType { get; private set; }
+
+        internal HandlerKind HandlerKind { get; private set; }
+
         /// <summary>
         /// The actual invocation
         /// </summary>
-        public Action<object, object> Invocation { get; set; }
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "MessageHandler.Invoke")]
+        public Action<object, object> Invocation
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="context"></param>
+        public void Invoke(object message, object context)
+        {
+            invocationWithContext(Instance, message, context);
+        }
     }
 }

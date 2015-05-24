@@ -38,12 +38,11 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class RequestHandler : IHandleMessages<Request>
+            class RequestHandler : IProcessCommands<Request>
             {
-                public IBus Bus { get; set; }
-                public void Handle(Request message)
+                public void Handle(Request message, ICommandContext context)
                 {
-                    Bus.Reply(new ResponseToBeAudited());
+                    context.Reply(new ResponseToBeAudited());
                 }
             }
         }
@@ -58,9 +57,9 @@
             }
 
           
-            public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
+            public class MessageToBeAuditedHandler : IProcessResponses<ResponseToBeAudited>
             {
-                public void Handle(ResponseToBeAudited message)
+                public void Handle(ResponseToBeAudited message, IResponseContext context)
                 {
 
                 }
@@ -89,9 +88,9 @@
                 }
             }
 
-            public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
+            public class MessageToBeAuditedHandler : IProcessResponses<ResponseToBeAudited>
             {
-                public void Handle(ResponseToBeAudited message)
+                public void Handle(ResponseToBeAudited message, IResponseContext context)
                 {
                 }
             }
@@ -104,12 +103,12 @@
         }
 
         [Serializable]
-        public class ResponseToBeAudited : IMessage
+        public class ResponseToBeAudited : IResponse
         {
         }
 
-
-        class Request : IMessage
+        [Serializable]
+        class Request : ICommand
         {
         }
     }

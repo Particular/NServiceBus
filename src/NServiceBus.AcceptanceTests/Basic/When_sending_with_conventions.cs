@@ -11,7 +11,7 @@
         public void Should_receive_the_message()
         {
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, context) => bus.SendLocal(new MyMessage
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, context) => bus.SendLocal(new MyCommand
                     {
                         Id = context.Id
                     })))
@@ -29,22 +29,22 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(b => b.Conventions().DefiningMessagesAs(type => type == typeof(MyMessage)));
+                EndpointSetup<DefaultServer>(b => b.Conventions().DefiningCommandsAs(type => type == typeof(MyCommand)));
             }
         }
 
         [Serializable]
-        public class MyMessage
+        public class MyCommand
         {
             public Guid Id { get; set; }
         }
 
-        public class MyMessageHandler : IHandleMessages<MyMessage>
+        public class MyMessageHandler : IHandleMessages<MyCommand>
         {
             public Context Context { get; set; }
 
 
-            public void Handle(MyMessage message)
+            public void Handle(MyCommand message)
             {
                 if (Context.Id != message.Id)
                     return;

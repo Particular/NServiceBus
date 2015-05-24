@@ -19,6 +19,16 @@ namespace NServiceBus
         }
 
         /// <summary>
+        ///     Sets the function to be used to evaluate whether a type is a response.
+        /// </summary>
+        public ConventionsBuilder DefiningResponsesAs(Func<Type, bool> definesResponseType)
+        {
+            Guard.AgainstNull(definesResponseType, "definesResponseType");
+            Conventions.IsResponseTypeAction = definesResponseType;
+            return this;
+        }
+
+        /// <summary>
         ///     Sets the function to be used to evaluate whether a type is a commands.
         /// </summary>
         public ConventionsBuilder DefiningCommandsAs(Func<Type, bool> definesCommandType)

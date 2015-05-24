@@ -10,15 +10,15 @@
         {
             ActiveSagaInstance saga;
 
-            if (context.TryGet(out saga) && saga.NotFound && saga.SagaType == context.MessageHandler.Instance.GetType())
+            if (context.TryGet(out saga) && saga.NotFound && saga.SagaType == context.MessageHandler.HandlerType)
             {
                 next();
                 return;
             }
 
             var messageHandler = context.MessageHandler;
-
-            messageHandler.Invocation(messageHandler.Instance, context.MessageBeingHandled);
+            var invocationContext = context.Get<object>("InvocationContext");
+            messageHandler.Invoke(context.MessageBeingHandled, invocationContext);
             next();
         }
     }

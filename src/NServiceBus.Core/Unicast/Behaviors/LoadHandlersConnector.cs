@@ -2,10 +2,9 @@
 {
     using System;
     using System.Linq;
-    using NServiceBus.Unicast.Behaviors;
-    using Pipeline;
-    using Pipeline.Contexts;
-    using Unicast;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Unicast;
 
     class LoadHandlersConnector : StageConnector<LogicalMessageProcessingStageBehavior.Context, HandlingStageBehavior.Context>
     {
@@ -18,7 +17,7 @@
 
         public override void Invoke(LogicalMessageProcessingStageBehavior.Context context, Action<HandlingStageBehavior.Context> next)
         {
-            var handlerTypedToInvoke = messageHandlerRegistry.GetHandlerTypes(context.MessageType).ToList();
+            var handlerTypedToInvoke = messageHandlerRegistry.GetHandlersFor(context.MessageType).ToList();
 
             if (!context.MessageHandled && !handlerTypedToInvoke.Any())
             {
@@ -26,13 +25,9 @@
                 throw new InvalidOperationException(error);
             }
 
-            foreach (var handlerType in handlerTypedToInvoke)
+            foreach (var loadedHandler in handlerTypedToInvoke)
             {
-                var loadedHandler = new MessageHandler
-                {
-                    Instance = context.Builder.Build(handlerType),
-                    Invocation = (handlerInstance, message) => messageHandlerRegistry.InvokeHandle(handlerInstance, message)
-                };
+                loadedHandler.Instance = context.Builder.Build(loadedHandler.HandlerType);
 
                 var handlingContext = new HandlingStageBehavior.Context(loadedHandler, context);
                 next(handlingContext);

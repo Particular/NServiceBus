@@ -177,6 +177,7 @@ namespace NServiceBus
         public bool IsExpressMessageType(System.Type t) { }
         public bool IsInSystemConventionList(System.Type t) { }
         public bool IsMessageType(System.Type t) { }
+        public bool IsResponseType(System.Type t) { }
     }
     public class ConventionsBuilder
     {
@@ -187,6 +188,7 @@ namespace NServiceBus
         public NServiceBus.ConventionsBuilder DefiningEventsAs(System.Func<System.Type, bool> definesEventType) { }
         public NServiceBus.ConventionsBuilder DefiningExpressMessagesAs(System.Func<System.Type, bool> definesExpressMessageType) { }
         public NServiceBus.ConventionsBuilder DefiningMessagesAs(System.Func<System.Type, bool> definesMessageType) { }
+        public NServiceBus.ConventionsBuilder DefiningResponsesAs(System.Func<System.Type, bool> definesResponseType) { }
         public NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
     }
     public class CriticalError
@@ -365,6 +367,32 @@ namespace NServiceBus
         void Register<T>(System.Action<T> callback, object synchronizer);
     }
     public interface ICommand : NServiceBus.IMessage { }
+    public interface ICommandContext
+    {
+        void DoNotContinueDispatchingCurrentMessageToHandlers();
+        void ForwardCurrentMessageTo(string destination);
+        void HandleCurrentMessageLater();
+        void Publish(object message, NServiceBus.PublishOptions options);
+        void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
+        void Reply(object message);
+        void Reply<T>(System.Action<T> messageConstructor);
+        void Send(object message, NServiceBus.SendOptions options);
+        void Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+        void SendLocal(object message, NServiceBus.SendLocalOptions options);
+        void SendLocal<T>(System.Action<T> messageConstructor, NServiceBus.SendLocalOptions options);
+    }
+    public class static ICommandContextExtensions
+    {
+        public static void Publish(this NServiceBus.ICommandContext context, object message) { }
+        public static void Publish<T>(this NServiceBus.ICommandContext context) { }
+        public static void Publish<T>(this NServiceBus.ICommandContext context, System.Action<T> messageConstructor) { }
+        public static void Send(this NServiceBus.ICommandContext context, object message) { }
+        public static void Send<T>(this NServiceBus.ICommandContext context, System.Action<T> messageConstructor) { }
+        public static void Send(this NServiceBus.ICommandContext context, string destination, object message) { }
+        public static void Send<T>(this NServiceBus.ICommandContext context, string destination, System.Action<T> messageConstructor) { }
+        public static void SendLocal(this NServiceBus.ICommandContext context, object message) { }
+        public static void SendLocal<T>(this NServiceBus.ICommandContext context, System.Action<T> messageConstructor) { }
+    }
     public interface IConfigureThisEndpoint
     {
         void Customize(NServiceBus.BusConfiguration configuration);
@@ -377,6 +405,32 @@ namespace NServiceBus
         void SetValue(object value);
     }
     public interface IEvent : NServiceBus.IMessage { }
+    public interface IEventContext
+    {
+        void DoNotContinueDispatchingCurrentMessageToHandlers();
+        void ForwardCurrentMessageTo(string destination);
+        void HandleCurrentMessageLater();
+        void Publish(object message, NServiceBus.PublishOptions options);
+        void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
+        void Reply(object message);
+        void Reply<T>(System.Action<T> messageConstructor);
+        void Send(object message, NServiceBus.SendOptions options);
+        void Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+        void SendLocal(object message, NServiceBus.SendLocalOptions options);
+        void SendLocal<T>(System.Action<T> messageConstructor, NServiceBus.SendLocalOptions options);
+    }
+    public class static IEventContextExtensions
+    {
+        public static void Publish(this NServiceBus.IEventContext context, object message) { }
+        public static void Publish<T>(this NServiceBus.IEventContext context) { }
+        public static void Publish<T>(this NServiceBus.IEventContext context, System.Action<T> messageConstructor) { }
+        public static void Send(this NServiceBus.IEventContext context, object message) { }
+        public static void Send<T>(this NServiceBus.IEventContext context, System.Action<T> messageConstructor) { }
+        public static void Send(this NServiceBus.IEventContext context, string destination, object message) { }
+        public static void Send<T>(this NServiceBus.IEventContext context, string destination, System.Action<T> messageConstructor) { }
+        public static void SendLocal(this NServiceBus.IEventContext context, object message) { }
+        public static void SendLocal<T>(this NServiceBus.IEventContext context, System.Action<T> messageConstructor) { }
+    }
     [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public interface IExcludesBuilder { }
     public interface IHandleMessages<T>
@@ -417,6 +471,77 @@ namespace NServiceBus
     public class static InstallConfigExtensions
     {
         public static void EnableInstallers(this NServiceBus.BusConfiguration config, string username = null) { }
+    }
+    public interface IProcessCommands<T>
+    {
+        void Handle(T message, NServiceBus.ICommandContext context);
+    }
+    public interface IProcessEvents<T>
+    {
+        void Handle(T message, NServiceBus.IEventContext context);
+    }
+    public interface IProcessResponses<T>
+    {
+        void Handle(T message, NServiceBus.IResponseContext context);
+    }
+    public interface IResponse { }
+    public interface IResponseContext
+    {
+        void DoNotContinueDispatchingCurrentMessageToHandlers();
+        void ForwardCurrentMessageTo(string destination);
+        void HandleCurrentMessageLater();
+        void Publish(object message, NServiceBus.PublishOptions options);
+        void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
+        void Reply(object message);
+        void Reply<T>(System.Action<T> messageConstructor);
+        void Send(object message, NServiceBus.SendOptions options);
+        void Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+        void SendLocal(object message, NServiceBus.SendLocalOptions options);
+        void SendLocal<T>(System.Action<T> messageConstructor, NServiceBus.SendLocalOptions options);
+    }
+    public class static IResponseContextExtensions
+    {
+        public static void Publish(this NServiceBus.IResponseContext context, object message) { }
+        public static void Publish<T>(this NServiceBus.IResponseContext context) { }
+        public static void Publish<T>(this NServiceBus.IResponseContext context, System.Action<T> messageConstructor) { }
+        public static void Send(this NServiceBus.IResponseContext context, object message) { }
+        public static void Send<T>(this NServiceBus.IResponseContext context, System.Action<T> messageConstructor) { }
+        public static void Send(this NServiceBus.IResponseContext context, string destination, object message) { }
+        public static void Send<T>(this NServiceBus.IResponseContext context, string destination, System.Action<T> messageConstructor) { }
+        public static void SendLocal(this NServiceBus.IResponseContext context, object message) { }
+        public static void SendLocal<T>(this NServiceBus.IResponseContext context, System.Action<T> messageConstructor) { }
+    }
+    public interface IRunContext
+    {
+        void Publish(object message, NServiceBus.PublishOptions options);
+        void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
+        void Reply(object message);
+        void Reply<T>(System.Action<T> messageConstructor);
+        void Send(object message, NServiceBus.SendOptions options);
+        void Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+        void SendLocal(object message, NServiceBus.SendLocalOptions options);
+        void SendLocal<T>(System.Action<T> messageConstructor, NServiceBus.SendLocalOptions options);
+        void Subscribe(System.Type messageType);
+        void Subscribe<T>();
+        void Unsubscribe(System.Type messageType);
+        void Unsubscribe<T>();
+    }
+    public class static IRunContextExtensions
+    {
+        public static void Publish(this NServiceBus.IRunContext context, object message) { }
+        public static void Publish<T>(this NServiceBus.IRunContext context) { }
+        public static void Publish<T>(this NServiceBus.IRunContext context, System.Action<T> messageConstructor) { }
+        public static void Send(this NServiceBus.IRunContext context, object message) { }
+        public static void Send<T>(this NServiceBus.IRunContext context, System.Action<T> messageConstructor) { }
+        public static void Send(this NServiceBus.IRunContext context, string destination, object message) { }
+        public static void Send<T>(this NServiceBus.IRunContext context, string destination, System.Action<T> messageConstructor) { }
+        public static void SendLocal(this NServiceBus.IRunContext context, object message) { }
+        public static void SendLocal<T>(this NServiceBus.IRunContext context, System.Action<T> messageConstructor) { }
+    }
+    public interface IRunWhenBusStartsAndStops
+    {
+        void Start(NServiceBus.IRunContext context);
+        void Stop(NServiceBus.IRunContext context);
     }
     public interface ISendOnlyBus : System.IDisposable
     {
@@ -1731,6 +1856,8 @@ namespace NServiceBus.Saga
         public CorrelationProperty(string name) { }
         public string Name { get; }
     }
+    public interface IAmStartedByCommands<T> : NServiceBus.IProcessCommands<T> { }
+    public interface IAmStartedByEvents<T> : NServiceBus.IProcessEvents<T> { }
     public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
     public interface IConfigureHowToFindSagaWithMessage
     {
@@ -1763,6 +1890,10 @@ namespace NServiceBus.Saga
     {
         void Timeout(T state);
     }
+    public interface IProcessTimeouts<T>
+    {
+        void Timeout(T state, NServiceBus.Saga.ITimeoutContext context);
+    }
     public interface ISagaPersister
     {
         void Complete(NServiceBus.Saga.IContainSagaData saga);
@@ -1773,6 +1904,27 @@ namespace NServiceBus.Saga
         void Initialize(NServiceBus.Saga.SagaMetaModel model);
         void Save(NServiceBus.Saga.IContainSagaData saga);
         void Update(NServiceBus.Saga.IContainSagaData saga);
+    }
+    public interface ITimeoutContext
+    {
+        void Publish(object message, NServiceBus.PublishOptions options);
+        void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
+        void Send(object message, NServiceBus.SendOptions options);
+        void Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+        void SendLocal(object message, NServiceBus.SendLocalOptions options);
+        void SendLocal<T>(System.Action<T> messageConstructor, NServiceBus.SendLocalOptions options);
+    }
+    public class static ITimeoutContextExtensions
+    {
+        public static void Publish(this NServiceBus.Saga.ITimeoutContext context, object message) { }
+        public static void Publish<T>(this NServiceBus.Saga.ITimeoutContext context) { }
+        public static void Publish<T>(this NServiceBus.Saga.ITimeoutContext context, System.Action<T> messageConstructor) { }
+        public static void Send(this NServiceBus.Saga.ITimeoutContext context, object message) { }
+        public static void Send<T>(this NServiceBus.Saga.ITimeoutContext context, System.Action<T> messageConstructor) { }
+        public static void Send(this NServiceBus.Saga.ITimeoutContext context, string destination, object message) { }
+        public static void Send<T>(this NServiceBus.Saga.ITimeoutContext context, string destination, System.Action<T> messageConstructor) { }
+        public static void SendLocal(this NServiceBus.Saga.ITimeoutContext context, object message) { }
+        public static void SendLocal<T>(this NServiceBus.Saga.ITimeoutContext context, System.Action<T> messageConstructor) { }
     }
     public abstract class Saga
     {
@@ -1821,7 +1973,7 @@ namespace NServiceBus.Saga
     }
     public class SagaMessage
     {
-        public SagaMessage(string messageType, bool isAllowedToStart) { }
+        public SagaMessage(string messageType, bool isAllowedToStartSaga) { }
         public bool IsAllowedToStartSaga { get; }
         public string MessageType { get; }
     }
@@ -2255,9 +2407,15 @@ namespace NServiceBus.Unicast.Behaviors
 {
     public class MessageHandler
     {
+        [System.ObsoleteAttribute("Please use `MessageHandler(Action<object, object, object> invocationWithContext, " +
+            "Type handlerType)` instead. Will be removed in version 7.0.0.", true)]
         public MessageHandler() { }
+        public MessageHandler(System.Action<object, object, object> invocationWithContext, System.Type handlerType) { }
+        public System.Type HandlerType { get; }
         public object Instance { get; set; }
+        [System.ObsoleteAttribute("Please use `MessageHandler.Invoke` instead. Will be removed in version 7.0.0.", true)]
         public System.Action<object, object> Invocation { get; set; }
+        public void Invoke(object message, object context) { }
     }
 }
 namespace NServiceBus.Unicast
@@ -2306,11 +2464,17 @@ namespace NServiceBus.Unicast
     }
     public class MessageHandlerRegistry
     {
-        public void CacheMethodForHandler(System.Type handler, System.Type messageType) { }
         public void Clear() { }
+        public System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Behaviors.MessageHandler> GetHandlersFor(System.Type messageType) { }
+        [System.ObsoleteAttribute("Please use `MessageHandlerRegistry.GetHandlersFor(Type messageType)` instead. Wil" +
+            "l be removed in version 7.0.0.", true)]
         public System.Collections.Generic.IEnumerable<System.Type> GetHandlerTypes(System.Type messageType) { }
         public System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes() { }
+        [System.ObsoleteAttribute("Please use `MessageHandler.Invoke(object message, object context)` instead. Will " +
+            "be removed in version 7.0.0.", true)]
         public void InvokeHandle(object handler, object message) { }
+        [System.ObsoleteAttribute("Please use `MessageHandler.Invoke(object message, object context)` instead. Will " +
+            "be removed in version 7.0.0.", true)]
         public void InvokeTimeout(object handler, object state) { }
         public void RegisterHandler(System.Type handlerType) { }
     }

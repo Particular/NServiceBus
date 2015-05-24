@@ -71,8 +71,5 @@
                 Context.SecondHandlerWasCalled = true;
             }
         }
-
-
     }
-
 }

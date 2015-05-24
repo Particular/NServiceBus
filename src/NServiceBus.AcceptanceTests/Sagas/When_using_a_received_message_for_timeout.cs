@@ -11,10 +11,13 @@
         [Test]
         public void Timeout_should_be_received_after_expiration()
         {
-            Scenario.Define(() => new Context {Id = Guid.NewGuid()})
+            var context = new Context { Id = Guid.NewGuid() };
+            Scenario.Define(context)
                     .WithEndpoint<SagaEndpoint>(g => g.Given(bus=>bus.SendLocal(new StartSagaMessage())))
                     .Done(c => c.TimeoutReceived)
                     .Run();
+
+            Assert.AreEqual(1, context.HandleStartMessageInvoked);
         }
 
         public class Context : ScenarioContext
@@ -24,6 +27,8 @@
             public bool StartSagaMessageReceived { get; set; }
 
             public bool TimeoutReceived { get; set; }
+
+            public int HandleStartMessageInvoked { get; set; }
         }
 
         public class SagaEndpoint : EndpointConfigurationBuilder
@@ -40,6 +45,7 @@
                 public void Handle(StartSagaMessage message)
                 {
                     Data.SomeId = message.SomeId;
+                    Context.HandleStartMessageInvoked++;
                     RequestTimeout(TimeSpan.FromMilliseconds(100), message);
                 }
 

@@ -21,7 +21,11 @@ namespace NServiceBus.Pipeline
                 .Register("ProcessSubscriptionRequests", typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.")
                 .Register(WellKnownStep.MutateIncomingTransportMessage, typeof(ApplyIncomingTransportMessageMutatorsBehavior), "Executes IMutateIncomingTransportMessages")
                 .Register(WellKnownStep.MutateIncomingMessages, typeof(ApplyIncomingMessageMutatorsBehavior), "Executes IMutateIncomingMessages")
-                .Register(WellKnownStep.InvokeHandlers, typeof(InvokeHandlersBehavior), "Calls the IHandleMessages<T>.Handle(T)");
+                .Register("PrepareCommandContext", typeof(PrepareCommandContextBehavior), "If the current handler handles commands a command context is added as invocation context.")
+                .Register("PrepareEventContext", typeof(PrepareEventContextBehavior), "If the current handler handles events a event context is added as invocation context.")
+                .Register("PrepareResponseContext", typeof(PrepareResponseContextBehavior), "If the current handler handles responses a response context is added as invocation context.")
+                .Register("PrepareTimeoutContext", typeof(PrepareTimoutContextBehavior), "If the current handler handles timeouts a timeout context is added as invocation context.")
+                .Register(WellKnownStep.InvokeHandlers, typeof(InvokeHandlersBehavior), "Calls the IHandleMessages<T>.Handle(T), IHandle<T>.Handle(T,IHandleContext), ISubscribe<T>.Handle(T,ISubscribeContext) or ITimeout<T>.Timeout(T,ITimeoutContext) method");
         }
 
         public static void RegisterOutgoingCoreBehaviors(PipelineSettings pipeline)
