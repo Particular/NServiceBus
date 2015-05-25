@@ -112,6 +112,10 @@ namespace NServiceBus
         public NServiceBus.Settings.SettingsHolder Settings { get; }
         public System.Collections.Generic.IList<System.Type> TypesToScan { get; }
     }
+    public class static ConfigureAudit
+    {
+        public static void AuditProcessedMessagesTo(this NServiceBus.BusConfiguration config, string auditQueue, System.Nullable<System.TimeSpan> timeToBeReceived = null) { }
+    }
     public class static ConfigureCriticalErrorAction
     {
         public static void DefineCriticalErrorAction(this NServiceBus.BusConfiguration busConfiguration, System.Action<string, System.Exception> onCriticalError) { }
