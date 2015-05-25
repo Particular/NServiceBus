@@ -40,7 +40,7 @@
                 public TestSaga.SagaData FindBy(SomeOtherMessage message)
                 {
                     Context.FinderUsed = true;
-                    return new TestSaga.SagaData()
+                    return new TestSaga.SagaData
                            {
                                Property = "jfbsjdfbsdjh"
                            };

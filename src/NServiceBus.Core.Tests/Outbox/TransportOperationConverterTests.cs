@@ -11,7 +11,7 @@
         [Test]
         public void DeliveryOptions()
         {
-            var options = new DeliveryMessageOptions()
+            var options = new DeliveryMessageOptions
             {
                 TimeToBeReceived = TimeSpan.FromMinutes(1),
                 NonDurable = true

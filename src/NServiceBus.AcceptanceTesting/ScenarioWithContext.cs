@@ -138,7 +138,7 @@ namespace NServiceBus.AcceptanceTesting
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => builder.For(Conventions.DefaultRunDescriptor());
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
         Func<ScenarioContext, bool> done = context => true;
-        Func<TContext> contextFactory = () => new TContext();
+        Func<TContext> contextFactory;
         Action<RunSummary> reports;
         Func<Exception, bool> allowedExceptions = exception => false;
     }
