@@ -45,6 +45,8 @@ namespace NServiceBus
     public class BusConfiguration : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public BusConfiguration() { }
+        [System.ObsoleteAttribute("Please use `SetOutgoingHeaders(string key,string value)` instead. Will be removed" +
+            " in version 7.0.0.", true)]
         public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         [System.ObsoleteAttribute("Please use `ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
@@ -108,6 +110,8 @@ namespace NServiceBus
     {
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public string LocalAddress { get; }
+        [System.ObsoleteAttribute("Static headers is no longer accessible via this object. Will be removed in versio" +
+            "n 7.0.0.", true)]
         public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
         public NServiceBus.Settings.SettingsHolder Settings { get; }
         public System.Collections.Generic.IList<System.Type> TypesToScan { get; }
@@ -193,6 +197,12 @@ namespace NServiceBus
         public NServiceBus.ConventionsBuilder DefiningMessagesAs(System.Func<System.Type, bool> definesMessageType) { }
         public NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
     }
+    public class static CorrelationContextExtensions
+    {
+        public static string GetCorrelationId(this NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context context) { }
+        public static void SetCorrelationId(this NServiceBus.SendOptions options, string correlationId) { }
+        public static void SetCorrelationId(this NServiceBus.SendLocalOptions options, string correlationId) { }
+    }
     public class CriticalError
     {
         public CriticalError(System.Action<string, System.Exception> onCriticalErrorAction, NServiceBus.ObjectBuilder.IBuilder builder) { }
@@ -264,6 +274,12 @@ namespace NServiceBus
         public System.Collections.Generic.IEnumerable<System.Type> Types { get; }
         public NServiceBus.First<T> AndThen<K>() { }
         public static NServiceBus.First<T> Then<K>() { }
+    }
+    public class static HeaderExtensions
+    {
+        public static void SetHeader(this NServiceBus.Pipeline.Contexts.OutgoingContext context, string key, string value) { }
+        public static void SetHeader(this NServiceBus.Extensibility.ExtendableOptions context, string key, string value) { }
+        public static void SetHeader(this NServiceBus.Pipeline.Contexts.PhysicalOutgoingContextStageBehavior.Context context, string key, string value) { }
     }
     public class static Headers
     {
@@ -494,6 +510,12 @@ namespace NServiceBus
         public MessageDeserializationException(string transportMessageId, System.Exception innerException) { }
         protected MessageDeserializationException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
     }
+    public class static MessageIdExtensions
+    {
+        public static string GetMessageId(this NServiceBus.Pipeline.Contexts.PhysicalOutgoingContextStageBehavior.Context context) { }
+        public static string GetMessageId(this NServiceBus.Pipeline.Contexts.OutgoingContext context) { }
+        public static void SetMessageId(this NServiceBus.Extensibility.ExtendableOptions context, string messageId) { }
+    }
     public enum MessageIntentEnum
     {
         Send = 1,
@@ -533,7 +555,7 @@ namespace NServiceBus
     {
         public OutgoingPhysicalMutatorContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
         public byte[] Body { get; set; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public void SetHeader(string key, string value) { }
     }
     public class static PersistenceConfig
     {
@@ -603,21 +625,21 @@ namespace NServiceBus
     }
     public class SendLocalOptions : NServiceBus.Extensibility.ExtendableOptions
     {
-        public SendLocalOptions(string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
-        public NServiceBus.SendLocalOptions AddHeader(string key, string value) { }
-        public NServiceBus.SendLocalOptions SetCustomMessageId(string messageId) { }
+        public SendLocalOptions(System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
     }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
-        public SendOptions(string destination = null, string correlationId = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
-        public NServiceBus.SendOptions AddHeader(string key, string value) { }
-        public NServiceBus.SendOptions SetCustomMessageId(string messageId) { }
+        public SendOptions(string destination = null, System.Nullable<System.DateTime> deliverAt = null, System.Nullable<System.TimeSpan> delayDeliveryFor = null) { }
     }
     public class static SerializationConfigExtensions
     {
         public static NServiceBus.Serialization.SerializationExtentions<T> UseSerialization<T>(this NServiceBus.BusConfiguration config)
             where T : NServiceBus.Serialization.SerializationDefinition { }
         public static void UseSerialization(this NServiceBus.BusConfiguration config, System.Type serializerType) { }
+    }
+    public class static SerializationContextExtensions
+    {
+        public static void SkipSerialization(this NServiceBus.Pipeline.Contexts.OutgoingContext context) { }
     }
     public class static SettingsExtentions
     {
@@ -631,6 +653,10 @@ namespace NServiceBus
     {
         public static void EnableSLAPerformanceCounter(this NServiceBus.BusConfiguration config, System.TimeSpan sla) { }
         public static void EnableSLAPerformanceCounter(this NServiceBus.BusConfiguration config) { }
+    }
+    public class static StaticHeadersConfigExtensions
+    {
+        public static void AddHeaderToAllOutgoingMessages(this NServiceBus.BusConfiguration config, string key, string value) { }
     }
     public class static ThrottlingSettingsExtensions
     {
@@ -668,10 +694,12 @@ namespace NServiceBus
             "removed in version 7.0.0.", true)]
         public TransportMessage() { }
         public byte[] Body { get; set; }
+        [System.ObsoleteAttribute("Use the value of the \'NServiceBus.CorrelationId\' header instead. Will be removed " +
+            "in version 7.0.0.", true)]
         public string CorrelationId { get; set; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string Id { get; }
-        public NServiceBus.MessageIntentEnum MessageIntent { get; set; }
+        public NServiceBus.MessageIntentEnum MessageIntent { get; }
         [System.ObsoleteAttribute("For sending purposes use DeliveryMessageOptions.NonDurable (note the negation). W" +
             "hen receiving look at the new \'NServiceBus.NonDurableMessage\' header. Will be re" +
             "moved in version 7.0.0.", true)]
@@ -971,6 +999,8 @@ namespace NServiceBus.Extensibility
     public class OptionExtensionContext
     {
         public OptionExtensionContext() { }
+        public T GetOrCreate<T>()
+            where T :  class, new () { }
         public void Set<T>(T data)
             where T :  class { }
         public bool TryGet<T>(out T data)
@@ -1679,12 +1709,10 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, System.Collections.Generic.Dictionary<string, string> headers, string messageId, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, NServiceBus.Extensibility.OptionExtensionContext extensionContext) { }
+        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryMessageOptions deliveryMessageOptions, NServiceBus.MessageIntentEnum intent, System.Type messageType, object messageInstance, NServiceBus.Extensibility.OptionExtensionContext extensionContext) { }
         public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
         public NServiceBus.Extensibility.OptionExtensionContext Extensions { get; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.MessageIntentEnum Intent { get; }
-        public string MessageId { get; }
         public object MessageInstance { get; set; }
         public System.Type MessageType { get; set; }
     }
@@ -1697,9 +1725,7 @@ namespace NServiceBus.Pipeline.Contexts
             public byte[] Body { get; set; }
             public NServiceBus.Unicast.DeliveryMessageOptions DeliveryMessageOptions { get; }
             public NServiceBus.Extensibility.OptionExtensionContext Extensions { get; }
-            public System.Collections.Generic.Dictionary<string, string> Headers { get; }
             public NServiceBus.MessageIntentEnum Intent { get; }
-            public string MessageId { get; }
             public System.Type MessageType { get; }
         }
     }

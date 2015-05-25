@@ -45,5 +45,26 @@
             data = null;
             return false;
         }
+
+        /// <summary>
+        /// Gets the requested extesion, a new one will be created if needed
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T GetOrCreate<T>() where T:class,new()
+        {
+            T value;
+
+            if (TryGet(out value))
+            {
+                return value;
+            }
+            
+            var newInstance = new T();
+
+            Set(newInstance);
+
+            return newInstance;
+        }
     }
 }

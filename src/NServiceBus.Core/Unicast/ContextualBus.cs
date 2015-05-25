@@ -111,30 +111,24 @@ namespace NServiceBus.Unicast
 
             var headers = new Dictionary<string, string>();
 
-            ApplyStaticHeaders(headers);
             ApplyReplyToAddress(headers);
             ApplyHostRelatedHeaders(headers);
 
             var outgoingContext = new OutgoingContext(
                 incomingContext,
                 deliveryOptions,
-                headers,
-                CombGuid.Generate().ToString(),
                 MessageIntentEnum.Publish,
                 messageType,
                 message,
                 options.Extensions);
 
 
-            outgoingPipeline.Invoke(outgoingContext);
-        }
-
-        void ApplyStaticHeaders(Dictionary<string, string> messageHeaders)
-        {
-            foreach (var staticHeader in configure.OutgoingHeaders)
+            foreach (var header in headers)
             {
-                messageHeaders[staticHeader.Key] = staticHeader.Value;
+                outgoingContext.SetHeader(header.Key, header.Value);
             }
+       
+            outgoingPipeline.Invoke(outgoingContext);
         }
 
         /// <summary>
@@ -229,11 +223,9 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply(object message,NServiceBus.ReplyOptions options)
         {
-            var correlationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
-
             var sendOptions = new SendMessageOptions(MessageBeingProcessed.ReplyToAddress);
 
-            SendMessage(null, correlationId, MessageIntentEnum.Reply, new Dictionary<string, string>(), sendOptions, message.GetType(), message, options.Extensions);
+            SendMessage(MessageIntentEnum.Reply, sendOptions, message.GetType(), message, options.Extensions);
         }
 
         /// <summary>
@@ -296,7 +288,7 @@ namespace NServiceBus.Unicast
 
             var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
 
-            SendMessage(options.MessageId, options.CorrelationId, options.Intent, options.Headers, sendOptions, messageType, message, options.Extensions);
+            SendMessage(options.Intent, sendOptions, messageType, message, options.Extensions);
         }
 
         public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
@@ -328,7 +320,7 @@ namespace NServiceBus.Unicast
 
             var sendOptions = new SendMessageOptions(destination, deliverAt, delayDeliveryFor);
 
-            SendMessage(options.MessageId, options.CorrelationId, MessageIntentEnum.Send, options.Headers, sendOptions, message.GetType(), message, options.Extensions);
+            SendMessage(MessageIntentEnum.Send, sendOptions, message.GetType(), message, options.Extensions);
         }
 
         List<string> GetAtLeastOneAddressForMessageType(Type messageType)
@@ -358,43 +350,29 @@ namespace NServiceBus.Unicast
 
       
 
-        void SendMessage(string messageId, string correlationId, MessageIntentEnum intent, Dictionary<string, string> messageHeaders, SendMessageOptions sendOptions, Type messageType, object message, OptionExtensionContext context)
+        void SendMessage(MessageIntentEnum intent, SendMessageOptions sendOptions, Type messageType, object message, OptionExtensionContext context)
         {
-            var headers = new Dictionary<string, string>(messageHeaders);
+            var headers = new Dictionary<string, string>();
 
-            headers[Headers.MessageIntent] = intent.ToString();
-
-            if (string.IsNullOrEmpty(messageId))
-            {
-                messageId = CombGuid.Generate().ToString();
-            }
-
-            if (!string.IsNullOrEmpty(correlationId))
-            {
-                headers[Headers.CorrelationId] = correlationId;
-            }
-            else
-            {
-                headers[Headers.CorrelationId] = messageId;
-            }
-
+         
             ApplyReplyToAddress(headers);
 
             ApplyDefaultDeliveryOptionsIfNeeded(sendOptions, messageType);
-
-            ApplyStaticHeaders(headers);
 
             ApplyHostRelatedHeaders(headers);
 
             var outgoingContext = new OutgoingContext(
                 incomingContext,
                 sendOptions,
-                headers,
-                messageId,
                 intent,
                 messageType,
                 message,
                 context);
+
+            foreach (var header in headers)
+            {
+                outgoingContext.SetHeader(header.Key,header.Value);
+            }
 
             outgoingPipeline.Invoke(outgoingContext);
         }

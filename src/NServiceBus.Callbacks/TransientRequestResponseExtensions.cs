@@ -37,8 +37,7 @@
                 throw new ArgumentNullException("bus");
             }
 
-            options
-                .AddHeader("$Routing.RouteReplyToSpecificEndpointInstance", Boolean.TrueString);
+            options.SetHeader("$Routing.RouteReplyToSpecificEndpointInstance", Boolean.TrueString);
 
             var tcs = new TaskCompletionSource<TResponse>();
 
@@ -78,8 +77,7 @@
                 throw new ArgumentNullException("bus");
             }
 
-            options
-                .AddHeader("$Routing.RouteReplyToSpecificEndpointInstance", Boolean.TrueString);
+            options.SetHeader("$Routing.RouteReplyToSpecificEndpointInstance", Boolean.TrueString);
 
             var tcs = new TaskCompletionSource<TResponse>();
 

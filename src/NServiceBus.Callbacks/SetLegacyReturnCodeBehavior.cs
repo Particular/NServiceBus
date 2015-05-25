@@ -11,7 +11,11 @@
         {
             if (CallbackSupport.IsLegacyEnumResponse(context.MessageType))
             {
-                context.Headers[Headers.ReturnMessageErrorCodeHeader] = ((dynamic)context.MessageInstance).ReturnCode;
+                string returnCode = ((dynamic) context.MessageInstance).ReturnCode;
+                context.SetHeader(Headers.ReturnMessageErrorCodeHeader,returnCode);
+                context.SetHeader(Headers.ControlMessageHeader, true.ToString());
+
+                context.SkipSerialization();
             }
             next();
         }

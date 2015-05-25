@@ -11,11 +11,12 @@
         public void Should_trigger_the_callback()
         {
             var context = Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithLocalCallback>(b=>b.Given(async (bus,c)=>
+                .WithEndpoint<EndpointWithLocalCallback>(b => b.Given(async (bus, c) =>
                     {
                         var id = Guid.NewGuid().ToString();
-                        var options = new SendLocalOptions()
-                            .SetCustomMessageId(id);
+                        var options = new SendLocalOptions();
+
+                        options.SetMessageId(id);
 
                         await bus.RequestWithTransientlyHandledResponseAsync<MyResponse>(new MyRequest(), options);
 
@@ -53,7 +54,7 @@
                 }
             }
         }
-        public class MyRequest : IMessage{}
+        public class MyRequest : IMessage { }
 
         public class MyResponse : IMessage { }
     }

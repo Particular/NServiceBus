@@ -19,8 +19,10 @@
             Scenario.Define(context)
                     .WithEndpoint<Sender>(b => b.Given((bus, c) =>
                     {
-                        var sendOptions = new SendOptions()
-                            .AddHeader("MyHeader", "MyHeaderValue");
+                        var sendOptions = new SendOptions();
+
+                        sendOptions.SetHeader("MyHeader", "MyHeaderValue");
+                        sendOptions.SetMessageId("MyMessageId");
                         
                         bus.Send(new MyMessage{Id = c.Id}, sendOptions);
                     }))
@@ -52,7 +54,7 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c => c.OutgoingHeaders.Add("MyStaticHeader", "StaticHeaderValue"))
+                EndpointSetup<DefaultServer>(c => c.AddHeaderToAllOutgoingMessages("MyStaticHeader", "StaticHeaderValue"))
                     .AddMapping<MyMessage>(typeof(Receiver));
             }
         }
@@ -74,6 +76,8 @@
                 {
                     if (Context.Id != message.Id)
                         return;
+
+                    Assert.AreEqual(Bus.CurrentMessageContext.Id,"MyMessageId");
 
                     Context.TimesCalled++;
 

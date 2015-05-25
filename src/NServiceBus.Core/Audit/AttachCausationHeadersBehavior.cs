@@ -16,16 +16,13 @@ namespace NServiceBus
 
         void ApplyHeaders(Context context)
         {
-            if (context.Headers.ContainsKey(Headers.ConversationId))
-                return;
-
             var conversationId = CombGuid.Generate().ToString();
 
             TransportMessage incomingMessage;
 
             if (context.TryGet(TransportReceiveContext.IncomingPhysicalMessageKey,out incomingMessage))
             {
-                context.Headers[Headers.RelatedTo] = incomingMessage.Id;
+                context.SetHeader(Headers.RelatedTo,incomingMessage.Id);
 
                 string conversationIdFromCurrentMessageContext;
                 if (incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext))
@@ -34,7 +31,7 @@ namespace NServiceBus
                 }
             }
 
-            context.Headers[Headers.ConversationId] = conversationId;
+            context.SetHeader(Headers.ConversationId,conversationId);
         }
 
         public class Registration : RegisterStep

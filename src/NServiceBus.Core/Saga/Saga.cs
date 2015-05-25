@@ -142,9 +142,9 @@ namespace NServiceBus.Saga
 
         void SetTimeoutHeaders(SendLocalOptions options)
         {
-            options.AddHeader(Headers.SagaId, Entity.Id.ToString());
-            options.AddHeader(Headers.IsSagaTimeoutMessage, bool.TrueString);
-            options.AddHeader(Headers.SagaType, GetType().AssemblyQualifiedName);
+            options.SetHeader(Headers.SagaId, Entity.Id.ToString());
+            options.SetHeader(Headers.IsSagaTimeoutMessage, bool.TrueString);
+            options.SetHeader(Headers.SagaType, GetType().AssemblyQualifiedName);
         }
 
         /// <summary>
@@ -157,7 +157,11 @@ namespace NServiceBus.Saga
                 throw new Exception("Entity.Originator cannot be null. Perhaps the sender is a SendOnly endpoint.");
             }
 
-            Bus.Send(message, new SendOptions(Entity.Originator, Entity.OriginalMessageId));
+            var options = new SendOptions(Entity.Originator);
+
+            options.SetCorrelationId(Entity.OriginalMessageId);
+
+            Bus.Send(message, options);
         }
 
         /// <summary>

@@ -51,26 +51,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Gets/sets the unique identifier of another message bundle
-        ///     this message bundle is associated with.
-        /// </summary>
-        public string CorrelationId
-        {
-            get
-            {
-                string correlationId;
-
-                if (Headers.TryGetValue(NServiceBus.Headers.CorrelationId, out correlationId))
-                {
-                    return correlationId;
-                }
-
-                return null;
-            }
-            set { Headers[NServiceBus.Headers.CorrelationId] = value; }
-        }
-
-        /// <summary>
         ///     Gets/sets the reply-to address of the message bundle - replaces 'ReturnAddress'.
         /// </summary>
         public string ReplyToAddress
@@ -105,7 +85,6 @@ namespace NServiceBus
 
                 return messageIntent;
             }
-            set { Headers[NServiceBus.Headers.MessageIntent] = value.ToString(); }
         }
 
         /// <summary>
@@ -124,15 +103,6 @@ namespace NServiceBus
         {
             get { return body; }
             set { UpdateBody(value); }
-        }
-
-        /// <summary>
-        ///     Use this method to change the stable ID of the given message.
-        /// </summary>
-        internal void ChangeMessageId(string newId)
-        {
-            id = newId;
-            CorrelationId = newId;
         }
 
         /// <summary>

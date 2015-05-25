@@ -31,7 +31,7 @@
 
                         var duplicateSendContext = new SendLocalOptions();
 
-                        duplicateSendContext.SetCustomMessageId(duplicateMessageId);
+                        duplicateSendContext.SetMessageId(duplicateMessageId);
 
                         bus.SendLocal(new PlaceOrder(), duplicateSendContext);
                         bus.SendLocal(new PlaceOrder(), duplicateSendContext);

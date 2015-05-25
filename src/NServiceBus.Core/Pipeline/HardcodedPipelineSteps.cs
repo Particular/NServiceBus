@@ -1,7 +1,5 @@
 namespace NServiceBus.Pipeline
 {
-    using NServiceBus.Logging;
-
     class HardcodedPipelineSteps
     {
       
@@ -33,10 +31,6 @@ namespace NServiceBus.Pipeline
                 .Register("PopulateAutoCorrelationHeadersForReplies", typeof(PopulateAutoCorrelationHeadersForRepliesBehavior), "Copies existing saga headers from incoming message to outgoing message to facilitate the auto correlation in the saga, when replying to a message that was sent by a saga.")
                 .Register(WellKnownStep.MutateOutgoingTransportMessage, typeof(MutateOutgoingPhysicalMessageBehavior), "Executes IMutateOutgoingTransportMessages");
 
-            if (LogManager.GetLogger("LogOutgoingMessage").IsDebugEnabled)
-            {
-                seq = seq.Register("LogOutgoingMessage", typeof(LogOutgoingMessageBehavior), "Logs the message contents before it is sent.");
-            }
             seq.Register(WellKnownStep.DispatchMessageToTransport, typeof(DispatchMessageToTransportBehavior), "Dispatches messages to the transport");
         }
     }
