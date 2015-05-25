@@ -98,7 +98,7 @@
     <Compile Include="HostInformation\When_feature_overrides_hostid.cs" />
     <Compile Include="NonDTC\When_dispatching_transport_operations.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
-    <Compile Include="Audit\When_audit_is_everriden_in_code.cs" />
+    <Compile Include="Audit\When_audit_is_overridden_in_code.cs" />
     <Compile Include="PubSub\When_publishing_from_sendonly.cs" />
     <Compile Include="MessageId\When_message_has_empty_id_header.cs" />
     <Compile Include="PubSub\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />

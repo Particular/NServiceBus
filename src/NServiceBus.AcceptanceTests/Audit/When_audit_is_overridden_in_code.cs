@@ -5,7 +5,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_audit_is_everriden_in_code : NServiceBusAcceptanceTest
+    public class When_audit_is_overridden_in_code : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_audit_to_target_queue()
@@ -22,7 +22,7 @@
         {
             public UserEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo("audit_with_code_source"));
+                EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo("audit_with_code_target"));
             }
 
             class Handler : IHandleMessages<MessageToBeAudited>
