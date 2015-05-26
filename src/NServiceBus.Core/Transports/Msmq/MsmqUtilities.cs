@@ -44,13 +44,13 @@ namespace NServiceBus
         ///     If the target includes a machine name, uses the local machine name in the returned value
         ///     otherwise uses the local IP address in the returned value.
         /// </summary>
-        public static string GetReturnAddress(string replyToString, string detinationMachine)
+        public static string GetReturnAddress(string replyToString, string destinationMachine)
         {
             var replyToAddress = MsmqAddress.Parse(replyToString);
             IPAddress targetIpAddress;
 
             //see if the target is an IP address, if so, get our own local ip address
-            if (IPAddress.TryParse(detinationMachine, out targetIpAddress))
+            if (IPAddress.TryParse(destinationMachine, out targetIpAddress))
             {
                 if (string.IsNullOrEmpty(localIp))
                 {

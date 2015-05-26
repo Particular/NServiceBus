@@ -2076,8 +2076,8 @@ namespace NServiceBus.Settings.Throttling
     public class ThrottlingSettings
     {
         public void DoNotLimitThroughput() { }
-        public NServiceBus.IndividualThrottlingSettings UseSeparateThroughputLimitForMainPaipelineAndEachSetellite() { }
-        public NServiceBus.IndividualThrottlingSettings UseSeparateThroughputLimitForMainPaipelineAndEachSetellite(int defaultMaximumMessagesPerSecond) { }
+        public NServiceBus.IndividualThrottlingSettings UseSeparateThroughputLimitForMainPipelineAndEachSatellite() { }
+        public NServiceBus.IndividualThrottlingSettings UseSeparateThroughputLimitForMainPipelineAndEachSatellite(int defaultMaximumMessagesPerSecond) { }
         public void UseSingleTotalThroughputLimit(int maximumMessagesPerSecond) { }
     }
 }

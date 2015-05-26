@@ -16,7 +16,7 @@
         /// Messages can still arrive to the requesting endpoint but in that case no handling code will be attached to consume
         ///  that response message and therefore the message will be moved to the error queue.</remarks>
         /// <typeparam name="TResponse">The response type.</typeparam>
-        /// <param name="bus">Object beeing extended.</param>
+        /// <param name="bus">Object being extended.</param>
         /// <param name="requestMessage">The request message.</param>
         /// <param name="options">The options for the send.</param>
         /// <returns>A task which contains the response when it is completed.</returns>
@@ -56,7 +56,7 @@
         /// Messages can still arrive to the requesting endpoint but in that case no handling code will be attached to consume
         ///  that response message and therefore the message will be moved to the error queue.</remarks>
         /// <typeparam name="TResponse">The response type.</typeparam>
-        /// <param name="bus">Object beeing extended.</param>
+        /// <param name="bus">Object being extended.</param>
         /// <param name="requestMessage">The request message.</param>
         /// <param name="options">The options for the send.</param>
         /// <returns>A task which contains the response when it is completed.</returns>

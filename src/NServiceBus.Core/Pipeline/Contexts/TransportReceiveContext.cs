@@ -20,7 +20,7 @@
         }
 
         /// <summary>
-        /// Allows context inheritence
+        /// Allows context inheritance
         /// </summary>
         /// <param name="parentContext"></param>
         protected TransportReceiveContext(BehaviorContext parentContext)

@@ -95,9 +95,9 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(IEventA evnt)
+                public void Handle(IEventA @event)
                 {
-                    if (evnt.ContextId != Context.Id)
+                    if (@event.ContextId != Context.Id)
                     {
                         return;
                     }
@@ -109,9 +109,9 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(IEventB evnt)
+                public void Handle(IEventB @event)
                 {
-                    if (evnt.ContextId != Context.Id)
+                    if (@event.ContextId != Context.Id)
                     {
                         return;
                     }

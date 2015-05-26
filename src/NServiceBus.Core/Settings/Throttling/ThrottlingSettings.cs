@@ -33,10 +33,10 @@ namespace NServiceBus.Settings.Throttling
         }
 
         /// <summary>
-        /// Congigures NServiceBus to not limit message throughput by default but allows to override this setting for either the main pipeline each satellite individaully.
+        /// Configures NServiceBus to not limit message throughput by default but allows to override this setting for either the main pipeline each satellite individually.
         /// </summary>
         /// <returns></returns>
-        public IndividualThrottlingSettings UseSeparateThroughputLimitForMainPaipelineAndEachSetellite()
+        public IndividualThrottlingSettings UseSeparateThroughputLimitForMainPipelineAndEachSatellite()
         {
             var overrides = new Dictionary<string, int?>();
             var throttlingConfig = new IndividualLimitThrottlingConfig(null, overrides);
@@ -46,11 +46,11 @@ namespace NServiceBus.Settings.Throttling
 
 
         /// <summary>
-        /// Congigures NServiceBus to limit message throughput to <paramref name="defaultMaximumMessagesPerSecond"/> by default for each pipeline but allows to override this setting for either the main pipeline each satellite individaully.
+        /// Configures NServiceBus to limit message throughput to <paramref name="defaultMaximumMessagesPerSecond"/> by default for each pipeline but allows to override this setting for either the main pipeline each satellite individually.
         /// </summary>
         /// <param name="defaultMaximumMessagesPerSecond">Default maximum messages per second</param>
         /// <returns></returns>
-        public IndividualThrottlingSettings UseSeparateThroughputLimitForMainPaipelineAndEachSetellite(int defaultMaximumMessagesPerSecond)
+        public IndividualThrottlingSettings UseSeparateThroughputLimitForMainPipelineAndEachSatellite(int defaultMaximumMessagesPerSecond)
         {
             Guard.AgainstNegativeAndZero(defaultMaximumMessagesPerSecond, "defaultMaximumMessagesPerSecond");
             var overrides = new Dictionary<string, int?>();

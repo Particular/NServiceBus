@@ -19,7 +19,7 @@
     }
 
     [TestFixture]
-    public class When_configuring_storage_type_supported_by_persistencer
+    public class When_configuring_storage_type_supported_by_persistence
     {
         [Test]
         public void Should_not_throw_exception()

@@ -24,23 +24,24 @@
         [Test]
         public void Should_set_the_conversation_id_to_conversation_id_of_incoming_message()
         {
-            var incomingConvId = Guid.NewGuid().ToString();
+            var incomingConversationId = Guid.NewGuid().ToString();
 
             var behavior = new AttachCausationHeadersBehavior();
             var context = InitializeContext();
 
-            context.Set(TransportReceiveContext.IncomingPhysicalMessageKey,new TransportMessage("xyz",new Dictionary<string, string>{{Headers.ConversationId,incomingConvId}}));
+            var transportMessage = new TransportMessage("xyz", new Dictionary<string, string> { { Headers.ConversationId, incomingConversationId } });
+            context.Set(TransportReceiveContext.IncomingPhysicalMessageKey, transportMessage);
 
             behavior.Invoke(context, () => { });
 
 
-            context.AssertHeaderWasSet(Headers.ConversationId, value => value == incomingConvId);
+            context.AssertHeaderWasSet(Headers.ConversationId, value => value == incomingConversationId);
         }
 
-        [Test,Ignore("Will be refactored to use a explicit override via options instead and not rely on the header beeing set")]
+        [Test,Ignore("Will be refactored to use a explicit override via options instead and not rely on the header being set")]
         public void Should_not_override_a_conversation_id_specified_by_the_user()
         {
-            var userConvId = Guid.NewGuid().ToString();
+            var userConversationId = Guid.NewGuid().ToString();
 
             var behavior = new AttachCausationHeadersBehavior();
             var context = InitializeContext();
@@ -48,7 +49,7 @@
             
             behavior.Invoke(context, () => { });
 
-            context.AssertHeaderWasSet(Headers.ConversationId, value => value == userConvId);   
+            context.AssertHeaderWasSet(Headers.ConversationId, value => value == userConversationId);   
         }
 
         [Test]

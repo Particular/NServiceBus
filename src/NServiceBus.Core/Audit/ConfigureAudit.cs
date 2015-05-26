@@ -13,7 +13,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         /// <param name="auditQueue">The name of the audit queue to use.</param>
-        /// <param name="timeToBeReceived">The cusotm TTR to use for messages sent to the audit queue.</param>
+        /// <param name="timeToBeReceived">The custom TTR to use for messages sent to the audit queue.</param>
         public static void AuditProcessedMessagesTo(this BusConfiguration config, string auditQueue, TimeSpan? timeToBeReceived = null)
         {
             Guard.AgainstNull(config, "config");

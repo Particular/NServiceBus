@@ -47,7 +47,7 @@
                 public Context Context { get; set; }
                 public IBus Bus { get; set; }
 
-                public void Handle(MyMessage evnt)
+                public void Handle(MyMessage @event)
                 {
                     if (Context.FirstAttempt)
                     {
@@ -67,10 +67,10 @@
                 public Context Context { get; set; }
                 public IBus Bus { get; set; }
 
-                public void Handle(MessageHandledEvent evnt)
+                public void Handle(MessageHandledEvent @event)
                 {
                     Context.MessageHandled = true;
-                    Context.HasFailed |= evnt.HasFailed;
+                    Context.HasFailed |= @event.HasFailed;
                 }
             }
         }

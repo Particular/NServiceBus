@@ -215,14 +215,14 @@
 
         class MySagaWithUnmappedStartProperty : Saga<MySagaWithUnmappedStartProperty.SagaData>,
             IAmStartedByMessages<MySagaWithUnmappedStartProperty.MessageThatStartsTheSaga>,
-            IHandleMessages<MySagaWithUnmappedStartProperty.MessageThatDoesntStartTheSaga>
+            IHandleMessages<MySagaWithUnmappedStartProperty.MessageThatDoesNotStartTheSaga>
         {
 
             public class MessageThatStartsTheSaga : IMessage
             {
                 public int SomeProperty { get; set; }
             }
-            public class MessageThatDoesntStartTheSaga : IMessage
+            public class MessageThatDoesNotStartTheSaga : IMessage
             {
                 public int SomeProperty { get; set; }
             }
@@ -239,7 +239,7 @@
             {
             }
 
-            public void Handle(MessageThatDoesntStartTheSaga message)
+            public void Handle(MessageThatDoesNotStartTheSaga message)
             {
             }
         }

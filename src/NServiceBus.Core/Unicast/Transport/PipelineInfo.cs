@@ -9,7 +9,7 @@ namespace NServiceBus.Unicast.Transport
         readonly string publicAddress;
 
         /// <summary>
-        /// Creates new insatance.
+        /// Creates new instance.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="publicAddress"></param>

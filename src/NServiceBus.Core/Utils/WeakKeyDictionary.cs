@@ -46,7 +46,7 @@ namespace NServiceBus.Utils
             : base(key)
         {
             // retain the object's hash code immediately so that even
-            // if the target is GC'ed we will be able to find and
+            // if the target is garbage collected we will be able to find and
             // remove the dead weak reference.
             HashCode = comparer.GetHashCode(key);
         }
@@ -107,12 +107,12 @@ namespace NServiceBus.Utils
 
         private static T GetTarget(object obj, out bool isDead)
         {
-            var wref = obj as WeakKeyReference<T>;
+            var weakKeyReference = obj as WeakKeyReference<T>;
             T target;
-            if (wref != null)
+            if (weakKeyReference != null)
             {
-                target = wref.Target;
-                isDead = !wref.IsAlive;
+                target = weakKeyReference.Target;
+                isDead = !weakKeyReference.IsAlive;
             }
             else
             {

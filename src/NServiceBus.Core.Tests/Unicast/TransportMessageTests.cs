@@ -16,7 +16,7 @@
         }
 
         [Test]
-        public void Should_set_the_nsbversion_header()
+        public void Should_set_the_nsb_version_header()
         {
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), null);
 

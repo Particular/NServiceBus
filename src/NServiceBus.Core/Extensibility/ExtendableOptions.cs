@@ -1,7 +1,7 @@
 namespace NServiceBus.Extensibility
 {
     /// <summary>
-    /// Provide a base class for extandable options
+    /// Provide a base class for extendable options
     /// </summary>
     public abstract class ExtendableOptions
     {

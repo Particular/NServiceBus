@@ -37,7 +37,7 @@
             }
 
             /// <summary>
-            /// Allows context inheritence
+            /// Allows context inheritance
             /// </summary>
             /// <param name="parentContext"></param>
             protected Context(BehaviorContext parentContext)
@@ -61,7 +61,7 @@
             public Dictionary<string, string> Headers { get; private set; }
 
             /// <summary>
-            /// The message type of the message beeing processed
+            /// The message type of the message being processed
             /// </summary>
             public Type MessageType { get; set; }
         }

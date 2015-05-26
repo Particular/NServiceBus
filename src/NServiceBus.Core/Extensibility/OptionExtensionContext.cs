@@ -47,7 +47,7 @@
         }
 
         /// <summary>
-        /// Gets the requested extesion, a new one will be created if needed
+        /// Gets the requested extension, a new one will be created if needed
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>

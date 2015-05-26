@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+// ReSharper disable CommentTypo
+// ReSharper disable IdentifierTypo
 
 #pragma warning disable 1591
 // ReSharper disable UnusedMember.Global

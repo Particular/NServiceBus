@@ -8,7 +8,7 @@
     public class When_sending_a_non_durable_message : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_be_availble_as_a_header_on_receiver()
+        public void Should_be_available_as_a_header_on_receiver()
         {
             var context = new Context();
             Scenario.Define(context)

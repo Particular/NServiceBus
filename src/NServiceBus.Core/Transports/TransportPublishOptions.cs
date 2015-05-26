@@ -10,7 +10,7 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Creates the send options with the given address
         /// </summary>
-        /// <param name="eventType">The type of event beeing published</param>
+        /// <param name="eventType">The type of event being published</param>
         /// <param name="timeToBeReceived">Optional TTBR for the message</param>
         /// <param name="nonDurable">Message durability, default is `true`</param>
         /// <param name="enlistInReceiveTransaction">Tells the transport to enlist the send in its native transaction if supported</param>
@@ -23,7 +23,7 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        /// The type of event beeing published
+        /// The type of event being published
         /// </summary>
         public Type EventType { get; private set; }
 

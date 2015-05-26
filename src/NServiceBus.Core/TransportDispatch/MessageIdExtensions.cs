@@ -11,7 +11,7 @@
         /// <summary>
         /// Returns the id for this message
         /// </summary>
-        /// <param name="context">Context beeing extended</param>
+        /// <param name="context">Context being extended</param>
         /// <returns>The message id</returns>
         public static string GetMessageId(this PhysicalOutgoingContextStageBehavior.Context context)
         {
@@ -20,7 +20,7 @@
         /// <summary>
         /// Returns the id for this message
         /// </summary>
-        /// <param name="context">Context beeing extended</param>
+        /// <param name="context">Context being extended</param>
         /// <returns>The message id</returns>
         public static string GetMessageId(this OutgoingContext context)
         {

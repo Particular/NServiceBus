@@ -38,16 +38,16 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.ScaleOut().UniqueQueuePerEndpointInstance();
-                    c.UseTransport<TransportThatDoesntSetADefaultDiscriminator>();
+                    c.UseTransport<TransportThatDoesNotSetADefaultDiscriminator>();
                 });
             }
         }
 
-        public class TransportThatDoesntSetADefaultDiscriminator:TransportDefinition
+        public class TransportThatDoesNotSetADefaultDiscriminator:TransportDefinition
         {
             protected override void Configure(BusConfiguration config)
             {
-                config.EnableFeature<TransportThatDoesntSetADefaultDiscriminatorConfigurator>();
+                config.EnableFeature<TransportThatDoesNotSetADefaultDiscriminatorConfigurator>();
             }
 
             public override string GetSubScope(string address, string qualifier)
@@ -56,7 +56,7 @@
             }
         }
 
-            public class TransportThatDoesntSetADefaultDiscriminatorConfigurator : ConfigureTransport
+            public class TransportThatDoesNotSetADefaultDiscriminatorConfigurator : ConfigureTransport
             {
                 protected override Func<IBuilder, ReceiveBehavior> GetReceiveBehaviorFactory(ReceiveOptions settings)
                 {

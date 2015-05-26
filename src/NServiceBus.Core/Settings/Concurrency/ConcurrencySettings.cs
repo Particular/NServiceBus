@@ -50,7 +50,7 @@ namespace NServiceBus.Settings.Concurrency
         /// Configures NServiceBus to use separate thread pools for main processing pipeline and each satellite. 
         /// If not explicitly overridden, each thread pool will have the default concurrency limit of <paramref name="defaultMaxiumConcurrencyLevel"/>
         /// </summary>
-        /// <param name="defaultMaxiumConcurrencyLevel">Defaut maximum concurrency if not overridden.</param>
+        /// <param name="defaultMaxiumConcurrencyLevel">Default maximum concurrency if not overridden.</param>
         /// <returns></returns>
         public IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSatellite(int defaultMaxiumConcurrencyLevel)
         {

@@ -1,3 +1,4 @@
+// ReSharper disable CommentTypo
 //https://github.com/hibernating-rhinos/rhino-esb/blob/master/license.txt
 //Copyright (c) 2005 - 2009 Ayende Rahien (ayende@ayende.com)
 //All rights reserved.

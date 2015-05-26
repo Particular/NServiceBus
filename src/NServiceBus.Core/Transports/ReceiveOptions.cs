@@ -22,7 +22,7 @@ namespace NServiceBus.Transports
         public string ErrorQueue { get; private set; }
 
         /// <summary>
-        /// Gets the trnsaction options.
+        /// Gets the transaction options.
         /// </summary>
         public TransactionSettings Transactions { get; private set; }
 
