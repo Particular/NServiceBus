@@ -25,7 +25,7 @@ namespace NServiceBus
         public class Registration : RegisterStep
         {
             public Registration()
-                : base("HandlerTransactionScopeWrapperBehavior", typeof(SuppressAmbientTransactionBehavior), "Make sure that any ambient transaction scope is supressed")
+                : base("HandlerTransactionScopeWrapperBehavior", typeof(SuppressAmbientTransactionBehavior), "Make sure that any ambient transaction scope is suppressed")
             {
                 InsertBeforeIfExists("FirstLevelRetries");
                 InsertBeforeIfExists("ReceivePerformanceDiagnosticsBehavior");

@@ -2349,9 +2349,9 @@ namespace NServiceBus.Unicast
         public MessagesEventArgs(object[] messages) { }
         public object[] Messages { get; }
     }
-    [System.ObsoleteAttribute("Use context.Intent to detect of the message is a event beeing published and use c" +
-        "ontext.MessageType to get the actual event type. Will be removed in version 7.0." +
-        "0.", true)]
+    [System.ObsoleteAttribute("Use context.Intent to detect of the message is a event being published and use co" +
+        "ntext.MessageType to get the actual event type. Will be removed in version 7.0.0" +
+        ".", true)]
     public class PublishOptions : NServiceBus.Unicast.DeliveryOptions
     {
         public PublishOptions() { }

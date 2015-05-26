@@ -36,7 +36,7 @@ namespace NServiceBus.Transports.Msmq
             var queueName = msmqAddress.Queue;
             if (!string.Equals(msmqAddress.Machine, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
             {
-                var message = string.Format("MSMQ Dequeing can only run against the local machine. Invalid queue name '{0}'", settings.QueueName);
+                var message = string.Format("MSMQ Dequeuing can only run against the local machine. Invalid queue name '{0}'", settings.QueueName);
                 throw new Exception(message);
             }
 

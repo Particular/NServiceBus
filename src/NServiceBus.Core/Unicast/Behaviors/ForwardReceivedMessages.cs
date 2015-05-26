@@ -12,7 +12,7 @@
         {
             EnableByDefault();
             // Only enable if the configuration is defined in UnicastBus
-            Prerequisite(config => GetConfiguredForwardMessageQueue(config) != null,"No forwarding address was defined in the unicastbus config");
+            Prerequisite(config => GetConfiguredForwardMessageQueue(config) != null,"No forwarding address was defined in the UnicastBus config");
         }
 
         /// <summary>

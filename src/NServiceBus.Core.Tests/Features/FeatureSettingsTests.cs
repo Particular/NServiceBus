@@ -42,7 +42,7 @@
             Assert.True(settings.HasSetting("Test1"));
         }
 
-        [Test,Ignore("We need to discuss if this is possible since prereqs can only be checked when settings is locked. And with settings locked we can't register defaults. So there is always a chance that the feature decides to not go ahead with the setup and in that case defaults would already been applied")]
+        [Test,Ignore("We need to discuss if this is possible since pre-requirements can only be checked when settings is locked. And with settings locked we can't register defaults. So there is always a chance that the feature decides to not go ahead with the setup and in that case defaults would already been applied")]
         public void Should_not_register_defaults_if_feature_is_not_activated()
         {
             var settings = new SettingsHolder();

@@ -39,7 +39,7 @@
             Assert.IsNotNull(context.HostName);
         }
 
-        [Test, Ignore("To be fixed by andreas")]
+        [Test, Ignore("To be fixed by Andreas")]
         public void Should_add_the_license_diagnostic_headers()
         {
             var context = new Context();
