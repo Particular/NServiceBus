@@ -5,7 +5,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_using_INeedInitialization2 : NServiceBusAcceptanceTest
+    public class When_using_INeedInitialization : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_be_able_to_set_endpoint_name()
