@@ -124,6 +124,10 @@ namespace NServiceBus
     {
         public static void DefineCriticalErrorAction(this NServiceBus.BusConfiguration busConfiguration, System.Action<string, System.Exception> onCriticalError) { }
     }
+    public class static ConfigureError
+    {
+        public static void SendFailedMessagesTo(this NServiceBus.BusConfiguration config, string errorQueue) { }
+    }
     public class static ConfigureFileShareDataBus
     {
         public static NServiceBus.DataBus.DataBusExtentions<NServiceBus.FileShareDataBus> BasePath(this NServiceBus.DataBus.DataBusExtentions<NServiceBus.FileShareDataBus> config, string basePath) { }
