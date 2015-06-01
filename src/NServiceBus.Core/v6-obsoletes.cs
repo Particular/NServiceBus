@@ -269,7 +269,7 @@ namespace NServiceBus.MessageMutator
     public interface IMutateTransportMessages : IMutateIncomingTransportMessages, IMutateOutgoingTransportMessages { }
 
     [ObsoleteEx(
-                ReplacementTypeOrMember = "IMutateOutgoingPhysicalContext",
+                ReplacementTypeOrMember = "IMutateOutgoingPhysicalMessages",
                 RemoveInVersion = "7.0",
                 TreatAsErrorFromVersion = "6.0")]
     public interface IMutateOutgoingTransportMessages

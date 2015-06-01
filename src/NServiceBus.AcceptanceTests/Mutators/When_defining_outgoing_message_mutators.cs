@@ -37,12 +37,12 @@
             }
 
 
-            class MyTransportMessageMutator : IMutateOutgoingPhysicalContext, INeedInitialization
+            class MyTransportMessageMutator : IMutateOutgoingPhysicalMessages, INeedInitialization
             {
 
                 public Context Context { get; set; }
 
-                public void MutateOutgoing(OutgoingPhysicalMutatorContext context)
+                public void MutateOutgoing(MutateOutgoingPhysicalMessageContext context)
                 {
                     Context.TransportMutatorCalled = true;
                 }

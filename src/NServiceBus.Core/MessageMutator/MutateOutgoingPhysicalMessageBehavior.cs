@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.MessageMutator;
     using NServiceBus.Pipeline.Contexts;
 
     class MutateOutgoingPhysicalMessageBehavior : PhysicalOutgoingContextStageBehavior
@@ -10,9 +11,9 @@
         {
             var headersSetByMutators = new Dictionary<string,string>();
 
-            foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingPhysicalContext>())
+            foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingPhysicalMessages>())
             {
-                mutator.MutateOutgoing(new OutgoingPhysicalMutatorContext(context.Body, headersSetByMutators));
+                mutator.MutateOutgoing(new MutateOutgoingPhysicalMessageContext(context.Body, headersSetByMutators));
             }
 
             foreach (var header in headersSetByMutators)

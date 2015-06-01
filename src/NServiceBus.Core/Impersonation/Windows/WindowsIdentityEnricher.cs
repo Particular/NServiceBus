@@ -2,11 +2,12 @@ namespace NServiceBus.Impersonation.Windows
 {
     using System.Security.Principal;
     using System.Threading;
+    using NServiceBus.MessageMutator;
 
-    class WindowsIdentityEnricher : IMutateOutgoingPhysicalContext
+    class WindowsIdentityEnricher : IMutateOutgoingPhysicalMessages
     {
 
-        public void MutateOutgoing(OutgoingPhysicalMutatorContext context)
+        public void MutateOutgoing(MutateOutgoingPhysicalMessageContext context)
         {
             if (Thread.CurrentPrincipal != null && Thread.CurrentPrincipal.Identity != null && !string.IsNullOrEmpty(Thread.CurrentPrincipal.Identity.Name))
             {

@@ -267,6 +267,20 @@ namespace NServiceBus
     {
         public ExpressAttribute() { }
     }
+    [System.ObsoleteAttribute("Headers are not managed via the send, reply and publishoptions. Will be removed i" +
+        "n version 7.0.0.", true)]
+    public class static ExtensionMethods
+    {
+        [System.ObsoleteAttribute("Use a incoming behavior to get access to the current message. Will be removed in " +
+            "version 7.0.0.", true)]
+        public static object CurrentMessageBeingHandled { get; set; }
+        [System.ObsoleteAttribute("Headers are not \'set\' only on the outgoing pipeline. Will be removed in version 7" +
+            ".0.0.", true)]
+        public static string GetMessageHeader(this NServiceBus.IBus bus, object msg, string key) { }
+        [System.ObsoleteAttribute("Headers can be set using the ``.SetHeader` method on the context object passed in" +
+            "to your behavior or mutator. Will be removed in version 7.0.0.", true)]
+        public static void SetMessageHeader(this NServiceBus.ISendOnlyBus bus, object msg, string key, string value) { }
+    }
     public class FileShareDataBus : NServiceBus.DataBus.DataBusDefinition
     {
         public FileShareDataBus() { }
@@ -422,10 +436,6 @@ namespace NServiceBus
         T CreateInstance<T>(System.Action<T> action);
         object CreateInstance(System.Type messageType);
     }
-    public interface IMutateOutgoingPhysicalContext
-    {
-        void MutateOutgoing(NServiceBus.OutgoingPhysicalMutatorContext context);
-    }
     public class IndividualThrottlingSettings
     {
         public NServiceBus.IndividualThrottlingSettings DoNotLimit(string satelliteId) { }
@@ -554,12 +564,6 @@ namespace NServiceBus
     public class static OutboxConfigExtensions
     {
         public static NServiceBus.Outbox.OutboxSettings EnableOutbox(this NServiceBus.BusConfiguration config) { }
-    }
-    public class OutgoingPhysicalMutatorContext
-    {
-        public OutgoingPhysicalMutatorContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
-        public byte[] Body { get; set; }
-        public void SetHeader(string key, string value) { }
     }
     public class static PersistenceConfig
     {
@@ -1394,10 +1398,14 @@ namespace NServiceBus.MessageMutator
     }
     public interface IMutateOutgoingMessages
     {
-        object MutateOutgoing(object message);
+        void MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingMessagesContext context);
     }
-    [System.ObsoleteAttribute("Please use `IMutateOutgoingPhysicalContext` instead. Will be removed in version 7" +
-        ".0.0.", true)]
+    public interface IMutateOutgoingPhysicalMessages
+    {
+        void MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingPhysicalMessageContext context);
+    }
+    [System.ObsoleteAttribute("Please use `IMutateOutgoingPhysicalMessages` instead. Will be removed in version " +
+        "7.0.0.", true)]
     public interface IMutateOutgoingTransportMessages
     {
         void MutateOutgoing(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, NServiceBus.TransportMessage transportMessage);
@@ -1405,6 +1413,18 @@ namespace NServiceBus.MessageMutator
     [System.ObsoleteAttribute("Just have your mutator implement both IMutateIncomingTransportMessages and IMutat" +
         "eOutgoingPhysicalContext. Will be removed in version 7.0.0.", true)]
     public interface IMutateTransportMessages : NServiceBus.MessageMutator.IMutateIncomingTransportMessages, NServiceBus.MessageMutator.IMutateOutgoingTransportMessages { }
+    public class MutateOutgoingMessagesContext
+    {
+        public MutateOutgoingMessagesContext(object messageInstance) { }
+        public object MessageInstance { get; set; }
+        public void SetHeader(string key, string value) { }
+    }
+    public class MutateOutgoingPhysicalMessageContext
+    {
+        public MutateOutgoingPhysicalMessageContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
+        public byte[] Body { get; set; }
+        public void SetHeader(string key, string value) { }
+    }
 }
 namespace NServiceBus.ObjectBuilder.Common
 {

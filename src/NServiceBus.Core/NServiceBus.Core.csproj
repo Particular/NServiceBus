@@ -131,9 +131,9 @@
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
     <Compile Include="IBusExtensions.cs" />
     <Compile Include="ISendOnlyBusExtensions.cs" />
-    <Compile Include="MessageMutator\IMutateOutgoingPhysicalContext.cs" />
+    <Compile Include="MessageMutator\IMutateOutgoingPhysicalMessages.cs" />
     <Compile Include="MessageMutator\MutateOutgoingMessagesContext.cs" />
-    <Compile Include="MessageMutator\OutgoingPhysicalMutatorContext.cs" />
+    <Compile Include="MessageMutator\MutateOutgoingPhysicalMessageContext.cs" />
     <Compile Include="Extensibility\OptionExtensionContext.cs" />
     <Compile Include="MessagingBestPractices\BestPracticeEnforcement.cs" />
     <Compile Include="MessagingBestPractices\OptionExtensions.cs" />

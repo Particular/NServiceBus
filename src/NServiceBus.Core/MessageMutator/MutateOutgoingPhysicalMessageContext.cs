@@ -1,11 +1,11 @@
-namespace NServiceBus
+namespace NServiceBus.MessageMutator
 {
     using System.Collections.Generic;
 
     /// <summary>
     /// Context class for IMutateOutgoingPhysicalContext
     /// </summary>
-    public class OutgoingPhysicalMutatorContext
+    public class MutateOutgoingPhysicalMessageContext
     {
 
         /// <summary>
@@ -13,7 +13,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="body"></param>
         /// <param name="headers"></param>
-        public OutgoingPhysicalMutatorContext(byte[] body, Dictionary<string, string> headers)
+        public MutateOutgoingPhysicalMessageContext(byte[] body, Dictionary<string, string> headers)
         {
             this.headers = headers;
             Body = body;
