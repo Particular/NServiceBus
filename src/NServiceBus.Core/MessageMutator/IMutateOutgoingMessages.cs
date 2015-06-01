@@ -11,6 +11,6 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Mutates the given message just before it's serialized
         /// </summary>
-        object MutateOutgoing(object message);
+        void MutateOutgoing(MutateOutgoingMessagesContext context);
     }
 }

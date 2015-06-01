@@ -152,7 +152,7 @@ namespace NServiceBus.Unicast
            Message = "Turn best practices check off using configuration.DisableFeature<BestPracticeEnforcement>()",
            RemoveInVersion = "7.0",
            TreatAsErrorFromVersion = "6.0")]
-        public bool EnforceMessagingBestPractices { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } } 
+        public bool EnforceMessagingBestPractices { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
     }
 
     [ObsoleteEx(
@@ -466,3 +466,22 @@ namespace NServiceBus.Unicast
         }
     }
 }
+
+namespace NServiceBus
+{
+    using System;
+
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Headers are not managed via the send, reply and publishoptions")]
+    public static class ExtensionMethods
+    {
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Headers are not 'set' only on the outgoing pipeline")]
+        public static string GetMessageHeader(this IBus bus, object msg, string key){throw new NotImplementedException();}
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Headers can be set using the ``.SetHeader` method on the context object passed into your behavior or mutator")]
+        public static void SetMessageHeader(this ISendOnlyBus bus, object msg, string key, string value){throw new NotImplementedException();}
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Use a incoming behavior to get access to the current message")]
+        public static object CurrentMessageBeingHandled { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
+    }
+}
+

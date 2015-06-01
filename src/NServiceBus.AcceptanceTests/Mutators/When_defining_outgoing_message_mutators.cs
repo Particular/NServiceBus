@@ -59,18 +59,15 @@
 
                 public Context Context { get; set; }
 
-                public object MutateOutgoing(object message)
+                public void MutateOutgoing(MutateOutgoingMessagesContext context)
                 {
                     Context.MessageMutatorCalled = true;
-
-                    return message;
                 }
 
                 public void Customize(BusConfiguration configuration)
                 {
                     configuration.RegisterComponents(c => c.ConfigureComponent<MyMessageMutator>(DependencyLifecycle.InstancePerCall));
                 }
-
             }
 
             class MessageToBeMutatedHandler : IHandleMessages<MessageToBeMutated>

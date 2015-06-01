@@ -132,6 +132,7 @@
     <Compile Include="IBusExtensions.cs" />
     <Compile Include="ISendOnlyBusExtensions.cs" />
     <Compile Include="MessageMutator\IMutateOutgoingPhysicalContext.cs" />
+    <Compile Include="MessageMutator\MutateOutgoingMessagesContext.cs" />
     <Compile Include="MessageMutator\OutgoingPhysicalMutatorContext.cs" />
     <Compile Include="Extensibility\OptionExtensionContext.cs" />
     <Compile Include="MessagingBestPractices\BestPracticeEnforcement.cs" />
