@@ -4,6 +4,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
+    using NServiceBus.MessageMutator;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
@@ -25,11 +26,11 @@
             Assert.IsFalse(string.IsNullOrWhiteSpace(context.MessageId));
         }
 
-        public class CorruptionMutator : IMutateOutgoingPhysicalContext
+        public class CorruptionMutator : IMutateOutgoingPhysicalMessages
         {
             public Context ScenarioContext { get; set; }
 
-            public void MutateOutgoing(OutgoingPhysicalMutatorContext context)
+            public void MutateOutgoing(MutateOutgoingPhysicalMessageContext context)
             {
                 context.SetHeader("ScenarioContextId",ScenarioContext.Id.ToString());
                 context.SetHeader(Headers.MessageId,"");

@@ -11,16 +11,28 @@
         {
             var instanceType = context.MessageInstance.GetType();
 
+            var mutatorContext = new MutateOutgoingMessagesContext(context.MessageInstance);
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingMessages>())
             {
-                context.MessageInstance = mutator.MutateOutgoing(context.MessageInstance);
+                mutator.MutateOutgoing(mutatorContext);
             }
 
-            //if instance type is different we assumes that the user want to change the type
-            // this should be made more explicit when we change the mutator api
-            if (instanceType != context.MessageInstance.GetType())
+            if (mutatorContext.MessageInstanceChanged)
             {
-                context.MessageType = context.MessageInstance.GetType();
+                context.MessageInstance = mutatorContext.MessageInstance;
+
+                //if instance type is different we assumes that the user want to change the type
+                // this should be made more explicit when we change the mutator api
+                if (instanceType != context.MessageInstance.GetType())
+                {
+                    context.MessageType = context.MessageInstance.GetType();
+                }
+           
+            }
+     
+            foreach (var header in mutatorContext.Headers)
+            {
+                context.SetHeader(header.Key,header.Value);
             }
 
             next();

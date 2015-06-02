@@ -1,4 +1,4 @@
-namespace NServiceBus
+namespace NServiceBus.MessageMutator
 {
     using JetBrains.Annotations;
 
@@ -6,12 +6,12 @@ namespace NServiceBus
     /// Provides a way to mutate the context for outgoing messages in the physical stage
     /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public interface IMutateOutgoingPhysicalContext
+    public interface IMutateOutgoingPhysicalMessages
     {
         /// <summary>
         /// Performs the mutation
         /// </summary>
         /// <param name="context">Contains the available properties that can be mutated</param>
-        void MutateOutgoing(OutgoingPhysicalMutatorContext context);
+        void MutateOutgoing(MutateOutgoingPhysicalMessageContext context);
     }
 }

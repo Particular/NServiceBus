@@ -37,12 +37,12 @@
             }
 
 
-            class MyTransportMessageMutator : IMutateOutgoingPhysicalContext, INeedInitialization
+            class MyTransportMessageMutator : IMutateOutgoingPhysicalMessages, INeedInitialization
             {
 
                 public Context Context { get; set; }
 
-                public void MutateOutgoing(OutgoingPhysicalMutatorContext context)
+                public void MutateOutgoing(MutateOutgoingPhysicalMessageContext context)
                 {
                     Context.TransportMutatorCalled = true;
                 }
@@ -59,18 +59,15 @@
 
                 public Context Context { get; set; }
 
-                public object MutateOutgoing(object message)
+                public void MutateOutgoing(MutateOutgoingMessagesContext context)
                 {
                     Context.MessageMutatorCalled = true;
-
-                    return message;
                 }
 
                 public void Customize(BusConfiguration configuration)
                 {
                     configuration.RegisterComponents(c => c.ConfigureComponent<MyMessageMutator>(DependencyLifecycle.InstancePerCall));
                 }
-
             }
 
             class MessageToBeMutatedHandler : IHandleMessages<MessageToBeMutated>
