@@ -36,7 +36,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class AfterConfigIsComplete:IWantToRunWhenBusStartsAndStops
+            class AfterConfigIsComplete : IWantToRunWhenBusStartsAndStops
             {
                 public void Start()
                 {
@@ -49,6 +49,4 @@
             }
         }
     }
-
-
 }
