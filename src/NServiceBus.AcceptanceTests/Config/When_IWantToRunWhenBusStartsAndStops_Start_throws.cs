@@ -10,15 +10,23 @@
         [Test]
         public void Should_shutdown_bus_cleanly()
         {
+            Exception ex = null;
+
             Scenario.Define<Context>()
-                    .WithEndpoint<StartedEndpoint>()
-                    .Done(c => c.IsDone)
+                    .WithEndpoint<StartedEndpoint>(b => b.CustomConfig(c => c.DefineCriticalErrorAction((s, e) => ex = e)))
+                    .AllowExceptions()
+                    .Done(c => ex != null)
                     .Run();
+
+            Assert.IsInstanceOf<AggregateException>(ex);
+            var inner1 = ex.InnerException;
+            Assert.IsInstanceOf<AggregateException>(inner1);
+            var inner2 = inner1.InnerException;
+            Assert.AreEqual("Boom!", inner2.Message);
         }
 
         public class Context : ScenarioContext
         {
-            public bool IsDone { get; set; }
         }
 
         public class StartedEndpoint : EndpointConfigurationBuilder
@@ -30,12 +38,8 @@
 
             class AfterConfigIsComplete:IWantToRunWhenBusStartsAndStops
             {
-                public Context Context { get; set; }
-
                 public void Start()
                 {
-                    Context.IsDone = true;
-
                     throw new Exception("Boom!");
                 }
 
