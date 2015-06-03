@@ -25,7 +25,7 @@
             Assert.AreEqual("Boom!", inner2.Message);
         }
 
-        public class Context : ScenarioContext
+        class Context : ScenarioContext
         {
         }
 
