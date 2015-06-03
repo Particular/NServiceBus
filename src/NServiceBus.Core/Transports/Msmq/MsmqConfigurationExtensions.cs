@@ -20,7 +20,7 @@ namespace NServiceBus
         /// The input into the delegate will be a readonly copy of the message headers. 
         /// </para>
         /// <para>
-        /// The delegate should return the desired message label or an empty string for no label.
+        /// The delegate should return the desired message label or an empty string for no label. The returned value must be at most 240 characters.
         /// </para>
         /// <para>
         /// This convention will be used for all valid messages sent vis MSMQ.

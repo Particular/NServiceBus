@@ -114,7 +114,11 @@ namespace NServiceBus.Transports.Msmq
              var messageLabel = MessageLabelConvention(new ReadOnlyDictionary<string, string>(message.Headers));
              if (messageLabel == null)
              {
-                 throw new Exception("MSMQ label convention returned a null. Either return a valid value or a String.Empty to indicate 'no value'");
+                 throw new Exception("MSMQ label convention returned a null. Either return a valid value or a String.Empty to indicate 'no value'.");
+             }
+             if (messageLabel.Length > 240)
+             {
+                 throw new Exception("MSMQ label convention returned a value longer than 240 characters. This is not supported.");
              }
              return messageLabel;
          }
