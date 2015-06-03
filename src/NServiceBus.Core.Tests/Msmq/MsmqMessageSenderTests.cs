@@ -95,10 +95,14 @@
         static string ReadMessageLabel(string path)
         {
             using (var queue = new MessageQueue(path))
+            using (var message = queue.Receive(TimeSpan.FromSeconds(5)))
             {
-                var message = queue.Peek(TimeSpan.FromSeconds(5));
-                return message.Label;
+                if (message != null)
+                {
+                    return message.Label;
+                }
             }
+            return null;
         }
 
         static void CreateQueue(string path)

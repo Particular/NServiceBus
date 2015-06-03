@@ -55,8 +55,8 @@
                 return null;
             }
             using (var queue = new MessageQueue(auditQueue))
+            using (var message = queue.Receive(TimeSpan.FromSeconds(5)))
             {
-                var message = queue.Peek();
                 if (message != null)
                 {
                     return message.Label;
