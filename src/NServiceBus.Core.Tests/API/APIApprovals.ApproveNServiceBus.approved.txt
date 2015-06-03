@@ -543,6 +543,10 @@ namespace NServiceBus
         public MessageProcessingAbortedException() { }
         protected MessageProcessingAbortedException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
     }
+    public class static MsmqConfigurationExtensions
+    {
+        public static void ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelConvention) { }
+    }
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition
     {
         public MsmqTransport() { }
@@ -2293,6 +2297,7 @@ namespace NServiceBus.Transports.Msmq
     public class MsmqMessageSender : NServiceBus.Transports.ISendMessages
     {
         public MsmqMessageSender(NServiceBus.Pipeline.BehaviorContext context) { }
+        public System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> MessageLabelConvention { get; set; }
         public NServiceBus.Transports.Msmq.Config.MsmqSettings Settings { get; set; }
         public bool SuppressDistributedTransactions { get; set; }
         public void Send(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.TransportSendOptions sendOptions) { }
