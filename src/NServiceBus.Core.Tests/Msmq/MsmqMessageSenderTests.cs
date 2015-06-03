@@ -28,6 +28,7 @@
             var path = string.Format(@"{0}\private$\{1}", Environment.MachineName, queueName);
             try
             {
+                DeleteQueue(path);
                 CreateQueue(path);
                 var messageSender = new MsmqMessageSender(new FakeContext())
                 {
@@ -54,10 +55,11 @@
         [Test]
         public void Should_use_string_empty_label_when_no_convention_configured()
         {
-            var queueName = "labelTest";
+            var queueName = "emptyLabelTest";
             var path = string.Format(@".\private$\{0}", queueName);
             try
             {
+                DeleteQueue(path);
                 CreateQueue(path);
                 var messageSender = new MsmqMessageSender(new FakeContext())
                 {
@@ -94,7 +96,8 @@
         {
             using (var queue = new MessageQueue(path))
             {
-                return queue.Peek().Label;
+                var message = queue.Peek(TimeSpan.FromSeconds(5));
+                return message.Label;
             }
         }
 
