@@ -1400,15 +1400,9 @@ namespace NServiceBus.MessageMutator
     {
         void MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingMessagesContext context);
     }
-    public interface IMutateOutgoingPhysicalMessages
-    {
-        void MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingPhysicalMessageContext context);
-    }
-    [System.ObsoleteAttribute("Please use `IMutateOutgoingPhysicalMessages` instead. Will be removed in version " +
-        "7.0.0.", true)]
     public interface IMutateOutgoingTransportMessages
     {
-        void MutateOutgoing(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, NServiceBus.TransportMessage transportMessage);
+        void MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingTransportMessagesContext context);
     }
     [System.ObsoleteAttribute("Just have your mutator implement both IMutateIncomingTransportMessages and IMutat" +
         "eOutgoingPhysicalContext. Will be removed in version 7.0.0.", true)]
@@ -1419,9 +1413,9 @@ namespace NServiceBus.MessageMutator
         public object MessageInstance { get; set; }
         public void SetHeader(string key, string value) { }
     }
-    public class MutateOutgoingPhysicalMessageContext
+    public class MutateOutgoingTransportMessagesContext
     {
-        public MutateOutgoingPhysicalMessageContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
+        public MutateOutgoingTransportMessagesContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
         public byte[] Body { get; set; }
         public void SetHeader(string key, string value) { }
     }

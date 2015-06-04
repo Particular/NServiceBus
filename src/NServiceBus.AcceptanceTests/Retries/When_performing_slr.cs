@@ -32,7 +32,7 @@
                     });
             }
    
-            class BodyMutator : IMutateOutgoingPhysicalMessages,IMutateIncomingTransportMessages, INeedInitialization
+            class BodyMutator : IMutateOutgoingTransportMessages,IMutateIncomingTransportMessages, INeedInitialization
             {
                 public Context Context { get; set; }
 
@@ -66,7 +66,7 @@
                     configuration.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                 }
 
-                public void MutateOutgoing(MutateOutgoingPhysicalMessageContext context)
+                public void MutateOutgoing(MutateOutgoingTransportMessagesContext context)
                 {
                     context.Body[0]--;
                 }

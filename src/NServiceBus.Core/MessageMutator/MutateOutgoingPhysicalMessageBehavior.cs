@@ -11,9 +11,9 @@
         {
             var headersSetByMutators = new Dictionary<string,string>();
 
-            foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingPhysicalMessages>())
+            foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingTransportMessages>())
             {
-                mutator.MutateOutgoing(new MutateOutgoingPhysicalMessageContext(context.Body, headersSetByMutators));
+                mutator.MutateOutgoing(new MutateOutgoingTransportMessagesContext(context.Body, headersSetByMutators));
             }
 
             foreach (var header in headersSetByMutators)

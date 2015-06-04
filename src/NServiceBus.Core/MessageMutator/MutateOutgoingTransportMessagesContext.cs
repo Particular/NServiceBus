@@ -5,7 +5,7 @@ namespace NServiceBus.MessageMutator
     /// <summary>
     /// Context class for IMutateOutgoingPhysicalContext
     /// </summary>
-    public class MutateOutgoingPhysicalMessageContext
+    public class MutateOutgoingTransportMessagesContext
     {
 
         /// <summary>
@@ -13,7 +13,7 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         /// <param name="body"></param>
         /// <param name="headers"></param>
-        public MutateOutgoingPhysicalMessageContext(byte[] body, Dictionary<string, string> headers)
+        public MutateOutgoingTransportMessagesContext(byte[] body, Dictionary<string, string> headers)
         {
             this.headers = headers;
             Body = body;

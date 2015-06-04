@@ -6,12 +6,12 @@ namespace NServiceBus.MessageMutator
     /// Provides a way to mutate the context for outgoing messages in the physical stage
     /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public interface IMutateOutgoingPhysicalMessages
+    public interface IMutateOutgoingTransportMessages
     {
         /// <summary>
         /// Performs the mutation
         /// </summary>
-        /// <param name="context">Contains the available properties that can be mutated</param>
-        void MutateOutgoing(MutateOutgoingPhysicalMessageContext context);
+        /// <param name="context">Contains information about the current message and provides ways to mutate it</param>
+        void MutateOutgoing(MutateOutgoingTransportMessagesContext context);
     }
 }

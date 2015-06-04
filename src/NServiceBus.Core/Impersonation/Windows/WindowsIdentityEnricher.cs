@@ -4,10 +4,10 @@ namespace NServiceBus.Impersonation.Windows
     using System.Threading;
     using NServiceBus.MessageMutator;
 
-    class WindowsIdentityEnricher : IMutateOutgoingPhysicalMessages
+    class WindowsIdentityEnricher : IMutateOutgoingTransportMessages
     {
 
-        public void MutateOutgoing(MutateOutgoingPhysicalMessageContext context)
+        public void MutateOutgoing(MutateOutgoingTransportMessagesContext context)
         {
             if (Thread.CurrentPrincipal != null && Thread.CurrentPrincipal.Identity != null && !string.IsNullOrEmpty(Thread.CurrentPrincipal.Identity.Name))
             {
