@@ -8,7 +8,7 @@
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
-    public class When_setting_msmq_label_convention : NServiceBusAcceptanceTest
+    public class When_setting_msmq_label_generator : NServiceBusAcceptanceTest
     {
         const string auditQueue = @".\private$\labelAuditQueue";
 
@@ -70,7 +70,7 @@
             public bool WasCalled { get; set; }
             public Guid Id { get; set; }
 
-            public bool ConventionWasCalled { get; set; }
+            public bool GeneratorWasCalled { get; set; }
         }
 
 
@@ -96,7 +96,7 @@
 
             string GetMessageLabel(IReadOnlyDictionary<string, string> headers)
             {
-                Context.ConventionWasCalled = true;
+                Context.GeneratorWasCalled = true;
                 return "MyLabel";
             }
 

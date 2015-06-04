@@ -13,34 +13,35 @@ namespace NServiceBus
     {
 
         /// <summary>
-        /// Set the convention to use for applying the <see cref="Message.Label"/> property when sending a message.
+        /// Set a delegate to use for applying the <see cref="Message.Label"/> property when sending a message.
         /// </summary>
         /// <remarks>
-        /// <para>
-        /// The input into the delegate will be a readonly copy of the message headers. 
-        /// </para>
-        /// <para>
-        /// The delegate should return the desired message label or an empty string for no label. The returned value must be at most 240 characters.
-        /// </para>
-        /// <para>
-        /// This convention will be used for all valid messages sent vis MSMQ.
+        /// This delagate will be used for all valid messages sent vis MSMQ.
         /// This includes not just standard messages but Audits, Errors and all control messages. 
         /// Use the <see cref="Headers.ControlMessageHeader"/> key to determin if a message is a control message.
         /// The only exception to this tull is corrupted messages that will be forwarded to the error queue with no label applied.
-        /// </para>
         /// </remarks>
-        public static void ApplyLabelToMessages(this TransportExtensions<MsmqTransport> transportExtensions, Func<IReadOnlyDictionary<string, string>, string> labelConvention)
+        public static void ApplyLabelToMessages(this TransportExtensions<MsmqTransport> transportExtensions, MsmqLabelGenerator generateLabel)
         {
-            Guard.AgainstNull(labelConvention, "labelConvention");
+            Guard.AgainstNull(generateLabel, "generateLabel");
             transportExtensions.GetSettings()
-                .Set("MsmqMessageLabelConvention", labelConvention);
+                .Set("MsmqMessageLabelGenerator", generateLabel);
         }
 
-        internal static Func<IReadOnlyDictionary<string, string>, string> GetMessageLabelConvention(this ReadOnlySettings settings)
+        internal static Func<IReadOnlyDictionary<string, string>, string> GetMessageLabelGenerator(this ReadOnlySettings settings)
         {
             Func<IReadOnlyDictionary<string, string>, string> getMessageLabel;
-            settings.TryGet("MsmqMessageLabelConvention", out getMessageLabel);
+            settings.TryGet("MsmqMessageLabelGenerator", out getMessageLabel);
             return getMessageLabel;
-        }
+        } 
     }
+
+    /// <summary>
+    /// The signature of the label generator used by <see cref="MsmqConfigurationExtensions.ApplyLabelToMessages"/>.
+    /// </summary>
+    /// <param name="headers">The message headers of the message at the point before it is placed on the wire.</param>
+    /// <returns>
+    /// A <see cref="string"/> used for the <see cref="Message.Label"/> or an empty string for no label. The returned value must be at most 240 characters.
+    /// </returns>
+    public delegate string MsmqLabelGenerator(IReadOnlyDictionary<string,string> headers);
 }
