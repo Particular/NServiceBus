@@ -7,8 +7,6 @@
     /// <summary>
     /// Connects two stages of the pipeline 
     /// </summary>
-    /// <typeparam name="TFrom"></typeparam>
-    /// <typeparam name="TTo"></typeparam>
     public abstract class StageConnector<TFrom, TTo> :IStageConnector, IBehavior<TFrom, TTo> 
         where TFrom : BehaviorContext
         where TTo : BehaviorContext

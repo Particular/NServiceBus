@@ -60,7 +60,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// 
+        /// Append a list of <see cref="Assembly"/>s to the ignored list. The string is the file name of the assembly.
         /// </summary>
         public void ExcludeAssemblies(params string[] assemblies)
         {
@@ -74,7 +74,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// 
+        /// Append a list of <see cref="Type"/>s to the ignored list.
         /// </summary>
         public void ExcludeTypes(params Type[] types)
         {
@@ -124,7 +124,7 @@ namespace NServiceBus
         /// <summary>
         ///     Defines a custom builder to use
         /// </summary>
-        /// <typeparam name="T">The builder type</typeparam>
+        /// <typeparam name="T">The builder type of the <see cref="ContainerDefinition"/>.</typeparam>
         public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
             if (customizations != null)
@@ -138,7 +138,7 @@ namespace NServiceBus
         /// <summary>
         ///     Defines a custom builder to use
         /// </summary>
-        /// <param name="definitionType">The type of the builder</param>
+        /// <param name="definitionType">The type of the <see cref="ContainerDefinition"/>.</param>
         public void UseContainer(Type definitionType)
         {
             Guard.AgainstNull(definitionType, "definitionType");
