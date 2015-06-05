@@ -538,11 +538,6 @@ namespace NServiceBus
         Unsubscribe = 4,
         Reply = 5,
     }
-    public class MessageProcessingAbortedException : System.Exception
-    {
-        public MessageProcessingAbortedException() { }
-        protected MessageProcessingAbortedException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
-    }
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition
     {
         public MsmqTransport() { }
@@ -1573,12 +1568,6 @@ namespace NServiceBus.Pipeline
         public ExecutorState(string[] pipelineIds, int currentConcurrencyLevel) { }
         public int CurrentConcurrencyLevel { get; }
         public string[] PipelineIds { get; }
-    }
-    public abstract class FeatureDependentRegisterStep<T> : NServiceBus.Pipeline.RegisterStep
-        where T : NServiceBus.Features.Feature
-    {
-        protected FeatureDependentRegisterStep(string stepId, System.Type behavior, string description) { }
-        public override bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public interface IBehavior
     {

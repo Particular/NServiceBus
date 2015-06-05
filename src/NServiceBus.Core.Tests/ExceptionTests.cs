@@ -20,7 +20,10 @@
                 {
                     continue;
                 }
-                Assert.IsTrue(exceptionType.IsPublic, string.Format("Exception '{0}' should be public", exceptionType.Name));
+                if (!exceptionType.IsPublic)
+                {
+                    continue;
+                }
                 var constructor = exceptionType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance, null, new[] { typeof(SerializationInfo), typeof(StreamingContext) }, null);
                 Assert.IsNotNull(constructor, string.Format("Exception '{0}' should implement 'protected {0}(SerializationInfo info, StreamingContext context){{}}'", exceptionType.Name));
                 var serializableAttribute = exceptionType.GetCustomAttributes(typeof(SerializableAttribute), false).FirstOrDefault();
