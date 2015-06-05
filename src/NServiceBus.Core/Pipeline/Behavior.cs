@@ -29,8 +29,8 @@
     /// <summary>
     /// This is the base interface to implement to create a behavior that can be registered in a pipeline.
     /// </summary>
-    /// <typeparam name="TIn">The context that this behavior should receive.</typeparam>
-    /// <typeparam name="TOut"></typeparam>
+    /// <typeparam name="TIn">The type of context that this behavior should receive.</typeparam>
+    /// <typeparam name="TOut">The type of context that this behavior should output.</typeparam>
     public interface IBehavior<in TIn, out TOut> : IBehavior
         where TIn : BehaviorContext
         where TOut : BehaviorContext

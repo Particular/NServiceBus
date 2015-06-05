@@ -11,13 +11,12 @@
     public class MessageDeserializationException : SerializationException
     {
         /// <summary>
-        /// 
+        /// Initializes a new instance of <see cref="MessageDeserializationException"/>.
         /// </summary>
         public MessageDeserializationException(string message):base(message)
-
         {
-            
         }
+
         /// <summary>
         /// Initializes a new instance of <see cref="MessageDeserializationException"/>.
         /// </summary>
