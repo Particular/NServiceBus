@@ -44,7 +44,7 @@
         }
 
         /// <summary>
-        /// Creates a new processing pipeline.
+        /// Creates a new satellite processing pipeline.
         /// </summary>
         public PipelineSettings AddSatellitePipeline(string name, string receiveAddress)
         {

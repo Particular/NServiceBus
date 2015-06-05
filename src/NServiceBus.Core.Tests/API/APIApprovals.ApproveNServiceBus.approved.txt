@@ -354,6 +354,8 @@ namespace NServiceBus
         public NServiceBus.HostInfoSettings UsingInstalledFilePath() { }
         public NServiceBus.HostInfoSettings UsingNames(string instanceName, string hostName) { }
     }
+    [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a setellite one must create a freature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be removed in version 7.0.0.", true)]
+    public interface IAdvancedSatellite { }
     [System.ObsoleteAttribute("This feature has been removed. To support authorization on a per subscription mes" +
         "sage type use a pipeline step instead. Will be removed in version 7.0.0.", true)]
     public interface IAuthorizeSubscriptions
@@ -452,6 +454,8 @@ namespace NServiceBus
     {
         public static void EnableInstallers(this NServiceBus.BusConfiguration config, string username = null) { }
     }
+    [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a setellite one must create a freature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be removed in version 7.0.0.", true)]
+    public interface ISatellite { }
     public interface ISendOnlyBus : System.IDisposable
     {
         void Publish(object message, NServiceBus.PublishOptions options);
