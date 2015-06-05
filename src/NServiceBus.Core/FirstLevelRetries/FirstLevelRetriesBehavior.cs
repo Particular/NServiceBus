@@ -1,8 +1,10 @@
 namespace NServiceBus
 {
     using System;
+    using NServiceBus.Features;
     using NServiceBus.FirstLevelRetries;
     using NServiceBus.Pipeline;
+    using NServiceBus.Settings;
 
     class FirstLevelRetriesBehavior : PhysicalMessageProcessingStageBehavior
     {
@@ -61,12 +63,17 @@ namespace NServiceBus
 
         }
 
-        public class Registration : FeatureDependentRegisterStep<Features.FirstLevelRetries>
+        public class Registration : RegisterStep
         {
             public Registration()
                 : base("FirstLevelRetries", typeof(FirstLevelRetriesBehavior), "Performs first level retries")
             {
                 InsertBeforeIfExists("ReceivePerformanceDiagnosticsBehavior");
+            }
+
+            public override bool IsEnabled(ReadOnlySettings settings)
+            {
+                return settings.IsFeatureActive(typeof(Features.FirstLevelRetries));
             }
         }
 

@@ -143,7 +143,6 @@
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
     <Compile Include="Pipeline\Contexts\IncomingContext.cs" />
     <Compile Include="Pipeline\Contexts\TransportReceiveContext.cs" />
-    <Compile Include="Pipeline\FeatureDependentRegisterStep.cs" />
     <Compile Include="Pipeline\PipelineModelBuilder.cs" />
     <Compile Include="Pipeline\PipelineConfiguration.cs" />
     <Compile Include="Pipeline\StageConnector.cs" />
