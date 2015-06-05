@@ -11,7 +11,7 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Constructs the message
         /// </summary>
-        /// <param name="messageId"></param>
+        /// <param name="messageId">The message id to use.</param>
         /// <param name="headers">The headers associated with this message</param>
         /// <param name="body">The body of the message</param>
         public OutgoingMessage(string messageId, Dictionary<string, string> headers, byte[] body)

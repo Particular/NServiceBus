@@ -7,18 +7,9 @@ namespace NServiceBus.Transports.Msmq
     using Janitor;
     using NServiceBus.CircuitBreakers;
 
-    /// <summary>
-    ///     Default implementation of <see cref="IDequeueMessages" /> for MSMQ.
-    /// </summary>
     class MsmqDequeueStrategy : IDequeueMessages, IDisposable
     {
 
-        /// <summary>
-        ///     Creates an instance of <see cref="MsmqDequeueStrategy" />.
-        /// </summary>
-        /// <param name="criticalError">CriticalError</param>
-        /// <param name="isTransactional"></param>
-        /// <param name="errorQueueAddress"></param>
         public MsmqDequeueStrategy(CriticalError criticalError, bool isTransactional, MsmqAddress errorQueueAddress)
         {
             this.criticalError = criticalError;
@@ -26,9 +17,6 @@ namespace NServiceBus.Transports.Msmq
             this.errorQueueAddress = errorQueueAddress;
         }
 
-        /// <summary>
-        ///     Initializes the <see cref="IDequeueMessages" />.
-        /// </summary>
         public DequeueInfo Init(DequeueSettings settings)
         {
             var msmqAddress = MsmqAddress.Parse(settings.QueueName);
@@ -184,11 +172,6 @@ namespace NServiceBus.Transports.Msmq
             AppSpecific = true
         };
 
-        /// <summary>
-        /// b
-        /// </summary>
-        /// <param name="observer"></param>
-        /// <returns></returns>
         public IDisposable Subscribe(IObserver<MessageAvailable> observer)
         {
             return observable.Subscribe(observer);

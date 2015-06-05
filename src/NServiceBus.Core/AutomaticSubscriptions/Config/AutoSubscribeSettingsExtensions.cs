@@ -10,6 +10,7 @@ namespace NServiceBus
         /// <summary>
         /// Use this method to change how auto subscribe works
         /// </summary>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static AutoSubscribeSettings AutoSubscribe(this BusConfiguration config)
         {
             Guard.AgainstNull(config, "config");

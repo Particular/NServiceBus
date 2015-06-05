@@ -10,6 +10,7 @@
         /// <summary>
         /// Enables the outbox feature
         /// </summary>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static OutboxSettings EnableOutbox(this BusConfiguration config)
         {
             Guard.AgainstNull(config, "config");

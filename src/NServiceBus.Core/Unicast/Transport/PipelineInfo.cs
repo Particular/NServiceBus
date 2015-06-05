@@ -11,8 +11,6 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// Creates new instance.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="publicAddress"></param>
         public PipelineInfo(string name, string publicAddress)
         {
             this.name = name;

@@ -17,7 +17,6 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// Creates a new sender.
         /// </summary>
-        /// <param name="context"></param>
         public MsmqMessageSender(BehaviorContext context)
         {
             Guard.AgainstNull(context, "context");

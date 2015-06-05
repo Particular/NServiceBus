@@ -27,7 +27,6 @@
             /// <summary>
             /// Allows context inheritance
             /// </summary>
-            /// <param name="context"></param>
             protected Context(BehaviorContext context)
                 : base(context)
             {

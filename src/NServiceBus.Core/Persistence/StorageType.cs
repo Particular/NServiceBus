@@ -56,10 +56,7 @@
             internal Outbox() : base(Storage.Outbox) { }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc />
         public override string ToString()
         {
             return storage.ToString();

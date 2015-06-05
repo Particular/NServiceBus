@@ -18,33 +18,22 @@
         /// </summary>
         protected PipelineInfo PipelineInfo { get; private set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="next"></param>
+        /// <inheritdoc />
         public abstract void Invoke(TFrom context, Action<TTo> next);
 
-        /// <summary>
-        /// Initialized the behavior with information about the just constructed pipeline.
-        /// </summary>
-        /// <param name="pipelineInfo"></param>
+        /// <inheritdoc />
         public void Initialize(PipelineInfo pipelineInfo)
         {
             PipelineInfo = pipelineInfo;
         }
 
-        /// <summary>
-        /// Allows a behavior to perform any necessary warm-up activities (such as priming a cache), possibly in an async way.
-        /// </summary>
+        /// <inheritdoc />
         public virtual Task Warmup()
         {
             return Task.FromResult(true);
         }
 
-        /// <summary>
-        /// Allows a behavior to perform any necessary cool-down activities, possibly in an async way.
-        /// </summary>
+        /// <inheritdoc />
         public virtual Task Cooldown()
         {
             return Task.FromResult(true);

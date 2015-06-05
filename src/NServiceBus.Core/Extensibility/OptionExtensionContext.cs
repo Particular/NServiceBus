@@ -49,8 +49,6 @@
         /// <summary>
         /// Gets the requested extension, a new one will be created if needed
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public T GetOrCreate<T>() where T:class,new()
         {
             T value;

@@ -13,7 +13,7 @@
         /// Configures the given serializer to be used
         /// </summary>
         /// <typeparam name="T">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/>, etc</typeparam>
-        /// <param name="config"></param>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config) where T : SerializationDefinition
         {
             Guard.AgainstNull(config, "config");
@@ -29,7 +29,7 @@
         /// <summary>
         /// Configures the given serializer to be used
         /// </summary>
-        /// <param name="config"></param>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         /// <param name="serializerType">The custom serializer type to use for serialization that implements <see cref="IMessageSerializer"/> or a derived type from <see cref="SerializationDefinition"/>.</param>
         public static void UseSerialization(this BusConfiguration config, Type serializerType)
         {

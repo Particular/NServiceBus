@@ -36,7 +36,6 @@
         /// <summary>
         /// Registers the receive behavior to use for that endpoint.
         /// </summary>
-        /// <param name="receiveBehaviorFactory"></param>
         public void RegisterReceiveBehavior(Func<IBuilder, ReceiveBehavior> receiveBehaviorFactory)
         {
             var receiveBehavior = new ReceiveBehavior.Registration();
@@ -47,7 +46,6 @@
         /// <summary>
         /// Creates a new processing pipeline.
         /// </summary>
-        /// <returns></returns>
         public PipelineSettings AddSatellitePipeline(string name, string receiveAddress)
         {
             var pipelineModifications = new SatellitePipelineModifications(name, receiveAddress);

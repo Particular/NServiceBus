@@ -24,9 +24,6 @@ namespace NServiceBus.Unicast.Queuing
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="queue"></param>
-        /// <param name="message"></param>
-        /// <param name="inner"></param>
         [ObsoleteEx(
             ReplacementTypeOrMember = "QueueNotFoundException(string queue, string message, Exception inner)", 
             RemoveInVersion = "7.0", 
@@ -40,9 +37,6 @@ namespace NServiceBus.Unicast.Queuing
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="queue"></param>
-        /// <param name="message"></param>
-        /// <param name="inner"></param>
         public QueueNotFoundException(string queue, string message, Exception inner) : base( message, inner )
         {
             Queue = queue;
@@ -51,8 +45,6 @@ namespace NServiceBus.Unicast.Queuing
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
         protected QueueNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             if (info != null)
@@ -64,8 +56,6 @@ namespace NServiceBus.Unicast.Queuing
         /// <summary>
         /// Gets the object data for serialization purposes
         /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

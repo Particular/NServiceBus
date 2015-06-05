@@ -11,6 +11,8 @@ namespace NServiceBus
         /// <summary>
         /// Enables the NServiceBus specific performance counters with a specific EndpointSLA.
         /// </summary>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="sla">The <see cref="TimeSpan"/> to use oa the SLA. Must be greater than <see cref="TimeSpan.Zero"/>.</param>
         public static void EnableSLAPerformanceCounter(this BusConfiguration config, TimeSpan sla)
         {
             Guard.AgainstNull(config, "config");
@@ -21,6 +23,7 @@ namespace NServiceBus
         /// <summary>
         /// Enables the NServiceBus specific performance counters with a specific EndpointSLA.
         /// </summary>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static void EnableSLAPerformanceCounter(this BusConfiguration config)
         {
             Guard.AgainstNull(config, "config");

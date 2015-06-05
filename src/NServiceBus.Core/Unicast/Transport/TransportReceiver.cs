@@ -63,7 +63,6 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// Sets the context for processing an incoming message.
         /// </summary>
-        /// <param name="context"></param>
         protected virtual void SetContext(IncomingContext context)
         {
         }

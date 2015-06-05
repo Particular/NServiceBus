@@ -32,9 +32,6 @@
         /// <summary>
         /// Returns if a given feature has been activated in this endpoint.
         /// </summary>
-        /// <param name="settings"></param>
-        /// <param name="featureType"></param>
-        /// <returns></returns>
         public static bool IsFeatureActive(this ReadOnlySettings settings, Type featureType)
         {
             return settings.GetOrDefault<FeatureState>(featureType.FullName) == FeatureState.Active;
@@ -43,9 +40,6 @@
         /// <summary>
         /// Returns if a given feature has been enabled in this endpoint.
         /// </summary>
-        /// <param name="settings"></param>
-        /// <param name="featureType"></param>
-        /// <returns></returns>
         public static bool IsFeatureEnabled(this ReadOnlySettings settings, Type featureType)
         {
             return settings.GetOrDefault<FeatureState>(featureType.FullName) == FeatureState.Enabled;

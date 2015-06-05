@@ -14,8 +14,6 @@ namespace NServiceBus.Unicast.Messages
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="messageMetadataRegistry"></param>
-        /// <param name="messageMapper"></param>
         public LogicalMessageFactory(MessageMetadataRegistry messageMetadataRegistry, IMessageMapper messageMapper)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;

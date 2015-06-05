@@ -13,7 +13,6 @@
         /// <summary>
         /// Initialized the behavior with information about the just constructed pipeline.
         /// </summary>
-        /// <param name="pipelineInfo"></param>
         void Initialize(PipelineInfo pipelineInfo);
 
         /// <summary>
@@ -78,7 +77,6 @@
         /// <summary>
         /// Initialized the behavior with information about the just constructed pipeline.
         /// </summary>
-        /// <param name="pipelineInfo"></param>
         public void Initialize(PipelineInfo pipelineInfo)
         {
             PipelineInfo = pipelineInfo;

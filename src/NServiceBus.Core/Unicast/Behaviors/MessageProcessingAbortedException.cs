@@ -19,8 +19,6 @@ namespace NServiceBus
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
         protected MessageProcessingAbortedException(
             SerializationInfo info,
             StreamingContext context) : base(info, context)

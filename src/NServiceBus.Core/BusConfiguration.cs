@@ -62,7 +62,6 @@ namespace NServiceBus
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="assemblies"></param>
         public void ExcludeAssemblies(params string[] assemblies)
         {
             Guard.AgainstNull(assemblies, "assemblies");
@@ -77,7 +76,6 @@ namespace NServiceBus
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="types"></param>
         public void ExcludeTypes(params Type[] types)
         {
             Guard.AgainstNull(types, "types");

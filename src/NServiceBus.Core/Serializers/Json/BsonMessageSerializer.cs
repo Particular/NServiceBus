@@ -19,27 +19,19 @@ namespace NServiceBus.Serializers.Json
             wrapMessagesInArray = true;
         }
 
-        /// <summary>
-        /// Creates the writer
-        /// </summary>
-        /// <param name="stream"></param>
+        /// <inheritdoc />
         protected internal override JsonWriter CreateJsonWriter(Stream stream)
         {
             return new BsonWriter(stream);
         }
 
-        /// <summary>
-        /// Creates the reader
-        /// </summary>
-        /// <param name="stream"></param>
+        /// <inheritdoc />
         protected internal override JsonReader CreateJsonReader(Stream stream)
         {
             return new BsonReader(stream, true, DateTimeKind.Unspecified);
         }
 
-        /// <summary>
-        /// Gets the supported content type
-        /// </summary>
+        /// <inheritdoc />
         protected internal override string GetContentType()
         {
             return ContentTypes.Bson;

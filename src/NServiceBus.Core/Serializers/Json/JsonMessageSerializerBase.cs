@@ -29,7 +29,6 @@ namespace NServiceBus.Serializers.Json
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="messageMapper"></param>
         protected internal JsonMessageSerializerBase(IMessageMapper messageMapper)
         {
             this.messageMapper = messageMapper;

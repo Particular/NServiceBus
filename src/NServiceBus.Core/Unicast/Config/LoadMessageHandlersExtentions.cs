@@ -13,6 +13,7 @@ namespace NServiceBus
         ///     before all others.
         ///     Use First{T} to indicate the type to load from.
         /// </summary>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static void LoadMessageHandlers<TFirst>(this BusConfiguration config)
         {
             Guard.AgainstNull(config, "config");
@@ -34,6 +35,8 @@ namespace NServiceBus
         ///     and specifies that the handlers in the given 'order' are to
         ///     run before all others and in the order specified.
         /// </summary>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="order">The first handler to execute.</param>
         public static void LoadMessageHandlers<T>(this BusConfiguration config, First<T> order)
         {
             Guard.AgainstNull(config, "config");

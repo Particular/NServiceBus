@@ -281,8 +281,6 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Applies property inject for the given type based on convention
         /// </summary>
-        /// <typeparam name="T">The type</typeparam>
-        /// <param name="config"></param>
         public void ApplyTo<T>(IComponentConfig config)
         {
             Guard.AgainstNull(config, "config");

@@ -10,8 +10,6 @@
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
         public static string GetCorrelationId(this LogicalMessagesProcessingStageBehavior.Context context)
         {
             string correlationId;

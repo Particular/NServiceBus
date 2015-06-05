@@ -28,14 +28,14 @@ namespace NServiceBus.ObjectBuilder
         /// Creates an instance of the given type, injecting it with all defined dependencies.
         /// </summary>
         /// <typeparam name="T">Type to be resolved.</typeparam>
-        /// <returns>Instance of <typeparamref name="T"/></returns>
+        /// <returns>Instance of <typeparamref name="T"/>.</returns>
         T Build<T>();
 
         /// <summary>
         /// For each type that is compatible with T, an instance is created with all dependencies injected, and yielded to the caller.
         /// </summary>
         /// <typeparam name="T">Type to be resolved.</typeparam>
-        /// <returns>Instances of <typeparamref name="T"/></returns>
+        /// <returns>Instances of <typeparamref name="T"/>.</returns>
         IEnumerable<T> BuildAll<T>();
 
         /// <summary>

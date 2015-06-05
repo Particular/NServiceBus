@@ -10,7 +10,6 @@
         /// <summary>
         /// Turns off the best practice enforcement for the given message
         /// </summary>
-        /// <param name="options"></param>
         public static void DoNotEnforceBestPractices(this ExtendableOptions options)
         {
             options.Extensions.Set(new EnforceBestPracticesBehavior.Options{Enabled = false});

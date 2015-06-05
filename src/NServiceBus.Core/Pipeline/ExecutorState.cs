@@ -11,8 +11,6 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="pipelineIds"></param>
-        /// <param name="currentConcurrencyLevel"></param>
         public ExecutorState(string[] pipelineIds, int currentConcurrencyLevel) : this()
         {
             this.pipelineIds = pipelineIds;

@@ -13,7 +13,6 @@
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="message"></param>
         public MessageDeserializationException(string message):base(message)
 
         {

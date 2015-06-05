@@ -27,7 +27,6 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes the context
         /// </summary>
-        /// <param name="messageInstance"></param>
         public MutateOutgoingMessagesContext(object messageInstance)
         {
             Headers = new Dictionary<string, string>();

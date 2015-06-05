@@ -17,6 +17,7 @@ namespace NServiceBus
         /// <summary>
         /// Use 256 bit AES encryption based on the Rijndael cipher. 
         /// </summary>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static void RijndaelEncryptionService(this BusConfiguration config)
         {
             Guard.AgainstNull(config, "config");
@@ -72,6 +73,9 @@ namespace NServiceBus
         /// <summary>
         /// Use 256 bit AES encryption based on the Rijndael cipher. 
         /// </summary>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="encryptionKey">The default encryption key to use.</param>
+        /// <param name="expiredKeys">The secondary expired keys that will be used for decryption.</param>
         public static void RijndaelEncryptionService(this BusConfiguration config, string encryptionKey, List<string> expiredKeys = null)
         {
             Guard.AgainstNull(config, "config");
@@ -113,6 +117,8 @@ namespace NServiceBus
         /// <summary>
         /// Register a custom <see cref="IEncryptionService"/> to be used for message encryption.
         /// </summary>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="func">A delegate that constructs the insatnce of <see cref="IEncryptionService"/> to use for all encryption.</param>
         public static void RegisterEncryptionService(this BusConfiguration config, Func<IBuilder, IEncryptionService> func)
         {
             Guard.AgainstNull(config, "config");

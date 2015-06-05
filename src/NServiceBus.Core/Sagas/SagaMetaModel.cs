@@ -32,7 +32,7 @@ namespace NServiceBus.Saga
         /// Returns a <see cref="SagaMetadata"/> for an entity by entity name.
         /// </summary>
         /// <param name="name">Name of the entity.</param>
-        /// <returns>An instance of <see cref="SagaMetadata"/></returns>
+        /// <returns>An instance of <see cref="SagaMetadata"/>.</returns>
         public SagaMetadata FindByEntityName(string name)
         {
             return byEntityName[name];
@@ -54,7 +54,7 @@ namespace NServiceBus.Saga
         /// Returns a <see cref="SagaMetadata"/> for an entity by name.
         /// </summary>
         /// <param name="name">Saga name.</param>
-        /// <returns>An instance of <see cref="SagaMetadata"/></returns>
+        /// <returns>An instance of <see cref="SagaMetadata"/>.</returns>
         public SagaMetadata FindByName(string name)
         {
             return byName[name];

@@ -9,22 +9,14 @@ namespace NServiceBus.Transports
     /// </summary>
     public abstract class ReceiveBehavior : StageConnector<IncomingContext, TransportReceiveContext>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="next"></param>
+        /// <inheritdoc />
         public override void Invoke(IncomingContext context, Action<TransportReceiveContext> next)
         {
             Invoke(context, x => next(new TransportReceiveContext(x, context)));
         }
 
         //TODO: change to header and body ony
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="onMessage"></param>
+        /// <inheritdoc />
         protected abstract void Invoke(IncomingContext context, Action<IncomingMessage> onMessage);
 
         /// <summary>

@@ -2,6 +2,7 @@ namespace NServiceBus.Saga
 {
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
 
     /// <summary>
     ///     Contains metadata for known sagas
@@ -122,9 +123,9 @@ namespace NServiceBus.Saga
         /// <summary>
         ///     Gets the configured finder for this message.
         /// </summary>
-        /// <param name="messageType"></param>
-        /// <param name="finderDefinition">The finder if present</param>
-        /// <returns>True if finder exists</returns>
+        /// <param name="messageType">The message <see cref="MemberInfo.Name"/>.</param>
+        /// <param name="finderDefinition">The finder if present.</param>
+        /// <returns>True if finder exists.</returns>
         public bool TryGetFinder(string messageType, out SagaFinderDefinition finderDefinition)
         {
             return sagaFinders.TryGetValue(messageType, out finderDefinition);
