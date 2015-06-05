@@ -1,6 +1,8 @@
 namespace NServiceBus.Transports.Msmq
 {
     using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Messaging;
     using System.Transactions;
     using NServiceBus.Pipeline;
@@ -35,6 +37,11 @@ namespace NServiceBus.Transports.Msmq
         public bool SuppressDistributedTransactions { get; set; }
 
         /// <summary>
+        /// Stores the value set by <see cref="MsmqConfigurationExtensions.ApplyLabelToMessages"/>
+        /// </summary>
+        public Func<IReadOnlyDictionary<string,string>, string> MessageLabelConvention { get; set; }
+
+        /// <summary>
         /// Sends the given <paramref name="message"/>
         /// </summary>
         public void Send(OutgoingMessage message, TransportSendOptions sendOptions)
@@ -64,15 +71,17 @@ namespace NServiceBus.Transports.Msmq
                     MessageQueueTransaction receiveTransaction;
                     context.TryGet(out receiveTransaction);
 
+
+                    var label = GetLabel(message);
                     if (sendOptions.EnlistInReceiveTransaction && receiveTransaction != null)
                     {
-                        q.Send(toSend, receiveTransaction);
+                        q.Send(toSend, label, receiveTransaction);
                     }
                     else
                     {
                         var transactionType = GetTransactionTypeForSend();
 
-                        q.Send(toSend, transactionType);
+                        q.Send(toSend, label, transactionType);
                     }
                 }
             }
@@ -94,6 +103,24 @@ namespace NServiceBus.Transports.Msmq
                 ThrowFailedToSendException(destination, ex);
             }
         }
+        
+         string GetLabel(OutgoingMessage message)
+         {
+             if (MessageLabelConvention == null)
+             {
+                 return string.Empty;
+             }
+             var messageLabel = MessageLabelConvention(new ReadOnlyDictionary<string, string>(message.Headers));
+             if (messageLabel == null)
+             {
+                 throw new Exception("MSMQ label convention returned a null. Either return a valid value or a String.Empty to indicate 'no value'.");
+             }
+             if (messageLabel.Length > 240)
+             {
+                 throw new Exception("MSMQ label convention returned a value longer than 240 characters. This is not supported.");
+             }
+             return messageLabel;
+         }
 
         static void ThrowFailedToSendException(string address, Exception ex)
         {

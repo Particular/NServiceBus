@@ -157,6 +157,7 @@
     <Compile Include="StaticHeaders\CurrentStaticHeaders.cs" />
     <Compile Include="Transports\DequeueInfo.cs" />
     <Compile Include="Transports\Msmq\MsmqAddress.cs" />
+    <Compile Include="Transports\Msmq\MsmqConfigurationExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNativeTransactionBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNoTransactionBehavior.cs" />
