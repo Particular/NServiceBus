@@ -11,8 +11,6 @@
     [Serializable]
 	public class DataBusProperty<T> : IDataBusProperty, ISerializable where T : class
     {
-        T value;
-    	
         /// <summary>
         /// initializes a <see cref="DataBusProperty{T}"/> with the <paramref name="value"/>.
         /// </summary>
@@ -47,13 +45,7 @@
     	/// <summary>
     	/// The value.
     	/// </summary>
-    	public T Value
-        {
-            get
-            {
-                return value;
-            }
-        }
+        public T Value { get; private set; }
 
 
         /// <summary>
@@ -74,9 +66,9 @@
         /// <param name="valueToSet">The value to set.</param>
         public void SetValue(object valueToSet)
 		{
-			value = valueToSet as T;
+			Value = valueToSet as T;
 
-			if (value != null)
+			if (Value != null)
 				HasValue = true;
 		}
 

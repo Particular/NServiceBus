@@ -11,8 +11,6 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="body"></param>
-        /// <param name="headers"></param>
         public MutateOutgoingPhysicalMessageContext(byte[] body, Dictionary<string, string> headers)
         {
             this.headers = headers;

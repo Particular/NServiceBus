@@ -2,19 +2,15 @@ namespace NServiceBus.Saga
 {
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
 
     /// <summary>
     ///     Contains metadata for known sagas
     /// </summary>
     public class SagaMetadata
     {
-        readonly Dictionary<string, SagaMessage> associatedMessages;
-        readonly List<CorrelationProperty> correlationProperties;
-        readonly string entityName;
-        readonly string name;
-        readonly Type sagaEntityType;
-        readonly Dictionary<string, SagaFinderDefinition> sagaFinders;
-        readonly Type sagaType;
+        Dictionary<string, SagaMessage> associatedMessages;
+        Dictionary<string, SagaFinderDefinition> sagaFinders;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SagaMetadata" /> class.
@@ -28,11 +24,11 @@ namespace NServiceBus.Saga
         /// <param name="finders">The finder definition collection that can find this saga.</param>
         public SagaMetadata(string name, Type sagaType, string entityName, Type sagaEntityType, List<CorrelationProperty> correlationProperties, IEnumerable<SagaMessage> messages, IEnumerable<SagaFinderDefinition> finders)
         {
-            this.name = name;
-            this.entityName = entityName;
-            this.sagaEntityType = sagaEntityType;
-            this.sagaType = sagaType;
-            this.correlationProperties = correlationProperties;
+            Name = name;
+            EntityName = entityName;
+            SagaEntityType = sagaEntityType;
+            SagaType = sagaType;
+            CorrelationProperties = correlationProperties;
 
             associatedMessages = new Dictionary<string, SagaMessage>();
 
@@ -68,42 +64,27 @@ namespace NServiceBus.Saga
         /// <summary>
         ///     The name of the saga.
         /// </summary>
-        public string Name
-        {
-            get { return name; }
-        }
+        public string Name { get; private set; }
 
         /// <summary>
         ///     The name of the saga data entity.
         /// </summary>
-        public string EntityName
-        {
-            get { return entityName; }
-        }
+        public string EntityName { get; private set; }
 
         /// <summary>
         ///     The type of the related saga entity.
         /// </summary>
-        public Type SagaEntityType
-        {
-            get { return sagaEntityType; }
-        }
+        public Type SagaEntityType { get; private set; }
 
         /// <summary>
         ///     The type for this saga.
         /// </summary>
-        public Type SagaType
-        {
-            get { return sagaType; }
-        }
+        public Type SagaType { get; private set; }
 
         /// <summary>
         ///     Properties this saga is correlated on.
         /// </summary>
-        public List<CorrelationProperty> CorrelationProperties
-        {
-            get { return correlationProperties; }
-        }
+        public List<CorrelationProperty> CorrelationProperties { get; private set; }
 
         /// <summary>
         ///     True if the specified message type is allowed to start the saga.
@@ -122,9 +103,9 @@ namespace NServiceBus.Saga
         /// <summary>
         ///     Gets the configured finder for this message.
         /// </summary>
-        /// <param name="messageType"></param>
-        /// <param name="finderDefinition">The finder if present</param>
-        /// <returns>True if finder exists</returns>
+        /// <param name="messageType">The message <see cref="MemberInfo.Name"/>.</param>
+        /// <param name="finderDefinition">The finder if present.</param>
+        /// <returns>True if finder exists;otherwise False.</returns>
         public bool TryGetFinder(string messageType, out SagaFinderDefinition finderDefinition)
         {
             return sagaFinders.TryGetValue(messageType, out finderDefinition);

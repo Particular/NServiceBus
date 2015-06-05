@@ -11,7 +11,7 @@ namespace NServiceBus
         /// <summary>
         /// Used to define the SLA for this endpoint
         /// </summary>
-        /// <param name="sla">A <see cref="string"/> representing a <see cref="TimeSpan"/></param>
+        /// <param name="sla">A <see cref="string"/> representing a <see cref="TimeSpan"/>.</param>
         public EndpointSLAAttribute(string sla)
         {
             TimeSpan timespan;

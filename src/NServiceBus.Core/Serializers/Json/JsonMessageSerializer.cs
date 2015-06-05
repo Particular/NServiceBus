@@ -24,7 +24,6 @@ namespace NServiceBus.Serializers.Json
         /// <summary>
         /// Creates the writer
         /// </summary>
-        /// <param name="stream"></param>
         protected internal override JsonWriter CreateJsonWriter(Stream stream)
         {
             var streamWriter = new StreamWriter(stream, Encoding);
@@ -34,7 +33,6 @@ namespace NServiceBus.Serializers.Json
         /// <summary>
         /// Creates the reader
         /// </summary>
-        /// <param name="stream"></param>
         protected internal override JsonReader CreateJsonReader(Stream stream)
         {
             var streamReader = new StreamReader(stream, Encoding);
@@ -44,8 +42,6 @@ namespace NServiceBus.Serializers.Json
         /// <summary>
         /// Non strongly typed deserialization
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="type"></param>
         public object DeserializeObject(string value, Type type)
         {
             Guard.AgainstNull(type, "type");

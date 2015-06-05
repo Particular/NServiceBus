@@ -8,6 +8,7 @@ namespace NServiceBus
         /// <summary>
         /// If queues configured do not exist, will cause them not to be created on startup.
         /// </summary>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static void DoNotCreateQueues(this BusConfiguration config)
         {
             Guard.AgainstNull(config, "config");

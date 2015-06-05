@@ -18,7 +18,7 @@
             /// Enriches a processing context with deserialized logical messsages.
             /// </summary>
             /// <param name="logicalMessages">A collection of logical messages</param>
-            /// <param name="parentContext">Atext wrapped con</param>
+            /// <param name="parentContext">A text wrapped con</param>
             public Context(IEnumerable<LogicalMessage> logicalMessages, PhysicalMessageProcessingStageBehavior.Context parentContext)
                 : base(parentContext)
             {
@@ -29,7 +29,6 @@
             /// <summary>
             /// Allows context inheritance.
             /// </summary>
-            /// <param name="parentContext"></param>
             protected Context(BehaviorContext parentContext)
                 : base(parentContext)
             {

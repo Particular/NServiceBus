@@ -20,9 +20,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="ISendOnlyBus.Publish"/>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="messageConstructor"></param>
-        /// <param name="options">Options for this event</param>
         public void Publish<T>(Action<T> messageConstructor,NServiceBus.PublishOptions options)
         {
             Guard.AgainstNull(messageConstructor, "messageConstructor");
@@ -32,11 +29,8 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// 
+        /// <see cref="ISendOnlyBus.Send(object,NServiceBus.SendOptions)"/>
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
         public void Send(object message, NServiceBus.SendOptions options)
         {
             busImpl.Send(message, options);
@@ -44,12 +38,8 @@ namespace NServiceBus.Unicast
 
 
         /// <summary>
-        /// 
+        /// <see cref="ISendOnlyBus.Send(object,NServiceBus.SendOptions)"/>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="messageConstructor"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
         public void Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
         {
             busImpl.Send(messageConstructor, options);
@@ -58,7 +48,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="IBus.Subscribe"/>
         /// </summary>
-        /// <param name="messageType"></param>
         public void Subscribe(Type messageType)
         {
             Guard.AgainstNull(messageType, "messageType");
@@ -68,7 +57,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="IBus.Subscribe{T}"/>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         public void Subscribe<T>()
         {
             busImpl.Subscribe<T>();
@@ -77,7 +65,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="IBus.Unsubscribe"/>
         /// </summary>
-        /// <param name="messageType"></param>
         public void Unsubscribe(Type messageType)
         {
             Guard.AgainstNull(messageType, "messageType");
@@ -87,7 +74,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="IBus.Unsubscribe{T}"/>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         public void Unsubscribe<T>()
         {
             busImpl.Unsubscribe<T>();
@@ -147,7 +133,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="IBus.ForwardCurrentMessageTo"/>
         /// </summary>
-        /// <param name="destination"></param>
         public void ForwardCurrentMessageTo(string destination)
         {
             Guard.AgainstNullAndEmpty(destination, "destination");

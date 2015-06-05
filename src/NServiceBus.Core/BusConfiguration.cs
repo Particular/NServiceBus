@@ -60,9 +60,8 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// 
+        /// Appends a list of assemblies to the currenly excluded assemblies.
         /// </summary>
-        /// <param name="assemblies"></param>
         public void ExcludeAssemblies(params string[] assemblies)
         {
             Guard.AgainstNull(assemblies, "assemblies");
@@ -75,9 +74,8 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// 
+        /// Appends a list of <see cref="Type"/>s to the currenly excluded types.
         /// </summary>
-        /// <param name="types"></param>
         public void ExcludeTypes(params Type[] types)
         {
             Guard.AgainstNull(types, "types");
@@ -126,7 +124,7 @@ namespace NServiceBus
         /// <summary>
         ///     Defines a custom builder to use
         /// </summary>
-        /// <typeparam name="T">The builder type</typeparam>
+        /// <typeparam name="T">The <see cref="ContainerDefinition"/> type.</typeparam>
         public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
             if (customizations != null)
@@ -140,7 +138,7 @@ namespace NServiceBus
         /// <summary>
         ///     Defines a custom builder to use
         /// </summary>
-        /// <param name="definitionType">The type of the builder</param>
+        /// <param name="definitionType">The type of the <see cref="ContainerDefinition"/>.</param>
         public void UseContainer(Type definitionType)
         {
             Guard.AgainstNull(definitionType, "definitionType");
@@ -152,7 +150,7 @@ namespace NServiceBus
         /// <summary>
         ///     Uses an already active instance of a builder
         /// </summary>
-        /// <param name="builder">The instance to use</param>
+        /// <param name="builder">The <see cref="IContainer"/> instance to use.</param>
         public void UseContainer(IContainer builder)
         {
             Guard.AgainstNull(builder, "builder");

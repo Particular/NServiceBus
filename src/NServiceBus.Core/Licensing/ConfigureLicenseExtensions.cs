@@ -14,7 +14,7 @@ namespace NServiceBus
         /// <summary>
         /// Allows user to specify the license string.
         /// </summary>
-        /// <param name="config">The current <see cref="BusConfiguration"/>.</param>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         /// <param name="licenseText">The license text.</param>
         public static void License(this BusConfiguration config, string licenseText)
         {
@@ -28,7 +28,7 @@ namespace NServiceBus
         /// <summary>
         /// Allows user to specify the path for the license file.
         /// </summary>
-        /// <param name="config">The current <see cref="BusConfiguration"/>.</param>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         /// <param name="licenseFile">A relative or absolute path to the license file.</param>
         public static void LicensePath(this BusConfiguration config, string licenseFile)
         {

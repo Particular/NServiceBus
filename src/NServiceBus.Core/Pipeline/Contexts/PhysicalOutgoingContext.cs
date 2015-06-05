@@ -18,8 +18,6 @@
             /// <summary>
             /// 
             /// </summary>
-            /// <param name="body"></param>
-            /// <param name="parentContext"></param>
             public Context(byte[] body, OutgoingContext parentContext)
                 : base(parentContext)
             {

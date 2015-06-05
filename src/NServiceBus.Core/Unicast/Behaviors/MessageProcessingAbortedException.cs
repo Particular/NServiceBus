@@ -10,17 +10,15 @@ namespace NServiceBus
     public class MessageProcessingAbortedException : Exception
     {
         /// <summary>
-        /// 
+        /// Initializes a new insatnce of <see cref="MessageProcessingAbortedException"/>.
         /// </summary>
         public MessageProcessingAbortedException()
         {
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new insatnce of <see cref="MessageProcessingAbortedException"/>.
         /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
         protected MessageProcessingAbortedException(
             SerializationInfo info,
             StreamingContext context) : base(info, context)

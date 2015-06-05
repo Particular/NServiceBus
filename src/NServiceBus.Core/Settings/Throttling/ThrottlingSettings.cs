@@ -35,7 +35,6 @@ namespace NServiceBus.Settings.Throttling
         /// <summary>
         /// Configures NServiceBus to not limit message throughput by default but allows to override this setting for either the main pipeline each satellite individually.
         /// </summary>
-        /// <returns></returns>
         public IndividualThrottlingSettings UseSeparateThroughputLimitForMainPipelineAndEachSatellite()
         {
             var overrides = new Dictionary<string, int?>();
@@ -49,7 +48,6 @@ namespace NServiceBus.Settings.Throttling
         /// Configures NServiceBus to limit message throughput to <paramref name="defaultMaximumMessagesPerSecond"/> by default for each pipeline but allows to override this setting for either the main pipeline each satellite individually.
         /// </summary>
         /// <param name="defaultMaximumMessagesPerSecond">Default maximum messages per second</param>
-        /// <returns></returns>
         public IndividualThrottlingSettings UseSeparateThroughputLimitForMainPipelineAndEachSatellite(int defaultMaximumMessagesPerSecond)
         {
             Guard.AgainstNegativeAndZero(defaultMaximumMessagesPerSecond, "defaultMaximumMessagesPerSecond");

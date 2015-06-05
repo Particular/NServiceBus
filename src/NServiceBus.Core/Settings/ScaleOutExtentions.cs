@@ -10,6 +10,7 @@ namespace NServiceBus
         /// <summary>
         ///     Allows the user to control how the current endpoint behaves when scaled out.
         /// </summary>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static ScaleOutSettings ScaleOut(this BusConfiguration config)
         {
             Guard.AgainstNull(config, "config");

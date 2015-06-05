@@ -29,7 +29,6 @@ namespace NServiceBus.Serializers.Json
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="messageMapper"></param>
         protected internal JsonMessageSerializerBase(IMessageMapper messageMapper)
         {
             this.messageMapper = messageMapper;
@@ -41,7 +40,7 @@ namespace NServiceBus.Serializers.Json
         /// Serializes the given set of messages into the given stream.
         /// </summary>
         /// <param name="message">Message to serialize.</param>
-        /// <param name="stream">Stream for <paramref name="message"/> to be serialized into.</param>
+        /// <param name="stream"><see cref="Stream"/> for <paramref name="message"/> to be serialized into.</param>
         public void Serialize(object message, Stream stream)
         {
             Guard.AgainstNull(stream, "stream");

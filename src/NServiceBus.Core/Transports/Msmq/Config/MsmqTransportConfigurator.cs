@@ -22,7 +22,6 @@
         /// <summary>
         /// Creates a <see cref="RegisterStep"/> for receive behavior.
         /// </summary>
-        /// <returns></returns>
         protected override Func<IBuilder, ReceiveBehavior> GetReceiveBehaviorFactory(ReceiveOptions receiveOptions)
         {
             options = receiveOptions;

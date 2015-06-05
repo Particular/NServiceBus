@@ -37,7 +37,7 @@ namespace NServiceBus.Saga
         /// <summary>
         /// A generic version of <see cref="ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage)"/> wraps <see cref="IConfigureHowToFindSagaWithMessage"/> in a generic helper class (<see cref="SagaPropertyMapper{TSagaData}"/>) to provide mappings specific to <typeparamref name="TSagaData"/>.
         /// </summary>
-        /// <param name="mapper">The <see cref="SagaPropertyMapper{TSagaData}"/> that wraps the <see cref="IConfigureHowToFindSagaWithMessage"/></param>
+        /// <param name="mapper">The <see cref="SagaPropertyMapper{TSagaData}"/> that wraps the <see cref="IConfigureHowToFindSagaWithMessage"/>.</param>
         protected abstract void ConfigureHowToFindSaga(SagaPropertyMapper<TSagaData> mapper);
     }
 }

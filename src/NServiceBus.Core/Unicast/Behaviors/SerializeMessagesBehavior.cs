@@ -63,7 +63,6 @@
         /// <summary>
         /// Requests the serializer to skip serializing the message
         /// </summary>
-        /// <param name="context"></param>
         public static void SkipSerialization(this OutgoingContext context)
         {
             context.Extensions.GetOrCreate<SerializeMessagesBehavior.State>().SkipSerialization = true;

@@ -10,8 +10,7 @@ namespace NServiceBus
         /// <summary>
         /// Entry point for concurrency configuration.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static ConcurrencySettings Concurrency(this BusConfiguration config)
         {
             Guard.AgainstNull(config, "config");

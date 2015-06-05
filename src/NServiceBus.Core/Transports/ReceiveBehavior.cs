@@ -12,8 +12,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="next"></param>
         public override void Invoke(IncomingContext context, Action<TransportReceiveContext> next)
         {
             Invoke(context, x => next(new TransportReceiveContext(x, context)));
@@ -23,8 +21,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="onMessage"></param>
         protected abstract void Invoke(IncomingContext context, Action<IncomingMessage> onMessage);
 
         /// <summary>

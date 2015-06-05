@@ -910,20 +910,12 @@ namespace NServiceBus.Serializers.XML.Test
 
     public class GenericProperty<T>
     {
-        private T value;
-
         public GenericProperty(T value)
         {
-            this.value = value;
+            ReadOnlyBlob = value;
         }
 
-        public T ReadOnlyBlob
-        {
-            get
-            {
-                return value;
-            }
-        }
+        public T ReadOnlyBlob { get; private set; }
 
         public string WhatEver { get; set; }
     }

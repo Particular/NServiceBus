@@ -28,19 +28,19 @@
     {
         public WhenDefinition(Predicate<TContext> condition, Action<IBus> action)
         {
-            id = Guid.NewGuid();
+            Id = Guid.NewGuid();
             this.condition = condition;
             busAction = action;
         }
 
         public WhenDefinition(Predicate<TContext> condition, Action<IBus, TContext> actionWithContext)
         {
-            id = Guid.NewGuid();
+            Id = Guid.NewGuid();
             this.condition = condition;
             busAndContextAction = actionWithContext;
         }
 
-        public Guid Id { get { return id; } }
+        public Guid Id { get; private set; }
 
         public bool ExecuteAction(ScenarioContext context, IBus bus)
         {
@@ -62,7 +62,7 @@
           
             }
 
-            Debug.WriteLine("Condition {0} has fired - Thread: {1} AppDomain: {2}", id, Thread.CurrentThread.ManagedThreadId,AppDomain.CurrentDomain.FriendlyName);
+            Debug.WriteLine("Condition {0} has fired - Thread: {1} AppDomain: {2}", Id, Thread.CurrentThread.ManagedThreadId,AppDomain.CurrentDomain.FriendlyName);
 
             return true;
         }
@@ -70,7 +70,6 @@
         readonly Predicate<TContext> condition;
         readonly Action<IBus> busAction;
         readonly Action<IBus, TContext> busAndContextAction;
-        Guid id;
     }
 
     public interface IGivenDefinition

@@ -71,6 +71,9 @@
       <HintPath>TestDlls\NServiceBus.OldCompilerBits.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="NuDoq">
+      <HintPath>..\packages\NuDoq.1.2.5\lib\net35\NuDoq.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
@@ -132,6 +135,7 @@
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\ArgumentExceptionTests.cs" />
+    <Compile Include="Conventions\DocumentationTests.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="DataBus\InMemoryDataBus.cs" />
     <Compile Include="Encryption\When_message_contains_props_and_fields_that_cannot_be_set.cs" />

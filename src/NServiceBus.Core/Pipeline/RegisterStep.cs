@@ -33,7 +33,6 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Allows for customization of the container registration for this step
         /// </summary>
-        /// <param name="customRegistration"></param>
         public void ContainerRegistration<T>(Func<IBuilder,ReadOnlySettings,T> customRegistration)
         {
             Guard.AgainstNull(customRegistration, "customRegistration");
@@ -65,8 +64,6 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Checks if this behavior is enabled.
         /// </summary>
-        /// <param name="settings"></param>
-        /// <returns></returns>
         public virtual bool IsEnabled(ReadOnlySettings settings)
         {
             return true;

@@ -7,8 +7,6 @@
     /// <summary>
     /// Connects two stages of the pipeline 
     /// </summary>
-    /// <typeparam name="TFrom"></typeparam>
-    /// <typeparam name="TTo"></typeparam>
     public abstract class StageConnector<TFrom, TTo> :IStageConnector, IBehavior<TFrom, TTo> 
         where TFrom : BehaviorContext
         where TTo : BehaviorContext
@@ -18,17 +16,10 @@
         /// </summary>
         protected PipelineInfo PipelineInfo { get; private set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="next"></param>
+        /// <inheritdoc />
         public abstract void Invoke(TFrom context, Action<TTo> next);
 
-        /// <summary>
-        /// Initialized the behavior with information about the just constructed pipeline.
-        /// </summary>
-        /// <param name="pipelineInfo"></param>
+        /// <inheritdoc />
         public void Initialize(PipelineInfo pipelineInfo)
         {
             PipelineInfo = pipelineInfo;

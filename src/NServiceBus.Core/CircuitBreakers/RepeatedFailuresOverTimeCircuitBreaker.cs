@@ -12,9 +12,6 @@ namespace NServiceBus.CircuitBreakers
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="timeToWaitBeforeTriggering"></param>
-        /// <param name="triggerAction"></param>
         public RepeatedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering,
             Action<Exception> triggerAction)
             : this(name, timeToWaitBeforeTriggering, triggerAction, TimeSpan.FromSeconds(1))
@@ -24,10 +21,6 @@ namespace NServiceBus.CircuitBreakers
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="timeToWaitBeforeTriggering"></param>
-        /// <param name="triggerAction"></param>
-        /// <param name="delayAfterFailure"></param>
         public RepeatedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering,
             Action<Exception> triggerAction, TimeSpan delayAfterFailure)
         {
@@ -64,7 +57,6 @@ namespace NServiceBus.CircuitBreakers
         /// <summary>
         /// Tells the CB to arm
         /// </summary>
-        /// <param name="exception"></param>
         public void Failure(Exception exception)
         {
             lastException = exception;

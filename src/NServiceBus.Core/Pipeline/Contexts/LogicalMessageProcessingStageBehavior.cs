@@ -39,7 +39,6 @@
             /// <summary>
             /// Allows context inheritance
             /// </summary>
-            /// <param name="parentContext"></param>
             protected Context(BehaviorContext parentContext)
                 : base(parentContext)
             {

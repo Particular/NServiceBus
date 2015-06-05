@@ -9,7 +9,7 @@
     /// </summary>
     public abstract class StorageType
     {
-        readonly Storage storage;
+        Storage storage;
 
         StorageType(Storage storage)
         {
@@ -57,9 +57,8 @@
         }
 
         /// <summary>
-        /// 
+        /// Returns the inner <see cref="Storage"/> <see cref="Object.ToString()"/>
         /// </summary>
-        /// <returns></returns>
         public override string ToString()
         {
             return storage.ToString();

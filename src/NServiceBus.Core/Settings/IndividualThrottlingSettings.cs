@@ -19,7 +19,6 @@ namespace NServiceBus
         /// Configures NServiceBus to limit throughput to <paramref name="maximumMessagesPerSecond"/> messages per second for the main processing pipeline.
         /// </summary>
         /// <param name="maximumMessagesPerSecond">Maximum messages per second</param>
-        /// <returns></returns>
         public IndividualThrottlingSettings ForMainPipeline(int maximumMessagesPerSecond)
         {
             Guard.AgainstNegativeAndZero(maximumMessagesPerSecond, "maximumMessagesPerSecond");
@@ -32,7 +31,6 @@ namespace NServiceBus
         /// </summary>
         /// <param name="satelliteId">Satellite</param>
         /// <param name="maximumMessagesPerSecond">Maximum messages per second</param>
-        /// <returns></returns>
         public IndividualThrottlingSettings ForSatellite(string satelliteId, int maximumMessagesPerSecond)
         {
             Guard.AgainstNegativeAndZero(maximumMessagesPerSecond, "maximumMessagesPerSecond");
@@ -44,7 +42,6 @@ namespace NServiceBus
         /// <summary>
         /// Configures NServiceBus to not limit throughput for the main processing pipeline.
         /// </summary>
-        /// <returns></returns>
         public IndividualThrottlingSettings DoNotLimitMainPipeline()
         {
             overrides["Main"] = null;
@@ -54,8 +51,6 @@ namespace NServiceBus
         /// <summary>
         /// Configures NServiceBus to not limit throughput for satellite <paramref name="satelliteId"/>
         /// </summary>
-        /// <param name="satelliteId"></param>
-        /// <returns></returns>
         public IndividualThrottlingSettings DoNotLimit(string satelliteId)
         {
             Guard.AgainstNullAndEmpty(satelliteId, "satelliteId");

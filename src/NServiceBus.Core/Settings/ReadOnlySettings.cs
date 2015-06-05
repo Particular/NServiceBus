@@ -54,7 +54,7 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Determines whether the <see cref="ReadOnlySettings"/> contains the specified key.
         /// </summary>
-        /// <param name="key">The key to locate in the <see cref="ReadOnlySettings"/></param>
+        /// <param name="key">The key to locate in the <see cref="ReadOnlySettings"/>.</param>
         /// <returns>true if the <see cref="ReadOnlySettings"/> contains an element with the specified key; otherwise, false.</returns>
         bool HasSetting(string key);
         
@@ -68,7 +68,7 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Determines whether the <see cref="ReadOnlySettings"/> contains a specific value for the specified key.
         /// </summary>
-        /// <param name="key">The key to locate in the <see cref="ReadOnlySettings"/></param>
+        /// <param name="key">The key to locate in the <see cref="ReadOnlySettings"/>.</param>
         /// <returns>true if the <see cref="ReadOnlySettings"/> contains an explicit value with the specified key; otherwise, false.</returns>
         bool HasExplicitValue(string key);
 
@@ -82,8 +82,6 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Setup property injection for the given type based on convention
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="config"></param>
         void ApplyTo<T>(IComponentConfig config);
     }
 }

@@ -5,42 +5,22 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
     public class Element
     {
-        private string name;
         private int minOccurs = 1;
-        private bool unboundedMaxOccurs;
-        private bool nillable;
-        private string type;
-        private string nameSpace;
 
-        public string Name
-        {
-            get { return name; }
-        }
+        public string Name { get; private set; }
 
         public int MinOccurs
         {
             get { return minOccurs; }
         }
 
-        public bool UnboundedMaxOccurs
-        {
-            get { return unboundedMaxOccurs; }
-        }
+        public bool UnboundedMaxOccurs { get; private set; }
 
-        public bool Nillable
-        {
-            get { return nillable; }
-        }
+        public bool Nillable { get; private set; }
 
-        public string Type
-        {
-            get { return type; }
-        }
+        public string Type { get; private set; }
 
-        public string NameSpace
-        {
-            get { return nameSpace; }
-        }
+        public string NameSpace { get; private set; }
 
         public void DoesNotNeedToOccur()
         {
@@ -49,12 +29,12 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
         public void UnboundMaxOccurs()
         {
-            unboundedMaxOccurs = true;
+            UnboundedMaxOccurs = true;
         }
 
         public void MakeNillable()
         {
-            nillable = true;
+            Nillable = true;
         }
 
         private Element()
@@ -69,14 +49,14 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             if (t == typeof(Guid))
             {
                 Events.FoundGuid();
-                e.nameSpace = "http://microsoft.com/wsdl/types/";
+                e.NameSpace = "http://microsoft.com/wsdl/types/";
             }
 
             if (typeof(IEnumerable).IsAssignableFrom(t) || t.IsClass || t.IsInterface)
                 e.DoesNotNeedToOccur();
 
-            e.type = Reflect.GetTypeNameFrom(t);
-            e.name = name;
+            e.Type = Reflect.GetTypeNameFrom(t);
+            e.Name = name;
 
             return e;
         }

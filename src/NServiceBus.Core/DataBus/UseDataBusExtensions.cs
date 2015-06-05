@@ -11,6 +11,7 @@
         /// <summary>
         /// Configures NServiceBus to use the given data bus definition.
         /// </summary>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static DataBusExtentions<T> UseDataBus<T>(this BusConfiguration config) where T : DataBusDefinition, new()
         {
             Guard.AgainstNull(config, "config");
@@ -28,6 +29,8 @@
         /// <summary>
         /// Configures NServiceBus to use a custom <see cref="IDataBus"/> implementation.
         /// </summary>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="dataBusType">The <see cref="IDataBus"/> type to use.</param>
         public static DataBusExtentions UseDataBus(this BusConfiguration config, Type dataBusType)
         {
             Guard.AgainstNull(config, "config");

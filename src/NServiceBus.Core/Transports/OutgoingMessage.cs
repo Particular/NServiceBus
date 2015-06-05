@@ -4,16 +4,16 @@ namespace NServiceBus.Transports
     using System.Collections.Generic;
 
     /// <summary>
-    /// The message going out to the transport
+    /// The message going out to the transport.
     /// </summary>
     public class OutgoingMessage
     {
         /// <summary>
-        /// Constructs the message
+        /// Constructs the message.
         /// </summary>
-        /// <param name="messageId"></param>
-        /// <param name="headers">The headers associated with this message</param>
-        /// <param name="body">The body of the message</param>
+        /// <param name="messageId">The unique identifier for the message.</param>
+        /// <param name="headers">The headers associated with this message.</param>
+        /// <param name="body">The body of the message.</param>
         public OutgoingMessage(string messageId, Dictionary<string, string> headers, byte[] body)
         {
             MessageId = messageId;

@@ -22,7 +22,6 @@ namespace NServiceBus.Serializers.Json
         /// <summary>
         /// Creates the writer
         /// </summary>
-        /// <param name="stream"></param>
         protected internal override JsonWriter CreateJsonWriter(Stream stream)
         {
             return new BsonWriter(stream);
@@ -31,7 +30,6 @@ namespace NServiceBus.Serializers.Json
         /// <summary>
         /// Creates the reader
         /// </summary>
-        /// <param name="stream"></param>
         protected internal override JsonReader CreateJsonReader(Stream stream)
         {
             return new BsonReader(stream, true, DateTimeKind.Unspecified);

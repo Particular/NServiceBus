@@ -57,7 +57,6 @@ namespace NServiceBus.Hosting.Helpers
         /// <summary>
         ///     Creates a scanner for the given directory
         /// </summary>
-        /// <param name="baseDirectoryToScan"></param>
         public AssemblyScanner(string baseDirectoryToScan)
         {
             ThrowExceptions = true;

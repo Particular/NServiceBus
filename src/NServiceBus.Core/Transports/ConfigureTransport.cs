@@ -57,7 +57,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Creates a <see cref="RegisterStep"/> for receive behavior.
         /// </summary>
-        /// <returns></returns>
         protected abstract Func<IBuilder, ReceiveBehavior> GetReceiveBehaviorFactory(ReceiveOptions receiveOptions);
 
         /// <summary>

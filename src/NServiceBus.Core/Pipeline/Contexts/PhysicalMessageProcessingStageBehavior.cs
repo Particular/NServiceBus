@@ -16,7 +16,6 @@
             /// <summary>
             /// Creates new instance.
             /// </summary>
-            /// <param name="parentContext"></param>
             protected Context(BehaviorContext parentContext)
                 : base(parentContext)
             {
@@ -26,7 +25,6 @@
             /// <summary>
             /// Creates new instance.
             /// </summary>
-            /// <param name="parentContext"></param>
             internal Context(TransportReceiveContext parentContext)
                 : base(parentContext)
             {
