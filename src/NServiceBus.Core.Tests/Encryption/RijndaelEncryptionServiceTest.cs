@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Security.Cryptography;
+    using System.Text;
     using NServiceBus.Encryption.Rijndael;
     using NUnit.Framework;
 
@@ -42,8 +44,8 @@
             var encryptedValue = service1.Encrypt("string to encrypt");
             Assert.AreNotEqual("string to encrypt", encryptedValue.EncryptedBase64Value);
 
-            var invalidKey = "adDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6";
-            var invalidExpiredKeys = new List<string> { "bdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6" };
+            var invalidKey = "AyHx50GJPIIj8qQjt3nyMkTerNjxM+e6";
+            var invalidExpiredKeys = new List<string> { "3yhvCgonOjI47i6fYyuZfBWxGZfY=+e6" };
             var service2 = new RijndaelEncryptionService(invalidKey, invalidExpiredKeys);
 
             var exception = Assert.Throws<AggregateException>(() =>service2.Decrypt(encryptedValue));
