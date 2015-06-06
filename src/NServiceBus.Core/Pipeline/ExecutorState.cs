@@ -1,36 +1,27 @@
 namespace NServiceBus.Pipeline
 {
     /// <summary>
-    /// 
+    /// Used by <see cref="ExecutorNotifications"/> to notify about the state of executors.
     /// </summary>
     public struct ExecutorState
     {
-        readonly string[] pipelineIds;
-        readonly int currentConcurrencyLevel;
-
         /// <summary>
-        /// 
+        /// Initializes a new instance of <see cref="ExecutorState"/>.
         /// </summary>
         public ExecutorState(string[] pipelineIds, int currentConcurrencyLevel) : this()
         {
-            this.pipelineIds = pipelineIds;
-            this.currentConcurrencyLevel = currentConcurrencyLevel;
+            PipelineIds = pipelineIds;
+            CurrentConcurrencyLevel = currentConcurrencyLevel;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public string[] PipelineIds
-        {
-            get { return pipelineIds; }
-        }
+        public string[] PipelineIds { get; private set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public int CurrentConcurrencyLevel
-        {
-            get { return currentConcurrencyLevel; }
-        }
+        public int CurrentConcurrencyLevel { get; private set; }
     }
 }

@@ -3,7 +3,7 @@ namespace NServiceBus.Pipeline
     using System;
 
     /// <summary>
-    /// Provides notfications about state of executors.
+    /// Provides notfications about the state of executors.
     /// </summary>
     public class ExecutorNotifications : IDisposable
     {

@@ -5,7 +5,7 @@ namespace NServiceBus.Transports
     using NServiceBus.Pipeline.Contexts;
 
     /// <summary>
-    /// 
+    /// Connects a <see cref="IncomingContext"/> with a <see cref="TransportReceiveContext"/>.
     /// </summary>
     public abstract class ReceiveBehavior : StageConnector<IncomingContext, TransportReceiveContext>
     {
@@ -20,12 +20,12 @@ namespace NServiceBus.Transports
         protected abstract void Invoke(IncomingContext context, Action<IncomingMessage> onMessage);
 
         /// <summary>
-        /// 
+        /// The <see cref="RegisterStep"/> for <see cref="ReceiveBehavior"/>.
         /// </summary>
         public class Registration : RegisterStep
         {
             /// <summary>
-            /// 
+            /// Initializes a new insatnce of <see cref="ReceiveBehavior"/>.
             /// </summary>
             public Registration(): base("ReceiveMessage", typeof(ReceiveBehavior), "Try receive message from transport")
             {
