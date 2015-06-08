@@ -8,7 +8,7 @@ namespace NServiceBus.Unicast
     public class DeliveryMessageOptions
     {
         /// <summary>
-        /// Creates an instance of <see cref="DeliveryMessageOptions"/>.
+        /// Initializes an instance of <see cref="DeliveryMessageOptions"/>.
         /// </summary>
         public DeliveryMessageOptions()
         {

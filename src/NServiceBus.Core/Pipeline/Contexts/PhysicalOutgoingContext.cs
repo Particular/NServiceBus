@@ -10,13 +10,13 @@
     public abstract class PhysicalOutgoingContextStageBehavior : Behavior<PhysicalOutgoingContextStageBehavior.Context>
     {
         /// <summary>
-        /// 
+        /// The <see cref="BehaviorContext"/> for <see cref="PhysicalOutgoingContextStageBehavior"/>.
         /// </summary>
         public class Context : BehaviorContext
         {
 
             /// <summary>
-            /// 
+            /// Initializes an instance of <see cref="Context"/>.
             /// </summary>
             public Context(byte[] body, OutgoingContext parentContext)
                 : base(parentContext)
@@ -39,7 +39,7 @@
             public DeliveryMessageOptions DeliveryMessageOptions { get; private set; }
 
             /// <summary>
-            /// 
+            /// A <see cref="byte"/> array containing the serialized contents of the outgoing message.
             /// </summary>
             public byte[] Body { get; set; }
 
