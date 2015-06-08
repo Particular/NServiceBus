@@ -29,10 +29,7 @@
         {
             fakeOutbox = new FakeOutboxStorage();
 
-            behavior = new OutboxRecordBehavior
-            {
-                OutboxStorage = fakeOutbox
-            };
+            behavior = new OutboxRecordBehavior(fakeOutbox);
         }
 
         void Invoke(PhysicalMessageProcessingStageBehavior.Context context, bool shouldAbort = false)

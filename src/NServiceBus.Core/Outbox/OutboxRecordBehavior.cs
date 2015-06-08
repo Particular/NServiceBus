@@ -6,7 +6,10 @@ namespace NServiceBus
 
     class OutboxRecordBehavior : PhysicalMessageProcessingStageBehavior
     {
-        public IOutboxStorage OutboxStorage { get; set; }
+        public OutboxRecordBehavior(IStoreOutboxMessages outboxStorage)
+        {
+            this.storage = outboxStorage;
+        }
 
         public override void Invoke(Context context, Action next)
         {
@@ -19,7 +22,7 @@ namespace NServiceBus
 
             var outboxMessage = context.Get<OutboxMessage>();
 
-            OutboxStorage.Store(outboxMessage.MessageId, outboxMessage.TransportOperations);
+            storage.Store(outboxMessage.MessageId, outboxMessage.TransportOperations);
         }
 
         public class OutboxRecorderRegistration : RegisterStep
@@ -31,5 +34,7 @@ namespace NServiceBus
                 InsertAfter(WellKnownStep.ExecuteUnitOfWork);
             }
         }
+
+        IStoreOutboxMessages storage;
     }
 }

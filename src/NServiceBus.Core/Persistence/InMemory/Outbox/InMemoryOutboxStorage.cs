@@ -6,7 +6,7 @@
     using System.Linq;
     using NServiceBus.Outbox;
 
-    class InMemoryOutboxStorage : IOutboxStorage
+    class InMemoryOutboxStorage : IStoreOutboxMessages, IDeduplicateMessages
     {
         public bool TryGet(string messageId, out OutboxMessage message)
         {

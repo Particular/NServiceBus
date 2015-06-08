@@ -27,7 +27,10 @@
 
         class OutboxCleaner : FeatureStartupTask
         {
-            public InMemoryOutboxStorage InMemoryOutboxStorage { get; set; }
+            public OutboxCleaner(InMemoryOutboxStorage outboxStorage)
+            {
+                this.storage = outboxStorage;
+            }
 
             public TimeSpan TimeToKeepDeduplicationData { get; set; }
 
@@ -48,11 +51,12 @@
 
             void PerformCleanup(object state)
             {
-                InMemoryOutboxStorage.RemoveEntriesOlderThan(DateTime.UtcNow - TimeToKeepDeduplicationData);
+                storage.RemoveEntriesOlderThan(DateTime.UtcNow - TimeToKeepDeduplicationData);
             }
 
 // ReSharper disable once NotAccessedField.Local
             Timer cleanupTimer;
+            InMemoryOutboxStorage storage;
         }
     }
 }

@@ -137,6 +137,8 @@
     <Compile Include="Extensibility\OptionExtensionContext.cs" />
     <Compile Include="MessagingBestPractices\BestPracticeEnforcement.cs" />
     <Compile Include="MessagingBestPractices\OptionExtensions.cs" />
+    <Compile Include="Outbox\IDeduplicateMessages.cs" />
+    <Compile Include="Outbox\IStoreOutboxMessages.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingContext.cs" />
     <Compile Include="Monitoring\PerformanceCounterInstance.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
