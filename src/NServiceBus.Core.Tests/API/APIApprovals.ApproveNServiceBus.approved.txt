@@ -1589,10 +1589,10 @@ namespace NServiceBus.Pipeline
     {
         public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
         public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
-        public void Register<T>()
-            where T : NServiceBus.Pipeline.RegisterStep, new () { }
-        public void Register<T, TBehavior>(System.Func<NServiceBus.ObjectBuilder.IBuilder, TBehavior> customInitializer)
-            where T : NServiceBus.Pipeline.RegisterStep, new () { }
+        public void Register<TRegisterStep>()
+            where TRegisterStep : NServiceBus.Pipeline.RegisterStep, new () { }
+        public void Register<TRegisterStep, TBehavior>(System.Func<NServiceBus.ObjectBuilder.IBuilder, TBehavior> customInitializer)
+            where TRegisterStep : NServiceBus.Pipeline.RegisterStep, new () { }
         public void Register(NServiceBus.Pipeline.RegisterStep registration) { }
         public void Remove(string stepId) { }
         public void Remove(NServiceBus.Pipeline.WellKnownStep wellKnownStep) { }
@@ -2561,7 +2561,6 @@ namespace NServiceBus.Unicast.Transport
         protected virtual void SetContext(NServiceBus.Pipeline.Contexts.IncomingContext context) { }
         public async System.Threading.Tasks.Task Start() { }
         public async System.Threading.Tasks.Task Stop() { }
-        public override string ToString() { }
     }
 }
 namespace NServiceBus.UnitOfWork
