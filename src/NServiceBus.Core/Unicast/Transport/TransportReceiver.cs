@@ -15,7 +15,7 @@ namespace NServiceBus.Unicast.Transport
     {
         internal TransportReceiver(string id, IBuilder builder, IDequeueMessages receiver, DequeueSettings dequeueSettings, PipelineBase<IncomingContext> pipeline, IExecutor executor)
         {
-            this.id = id;
+            Id = id;
             this.pipeline = pipeline;
             this.executor = executor;
             this.dequeueSettings = dequeueSettings;
@@ -27,10 +27,7 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// Gets the ID of this pipeline
         /// </summary>
-        public string Id
-        {
-            get { return id; }
-        }
+        public string Id { get; private set; }
 
 
         void IObserver<MessageAvailable>.OnNext(MessageAvailable value)
@@ -88,7 +85,7 @@ namespace NServiceBus.Unicast.Transport
             Logger.DebugFormat("Pipeline {0} is starting receiver for queue {0}.", Id, dequeueSettings.QueueName);
 
             var dequeueInfo = receiver.Init(dequeueSettings);
-            pipeline.Initialize(new PipelineInfo(id, dequeueInfo.PublicAddress));
+            pipeline.Initialize(new PipelineInfo(Id, dequeueInfo.PublicAddress));
             await pipeline.Warmup();
 
             StartReceiver();
@@ -118,22 +115,14 @@ namespace NServiceBus.Unicast.Transport
             receiver.Start();
         }
 
-        /// <summary>
-        /// </summary>
-        public override string ToString()
-        {
-            return "Pipeline " + id;
-        }
-
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
 
-        readonly string id;
-        readonly IBuilder builder;
-        readonly PipelineBase<IncomingContext> pipeline;
-        readonly IExecutor executor;
-        readonly IDequeueMessages receiver;
+        IBuilder builder;
+        PipelineBase<IncomingContext> pipeline;
+        IExecutor executor;
+        IDequeueMessages receiver;
 
         bool isStarted;
-        readonly DequeueSettings dequeueSettings;
+        DequeueSettings dequeueSettings;
     }
 }
