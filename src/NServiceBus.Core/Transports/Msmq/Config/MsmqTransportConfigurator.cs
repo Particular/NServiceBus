@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using System.Transactions;
     using Config;
     using NServiceBus.ObjectBuilder;
@@ -29,7 +30,7 @@
 
             if (!receiveOptions.Transactions.IsTransactional)
             {
-                return b=> new MsmqReceiveWithNoTransactionBehavior();
+                return b => new MsmqReceiveWithNoTransactionBehavior();
             }
 
             if (receiveOptions.Transactions.SuppressDistributedTransactions)
@@ -63,7 +64,8 @@
 
             var endpointIsTransactional = context.Settings.Get<bool>("Transactions.Enabled");
             var doNotUseDTCTransactions = context.Settings.Get<bool>("Transactions.SuppressDistributedTransactions");
-
+            Func<IReadOnlyDictionary<string, string>, string> getMessageLabel;
+            context.Settings.TryGet("Msmq.GetMessageLabel", out getMessageLabel);
 
             if (!context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
             {
@@ -90,9 +92,11 @@
                 settings = new MsmqConnectionStringBuilder(connectionString).RetrieveSettings();
             }
 
+            var messageLabelGenerator = context.Settings.GetMessageLabelGenerator();
             context.Container.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.Settings, settings)
-                .ConfigureProperty(t => t.SuppressDistributedTransactions, doNotUseDTCTransactions);
+                .ConfigureProperty(t => t.SuppressDistributedTransactions, doNotUseDTCTransactions)
+                .ConfigureProperty(t => t.MessageLabelConvention, messageLabelGenerator);
 
             context.Container.ConfigureComponent<MsmqQueueCreator>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.Settings, settings);

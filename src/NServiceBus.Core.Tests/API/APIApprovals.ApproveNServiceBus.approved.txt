@@ -541,6 +541,11 @@ namespace NServiceBus
         Unsubscribe = 4,
         Reply = 5,
     }
+    public class static MsmqConfigurationExtensions
+    {
+        public static void ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, NServiceBus.MsmqLabelGenerator generateLabel) { }
+    }
+    public delegate string MsmqLabelGenerator(System.Collections.Generic.IReadOnlyDictionary<string, string> headers);
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition
     {
         public MsmqTransport() { }
@@ -2268,6 +2273,7 @@ namespace NServiceBus.Transports.Msmq
     public class MsmqMessageSender : NServiceBus.Transports.ISendMessages
     {
         public MsmqMessageSender(NServiceBus.Pipeline.BehaviorContext context) { }
+        public NServiceBus.MsmqLabelGenerator MessageLabelConvention { get; set; }
         public NServiceBus.Transports.Msmq.Config.MsmqSettings Settings { get; set; }
         public bool SuppressDistributedTransactions { get; set; }
         public void Send(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.TransportSendOptions sendOptions) { }
