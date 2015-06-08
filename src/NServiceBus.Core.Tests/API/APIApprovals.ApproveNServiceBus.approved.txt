@@ -78,7 +78,6 @@ namespace NServiceBus
     {
         public BusNotifications() { }
         public NServiceBus.Faults.ErrorsNotifications Errors { get; }
-        public NServiceBus.Pipeline.ExecutorNotifications Executor { get; }
         public NServiceBus.Pipeline.PipelineNotifications Pipeline { get; }
     }
     [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
@@ -1561,17 +1560,6 @@ namespace NServiceBus.Pipeline
         public void Set<T>(string key, T t) { }
         public bool TryGet<T>(out T result) { }
         public bool TryGet<T>(string key, out T result) { }
-    }
-    public class ExecutorNotifications : System.IDisposable
-    {
-        public ExecutorNotifications() { }
-        public System.IObservable<NServiceBus.Pipeline.ExecutorState> ExecutorState { get; }
-    }
-    public struct ExecutorState
-    {
-        public ExecutorState(string[] pipelineIds, int currentConcurrencyLevel) { }
-        public int CurrentConcurrencyLevel { get; }
-        public string[] PipelineIds { get; }
     }
     public interface IBehavior
     {

@@ -3,29 +3,23 @@ namespace NServiceBus.Pipeline
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using Janitor;
     using NServiceBus.Logging;
 
     class LimitedThreadPoolExecutor : IExecutor
     {
-        static readonly ILog Logger = LogManager.GetLogger<LimitedThreadPoolExecutor>();
-        readonly int maximumConcurrencyLevel;
-        [SkipWeaving]
-        readonly BusNotifications busNotifications;
+        static ILog Logger = LogManager.GetLogger<LimitedThreadPoolExecutor>();
+        int maximumConcurrencyLevel;
         SemaphoreSlim limitSemaphore;
-        string[] pipelineIds;
         bool stopping;
 
-        public LimitedThreadPoolExecutor(int maximumConcurrencyLevel, BusNotifications busNotifications)
+        public LimitedThreadPoolExecutor(int maximumConcurrencyLevel)
         {
             this.maximumConcurrencyLevel = maximumConcurrencyLevel;
-            this.busNotifications = busNotifications;
             limitSemaphore = new SemaphoreSlim(maximumConcurrencyLevel);
         }
 
         public virtual void Start(string[] pipelineIds)
         {
-            this.pipelineIds = pipelineIds;
         }
 
         public virtual void Execute(string pipelineId, Action action)
@@ -41,7 +35,6 @@ namespace NServiceBus.Pipeline
             }
             try
             {
-                busNotifications.Executor.ReportExecutorState(pipelineIds, maximumConcurrencyLevel - limitSemaphore.CurrentCount);
                 Task.Factory.StartNew(action)
                     .ContinueWith(x =>
                     {

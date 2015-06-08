@@ -85,7 +85,7 @@ namespace NServiceBus.Features
                 }
             }
 
-            context.Container.ConfigureComponent(b => throttlingConfig.WrapExecutor(concurrencyConfig.BuildExecutor(b.Build<BusNotifications>())), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => throttlingConfig.WrapExecutor(concurrencyConfig.BuildExecutor()), DependencyLifecycle.SingleInstance);
 
             context.Container.ConfigureComponent<BehaviorContextStacker>(DependencyLifecycle.SingleInstance);
 

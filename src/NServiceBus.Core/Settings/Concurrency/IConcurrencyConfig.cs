@@ -4,6 +4,6 @@ namespace NServiceBus.Settings.Concurrency
 
     interface IConcurrencyConfig
     {
-        IExecutor BuildExecutor(BusNotifications busNotifications);
+        IExecutor BuildExecutor();
     }
 }

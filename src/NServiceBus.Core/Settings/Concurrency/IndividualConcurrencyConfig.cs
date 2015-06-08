@@ -5,8 +5,8 @@ namespace NServiceBus.Settings.Concurrency
 
     class IndividualConcurrencyConfig : IConcurrencyConfig
     {
-        readonly int defaultMaximumConcurrencyLevel;
-        readonly Dictionary<string, int> concurrencyLevelOverrides;
+        int defaultMaximumConcurrencyLevel;
+        Dictionary<string, int> concurrencyLevelOverrides;
 
         public IndividualConcurrencyConfig(int? defaultMaximumConcurrencyLevel, Dictionary<string, int> concurrencyLevelOverrides)
         {
@@ -14,9 +14,9 @@ namespace NServiceBus.Settings.Concurrency
             this.concurrencyLevelOverrides = concurrencyLevelOverrides;
         }
 
-        public IExecutor BuildExecutor(BusNotifications busNotifications)
+        public IExecutor BuildExecutor()
         {
-            return new IndividualLimitThreadPoolExecutor(defaultMaximumConcurrencyLevel, concurrencyLevelOverrides, busNotifications);
+            return new IndividualLimitThreadPoolExecutor(defaultMaximumConcurrencyLevel, concurrencyLevelOverrides);
         }
     }
 }

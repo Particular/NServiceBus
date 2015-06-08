@@ -182,8 +182,6 @@
     <Compile Include="Features\PrerequisiteStatus.cs" />
     <Compile Include="FirstLevelRetries\FirstLevelRetries.cs" />
     <Compile Include="FirstLevelRetries\FirstLevelRetryPolicy.cs" />
-    <Compile Include="Pipeline\ExecutorNotifications.cs" />
-    <Compile Include="Pipeline\ExecutorState.cs" />
     <Compile Include="Pipeline\BehaviorInstance.cs" />
     <Compile Include="Pipeline\IExecutor.cs" />
     <Compile Include="Pipeline\IndividualLimitThreadPoolExecutor.cs" />

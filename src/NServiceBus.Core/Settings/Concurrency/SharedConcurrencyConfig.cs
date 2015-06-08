@@ -11,9 +11,9 @@ namespace NServiceBus.Settings.Concurrency
             this.maximumConcurrencyLevel = maximumConcurrencyLevel ?? 1;
         }
 
-        public IExecutor BuildExecutor(BusNotifications busNotifications)
+        public IExecutor BuildExecutor()
         {
-            return new LimitedThreadPoolExecutor(maximumConcurrencyLevel, busNotifications);
+            return new LimitedThreadPoolExecutor(maximumConcurrencyLevel);
         }
     }
 }
