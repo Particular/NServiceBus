@@ -248,12 +248,18 @@ namespace NServiceBus.Hosting.Helpers
             return IsRuntimeAssembly(assemblyName);
         }
 
-        static bool IsRuntimeAssembly(AssemblyName assemblyName)
+        internal static bool IsRuntimeAssembly(AssemblyName assemblyName)
         {
             var publicKeyToken = assemblyName.GetPublicKeyToken();
             var lowerInvariant = BitConverter.ToString(publicKeyToken).Replace("-", String.Empty).ToLowerInvariant();
             //System
             if (lowerInvariant == "b77a5c561934e089")
+            {
+                return true;
+            }
+
+            //System.Core +  mscorelib
+            if (lowerInvariant == "7cec85d7bea7798e")
             {
                 return true;
             }
