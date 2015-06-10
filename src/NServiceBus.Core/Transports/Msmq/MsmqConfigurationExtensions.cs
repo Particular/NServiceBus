@@ -14,10 +14,10 @@ namespace NServiceBus
         /// Set a delegate to use for applying the <see cref="Message.Label"/> property when sending a message.
         /// </summary>
         /// <remarks>
-        /// This delagate will be used for all valid messages sent vis MSMQ.
-        /// This includes not just standard messages but Audits, Errors and all control messages. 
-        /// Use the <see cref="Headers.ControlMessageHeader"/> key to determin if a message is a control message.
-        /// The only exception to this tull is corrupted messages that will be forwarded to the error queue with no label applied.
+        /// This delegate will be used for all valid messages sent via MSMQ.
+        /// This includes, not just standard messages, but also Audits, Errors and all control messages. 
+        /// In some cases it may be useful to use the <see cref="Headers.ControlMessageHeader"/> key to determine if a message is a control message.
+        /// The only exception to this rule is received messages with corrupted headers. These messages will be forwarded to the error queue with no label applied.
         /// </remarks>
         public static void ApplyLabelToMessages(this TransportExtensions<MsmqTransport> transportExtensions, MsmqLabelGenerator generateLabel)
         {
