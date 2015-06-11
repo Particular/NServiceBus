@@ -239,6 +239,7 @@
     <Compile Include="Settings\DurableMessagesConfig.cs" />
     <Compile Include="Timeout\ConfigurationBuilderExtensions.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
+    <Compile Include="Unicast\Behaviors\FixSendIntentBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
     <Compile Include="Unicast\Behaviors\InvokeSagaNotFoundBehavior.cs" />
     <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
