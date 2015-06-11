@@ -6,8 +6,6 @@
     
     class FixSendIntentBehavior : IBehavior<OutgoingContext>
     {
-        public Conventions Conventions { get; set; }
-
         public void Invoke(OutgoingContext context, Action next)
         {
             if (context.OutgoingLogicalMessage.Headers.ContainsKey("$.temporary.ReplyToOriginator"))
