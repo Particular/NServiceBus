@@ -4,11 +4,11 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
     public class ElementWriter
     {
-        private readonly Element e;
-        private readonly string startFormat = "<xs:element minOccurs=\"{0}\" maxOccurs=\"";
-        private readonly string nameFormat = "\" name=\"{0}\" ";
-        private readonly string namespaceFormat = "xmlns:" + Strings.NamespacePrefix + "=\"{0}\" ";
-        private readonly string typeFormat = "type=\"{0}\" />\n";
+        Element e;
+        string startFormat = "<xs:element minOccurs=\"{0}\" maxOccurs=\"";
+        string nameFormat = "\" name=\"{0}\" ";
+        string namespaceFormat = "xmlns:" + Strings.NamespacePrefix + "=\"{0}\" ";
+        string typeFormat = "type=\"{0}\" />\n";
 
         public static string Write(Element e)
         {

@@ -64,7 +64,7 @@
 
         public class MessageWithIndexedProperties : IMessage
         {
-            private readonly string[] indexedList = new string[2];
+            string[] indexedList = new string[2];
 
             public string this[int index]
             {

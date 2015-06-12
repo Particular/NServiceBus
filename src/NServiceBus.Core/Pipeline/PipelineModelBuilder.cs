@@ -292,7 +292,7 @@ namespace NServiceBus.Pipeline
             }
 
             public readonly string StepId;
-            private readonly RegisterStep rego;
+            RegisterStep rego;
             public readonly IList<Dependency> Befores;
             public readonly IList<Dependency> Afters;
             internal List<Node> previous = new List<Node>();

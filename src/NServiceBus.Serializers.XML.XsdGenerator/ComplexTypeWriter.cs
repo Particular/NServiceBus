@@ -4,13 +4,13 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
     public class ComplexTypeWriter
     {
-        private readonly ComplexType complex;
-        private readonly string beginTopFormat = "<xs:complexType name=\"{0}\">\n";
-        private readonly string beginBaseFormat = "<xs:complexContent mixed=\"false\">\n<xs:extension base=\"{0}\">\n";
-        private readonly string beginSequence = "<xs:sequence>";
-        private readonly string endSequence = "</xs:sequence>";
-        private readonly string endBaseFormat = "</xs:extension>\n</xs:complexContent>\n";
-        private readonly string endTopFormat = "</xs:complexType>\n";
+        ComplexType complex;
+        string beginTopFormat = "<xs:complexType name=\"{0}\">\n";
+        string beginBaseFormat = "<xs:complexContent mixed=\"false\">\n<xs:extension base=\"{0}\">\n";
+        string beginSequence = "<xs:sequence>";
+        string endSequence = "</xs:sequence>";
+        string endBaseFormat = "</xs:extension>\n</xs:complexContent>\n";
+        string endTopFormat = "</xs:complexType>\n";
 
         public static void Write(ComplexType complex, StringBuilder builder)
         {

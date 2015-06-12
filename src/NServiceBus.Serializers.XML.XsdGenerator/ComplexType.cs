@@ -6,7 +6,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
     public class ComplexType
     {
-        private readonly IList<Element> elements = new List<Element>();
+        IList<Element> elements = new List<Element>();
 
         private ComplexType()
         {

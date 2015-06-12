@@ -28,23 +28,23 @@
 
         private class TestOptions
         {
-            private readonly Dictionary<TestEnum, Dictionary<string, string>> _dictionary = new Dictionary<TestEnum, Dictionary<string, string>>();
-            public Dictionary<TestEnum, Dictionary<string, string>> Dictionary { get { return _dictionary; } }
+            Dictionary<TestEnum, Dictionary<string, string>> dictionary = new Dictionary<TestEnum, Dictionary<string, string>>();
+            public Dictionary<TestEnum, Dictionary<string, string>> Dictionary { get { return dictionary; } }
 
             public bool ContainsKey(TestEnum key)
             {
-                return _dictionary.ContainsKey(key);
+                return dictionary.ContainsKey(key);
             }
 
-            public IEnumerable<TestEnum> Keys { get { return _dictionary.Keys; } }
+            public IEnumerable<TestEnum> Keys { get { return dictionary.Keys; } }
 
             public Dictionary<string, string> this[TestEnum appEnum]
             {
                 get
                 {
-                    return _dictionary.ContainsKey(appEnum)
-                               ? _dictionary[appEnum]
-                               : _dictionary[appEnum] = new Dictionary<string, string>();
+                    return dictionary.ContainsKey(appEnum)
+                               ? dictionary[appEnum]
+                               : dictionary[appEnum] = new Dictionary<string, string>();
                 }
             }
         }

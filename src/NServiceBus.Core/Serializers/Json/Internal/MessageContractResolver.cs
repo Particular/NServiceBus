@@ -6,23 +6,23 @@ namespace NServiceBus.Serializers.Json.Internal
 
     class MessageContractResolver : DefaultContractResolver
     {
-        private readonly IMessageMapper _messageMapper;
+        IMessageMapper messageMapper;
 
         public MessageContractResolver(IMessageMapper messageMapper)
             : base(true)
         {
-            _messageMapper = messageMapper;
+            this.messageMapper = messageMapper;
         }
 
         protected override JsonObjectContract CreateObjectContract(Type objectType)
         {
-            var mappedTypeFor = _messageMapper.GetMappedTypeFor(objectType);
+            var mappedTypeFor = messageMapper.GetMappedTypeFor(objectType);
 
             if (mappedTypeFor == null)
                 return base.CreateObjectContract(objectType);
 
             var jsonContract = base.CreateObjectContract(mappedTypeFor);
-            jsonContract.DefaultCreator = () => _messageMapper.CreateInstance(mappedTypeFor);
+            jsonContract.DefaultCreator = () => messageMapper.CreateInstance(mappedTypeFor);
 
             return jsonContract;
         }

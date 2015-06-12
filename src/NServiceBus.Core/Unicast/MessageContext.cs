@@ -8,7 +8,7 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class MessageContext : IMessageContext
     {
-        private readonly TransportMessage transportMessage;
+        TransportMessage transportMessage;
 
         /// <summary>
         /// Initializes message context from the transport message.
