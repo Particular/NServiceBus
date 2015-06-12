@@ -40,15 +40,23 @@ namespace NServiceBus.Unicast.Transport
 
         void InvokePipeline(MessageAvailable messageAvailable)
         {
-            var context = new IncomingContext(new RootContext(builder));
-            messageAvailable.InitializeContext(context);
-            SetContext(context);
-
             executor.Execute(Id, () =>
             {
                 try
                 {
-                    pipeline.Invoke(context);
+                    using (var childBuilder = builder.CreateChildBuilder())
+                    {
+                        var configurer = (IConfigureComponents)childBuilder;
+                        var behaviorContextStacker = new BehaviorContextStacker(childBuilder);
+                        configurer.RegisterSingleton(behaviorContextStacker);
+                        configurer.ConfigureComponent<ContextualBus>(DependencyLifecycle.SingleInstance);
+
+                        var context = new IncomingContext(behaviorContextStacker.Root);
+                        messageAvailable.InitializeContext(context);
+                        SetContext(context);
+
+                        pipeline.Invoke(context);
+                    }
                 }
                 catch (MessageProcessingAbortedException)
                 {

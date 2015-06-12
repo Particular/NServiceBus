@@ -1660,6 +1660,16 @@ namespace NServiceBus.Pipeline
         protected BehaviorContext(NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
     }
+    public class BehaviorContextStacker : System.IDisposable
+    {
+        public BehaviorContextStacker(NServiceBus.ObjectBuilder.IBuilder rootBuilder) { }
+        public NServiceBus.Pipeline.BehaviorContext Current { get; }
+        public NServiceBus.Pipeline.BehaviorContext Root { get; }
+        public void Dispose() { }
+        public NServiceBus.Pipeline.BehaviorContext GetCurrentOrRootContext() { }
+        public void Pop() { }
+        public void Push(NServiceBus.Pipeline.BehaviorContext item) { }
+    }
     public interface IBehavior
     {
         System.Threading.Tasks.Task Cooldown();
@@ -1766,6 +1776,8 @@ namespace NServiceBus.Pipeline
     public class WellKnownStep
     {
         public static readonly NServiceBus.Pipeline.WellKnownStep AuditProcessedMessage;
+        [System.ObsoleteAttribute("TODO. Will be treated as an error from version 7.0.0. Will be removed in version " +
+            "8.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep CreateChildContainer;
         [System.ObsoleteAttribute("The dispatch step is the terminating step in v6 so any dependency on it can safel" +
             "y be removed. Will be removed in version 7.0.0.", true)]
@@ -2557,7 +2569,7 @@ namespace NServiceBus.Unicast
     }
     public class UnicastBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, NServiceBus.Unicast.IRealBus, System.IDisposable
     {
-        public UnicastBus(NServiceBus.Pipeline.BehaviorContext rootContext, NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.IDispatchMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter) { }
+        public UnicastBus(NServiceBus.Pipeline.BehaviorContextStacker contextStacker, NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.IDispatchMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public NServiceBus.IMessageContext CurrentMessageContext { get; }
         [System.ObsoleteAttribute("We have introduced a more explicit API to set the host identifier, see busConfigu" +

@@ -9,9 +9,8 @@
 
     class BehaviorChain : IDisposable
     {
-        public BehaviorChain(IEnumerable<BehaviorInstance> behaviorList, BehaviorContext context, Dictionary<Type, string> lookupSteps, BusNotifications notifications)
+        public BehaviorChain(IEnumerable<BehaviorInstance> behaviorList, Dictionary<Type, string> lookupSteps, BusNotifications notifications)
         {
-            this.context = context;
             this.lookupSteps = lookupSteps;
             this.notifications = notifications;
 
@@ -21,6 +20,8 @@
         public void Invoke(BehaviorContextStacker contextStacker)
         {
             var outerPipe = false;
+
+            var context = contextStacker.Current;
 
             try
             {
@@ -109,7 +110,6 @@
 
         [SkipWeaving]
         BusNotifications notifications;
-        BehaviorContext context;
         [SkipWeaving]
         BehaviorInstance[] itemDescriptors;
         Dictionary<Type, string> lookupSteps;

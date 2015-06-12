@@ -36,7 +36,6 @@ at NServiceBus.ExecuteLogicalMessagesConnector.Invoke(Context context, Action`1 
 at NServiceBus.ApplyIncomingTransportMessageMutatorsBehavior.Invoke(Context context, Action next)
 at NServiceBus.SubscriptionReceiverBehavior.Invoke(Context context, Action next)
 at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
-at NServiceBus.ChildContainerBehavior.Invoke(Context context, Action next)
 at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)
 at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action next)", context.StackTrace);
 

@@ -15,7 +15,6 @@
         public PipelineBase(IBuilder builder, ReadOnlySettings settings, PipelineModifications pipelineModifications, RegisterStep receiveBehavior = null)
         {
             busNotifications = builder.Build<BusNotifications>();
-            contextStacker = builder.Build<BehaviorContextStacker>();
 
             var coordinator = new StepRegistrationsCoordinator(pipelineModifications.Removals, pipelineModifications.Replacements);
             if (receiveBehavior != null)
@@ -58,14 +57,15 @@
 
         public void Invoke(T context)
         {
+            var behaviorContextStacker = context.Builder.Build<BehaviorContextStacker>();
+            behaviorContextStacker.Push(context);
             var lookupSteps = steps.ToDictionary(rs => rs.BehaviorType, ss => ss.StepId);
-            var pipeline = new BehaviorChain(behaviors, context, lookupSteps, busNotifications);
-            pipeline.Invoke(contextStacker);
+            var pipeline = new BehaviorChain(behaviors, lookupSteps, busNotifications);
+            pipeline.Invoke(behaviorContextStacker);
         }
 
         BehaviorInstance[] behaviors;
         BusNotifications busNotifications;
-        BehaviorContextStacker contextStacker;
         IList<RegisterStep> steps;
     }
 
