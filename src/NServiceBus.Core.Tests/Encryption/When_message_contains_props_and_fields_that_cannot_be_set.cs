@@ -23,14 +23,13 @@
         public class BogusEntity
         {
             //This field generates a stackoverflow
-            string foo;
 
             public BogusEntity()
             {
-                foo = "Foo";
+                ExposesReadOnlyField = "Foo";
             }
 
-            public string ExposesReadOnlyField { get { return foo; } }
+            public string ExposesReadOnlyField { get; private set; }
 
             //This property generates a stackoverflow
             public List<BogusEntity> ExposesGetOnlyProperty

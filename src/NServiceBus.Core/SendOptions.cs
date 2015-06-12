@@ -9,9 +9,7 @@ namespace NServiceBus
     public class SendOptions:ExtendableOptions
     {
         internal MessageIntentEnum Intent = MessageIntentEnum.Send;
-        DateTime? at;
-        TimeSpan? delay;
-      
+
         /// <summary>
         ///     Creates an instance of <see cref="SendOptions" />.
         /// </summary>
@@ -25,21 +23,15 @@ namespace NServiceBus
                 throw new ArgumentException("Ensure you either set `deliverAt` or `delayDeliveryFor`, but not both.");
             }
 
-            delay = delayDeliveryFor;
-            at = deliverAt;
+            Delay = delayDeliveryFor;
+            At = deliverAt;
             Destination = destination;
         }
 
         internal string Destination { get; private set; }
 
-        internal TimeSpan? Delay
-        {
-            get { return delay; }
-        }
+        internal TimeSpan? Delay { get; private set; }
 
-        internal DateTime? At
-        {
-            get { return at; }
-        }
+        internal DateTime? At { get; private set; }
     }
 }

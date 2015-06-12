@@ -7,8 +7,6 @@
     /// </summary>
     public class LegacyEnumResponse<T>
     {
-        T status;
-
         // ReSharper disable once NotAccessedField.Global
         internal string ReturnCode;
 
@@ -18,7 +16,7 @@
         /// <param name="status">The enum to set.</param>
         public LegacyEnumResponse(T status)
         {
-            this.status = status;
+            Status = status;
             var tType = status.GetType();
             if (!(tType.IsEnum || tType == typeof(Int32) || tType == typeof(Int16) || tType == typeof(Int64)))
             {
@@ -35,6 +33,6 @@
         /// <summary>
         /// Contains the status value.
         /// </summary>
-        public T Status { get { return status; } }
+        public T Status { get; private set; }
     }
 }

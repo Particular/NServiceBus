@@ -9,8 +9,6 @@ namespace NServiceBus
     /// </summary>
     public class SendLocalOptions:ExtendableOptions
     {
-        DateTime? at;
-        TimeSpan? delay;
         internal Dictionary<string, object> Context = new Dictionary<string, object>();
     
         /// <summary>
@@ -25,18 +23,12 @@ namespace NServiceBus
                 throw new ArgumentException("Ensure you either set `deliverAt` or `delayDeliveryFor`, but not both.");
             }
 
-            delay = delayDeliveryFor;
-            at = deliverAt;
+            Delay = delayDeliveryFor;
+            At = deliverAt;
         }
 
-        internal TimeSpan? Delay
-        {
-            get { return delay; }
-        }
+        internal TimeSpan? Delay { get; private set; }
 
-        internal DateTime? At
-        {
-            get { return at; }
-        }
+        internal DateTime? At { get; private set; }
     }
 }

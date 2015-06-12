@@ -6,18 +6,17 @@
     using System.Threading.Tasks;
     using NServiceBus.Unicast.Transport;
 
-    [DebuggerDisplay("{type.Name}")]
+    [DebuggerDisplay("{Type.Name}")]
     class BehaviorInstance
     {
         IBehavior instance;
-        Type type;
         IBehaviorInvoker invoker;
 
         public BehaviorInstance(Type behaviorType, IBehavior instance)
         {
             this.instance = instance;
-            type = behaviorType;
-            invoker = CreateInvoker(type);
+            Type = behaviorType;
+            invoker = CreateInvoker(Type);
         }
 
         static IBehaviorInvoker CreateInvoker(Type type)
@@ -27,7 +26,7 @@
             return (IBehaviorInvoker) Activator.CreateInstance(invokerType);
         }
 
-        public Type Type { get { return type; } }
+        public Type Type { get; private set; }
 
         public void Invoke(BehaviorContext context, Action<BehaviorContext> next)
         {

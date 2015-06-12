@@ -7,9 +7,7 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class SendMessageOptions : DeliveryMessageOptions
     {
-        TimeSpan? delayDeliveryFor;
         string destination;
-        DateTime? deliverAt;
 
         /// <summary>
         /// Creates an instance of <see cref="SendMessageOptions"/>.
@@ -27,27 +25,21 @@ namespace NServiceBus.Unicast
                 throw new ArgumentException("Ensure you either set `deliverAt` or `delayDeliveryFor`, but not both.");
             }
 
-            this.deliverAt = deliverAt;
+            DeliverAt = deliverAt;
 
             Guard.AgainstNegative(delayDeliveryFor, "delayDeliveryFor");
-            this.delayDeliveryFor = delayDeliveryFor;
+            DelayDeliveryFor = delayDeliveryFor;
         }
 
         /// <summary>
         /// The time when the message should be delivered to the destination.
         /// </summary>
-        public DateTime? DeliverAt
-        {
-            get { return deliverAt; }
-        }
+        public DateTime? DeliverAt { get; private set; }
 
         /// <summary>
         /// How long to delay delivery of the message.
         /// </summary>
-        public TimeSpan? DelayDeliveryFor
-        {
-            get { return delayDeliveryFor; }
-        }
+        public TimeSpan? DelayDeliveryFor { get; private set; }
 
         /// <summary>
         /// Address where to send this message.

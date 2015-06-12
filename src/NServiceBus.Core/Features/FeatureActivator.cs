@@ -13,18 +13,13 @@ namespace NServiceBus.Features
     {
         internal FeaturesReport(IEnumerable<FeatureDiagnosticData> data)
         {
-            this.data = data.ToList().AsReadOnly();
+            Features = data.ToList().AsReadOnly();
         }
 
         /// <summary>
         ///     List of <see cref="Feature" />s diagnostic data.
         /// </summary>
-        public IList<FeatureDiagnosticData> Features
-        {
-            get { return data; }
-        }
-
-        IList<FeatureDiagnosticData> data;
+        public IList<FeatureDiagnosticData> Features { get; private set; }
     }
 
     /// <summary>

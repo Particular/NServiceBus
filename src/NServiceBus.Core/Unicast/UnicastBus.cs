@@ -50,8 +50,8 @@ namespace NServiceBus.Unicast
         {
             this.executor = executor;
             this.criticalError = criticalError;
-            this.settings = settings;
-            this.builder = builder;
+            Settings = settings;
+            Builder = builder;
 
             busImpl = new ContextualBus( 
                 () => rootContext,
@@ -123,9 +123,9 @@ namespace NServiceBus.Unicast
 
         IEnumerable<TransportReceiver> BuildPipelines()
         {
-            var pipelinesCollection = settings.Get<PipelineConfiguration>();
+            var pipelinesCollection = Settings.Get<PipelineConfiguration>();
 
-            yield return BuildPipelineInstance(pipelinesCollection.MainPipeline, pipelinesCollection.ReceiveBehavior, "Main", settings.LocalAddress());
+            yield return BuildPipelineInstance(pipelinesCollection.MainPipeline, pipelinesCollection.ReceiveBehavior, "Main", Settings.LocalAddress());
 
             foreach (var satellite in pipelinesCollection.SatellitePipelines)
             {
@@ -135,13 +135,13 @@ namespace NServiceBus.Unicast
 
         TransportReceiver BuildPipelineInstance(PipelineModifications modifications, RegisterStep receiveBehavior, string name, string address)
         {
-            var dequeueSettings = new DequeueSettings(address, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"));
+            var dequeueSettings = new DequeueSettings(address, Settings.GetOrDefault<bool>("Transport.PurgeOnStartup"));
 
-            var pipelineInstance = new PipelineBase<IncomingContext>(builder, settings, modifications, receiveBehavior);
+            var pipelineInstance = new PipelineBase<IncomingContext>(Builder, Settings, modifications, receiveBehavior);
             var receiver = new TransportReceiver(
                 name,
-                builder,
-                builder.Build<IDequeueMessages>(),
+                Builder,
+                Builder.Build<IDequeueMessages>(),
                 dequeueSettings,
                 pipelineInstance,
                 executor);
@@ -227,10 +227,8 @@ namespace NServiceBus.Unicast
 
         PipelineCollection pipelineCollection;
         ContextualBus busImpl;
-        ReadOnlySettings settings;
         IExecutor executor;
         CriticalError criticalError;
-        IBuilder builder;
 
         static void ProcessStartupItems<T>(IEnumerable<T> items, Action<T> iteration, Action<Exception> inCaseOfFault, EventWaitHandle eventToSet)
         {
@@ -252,18 +250,11 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Only for tests
         /// </summary>
-        public ReadOnlySettings Settings
-        {
-            get { return settings; }
-        }
+        public ReadOnlySettings Settings { get; private set; }
 
         /// <summary>
         /// Only for tests
         /// </summary>
-        public IBuilder Builder
-        {
-            get { return builder; }
-        }
-
+        public IBuilder Builder { get; private set; }
     }
 }

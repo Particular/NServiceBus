@@ -130,6 +130,7 @@
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
     <Compile Include="IBusExtensions.cs" />
+    <Compile Include="IDataBusProperty.cs" />
     <Compile Include="ISendOnlyBusExtensions.cs" />
     <Compile Include="MessageMutator\IMutateOutgoingTransportMessages.cs" />
     <Compile Include="MessageMutator\MutateOutgoingMessagesContext.cs" />

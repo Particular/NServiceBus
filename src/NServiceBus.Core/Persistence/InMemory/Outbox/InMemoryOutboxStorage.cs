@@ -51,7 +51,7 @@
         {
             public StoredMessage(string messageId, IList<TransportOperation> transportOperations)
             {
-                this.transportOperations = transportOperations;
+                TransportOperations = transportOperations;
                 Id = messageId;
                 StoredAt = DateTime.UtcNow;
             }
@@ -62,10 +62,7 @@
 
             public DateTime StoredAt { get; set; }
 
-            public IList<TransportOperation> TransportOperations
-            {
-                get { return transportOperations; }
-            }
+            public IList<TransportOperation> TransportOperations { get; private set; }
 
             protected bool Equals(StoredMessage other)
             {
@@ -96,8 +93,6 @@
                     return ((Id != null ? Id.GetHashCode() : 0) * 397) ^ Dispatched.GetHashCode();
                 }
             }
-
-            IList<TransportOperation> transportOperations;
         }
 
         public void RemoveEntriesOlderThan(DateTime dateTime)

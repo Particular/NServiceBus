@@ -9,38 +9,33 @@
     /// </summary>
     public class MessageMetadata
     {
-        Type messageType;
-        bool recoverable;
-        IEnumerable<Type> messageHierarchy;
-        TimeSpan timeToBeReceived;
-
         internal MessageMetadata(Type messageType = null, bool recoverable = false, TimeSpan? timeToBeReceived = null, IEnumerable<Type> messageHierarchy = null)
         {
-            this.messageType = messageType;
-            this.recoverable = recoverable;
-            this.messageHierarchy = (messageHierarchy == null ? new List<Type>() : new List<Type>(messageHierarchy)).AsReadOnly();
-            this.timeToBeReceived = timeToBeReceived ?? TimeSpan.MaxValue;
+            MessageType = messageType;
+            Recoverable = recoverable;
+            MessageHierarchy = (messageHierarchy == null ? new List<Type>() : new List<Type>(messageHierarchy)).AsReadOnly();
+            TimeToBeReceived = timeToBeReceived ?? TimeSpan.MaxValue;
         }
 
         /// <summary>
         /// The <see cref="Type"/> of the message instance.
         /// </summary>
-        public Type MessageType { get { return messageType; } }
+        public Type MessageType { get; private set; }
 
         /// <summary>
         ///     Gets whether or not the message is supposed to be guaranteed deliverable.
         /// </summary>
-        public bool Recoverable { get { return recoverable; } }
+        public bool Recoverable { get; private set; }
 
         /// <summary>
         ///     Gets the maximum time limit in which the message must be received.
         /// </summary>
-        public TimeSpan TimeToBeReceived { get { return timeToBeReceived; } }
+        public TimeSpan TimeToBeReceived { get; private set; }
 
         /// <summary>
         /// The message instance hierarchy.
         /// </summary>
-        public IEnumerable<Type> MessageHierarchy{ get { return messageHierarchy; } }
+        public IEnumerable<Type> MessageHierarchy { get; private set; }
 
         /// <summary>
         /// Returns a string that represents the current object.
