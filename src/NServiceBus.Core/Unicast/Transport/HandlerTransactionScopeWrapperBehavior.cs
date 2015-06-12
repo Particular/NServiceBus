@@ -7,7 +7,7 @@ namespace NServiceBus
 
     class HandlerTransactionScopeWrapperBehavior : HandlingStageBehavior
     {
-        readonly TransactionOptions transactionOptions;
+        TransactionOptions transactionOptions;
 
         public HandlerTransactionScopeWrapperBehavior(TransactionOptions transactionOptions)
         {

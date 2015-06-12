@@ -23,7 +23,7 @@ namespace NServiceBus.Core.Tests.Timeout
     {
         DefaultTimeoutManager manager;
         FakeMessageSender messageSender;
-        readonly Random rand = new Random();
+        Random rand = new Random();
         int expected;
 
         IPersistTimeouts persister;

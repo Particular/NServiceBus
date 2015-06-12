@@ -8,7 +8,7 @@ namespace NServiceBus.Pipeline
     /// </summary>
     public class WellKnownStep
     {
-        readonly string stepId;
+        string stepId;
 
         WellKnownStep(string stepId)
         {

@@ -8,9 +8,9 @@ namespace NServiceBus.Faults
     /// </summary>
     public struct FailedMessage
     {
-        readonly Dictionary<string, string> headers;
-        readonly byte[] body;
-        readonly Exception exception;
+        Dictionary<string, string> headers;
+        byte[] body;
+        Exception exception;
 
         /// <summary>
         /// Creates a new instance of <see cref="FailedMessage"/>.

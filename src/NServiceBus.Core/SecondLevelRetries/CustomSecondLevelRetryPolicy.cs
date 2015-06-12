@@ -4,7 +4,7 @@ namespace NServiceBus.SecondLevelRetries
 
     class CustomSecondLevelRetryPolicy : SecondLevelRetryPolicy
     {
-        readonly Func<TransportMessage, TimeSpan> customRetryPolicy;
+        Func<TransportMessage, TimeSpan> customRetryPolicy;
 
         public CustomSecondLevelRetryPolicy(Func<TransportMessage, TimeSpan> customRetryPolicy)
         {

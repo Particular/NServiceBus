@@ -150,7 +150,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         RepeatedFailuresOverTimeCircuitBreaker circuitBreaker;
 
-        readonly object lockObject = new object();
+        object lockObject = new object();
         ManualResetEvent resetEvent = new ManualResetEvent(true);
         DateTime nextRetrieval = DateTime.UtcNow;
         volatile bool timeoutPushed;

@@ -8,9 +8,9 @@ namespace NServiceBus.Saga
     /// </summary>
     public class SagaFinderDefinition   
     {
-        readonly Dictionary<string, object> properties;
-        readonly Type type;
-        readonly string messageType;
+        Dictionary<string, object> properties;
+        Type type;
+        string messageType;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SagaFinderDefinition"/> class.

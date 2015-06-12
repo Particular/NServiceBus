@@ -8,7 +8,7 @@
     {
         IList<RunDescriptor> descriptors = new List<RunDescriptor>();
 
-        readonly List<string> excludes = new List<string>();
+        List<string> excludes = new List<string>();
         public RunDescriptorsBuilder For<T>(params RunDescriptor[] runDescriptorsToExclude) where T : ScenarioDescriptor, new()
         {
             excludes.AddRange(runDescriptorsToExclude

@@ -131,7 +131,7 @@ namespace NServiceBus
             }
         }
 
-        readonly Dictionary<string, string> headers = new Dictionary<string, string>();
+        Dictionary<string, string> headers = new Dictionary<string, string>();
 
         byte[] body;
         string id;

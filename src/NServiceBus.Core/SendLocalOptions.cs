@@ -9,8 +9,8 @@ namespace NServiceBus
     /// </summary>
     public class SendLocalOptions:ExtendableOptions
     {
-        readonly DateTime? at;
-        readonly TimeSpan? delay;
+        DateTime? at;
+        TimeSpan? delay;
         internal Dictionary<string, object> Context = new Dictionary<string, object>();
     
         /// <summary>

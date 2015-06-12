@@ -7,7 +7,7 @@ namespace NServiceBus.Settings.Concurrency
     /// </summary>
     public class IndividualConcurrencySettings
     {
-        readonly Dictionary<string, int> overrides;
+        Dictionary<string, int> overrides;
 
         internal IndividualConcurrencySettings(Dictionary<string, int> overrides)
         {

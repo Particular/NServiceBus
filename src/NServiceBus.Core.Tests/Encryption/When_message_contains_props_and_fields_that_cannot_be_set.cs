@@ -23,7 +23,7 @@
         public class BogusEntity
         {
             //This field generates a stackoverflow
-            readonly string foo;
+            string foo;
 
             public BogusEntity()
             {

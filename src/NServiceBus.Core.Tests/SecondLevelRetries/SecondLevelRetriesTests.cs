@@ -120,7 +120,7 @@
 
     class FakePolicy : SecondLevelRetryPolicy
     {
-        readonly TimeSpan? delayToReturn;
+        TimeSpan? delayToReturn;
 
         public FakePolicy()
         {

@@ -8,7 +8,7 @@
     /// </summary>
     public class OutboxSettings
     {
-        readonly SettingsHolder settings;
+        SettingsHolder settings;
 
         internal OutboxSettings(SettingsHolder settings)
         {

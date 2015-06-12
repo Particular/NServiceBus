@@ -5,7 +5,7 @@ namespace NServiceBus.Transports
 
     class AuditerWrapper : IAuditMessages
     {
-        readonly IBuilder builder;
+        IBuilder builder;
 
         public Type AuditerImplType { get; set; }
 

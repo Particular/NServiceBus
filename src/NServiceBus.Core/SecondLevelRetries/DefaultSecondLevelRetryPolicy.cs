@@ -4,8 +4,8 @@ namespace NServiceBus.SecondLevelRetries
 
     class DefaultSecondLevelRetryPolicy:SecondLevelRetryPolicy
     {
-        readonly int maxRetries;
-        readonly TimeSpan timeIncrease;
+        int maxRetries;
+        TimeSpan timeIncrease;
 
         public DefaultSecondLevelRetryPolicy(int maxRetries,TimeSpan timeIncrease)
         {

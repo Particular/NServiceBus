@@ -4,7 +4,7 @@
 
     public class IBusAdapter : IBus
     {
-        readonly ISendOnlyBus sendOnlyBus;
+        ISendOnlyBus sendOnlyBus;
 
         public IBusAdapter(ISendOnlyBus sendOnlyBus)
         {

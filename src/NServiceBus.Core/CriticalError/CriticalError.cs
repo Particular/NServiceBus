@@ -14,7 +14,7 @@ namespace NServiceBus
     public class CriticalError
     {
         Action<string, Exception> onCriticalErrorAction;
-        readonly IBuilder builder;
+        IBuilder builder;
       
         /// <summary>
         /// Creates an instance of <see cref="CriticalError"/>

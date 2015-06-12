@@ -11,7 +11,7 @@
     /// </summary>
     public class FeatureConfigurationContext
     {
-        readonly Configure config;
+        Configure config;
 
         internal FeatureConfigurationContext(Configure config)
         {

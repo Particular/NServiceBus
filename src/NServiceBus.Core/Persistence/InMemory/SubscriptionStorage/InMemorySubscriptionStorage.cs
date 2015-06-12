@@ -52,7 +52,7 @@ namespace NServiceBus.InMemory.SubscriptionStorage
         {
         }
 
-        readonly ConcurrentDictionary<MessageType, ConcurrentDictionary<string, object>> storage = new ConcurrentDictionary<MessageType, ConcurrentDictionary<string, object>>();
+        ConcurrentDictionary<MessageType, ConcurrentDictionary<string, object>> storage = new ConcurrentDictionary<MessageType, ConcurrentDictionary<string, object>>();
         Func<string, object> addValueFactory = a => null;
         Func<string, object, object> updateValueFactory = (a, o) => null;
     }

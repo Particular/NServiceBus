@@ -7,7 +7,7 @@ namespace NServiceBus
 
     class OutboxSendBehavior : PhysicalOutgoingContextStageBehavior
     {
-        readonly DispatchMessageToTransportBehavior dispatchMessageToTransportBehavior;
+        DispatchMessageToTransportBehavior dispatchMessageToTransportBehavior;
 
         public OutboxSendBehavior(DispatchMessageToTransportBehavior dispatchMessageToTransportBehavior)
         {

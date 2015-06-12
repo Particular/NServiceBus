@@ -5,7 +5,7 @@ namespace NServiceBus.Logging
     class NamedLogger : ILog
     {
         string name;
-        readonly DefaultLoggerFactory defaultLoggerFactory;
+        DefaultLoggerFactory defaultLoggerFactory;
 
         public NamedLogger(string name, DefaultLoggerFactory defaultLoggerFactory)
         {

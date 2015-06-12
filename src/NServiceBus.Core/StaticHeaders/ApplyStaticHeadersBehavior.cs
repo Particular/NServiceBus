@@ -7,7 +7,7 @@ namespace NServiceBus
 
     class ApplyStaticHeadersBehavior:Behavior<OutgoingContext>
     {
-        readonly CurrentStaticHeaders currentStaticHeaders;
+        CurrentStaticHeaders currentStaticHeaders;
 
         public ApplyStaticHeadersBehavior(CurrentStaticHeaders currentStaticHeaders)
         {

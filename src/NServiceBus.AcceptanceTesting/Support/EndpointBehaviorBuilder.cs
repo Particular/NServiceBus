@@ -69,6 +69,6 @@
             return behavior;
         }
 
-        readonly EndpointBehavior behavior;
+        EndpointBehavior behavior;
     }
 }

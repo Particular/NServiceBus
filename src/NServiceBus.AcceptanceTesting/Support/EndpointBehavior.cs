@@ -67,9 +67,9 @@
             return true;
         }
 
-        readonly Predicate<TContext> condition;
-        readonly Action<IBus> busAction;
-        readonly Action<IBus, TContext> busAndContextAction;
+        Predicate<TContext> condition;
+        Action<IBus> busAction;
+        Action<IBus, TContext> busAndContextAction;
         Guid id;
     }
 

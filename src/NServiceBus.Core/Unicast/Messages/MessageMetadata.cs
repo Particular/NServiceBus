@@ -9,10 +9,10 @@
     /// </summary>
     public class MessageMetadata
     {
-        readonly Type messageType;
-        readonly bool recoverable;
-        readonly IEnumerable<Type> messageHierarchy;
-        readonly TimeSpan timeToBeReceived;
+        Type messageType;
+        bool recoverable;
+        IEnumerable<Type> messageHierarchy;
+        TimeSpan timeToBeReceived;
 
         internal MessageMetadata(Type messageType = null, bool recoverable = false, TimeSpan? timeToBeReceived = null, IEnumerable<Type> messageHierarchy = null)
         {

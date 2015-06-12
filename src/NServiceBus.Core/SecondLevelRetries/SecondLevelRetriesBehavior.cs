@@ -8,9 +8,9 @@ namespace NServiceBus
 
     class SecondLevelRetriesBehavior : PhysicalMessageProcessingStageBehavior
     {
-        readonly IDeferMessages deferer;
-        readonly SecondLevelRetryPolicy retryPolicy;
-        readonly BusNotifications notifications;
+        IDeferMessages deferer;
+        SecondLevelRetryPolicy retryPolicy;
+        BusNotifications notifications;
 
         public SecondLevelRetriesBehavior(IDeferMessages deferer, SecondLevelRetryPolicy retryPolicy, BusNotifications notifications)
         {

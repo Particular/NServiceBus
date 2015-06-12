@@ -123,8 +123,8 @@ namespace NServiceBus.Serializers.XML
             });
         }
 
-        readonly Conventions conventions;
-        readonly IMessageMapper mapper;
+        Conventions conventions;
+        IMessageMapper mapper;
 
         XmlSerializerCache cache = new XmlSerializerCache();
 

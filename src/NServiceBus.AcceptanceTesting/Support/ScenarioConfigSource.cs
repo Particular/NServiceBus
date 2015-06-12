@@ -8,8 +8,8 @@
 
     public class ScenarioConfigSource : IConfigurationSource
     {
-        readonly EndpointConfiguration configuration;
-        readonly IDictionary<Type, string> routingTable;
+        EndpointConfiguration configuration;
+        IDictionary<Type, string> routingTable;
 
         public ScenarioConfigSource(EndpointConfiguration configuration, IDictionary<Type, string> routingTable)
         {

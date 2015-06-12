@@ -8,9 +8,9 @@ namespace NServiceBus
 
     class FirstLevelRetriesBehavior : PhysicalMessageProcessingStageBehavior
     {
-        readonly FlrStatusStorage storage;
-        readonly FirstLevelRetryPolicy retryPolicy;
-        readonly BusNotifications notifications;
+        FlrStatusStorage storage;
+        FirstLevelRetryPolicy retryPolicy;
+        BusNotifications notifications;
 
         public FirstLevelRetriesBehavior(FirstLevelRetryPolicy retryPolicy, BusNotifications notifications)
             : this(new FlrStatusStorage(), retryPolicy, notifications)

@@ -4,7 +4,7 @@ namespace NServiceBus.Settings.Concurrency
 
     class SharedConcurrencyConfig : IConcurrencyConfig
     {
-        readonly int maximumConcurrencyLevel;
+        int maximumConcurrencyLevel;
 
         public SharedConcurrencyConfig(int? maximumConcurrencyLevel)
         {

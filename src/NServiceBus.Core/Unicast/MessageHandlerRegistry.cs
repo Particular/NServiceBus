@@ -13,10 +13,10 @@
     public class MessageHandlerRegistry
     {
         static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
-        readonly Conventions conventions;
-        readonly Dictionary<RuntimeTypeHandle, List<DelegateHolder>> handlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
-        readonly IDictionary<RuntimeTypeHandle, List<Type>> handlerList = new Dictionary<RuntimeTypeHandle, List<Type>>();
-        readonly Dictionary<RuntimeTypeHandle, List<DelegateHolder>> timeoutCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
+        Conventions conventions;
+        Dictionary<RuntimeTypeHandle, List<DelegateHolder>> handlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
+        IDictionary<RuntimeTypeHandle, List<Type>> handlerList = new Dictionary<RuntimeTypeHandle, List<Type>>();
+        Dictionary<RuntimeTypeHandle, List<DelegateHolder>> timeoutCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
 
         internal MessageHandlerRegistry(Conventions conventions)
         {

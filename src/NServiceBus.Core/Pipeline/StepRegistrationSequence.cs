@@ -7,7 +7,7 @@ namespace NServiceBus.Pipeline
     /// </summary>
     public class StepRegistrationSequence
     {
-        readonly Action<RegisterStep> addStep;
+        Action<RegisterStep> addStep;
 
         internal StepRegistrationSequence(Action<RegisterStep> addStep)
         {

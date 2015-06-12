@@ -24,7 +24,7 @@ namespace NServiceBus.Features
             get { return data; }
         }
 
-        readonly IList<FeatureDiagnosticData> data;
+        IList<FeatureDiagnosticData> data;
     }
 
     /// <summary>
@@ -268,8 +268,8 @@ namespace NServiceBus.Features
             return diagnosticData.PrerequisiteStatus.IsSatisfied;
         }
 
-        readonly List<FeatureInfo> features = new List<FeatureInfo>();
-        readonly SettingsHolder settings;
+        List<FeatureInfo> features = new List<FeatureInfo>();
+        SettingsHolder settings;
 
         class FeatureInfo
         {

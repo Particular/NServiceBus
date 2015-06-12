@@ -8,7 +8,7 @@ namespace NServiceBus.Saga
     /// </summary>
     class PropertySagaFinder<TSagaData> : SagaFinder where TSagaData : IContainSagaData
     {
-        readonly ISagaPersister sagaPersister;
+        ISagaPersister sagaPersister;
 
         public PropertySagaFinder(ISagaPersister sagaPersister)
         {

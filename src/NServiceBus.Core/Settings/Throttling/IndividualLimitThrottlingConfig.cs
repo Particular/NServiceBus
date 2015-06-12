@@ -5,8 +5,8 @@ namespace NServiceBus.Settings.Throttling
 
     class IndividualLimitThrottlingConfig : IThrottlingConfig
     {
-        readonly int? defaultMaximumMessagesPerSecond;
-        readonly Dictionary<string, int?> throttlingOverrides;
+        int? defaultMaximumMessagesPerSecond;
+        Dictionary<string, int?> throttlingOverrides;
 
         public IndividualLimitThrottlingConfig(int? defaultMaximumMessagesPerSecond, Dictionary<string, int?> throttlingOverrides)
         {

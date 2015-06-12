@@ -2,7 +2,7 @@ namespace NServiceBus.FirstLevelRetries
 {
     class FirstLevelRetryPolicy
     {
-        readonly int maxRetries;
+        int maxRetries;
 
         public FirstLevelRetryPolicy(int maxRetries)
         {

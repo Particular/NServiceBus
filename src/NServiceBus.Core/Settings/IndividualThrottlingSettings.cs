@@ -7,7 +7,7 @@ namespace NServiceBus
     /// </summary>
     public class IndividualThrottlingSettings
     {
-        readonly Dictionary<string, int?> overrides;
+        Dictionary<string, int?> overrides;
 
         internal IndividualThrottlingSettings(Dictionary<string, int?> overrides)
         {

@@ -108,11 +108,11 @@
         }
 
         [SkipWeaving]
-        readonly BusNotifications notifications;
-        readonly BehaviorContext context;
+        BusNotifications notifications;
+        BehaviorContext context;
         [SkipWeaving]
-        readonly BehaviorInstance[] itemDescriptors;
-        readonly Dictionary<Type, string> lookupSteps;
+        BehaviorInstance[] itemDescriptors;
+        Dictionary<Type, string> lookupSteps;
         Observable<StepStarted> steps;
     }
 }

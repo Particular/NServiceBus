@@ -13,7 +13,7 @@ namespace NServiceBus.Transports.Msmq
     /// </summary>
     public class MsmqMessageSender : ISendMessages
     {
-        readonly BehaviorContext context;
+        BehaviorContext context;
 
         /// <summary>
         /// Creates a new sender.

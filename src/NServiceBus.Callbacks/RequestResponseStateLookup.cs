@@ -4,7 +4,7 @@ namespace NServiceBus.Callbacks
 
     class RequestResponseStateLookup
     {
-        readonly ConcurrentDictionary<string, TaskCompletionSourceAdapter> messageIdToCompletionSource = new ConcurrentDictionary<string, TaskCompletionSourceAdapter>();
+        ConcurrentDictionary<string, TaskCompletionSourceAdapter> messageIdToCompletionSource = new ConcurrentDictionary<string, TaskCompletionSourceAdapter>();
 
         public void RegisterState(string messageId, TaskCompletionSourceAdapter state)
         {

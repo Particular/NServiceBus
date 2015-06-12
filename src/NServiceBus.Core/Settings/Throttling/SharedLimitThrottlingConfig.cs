@@ -4,7 +4,7 @@ namespace NServiceBus.Settings.Throttling
 
     class SharedLimitThrottlingConfig : IThrottlingConfig
     {
-        readonly int limit;
+        int limit;
 
         public SharedLimitThrottlingConfig(int limit)
         {

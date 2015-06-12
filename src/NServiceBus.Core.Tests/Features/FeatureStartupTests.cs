@@ -100,7 +100,7 @@
 
     public class FakeBuilder : IBuilder
     {
-        readonly Type type;
+        Type type;
 
         public FakeBuilder()
         {

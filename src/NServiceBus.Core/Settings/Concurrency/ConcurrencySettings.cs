@@ -7,7 +7,7 @@ namespace NServiceBus.Settings.Concurrency
     /// </summary>
     public class ConcurrencySettings
     {
-        readonly BusConfiguration config;
+        BusConfiguration config;
 
         internal ConcurrencySettings(BusConfiguration config)
         {

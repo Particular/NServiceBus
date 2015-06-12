@@ -8,7 +8,7 @@ namespace NServiceBus.Transports
     /// </summary>
     public class MessageAvailable
     {
-        readonly Action<IncomingContext> contextAction;
+        Action<IncomingContext> contextAction;
 
         /// <summary>
         /// Creates new instance of <see cref="MessageAvailable"/>

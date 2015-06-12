@@ -67,6 +67,6 @@ namespace NServiceBus.Serializers.Binary
         /// </summary>
         public string ContentType { get{ return ContentTypes.Binary;}}
 
-        readonly BinaryFormatter binaryFormatter = new BinaryFormatter();
+        BinaryFormatter binaryFormatter = new BinaryFormatter();
     }
 }

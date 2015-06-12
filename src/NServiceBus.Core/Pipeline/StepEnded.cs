@@ -24,6 +24,6 @@ namespace NServiceBus.Pipeline
             get { return duration; }
         }
 
-        readonly TimeSpan duration;
+        TimeSpan duration;
     }
 }

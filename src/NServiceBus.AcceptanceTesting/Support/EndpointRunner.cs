@@ -15,8 +15,8 @@
     public class EndpointRunner : MarshalByRefObject
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
-        readonly SemaphoreSlim contextChanged = new SemaphoreSlim(0);
-        readonly CancellationTokenSource stopSource = new CancellationTokenSource();
+        SemaphoreSlim contextChanged = new SemaphoreSlim(0);
+        CancellationTokenSource stopSource = new CancellationTokenSource();
         EndpointBehavior behavior;
         IStartableBus bus;
         ISendOnlyBus sendOnlyBus;

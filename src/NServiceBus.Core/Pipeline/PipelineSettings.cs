@@ -144,7 +144,7 @@ namespace NServiceBus.Pipeline
         List<RegisterStep> registeredSteps = new List<RegisterStep>();
         List<Type> registeredBehaviors = new List<Type>();
 
-        readonly PipelineModifications modifications;
+        PipelineModifications modifications;
 
 
         internal void RegisterConnector<T>(string description) where T : IStageConnector

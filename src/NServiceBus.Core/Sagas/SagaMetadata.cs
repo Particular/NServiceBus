@@ -9,13 +9,13 @@ namespace NServiceBus.Saga
     /// </summary>
     public class SagaMetadata
     {
-        readonly Dictionary<string, SagaMessage> associatedMessages;
-        readonly List<CorrelationProperty> correlationProperties;
-        readonly string entityName;
-        readonly string name;
-        readonly Type sagaEntityType;
-        readonly Dictionary<string, SagaFinderDefinition> sagaFinders;
-        readonly Type sagaType;
+        Dictionary<string, SagaMessage> associatedMessages;
+        List<CorrelationProperty> correlationProperties;
+        string entityName;
+        string name;
+        Type sagaEntityType;
+        Dictionary<string, SagaFinderDefinition> sagaFinders;
+        Type sagaType;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SagaMetadata" /> class.

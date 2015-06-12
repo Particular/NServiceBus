@@ -6,7 +6,7 @@
 
     class HostInformationBehavior : PhysicalMessageProcessingStageBehavior
     {
-        readonly HostInformation hostInfo;
+        HostInformation hostInfo;
 
         public HostInformationBehavior(HostInformation hostInfo)
         {

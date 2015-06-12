@@ -8,8 +8,8 @@ namespace NServiceBus.Unicast.Messages
     /// </summary>
     public class LogicalMessageFactory
     {
-        readonly MessageMetadataRegistry messageMetadataRegistry;
-        readonly IMessageMapper messageMapper;
+        MessageMetadataRegistry messageMetadataRegistry;
+        IMessageMapper messageMapper;
         
         /// <summary>
         /// Ctor

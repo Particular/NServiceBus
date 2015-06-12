@@ -42,9 +42,9 @@
             }
         }
 
-        readonly ISubscriptionStorage subscriptionStorage;
-        readonly ISendMessages messageSender;
-        readonly MessageMetadataRegistry messageMetadataRegistry;
-        readonly BehaviorContext context;
+        ISubscriptionStorage subscriptionStorage;
+        ISendMessages messageSender;
+        MessageMetadataRegistry messageMetadataRegistry;
+        BehaviorContext context;
     }
 }

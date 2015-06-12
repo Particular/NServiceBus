@@ -6,8 +6,8 @@ namespace NServiceBus.Outbox
 
     class OutboxAwareAuditer
     {
-        readonly DefaultMessageAuditer defaultMessageAuditer;
-        readonly BehaviorContext behaviorContext;
+        DefaultMessageAuditer defaultMessageAuditer;
+        BehaviorContext behaviorContext;
 
         public OutboxAwareAuditer(DefaultMessageAuditer defaultMessageAuditer, BehaviorContext behaviorContext)
         {

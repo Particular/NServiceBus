@@ -91,7 +91,7 @@
 
             class MessageSender : IWantToRunWhenBusStartsAndStops
             {
-                readonly IBus bus;
+                IBus bus;
 
                 public MessageSender(IBus bus)
                 {

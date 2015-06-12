@@ -9,8 +9,8 @@ namespace NServiceBus
     public class SendOptions:ExtendableOptions
     {
         internal MessageIntentEnum Intent = MessageIntentEnum.Send;
-        readonly DateTime? at;
-        readonly TimeSpan? delay;
+        DateTime? at;
+        TimeSpan? delay;
       
         /// <summary>
         ///     Creates an instance of <see cref="SendOptions" />.

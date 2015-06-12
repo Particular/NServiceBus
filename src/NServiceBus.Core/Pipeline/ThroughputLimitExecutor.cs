@@ -5,7 +5,7 @@ namespace NServiceBus.Pipeline
 
     class ThroughputLimitExecutor : IExecutor
     {
-        readonly int limit;
+        int limit;
         ThroughputLimiter limiter;
 
         public ThroughputLimitExecutor(int limit)

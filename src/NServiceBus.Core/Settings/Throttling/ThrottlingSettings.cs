@@ -7,7 +7,7 @@ namespace NServiceBus.Settings.Throttling
     /// </summary>
     public class ThrottlingSettings
     {
-        readonly BusConfiguration config;
+        BusConfiguration config;
 
         internal ThrottlingSettings(BusConfiguration config)
         {

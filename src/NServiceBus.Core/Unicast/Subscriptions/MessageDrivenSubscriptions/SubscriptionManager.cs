@@ -9,8 +9,8 @@
 
     class SubscriptionManager : IManageSubscriptions
     {
-        readonly string replyToAddress;
-        readonly ISendMessages messageSender;
+        string replyToAddress;
+        ISendMessages messageSender;
 
         public SubscriptionManager(string replyToAddress,ISendMessages messageSender)
         {

@@ -8,10 +8,10 @@ namespace NServiceBus.Faults
     /// </summary>
     public struct SecondLevelRetry
     {
-        readonly Dictionary<string, string> headers;
-        readonly byte[] body;
-        readonly Exception exception;
-        readonly int retryAttempt;
+        Dictionary<string, string> headers;
+        byte[] body;
+        Exception exception;
+        int retryAttempt;
 
         /// <summary>
         /// Creates a new instance of <see cref="SecondLevelRetry"/>.

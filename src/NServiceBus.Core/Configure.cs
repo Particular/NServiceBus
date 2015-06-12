@@ -189,7 +189,7 @@ namespace NServiceBus
         internal IConfigureComponents container;
 
         internal PipelineSettings pipelineSettings;
-        readonly PipelineConfiguration pipelineConfiguration;
+        PipelineConfiguration pipelineConfiguration;
 
         //HACK: Set by the tests
         internal string localAddress;

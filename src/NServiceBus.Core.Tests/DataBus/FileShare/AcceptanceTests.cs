@@ -17,7 +17,7 @@
         }
 
         FileShareDataBusImplementation dataBus;
-        readonly string basePath = Path.GetTempPath();
+        string basePath = Path.GetTempPath();
 
         string Put(string content, TimeSpan timeToLive)
         {

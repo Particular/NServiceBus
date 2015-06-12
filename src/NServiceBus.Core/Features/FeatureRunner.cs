@@ -7,8 +7,8 @@ namespace NServiceBus.Features
     /// </summary>
     class FeatureRunner
     {
-        readonly FeatureActivator featureActivator;
-        readonly IBuilder builder;
+        FeatureActivator featureActivator;
+        IBuilder builder;
 
         public FeatureRunner(IBuilder builder, FeatureActivator featureActivator)
         {

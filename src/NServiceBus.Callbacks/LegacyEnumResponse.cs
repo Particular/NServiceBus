@@ -7,7 +7,7 @@
     /// </summary>
     public class LegacyEnumResponse<T>
     {
-        readonly T status;
+        T status;
 
         // ReSharper disable once NotAccessedField.Global
         internal string ReturnCode;

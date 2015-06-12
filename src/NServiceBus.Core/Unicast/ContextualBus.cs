@@ -24,20 +24,20 @@ namespace NServiceBus.Unicast
     [SkipWeaving]
     partial class ContextualBus : IBus, IContextualBus
     {
-        readonly IMessageMapper messageMapper;
-        readonly Func<BehaviorContext> contextGetter;
-        readonly IBuilder builder;
-        readonly Configure configure;
-        readonly IManageSubscriptions subscriptionManager;
-        readonly MessageMetadataRegistry messageMetadataRegistry;
-        readonly TransportDefinition transportDefinition;
-        readonly ISendMessages messageSender;
-        readonly StaticMessageRouter messageRouter;
-        readonly HostInformation hostInformation;
-        readonly PipelineBase<OutgoingContext> outgoingPipeline;
-        readonly bool sendOnlyMode;
-        readonly string sendLocalAddress;
-        readonly string endpointName;
+        IMessageMapper messageMapper;
+        Func<BehaviorContext> contextGetter;
+        IBuilder builder;
+        Configure configure;
+        IManageSubscriptions subscriptionManager;
+        MessageMetadataRegistry messageMetadataRegistry;
+        TransportDefinition transportDefinition;
+        ISendMessages messageSender;
+        StaticMessageRouter messageRouter;
+        HostInformation hostInformation;
+        PipelineBase<OutgoingContext> outgoingPipeline;
+        bool sendOnlyMode;
+        string sendLocalAddress;
+        string endpointName;
 
 
         public ContextualBus(Func<BehaviorContext> contextGetter, IMessageMapper messageMapper, IBuilder builder, Configure configure, IManageSubscriptions subscriptionManager,

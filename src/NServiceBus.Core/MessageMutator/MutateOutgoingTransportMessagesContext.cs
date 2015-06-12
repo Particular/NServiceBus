@@ -32,6 +32,6 @@ namespace NServiceBus.MessageMutator
             headers[key] = value;
         }
 
-        readonly Dictionary<string, string> headers;
+        Dictionary<string, string> headers;
     }
 }

@@ -97,7 +97,7 @@
                 }
             }
 
-            readonly IList<TransportOperation> transportOperations;
+            IList<TransportOperation> transportOperations;
         }
 
         public void RemoveEntriesOlderThan(DateTime dateTime)

@@ -8,7 +8,7 @@
 
     class EnforceBestPracticesBehavior : Behavior<OutgoingContext>
     {
-        readonly Validations validations;
+        Validations validations;
 
         public EnforceBestPracticesBehavior(Validations validations)
         {

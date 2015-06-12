@@ -5,7 +5,7 @@ namespace NServiceBus.Core.Tests.Encryption
 
     public class FakeEncryptionService : IEncryptionService
     {
-        readonly EncryptedValue hardcodedValue;
+        EncryptedValue hardcodedValue;
 
         public FakeEncryptionService(EncryptedValue hardcodedValue)
         {

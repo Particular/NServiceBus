@@ -82,10 +82,10 @@
             }
         }
 
-        readonly IOutboxStorage outboxStorage;
-        readonly DispatchMessageToTransportBehavior defaultDispatcher;
-        readonly DefaultMessageAuditer defaultAuditer;
-        readonly TransactionSettings transactionSettings;
+        IOutboxStorage outboxStorage;
+        DispatchMessageToTransportBehavior defaultDispatcher;
+        DefaultMessageAuditer defaultAuditer;
+        TransactionSettings transactionSettings;
 
         public class OutboxDeduplicationRegistration : RegisterStep
         {

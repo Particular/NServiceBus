@@ -52,11 +52,11 @@ namespace NServiceBus
             }
         }
 
-        readonly CriticalError criticalError;
-        readonly ISendMessages sender;
-        readonly HostInformation hostInformation;
-        readonly BusNotifications notifications;
-        readonly string errorQueueAddress;
+        CriticalError criticalError;
+        ISendMessages sender;
+        HostInformation hostInformation;
+        BusNotifications notifications;
+        string errorQueueAddress;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
 
         public class Registration : RegisterStep

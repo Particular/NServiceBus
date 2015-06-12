@@ -255,10 +255,10 @@ namespace NServiceBus.Pipeline
             return output;
         }
 
-        readonly Type rootContextType;
-        readonly List<RegisterStep> additions;
-        readonly List<RemoveStep> removals;
-        readonly List<ReplaceBehavior> replacements;
+        Type rootContextType;
+        List<RegisterStep> additions;
+        List<RemoveStep> removals;
+        List<ReplaceBehavior> replacements;
         static ILog Logger = LogManager.GetLogger<PipelineModelBuilder>();
 
 

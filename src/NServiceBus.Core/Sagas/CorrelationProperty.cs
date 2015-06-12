@@ -5,7 +5,7 @@ namespace NServiceBus.Saga
     /// </summary>
     public class CorrelationProperty
     {
-        readonly string name;
+        string name;
 
         /// <summary>
         /// Creates a new instance of <see cref="CorrelationProperty"/>.

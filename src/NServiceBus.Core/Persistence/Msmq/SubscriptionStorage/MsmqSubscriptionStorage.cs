@@ -259,10 +259,10 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         /// <summary>
         /// lookup from subscriber, to message type, to message id
         /// </summary>
-        readonly Dictionary<string, Dictionary<MessageType, string>> lookup = new Dictionary<string, Dictionary<MessageType, string>>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, Dictionary<MessageType, string>> lookup = new Dictionary<string, Dictionary<MessageType, string>>(StringComparer.OrdinalIgnoreCase);
 
-        readonly List<Entry> entries = new List<Entry>();
-        readonly object locker = new object();
+        List<Entry> entries = new List<Entry>();
+        object locker = new object();
 
         static ILog log = LogManager.GetLogger(typeof(ISubscriptionStorage));
 

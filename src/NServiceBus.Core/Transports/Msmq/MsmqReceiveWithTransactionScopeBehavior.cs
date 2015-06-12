@@ -52,6 +52,6 @@ namespace NServiceBus
             }
         }
 
-        readonly TransactionOptions transactionOptions;
+        TransactionOptions transactionOptions;
     }
 }

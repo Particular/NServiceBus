@@ -119,6 +119,6 @@
         public bool SubscribeToPlainMessages { get; set; }
 
         static ILog Logger = LogManager.GetLogger<StaticMessageRouter>();
-        readonly ConcurrentDictionary<Type, List<string>> routes;
+        ConcurrentDictionary<Type, List<string>> routes;
     }
 }

@@ -11,8 +11,8 @@
     class SerializeMessagesBehavior : StageConnector<OutgoingContext, PhysicalOutgoingContextStageBehavior.Context>
     {
 
-        readonly IMessageSerializer messageSerializer;
-        readonly MessageMetadataRegistry messageMetadataRegistry;
+        IMessageSerializer messageSerializer;
+        MessageMetadataRegistry messageMetadataRegistry;
 
         public SerializeMessagesBehavior(IMessageSerializer messageSerializer,MessageMetadataRegistry messageMetadataRegistry)
         {

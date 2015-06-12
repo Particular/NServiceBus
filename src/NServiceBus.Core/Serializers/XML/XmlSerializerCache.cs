@@ -200,7 +200,7 @@ namespace NServiceBus.Serializers.XML
 
         public readonly ConcurrentDictionary<Type, IEnumerable<FieldInfo>> typeToFields = new ConcurrentDictionary<Type, IEnumerable<FieldInfo>>();
         public readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
-        readonly List<Type> typesBeingInitialized = new List<Type>();
+        List<Type> typesBeingInitialized = new List<Type>();
         public readonly ConcurrentDictionary<Type, Type> typesToCreateForArrays = new ConcurrentDictionary<Type, Type>();
         public readonly ConcurrentDictionary<Type, Type> typesToCreateForEnumerables = new ConcurrentDictionary<Type, Type>();
 

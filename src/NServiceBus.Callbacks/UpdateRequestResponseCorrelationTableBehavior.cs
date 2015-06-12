@@ -8,7 +8,7 @@
 
     class UpdateRequestResponseCorrelationTableBehavior : PhysicalOutgoingContextStageBehavior
     {
-        readonly RequestResponseStateLookup lookup;
+        RequestResponseStateLookup lookup;
 
         public UpdateRequestResponseCorrelationTableBehavior(RequestResponseStateLookup lookup)
         {

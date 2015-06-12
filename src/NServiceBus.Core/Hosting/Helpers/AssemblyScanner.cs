@@ -38,7 +38,7 @@ namespace NServiceBus.Hosting.Helpers
         };
 
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
-        readonly Assembly assemblyToScan;
+        Assembly assemblyToScan;
         internal List<string> AssembliesToSkip = new List<string>();
         string baseDirectoryToScan;
         internal bool IncludeAppDomainAssemblies;

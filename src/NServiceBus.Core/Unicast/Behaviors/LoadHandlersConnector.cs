@@ -9,7 +9,7 @@
 
     class LoadHandlersConnector : StageConnector<LogicalMessageProcessingStageBehavior.Context, HandlingStageBehavior.Context>
     {
-        readonly MessageHandlerRegistry messageHandlerRegistry;
+        MessageHandlerRegistry messageHandlerRegistry;
 
         public LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry)
         {

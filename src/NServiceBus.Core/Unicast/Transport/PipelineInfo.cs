@@ -5,8 +5,8 @@ namespace NServiceBus.Unicast.Transport
     /// </summary>
     public class PipelineInfo
     {
-        readonly string name;
-        readonly string publicAddress;
+        string name;
+        string publicAddress;
 
         /// <summary>
         /// Creates new instance.

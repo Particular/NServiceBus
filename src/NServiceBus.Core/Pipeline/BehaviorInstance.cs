@@ -9,9 +9,9 @@
     [DebuggerDisplay("{type.Name}")]
     class BehaviorInstance
     {
-        readonly IBehavior instance;
-        readonly Type type;
-        readonly IBehaviorInvoker invoker;
+        IBehavior instance;
+        Type type;
+        IBehaviorInvoker invoker;
 
         public BehaviorInstance(Type behaviorType, IBehavior instance)
         {

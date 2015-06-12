@@ -6,8 +6,8 @@ namespace NServiceBus.Pipeline
 
     class IndividualThroughputLimitExecutor : IExecutor
     {
-        readonly int? defaultLimit;
-        readonly Dictionary<string, int?> limits;
+        int? defaultLimit;
+        Dictionary<string, int?> limits;
         Dictionary<string, IExecutor> limiters; 
 
         public IndividualThroughputLimitExecutor(int? defaultLimit, Dictionary<string, int?> limits)

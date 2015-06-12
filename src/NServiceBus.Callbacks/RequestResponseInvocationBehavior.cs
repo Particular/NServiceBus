@@ -9,7 +9,7 @@
 
     class RequestResponseInvocationBehavior : LogicalMessagesProcessingStageBehavior
     {
-        readonly RequestResponseStateLookup requestResponseStateLookup;
+        RequestResponseStateLookup requestResponseStateLookup;
 
         public RequestResponseInvocationBehavior(RequestResponseStateLookup requestResponseStateLookup)
         {

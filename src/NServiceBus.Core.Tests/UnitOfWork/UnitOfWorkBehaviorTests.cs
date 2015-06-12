@@ -286,8 +286,8 @@
 
         public class OrderAwareUnitOfWork : IManageUnitsOfWork
         {
-            readonly string name;
-            readonly List<string> order;
+            string name;
+            List<string> order;
 
             public OrderAwareUnitOfWork(string name, List<string> order)
             {

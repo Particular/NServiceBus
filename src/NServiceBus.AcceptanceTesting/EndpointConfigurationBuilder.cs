@@ -78,7 +78,7 @@
         }
 
        
-        readonly EndpointConfiguration configuration = new EndpointConfiguration();
+        EndpointConfiguration configuration = new EndpointConfiguration();
 
         public EndpointConfigurationBuilder WithConfig<T>(Action<T> action) where T : new()
         {

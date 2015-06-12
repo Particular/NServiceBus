@@ -133,8 +133,8 @@
         }
 
         static ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
-        readonly Conventions conventions;
-        readonly Dictionary<RuntimeTypeHandle, MessageMetadata> messages = new Dictionary<RuntimeTypeHandle, MessageMetadata>();
+        Conventions conventions;
+        Dictionary<RuntimeTypeHandle, MessageMetadata> messages = new Dictionary<RuntimeTypeHandle, MessageMetadata>();
         bool defaultToNonPersistentMessages;
     }
 }

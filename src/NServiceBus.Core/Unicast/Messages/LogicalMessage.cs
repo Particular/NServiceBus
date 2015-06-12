@@ -7,7 +7,7 @@
     /// </summary>
     public class LogicalMessage
     {
-        readonly LogicalMessageFactory factory;
+        LogicalMessageFactory factory;
 
         internal LogicalMessage(MessageMetadata metadata, object message,LogicalMessageFactory factory)
         {

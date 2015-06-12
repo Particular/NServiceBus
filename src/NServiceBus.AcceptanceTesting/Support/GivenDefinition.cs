@@ -23,8 +23,8 @@ namespace NServiceBus.AcceptanceTesting.Support
             return bus => givenAction(bus, (TContext)context);
         }
 
-        readonly Action<IBus, TContext> givenAction;
-        readonly Action<IBus> givenAction2;
+        Action<IBus, TContext> givenAction;
+        Action<IBus> givenAction2;
 
     }
 }

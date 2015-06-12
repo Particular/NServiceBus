@@ -5,7 +5,7 @@ namespace NServiceBus.MessagingBestPractices
 
     class Validations
     {
-        readonly Conventions conventions;
+        Conventions conventions;
 
         public Validations(Conventions conventions)
         {

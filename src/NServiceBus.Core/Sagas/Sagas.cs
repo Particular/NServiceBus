@@ -102,8 +102,8 @@
 
         class CallISagaPersisterInitializeMethod : FeatureStartupTask
         {
-            readonly ISagaPersister persister;
-            readonly SagaMetaModel model;
+            ISagaPersister persister;
+            SagaMetaModel model;
 
             public CallISagaPersisterInitializeMethod(ISagaPersister persister, SagaMetaModel model)
             {

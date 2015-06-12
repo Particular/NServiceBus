@@ -7,9 +7,9 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class SendMessageOptions : DeliveryMessageOptions
     {
-        readonly TimeSpan? delayDeliveryFor;
+        TimeSpan? delayDeliveryFor;
         string destination;
-        readonly DateTime? deliverAt;
+        DateTime? deliverAt;
 
         /// <summary>
         /// Creates an instance of <see cref="SendMessageOptions"/>.

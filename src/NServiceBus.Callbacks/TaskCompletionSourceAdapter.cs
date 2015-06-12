@@ -4,7 +4,7 @@ namespace NServiceBus
 
     class TaskCompletionSourceAdapter
     {
-        readonly object taskCompletionSource;
+        object taskCompletionSource;
 
         public TaskCompletionSourceAdapter(object taskCompletionSource)
         {

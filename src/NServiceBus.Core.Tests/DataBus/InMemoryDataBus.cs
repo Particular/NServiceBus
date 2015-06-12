@@ -6,7 +6,7 @@
 
     class InMemoryDataBus : IDataBus
     {
-        readonly IDictionary<string, Entry> storage = new Dictionary<string, Entry>();
+        IDictionary<string, Entry> storage = new Dictionary<string, Entry>();
 
         /// <summary>
         /// Gets a data item from the bus.

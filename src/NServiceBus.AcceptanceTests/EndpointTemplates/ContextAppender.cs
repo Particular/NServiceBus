@@ -22,7 +22,7 @@
         }
 
         ScenarioContext context;
-        readonly string endpointName;
+        string endpointName;
 
         public ILog GetLogger(Type type)
         {

@@ -9,7 +9,7 @@
     /// </summary>
     public abstract class StorageType
     {
-        readonly Storage storage;
+        Storage storage;
 
         StorageType(Storage storage)
         {

@@ -9,7 +9,7 @@ namespace NServiceBus.Pipeline
 
     class PipelineCollection
     {
-        readonly TransportReceiver[] pipelines;
+        TransportReceiver[] pipelines;
 
         public PipelineCollection(IEnumerable<TransportReceiver> pipelines)
         {

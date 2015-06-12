@@ -5,8 +5,8 @@ namespace NServiceBus.Saga
     /// </summary>
     public class SagaMessage
     {
-        readonly bool isAllowedToStartSaga;
-        readonly string messageType;
+        bool isAllowedToStartSaga;
+        string messageType;
 
         /// <summary>
         /// Creates a new instance of <see cref="SagaMessage"/>.

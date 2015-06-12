@@ -31,7 +31,7 @@
             }
         }
 
-        readonly ISet<GatewayMessage> persistence = new HashSet<GatewayMessage>(new MessageDataComparer());
+        ISet<GatewayMessage> persistence = new HashSet<GatewayMessage>(new MessageDataComparer());
 
         public int DeleteDeliveredMessages(DateTime until)
         {

@@ -8,7 +8,7 @@
 
     public class FuncBuilder : IBuilder,IContainer
     {
-        readonly IList<Tuple<Type, Func<object>>> funcs = new List<Tuple<Type, Func<object>>>();
+        IList<Tuple<Type, Func<object>>> funcs = new List<Tuple<Type, Func<object>>>();
 
         public void Dispose()
         {

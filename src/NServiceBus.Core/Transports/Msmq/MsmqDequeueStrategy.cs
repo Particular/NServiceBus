@@ -149,8 +149,8 @@ namespace NServiceBus.Transports.Msmq
         }
 
         CriticalError criticalError;
-        readonly bool isTransactional;
-        readonly MsmqAddress errorQueueAddress;
+        bool isTransactional;
+        MsmqAddress errorQueueAddress;
 
         [SkipWeaving]
         CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));

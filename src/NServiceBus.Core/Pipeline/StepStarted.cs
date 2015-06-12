@@ -47,8 +47,8 @@ namespace NServiceBus.Pipeline
             get { return stepEnded; }
         }
 
-        readonly Type behavior;
-        readonly IObservable<StepEnded> stepEnded;
-        readonly string stepId;
+        Type behavior;
+        IObservable<StepEnded> stepEnded;
+        string stepId;
     }
 }

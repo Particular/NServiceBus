@@ -664,10 +664,10 @@
 
         const string BASETYPE = "baseType";
         static ILog logger = LogManager.GetLogger<Deserializer>();
-        readonly XmlSerializerCache cache;
-        readonly bool skipWrappingRawXml;
-        readonly bool sanitizeInput;
-        readonly IMessageMapper mapper;
+        XmlSerializerCache cache;
+        bool skipWrappingRawXml;
+        bool sanitizeInput;
+        IMessageMapper mapper;
         string defaultNameSpace;
         List<Type> messageBaseTypes = new List<Type>();
         IDictionary<string, string> prefixesToNamespaces = new Dictionary<string, string>();

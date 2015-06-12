@@ -134,7 +134,7 @@ namespace NServiceBus.AcceptanceTesting
         }
         
         int limitTestParallelismTo;
-        readonly IList<EndpointBehavior> behaviors = new List<EndpointBehavior>();
+        IList<EndpointBehavior> behaviors = new List<EndpointBehavior>();
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => builder.For(Conventions.DefaultRunDescriptor());
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
         Func<ScenarioContext, bool> done = context => true;
