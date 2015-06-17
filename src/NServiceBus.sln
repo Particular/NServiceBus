@@ -11,9 +11,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{EF5E77D7-74B1-422D-B34E-AED35E19249E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Core", "NServiceBus.Core\NServiceBus.Core.csproj", "{DD48B2D0-E996-412D-9157-821ED8B17A9D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F} = {5E51EFBF-329F-4D3A-B86E-CC111697746F}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Core.Tests", "NServiceBus.Core.Tests\NServiceBus.Core.Tests.csproj", "{2C8F181B-9BAF-4858-968B-1C16F5DDCFA7}"
 EndProject
@@ -26,8 +23,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Core.x86.Tests", "NServiceBus.Core.Tests.x86\NServiceBus.Core.x86.Tests.csproj", "{389628F6-2FB4-4AFF-BACC-16726C44FFA4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.PerformanceTests", "NServiceBus.PerformanceTests\NServiceBus.PerformanceTests.csproj", "{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.PowerShell.Development", "NServiceBus.PowerShell.Development\NServiceBus.PowerShell.Development.csproj", "{5E51EFBF-329F-4D3A-B86E-CC111697746F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{ACCDE2E1-3F56-47BA-8CFF-199931BAC6B0}"
 	ProjectSection(SolutionItems) = preProject
@@ -142,16 +137,6 @@ Global
 		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Release|x86.ActiveCfg = Release|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Release|x86.ActiveCfg = Release|Any CPU
 		{B465A2EF-27A9-402B-BAC7-A660BE93C931}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B465A2EF-27A9-402B-BAC7-A660BE93C931}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B465A2EF-27A9-402B-BAC7-A660BE93C931}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -192,7 +177,6 @@ Global
 		{758357F6-CD31-4337-80C4-BA377FC257AF} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{C4693C58-BB66-4630-984E-313E1BCC2474} = {EF5E77D7-74B1-422D-B34E-AED35E19249E}
 		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F} = {EF5E77D7-74B1-422D-B34E-AED35E19249E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35;packages\Unity.2.1.505.0\lib\NET35
