@@ -37,6 +37,16 @@ namespace NServiceBus.Utils.Reflection
                     type.IsEnum);
         }
 
+        public static bool IsNullableType(this Type type)
+        {
+            var args = type.GetGenericArguments();
+            if (args.Length == 1 && args[0].IsValueType)
+            {
+                return type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            }
+            return false;
+        }
+
         /// <summary>
         /// Takes the name of the given type and makes it friendly for serialization
         /// by removing problematic characters.
