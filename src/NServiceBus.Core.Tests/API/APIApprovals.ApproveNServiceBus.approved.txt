@@ -1776,8 +1776,8 @@ namespace NServiceBus.Pipeline
     public class WellKnownStep
     {
         public static readonly NServiceBus.Pipeline.WellKnownStep AuditProcessedMessage;
-        [System.ObsoleteAttribute("TODO. Will be treated as an error from version 7.0.0. Will be removed in version " +
-            "8.0.0.", false)]
+        [System.ObsoleteAttribute("The child container creation is now an integral part of the pipeline invocation a" +
+            "nd no longer a seperate behavior. Will be removed in version 7.0.0.", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep CreateChildContainer;
         [System.ObsoleteAttribute("The dispatch step is the terminating step in v6 so any dependency on it can safel" +
             "y be removed. Will be removed in version 7.0.0.", true)]
