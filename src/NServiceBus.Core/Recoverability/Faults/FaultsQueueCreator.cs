@@ -1,6 +1,6 @@
-namespace NServiceBus.Faults.Forwarder.Config
+namespace NServiceBus.Recoverability.Faults
 {
-    using Unicast.Queuing;
+    using NServiceBus.Unicast.Queuing;
 
     class FaultsQueueCreator : IWantQueueCreated
     {

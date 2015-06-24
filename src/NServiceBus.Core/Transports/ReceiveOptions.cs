@@ -1,6 +1,6 @@
 namespace NServiceBus.Transports
 {
-    using NServiceBus.Faults;
+    using NServiceBus.Recoverability.Faults;
     using NServiceBus.Settings;
     using TransactionSettings = NServiceBus.Unicast.Transport.TransactionSettings;
 

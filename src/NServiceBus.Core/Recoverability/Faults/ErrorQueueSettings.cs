@@ -1,4 +1,4 @@
-namespace NServiceBus.Faults
+namespace NServiceBus.Recoverability.Faults
 {
     using System;
     using NServiceBus.Config;
