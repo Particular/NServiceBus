@@ -18,10 +18,12 @@
             Scenario.Define(context)
                     .WithEndpoint<SendOptionsExtensions>(b => b.Given((bus, c) =>
                     {
-                        var sendOptions = new SendLocalOptions();
-                        sendOptions.GetExtensions().Set(new SendOptionsExtensions.TestingSendOptionsExtensionBehavior.Context { SomeValue = "I did it!" });
+                        var options = new SendOptions();
 
-                        bus.SendLocal(new SendMessage(), sendOptions);
+                        options.GetExtensions().Set(new SendOptionsExtensions.TestingSendOptionsExtensionBehavior.Context { SomeValue = "I did it!" });
+                        options.RouteToLocalEndpointInstance();
+
+                        bus.Send(new SendMessage(), options);
                     }))
                     .Done(c => c.WasCalled)
                     .Run();

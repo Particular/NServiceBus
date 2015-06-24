@@ -64,11 +64,12 @@ namespace NServiceBus.Scheduling
 
         void DeferTask(TaskDefinition taskDefinition)
         {
-            var options = new SendLocalOptions();
+            var options = new SendOptions();
 
             options.DelayDeliveryWith(taskDefinition.Every);
+            options.RouteToLocalEndpointInstance();
 
-            bus.SendLocal(new Messages.ScheduledTask
+            bus.Send(new Messages.ScheduledTask
             {
                 TaskId = taskDefinition.Id,
                 Name = taskDefinition.Name,

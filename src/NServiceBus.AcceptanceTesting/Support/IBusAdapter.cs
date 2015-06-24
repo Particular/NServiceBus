@@ -108,16 +108,6 @@
             throw new NotImplementedException();
         }
 
-        public void SendLocal(object message, SendLocalOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
         [Obsolete("", true)]
         public ICallback Defer(TimeSpan delay, object message)
         {

@@ -35,12 +35,12 @@
             get { throw new NotImplementedException(); }
         }
 
-        public void Publish(object message,PublishOptions options)
+        public void Publish(object message, PublishOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public void Publish<T>(Action<T> messageConstructor,PublishOptions options)
+        public void Publish<T>(Action<T> messageConstructor, PublishOptions options)
         {
             throw new NotImplementedException();
         }
@@ -67,7 +67,19 @@
 
         public void Send(object message, SendOptions options)
         {
-            
+            ApplyDelayedDeliveryConstraintBehavior.State state;
+
+            if (options.GetExtensions().TryGet(out state))
+            {
+                var delayConstraint = state.RequestedDelay as DelayDeliveryWith;
+
+                if (delayConstraint != null)
+                {
+                    Interlocked.Increment(ref _deferWasCalled);
+                    deferDelay = delayConstraint.Delay;
+                    DeferedMessage = message;
+                }
+            }
         }
 
         public void Send<T>(Action<T> messageConstructor, SendOptions options)
@@ -108,28 +120,6 @@
 
         [Obsolete("", true)]
         public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SendLocal(object message, SendLocalOptions options)
-        {
-            ApplyDelayedDeliveryConstraintBehavior.State state;
-
-            if (options.GetExtensions().TryGet(out state))
-            {
-                var delayConstraint = state.RequestedDelay as DelayDeliveryWith;
-
-                if (delayConstraint != null)
-                {
-                    Interlocked.Increment(ref _deferWasCalled);
-                    deferDelay = delayConstraint.Delay;
-                    DeferedMessage = message;   
-                }
-            }
-        }
-
-        public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
         {
             throw new NotImplementedException();
         }

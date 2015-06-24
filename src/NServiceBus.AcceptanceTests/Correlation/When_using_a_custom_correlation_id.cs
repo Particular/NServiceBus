@@ -17,11 +17,12 @@
             Scenario.Define(context)
                     .WithEndpoint<CorrelationEndpoint>(b => b.Given(bus =>
                     {
-                        var options = new SendLocalOptions();
+                        var options = new SendOptions();
 
                         options.SetCorrelationId(CorrelationId);
+                        options.RouteToLocalEndpointInstance();
 
-                        bus.SendLocal(new MessageWithCustomCorrelationId(),options);
+                        bus.Send(new MessageWithCustomCorrelationId(),options);
                     }))
                     .Done(c => c.GotRequest)
                     .Run();

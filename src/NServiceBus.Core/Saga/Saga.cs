@@ -83,14 +83,14 @@ namespace NServiceBus.Saga
 
             VerifySagaCanHandleTimeout(timeoutMessage);
 
-            var options = new SendLocalOptions();
+            var options = new SendOptions();
 
             options.DoNotDeliverBefore(at);
-
+            options.RouteToLocalEndpointInstance();
 
             SetTimeoutHeaders(options);
 
-            Bus.SendLocal(timeoutMessage, options);
+            Bus.Send(timeoutMessage, options);
         }
 
         void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage)
@@ -136,16 +136,17 @@ namespace NServiceBus.Saga
         {
             VerifySagaCanHandleTimeout(timeoutMessage);
 
-            var context = new SendLocalOptions();
+            var context = new SendOptions();
 
             context.DelayDeliveryWith(within);
+            context.RouteToLocalEndpointInstance();
 
             SetTimeoutHeaders(context);
 
-            Bus.SendLocal(timeoutMessage, context);
+            Bus.Send(timeoutMessage, context);
         }
 
-        void SetTimeoutHeaders(SendLocalOptions options)
+        void SetTimeoutHeaders(SendOptions options)
         {
             options.SetHeader(Headers.SagaId, Entity.Id.ToString());
             options.SetHeader(Headers.IsSagaTimeoutMessage, bool.TrueString);

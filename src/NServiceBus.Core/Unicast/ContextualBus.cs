@@ -240,24 +240,7 @@ namespace NServiceBus.Unicast
             SendMessage(messageType, message, options);
         }
 
-        public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
-        {
-            SendLocal(messageMapper.CreateInstance(messageConstructor), options);
-        }
-
-        public void SendLocal(object message, SendLocalOptions options)
-        {
-            var sendOptions = new NServiceBus.SendOptions
-            {
-                Extensions = options.Extensions
-            };
-
-
-            sendOptions.RouteToLocalEndpointInstance();
-
-            Send(message, sendOptions);
-        }
-
+  
         List<string> GetAtLeastOneAddressForMessageType(Type messageType)
         {
             var addresses = GetAddressForMessageType(messageType)

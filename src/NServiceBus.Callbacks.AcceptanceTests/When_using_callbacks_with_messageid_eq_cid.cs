@@ -14,9 +14,10 @@
                 .WithEndpoint<EndpointWithLocalCallback>(b => b.Given(async (bus, c) =>
                     {
                         var id = Guid.NewGuid().ToString();
-                        var options = new SendLocalOptions();
+                        var options = new SendOptions();
 
                         options.SetMessageId(id);
+                        options.RouteToLocalEndpointInstance();
 
                         await bus.RequestWithTransientlyHandledResponseAsync<MyResponse>(new MyRequest(), options);
 

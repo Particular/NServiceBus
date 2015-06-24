@@ -53,12 +53,12 @@
 
                 public void Handle(MessageToSaga message)
                 {
-                    var options = new SendLocalOptions();
+                    var options = new SendOptions();
 
                     options.DelayDeliveryWith(TimeSpan.FromSeconds(10));
+                    options.RouteToLocalEndpointInstance();
 
-
-                    Bus.SendLocal(new FinishMessage(),options);
+                    Bus.Send(new FinishMessage(),options);
                 }
             }
 
@@ -144,11 +144,12 @@
 
                 public void Handle(MessageToSaga message)
                 {
-                    var options = new SendLocalOptions();
+                    var options = new SendOptions();
 
                     options.DelayDeliveryWith(TimeSpan.FromSeconds(10));
+                    options.RouteToLocalEndpointInstance();
 
-                    Bus.SendLocal(new FinishMessage(),options);
+                    Bus.Send(new FinishMessage(),options);
                 }
             }
 
