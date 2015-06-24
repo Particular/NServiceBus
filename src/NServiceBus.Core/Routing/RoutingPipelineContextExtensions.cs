@@ -45,7 +45,7 @@
         /// <returns>True if the operation is a publish</returns>
         public static bool IsSend(this OutgoingContext context)
         {
-            return context.Get<ExtendableOptions>() is SendOptions || context.Get<ExtendableOptions>() is SendLocalOptions;
+            return context.Get<ExtendableOptions>() is SendOptions;
         }
         /// <summary>
         /// Tells if this operation is a reply

@@ -15,12 +15,12 @@
                 .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
                 {
                     var message = new MessageWithSagaId();
-                    var sendContext = new SendLocalOptions();
+                    var options = new SendOptions();
 
-                    sendContext.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
-                    sendContext.SetHeader(Headers.SagaType, typeof(MySaga).AssemblyQualifiedName);
-
-                    bus.SendLocal(message,sendContext);
+                    options.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
+                    options.SetHeader(Headers.SagaType, typeof(MySaga).AssemblyQualifiedName);
+                    options.RouteToLocalEndpointInstance();
+                    bus.Send(message,options);
                 }))
                 .Done(c => c.OtherSagaStarted)
                 .Run();

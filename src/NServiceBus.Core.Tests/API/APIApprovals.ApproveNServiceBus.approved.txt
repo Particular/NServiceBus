@@ -204,7 +204,6 @@ namespace NServiceBus
         public static string GetCorrelationId(this NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context context) { }
         public static void SetCorrelationId(this NServiceBus.SendOptions options, string correlationId) { }
         public static void SetCorrelationId(this NServiceBus.ReplyOptions options, string correlationId) { }
-        public static void SetCorrelationId(this NServiceBus.SendLocalOptions options, string correlationId) { }
     }
     public class CriticalError
     {
@@ -234,9 +233,7 @@ namespace NServiceBus
     }
     public class static DelayedDeliveryOptionExtensions
     {
-        public static void DelayDeliveryWith(this NServiceBus.SendLocalOptions options, System.TimeSpan delay) { }
         public static void DelayDeliveryWith(this NServiceBus.SendOptions options, System.TimeSpan delay) { }
-        public static void DoNotDeliverBefore(this NServiceBus.SendLocalOptions options, System.DateTime at) { }
         public static void DoNotDeliverBefore(this NServiceBus.SendOptions options, System.DateTime at) { }
     }
     public enum DependencyLifecycle
@@ -387,8 +384,6 @@ namespace NServiceBus
         void Reply<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options);
         [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
         void Return<T>(T errorEnum);
-        void SendLocal(object message, NServiceBus.SendLocalOptions options);
-        void SendLocal<T>(System.Action<T> messageConstructor, NServiceBus.SendLocalOptions options);
         void Subscribe(System.Type messageType);
         void Subscribe<T>();
         void Unsubscribe(System.Type messageType);
@@ -660,10 +655,6 @@ namespace NServiceBus
     public class static SecondLevelRetriesConfigExtensions
     {
         public static NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.BusConfiguration config) { }
-    }
-    public class SendLocalOptions : NServiceBus.Extensibility.ExtendableOptions
-    {
-        public SendLocalOptions() { }
     }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -2600,8 +2591,6 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor, SendOptions options)` instead. " +
             "Will be removed in version 7.0.0.", true)]
         public NServiceBus.ICallback Send<T>(NServiceBus.Address address, string correlationId, System.Action<T> messageConstructor) { }
-        public void SendLocal(object message, NServiceBus.SendLocalOptions options) { }
-        public void SendLocal<T>(System.Action<T> messageConstructor, NServiceBus.SendLocalOptions options) { }
         public NServiceBus.IBus Start() { }
         public void Subscribe(System.Type messageType) { }
         public void Subscribe<T>() { }

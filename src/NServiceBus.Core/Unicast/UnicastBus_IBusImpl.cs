@@ -89,21 +89,6 @@ namespace NServiceBus.Unicast
             busImpl.Reply(messageConstructor, options);
         }
 
-
-        /// <inheritdoc />
-        public void SendLocal(object message, SendLocalOptions options)
-        {
-            busImpl.SendLocal(message, options);
-        }
-
-
-        /// <inheritdoc />
-        public void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options)
-        {
-            busImpl.SendLocal(messageConstructor, options);
-        }
-
-
         /// <inheritdoc />
         public void HandleCurrentMessageLater()
         {

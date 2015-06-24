@@ -23,11 +23,12 @@
                 Scenario.Define(context)
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
-                        var options = new SendLocalOptions();
+                        var options = new SendOptions();
 
                         options.DelayDeliveryWith(TimeSpan.FromSeconds(5));
+                        options.RouteToLocalEndpointInstance();
 
-                        bus.SendLocal(new MyMessage(), options);
+                        bus.Send(new MyMessage(), options);
                     }))
                     .Done(c => c.WasCalled)
                     .Repeat(r => r.For(Transports.Default))

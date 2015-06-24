@@ -56,21 +56,6 @@ namespace NServiceBus
         void Return<T>(T errorEnum);
 
         /// <summary>
-        /// Sends the message back to the current bus.
-        /// </summary>
-        /// <param name="message">The message to send.</param>
-        /// <param name="options">The options for the send.</param>
-        void SendLocal(object message, SendLocalOptions options);
-
-        /// <summary>
-        /// Instantiates a message of type T and sends it back to the current bus.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        /// <param name="options">The options for the send.</param>
-        void SendLocal<T>(Action<T> messageConstructor, SendLocalOptions options);
-
-        /// <summary>
         /// Defers the processing of the message for the given delay. This feature is using the timeout manager so make sure that you enable timeouts
         /// </summary>
         [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]

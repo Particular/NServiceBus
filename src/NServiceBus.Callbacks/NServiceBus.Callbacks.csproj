@@ -45,7 +45,6 @@
   <ItemGroup>
     <Compile Include="ExtendableOptionsExtensions.cs" />
     <Compile Include="CallbackSupport.cs" />
-    <Compile Include="SendLocalOptionsExtensions.cs" />
     <Compile Include="SendOptionsExtensions.cs" />
     <Compile Include="SetLegacyReturnCodeBehavior.cs" />
     <Compile Include="LegacyEnumResponse.cs" />

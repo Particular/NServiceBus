@@ -19,7 +19,12 @@ namespace NServiceBus.AcceptanceTests.Callbacks
                             var cs = new CancellationTokenSource();
                             context.TokenSource = cs;
 
-                            var response = bus.RequestWithTransientlyHandledResponseAsync<MyResponse>(new MyRequest(), new SendLocalOptions().RegisterCancellationToken(cs.Token));
+                            var options = new SendOptions();
+
+                            options.RouteToLocalEndpointInstance();
+                            options.RegisterCancellationToken(cs.Token);
+
+                            var response = bus.RequestWithTransientlyHandledResponseAsync<MyResponse>(new MyRequest(), options);
 
                             try
                             {

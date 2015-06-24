@@ -43,7 +43,11 @@ namespace NServiceBus
             Guard.AgainstNull(bus, "bus");
             Guard.AgainstNull(message, "message");
 
-            bus.SendLocal(message, new SendLocalOptions());
+            var options = new SendOptions();
+
+            options.RouteToLocalEndpointInstance();
+
+            bus.Send(message, options);
         }
 
         /// <summary>
@@ -57,7 +61,11 @@ namespace NServiceBus
             Guard.AgainstNull(bus, "bus");
             Guard.AgainstNull(messageConstructor, "messageConstructor");
 
-            bus.SendLocal(messageConstructor, new SendLocalOptions());
+            var options = new SendOptions();
+
+            options.RouteToLocalEndpointInstance();
+
+            bus.Send(messageConstructor, options);
         }
     }
 }

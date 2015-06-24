@@ -16,13 +16,14 @@
             Scenario.Define(context)
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
-                        var options = new SendLocalOptions();
+                        var options = new SendOptions();
 
                         options.DelayDeliveryWith(delay);
+                        options.RouteToLocalEndpointInstance();
 
                         c.SentAt = DateTime.UtcNow;
 
-                        bus.SendLocal(new MyMessage(), options);
+                        bus.Send(new MyMessage(), options);
                     }))
                     .Done(c => c.WasCalled)
                     .Run();
