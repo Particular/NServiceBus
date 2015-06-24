@@ -56,7 +56,7 @@ at NServiceBus.UnitOfWork.UnitOfWorkBehavior.Invoke(ReceivePhysicalMessageContex
 
             StackTraceAssert.StartsWith(
 string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.When_handler_and_Uow_End_throws.Endpoint.UnitOfWorkThatThrows1.End(Exception ex)
-at NServiceBus.UnitOfWork.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initialException)", context.TypeName), context.InnerExceptionTwoStackTrace);
+at NServiceBus.UnitOfWork.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initialException)"), context.InnerExceptionTwoStackTrace);
             
 #endif
         }

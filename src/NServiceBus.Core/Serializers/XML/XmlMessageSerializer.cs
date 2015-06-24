@@ -51,7 +51,7 @@ namespace NServiceBus.Serializers.XML
         public bool SanitizeInput { get; set; }
 
         /// <summary>
-        /// Removes the wrapping "<Messages/>" element if serializing a single message 
+        /// Removes the wrapping "<Messages/>" element if serializing a single message
         /// </summary>
         public bool SkipWrappingElementForSingleMessages { get; set; }
 
@@ -85,7 +85,6 @@ namespace NServiceBus.Serializers.XML
                 {
                     typesToCreateForArrays[t] = typeof(List<>).MakeGenericType(t.GetElementType());
                 }
-
 
                 foreach (var g in t.GetGenericArguments())
                 {
@@ -347,14 +346,12 @@ namespace NServiceBus.Serializers.XML
                     if (node.NodeType == XmlNodeType.Whitespace)
                         continue;
 
-
                     Type nodeType = null;
 
                     if (messageTypesToDeserialize != null && position < messageTypesToDeserialize.Count)
                     {
                         nodeType = messageTypesToDeserialize.ElementAt(position);
                     }
-
 
                     var m = Process(node, null, nodeType);
 
@@ -404,22 +401,21 @@ namespace NServiceBus.Serializers.XML
                 typeName = name;
             }
 
-
             if (parent != null)
             {
                 if (parent is IEnumerable)
                 {
                     if (parent.GetType().IsArray)
                         return parent.GetType().GetElementType();
-                    
-					var listImplementations = parent.GetType().GetInterfaces().Where(interfaceType => interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IList<>)).ToList();
-					if (listImplementations.Any())
-					{
-						var listImplementation = listImplementations.First();
-						return listImplementation.GetGenericArguments().Single();
-					}
 
-	                var args = parent.GetType().GetGenericArguments();
+                    var listImplementations = parent.GetType().GetInterfaces().Where(interfaceType => interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IList<>)).ToList();
+                    if (listImplementations.Any())
+                    {
+                        var listImplementation = listImplementations.First();
+                        return listImplementation.GetGenericArguments().Single();
+                    }
+
+                    var args = parent.GetType().GetGenericArguments();
 
                     if (args.Length == 1)
                     {
@@ -440,7 +436,6 @@ namespace NServiceBus.Serializers.XML
             if (mappedType != null)
                 return mappedType;
 
-
             logger.Debug("Could not load " + typeName + ". Trying base types...");
             foreach (var baseType in messageBaseTypes)
             {
@@ -453,7 +448,7 @@ namespace NServiceBus.Serializers.XML
                 catch
                 {
                     // intentionally swallow exception
-                } 
+                }
             }
 
             throw new Exception("Could not determine type for node: '" + node.Name + "'.");
@@ -461,7 +456,7 @@ namespace NServiceBus.Serializers.XML
 
         object GetObjectOfTypeFromNode(Type t, XmlNode node)
         {
-            if (t.IsSimpleType() || t == typeof(Uri))
+            if (t.IsSimpleType() || t == typeof(Uri) || t.IsNullableType())
             {
                 return GetPropertyValue(t, node);
             }
@@ -523,7 +518,8 @@ namespace NServiceBus.Serializers.XML
                 if (prop.Name == n)
                 {
                     return prop;
-                }}
+                }
+            }
 
             return null;
         }
@@ -577,7 +573,7 @@ namespace NServiceBus.Serializers.XML
                     var nullableType = typeof(Nullable<>).MakeGenericType(args);
                     if (type == nullableType)
                     {
-                        if (text.ToLower() == "null")
+                        if (text.Trim().ToLower() == "null")
                             return null;
 
                         return GetPropertyValue(args[0], n);
@@ -838,7 +834,6 @@ namespace NServiceBus.Serializers.XML
 
             var builder = new StringBuilder();
 
-
             builder.AppendLine("<?xml version=\"1.0\" ?>");
 
             if (SkipWrappingElementForSingleMessages && messages.Length == 1)
@@ -905,6 +900,11 @@ namespace NServiceBus.Serializers.XML
         {
             if (obj == null)
             {
+                // For null entries in a nullable array
+                // See https://github.com/Particular/NServiceBus/issues/2706
+                if (t.IsNullableType())
+                    builder.Append("null");
+
                 return;
             }
 
@@ -951,7 +951,7 @@ namespace NServiceBus.Serializers.XML
                 {
                     namespacesToAdd.Add(value.GetType());
                 }
-                
+
                 builder.AppendFormat("<{0}>{1}</{0}>\n",
                     value.GetType().Name.ToLower() + ":" + name,
                     FormatAsString(value));
@@ -966,8 +966,8 @@ namespace NServiceBus.Serializers.XML
 
             if (useNS)
             {
-                var namespaces = InitializeNamespaces(new[] {value});
-                var baseTypes = GetBaseTypes(new[] {value});
+                var namespaces = InitializeNamespaces(new[] { value });
+                var baseTypes = GetBaseTypes(new[] { value });
                 CreateStartElementWithNamespaces(namespaces, baseTypes, builder, element);
             }
             else
@@ -1045,15 +1045,15 @@ namespace NServiceBus.Serializers.XML
             if (typeof(XContainer).IsAssignableFrom(type))
             {
                 var container = (XContainer)value;
-                if(SkipWrappingRawXml)
+                if (SkipWrappingRawXml)
                 {
-                    builder.AppendFormat("{0}\n", container); 
+                    builder.AppendFormat("{0}\n", container);
                 }
                 else
                 {
-                    builder.AppendFormat("<{0}>{1}</{0}>\n", name, container); 
+                    builder.AppendFormat("<{0}>{1}</{0}>\n", name, container);
                 }
-                
+
                 return;
             }
 
@@ -1098,7 +1098,6 @@ namespace NServiceBus.Serializers.XML
                         }
                     }
 
-
                     foreach (var obj in ((IEnumerable)value))
                     {
                         if (obj != null && obj.GetType().IsSimpleType())
@@ -1110,7 +1109,6 @@ namespace NServiceBus.Serializers.XML
                             WriteObject(baseType.SerializationFriendlyName(), baseType, obj, builder);
                         }
                     }
-
                 }
 
                 builder.AppendFormat("</{0}>\n", name);
@@ -1199,6 +1197,7 @@ namespace NServiceBus.Serializers.XML
         }
 
 #pragma warning disable 652
+
         static string Escape(char c)
         {
             if (c == 0x9 || c == 0xA || c == 0xD
@@ -1213,15 +1212,19 @@ namespace NServiceBus.Serializers.XML
                     case '<':
                         ss = "&lt;";
                         break;
+
                     case '>':
                         ss = "&gt;";
                         break;
+
                     case '"':
                         ss = "&quot;";
                         break;
+
                     case '\'':
                         ss = "&apos;";
                         break;
+
                     case '&':
                         ss = "&amp;";
                         break;
@@ -1265,15 +1268,19 @@ namespace NServiceBus.Serializers.XML
                         case '<':
                             ss = "&lt;";
                             break;
+
                         case '>':
                             ss = "&gt;";
                             break;
+
                         case '"':
                             ss = "&quot;";
                             break;
+
                         case '\'':
                             ss = "&apos;";
                             break;
+
                         case '&':
                             ss = "&amp;";
                             break;
@@ -1291,7 +1298,6 @@ namespace NServiceBus.Serializers.XML
                         startIndex = i + 1;
                         builder.Append(ss);
                     }
-
                 }
                 else
                 {
@@ -1305,7 +1311,7 @@ namespace NServiceBus.Serializers.XML
                         builder.Append(stringToEscape, startIndex, i - startIndex);
                     }
                     startIndex = i + 1;
-                    builder.AppendFormat("&#x{0:X};", (int) c);
+                    builder.AppendFormat("&#x{0:X};", (int)c);
                 }
             }
 
@@ -1326,6 +1332,7 @@ namespace NServiceBus.Serializers.XML
             //Should not get here but just in case!
             return stringToEscape;
         }
+
 #pragma warning restore 652
 
         List<string> GetNamespaces(object[] messages)
@@ -1380,7 +1387,7 @@ namespace NServiceBus.Serializers.XML
 
             return result;
         }
-        
+
         const string BASETYPE = "baseType";
 
         static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
@@ -1421,7 +1428,6 @@ namespace NServiceBus.Serializers.XML
             this.mapper = mapper;
         }
 
-
         /// <summary>
         /// Initialized the serializer with the given message types
         /// </summary>
@@ -1438,8 +1444,6 @@ namespace NServiceBus.Serializers.XML
             {
                 InitType(t);
             }
-
         }
-
     }
 }
