@@ -32,9 +32,7 @@ namespace NServiceBus.Features
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<BusNotifications>(DependencyLifecycle.SingleInstance);
-
-
+         
             var concurrencyConfig = context.Settings.Get<IConcurrencyConfig>();
             var throttlingConfig = context.Settings.Get<IThrottlingConfig>();
 

@@ -134,9 +134,12 @@
     <Compile Include="Encryption\RijndaelExpiredKey.cs" />
     <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
-    <Compile Include="BusNotifications.cs" />
+    <Compile Include="Notifications\BusNotifications.cs" />
     <Compile Include="Extensibility\ExtendableOptions.cs" />
     <Compile Include="Extensibility\ExtendableOptionsExtensions.cs" />
+    <Compile Include="Notifications\NotificationConfigExtensions.cs" />
+    <Compile Include="Notifications\NotificationFeature.cs" />
+    <Compile Include="Notifications\NotificationSubscriptions.cs" />
     <Compile Include="Recoverability\Faults\ConfigureError.cs" />
     <Compile Include="Recoverability\Faults\FailedMessage.cs" />
     <Compile Include="Recoverability\Faults\ErrorsNotifications.cs" />

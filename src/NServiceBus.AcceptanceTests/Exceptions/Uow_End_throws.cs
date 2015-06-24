@@ -17,7 +17,16 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
+                    .WithEndpoint<Endpoint>(b =>
+                    {
+                        b.Given(bus => bus.SendLocal(new Message()));
+                        b.CustomConfig(c => c.Notifications(n => n.Errors.MessageSentToErrorQueue.Subscribe(e =>
+                        {
+                            context.ExceptionType = e.Exception.GetType();
+                            context.StackTrace = e.Exception.StackTrace;
+                            context.ExceptionReceived = true;
+                        })));
+                    })
                     .AllowExceptions()
                     .Done(c => c.ExceptionReceived)
                     .Run();
@@ -51,27 +60,6 @@ at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)
                         c.MaxRetries = 0;
                     });
             }
-
-
-            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
-            {
-                public Context Context { get; set; }
-
-                public BusNotifications BusNotifications { get; set; }
-
-                public void Start()
-                {
-                    BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
-                    {
-                        Context.ExceptionType = e.Exception.GetType();
-                        Context.StackTrace = e.Exception.StackTrace;
-                        Context.ExceptionReceived = true;
-                    });
-                }
-
-                public void Stop() { }
-            }
-
 
             class UnitOfWorkThatThrowsInEnd : IManageUnitsOfWork
             {
