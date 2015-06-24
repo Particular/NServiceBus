@@ -54,7 +54,7 @@
             public Registration()
                 : base("SubscriptionBehavior", typeof(SubscriptionBehavior<TContext>), "So we can get subscription events")
             {
-                InsertBefore(WellKnownStep.CreateChildContainer);
+                InsertBefore("ProcessSubscriptionRequests");
             }
         }
     }

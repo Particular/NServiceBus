@@ -26,7 +26,6 @@
             StackTraceAssert.StartsWith(
 @"at NServiceBus.AcceptanceTests.Exceptions.Uow_End_throws.Endpoint.UnitOfWorkThatThrowsInEnd.End(Exception ex)
 at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
-at NServiceBus.ChildContainerBehavior.Invoke(Context context, Action next)
 at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)", context.StackTrace);
         }
 

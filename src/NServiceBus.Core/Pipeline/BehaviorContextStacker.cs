@@ -2,35 +2,51 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline.Contexts;
 
-    class BehaviorContextStacker : IDisposable
+    /// <summary>
+    /// 
+    /// </summary>
+    public class BehaviorContextStacker : IDisposable
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rootBuilder"></param>
         public BehaviorContextStacker(IBuilder rootBuilder)
         {
             rootContext = new RootContext(rootBuilder);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public BehaviorContext Root
         {
             get { return rootContext; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public BehaviorContext Current
         {
             get
             {
-                if (behaviorContextStack.Value.Count == 0)
+                if (behaviorContextStack.Count == 0)
                 {
                     return null;
                 }
 
-                return behaviorContextStack.Value.Peek();
+                return behaviorContextStack.Peek();
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public BehaviorContext GetCurrentOrRootContext()
         {
             var current = Current;
@@ -42,22 +58,31 @@
             return rootContext;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
         public void Push(BehaviorContext item)
         {
-            behaviorContextStack.Value.Push(item);
+            behaviorContextStack.Push(item);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Pop()
         {
-            behaviorContextStack.Value.Pop();
+            behaviorContextStack.Pop();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
         }
 
-        //until we get the internal container going we
-        ThreadLocal<Stack<BehaviorContext>> behaviorContextStack = new ThreadLocal<Stack<BehaviorContext>>(() => new Stack<BehaviorContext>());
+        Stack<BehaviorContext> behaviorContextStack = new Stack<BehaviorContext>();
         RootContext rootContext;
     }
 }

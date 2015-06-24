@@ -39,7 +39,11 @@
         {
             public EndpointThatThrows()
             {
-                EndpointSetup<DefaultServer>(b => b.DisableFeature<Features.SecondLevelRetries>())
+                EndpointSetup<DefaultServer>(b =>
+                {
+                    b.DisableFeature<Features.SecondLevelRetries>();
+                    b.SendFailedMessagesTo("errorqueueforacceptancetest");
+                })
                     .WithConfig<TransportConfig>(c =>
                     {
                         c.MaxRetries = 0;
@@ -69,7 +73,7 @@
             public EndpointThatHandlesErrorMessages()
             {
                 EndpointSetup<DefaultServer>()
-                    .CustomEndpointName("error");
+                    .CustomEndpointName("errorqueueforacceptancetest");
             }
 
             class ErrorMessageHandler : IHandleMessages<MessageThatFails>

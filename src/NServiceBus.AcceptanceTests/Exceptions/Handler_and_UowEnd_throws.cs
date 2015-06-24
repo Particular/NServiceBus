@@ -28,7 +28,6 @@
 
             StackTraceAssert.StartsWith(
 @"at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
-at NServiceBus.ChildContainerBehavior.Invoke(Context context, Action next)
 at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)", context.StackTrace);
 
             StackTraceAssert.StartsWith(

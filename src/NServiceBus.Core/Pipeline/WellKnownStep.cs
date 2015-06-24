@@ -47,6 +47,7 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Child Container creator.
         /// </summary>
+        [ObsoleteExAttribute(Message = "TODO")]
         public static readonly WellKnownStep CreateChildContainer = new WellKnownStep("CreateChildContainer");
         /// <summary>
         /// Executes UoWs.
