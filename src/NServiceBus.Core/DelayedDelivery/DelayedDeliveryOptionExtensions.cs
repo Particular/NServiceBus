@@ -17,7 +17,7 @@
         public static void DelayDeliveryWith(this SendLocalOptions options, TimeSpan delay)
         {
             Guard.AgainstNull(options, "options");
-            Guard.AgainstNegativeAndZero(delay,"delay");
+            Guard.AgainstNegative(delay,"delay");
 
             options.GetExtensions().Set(new  ApplyDelayedDeliveryConstraintBehavior.State(new DelayDeliveryWith(delay)));
         }
