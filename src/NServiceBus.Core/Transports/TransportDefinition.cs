@@ -1,5 +1,9 @@
 namespace NServiceBus.Transports
 {
+    using System;
+    using System.Collections.Generic;
+    using NServiceBus.ConsistencyGuarantees;
+
     /// <summary>
     /// Defines a transport that can be used by NServiceBus
     /// </summary>
@@ -43,5 +47,17 @@ namespace NServiceBus.Transports
         /// together with the provided qualifier. For example: queue.qualifier@machine
         /// </summary>
         public abstract string GetSubScope(string address, string qualifier);
+
+        /// <summary>
+        /// Returns the list of supported delivery constraints for this transport
+        /// </summary>
+        /// <returns></returns>
+        public abstract IEnumerable<Type> GetSupportedDeliveryConstraints();
+
+        /// <summary>
+        /// Returns the consistency guarantee to use if no specific guarantee is specified
+        /// </summary>
+        /// <returns></returns>
+        public abstract ConsistencyGuarantee GetDefaultConsistencyGuarantee();
     }
 }

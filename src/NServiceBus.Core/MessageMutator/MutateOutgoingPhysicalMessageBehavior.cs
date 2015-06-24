@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using NServiceBus.MessageMutator;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.TransportDispatch;
 
     class MutateOutgoingPhysicalMessageBehavior : PhysicalOutgoingContextStageBehavior
     {

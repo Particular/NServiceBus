@@ -1,10 +1,13 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Features;
+    using NServiceBus.Performance.TimeToBeReceived;
+    using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq;
-    using Transports;
 
     /// <summary>
     /// Transport definition for MSMQ
@@ -31,11 +34,6 @@ namespace NServiceBus
                 .SetDefault("EndpointInstanceDiscriminator", String.Empty);
                
             config.EnableFeature<MsmqTransportConfigurator>();
-            config.EnableFeature<MessageDrivenSubscriptions>();
-            config.EnableFeature<TimeoutManagerBasedDeferral>();
-
-            config.Settings.EnableFeatureByDefault<StorageDrivenPublishing>();
-            config.Settings.EnableFeatureByDefault<TimeoutManager>();
         }
 
         /// <summary>
@@ -49,6 +47,26 @@ namespace NServiceBus
             var msmqAddress = MsmqAddress.Parse(address);
 
             return msmqAddress.ToString(qualifier);
+        }
+        /// <summary>
+        /// The list of constraints supported by the MSMQ transport
+        /// </summary>
+        /// <returns></returns>
+        public override IEnumerable<Type> GetSupportedDeliveryConstraints()
+        {
+            return new[]
+            {
+                typeof(DiscardIfNotReceivedBefore)
+            };
+        }
+
+        /// <summary>
+        /// Atomic with receive is the MSMQ default. 
+        /// </summary>
+        /// <returns></returns>
+        public override ConsistencyGuarantee GetDefaultConsistencyGuarantee()
+        {
+            return new AtomicWithReceiveOperation();
         }
     }
 }

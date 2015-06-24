@@ -1,9 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScaleOut
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Features;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Transports;
@@ -53,6 +55,16 @@
             public override string GetSubScope(string address, string qualifier)
             {
                 return address + "." + qualifier;
+            }
+
+            public override IEnumerable<Type> GetSupportedDeliveryConstraints()
+            {
+                return new List<Type>();
+            }
+
+            public override ConsistencyGuarantee GetDefaultConsistencyGuarantee()
+            {
+                return new AtomicWithReceiveOperation();
             }
         }
 

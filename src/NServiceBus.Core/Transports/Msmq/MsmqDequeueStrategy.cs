@@ -99,8 +99,11 @@ namespace NServiceBus.Transports.Msmq
                 observable.OnNext(new MessageAvailable(c =>
                 {
                     c.Set(queue);
-                    c.Set("MsmqDequeueStrategy.PeekResetEvent",peekResetEvent);
-                    c.Set("MsmqDequeueStrategy.ErrorQueue",errorQueueAddress);
+                    c.Set(new MsmqContext
+                    {
+                        PeekResetEvent = peekResetEvent,
+                        ErrorQueueAddress = errorQueueAddress
+                    });
                 }));
 
                 peekResetEvent.WaitOne();

@@ -4,6 +4,7 @@ namespace NServiceBus
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.StaticHeaders;
+    using NServiceBus.TransportDispatch;
 
     class ApplyStaticHeadersBehavior:Behavior<OutgoingContext>
     {

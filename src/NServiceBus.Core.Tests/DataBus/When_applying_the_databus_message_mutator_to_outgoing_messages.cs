@@ -3,9 +3,8 @@ namespace NServiceBus.Core.Tests.DataBus
     using System;
     using System.IO;
     using NServiceBus.DataBus;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Unicast;
+    using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Performance.TimeToBeReceived;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
 
@@ -20,7 +19,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 DataBusProperty = new DataBusProperty<string>("test")
             };
 
-            var context = new OutgoingContext(null, new SendMessageOptions("MyEndpoint"), MessageIntentEnum.Send, null, message, new OptionExtensionContext());
+            var context = ContextHelpers.GetOutgoingContext(message);
             
             var fakeDatabus = new FakeDataBus();
            
@@ -43,7 +42,9 @@ namespace NServiceBus.Core.Tests.DataBus
                 DataBusProperty = new DataBusProperty<string>("test")
             };
 
-           var context = new OutgoingContext(null, new SendMessageOptions("MyEndpoint") { TimeToBeReceived = TimeSpan.FromMinutes(1) },MessageIntentEnum.Send, null, message, new OptionExtensionContext());
+           var context = ContextHelpers.GetOutgoingContext(message);
+          
+            context.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(1)));
 
            var fakeDatabus = new FakeDataBus();
            

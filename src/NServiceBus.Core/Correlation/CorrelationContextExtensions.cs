@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
 
     /// <summary>
@@ -13,8 +14,10 @@
         /// <returns>The exisitng <see cref="Headers.CorrelationId"/> if it exists; otherwise null.</returns>
         public static string GetCorrelationId(this LogicalMessagesProcessingStageBehavior.Context context)
         {
+            Guard.AgainstNull(context, "context");
+     
             string correlationId;
-            if (context.PhysicalMessage.Headers.TryGetValue(Headers.CorrelationId, out correlationId))
+            if (context.GetIncomingPhysicalMessage().Headers.TryGetValue(Headers.CorrelationId, out correlationId))
             {
                 return correlationId;
             }
@@ -28,6 +31,7 @@
         /// <param name="correlationId">The custom correlation id.</param>
         public static void SetCorrelationId(this SendOptions options, string correlationId)
         {
+            Guard.AgainstNull(options,"options");
             Guard.AgainstNullAndEmpty(correlationId, "correlationId");
 
             options.Extensions.GetOrCreate<AttachCorrelationIdBehavior.State>()
@@ -39,8 +43,24 @@
         /// </summary>
         /// <param name="options">Options being extended.</param>
         /// <param name="correlationId">The custom correlation id.</param>
+        public static void SetCorrelationId(this ReplyOptions options, string correlationId)
+        {
+            Guard.AgainstNull(options, "options");
+            Guard.AgainstNullAndEmpty(correlationId, "correlationId");
+
+            options.Extensions.GetOrCreate<AttachCorrelationIdBehavior.State>()
+                .CustomCorrelationId = correlationId;
+        }
+
+
+        /// <summary>
+        /// Allows users to set a custom correlation id.
+        /// </summary>
+        /// <param name="options">Options being extended.</param>
+        /// <param name="correlationId">The custom correlation id.</param>
         public static void SetCorrelationId(this SendLocalOptions options, string correlationId)
         {
+            Guard.AgainstNull(options, "options");
             Guard.AgainstNullAndEmpty(correlationId, "correlationId");
 
             options.Extensions.GetOrCreate<AttachCorrelationIdBehavior.State>()

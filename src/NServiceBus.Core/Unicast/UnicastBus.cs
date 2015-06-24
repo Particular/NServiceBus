@@ -7,19 +7,18 @@ namespace NServiceBus.Unicast
     using System.Security.Principal;
     using System.Threading;
     using System.Threading.Tasks;
-    using Hosting;
-    using Licensing;
-    using Logging;
     using NServiceBus.Features;
+    using NServiceBus.Hosting;
+    using NServiceBus.Licensing;
+    using NServiceBus.Logging;
     using NServiceBus.MessageInterfaces;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Settings;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Messages;
     using NServiceBus.Unicast.Routing;
     using NServiceBus.Unicast.Transport;
-    using ObjectBuilder;
-    using Pipeline;
-    using Settings;
 
     interface IRealBus
     {
@@ -41,12 +40,10 @@ namespace NServiceBus.Unicast
             IBuilder builder, 
             Configure configure, 
             IManageSubscriptions subscriptionManager, 
-            MessageMetadataRegistry messageMetadataRegistry,
             ReadOnlySettings settings,
             TransportDefinition transportDefinition,
-            ISendMessages messageSender,
-            StaticMessageRouter messageRouter,
-            HostInformation hostInformation)
+            IDispatchMessages messageSender,
+            StaticMessageRouter messageRouter)
         {
             this.executor = executor;
             this.criticalError = criticalError;
@@ -59,12 +56,10 @@ namespace NServiceBus.Unicast
                 builder, 
                 configure,
                 subscriptionManager, 
-                messageMetadataRegistry,
                 settings,
                 transportDefinition,
                 messageSender,
-                messageRouter,
-                hostInformation);
+                messageRouter);
         }
 
         /// <summary>

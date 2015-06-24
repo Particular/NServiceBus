@@ -39,6 +39,7 @@ namespace NServiceBus.Pipeline
         /// Statistics analysis
         /// </summary>
         public static WellKnownStep ProcessingStatistics = new WellKnownStep("ProcessingStatistics");
+        
         /// <summary>
         /// Auditing
         /// </summary>
@@ -55,9 +56,11 @@ namespace NServiceBus.Pipeline
         /// Runs incoming mutation for <see cref="TransportMessage"/>.
         /// </summary>
         public static readonly WellKnownStep MutateIncomingTransportMessage = new WellKnownStep("MutateIncomingTransportMessage");
-        /// <summary>
-        /// Send messages to the wire.
-        /// </summary>
+
+        [ObsoleteEx(
+            Message = "The dispatch step is the terminating step in v6 so any dependency on it can safely be removed",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
         public static readonly WellKnownStep DispatchMessageToTransport = new WellKnownStep("DispatchMessageToTransport");
         /// <summary>
         /// Invokes IHandleMessages{T}.Handle(T)

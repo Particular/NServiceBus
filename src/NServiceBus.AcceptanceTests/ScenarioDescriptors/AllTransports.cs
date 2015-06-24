@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using AcceptanceTesting.Support;
-    using Hosting.Helpers;
+    using NServiceBus.Hosting.Helpers;
     using NServiceBus.Transports;
 
     public class AllTransports : ScenarioDescriptor

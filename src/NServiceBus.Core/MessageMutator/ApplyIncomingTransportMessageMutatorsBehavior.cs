@@ -2,6 +2,7 @@
 {
     using System;
     using NServiceBus.MessageMutator;
+    using NServiceBus.Pipeline;
 
 
     class ApplyIncomingTransportMessageMutatorsBehavior : PhysicalMessageProcessingStageBehavior
@@ -12,7 +13,7 @@
 
             foreach (var mutator in mutators)
             {
-                mutator.MutateIncoming(context.PhysicalMessage);
+                mutator.MutateIncoming(context.GetIncomingPhysicalMessage());
             }
 
             next();

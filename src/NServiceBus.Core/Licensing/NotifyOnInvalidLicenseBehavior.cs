@@ -3,23 +3,30 @@
     using System;
     using System.Diagnostics;
     using Logging;
+    using NServiceBus.Audit;
     using Pipeline;
 
-    class NotifyOnInvalidLicenseBehavior : PhysicalMessageProcessingStageBehavior
+    class NotifyOnInvalidLicenseBehavior : Behavior<AuditContext>
     {
-        public override void Invoke(Context context, Action next)
+        public NotifyOnInvalidLicenseBehavior(bool licenseExpired)
         {
-            context.PhysicalMessage.Headers[Headers.HasLicenseExpired] = true.ToString().ToLower();
+            this.licenseExpired = licenseExpired;
+        }
+
+        public override void Invoke(AuditContext context, Action next)
+        {
+            context.AddAuditData(Headers.HasLicenseExpired,licenseExpired.ToString().ToLower());
 
             next();
 
-            if (Debugger.IsAttached)
+            if (licenseExpired && Debugger.IsAttached)
             {
                 Log.Error("Your license has expired");
             }
         }
 
         static ILog Log = LogManager.GetLogger<NotifyOnInvalidLicenseBehavior>();
+        bool licenseExpired;
 
         public class Registration : RegisterStep
         {

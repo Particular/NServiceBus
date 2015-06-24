@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Diagnostics;
     using System.Messaging;
-    using System.Threading;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
@@ -16,8 +15,8 @@ namespace NServiceBus
         protected bool TryReceiveMessage(Func<Message> receive, IncomingContext context, out Message message)
         {
             message = null;
-            
-            var peekResetEvent = context.Get<AutoResetEvent>("MsmqDequeueStrategy.PeekResetEvent");
+
+            var peekResetEvent = context.Get<MsmqContext>().PeekResetEvent;
              
             try
             {
@@ -43,7 +42,7 @@ namespace NServiceBus
 
         protected void HandleCorruptMessage( IncomingContext context,Message message,Exception ex, Action<MessageQueue,Message> onError)
         {
-            var errorQueue = context.Get<MsmqAddress>("MsmqDequeueStrategy.ErrorQueue");
+            var errorQueue = context.Get<MsmqContext>().ErrorQueueAddress;
 
             LogCorruptedMessage(message, ex, errorQueue);
 

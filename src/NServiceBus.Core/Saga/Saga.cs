@@ -83,11 +83,14 @@ namespace NServiceBus.Saga
 
             VerifySagaCanHandleTimeout(timeoutMessage);
 
-            var context = new SendLocalOptions(deliverAt: at);
+            var options = new SendLocalOptions();
 
-            SetTimeoutHeaders(context);
+            options.DoNotDeliverBefore(at);
 
-            Bus.SendLocal(timeoutMessage, context);
+
+            SetTimeoutHeaders(options);
+
+            Bus.SendLocal(timeoutMessage, options);
         }
 
         void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage)
@@ -133,7 +136,9 @@ namespace NServiceBus.Saga
         {
             VerifySagaCanHandleTimeout(timeoutMessage);
 
-            var context = new SendLocalOptions(delayDeliveryFor: within);
+            var context = new SendLocalOptions();
+
+            context.DelayDeliveryWith(within);
 
             SetTimeoutHeaders(context);
 
@@ -150,18 +155,28 @@ namespace NServiceBus.Saga
         /// <summary>
         /// Sends the <paramref name="message"/> using the bus to the endpoint that caused this saga to start.
         /// </summary>
-        protected virtual void ReplyToOriginator(object message)
+        protected void ReplyToOriginator(object message)
         {
             if (string.IsNullOrEmpty(Entity.Originator))
             {
                 throw new Exception("Entity.Originator cannot be null. Perhaps the sender is a SendOnly endpoint.");
             }
 
-            var options = new SendOptions(Entity.Originator);
+            var options = new ReplyOptions();
 
+            options.OverrideReplyToAddressOfIncomingMessage(Entity.Originator);
             options.SetCorrelationId(Entity.OriginalMessageId);
 
-            Bus.Send(message, options);
+            //until we have metadata we just set this to null to avoid our own saga id being set on outgoing messages since
+            //that would cause the saga that started us (if it was a saga) to not be found. When we have metadata available in the future we'll set the correct id and type
+            // and get true auto correlation to work between sagas
+            options.Extensions.Set(new PopulateAutoCorrelationHeadersForRepliesBehavior.State
+            {
+                SagaTypeToUse = null,
+                SagaIdToUse = null
+            });
+
+            Bus.Reply(message, options);
         }
 
         /// <summary>

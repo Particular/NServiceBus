@@ -3,7 +3,8 @@ namespace NServiceBus.Features
     using NServiceBus.Faults;
     using NServiceBus.Faults.Forwarder.Config;
     using NServiceBus.Hosting;
-    using NServiceBus.Transports;
+    using NServiceBus.Pipeline;
+    using NServiceBus.TransportDispatch;
 
     class StoreFaultsInErrorQueue : Feature
     {
@@ -15,21 +16,28 @@ namespace NServiceBus.Features
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-          
+
             var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
 
-            context.Container.ConfigureComponent(b => new MoveFaultsToErrorQueueBehavior(
-                b.Build<CriticalError>(),
-                b.Build<ISendMessages>(),
-                b.Build<HostInformation>(),
-                b.Build<BusNotifications>(), 
-                errorQueue.ToString()), DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent(b =>
+            {
+                var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
+
+                var dispatchPipeline = new PipelineBase<DispatchContext>(b, context.Settings, pipelinesCollection.MainPipeline);
+
+                return new MoveFaultsToErrorQueueBehavior(
+                    b.Build<CriticalError>(),
+                    dispatchPipeline,
+                    b.Build<HostInformation>(),
+                    b.Build<BusNotifications>(),
+                    errorQueue.ToString());
+            }, DependencyLifecycle.InstancePerCall);
 
             context.Container.ConfigureComponent<FaultsQueueCreator>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.Enabled, true)
                 .ConfigureProperty(t => t.ErrorQueue, errorQueue);
 
-            context.MainPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
+            context.Pipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
         }
 
 

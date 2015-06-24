@@ -1,7 +1,9 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using NServiceBus.Routing;
     using NServiceBus.Saga;
+    using NServiceBus.TransportDispatch;
     using Pipeline;
     using Pipeline.Contexts;
 
@@ -20,23 +22,36 @@
         {
             TransportMessage incomingMessage;
 
-            if (context.TryGet(TransportReceiveContext.IncomingPhysicalMessageKey, out incomingMessage))
+            if (context.TryGetIncomingPhysicalMessage(out incomingMessage))
             {
                 //flow the the saga id of the calling saga (if any) to outgoing message in order to support autocorrelation
-                if (context.Intent == MessageIntentEnum.Reply)
+                if (context.IsReply())
                 {
+
                     string sagaId;
 
-                    if (incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out sagaId))
-                    {
-                        context.SetHeader(Headers.SagaId,sagaId);
-                    }
+                    incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out sagaId);
 
                     string sagaType;
 
-                    if (incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out sagaType))
+                    incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out sagaType);
+
+                    State state;
+
+                    if (context.Extensions.TryGet(out state))
                     {
-                        context.SetHeader(Headers.SagaType,sagaType);
+                        sagaId = state.SagaIdToUse;
+                        sagaType = state.SagaTypeToUse;
+                    }
+
+                    if (!string.IsNullOrEmpty(sagaId))
+                    {
+                        context.SetHeader(Headers.SagaId, sagaId);
+                    }
+
+                    if (!string.IsNullOrEmpty(sagaType))
+                    {
+                        context.SetHeader(Headers.SagaType, sagaType);
                     }
                 }
             }
@@ -50,14 +65,22 @@
             //attach the current saga details to the outgoing headers for correlation
             if (context.TryGet(out saga) && HasBeenFound(saga))
             {
-                context.SetHeader(Headers.OriginatingSagaId,saga.SagaId);
-                context.SetHeader(Headers.OriginatingSagaType,saga.Metadata.SagaType.AssemblyQualifiedName);
+                context.SetHeader(Headers.OriginatingSagaId, saga.SagaId);
+                context.SetHeader(Headers.OriginatingSagaType, saga.Metadata.SagaType.AssemblyQualifiedName);
             }
         }
 
         static bool HasBeenFound(ActiveSagaInstance saga)
         {
             return !saga.NotFound;
+        }
+
+
+        public class State
+        {
+            public string SagaIdToUse { get; set; }
+
+            public string SagaTypeToUse { get; set; }
         }
     }
 }

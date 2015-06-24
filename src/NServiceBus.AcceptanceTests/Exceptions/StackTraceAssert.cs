@@ -38,7 +38,7 @@ namespace NServiceBus.AcceptanceTests.Exceptions
                 try
                 {
                     actual = stringBuilder.ToString().TrimEnd();
-                    Assert.AreEqual(actual, expected);
+                    Assert.AreEqual(expected, actual);
                 }
                 catch (Exception)
                 {
@@ -49,7 +49,7 @@ namespace NServiceBus.AcceptanceTests.Exceptions
         }
         static string CleanStackTrace(string stackTrace)
         {
-            if (stackTrace== null)
+            if (stackTrace == null)
             {
                 return string.Empty;
             }

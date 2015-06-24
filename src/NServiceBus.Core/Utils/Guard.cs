@@ -67,6 +67,7 @@
                 throw new ArgumentOutOfRangeException(argumentName);
             }
         }
+
         public static void AgainstNegative(TimeSpan? value, string argumentName)
         {
             if (value < TimeSpan.Zero)

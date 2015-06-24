@@ -9,7 +9,7 @@
     using ObjectBuilder;
 
     [SkipWeaving]
-    class PipelineBase<T>
+    class PipelineBase<T>:IPipelineBase<T>
         where T : BehaviorContext
     {
         public PipelineBase(IBuilder builder, ReadOnlySettings settings, PipelineModifications pipelineModifications, RegisterStep receiveBehavior = null)
@@ -67,5 +67,10 @@
         BusNotifications busNotifications;
         BehaviorContextStacker contextStacker;
         IList<RegisterStep> steps;
+    }
+
+    interface IPipelineBase<T>
+    {
+        void Invoke(T context);
     }
 }

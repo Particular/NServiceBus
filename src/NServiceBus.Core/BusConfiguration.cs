@@ -42,6 +42,8 @@ namespace NServiceBus
             Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
             Settings.SetDefault("Transactions.SuppressDistributedTransactions", false);
             Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
+
+            conventionsBuilder = new ConventionsBuilder(Settings);
         }
 
         /// <summary>
@@ -49,7 +51,6 @@ namespace NServiceBus
         /// </summary>
         public PipelineSettings Pipeline { get; private set; }
 
-     
         /// <summary>
         ///     Used to configure components in the container.
         /// </summary>
@@ -267,7 +268,7 @@ namespace NServiceBus
         }
 
         IConfigurationSource configurationSourceToUse;
-        ConventionsBuilder conventionsBuilder = new ConventionsBuilder();
+        ConventionsBuilder conventionsBuilder;
         List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         IContainer customBuilder;
         string endpointName;

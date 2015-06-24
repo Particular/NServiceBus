@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using NServiceBus.FirstLevelRetries;
+    using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
     using NUnit.Framework;
@@ -48,7 +49,7 @@
             }));
 
             //should set the retries header to capture how many flr attempts where made
-            Assert.AreEqual("0", context.PhysicalMessage.Headers[Headers.FLRetries]);
+            Assert.AreEqual("0", context.GetIncomingPhysicalMessage().Headers[Headers.FLRetries]);
         }
 
         [Test]

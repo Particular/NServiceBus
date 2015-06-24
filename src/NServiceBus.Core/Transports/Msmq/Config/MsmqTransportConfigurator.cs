@@ -60,13 +60,10 @@
             new CheckMachineNameForComplianceWithDtcLimitation()
             .Check();
 
-            context.Container.ConfigureComponent<MsmqUnitOfWork>(DependencyLifecycle.SingleInstance);
-
             var endpointIsTransactional = context.Settings.Get<bool>("Transactions.Enabled");
-            var doNotUseDTCTransactions = context.Settings.Get<bool>("Transactions.SuppressDistributedTransactions");
+           
             Func<IReadOnlyDictionary<string, string>, string> getMessageLabel;
             context.Settings.TryGet("Msmq.GetMessageLabel", out getMessageLabel);
-
             if (!context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
             {
                 //todo: move this to the external distributor
@@ -93,10 +90,7 @@
             }
 
             var messageLabelGenerator = context.Settings.GetMessageLabelGenerator();
-            context.Container.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(t => t.Settings, settings)
-                .ConfigureProperty(t => t.SuppressDistributedTransactions, doNotUseDTCTransactions)
-                .ConfigureProperty(t => t.MessageLabelConvention, messageLabelGenerator);
+            context.Container.ConfigureComponent(b=>new MsmqMessageSender(settings, messageLabelGenerator), DependencyLifecycle.InstancePerCall);
 
             context.Container.ConfigureComponent<MsmqQueueCreator>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.Settings, settings);

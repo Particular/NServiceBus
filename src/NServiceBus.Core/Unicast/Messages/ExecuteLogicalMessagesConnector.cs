@@ -16,10 +16,10 @@
 
             foreach (var message in logicalMessages)
             {
-                next(new LogicalMessageProcessingStageBehavior.Context(message, context.PhysicalMessage.Headers, message.MessageType, context));
+                next(new LogicalMessageProcessingStageBehavior.Context(message, context.GetIncomingPhysicalMessage().Headers, message.MessageType, context));
             }
 
-            if (!TransportMessageExtensions.IsControlMessage(context.PhysicalMessage.Headers))
+            if (!TransportMessageExtensions.IsControlMessage(context.GetIncomingPhysicalMessage().Headers))
             {
                 if (!logicalMessages.Any())
                 {

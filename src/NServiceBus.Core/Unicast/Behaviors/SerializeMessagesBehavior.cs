@@ -6,6 +6,7 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Serialization;
+    using NServiceBus.TransportDispatch;
     using NServiceBus.Unicast.Messages;
 
     class SerializeMessagesBehavior : StageConnector<OutgoingContext, PhysicalOutgoingContextStageBehavior.Context>

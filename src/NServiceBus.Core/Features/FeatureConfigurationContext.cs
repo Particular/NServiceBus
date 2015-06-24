@@ -31,7 +31,7 @@
         /// <summary>
         /// Access to the pipeline in order to customize it
         /// </summary>
-        public PipelineSettings MainPipeline { get { return config.pipelineSettings; } }
+        public PipelineSettings Pipeline { get { return config.pipelineSettings; } }
 
         /// <summary>
         /// Registers the receive behavior to use for that endpoint.

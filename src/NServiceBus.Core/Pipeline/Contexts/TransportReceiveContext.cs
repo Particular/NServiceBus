@@ -7,16 +7,17 @@
     /// </summary>
     public class TransportReceiveContext : IncomingContext
     {
-        internal const string IncomingPhysicalMessageKey = "NServiceBus.IncomingPhysicalMessage";
-
-        internal TransportReceiveContext(IncomingMessage receivedMessage, BehaviorContext parentContext): base(parentContext)
+        internal TransportReceiveContext(IncomingMessage receivedMessage, BehaviorContext parentContext)
+            : base(parentContext)
         {
-            PhysicalMessage = new TransportMessage(receivedMessage.MessageId, receivedMessage.Headers)
+            var message = new TransportMessage(receivedMessage.MessageId, receivedMessage.Headers)
             {
                 Body = new byte[receivedMessage.BodyStream.Length]
             };
 
-            receivedMessage.BodyStream.Read(PhysicalMessage.Body, 0, PhysicalMessage.Body.Length);
+            receivedMessage.BodyStream.Read(message.Body, 0, message.Body.Length);
+
+            Set(message);
         }
 
         /// <summary>
@@ -28,13 +29,5 @@
         }
 
 
-        /// <summary>
-        /// The received message.
-        /// </summary>
-        public TransportMessage PhysicalMessage
-        {
-            get { return Get<TransportMessage>(IncomingPhysicalMessageKey); }
-            private set { Set(IncomingPhysicalMessageKey, value); }
-        }
     }
 }

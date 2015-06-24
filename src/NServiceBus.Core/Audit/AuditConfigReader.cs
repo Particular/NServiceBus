@@ -30,7 +30,13 @@
             }
             else
             {
-                timeToBeReceived = auditConfig.OverrideTimeToBeReceived;
+                var ttbrOverride = auditConfig.OverrideTimeToBeReceived;
+
+                if (ttbrOverride > TimeSpan.Zero)
+                {
+                    timeToBeReceived = ttbrOverride;
+                    
+                }
                 if (string.IsNullOrWhiteSpace(auditConfig.QueueName))
                 {
                     address = ReadAuditQueueNameFromRegistry();

@@ -4,8 +4,11 @@
     using System.IO;
     using System.Transactions;
     using NServiceBus.DataBus;
+    using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.TransportDispatch;
 
     class DataBusSendBehavior : Behavior<OutgoingContext>
     {
@@ -17,7 +20,15 @@
 
         public override void Invoke(OutgoingContext context, Action next)
         {
-            var timeToBeReceived = context.DeliveryMessageOptions.TimeToBeReceived;
+            var timeToBeReceived = TimeSpan.MaxValue;
+
+            DiscardIfNotReceivedBefore constraint;
+
+            if (context.TryGetDeliveryConstraint(out constraint))
+            {
+                timeToBeReceived = constraint.MaxTime;
+            }
+
             var message = context.MessageInstance;
 
             foreach (var property in Conventions.GetDataBusProperties(message))
@@ -43,7 +54,7 @@
 
                     using (new TransactionScope(TransactionScopeOption.Suppress))
                     {
-                        headerValue = DataBus.Put(stream, timeToBeReceived ?? TimeSpan.MaxValue);
+                        headerValue = DataBus.Put(stream, timeToBeReceived);
                     }
 
                     string headerKey;
@@ -73,6 +84,7 @@
             public Registration(): base("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location")
             {
                 InsertAfter(WellKnownStep.MutateOutgoingMessages);
+                InsertAfter("ApplyTimeToBeReceived");
             }
         }
     }

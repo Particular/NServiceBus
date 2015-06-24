@@ -218,7 +218,7 @@ namespace NServiceBus.Timeout.Core
             Message = "Use new SendOptions() instead",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public SendMessageOptions ToSendOptions(Address replyToAddress)
+        public SendOptions ToSendOptions(Address replyToAddress)
         {
             throw new NotImplementedException();
         }
@@ -227,7 +227,7 @@ namespace NServiceBus.Timeout.Core
             Message = "Use new SendOptions() instead",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public SendMessageOptions ToSendOptions(string replyToAddress)
+        public SendOptions ToSendOptions(string replyToAddress)
         {
             throw new NotImplementedException();
         }
@@ -454,6 +454,49 @@ namespace NServiceBus.Unicast
             throw new NotImplementedException();
         }
     }
+
+
+}
+
+
+namespace NServiceBus.Unicast.Messages
+{
+    using System;
+
+    public partial class MessageMetadata
+    {
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "You can access TTBR via the DeliveryConstraints collection on the outgoing context")]
+        public TimeSpan TimeToBeReceived
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "You can access Recoverable via the DeliveryConstraints collection on the outgoing context, the new constraint is called NonDurableDelivery")]
+        public bool Recoverable { get { throw new NotImplementedException(); } }
+
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+
+    public partial class Conventions
+    {
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "No longer an extension point")]
+        public TimeSpan GetTimeToBeReceived(Type messageType)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "No longer an extension point")]
+        public static bool IsExpressMessageType(Type t)
+        {
+            throw new NotImplementedException();
+        }
+
+    }
+
 }
 
 namespace NServiceBus
@@ -464,13 +507,158 @@ namespace NServiceBus
     public static class ExtensionMethods
     {
         [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Headers are not 'set' only on the outgoing pipeline")]
-        public static string GetMessageHeader(this IBus bus, object msg, string key){throw new NotImplementedException();}
+        public static string GetMessageHeader(this IBus bus, object msg, string key) { throw new NotImplementedException(); }
 
         [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Headers can be set using the ``.SetHeader` method on the context object passed into your behavior or mutator")]
-        public static void SetMessageHeader(this ISendOnlyBus bus, object msg, string key, string value){throw new NotImplementedException();}
+        public static void SetMessageHeader(this ISendOnlyBus bus, object msg, string key, string value) { throw new NotImplementedException(); }
 
         [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Use a incoming behavior to get access to the current message")]
         public static object CurrentMessageBeingHandled { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
     }
 }
 
+
+namespace NServiceBus.Transports.Msmq
+{
+    using System;
+    using System.Messaging;
+
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "The msmq transaction is now available via the pipeline context")]
+    public class MsmqUnitOfWork : IDisposable
+    {
+        public MessageQueueTransaction Transaction
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool HasActiveTransaction()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Unicast
+{
+    using System;
+
+    public class DeliveryMessageOptions
+    {
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Use the ConsistencyGuarantee class instead")]
+        public bool EnlistInReceiveTransaction { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Use context.TryGetDeliveryConstraint<DiscardIfNotReceivedBefore> instead")]
+        public TimeSpan? TimeToBeReceived { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Use context.TryGetDeliveryConstraint<NonDurableDelivery> instead")]
+        public bool? NonDurable { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
+
+
+    }
+}
+
+namespace NServiceBus.Features
+{
+    using System;
+
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "No longer used, safe to remove")]
+    public class StorageDrivenPublishing : Feature
+    {
+        internal StorageDrivenPublishing()
+        {
+        }
+
+        /// <summary>
+        /// See <see cref="Feature.Setup"/>
+        /// </summary>
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Transports
+{
+    using NServiceBus.Unicast;
+
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "IDispatchMessages")]
+    public interface IDeferMessages
+    {
+        void Defer(TransportMessage message, SendOptions sendOptions);
+
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "ICancelDeferredMessages")]
+        void ClearDeferredMessages(string headerKey, string headerValue);
+    }
+}
+
+namespace NServiceBus.Transports
+{
+    using NServiceBus.Unicast;
+
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "IDispatchMessages")]
+    public interface IPublishMessages
+    {
+        void Publish(TransportMessage message, PublishOptions publishOptions);
+    }
+}
+
+namespace NServiceBus.Transports
+{
+    using NServiceBus.Unicast;
+
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "IDispatchMessages")]
+    public interface ISendMessages
+    {
+        void Send(TransportMessage message, SendOptions sendOptions);
+    }
+}
+
+
+namespace NServiceBus.Features
+{
+    using System;
+
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "No longer used, safe to remove")]
+    public class TimeoutManagerBasedDeferral : Feature
+    {
+        internal TimeoutManagerBasedDeferral()
+        {
+        }
+
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+    }
+}
+
+namespace NServiceBus.Transports
+{
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "No longer used, safe to remove")]
+    public interface IAuditMessages
+    {
+
+    }
+}
+
+namespace NServiceBus.Unicast.Subscriptions
+{
+    using System;
+
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "No longer used, safe to remove")]
+    public class SubscriptionEventArgs : EventArgs
+    {
+        public string SubscriberReturnAddress { get; set; }
+
+        public string MessageType { get; set; }
+    }
+}

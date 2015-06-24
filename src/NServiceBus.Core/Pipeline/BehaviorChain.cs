@@ -24,26 +24,26 @@
 
             try
             {
-                if (!context.TryGet("Diagnostics.Pipe", out steps))
+                if (!context.TryGet(out diagnostics))
                 {
                     outerPipe = true;
-                    steps = new Observable<StepStarted>();
-                    context.Set("Diagnostics.Pipe", steps);
-                    notifications.Pipeline.InvokeReceiveStarted(steps);
+                    diagnostics = new PipelineDiagnostics();
+                    context.Set(diagnostics);
+                    notifications.Pipeline.InvokeReceiveStarted(diagnostics.StepsDiagnostics);
                 }
 
                 InvokeNext(context, contextStacker, 0);
 
                 if (outerPipe)
                 {
-                    steps.OnCompleted();
+                    diagnostics.StepsDiagnostics.OnCompleted();
                 }
             }
             catch (Exception ex)
             {
                 if (outerPipe)
                 {
-                    steps.OnError(ex);
+                    diagnostics.StepsDiagnostics.OnError(ex);
                 }
 
                 throw;
@@ -52,7 +52,7 @@
             {
                 if (outerPipe)
                 {
-                    context.Remove("Diagnostics.Pipe");
+                    context.Remove<PipelineDiagnostics>();
                 }
             }
         }
@@ -76,7 +76,7 @@
             contextStacker.Push(context);
             try
             {
-                steps.OnNext(new StepStarted(lookupSteps[behavior.Type], behavior.Type, stepEnded));
+                diagnostics.StepsDiagnostics.OnNext(new StepStarted(lookupSteps[behavior.Type], behavior.Type, stepEnded));
 
                 var duration = Stopwatch.StartNew();
 
@@ -113,6 +113,6 @@
         [SkipWeaving]
         BehaviorInstance[] itemDescriptors;
         Dictionary<Type, string> lookupSteps;
-        Observable<StepStarted> steps;
+        PipelineDiagnostics diagnostics;
     }
 }

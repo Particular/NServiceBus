@@ -47,7 +47,7 @@
                     if (message.ContextId != Context.Id) return;
 
                     RequestTimeout(TimeSpan.FromSeconds(5), new Saga1Timeout { ContextId = Context.Id });
-                    RequestTimeout(new DateTime(2011, 10, 14, 23, 08, 0, DateTimeKind.Local), new Saga2Timeout { ContextId = Context.Id });
+                    RequestTimeout(TimeSpan.FromMilliseconds(10), new Saga2Timeout { ContextId = Context.Id });
                 }
 
                 public void Timeout(Saga1Timeout state)
