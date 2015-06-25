@@ -1,9 +1,8 @@
 namespace NServiceBus.Features
 {
-    using NServiceBus.Faults;
-    using NServiceBus.Faults.Forwarder.Config;
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
+    using NServiceBus.Recoverability.Faults;
     using NServiceBus.TransportDispatch;
 
     class StoreFaultsInErrorQueue : Feature

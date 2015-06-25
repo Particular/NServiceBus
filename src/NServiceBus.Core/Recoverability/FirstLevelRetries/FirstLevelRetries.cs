@@ -1,7 +1,7 @@
 namespace NServiceBus.Features
 {
     using Config;
-    using NServiceBus.FirstLevelRetries;
+    using NServiceBus.Recoverability.FirstLevelRetries;
     using NServiceBus.Settings;
 
     /// <summary>

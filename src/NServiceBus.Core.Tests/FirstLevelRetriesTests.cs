@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using NServiceBus.FirstLevelRetries;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Recoverability.FirstLevelRetries;
     using NServiceBus.Transports;
     using NUnit.Framework;
 

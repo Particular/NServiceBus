@@ -2,8 +2,8 @@ namespace NServiceBus
 {
     using System;
     using NServiceBus.Features;
-    using NServiceBus.FirstLevelRetries;
     using NServiceBus.Pipeline;
+    using NServiceBus.Recoverability.FirstLevelRetries;
     using NServiceBus.Settings;
 
     class FirstLevelRetriesBehavior : PhysicalMessageProcessingStageBehavior
@@ -73,7 +73,7 @@ namespace NServiceBus
 
             public override bool IsEnabled(ReadOnlySettings settings)
             {
-                return settings.IsFeatureActive(typeof(Features.FirstLevelRetries));
+                return settings.IsFeatureActive(typeof(FirstLevelRetries));
             }
         }
 
