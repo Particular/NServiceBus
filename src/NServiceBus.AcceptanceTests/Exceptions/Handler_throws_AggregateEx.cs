@@ -16,7 +16,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
+                .WithEndpoint<Endpoint>(b => b.When(c => c.Subscribed, bus => bus.SendLocal(new Message())))
                     .AllowExceptions()
                 .Done(c => c.ExceptionReceived)
                 .Run();
@@ -24,7 +24,7 @@
             Assert.AreEqual(typeof(Exception), context.InnerExceptionType);
             Assert.AreEqual("My Exception", context.ExceptionMessage);
             Assert.AreEqual("My Inner Exception", context.InnerExceptionMessage);
-      
+
             StackTraceAssert.StartsWith(
                 @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.Handle(Message message)
 at NServiceBus.Unicast.MessageHandlerRegistry.Invoke(Object handler, Object message, Dictionary`2 dictionary)
@@ -53,6 +53,7 @@ at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Ha
             public string ExceptionMessage { get; set; }
             public string InnerExceptionMessage { get; set; }
             public Type ExceptionType { get; set; }
+            public bool Subscribed { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -91,6 +92,8 @@ at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Ha
                         }
                         Context.ExceptionReceived = true;
                     });
+
+                    Context.Subscribed = true;
                 }
 
                 public void Stop() { }

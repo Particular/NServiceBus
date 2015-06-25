@@ -14,7 +14,7 @@
             var context = new Context { Id = Guid.NewGuid() };
 
             Scenario.Define(context)
-                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, ctx) => bus.SendLocal(new MessageToBeRetried { ContextId = ctx.Id })))
+                    .WithEndpoint<RetryEndpoint>(b => b.When(c => c.Subscribed, (bus, ctx) => bus.SendLocal(new MessageToBeRetried { ContextId = ctx.Id })))
                     .AllowExceptions()
                     .Done(c => c.ForwardedToErrorQueue)
                     .Run();
@@ -27,6 +27,7 @@
             public Guid Id { get; set; }
             public int NumberOfTimesInvoked { get; set; }
             public bool ForwardedToErrorQueue { get; set; }
+            public bool Subscribed { get; set; }
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
@@ -48,6 +49,8 @@
                     {
                         Context.ForwardedToErrorQueue = true;
                     });
+
+                    Context.Subscribed = true;
                 }
 
                 public void Stop() { }

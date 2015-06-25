@@ -16,7 +16,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
+                    .WithEndpoint<Endpoint>(b => b.When(c => c.Subscribed, bus => bus.SendLocal(new Message())))
                     .AllowExceptions()
                     .Done(c => c.ExceptionReceived)
                     .Run();
@@ -28,6 +28,7 @@
         {
             public bool ExceptionReceived { get; set; }
             public Type ExceptionType { get; set; }
+            public bool Subscribed { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -60,6 +61,8 @@
                         Context.ExceptionType = e.Exception.GetType();
                         Context.ExceptionReceived = true;
                     });
+
+                    Context.Subscribed = true;
                 }
 
                 public void Stop() { }

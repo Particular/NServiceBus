@@ -16,7 +16,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
+                    .WithEndpoint<Endpoint>(b => b.When(c => c.Subscribed, bus => bus.SendLocal(new Message())))
                     .AllowExceptions()
                     .Done(c => c.ExceptionReceived)
                     .Run();
@@ -42,6 +42,7 @@ at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action nex
             public bool ExceptionReceived { get; set; }
             public string StackTrace { get; set; }
             public Type ExceptionType { get; set; }
+            public bool Subscribed { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -59,7 +60,7 @@ at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action nex
                     });
             }
 
-          
+
 
             class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
             {
@@ -75,6 +76,8 @@ at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action nex
                         Context.StackTrace = e.Exception.StackTrace;
                         Context.ExceptionReceived = true;
                     });
+
+                    Context.Subscribed = true;
                 }
 
                 public void Stop() { }
@@ -108,5 +111,5 @@ at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action nex
             }
         }
     }
-    
+
 }

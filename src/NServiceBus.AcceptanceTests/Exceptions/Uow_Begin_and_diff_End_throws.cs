@@ -17,7 +17,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
+                    .WithEndpoint<Endpoint>(b => b.When(c => c.Subscribed, bus => bus.SendLocal(new Message())))
                     .AllowExceptions()
                     .Done(c => c.ExceptionReceived)
                     .Run();
@@ -46,6 +46,7 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
             public Type InnerExceptionTwoType { get; set; }
             public bool FirstOneExecuted { get; set; }
             public string TypeName { get; set; }
+            public bool Subscribed { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -87,6 +88,8 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
                         Context.InnerExceptionTwoType = innerExceptions[1].GetType();
                         Context.ExceptionReceived = true;
                     });
+
+                    Context.Subscribed = true;
                 }
 
                 public void Stop() { }
@@ -95,7 +98,7 @@ at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initia
             public class UnitOfWorkThatThrows1 : IManageUnitsOfWork
             {
                 public Context Context { get; set; }
-                
+
                 bool throwAtEnd;
 
                 public void Begin()
