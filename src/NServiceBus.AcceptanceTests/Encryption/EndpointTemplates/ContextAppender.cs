@@ -113,17 +113,23 @@
         public void Fatal(string message)
         {
             Trace.WriteLine(message);
+
+            context.RecordEndpointLog(endpointName, "error", message);
         }
 
         public void Fatal(string message, Exception exception)
         {
-            Trace.WriteLine(string.Format("{0} {1}", message, exception));
+            var fullMessage = string.Format("{0} {1}", message, exception);
+            Trace.WriteLine(fullMessage);
             Append(exception);
+            context.RecordEndpointLog(endpointName, "error", fullMessage);
         }
 
         public void FatalFormat(string format, params object[] args)
         {
-            Trace.WriteLine(string.Format(format, args));
+            var fullMessage = string.Format(format, args);
+            Trace.WriteLine(fullMessage);
+            context.RecordEndpointLog(endpointName, "error", fullMessage);
         }
     }
 }
