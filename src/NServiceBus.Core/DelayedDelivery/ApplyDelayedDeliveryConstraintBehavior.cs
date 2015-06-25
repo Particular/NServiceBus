@@ -12,7 +12,7 @@
         {
             State state;
 
-            if (context.Extensions.TryGet(out state))
+            if (context.TryGet(out state))
             {
                 context.AddDeliveryConstraint(state.RequestedDelay);
             }

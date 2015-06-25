@@ -10,9 +10,9 @@ namespace NServiceBus.Extensibility
         /// </summary>
         /// <param name="options">Extendable options instance.</param>
         /// <returns>A big bucket.</returns>
-        public static OptionExtensionContext GetExtensions(this ExtendableOptions options)
+        public static ContextBag GetExtensions(this ExtendableOptions options)
         {
-            return options.Extensions;
+            return options.Context;
         }
 
     }

@@ -18,7 +18,7 @@
         {
             Guard.AgainstNullAndEmpty(key, "key");
             
-            context.Extensions.GetOrCreate<DispatchMessageToTransportConnector.State>()
+            context.Context.GetOrCreate<DispatchMessageToTransportConnector.State>()
                 .Headers[key] = value;
         }
 

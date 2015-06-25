@@ -17,11 +17,11 @@
             itemDescriptors = behaviorList.ToArray();
         }
 
-        public void Invoke(BehaviorContextStacker contextStacker)
+        public void Invoke(BehaviorContext context)
         {
+            var contextStacker = context.Builder.Build<BehaviorContextStacker>();
+            
             var outerPipe = false;
-
-            var context = contextStacker.Current;
 
             try
             {

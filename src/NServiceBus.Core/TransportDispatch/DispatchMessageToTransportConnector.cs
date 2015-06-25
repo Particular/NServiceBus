@@ -11,7 +11,7 @@
     {
         public override void Invoke(PhysicalOutgoingContextStageBehavior.Context context, Action<DispatchContext> next)
         {
-            var state = context.Extensions.GetOrCreate<State>();
+            var state = context.GetOrCreate<State>();
             state.Headers[Headers.MessageId] = state.MessageId;
 
             var message = new OutgoingMessage(state.MessageId, state.Headers, context.Body);

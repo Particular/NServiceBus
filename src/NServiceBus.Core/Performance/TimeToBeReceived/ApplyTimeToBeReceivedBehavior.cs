@@ -2,6 +2,7 @@
 {
     using System;
     using NServiceBus.DeliveryConstraints;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -18,7 +19,7 @@
         {
             TimeSpan timeToBeReceived;
 
-            if (timeToBeReceivedMappings.TryGetTimeToBeReceived(context.MessageType, out timeToBeReceived))
+            if (timeToBeReceivedMappings.TryGetTimeToBeReceived(context.GetMessageType(), out timeToBeReceived))
             {
                 context.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived));
                 context.SetHeader(Headers.TimeToBeReceived, timeToBeReceived.ToString());

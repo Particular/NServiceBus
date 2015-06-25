@@ -1,5 +1,6 @@
 namespace NServiceBus.Pipeline
 {
+    using NServiceBus.OutgoingPipeline.Reply;
     using NServiceBus.Pipeline.Contexts;
 
     /// <summary>
@@ -21,6 +22,16 @@ namespace NServiceBus.Pipeline
         /// Returns the incoming physical message if there is one currently processed
         /// </summary>
         public static bool TryGetIncomingPhysicalMessage(this OutgoingContext context, out TransportMessage message)
+        {
+            Guard.AgainstNull(context, "context");
+
+            return context.TryGet(out message);
+        }
+
+        /// <summary>
+        /// Returns the incoming physical message if there is one currently processed
+        /// </summary>
+        public static bool TryGetIncomingPhysicalMessage(this OutgoingReplyContext context, out TransportMessage message)
         {
             Guard.AgainstNull(context, "context");
 

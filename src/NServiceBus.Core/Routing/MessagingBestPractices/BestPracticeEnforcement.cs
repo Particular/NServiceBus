@@ -1,7 +1,6 @@
 namespace NServiceBus.Features
 {
     using NServiceBus.MessagingBestPractices;
-    using NServiceBus.Pipeline;
 
     /// <summary>
     /// Makes sure that messaging best practices are followed
@@ -22,7 +21,10 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<Validations>(DependencyLifecycle.SingleInstance);
-            context.Pipeline.Register(WellKnownStep.EnforceBestPractices, typeof(EnforceBestPracticesBehavior), "Enforces messaging best practices");
+
+            context.Pipeline.Register("EnforceSendBestPractices", typeof(EnforceSendBestPracticesBehavior), "Enforces send messaging best practices");
+            context.Pipeline.Register("EnforceReplyBestPractices", typeof(EnforceReplyBestPracticesBehavior), "Enforces reply messaging best practices");
+            context.Pipeline.Register("EnforcePublishBestPractices", typeof(EnforcePublishBestPracticesBehavior), "Enforces publish messaging best practices");
         }
 
     }

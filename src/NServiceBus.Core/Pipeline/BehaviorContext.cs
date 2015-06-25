@@ -29,6 +29,8 @@
             }
         }
 
-        internal bool handleCurrentMessageLaterWasCalled;       
+        internal bool handleCurrentMessageLaterWasCalled;
+
+      
     }
 }

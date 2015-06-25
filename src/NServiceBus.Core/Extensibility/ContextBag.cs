@@ -25,6 +25,26 @@ namespace NServiceBus.Extensibility
             return Get<T>(typeof(T).FullName);
         }
 
+
+        /// <summary>
+        /// Gets the requested extension, a new one will be created if needed
+        /// </summary>
+        public T GetOrCreate<T>() where T : class,new()
+        {
+            T value;
+
+            if (TryGet(out value))
+            {
+                return value;
+            }
+
+            var newInstance = new T();
+
+            Set(newInstance);
+
+            return newInstance;
+        }
+
         /// <summary>
         /// Tries to retrieves the specified type from the context.
         /// </summary>
@@ -55,6 +75,18 @@ namespace NServiceBus.Extensibility
         public void Remove<T>()
         {
             Remove(typeof(T).FullName);
+        }
+
+        /// <summary>
+        /// Merges the passed context into this one
+        /// </summary>
+        /// <param name="context">The source context</param>
+        public void Merge(ContextBag context)
+        {
+            foreach (var kvp in context.stash)
+            {
+                stash[kvp.Key] = kvp.Value;
+            }
         }
 
         void Set<T>(string key, T t)

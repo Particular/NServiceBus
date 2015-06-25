@@ -19,7 +19,7 @@
         {
             RequestResponseParameters parameters;
 
-            if (context.Extensions.TryGet(out parameters) && !parameters.CancellationToken.IsCancellationRequested)
+            if (context.TryGet(out parameters) && !parameters.CancellationToken.IsCancellationRequested)
             {
                 var messageId = context.GetMessageId();
                 parameters.CancellationToken.Register(() =>

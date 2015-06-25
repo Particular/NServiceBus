@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Linq;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Serialization;
@@ -23,7 +24,7 @@
 
         public override void Invoke(OutgoingContext context, Action<PhysicalOutgoingContextStageBehavior.Context> next)
         {
-            if (context.Extensions.GetOrCreate<State>().SkipSerialization)
+            if (context.GetOrCreate<State>().SkipSerialization)
             {
                 next(new PhysicalOutgoingContextStageBehavior.Context(new byte[0], context));
                 return;
@@ -32,11 +33,11 @@
             using (var ms = new MemoryStream())
             {
 
-                messageSerializer.Serialize(context.MessageInstance, ms);
+                messageSerializer.Serialize(context.GetMessageInstance(), ms);
 
                 context.SetHeader(Headers.ContentType,messageSerializer.ContentType);
 
-                context.SetHeader(Headers.EnclosedMessageTypes,SerializeEnclosedMessageTypes(context.MessageType));
+                context.SetHeader(Headers.EnclosedMessageTypes, SerializeEnclosedMessageTypes(context.GetMessageType()));
                 next(new PhysicalOutgoingContextStageBehavior.Context(ms.ToArray(), context));
             }
         }
@@ -66,7 +67,7 @@
         /// </summary>
         public static void SkipSerialization(this OutgoingContext context)
         {
-            context.Extensions.GetOrCreate<SerializeMessagesBehavior.State>().SkipSerialization = true;
+            context.GetOrCreate<SerializeMessagesBehavior.State>().SkipSerialization = true;
         }
     }
 }

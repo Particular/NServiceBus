@@ -6,10 +6,13 @@ namespace NServiceBus.Unicast
     using Janitor;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Extensibility;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.MessagingBestPractices;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.OutgoingPipeline;
+    using NServiceBus.OutgoingPipeline.Publish;
+    using NServiceBus.OutgoingPipeline.Reply;
+    using NServiceBus.OutgoingPipeline.Send;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Settings;
@@ -32,10 +35,9 @@ namespace NServiceBus.Unicast
         TransportDefinition transportDefinition;
         IDispatchMessages messageSender;
         StaticMessageRouter messageRouter;
-        PipelineBase<OutgoingContext> outgoingPipeline;
-        bool sendOnlyMode;
+         bool sendOnlyMode;
         string sendLocalAddress;
-      
+        ReadOnlySettings settings;
 
         public ContextualBus(BehaviorContextStacker contextStacker, IMessageMapper messageMapper, IBuilder builder, Configure configure, IManageSubscriptions subscriptionManager,
             ReadOnlySettings settings, TransportDefinition transportDefinition, IDispatchMessages messageSender, StaticMessageRouter messageRouter)
@@ -48,8 +50,8 @@ namespace NServiceBus.Unicast
             this.transportDefinition = transportDefinition;
             this.messageSender = messageSender;
             this.messageRouter = messageRouter;
-            var pipelinesCollection = settings.Get<PipelineConfiguration>();
-            outgoingPipeline = new PipelineBase<OutgoingContext>(builder,  settings, pipelinesCollection.MainPipeline);
+            this.settings = settings;
+   
             sendOnlyMode = settings.Get<bool>("Endpoint.SendOnly");
             //if we're a worker, send to the distributor data bus
             if (settings.GetOrDefault<bool>("Worker.Enabled"))
@@ -96,25 +98,22 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Publish(object message, NServiceBus.PublishOptions options)
         {
-            var messageType = message.GetType();
-
+            var pipeline = new PipelineBase<OutgoingPublishContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
             var headers = new Dictionary<string, string>();
 
             ApplyReplyToAddress(headers);
         
-            var outgoingContext = new OutgoingContext(
+            var publishContext = new OutgoingPublishContext(
                 incomingContext,
-                messageType,
-                message,
+                new OutgoingLogicalMessage(message), 
                 options);
-
 
             foreach (var header in headers)
             {
-                outgoingContext.SetHeader(header.Key, header.Value);
+                publishContext.SetHeader(header.Key, header.Value);
             }
-       
-            outgoingPipeline.Invoke(outgoingContext);
+
+            pipeline.Invoke(publishContext);
         }
 
         /// <summary>
@@ -131,7 +130,7 @@ namespace NServiceBus.Unicast
         public virtual void Subscribe(Type messageType)
         {
             AssertIsValidForPubSub(messageType);
-         
+
             if (transportDefinition.HasSupportForCentralizedPubSub)
             {
                 // We are dealing with a brokered transport wired for auto pub/sub.
@@ -198,9 +197,27 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="IBus.Reply"/>
         /// </summary>
-        public void Reply(object message,NServiceBus.ReplyOptions options)
+        public void Reply(object message, NServiceBus.ReplyOptions options)
         {
-            SendMessage(message.GetType(), message, options);
+            var pipeline = new PipelineBase<OutgoingReplyContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
+
+            var headers = new Dictionary<string, string>();
+
+
+            //todo: move to routing
+            ApplyReplyToAddress(headers);
+
+            var outgoingContext = new OutgoingReplyContext(
+                incomingContext,
+                new OutgoingLogicalMessage(message),
+                options);
+
+            foreach (var header in headers)
+            {
+                outgoingContext.SetHeader(header.Key, header.Value);
+            }
+
+            pipeline.Invoke(outgoingContext);
         }
 
         /// <summary>
@@ -213,7 +230,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            messageSender.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(sendLocalAddress,new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
+            messageSender.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(sendLocalAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
 
             incomingContext.handleCurrentMessageLaterWasCalled = true;
 
@@ -236,11 +253,11 @@ namespace NServiceBus.Unicast
         public void Send(object message, NServiceBus.SendOptions options)
         {
             var messageType = message.GetType();
-   
+
             SendMessage(messageType, message, options);
         }
 
-  
+
         List<string> GetAtLeastOneAddressForMessageType(Type messageType)
         {
             var addresses = GetAddressForMessageType(messageType)
@@ -254,27 +271,28 @@ namespace NServiceBus.Unicast
             return addresses;
         }
 
-      
-        void SendMessage(Type messageType, object message, ExtendableOptions options)
+
+        void SendMessage(Type messageType, object message, NServiceBus.SendOptions options)
         {
+            var pipeline = new PipelineBase<OutgoingSendContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
+         
             var headers = new Dictionary<string, string>();
 
-         
+
             //todo: move to routing
             ApplyReplyToAddress(headers);
-            
-            var outgoingContext = new OutgoingContext(
+
+            var outgoingContext = new OutgoingSendContext(
                 incomingContext,
-                messageType,
-                message,
+                new OutgoingLogicalMessage(messageType,message),
                 options);
 
             foreach (var header in headers)
             {
-                outgoingContext.SetHeader(header.Key,header.Value);
+                outgoingContext.SetHeader(header.Key, header.Value);
             }
 
-            outgoingPipeline.Invoke(outgoingContext);
+            pipeline.Invoke(outgoingContext);
         }
 
         void ApplyReplyToAddress(Dictionary<string, string> headers)

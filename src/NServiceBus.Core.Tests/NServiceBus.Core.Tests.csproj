@@ -128,6 +128,8 @@
     <Compile Include="ContextHelpers.cs" />
     <Compile Include="DelayedDelivery\RouteDeferredMessageToTimeoutManagerBehaviorTests.cs" />
     <Compile Include="Reliability\Outbox\DeliveryConstraintsFactoryTests.cs" />
+    <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
+    <Compile Include="Routing\DetermineRouteForSendBehaviorTests.cs" />
     <Compile Include="TransportDispatch\HeaderAssertHelpers.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedAttributeTests.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscriptionContext.cs" />
@@ -159,7 +161,7 @@
     <Compile Include="Persistence\PersistenceStorageMergerTests.cs" />
     <Compile Include="Pipeline\HandlerTransactionScopeWrapperBehaviorTests.cs" />
     <Compile Include="Pipeline\PipelineModelBuilderTests.cs" />
-    <Compile Include="Routing\DetermineRoutingForMessageBehaviorTests.cs" />
+    <Compile Include="Routing\DetermineRouteForReplyBehaviorTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
     <Compile Include="Sagas\TypeBasedSagaMetaModelTests.cs" />
     <Compile Include="SecondLevelRetries\DefaultRetryPolicyTests.cs" />

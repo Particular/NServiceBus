@@ -1,8 +1,5 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
-    using System;
-    using NServiceBus.Extensibility;
-
     /// <summary>
     /// Represent the part of the outgoing pipeline where the message has been serialized to a byte[]
     /// </summary>
@@ -21,14 +18,8 @@
                 : base(parentContext)
             {
                 Body = body;
-                MessageType = parentContext.MessageType;
-                Extensions = parentContext.Extensions;
             }
 
-            /// <summary>
-            /// The logical message type
-            /// </summary>
-            public Type MessageType { get; private set; }
 
             /// <summary>
             /// 
@@ -37,11 +28,6 @@
             /// A <see cref="byte"/> array containing the serialized contents of the outgoing message.
             /// </summary>
             public byte[] Body { get; set; }
-
-            /// <summary>
-            /// Place for extensions to store their data
-            /// </summary>
-            public OptionExtensionContext Extensions { get; private set; }
         }
     }
 }
