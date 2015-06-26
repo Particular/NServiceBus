@@ -560,9 +560,6 @@
     <Compile Include="Faults\FaultsHeaderKeys.cs" />
     <Compile Include="Faults\FaultsQueueCreator.cs" />
     <Compile Include="Faults\IManageMessageFailures.cs" />
-    <Compile Include="Hosting\Configuration\EndpointNameAttribute.cs" />
-    <Compile Include="Performance\Statistics\SLA\EndpointSLAAttribute.cs" />
-    <Compile Include="Hosting\Configuration\IConfigureThisEndpoint.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
     <Compile Include="InternalsVisibleTo.cs" />

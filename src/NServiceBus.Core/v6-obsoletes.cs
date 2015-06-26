@@ -6,6 +6,34 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Reflection;
 
+    [ObsoleteEx(
+     Message = "Moved to the NServiceBus.Host nuget",
+     RemoveInVersion = "7.0",
+     ReplacementTypeOrMember = "NServiceBus.Hosting.Windows.IConfigureThisEndpoint",
+     TreatAsErrorFromVersion = "6.0")]
+    public interface IConfigureThisEndpoint
+    {
+    }
+
+
+    [ObsoleteEx(
+     Message = "Moved to the NServiceBus.Host nuget",
+     RemoveInVersion = "7.0",
+     ReplacementTypeOrMember = "NServiceBus.Hosting.Windows.EndpointNameAttribute",
+     TreatAsErrorFromVersion = "6.0")]
+    public sealed class EndpointNameAttribute : Attribute
+    {
+    }
+
+    [ObsoleteEx(
+     Message = "Moved to the NServiceBus.Host nuget",
+     RemoveInVersion = "7.0",
+     ReplacementTypeOrMember = "NServiceBus.Hosting.Windows.EndpointSLAAttribute",
+     TreatAsErrorFromVersion = "6.0")]
+    public sealed class EndpointSLAAttribute : Attribute
+    {
+    }
+
     public partial class BusConfiguration
     {
         [ObsoleteEx(
