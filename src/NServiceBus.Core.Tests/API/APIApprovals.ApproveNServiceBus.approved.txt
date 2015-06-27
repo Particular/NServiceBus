@@ -258,16 +258,17 @@ namespace NServiceBus
         public string Base64Iv { get; set; }
         public string EncryptedBase64Value { get; set; }
     }
+    [System.ObsoleteAttribute("Moved to the NServiceBus.Host nuget. Please use `NServiceBus.Hosting.Windows.Endp" +
+        "ointNameAttribute` instead. Will be removed in version 7.0.0.", true)]
     public sealed class EndpointNameAttribute : System.Attribute
     {
-        public EndpointNameAttribute(string name) { }
-        public string Name { get; set; }
+        public EndpointNameAttribute() { }
     }
-    [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.All)]
+    [System.ObsoleteAttribute("Moved to the NServiceBus.Host nuget. Please use `NServiceBus.Hosting.Windows.Endp" +
+        "ointSLAAttribute` instead. Will be removed in version 7.0.0.", true)]
     public sealed class EndpointSLAAttribute : System.Attribute
     {
-        public EndpointSLAAttribute(string sla) { }
-        public System.TimeSpan SLA { get; }
+        public EndpointSLAAttribute() { }
     }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class ExpressAttribute : System.Attribute
@@ -408,10 +409,9 @@ namespace NServiceBus
         void Register<T>(System.Action<T> callback, object synchronizer);
     }
     public interface ICommand : NServiceBus.IMessage { }
-    public interface IConfigureThisEndpoint
-    {
-        void Customize(NServiceBus.BusConfiguration configuration);
-    }
+    [System.ObsoleteAttribute("Moved to the NServiceBus.Host nuget. Please use `NServiceBus.Hosting.Windows.ICon" +
+        "figureThisEndpoint` instead. Will be removed in version 7.0.0.", true)]
+    public interface IConfigureThisEndpoint { }
     public interface IDataBusProperty
     {
         bool HasValue { get; set; }

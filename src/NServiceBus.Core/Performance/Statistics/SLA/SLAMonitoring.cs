@@ -1,7 +1,6 @@
 namespace NServiceBus.Features
 {
     using System;
-    using System.Linq;
     using NServiceBus.PerformanceCounters;
 
     /// <summary>
@@ -44,36 +43,8 @@ namespace NServiceBus.Features
                 return true;
             }
 
-            if (TryGetSlaFromAttribute(context, out endpointSla))
-            {
-                return true;
-            }
-
             return false;
         }
 
-        static bool TryGetSlaFromAttribute(FeatureConfigurationContext config, out TimeSpan sla)
-        {
-            var configType = config.Settings
-                .GetAvailableTypes()
-                .SingleOrDefault(t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t) && !t.IsInterface);
-
-            if (configType == null)
-            {
-                sla = TimeSpan.Zero;
-                return false;
-            }
-
-            var endpointSLAAttribute = (EndpointSLAAttribute)configType.GetCustomAttributes(typeof(EndpointSLAAttribute), false)
-                .FirstOrDefault();
-            if (endpointSLAAttribute == null)
-            {
-                sla = TimeSpan.Zero;
-                return false;
-            }
-
-            sla = endpointSLAAttribute.SLA;
-            return true;
-        }
     }
 }
