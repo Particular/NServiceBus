@@ -1,16 +1,16 @@
-﻿namespace NServiceBus.OutgoingPipeline.Reply
+﻿namespace NServiceBus.OutgoingPipeline
 {
     using NServiceBus.Pipeline;
 
     /// <summary>
-    /// Pipeline context for reply operations
+    /// Pipeline context for send operations
     /// </summary>
-    public class OutgoingReplyContext : BehaviorContext
+    public class OutgoingSendContext : BehaviorContext
     {
         /// <summary>
         /// Initializes the context with a parent context
         /// </summary>
-        public OutgoingReplyContext(BehaviorContext parentContext, OutgoingLogicalMessage message, ReplyOptions options)
+        public OutgoingSendContext(BehaviorContext parentContext, OutgoingLogicalMessage message, SendOptions options)
             : base(parentContext)
         {
             Guard.AgainstNull(parentContext, "parentContext");
@@ -19,7 +19,7 @@
 
             Set(message);
 
-            parentContext.Merge(options.Context);
+            Merge(options.Context);
         }
     }
 }

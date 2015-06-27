@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests
 {
     using System;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
 
     static class HeaderAssertHelpers

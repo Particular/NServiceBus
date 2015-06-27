@@ -3,8 +3,8 @@
     using System;
     using System.Threading;
     using NServiceBus.Callbacks;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
 
     class UpdateRequestResponseCorrelationTableBehavior : PhysicalOutgoingContextStageBehavior
     {

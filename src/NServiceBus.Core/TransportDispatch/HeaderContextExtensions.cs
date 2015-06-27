@@ -1,8 +1,6 @@
 ﻿namespace NServiceBus.TransportDispatch
 {
-    using NServiceBus.OutgoingPipeline.Publish;
-    using NServiceBus.OutgoingPipeline.Reply;
-    using NServiceBus.OutgoingPipeline.Send;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
 

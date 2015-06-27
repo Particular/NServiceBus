@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using NServiceBus.MessagingBestPractices;
     using NServiceBus.OutgoingPipeline;
-    using NServiceBus.OutgoingPipeline.Reply;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing.MessagingBestPractices;
 

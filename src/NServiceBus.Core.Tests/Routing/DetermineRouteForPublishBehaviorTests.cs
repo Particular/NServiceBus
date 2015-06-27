@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
     using NServiceBus.OutgoingPipeline;
-    using NServiceBus.OutgoingPipeline.Publish;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
     using NUnit.Framework;

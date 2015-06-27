@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.OutgoingPipeline.Reply;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
 

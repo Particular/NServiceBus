@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using NServiceBus.OutgoingPipeline;
-    using NServiceBus.OutgoingPipeline.Send;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.TransportDispatch;

@@ -1,6 +1,6 @@
 namespace NServiceBus.Pipeline
 {
-    using NServiceBus.OutgoingPipeline.Reply;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
 
     /// <summary>

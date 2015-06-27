@@ -3,7 +3,6 @@
     using System;
     using NServiceBus.MessagingBestPractices;
     using NServiceBus.OutgoingPipeline;
-    using NServiceBus.OutgoingPipeline.Send;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing.MessagingBestPractices;
 

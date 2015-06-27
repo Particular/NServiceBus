@@ -1,9 +1,6 @@
 namespace NServiceBus.OutgoingPipeline
 {
     using System;
-    using NServiceBus.OutgoingPipeline.Publish;
-    using NServiceBus.OutgoingPipeline.Reply;
-    using NServiceBus.OutgoingPipeline.Send;
     using NServiceBus.Pipeline.Contexts;
 
     /// <summary>

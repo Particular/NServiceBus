@@ -20,11 +20,7 @@
             context.Pipeline.Register("DetermineRouteForSend", typeof(DetermineRouteForSendBehavior), "Determines how the message being sent should be routed");
             context.Pipeline.Register("DetermineRouteForReply", typeof(DetermineRouteForReplyBehavior), "Determines how replies should be routed");
             context.Pipeline.Register("DetermineRouteForPublish", typeof(DetermineRouteForPublishBehavior), "Determines how the published messages should be routed");
-          
-            context.Pipeline.RegisterConnector<PublishToOutgoingContextConnector>("Connect the publish stage to the outgoing stage");
-            context.Pipeline.RegisterConnector<SendToOutgoingContextConnector>("Connect the send stage to the outgoing stage");
-            context.Pipeline.RegisterConnector<ReplyToOutgoingContextConnector>("Connect the reply stage to the outgoing stage");
-            
+     
             var router = SetupStaticRouter(context);
             context.Container.RegisterSingleton(router);
 

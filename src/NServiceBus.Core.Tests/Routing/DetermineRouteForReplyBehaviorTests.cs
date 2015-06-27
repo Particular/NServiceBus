@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.IO;
     using NServiceBus.OutgoingPipeline;
-    using NServiceBus.OutgoingPipeline.Reply;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
     using NServiceBus.Transports;

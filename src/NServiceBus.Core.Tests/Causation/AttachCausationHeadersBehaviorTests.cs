@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.OutgoingPipeline;
     using NUnit.Framework;
 
     [TestFixture]

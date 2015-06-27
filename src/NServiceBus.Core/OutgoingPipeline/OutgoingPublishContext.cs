@@ -1,16 +1,16 @@
-﻿namespace NServiceBus.OutgoingPipeline.Send
+﻿namespace NServiceBus.OutgoingPipeline
 {
     using NServiceBus.Pipeline;
 
     /// <summary>
-    /// Pipeline context for send operations
+    /// Pipeline context for publish operations
     /// </summary>
-    public class OutgoingSendContext : BehaviorContext
+    public class OutgoingPublishContext : BehaviorContext
     {
         /// <summary>
         /// Initializes the context with a parent context
         /// </summary>
-        public OutgoingSendContext(BehaviorContext parentContext, OutgoingLogicalMessage message, SendOptions options)
+        public OutgoingPublishContext(BehaviorContext parentContext, OutgoingLogicalMessage message, PublishOptions options)
             : base(parentContext)
         {
             Guard.AgainstNull(parentContext, "parentContext");
@@ -19,7 +19,7 @@
 
             Set(message);
 
-            Merge(options.Context);
+            parentContext.Merge(options.Context);
         }
     }
 }

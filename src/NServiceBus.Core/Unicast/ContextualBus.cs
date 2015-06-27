@@ -10,9 +10,6 @@ namespace NServiceBus.Unicast
     using NServiceBus.MessagingBestPractices;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.OutgoingPipeline;
-    using NServiceBus.OutgoingPipeline.Publish;
-    using NServiceBus.OutgoingPipeline.Reply;
-    using NServiceBus.OutgoingPipeline.Send;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Settings;

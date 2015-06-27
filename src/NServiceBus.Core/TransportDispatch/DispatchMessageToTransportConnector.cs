@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 

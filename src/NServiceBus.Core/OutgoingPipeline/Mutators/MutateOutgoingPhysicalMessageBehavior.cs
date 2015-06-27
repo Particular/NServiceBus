@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using NServiceBus.MessageMutator;
-    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.TransportDispatch;
 
     class MutateOutgoingPhysicalMessageBehavior : PhysicalOutgoingContextStageBehavior

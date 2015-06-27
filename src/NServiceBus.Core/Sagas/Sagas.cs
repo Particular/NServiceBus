@@ -27,7 +27,7 @@
             });
 
             Defaults(s => s.Set<SagaMetaModel>(new SagaMetaModel()));
-           
+
             Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas was found in scanned types");
 
             RegisterStartupTask<CallISagaPersisterInitializeMethod>();
@@ -41,8 +41,10 @@
             // Register the Saga related behaviors for incoming messages
             context.Pipeline.Register<SagaPersistenceBehavior.Registration>();
             context.Pipeline.Register<InvokeSagaNotFoundBehavior.Registration>();
+            context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", typeof(AttachSagaDetailsToOutGoingMessageBehavior), "Makes sure that outgoing messages have saga info attached to them");
 
-            var typeBasedSagas = TypeBasedSagaMetaModel.Create(context.Settings.GetAvailableTypes(),conventions);
+
+            var typeBasedSagas = TypeBasedSagaMetaModel.Create(context.Settings.GetAvailableTypes(), conventions);
 
             var sagaMetaModel = context.Settings.Get<SagaMetaModel>();
             sagaMetaModel.Initialize(typeBasedSagas);
@@ -70,7 +72,7 @@
 
                 if (finder.Properties.TryGetValue("custom-finder-clr-type", out customFinderType))
                 {
-                    container.ConfigureComponent((Type) customFinderType, DependencyLifecycle.InstancePerCall);
+                    container.ConfigureComponent((Type)customFinderType, DependencyLifecycle.InstancePerCall);
                 }
             }
         }

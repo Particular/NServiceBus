@@ -537,7 +537,7 @@ namespace NServiceBus
     }
     public class static MessageIdExtensions
     {
-        public static string GetMessageId(this NServiceBus.Pipeline.Contexts.PhysicalOutgoingContextStageBehavior.Context context) { }
+        public static string GetMessageId(this NServiceBus.OutgoingPipeline.PhysicalOutgoingContextStageBehavior.Context context) { }
         public static string GetMessageId(this NServiceBus.Pipeline.Contexts.OutgoingContext context) { }
         public static void SetMessageId(this NServiceBus.Extensibility.ExtendableOptions context, string messageId) { }
     }
@@ -1598,36 +1598,36 @@ namespace NServiceBus.OutgoingPipeline
     }
     public class static OutgoingLogicalMessageContextExtensions
     {
-        public static object GetMessageInstance(this NServiceBus.OutgoingPipeline.Publish.OutgoingPublishContext context) { }
-        public static object GetMessageInstance(this NServiceBus.OutgoingPipeline.Send.OutgoingSendContext context) { }
-        public static object GetMessageInstance(this NServiceBus.OutgoingPipeline.Reply.OutgoingReplyContext context) { }
+        public static object GetMessageInstance(this NServiceBus.OutgoingPipeline.OutgoingPublishContext context) { }
+        public static object GetMessageInstance(this NServiceBus.OutgoingPipeline.OutgoingSendContext context) { }
+        public static object GetMessageInstance(this NServiceBus.OutgoingPipeline.OutgoingReplyContext context) { }
         public static object GetMessageInstance(this NServiceBus.Pipeline.Contexts.OutgoingContext context) { }
-        public static System.Type GetMessageType(this NServiceBus.OutgoingPipeline.Publish.OutgoingPublishContext context) { }
-        public static System.Type GetMessageType(this NServiceBus.OutgoingPipeline.Send.OutgoingSendContext context) { }
-        public static System.Type GetMessageType(this NServiceBus.OutgoingPipeline.Reply.OutgoingReplyContext context) { }
+        public static System.Type GetMessageType(this NServiceBus.OutgoingPipeline.OutgoingPublishContext context) { }
+        public static System.Type GetMessageType(this NServiceBus.OutgoingPipeline.OutgoingSendContext context) { }
+        public static System.Type GetMessageType(this NServiceBus.OutgoingPipeline.OutgoingReplyContext context) { }
         public static System.Type GetMessageType(this NServiceBus.Pipeline.Contexts.OutgoingContext context) { }
         public static void UpdateMessageInstance(this NServiceBus.Pipeline.Contexts.OutgoingContext context, object newInstance) { }
     }
-}
-namespace NServiceBus.OutgoingPipeline.Publish
-{
     public class OutgoingPublishContext : NServiceBus.Pipeline.BehaviorContext
     {
         public OutgoingPublishContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.OutgoingPipeline.OutgoingLogicalMessage message, NServiceBus.PublishOptions options) { }
     }
-}
-namespace NServiceBus.OutgoingPipeline.Reply
-{
     public class OutgoingReplyContext : NServiceBus.Pipeline.BehaviorContext
     {
         public OutgoingReplyContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.OutgoingPipeline.OutgoingLogicalMessage message, NServiceBus.ReplyOptions options) { }
     }
-}
-namespace NServiceBus.OutgoingPipeline.Send
-{
     public class OutgoingSendContext : NServiceBus.Pipeline.BehaviorContext
     {
         public OutgoingSendContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.OutgoingPipeline.OutgoingLogicalMessage message, NServiceBus.SendOptions options) { }
+    }
+    public abstract class PhysicalOutgoingContextStageBehavior : NServiceBus.Pipeline.Behavior<NServiceBus.OutgoingPipeline.PhysicalOutgoingContextStageBehavior.Context>
+    {
+        protected PhysicalOutgoingContextStageBehavior() { }
+        public class Context : NServiceBus.Pipeline.BehaviorContext
+        {
+            public Context(byte[] body, NServiceBus.Pipeline.Contexts.OutgoingContext parentContext) { }
+            public byte[] Body { get; set; }
+        }
     }
 }
 namespace NServiceBus.Performance.TimeToBeReceived
@@ -1808,8 +1808,8 @@ namespace NServiceBus.Pipeline
     {
         public static NServiceBus.TransportMessage GetIncomingPhysicalMessage(this NServiceBus.Pipeline.Contexts.TransportReceiveContext context) { }
         public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.Contexts.OutgoingContext context, out NServiceBus.TransportMessage message) { }
-        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.OutgoingPipeline.Reply.OutgoingReplyContext context, out NServiceBus.TransportMessage message) { }
-        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.Contexts.PhysicalOutgoingContextStageBehavior.Context context, out NServiceBus.TransportMessage message) { }
+        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.OutgoingPipeline.OutgoingReplyContext context, out NServiceBus.TransportMessage message) { }
+        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.OutgoingPipeline.PhysicalOutgoingContextStageBehavior.Context context, out NServiceBus.TransportMessage message) { }
     }
     public class WellKnownStep
     {
@@ -1882,15 +1882,6 @@ namespace NServiceBus.Pipeline.Contexts
     public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
     {
         public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext) { }
-    }
-    public abstract class PhysicalOutgoingContextStageBehavior : NServiceBus.Pipeline.Behavior<NServiceBus.Pipeline.Contexts.PhysicalOutgoingContextStageBehavior.Context>
-    {
-        protected PhysicalOutgoingContextStageBehavior() { }
-        public class Context : NServiceBus.Pipeline.BehaviorContext
-        {
-            public Context(byte[] body, NServiceBus.Pipeline.Contexts.OutgoingContext parentContext) { }
-            public byte[] Body { get; set; }
-        }
     }
     public class TransportReceiveContext : NServiceBus.Pipeline.Contexts.IncomingContext
     {
@@ -2324,10 +2315,10 @@ namespace NServiceBus.TransportDispatch
     public class static HeaderContextExtensions
     {
         public static void SetHeader(this NServiceBus.Pipeline.Contexts.OutgoingContext context, string key, string value) { }
-        public static void SetHeader(this NServiceBus.OutgoingPipeline.Publish.OutgoingPublishContext context, string key, string value) { }
-        public static void SetHeader(this NServiceBus.OutgoingPipeline.Send.OutgoingSendContext context, string key, string value) { }
-        public static void SetHeader(this NServiceBus.OutgoingPipeline.Reply.OutgoingReplyContext context, string key, string value) { }
-        public static void SetHeader(this NServiceBus.Pipeline.Contexts.PhysicalOutgoingContextStageBehavior.Context context, string key, string value) { }
+        public static void SetHeader(this NServiceBus.OutgoingPipeline.OutgoingPublishContext context, string key, string value) { }
+        public static void SetHeader(this NServiceBus.OutgoingPipeline.OutgoingSendContext context, string key, string value) { }
+        public static void SetHeader(this NServiceBus.OutgoingPipeline.OutgoingReplyContext context, string key, string value) { }
+        public static void SetHeader(this NServiceBus.OutgoingPipeline.PhysicalOutgoingContextStageBehavior.Context context, string key, string value) { }
         public static void SetHeader(this NServiceBus.TransportDispatch.DispatchContext context, string key, string value) { }
     }
 }

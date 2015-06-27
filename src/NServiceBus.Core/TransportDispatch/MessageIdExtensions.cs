@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using NServiceBus.Extensibility;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
 
     /// <summary>

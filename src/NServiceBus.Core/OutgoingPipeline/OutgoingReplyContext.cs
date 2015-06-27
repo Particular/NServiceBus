@@ -1,16 +1,16 @@
-﻿namespace NServiceBus.OutgoingPipeline.Publish
+﻿namespace NServiceBus.OutgoingPipeline
 {
     using NServiceBus.Pipeline;
 
     /// <summary>
-    /// Pipeline context for publish operations
+    /// Pipeline context for reply operations
     /// </summary>
-    public class OutgoingPublishContext : BehaviorContext
+    public class OutgoingReplyContext : BehaviorContext
     {
         /// <summary>
         /// Initializes the context with a parent context
         /// </summary>
-        public OutgoingPublishContext(BehaviorContext parentContext, OutgoingLogicalMessage message, PublishOptions options)
+        public OutgoingReplyContext(BehaviorContext parentContext, OutgoingLogicalMessage message, ReplyOptions options)
             : base(parentContext)
         {
             Guard.AgainstNull(parentContext, "parentContext");
