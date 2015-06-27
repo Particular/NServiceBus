@@ -17,7 +17,7 @@
             Guard.AgainstNull(context, "context");
 
             string correlationId;
-            if (context.GetIncomingPhysicalMessage().Headers.TryGetValue(Headers.CorrelationId, out correlationId))
+            if (context.GetPhysicalMessage().Headers.TryGetValue(Headers.CorrelationId, out correlationId))
             {
                 return correlationId;
             }

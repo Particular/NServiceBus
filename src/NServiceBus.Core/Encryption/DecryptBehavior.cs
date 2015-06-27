@@ -21,9 +21,9 @@ namespace NServiceBus
                 next();
                 return;
             }
-            var current = context.GetIncomingLogicalMessage().Instance;
+            var current = context.GetLogicalMessage().Instance;
             current = messageMutator.MutateIncoming(current);
-            context.GetIncomingLogicalMessage().UpdateMessageInstance(current);
+            context.GetLogicalMessage().UpdateMessageInstance(current);
             next();
         }
 

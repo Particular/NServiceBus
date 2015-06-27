@@ -11,7 +11,7 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Returns the incoming physical message
         /// </summary>
-        public static TransportMessage GetIncomingPhysicalMessage(this TransportReceiveContext context)
+        public static TransportMessage GetPhysicalMessage(this TransportReceiveContext context)
         {
             Guard.AgainstNull(context, "context");
 

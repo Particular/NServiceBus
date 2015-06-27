@@ -157,7 +157,6 @@
     <Compile Include="OutgoingPipeline\Mutators\IMutateOutgoingTransportMessages.cs" />
     <Compile Include="OutgoingPipeline\Mutators\MutateOutgoingMessagesContext.cs" />
     <Compile Include="OutgoingPipeline\Mutators\MutateOutgoingTransportMessagesContext.cs" />
-    <Compile Include="Extensibility\OptionExtensionContext.cs" />
     <Compile Include="OutgoingPipeline\OutgoingLogicalMessage.cs" />
     <Compile Include="OutgoingPipeline\OutgoingLogicalMessageContextExtensions.cs" />
     <Compile Include="OutgoingPipeline\OutgoingPipelineFeature.cs" />

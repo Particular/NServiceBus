@@ -27,12 +27,12 @@ namespace NServiceBus
             }
             catch (MessageDeserializationException)
             {
-                context.GetIncomingPhysicalMessage().Headers.Remove(Headers.Retries);
+                context.GetPhysicalMessage().Headers.Remove(Headers.Retries);
                 throw; // no SLR for poison messages
             }
             catch (Exception ex)
             {
-                var message = context.GetIncomingPhysicalMessage();
+                var message = context.GetPhysicalMessage();
                 var currentRetry = GetNumberOfRetries(message.Headers) +1;
 
                 TimeSpan delay;
@@ -41,7 +41,7 @@ namespace NServiceBus
                 {
                     var receiveAddress = PipelineInfo.PublicAddress;
 
-                    var messageToRetry = new OutgoingMessage(context.GetIncomingPhysicalMessage().Id, message.Headers, message.Body);
+                    var messageToRetry = new OutgoingMessage(context.GetPhysicalMessage().Id, message.Headers, message.Body);
 
                     messageToRetry.Headers[Headers.Retries] = currentRetry.ToString();
                     messageToRetry.Headers[RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);

@@ -66,7 +66,7 @@
 
             Assert.Throws<Exception>(() => behavior.Invoke(context, () => { throw new Exception("testex"); }));
 
-            Assert.False(context.GetIncomingPhysicalMessage().Headers.ContainsKey(Headers.Retries));
+            Assert.False(context.GetPhysicalMessage().Headers.ContainsKey(Headers.Retries));
         }
         [Test]
         public void ShouldSkipRetryForDeserializationErrors()
@@ -77,7 +77,7 @@
             var context = CreateContext("someid", 1);
 
             Assert.Throws<MessageDeserializationException>(() => behavior.Invoke(context, () => { throw new MessageDeserializationException("testex"); }));
-            Assert.False(context.GetIncomingPhysicalMessage().Headers.ContainsKey(Headers.Retries));
+            Assert.False(context.GetPhysicalMessage().Headers.ContainsKey(Headers.Retries));
         }
 
         [Test]
@@ -102,7 +102,7 @@
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
             var context = CreateContext("someid", 2);
 
-            context.GetIncomingPhysicalMessage().Headers.Clear();
+            context.GetPhysicalMessage().Headers.Clear();
 
 
             var fakeDispatchPipeline = new FakeDispatchPipeline();

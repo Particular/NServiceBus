@@ -12,7 +12,7 @@ namespace NServiceBus.Features
         internal MessageDrivenSubscriptions()
         {
             EnableByDefault();
-            Prerequisite(c=>!c.Settings.Get<TransportDefinition>().HasNativePubSubSupport,"The transport supports native pub sub");
+            Prerequisite(c => !c.Settings.Get<TransportDefinition>().HasNativePubSubSupport, "The transport supports native pub sub");
         }
 
         /// <summary>
@@ -20,6 +20,7 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            context.Pipeline.Register<SubscriptionReceiverBehavior.Registration>();
             context.Container.ConfigureComponent(builder => new SubscriptionManager(builder.Build<Configure>().PublicReturnAddress, builder.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
         }
     }

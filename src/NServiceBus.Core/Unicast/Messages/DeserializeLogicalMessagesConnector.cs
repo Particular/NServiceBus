@@ -27,7 +27,7 @@
 
         public override void Invoke(PhysicalMessageProcessingStageBehavior.Context context, Action<LogicalMessagesProcessingStageBehavior.Context> next)
         {
-            var transportMessage = context.GetIncomingPhysicalMessage();
+            var transportMessage = context.GetPhysicalMessage();
 
             if (TransportMessageExtensions.IsControlMessage(transportMessage.Headers))
             {

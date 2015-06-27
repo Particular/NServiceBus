@@ -13,7 +13,7 @@
 
             foreach (var mutator in mutators)
             {
-                mutator.MutateIncoming(context.GetIncomingPhysicalMessage());
+                mutator.MutateIncoming(context.GetPhysicalMessage());
             }
 
             next();

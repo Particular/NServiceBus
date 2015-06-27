@@ -10,7 +10,7 @@
         /// <summary>
         /// The current logical message being processed.
         /// </summary>
-        public static LogicalMessage GetIncomingLogicalMessage(this LogicalMessageProcessingStageBehavior.Context context)
+        public static LogicalMessage GetLogicalMessage(this LogicalMessageProcessingStageBehavior.Context context)
         {
             return context.Get<LogicalMessage>();
         }

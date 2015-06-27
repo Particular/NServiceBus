@@ -1093,16 +1093,6 @@ namespace NServiceBus.Extensibility
     {
         public static NServiceBus.Extensibility.ContextBag GetExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
-    public class OptionExtensionContext
-    {
-        public OptionExtensionContext() { }
-        public T GetOrCreate<T>()
-            where T :  class, new () { }
-        public void Set<T>(T data)
-            where T :  class { }
-        public bool TryGet<T>(out T data)
-            where T :  class { }
-    }
 }
 namespace NServiceBus.Faults
 {
@@ -1806,7 +1796,7 @@ namespace NServiceBus.Pipeline
     }
     public class static TransportMessageContextExtensions
     {
-        public static NServiceBus.TransportMessage GetIncomingPhysicalMessage(this NServiceBus.Pipeline.Contexts.TransportReceiveContext context) { }
+        public static NServiceBus.TransportMessage GetPhysicalMessage(this NServiceBus.Pipeline.Contexts.TransportReceiveContext context) { }
         public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.Contexts.OutgoingContext context, out NServiceBus.TransportMessage message) { }
         public static bool TryGetIncomingPhysicalMessage(this NServiceBus.OutgoingPipeline.OutgoingReplyContext context, out NServiceBus.TransportMessage message) { }
         public static bool TryGetIncomingPhysicalMessage(this NServiceBus.OutgoingPipeline.PhysicalOutgoingContextStageBehavior.Context context, out NServiceBus.TransportMessage message) { }
@@ -1866,7 +1856,7 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class static LogicalMessagesContextExtensions
     {
-        public static NServiceBus.Unicast.Messages.LogicalMessage GetIncomingLogicalMessage(this NServiceBus.Pipeline.Contexts.LogicalMessageProcessingStageBehavior.Context context) { }
+        public static NServiceBus.Unicast.Messages.LogicalMessage GetLogicalMessage(this NServiceBus.Pipeline.Contexts.LogicalMessageProcessingStageBehavior.Context context) { }
     }
     public abstract class LogicalMessagesProcessingStageBehavior : NServiceBus.Pipeline.Behavior<NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context>
     {

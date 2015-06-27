@@ -18,9 +18,9 @@
         {
             next();
 
-            context.GetIncomingPhysicalMessage().RevertToOriginalBodyIfNeeded();
+            context.GetPhysicalMessage().RevertToOriginalBodyIfNeeded();
 
-            var processedMessage = new OutgoingMessage(context.GetIncomingPhysicalMessage().Id, context.GetIncomingPhysicalMessage().Headers, context.GetIncomingPhysicalMessage().Body);
+            var processedMessage = new OutgoingMessage(context.GetPhysicalMessage().Id, context.GetPhysicalMessage().Headers, context.GetPhysicalMessage().Body);
 
             var forwardingContext = new ForwardingContext(processedMessage,context);
 

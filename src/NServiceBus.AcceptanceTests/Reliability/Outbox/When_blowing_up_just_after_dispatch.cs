@@ -58,7 +58,7 @@
 
                 public override void Invoke(Context context, Action next)
                 {
-                    if (!context.GetIncomingPhysicalMessage().Headers[Headers.EnclosedMessageTypes].Contains(typeof(PlaceOrder).Name))
+                    if (!context.GetPhysicalMessage().Headers[Headers.EnclosedMessageTypes].Contains(typeof(PlaceOrder).Name))
                     {
                         next();
                         return;
