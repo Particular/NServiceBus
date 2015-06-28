@@ -13,29 +13,12 @@ namespace NServiceBus.Unicast
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Settings;
-    using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Routing;
-
-    interface IContextualBus
-    {
-    }
 
     [SkipWeaving]
     partial class ContextualBus : IBus, IContextualBus
     {
-        IMessageMapper messageMapper;
-        readonly BehaviorContextStacker contextStacker;
-        IBuilder builder;
-        Configure configure;
-        IManageSubscriptions subscriptionManager;
-        TransportDefinition transportDefinition;
-        IDispatchMessages messageSender;
-        StaticMessageRouter messageRouter;
-        bool sendOnlyMode;
-        string sendLocalAddress;
-        ReadOnlySettings settings;
-
         public ContextualBus(BehaviorContextStacker contextStacker, IMessageMapper messageMapper, IBuilder builder, Configure configure, IManageSubscriptions subscriptionManager,
             ReadOnlySettings settings, TransportDefinition transportDefinition, IDispatchMessages messageSender, StaticMessageRouter messageRouter)
         {
@@ -49,7 +32,6 @@ namespace NServiceBus.Unicast
             this.messageRouter = messageRouter;
             this.settings = settings;
 
-            sendOnlyMode = settings.Get<bool>("Endpoint.SendOnly");
             //if we're a worker, send to the distributor data bus
             if (settings.GetOrDefault<bool>("Worker.Enabled"))
             {
@@ -57,30 +39,9 @@ namespace NServiceBus.Unicast
             }
             else
             {
-                sendLocalAddress = configure.LocalAddress;
+                sendLocalAddress = settings.LocalAddress();
             }
         }
-
-        BehaviorContext incomingContext
-        {
-            get { return contextStacker.GetCurrentOrRootContext(); }
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        /// <filterpriority>2</filterpriority>
-        public void Dispose()
-        {
-            //Injected
-        }
-
-        /// <summary>
-        /// Sets whether or not the return address of a received message
-        /// should be propagated when the message is forwarded. This field is
-        /// used primarily for the Distributor.
-        /// </summary>
-        public bool PropagateReturnAddressOnSend { get; set; }
 
         /// <summary>
         /// <see cref="ISendOnlyBus.Publish"/>
@@ -96,19 +57,11 @@ namespace NServiceBus.Unicast
         public void Publish(object message, NServiceBus.PublishOptions options)
         {
             var pipeline = new PipelineBase<OutgoingPublishContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
-            var headers = new Dictionary<string, string>();
-
-            ApplyReplyToAddress(headers);
-
+         
             var publishContext = new OutgoingPublishContext(
                 incomingContext,
                 new OutgoingLogicalMessage(message),
                 options);
-
-            foreach (var header in headers)
-            {
-                publishContext.SetHeader(header.Key, header.Value);
-            }
 
             pipeline.Invoke(publishContext);
         }
@@ -198,20 +151,10 @@ namespace NServiceBus.Unicast
         {
             var pipeline = new PipelineBase<OutgoingReplyContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var headers = new Dictionary<string, string>();
-
-
-            ApplyReplyToAddress(headers);
-
             var outgoingContext = new OutgoingReplyContext(
                 incomingContext,
                 new OutgoingLogicalMessage(message),
                 options);
-
-            foreach (var header in headers)
-            {
-                outgoingContext.SetHeader(header.Key, header.Value);
-            }
 
             pipeline.Invoke(outgoingContext);
         }
@@ -272,41 +215,12 @@ namespace NServiceBus.Unicast
         {
             var pipeline = new PipelineBase<OutgoingSendContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var headers = new Dictionary<string, string>();
-
-
-            ApplyReplyToAddress(headers);
-
             var outgoingContext = new OutgoingSendContext(
                 incomingContext,
                 new OutgoingLogicalMessage(messageType, message),
                 options);
 
-            foreach (var header in headers)
-            {
-                outgoingContext.SetHeader(header.Key, header.Value);
-            }
-
             pipeline.Invoke(outgoingContext);
-        }
-
-        void ApplyReplyToAddress(Dictionary<string, string> headers)
-        {
-            string replyToAddress = null;
-
-            if (!sendOnlyMode)
-            {
-                replyToAddress = configure.PublicReturnAddress;
-            }
-
-            if (PropagateReturnAddressOnSend && CurrentMessageContext != null)
-            {
-                replyToAddress = CurrentMessageContext.ReplyToAddress;
-            }
-            if (!string.IsNullOrEmpty(replyToAddress))
-            {
-                headers[Headers.ReplyToAddress] = replyToAddress;
-            }
         }
 
         /// <summary>
@@ -333,6 +247,11 @@ namespace NServiceBus.Unicast
 
                 return new MessageContext(current);
             }
+        }
+
+        BehaviorContext incomingContext
+        {
+            get { return contextStacker.GetCurrentOrRootContext(); }
         }
 
         List<string> GetAddressForMessageType(Type messageType)
@@ -370,5 +289,25 @@ namespace NServiceBus.Unicast
                 return current;
             }
         }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
+        public void Dispose()
+        {
+            //Injected
+        }
+
+        IMessageMapper messageMapper;
+        readonly BehaviorContextStacker contextStacker;
+        IBuilder builder;
+        Configure configure;
+        IManageSubscriptions subscriptionManager;
+        TransportDefinition transportDefinition;
+        IDispatchMessages messageSender;
+        StaticMessageRouter messageRouter;
+        string sendLocalAddress;
+        ReadOnlySettings settings;
     }
 }

@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Features;
@@ -25,7 +24,7 @@ namespace NServiceBus
             Settings = settings;
             this.pipelineSettings = pipelineSettings;
             this.pipelineConfiguration = pipelineConfiguration;
-         
+
             RegisterContainerAdapter(container);
             RunUserRegistrations(registrations);
 
@@ -81,18 +80,6 @@ namespace NServiceBus
             }
         }
 
-        /// <summary>
-        /// Returns the queue name of this endpoint.
-        /// </summary>
-        public string LocalAddress
-        {
-            get
-            {
-                Debug.Assert(localAddress != null);
-                return localAddress;
-            }
-        }
-
         internal void Initialize()
         {
             WireUpConfigSectionOverrides();
@@ -114,8 +101,6 @@ namespace NServiceBus
             container.RegisterSingleton(featureStats);
 
             featureActivator.RegisterStartupTasks(container);
-
-            localAddress = Settings.LocalAddress();
 
             ReportFeatures(featureStats);
             StartFeatures(featureActivator);
@@ -148,19 +133,6 @@ namespace NServiceBus
             // ReSharper restore HeapView.SlowDelegateCreation
         }
 
-        internal string PublicReturnAddress
-        {
-            get
-            {
-                if (!Settings.HasSetting("PublicReturnAddress"))
-                {
-                    return LocalAddress;
-                }
-
-                return Settings.Get<string>("PublicReturnAddress");
-            }
-        }
-
         internal static void ActivateAndInvoke<T>(IList<Type> types, Action<T> action) where T : class
         {
             ForAllTypes<T>(types, t =>
@@ -187,11 +159,7 @@ namespace NServiceBus
         }
 
         internal IConfigureComponents container;
-
         internal PipelineSettings pipelineSettings;
         PipelineConfiguration pipelineConfiguration;
-
-        //HACK: Set by the tests
-        internal string localAddress;
     }
 }

@@ -110,6 +110,14 @@ namespace NServiceBus
             }
         }
 
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "settings.LocalAddress()")]
+        public string LocalAddress
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 
     [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "config.ExcludeAssemblies")]
@@ -374,6 +382,13 @@ namespace NServiceBus.Unicast
         public void Return<T>(T errorCode)
         {
             throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "No longer used")]
+        public bool PropagateReturnAddressOnSend
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
     }
 

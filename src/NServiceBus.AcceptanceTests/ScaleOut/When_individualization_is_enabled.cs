@@ -2,22 +2,23 @@
 {
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Settings;
     using NUnit.Framework;
 
     public class When_individualization_is_enabled : NServiceBusAcceptanceTest
     {
         const string discriminator = "-something";
 
-        
+
         [Test]
         public void Should_use_the_configured_differentiator()
         {
             var context = Scenario.Define<Context>()
-                    .WithEndpoint<IndividualizedEndpoint>().Done(c =>c.EndpointsStarted)
+                    .WithEndpoint<IndividualizedEndpoint>().Done(c => c.EndpointsStarted)
                     .Run();
 
-           
-            Assert.True(context.Address.Contains("-something"),context.Address + " should contain the discriminator " + discriminator);
+
+            Assert.True(context.Address.Contains("-something"), context.Address + " should contain the discriminator " + discriminator);
 
         }
 
@@ -28,21 +29,21 @@
 
         public class IndividualizedEndpoint : EndpointConfigurationBuilder
         {
-       
+
             public IndividualizedEndpoint()
             {
-                EndpointSetup<DefaultServer>(c=>c.ScaleOut().UniqueQueuePerEndpointInstance(discriminator));
+                EndpointSetup<DefaultServer>(c => c.ScaleOut().UniqueQueuePerEndpointInstance(discriminator));
             }
 
             class AddressSpy : IWantToRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
 
-                public Configure Configure { get; set; }
+                public ReadOnlySettings Settings { get; set; }
 
                 public void Start()
                 {
-                    Context.Address = Configure.LocalAddress;
+                    Context.Address = Settings.LocalAddress();
                 }
 
                 public void Stop()

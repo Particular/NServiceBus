@@ -209,6 +209,7 @@
     <Compile Include="Pipeline\StageConnector.cs" />
     <Compile Include="PublishOptions.cs" />
     <Compile Include="ReplyOptions.cs" />
+    <Compile Include="Routing\ApplyReplyToAddressBehavior.cs" />
     <Compile Include="Routing\StorageDrivenPublishing\SubscribersForEvent.cs" />
     <Compile Include="Routing\RoutingAdapter.cs" />
     <Compile Include="Routing\RoutingContextExtensions.cs" />
@@ -403,6 +404,7 @@
     <Compile Include="Unicast\ContextualBus.cs" />
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Hosting\AuditHostInformationBehavior.cs" />
+    <Compile Include="Unicast\IContextualBus.cs" />
     <Compile Include="Unicast\Transport\PipelineInfo.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\PathUtilities.cs" />
