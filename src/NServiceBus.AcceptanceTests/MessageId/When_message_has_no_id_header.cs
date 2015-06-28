@@ -4,9 +4,9 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
-    using NServiceBus.MessageMutator;
     using NServiceBus.Pipeline;
-    using NServiceBus.Unicast.Messages;
+    using NServiceBus.TransportDispatch;
+    using NServiceBus.Transports;
     using NUnit.Framework;
 
     public class When_message_has_no_id_header : NServiceBusAcceptanceTest
@@ -27,19 +27,17 @@
             Assert.IsFalse(string.IsNullOrWhiteSpace(context.MessageId));
         }
 
-        public class CorruptionMutator : IMutateOutgoingTransportMessages
+        public class CorruptionBehavior : Behavior<DispatchContext>
         {
-            public Context ScenarioContext { get; set; }
+            public Context Context { get; set; }
 
-            public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
-            {
-             
-            }
 
-            public void MutateOutgoing(MutateOutgoingTransportMessagesContext context)
+            public override void Invoke(DispatchContext context, Action next)
             {
-                context.SetHeader(Headers.MessageId,null);
-                context.SetHeader("ScenarioContextId",ScenarioContext.Id.ToString());
+                context.Get<OutgoingMessage>().Headers["ScenarioContextId"] = Context.Id.ToString();
+                context.Get<OutgoingMessage>().Headers[Headers.MessageId] = null;
+
+                next();
             }
         }
 
@@ -57,7 +55,7 @@
                 EndpointSetup<DefaultServer>(busConfig =>
                 {
                     busConfig.Pipeline.Register<InspectRawMessageStep.Registration>();
-                    busConfig.RegisterComponents(c => c.ConfigureComponent<CorruptionMutator>(DependencyLifecycle.InstancePerCall));
+                    busConfig.Pipeline.Register("CorruptionBehavior", typeof(CorruptionBehavior), "Nulls the message id");
                 })
                     .WithConfig<TransportConfig>(c =>
                     {
@@ -127,5 +125,5 @@
         {
         }
     }
-    
+
 }

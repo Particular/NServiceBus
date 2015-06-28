@@ -19,6 +19,7 @@
         {
             Guard.AgainstNull(context, "context");
             Guard.AgainstNullAndEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(value, "value");
 
             context.GetOrCreate<DispatchMessageToTransportConnector.State>()
                 .Headers[key] = value;
@@ -34,6 +35,7 @@
         {
             Guard.AgainstNull(context, "context");
             Guard.AgainstNullAndEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(value, "value");
 
             context.GetOrCreate<DispatchMessageToTransportConnector.State>()
                 .Headers[key] = value;
@@ -49,6 +51,7 @@
         {
             Guard.AgainstNull(context, "context");
             Guard.AgainstNullAndEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(value, "value");
 
             context.GetOrCreate<DispatchMessageToTransportConnector.State>()
                 .Headers[key] = value;
@@ -64,6 +67,7 @@
         {
             Guard.AgainstNull(context, "context");
             Guard.AgainstNullAndEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(value, "value");
 
             context.GetOrCreate<DispatchMessageToTransportConnector.State>()
                 .Headers[key] = value;
@@ -79,6 +83,7 @@
         {
             Guard.AgainstNull(context, "context");
             Guard.AgainstNullAndEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(value, "value");
 
             context.GetOrCreate<DispatchMessageToTransportConnector.State>()
                 .Headers[key] = value;
@@ -94,6 +99,7 @@
         {
             Guard.AgainstNull(context, "context");
             Guard.AgainstNullAndEmpty(key, "key");
+            Guard.AgainstNullAndEmpty(value, "value");
 
             context.Get<OutgoingMessage>().Headers[key] = value;
         }

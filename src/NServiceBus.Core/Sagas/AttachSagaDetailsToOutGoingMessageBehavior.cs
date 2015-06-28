@@ -13,7 +13,7 @@
             ActiveSagaInstance saga;
 
             //attach the current saga details to the outgoing headers for correlation
-            if (context.TryGet(out saga) && HasBeenFound(saga))
+            if (context.TryGet(out saga) && HasBeenFound(saga) && !string.IsNullOrEmpty(saga.SagaId))
             {
                 context.SetHeader(Headers.OriginatingSagaId, saga.SagaId);
                 context.SetHeader(Headers.OriginatingSagaType, saga.Metadata.SagaType.AssemblyQualifiedName);

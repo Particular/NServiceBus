@@ -32,7 +32,7 @@ namespace NServiceBus.Unicast
         TransportDefinition transportDefinition;
         IDispatchMessages messageSender;
         StaticMessageRouter messageRouter;
-         bool sendOnlyMode;
+        bool sendOnlyMode;
         string sendLocalAddress;
         ReadOnlySettings settings;
 
@@ -48,7 +48,7 @@ namespace NServiceBus.Unicast
             this.messageSender = messageSender;
             this.messageRouter = messageRouter;
             this.settings = settings;
-   
+
             sendOnlyMode = settings.Get<bool>("Endpoint.SendOnly");
             //if we're a worker, send to the distributor data bus
             if (settings.GetOrDefault<bool>("Worker.Enabled"))
@@ -99,10 +99,10 @@ namespace NServiceBus.Unicast
             var headers = new Dictionary<string, string>();
 
             ApplyReplyToAddress(headers);
-        
+
             var publishContext = new OutgoingPublishContext(
                 incomingContext,
-                new OutgoingLogicalMessage(message), 
+                new OutgoingLogicalMessage(message),
                 options);
 
             foreach (var header in headers)
@@ -201,7 +201,6 @@ namespace NServiceBus.Unicast
             var headers = new Dictionary<string, string>();
 
 
-            //todo: move to routing
             ApplyReplyToAddress(headers);
 
             var outgoingContext = new OutgoingReplyContext(
@@ -272,16 +271,15 @@ namespace NServiceBus.Unicast
         void SendMessage(Type messageType, object message, NServiceBus.SendOptions options)
         {
             var pipeline = new PipelineBase<OutgoingSendContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
-         
+
             var headers = new Dictionary<string, string>();
 
 
-            //todo: move to routing
             ApplyReplyToAddress(headers);
 
             var outgoingContext = new OutgoingSendContext(
                 incomingContext,
-                new OutgoingLogicalMessage(messageType,message),
+                new OutgoingLogicalMessage(messageType, message),
                 options);
 
             foreach (var header in headers)

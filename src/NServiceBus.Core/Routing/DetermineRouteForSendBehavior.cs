@@ -34,7 +34,7 @@ namespace NServiceBus
                 {
                     if (!messageRouter.TryGetRoute(messageType, out destination))
                     {
-                        throw new InvalidOperationException("No destination specified for message: " + messageType);
+                        throw new Exception("No destination specified for message: " + messageType);
                     }
                 }
             }

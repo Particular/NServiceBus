@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using NServiceBus.OutgoingPipeline;
@@ -24,6 +25,19 @@
             var routingStrategy = (DirectToTargetDestination)context.Get<RoutingStrategy>();
 
             Assert.AreEqual("ReplyAddressOfIncomingMessage", routingStrategy.Destination);
+        }
+
+        [Test]
+        public void Should_throw_if_incoming_message_has_no_reply_to_address()
+        {
+            var behavior = new DetermineRouteForReplyBehavior();
+            var options = new ReplyOptions();
+
+            var context = new OutgoingReplyContext(new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), null), new OutgoingLogicalMessage(new MyReply()), options);
+
+            var ex = Assert.Throws<Exception>(()=>behavior.Invoke(context, () => { }));
+
+            Assert.True(ex.Message.Contains(typeof(MyReply).FullName));
         }
 
         [Test]

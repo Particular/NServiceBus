@@ -65,9 +65,30 @@
             Assert.AreEqual("MappedDestination", routingStrategy.Destination);
         }
 
-        static OutgoingSendContext CreateContext(SendOptions options)
+        [Test]
+        public void Should_throw_if_no_route_can_be_found()
         {
-            var context = new OutgoingSendContext(new RootContext(null), new OutgoingLogicalMessage(new MyMessage()), options);
+            var router = new FakeRouter();
+
+            var behavior = InitializeBehavior(router: router);
+            var options = new SendOptions();
+
+            var context = CreateContext(options, new MessageWithoutRouting());
+
+
+            var ex = Assert.Throws<Exception>(() => behavior.Invoke(context, () => { }));
+
+            Assert.True(ex.Message.Contains("No destination specified"));
+        }
+
+        static OutgoingSendContext CreateContext(SendOptions options, object message = null)
+        {
+            if (message == null)
+            {
+                message = new MyMessage();
+            }
+
+            var context = new OutgoingSendContext(new RootContext(null), new OutgoingLogicalMessage(message), options);
             return context;
         }
 
@@ -77,8 +98,10 @@
             return new DetermineRouteForSendBehavior(localAddress, router);
         }
 
-        class MyMessage
-        { }
+        class MyMessage { }
+
+        class MessageWithoutRouting { }
+
         class FakeRouter : MessageRouter
         {
             public override bool TryGetRoute(Type messageType, out string destination)

@@ -30,7 +30,5 @@
         }
 
         internal bool handleCurrentMessageLaterWasCalled;
-
-      
     }
 }
