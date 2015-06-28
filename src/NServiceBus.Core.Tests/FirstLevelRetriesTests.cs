@@ -49,7 +49,7 @@
             }));
 
             //should set the retries header to capture how many flr attempts where made
-            Assert.AreEqual("0", context.GetIncomingPhysicalMessage().Headers[Headers.FLRetries]);
+            Assert.AreEqual("0", context.GetPhysicalMessage().Headers[Headers.FLRetries]);
         }
 
         [Test]

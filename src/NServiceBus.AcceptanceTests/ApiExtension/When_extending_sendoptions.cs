@@ -4,6 +4,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Extensibility;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
@@ -62,9 +63,9 @@
                 public override void Invoke(OutgoingContext context, Action next)
                 {
                     Context data;
-                    if (context.Extensions.TryGet(out data))
+                    if (context.TryGet(out data))
                     {
-                        context.MessageInstance = new SendMessage { Secret = data.SomeValue };
+                        context.UpdateMessageInstance(new SendMessage { Secret = data.SomeValue });
                     }
 
                     next();

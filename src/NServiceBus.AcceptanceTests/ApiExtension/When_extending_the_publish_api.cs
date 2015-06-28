@@ -68,7 +68,7 @@
                 {
                     Context data;
 
-                    if (context.Extensions.TryGet(out data))
+                    if (context.TryGet(out data))
                     {
                         Assert.AreEqual("ItWorks", data.SomeProperty);
                     }

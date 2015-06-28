@@ -15,7 +15,7 @@ namespace NServiceBus
         /// <param name="next">The next <see cref="!:IBehavior{TContext}" /> in the chain to execute.</param>
         public override void Invoke(Context context, Action next)
         {
-            Handle(context.GetIncomingPhysicalMessage());
+            Handle(context.GetPhysicalMessage());
         }
 
         /// <summary>

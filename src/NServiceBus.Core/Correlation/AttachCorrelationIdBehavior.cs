@@ -9,7 +9,7 @@
     {
         public override void Invoke(OutgoingContext context, Action next)
         {
-            var correlationId = context.Extensions.GetOrCreate<State>().CustomCorrelationId;
+            var correlationId = context.GetOrCreate<State>().CustomCorrelationId;
        
             //if we don't have a explicit correlation id set
             if (string.IsNullOrEmpty(correlationId))

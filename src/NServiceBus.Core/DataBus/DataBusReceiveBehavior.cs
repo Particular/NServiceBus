@@ -16,7 +16,7 @@
 
         public override void Invoke(Context context, Action next)
         {
-            var message = context.GetIncomingLogicalMessage().Instance;
+            var message = context.GetLogicalMessage().Instance;
 
             foreach (var property in Conventions.GetDataBusProperties(message))
             {

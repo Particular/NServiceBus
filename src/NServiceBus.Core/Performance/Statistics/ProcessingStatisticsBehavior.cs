@@ -10,7 +10,7 @@
             var state = new State();
 
             string timeSentString;
-            var headers = context.GetIncomingPhysicalMessage().Headers;
+            var headers = context.GetPhysicalMessage().Headers;
 
             if (headers.TryGetValue(Headers.TimeSent, out timeSentString))
             {

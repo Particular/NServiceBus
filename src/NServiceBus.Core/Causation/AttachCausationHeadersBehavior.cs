@@ -1,8 +1,8 @@
 namespace NServiceBus
 {
     using System;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.TransportDispatch;
 
     class AttachCausationHeadersBehavior :PhysicalOutgoingContextStageBehavior

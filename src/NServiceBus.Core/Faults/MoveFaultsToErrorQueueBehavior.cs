@@ -29,7 +29,7 @@ namespace NServiceBus
             {
                 try
                 {
-                    var message = context.GetIncomingPhysicalMessage();
+                    var message = context.GetPhysicalMessage();
 
                     Logger.Error("Failed to process message with ID: " + message.Id, exception);
                     message.RevertToOriginalBodyIfNeeded();

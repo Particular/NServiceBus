@@ -3,8 +3,8 @@
     using System;
     using System.Threading;
     using NServiceBus.Callbacks;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
 
     class UpdateRequestResponseCorrelationTableBehavior : PhysicalOutgoingContextStageBehavior
     {
@@ -19,7 +19,7 @@
         {
             RequestResponseParameters parameters;
 
-            if (context.Extensions.TryGet(out parameters) && !parameters.CancellationToken.IsCancellationRequested)
+            if (context.TryGet(out parameters) && !parameters.CancellationToken.IsCancellationRequested)
             {
                 var messageId = context.GetMessageId();
                 parameters.CancellationToken.Register(() =>

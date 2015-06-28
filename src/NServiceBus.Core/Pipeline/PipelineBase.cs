@@ -57,11 +57,9 @@
 
         public void Invoke(T context)
         {
-            var behaviorContextStacker = context.Builder.Build<BehaviorContextStacker>();
-            behaviorContextStacker.Push(context);
             var lookupSteps = steps.ToDictionary(rs => rs.BehaviorType, ss => ss.StepId);
             var pipeline = new BehaviorChain(behaviors, lookupSteps, busNotifications);
-            pipeline.Invoke(behaviorContextStacker);
+            pipeline.Invoke(context);
         }
 
         BehaviorInstance[] behaviors;

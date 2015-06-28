@@ -2,6 +2,7 @@
 {
     using System;
     using NServiceBus.Features;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.TransportDispatch;
@@ -10,9 +11,9 @@
     {
         public override void Invoke(OutgoingContext context, Action next)
         {
-            if (CallbackSupport.IsLegacyEnumResponse(context.MessageType))
+            if (CallbackSupport.IsLegacyEnumResponse(context.GetMessageType()))
             {
-                string returnCode = ((dynamic) context.MessageInstance).ReturnCode;
+                string returnCode = ((dynamic) context.GetMessageInstance()).ReturnCode;
                 context.SetHeader(Headers.ReturnMessageErrorCodeHeader,returnCode);
                 context.SetHeader(Headers.ControlMessageHeader, true.ToString());
 

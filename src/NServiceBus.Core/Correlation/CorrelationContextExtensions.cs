@@ -17,7 +17,7 @@
             Guard.AgainstNull(context, "context");
 
             string correlationId;
-            if (context.GetIncomingPhysicalMessage().Headers.TryGetValue(Headers.CorrelationId, out correlationId))
+            if (context.GetPhysicalMessage().Headers.TryGetValue(Headers.CorrelationId, out correlationId))
             {
                 return correlationId;
             }
@@ -34,7 +34,7 @@
             Guard.AgainstNull(options, "options");
             Guard.AgainstNullAndEmpty(correlationId, "correlationId");
 
-            options.Extensions.GetOrCreate<AttachCorrelationIdBehavior.State>()
+            options.Context.GetOrCreate<AttachCorrelationIdBehavior.State>()
                 .CustomCorrelationId = correlationId;
         }
 
@@ -48,7 +48,7 @@
             Guard.AgainstNull(options, "options");
             Guard.AgainstNullAndEmpty(correlationId, "correlationId");
 
-            options.Extensions.GetOrCreate<AttachCorrelationIdBehavior.State>()
+            options.Context.GetOrCreate<AttachCorrelationIdBehavior.State>()
                 .CustomCorrelationId = correlationId;
         }
     }

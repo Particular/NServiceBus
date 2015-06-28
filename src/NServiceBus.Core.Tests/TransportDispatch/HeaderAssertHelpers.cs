@@ -1,18 +1,19 @@
 ﻿namespace NServiceBus.Core.Tests
 {
     using System;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
 
     static class HeaderAssertHelpers
     {
         public static void AssertHeaderWasSet(this PhysicalOutgoingContextStageBehavior.Context context, string key, Predicate<string> predicate)
         {
-            Assert(context.Extensions.GetOrCreate<DispatchMessageToTransportConnector.State>(), key, predicate);
+            Assert(context.GetOrCreate<DispatchMessageToTransportConnector.State>(), key, predicate);
         }
 
         public static void AssertHeaderWasSet(this OutgoingContext context, string key, Predicate<string> predicate)
         {
-            Assert(context.Extensions.GetOrCreate<DispatchMessageToTransportConnector.State>(), key, predicate);
+            Assert(context.GetOrCreate<DispatchMessageToTransportConnector.State>(), key, predicate);
         }
 
         static void Assert(DispatchMessageToTransportConnector.State state, string key, Predicate<string> predicate)

@@ -5,6 +5,7 @@
     using System.Transactions;
     using NServiceBus.DataBus;
     using NServiceBus.DeliveryConstraints;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -29,7 +30,7 @@
                 timeToBeReceived = constraint.MaxTime;
             }
 
-            var message = context.MessageInstance;
+            var message = context.GetMessageInstance();
 
             foreach (var property in Conventions.GetDataBusProperties(message))
             {

@@ -73,7 +73,7 @@
             {
                 public override void Invoke(Context context, Action next)
                 {
-                    context.GetIncomingPhysicalMessage().Body[1]++;
+                    context.GetPhysicalMessage().Body[1]++;
                     next();
                 }
             }

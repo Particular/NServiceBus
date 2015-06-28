@@ -171,7 +171,7 @@ namespace NServiceBus.Saga
             //until we have metadata we just set this to null to avoid our own saga id being set on outgoing messages since
             //that would cause the saga that started us (if it was a saga) to not be found. When we have metadata available in the future we'll set the correct id and type
             // and get true auto correlation to work between sagas
-            options.Extensions.Set(new PopulateAutoCorrelationHeadersForRepliesBehavior.State
+            options.Context.Set(new PopulateAutoCorrelationHeadersForRepliesBehavior.State
             {
                 SagaTypeToUse = null,
                 SagaIdToUse = null

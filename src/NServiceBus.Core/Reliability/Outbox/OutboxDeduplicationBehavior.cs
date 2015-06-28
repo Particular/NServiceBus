@@ -27,7 +27,7 @@
 
         public override void Invoke(Context context, Action next)
         {
-            var messageId = context.GetIncomingPhysicalMessage().Id;
+            var messageId = context.GetPhysicalMessage().Id;
             OutboxMessage outboxMessage;
 
             if (!outboxStorage.TryGet(messageId, out outboxMessage))

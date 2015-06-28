@@ -10,11 +10,14 @@
 
     class SubscriptionReceiverBehavior : PhysicalMessageProcessingStageBehavior
     {
-        public ISubscriptionStorage SubscriptionStorage { get; set; }
+        public SubscriptionReceiverBehavior(ISubscriptionStorage subscriptionStorage)
+        {
+            this.subscriptionStorage = subscriptionStorage;
+        }
 
         public override void Invoke(Context context, Action next)
         {
-            var transportMessage = context.GetIncomingPhysicalMessage();
+            var transportMessage = context.GetPhysicalMessage();
             var messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
 
             var intent = transportMessage.MessageIntent;
@@ -42,7 +45,7 @@
                 throw new InvalidOperationException("Subscription message arrived without a valid ReplyToAddress");
             }
 
-            if (SubscriptionStorage == null)
+            if (subscriptionStorage == null)
             {
                 var warning = string.Format("Subscription message from {0} arrived at this endpoint, yet this endpoint is not configured to be a publisher. To avoid this warning make this endpoint a publisher by configuring a subscription storage or using the AsA_Publisher role.", subscriberAddress);
                 Logger.WarnFormat(warning);
@@ -61,7 +64,7 @@
 
                 var mt = new MessageType(messageTypeString);
 
-                SubscriptionStorage.Subscribe(transportMessage.ReplyToAddress, new[]
+                subscriptionStorage.Subscribe(transportMessage.ReplyToAddress, new[]
                 {
                     mt
                 });
@@ -70,7 +73,7 @@
             }
 
             Logger.Info("Unsubscribing " + subscriberAddress + " from message type " + messageTypeString);
-            SubscriptionStorage.Unsubscribe(subscriberAddress, new[]
+            subscriptionStorage.Unsubscribe(subscriberAddress, new[]
             {
                 new MessageType(messageTypeString)
             });
@@ -82,6 +85,17 @@
             return (from header in msg.Headers where header.Key == Headers.SubscriptionMessageType select header.Value).FirstOrDefault();
         }
 
+        ISubscriptionStorage subscriptionStorage;
+
         static ILog Logger = LogManager.GetLogger<SubscriptionReceiverBehavior>();
+
+        public class Registration:RegisterStep
+        {
+            public Registration()
+                : base("ProcessSubscriptionRequests", typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.")
+            {
+                InsertAfterIfExists(WellKnownStep.ExecuteUnitOfWork);
+            }
+        }
     }
 }

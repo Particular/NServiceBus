@@ -2,6 +2,7 @@
 {
     using System;
     using NServiceBus.Encryption;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
 
@@ -16,9 +17,12 @@
 
         public override void Invoke(OutgoingContext context, Action next)
         {
-            var currentMessageToSend = context.MessageInstance;
+            var currentMessageToSend = context.GetMessageInstance();
+
             currentMessageToSend = messageMutator.MutateOutgoing(currentMessageToSend);
-            context.MessageInstance = currentMessageToSend;
+
+            context.UpdateMessageInstance(currentMessageToSend);
+
             next();
         }
 
