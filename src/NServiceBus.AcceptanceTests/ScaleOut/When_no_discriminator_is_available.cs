@@ -66,6 +66,11 @@
             {
                 return new AtomicWithReceiveOperation();
             }
+
+            public override IManageSubscriptions GetSubscriptionManager()
+            {
+                throw new NotImplementedException();
+            }
         }
 
             public class TransportThatDoesNotSetADefaultDiscriminatorConfigurator : ConfigureTransport

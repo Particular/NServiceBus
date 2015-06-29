@@ -50,7 +50,6 @@
             public void Should_not_throw_for_event()
             {
                 new Validations(new Conventions()).AssertIsValidForPubSub(typeof(MyEvent));
-                //TODO: verify log
             }
 
             [Test]

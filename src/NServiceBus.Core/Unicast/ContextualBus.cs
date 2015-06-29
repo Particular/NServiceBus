@@ -2,34 +2,28 @@ namespace NServiceBus.Unicast
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using Janitor;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.MessageInterfaces;
-    using NServiceBus.MessagingBestPractices;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Routing;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Routing;
 
     [SkipWeaving]
     partial class ContextualBus : IBus, IContextualBus
     {
-        public ContextualBus(BehaviorContextStacker contextStacker, IMessageMapper messageMapper, IBuilder builder, Configure configure, IManageSubscriptions subscriptionManager,
-            ReadOnlySettings settings, TransportDefinition transportDefinition, IDispatchMessages messageSender, StaticMessageRouter messageRouter)
+        public ContextualBus(BehaviorContextStacker contextStacker, IMessageMapper messageMapper, IBuilder builder,
+            ReadOnlySettings settings,IDispatchMessages dispatcher)
         {
             this.messageMapper = messageMapper;
             this.contextStacker = contextStacker;
             this.builder = builder;
-            this.configure = configure;
-            this.subscriptionManager = subscriptionManager;
-            this.transportDefinition = transportDefinition;
-            this.messageSender = messageSender;
-            this.messageRouter = messageRouter;
+            this.dispatcher = dispatcher;
             this.settings = settings;
 
             //if we're a worker, send to the distributor data bus
@@ -66,74 +60,29 @@ namespace NServiceBus.Unicast
             pipeline.Invoke(publishContext);
         }
 
-        /// <summary>
-        /// <see cref="IBus.Subscribe{T}()"/>
-        /// </summary>
-        public void Subscribe<T>()
+
+        public void Subscribe(Type eventType, SubscribeOptions options)
         {
-            Subscribe(typeof(T));
+            var pipeline = new PipelineBase<SubscribeContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
+
+            var subscribeContext = new SubscribeContext(
+                incomingContext,
+                eventType,
+                options);
+
+            pipeline.Invoke(subscribeContext);   
         }
 
-        /// <summary>
-        /// <see cref="IBus.Subscribe(Type)"/>
-        /// </summary>
-        public virtual void Subscribe(Type messageType)
+        public void Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
-            AssertIsValidForPubSub(messageType);
+            var pipeline = new PipelineBase<UnsubscribeContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
-            if (transportDefinition.HasSupportForCentralizedPubSub)
-            {
-                // We are dealing with a brokered transport wired for auto pub/sub.
-                subscriptionManager.Subscribe(messageType, null);
-                return;
-            }
+            var subscribeContext = new UnsubscribeContext(
+                incomingContext,
+                eventType,
+                options);
 
-            var addresses = GetAtLeastOneAddressForMessageType(messageType);
-
-            foreach (var destination in addresses)
-            {
-                subscriptionManager.Subscribe(messageType, destination);
-            }
-        }
-
-        /// <summary>
-        /// <see cref="IBus.Unsubscribe{T}()"/>
-        /// </summary>
-        public void Unsubscribe<T>()
-        {
-            Unsubscribe(typeof(T));
-        }
-
-        /// <summary>
-        /// <see cref="IBus.Unsubscribe(Type)"/>
-        /// </summary>
-        public virtual void Unsubscribe(Type messageType)
-        {
-            AssertIsValidForPubSub(messageType);
-
-            if (transportDefinition.HasSupportForCentralizedPubSub)
-            {
-                // We are dealing with a brokered transport wired for auto pub/sub.
-                subscriptionManager.Unsubscribe(messageType, null);
-                return;
-            }
-
-            var addresses = GetAtLeastOneAddressForMessageType(messageType);
-
-            foreach (var destination in addresses)
-            {
-                subscriptionManager.Unsubscribe(messageType, destination);
-            }
-        }
-
-        void AssertIsValidForPubSub(Type messageType)
-        {
-            //we don't have any extension points for subscribe/unsubscribe but this does the trick for now
-            if (configure.container.HasComponent<Validations>())
-            {
-                builder.Build<Validations>()
-                    .AssertIsValidForPubSub(messageType);
-            }
+            pipeline.Invoke(subscribeContext);
         }
 
         /// <summary>
@@ -169,7 +118,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            messageSender.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(sendLocalAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
+            dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(sendLocalAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
 
             incomingContext.handleCurrentMessageLaterWasCalled = true;
 
@@ -181,7 +130,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void ForwardCurrentMessageTo(string destination)
         {
-            messageSender.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
+            dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
         }
 
         public void Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
@@ -195,21 +144,6 @@ namespace NServiceBus.Unicast
 
             SendMessage(messageType, message, options);
         }
-
-
-        List<string> GetAtLeastOneAddressForMessageType(Type messageType)
-        {
-            var addresses = GetAddressForMessageType(messageType)
-                .Distinct()
-                .ToList();
-            if (addresses.Count == 0)
-            {
-                var error = string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType);
-                throw new InvalidOperationException(error);
-            }
-            return addresses;
-        }
-
 
         void SendMessage(Type messageType, object message, NServiceBus.SendOptions options)
         {
@@ -254,27 +188,6 @@ namespace NServiceBus.Unicast
             get { return contextStacker.GetCurrentOrRootContext(); }
         }
 
-        List<string> GetAddressForMessageType(Type messageType)
-        {
-            var destination = messageRouter.GetDestinationFor(messageType);
-
-            if (destination.Any())
-            {
-                return destination;
-            }
-
-            if (messageMapper != null && !messageType.IsInterface)
-            {
-                var t = messageMapper.GetMappedTypeFor(messageType);
-                if (t != null && t != messageType)
-                {
-                    return GetAddressForMessageType(t);
-                }
-            }
-
-            return destination;
-        }
-
         TransportMessage MessageBeingProcessed
         {
             get
@@ -302,11 +215,7 @@ namespace NServiceBus.Unicast
         IMessageMapper messageMapper;
         readonly BehaviorContextStacker contextStacker;
         IBuilder builder;
-        Configure configure;
-        IManageSubscriptions subscriptionManager;
-        TransportDefinition transportDefinition;
-        IDispatchMessages messageSender;
-        StaticMessageRouter messageRouter;
+        IDispatchMessages dispatcher;
         string sendLocalAddress;
         ReadOnlySettings settings;
     }

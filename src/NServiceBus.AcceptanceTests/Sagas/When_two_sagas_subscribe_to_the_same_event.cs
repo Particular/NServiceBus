@@ -4,8 +4,8 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.Routing;
     using NUnit.Framework;
-    using PubSub;
     using Saga;
     using ScenarioDescriptors;
 

@@ -38,36 +38,23 @@
             busImpl.Send(messageConstructor, options);
         }
 
-
         /// <inheritdoc />
-        public void Subscribe(Type messageType)
+        public void Subscribe(Type eventType, SubscribeOptions options)
         {
-            Guard.AgainstNull("messageType", messageType);
-            busImpl.Subscribe(messageType);
+            Guard.AgainstNull("eventType", eventType);
+            Guard.AgainstNull("options", options);
+
+            busImpl.Subscribe(eventType,options);
         }
 
-
         /// <inheritdoc />
-        public void Subscribe<T>()
+        public void Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
-            busImpl.Subscribe<T>();
+            Guard.AgainstNull("eventType", eventType);
+            Guard.AgainstNull("options", options);
+
+            busImpl.Unsubscribe(eventType, options);
         }
-
-
-        /// <inheritdoc />
-        public void Unsubscribe(Type messageType)
-        {
-            Guard.AgainstNull("messageType", messageType);
-            busImpl.Unsubscribe(messageType);
-        }
-
-
-        /// <inheritdoc />
-        public void Unsubscribe<T>()
-        {
-            busImpl.Unsubscribe<T>();
-        }
-
 
         /// <inheritdoc />
         public void Reply(object message, NServiceBus.ReplyOptions options)

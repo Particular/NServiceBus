@@ -2,9 +2,9 @@
 {
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.Routing;
     using NServiceBus.Features;
     using NUnit.Framework;
-    using PubSub;
 
     public class When_multiple_versions_of_a_message_is_published : NServiceBusAcceptanceTest
     {

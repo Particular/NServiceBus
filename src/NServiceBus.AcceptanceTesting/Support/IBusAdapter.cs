@@ -16,14 +16,14 @@
             sendOnlyBus.Dispose();
         }
 
-        public void Publish(object message,PublishOptions options)
+        public void Publish(object message, PublishOptions options)
         {
-            sendOnlyBus.Publish(message,options);
+            sendOnlyBus.Publish(message, options);
         }
 
-        public void Publish<T>(Action<T> messageConstructor,PublishOptions options)
+        public void Publish<T>(Action<T> messageConstructor, PublishOptions options)
         {
-            sendOnlyBus.Publish(messageConstructor,options);
+            sendOnlyBus.Publish(messageConstructor, options);
         }
 
         public void Send(object message, SendOptions options)
@@ -72,32 +72,22 @@
             throw new NotImplementedException();
         }
 
-        public void Subscribe(Type messageType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Subscribe<T>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Unsubscribe(Type messageType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Unsubscribe<T>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Reply(object message,ReplyOptions options)
+        public void Reply(object message, ReplyOptions options)
         {
             throw new NotImplementedException();
         }
 
         public void Reply<T>(Action<T> messageConstructor, ReplyOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Subscribe(Type eventType, SubscribeOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
             throw new NotImplementedException();
         }
