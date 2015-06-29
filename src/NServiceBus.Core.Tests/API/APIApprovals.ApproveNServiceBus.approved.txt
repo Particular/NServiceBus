@@ -112,6 +112,7 @@ namespace NServiceBus
     public class Configure
     {
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
+        [System.ObsoleteAttribute("Please use `settings.LocalAddress()` instead. Will be removed in version 7.0.0.", true)]
         public string LocalAddress { get; }
         [System.ObsoleteAttribute("Static headers is no longer accessible via this object. Will be removed in versio" +
             "n 7.0.0.", true)]

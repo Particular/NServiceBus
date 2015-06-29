@@ -20,6 +20,20 @@
             context.Pipeline.Register("DetermineRouteForSend", typeof(DetermineRouteForSendBehavior), "Determines how the message being sent should be routed");
             context.Pipeline.Register("DetermineRouteForReply", typeof(DetermineRouteForReplyBehavior), "Determines how replies should be routed");
             context.Pipeline.Register("DetermineRouteForPublish", typeof(DetermineRouteForPublishBehavior), "Determines how the published messages should be routed");
+
+            if (!context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
+            {
+                context.Pipeline.Register("ApplyReplyToAddress", typeof(ApplyReplyToAddressBehavior), "Applies the public reply to address to outgoing messages");
+
+                string replyToAddress;
+
+                if (!context.Settings.TryGet("PublicReturnAddress",out replyToAddress))
+                {
+                    replyToAddress = context.Settings.LocalAddress();
+                }
+
+                context.Container.ConfigureComponent(b => new ApplyReplyToAddressBehavior(replyToAddress), DependencyLifecycle.SingleInstance);
+            }
      
             var router = SetupStaticRouter(context);
             context.Container.RegisterSingleton(router);
@@ -29,11 +43,11 @@
 
             if (!context.Settings.Get<TransportDefinition>().HasNativePubSubSupport)
             {
-                context.Container.ConfigureComponent<DispatchStrategy>(b=>new StorageDrivenDispatcher(b.Build<ISubscriptionStorage>(),b.Build<MessageMetadataRegistry>()), DependencyLifecycle.SingleInstance);
+                context.Container.ConfigureComponent<DispatchStrategy>(b => new StorageDrivenDispatcher(b.Build<ISubscriptionStorage>(), b.Build<MessageMetadataRegistry>()), DependencyLifecycle.SingleInstance);
             }
             else
             {
-                context.Container.ConfigureComponent<DispatchStrategy>(b=>new DefaultDispatchStrategy(),  DependencyLifecycle.SingleInstance);
+                context.Container.ConfigureComponent<DispatchStrategy>(b => new DefaultDispatchStrategy(), DependencyLifecycle.SingleInstance);
             }
         }
 

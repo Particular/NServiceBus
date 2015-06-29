@@ -13,9 +13,9 @@
         public void Should_be_a_no_op_discriminator()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<IndividualizedEndpoint>().Done(c =>c.EndpointsStarted)
+                    .WithEndpoint<IndividualizedEndpoint>().Done(c => c.EndpointsStarted)
                     .Repeat(r => r.For<MsmqOnly>())
-                    .Should(c=>Assert.AreEqual(c.EndpointName,c.Address.Split('@').First()))
+                    .Should(c => Assert.AreEqual(c.EndpointName, c.Address.Split('@').First()))
                     .Run();
         }
 
@@ -27,23 +27,21 @@
 
         public class IndividualizedEndpoint : EndpointConfigurationBuilder
         {
-       
+
             public IndividualizedEndpoint()
             {
-                EndpointSetup<DefaultServer>(c=>c.ScaleOut().UniqueQueuePerEndpointInstance());
+                EndpointSetup<DefaultServer>(c => c.ScaleOut().UniqueQueuePerEndpointInstance());
             }
 
             class AddressSpy : IWantToRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
 
-                public Configure Configure { get; set; }
-
                 public ReadOnlySettings ReadOnlySettings { get; set; }
 
                 public void Start()
                 {
-                    Context.Address = Configure.LocalAddress;
+                    Context.Address = ReadOnlySettings.LocalAddress();
                     Context.EndpointName = ReadOnlySettings.EndpointName();
                 }
 

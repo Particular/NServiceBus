@@ -1,10 +1,12 @@
 namespace NServiceBus.Unicast.Queuing.Installers
 {
+    using NServiceBus.Settings;
+
     class EndpointInputQueueCreator : IWantQueueCreated
     {
-        public EndpointInputQueueCreator(Configure config)
+        public EndpointInputQueueCreator(ReadOnlySettings settings)
         {
-            Address = config.LocalAddress;
+            Address = settings.LocalAddress();
         }
 
         /// <summary>
