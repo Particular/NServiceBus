@@ -3,6 +3,7 @@
     using System;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTesting;
+    using NServiceBus.Features;
     using NUnit.Framework;
     using NServiceBus.Saga;
 
@@ -32,7 +33,7 @@
 
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
             public class RequestingSaga : Saga<RequestingSaga.RequestingSagaData>,

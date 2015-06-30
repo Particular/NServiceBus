@@ -9,6 +9,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Config;
+    using NServiceBus.Features;
     using NUnit.Framework;
 
     public class When_Subscribing_to_errors : NServiceBusAcceptanceTest
@@ -71,7 +72,11 @@
         {
             public SLREndpoint()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(config =>
+                {
+                    config.EnableFeature<SecondLevelRetries>();
+                    config.EnableFeature<TimeoutManager>();
+                })
                     .WithConfig<TransportConfig>(c => { c.MaxRetries = 3; })
                     .WithConfig<SecondLevelRetriesConfig>(c =>
                     {

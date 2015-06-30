@@ -3,6 +3,7 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -33,7 +34,7 @@
         {
             public SchedulingEndpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
             class SetupScheduledAction : IWantToRunWhenBusStartsAndStops

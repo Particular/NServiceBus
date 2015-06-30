@@ -3,6 +3,7 @@
     using System;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Features;
     using NUnit.Framework;
 
     public class When_Deferring_a_message : NServiceBusAcceptanceTest
@@ -42,7 +43,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
