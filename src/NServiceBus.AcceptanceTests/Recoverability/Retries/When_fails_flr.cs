@@ -5,6 +5,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Config;
+    using NServiceBus.Features;
     using NUnit.Framework;
 
     public class When_fails_flr : NServiceBusAcceptanceTest
@@ -43,7 +44,11 @@
         {
             public SLREndpoint()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(config =>
+                {
+                    config.EnableFeature<TimeoutManager>();
+                    config.EnableFeature<SecondLevelRetries>();
+                })
                     .WithConfig<TransportConfig>(c =>
                         {
                             c.MaxRetries = 0; //to skip the FLR

@@ -4,6 +4,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Features;
     using Saga;
 
     public class When_doing_request_response_between_sagas : NServiceBusAcceptanceTest
@@ -20,7 +21,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
             public class RequestingSaga : Saga<RequestingSaga.RequestingSagaData>,

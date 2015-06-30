@@ -11,6 +11,7 @@
     using NServiceBus.AcceptanceTesting.Customization;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.Features;
     using NServiceBus.Hosting.Helpers;
 
     public class DefaultServer : IEndpointSetupTemplate
@@ -43,6 +44,9 @@
             builder.TypesToIncludeInScan(typesToInclude);
             builder.CustomConfigurationSource(configSource);
             builder.EnableInstallers();
+
+            builder.DisableFeature<TimeoutManager>();
+            builder.DisableFeature<SecondLevelRetries>();
             builder.DefineTransport(settings, endpointConfiguration.BuilderType);
             builder.DefineTransactions(settings);
             builder.DefineBuilder(settings);

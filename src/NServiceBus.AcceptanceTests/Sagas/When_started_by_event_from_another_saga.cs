@@ -49,10 +49,14 @@
         {
             public SagaThatPublishesAnEvent()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
+                EndpointSetup<DefaultPublisher>(b =>
                 {
-                    context.IsEventSubscriptionReceived = true;
-                }));
+                    b.EnableFeature<TimeoutManager>();
+                    b.OnEndpointSubscribed<Context>((s, context) =>
+                    {
+                        context.IsEventSubscriptionReceived = true;
+                    });
+                });
             }
 
             public class Saga1 : Saga<Saga1.Saga1Data>, IAmStartedByMessages<StartSaga>, IHandleTimeouts<Saga1.Timeout1>
@@ -96,7 +100,11 @@
         {
             public SagaThatIsStartedByTheEvent()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.EnableFeature<TimeoutManager>();
+                    c.DisableFeature<AutoSubscribe>();
+                })
                     .AddMapping<SomethingHappenedEvent>(typeof(SagaThatPublishesAnEvent));
 
             }

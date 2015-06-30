@@ -3,6 +3,7 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Features;
     using NUnit.Framework;
     using Saga;
 
@@ -44,7 +45,7 @@
         {
             public ReceiverWithSagas()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
             public class MessageToSagaHandler : IHandleMessages<MessageToSaga>
@@ -127,7 +128,7 @@
         {
             public ReceiverWithOrderedSagas()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
             class EnsureOrdering : ISpecifyMessageHandlerOrdering
