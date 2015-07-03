@@ -19,6 +19,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\..\binaries\NServiceBus.AcceptanceTesting.???" target="lib\net45" />
+    <file src="..\..\binaries\NServiceBus.AcceptanceTesting.???" target="lib\net451" />
   </files>
 </package>

@@ -15,13 +15,14 @@
     <copyright>Copyright 2010-2014 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <frameworkAssemblies>
-      <frameworkAssembly assemblyName="System" targetFramework="net40" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework="net40" />
+      <frameworkAssembly assemblyName="System" targetFramework="net451" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="net451" />
+	  <frameworkAssembly assemblyName="System.Transactions" targetFramework="net451" />
     </frameworkAssemblies>
     <dependencies/>
   </metadata>
   <files>
-    <file src="..\..\binaries\NServiceBus.Core.???" target="lib\net45" />
+    <file src="..\..\binaries\NServiceBus.Core.???" target="lib\net451" />
     <file src="..\..\packaging\nuget\tools\init.ps1" target="tools" />
   </files>
 </package>
