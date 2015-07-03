@@ -16,8 +16,7 @@
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework="net451" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework="net451" />
-	  <frameworkAssembly assemblyName="System.Transactions" targetFramework="net451" />	  
+      <frameworkAssembly assemblyName="System.Core" targetFramework="net451" /> 
     </frameworkAssemblies>
     <dependencies>
       <dependency id="NServiceBus" version="$version$" />
