@@ -53,7 +53,7 @@
 
                     string headerValue;
 
-                    using (new TransactionScope(TransactionScopeOption.Suppress))
+                    using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                     {
                         headerValue = DataBus.Put(stream, timeToBeReceived);
                     }

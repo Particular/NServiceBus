@@ -23,7 +23,7 @@
         [Test]
         public void Basic_assumptions_promotable_should_fail_if_durable_already_exists()
         {
-            using (var tx = new TransactionScope())
+            using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 Transaction.Current.EnlistDurable(FakePromotableResourceManager.ResourceManagerId, new FakePromotableResourceManager(), EnlistmentOptions.None);
                 Assert.False(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
@@ -36,7 +36,7 @@
         [Test]
         public void Basic_assumptions_second_promotable_should_fail()
         {
-            using (var tx = new TransactionScope())
+            using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 Assert.True(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
 

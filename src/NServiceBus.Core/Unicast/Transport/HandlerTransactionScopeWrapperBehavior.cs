@@ -22,7 +22,7 @@ namespace NServiceBus
                 return;
             }
 
-            using (var tx = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+            using (var tx = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))
             {
                 next();
 

@@ -14,7 +14,7 @@
             using (new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
             {
                 IsolationLevel = IsolationLevel.Serializable
-            }))
+            }, TransactionScopeAsyncFlowOption.Enabled))
             {
                 behavior.Invoke(null, () => { });
             }

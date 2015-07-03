@@ -45,7 +45,7 @@
                 {
                     Context.TimesCalled++;
 
-                    using (new TransactionScope(TransactionScopeOption.Suppress))
+                    using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                     {
                         Bus.SendLocal(new CompleteTest());
                     }

@@ -15,13 +15,13 @@
             Scenario.Define<Context>()
                     .WithEndpoint<TransactionalEndpoint>(b => b.Given((bus, context) =>
                         {
-                            using (var tx = new TransactionScope())
+                            using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                             {
                                 bus.Send(new MessageThatIsEnlisted { SequenceNumber = 1 });
                                 bus.Send(new MessageThatIsEnlisted { SequenceNumber = 2 });
 
                                 //send another message as well so that we can check the order in the receiver
-                                using (new TransactionScope(TransactionScopeOption.Suppress))
+                                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                                 {
                                     bus.Send(new MessageThatIsNotEnlisted());
                                 }
@@ -41,7 +41,7 @@
             Scenario.Define<Context>()
                     .WithEndpoint<TransactionalEndpoint>(b => b.Given(bus =>
                         {
-                            using (new TransactionScope())
+                            using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                             {
                                 bus.Send(new MessageThatIsEnlisted());
 
