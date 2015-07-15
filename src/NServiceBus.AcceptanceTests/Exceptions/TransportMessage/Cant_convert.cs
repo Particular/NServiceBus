@@ -43,10 +43,11 @@
         {
             public Receiver()
             {
-                SerializerCorrupter.Corrupt();
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.Pipeline.RegistBehaviorsWhichCorruptTheStandardSerializerAndRestoreItAfterwards();
+                });
             }
-        
         }
 
         [Serializable]

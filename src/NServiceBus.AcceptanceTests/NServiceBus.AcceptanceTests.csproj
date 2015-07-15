@@ -70,6 +70,9 @@
   <ItemGroup>
     <Compile Include="Basic\When_setting_msmq_label_generator.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
+    <Compile Include="Exceptions\TransportMessage\CorruptSerializer.cs" />
+    <Compile Include="Exceptions\TransportMessage\PipelineSettingsExtensions.cs" />
+    <Compile Include="Exceptions\TransportMessage\UncorruptSerializer.cs" />
     <Compile Include="Recoverability\When_error_is_overridden_in_code.cs" />
     <Compile Include="BestPractices\When_bestpractices_is_disabled_for_message.cs" />
     <Compile Include="BestPractices\When_bestpractices_is_disabled.cs" />

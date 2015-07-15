@@ -16,7 +16,7 @@
                     .WithEndpoint<Sender>(b => b.Given(bus => bus.Send(new Message())))
                     .WithEndpoint<Receiver>()
                     .AllowExceptions()
-                    .Done(c => c.GetAllLogs().Any(l=>l.Level == "error"))
+                    .Done(c => c.GetAllLogs().Any(l => l.Level == "error"))
                     .Repeat(r => r.For<MsmqOnly>())
                     .Should(c =>
                     {
@@ -43,8 +43,11 @@
         {
             public Receiver()
             {
-                SerializerCorrupter.Corrupt();
-                EndpointSetup<DefaultServer>(b => b.Transactions().Disable());
+                EndpointSetup<DefaultServer>(b =>
+                {
+                    b.Pipeline.RegistBehaviorsWhichCorruptTheStandardSerializerAndRestoreItAfterwards();
+                    b.Transactions().Disable();
+                });
             }
         }
 

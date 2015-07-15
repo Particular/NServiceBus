@@ -44,7 +44,12 @@
             public Receiver()
             {
                 SerializerCorrupter.Corrupt();
-                EndpointSetup<DefaultServer>(b => b.Transactions().DisableDistributedTransactions());
+                EndpointSetup<DefaultServer>(b =>
+                {
+                    b.Pipeline.RegistBehaviorsWhichCorruptTheStandardSerializerAndRestoreItAfterwards();
+
+                    b.Transactions().DisableDistributedTransactions();
+                });
             }
         }
 
