@@ -311,6 +311,7 @@ namespace NServiceBus
         const string PREFIX = "FormatName:" + DIRECTPREFIX;
         internal const string PRIVATE = "\\private$\\";
         static string localIp;
+        // Attention: This field is modified by SerializerCorrupter in the Acceptance Tests!
         static System.Xml.Serialization.XmlSerializer headerSerializer = new System.Xml.Serialization.XmlSerializer(typeof(List<HeaderInfo>));
         static ILog Logger = LogManager.GetLogger<MsmqUtilities>();
     }
