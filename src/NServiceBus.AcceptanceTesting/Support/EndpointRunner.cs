@@ -23,7 +23,6 @@
         EndpointConfiguration configuration;
         Task executeWhens;
         ScenarioContext scenarioContext;
-        RunDescriptor runDescriptor;
         BusConfiguration busConfiguration;
         CancellationToken stopToken;
 
@@ -32,7 +31,6 @@
         {
             try
             {
-                runDescriptor = run;
                 behavior = endpointBehavior;
                 scenarioContext = run.ScenarioContext;
                 configuration =
@@ -200,11 +198,6 @@
 
         public string Name()
         {
-            if (runDescriptor.UseSeparateAppdomains)
-            {
-                return AppDomain.CurrentDomain.FriendlyName;
-            }
-
             return configuration.EndpointName;
         }
 

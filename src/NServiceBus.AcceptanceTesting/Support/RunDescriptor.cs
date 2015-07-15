@@ -47,8 +47,6 @@
 
         public int Permutation { get; set; }
 
-        public bool UseSeparateAppdomains { get; set; }
-
         public void Merge(RunDescriptor descriptorToAdd)
         {
             Key += "." + descriptorToAdd.Key;

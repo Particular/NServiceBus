@@ -3,11 +3,9 @@
     using System;
     using System.Linq;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
-    using IMessage = NServiceBus.IMessage;
 
     public class Cant_convert_NoTransactions : NServiceBusAcceptanceTest
     {
@@ -25,10 +23,7 @@
                         var logs = c.GetAllLogs();
                         Assert.True(logs.Any(l => l.Message.Contains("is corrupt and will be moved to")));
                     })
-                    .Run(new RunSettings
-                         {
-                             UseSeparateAppDomains = true
-                         });
+                    .Run();
         }
 
         public class Context : ScenarioContext
