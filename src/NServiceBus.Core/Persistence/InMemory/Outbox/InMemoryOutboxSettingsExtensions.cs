@@ -12,13 +12,15 @@ namespace NServiceBus.InMemory.Outbox
         /// <summary>
         /// Specifies how long the outbox should keep message data in storage to be able to deduplicate.
         /// </summary>
-        /// <param name="cfg">The outbox settings</param>
-        /// <param name="time">The new duration to be used </param>
-        public static OutboxSettings TimeToKeepDeduplicationData(this OutboxSettings cfg, TimeSpan time)
+        /// <param name="settings">The outbox settings</param>
+        /// <param name="time">Defines the timespan which indicates how long the outbox deduplication entries should be kept. 
+        /// i.ex if <code>TimeSpan.FromDays(1)</code> is used the deduplication entries are kept for no longer than one day.
+        /// It is not possible to use a negative or zero TimeSpan value.</param>
+        public static OutboxSettings TimeToKeepDeduplicationData(this OutboxSettings settings, TimeSpan time)
         {
             Guard.AgainstNegativeAndZero(time, "time");
-            cfg.GetSettings().Set(Features.InMemoryOutboxPersistence.TimeToKeepDeduplicationEntries, time);
-            return cfg;
+            settings.GetSettings().Set(Features.InMemoryOutboxPersistence.TimeToKeepDeduplicationEntries, time);
+            return settings;
         }
     }
 }
