@@ -1380,7 +1380,7 @@ namespace NServiceBus.InMemory.Outbox
 {
     public class static InMemoryOutboxSettingsExtensions
     {
-        public static NServiceBus.Outbox.OutboxSettings TimeToKeepDeduplicationData(this NServiceBus.Outbox.OutboxSettings cfg, System.TimeSpan time) { }
+        public static NServiceBus.Outbox.OutboxSettings TimeToKeepDeduplicationData(this NServiceBus.Outbox.OutboxSettings settings, System.TimeSpan time) { }
     }
 }
 namespace NServiceBus.Installation
