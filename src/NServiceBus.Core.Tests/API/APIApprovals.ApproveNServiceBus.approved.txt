@@ -1376,6 +1376,13 @@ namespace NServiceBus.Hosting
         public System.Collections.Generic.Dictionary<string, string> Properties { get; }
     }
 }
+namespace NServiceBus.InMemory.Outbox
+{
+    public class static InMemoryOutboxSettingsExtensions
+    {
+        public static NServiceBus.Outbox.OutboxSettings TimeToKeepDeduplicationData(this NServiceBus.Outbox.OutboxSettings settings, System.TimeSpan time) { }
+    }
+}
 namespace NServiceBus.Installation
 {
     public interface INeedToInstallSomething
@@ -1565,8 +1572,10 @@ namespace NServiceBus.Outbox
         public string MessageId { get; }
         public System.Collections.Generic.List<NServiceBus.Outbox.TransportOperation> TransportOperations { get; }
     }
-    public class OutboxSettings
+    public class OutboxSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
+        [System.ObsoleteAttribute("Please use `InMemoryOutboxSettingsExtensions.TimeToKeepDeduplicationData(TimeSpan" +
+            " time)` instead. Will be removed in version 7.0.0.", true)]
         public void TimeToKeepDeduplicationData(System.TimeSpan time) { }
     }
     public class TransportOperation
