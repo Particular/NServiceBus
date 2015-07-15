@@ -38,7 +38,7 @@
                 context.Set<DispatchStrategy>(new OutboxDispatchStrategy(outboxMessage));
 
                 //we use this scope to make sure that we escalate to DTC if the user is talking to another resource by misstake
-                using (var checkForEscalationScope = new TransactionScope(TransactionScopeOption.RequiresNew, transactionOptions))
+                using (var checkForEscalationScope = new TransactionScope(TransactionScopeOption.RequiresNew, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))
                 {
                     next();
                     checkForEscalationScope.Complete();

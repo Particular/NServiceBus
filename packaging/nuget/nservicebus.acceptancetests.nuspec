@@ -25,7 +25,7 @@
 	  <dependency id="Rx-PlatformServices" version="2.2.5" />
     </dependencies>
 	<frameworkAssemblies>
-		<frameworkAssembly assemblyName="System.Messaging" targetFramework="net45" />
+		<frameworkAssembly assemblyName="System.Messaging" targetFramework="net451" />
 	</frameworkAssemblies>	
   </metadata>
   <files>

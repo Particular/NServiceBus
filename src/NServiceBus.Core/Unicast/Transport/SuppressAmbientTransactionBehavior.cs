@@ -14,7 +14,7 @@ namespace NServiceBus
                 return;
             }
 
-            using (var tx = new TransactionScope(TransactionScopeOption.Suppress))
+            using (var tx = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
                 next();
 

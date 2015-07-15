@@ -171,7 +171,7 @@
 
                     if (createTransaction)
                     {
-                        using (var tx = new TransactionScope())
+                        using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                         {
                             bus.Send(inputQueue, message);
                             tx.Complete();
