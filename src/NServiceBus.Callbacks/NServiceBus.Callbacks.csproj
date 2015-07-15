@@ -10,8 +10,8 @@
     <RootNamespace>NServiceBus.Callbacks</RootNamespace>
     <AssemblyName>NServiceBus.Callbacks</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <RootNamespace>NServiceBus.Deploy</RootNamespace>
-    <AssemblyName>NServiceBus.Deploy</AssemblyName>
+    <RootNamespace>NServiceBus.Callbacks</RootNamespace>
+    <AssemblyName>NServiceBus.Callbacks</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
