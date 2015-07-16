@@ -10,6 +10,8 @@
         {
             var restorer = context.Get<SerializerCorrupter.Restorer>();
             restorer.Dispose();
+
+            next();
         }
 
         internal class Registration : RegisterStep
@@ -17,7 +19,6 @@
             public Registration()
                 : base("UncorruptSerializer", typeof(UncorruptSerializer), "Restores the corrupted standard serializer")
             {
-                InsertAfter("ReceiveMessage");
             }
         }
     }
