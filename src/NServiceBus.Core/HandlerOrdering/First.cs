@@ -9,6 +9,7 @@ namespace NServiceBus
     /// Not thread safe.
     /// </summary>
     /// <typeparam name="T">The type which will run first.</typeparam>
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "BusConfiguration.ExecuteTheseHandlersFirst")]
     public class First<T>
     {
         /// <summary>

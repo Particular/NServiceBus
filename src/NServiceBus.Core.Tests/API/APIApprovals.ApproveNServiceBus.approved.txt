@@ -299,6 +299,8 @@ namespace NServiceBus
         public FileShareDataBus() { }
         protected internal override System.Type ProvidedByFeature() { }
     }
+    [System.ObsoleteAttribute("Please use `BusConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed " +
+        "in version 7.0.0.", true)]
     public class First<T>
     {
         public First() { }
