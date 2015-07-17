@@ -4,15 +4,15 @@
     <id>NServiceBus.AcceptanceTests.Sources</id>
     <title>Source only package containing the NServiceBus acceptance test suite</title>
     <version>$version$</version>
-    <authors>NServiceBus Ltd</authors>
-    <owners>Udi Dahan, Andreas Ohlund, John Simons</owners>
-    <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
-    <projectUrl>http://particular.net/</projectUrl>
-    <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
-    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <authors>$authors$</authors>
+    <owners>$owners$</owners>
+    <licenseUrl>$licenseUrl$</licenseUrl>
+    <projectUrl>$projectUrl$</projectUrl>
+    <iconUrl>$iconUrl$</iconUrl>
+    <requireLicenseAcceptance>$requireLicenseAcceptance$</requireLicenseAcceptance>
     <description>Acceptance tests for nservicebus core functionality</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2010-2014 NServiceBus. All rights reserved</copyright>
+    <copyright>$copyright$</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
       <dependency id="NServiceBus" version="$version$" />
