@@ -36,7 +36,11 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.ExecuteTheseHandlersFirst(typeof(CatchAllMessageHandler)));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.EnableFeature<TimeoutManager>();
+                    c.ExecuteTheseHandlersFirst(typeof(CatchAllMessageHandler));
+                });
             }
 
             public class Saga1 : Saga<Saga1.Saga1Data>, IAmStartedByMessages<StartSaga1>, IHandleTimeouts<Saga1Timeout>, IHandleTimeouts<Saga2Timeout>

@@ -128,7 +128,11 @@
         {
             public ReceiverWithOrderedSagas()
             {
-                EndpointSetup<DefaultServer>(c => c.ExecuteTheseHandlersFirst(typeof(Saga1), typeof(Saga2)));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.EnableFeature<TimeoutManager>();
+                    c.ExecuteTheseHandlersFirst(typeof(Saga1), typeof(Saga2));
+                });
             }
             
             public class MessageToSagaHandler : IHandleMessages<MessageToSaga>
