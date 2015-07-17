@@ -15,8 +15,8 @@ namespace NServiceBus
         ///     before all others.
         ///     Use First{T} to indicate the type to load from.
         /// </summary>
-        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "ExecuteTheseHandlersFirst")]
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "ExecuteTheseHandlersFirst")]
         public static void LoadMessageHandlers<TFirst>(this BusConfiguration config)
         {
             throw new NotImplementedException();
@@ -38,7 +38,7 @@ namespace NServiceBus
         ///     and specifies that the handlers in the given 'order' are to
         ///     run before all others and in the order specified.
         /// </summary>
-        /// <param name="config">The configuration instance.</param>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         /// <param name="handlerTypes">The handler types to execute first.</param>
         public static void ExecuteTheseHandlersFirst(this BusConfiguration config, IEnumerable<Type> handlerTypes)
         {

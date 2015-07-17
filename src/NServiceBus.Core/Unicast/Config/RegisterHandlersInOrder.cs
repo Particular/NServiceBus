@@ -30,7 +30,7 @@ namespace NServiceBus.Features
             LoadMessageHandlers(context, order);
         }
 
-        static void LoadMessageHandlers(FeatureConfigurationContext context, IEnumerable<Type> orderedTypes)
+        static void LoadMessageHandlers(FeatureConfigurationContext context, List<Type> orderedTypes)
         {
             var types = new List<Type>(context.Settings.GetAvailableTypes());
 
