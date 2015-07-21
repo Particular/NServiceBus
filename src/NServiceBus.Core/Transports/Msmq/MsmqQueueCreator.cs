@@ -1,6 +1,7 @@
 namespace NServiceBus.Transports.Msmq
 {
     using System;
+    using System.Diagnostics;
     using System.Messaging;
     using System.Security.Principal;
     using Config;
@@ -92,6 +93,7 @@ namespace NServiceBus.Transports.Msmq
             }
 
             Logger.DebugFormat("Created queue, path: [{0}], account: [{1}], transactional: [{2}]", queuePath, account, transactional);
+            Logger.WarnFormat("Queue created with [{0}] and [{1}] permissions. Consider changing those, as required", LocalEveryoneGroupName, LocalAnonymousLogonName);
         }
 
         static void SetPermissionsForQueue(string queuePath, string account)
