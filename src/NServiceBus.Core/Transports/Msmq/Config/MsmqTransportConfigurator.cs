@@ -2,10 +2,15 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Messaging;
     using System.Transactions;
     using Config;
+    using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
+    using NServiceBus.Unicast.Queuing;
+    using NServiceBus.Utils;
     using Transports;
     using Transports.Msmq;
     using Transports.Msmq.Config;
@@ -18,6 +23,59 @@
         internal MsmqTransportConfigurator()
         {
             DependsOn<UnicastBus>();
+            RegisterStartupTask<CheckQueuePermissions>();
+        }
+
+        class CheckQueuePermissions : FeatureStartupTask
+        {
+            readonly IBuilder builder;
+
+            public CheckQueuePermissions(IBuilder builder)
+            {
+                this.builder = builder;
+            }
+
+            protected override void OnStart()
+            {
+                var queueCreators = builder.BuildAll<IWantQueueCreated>();
+
+                foreach (var creator in queueCreators)
+                {
+                    var msmqAddress = MsmqAddress.Parse(creator.Address);
+                    var queuePath = MsmqQueueCreator.GetFullPathWithoutPrefix(msmqAddress);
+
+                    if (MessageQueue.Exists(queuePath))
+                    {
+                        using (var messageQueue = new MessageQueue(queuePath))
+                        {
+                            WarnIfPublicAccess(messageQueue);
+                        }
+                    }
+                }
+            }
+
+            void WarnIfPublicAccess(MessageQueue queue)
+            {
+                MessageQueueAccessRights? everyoneRights, anonymousRights;
+
+                queue.TryGetPermissions(MsmqConstants.LocalAnonymousLogonName, out anonymousRights);
+                queue.TryGetPermissions(MsmqConstants.LocalEveryoneGroupName, out everyoneRights);
+
+                if (anonymousRights.HasValue && everyoneRights.HasValue)
+                {
+                    var logMessage = string.Format("Queue [{0}] is running with [{1}] and [{2}] permissions. Consider changing those, as required",
+                        queue.QueueName,
+                        MsmqConstants.LocalEveryoneGroupName,
+                        MsmqConstants.LocalAnonymousLogonName);
+
+                    if (Debugger.IsAttached)
+                        Logger.Info(logMessage);
+                    else
+                        Logger.Warn(logMessage);
+                }
+            }
+
+            static ILog Logger = LogManager.GetLogger<CheckQueuePermissions>();
         }
 
         /// <summary>
@@ -26,7 +84,6 @@
         protected override Func<IBuilder, ReceiveBehavior> GetReceiveBehaviorFactory(ReceiveOptions receiveOptions)
         {
             options = receiveOptions;
-
 
             if (!receiveOptions.Transactions.IsTransactional)
             {
@@ -57,8 +114,7 @@
         /// </summary>
         protected override void Configure(FeatureConfigurationContext context, string connectionString)
         {
-            new CheckMachineNameForComplianceWithDtcLimitation()
-            .Check();
+            new CheckMachineNameForComplianceWithDtcLimitation().Check();
 
             var endpointIsTransactional = context.Settings.Get<bool>("Transactions.Enabled");
            
@@ -114,5 +170,4 @@
 
         ReceiveOptions options;
     }
-
 }

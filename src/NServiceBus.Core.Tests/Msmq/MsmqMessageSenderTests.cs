@@ -13,7 +13,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class MsmqMessageSenderTests
+    public class MsmqMessageSenderTests : MsmqTestsBase
     {
         class FakeContext : BehaviorContext
         {
@@ -22,7 +22,6 @@
             {
             }
         }
-
 
         [Test]
         public void Should_set_label_when_convention_configured()
@@ -81,15 +80,6 @@
             }
         }
 
-        static void DeleteQueue(string path)
-        {
-            if (!MessageQueue.Exists(path))
-            {
-                return;
-            }
-            MessageQueue.Delete(path);
-        }
-
         static string ReadMessageLabel(string path)
         {
             using (var queue = new MessageQueue(path))
@@ -101,17 +91,6 @@
                 }
             }
             return null;
-        }
-
-        static void CreateQueue(string path)
-        {
-            if (MessageQueue.Exists(path))
-            {
-                return;
-            }
-            using (MessageQueue.Create(path, true))
-            {
-            }
         }
     }
 }

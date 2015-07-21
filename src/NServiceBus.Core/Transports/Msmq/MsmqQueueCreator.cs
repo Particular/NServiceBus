@@ -1,19 +1,22 @@
 namespace NServiceBus.Transports.Msmq
 {
     using System;
-    using System.Diagnostics;
     using System.Messaging;
     using System.Security.Principal;
     using Config;
     using Logging;
     using Support;
 
+    static class MsmqConstants
+    {
+        internal static string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
+        internal static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
+        internal static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
+    }
+
     class MsmqQueueCreator : ICreateQueues
     {
         static ILog Logger = LogManager.GetLogger<MsmqQueueCreator>();
-        static string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
-        static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
-        static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
 
         /// <summary>
         /// The current runtime settings.
@@ -93,7 +96,6 @@ namespace NServiceBus.Transports.Msmq
             }
 
             Logger.DebugFormat("Created queue, path: [{0}], account: [{1}], transactional: [{2}]", queuePath, account, transactional);
-            Logger.WarnFormat("Queue created with [{0}] and [{1}] permissions. Consider changing those, as required", LocalEveryoneGroupName, LocalAnonymousLogonName);
         }
 
         static void SetPermissionsForQueue(string queuePath, string account)
@@ -109,9 +111,9 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         static void SetPermissionsForQueue(MessageQueue queue, string account)
         {
-            queue.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
-            queue.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
-            queue.SetPermissions(LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
+            queue.SetPermissions(MsmqConstants.LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
+            queue.SetPermissions(MsmqConstants.LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
+            queue.SetPermissions(MsmqConstants.LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
 
             queue.SetPermissions(account, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
             queue.SetPermissions(account, MessageQueueAccessRights.ReceiveMessage, AccessControlEntryType.Allow);

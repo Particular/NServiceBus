@@ -414,6 +414,7 @@
     <Compile Include="Unicast\Queuing\IWantQueueCreated.cs" />
     <Compile Include="Unicast\Transport\PipelineInfo.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
+    <Compile Include="Utils\MsmqExtensions.cs" />
     <Compile Include="Utils\PathUtilities.cs" />
     <Compile Include="Utils\WeakKeyDictionary.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
