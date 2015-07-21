@@ -531,6 +531,7 @@ namespace NServiceBus
     }
     public class static LoadMessageHandlersExtentions
     {
+        public static void ExecuteTheseHandlersFirst(this NServiceBus.BusConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
         public static void ExecuteTheseHandlersFirst(this NServiceBus.BusConfiguration config, params System.Type[] handlerTypes) { }
         [System.ObsoleteAttribute("Please use `ExecuteTheseHandlersFirst` instead. Will be removed in version 7.0.0." +
             "", true)]
