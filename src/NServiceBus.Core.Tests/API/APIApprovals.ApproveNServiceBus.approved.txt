@@ -404,9 +404,6 @@ namespace NServiceBus
         void Register<T>(System.Action<T> callback, object synchronizer);
     }
     public interface ICommand : NServiceBus.IMessage { }
-    [System.ObsoleteAttribute("Moved to the NServiceBus.Host nuget. Please use `NServiceBus.Hosting.Windows.ICon" +
-        "figureThisEndpoint` instead. Will be removed in version 7.0.0.", true)]
-    public interface IConfigureThisEndpoint { }
     public interface IDataBusProperty
     {
         bool HasValue { get; set; }
