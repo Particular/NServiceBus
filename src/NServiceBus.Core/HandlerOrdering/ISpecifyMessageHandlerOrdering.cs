@@ -3,6 +3,7 @@
     /// <summary>
     /// Specify the order in which message handlers will be invoked.
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "BusConfiguration.ExecuteTheseHandlersFirst")]
     public interface ISpecifyMessageHandlerOrdering
     {
         /// <summary>

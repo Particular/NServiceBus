@@ -46,19 +46,12 @@
                     b.RegisterComponents(r => r.ConfigureComponent<CheckUnitOfWorkOutcome>(DependencyLifecycle.InstancePerCall));
                     b.DisableFeature<TimeoutManager>();
                     b.DisableFeature<SecondLevelRetries>();
+                    b.ExecuteTheseHandlersFirst(typeof(FirstHandler), typeof(SecondHandler));
                 })
                     .WithConfig<TransportConfig>(c =>
                     {
                         c.MaxRetries = 0;
                     });
-            }
-
-            class EnsureOrdering : ISpecifyMessageHandlerOrdering
-            {
-                public void SpecifyOrder(Order order)
-                {
-                    order.Specify(First<FirstHandler>.Then<SecondHandler>());
-                }
             }
 
             class CheckUnitOfWorkOutcome : IManageUnitsOfWork

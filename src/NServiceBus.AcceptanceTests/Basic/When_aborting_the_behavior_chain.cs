@@ -34,15 +34,7 @@
         {
             public MyEndpoint()
             {
-                EndpointSetup<DefaultServer>();
-            }
-
-            class EnsureOrdering : ISpecifyMessageHandlerOrdering
-            {
-                public void SpecifyOrder(Order order)
-                {
-                    order.Specify(First<FirstHandler>.Then<SecondHandler>());
-                }
+                EndpointSetup<DefaultServer>(c => c.ExecuteTheseHandlersFirst(typeof(FirstHandler), typeof(SecondHandler)));
             }
 
             class FirstHandler : IHandleMessages<SomeMessage>

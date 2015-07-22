@@ -6,6 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Used to specify the order in which message handlers will be activated.
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "BusConfiguration.ExecuteTheseHandlersFirst")]
     public class Order
     {
         ///<summary>
