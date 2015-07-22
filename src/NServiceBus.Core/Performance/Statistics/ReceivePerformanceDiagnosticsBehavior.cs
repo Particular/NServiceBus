@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Janitor;
-    using NServiceBus.PerformanceCounters;
+    using NServiceBus.Performance.Counters;
 
     [SkipWeaving]
     class ReceivePerformanceDiagnosticsBehavior : PhysicalMessageProcessingStageBehavior

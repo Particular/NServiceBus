@@ -1,4 +1,4 @@
-namespace NServiceBus.PerformanceCounters
+namespace NServiceBus.Performance.Counters
 {
     using System;
     using System.Diagnostics;

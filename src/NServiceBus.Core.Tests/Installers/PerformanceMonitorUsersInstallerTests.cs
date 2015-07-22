@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Installers
 {
-    using NServiceBus.PerformanceCounters;
+    using NServiceBus.Performance.Counters;
     using NUnit.Framework;
 
     [TestFixture]

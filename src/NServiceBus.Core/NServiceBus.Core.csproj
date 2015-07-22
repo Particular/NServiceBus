@@ -165,6 +165,9 @@
     <Compile Include="OutgoingPipeline\SendToOutgoingContextConnector.cs" />
     <Compile Include="OutgoingPipeline\OutgoingReplyContext.cs" />
     <Compile Include="OutgoingPipeline\ReplyToOutgoingContextConnector.cs" />
+    <Compile Include="Performance\Counters\PerformanceCounterHelper.cs" />
+    <Compile Include="Performance\Counters\PerformanceCounterInstance.cs" />
+    <Compile Include="Performance\Counters\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Performance\MessageDurability\DetermineMessageDurabilityBehavior.cs" />
     <Compile Include="Performance\MessageDurability\DurableMessagesConventionExtensions.cs" />
     <Compile Include="Performance\MessageDurability\MessageDurabilityFeature.cs" />
@@ -199,7 +202,6 @@
     <Compile Include="Routing\MessagingBestPractices\EnforceReplyBestPracticesBehavior.cs" />
     <Compile Include="Routing\MessagingBestPractices\BestPracticesOptionExtensions.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingContext.cs" />
-    <Compile Include="PerformanceCounters\PerformanceCounterInstance.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxSettingsExtensions.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
@@ -301,7 +303,6 @@
     <Compile Include="Logging\DefaultFactory.cs" />
     <Compile Include="Logging\LoggingDefinition.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\ConcreteProxyCreator.cs" />
-    <Compile Include="PerformanceCounters\PerformanceCounterHelper.cs" />
     <Compile Include="Performance\Statistics\CriticalTime\CriticalTimeMonitoringConfig.cs" />
     <Compile Include="Performance\Statistics\CriticalTime\CriticalTimeMonitoring.cs" />
     <Compile Include="Performance\Statistics\SLA\SLAMonitoringConfig.cs" />
@@ -453,7 +454,6 @@
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersistence.cs" />
     <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionPersistence.cs" />
     <Compile Include="Persistence\InMemory\TimeoutPersister\InMemoryTimeoutPersistence.cs" />
-    <Compile Include="PerformanceCounters\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayDeduplication.cs" />
     <Compile Include="Persistence\PersistenceDefinition.cs" />
     <Compile Include="Persistence\PersistenceConfig.cs" />
