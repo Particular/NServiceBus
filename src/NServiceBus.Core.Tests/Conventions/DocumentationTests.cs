@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Reflection;
     using System.Xml.Linq;
-    using NServiceBus.Unicast;
     using NuDoq;
     using NUnit.Framework;
     using Enum = NuDoq.Enum;
@@ -19,7 +18,7 @@
         [Test]
         public void EnsureNoDocumentationIsEmpty()
         {
-            var assembly = typeof(UnicastBus).Assembly;
+            var assembly = typeof(IBus).Assembly;
             var codeBase = assembly.CodeBase;
             var uri = new UriBuilder(codeBase);
             var path = Uri.UnescapeDataString(uri.Path);

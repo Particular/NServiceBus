@@ -63,7 +63,7 @@ namespace NServiceBus.Features
             context.Container.ConfigureComponent(b => b.Build<BehaviorContextStacker>().GetCurrentOrRootContext(), DependencyLifecycle.InstancePerCall);
 
             //Hack because we can't register as IStartableBus because it would automatically register as IBus and overrode the proper IBus registration.
-            context.Container.ConfigureComponent<IRealBus>(CreateBus, DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(CreateBus, DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => (IStartableBus)b.Build<IRealBus>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => (IBus)b.Build<IRealBus>(), DependencyLifecycle.InstancePerCall);
 
@@ -94,7 +94,7 @@ namespace NServiceBus.Features
             }
         }
 
-        Unicast.UnicastBus CreateBus(IBuilder builder)
+        IRealBus CreateBus(IBuilder builder)
         {
             return new Unicast.UnicastBus(
                 builder.Build<BehaviorContextStacker>(), 

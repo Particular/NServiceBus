@@ -7,7 +7,6 @@
     using NServiceBus.Features;
     using NServiceBus.Logging;
     using NUnit.Framework;
-    using UnicastBus = NServiceBus.Unicast.UnicastBus;
 
     [TestFixture]
     public class StandardsTests
@@ -32,7 +31,7 @@
         [Test]
         public void LoggersShouldBeStaticField()
         {
-            foreach (var type in typeof(UnicastBus).Assembly.GetTypes())
+            foreach (var type in typeof(IBus).Assembly.GetTypes())
             {
                 foreach (var field in type.GetFields(BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public))
                 {
@@ -66,18 +65,18 @@
 
         static IEnumerable<Type> GetBehaviors()
         {
-            return typeof(UnicastBus).Assembly.GetTypes()
+            return typeof(IBus).Assembly.GetTypes()
                 .Where(type => type.GetInterfaces().Any(face=>face.Name.StartsWith("IBehavior")) && !type.IsAbstract &&!type.IsGenericType);
         }
         static IEnumerable<Type> GetFeatures()
         {
-            return typeof(UnicastBus).Assembly.GetTypes()
+            return typeof(IBus).Assembly.GetTypes()
                 .Where(type => typeof(Feature).IsAssignableFrom(type) && type.IsPublic && !type.IsAbstract);
         }
 
         static IEnumerable<Type> GetAttributeTypes()
         {
-            return typeof(UnicastBus).Assembly.GetTypes()
+            return typeof(IBus).Assembly.GetTypes()
                 .Where(type => type.Namespace != null &&
                                typeof(Attribute).IsAssignableFrom(type) &&
                                //Ignore log4net attributes

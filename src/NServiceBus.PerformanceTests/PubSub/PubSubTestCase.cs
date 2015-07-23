@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using NServiceBus;
+using NServiceBus.Configuration.AdvanceExtensibility;
 using NServiceBus.Features;
+using NServiceBus.Settings;
 using NServiceBus.Transports.Msmq;
 using NServiceBus.Transports.Msmq.Config;
 using NServiceBus.Unicast.Subscriptions;
@@ -44,9 +47,13 @@ public class PubSubTestCase : TestCase
         var configuration = new BusConfiguration();
 
         configuration.EndpointName("PubSubPerformanceTest");
+        configuration.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
         configuration.EnableInstallers();
         configuration.UseTransport<MsmqTransport>();
         configuration.DisableFeature<Audit>();
+        configuration.EnableFeature<PrimeSubscriptionStorage>();
+
+        configuration.GetSettings().Set("NumberOfSubscribers", GetNumberOfSubscribers());
 
         switch (GetStorageType())
         {
@@ -61,11 +68,6 @@ public class PubSubTestCase : TestCase
         
         using (var bus = Bus.Create(configuration))
         {
-            var subscriptionStorage = ((NServiceBus.Unicast.UnicastBus) bus).Builder.Build<ISubscriptionStorage>();
-
-
-            PrimeSubscriptionStorage(subscriptionStorage);
-
             Parallel.For(
           0,
           NumberMessages,
@@ -84,36 +86,59 @@ public class PubSubTestCase : TestCase
         }
 
     }
+}
 
-    void PrimeSubscriptionStorage(ISubscriptionStorage subscriptionStorage)
+public class PrimeSubscriptionStorage : Feature
+{
+    public PrimeSubscriptionStorage()
     {
-        var testEventMessage = new MessageType(typeof(TestEvent));
+        this.RegisterStartupTask<PrimeSubscriptionStorageTask>();
+    }
 
+    protected internal override void Setup(FeatureConfigurationContext context)
+    {
+    }
 
-        subscriptionStorage.Init();
-
-
-        var creator = new MsmqQueueCreator
+    class PrimeSubscriptionStorageTask : FeatureStartupTask
+    {
+        protected override void OnStart()
         {
-            Settings = new MsmqSettings
-            {
-                UseTransactionalQueues = true
-            }
-        };
+            PrimeSubscriptionStorage(SubscriptionStorage);
+        }
 
-        for (var i = 0; i < GetNumberOfSubscribers(); i++)
+        public ReadOnlySettings Settings { get; set; }
+
+        public ISubscriptionStorage SubscriptionStorage { get; set; }
+
+        void PrimeSubscriptionStorage(ISubscriptionStorage subscriptionStorage)
         {
-            var subscriberAddress = "PubSubPerformanceTest.Subscriber" + i;
-            creator.CreateQueueIfNecessary(subscriberAddress, null);
+            var testEventMessage = new MessageType(typeof(TestEvent));
 
-            using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            subscriptionStorage.Init();
+
+            var creator = new MsmqQueueCreator
             {
-                subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
+                Settings = new MsmqSettings
+                {
+                    UseTransactionalQueues = true
+                }
+            };
+
+            var numberOfSubscribers = Settings.Get<int>("NumberOfSubscribers");
+            for (var i = 0; i < numberOfSubscribers; i++)
+            {
+                var subscriberAddress = "PubSubPerformanceTest.Subscriber" + i;
+                creator.CreateQueueIfNecessary(subscriberAddress, WindowsIdentity.GetCurrent().Name);
+
+                using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
                 {
                     testEventMessage
                 });
 
-                tx.Complete();
+                    tx.Complete();
+                }
             }
         }
     }

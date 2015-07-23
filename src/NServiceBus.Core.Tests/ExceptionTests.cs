@@ -6,7 +6,6 @@
     using System.Reflection;
     using System.Runtime.Serialization;
     using NUnit.Framework;
-    using Unicast;
 
     [TestFixture]
     public class ExceptionTests
@@ -39,7 +38,7 @@
 
         static IEnumerable<Type> GetExceptionTypes()
         {
-            foreach (var type in typeof(UnicastBus).Assembly.GetTypes())
+            foreach (var type in typeof(IBus).Assembly.GetTypes())
             {
                 if (typeof(Exception).IsAssignableFrom(type) && type.Namespace.StartsWith("NServiceBus"))
                 {

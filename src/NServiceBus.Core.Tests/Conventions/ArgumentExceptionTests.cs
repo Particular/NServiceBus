@@ -4,7 +4,6 @@
     using System.Diagnostics;
     using System.Linq;
     using Mono.Cecil;
-    using NServiceBus.Unicast;
     using NUnit.Framework;
 
     [TestFixture]
@@ -14,7 +13,7 @@
         [Explicit]
         public void WriteAllPublicMembersWithNoArgumentChecking()
         {
-            var codeBase = typeof(UnicastBus).Assembly.CodeBase;
+            var codeBase = typeof(IBus).Assembly.CodeBase;
             var uri = new UriBuilder(codeBase);
             var path = Uri.UnescapeDataString(uri.Path);
 

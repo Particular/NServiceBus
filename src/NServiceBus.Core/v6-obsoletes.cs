@@ -279,6 +279,9 @@ namespace NServiceBus.MessageMutator
 namespace NServiceBus.Unicast
 {
     using System;
+    using NServiceBus.Hosting;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Settings;
 
     partial class ContextualBus
     {
@@ -366,6 +369,35 @@ namespace NServiceBus.Unicast
 
     public partial class UnicastBus
     {
+        /// <summary>
+        /// Provides access to the current host information.
+        /// </summary>
+        [ObsoleteEx(Message = "We have introduced a more explicit API to set the host identifier, see busConfiguration.UniquelyIdentifyRunningInstance()", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
+        public HostInformation HostInformation
+        {
+            // we should be making the getter and setter throw a NotImplementedException
+            // but some containers try to inject on public properties
+            get; set;
+        }
+
+        /// <summary>
+        /// Only for tests.
+        /// </summary>
+        [ObsoleteEx(Message = "ReadOnlySettings should be accessed inside feature, the pipeline and start/stop infrastructure only.", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
+        public ReadOnlySettings Settings
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        /// <summary>
+        /// Only for tests.
+        /// </summary>
+        [ObsoleteEx(Message = "Builder should be accessed inside feature, the pipeline and start/stop infrastructure only.", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
+        public IBuilder Builder
+        {
+            get { throw new NotImplementedException(); }
+        }
+
         /// <summary>
         /// Sends the provided message.
         /// </summary>
