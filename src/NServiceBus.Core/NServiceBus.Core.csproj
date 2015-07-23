@@ -412,6 +412,7 @@
     <Compile Include="Unicast\IRealBus.cs" />
     <Compile Include="Unicast\Queuing\IWantQueueCreated.cs" />
     <Compile Include="Unicast\Transport\PipelineInfo.cs" />
+    <Compile Include="Unicast\UnicastBusInternal_RemoveInV7.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\MessageQueueExtensions.cs" />
     <Compile Include="Utils\PathUtilities.cs" />
@@ -422,7 +423,7 @@
     <Compile Include="Unicast\Transport\SuppressAmbientTransactionBehavior.cs" />
     <Compile Include="Performance\Statistics\ReceivePerformanceDiagnosticsBehavior.cs" />
     <Compile Include="Unicast\Transport\HandlerTransactionScopeWrapperBehavior.cs" />
-    <Compile Include="Unicast\UnicastBus_IBusImpl.cs" />
+    <Compile Include="Unicast\UnicastBusInternal_IBusImpl.cs" />
     <Compile Include="Utils\Guard.cs" />
     <Compile Include="Utils\ExceptionHeaderHelper.cs" />
     <Compile Include="Utils\ElevateChecker.cs" />
@@ -674,7 +675,7 @@
     <Compile Include="Unicast\Transport\TransportReceiver.cs" />
     <Compile Include="Unicast\Transport\TransactionSettings.cs" />
     <Compile Include="Unicast\Transport\TransportConnectionString.cs" />
-    <Compile Include="Unicast\UnicastBus.cs" />
+    <Compile Include="Unicast\UnicastBusInternal.cs" />
     <Compile Include="UnitOfWork\IManageUnitsOfWork.cs" />
     <Compile Include="CircuitBreakers\CircuitBreaker.cs" />
     <Compile Include="CircuitBreakers\RepeatedFailuresOverTimeCircuitBreaker.cs" />

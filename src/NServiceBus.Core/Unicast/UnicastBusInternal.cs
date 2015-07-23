@@ -22,12 +22,12 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public partial class UnicastBus : IStartableBus, IRealBus
+    partial class UnicastBusInternal : IStartableBus
     {
         /// <summary>
         /// Initializes a new instance of <see cref="UnicastBus"/>.
         /// </summary>
-        internal UnicastBus(
+        internal UnicastBusInternal(
             BehaviorContextStacker contextStacker,
             IExecutor executor,
             CriticalError criticalError,

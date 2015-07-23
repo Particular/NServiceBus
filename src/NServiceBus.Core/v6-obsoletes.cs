@@ -463,8 +463,13 @@ namespace NServiceBus.Unicast
         }
     }
 
-    public partial class UnicastBus
+    [ObsoleteEx(Message = "UnicastBus has been made internal", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
+    public class UnicastBus
     {
+        UnicastBus()
+        {
+        }
+
         /// <summary>
         /// Provides access to the current host information.
         /// </summary>
@@ -597,8 +602,6 @@ namespace NServiceBus.Unicast
             throw new NotImplementedException();
         }
     }
-
-
 }
 
 

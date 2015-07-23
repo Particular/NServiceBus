@@ -55,7 +55,7 @@
                 else
                 {
                     bus = Bus.Create(busConfiguration);
-                    var transportDefinition = ((UnicastBus)bus).Settings.Get<TransportDefinition>();
+                    var transportDefinition = busConfiguration.GetSettings().Get<TransportDefinition>();
 
                     scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
                 }

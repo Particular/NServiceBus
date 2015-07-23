@@ -64,8 +64,8 @@ namespace NServiceBus.Features
 
             //Hack because we can't register as IStartableBus because it would automatically register as IBus and overrode the proper IBus registration.
             context.Container.ConfigureComponent(CreateBus, DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => (IStartableBus)b.Build<IRealBus>(), DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => (IBus)b.Build<IRealBus>(), DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent(b => (IStartableBus)b.Build<UnicastBusInternal>(), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => (IBus)b.Build<UnicastBusInternal>(), DependencyLifecycle.InstancePerCall);
 
             var knownMessages = context.Settings.GetAvailableTypes()
                 .Where(context.Settings.Get<Conventions>().IsMessageType)
@@ -77,8 +77,6 @@ namespace NServiceBus.Features
             {
                 return;
             }
-
-
 
             HardcodedPipelineSteps.RegisterIncomingCoreBehaviors(context.Pipeline);
 
@@ -94,9 +92,9 @@ namespace NServiceBus.Features
             }
         }
 
-        IRealBus CreateBus(IBuilder builder)
+        static UnicastBusInternal CreateBus(IBuilder builder)
         {
-            return new Unicast.UnicastBus(
+            return new UnicastBusInternal(
                 builder.Build<BehaviorContextStacker>(), 
                 builder.Build<IExecutor>(),
                 builder.Build<CriticalError>(),
@@ -110,7 +108,7 @@ namespace NServiceBus.Features
                 builder.Build<StaticMessageRouter>());
         }
 
-        void ConfigureMessageRegistry(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)
+        static void ConfigureMessageRegistry(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)
         {
             var messageRegistry = new MessageMetadataRegistry(context.Settings.Get<Conventions>());
 
