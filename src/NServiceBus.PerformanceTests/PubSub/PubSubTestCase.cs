@@ -92,7 +92,7 @@ public class PrimeSubscriptionStorage : Feature
 {
     public PrimeSubscriptionStorage()
     {
-        this.RegisterStartupTask<PrimeSubscriptionStorageTask>();
+        RegisterStartupTask<PrimeSubscriptionStorageTask>();
     }
 
     protected internal override void Setup(FeatureConfigurationContext context)

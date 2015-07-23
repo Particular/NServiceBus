@@ -5,11 +5,10 @@
     using System.Runtime.Remoting.Lifetime;
     using System.Threading;
     using System.Threading.Tasks;
-    using Logging;
     using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.Logging;
     using NServiceBus.Support;
-    using NServiceBus.Unicast;
-    using Transports;
+    using NServiceBus.Transports;
 
     [Serializable]
     public class EndpointRunner : MarshalByRefObject
