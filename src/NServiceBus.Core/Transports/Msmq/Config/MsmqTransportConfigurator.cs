@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Messaging;
     using System.Security;
     using System.Transactions;
@@ -10,6 +11,7 @@
     using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
+    using NServiceBus.Settings;
     using NServiceBus.Unicast.Queuing;
     using NServiceBus.Utils;
     using Transports;
@@ -38,19 +40,32 @@
 
             protected override void OnStart()
             {
-                var queueCreators = builder.BuildAll<IWantQueueCreated>();
+                var queueCreators = builder.BuildAll<IWantQueueCreated>().ToList();
 
-                foreach (var creator in queueCreators)
+                foreach (var creator in queueCreators.Where(c => c.Address != null))
                 {
-                    var msmqAddress = MsmqAddress.Parse(creator.Address);
-                    var queuePath = MsmqQueueCreator.GetFullPathWithoutPrefix(msmqAddress);
+                    CheckQueue(creator.Address);
+                }
 
-                    if (MessageQueue.Exists(queuePath))
+                var settings = builder.Build<ReadOnlySettings>();
+                var pipelines = settings.Get<PipelineConfiguration>().SatellitePipelines;
+
+                foreach (var pipeline in pipelines.Where(p => p.ReceiveAddress != null))
+                {
+                    CheckQueue(pipeline.ReceiveAddress);
+                }
+            }
+
+            static void CheckQueue(string address)
+            {
+                var msmqAddress = MsmqAddress.Parse(address);
+                var queuePath = MsmqQueueCreator.GetFullPathWithoutPrefix(msmqAddress);
+
+                if (MessageQueue.Exists(queuePath))
+                {
+                    using (var messageQueue = new MessageQueue(queuePath))
                     {
-                        using (var messageQueue = new MessageQueue(queuePath))
-                        {
-                            WarnIfPublicAccess(messageQueue);
-                        }
+                        WarnIfPublicAccess(messageQueue);
                     }
                 }
             }
