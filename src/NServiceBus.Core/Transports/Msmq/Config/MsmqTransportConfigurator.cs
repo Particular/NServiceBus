@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Messaging;
+    using System.Security;
     using System.Transactions;
     using Config;
     using NServiceBus.Logging;
@@ -54,12 +55,20 @@
                 }
             }
 
-            void WarnIfPublicAccess(MessageQueue queue)
+            static void WarnIfPublicAccess(MessageQueue queue)
             {
                 MessageQueueAccessRights? everyoneRights, anonymousRights;
 
-                queue.TryGetPermissions(MsmqConstants.LocalAnonymousLogonName, out anonymousRights);
-                queue.TryGetPermissions(MsmqConstants.LocalEveryoneGroupName, out everyoneRights);
+                try
+                {
+                    queue.TryGetPermissions(MsmqConstants.LocalAnonymousLogonName, out anonymousRights);
+                    queue.TryGetPermissions(MsmqConstants.LocalEveryoneGroupName, out everyoneRights);
+                }
+                catch (SecurityException se)
+                {
+                    Logger.Warn(string.Format("Unable to read permissions for queue [{0}]. Make sure you have administrative access on the target machine", queue.QueueName), se);
+                    return;
+                }
 
                 if (anonymousRights.HasValue && everyoneRights.HasValue)
                 {

@@ -13,8 +13,10 @@
     /// There is no managed API for reading the queue permissions, this has to be done via P/Invoke. by calling <c>MQGetQueueSecurity</c> API.
     /// See http://stackoverflow.com/questions/10177255/how-to-get-the-current-permissions-for-an-msmq-private-queue
     /// </remarks>
-    static class MsmqExtensions
+    static class MessageQueueExtensions
     {
+        static bool administerGranted;
+
         const string Mqrt = "mqrt.dll";
         const string Advapi32 = "advapi32.dll";
 
@@ -36,6 +38,8 @@
         [DllImport(Advapi32, CharSet = CharSet.Unicode, SetLastError = true)]
         static extern bool ConvertSidToStringSid([MarshalAs(UnmanagedType.LPArray)] byte[] pSID, out IntPtr ptrSid);
 
+        // the following constants taken from MessageQueue.cs (see http://referencesource.microsoft.com/#System.Messaging/System/Messaging/MessageQueue.cs)
+        const string PREFIX_FORMAT_NAME = "FORMATNAME:";
         const int DACL_SECURITY_INFORMATION = 4;
 
         //Security constants
@@ -73,10 +77,18 @@
             AclRevisionInformation = 1,
             AclSizeInformation
         }
-        
+
         public static bool TryGetPermissions(this MessageQueue queue, string user, out MessageQueueAccessRights? rights)
         {
-            string sid = GetSidForUser(user);
+            if (!administerGranted)
+            {
+                var permission = new MessageQueuePermission(MessageQueuePermissionAccess.Administer, PREFIX_FORMAT_NAME + queue.FormatName);
+                permission.Demand();
+
+                administerGranted = true;
+            }
+
+            var sid = GetSidForUser(user);
 
             try
             {
@@ -94,7 +106,7 @@
         {
             var SecurityDescriptor = new byte[100];
             
-            GCHandle sdHandle = GCHandle.Alloc(SecurityDescriptor, GCHandleType.Pinned);
+            var sdHandle = GCHandle.Alloc(SecurityDescriptor, GCHandleType.Pinned);
             try
             {
                 int lengthNeeded;
@@ -123,7 +135,7 @@
 
                 bool daclPresent, daclDefaulted;
                 IntPtr pDacl;
-                bool success = GetSecurityDescriptorDacl(sdHandle.AddrOfPinnedObject(),
+                var success = GetSecurityDescriptorDacl(sdHandle.AddrOfPinnedObject(),
                     out daclPresent,
                     out pDacl,
                     out daclDefaulted);
@@ -131,7 +143,7 @@
                 if (!success)
                     throw new Win32Exception();
 
-                ACCESS_ALLOWED_ACE allowedAce = GetAce(pDacl, sid);
+                var allowedAce = GetAce(pDacl, sid);
 
                 return (MessageQueueAccessRights) allowedAce.Mask;
 
@@ -153,23 +165,23 @@
 
         static ACCESS_ALLOWED_ACE GetAce(IntPtr pDacl, string sid)
         {
-            ACL_SIZE_INFORMATION AclSize = new ACL_SIZE_INFORMATION();
+            var AclSize = new ACL_SIZE_INFORMATION();
             GetAclInformation(pDacl, ref AclSize, (uint) Marshal.SizeOf(typeof(ACL_SIZE_INFORMATION)), ACL_INFORMATION_CLASS.AclSizeInformation);
 
-            for (int i = 0; i < AclSize.AceCount; i++)
+            for (var i = 0; i < AclSize.AceCount; i++)
             {
                 IntPtr pAce;
                 GetAce(pDacl, i, out pAce);
-                ACCESS_ALLOWED_ACE ace = (ACCESS_ALLOWED_ACE) Marshal.PtrToStructure(pAce, typeof(ACCESS_ALLOWED_ACE));
+                var ace = (ACCESS_ALLOWED_ACE) Marshal.PtrToStructure(pAce, typeof(ACCESS_ALLOWED_ACE));
 
-                IntPtr iter = (IntPtr)((long)pAce + (long)Marshal.OffsetOf(typeof(ACCESS_ALLOWED_ACE), "SidStart"));
-                int size = GetLengthSid(iter);
+                var iter = (IntPtr)((long)pAce + (long)Marshal.OffsetOf(typeof(ACCESS_ALLOWED_ACE), "SidStart"));
+                var size = GetLengthSid(iter);
                 var bSID = new byte[size];
                 Marshal.Copy(iter, bSID, 0, size);
                 IntPtr ptrSid;
                 ConvertSidToStringSid(bSID, out ptrSid);
 
-                string strSID = Marshal.PtrToStringAuto(ptrSid);
+                var strSID = Marshal.PtrToStringAuto(ptrSid);
 
                 if (strSID == sid)
                 {

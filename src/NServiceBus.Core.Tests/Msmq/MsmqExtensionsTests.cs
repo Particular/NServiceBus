@@ -38,7 +38,10 @@
         {
             queue.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage | MessageQueueAccessRights.ReceiveMessage, AccessControlEntryType.Allow);
             MessageQueueAccessRights? rights;
-            queue.TryGetPermissions(LocalEveryoneGroupName, out rights);
+            if (!queue.TryGetPermissions(LocalEveryoneGroupName, out rights))
+            {
+                Assert.Fail("Unable to read permissions off a queue");
+            }
 
             Assert.IsTrue(rights.HasValue);
             Assert.True(rights.Value.HasFlag(MessageQueueAccessRights.WriteMessage));
