@@ -3,7 +3,7 @@ namespace NServiceBus
     using NServiceBus.DataBus;
 
     /// <summary>
-    /// Contains extension methods to <see cref="BusConfiguration"/> for the file share data bus
+    /// Contains extension methods to <see cref="BusConfiguration"/> for the file share data bus.
     /// </summary>
     public static class ConfigureFileShareDataBus
     {

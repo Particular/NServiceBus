@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Transport
 
 
         /// <summary>
-        /// Gets the ID of this pipeline
+        /// Gets the ID of this pipeline.
         /// </summary>
         public string Id { get; private set; }
 

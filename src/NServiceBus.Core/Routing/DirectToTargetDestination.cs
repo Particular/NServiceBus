@@ -3,19 +3,19 @@ namespace NServiceBus.Routing
     using System.Collections.Generic;
 
     /// <summary>
-    /// Represents a route directly to the specified destination
+    /// Represents a route directly to the specified destination.
     /// </summary>
     public class DirectToTargetDestination : RoutingStrategy
     {
         /// <summary>
-        /// The destination
+        /// The destination.
         /// </summary>
         public string Destination { get; private set; }
 
         /// <summary>
-        /// Initializes the strategy
+        /// Initializes the strategy.
         /// </summary>
-        /// <param name="destination">The destination</param>
+        /// <param name="destination">The destination.</param>
         public DirectToTargetDestination(string destination)
         {
             Guard.AgainstNullAndEmpty(destination, "destination");
@@ -24,9 +24,9 @@ namespace NServiceBus.Routing
         }
 
         /// <summary>
-        /// Serializes the strategy to the supplied dictionary
+        /// Serializes the strategy to the supplied dictionary.
         /// </summary>
-        /// <param name="options">The dictionary where the serialized data should be stored</param> 
+        /// <param name="options">The dictionary where the serialized data should be stored.</param> 
         public override void Serialize(Dictionary<string, string> options)
         {
             Guard.AgainstNull(options,"options");

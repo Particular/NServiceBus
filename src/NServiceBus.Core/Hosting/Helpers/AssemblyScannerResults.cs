@@ -12,7 +12,7 @@
     public class AssemblyScannerResults 
     {
         /// <summary>
-        /// Constructor to initialize AssemblyScannerResults
+        /// Constructor to initialize AssemblyScannerResults.
         /// </summary>
         public AssemblyScannerResults()
         {
@@ -22,19 +22,19 @@
         }
        
         /// <summary>
-        /// List of successfully found and loaded assemblies
+        /// List of successfully found and loaded assemblies.
         /// </summary>
         public List<Assembly> Assemblies { get; private set; }
         
         /// <summary>
         /// List of files that were skipped while scanning because they were a) explicitly excluded
         /// by the user, b) not a .NET DLL, or c) not referencing NSB and thus not capable of implementing
-        /// <see cref="IHandleMessages{T}"/>
+        /// <see cref="IHandleMessages{T}"/>.
         /// </summary>
         public List<SkippedFile> SkippedFiles { get; private set; }
 
         /// <summary>
-        /// True if errors where encountered during assembly scanning
+        /// True if errors where encountered during assembly scanning.
         /// </summary>
         public bool ErrorsThrownDuringScanning { get; internal set; }
 

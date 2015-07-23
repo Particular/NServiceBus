@@ -3,7 +3,7 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
     using System.Collections.Generic;
 
     /// <summary>
-	/// Defines storage for subscriptions
+	/// Defines storage for subscriptions.
 	/// </summary>
     public interface ISubscriptionStorage
     {
@@ -26,7 +26,7 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
 
         /// <summary>
         /// Notifies the subscription storage that now is the time to perform
-        /// any initialization work
+        /// any initialization work.
         /// </summary>
         void Init();
     }

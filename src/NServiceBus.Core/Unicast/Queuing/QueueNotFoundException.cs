@@ -4,25 +4,25 @@ namespace NServiceBus.Unicast.Queuing
     using System.Runtime.Serialization;
 
     /// <summary>
-    /// Thrown when the queue could not be found
+    /// Thrown when the queue could not be found.
     /// </summary>
     [Serializable]
     public class QueueNotFoundException : Exception
     {
         /// <summary>
-        /// The queue address
+        /// The queue address.
         /// </summary>
         public string Queue { get; set; }
 
         /// <summary>
-        /// Ctor
+        /// Initializes a new instance of <see cref="QueueNotFoundException"/>.
         /// </summary>
         public QueueNotFoundException()
         {
         }
 
         /// <summary>
-        /// Ctor
+        /// Initializes a new instance of <see cref="QueueNotFoundException"/>.
         /// </summary>
         [ObsoleteEx(
             ReplacementTypeOrMember = "QueueNotFoundException(string queue, string message, Exception inner)", 
@@ -35,7 +35,7 @@ namespace NServiceBus.Unicast.Queuing
             throw new NotImplementedException();
         }
         /// <summary>
-        /// Ctor
+        /// Initializes a new instance of <see cref="QueueNotFoundException"/>.
         /// </summary>
         public QueueNotFoundException(string queue, string message, Exception inner) : base( message, inner )
         {
@@ -43,7 +43,7 @@ namespace NServiceBus.Unicast.Queuing
         }
 
         /// <summary>
-        /// Ctor
+        /// Initializes a new instance of <see cref="QueueNotFoundException"/>.
         /// </summary>
         protected QueueNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
@@ -54,7 +54,7 @@ namespace NServiceBus.Unicast.Queuing
         }
 
         /// <summary>
-        /// Gets the object data for serialization purposes
+        /// Gets the object data for serialization purposes.
         /// </summary>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

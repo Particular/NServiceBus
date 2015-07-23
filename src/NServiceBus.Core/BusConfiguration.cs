@@ -20,12 +20,12 @@ namespace NServiceBus
     using NServiceBus.Utils.Reflection;
 
     /// <summary>
-    ///     Configuration used to create a bus instance
+    ///     Configuration used to create a bus instance.
     /// </summary>
     public partial class BusConfiguration : ExposeSettings
     {
         /// <summary>
-        /// Initializes a fresh instance of the builder
+        /// Initializes a fresh instance of the builder.
         /// </summary>
         public BusConfiguration()
             : base(new SettingsHolder())
@@ -47,7 +47,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Access to the pipeline configuration
+        ///     Access to the pipeline configuration.
         /// </summary>
         public PipelineSettings Pipeline { get; private set; }
 
@@ -89,7 +89,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Specify to scan nested directories when performing assembly scanning
+        /// Specify to scan nested directories when performing assembly scanning.
         /// </summary>
         public void ScanAssembliesInNestedDirectories()
         {
@@ -123,7 +123,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Defines a custom builder to use
+        ///     Defines a custom builder to use.
         /// </summary>
         /// <typeparam name="T">The builder type of the <see cref="ContainerDefinition"/>.</typeparam>
         public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
@@ -137,7 +137,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Defines a custom builder to use
+        ///     Defines a custom builder to use.
         /// </summary>
         /// <param name="definitionType">The type of the <see cref="ContainerDefinition"/>.</param>
         public void UseContainer(Type definitionType)
@@ -149,9 +149,9 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Uses an already active instance of a builder
+        ///     Uses an already active instance of a builder.
         /// </summary>
-        /// <param name="builder">The instance to use</param>
+        /// <param name="builder">The instance to use.</param>
         public void UseContainer(IContainer builder)
         {
             Guard.AgainstNull(builder, "builder");
@@ -187,7 +187,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Creates the configuration object
+        ///     Creates the configuration object.
         /// </summary>
         internal Configure BuildConfiguration()
         {

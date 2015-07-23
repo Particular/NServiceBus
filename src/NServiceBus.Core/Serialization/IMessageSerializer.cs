@@ -25,7 +25,7 @@ namespace NServiceBus.Serialization
         object[] Deserialize(Stream stream, IList<Type> messageTypes = null);
 
         /// <summary>
-        /// Gets the content type into which this serializer serializes the content to 
+        /// Gets the content type into which this serializer serializes the content to.
         /// </summary>
         string ContentType { get; }
     }

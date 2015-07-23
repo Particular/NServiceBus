@@ -34,7 +34,7 @@ namespace NServiceBus.Pipeline
 
 
         /// <summary>
-        /// <see cref="Register(string,System.Type,string)"/>
+        /// <see cref="Register(string,System.Type,string)"/>.
         /// </summary>
         /// <param name="wellKnownStep">The identifier of the step to add.</param>
         /// <param name="behavior">The <see cref="Behavior{TContext}"/> to execute.</param>

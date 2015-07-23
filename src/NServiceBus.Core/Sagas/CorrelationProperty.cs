@@ -1,7 +1,7 @@
 namespace NServiceBus.Saga
 {
     /// <summary>
-    /// Details about a saga data property used to correlate messages hitting the saga
+    /// Details about a saga data property used to correlate messages hitting the saga.
     /// </summary>
     public class CorrelationProperty
     {

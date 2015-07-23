@@ -11,7 +11,7 @@ namespace NServiceBus.Unicast.Queuing
         string Address { get; }
         
         /// <summary>
-        /// True if no need to create queue
+        /// True if no need to create queue.
         /// </summary>
         bool ShouldCreateQueue();
     }

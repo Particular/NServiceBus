@@ -6,7 +6,7 @@ namespace NServiceBus.Transports
     public interface IDispatchMessages
     {
         /// <summary>
-        /// Sends the given <paramref name="message"/>
+        /// Sends the given <paramref name="message"/>.
         /// </summary>
         void Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions);
     }

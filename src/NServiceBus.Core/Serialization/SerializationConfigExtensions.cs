@@ -5,14 +5,14 @@
     using Serialization;
 
     /// <summary>
-    /// Provides configuration options for serialization
+    /// Provides configuration options for serialization.
     /// </summary>
     public static class SerializationConfigExtensions
     {
         /// <summary>
-        /// Configures the given serializer to be used
+        /// Configures the given serializer to be used.
         /// </summary>
-        /// <typeparam name="T">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/>, etc</typeparam>
+        /// <typeparam name="T">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/>, etc.</typeparam>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config) where T : SerializationDefinition
         {
@@ -27,7 +27,7 @@
         }
 
         /// <summary>
-        /// Configures the given serializer to be used
+        /// Configures the given serializer to be used.
         /// </summary>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         /// <param name="serializerType">The custom serializer type to use for serialization that implements <see cref="IMessageSerializer"/> or a derived type from <see cref="SerializationDefinition"/>.</param>

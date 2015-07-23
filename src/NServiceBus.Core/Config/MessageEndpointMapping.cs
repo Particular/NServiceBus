@@ -62,7 +62,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// The fully qualified name of the message type. Define this if you want to map a single message type to the endpoint.
         /// </summary>
-        /// <remarks>Type will take preference above namespace</remarks>
+        /// <remarks>Type will take preference above namespace.</remarks>
         [ConfigurationProperty("Type", IsRequired = false)]
         public string TypeFullName
         {
@@ -94,7 +94,7 @@ namespace NServiceBus.Config
         }
 
         /// <summary>
-        /// Uses the configuration properties to configure the endpoint mapping
+        /// Uses the configuration properties to configure the endpoint mapping.
         /// </summary>
         public void Configure(Action<Type, string> mapTypeToEndpoint)
         {
@@ -189,7 +189,7 @@ namespace NServiceBus.Config
         }
 
         /// <summary>
-        /// Comparison support
+        /// Comparison support.
         /// </summary>
         public int CompareTo(MessageEndpointMapping other)
         {

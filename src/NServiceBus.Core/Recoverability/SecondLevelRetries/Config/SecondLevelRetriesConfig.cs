@@ -5,7 +5,7 @@ namespace NServiceBus.Config
     using NServiceBus.SecondLevelRetries;
 
     /// <summary>
-    /// Configuration options for the SLR feature
+    /// Configuration options for the SLR feature.
     /// </summary>
     public class SecondLevelRetriesConfig : ConfigurationSection
     {
@@ -20,7 +20,7 @@ namespace NServiceBus.Config
         }
 
         /// <summary>
-        /// True if SLR should be used
+        /// True if SLR should be used.
         /// </summary>
         public bool Enabled
         {
@@ -29,7 +29,7 @@ namespace NServiceBus.Config
         }
 
         /// <summary>
-        /// Sets the time to increase the delay between retries
+        /// Sets the time to increase the delay between retries.
         /// </summary>
         public TimeSpan TimeIncrease
         {
@@ -38,7 +38,7 @@ namespace NServiceBus.Config
         }
 
         /// <summary>
-        /// Sets the number of retries to do before aborting and sending the message to the error queue
+        /// Sets the number of retries to do before aborting and sending the message to the error queue.
         /// </summary>
         public int NumberOfRetries
         {

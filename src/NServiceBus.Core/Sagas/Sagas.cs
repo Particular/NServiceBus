@@ -34,7 +34,7 @@
         }
 
         /// <summary>
-        ///     See <see cref="Feature.Setup" />
+        ///     See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {

@@ -11,14 +11,14 @@
         /// <summary>
         /// Create an instance of <see cref="BehaviorContext"/>.
         /// </summary>
-        /// <param name="parentContext">The parent context</param>
+        /// <param name="parentContext">The parent context.</param>
         protected BehaviorContext(BehaviorContext parentContext):base(parentContext)
         {
           
         }
 
         /// <summary>
-        /// The current <see cref="IBuilder"/>
+        /// The current <see cref="IBuilder"/>.
         /// </summary>
         public IBuilder Builder
         {

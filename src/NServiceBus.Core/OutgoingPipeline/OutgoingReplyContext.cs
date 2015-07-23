@@ -3,12 +3,12 @@
     using NServiceBus.Pipeline;
 
     /// <summary>
-    /// Pipeline context for reply operations
+    /// Pipeline context for reply operations.
     /// </summary>
     public class OutgoingReplyContext : BehaviorContext
     {
         /// <summary>
-        /// Initializes the context with a parent context
+        /// Initializes a new instance of <see cref="OutgoingReplyContext"/>.
         /// </summary>
         public OutgoingReplyContext(BehaviorContext parentContext, OutgoingLogicalMessage message, ReplyOptions options)
             : base(parentContext)

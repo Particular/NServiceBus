@@ -3,7 +3,7 @@
     using NServiceBus.Gateway.Deduplication;
 
     /// <summary>
-    /// In-memory Gateway
+    /// In-memory Gateway.
     /// </summary>
     public class InMemoryGatewayPersistence : Feature
     {
@@ -13,7 +13,7 @@
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>
+        /// See <see cref="Feature.Setup"/>.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {

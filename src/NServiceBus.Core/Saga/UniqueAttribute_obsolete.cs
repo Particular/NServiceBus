@@ -7,7 +7,7 @@ namespace NServiceBus.Saga
 
     /// <summary>
     /// Used to specify that a saga property should be unique across all saga instances. 
-    /// This will ensure that 2 saga instances don't get persisted when using the property to correlate between multiple message types
+    /// This will ensure that 2 saga instances don't get persisted when using the property to correlate between multiple message types.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "There is no need for this attribute anymore, all mapped properties are automatically correlated.")]

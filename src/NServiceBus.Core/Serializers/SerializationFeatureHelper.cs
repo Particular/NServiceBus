@@ -6,7 +6,7 @@
     public static class SerializationFeatureHelper
     {
         /// <summary>
-        /// Allows serialization features to verify their <see cref="Feature"/> Prerequisites
+        /// Allows serialization features to verify their <see cref="Feature"/> Prerequisites.
         /// </summary>
         public static bool ShouldSerializationFeatureBeEnabled(this Feature serializationFeature, FeatureConfigurationContext context)
         {

@@ -16,13 +16,12 @@ namespace NServiceBus.ObjectBuilder
     }
 
     /// <summary>
-    /// Strongly typed version of IComponentConfig
+    /// Strongly typed version of IComponentConfig.
     /// </summary>
     public interface IComponentConfig<T>
     {
         /// <summary>
-        /// Configures the value of the property like so:
-        /// ConfigureProperty(o => o.Property, value);
+        /// Configures the value of the property like so: <code>ConfigureProperty(o => o.Property, value);</code>.
         /// </summary>
         IComponentConfig<T> ConfigureProperty(Expression<Func<T, object>> property, object value);
     }

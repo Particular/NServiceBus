@@ -84,7 +84,7 @@
         /// <summary>
         /// Gets the value of the <see cref="IDataBusProperty"/>.
         /// </summary>
-        /// <returns>The value</returns>
+        /// <returns>The value.</returns>
         public object GetValue()
 		{
 			return Value;

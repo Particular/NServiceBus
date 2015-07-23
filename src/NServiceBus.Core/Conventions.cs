@@ -77,9 +77,9 @@
         }
 
         /// <summary>
-        ///     Add system message convention
+        ///     Add system message convention.
         /// </summary>
-        /// <param name="definesMessageType">Function to define system message convention</param>
+        /// <param name="definesMessageType">Function to define system message convention.</param>
         public void AddSystemMessagesConventions(Func<Type, bool> definesMessageType)
         {
             Guard.AgainstNull(definesMessageType, "definesMessageType");
@@ -117,7 +117,7 @@
     
 
         /// <summary>
-        ///     Returns true if the given property should be encrypted
+        ///     Returns true if the given property should be encrypted.
         /// </summary>
         public bool IsEncryptedProperty(PropertyInfo property)
         {
@@ -134,7 +134,7 @@
         }
 
         /// <summary>
-        ///     Returns true if the given property should be send via the DataBus
+        ///     Returns true if the given property should be send via the DataBus.
         /// </summary>
         public bool IsDataBusProperty(PropertyInfo property)
         {

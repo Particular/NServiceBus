@@ -13,7 +13,7 @@ namespace NServiceBus
     {
         /// <summary>
         /// Registers a callback to be invoked when a response arrives to the message sent.
-        /// The return code is returned as an int
+        /// The return code is returned as an int.
         /// </summary>
         Task<int> Register();
 

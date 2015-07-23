@@ -3,7 +3,7 @@
     using NServiceBus.Unicast.Messages;
 
     /// <summary>
-    /// Provides ways to access the current logical message being processed
+    /// Provides ways to access the current logical message being processed.
     /// </summary>
     public static class LogicalMessagesContextExtensions
     {

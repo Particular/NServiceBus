@@ -10,7 +10,7 @@ namespace NServiceBus.Features
     using NServiceBus.Settings;
 
     /// <summary>
-    /// Provides support for running installers
+    /// Provides support for running installers.
     /// </summary>
     public class InstallationSupport : Feature
     {

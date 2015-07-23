@@ -34,7 +34,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Specifies the type which will run next
+        /// Specifies the type which will run next.
         /// </summary>
         public First<T> AndThen<K>()
         {

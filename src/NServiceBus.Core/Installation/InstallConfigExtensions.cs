@@ -9,7 +9,7 @@ namespace NServiceBus
     public static class InstallConfigExtensions
     {
         /// <summary>
-        /// Enable all <see cref="INeedToInstallSomething"/> to run when the configuration is complete
+        /// Enable all <see cref="INeedToInstallSomething"/> to run when the configuration is complete.
         /// </summary>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         /// <param name="username">The username to pass to <see cref="INeedToInstallSomething.Install"/>.</param>

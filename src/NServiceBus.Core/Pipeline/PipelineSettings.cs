@@ -11,7 +11,7 @@ namespace NServiceBus.Pipeline
     public class PipelineSettings
     {
         /// <summary>
-        /// Creates an instance of <see cref="PipelineSettings"/>
+        /// Initializes a new instance of <see cref="PipelineSettings"/>.
         /// </summary>
         internal PipelineSettings(PipelineModifications modifications)
         {
@@ -58,7 +58,7 @@ namespace NServiceBus.Pipeline
         }
 
         /// <summary>
-        /// <see cref="Replace(string,System.Type,string)"/>
+        /// <see cref="Replace(string,System.Type,string)"/>.
         /// </summary>
         /// <param name="wellKnownStep">The identifier of the well known step to replace.</param>
         /// <param name="newBehavior">The new <see cref="Behavior{TContext}"/> to use.</param>
@@ -88,7 +88,7 @@ namespace NServiceBus.Pipeline
         }
 
         /// <summary>
-        /// <see cref="Register(string,System.Type,string)"/>
+        /// <see cref="Register(string,System.Type,string)"/>.
         /// </summary>
         /// <param name="wellKnownStep">The identifier of the step to add.</param>
         /// <param name="behavior">The <see cref="Behavior{TContext}"/> to execute.</param>
@@ -112,7 +112,7 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Register a new step into the pipeline.
         /// </summary>
-        /// <param name="customInitializer">A function the returns a new instance of the behavior</param>
+        /// <param name="customInitializer">A function the returns a new instance of the behavior.</param>
         public void Register<TRegisterStep, TBehavior>(Func<IBuilder, TBehavior> customInitializer) where TRegisterStep : RegisterStep, new()
         {
             Guard.AgainstNull(customInitializer, "customInitializer");
@@ -127,7 +127,7 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Register a new step into the pipeline.
         /// </summary>
-        /// <param name="registration">The step registration</param>
+        /// <param name="registration">The step registration.</param>
         public void Register(RegisterStep registration)
         {
             Guard.AgainstNull(registration, "registration");

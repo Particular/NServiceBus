@@ -9,11 +9,11 @@ namespace NServiceBus
     /// <summary>
     /// This class provides implementers of persisters with an extension mechanism for custom settings via extension methods.
     /// </summary>
-    /// <typeparam name="T">The persister definition eg <see cref="InMemory"/>, <see cref="MsmqTransport"/>, etc</typeparam>
+    /// <typeparam name="T">The persister definition eg <see cref="InMemory"/>, <see cref="MsmqTransport"/>, etc.</typeparam>
     public class TransportExtensions<T> : TransportExtensions where T : TransportDefinition
     {
         /// <summary>
-        /// Default constructor.
+        /// Initializes a new instance of <see cref="TransportExtensions{T}"/>.
         /// </summary>
         public TransportExtensions(SettingsHolder settings)
             : base(settings)
@@ -21,7 +21,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the transport to use the given string as the connection string
+        /// Configures the transport to use the given string as the connection string.
         /// </summary>
         public new TransportExtensions<T> ConnectionString(string connectionString)
         {
@@ -30,7 +30,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the transport to use the connection string with the given name
+        /// Configures the transport to use the connection string with the given name.
         /// </summary>
         public new TransportExtensions<T> ConnectionStringName(string name)
         {
@@ -39,7 +39,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the transport to use the given func as the connection string
+        /// Configures the transport to use the given func as the connection string.
         /// </summary>
         public new TransportExtensions<T> ConnectionString(Func<string> connectionString)
         {
@@ -54,7 +54,7 @@ namespace NServiceBus
     public class TransportExtensions : ExposeSettings
     {
         /// <summary>
-        /// Default constructor.
+        /// Initializes a new instance of <see cref="TransportExtensions"/>.
         /// </summary>
         public TransportExtensions(SettingsHolder settings)
             : base(settings)
@@ -62,7 +62,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the transport to use the given string as the connection string
+        /// Configures the transport to use the given string as the connection string.
         /// </summary>
         public TransportExtensions ConnectionString(string connectionString)
         {
@@ -72,7 +72,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the transport to use the connection string with the given name
+        /// Configures the transport to use the connection string with the given name.
         /// </summary>
         public TransportExtensions ConnectionStringName(string name)
         {
@@ -82,7 +82,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the transport to use the given func as the connection string
+        /// Configures the transport to use the given func as the connection string.
         /// </summary>
         public TransportExtensions ConnectionString(Func<string> connectionString)
         {
@@ -93,7 +93,7 @@ namespace NServiceBus
     }
 
     /// <summary>
-    /// Allows you to read which transport connectionstring has been set
+    /// Allows you to read which transport connectionstring has been set.
     /// </summary>
     public static class ConfigureTransportConnectionString
     {

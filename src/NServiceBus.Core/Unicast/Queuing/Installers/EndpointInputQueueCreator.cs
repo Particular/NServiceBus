@@ -9,9 +9,6 @@ namespace NServiceBus.Unicast.Queuing.Installers
             Address = settings.LocalAddress();
         }
 
-        /// <summary>
-        /// Endpoint input name
-        /// </summary>
         public string Address { get; private set; }
 
         public bool ShouldCreateQueue()

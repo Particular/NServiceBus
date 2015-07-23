@@ -12,7 +12,7 @@ namespace NServiceBus.Unicast.Messages
         IMessageMapper messageMapper;
         
         /// <summary>
-        /// Ctor
+        /// Initializes a new instance of <see cref="LogicalMessageFactory"/>.
         /// </summary>
         public LogicalMessageFactory(MessageMetadataRegistry messageMetadataRegistry, IMessageMapper messageMapper)
         {

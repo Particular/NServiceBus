@@ -11,14 +11,15 @@
     /// <summary> 
     /// This class provides implementers of persisters with an extension mechanism for custom settings for specific storage type via extention methods.
     /// </summary>
-    /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory" />, <see cref="MsmqTransport" />, etc</typeparam>
-    /// <typeparam name="S">The <see cref="StorageType"/>storage type</typeparam>
+    /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory" />, <see cref="MsmqTransport" />, etc.</typeparam>
+    /// <typeparam name="S">The <see cref="StorageType"/>storage type.</typeparam>
     public class PersistenceExtentions<T, S> : PersistenceExtentions<T>
         where T : PersistenceDefinition
         where S : StorageType
     {
+
         /// <summary>
-        /// Default constructor.
+        /// Initializes a new insatnce of <see cref="PersistenceExtentions"/>.
         /// </summary>
         public PersistenceExtentions(SettingsHolder settings) : base(settings, typeof(S))
         {
@@ -29,7 +30,7 @@
     ///     This class provides implementers of persisters with an extension mechanism for custom settings via extention
     ///     methods.
     /// </summary>
-    /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory" />, <see cref="MsmqTransport" />, etc</typeparam>
+    /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory" />, <see cref="MsmqTransport" />, etc.</typeparam>
     public class PersistenceExtentions<T> : PersistenceExtentions where T : PersistenceDefinition
     {
         /// <summary>
@@ -40,16 +41,16 @@
         }
 
         /// <summary>
-        /// Constructor for a specific <see cref="StorageType"/>
+        /// Constructor for a specific <see cref="StorageType"/>.
         /// </summary>
         protected PersistenceExtentions(SettingsHolder settings, Type storageType) : base(typeof(T), settings, storageType)
         {
         }
 
         /// <summary>
-        ///     Defines the list of specific storage needs this persistence should provide
+        ///     Defines the list of specific storage needs this persistence should provide.
         /// </summary>
-        /// <param name="specificStorages">The list of storage needs</param>
+        /// <param name="specificStorages">The list of storage needs.</param>
          [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
@@ -68,7 +69,7 @@
     public class PersistenceExtentions : ExposeSettings
     {
         /// <summary>
-        ///     Default constructor.
+        ///     Initializes a new instance of <see cref="PersistenceExtentions"/>.
         /// </summary>
         public PersistenceExtentions(Type definitionType, SettingsHolder settings, Type storageType)
             : base(settings)
@@ -103,9 +104,9 @@
 
 
         /// <summary>
-        ///     Defines the list of specific storage needs this persistence should provide
+        ///     Defines the list of specific storage needs this persistence should provide.
         /// </summary>
-        /// <param name="specificStorages">The list of storage needs</param>
+        /// <param name="specificStorages">The list of storage needs.</param>
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",

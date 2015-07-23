@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Persistence
 {
     /// <summary>
-    /// The storage needs of NServiceBus
+    /// The storage needs of NServiceBus.
     /// </summary>
     [ObsoleteEx(
     RemoveInVersion = "7.0",
@@ -10,23 +10,23 @@
     public enum Storage
     {
         /// <summary>
-        /// Storage for timeouts
+        /// Storage for timeouts.
         /// </summary>
         Timeouts = 1,
         /// <summary>
-        /// Storage for subscriptions
+        /// Storage for subscriptions.
         /// </summary>
         Subscriptions = 2,
         /// <summary>
-        /// Storage for sagas
+        /// Storage for sagas.
         /// </summary>
         Sagas = 3,
         /// <summary>
-        /// Storage for gateway deduplication
+        /// Storage for gateway deduplication.
         /// </summary>
         GatewayDeduplication = 4,
         /// <summary>
-        /// Storage for the outbox
+        /// Storage for the outbox.
         /// </summary>
         Outbox = 5,
     }

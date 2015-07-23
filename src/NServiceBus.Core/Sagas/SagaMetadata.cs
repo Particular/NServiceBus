@@ -5,7 +5,7 @@ namespace NServiceBus.Saga
     using System.Reflection;
 
     /// <summary>
-    ///     Contains metadata for known sagas
+    ///     Contains metadata for known sagas.
     /// </summary>
     public class SagaMetadata
     {

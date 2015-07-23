@@ -37,15 +37,15 @@ namespace NServiceBus
         /// Sends the message to the endpoint which sent the message currently being handled on this thread.
         /// </summary>
         /// <param name="message">The message to send.</param>
-        /// <param name="options">Options for this reply</param>
+        /// <param name="options">Options for this reply.</param>
         void Reply(object message,ReplyOptions options);
 
         /// <summary>
         /// Instantiates a message of type T and performs a regular <see cref="Reply(object,ReplyOptions)"/>.
         /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface</typeparam>
-        /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        /// <param name="options">Options for this reply</param>
+        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
+        /// <param name="options">Options for this reply.</param>
         void Reply<T>(Action<T> messageConstructor, ReplyOptions options);
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace NServiceBus
         void Return<T>(T errorEnum);
 
         /// <summary>
-        /// Defers the processing of the message for the given delay. This feature is using the timeout manager so make sure that you enable timeouts
+        /// Defers the processing of the message for the given delay. This feature is using the timeout manager so make sure that you enable timeouts.
         /// </summary>
         [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
         // ReSharper disable UnusedParameter.Global
@@ -64,7 +64,7 @@ namespace NServiceBus
         // ReSharper restore UnusedParameter.Global
 
         /// <summary>
-        /// Defers the processing of the message until the specified time. This feature is using the timeout manager so make sure that you enable timeouts
+        /// Defers the processing of the message until the specified time. This feature is using the timeout manager so make sure that you enable timeouts.
         /// </summary>
         [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
         // ReSharper disable UnusedParameter.Global

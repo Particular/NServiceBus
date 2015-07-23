@@ -7,7 +7,7 @@ namespace NServiceBus
     using Settings;
 
     /// <summary>
-    /// Provides extentions to the settings holder
+    /// Provides extentions to the settings holder.
     /// </summary>
     public static class SettingsExtentions
     {

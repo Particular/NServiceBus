@@ -1,7 +1,7 @@
 namespace NServiceBus.Extensibility
 {
     /// <summary>
-    /// Provides hidden access to the extension context
+    /// Provides hidden access to the extension context.
     /// </summary>
     public static class ExtendableOptionsExtensions
     {

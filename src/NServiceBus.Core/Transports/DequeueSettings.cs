@@ -18,12 +18,12 @@
         }
 
         /// <summary>
-        /// The native queue to consume messages from
+        /// The native queue to consume messages from.
         /// </summary>
         public string QueueName{ get; private set; }
 
         /// <summary>
-        /// Tells the dequeuer if the queue should be purged before starting to consume messages from it
+        /// Tells the dequeuer if the queue should be purged before starting to consume messages from it.
         /// </summary>
         public bool PurgeOnStartup { get; private set; }
     }

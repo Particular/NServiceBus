@@ -5,12 +5,12 @@
     using NServiceBus.Unicast.Messages;
 
     /// <summary>
-    /// A behavior that belongs to the handling stage
+    /// A behavior that belongs to the handling stage.
     /// </summary>
     public abstract class HandlingStageBehavior : Behavior<HandlingStageBehavior.Context>
     {
         /// <summary>
-        /// A context of handling a logical message by a handler
+        /// A context of handling a logical message by a handler.
         /// </summary>
         public class Context : IncomingContext
         {
@@ -25,7 +25,7 @@
             }
 
             /// <summary>
-            /// Allows context inheritance
+            /// Allows context inheritance.
             /// </summary>
             protected Context(BehaviorContext context)
                 : base(context)
@@ -38,12 +38,12 @@
             public MessageHandler MessageHandler { get; private set; }
 
             /// <summary>
-            /// Message headers
+            /// Message headers.
             /// </summary>
             public Dictionary<string,string> Headers{ get; private set; }
 
             /// <summary>
-            /// The message instance being handled
+            /// The message instance being handled.
             /// </summary>
             public object MessageBeingHandled { get; private set; }
 
@@ -61,12 +61,12 @@
             public bool HandlerInvocationAborted { get; private set; }
 
             /// <summary>
-            /// Metadata for the incoming message
+            /// Metadata for the incoming message.
             /// </summary>
             public MessageMetadata MessageMetadata { get; private set; }
 
             /// <summary>
-            /// Id of the incoming message
+            /// Id of the incoming message.
             /// </summary>
             public string MessageId { get; private set; }
         }

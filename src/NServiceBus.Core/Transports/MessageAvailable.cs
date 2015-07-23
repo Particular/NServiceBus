@@ -11,7 +11,7 @@ namespace NServiceBus.Transports
         Action<IncomingContext> contextAction;
 
         /// <summary>
-        /// Creates new instance of <see cref="MessageAvailable"/>
+        /// Initializes new instance of <see cref="MessageAvailable"/>.
         /// </summary>
         /// <param name="contextAction">A callback that sets up the pipeline context for processing a received message.</param>
         public MessageAvailable(Action<IncomingContext> contextAction)

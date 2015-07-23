@@ -3,12 +3,12 @@
     using NServiceBus.Pipeline;
 
     /// <summary>
-    /// Pipeline context for send operations
+    /// Pipeline context for send operations.
     /// </summary>
     public class OutgoingSendContext : BehaviorContext
     {
         /// <summary>
-        /// Initializes the context with a parent context
+        /// Initializes the context with a parent context.
         /// </summary>
         public OutgoingSendContext(BehaviorContext parentContext, OutgoingLogicalMessage message, SendOptions options)
             : base(parentContext)

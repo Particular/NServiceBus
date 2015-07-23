@@ -12,7 +12,7 @@ namespace NServiceBus.Features
         }
 
         /// <summary>
-        /// <see cref="Feature.Setup"/>
+        /// <see cref="Feature.Setup"/>.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {

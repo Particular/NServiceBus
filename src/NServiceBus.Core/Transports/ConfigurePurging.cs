@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
 
     /// <summary>
-    /// Configures purging
+    /// Configures purging.
     /// </summary>
     public static class ConfigurePurging
     {

@@ -11,7 +11,7 @@ namespace NServiceBus.DataBus
 		/// Serializes the property into the given stream.
 		/// </summary>
 		/// <param name="databusProperty">The property to serialize.</param>
-        /// <param name="stream">The stream to which to write the property.</param>>
+        /// <param name="stream">The stream to which to write the property.</param>
 		void Serialize(object databusProperty, Stream stream);
 
 		/// <summary>

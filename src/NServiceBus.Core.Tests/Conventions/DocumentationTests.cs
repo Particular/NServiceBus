@@ -11,12 +11,12 @@
     using NUnit.Framework;
     using Enum = NuDoq.Enum;
     using Exception = System.Exception;
+    using Text = NuDoq.Text;
 
     [TestFixture]
     public class DocumentationTests
     {
         [Test]
-        [Explicit]
         public void EnsureNoDocumentationIsEmpty()
         {
             var assembly = typeof(UnicastBus).Assembly;
@@ -30,7 +30,7 @@
             if (list.Any())
             {
                 var errors = string.Join("\r\n", list);
-                throw new Exception("Some members have empty documentation:\r\n" + errors);
+                throw new Exception("Some members have empty documentation or have a sentence that does not end with a period:\r\n" + errors);
             }
         }
 
@@ -73,12 +73,51 @@
 
             void AddIfEmpty(Element element)
             {
+                if (element is TypeParamRef)
+                {
+                    return;
+                }
+                if (element is C)
+                {
+                    return;
+                }
+                if (element is SeeAlso)
+                {
+                    return;
+                }
+                if (element is UnknownElement)
+                {
+                    return;
+                }
+                if (element is Code)
+                {
+                    return;
+                }
+                if (element is See)
+                {
+                    return;
+                }
+                if (element is Text)
+                {
+                    return;
+                }
+                if (element is ParamRef)
+                {
+                    return;
+                }
                 var text = element.ToText();
                 if (text == null)
                 {
                     return;
                 }
                 if (!string.IsNullOrWhiteSpace(text))
+                {
+                    if (text.Trim().EndsWith("."))
+                    {
+                        return;
+                    }
+                }
+                if (memberInfos.Count==0)
                 {
                     return;
                 }
@@ -88,6 +127,10 @@
                     return;
                 }
                 if (IsInheritDoc(element))
+                {
+                    return;
+                }
+                if (currentMember.DeclaringType.FullName.Contains("JetBrains"))
                 {
                     return;
                 }

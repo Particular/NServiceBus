@@ -257,7 +257,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
         MessageQueue q;
 
         /// <summary>
-        /// lookup from subscriber, to message type, to message id
+        /// lookup from subscriber, to message type, to message id.
         /// </summary>
         Dictionary<string, Dictionary<MessageType, string>> lookup = new Dictionary<string, Dictionary<MessageType, string>>(StringComparer.OrdinalIgnoreCase);
 

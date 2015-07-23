@@ -25,8 +25,8 @@ namespace NServiceBus.ObjectBuilder
         /// <summary>
         /// Configures the given type, allowing to fluently configure properties.
         /// </summary>
-        /// <typeparam name="T">Type to configure</typeparam>
-        /// <param name="componentFactory">Factory method that returns the given type</param>
+        /// <typeparam name="T">Type to configure.</typeparam>
+        /// <param name="componentFactory">Factory method that returns the given type.</param>
         /// <param name="dependencyLifecycle">Defines lifecycle semantics for the given type.</param>
         IComponentConfig<T> ConfigureComponent<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle);
 

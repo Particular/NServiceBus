@@ -10,13 +10,13 @@
     public class WireEncryptedString : ISerializable
     {
         /// <summary>
-        /// Default constructor
+        /// Initializes a new instance of <see cref="WireEncryptedString"/>.
         /// </summary>
         public WireEncryptedString()
         {}
 
         /// <summary>
-        /// Deserializing constructor
+        /// Initializes a new instance of <see cref="WireEncryptedString"/>.
         /// </summary>
         public WireEncryptedString(SerializationInfo info, StreamingContext context)
         {
@@ -30,7 +30,7 @@
         public string Value { get; set; }
 
         /// <summary>
-        /// The encrypted value of this string
+        /// The encrypted value of this string.
         /// </summary>
         public EncryptedValue EncryptedValue
         {
@@ -48,13 +48,13 @@
         //**** we need to duplicate to make versions > 3.2.7 backwards compatible with 2.X
 
         /// <summary>
-        /// Only kept for backwards compatibility reasons
+        /// Only kept for backwards compatibility reasons.
         /// </summary>
         [ObsoleteEx(TreatAsErrorFromVersion = "6.0", RemoveInVersion = "7.0", Message = "No longer required")]
         public string EncryptedBase64Value { get; set; }
 
         /// <summary>
-        /// Only kept for backwards compatibility reasons
+        /// Only kept for backwards compatibility reasons.
         /// </summary>
         [ObsoleteEx(TreatAsErrorFromVersion = "6.0", RemoveInVersion = "7.0", Message = "No longer required")]
         public string Base64Iv { get; set; }

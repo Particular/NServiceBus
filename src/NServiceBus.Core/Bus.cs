@@ -3,14 +3,14 @@ namespace NServiceBus
     using NServiceBus.Configuration.AdvanceExtensibility;
 
     /// <summary>
-    /// Factory for creating new bus instances 
+    /// Factory for creating new bus instances.
     /// </summary>
     public static class Bus
     {
         /// <summary>
-        /// Creates a bus instance with the given configuration
+        /// Creates a bus instance with the given configuration.
         /// </summary>
-        /// <param name="configuration">The configuration to use</param>
+        /// <param name="configuration">The configuration to use.</param>
         public static IStartableBus Create(BusConfiguration configuration)
         {
             Guard.AgainstNull(configuration, "configuration");
@@ -22,9 +22,9 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a bus instance to be used in send only mode
+        /// Creates a bus instance to be used in send only mode.
         /// </summary>
-        /// <param name="configuration">The configuration to use</param>
+        /// <param name="configuration">The configuration to use.</param>
         public static ISendOnlyBus CreateSendOnly(BusConfiguration configuration)
         {
             Guard.AgainstNull(configuration, "configuration");

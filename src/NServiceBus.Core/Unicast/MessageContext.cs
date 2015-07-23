@@ -4,7 +4,7 @@ namespace NServiceBus.Unicast
     using System.Collections.Generic;
 
     /// <summary>
-    /// Implementation of IMessageContext
+    /// Implementation of IMessageContext.
     /// </summary>
     public class MessageContext : IMessageContext
     {
@@ -24,7 +24,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// The time at which the incoming message was sent
+        /// The time at which the incoming message was sent.
         /// </summary>
         public DateTime TimeSent
         {

@@ -5,7 +5,7 @@
     using System.Linq;
 
     /// <summary>
-    /// The storage types used for NServiceBus needs
+    /// The storage types used for NServiceBus needs.
     /// </summary>
     public abstract class StorageType
     {
@@ -17,7 +17,7 @@
         }
 
         /// <summary>
-        /// Storage for timeouts
+        /// Storage for timeouts.
         /// </summary>
         public sealed class Timeouts : StorageType
         {
@@ -25,7 +25,7 @@
         }
 
         /// <summary>
-        /// Storage for subscriptions
+        /// Storage for subscriptions.
         /// </summary>
         public sealed class Subscriptions : StorageType
         {
@@ -33,7 +33,7 @@
         }
 
         /// <summary>
-        /// Storage for sagas
+        /// Storage for sagas.
         /// </summary>
         public sealed class Sagas : StorageType
         {
@@ -41,7 +41,7 @@
         }
 
         /// <summary>
-        /// Storage for gateway de-duplication
+        /// Storage for gateway de-duplication.
         /// </summary>
         public sealed class GatewayDeduplication : StorageType
         {
@@ -49,7 +49,7 @@
         }
 
         /// <summary>
-        /// Storage for outbox
+        /// Storage for outbox.
         /// </summary>
         public sealed class Outbox : StorageType
         {

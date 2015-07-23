@@ -7,12 +7,12 @@
     using NServiceBus.Logging;
 
     /// <summary>
-    ///     The default message router
+    ///     The default message router.
     /// </summary>
     public class StaticMessageRouter
     {
         /// <summary>
-        ///     Initializes the router with all known messages
+        ///     Initializes the router with all known messages.
         /// </summary>
         public StaticMessageRouter(IEnumerable<Type> knownMessages)
         {
@@ -25,7 +25,7 @@
         }
 
         /// <summary>
-        /// Returns all the routes for a given message
+        /// Returns all the routes for a given message.
         /// </summary>
         /// <param name="messageType">The <see cref="Type"/> of the message to get the destination <see cref="Address"/> list for.</param>
         public List<string> GetDestinationFor(Type messageType)
@@ -41,10 +41,10 @@
         }
 
         /// <summary>
-        /// Registers a route for the given event
+        /// Registers a route for the given event.
         /// </summary>
-        /// <param name="eventType">The <see cref="Type"/> of the event</param>
-        /// <param name="endpointAddress">The <see cref="Address"/> representing the logical owner for the event</param>
+        /// <param name="eventType">The <see cref="Type"/> of the event.</param>
+        /// <param name="endpointAddress">The <see cref="Address"/> representing the logical owner for the event.</param>
         public void RegisterEventRoute(Type eventType, string endpointAddress)
         {
             Guard.AgainstNull(eventType, "eventType");
@@ -80,10 +80,10 @@
         }
 
         /// <summary>
-        /// Registers a route for the given message type
+        /// Registers a route for the given message type.
         /// </summary>
-        /// <param name="messageType">The message type</param>
-        /// <param name="endpointAddress">The address of the logical owner</param>
+        /// <param name="messageType">The message type.</param>
+        /// <param name="endpointAddress">The address of the logical owner.</param>
         public void RegisterMessageRoute(Type messageType, string endpointAddress)
         {
             Guard.AgainstNull(messageType, "messageType");
@@ -113,7 +113,7 @@
         }
 
         /// <summary>
-        /// Obsolete
+        /// Obsolete.
         /// </summary>
         [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "config.AutoSubscribe().AutoSubscribePlainMessages()")]
         public bool SubscribeToPlainMessages { get; set; }

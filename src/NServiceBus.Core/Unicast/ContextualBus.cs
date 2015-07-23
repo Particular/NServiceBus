@@ -232,7 +232,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.CurrentMessageContext"/>
+        /// <see cref="IBus.CurrentMessageContext"/>.
         /// </summary>
         public IMessageContext CurrentMessageContext
         {

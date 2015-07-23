@@ -3,12 +3,12 @@
     using NServiceBus.Pipeline;
 
     /// <summary>
-    /// Pipeline context for publish operations
+    /// Pipeline context for publish operations.
     /// </summary>
     public class OutgoingPublishContext : BehaviorContext
     {
         /// <summary>
-        /// Initializes the context with a parent context
+        /// Initializes the context with a parent context.
         /// </summary>
         public OutgoingPublishContext(BehaviorContext parentContext, OutgoingLogicalMessage message, PublishOptions options)
             : base(parentContext)

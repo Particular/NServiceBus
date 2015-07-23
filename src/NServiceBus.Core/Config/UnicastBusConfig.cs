@@ -70,7 +70,7 @@ namespace NServiceBus.Config
 
 
         /// <summary>
-        /// Gets/sets the time to be received set on forwarded messages
+        /// Gets/sets the time to be received set on forwarded messages.
         /// </summary>
         [ConfigurationProperty("TimeToBeReceivedOnForwardedMessages", IsRequired = false)]
         public TimeSpan TimeToBeReceivedOnForwardedMessages

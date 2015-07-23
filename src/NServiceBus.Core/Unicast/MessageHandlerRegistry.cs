@@ -8,7 +8,7 @@
     using NServiceBus.Saga;
 
     /// <summary>
-    ///     Maintains the message handlers for this endpoint
+    ///     Maintains the message handlers for this endpoint.
     /// </summary>
     public class MessageHandlerRegistry
     {
@@ -25,7 +25,7 @@
 
         /// <summary>
         ///     Gets the list of <see cref="IHandleMessages{T}" /> <see cref="Type" />s for the given
-        ///     <paramref name="messageType" />
+        ///     <paramref name="messageType" />.
         /// </summary>
         public IEnumerable<Type> GetHandlerTypes(Type messageType)
         {
@@ -41,7 +41,7 @@
         }
 
         /// <summary>
-        ///     Lists all message type for which we have handlers
+        ///     Lists all message type for which we have handlers.
         /// </summary>
         public IEnumerable<Type> GetMessageTypes()
         {
@@ -52,7 +52,7 @@
         }
 
         /// <summary>
-        ///     Registers the given message handler type
+        ///     Registers the given message handler type.
         /// </summary>
         public void RegisterHandler(Type handlerType)
         {
@@ -84,7 +84,7 @@
         }
 
         /// <summary>
-        ///     Invokes the handle method of the given handler passing the message
+        ///     Invokes the handle method of the given handler passing the message.
         /// </summary>
         /// <param name="handler">The handler instance.</param>
         /// <param name="message">The message instance.</param>
@@ -96,7 +96,7 @@
         }
 
         /// <summary>
-        ///     Invokes the timeout method of the given handler passing the message
+        ///     Invokes the timeout method of the given handler passing the message.
         /// </summary>
         /// <param name="handler">The handler instance.</param>
         /// <param name="state">The message instance.</param>
@@ -108,7 +108,7 @@
         }
 
         /// <summary>
-        ///     Registers the method in the cache
+        ///     Registers the method in the cache.
         /// </summary>
         /// <param name="handler">The object type.</param>
         /// <param name="messageType">the message type.</param>
@@ -121,7 +121,7 @@
         }
 
         /// <summary>
-        ///     Clears the cache
+        ///     Clears the cache.
         /// </summary>
         public void Clear()
         {

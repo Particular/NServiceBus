@@ -9,12 +9,12 @@ namespace NServiceBus.UnitOfWork
     public interface IManageUnitsOfWork
     {
         /// <summary>
-        /// Called before all message handlers and modules
+        /// Called before all message handlers and modules.
         /// </summary>
         void Begin();
 
         /// <summary>
-        /// Called after all message handlers and modules, if an error has occurred the exception will be passed
+        /// Called after all message handlers and modules, if an error has occurred the exception will be passed.
         /// </summary>
         void End(Exception ex = null);
     }

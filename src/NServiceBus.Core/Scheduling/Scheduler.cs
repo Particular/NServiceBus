@@ -14,10 +14,11 @@ namespace NServiceBus.Features
 
             EnableByDefault();
         }
+
         /// <summary>
-        /// Invoked if the feature is activated
+        /// Invoked if the feature is activated.
         /// </summary>
-        /// <param name="context">The feature context</param>
+        /// <param name="context">The feature context.</param>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Settings.Get<Conventions>().AddSystemMessagesConventions(t => typeof(ScheduledTask).IsAssignableFrom(t));

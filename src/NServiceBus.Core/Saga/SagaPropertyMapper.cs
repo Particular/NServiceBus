@@ -4,7 +4,7 @@ namespace NServiceBus.Saga
     using System.Linq.Expressions;
 
     /// <summary>
-    /// A helper class that proved syntactical sugar as part of <see cref="Saga.ConfigureHowToFindSaga"/>
+    /// A helper class that proved syntactical sugar as part of <see cref="Saga.ConfigureHowToFindSaga"/>.
     /// </summary>
     /// <typeparam name="TSagaData">A type that implements <see cref="IContainSagaData"/>.</typeparam>
     public class SagaPropertyMapper<TSagaData> where TSagaData : IContainSagaData

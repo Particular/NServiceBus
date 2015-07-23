@@ -10,7 +10,7 @@ namespace NServiceBus.Hosting.Helpers
     using NServiceBus.Logging;
 
     /// <summary>
-    ///     Helpers for assembly scanning operations
+    ///     Helpers for assembly scanning operations.
     /// </summary>
     public class AssemblyScanner
     {
@@ -47,7 +47,7 @@ namespace NServiceBus.Hosting.Helpers
         internal List<Type> TypesToSkip = new List<Type>();
 
         /// <summary>
-        ///     Creates a new scanner that will scan the base directory of the current appdomain
+        ///     Creates a new scanner that will scan the base directory of the current appdomain.
         /// </summary>
         public AssemblyScanner()
             : this(AppDomain.CurrentDomain.BaseDirectory)
@@ -55,7 +55,7 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         /// <summary>
-        ///     Creates a scanner for the given directory
+        ///     Creates a scanner for the given directory.
         /// </summary>
         public AssemblyScanner(string baseDirectoryToScan)
         {
@@ -70,7 +70,7 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         /// <summary>
-        ///     Tells the scanner to only include assemblies that reference one of the given assemblies
+        ///     Tells the scanner to only include assemblies that reference one of the given assemblies.
         /// </summary>
         [ObsoleteEx(Message = "This method is no longer required since deep scanning of assemblies is done to detect an NServiceBus reference.", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
         public List<Assembly> MustReferenceAtLeastOneAssembly
@@ -79,7 +79,7 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         /// <summary>
-        ///     Determines if the scanner should throw exceptions or not
+        ///     Determines if the scanner should throw exceptions or not.
         /// </summary>
         public bool ThrowExceptions { get; set; }
 

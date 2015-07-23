@@ -3,12 +3,12 @@ namespace NServiceBus.Unicast.Transport
     using System;
 
     /// <summary>
-    /// Defines the event data for the failed message processing event
+    /// Defines the event data for the failed message processing event.
     /// </summary>
     public class FailedMessageProcessingEventArgs : EventArgs
     {
         /// <summary>
-        /// The exception that caused the processing to fail
+        /// The exception that caused the processing to fail.
         /// </summary>
         public Exception Reason { get; private set; }
 
@@ -18,7 +18,7 @@ namespace NServiceBus.Unicast.Transport
         public TransportMessage Message { get; private set; }
 
         /// <summary>
-        /// Initialized the event arg with the actual exception
+        /// Initialized the event arg with the actual exception.
         /// </summary>
         public FailedMessageProcessingEventArgs(TransportMessage message, Exception exception)
         {

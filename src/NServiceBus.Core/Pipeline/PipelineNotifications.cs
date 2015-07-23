@@ -3,7 +3,7 @@ namespace NServiceBus.Pipeline
     using System;
 
     /// <summary>
-    /// Pipeline notifications
+    /// Pipeline notifications.
     /// </summary>
     public class PipelineNotifications : IDisposable
     {

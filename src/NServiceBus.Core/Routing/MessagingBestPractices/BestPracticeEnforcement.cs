@@ -3,21 +3,21 @@ namespace NServiceBus.Features
     using NServiceBus.MessagingBestPractices;
 
     /// <summary>
-    /// Makes sure that messaging best practices are followed
+    /// Makes sure that messaging best practices are followed.
     /// </summary>
     public class BestPracticeEnforcement : Feature
     {
         /// <summary>
-        /// Ctor
+        /// Initializes a new instance of <see cref="BestPracticeEnforcement"/>.
         /// </summary>
         internal BestPracticeEnforcement()
         {
             EnableByDefault();
         }
         /// <summary>
-        /// Initializes the feature
+        /// Initializes the feature.
         /// </summary>
-        /// <param name="context">The feature context</param>
+        /// <param name="context">The feature context.</param>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<Validations>(DependencyLifecycle.SingleInstance);

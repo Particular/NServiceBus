@@ -31,7 +31,7 @@ namespace NServiceBus.Pipeline
 
 
         /// <summary>
-        /// Allows for customization of the container registration for this step
+        /// Allows for customization of the container registration for this step.
         /// </summary>
         public void ContainerRegistration<T>(Func<IBuilder,ReadOnlySettings,T> customRegistration)
         {

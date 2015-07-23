@@ -5,7 +5,7 @@
     using NServiceBus.Unicast.Transport;
 
     /// <summary>
-    /// Connects two stages of the pipeline 
+    /// Connects two stages of the pipeline.
     /// </summary>
     public abstract class StageConnector<TFrom, TTo> :IStageConnector, IBehavior<TFrom, TTo> 
         where TFrom : BehaviorContext

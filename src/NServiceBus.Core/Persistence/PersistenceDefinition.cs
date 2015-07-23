@@ -6,14 +6,13 @@
     using NServiceBus.Settings;
 
     /// <summary>
-    /// Base class for persistence definitions
+    /// Base class for persistence definitions.
     /// </summary>
     public abstract class PersistenceDefinition
     {
         /// <summary>
-        /// Used be the storage definitions to declare what they support
+        /// Used be the storage definitions to declare what they support.
         /// </summary>
-        /// <typeparam name="T"><see cref="StorageType"/></typeparam>
         protected void Supports<T>(Action<SettingsHolder> action) where T : StorageType
         {
             Guard.AgainstNull(action, "action");
@@ -25,7 +24,7 @@
         }
 
         /// <summary>
-        /// Used be the storage definitions to declare what they support
+        /// Used be the storage definitions to declare what they support.
         /// </summary>
         [ObsoleteEx(
            RemoveInVersion = "7.0",
@@ -42,7 +41,7 @@
         }
 
         /// <summary>
-        /// Used be the storage definitions to declare what they support
+        /// Used be the storage definitions to declare what they support.
         /// </summary>
         protected void Defaults(Action<SettingsHolder> action)
         {
@@ -51,7 +50,7 @@
         }
 
         /// <summary>
-        /// True if supplied storage is supported
+        /// True if supplied storage is supported.
         /// </summary>
         [ObsoleteEx(
             RemoveInVersion = "7.0",
@@ -63,7 +62,7 @@
         }
 
         /// <summary>
-        /// True if supplied storage is supported
+        /// True if supplied storage is supported.
         /// </summary>
         public bool HasSupportFor<T>() where T : StorageType
         {
@@ -71,7 +70,7 @@
         }
 
         /// <summary>
-        /// True if supplied storage is supported
+        /// True if supplied storage is supported.
         /// </summary>
         public bool HasSupportFor(Type storageType)
         {

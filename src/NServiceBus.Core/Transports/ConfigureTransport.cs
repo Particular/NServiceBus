@@ -32,7 +32,7 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        /// <see cref="Feature.Setup"/>
+        /// <see cref="Feature.Setup"/>.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -60,9 +60,9 @@ namespace NServiceBus.Transports
         protected abstract Func<IBuilder, ReceiveBehavior> GetReceiveBehaviorFactory(ReceiveOptions receiveOptions);
 
         /// <summary>
-        ///  Allows the transport to control the local address of the endpoint if needed
+        ///  Allows the transport to control the local address of the endpoint if needed.
         /// </summary>
-        /// <param name="settings">The current settings in read only mode</param>
+        /// <param name="settings">The current settings in read only mode.</param>
         // ReSharper disable once UnusedParameter.Global
         protected virtual string GetLocalAddress(ReadOnlySettings settings)
         {

@@ -179,7 +179,7 @@ namespace NServiceBus.Config
         }
 
         /// <summary>
-        /// True if the collection is readonly
+        /// True if the collection is readonly.
         /// </summary>
         public override bool IsReadOnly()
         {

@@ -3,12 +3,12 @@ namespace NServiceBus.MessageMutator
     using System.Collections.Generic;
 
     /// <summary>
-    /// Provides ways to mutate the outgoing message instance
+    /// Provides ways to mutate the outgoing message instance.
     /// </summary>
     public class MutateOutgoingMessagesContext
     {
         /// <summary>
-        /// The current message instance being sent
+        /// The current message instance being sent.
         /// </summary>
         public object MessageInstance
         {
@@ -25,7 +25,7 @@ namespace NServiceBus.MessageMutator
         }
 
         /// <summary>
-        /// Initializes the context
+        /// Initializes the context.
         /// </summary>
         public MutateOutgoingMessagesContext(object messageInstance)
         {
@@ -35,10 +35,10 @@ namespace NServiceBus.MessageMutator
 
 
         /// <summary>
-        /// Allows headers to be set
+        /// Allows headers to be set.
         /// </summary>
-        /// <param name="key">The header key</param>
-        /// <param name="value">The header value</param>
+        /// <param name="key">The header key.</param>
+        /// <param name="value">The header value.</param>
         public void SetHeader(string key, string value)
         {
             Headers[key] = value;

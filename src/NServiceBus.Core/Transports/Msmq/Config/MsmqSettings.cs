@@ -4,13 +4,13 @@ namespace NServiceBus.Transports.Msmq.Config
     using System.Messaging;
 
     /// <summary>
-    /// Runtime settings for the Msmq transport
+    /// Runtime settings for the Msmq transport.
     /// </summary>
     public class MsmqSettings
     {
 
         /// <summary>
-        /// Constructs the settings class with defaults
+        /// Initializes a new instance of <see cref="MsmqSettings"/>.
         /// </summary>
         public MsmqSettings()
         {
@@ -21,12 +21,12 @@ namespace NServiceBus.Transports.Msmq.Config
         }
 
         /// <summary>
-        /// Determines if the dead letter queue should be used
+        /// Determines if the dead letter queue should be used.
         /// </summary>
         public bool UseDeadLetterQueue { get; set; }
 
         /// <summary>
-        /// Determines if journaling should be activated
+        /// Determines if journaling should be activated.
         /// </summary>
         public bool UseJournalQueue { get; set; }
         
@@ -36,7 +36,7 @@ namespace NServiceBus.Transports.Msmq.Config
         public bool UseConnectionCache { get; set; }
 
         /// <summary>
-        /// Determines if the system uses transactional queues
+        /// Determines if the system uses transactional queues.
         /// </summary>
         public bool UseTransactionalQueues { get; set; }
 

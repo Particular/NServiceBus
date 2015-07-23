@@ -9,7 +9,7 @@ namespace NServiceBus.Timeout.Core
     public partial class TimeoutData 
     {
         /// <summary>
-        /// Id of this timeout
+        /// Id of this timeout.
         /// </summary>
         public string Id { get; set; }
 
@@ -34,12 +34,12 @@ namespace NServiceBus.Timeout.Core
         public DateTime Time { get; set; }
         
         /// <summary>
-        /// The timeout manager that owns this particular timeout
+        /// The timeout manager that owns this particular timeout.
         /// </summary>
         public string OwningTimeoutManager { get; set; }
 
         /// <summary>
-        /// Store the headers to preserve them across timeouts
+        /// Store the headers to preserve them across timeouts.
         /// </summary>
         public Dictionary<string, string> Headers { get; set; }
 
@@ -49,7 +49,6 @@ namespace NServiceBus.Timeout.Core
         /// <returns>
         /// A <see cref="String"/> that represents the current <see cref="Object"/>.
         /// </returns>
-        /// <filterpriority>2</filterpriority>
         public override string ToString()
         {
             return string.Format("Timeout({0}) - Expires:{1}, SagaId:{2}", Id, Time, SagaId);

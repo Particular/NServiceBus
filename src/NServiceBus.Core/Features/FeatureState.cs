@@ -1,24 +1,24 @@
 namespace NServiceBus.Features
 {
     /// <summary>
-    /// Defines state of a feature
+    /// Defines state of a feature.
     /// </summary>
     public enum FeatureState
     {
         /// <summary>
-        /// Not selected for activation
+        /// Not selected for activation.
         /// </summary>
         Disabled,
         /// <summary>
-        /// Selected for activation
+        /// Selected for activation.
         /// </summary>
         Enabled,
         /// <summary>
-        /// Activated
+        /// Activated.
         /// </summary>
         Active,
         /// <summary>
-        /// Activation not possible
+        /// Activation not possible.
         /// </summary>
         Deactivated,
     }

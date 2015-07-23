@@ -36,7 +36,7 @@
         public Dictionary<string, string> Options { get; private set; }
 
         /// <summary>
-        ///     Gets a byte array to the body content of the outgoing message
+        ///     Gets a byte array to the body content of the outgoing message.
         /// </summary>
         public byte[] Body { get; private set; }
 

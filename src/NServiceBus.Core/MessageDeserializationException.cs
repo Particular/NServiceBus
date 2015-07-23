@@ -29,7 +29,7 @@
         }
 
         /// <summary>
-        /// <see cref="SerializationException(SerializationInfo, StreamingContext)"/>
+        /// <see cref="SerializationException(SerializationInfo, StreamingContext)"/>.
         /// </summary>
         protected MessageDeserializationException(SerializationInfo info, StreamingContext context) : base(info, context)
         {

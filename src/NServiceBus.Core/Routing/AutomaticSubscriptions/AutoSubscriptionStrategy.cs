@@ -12,29 +12,29 @@
     class AutoSubscriptionStrategy
     {
         /// <summary>
-        /// The known handlers
+        /// The known handlers.
         /// </summary>
         public MessageHandlerRegistry HandlerRegistry { get; set; }
 
         /// <summary>
-        /// The message routing
+        /// The message routing.
         /// </summary>
         public StaticMessageRouter MessageRouter { get; set; }
 
         public Conventions Conventions { get; set; }
 
         /// <summary>
-        /// If set to true the endpoint will subscribe to it self even if no endpoint mappings exists
+        /// If set to true the endpoint will subscribe to it self even if no endpoint mappings exists.
         /// </summary>
         public bool DoNotRequireExplicitRouting { get; set; }
 
         /// <summary>
-        /// if true messages that are handled by sagas wont be auto subscribed
+        /// if true messages that are handled by sagas wont be auto subscribed.
         /// </summary>
         public bool DoNotAutoSubscribeSagas { get; set; }
 
         /// <summary>
-        /// If true all messages that are not commands will be auto subscribed
+        /// If true all messages that are not commands will be auto subscribed.
         /// </summary>
         public bool SubscribePlainMessages { get; set; }
 

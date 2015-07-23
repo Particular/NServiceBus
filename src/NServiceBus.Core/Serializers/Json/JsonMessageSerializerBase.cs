@@ -27,7 +27,7 @@ namespace NServiceBus.Serializers.Json
         };
 
         /// <summary>
-        /// Ctor
+        /// Initializes a new instance of <see cref="JsonMessageSerializerBase"/>.
         /// </summary>
         protected internal JsonMessageSerializerBase(IMessageMapper messageMapper)
         {
@@ -157,23 +157,23 @@ namespace NServiceBus.Serializers.Json
         }
 
         /// <summary>
-        /// Gets the content type into which this serializer serializes the content to 
+        /// Gets the content type into which this serializer serializes the content to.
         /// </summary>
         public string ContentType { get { return GetContentType(); } }
 
         /// <summary>
-        /// Returns the supported content type
+        /// Returns the supported content type.
         /// </summary>
         protected internal abstract string GetContentType();
 
         /// <summary>
-        /// Creates a <see cref="JsonWriter"/> from a <see cref="Stream"/>
+        /// Creates a <see cref="JsonWriter"/> from a <see cref="Stream"/>.
         /// </summary>
         /// <param name="stream">The <see cref="Stream"/> to create the <see cref="JsonWriter"/> for.</param>
         protected internal abstract JsonWriter CreateJsonWriter(Stream stream);
 
         /// <summary>
-        /// Creates a <see cref="JsonReader"/> from a <see cref="Stream"/>
+        /// Creates a <see cref="JsonReader"/> from a <see cref="Stream"/>.
         /// </summary>
         /// <param name="stream">The <see cref="Stream"/> to create the <see cref="JsonReader"/> for.</param>
         protected internal abstract JsonReader CreateJsonReader(Stream stream);

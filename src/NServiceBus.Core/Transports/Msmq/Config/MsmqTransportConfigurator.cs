@@ -97,7 +97,7 @@
         }
 
         /// <summary>
-        /// <see cref="ConfigureTransport.ExampleConnectionStringForErrorMessage"/>
+        /// <see cref="ConfigureTransport.ExampleConnectionStringForErrorMessage"/>.
         /// </summary>
         protected override string ExampleConnectionStringForErrorMessage
         {
@@ -105,7 +105,7 @@
         }
 
         /// <summary>
-        /// <see cref="ConfigureTransport.RequiresConnectionString"/>
+        /// <see cref="ConfigureTransport.RequiresConnectionString"/>.
         /// </summary>
         protected override bool RequiresConnectionString
         {

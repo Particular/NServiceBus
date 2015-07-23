@@ -14,7 +14,7 @@ namespace NServiceBus.Serializers.Json
         private Encoding encoding = Encoding.UTF8;
 
         /// <summary>
-        /// Constructor.
+        /// Initializes a new instance of <see cref="JsonMessageSerializer"/>.
         /// </summary>
         public JsonMessageSerializer(IMessageMapper messageMapper)
             : base(messageMapper)
@@ -22,7 +22,7 @@ namespace NServiceBus.Serializers.Json
         }
 
         /// <summary>
-        /// Creates the writer
+        /// Creates the writer.
         /// </summary>
         protected internal override JsonWriter CreateJsonWriter(Stream stream)
         {
@@ -31,7 +31,7 @@ namespace NServiceBus.Serializers.Json
         }
 
         /// <summary>
-        /// Creates the reader
+        /// Creates the reader.
         /// </summary>
         protected internal override JsonReader CreateJsonReader(Stream stream)
         {
@@ -40,7 +40,7 @@ namespace NServiceBus.Serializers.Json
         }
 
         /// <summary>
-        /// Non strongly typed deserialization
+        /// Non strongly typed deserialization.
         /// </summary>
         public object DeserializeObject(string value, Type type)
         {
@@ -50,10 +50,10 @@ namespace NServiceBus.Serializers.Json
         }
 
         /// <summary>
-        /// Serializes the given object to a json string
+        /// Serializes the given object to a json string.
         /// </summary>
-        /// <param name="value">The actual object</param>
-        /// <returns>The json string</returns>
+        /// <param name="value">The actual object.</param>
+        /// <returns>The json string.</returns>
         public string SerializeObject(object value)
         {
             Guard.AgainstNull(value, "value");
@@ -61,7 +61,7 @@ namespace NServiceBus.Serializers.Json
         }
 
         /// <summary>
-        /// Returns the supported content type
+        /// Returns the supported content type.
         /// </summary>
         protected internal override string GetContentType()
         {
@@ -69,7 +69,7 @@ namespace NServiceBus.Serializers.Json
         }
 
         /// <summary>
-        /// Gets or sets the stream encoding
+        /// Gets or sets the stream encoding.
         /// </summary>
         public Encoding Encoding
         {

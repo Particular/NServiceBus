@@ -5,12 +5,12 @@ namespace NServiceBus.CircuitBreakers
     using Logging;
 
     /// <summary>
-    /// A circuit breaker that triggers after a given time 
+    /// A circuit breaker that triggers after a given time.
     /// </summary>
     public class RepeatedFailuresOverTimeCircuitBreaker : IDisposable
     {
         /// <summary>
-        /// Ctor
+        /// Initializes a new instance of <see cref="RepeatedFailuresOverTimeCircuitBreaker"/>.
         /// </summary>
         public RepeatedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering,
             Action<Exception> triggerAction)
@@ -19,7 +19,7 @@ namespace NServiceBus.CircuitBreakers
         }
 
         /// <summary>
-        /// Ctor
+        /// Initializes a new instance of <see cref="RepeatedFailuresOverTimeCircuitBreaker"/>.
         /// </summary>
         public RepeatedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering,
             Action<Exception> triggerAction, TimeSpan delayAfterFailure)
@@ -37,7 +37,7 @@ namespace NServiceBus.CircuitBreakers
         }
 
         /// <summary>
-        /// Tell the CB that it should disarm
+        /// Tell the CircuitBreaker that it should disarm.
         /// </summary>
         public bool Success()
         {
@@ -55,7 +55,7 @@ namespace NServiceBus.CircuitBreakers
         }
 
         /// <summary>
-        /// Tells the CB to arm
+        /// Tells the CircuitBreaker to arm.
         /// </summary>
         public void Failure(Exception exception)
         {
@@ -73,7 +73,7 @@ namespace NServiceBus.CircuitBreakers
         }
 
         /// <summary>
-        /// Disposes the CB
+        /// <see cref="IDisposable.Dispose"/>.
         /// </summary>
         public void Dispose()
         {

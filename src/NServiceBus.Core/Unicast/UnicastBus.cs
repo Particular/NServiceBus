@@ -59,7 +59,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Provides access to the current host information
+        /// Provides access to the current host information.
         /// </summary>
         [ObsoleteEx(Message = "We have introduced a more explicit API to set the host identifier, see busConfiguration.UniquelyIdentifyRunningInstance()", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
         public HostInformation HostInformation
@@ -70,7 +70,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IStartableBus.Start()"/>
+        /// <see cref="IStartableBus.Start()"/>.
         /// </summary>
         public IBus Start()
         {
@@ -164,7 +164,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IDisposable.Dispose"/>
+        /// <see cref="IDisposable.Dispose"/>.
         /// </summary>
         public void Dispose()
         {
@@ -239,12 +239,12 @@ namespace NServiceBus.Unicast
 
 
         /// <summary>
-        /// Only for tests
+        /// Only for tests.
         /// </summary>
         public ReadOnlySettings Settings { get; private set; }
 
         /// <summary>
-        /// Only for tests
+        /// Only for tests.
         /// </summary>
         public IBuilder Builder { get; private set; }
     }

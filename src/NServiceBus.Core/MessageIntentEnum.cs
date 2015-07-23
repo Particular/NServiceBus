@@ -7,27 +7,27 @@
     {
         
         ///<summary>
-        /// Regular point-to-point send
+        /// Regular point-to-point send.
         ///</summary>
         Send = 1,
 
         ///<summary>
-        /// Publish, not a regular point-to-point send
+        /// Publish, not a regular point-to-point send.
         ///</summary>
         Publish = 2,
 
         /// <summary>
-        /// Subscribe
+        /// Subscribe.
         /// </summary>
         Subscribe = 3,
 
         /// <summary>
-        /// Unsubscribe
+        /// Unsubscribe.
         /// </summary>
         Unsubscribe = 4,
 
         /// <summary>
-        /// Indicates that this message is a reply
+        /// Indicates that this message is a reply.
         /// </summary>
         Reply = 5
     }

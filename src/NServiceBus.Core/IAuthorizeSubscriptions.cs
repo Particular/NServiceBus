@@ -14,7 +14,7 @@
     {
         /// <summary>
         /// Return true if the client endpoint is to be allowed to subscribe to the given message type.
-        /// Implementors can access the impersonated user via <see cref="WindowsIdentity.GetCurrent()"/>
+        /// Implementors can access the impersonated user via <see cref="WindowsIdentity.GetCurrent()"/>.
         /// </summary>
         bool AuthorizeSubscribe(string messageType, string clientEndpoint, IDictionary<string, string> headers);
 

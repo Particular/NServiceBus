@@ -4,14 +4,14 @@
     using NServiceBus.Persistence;
 
     /// <summary>
-    /// Enables users to select persistence by calling .UsePersistence()
+    /// Enables users to select persistence by calling .UsePersistence().
     /// </summary>
     public static class PersistenceConfig
     {
         /// <summary>
-        /// Configures the given persistence to be used
+        /// Configures the given persistence to be used.
         /// </summary>
-        /// <typeparam name="T">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc</typeparam>
+        /// <typeparam name="T">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc.</typeparam>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static PersistenceExtentions<T> UsePersistence<T>(this BusConfiguration config) where T : PersistenceDefinition
         {
@@ -21,10 +21,10 @@
         }
 
         /// <summary>
-        /// Configures the given persistence to be used for a specific storage type
+        /// Configures the given persistence to be used for a specific storage type.
         /// </summary>
-        /// <typeparam name="T">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc</typeparam>
-        /// <typeparam name="S">The <see cref="StorageType"/>storage type</typeparam>
+        /// <typeparam name="T">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc.</typeparam>
+        /// <typeparam name="S">The <see cref="StorageType"/>storage type.</typeparam>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static PersistenceExtentions<T, S> UsePersistence<T, S>(this BusConfiguration config) where T : PersistenceDefinition
                                                                                                      where S : StorageType
@@ -35,10 +35,10 @@
         }
 
         /// <summary>
-        ///  Configures the given persistence to be used
+        ///  Configures the given persistence to be used.
         /// </summary>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        /// <param name="definitionType">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc</param>
+        /// <param name="definitionType">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc.</param>
         public static PersistenceExtentions UsePersistence(this BusConfiguration config, Type definitionType)
         {
             Guard.AgainstNull(config, "config");

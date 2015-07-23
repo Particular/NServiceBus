@@ -17,8 +17,8 @@
             /// <summary>
             /// Enriches a processing context with deserialized logical messsages.
             /// </summary>
-            /// <param name="logicalMessages">A collection of logical messages</param>
-            /// <param name="parentContext">Atext wrapped con</param>
+            /// <param name="logicalMessages">A collection of logical messages.</param>
+            /// <param name="parentContext">A text wrapped context.</param>
             public Context(IEnumerable<LogicalMessage> logicalMessages, PhysicalMessageProcessingStageBehavior.Context parentContext)
                 : base(parentContext)
             {
@@ -45,7 +45,7 @@
             }
 
             /// <summary>
-            /// True if the message was handled
+            /// True if the message was handled.
             /// </summary>
             public bool MessageHandled { get; set; }
         }

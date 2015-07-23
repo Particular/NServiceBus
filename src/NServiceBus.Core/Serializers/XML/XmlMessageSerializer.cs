@@ -15,7 +15,7 @@ namespace NServiceBus.Serializers.XML
         /// <summary>
         ///     Initializes an instance of a <see cref="XmlMessageSerializer" />.
         /// </summary>
-        /// <param name="mapper">Message Mapper</param>
+        /// <param name="mapper">Message Mapper.</param>
         /// <param name="conventions">The endpoint conventions.</param>
         public XmlMessageSerializer(IMessageMapper mapper, Conventions conventions)
         {
@@ -36,12 +36,12 @@ namespace NServiceBus.Serializers.XML
         }
 
         /// <summary>
-        ///     If true, then the serializer will use a sanitizing stream to skip invalid characters from the stream before parsing
+        ///     If true, then the serializer will use a sanitizing stream to skip invalid characters from the stream before parsing.
         /// </summary>
         public bool SanitizeInput { get; set; }
 
         /// <summary>
-        ///     Removes the wrapping of properties containing XDocument or XElement with property name as root element
+        ///     Removes the wrapping of properties containing XDocument or XElement with property name as root element.
         /// </summary>
         public bool SkipWrappingRawXml { get; set; }
 
@@ -77,7 +77,7 @@ namespace NServiceBus.Serializers.XML
         }
 
         /// <summary>
-        ///     Supported content type
+        ///     Supported content type.
         /// </summary>
         public string ContentType
         {
@@ -93,7 +93,7 @@ namespace NServiceBus.Serializers.XML
         }
 
         /// <summary>
-        ///     Initialized the serializer with the given message types
+        ///     Initialized the serializer with the given message types.
         /// </summary>
         public void Initialize(IEnumerable<Type> types)
         {

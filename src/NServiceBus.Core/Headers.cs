@@ -61,7 +61,7 @@
         public const string HeaderName = "Header";
 
         /// <summary>
-        /// Header containing the windows identity name
+        /// Header containing the windows identity name.
         /// </summary>
         public const string WindowsIdentityName = "WinIdName";
 
@@ -71,57 +71,57 @@
         public const string NServiceBusVersion = "NServiceBus.Version";
 
         /// <summary>
-        /// Used in a header when doing a callback (bus.return)
+        /// Used in a header when doing a callback (bus.return).
         /// </summary>
         public const string ReturnMessageErrorCodeHeader = "NServiceBus.ReturnMessage.ErrorCode";
 
         /// <summary>
-        /// Header that tells if this transport message is a control message
+        /// Header that tells if this transport message is a control message.
         /// </summary>
         public const string ControlMessageHeader = "NServiceBus.ControlMessage";
 
         /// <summary>
-        /// Type of the saga that this message is targeted for
+        /// Type of the saga that this message is targeted for.
         /// </summary>
         public const string SagaType = "NServiceBus.SagaType";
 
         /// <summary>
-        /// Id of the saga that sent this message
+        /// Id of the saga that sent this message.
         /// </summary>
         public const string OriginatingSagaId = "NServiceBus.OriginatingSagaId";
 
         /// <summary>
-        /// Type of the saga that sent this message
+        /// Type of the saga that sent this message.
         /// </summary>
         public const string OriginatingSagaType = "NServiceBus.OriginatingSagaType";
 
         /// <summary>
-        /// The number of second-level retries that has been performed for this message
+        /// The number of second-level retries that has been performed for this message.
         /// </summary>
         public const string Retries = "NServiceBus.Retries";
 
         /// <summary>
-        /// The number of first-level retries that has been performed for this message
+        /// The number of first-level retries that has been performed for this message.
         /// </summary>
         public const string FLRetries = "NServiceBus.FLRetries";
 
         /// <summary>
-        /// The time processing of this message started
+        /// The time processing of this message started.
         /// </summary>
         public const string ProcessingStarted = "NServiceBus.ProcessingStarted";
 
         /// <summary>
-        /// The time processing of this message ended
+        /// The time processing of this message ended.
         /// </summary>
         public const string ProcessingEnded = "NServiceBus.ProcessingEnded";
 
         /// <summary>
-        /// The time this message was sent from the client
+        /// The time this message was sent from the client.
         /// </summary>
         public const string TimeSent = "NServiceBus.TimeSent";
 
         /// <summary>
-        /// Id of the message that caused this message to be sent
+        /// Id of the message that caused this message to be sent.
         /// </summary>
         public const string RelatedTo = "NServiceBus.RelatedTo";
 
@@ -131,7 +131,7 @@
         public const string EnclosedMessageTypes = "NServiceBus.EnclosedMessageTypes";
 
         /// <summary>
-        /// Header entry key indicating format of the payload
+        /// Header entry key indicating format of the payload.
         /// </summary>
         public const string ContentType = "NServiceBus.ContentType";
 
@@ -141,37 +141,37 @@
         public const string SubscriptionMessageType = "SubscriptionMessageType";
 
         /// <summary>
-        /// True if this message is a saga timeout
+        /// True if this message is a saga timeout.
         /// </summary>
         public const string IsSagaTimeoutMessage = "NServiceBus.IsSagaTimeoutMessage";
 
         /// <summary>
-        /// True if this is a deferred message
+        /// True if this is a deferred message.
         /// </summary>
         public const string IsDeferredMessage = "NServiceBus.IsDeferredMessage";
 
         /// <summary>
-        /// Name of the endpoint where the given message originated
+        /// Name of the endpoint where the given message originated.
         /// </summary>
         public const string OriginatingEndpoint = "NServiceBus.OriginatingEndpoint";
 
         /// <summary>
-        /// Machine name of the endpoint where the given message originated
+        /// Machine name of the endpoint where the given message originated.
         /// </summary>
         public const string OriginatingMachine = "NServiceBus.OriginatingMachine";
 
         /// <summary>
-        /// HostId of the endpoint where the given message originated
+        /// HostId of the endpoint where the given message originated.
         /// </summary>
         public const string OriginatingHostId = "$.diagnostics.originating.hostid";
 
         /// <summary>
-        /// Name of the endpoint where the given message was processed (success or failure)
+        /// Name of the endpoint where the given message was processed (success or failure).
         /// </summary>
         public const string ProcessingEndpoint = "NServiceBus.ProcessingEndpoint";
 
         /// <summary>
-        /// Machine name of the endpoint where the given message was processed (success or failure)
+        /// Machine name of the endpoint where the given message was processed (success or failure).
         /// </summary>
         public const string ProcessingMachine = "NServiceBus.ProcessingMachine";
 
@@ -181,40 +181,40 @@
         public const string HostDisplayName = "$.diagnostics.hostdisplayname";
 
         /// <summary>
-        /// HostId of the endpoint where the given message was processed (success or failure)
+        /// HostId of the endpoint where the given message was processed (success or failure).
         /// </summary>
         public const string HostId = "$.diagnostics.hostid";
 
         /// <summary>
-        /// HostId of the endpoint where the given message was processed (success or failure)
+        /// HostId of the endpoint where the given message was processed (success or failure).
         /// </summary>
         public const string HasLicenseExpired = "$.diagnostics.license.expired";
 
         /// <summary>
-        /// The original reply to address for successfully processed messages
+        /// The original reply to address for successfully processed messages.
         /// </summary>
         public const string OriginatingAddress = "NServiceBus.OriginatingAddress";
 
         /// <summary>
-        /// The id of the message conversation that this message is part of
+        /// The id of the message conversation that this message is part of.
         /// </summary>
         public const string ConversationId = "NServiceBus.ConversationId";
 
         /// <summary>
-        /// The intent of the current message
+        /// The intent of the current message.
         /// </summary>
         public const string MessageIntent = "NServiceBus.MessageIntent";
 
         /// <summary>
         /// The time to be received for this message when it was sent the first time.
         /// When moved to error and audit this header will be preserved to the original TTBR 
-        /// of the message can be known
+        /// of the message can be known.
         /// </summary>
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
 
        
         /// <summary>
-        /// Indicates that the message was sent as a non durable message
+        /// Indicates that the message was sent as a non durable message.
         /// </summary>
         public const string NonDurableMessage = "NServiceBus.NonDurableMessage";
     }

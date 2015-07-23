@@ -3,7 +3,7 @@ namespace NServiceBus.SecondLevelRetries.Config
     using System;
 
     /// <summary>
-    /// Configuration settings for second level retries
+    /// Configuration settings for second level retries.
     /// </summary>
     public class SecondLevelRetriesSettings
     {
@@ -15,7 +15,7 @@ namespace NServiceBus.SecondLevelRetries.Config
         }
 
         /// <summary>
-        /// Register a custom retry policy
+        /// Register a custom retry policy.
         /// </summary>
         public void CustomRetryPolicy(Func<TransportMessage, TimeSpan> customPolicy)
         {

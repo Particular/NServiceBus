@@ -3,7 +3,7 @@ namespace NServiceBus.Config
     using System.Configuration;
 
     /// <summary>
-    /// Message Forwarding In Case Of Fault Config
+    /// Message Forwarding In Case Of Fault Config.
     /// </summary>
     public class MessageForwardingInCaseOfFaultConfig : ConfigurationSection
     {

@@ -25,8 +25,8 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Safely get the settings value, returning false if the settings key was not found.
         /// </summary>
-        /// <typeparam name="T">The type to get, fullname will be used as key</typeparam>
-        /// <param name="val">The value if present</param>
+        /// <typeparam name="T">The type to get, fullname will be used as key.</typeparam>
+        /// <param name="val">The value if present.</param>
         bool TryGet<T>(out T val);
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace NServiceBus.Settings
         object Get(string key);
 
         /// <summary>
-        /// Gets the setting value or the <code>default(T)</code>.
+        /// Gets the setting value or the <code>default(T).</code>.
         /// </summary>
         /// <typeparam name="T">The value of the setting.</typeparam>
         /// <param name="key">The key of the setting to get.</param>
@@ -80,7 +80,7 @@ namespace NServiceBus.Settings
         bool HasExplicitValue<T>();
         
         /// <summary>
-        /// Setup property injection for the given type based on convention
+        /// Setup property injection for the given type based on convention.
         /// </summary>
         void ApplyTo<T>(IComponentConfig config);
     }

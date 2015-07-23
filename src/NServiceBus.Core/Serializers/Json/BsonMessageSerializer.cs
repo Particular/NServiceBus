@@ -12,7 +12,7 @@ namespace NServiceBus.Serializers.Json
     public class BsonMessageSerializer : JsonMessageSerializerBase
     {
         /// <summary>
-        /// Constructor
+        /// Initializes a new instance of <see cref="BsonMessageSerializer"/>.
         /// </summary>
         public BsonMessageSerializer(IMessageMapper messageMapper): base(messageMapper)
         {

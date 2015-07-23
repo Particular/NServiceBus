@@ -3,13 +3,13 @@ namespace NServiceBus.MessageMutator
     using System.Collections.Generic;
 
     /// <summary>
-    /// Context class for IMutateOutgoingPhysicalContext
+    /// Context class for <see cref="IMutateOutgoingTransportMessages"/>.
     /// </summary>
     public class MutateOutgoingTransportMessagesContext
     {
 
         /// <summary>
-        /// Ctor
+        /// Initializes a new instance of <see cref="MutateOutgoingTransportMessagesContext"/>.
         /// </summary>
         public MutateOutgoingTransportMessagesContext(byte[] body, Dictionary<string, string> headers)
         {
@@ -18,15 +18,15 @@ namespace NServiceBus.MessageMutator
         }
 
         /// <summary>
-        /// The body of the message
+        /// The body of the message.
         /// </summary>
         public byte[] Body { get; set; }
 
         /// <summary>
-        /// Allows headers to be set
+        /// Allows headers to be set.
         /// </summary>
-        /// <param name="key">The header key</param>
-        /// <param name="value">The header value</param>
+        /// <param name="key">The header key.</param>
+        /// <param name="value">The header value.</param>
         public void SetHeader(string key, string value)
         {
             Guard.AgainstNullAndEmpty(key,"key");

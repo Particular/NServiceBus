@@ -15,7 +15,7 @@ namespace NServiceBus
     public class MsmqTransport : TransportDefinition
     {
         /// <summary>
-        /// Ctor
+        /// Initializes a new instance of <see cref="MsmqTransport"/>.
         /// </summary>
         public MsmqTransport()
         {
@@ -37,7 +37,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// <see cref="TransportDefinition.GetSubScope"/>
+        /// <see cref="TransportDefinition.GetSubScope"/>.
         /// </summary>
         public override string GetSubScope(string address, string qualifier)
         {

@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
 
     /// <summary>
-    /// Add extensions to allow conventions for message durability to be changed
+    /// Add extensions to allow conventions for message durability to be changed.
     /// </summary>
     public static class DurableMessagesConventionExtensions
     {

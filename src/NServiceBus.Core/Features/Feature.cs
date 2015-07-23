@@ -26,7 +26,7 @@
         public string Name { get; private set; }
 
         /// <summary>
-        ///     The version for this feature
+        ///     The version for this feature.
         /// </summary>
         public string Version
         {
@@ -34,38 +34,41 @@
         }
 
         /// <summary>
-        ///     The list of features that this feature is depending on
+        ///     The list of features that this feature is depending on.
         /// </summary>
         internal List<List<string>> Dependencies { get; private set; }
 
         /// <summary>
-        ///     Tells if this feature is enabled by default
+        ///     Tells if this feature is enabled by default.
         /// </summary>
         public bool IsEnabledByDefault { get; private set; }
 
         /// <summary>
-        ///     Indicates that the feature is active
+        ///     Indicates that the feature is active.
         /// </summary>
         public bool IsActive { get; private set; }
 
         internal List<Type> StartupTasks { get; private set; }
 
         /// <summary>
-        /// Registers default settings
+        /// Registers default settings.
         /// </summary>
-        /// <param name="settings">The settings holder</param>
+        /// <param name="settings">The settings holder.</param>
         protected void Defaults(Action<SettingsHolder> settings)
-         {
-             defaults.Add(settings);
-         }
+        {
+            defaults.Add(settings);
+        }
 
         /// <summary>
-        /// Access to the registered defaults
+        /// Access to the registered defaults.
         /// </summary>
-        internal List<Action<SettingsHolder>> RegisteredDefaults { get { return defaults; } }
+        internal List<Action<SettingsHolder>> RegisteredDefaults
+        {
+            get { return defaults; }
+        }
 
         /// <summary>
-        ///     Called when the features is activated
+        ///     Called when the features is activated.
         /// </summary>
         protected internal abstract void Setup(FeatureConfigurationContext context);
 
@@ -75,7 +78,7 @@
         /// </summary>
         /// <param name="condition">Condition that must be met in order for this feature to be activated.</param>
         /// <param name="description">Explanation of what this prerequisite checks.</param>
-        protected void Prerequisite(Func<FeatureConfigurationContext, bool> condition,string description)
+        protected void Prerequisite(Func<FeatureConfigurationContext, bool> condition, string description)
         {
             Guard.AgainstNullAndEmpty(description, "description");
 
@@ -113,13 +116,15 @@
         /// <param name="featureName">The name of the feature that this feature depends on.</param>
         protected void DependsOn(string featureName)
         {
-            Dependencies.Add(new List<string>{featureName});
+            Dependencies.Add(new List<string>
+            {
+                featureName
+            });
         }
 
         /// <summary>
         ///     Register this feature as depending on at least on of the given features. This means that this feature won't be
-        ///     activated
-        ///     unless at least one of the provided features in the list is active.
+        ///     activated unless at least one of the provided features in the list is active.
         ///     This also causes this feature to be activated after the other features.
         /// </summary>
         /// <param name="features">Features list that this feature require at least one of to be activated.</param>
@@ -163,10 +168,6 @@
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
-        /// <filterpriority>2</filterpriority>
         public override string ToString()
         {
             return string.Format("{0} [{1}]", Name, Version);

@@ -63,7 +63,7 @@ namespace NServiceBus.Serializers.Binary
         }
 
         /// <summary>
-        /// Gets the content type into which this serializer serializes the content to 
+        /// Gets the content type into which this serializer serializes the content to.
         /// </summary>
         public string ContentType { get{ return ContentTypes.Binary;}}
 

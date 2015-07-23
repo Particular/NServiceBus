@@ -4,12 +4,12 @@ namespace NServiceBus.Unicast.Subscriptions
     using System.Linq;
 
     /// <summary>
-    /// Representation of a message type that clients can be subscribed to
+    /// Representation of a message type that clients can be subscribed to.
     /// </summary>
     public class MessageType
     {
         /// <summary>
-        /// Initializes the message type from the given type
+        /// Initializes the message type from the given type.
         /// </summary>
         public MessageType(Type type)
         {
@@ -64,17 +64,17 @@ namespace NServiceBus.Unicast.Subscriptions
 
 
         /// <summary>
-        /// TypeName of the message
+        /// TypeName of the message.
         /// </summary>
         public string TypeName { get;private  set; }
 
         /// <summary>
-        /// Version of the message
+        /// Version of the message.
         /// </summary>
         public Version Version { get; private set; }
 
         /// <summary>
-        /// Overridden to append Version along with Type Name
+        /// Overridden to append Version along with Type Name.
         /// </summary>
         public override string ToString()
         {
@@ -82,7 +82,7 @@ namespace NServiceBus.Unicast.Subscriptions
         }
 
         /// <summary>
-        /// Equality, only major version is used
+        /// Equality, only major version is used.
         /// </summary>
         public bool Equals(MessageType other)
         {
@@ -92,7 +92,7 @@ namespace NServiceBus.Unicast.Subscriptions
         }
 
         /// <summary>
-        /// Equality, only Type is same
+        /// Equality, only Type is same.
         /// </summary>
         public override bool Equals(object obj)
         {
@@ -103,7 +103,7 @@ namespace NServiceBus.Unicast.Subscriptions
         }
 
         /// <summary>
-        /// Gets Hash Code
+        /// Gets Hash Code.
         /// </summary>
         public override int GetHashCode()
         {
@@ -114,7 +114,7 @@ namespace NServiceBus.Unicast.Subscriptions
         }
 
         /// <summary>
-        /// Equality
+        /// Equality.
         /// </summary>
         public static bool operator ==(MessageType left, MessageType right)
         {
@@ -122,7 +122,7 @@ namespace NServiceBus.Unicast.Subscriptions
         }
 
         /// <summary>
-        /// Equality
+        /// Equality.
         /// </summary>
         public static bool operator !=(MessageType left, MessageType right)
         {

@@ -15,7 +15,7 @@ namespace NServiceBus
     public partial class TransportMessage
     {
         /// <summary>
-        ///     Creates a new TransportMessage with the given id and headers
+        ///     Creates a new TransportMessage with the given id and headers.
         /// </summary>
         public TransportMessage(string existingId, Dictionary<string, string> existingHeaders)
         {
@@ -97,7 +97,7 @@ namespace NServiceBus
 
 
         /// <summary>
-        ///     Gets/sets a byte array to the body content of the message
+        ///     Gets/sets a byte array to the body content of the message.
         /// </summary>
         public byte[] Body
         {
@@ -106,7 +106,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Use this method to update the body if this message
+        ///     Use this method to update the body if this message.
         /// </summary>
         void UpdateBody(byte[] updatedBody)
         {
@@ -121,7 +121,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Makes sure that the body is reset to the exact state as it was when the message was created
+        ///     Makes sure that the body is reset to the exact state as it was when the message was created.
         /// </summary>
         internal void RevertToOriginalBodyIfNeeded()
         {

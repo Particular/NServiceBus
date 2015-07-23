@@ -3,7 +3,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
     using NServiceBus.Routing.AutomaticSubscriptions;
 
     /// <summary>
-    /// Provides fine grained control over auto subscribe
+    /// Provides fine grained control over auto subscribe.
     /// </summary>
     public class AutoSubscribeSettings
     {
@@ -15,7 +15,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         }
 
         /// <summary>
-        /// Turns off auto subscriptions for sagas. Sagas where not auto subscribed by default before v4
+        /// Turns off auto subscriptions for sagas. Sagas where not auto subscribed by default before v4.
         /// </summary>
         public void DoNotAutoSubscribeSagas()
         {
@@ -23,7 +23,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         }
 
         /// <summary>
-        /// Allows to endpoint to subscribe to messages owned by the local endpoint
+        /// Allows to endpoint to subscribe to messages owned by the local endpoint.
         /// </summary>
         public void DoNotRequireExplicitRouting()
         {
@@ -31,7 +31,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         }
 
         /// <summary>
-        /// Turns on auto-subscriptions for messages not marked as commands. This was the default before v4
+        /// Turns on auto-subscriptions for messages not marked as commands. This was the default before v4.
         /// </summary>
         public void AutoSubscribePlainMessages()
         {

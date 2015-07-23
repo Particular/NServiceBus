@@ -7,7 +7,7 @@
     using NServiceBus.Serializers.XML;
 
     /// <summary>
-    /// Used to configure xml as a message serializer
+    /// Used to configure xml as a message serializer.
     /// </summary>
     public class XmlSerialization : Feature
     {

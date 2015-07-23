@@ -5,7 +5,7 @@ namespace NServiceBus
     using NServiceBus.Features;
 
     /// <summary>
-    /// Provides configuration options to tune handler ordering
+    /// Provides configuration options to tune handler ordering.
     /// </summary>
     public static class LoadMessageHandlersExtentions
     {

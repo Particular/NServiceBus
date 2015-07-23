@@ -24,7 +24,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Specifies an ordering of multiple types using the syntax: <code>First{H1}.Then{H2}().AndThen{H3}()</code> etc
+        /// Specifies an ordering of multiple types using the syntax: <code>First{H1}.Then{H2}().AndThen{H3}()</code> etc.
         /// </summary>
         public void Specify<T>(First<T> ordering)
         {

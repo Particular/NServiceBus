@@ -62,7 +62,7 @@ Perhaps you forgot to define your encryption message conventions or to define me
         }
 
         /// <summary>
-        /// <see cref="Feature.Setup"/>
+        /// <see cref="Feature.Setup"/>.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {

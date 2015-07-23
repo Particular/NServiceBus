@@ -32,29 +32,33 @@ namespace NServiceBus.Pipeline
         }
 
         /// <summary>
-        /// Host information
+        /// Host information.
         /// </summary>
         public static WellKnownStep HostInformation = new WellKnownStep("HostInformation");
+
         /// <summary>
-        /// Statistics analysis
+        /// Statistics analysis.
         /// </summary>
         public static WellKnownStep ProcessingStatistics = new WellKnownStep("ProcessingStatistics");
         
         /// <summary>
-        /// Auditing
+        /// Auditing.
         /// </summary>
         public static readonly WellKnownStep AuditProcessedMessage = new WellKnownStep("AuditProcessedMessage");
+
         /// <summary>
         /// Child Container creator.
         /// </summary>
-        [ObsoleteExAttribute(Message = "The child container creation is now an integral part of the pipeline invocation and no longer a seperate behavior.",
+        [ObsoleteExAttribute(Message = "The child container creation is now an integral part of the pipeline invocation and no longer a separate behavior.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public static readonly WellKnownStep CreateChildContainer = new WellKnownStep("CreateChildContainer");
+
         /// <summary>
         /// Executes UoWs.
         /// </summary>
         public static readonly WellKnownStep ExecuteUnitOfWork = new WellKnownStep("ExecuteUnitOfWork");
+
         /// <summary>
         /// Runs incoming mutation for <see cref="TransportMessage"/>.
         /// </summary>
@@ -65,18 +69,22 @@ namespace NServiceBus.Pipeline
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public static readonly WellKnownStep DispatchMessageToTransport = new WellKnownStep("DispatchMessageToTransport");
+
         /// <summary>
-        /// Invokes IHandleMessages{T}.Handle(T)
+        /// Invokes IHandleMessages{T}.Handle(T).
         /// </summary>
         public static readonly WellKnownStep InvokeHandlers = new WellKnownStep("InvokeHandlers");
+
         /// <summary>
         /// Runs incoming mutation for each logical message.
         /// </summary>
         public static readonly WellKnownStep MutateIncomingMessages = new WellKnownStep("MutateIncomingMessages");
+
         /// <summary>
         /// Invokes the saga code.
         /// </summary>
         public static readonly WellKnownStep InvokeSaga = new WellKnownStep("InvokeSaga");
+
         /// <summary>
         /// Ensures best practices are met.
         /// </summary>

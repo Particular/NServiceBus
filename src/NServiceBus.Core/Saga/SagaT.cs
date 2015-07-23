@@ -28,7 +28,7 @@ namespace NServiceBus.Saga
         /// <summary>
         /// Override this method in order to configure how this saga's data should be found.
         /// </summary>
-        /// <remarks>Override <see cref="Saga.ConfigureHowToFindSaga"/> and forwards it to the generic version <see cref="ConfigureHowToFindSaga(SagaPropertyMapper{TSagaData})"/></remarks>
+        /// <remarks>Override <see cref="Saga.ConfigureHowToFindSaga"/> and forwards it to the generic version <see cref="ConfigureHowToFindSaga(SagaPropertyMapper{TSagaData})"/>.</remarks>
         internal protected  override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {
             ConfigureHowToFindSaga(new SagaPropertyMapper<TSagaData>(sagaMessageFindingConfiguration));

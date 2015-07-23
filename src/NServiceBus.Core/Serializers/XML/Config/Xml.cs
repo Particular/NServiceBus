@@ -5,12 +5,12 @@
     using Serialization;
 
     /// <summary>
-    /// Defines the capabilities of the XML serializer
+    /// Defines the capabilities of the XML serializer.
     /// </summary>
     public class XmlSerializer : SerializationDefinition
     {
         /// <summary>
-        /// The feature to enable when this serializer is selected
+        /// The feature to enable when this serializer is selected.
         /// </summary>
         protected internal override Type ProvidedByFeature()
         {

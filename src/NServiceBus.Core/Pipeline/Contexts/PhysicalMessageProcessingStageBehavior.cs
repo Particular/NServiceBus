@@ -4,7 +4,7 @@
     using NServiceBus.Pipeline.Contexts;
 
     /// <summary>
-    /// A behavior in physical message processing stage
+    /// A behavior in physical message processing stage.
     /// </summary>
     public abstract class PhysicalMessageProcessingStageBehavior : Behavior<PhysicalMessageProcessingStageBehavior.Context>
     {
@@ -14,7 +14,7 @@
         public class Context : TransportReceiveContext
         {
             /// <summary>
-            /// Creates new instance.
+            /// Initializes a new instance of <see cref="Context"/>.
             /// </summary>
             protected Context(BehaviorContext parentContext)
                 : base(parentContext)
@@ -23,7 +23,7 @@
             }
 
             /// <summary>
-            /// Creates new instance.
+            /// Initializes a new instance of <see cref="Context"/>.
             /// </summary>
             internal Context(TransportReceiveContext parentContext)
                 : base(parentContext)
@@ -32,7 +32,7 @@
             }
 
             /// <summary>
-            /// If set to true the receive operation will be aborted
+            /// If set to true the receive operation will be aborted.
             /// </summary>
             public bool AbortReceiveOperation { get; set; }
 

@@ -31,7 +31,7 @@ namespace NServiceBus.Faults
         public Dictionary<string, string> Headers { get { return headers; }}
 
         /// <summary>
-        ///     Gets a byte array to the body content of the message
+        ///     Gets a byte array to the body content of the message.
         /// </summary>
         public byte[] Body { get { return body; } }
 

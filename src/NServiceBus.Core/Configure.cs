@@ -33,7 +33,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Provides access to the settings holder
+        ///     Provides access to the settings holder.
         /// </summary>
         public SettingsHolder Settings { get; private set; }
 

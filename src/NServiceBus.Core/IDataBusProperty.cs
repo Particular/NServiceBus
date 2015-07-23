@@ -13,13 +13,11 @@
         /// <summary>
         /// Gets the value of the <see cref="IDataBusProperty"/>.
         /// </summary>
-        /// <returns>The value</returns>
         object GetValue();
 
         /// <summary>
         /// Sets the value for <see cref="IDataBusProperty"/>.
         /// </summary>
-        /// <param name="value">The value to set.</param>
         void SetValue(object value);
 
         /// <summary>

@@ -4,7 +4,7 @@
     using NServiceBus.DataBus;
 
     /// <summary>
-    /// Extension methods to configure data bus
+    /// Extension methods to configure data bus.
     /// </summary>
     public static class UseDataBusExtensions
     {

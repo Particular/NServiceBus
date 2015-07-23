@@ -6,18 +6,18 @@ namespace NServiceBus
     public enum DependencyLifecycle
     {
         /// <summary>
-        /// The same instance will be returned each time
+        /// The same instance will be returned each time.
         /// </summary>
         SingleInstance,
 
         /// <summary>
         /// The instance will be singleton for the duration of the unit of work. In practice this means 
-        /// the processing of a single transport message
+        /// the processing of a single transport message.
         /// </summary>
         InstancePerUnitOfWork,
 
         /// <summary>
-        /// A new instance will be returned fro each call
+        /// A new instance will be returned fro each call.
         /// </summary>
         InstancePerCall
     }

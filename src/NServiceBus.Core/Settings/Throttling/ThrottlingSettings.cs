@@ -25,7 +25,7 @@ namespace NServiceBus.Settings.Throttling
         /// <summary>
         /// Configures NServiceBus to limit message throughput to <paramref name="maximumMessagesPerSecond"/> messages per second total for the main processing pipeline and all the satellites.
         /// </summary>
-        /// <param name="maximumMessagesPerSecond">Maximum messages per second</param>
+        /// <param name="maximumMessagesPerSecond">Maximum messages per second.</param>
         public void UseSingleTotalThroughputLimit(int maximumMessagesPerSecond)
         {
             Guard.AgainstNegativeAndZero(maximumMessagesPerSecond, "maximumMessagesPerSecond");
@@ -47,7 +47,7 @@ namespace NServiceBus.Settings.Throttling
         /// <summary>
         /// Configures NServiceBus to limit message throughput to <paramref name="defaultMaximumMessagesPerSecond"/> by default for each pipeline but allows to override this setting for either the main pipeline each satellite individually.
         /// </summary>
-        /// <param name="defaultMaximumMessagesPerSecond">Default maximum messages per second</param>
+        /// <param name="defaultMaximumMessagesPerSecond">Default maximum messages per second.</param>
         public IndividualThrottlingSettings UseSeparateThroughputLimitForMainPipelineAndEachSatellite(int defaultMaximumMessagesPerSecond)
         {
             Guard.AgainstNegativeAndZero(defaultMaximumMessagesPerSecond, "defaultMaximumMessagesPerSecond");

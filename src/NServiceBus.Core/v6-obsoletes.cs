@@ -385,9 +385,9 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Instantiates a message of type T and sends it to the given address.
         /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface</typeparam>
+        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="address">The address to which the message will be sent.</param>
-        /// <param name="messageConstructor">An action which initializes properties of the message</param>
+        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         [ObsoleteEx(
             ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
             RemoveInVersion = "7.0",
@@ -590,7 +590,7 @@ namespace NServiceBus.Features
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>
+        /// See <see cref="Feature.Setup"/>.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {

@@ -8,10 +8,10 @@ namespace NServiceBus
     public static class JsonSerializerConfigurationExtensions
     {
         /// <summary>
-        /// Configures the encoding of JSON stream
+        /// Configures the encoding of JSON stream.
         /// </summary>
-        /// <param name="config">The configuration object</param>
-        /// <param name="encoding">Encoding to use for serialization and deserialization</param>
+        /// <param name="config">The configuration object.</param>
+        /// <param name="encoding">Encoding to use for serialization and deserialization.</param>
         public static void Encoding(this SerializationExtentions<JsonSerializer> config, Encoding encoding)
         {
             Guard.AgainstNull(config, "config");

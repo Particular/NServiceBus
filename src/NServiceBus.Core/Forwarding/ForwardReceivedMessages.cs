@@ -6,7 +6,7 @@
     using NServiceBus.Unicast.Queuing.Installers;
 
     /// <summary>
-    /// Provides message forwarding capabilities
+    /// Provides message forwarding capabilities.
     /// </summary>
     public class ForwardReceivedMessages : Feature
     {
@@ -18,9 +18,9 @@
         }
 
         /// <summary>
-        /// Invoked if the feature is activated
+        /// Invoked if the feature is activated.
         /// </summary>
-        /// <param name="context">The feature context</param>
+        /// <param name="context">The feature context.</param>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var forwardReceivedMessagesQueue = GetConfiguredForwardMessageQueue(context);

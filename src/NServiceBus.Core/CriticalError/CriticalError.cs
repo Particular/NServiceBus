@@ -17,7 +17,7 @@ namespace NServiceBus
         IBuilder builder;
       
         /// <summary>
-        /// Creates an instance of <see cref="CriticalError"/>
+        /// Initializes a new instance of <see cref="CriticalError"/>.
         /// </summary>
         /// <param name="onCriticalErrorAction">The action to execute when a critical error is triggered.</param>
         /// <param name="builder">The <see cref="IBuilder"/> instance.</param>

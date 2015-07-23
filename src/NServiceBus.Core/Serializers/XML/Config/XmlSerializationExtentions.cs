@@ -10,7 +10,7 @@
     {
         /// <summary>
         /// Tells the serializer to not wrap properties which have either XDocument or XElement with a "PropertyName" element.
-        /// By default the xml serializer serializes the following message
+        /// By default the xml serializer serializes the following message.
         /// </summary>
         /// <code>
         /// interface MyMessage { XDocument Property { get; set; } }
@@ -65,7 +65,7 @@
         }
 
         /// <summary>
-        /// Tells the serializer to sanitize the input data from illegal characters
+        /// Tells the serializer to sanitize the input data from illegal characters.
         /// </summary>
         public static SerializationExtentions<XmlSerializer> SanitizeInput(this SerializationExtentions<XmlSerializer> config)
         {

@@ -4,12 +4,12 @@ namespace NServiceBus.OutgoingPipeline
     using NServiceBus.Pipeline.Contexts;
 
     /// <summary>
-    /// Provides access to information about the outgoing logical message
+    /// Provides access to information about the outgoing logical message.
     /// </summary>
     public static class OutgoingLogicalMessageContextExtensions
     {
         /// <summary>
-        /// The message type
+        /// The message type.
         /// </summary>
         public static Type GetMessageType(this OutgoingPublishContext context)
         {
@@ -19,7 +19,7 @@ namespace NServiceBus.OutgoingPipeline
         }
 
         /// <summary>
-        /// The message instance
+        /// The message instance.
         /// </summary>
         public static object GetMessageInstance(this OutgoingPublishContext context)
         {
@@ -29,7 +29,7 @@ namespace NServiceBus.OutgoingPipeline
         }
 
         /// <summary>
-        /// The message type
+        /// The message type.
         /// </summary>
         public static Type GetMessageType(this OutgoingSendContext context)
         {
@@ -39,7 +39,7 @@ namespace NServiceBus.OutgoingPipeline
         }
 
         /// <summary>
-        /// The message instance
+        /// The message instance.
         /// </summary>
         public static object GetMessageInstance(this OutgoingSendContext context)
         {
@@ -49,7 +49,7 @@ namespace NServiceBus.OutgoingPipeline
         }
 
         /// <summary>
-        /// The message type
+        /// The message type.
         /// </summary>
         public static Type GetMessageType(this OutgoingReplyContext context)
         {
@@ -59,7 +59,7 @@ namespace NServiceBus.OutgoingPipeline
         }
 
         /// <summary>
-        /// The message instance
+        /// The message instance.
         /// </summary>
         public static object GetMessageInstance(this OutgoingReplyContext context)
         {
@@ -69,7 +69,7 @@ namespace NServiceBus.OutgoingPipeline
         }
 
         /// <summary>
-        /// The message type
+        /// The message type.
         /// </summary>
         public static Type GetMessageType(this OutgoingContext context)
         {
@@ -79,7 +79,7 @@ namespace NServiceBus.OutgoingPipeline
         }
 
         /// <summary>
-        /// The message instance
+        /// The message instance.
         /// </summary>
         public static object GetMessageInstance(this OutgoingContext context)
         {
@@ -88,7 +88,7 @@ namespace NServiceBus.OutgoingPipeline
             return context.Get<OutgoingLogicalMessage>().Instance;
         }
         /// <summary>
-        /// Updates the message instance
+        /// Updates the message instance.
         /// </summary>
         public static void UpdateMessageInstance(this OutgoingContext context,object newInstance)
         {

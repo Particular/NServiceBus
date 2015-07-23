@@ -18,7 +18,7 @@
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>
+        /// See <see cref="Feature.Setup"/>.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -26,7 +26,7 @@
 
             var transportDefinition = context.Settings.Get<TransportDefinition>();
 
-            //if the transport has centralized pubsub we can auto-subscribe all events regardless if they have explicit routing or not
+            //if the transport has centralized pubsub we can auto-subscribe all events regardless if they have explicit routing or not.
             if (transportDefinition != null && transportDefinition.HasSupportForCentralizedPubSub)
             {
                 context.Container.ConfigureProperty<AutoSubscriptionStrategy>(s => s.DoNotRequireExplicitRouting, true);

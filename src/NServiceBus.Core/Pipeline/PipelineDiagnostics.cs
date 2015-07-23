@@ -4,12 +4,12 @@
     using NServiceBus.Pipeline;
 
     /// <summary>
-    /// Provides access to diagnostics data for the pipelines
+    /// Provides access to diagnostics data for the pipelines.
     /// </summary>
     public class PipelineDiagnostics
     {
         /// <summary>
-        /// Ctor
+        /// Initializes a new instance of <see cref="PipelineDiagnostics"/>.
         /// </summary>
         public PipelineDiagnostics()
         {
@@ -20,7 +20,7 @@
 
 
         /// <summary>
-        /// Access to diagnostics for the steps of the pipeline
+        /// Access to diagnostics for the steps of the pipeline.
         /// </summary>
         public IObservable<StepStarted> Steps{ get { return StepsDiagnostics; }}
     }

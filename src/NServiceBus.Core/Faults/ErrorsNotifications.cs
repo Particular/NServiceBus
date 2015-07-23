@@ -4,7 +4,7 @@ namespace NServiceBus.Faults
     using System.Collections.Generic;
 
     /// <summary>
-    /// Errors notifications
+    /// Errors notifications.
     /// </summary>
     public class ErrorsNotifications : IDisposable
     {

@@ -3,7 +3,7 @@ namespace NServiceBus.Logging
     using System;
 
     /// <summary>
-    /// Provides logging methods and utility functions
+    /// Provides logging methods and utility functions.
     /// </summary>
     public interface ILog
     {

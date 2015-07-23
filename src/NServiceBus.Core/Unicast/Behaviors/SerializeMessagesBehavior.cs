@@ -58,12 +58,12 @@
     }
 
     /// <summary>
-    /// Allows users to control serilization
+    /// Allows users to control serialization.
     /// </summary>
     public static class SerializationContextExtensions
     {
         /// <summary>
-        /// Requests the serializer to skip serializing the message
+        /// Requests the serializer to skip serializing the message.
         /// </summary>
         public static void SkipSerialization(this OutgoingContext context)
         {

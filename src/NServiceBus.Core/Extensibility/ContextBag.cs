@@ -14,6 +14,7 @@ namespace NServiceBus.Extensibility
         {
             this.parentBag = parentBag;
         }
+
         /// <summary>
         /// Retrieves the specified type from the context.
         /// </summary>
@@ -23,8 +24,7 @@ namespace NServiceBus.Extensibility
         {
             return Get<T>(typeof(T).FullName);
         }
-
-
+        
         /// <summary>
         /// Gets the requested extension, a new one will be created if needed.
         /// </summary>
@@ -77,9 +77,9 @@ namespace NServiceBus.Extensibility
         }
 
         /// <summary>
-        /// Merges the passed context into this one
+        /// Merges the passed context into this one.
         /// </summary>
-        /// <param name="context">The source context</param>
+        /// <param name="context">The source context.</param>
         public void Merge(ContextBag context)
         {
             foreach (var kvp in context.stash)

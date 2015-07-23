@@ -6,23 +6,23 @@ namespace NServiceBus.Logging
     public enum LogLevel
     {
         /// <summary>
-        /// Debug level messages
+        /// Debug level messages.
         /// </summary>
         Debug,
         /// <summary>
-        /// Information level messages
+        /// Information level messages.
         /// </summary>
         Info,
         /// <summary>
-        /// Warning level messages
+        /// Warning level messages.
         /// </summary>
         Warn,
         /// <summary>
-        /// Error level messages
+        /// Error level messages.
         /// </summary>
         Error,
         /// <summary>
-        /// Fatal level messages
+        /// Fatal level messages.
         /// </summary>
         Fatal
     }

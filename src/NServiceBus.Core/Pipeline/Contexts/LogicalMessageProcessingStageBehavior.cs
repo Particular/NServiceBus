@@ -15,12 +15,12 @@
         public class Context : LogicalMessagesProcessingStageBehavior.Context
         {
             /// <summary>
-            /// Creates new instance.
+            /// Initializes a new instance of <see cref="Context"/>.
             /// </summary>
-            /// <param name="logicalMessage">The logical message</param>
-            /// <param name="headers">The headers for the incoming message</param>
-            /// <param name="messageType">The message type</param>
-            /// <param name="parentContext">The wrapped context</param>
+            /// <param name="logicalMessage">The logical message.</param>
+            /// <param name="headers">The headers for the incoming message.</param>
+            /// <param name="messageType">The message type.</param>
+            /// <param name="parentContext">The wrapped context.</param>
             public Context(LogicalMessage logicalMessage,Dictionary<string,string> headers,Type messageType, LogicalMessagesProcessingStageBehavior.Context parentContext)
                 : base(parentContext)
             {
@@ -35,7 +35,7 @@
             }
 
             /// <summary>
-            /// Allows context inheritance
+            /// Allows context inheritance.
             /// </summary>
             protected Context(BehaviorContext parentContext)
                 : base(parentContext)
@@ -43,12 +43,12 @@
             }
 
             /// <summary>
-            ///    Headers for the incoming message
+            ///    Headers for the incoming message.
             /// </summary>
             public Dictionary<string, string> Headers { get; private set; }
 
             /// <summary>
-            /// The message type of the message being processed
+            /// The message type of the message being processed.
             /// </summary>
             public Type MessageType { get; set; }
         }

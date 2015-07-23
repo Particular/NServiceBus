@@ -10,7 +10,7 @@ namespace NServiceBus
     public class BusNotifications: IDisposable
     {
         /// <summary>
-        ///     Errors push-based notifications
+        ///     Errors push-based notifications.
         /// </summary>
         public ErrorsNotifications Errors
         {
@@ -20,7 +20,7 @@ namespace NServiceBus
         ErrorsNotifications errorNotifications = new ErrorsNotifications();
 
         /// <summary>
-        ///     Pipeline push-based notifications
+        ///     Pipeline push-based notifications.
         /// </summary>
         public PipelineNotifications Pipeline
         {

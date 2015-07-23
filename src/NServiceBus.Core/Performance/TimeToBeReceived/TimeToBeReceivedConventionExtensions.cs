@@ -4,7 +4,7 @@
     using NServiceBus.Performance.TimeToBeReceived;
 
     /// <summary>
-    /// Provides the ability to specify TTBR using a convention
+    /// Provides the ability to specify TTBR using a convention.
     /// </summary>
     public static class TimeToBeReceivedConventionExtensions
     {

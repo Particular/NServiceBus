@@ -4,7 +4,7 @@
     using System.Configuration;
 
     /// <summary>
-    /// Config section for the auditing feature
+    /// Config section for the auditing feature.
     /// </summary>
     public class AuditConfig : ConfigurationSection
     {
@@ -29,7 +29,7 @@
         }
 
         /// <summary>
-        /// Gets/sets the time to be received set on forwarded messages
+        /// Gets/sets the time to be received set on forwarded messages.
         /// </summary>
         [ConfigurationProperty("OverrideTimeToBeReceived", IsRequired = false)]
         public TimeSpan OverrideTimeToBeReceived

@@ -9,7 +9,7 @@
     public static class ConfigurationBuilderExtensions
     {
         /// <summary>
-        /// Enables the given feature
+        /// Enables the given feature.
         /// </summary>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static void EnableFeature<T>(this BusConfiguration config) where T : Feature
@@ -19,10 +19,10 @@
         }
 
         /// <summary>
-        /// Enables the given feature
+        /// Enables the given feature.
         /// </summary>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        /// <param name="featureType">The feature to enable</param>
+        /// <param name="featureType">The feature to enable.</param>
         public static void EnableFeature(this BusConfiguration config, Type featureType)
         {
             Guard.AgainstNull(config, "config");
@@ -32,7 +32,7 @@
         }
 
         /// <summary>
-        /// Disables the given feature
+        /// Disables the given feature.
         /// </summary>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static void DisableFeature<T>(this BusConfiguration config) where T : Feature
@@ -42,10 +42,10 @@
         }
 
         /// <summary>
-        /// Enables the given feature
+        /// Enables the given feature.
         /// </summary>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        /// <param name="featureType">The feature to disable</param>
+        /// <param name="featureType">The feature to disable.</param>
         public static void DisableFeature(this BusConfiguration config, Type featureType)
         {
             Guard.AgainstNull(config, "config");

@@ -5,7 +5,7 @@
     using Persistence.SubscriptionStorage;
 
     /// <summary>
-    /// Provides subscription storage using a msmq queue as the backing store
+    /// Provides subscription storage using a msmq queue as the backing store.
     /// </summary>
     public class MsmqSubscriptionPersistence:Feature
     {
@@ -13,9 +13,9 @@
         {
         }
         /// <summary>
-        /// Invoked if the feature is activated
+        /// Invoked if the feature is activated.
         /// </summary>
-        /// <param name="context">The feature context</param>
+        /// <param name="context">The feature context.</param>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var queueName = context.Settings.GetOrDefault<string>("MsmqSubscriptionPersistence.QueueName");

@@ -3,7 +3,7 @@
     using NServiceBus.Transports;
 
     /// <summary>
-    /// Context containing a physical message
+    /// Context containing a physical message.
     /// </summary>
     public class TransportReceiveContext : IncomingContext
     {
@@ -21,7 +21,7 @@
         }
 
         /// <summary>
-        /// Allows context inheritance
+        /// Allows context inheritance.
         /// </summary>
         protected TransportReceiveContext(BehaviorContext parentContext)
             : base(parentContext)

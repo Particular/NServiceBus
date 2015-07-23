@@ -19,7 +19,7 @@ namespace NServiceBus.Faults
         /// <param name="headers">Message headers.</param>
         /// <param name="body">Message body.</param>
         /// <param name="exception">Exception thrown.</param>
-        /// <param name="retryAttempt">Number of retry attempt</param>
+        /// <param name="retryAttempt">Number of retry attempt.</param>
         public FirstLevelRetry(Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
         {
             Guard.AgainstNull(headers, "headers");
@@ -37,7 +37,7 @@ namespace NServiceBus.Faults
         public Dictionary<string, string> Headers { get { return headers; } }
 
         /// <summary>
-        ///     Gets a byte array to the body content of the message
+        ///     Gets a byte array to the body content of the message.
         /// </summary>
         public byte[] Body { get { return body; } }
 

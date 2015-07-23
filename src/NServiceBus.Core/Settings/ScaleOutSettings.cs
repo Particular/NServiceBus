@@ -1,7 +1,7 @@
 namespace NServiceBus.Settings
 {
     /// <summary>
-    /// Placeholder for the various settings related to how a endpoint is scaled out
+    /// Placeholder for the various settings related to how a endpoint is scaled out.
     /// </summary>
     public class ScaleOutSettings
     {
@@ -34,7 +34,7 @@ namespace NServiceBus.Settings
 
         /// <summary>
         /// Makes sure that each instance of this endpoint gets a unique queue based on the transport specific discriminator.
-        /// The default discriminator set by the transport will be used
+        /// The default discriminator set by the transport will be used.
         /// </summary>
         public void UniqueQueuePerEndpointInstance()
         {
@@ -44,7 +44,7 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Makes sure that each instance of this endpoint gets a unique queue based on the transport specific discriminator.
         /// </summary>
-        /// <param name="discriminator">The discriminator to use</param>
+        /// <param name="discriminator">The discriminator to use.</param>
         public void UniqueQueuePerEndpointInstance(string discriminator)
         {
             Guard.AgainstNullAndEmpty(discriminator, "discriminator");

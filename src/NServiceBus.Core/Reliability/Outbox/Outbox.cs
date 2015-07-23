@@ -67,7 +67,7 @@ The reason you need to do this is because we need to ensure that you have read a
        
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>
+        /// See <see cref="Feature.Setup"/>.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {

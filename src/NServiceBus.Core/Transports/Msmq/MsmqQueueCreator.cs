@@ -15,7 +15,7 @@ namespace NServiceBus.Transports.Msmq
         static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
 
         /// <summary>
-        /// The current runtime settings
+        /// The current runtime settings.
         /// </summary>
         public MsmqSettings Settings { get; set; }
 

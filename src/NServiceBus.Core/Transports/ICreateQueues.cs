@@ -1,7 +1,7 @@
 namespace NServiceBus.Transports
 {
     /// <summary>
-    /// Abstraction of the capability to create queues
+    /// Abstraction of the capability to create queues.
     /// </summary>
     public interface ICreateQueues
     {
