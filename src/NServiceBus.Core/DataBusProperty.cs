@@ -29,7 +29,6 @@
         protected DataBusProperty(SerializationInfo info, StreamingContext context)
         {
             Guard.AgainstNull(info, "info");
-            Guard.AgainstNull(context, "context");
             Key = info.GetString("Key");
 			HasValue = info.GetBoolean("HasValue");
         }
@@ -64,7 +63,6 @@
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             Guard.AgainstNull(info, "info");
-            Guard.AgainstNull(context, "context");
             info.AddValue("Key", Key);
 			info.AddValue("HasValue", HasValue);
 		}

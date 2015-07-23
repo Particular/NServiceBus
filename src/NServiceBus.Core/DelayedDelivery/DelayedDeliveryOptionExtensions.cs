@@ -29,7 +29,6 @@
         public static void DoNotDeliverBefore(this SendOptions options, DateTime at)
         {
             Guard.AgainstNull(options, "options");
-            Guard.AgainstNull(at, "at");
 
             options.GetExtensions().Set(new ApplyDelayedDeliveryConstraintBehavior.State(new DoNotDeliverBefore(at)));
         }

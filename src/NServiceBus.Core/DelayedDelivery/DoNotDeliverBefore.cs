@@ -19,8 +19,6 @@
         /// <param name="at">The earliest time this message should be made available to its consumers.</param>
         public DoNotDeliverBefore(DateTime at)
         {
-            Guard.AgainstNull(at,"at");
-
             if (at <= DateTime.UtcNow)
             {
                 throw new ArgumentException("Delivery time must be in the future","at");
