@@ -355,7 +355,7 @@ namespace NServiceBus
         public NServiceBus.HostInfoSettings UsingInstalledFilePath() { }
         public NServiceBus.HostInfoSettings UsingNames(string instanceName, string hostName) { }
     }
-    [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a setellite one must create a freature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be removed in version 7.0.0.", true)]
     public interface IAdvancedSatellite { }
     [System.ObsoleteAttribute("This feature has been removed. To support authorization on a per subscription mes" +
         "sage type use a pipeline step instead. Will be removed in version 7.0.0.", true)]
@@ -449,7 +449,7 @@ namespace NServiceBus
     {
         public static void EnableInstallers(this NServiceBus.BusConfiguration config, string username = null) { }
     }
-    [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a setellite one must create a freature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be removed in version 7.0.0.", true)]
     public interface ISatellite { }
     public interface ISendOnlyBus : System.IDisposable
     {
@@ -1805,7 +1805,7 @@ namespace NServiceBus.Pipeline
     {
         public static readonly NServiceBus.Pipeline.WellKnownStep AuditProcessedMessage;
         [System.ObsoleteAttribute("The child container creation is now an integral part of the pipeline invocation a" +
-            "nd no longer a seperate behavior. Will be removed in version 7.0.0.", true)]
+            "nd no longer a separate behavior. Will be removed in version 7.0.0.", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep CreateChildContainer;
         [System.ObsoleteAttribute("The dispatch step is the terminating step in v6 so any dependency on it can safel" +
             "y be removed. Will be removed in version 7.0.0.", true)]
