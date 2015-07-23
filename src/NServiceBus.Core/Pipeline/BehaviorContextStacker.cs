@@ -8,7 +8,7 @@
     /// <summary>
     /// A stack of <see cref="BehaviorContext"/>s.
     /// </summary>
-    public class BehaviorContextStacker : IDisposable
+    internal class BehaviorContextStacker : IDisposable
     {
         /// <summary>
         /// Initializes a new instance of <see cref="BehaviorContextStacker"/>.
