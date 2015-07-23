@@ -96,7 +96,7 @@ namespace NServiceBus.Features
 
         Unicast.UnicastBus CreateBus(IBuilder builder)
         {
-            var bus = new Unicast.UnicastBus(
+            return new Unicast.UnicastBus(
                 builder.Build<BehaviorContextStacker>(), 
                 builder.Build<IExecutor>(),
                 builder.Build<CriticalError>(),
@@ -108,8 +108,6 @@ namespace NServiceBus.Features
                 builder.Build<TransportDefinition>(),
                 builder.Build<IDispatchMessages>(),
                 builder.Build<StaticMessageRouter>());
-
-            return bus;
         }
 
         void ConfigureMessageRegistry(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)

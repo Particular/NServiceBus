@@ -1716,12 +1716,6 @@ namespace NServiceBus.Pipeline
     {
         void Invoke(TIn context, System.Action<TOut> next);
     }
-    public interface IExecutor : System.IDisposable
-    {
-        void Execute(string pipelineId, System.Action action);
-        void Start(string[] pipelineIds);
-        void Stop();
-    }
     public interface IPipelineTerminator { }
     public class PipelineNotifications : System.IDisposable
     {
@@ -2584,7 +2578,6 @@ namespace NServiceBus.Unicast
     }
     public class UnicastBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, NServiceBus.Unicast.IRealBus, System.IDisposable
     {
-        public UnicastBus(NServiceBus.Pipeline.BehaviorContextStacker contextStacker, NServiceBus.Pipeline.IExecutor executor, NServiceBus.CriticalError criticalError, NServiceBus.MessageInterfaces.IMessageMapper messageMapper, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Configure configure, NServiceBus.Transports.IManageSubscriptions subscriptionManager, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Transports.TransportDefinition transportDefinition, NServiceBus.Transports.IDispatchMessages messageSender, NServiceBus.Unicast.Routing.StaticMessageRouter messageRouter) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public NServiceBus.IMessageContext CurrentMessageContext { get; }
         [System.ObsoleteAttribute("We have introduced a more explicit API to set the host identifier, see busConfigu" +

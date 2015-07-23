@@ -408,6 +408,7 @@
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Hosting\AuditHostInformationBehavior.cs" />
     <Compile Include="Unicast\IContextualBus.cs" />
+    <Compile Include="Unicast\IRealBus.cs" />
     <Compile Include="Unicast\Transport\PipelineInfo.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\PathUtilities.cs" />

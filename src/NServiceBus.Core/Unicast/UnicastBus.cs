@@ -20,10 +20,6 @@ namespace NServiceBus.Unicast
     using NServiceBus.Unicast.Routing;
     using NServiceBus.Unicast.Transport;
 
-    interface IRealBus
-    {
-    }
-
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
@@ -32,7 +28,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Initializes a new instance of <see cref="UnicastBus"/>.
         /// </summary>
-        public UnicastBus(
+        internal UnicastBus(
             BehaviorContextStacker contextStacker,
             IExecutor executor,
             CriticalError criticalError,
