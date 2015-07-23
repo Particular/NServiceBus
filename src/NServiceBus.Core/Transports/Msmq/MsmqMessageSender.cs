@@ -17,8 +17,6 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// Creates a new sender.
         /// </summary>
-        /// <param name="settings">The current msmq settings</param>
-        /// <param name="messageLabelGenerator"></param>
         public MsmqMessageSender(MsmqSettings settings, MsmqLabelGenerator messageLabelGenerator)
         {
             Guard.AgainstNull(settings, "settings");
@@ -28,7 +26,7 @@ namespace NServiceBus.Transports.Msmq
         }
 
         /// <summary>
-        /// Sends the given <paramref name="message"/>
+        /// Sends the given <paramref name="message"/>.
         /// </summary>
         public void Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions)
         {
@@ -121,10 +119,11 @@ namespace NServiceBus.Transports.Msmq
         static void ThrowFailedToSendException(string address, Exception ex)
         {
             if (address == null)
+            {
                 throw new Exception("Failed to send message.", ex);
+            }
 
-            throw new Exception(
-                string.Format("Failed to send message to address: {0}", address), ex);
+            throw new Exception(string.Format("Failed to send message to address: {0}", address), ex);
         }
 
         MessageQueueTransactionType GetTransactionTypeForSend()

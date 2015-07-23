@@ -5,22 +5,22 @@ namespace NServiceBus.Transports
     using NServiceBus.ConsistencyGuarantees;
 
     /// <summary>
-    /// Defines a transport that can be used by NServiceBus
+    /// Defines a transport.
     /// </summary>
     public abstract class TransportDefinition
     {
         /// <summary>
-        /// Indicates that the transport is capable of supporting the publish and subscribe pattern natively
+        /// Indicates that the transport is capable of supporting the publish and subscribe pattern natively.
         /// </summary>
         public bool HasNativePubSubSupport { get; protected set; }
 
         /// <summary>
-        /// Indicates that the transport has a central store for subscriptions
+        /// Indicates that the transport has a central store for subscriptions.
         /// </summary>
         public bool HasSupportForCentralizedPubSub { get; protected set; }
 
         /// <summary>
-        /// Indicates that the transport has support for distributed transactions
+        /// Indicates that the transport has support for distributed transactions.
         /// </summary>
         public bool? HasSupportForDistributedTransactions { get; protected set; }
 
@@ -30,7 +30,7 @@ namespace NServiceBus.Transports
         public bool HasSupportForMultiQueueNativeTransactions { get; protected set; }
 
         /// <summary>
-        /// True if the transport
+        /// True if the transport.
         /// </summary>
         public bool RequireOutboxConsent { get; set; }
 
@@ -44,20 +44,18 @@ namespace NServiceBus.Transports
 
         /// <summary>
         /// Creates a new Address whose Queue is derived from the Queue of the existing Address
-        /// together with the provided qualifier. For example: queue.qualifier@machine
+        /// together with the provided qualifier. For example: queue.qualifier@machine.
         /// </summary>
         public abstract string GetSubScope(string address, string qualifier);
 
         /// <summary>
-        /// Returns the list of supported delivery constraints for this transport
+        /// Returns the list of supported delivery constraints for this transport.
         /// </summary>
-        /// <returns></returns>
         public abstract IEnumerable<Type> GetSupportedDeliveryConstraints();
 
         /// <summary>
-        /// Returns the consistency guarantee to use if no specific guarantee is specified
+        /// Returns the consistency guarantee to use if no specific guarantee is specified.
         /// </summary>
-        /// <returns></returns>
         public abstract ConsistencyGuarantee GetDefaultConsistencyGuarantee();
     }
 }

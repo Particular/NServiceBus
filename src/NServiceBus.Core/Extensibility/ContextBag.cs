@@ -3,14 +3,13 @@ namespace NServiceBus.Extensibility
     using System.Collections.Generic;
 
     /// <summary>
-    /// A string object bag of context objects
+    /// A string object bag of context objects.
     /// </summary>
     public class ContextBag
     {
         /// <summary>
-        /// Initialized the bag
+        /// Initialized a new instance of <see cref="ContextBag"/>.
         /// </summary>
-        /// <param name="parentBag"></param>
         public ContextBag(ContextBag parentBag = null)
         {
             this.parentBag = parentBag;
@@ -27,7 +26,7 @@ namespace NServiceBus.Extensibility
 
 
         /// <summary>
-        /// Gets the requested extension, a new one will be created if needed
+        /// Gets the requested extension, a new one will be created if needed.
         /// </summary>
         public T GetOrCreate<T>() where T : class,new()
         {

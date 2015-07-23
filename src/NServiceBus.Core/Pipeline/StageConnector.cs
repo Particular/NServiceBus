@@ -37,12 +37,4 @@
             return Task.FromResult(true);
         }
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public interface IStageConnector
-    {
-        
-    }
 }

@@ -176,6 +176,7 @@
     <Compile Include="OutgoingPipeline\OutgoingPublishContext.cs" />
     <Compile Include="Pipeline\Contexts\TransportMessageContextExtensions.cs" />
     <Compile Include="Pipeline\IPipelineTerminator.cs" />
+    <Compile Include="Pipeline\IStageConnector.cs" />
     <Compile Include="Pipeline\PipelineDiagnostics.cs" />
     <Compile Include="Reliability\Outbox\DeliveryConstraintsFactory.cs" />
     <Compile Include="Reliability\Outbox\OutboxDispatchStrategy.cs" />

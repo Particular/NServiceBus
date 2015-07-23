@@ -10,7 +10,7 @@ namespace NServiceBus
     using NServiceBus.Transports.Msmq;
 
     /// <summary>
-    /// Transport definition for MSMQ
+    /// Transport definition for MSMQ.
     /// </summary>
     public class MsmqTransport : TransportDefinition
     {
@@ -49,9 +49,8 @@ namespace NServiceBus
             return msmqAddress.ToString(qualifier);
         }
         /// <summary>
-        /// The list of constraints supported by the MSMQ transport
+        /// The list of constraints supported by the MSMQ transport.
         /// </summary>
-        /// <returns></returns>
         public override IEnumerable<Type> GetSupportedDeliveryConstraints()
         {
             return new[]
@@ -63,7 +62,6 @@ namespace NServiceBus
         /// <summary>
         /// Atomic with receive is the MSMQ default. 
         /// </summary>
-        /// <returns></returns>
         public override ConsistencyGuarantee GetDefaultConsistencyGuarantee()
         {
             return new AtomicWithReceiveOperation();
