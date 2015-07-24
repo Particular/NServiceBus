@@ -3,7 +3,7 @@
     using System.Collections.Generic;
 
     /// <summary>
-    /// Cotains information about queues this endpoint is using
+    /// Cotains information about queues this endpoint is using.
     /// </summary>
     public class QueueBindings
     {
@@ -13,7 +13,7 @@
         /// <summary>
         /// Declares that this endpoint will be using queue with address <paramref name="address"/> for receiving.
         /// </summary>
-        /// <param name="address"></param>
+        /// <param name="address">The address of the queue.</param>
         public void BindReceiving(string address)
         {
             receiveAddresses.Add(address);
@@ -22,7 +22,7 @@
         /// <summary>
         /// Declares that this endpoint will be using queue with address <paramref name="address"/> for sending.
         /// </summary>
-        /// <param name="address"></param>
+        /// <param name="address">The address of the queue.</param>
         public void BindSending(string address)
         {
             sendingAddresses.Add(address);
