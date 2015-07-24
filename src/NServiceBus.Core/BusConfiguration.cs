@@ -17,6 +17,7 @@ namespace NServiceBus
     using NServiceBus.ObjectBuilder.Common;
     using NServiceBus.Pipeline;
     using NServiceBus.Settings;
+    using NServiceBus.Transports;
     using NServiceBus.Utils.Reflection;
 
     /// <summary>
@@ -35,6 +36,8 @@ namespace NServiceBus
             pipelineCollection = new PipelineConfiguration();
             Settings.Set<PipelineConfiguration>(pipelineCollection);
             Pipeline = new PipelineSettings(pipelineCollection.MainPipeline);
+
+            Settings.Set<QueueBindings>(new QueueBindings());
 
             Settings.SetDefault("Endpoint.SendOnly", false);
             Settings.SetDefault("Transactions.Enabled", true);

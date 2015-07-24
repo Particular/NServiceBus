@@ -2,6 +2,7 @@
 {
     using Config;
     using Logging;
+    using NServiceBus.Transports;
     using Persistence.SubscriptionStorage;
 
     /// <summary>
@@ -36,9 +37,10 @@
             }
 
             var storageQueue = queueName;
-
-            context.Container.ConfigureComponent<SubscriptionsQueueCreator>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(t => t.StorageQueue, storageQueue);
+            if (storageQueue != null)
+            {
+                context.Settings.Get<QueueBindings>().BindReceiving(storageQueue);
+            }
 
             context.Container.ConfigureComponent<MsmqSubscriptionStorage>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(s => s.Queue, storageQueue)

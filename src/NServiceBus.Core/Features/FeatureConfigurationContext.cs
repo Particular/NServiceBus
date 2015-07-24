@@ -54,6 +54,8 @@
 
             newPipeline.RegisterConnector<TransportReceiveToPhysicalMessageProcessingConnector>("Allows to abort processing the message");
 
+            config.Settings.Get<QueueBindings>().BindReceiving(receiveAddress);
+
             return newPipeline;
         }
     }
