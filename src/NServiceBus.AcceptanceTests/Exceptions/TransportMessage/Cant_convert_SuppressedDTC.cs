@@ -7,20 +7,19 @@
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
-    public class Cant_convert_SuppressedDTC : NServiceBusAcceptanceTest
+    public class Cant_convert_SuppressedDTC : Cant_convert
     {
         [Test]
         public void Should_send_message_to_error_queue()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given(bus => bus.Send(new Message())))
-                    .WithEndpoint<Receiver>()
+                    .WithEndpoint<Receiver>(b => b.Given(bus => SendCorruptedMessage("CantConvertSuppressedDTC.Receiver")))
                     .AllowExceptions()
-                    .Done(c => c.GetAllLogs().Any(l=>l.Level == "error"))
+                    .Done(c => c.Logs.Any(l=>l.Level == "error"))
                     .Repeat(r => r.For<MsmqOnly>())
                     .Should(c =>
                     {
-                        var logs = c.GetAllLogs();
+                        var logs = c.Logs;
                         Assert.True(logs.Any(l => l.Message.Contains("is corrupt and will be moved to")));
                     })
                     .Run();
@@ -43,13 +42,7 @@
         {
             public Receiver()
             {
-                SerializerCorrupter.Corrupt();
-                EndpointSetup<DefaultServer>(b =>
-                {
-                    b.Pipeline.RegistBehaviorsWhichCorruptTheStandardSerializerAndRestoreItAfterwards();
-
-                    b.Transactions().DisableDistributedTransactions();
-                });
+                EndpointSetup<DefaultServer>(b => b.Transactions().DisableDistributedTransactions());
             }
         }
 

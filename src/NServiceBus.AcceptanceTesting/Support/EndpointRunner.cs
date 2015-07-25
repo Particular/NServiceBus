@@ -46,8 +46,6 @@
                 //apply custom config settings
                 busConfiguration = configuration.GetConfiguration(run, routingTable);
 
-                scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
-
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(busConfiguration));
 
                 if (configuration.SendOnly)
@@ -111,11 +109,6 @@
             }
         }
 
-        private void scenarioContext_ContextPropertyChanged(object sender, EventArgs e)
-        {
-            contextChanged.Release();
-        }
-
         public Result Start()
         {
             try
@@ -155,8 +148,6 @@
             try
             {
                 stopSource.Cancel();
-                scenarioContext.ContextPropertyChanged -= scenarioContext_ContextPropertyChanged;
-                
                 executeWhens.Wait();
                 contextChanged.Dispose();
 

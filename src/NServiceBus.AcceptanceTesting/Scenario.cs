@@ -7,8 +7,8 @@
     {
         public static IScenarioWithEndpointBehavior<T> Define<T>() where T : ScenarioContext, new()
         {
-            Func<T> instance = () => new T();
-            return new ScenarioWithContext<T>(instance);
+            Func<T> contextFactory = () => new T();
+            return new ScenarioWithContext<T>(contextFactory);
         }
 
         public static IScenarioWithEndpointBehavior<T> Define<T>(T context) where T : ScenarioContext, new()

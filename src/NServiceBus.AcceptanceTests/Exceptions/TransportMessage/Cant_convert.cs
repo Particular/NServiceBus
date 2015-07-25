@@ -1,58 +1,21 @@
 ﻿namespace NServiceBus.AcceptanceTests.Exceptions
 {
-    using System;
-    using System.Linq;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NUnit.Framework;
+    using System.Messaging;
+    using System.Text;
 
     public class Cant_convert : NServiceBusAcceptanceTest
     {
-        [Test]
-        public void Should_send_message_to_error_queue()
+        protected void SendCorruptedMessage(string queueName)
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given(bus => bus.Send(new Message())))
-                    .WithEndpoint<Receiver>()
-                    .AllowExceptions()
-                    .Done(c => c.GetAllLogs().Any(l=>l.Level == "error"))
-                    .Repeat(r => r.For<MsmqOnly>())
-                    .Should(c =>
-                    {
-                        var logs = c.GetAllLogs();
-                        Assert.True(logs.Any(l => l.Message.Contains("is corrupt and will be moved to")));
-                    })
-                    .Run();
-        }
-
-        public class Context : ScenarioContext
-        {
-        }
-        
-        public class Sender : EndpointConfigurationBuilder
-        {
-            public Sender()
+            var path = string.Format(@".\private$\{0}", queueName);
+            using (var queue = new MessageQueue(path))
             {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<Message>(typeof(Receiver));
-            }
-        }
-
-        public class Receiver : EndpointConfigurationBuilder
-        {
-            public Receiver()
-            {
-                EndpointSetup<DefaultServer>(c =>
+                var message = new Message("")
                 {
-                    c.Pipeline.RegistBehaviorsWhichCorruptTheStandardSerializerAndRestoreItAfterwards();
-                });
+                    Extension = Encoding.UTF8.GetBytes("Can't deserialize this")
+                };
+                queue.Send(message, MessageQueueTransactionType.Single);
             }
-        }
-
-        [Serializable]
-        public class Message : IMessage
-        {
         }
     }
 }

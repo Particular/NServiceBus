@@ -58,6 +58,7 @@
                         SomeId = c.Id
                     }));
                 })
+                .AllowExceptions()
                 .Done(c => c.AnotherMessageReceived)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c =>
