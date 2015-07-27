@@ -75,6 +75,7 @@ namespace NServiceBus.AcceptanceTesting
 
             sw.Start();
             ScenarioRunner.Run(runDescriptors, behaviors, shoulds, done, limitTestParallelismTo, reports, allowedExceptions);
+            ContextAppender.SetContext(null);
             sw.Stop();
 
             Console.WriteLine("Total time for testrun: {0}", sw.Elapsed);
