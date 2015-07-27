@@ -13,7 +13,7 @@
         {
             lock (Context)
             {
-                Context.Exceptions += exception + "/n/r";
+                Context.Exceptions += exception + Environment.NewLine;
             }
         }
 
