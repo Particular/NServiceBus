@@ -9,9 +9,11 @@
     /// </summary>
     class ContextAppender : ILoggerFactory, ILog
     {
+        static object contextLocker = new object();
+
         void Append(Exception exception)
         {
-            lock (Context)
+            lock (contextLocker)
             {
                 Context.Exceptions += exception + Environment.NewLine;
             }
@@ -23,7 +25,7 @@
         /// <param name="newContext">The new context to be set</param>
         public static void SetContext(ScenarioContext newContext)
         {
-            lock (context)
+            lock (contextLocker)
             {
                 context = newContext;
             }
