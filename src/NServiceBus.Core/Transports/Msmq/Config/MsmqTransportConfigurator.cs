@@ -80,7 +80,7 @@
 
                 if (anonymousRights.HasValue && everyoneRights.HasValue)
                 {
-                    var logMessage = string.Format("Queue [{0}] is running with [{1}] and [{2}] permissions. Consider setting appropriate permissions, if required by your organization.",
+                    var logMessage = string.Format("Queue [{0}] is running with [{1}] and [{2}] permissions. Consider setting appropriate permissions, if required by your organization. For more information, please consult the documentation.",
                         queue.QueueName,
                         MsmqConstants.LocalEveryoneGroupName,
                         MsmqConstants.LocalAnonymousLogonName);
