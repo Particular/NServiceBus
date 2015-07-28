@@ -12,7 +12,6 @@
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
     using NServiceBus.Settings;
-    using NServiceBus.Unicast.Queuing;
     using NServiceBus.Utils;
     using Transports;
     using Transports.Msmq;
@@ -40,19 +39,13 @@
 
             protected override void OnStart()
             {
-                var queueCreators = builder.BuildAll<IWantQueueCreated>().ToList();
-
-                foreach (var creator in queueCreators.Where(c => c.Address != null))
-                {
-                    CheckQueue(creator.Address);
-                }
-
                 var settings = builder.Build<ReadOnlySettings>();
-                var pipelines = settings.Get<PipelineConfiguration>().SatellitePipelines;
+                var queueBindings = settings.Get<QueueBindings>();
+                var boundQueueAddresses = queueBindings.ReceivingAddresses.Concat(queueBindings.SendingAddresses);
 
-                foreach (var pipeline in pipelines.Where(p => p.ReceiveAddress != null))
+                foreach (var address in boundQueueAddresses)
                 {
-                    CheckQueue(pipeline.ReceiveAddress);
+                    CheckQueue(address);
                 }
             }
 
@@ -87,7 +80,7 @@
 
                 if (anonymousRights.HasValue && everyoneRights.HasValue)
                 {
-                    var logMessage = string.Format("Queue [{0}] is running with [{1}] and [{2}] permissions. Consider changing those, as required",
+                    var logMessage = string.Format("Queue [{0}] is running with [{1}] and [{2}] permissions. Consider setting appropriate permissions, if required by your organization.",
                         queue.QueueName,
                         MsmqConstants.LocalEveryoneGroupName,
                         MsmqConstants.LocalAnonymousLogonName);

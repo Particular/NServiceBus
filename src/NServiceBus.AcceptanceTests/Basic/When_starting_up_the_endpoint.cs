@@ -23,9 +23,9 @@
                 .Done(c => c.WasCalled)
                 .Run();
 
-            var logItem = context.GetAllLogs().FirstOrDefault(item => item.Message.Contains("permissions"));
+            var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains(@"[Everyone] and [NT AUTHORITY\ANONYMOUS LOGON]"));
             Assert.IsNotNull(logItem);
-            StringAssert.Contains(@"is running with [Everyone] and [NT AUTHORITY\ANONYMOUS LOGON] permissions. Consider changing those, as required", logItem.Message);
+            StringAssert.Contains(@"is running with [Everyone] and [NT AUTHORITY\ANONYMOUS LOGON] permissions. Consider setting appropriate permissions, if required by your organization", logItem.Message);
         }
 
         public class Context : ScenarioContext
