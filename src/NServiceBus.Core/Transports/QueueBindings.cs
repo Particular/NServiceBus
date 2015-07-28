@@ -3,7 +3,7 @@
     using System.Collections.Generic;
 
     /// <summary>
-    /// Cotains information about queues this endpoint is using.
+    /// Contains information about queues this endpoint is using.
     /// </summary>
     public class QueueBindings
     {
