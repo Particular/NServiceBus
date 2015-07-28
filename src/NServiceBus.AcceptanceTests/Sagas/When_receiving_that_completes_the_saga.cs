@@ -58,7 +58,6 @@
                         SomeId = c.Id
                     }));
                 })
-                .AllowExceptions()
                 .Done(c => c.AnotherMessageReceived)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c =>
@@ -88,8 +87,7 @@
             public class TestSaga : Saga<TestSagaData>, 
                 IAmStartedByMessages<StartSagaMessage>, 
                 IHandleMessages<CompleteSagaMessage>, 
-                IHandleMessages<AnotherMessage>,
-                IHandleSagaNotFound
+                IHandleMessages<AnotherMessage>
             {
                 public Context Context { get; set; }
 
@@ -123,16 +121,6 @@
                         .ToSaga(s => s.SomeId);
                     mapper.ConfigureMapping<AnotherMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
-                }
-
-                public void Handle(object message)
-                {
-                    if (message is AnotherMessage)
-                    {
-                        return;
-                    }
-
-                    throw new Exception("Unexpected 'saga not found' for message: " + message.GetType().Name);
                 }
             }
 
