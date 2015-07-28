@@ -2404,6 +2404,14 @@ namespace NServiceBus.Transports
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
     }
+    public class QueueBindings
+    {
+        public QueueBindings() { }
+        public System.Collections.Generic.IEnumerable<string> ReceivingAddresses { get; }
+        public System.Collections.Generic.IEnumerable<string> SendingAddresses { get; }
+        public void BindReceiving(string address) { }
+        public void BindSending(string address) { }
+    }
     public abstract class ReceiveBehavior : NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.Pipeline.Contexts.TransportReceiveContext>
     {
         protected ReceiveBehavior() { }
@@ -2662,6 +2670,7 @@ namespace NServiceBus.Unicast.Messages
 }
 namespace NServiceBus.Unicast.Queuing
 {
+    [System.ObsoleteAttribute("Please use `QueueBindings` instead. Will be removed in version 7.0.0.", true)]
     public interface IWantQueueCreated
     {
         string Address { get; }

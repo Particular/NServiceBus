@@ -252,6 +252,7 @@
     <Compile Include="Transports\Msmq\MsmqReceiveWithNativeTransactionBehavior.cs" />
     <Compile Include="Transports\Msmq\MsmqReceiveWithNoTransactionBehavior.cs" />
     <Compile Include="Transports\OutgoingMessage.cs" />
+    <Compile Include="Transports\QueueBindings.cs" />
     <Compile Include="Transports\ReceiveBehavior.cs" />
     <Compile Include="OutgoingPipeline\PhysicalOutgoingContextStageBehavior.cs" />
     <Compile Include="Transports\IncomingMessage.cs" />
@@ -410,6 +411,7 @@
     <Compile Include="Hosting\AuditHostInformationBehavior.cs" />
     <Compile Include="Unicast\IContextualBus.cs" />
     <Compile Include="Unicast\IRealBus.cs" />
+    <Compile Include="Unicast\Queuing\IWantQueueCreated.cs" />
     <Compile Include="Unicast\Transport\PipelineInfo.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\PathUtilities.cs" />
@@ -578,7 +580,6 @@
     <Compile Include="Encryption\EncryptionMutator.cs" />
     <Compile Include="Encryption\IEncryptionService.cs" />
     <Compile Include="Faults\FaultsHeaderKeys.cs" />
-    <Compile Include="Faults\FaultsQueueCreator.cs" />
     <Compile Include="Faults\IManageMessageFailures.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
@@ -607,7 +608,6 @@
     </Compile>
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersister.cs" />
     <Compile Include="Sagas\PropertySagaFinder.cs" />
-    <Compile Include="Satellites\SatellitesQueuesCreator.cs" />
     <Compile Include="Scheduling\Schedule.cs" />
     <Compile Include="Scheduling\DefaultScheduler.cs" />
     <Compile Include="Scheduling\InMemoryScheduledTaskStorage.cs" />
@@ -645,7 +645,6 @@
     <Compile Include="Unicast\BuilderExtensions.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions.cs" />
     <Compile Include="Unicast\MessagesEventArgs.cs" />
-    <Compile Include="Unicast\Queuing\Installers\ForwardReceivedMessagesToQueueCreator.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\MessageContext.cs" />
     <Compile Include="Unicast\MessageEventArgs.cs" />
@@ -656,9 +655,6 @@
     <Compile Include="Performance\Statistics\SLA\EstimatedTimeToSLABreachCalculator.cs" />
     <Compile Include="Causation\AttachCausationHeadersBehavior.cs" />
     <Compile Include="Routing\StorageDrivenPublishing\StorageDrivenDispatcher.cs" />
-    <Compile Include="Unicast\Queuing\Installers\EndpointInputQueueCreator.cs" />
-    <Compile Include="Unicast\Queuing\Installers\AuditQueueCreator.cs" />
-    <Compile Include="Unicast\Queuing\IWantQueueCreated.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
     <Compile Include="Routing\StaticMessageRouter.cs" />
@@ -668,7 +664,6 @@
     <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionStorage.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\ISubscriptionStorage.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageType.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\SubscriptionsQueueCreator.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\Entry.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorage.cs" />
     <Compile Include="Unicast\Transport\ControlMessageFactory.cs" />

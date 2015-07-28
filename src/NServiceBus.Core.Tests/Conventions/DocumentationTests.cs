@@ -130,7 +130,7 @@
                 {
                     return;
                 }
-                if (currentMember.DeclaringType.FullName.Contains("JetBrains"))
+                if (currentMember.DeclaringType != null && currentMember.DeclaringType.FullName.Contains("JetBrains"))
                 {
                     return;
                 }

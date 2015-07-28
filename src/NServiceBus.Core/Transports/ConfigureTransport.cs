@@ -36,6 +36,7 @@ namespace NServiceBus.Transports
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            context.Settings.Get<QueueBindings>().BindReceiving(context.Settings.LocalAddress());
             var connectionString = context.Settings.Get<TransportConnectionString>().GetConnectionStringOrNull();
             var selectedTransportDefinition = context.Settings.Get<TransportDefinition>();
 

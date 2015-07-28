@@ -3,7 +3,7 @@
     using NServiceBus.Config;
     using NServiceBus.Forwarding;
     using NServiceBus.Pipeline;
-    using NServiceBus.Unicast.Queuing.Installers;
+    using NServiceBus.Transports;
 
     /// <summary>
     /// Provides message forwarding capabilities.
@@ -25,9 +25,7 @@
         {
             var forwardReceivedMessagesQueue = GetConfiguredForwardMessageQueue(context);
 
-            context.Container.ConfigureComponent<ForwardReceivedMessagesToQueueCreator>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.Enabled, true)
-                .ConfigureProperty(t => t.Address, forwardReceivedMessagesQueue);
+            context.Settings.Get<QueueBindings>().BindSending(forwardReceivedMessagesQueue);
 
             context.Pipeline.Register<InvokeForwardingPipelineBehavior.Registration>();
             context.Pipeline.RegisterConnector<ForwardingToDispatchConnector>("Makes sure that forwarded messages gets dispatched to the transport");

@@ -2,7 +2,7 @@
 {
     using NServiceBus.Audit;
     using NServiceBus.Pipeline;
-    using NServiceBus.Unicast.Queuing.Installers;
+    using NServiceBus.Transports;
 
     /// <summary>
     /// Enabled message auditing for this endpoint.
@@ -34,10 +34,7 @@
             }, DependencyLifecycle.InstancePerCall);
 
             context.Container.ConfigureComponent(b => new AuditToDispatchConnector(auditConfig.TimeToBeReceived), DependencyLifecycle.SingleInstance);
-
-            context.Container.ConfigureComponent<AuditQueueCreator>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.Enabled, true)
-                .ConfigureProperty(t => t.AuditQueue, auditConfig.Address);
+            context.Settings.Get<QueueBindings>().BindSending(auditConfig.Address);
         }
 
         AuditConfigReader.Result auditConfig;

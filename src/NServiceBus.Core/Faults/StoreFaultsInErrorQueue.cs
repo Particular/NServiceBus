@@ -1,10 +1,10 @@
 namespace NServiceBus.Features
 {
     using NServiceBus.Faults;
-    using NServiceBus.Faults.Forwarder.Config;
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
+    using NServiceBus.Transports;
 
     class StoreFaultsInErrorQueue : Feature
     {
@@ -33,9 +33,7 @@ namespace NServiceBus.Features
                     errorQueue.ToString());
             }, DependencyLifecycle.InstancePerCall);
 
-            context.Container.ConfigureComponent<FaultsQueueCreator>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.Enabled, true)
-                .ConfigureProperty(t => t.ErrorQueue, errorQueue);
+            context.Settings.Get<QueueBindings>().BindSending(errorQueue);
 
             context.Pipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
         }
