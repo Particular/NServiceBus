@@ -11,39 +11,16 @@
     {
         static object contextLocker = new object();
 
-        void Append(Exception exception)
-        {
-            lock (contextLocker)
-            {
-                Context.Exceptions += exception + Environment.NewLine;
-            }
-        }
-
         /// <summary>
         /// Because ILoggerFactory interface methods are only used in a static context. This is the only way to set the currently executing context.
         /// </summary>
         /// <param name="newContext">The new context to be set</param>
         public static void SetContext(ScenarioContext newContext)
         {
-            lock (contextLocker)
-            {
-                context = newContext;
-            }
+            context = newContext;
         }
 
         static ScenarioContext context;
-
-        static ScenarioContext Context
-        {
-            get
-            {
-                if (context == null)
-                {
-                    throw new InvalidOperationException("You have to set a context first by calling SetContext(ScenarioContext newContext).");
-                }
-                return context;
-            }
-        }
 
         public ILog GetLogger(Type type)
         {
@@ -61,111 +38,135 @@
         public bool IsErrorEnabled { get { return true; } }
         public bool IsFatalEnabled { get { return true; } }
 
+
+        static void RecordLog(string message, string level)
+        {
+            lock (contextLocker)
+            {
+                if (context != null)
+                {
+                    context.RecordEndpointLog(level, message);
+                }
+            }
+        }
+
+        static void AppendException(Exception exception)
+        {
+            lock (contextLocker)
+            {
+                if (context != null)
+                {
+                    context.Exceptions += exception + Environment.NewLine;
+                }
+            }
+        }
+
         public void Debug(string message)
         {
             Trace.WriteLine(message);
-            Context.RecordEndpointLog("warn", message);
+            RecordLog(message, "debug");
         }
 
         public void Debug(string message, Exception exception)
         {
             var fullMessage = string.Format("{0} {1}", message, exception);
             Trace.WriteLine(fullMessage);
-            Append(exception);
-            Context.RecordEndpointLog("warn", fullMessage);
+            AppendException(exception);
+            RecordLog(fullMessage, "debug");
         }
 
         public void DebugFormat(string format, params object[] args)
         {
             var fullMessage = string.Format(format, args);
             Trace.WriteLine(fullMessage);
-            Context.RecordEndpointLog("warn", fullMessage);
+            RecordLog(fullMessage, "debug");
         }
 
         public void Info(string message)
         {
             Trace.WriteLine(message);
-            Context.RecordEndpointLog("warn", message);
+            RecordLog(message, "info");
         }
+
 
         public void Info(string message, Exception exception)
         {
             var fullMessage = string.Format("{0} {1}", message, exception);
             Trace.WriteLine(fullMessage);
-            Append(exception);
-            Context.RecordEndpointLog("warn", fullMessage);
+            AppendException(exception);
+            RecordLog(fullMessage, "info");
         }
 
         public void InfoFormat(string format, params object[] args)
         {
             var fullMessage = string.Format(format, args);
             Trace.WriteLine(fullMessage);
-            Context.RecordEndpointLog("warn", fullMessage);
+            RecordLog(fullMessage, "info");
         }
 
         public void Warn(string message)
         {
             Trace.WriteLine(message);
-            Context.RecordEndpointLog("warn", message);
+            RecordLog(message, "warn");
         }
 
         public void Warn(string message, Exception exception)
         {
             var fullMessage = string.Format("{0} {1}", message, exception);
             Trace.WriteLine(fullMessage);
-            Append(exception);
-            Context.RecordEndpointLog("warn", fullMessage);
+            AppendException(exception);
+            RecordLog(fullMessage, "warn");
         }
 
         public void WarnFormat(string format, params object[] args)
         {
             var fullMessage = string.Format(format, args);
             Trace.WriteLine(fullMessage);
-            Context.RecordEndpointLog("warn", fullMessage);
+            RecordLog(fullMessage, "warn");
         }
 
         public void Error(string message)
         {
             Trace.WriteLine(message);
 
-            Context.RecordEndpointLog("error", message);
+            RecordLog(message, "error");
         }
 
         public void Error(string message, Exception exception)
         {
             var fullMessage = string.Format("{0} {1}", message, exception);
             Trace.WriteLine(fullMessage);
-            Append(exception);
-            Context.RecordEndpointLog("error", fullMessage);
+            AppendException(exception);
+            RecordLog(fullMessage, "error");
         }
 
         public void ErrorFormat(string format, params object[] args)
         {
             var fullMessage = string.Format(format, args);
             Trace.WriteLine(fullMessage);
-            Context.RecordEndpointLog("error", fullMessage);
+            RecordLog(fullMessage, "error");
         }
 
         public void Fatal(string message)
         {
             Trace.WriteLine(message);
 
-            Context.RecordEndpointLog("error", message);
+            RecordLog(message, "fatal");
         }
 
         public void Fatal(string message, Exception exception)
         {
             var fullMessage = string.Format("{0} {1}", message, exception);
             Trace.WriteLine(fullMessage);
-            Append(exception);
-            Context.RecordEndpointLog("fatal", fullMessage);
+            AppendException(exception);
+            RecordLog(fullMessage, "fatal");
         }
 
         public void FatalFormat(string format, params object[] args)
         {
             var fullMessage = string.Format(format, args);
             Trace.WriteLine(fullMessage);
-            Context.RecordEndpointLog("fatal", fullMessage);
+            RecordLog(fullMessage, "fatal");
         }
     }
 }
