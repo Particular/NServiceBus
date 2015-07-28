@@ -5,6 +5,7 @@ namespace NServiceBus.AcceptanceTesting
     using System.Diagnostics;
     using System.Linq;
     using Customization;
+    using NServiceBus.Logging;
     using Support;
 
     public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext>, IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext, new()
@@ -60,17 +61,21 @@ namespace NServiceBus.AcceptanceTesting
                 return new List<TContext>();
             }
 
+            var scenarioContext = contextFactory();
             foreach (var runDescriptor in runDescriptors)
             {
-                runDescriptor.ScenarioContext = contextFactory();
+                runDescriptor.ScenarioContext = scenarioContext;
                 runDescriptor.TestExecutionTimeout = settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
-                runDescriptor.UseSeparateAppdomains = settings.UseSeparateAppDomains;
             }
+
+            LogManager.UseFactory(new ContextAppender());
+            ContextAppender.SetContext(scenarioContext);
 
             var sw = new Stopwatch();
 
             sw.Start();
             ScenarioRunner.Run(runDescriptors, behaviors, shoulds, done, limitTestParallelismTo, reports, allowedExceptions);
+            ContextAppender.SetContext(null);
             sw.Stop();
 
             Console.WriteLine("Total time for testrun: {0}", sw.Elapsed);

@@ -18,7 +18,7 @@
                     .AllowExceptions()
                     .Done(c => c.OrderAckReceived == 1)
                     .Repeat(r => r.For<AllOutboxCapableStorages>())
-                    .Run(new RunSettings { UseSeparateAppDomains = true, TestExecutionTimeout = TimeSpan.FromSeconds(20) });
+                    .Run(new RunSettings { TestExecutionTimeout = TimeSpan.FromSeconds(20) });
         }
 
         [Test]

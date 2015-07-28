@@ -3,52 +3,40 @@
     using System;
     using System.Linq;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
-    using IMessage = NServiceBus.IMessage;
 
-    public class Cant_convert_NoTransactions : NServiceBusAcceptanceTest
+    public class Cant_convert_NoTransactions : Cant_convert
     {
         [Test]
         public void Should_send_message_to_error_queue()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given(bus => bus.Send(new Message())))
-                    .WithEndpoint<Receiver>()
+                    .WithEndpoint<Receiver>(b => b.Given(bus => SendCorruptedMessage("CantConvertNoTransactions.Receiver")))
                     .AllowExceptions()
-                    .Done(c => c.GetAllLogs().Any(l=>l.Level == "error"))
+                    .Done(c =>
+                    {
+                        var logs = c.Logs;
+                        return logs.Any(l => l.Level == "error");
+                    })
                     .Repeat(r => r.For<MsmqOnly>())
                     .Should(c =>
                     {
-                        var logs = c.GetAllLogs();
+                        var logs = c.Logs;
                         Assert.True(logs.Any(l => l.Message.Contains("is corrupt and will be moved to")));
                     })
-                    .Run(new RunSettings
-                         {
-                             UseSeparateAppDomains = true
-                         });
+                    .Run();
         }
 
         public class Context : ScenarioContext
         {
         }
 
-        public class Sender : EndpointConfigurationBuilder
-        {
-            public Sender()
-            {
-                EndpointSetup<DefaultServer>(b => b.Transactions().Disable())
-                    .AddMapping<Message>(typeof(Receiver));
-            }
-        }
-
         public class Receiver : EndpointConfigurationBuilder
         {
             public Receiver()
             {
-                SerializerCorrupter.Corrupt();
                 EndpointSetup<DefaultServer>(b => b.Transactions().Disable());
             }
         }

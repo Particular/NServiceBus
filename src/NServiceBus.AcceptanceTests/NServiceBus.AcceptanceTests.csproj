@@ -70,6 +70,7 @@
   <ItemGroup>
     <Compile Include="Basic\When_setting_msmq_label_generator.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
+    <Compile Include="Exceptions\TransportMessage\Cant_convert_DTC.cs" />
     <Compile Include="Recoverability\When_error_is_overridden_in_code.cs" />
     <Compile Include="BestPractices\When_bestpractices_is_disabled_for_message.cs" />
     <Compile Include="BestPractices\When_bestpractices_is_disabled.cs" />
@@ -131,7 +132,6 @@
     <Compile Include="CriticalError\When_registering_a_custom_criticalErrorHandler.cs" />
     <Compile Include="DataBus\When_using_custom_IDataBus.cs" />
     <Compile Include="DeterministicGuid.cs" />
-    <Compile Include="Exceptions\TransportMessage\SerializerCorrupter.cs" />
     <Compile Include="Exceptions\TransportMessage\Cant_convert_NoTransactions.cs" />
     <Compile Include="Exceptions\TransportMessage\Cant_convert_SuppressedDTC.cs" />
     <Compile Include="Exceptions\Handler_throws_SerializationEx.cs" />
@@ -202,7 +202,6 @@
     <Compile Include="Correlation\When_using_a_custom_correlation_id.cs" />
     <Compile Include="Config\When_a_config_override_is_found.cs" />
     <Compile Include="Encryption\When_using_encryption_with_custom_service.cs" />
-    <Compile Include="Encryption\EndpointTemplates\ContextAppender.cs" />
     <Compile Include="Reliability\Outbox\When_sending_from_a_non_dtc_endpoint.cs" />
     <Compile Include="Reliability\Outbox\When_receiving_a_message.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />

@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Runtime.Serialization;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Config;
@@ -31,12 +30,9 @@
                 .Should(c =>
                 {
                     Assert.IsInstanceOf<MySpecialException>(c.MessageSentToErrorException);
-                    Assert.True(c.GetAllLogs().Any(l => l.Level == "error" && l.Message.Contains("Simulated exception")), "The last exception should be logged as `error` before sending it to the error queue");
+                    Assert.True(c.Logs.Any(l => l.Level == "error" && l.Message.Contains("Simulated exception")), "The last exception should be logged as `error` before sending it to the error queue");
                 })
-                .Run(new RunSettings
-                {
-                    UseSeparateAppDomains = true
-                });
+                .Run();
         }
 
         [Test]

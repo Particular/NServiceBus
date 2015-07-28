@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Reflection;
     using AcceptanceTesting.Support;
-    using Logging;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Customization;
@@ -30,9 +29,7 @@
 
         public BusConfiguration GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource, Action<BusConfiguration> configurationBuilderCustomization)
         {
-            var settings = runDescriptor.Settings;
-
-            LogManager.UseFactory(new ContextAppender(runDescriptor.ScenarioContext, endpointConfiguration.EndpointName));
+            var settings = runDescriptor.Settings;            
 
             var types = GetTypesScopedByTestClass(endpointConfiguration);
 

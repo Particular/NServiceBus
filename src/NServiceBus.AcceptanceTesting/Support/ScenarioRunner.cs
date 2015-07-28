@@ -1,18 +1,14 @@
-﻿using System.Runtime.Remoting;
-using System.Runtime.Remoting.Lifetime;
-
-namespace NServiceBus.AcceptanceTesting.Support
+﻿namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Reflection;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using Customization;
+    using NServiceBus.AcceptanceTesting.Customization;
 
     public class ScenarioRunner
     {
@@ -164,30 +160,20 @@ namespace NServiceBus.AcceptanceTesting.Support
             {
                 var runners = InitializeRunners(runDescriptor, behaviorDescriptors);
 
-                try
-                {
-                    runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
+                runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
-                    PerformScenarios(runDescriptor, runners, () =>
-                    {
-                        if (!string.IsNullOrEmpty(runDescriptor.ScenarioContext.Exceptions))
-                        {
-                            var ex = new Exception(runDescriptor.ScenarioContext.Exceptions);
-                            if (!allowedExceptions(ex))
-                            {
-                                throw new Exception("Failures in endpoints");
-                            }
-                        }
-                        return done(runDescriptor.ScenarioContext);
-                    });
-                }
-                finally
+                PerformScenarios(runDescriptor, runners, () =>
                 {
-                    if (runDescriptor.UseSeparateAppdomains)
+                    if (!string.IsNullOrEmpty(runDescriptor.ScenarioContext.Exceptions))
                     {
-                        UnloadAppDomains(runners);
+                        var ex = new Exception(runDescriptor.ScenarioContext.Exceptions);
+                        if (!allowedExceptions(ex))
+                        {
+                            throw new Exception("Failures in endpoints");
+                        }
                     }
-                }
+                    return done(runDescriptor.ScenarioContext);
+                });
 
                 runTimer.Stop();
 
@@ -208,21 +194,6 @@ namespace NServiceBus.AcceptanceTesting.Support
             runResult.TotalTime = runTimer.Elapsed;
 
             return runResult;
-        }
-
-        static void UnloadAppDomains(IEnumerable<ActiveRunner> runners)
-        {
-            Parallel.ForEach(runners, runner =>
-            {
-                try
-                {
-                    AppDomain.Unload(runner.AppDomain);
-                }
-                catch (CannotUnloadAppDomainException ex)
-                {
-                    Console.WriteLine("Failed to unload appdomain {0}, reason: {1}", runner.AppDomain.FriendlyName, ex.ToString());
-                }
-            });
         }
 
         static IDictionary<Type, string> CreateRoutingTable(IEnumerable<EndpointBehavior> behaviorDescriptors)
@@ -336,18 +307,12 @@ namespace NServiceBus.AcceptanceTesting.Support
                     throw new Exception(string.Format("Endpoint name '{0}' is larger than 77 characters and will cause issues with MSMQ queue names. Please rename your test class or endpoint!",endpointName));
                 }
 
-                var runner = PrepareRunner(endpointName, behaviorDescriptor.AppConfig, runDescriptor.UseSeparateAppdomains);
-                var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName);
-
-                if (runDescriptor.UseSeparateAppdomains)
+                var runner = new ActiveRunner
                 {
-                    // Extend the lease to the timeout value specified.
-                    var serverLease = (ILease)RemotingServices.GetLifetimeService(runner.Instance);
-
-                    // Add the execution time + additional time for the endpoints to be able to stop gracefully
-                    var totalLifeTime = runDescriptor.TestExecutionTimeout.Add(TimeSpan.FromMinutes(2));
-                    serverLease.Renew(totalLifeTime);
-                }
+                    Instance = new EndpointRunner(),
+                    EndpointName = endpointName
+                };
+                var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName);
 
                 if (result.Failed)
                 {
@@ -363,33 +328,6 @@ namespace NServiceBus.AcceptanceTesting.Support
         static string GetEndpointNameForRun(EndpointBehavior endpointBehavior)
         {
             return Conventions.EndpointNamingConvention(endpointBehavior.EndpointBuilderType);
-        }
-
-        static ActiveRunner PrepareRunner(string endpointName, string appConfigPath, bool useSeparateAppdomains)
-        {
-            if (!useSeparateAppdomains)
-            {
-                return new ActiveRunner
-                {
-                    Instance = new EndpointRunner(),
-                    EndpointName = endpointName
-                };
-            }
-            var domainSetup = new AppDomainSetup
-            {
-                ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
-                LoaderOptimization = LoaderOptimization.SingleDomain,
-                ConfigurationFile = appConfigPath ?? AppDomain.CurrentDomain.SetupInformation.ConfigurationFile
-            };
-
-            var appDomain = AppDomain.CreateDomain(endpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
-
-            return new ActiveRunner
-            {
-                Instance = (EndpointRunner)appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(EndpointRunner).FullName),
-                AppDomain = appDomain,
-                EndpointName = endpointName
-            };
         }
     }
 

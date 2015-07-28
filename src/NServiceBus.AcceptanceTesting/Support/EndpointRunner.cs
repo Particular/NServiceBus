@@ -23,7 +23,6 @@
         EndpointConfiguration configuration;
         Task executeWhens;
         ScenarioContext scenarioContext;
-        RunDescriptor runDescriptor;
         BusConfiguration busConfiguration;
         CancellationToken stopToken;
 
@@ -32,7 +31,6 @@
         {
             try
             {
-                runDescriptor = run;
                 behavior = endpointBehavior;
                 scenarioContext = run.ScenarioContext;
                 configuration =
@@ -47,8 +45,6 @@
 
                 //apply custom config settings
                 busConfiguration = configuration.GetConfiguration(run, routingTable);
-
-                scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(busConfiguration));
 
@@ -113,11 +109,6 @@
             }
         }
 
-        private void scenarioContext_ContextPropertyChanged(object sender, EventArgs e)
-        {
-            contextChanged.Release();
-        }
-
         public Result Start()
         {
             try
@@ -157,8 +148,6 @@
             try
             {
                 stopSource.Cancel();
-                scenarioContext.ContextPropertyChanged -= scenarioContext_ContextPropertyChanged;
-                
                 executeWhens.Wait();
                 contextChanged.Dispose();
 
@@ -200,11 +189,6 @@
 
         public string Name()
         {
-            if (runDescriptor.UseSeparateAppdomains)
-            {
-                return AppDomain.CurrentDomain.FriendlyName;
-            }
-
             return configuration.EndpointName;
         }
 

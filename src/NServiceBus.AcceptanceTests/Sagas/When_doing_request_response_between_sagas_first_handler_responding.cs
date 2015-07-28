@@ -1,7 +1,6 @@
 namespace NServiceBus.AcceptanceTests.Sagas
 {
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
 
     public class When_doing_request_response_between_sagas_first_handler_responding : When_doing_request_response_between_sagas
@@ -14,7 +13,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
             Scenario.Define(context)
                 .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new InitiateRequestingSaga())))
                 .Done(c => c.DidRequestingSagaGetTheResponse)
-                .Run(new RunSettings { UseSeparateAppDomains = true });
+                .Run();
 
             Assert.True(context.DidRequestingSagaGetTheResponse);
         }
