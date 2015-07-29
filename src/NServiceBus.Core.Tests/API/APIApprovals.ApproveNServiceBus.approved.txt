@@ -2041,6 +2041,8 @@ namespace NServiceBus.Saga
         public string Name { get; }
         public System.Type SagaEntityType { get; }
         public System.Type SagaType { get; }
+        public static System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMetadata> Create(System.Collections.Generic.IEnumerable<System.Type> availableTypes) { }
+        public static System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMetadata> Create(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
         public bool IsMessageAllowedToStartTheSaga(string messageType) { }
         public bool TryGetFinder(string messageType, out NServiceBus.Saga.SagaFinderDefinition finderDefinition) { }
     }

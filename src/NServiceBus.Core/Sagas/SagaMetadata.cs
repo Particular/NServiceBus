@@ -2,6 +2,7 @@ namespace NServiceBus.Saga
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
 
     /// <summary>
@@ -43,6 +44,27 @@ namespace NServiceBus.Saga
             {
                 sagaFinders[finder.MessageType] = finder;
             }
+        }
+
+        /// <summary>
+        /// Scans through a collection of types and builds a <see cref="SagaMetadata" /> for each saga found.
+        /// </summary>
+        /// <param name="availableTypes">A collection of types to scan for sagas.</param>
+        /// <returns>A collection of <see cref="SagaMetadata" /> for each saga found.</returns>
+        public static IEnumerable<SagaMetadata> Create(IEnumerable<Type> availableTypes)
+        {
+            return TypeBasedSagaMetaModel.Create(availableTypes.ToList(), new Conventions());
+        }
+
+        /// <summary>
+        /// Scans through a collection of types and builds a <see cref="SagaMetadata" /> for each saga found.
+        /// </summary>
+        /// <param name="availableTypes">A collection of types to scan for sagas.</param>
+        /// <param name="conventions">Custom conventions to be used while scanning types.</param>
+        /// <returns>A collection of <see cref="SagaMetadata" /> for each saga found.</returns>
+        public static IEnumerable<SagaMetadata> Create(IEnumerable<Type> availableTypes, Conventions conventions)
+        {
+            return TypeBasedSagaMetaModel.Create(availableTypes.ToList(), conventions);
         }
 
         /// <summary>
