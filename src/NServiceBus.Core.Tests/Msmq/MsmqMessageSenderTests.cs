@@ -23,7 +23,6 @@
             }
         }
 
-
         [Test]
         public void Should_set_label_when_convention_configured()
         {
@@ -31,8 +30,8 @@
             var path = string.Format(@"{0}\private$\{1}", Environment.MachineName, queueName);
             try
             {
-                DeleteQueue(path);
-                CreateQueue(path);
+                MsmqHelpers.DeleteQueue(path);
+                MsmqHelpers.CreateQueue(path);
                 var messageSender = new MsmqMessageSender(new MsmqSettings(), _ => "mylabel");
 
                 var bytes = new byte[]
@@ -49,7 +48,7 @@
             }
             finally
             {
-                DeleteQueue(path);
+                MsmqHelpers.DeleteQueue(path);
             }
         }
         [Test]
@@ -59,8 +58,8 @@
             var path = string.Format(@".\private$\{0}", queueName);
             try
             {
-                DeleteQueue(path);
-                CreateQueue(path);
+                MsmqHelpers.DeleteQueue(path);
+                MsmqHelpers.CreateQueue(path);
                 var messageSender = new MsmqMessageSender(new MsmqSettings(),null);
 
                 var bytes = new byte[]
@@ -77,17 +76,8 @@
             }
             finally
             {
-                DeleteQueue(path);
+                MsmqHelpers.DeleteQueue(path);
             }
-        }
-
-        static void DeleteQueue(string path)
-        {
-            if (!MessageQueue.Exists(path))
-            {
-                return;
-            }
-            MessageQueue.Delete(path);
         }
 
         static string ReadMessageLabel(string path)
@@ -101,17 +91,6 @@
                 }
             }
             return null;
-        }
-
-        static void CreateQueue(string path)
-        {
-            if (MessageQueue.Exists(path))
-            {
-                return;
-            }
-            using (MessageQueue.Create(path, true))
-            {
-            }
         }
     }
 }

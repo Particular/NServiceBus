@@ -36,8 +36,7 @@ namespace NServiceBus.Features
             var netbiosName = buffer.ToString();
             if (netbiosName.Length <= 15) return;
 
-            Logger.Warn(string.Format(
-                "NetBIOS name [{0}] is longer than 15 characters. Shorten it for DTC to work.", netbiosName));
+            Logger.WarnFormat("NetBIOS name [{0}] is longer than 15 characters. Shorten it for DTC to work.", netbiosName);
         }
     }
 }
