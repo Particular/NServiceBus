@@ -7,7 +7,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class MsmqExtensionsTests : MsmqTestsBase
+    public class MsmqExtensionsTests
     {
         static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
         static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
@@ -18,10 +18,10 @@
         [TestFixtureSetUp]
         public void Setup()
         {
-            var queueName = "labelTest";
+            var queueName = "permissionsTest";
             path = string.Format(@"{0}\private$\{1}", Environment.MachineName, queueName);
-            DeleteQueue(path);
-            CreateQueue(path);
+            MsmqHelpers.DeleteQueue(path);
+            MsmqHelpers.CreateQueue(path);
 
             queue = new MessageQueue(path);
         }
@@ -30,7 +30,7 @@
         public void Teardown()
         {
             queue.Dispose();
-            DeleteQueue(path);
+            MsmqHelpers.DeleteQueue(path);
         }
 
         [Test]

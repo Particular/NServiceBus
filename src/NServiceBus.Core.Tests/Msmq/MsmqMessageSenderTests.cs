@@ -13,7 +13,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class MsmqMessageSenderTests : MsmqTestsBase
+    public class MsmqMessageSenderTests
     {
         class FakeContext : BehaviorContext
         {
@@ -30,8 +30,8 @@
             var path = string.Format(@"{0}\private$\{1}", Environment.MachineName, queueName);
             try
             {
-                DeleteQueue(path);
-                CreateQueue(path);
+                MsmqHelpers.DeleteQueue(path);
+                MsmqHelpers.CreateQueue(path);
                 var messageSender = new MsmqMessageSender(new MsmqSettings(), _ => "mylabel");
 
                 var bytes = new byte[]
@@ -48,7 +48,7 @@
             }
             finally
             {
-                DeleteQueue(path);
+                MsmqHelpers.DeleteQueue(path);
             }
         }
         [Test]
@@ -58,8 +58,8 @@
             var path = string.Format(@".\private$\{0}", queueName);
             try
             {
-                DeleteQueue(path);
-                CreateQueue(path);
+                MsmqHelpers.DeleteQueue(path);
+                MsmqHelpers.CreateQueue(path);
                 var messageSender = new MsmqMessageSender(new MsmqSettings(),null);
 
                 var bytes = new byte[]
@@ -76,7 +76,7 @@
             }
             finally
             {
-                DeleteQueue(path);
+                MsmqHelpers.DeleteQueue(path);
             }
         }
 

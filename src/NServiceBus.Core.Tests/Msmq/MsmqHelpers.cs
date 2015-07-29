@@ -2,9 +2,9 @@
 {
     using System.Messaging;
 
-    public class MsmqTestsBase
+    static class MsmqHelpers
     {
-        protected static void DeleteQueue(string path)
+        public static void DeleteQueue(string path)
         {
             if (!MessageQueue.Exists(path))
             {
@@ -13,7 +13,7 @@
             MessageQueue.Delete(path);
         }
 
-        protected static void CreateQueue(string path)
+        public static void CreateQueue(string path)
         {
             if (MessageQueue.Exists(path))
             {

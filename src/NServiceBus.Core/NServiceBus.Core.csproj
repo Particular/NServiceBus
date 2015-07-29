@@ -243,7 +243,6 @@
     <Compile Include="TransportDispatch\DispatchTerminator.cs" />
     <Compile Include="TransportDispatch\HeaderContextExtensions.cs" />
     <Compile Include="Transports\DequeueInfo.cs" />
-    <Compile Include="Transports\Msmq\MsmqConstants.cs" />
     <Compile Include="Transports\Msmq\MsmqContext.cs" />
     <Compile Include="Transports\Msmq\MsmqLabelGenerator.cs" />
     <Compile Include="Transports\ICancelDeferredMessages.cs" />

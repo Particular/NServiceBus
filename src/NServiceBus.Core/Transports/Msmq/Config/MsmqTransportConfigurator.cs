@@ -69,8 +69,8 @@
 
                 try
                 {
-                    queue.TryGetPermissions(MsmqConstants.LocalAnonymousLogonName, out anonymousRights);
-                    queue.TryGetPermissions(MsmqConstants.LocalEveryoneGroupName, out everyoneRights);
+                    queue.TryGetPermissions(MsmqQueueCreator.LocalAnonymousLogonName, out anonymousRights);
+                    queue.TryGetPermissions(MsmqQueueCreator.LocalEveryoneGroupName, out everyoneRights);
                 }
                 catch (SecurityException se)
                 {
@@ -82,8 +82,8 @@
                 {
                     var logMessage = string.Format("Queue [{0}] is running with [{1}] and [{2}] permissions. Consider setting appropriate permissions, if required by your organization. For more information, please consult the documentation.",
                         queue.QueueName,
-                        MsmqConstants.LocalEveryoneGroupName,
-                        MsmqConstants.LocalAnonymousLogonName);
+                        MsmqQueueCreator.LocalEveryoneGroupName,
+                        MsmqQueueCreator.LocalAnonymousLogonName);
 
                     if (Debugger.IsAttached)
                         Logger.Info(logMessage);
