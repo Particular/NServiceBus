@@ -16,11 +16,7 @@
                 Id = Guid.NewGuid()
             };
             Scenario.Define(context)
-                .WithEndpoint<EndPoint>(b => b.Given((bus, c) => bus.SendLocal(new MyMessage
-                {
-                    Id = c.Id
-                })))
-                .Done(c => c.WasCalled)
+                .WithEndpoint<EndPoint>(b => b.Given((bus, c) => { }))
                 .Run();
 
             var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains(@"[Everyone] and [NT AUTHORITY\ANONYMOUS LOGON]"));
@@ -28,15 +24,12 @@
             StringAssert.Contains(@"is running with [Everyone] and [NT AUTHORITY\ANONYMOUS LOGON] permissions. Consider setting appropriate permissions, if required by your organization", logItem.Message);
         }
 
-        public class Context : ScenarioContext
+        class Context : ScenarioContext
         {
-            public bool WasCalled { get; set; }
             public Guid Id { get; set; }
-
-            public bool GeneratorWasCalled { get; set; }
         }
 
-        public class EndPoint : EndpointConfigurationBuilder, IWantToRunBeforeConfigurationIsFinalized
+        class EndPoint : EndpointConfigurationBuilder
         {
             static bool initialized;
             public EndPoint()
@@ -50,34 +43,6 @@
                 {
                     c.UseTransport<MsmqTransport>();
                 });
-            }
-
-            static Context Context { get; set; }
-
-            public void Run(Configure config)
-            {
-                Context = config.Builder.Build<Context>();
-            }
-        }
-
-        [Serializable]
-        public class MyMessage : ICommand
-        {
-            public Guid Id { get; set; }
-        }
-
-        public class MyMessageHandler : IHandleMessages<MyMessage>
-        {
-            public Context Context { get; set; }
-
-            public IBus Bus { get; set; }
-
-            public void Handle(MyMessage message)
-            {
-                if (Context.Id != message.Id)
-                    return;
-
-                Context.WasCalled = true;
             }
         }
     }
