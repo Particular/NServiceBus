@@ -599,4 +599,68 @@ II.2.12 &lt;HandlesEvent /&gt;&#xD;
 	
 	
 	<s:String x:Key="/Default/FilterSettingsManager/AttributeFilterXml/@EntryValue">&lt;data /&gt;</s:String>
-	<s:String x:Key="/Default/FilterSettingsManager/CoverageFilterXml/@EntryValue">&lt;data&gt;&lt;IncludeFilters /&gt;&lt;ExcludeFilters /&gt;&lt;/data&gt;</s:String></wpf:ResourceDictionary>
+	<s:String x:Key="/Default/FilterSettingsManager/CoverageFilterXml/@EntryValue">&lt;data&gt;&lt;IncludeFilters /&gt;&lt;ExcludeFilters /&gt;&lt;/data&gt;</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=0B74CE173A0DF24CAF59E746EBB0D200/@KeyIndexDefined">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=0B74CE173A0DF24CAF59E746EBB0D200/Applicability/=Live/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=0B74CE173A0DF24CAF59E746EBB0D200/Categories/=Guard/@EntryIndexedValue">Guard</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=0B74CE173A0DF24CAF59E746EBB0D200/Description/@EntryValue">Guard against negative arguments</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=0B74CE173A0DF24CAF59E746EBB0D200/Field/=ARG/@KeyIndexDefined">True</s:Boolean>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=0B74CE173A0DF24CAF59E746EBB0D200/Field/=ARG/Order/@EntryValue">0</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=0B74CE173A0DF24CAF59E746EBB0D200/Reformat/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=0B74CE173A0DF24CAF59E746EBB0D200/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=0B74CE173A0DF24CAF59E746EBB0D200/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/CustomProperties/=minimumLanguageVersion/@EntryIndexedValue">2.0</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=0B74CE173A0DF24CAF59E746EBB0D200/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/Type/@EntryValue">InCSharpStatement</s:String>
+	
+	
+	
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=0B74CE173A0DF24CAF59E746EBB0D200/Shortcut/@EntryValue">guardn</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=0B74CE173A0DF24CAF59E746EBB0D200/ShortenQualifiedReferences/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=0B74CE173A0DF24CAF59E746EBB0D200/Text/@EntryValue">Guard.AgainstNegative("$ARG$", $ARG$);</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3325373458111B42BCE280DA0FCB9B2F/@KeyIndexDefined">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3325373458111B42BCE280DA0FCB9B2F/Applicability/=Live/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3325373458111B42BCE280DA0FCB9B2F/Categories/=Guard/@EntryIndexedValue">Guard</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3325373458111B42BCE280DA0FCB9B2F/Description/@EntryValue">Guards against negative and zero</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3325373458111B42BCE280DA0FCB9B2F/Field/=ARG/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3325373458111B42BCE280DA0FCB9B2F/Field/=ARG/Expression/@EntryValue">complete()</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3325373458111B42BCE280DA0FCB9B2F/Field/=ARG/Order/@EntryValue">0</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3325373458111B42BCE280DA0FCB9B2F/Reformat/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3325373458111B42BCE280DA0FCB9B2F/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3325373458111B42BCE280DA0FCB9B2F/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/CustomProperties/=minimumLanguageVersion/@EntryIndexedValue">2.0</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3325373458111B42BCE280DA0FCB9B2F/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/Type/@EntryValue">InCSharpStatement</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3325373458111B42BCE280DA0FCB9B2F/Shortcut/@EntryValue">guardnz</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3325373458111B42BCE280DA0FCB9B2F/ShortenQualifiedReferences/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3325373458111B42BCE280DA0FCB9B2F/Text/@EntryValue">Guard.AgainstNegativeAndZero("$ARG$", $ARG$);</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=4A9CAEFB2052654C95E1FCBD3522DDA3/@KeyIndexDefined">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=4A9CAEFB2052654C95E1FCBD3522DDA3/Applicability/=Live/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=4A9CAEFB2052654C95E1FCBD3522DDA3/Categories/=Guard/@EntryIndexedValue">Guard</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=4A9CAEFB2052654C95E1FCBD3522DDA3/Description/@EntryValue">Guards against null or empty arguments</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=4A9CAEFB2052654C95E1FCBD3522DDA3/Field/=ARG/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=4A9CAEFB2052654C95E1FCBD3522DDA3/Field/=ARG/Expression/@EntryValue">complete()</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=4A9CAEFB2052654C95E1FCBD3522DDA3/Field/=ARG/Order/@EntryValue">0</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=4A9CAEFB2052654C95E1FCBD3522DDA3/Reformat/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=4A9CAEFB2052654C95E1FCBD3522DDA3/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=4A9CAEFB2052654C95E1FCBD3522DDA3/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/CustomProperties/=minimumLanguageVersion/@EntryIndexedValue">2.0</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=4A9CAEFB2052654C95E1FCBD3522DDA3/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/Type/@EntryValue">InCSharpStatement</s:String>
+	
+	
+	
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=4A9CAEFB2052654C95E1FCBD3522DDA3/Shortcut/@EntryValue">guarde</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=4A9CAEFB2052654C95E1FCBD3522DDA3/ShortenQualifiedReferences/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=4A9CAEFB2052654C95E1FCBD3522DDA3/Text/@EntryValue">Guard.AgainstNullAndEmpty("$ARG$", $ARG$);</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C514576DE0C7E2458713151E8B2CD743/@KeyIndexDefined">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C514576DE0C7E2458713151E8B2CD743/Applicability/=Live/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C514576DE0C7E2458713151E8B2CD743/Categories/=Guard/@EntryIndexedValue">Guard</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C514576DE0C7E2458713151E8B2CD743/Description/@EntryValue">Guards against null arguments</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C514576DE0C7E2458713151E8B2CD743/Field/=ARG/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C514576DE0C7E2458713151E8B2CD743/Field/=ARG/Expression/@EntryValue">complete()</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C514576DE0C7E2458713151E8B2CD743/Field/=ARG/Order/@EntryValue">0</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C514576DE0C7E2458713151E8B2CD743/Reformat/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C514576DE0C7E2458713151E8B2CD743/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C514576DE0C7E2458713151E8B2CD743/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/CustomProperties/=minimumLanguageVersion/@EntryIndexedValue">2.0</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C514576DE0C7E2458713151E8B2CD743/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/Type/@EntryValue">InCSharpStatement</s:String>
+	
+	
+	
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C514576DE0C7E2458713151E8B2CD743/Shortcut/@EntryValue">guard</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C514576DE0C7E2458713151E8B2CD743/ShortenQualifiedReferences/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C514576DE0C7E2458713151E8B2CD743/Text/@EntryValue">Guard.AgainstNull("$ARG$", $ARG$);</s:String></wpf:ResourceDictionary>
