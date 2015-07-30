@@ -74,7 +74,7 @@
             {
                 SagaMetadata.Create(typeof(SagaWithNonMessageFinder), availableTypes, new Conventions());
             });
-            Assert.AreEqual("A custom IFindSagas must target a valid message type as defined by the message conventions. Please change 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.TypeBasedSagaMetaModelTests+SagaWithNonMessageFinder+StartSagaMessage' to a valid message type or add it to the message conventions. Finder name 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.TypeBasedSagaMetaModelTests+SagaWithNonMessageFinder+Finder'.", exception.Message);
+            Assert.AreEqual("A custom IFindSagas must target a valid message type as defined by the message conventions. Please change 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithNonMessageFinder+StartSagaMessage' to a valid message type or add it to the message conventions. Finder name 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithNonMessageFinder+Finder'.", exception.Message);
         }
 
         public class SagaWithNonMessageFinder : Saga<SagaWithNonMessageFinder.SagaData>,
@@ -119,7 +119,7 @@
             {
                 SagaMetadata.Create(typeof(SagaWithMappingAndFinder), availableTypes, new Conventions());
             });
-            Assert.AreEqual("A custom IFindSagas and an existing mapping where found for message 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.TypeBasedSagaMetaModelTests+SagaWithMappingAndFinder+StartSagaMessage'. Please either remove the message mapping for remove the finder. Finder name 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.TypeBasedSagaMetaModelTests+SagaWithMappingAndFinder+Finder'.", exception.Message);
+            Assert.AreEqual("A custom IFindSagas and an existing mapping where found for message 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+StartSagaMessage'. Please either remove the message mapping for remove the finder. Finder name 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+Finder'.", exception.Message);
         }
 
         public class SagaWithMappingAndFinder : Saga<SagaWithMappingAndFinder.SagaData>,
