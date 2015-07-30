@@ -12,9 +12,8 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 
         SagaMetaModel GetModel(params Type[] types)
         {
-            var sagaMetadatas = TypeBasedSagaMetaModel.Create(types.ToList(),new Conventions());
             var sagaMetaModel = new SagaMetaModel();
-            sagaMetaModel.Initialize(sagaMetadatas);
+            sagaMetaModel.Initialize(types.ToList(), new Conventions());
             return sagaMetaModel;
         }
 

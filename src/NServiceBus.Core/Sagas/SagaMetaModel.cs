@@ -1,5 +1,6 @@
 namespace NServiceBus.Saga
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
@@ -10,19 +11,29 @@ namespace NServiceBus.Saga
     public class SagaMetaModel : IEnumerable<SagaMetadata>
     {
         /// <summary>
-        /// Populates the model with saga metadata.
+        /// Populates the model with saga metadata from the provided collection of types.
         /// </summary>
-        /// <param name="foundSagas">Collection of Sagas metadata found.</param>
-        public void Initialize(IEnumerable<SagaMetadata> foundSagas)
+        /// <param name="availableTypes">A collection of types to scan for sagas.</param>
+        public void Initialize(IEnumerable<Type> availableTypes)
         {
-            var sagas = foundSagas.ToList();
+            Initialize(availableTypes, new Conventions());
+        }
 
-            foreach (var saga in sagas)
+        /// <summary>
+        /// Populates the model with saga metadata from the provided collection of types.
+        /// </summary>
+        /// <param name="availableTypes">A collection of types to scan for sagas.</param>
+        /// <param name="conventions">Custom conventions to be used while scanning types.</param>
+        public void Initialize(IEnumerable<Type> availableTypes, Conventions conventions)
+        {
+            var foundSagas = TypeBasedSagaMetaModel.Create(availableTypes.ToList(), conventions).ToList();
+
+            foreach (var saga in foundSagas)
             {
                 byEntityName[saga.EntityName] = saga;
             }
 
-            foreach (var saga in sagas)
+            foreach (var saga in foundSagas)
             {
                 byName[saga.Name] = saga;
             }
