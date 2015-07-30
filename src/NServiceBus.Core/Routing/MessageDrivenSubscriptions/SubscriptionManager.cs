@@ -76,7 +76,7 @@
                 }
                 else
                 {
-                    Logger.ErrorFormat("Failed to subscribe to {0} at publisher queue {1}", ex, messageType, destination);
+                    Logger.Error(string.Format("Failed to subscribe to {0} at publisher queue {1}", messageType, destination), ex);
                 }
             }
         }
