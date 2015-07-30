@@ -59,7 +59,7 @@ namespace NServiceBus
         /// </summary>
         public void RegisterComponents(Action<IConfigureComponents> registration)
         {
-            Guard.AgainstNull(registration, "registration");
+            Guard.AgainstNull("registration", registration);
             registrations.Add(registration);
         }
 
@@ -68,7 +68,7 @@ namespace NServiceBus
         /// </summary>
         public void ExcludeAssemblies(params string[] assemblies)
         {
-            Guard.AgainstNull(assemblies, "assemblies");
+            Guard.AgainstNull("assemblies", assemblies);
 
             if (assemblies.Any(string.IsNullOrWhiteSpace))
             {
@@ -82,7 +82,7 @@ namespace NServiceBus
         /// </summary>
         public void ExcludeTypes(params Type[] types)
         {
-            Guard.AgainstNull(types, "types");
+            Guard.AgainstNull("types", types);
             if (types.Any(x => x == null))
             {
                 throw new ArgumentException("Passed in a null or empty type.", "types");
@@ -104,7 +104,7 @@ namespace NServiceBus
         /// </summary>
         public void CustomConfigurationSource(IConfigurationSource configurationSource)
         {
-            Guard.AgainstNull(configurationSource, "configurationSource");
+            Guard.AgainstNull("configurationSource", configurationSource);
             configurationSourceToUse = configurationSource;
         }
 
@@ -113,7 +113,7 @@ namespace NServiceBus
         /// </summary>
         public void EndpointName(string name)
         {
-            Guard.AgainstNullAndEmpty(name, "name");
+            Guard.AgainstNullAndEmpty("name", name);
             endpointName = name;
         }
 
@@ -145,7 +145,7 @@ namespace NServiceBus
         /// <param name="definitionType">The type of the <see cref="ContainerDefinition"/>.</param>
         public void UseContainer(Type definitionType)
         {
-            Guard.AgainstNull(definitionType, "definitionType");
+            Guard.AgainstNull("definitionType", definitionType);
             Guard.TypeHasDefaultConstructor(definitionType, "definitionType");
 
             UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(Settings));
@@ -157,7 +157,7 @@ namespace NServiceBus
         /// <param name="builder">The instance to use.</param>
         public void UseContainer(IContainer builder)
         {
-            Guard.AgainstNull(builder, "builder");
+            Guard.AgainstNull("builder", builder);
             customBuilder = builder;
         }
 
@@ -167,7 +167,7 @@ namespace NServiceBus
         /// <param name="address">The public address.</param>
         public void OverridePublicReturnAddress(string address)
         {
-            Guard.AgainstNullAndEmpty(address, "address");
+            Guard.AgainstNullAndEmpty("address", address);
             publicReturnAddress = address;
         }
 
@@ -177,7 +177,7 @@ namespace NServiceBus
         /// <param name="queue">The queue name.</param>
         public void OverrideLocalAddress(string queue)
         {
-            Guard.AgainstNullAndEmpty(queue, "queue");
+            Guard.AgainstNullAndEmpty("queue", queue);
             Settings.Set("NServiceBus.LocalAddress", queue);
         }
 

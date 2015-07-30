@@ -14,8 +14,8 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         public static void Reply(this IBus bus, object message)
         {
-            Guard.AgainstNull(bus, "bus");
-            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull("bus", bus);
+            Guard.AgainstNull("message", message);
 
             bus.Reply(message,new ReplyOptions());
         }
@@ -28,8 +28,8 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         public static void Reply<T>(this IBus bus, Action<T> messageConstructor)
         {
-            Guard.AgainstNull(bus, "bus");
-            Guard.AgainstNull(messageConstructor, "messageConstructor");
+            Guard.AgainstNull("bus", bus);
+            Guard.AgainstNull("messageConstructor", messageConstructor);
 
             bus.Reply(messageConstructor, new ReplyOptions());
         }
@@ -40,8 +40,8 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         public static void SendLocal(this IBus bus, object message)
         {
-            Guard.AgainstNull(bus, "bus");
-            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull("bus", bus);
+            Guard.AgainstNull("message", message);
 
             var options = new SendOptions();
 
@@ -58,8 +58,8 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         public static void SendLocal<T>(this IBus bus, Action<T> messageConstructor)
         {
-            Guard.AgainstNull(bus, "bus");
-            Guard.AgainstNull(messageConstructor, "messageConstructor");
+            Guard.AgainstNull("bus", bus);
+            Guard.AgainstNull("messageConstructor", messageConstructor);
 
             var options = new SendOptions();
 

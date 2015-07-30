@@ -37,7 +37,7 @@ namespace NServiceBus.Logging
         /// </remarks>
         public static void UseFactory(ILoggerFactory loggerFactory)
         {
-            Guard.AgainstNull(loggerFactory, "loggerFactory");
+            Guard.AgainstNull("loggerFactory", loggerFactory);
 
             LogManager.loggerFactory = new Lazy<ILoggerFactory>(() => loggerFactory);
         }
@@ -55,7 +55,7 @@ namespace NServiceBus.Logging
         /// </summary>
         public static ILog GetLogger(Type type)
         {
-            Guard.AgainstNull(type, "type");
+            Guard.AgainstNull("type", type);
             return loggerFactory.Value.GetLogger(type);
         }
 
@@ -64,7 +64,7 @@ namespace NServiceBus.Logging
         /// </summary>
         public static ILog GetLogger(string name)
         {
-            Guard.AgainstNullAndEmpty(name, "name");
+            Guard.AgainstNullAndEmpty("name", name);
             return loggerFactory.Value.GetLogger(name);
         }
     }

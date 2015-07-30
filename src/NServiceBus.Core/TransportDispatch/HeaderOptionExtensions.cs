@@ -16,8 +16,8 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this ExtendableOptions context, string key, string value)
         {
-            Guard.AgainstNull(context, "context");
-            Guard.AgainstNullAndEmpty(key, "key");
+            Guard.AgainstNull("context", context);
+            Guard.AgainstNullAndEmpty("key", key);
             
             context.Context.GetOrCreate<DispatchMessageToTransportConnector.State>()
                 .Headers[key] = value;

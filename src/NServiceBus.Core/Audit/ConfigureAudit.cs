@@ -16,9 +16,9 @@ namespace NServiceBus
         /// <param name="timeToBeReceived">The custom TTR to use for messages sent to the audit queue.</param>
         public static void AuditProcessedMessagesTo(this BusConfiguration config, string auditQueue, TimeSpan? timeToBeReceived = null)
         {
-            Guard.AgainstNull(config, "config");
-            Guard.AgainstNullAndEmpty(auditQueue, "auditQueue");
-            Guard.AgainstNegative(timeToBeReceived, "timeToBeReceived");
+            Guard.AgainstNull("config", config);
+            Guard.AgainstNullAndEmpty("auditQueue", auditQueue);
+            Guard.AgainstNegative("timeToBeReceived", timeToBeReceived);
 
             config.Settings.Set<AuditConfigReader.Result>(new AuditConfigReader.Result
             {

@@ -65,7 +65,7 @@
 
         BehaviorContext InvokeNext(BehaviorContext context, BehaviorContextStacker contextStacker, int currentIndex)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
 
             if (currentIndex == itemDescriptors.Length)
             {

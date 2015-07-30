@@ -13,7 +13,7 @@
         /// <param name="messageId">The message identifier of the incoming message.</param>
         public OutboxMessage(string messageId)
         {
-            Guard.AgainstNullAndEmpty(messageId, "messageId");
+            Guard.AgainstNullAndEmpty("messageId", messageId);
 
             MessageId = messageId;
         }

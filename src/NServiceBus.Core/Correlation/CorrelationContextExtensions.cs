@@ -14,7 +14,7 @@
         /// <returns>The exisitng <see cref="Headers.CorrelationId"/> if it exists; otherwise null.</returns>
         public static string GetCorrelationId(this LogicalMessagesProcessingStageBehavior.Context context)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
 
             string correlationId;
             if (context.GetPhysicalMessage().Headers.TryGetValue(Headers.CorrelationId, out correlationId))
@@ -31,8 +31,8 @@
         /// <param name="correlationId">The custom correlation id.</param>
         public static void SetCorrelationId(this SendOptions options, string correlationId)
         {
-            Guard.AgainstNull(options, "options");
-            Guard.AgainstNullAndEmpty(correlationId, "correlationId");
+            Guard.AgainstNull("options", options);
+            Guard.AgainstNullAndEmpty("correlationId", correlationId);
 
             options.Context.GetOrCreate<AttachCorrelationIdBehavior.State>()
                 .CustomCorrelationId = correlationId;
@@ -45,8 +45,8 @@
         /// <param name="correlationId">The custom correlation id.</param>
         public static void SetCorrelationId(this ReplyOptions options, string correlationId)
         {
-            Guard.AgainstNull(options, "options");
-            Guard.AgainstNullAndEmpty(correlationId, "correlationId");
+            Guard.AgainstNull("options", options);
+            Guard.AgainstNullAndEmpty("correlationId", correlationId);
 
             options.Context.GetOrCreate<AttachCorrelationIdBehavior.State>()
                 .CustomCorrelationId = correlationId;

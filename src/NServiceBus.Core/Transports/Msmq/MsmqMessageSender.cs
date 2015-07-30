@@ -19,7 +19,7 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         public MsmqMessageSender(MsmqSettings settings, MsmqLabelGenerator messageLabelGenerator)
         {
-            Guard.AgainstNull(settings, "settings");
+            Guard.AgainstNull("settings", settings);
     
             this.settings = settings;
             this.messageLabelGenerator = messageLabelGenerator;
@@ -30,8 +30,8 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         public void Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions)
         {
-            Guard.AgainstNull(message, "message");
-            Guard.AgainstNull(dispatchOptions, "sendOptions");
+            Guard.AgainstNull("message", message);
+            Guard.AgainstNull("sendOptions", dispatchOptions);
             
             var routingStrategy = dispatchOptions.RoutingStrategy as DirectToTargetDestination;
 

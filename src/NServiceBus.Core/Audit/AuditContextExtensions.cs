@@ -13,8 +13,8 @@
         /// <param name="value">The value.</param>
         public static void AddAuditData(this AuditContext context, string key, string value)
         {
-            Guard.AgainstNull(context, "context");
-            Guard.AgainstNullAndEmpty(key, "key");
+            Guard.AgainstNull("context", context);
+            Guard.AgainstNullAndEmpty("key", key);
            
             AuditToDispatchConnector.State state;
 

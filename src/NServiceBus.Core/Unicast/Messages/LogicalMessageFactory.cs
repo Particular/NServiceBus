@@ -27,7 +27,7 @@ namespace NServiceBus.Unicast.Messages
         /// <returns>A new <see cref="LogicalMessage"/>.</returns>
         public LogicalMessage Create(object message)
         {
-            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull("message", message);
 
             return Create(message.GetType(), message);
         }
@@ -40,8 +40,8 @@ namespace NServiceBus.Unicast.Messages
         /// <returns>A new <see cref="LogicalMessage"/>.</returns>
         public LogicalMessage Create(Type messageType, object message)
         {
-            Guard.AgainstNull(messageType, "messageType");
-            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull("messageType", messageType);
+            Guard.AgainstNull("message", message);
 
             if (messageType == null)
             {

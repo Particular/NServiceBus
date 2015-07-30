@@ -12,7 +12,7 @@
         /// <param name="destination">The destination address.</param>
         public static void SetDestination(this SendOptions option, string destination)
         {
-            Guard.AgainstNullAndEmpty(destination, "destination");
+            Guard.AgainstNullAndEmpty("destination", destination);
 
             option.Context.GetOrCreate<DetermineRouteForSendBehavior.State>()
                 .ExplicitDestination = destination;
@@ -25,7 +25,7 @@
         /// <param name="destination">The new target address.</param>
         public static void OverrideReplyToAddressOfIncomingMessage(this ReplyOptions option, string destination)
         {
-            Guard.AgainstNullAndEmpty(destination, "destination");
+            Guard.AgainstNullAndEmpty("destination", destination);
 
             option.Context.GetOrCreate<DetermineRouteForReplyBehavior.State>()
                 .ExplicitDestination = destination;

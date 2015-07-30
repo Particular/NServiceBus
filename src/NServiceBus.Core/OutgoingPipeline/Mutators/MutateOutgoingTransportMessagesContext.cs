@@ -29,8 +29,8 @@ namespace NServiceBus.MessageMutator
         /// <param name="value">The header value.</param>
         public void SetHeader(string key, string value)
         {
-            Guard.AgainstNullAndEmpty(key,"key");
-            Guard.AgainstNullAndEmpty(value, "value");
+            Guard.AgainstNullAndEmpty("key", key);
+            Guard.AgainstNullAndEmpty("value", value);
 
             headers[key] = value;
         }

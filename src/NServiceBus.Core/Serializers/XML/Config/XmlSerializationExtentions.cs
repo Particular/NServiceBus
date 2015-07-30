@@ -39,7 +39,7 @@
         /// </code>
         public static SerializationExtentions<XmlSerializer> DontWrapRawXml(this SerializationExtentions<XmlSerializer> config)
         {
-            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull("config", config);
             config.Settings.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
 
             return config;
@@ -57,7 +57,7 @@
         /// </param>
         public static SerializationExtentions<XmlSerializer> Namespace(this SerializationExtentions<XmlSerializer> config, string namespaceToUse)
         {
-            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull("config", config);
 
             config.Settings.SetProperty<XmlMessageSerializer>(s => s.Namespace, namespaceToUse);
 
@@ -69,7 +69,7 @@
         /// </summary>
         public static SerializationExtentions<XmlSerializer> SanitizeInput(this SerializationExtentions<XmlSerializer> config)
         {
-            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull("config", config);
             config.Settings.SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);
 
             return config;

@@ -13,7 +13,7 @@ namespace NServiceBus
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static ThrottlingSettings Throttling(this BusConfiguration config)
         {
-            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull("config", config);
             return new ThrottlingSettings(config);
         }
     }

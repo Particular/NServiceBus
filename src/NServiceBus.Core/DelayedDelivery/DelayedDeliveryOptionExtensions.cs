@@ -16,8 +16,8 @@
         /// <param name="delay">The requested delay.</param>
         public static void DelayDeliveryWith(this SendOptions options, TimeSpan delay)
         {
-            Guard.AgainstNull(options, "options");
-            Guard.AgainstNegative(delay, "delay");
+            Guard.AgainstNull("options", options);
+            Guard.AgainstNegative("delay", delay);
 
             options.GetExtensions().Set(new ApplyDelayedDeliveryConstraintBehavior.State(new DelayDeliveryWith(delay)));
         }
@@ -28,7 +28,7 @@
         /// <param name="at">The time when this message should be made available.</param>
         public static void DoNotDeliverBefore(this SendOptions options, DateTime at)
         {
-            Guard.AgainstNull(options, "options");
+            Guard.AgainstNull("options", options);
 
             options.GetExtensions().Set(new ApplyDelayedDeliveryConstraintBehavior.State(new DoNotDeliverBefore(at)));
         }

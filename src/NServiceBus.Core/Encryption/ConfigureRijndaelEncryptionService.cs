@@ -20,7 +20,7 @@ namespace NServiceBus
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static void RijndaelEncryptionService(this BusConfiguration config)
         {
-            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull("config", config);
             RegisterEncryptionService(config, context =>
             {
                 var section = context.Build<Configure>()
@@ -78,8 +78,8 @@ namespace NServiceBus
         /// <param name="expiredKeys">The secondary expired keys that will be used for decryption.</param>
         public static void RijndaelEncryptionService(this BusConfiguration config, string encryptionKey, List<string> expiredKeys = null)
         {
-            Guard.AgainstNull(config, "config");
-            Guard.AgainstNullAndEmpty(encryptionKey, "encryptionKey");
+            Guard.AgainstNull("config", config);
+            Guard.AgainstNullAndEmpty("encryptionKey", encryptionKey);
 
             if (expiredKeys == null)
             {
@@ -121,7 +121,7 @@ namespace NServiceBus
         /// <param name="func">A delegate that constructs the insatnce of <see cref="IEncryptionService"/> to use for all encryption.</param>
         public static void RegisterEncryptionService(this BusConfiguration config, Func<IBuilder, IEncryptionService> func)
         {
-            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull("config", config);
             config.Settings.Set("EncryptionServiceConstructor", func);
         }
 

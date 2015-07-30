@@ -13,7 +13,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public static TransportMessage GetPhysicalMessage(this TransportReceiveContext context)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
 
             return context.Get<TransportMessage>();
         }
@@ -23,7 +23,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public static bool TryGetIncomingPhysicalMessage(this OutgoingContext context, out TransportMessage message)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
 
             return context.TryGet(out message);
         }
@@ -33,7 +33,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public static bool TryGetIncomingPhysicalMessage(this OutgoingReplyContext context, out TransportMessage message)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
 
             return context.TryGet(out message);
         }
@@ -43,7 +43,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public static bool TryGetIncomingPhysicalMessage(this PhysicalOutgoingContextStageBehavior.Context context, out TransportMessage message)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
 
             return context.TryGet(out message);
         }

@@ -12,8 +12,8 @@ namespace NServiceBus
         /// </summary>
         public static ConventionsBuilder DefiningExpressMessagesAs(this ConventionsBuilder builder, Func<Type, bool> definesExpressMessageType)
         {
-            Guard.AgainstNull(builder, "builder"); 
-            Guard.AgainstNull(definesExpressMessageType, "definesExpressMessageType");
+            Guard.AgainstNull("builder", builder); 
+            Guard.AgainstNull("definesExpressMessageType", definesExpressMessageType);
 
             builder.Settings.Set("messageDurabilityConvention", definesExpressMessageType);
 

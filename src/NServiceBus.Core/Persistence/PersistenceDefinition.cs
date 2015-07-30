@@ -15,7 +15,7 @@
         /// </summary>
         protected void Supports<T>(Action<SettingsHolder> action) where T : StorageType
         {
-            Guard.AgainstNull(action, "action");
+            Guard.AgainstNull("action", action);
             if (storageToActionMap.ContainsKey(typeof(T)))
             {
                 throw new Exception(string.Format("Action for {0} already defined.", typeof(T)));
@@ -45,7 +45,7 @@
         /// </summary>
         protected void Defaults(Action<SettingsHolder> action)
         {
-            Guard.AgainstNull(action, "action");
+            Guard.AgainstNull("action", action);
             defaults.Add(action);
         }
 
@@ -74,7 +74,7 @@
         /// </summary>
         public bool HasSupportFor(Type storageType)
         {
-            Guard.AgainstNull(storageType, "storageType");
+            Guard.AgainstNull("storageType", storageType);
             return storageToActionMap.ContainsKey(storageType);
         }
 

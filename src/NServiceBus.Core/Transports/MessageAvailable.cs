@@ -16,7 +16,7 @@ namespace NServiceBus.Transports
         /// <param name="contextAction">A callback that sets up the pipeline context for processing a received message.</param>
         public MessageAvailable(Action<IncomingContext> contextAction)
         {
-            Guard.AgainstNull(contextAction, "contextAction");
+            Guard.AgainstNull("contextAction", contextAction);
             this.contextAction = contextAction;
         }
 

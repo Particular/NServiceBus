@@ -13,7 +13,7 @@ namespace NServiceBus.OutgoingPipeline
         /// </summary>
         public static Type GetMessageType(this OutgoingPublishContext context)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
 
             return context.Get<OutgoingLogicalMessage>().MessageType;
         }
@@ -23,7 +23,7 @@ namespace NServiceBus.OutgoingPipeline
         /// </summary>
         public static object GetMessageInstance(this OutgoingPublishContext context)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
             
             return context.Get<OutgoingLogicalMessage>().Instance;
         }
@@ -33,7 +33,7 @@ namespace NServiceBus.OutgoingPipeline
         /// </summary>
         public static Type GetMessageType(this OutgoingSendContext context)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
             
             return context.Get<OutgoingLogicalMessage>().MessageType;
         }
@@ -43,7 +43,7 @@ namespace NServiceBus.OutgoingPipeline
         /// </summary>
         public static object GetMessageInstance(this OutgoingSendContext context)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
             
             return context.Get<OutgoingLogicalMessage>().Instance;
         }
@@ -53,7 +53,7 @@ namespace NServiceBus.OutgoingPipeline
         /// </summary>
         public static Type GetMessageType(this OutgoingReplyContext context)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
 
             return context.Get<OutgoingLogicalMessage>().MessageType;
         }
@@ -63,7 +63,7 @@ namespace NServiceBus.OutgoingPipeline
         /// </summary>
         public static object GetMessageInstance(this OutgoingReplyContext context)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
 
             return context.Get<OutgoingLogicalMessage>().Instance;
         }
@@ -73,7 +73,7 @@ namespace NServiceBus.OutgoingPipeline
         /// </summary>
         public static Type GetMessageType(this OutgoingContext context)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
 
             return context.Get<OutgoingLogicalMessage>().MessageType;
         }
@@ -83,7 +83,7 @@ namespace NServiceBus.OutgoingPipeline
         /// </summary>
         public static object GetMessageInstance(this OutgoingContext context)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
 
             return context.Get<OutgoingLogicalMessage>().Instance;
         }
@@ -92,8 +92,8 @@ namespace NServiceBus.OutgoingPipeline
         /// </summary>
         public static void UpdateMessageInstance(this OutgoingContext context,object newInstance)
         {
-            Guard.AgainstNull(context, "context");
-            Guard.AgainstNull(newInstance, "newInstance");
+            Guard.AgainstNull("context", context);
+            Guard.AgainstNull("newInstance", newInstance);
 
             context.Set(new OutgoingLogicalMessage(newInstance));
         }

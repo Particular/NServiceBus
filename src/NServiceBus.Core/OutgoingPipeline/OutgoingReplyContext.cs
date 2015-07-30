@@ -13,9 +13,9 @@
         public OutgoingReplyContext(BehaviorContext parentContext, OutgoingLogicalMessage message, ReplyOptions options)
             : base(parentContext)
         {
-            Guard.AgainstNull(parentContext, "parentContext");
-            Guard.AgainstNull(message, "message");
-            Guard.AgainstNull(options, "options");
+            Guard.AgainstNull("parentContext", parentContext);
+            Guard.AgainstNull("message", message);
+            Guard.AgainstNull("options", options);
 
             Set(message);
 

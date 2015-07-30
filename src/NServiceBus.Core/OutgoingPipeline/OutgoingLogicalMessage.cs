@@ -13,7 +13,7 @@ namespace NServiceBus.OutgoingPipeline
         /// </summary>
         public OutgoingLogicalMessage(object message)
         {
-            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull("message", message);
 
             MessageType = message.GetType();
             Instance = message;
@@ -24,8 +24,8 @@ namespace NServiceBus.OutgoingPipeline
         /// </summary>
         public OutgoingLogicalMessage(Type messageType, object message)
         {
-            Guard.AgainstNull(messageType, "messageType");
-            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull("messageType", messageType);
+            Guard.AgainstNull("message", message);
 
             MessageType = messageType;
             Instance = message;

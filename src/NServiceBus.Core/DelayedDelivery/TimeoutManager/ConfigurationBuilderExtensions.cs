@@ -16,8 +16,8 @@
         /// <param name="timeToWait">Time to wait before raising a critical error.</param>
         public static void TimeToWaitBeforeTriggeringCriticalErrorOnTimeoutOutages(this BusConfiguration config, TimeSpan timeToWait)
         {
-            Guard.AgainstNull(config, "config");
-            Guard.AgainstNegative(timeToWait, "timeToWait");
+            Guard.AgainstNull("config", config);
+            Guard.AgainstNegative("timeToWait", timeToWait);
             config.Settings.Set("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver", timeToWait);
         }
     }

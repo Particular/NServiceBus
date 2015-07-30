@@ -17,7 +17,7 @@
         /// .
         public TransportOperation(string messageId, Dictionary<string, string> options, byte[] body, Dictionary<string, string> headers)
         {
-            Guard.AgainstNullAndEmpty(messageId, "messageId");
+            Guard.AgainstNullAndEmpty("messageId", messageId);
 
             MessageId = messageId;
             Options = options;
