@@ -63,7 +63,10 @@ namespace NServiceBus.AcceptanceTests.Exceptions
                     {
                         break;
                     }
-
+                    if (line.StartsWith("at lambda_method("))
+                    {
+                        continue;
+                    }
                     stringBuilder.AppendLine(line.Split(new[]
                     {
                         " in "
