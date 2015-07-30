@@ -11,7 +11,7 @@ namespace NServiceBus
 
         internal IndividualThrottlingSettings(Dictionary<string, int?> overrides)
         {
-            Guard.AgainstNull(overrides, "overrides");
+            Guard.AgainstNull("overrides", overrides);
             this.overrides = overrides;
         }
 
@@ -20,7 +20,7 @@ namespace NServiceBus
         /// </summary>
         public IndividualThrottlingSettings ForMainPipeline(int maximumMessagesPerSecond)
         {
-            Guard.AgainstNegativeAndZero(maximumMessagesPerSecond, "maximumMessagesPerSecond");
+            Guard.AgainstNegativeAndZero("maximumMessagesPerSecond", maximumMessagesPerSecond);
             overrides["Main"] = maximumMessagesPerSecond;
             return this;
         }
@@ -30,8 +30,8 @@ namespace NServiceBus
         /// </summary>
         public IndividualThrottlingSettings ForSatellite(string satelliteId, int maximumMessagesPerSecond)
         {
-            Guard.AgainstNegativeAndZero(maximumMessagesPerSecond, "maximumMessagesPerSecond");
-            Guard.AgainstNullAndEmpty(satelliteId, "satelliteId");
+            Guard.AgainstNegativeAndZero("maximumMessagesPerSecond", maximumMessagesPerSecond);
+            Guard.AgainstNullAndEmpty("satelliteId", satelliteId);
             overrides[satelliteId] = maximumMessagesPerSecond;
             return this;
         }
@@ -50,7 +50,7 @@ namespace NServiceBus
         /// </summary>
         public IndividualThrottlingSettings DoNotLimit(string satelliteId)
         {
-            Guard.AgainstNullAndEmpty(satelliteId, "satelliteId");
+            Guard.AgainstNullAndEmpty("satelliteId", satelliteId);
             overrides[satelliteId] = null;
             return this;
         }

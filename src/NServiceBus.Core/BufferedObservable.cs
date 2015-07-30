@@ -44,7 +44,7 @@ namespace NServiceBus
 
         public IDisposable Subscribe(IObserver<T> observer)
         {
-            Guard.AgainstNull(observer, "observer");
+            Guard.AgainstNull("observer", observer);
 
             CheckDisposed();
 

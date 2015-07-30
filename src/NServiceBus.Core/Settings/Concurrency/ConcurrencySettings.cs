@@ -29,7 +29,7 @@ namespace NServiceBus.Settings.Concurrency
         /// <param name="maximumConcurrencyLevel">Maximum concurrency level of the pool.</param>
         public void UseSingleThreadPool(int maximumConcurrencyLevel)
         {
-            Guard.AgainstNegativeAndZero(maximumConcurrencyLevel, "maximumConcurrencyLevel");
+            Guard.AgainstNegativeAndZero("maximumConcurrencyLevel", maximumConcurrencyLevel);
             config.Settings.Set<IConcurrencyConfig>(new SharedConcurrencyConfig(maximumConcurrencyLevel));
         }
 
@@ -52,7 +52,7 @@ namespace NServiceBus.Settings.Concurrency
         /// <param name="defaultMaxiumConcurrencyLevel">Default maximum concurrency if not overridden.</param>
         public IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSatellite(int defaultMaxiumConcurrencyLevel)
         {
-            Guard.AgainstNegativeAndZero(defaultMaxiumConcurrencyLevel, "defaultMaxiumConcurrencyLevel");
+            Guard.AgainstNegativeAndZero("defaultMaxiumConcurrencyLevel", defaultMaxiumConcurrencyLevel);
             var overrides = new Dictionary<string, int>();
             var concurrencyConfig = new IndividualConcurrencyConfig(defaultMaxiumConcurrencyLevel, overrides);
             config.Settings.Set<IConcurrencyConfig>(concurrencyConfig);

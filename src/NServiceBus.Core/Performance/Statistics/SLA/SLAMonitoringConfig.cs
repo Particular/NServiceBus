@@ -15,8 +15,8 @@ namespace NServiceBus
         /// <param name="sla">The <see cref="TimeSpan"/> to use oa the SLA. Must be greater than <see cref="TimeSpan.Zero"/>.</param>
         public static void EnableSLAPerformanceCounter(this BusConfiguration config, TimeSpan sla)
         {
-            Guard.AgainstNull(config, "config");
-            Guard.AgainstNegativeAndZero(sla, "sla");
+            Guard.AgainstNull("config", config);
+            Guard.AgainstNegativeAndZero("sla", sla);
             config.Settings.Set(SLAMonitoring.EndpointSLAKey, sla);
             EnableSLAPerformanceCounter(config);
         }
@@ -26,7 +26,7 @@ namespace NServiceBus
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static void EnableSLAPerformanceCounter(this BusConfiguration config)
         {
-            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull("config", config);
             config.EnableFeature<SLAMonitoring>();
         }
     }

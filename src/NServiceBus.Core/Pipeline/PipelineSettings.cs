@@ -25,7 +25,7 @@ namespace NServiceBus.Pipeline
         public void Remove(string stepId)
         {
             // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
-            Guard.AgainstNullAndEmpty(stepId, "stepId");
+            Guard.AgainstNullAndEmpty("stepId", stepId);
 
             modifications.Removals.Add(new RemoveStep(stepId));
         }
@@ -37,7 +37,7 @@ namespace NServiceBus.Pipeline
         public void Remove(WellKnownStep wellKnownStep)
         {
             // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
-            Guard.AgainstNull(wellKnownStep, "wellKnownStep");
+            Guard.AgainstNull("wellKnownStep", wellKnownStep);
 
             Remove((string)wellKnownStep);
         }
@@ -51,7 +51,7 @@ namespace NServiceBus.Pipeline
         public void Replace(string stepId, Type newBehavior, string description = null)
         {
             BehaviorTypeChecker.ThrowIfInvalid(newBehavior, "newBehavior");
-            Guard.AgainstNullAndEmpty(stepId, "stepId");
+            Guard.AgainstNullAndEmpty("stepId", stepId);
 
             registeredBehaviors.Add(newBehavior);
             modifications.Replacements.Add(new ReplaceBehavior(stepId, newBehavior, description));
@@ -65,7 +65,7 @@ namespace NServiceBus.Pipeline
         /// <param name="description">The description of the new behavior.</param>
         public void Replace(WellKnownStep wellKnownStep, Type newBehavior, string description = null)
         {
-            Guard.AgainstNull(wellKnownStep, "wellKnownStep");
+            Guard.AgainstNull("wellKnownStep", wellKnownStep);
 
             Replace((string)wellKnownStep, newBehavior, description);
         }
@@ -80,8 +80,8 @@ namespace NServiceBus.Pipeline
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
-            Guard.AgainstNullAndEmpty(stepId, "stepId");
-            Guard.AgainstNullAndEmpty(description, "description");
+            Guard.AgainstNullAndEmpty("stepId", stepId);
+            Guard.AgainstNullAndEmpty("description", description);
 
             AddStep(RegisterStep.Create(stepId, behavior, description));
             return new StepRegistrationSequence(AddStep);
@@ -95,7 +95,7 @@ namespace NServiceBus.Pipeline
         /// <param name="description">The description of the behavior.</param>
         public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description)
         {
-            Guard.AgainstNull(wellKnownStep, "wellKnownStep");
+            Guard.AgainstNull("wellKnownStep", wellKnownStep);
 
             return Register((string)wellKnownStep, behavior, description);
         }
@@ -115,7 +115,7 @@ namespace NServiceBus.Pipeline
         /// <param name="customInitializer">A function the returns a new instance of the behavior.</param>
         public void Register<TRegisterStep, TBehavior>(Func<IBuilder, TBehavior> customInitializer) where TRegisterStep : RegisterStep, new()
         {
-            Guard.AgainstNull(customInitializer, "customInitializer");
+            Guard.AgainstNull("customInitializer", customInitializer);
             var registration = new TRegisterStep();
 
             registration.ContainerRegistration((b, s) => customInitializer(b));
@@ -130,7 +130,7 @@ namespace NServiceBus.Pipeline
         /// <param name="registration">The step registration.</param>
         public void Register(RegisterStep registration)
         {
-            Guard.AgainstNull(registration, "registration");
+            Guard.AgainstNull("registration", registration);
             AddStep(registration);
         }
 

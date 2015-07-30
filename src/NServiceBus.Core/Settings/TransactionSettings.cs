@@ -102,7 +102,7 @@ namespace NServiceBus.Settings
         /// </param>
         public TransactionSettings DefaultTimeout(TimeSpan defaultTimeout)
         {
-            Guard.AgainstNegative(defaultTimeout, "defaultTimeout");
+            Guard.AgainstNegative("defaultTimeout", defaultTimeout);
             var maxTimeout = GetMaxTimeout();
             if (defaultTimeout > maxTimeout)
             {

@@ -18,7 +18,7 @@ namespace NServiceBus.InMemory.Outbox
         /// It is not possible to use a negative or zero TimeSpan value.</param>
         public static OutboxSettings TimeToKeepDeduplicationData(this OutboxSettings settings, TimeSpan time)
         {
-            Guard.AgainstNegativeAndZero(time, "time");
+            Guard.AgainstNegativeAndZero("time", time);
             settings.GetSettings().Set(Features.InMemoryOutboxPersistence.TimeToKeepDeduplicationEntries, time);
             return settings;
         }

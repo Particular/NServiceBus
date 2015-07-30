@@ -8,8 +8,8 @@ namespace NServiceBus.Unicast
         /// <inheritdoc />
         public void Publish(object message, NServiceBus.PublishOptions options)
         {
-            Guard.AgainstNull(message, "message");
-            Guard.AgainstNull(options, "options");
+            Guard.AgainstNull("message", message);
+            Guard.AgainstNull("options", options);
 
             busImpl.Publish(message, options);
         }
@@ -18,8 +18,8 @@ namespace NServiceBus.Unicast
         /// <inheritdoc />
         public void Publish<T>(Action<T> messageConstructor, NServiceBus.PublishOptions options)
         {
-            Guard.AgainstNull(messageConstructor, "messageConstructor");
-            Guard.AgainstNull(options, "options");
+            Guard.AgainstNull("messageConstructor", messageConstructor);
+            Guard.AgainstNull("options", options);
 
             busImpl.Publish(messageConstructor, options);
         }
@@ -43,7 +43,7 @@ namespace NServiceBus.Unicast
         /// <inheritdoc />
         public void Subscribe(Type messageType)
         {
-            Guard.AgainstNull(messageType, "messageType");
+            Guard.AgainstNull("messageType", messageType);
             busImpl.Subscribe(messageType);
         }
 
@@ -58,7 +58,7 @@ namespace NServiceBus.Unicast
         /// <inheritdoc />
         public void Unsubscribe(Type messageType)
         {
-            Guard.AgainstNull(messageType, "messageType");
+            Guard.AgainstNull("messageType", messageType);
             busImpl.Unsubscribe(messageType);
         }
 
@@ -73,8 +73,8 @@ namespace NServiceBus.Unicast
         /// <inheritdoc />
         public void Reply(object message, NServiceBus.ReplyOptions options)
         {
-            Guard.AgainstNull(message, "message");
-            Guard.AgainstNull(options, "options");
+            Guard.AgainstNull("message", message);
+            Guard.AgainstNull("options", options);
 
             busImpl.Reply(message, options);
         }
@@ -83,8 +83,8 @@ namespace NServiceBus.Unicast
         /// <inheritdoc />
         public void Reply<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
         {
-            Guard.AgainstNull(messageConstructor, "messageConstructor");
-            Guard.AgainstNull(options, "options");
+            Guard.AgainstNull("messageConstructor", messageConstructor);
+            Guard.AgainstNull("options", options);
 
             busImpl.Reply(messageConstructor, options);
         }
@@ -98,7 +98,7 @@ namespace NServiceBus.Unicast
         /// <inheritdoc />
         public void ForwardCurrentMessageTo(string destination)
         {
-            Guard.AgainstNullAndEmpty(destination, "destination");
+            Guard.AgainstNullAndEmpty("destination", destination);
             busImpl.ForwardCurrentMessageTo(destination);
         }
         

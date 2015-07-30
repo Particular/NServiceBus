@@ -17,9 +17,9 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this OutgoingContext context, string key, string value)
         {
-            Guard.AgainstNull(context, "context");
-            Guard.AgainstNullAndEmpty(key, "key");
-            Guard.AgainstNullAndEmpty(value, "value");
+            Guard.AgainstNull("context", context);
+            Guard.AgainstNullAndEmpty("key", key);
+            Guard.AgainstNullAndEmpty("value", value);
 
             context.GetOrCreate<DispatchMessageToTransportConnector.State>()
                 .Headers[key] = value;
@@ -33,9 +33,9 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this OutgoingPublishContext context, string key, string value)
         {
-            Guard.AgainstNull(context, "context");
-            Guard.AgainstNullAndEmpty(key, "key");
-            Guard.AgainstNullAndEmpty(value, "value");
+            Guard.AgainstNull("context", context);
+            Guard.AgainstNullAndEmpty("key", key);
+            Guard.AgainstNullAndEmpty("value", value);
 
             context.GetOrCreate<DispatchMessageToTransportConnector.State>()
                 .Headers[key] = value;
@@ -49,9 +49,9 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this OutgoingSendContext context, string key, string value)
         {
-            Guard.AgainstNull(context, "context");
-            Guard.AgainstNullAndEmpty(key, "key");
-            Guard.AgainstNullAndEmpty(value, "value");
+            Guard.AgainstNull("context", context);
+            Guard.AgainstNullAndEmpty("key", key);
+            Guard.AgainstNullAndEmpty("value", value);
 
             context.GetOrCreate<DispatchMessageToTransportConnector.State>()
                 .Headers[key] = value;
@@ -65,9 +65,9 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this OutgoingReplyContext context, string key, string value)
         {
-            Guard.AgainstNull(context, "context");
-            Guard.AgainstNullAndEmpty(key, "key");
-            Guard.AgainstNullAndEmpty(value, "value");
+            Guard.AgainstNull("context", context);
+            Guard.AgainstNullAndEmpty("key", key);
+            Guard.AgainstNullAndEmpty("value", value);
 
             context.GetOrCreate<DispatchMessageToTransportConnector.State>()
                 .Headers[key] = value;
@@ -81,9 +81,9 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this PhysicalOutgoingContextStageBehavior.Context context, string key, string value)
         {
-            Guard.AgainstNull(context, "context");
-            Guard.AgainstNullAndEmpty(key, "key");
-            Guard.AgainstNullAndEmpty(value, "value");
+            Guard.AgainstNull("context", context);
+            Guard.AgainstNullAndEmpty("key", key);
+            Guard.AgainstNullAndEmpty("value", value);
 
             context.GetOrCreate<DispatchMessageToTransportConnector.State>()
                 .Headers[key] = value;
@@ -97,9 +97,9 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this DispatchContext context, string key, string value)
         {
-            Guard.AgainstNull(context, "context");
-            Guard.AgainstNullAndEmpty(key, "key");
-            Guard.AgainstNullAndEmpty(value, "value");
+            Guard.AgainstNull("context", context);
+            Guard.AgainstNullAndEmpty("key", key);
+            Guard.AgainstNullAndEmpty("value", value);
 
             context.Get<OutgoingMessage>().Headers[key] = value;
         }

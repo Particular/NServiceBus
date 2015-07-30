@@ -193,7 +193,7 @@ namespace NServiceBus.Utils
 
         private static void Copy<T>(ICollection<T> source, T[] array, int arrayIndex)
         {
-            Guard.AgainstNull(array, "array");
+            Guard.AgainstNull("array", array);
 
             if (arrayIndex < 0 || arrayIndex > array.Length)
                 throw new ArgumentOutOfRangeException("arrayIndex");

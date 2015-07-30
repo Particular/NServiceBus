@@ -17,7 +17,7 @@ namespace NServiceBus
         /// <param name="value">True to purge all message on startup; otherwise False.</param>
         public static void PurgeOnStartup(this BusConfiguration config, bool value)
         {
-            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull("config", config);
             config.Settings.Set("Transport.PurgeOnStartup", value);
         }
 

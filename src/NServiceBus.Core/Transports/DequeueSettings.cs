@@ -12,7 +12,7 @@
         /// <param name="purgeOnStartup"><code>true</code> to purge <paramref name="queue"/> at startup.</param>
         public DequeueSettings(string queue, bool purgeOnStartup)
         {
-            Guard.AgainstNullAndEmpty(queue, "queue");
+            Guard.AgainstNullAndEmpty("queue", queue);
             PurgeOnStartup = purgeOnStartup;
             QueueName = queue;
         }

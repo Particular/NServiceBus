@@ -19,7 +19,7 @@ namespace NServiceBus.Settings.Concurrency
         /// </summary>
         public IndividualConcurrencySettings ForMainPipeline(int maximumConcurrency)
         {
-            Guard.AgainstNegativeAndZero(maximumConcurrency, "maximumConcurrency");
+            Guard.AgainstNegativeAndZero("maximumConcurrency", maximumConcurrency);
             overrides["Main"] = maximumConcurrency;
             return this;
         }
@@ -29,8 +29,8 @@ namespace NServiceBus.Settings.Concurrency
         /// </summary>
         public IndividualConcurrencySettings ForSatellite(string satelliteId, int maximumConcurrency)
         {
-            Guard.AgainstNegativeAndZero(maximumConcurrency, "maximumConcurrency");
-            Guard.AgainstNullAndEmpty(satelliteId, "satelliteId");
+            Guard.AgainstNegativeAndZero("maximumConcurrency", maximumConcurrency);
+            Guard.AgainstNullAndEmpty("satelliteId", satelliteId);
             overrides[satelliteId] = maximumConcurrency;
             return this;
         }

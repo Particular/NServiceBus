@@ -12,7 +12,7 @@
         /// </summary>
         protected ExposeSettings(SettingsHolder settings)
         {
-            Guard.AgainstNull(settings, "settings");
+            Guard.AgainstNull("settings", settings);
             Settings = settings;
         }
 

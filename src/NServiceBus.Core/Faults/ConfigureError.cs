@@ -14,8 +14,8 @@ namespace NServiceBus
         /// <param name="errorQueue">The name of the error queue to use.</param>
         public static void SendFailedMessagesTo(this BusConfiguration config, string errorQueue)
         {
-            Guard.AgainstNull(config, "config");
-            Guard.AgainstNullAndEmpty(errorQueue, "errorQueue");
+            Guard.AgainstNull("config", config);
+            Guard.AgainstNullAndEmpty("errorQueue", errorQueue);
             config.Settings.Set("errorQueue", errorQueue);
         }
     }

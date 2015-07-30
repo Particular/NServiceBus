@@ -13,8 +13,8 @@
         /// </summary>
         public static ConventionsBuilder DefiningTimeToBeReceivedAs(this ConventionsBuilder builder, Func<Type, TimeSpan> retrieveTimeToBeReceived)
         {
-            Guard.AgainstNull(builder, "builder");
-            Guard.AgainstNull(retrieveTimeToBeReceived, "retrieveTimeToBeReceived");
+            Guard.AgainstNull("builder", builder);
+            Guard.AgainstNull("retrieveTimeToBeReceived", retrieveTimeToBeReceived);
             
             builder.Settings.Set<UserDefinedTimeToBeReceivedConvention>(new UserDefinedTimeToBeReceivedConvention(retrieveTimeToBeReceived)); 
 

@@ -15,14 +15,14 @@ namespace NServiceBus
         /// <param name="timeSpan">A timeSpan that can be interpreted by <see cref="TimeSpan.Parse(string)"/>.</param>
         public TimeToBeReceivedAttribute(string timeSpan)
         {
-            Guard.AgainstNullAndEmpty(timeSpan, "timeSpan");
+            Guard.AgainstNullAndEmpty("timeSpan", timeSpan);
             TimeSpan parsed;
             if (!TimeSpan.TryParse(timeSpan, out parsed))
             {
                 var error = string.Format("Could not parse '{0}' as a timespan.", timeSpan);
                 throw new ArgumentException(error);
             }
-            Guard.AgainstNegativeAndZero(parsed, "timeSpan");
+            Guard.AgainstNegativeAndZero("timeSpan", parsed);
             TimeToBeReceived = parsed;
         }
 

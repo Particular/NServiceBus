@@ -21,7 +21,7 @@ namespace NServiceBus
         /// </remarks>
         public static void ApplyLabelToMessages(this TransportExtensions<MsmqTransport> transportExtensions, MsmqLabelGenerator generateLabel)
         {
-            Guard.AgainstNull(generateLabel, "generateLabel");
+            Guard.AgainstNull("generateLabel", generateLabel);
             transportExtensions.GetSettings()
                 .Set<MsmqLabelGenerator>(generateLabel);
         }

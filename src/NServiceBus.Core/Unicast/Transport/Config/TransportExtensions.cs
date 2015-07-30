@@ -66,7 +66,7 @@ namespace NServiceBus
         /// </summary>
         public TransportExtensions ConnectionString(string connectionString)
         {
-            Guard.AgainstNullAndEmpty(connectionString, "connectionString");
+            Guard.AgainstNullAndEmpty("connectionString", connectionString);
             Settings.Set<TransportConnectionString>(new TransportConnectionString(() => connectionString));
             return this;
         }
@@ -76,7 +76,7 @@ namespace NServiceBus
         /// </summary>
         public TransportExtensions ConnectionStringName(string name)
         {
-            Guard.AgainstNullAndEmpty(name, "name");
+            Guard.AgainstNullAndEmpty("name", name);
             Settings.Set<TransportConnectionString>(new TransportConnectionString(name));
             return this;
         }
@@ -86,7 +86,7 @@ namespace NServiceBus
         /// </summary>
         public TransportExtensions ConnectionString(Func<string> connectionString)
         {
-            Guard.AgainstNull(connectionString, "connectionString");
+            Guard.AgainstNull("connectionString", connectionString);
             Settings.Set<TransportConnectionString>(new TransportConnectionString(connectionString));
             return this;
         }
@@ -102,7 +102,7 @@ namespace NServiceBus
         /// </summary>
         public static string TransportConnectionString(this Configure config)
         {
-            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull("config", config);
             TransportConnectionString conn;
             if (config.Settings.TryGet(out conn))
             {

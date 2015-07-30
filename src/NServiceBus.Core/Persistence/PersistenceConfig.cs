@@ -15,7 +15,7 @@
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static PersistenceExtentions<T> UsePersistence<T>(this BusConfiguration config) where T : PersistenceDefinition
         {
-            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull("config", config);
             var type = typeof(PersistenceExtentions<>).MakeGenericType(typeof(T));
             return (PersistenceExtentions<T>)Activator.CreateInstance(type, config.Settings);
         }
@@ -29,7 +29,7 @@
         public static PersistenceExtentions<T, S> UsePersistence<T, S>(this BusConfiguration config) where T : PersistenceDefinition
                                                                                                      where S : StorageType
         {
-            Guard.AgainstNull(config, "config");
+            Guard.AgainstNull("config", config);
             var type = typeof(PersistenceExtentions<,>).MakeGenericType(typeof(T), typeof(S));
             return (PersistenceExtentions<T, S>) Activator.CreateInstance(type, config.Settings);
         }
@@ -41,8 +41,8 @@
         /// <param name="definitionType">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc.</param>
         public static PersistenceExtentions UsePersistence(this BusConfiguration config, Type definitionType)
         {
-            Guard.AgainstNull(config, "config");
-            Guard.AgainstNull(definitionType, "definitionType");
+            Guard.AgainstNull("config", config);
+            Guard.AgainstNull("definitionType", definitionType);
             return new PersistenceExtentions(definitionType, config.Settings, null);
         }
     }

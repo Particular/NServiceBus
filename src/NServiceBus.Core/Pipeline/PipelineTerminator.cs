@@ -23,7 +23,7 @@
         /// <param name="next">Ignored since there by definition is no next behavior to call.</param>
         public override void Invoke(T context, Action<TerminatingContext> next)
         {
-            Guard.AgainstNull(next, "next");
+            Guard.AgainstNull("next", next);
 
             Terminate(context);
         }

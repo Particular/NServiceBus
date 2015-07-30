@@ -18,7 +18,7 @@ namespace NServiceBus.Routing
         /// <param name="destination">The destination.</param>
         public DirectToTargetDestination(string destination)
         {
-            Guard.AgainstNullAndEmpty(destination, "destination");
+            Guard.AgainstNullAndEmpty("destination", destination);
 
             Destination = destination;
         }
@@ -29,7 +29,7 @@ namespace NServiceBus.Routing
         /// <param name="options">The dictionary where the serialized data should be stored.</param> 
         public override void Serialize(Dictionary<string, string> options)
         {
-            Guard.AgainstNull(options,"options");
+            Guard.AgainstNull("options", options);
 
             options["Destination"] = Destination;
         }

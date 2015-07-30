@@ -12,7 +12,7 @@
         /// </summary>
         public static RoutingStrategy GetRoutingStrategy(this DispatchContext context)
         {
-            Guard.AgainstNull(context, "context");
+            Guard.AgainstNull("context", context);
 
             return context.Get<RoutingStrategy>();
         }

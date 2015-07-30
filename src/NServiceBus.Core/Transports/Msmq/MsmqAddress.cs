@@ -27,7 +27,7 @@ namespace NServiceBus.Transports.Msmq
         /// <returns>A new instance of <see cref="Address"/>.</returns>
         public static MsmqAddress Parse(string address)
         {
-            Guard.AgainstNullAndEmpty(address, "address");
+            Guard.AgainstNullAndEmpty("address", address);
 
             var split = address.Split('@');
 

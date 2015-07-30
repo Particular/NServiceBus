@@ -41,8 +41,8 @@ namespace NServiceBus
         /// </summary>
         public override string GetSubScope(string address, string qualifier)
         {
-            Guard.AgainstNullAndEmpty(address, "address");
-            Guard.AgainstNullAndEmpty(qualifier, "qualifier");
+            Guard.AgainstNullAndEmpty("address", address);
+            Guard.AgainstNullAndEmpty("qualifier", qualifier);
 
             var msmqAddress = MsmqAddress.Parse(address);
 

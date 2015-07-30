@@ -24,8 +24,8 @@ namespace NServiceBus.Pipeline
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
 
-            Guard.AgainstNullAndEmpty(stepId, "stepId");
-            Guard.AgainstNullAndEmpty(description, "description");
+            Guard.AgainstNullAndEmpty("stepId", stepId);
+            Guard.AgainstNullAndEmpty("description", description);
 
             var step = RegisterStep.Create(stepId, behavior, description);
             addStep(step);
@@ -41,7 +41,7 @@ namespace NServiceBus.Pipeline
         /// <param name="description">The description of the behavior.</param>
         public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description)
         {
-            Guard.AgainstNull(wellKnownStep, "wellKnownStep");
+            Guard.AgainstNull("wellKnownStep", wellKnownStep);
 
             Register((string)wellKnownStep, behavior, description);
             return this;

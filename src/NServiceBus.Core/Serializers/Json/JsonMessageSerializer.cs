@@ -44,8 +44,8 @@ namespace NServiceBus.Serializers.Json
         /// </summary>
         public object DeserializeObject(string value, Type type)
         {
-            Guard.AgainstNull(type, "type");
-            Guard.AgainstNullAndEmpty(value, "value");
+            Guard.AgainstNull("type", type);
+            Guard.AgainstNullAndEmpty("value", value);
             return JsonConvert.DeserializeObject(value, type);
         }
 
@@ -56,7 +56,7 @@ namespace NServiceBus.Serializers.Json
         /// <returns>The json string.</returns>
         public string SerializeObject(object value)
         {
-            Guard.AgainstNull(value, "value");
+            Guard.AgainstNull("value", value);
             return JsonConvert.SerializeObject(value);
         }
 
@@ -76,7 +76,7 @@ namespace NServiceBus.Serializers.Json
             get { return encoding; }
             set
             {
-                Guard.AgainstNull(value, "value");
+                Guard.AgainstNull("value", value);
                 encoding = value;
             }
         }

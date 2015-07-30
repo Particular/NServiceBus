@@ -23,7 +23,7 @@ namespace NServiceBus
         /// <param name="builder">The <see cref="IBuilder"/> instance.</param>
         public CriticalError(Action<string, Exception> onCriticalErrorAction, IBuilder builder)
         {
-            Guard.AgainstNull(builder, "builder");
+            Guard.AgainstNull("builder", builder);
 
             this.onCriticalErrorAction = onCriticalErrorAction;
             this.builder = builder;
@@ -46,8 +46,8 @@ namespace NServiceBus
         /// </summary>
         public virtual void Raise(string errorMessage, Exception exception)
         {
-            Guard.AgainstNullAndEmpty(errorMessage, "errorMessage");
-            Guard.AgainstNull(exception, "exception");
+            Guard.AgainstNullAndEmpty("errorMessage", errorMessage);
+            Guard.AgainstNull("exception", exception);
             LogManager.GetLogger("NServiceBus").Fatal(errorMessage, exception);
 
             if (onCriticalErrorAction == null)

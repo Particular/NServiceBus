@@ -47,8 +47,8 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         public static void Send(this ISendOnlyBus bus, object message)
         {
-            Guard.AgainstNull(bus, "bus");
-            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull("bus", bus);
+            Guard.AgainstNull("message", message);
 
             bus.Send(message, new SendOptions());
         }
@@ -64,8 +64,8 @@ namespace NServiceBus
         /// </remarks>
         public static void Send<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
         {
-            Guard.AgainstNull(bus, "bus");
-            Guard.AgainstNull(messageConstructor, "messageConstructor");
+            Guard.AgainstNull("bus", bus);
+            Guard.AgainstNull("messageConstructor", messageConstructor);
 
             bus.Send(messageConstructor, new SendOptions());
         }
@@ -78,9 +78,9 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         public static void Send(this ISendOnlyBus bus, string destination, object message)
         {
-            Guard.AgainstNull(bus, "bus");
-            Guard.AgainstNullAndEmpty(destination, "destination");
-            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull("bus", bus);
+            Guard.AgainstNullAndEmpty("destination", destination);
+            Guard.AgainstNull("message", message);
 
             var options = new SendOptions();
 
@@ -98,9 +98,9 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         public static void Send<T>(this ISendOnlyBus bus, string destination, Action<T> messageConstructor)
         {
-            Guard.AgainstNull(bus, "bus");
-            Guard.AgainstNullAndEmpty(destination, "destination");
-            Guard.AgainstNull(messageConstructor, "messageConstructor");
+            Guard.AgainstNull("bus", bus);
+            Guard.AgainstNullAndEmpty("destination", destination);
+            Guard.AgainstNull("messageConstructor", messageConstructor);
 
             var options = new SendOptions();
 
