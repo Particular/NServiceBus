@@ -4,10 +4,12 @@
     using System.Collections;
     using System.Linq;
     using System.Reflection;
+    using JetBrains.Annotations;
 
     static class Guard
     {
-        public static void TypeHasDefaultConstructor(Type type, string argumentName)
+        // ReSharper disable UnusedParameter.Global
+        public static void TypeHasDefaultConstructor(Type type, [InvokerParameterName] string argumentName)
         {
             if (type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .All(ctor => ctor.GetParameters().Length != 0))
@@ -16,9 +18,9 @@
                 throw new ArgumentException(error, argumentName);
             }
         }
-
-        // ReSharper disable UnusedParameter.Global
-        public static void AgainstNull(object value, string argumentName)
+        
+        [ContractAnnotation("value: null => halt")]
+        public static void AgainstNull([NotNull] object value, [InvokerParameterName] string argumentName)
         {
             if (value == null)
             {
@@ -26,14 +28,17 @@
             }
         }
 
-        public static void AgainstNullAndEmpty(string value, string argumentName)
+        [ContractAnnotation("value: null => halt")]
+        public static void AgainstNullAndEmpty([NotNull] string value, [InvokerParameterName] string argumentName)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
                 throw new ArgumentNullException(argumentName);
             }
         }
-        public static void AgainstNullAndEmpty(ICollection value, string argumentName)
+
+        [ContractAnnotation("value: null => halt")]
+        public static void AgainstNullAndEmpty([NotNull, NoEnumeration] ICollection value, [InvokerParameterName] string argumentName)
         {
             if (value == null)
             {
@@ -45,14 +50,14 @@
             }
         }
 
-        public static void AgainstNegativeAndZero(int value, string argumentName)
+        public static void AgainstNegativeAndZero(int value, [InvokerParameterName] string argumentName)
         {
             if (value <= 0)
             {
                 throw new ArgumentOutOfRangeException(argumentName);
             }
         }
-        public static void AgainstNegative(int value, string argumentName)
+        public static void AgainstNegative(int value, [InvokerParameterName] string argumentName)
         {
             if (value < 0)
             {
@@ -60,7 +65,7 @@
             }
         }
 
-        public static void AgainstNegativeAndZero(TimeSpan? value, string argumentName)
+        public static void AgainstNegativeAndZero(TimeSpan? value, [InvokerParameterName] string argumentName)
         {
             if (value <= TimeSpan.Zero)
             {
@@ -68,7 +73,7 @@
             }
         }
 
-        public static void AgainstNegative(TimeSpan? value, string argumentName)
+        public static void AgainstNegative(TimeSpan? value, [InvokerParameterName] string argumentName)
         {
             if (value < TimeSpan.Zero)
             {
