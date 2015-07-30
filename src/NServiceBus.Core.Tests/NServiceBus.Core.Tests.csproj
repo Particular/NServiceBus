@@ -167,7 +167,7 @@
     <Compile Include="Pipeline\PipelineModelBuilderTests.cs" />
     <Compile Include="Routing\DetermineRouteForReplyBehaviorTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
-    <Compile Include="Sagas\TypeBasedSagaMetaModelTests.cs" />
+    <Compile Include="Sagas\SagaMetadataCreationTests.cs" />
     <Compile Include="SecondLevelRetries\DefaultRetryPolicyTests.cs" />
     <Compile Include="Serializers\SerializeMessagesBehaviorTests.cs" />
     <Compile Include="StandardsTests.cs" />

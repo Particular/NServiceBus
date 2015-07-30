@@ -26,15 +26,15 @@ namespace NServiceBus.Saga
         /// <param name="conventions">Custom conventions to be used while scanning types.</param>
         public void Initialize(IEnumerable<Type> availableTypes, Conventions conventions)
         {
-            var foundSagas = TypeBasedSagaMetaModel.Create(availableTypes.ToList(), conventions).ToList();
+            var availableTypesList = availableTypes.ToList();
+
+            var foundSagas = availableTypesList.Where(SagaMetadata.IsSagaType)
+                .Select(t => SagaMetadata.Create(t, availableTypesList, conventions))
+                .ToList();
 
             foreach (var saga in foundSagas)
             {
                 byEntityName[saga.EntityName] = saga;
-            }
-
-            foreach (var saga in foundSagas)
-            {
                 byName[saga.Name] = saga;
             }
         }

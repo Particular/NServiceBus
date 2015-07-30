@@ -369,7 +369,6 @@
     <Compile Include="Sagas\SagaMetadata.cs" />
     <Compile Include="Sagas\SagaMetaModel.cs" />
     <Compile Include="Sagas\SagaToMessageMap.cs" />
-    <Compile Include="Sagas\TypeBasedSagaMetaModel.cs" />
     <Compile Include="Pipeline\PipelineNotifications.cs" />
     <Compile Include="Pipeline\StepStarted.cs" />
     <Compile Include="Pipeline\StepEnded.cs" />
