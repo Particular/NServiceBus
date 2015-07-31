@@ -288,7 +288,7 @@ namespace NServiceBus.Saga
             {
                 var sagaProp = Reflect<TSagaEntity>.GetProperty(sagaEntityProperty, true);
 
-                ValidateMapping<TSagaEntity, TMessage>(messageExpression, sagaProp);
+                ValidateMapping(messageExpression, sagaProp);
 
                 ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
                 var compiledMessageExpression = messageExpression.Compile();
@@ -302,7 +302,7 @@ namespace NServiceBus.Saga
                 });
             }
 
-            static void ValidateMapping<TSagaEntity, TMessage>(Expression<Func<TMessage, object>> messageExpression, PropertyInfo sagaProp)
+            static void ValidateMapping<TMessage>(Expression<Func<TMessage, object>> messageExpression, PropertyInfo sagaProp)
             {
                 if (sagaProp.Name.ToLower() != "id")
                 {
@@ -323,7 +323,7 @@ namespace NServiceBus.Saga
 
                 var propertyInfo = memberExpr.Member as PropertyInfo;
 
-                var message = "Message properties mapped to the saga id needs to be of type Guid, please change property {0} on message {1} to a Guid";
+                const string message = "Message properties mapped to the saga id needs to be of type Guid, please change property {0} on message {1} to a Guid";
 
                 if (propertyInfo != null)
                 {
