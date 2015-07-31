@@ -44,13 +44,13 @@
         }
 
         [Test]
-        public void Specific_generic_type_definition_handler_should_not_be_classified_as_a_handler()
+        public void Specific_generic_type_definition_handler_should_be_classified_as_a_handler()
         {
             Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(typeof(GenericTypeDefinitionHandler<string>)));
         }
 
         [Test]
-        public void Generic_implemented_type_definition_handler_should_not_be_classified_as_a_handler()
+        public void Generic_implemented_type_definition_handler_should_be_classified_as_a_handler()
         {
             Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(typeof(GenericImplementedHandler)));
         }
