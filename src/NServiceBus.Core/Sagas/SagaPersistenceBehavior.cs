@@ -35,7 +35,7 @@
                 return;
             }
 
-            var sagaMetadata = SagaMetaModel.FindByName(context.MessageHandler.Instance.GetType().FullName);
+            var sagaMetadata = SagaMetaModel.Find(context.MessageHandler.Instance.GetType());
             var sagaInstanceState = new ActiveSagaInstance(saga, sagaMetadata);
 
             //so that other behaviors can access the saga

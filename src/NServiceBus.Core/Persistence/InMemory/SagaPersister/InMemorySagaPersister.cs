@@ -85,7 +85,7 @@ namespace NServiceBus.InMemory.SagaPersister
         void ValidateUniqueProperties(IContainSagaData saga)
         {
             var sagaType = saga.GetType();
-            var sagaMetaData = sagaModel.FindByEntityName(sagaType.FullName);
+            var sagaMetaData = sagaModel.FindByEntity(sagaType);
             var existingSagas = (from s in data
                 where s.Value.SagaEntity.GetType() == sagaType && (s.Key != saga.Id)
                 select s.Value)

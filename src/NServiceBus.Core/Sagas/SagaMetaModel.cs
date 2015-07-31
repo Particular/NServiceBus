@@ -34,19 +34,19 @@ namespace NServiceBus.Saga
 
             foreach (var saga in foundSagas)
             {
-                byEntityName[saga.EntityName] = saga;
-                byName[saga.Name] = saga;
+                byEntity[saga.SagaEntityType] = saga;
+                byType[saga.SagaType] = saga;
             }
         }
 
         /// <summary>
         /// Returns a <see cref="SagaMetadata"/> for an entity by entity name.
         /// </summary>
-        /// <param name="name">Name of the entity.</param>
+        /// <param name="entityType">Type of the entity (saga data).</param>
         /// <returns>An instance of <see cref="SagaMetadata"/>.</returns>
-        public SagaMetadata FindByEntityName(string name)
+        public SagaMetadata FindByEntity(Type entityType)
         {
-            return byEntityName[name];
+            return byEntity[entityType];
         }
 
         /// <summary>
@@ -54,17 +54,17 @@ namespace NServiceBus.Saga
         /// </summary>
         public IEnumerator<SagaMetadata> GetEnumerator()
         {
-            return byEntityName.Values.GetEnumerator();
+            return byEntity.Values.GetEnumerator();
         }
 
         /// <summary>
         /// Returns a <see cref="SagaMetadata"/> for an entity by name.
         /// </summary>
-        /// <param name="name">Saga name.</param>
+        /// <param name="sagaType">Saga type.</param>
         /// <returns>An instance of <see cref="SagaMetadata"/>.</returns>
-        public SagaMetadata FindByName(string name)
+        public SagaMetadata Find(Type sagaType)
         {
-            return byName[name];
+            return byType[sagaType];
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -72,7 +72,7 @@ namespace NServiceBus.Saga
             return GetEnumerator();
         }
 
-        Dictionary<string,SagaMetadata> byEntityName = new Dictionary<string, SagaMetadata>();
-        Dictionary<string, SagaMetadata> byName = new Dictionary<string, SagaMetadata>();
+        Dictionary<Type, SagaMetadata> byEntity = new Dictionary<Type, SagaMetadata>();
+        Dictionary<Type, SagaMetadata> byType = new Dictionary<Type, SagaMetadata>();
     }
 }

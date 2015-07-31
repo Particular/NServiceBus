@@ -2049,8 +2049,8 @@ namespace NServiceBus.Saga
     public class SagaMetaModel : System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMetadata>, System.Collections.IEnumerable
     {
         public SagaMetaModel() { }
-        public NServiceBus.Saga.SagaMetadata FindByEntityName(string name) { }
-        public NServiceBus.Saga.SagaMetadata FindByName(string name) { }
+        public NServiceBus.Saga.SagaMetadata Find(System.Type sagaType) { }
+        public NServiceBus.Saga.SagaMetadata FindByEntity(System.Type entityType) { }
         public System.Collections.Generic.IEnumerator<NServiceBus.Saga.SagaMetadata> GetEnumerator() { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes) { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
