@@ -5,16 +5,11 @@ namespace NServiceBus.Features
     using System.Linq;
     using NServiceBus.Config;
     using NServiceBus.Logging;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
-    using NServiceBus.Settings;
     using NServiceBus.Settings.Concurrency;
     using NServiceBus.Settings.Throttling;
-    using NServiceBus.Transports;
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Messages;
-    using NServiceBus.Unicast.Routing;
     using TransactionSettings = NServiceBus.Unicast.Transport.TransactionSettings;
 
     class UnicastBus : Feature
