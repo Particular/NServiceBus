@@ -27,7 +27,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Initializes a new instance of <see cref="UnicastBus"/>.
         /// </summary>
-        internal UnicastBusInternal(
+        public UnicastBusInternal(
             BehaviorContextStacker contextStacker,
             IExecutor executor,
             CriticalError criticalError,

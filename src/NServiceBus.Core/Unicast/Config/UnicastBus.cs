@@ -63,9 +63,7 @@ namespace NServiceBus.Features
             context.Container.ConfigureComponent(b => b.Build<BehaviorContextStacker>().GetCurrentOrRootContext(), DependencyLifecycle.InstancePerCall);
 
             //Hack because we can't register as IStartableBus because it would automatically register as IBus and overrode the proper IBus registration.
-            context.Container.ConfigureComponent(CreateBus, DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => (IStartableBus)b.Build<UnicastBusInternal>(), DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => (IBus)b.Build<UnicastBusInternal>(), DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent<UnicastBusInternal>(DependencyLifecycle.SingleInstance);
 
             var knownMessages = context.Settings.GetAvailableTypes()
                 .Where(context.Settings.Get<Conventions>().IsMessageType)
@@ -90,22 +88,6 @@ namespace NServiceBus.Features
             {
                 context.Pipeline.Register<HandlerTransactionScopeWrapperBehavior.Registration>();
             }
-        }
-
-        static UnicastBusInternal CreateBus(IBuilder builder)
-        {
-            return new UnicastBusInternal(
-                builder.Build<BehaviorContextStacker>(), 
-                builder.Build<IExecutor>(),
-                builder.Build<CriticalError>(),
-                builder.Build<IMessageMapper>(),
-                builder,
-                builder.Build<Configure>(),
-                builder.Build<IManageSubscriptions>(),
-                builder.Build<ReadOnlySettings>(),
-                builder.Build<TransportDefinition>(),
-                builder.Build<IDispatchMessages>(),
-                builder.Build<StaticMessageRouter>());
         }
 
         static void ConfigureMessageRegistry(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)
