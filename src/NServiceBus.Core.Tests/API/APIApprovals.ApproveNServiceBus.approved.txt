@@ -2041,6 +2041,8 @@ namespace NServiceBus.Saga
         public string Name { get; }
         public System.Type SagaEntityType { get; }
         public System.Type SagaType { get; }
+        public static NServiceBus.Saga.SagaMetadata Create(System.Type sagaType) { }
+        public static NServiceBus.Saga.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
         public bool IsMessageAllowedToStartTheSaga(string messageType) { }
         public bool TryGetFinder(string messageType, out NServiceBus.Saga.SagaFinderDefinition finderDefinition) { }
     }
@@ -2050,7 +2052,8 @@ namespace NServiceBus.Saga
         public NServiceBus.Saga.SagaMetadata FindByEntityName(string name) { }
         public NServiceBus.Saga.SagaMetadata FindByName(string name) { }
         public System.Collections.Generic.IEnumerator<NServiceBus.Saga.SagaMetadata> GetEnumerator() { }
-        public void Initialize(System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMetadata> foundSagas) { }
+        public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes) { }
+        public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
     }
     public class SagaPropertyMapper<TSagaData>
         where TSagaData : NServiceBus.Saga.IContainSagaData

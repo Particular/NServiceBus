@@ -43,11 +43,8 @@
             context.Pipeline.Register<InvokeSagaNotFoundBehavior.Registration>();
             context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", typeof(AttachSagaDetailsToOutGoingMessageBehavior), "Makes sure that outgoing messages have saga info attached to them");
 
-
-            var typeBasedSagas = TypeBasedSagaMetaModel.Create(context.Settings.GetAvailableTypes(), conventions);
-
             var sagaMetaModel = context.Settings.Get<SagaMetaModel>();
-            sagaMetaModel.Initialize(typeBasedSagas);
+            sagaMetaModel.Initialize(context.Settings.GetAvailableTypes(), conventions);
 
             RegisterCustomFindersInContainer(context.Container, sagaMetaModel);
 

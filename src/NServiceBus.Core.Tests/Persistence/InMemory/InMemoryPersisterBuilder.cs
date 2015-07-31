@@ -17,7 +17,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         {
             var inMemorySagaPersister = new InMemorySagaPersister();
             var sagaMetaModel = new SagaMetaModel();
-            sagaMetaModel.Initialize(TypeBasedSagaMetaModel.Create(sagaTypes, new Conventions()));
+            sagaMetaModel.Initialize(sagaTypes, new Conventions());
             inMemorySagaPersister.Initialize(sagaMetaModel);
             return inMemorySagaPersister;
         }
