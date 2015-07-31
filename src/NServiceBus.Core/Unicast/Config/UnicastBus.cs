@@ -5,16 +5,11 @@ namespace NServiceBus.Features
     using System.Linq;
     using NServiceBus.Config;
     using NServiceBus.Logging;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
-    using NServiceBus.Settings;
     using NServiceBus.Settings.Concurrency;
     using NServiceBus.Settings.Throttling;
-    using NServiceBus.Transports;
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Messages;
-    using NServiceBus.Unicast.Routing;
     using TransactionSettings = NServiceBus.Unicast.Transport.TransactionSettings;
 
     class UnicastBus : Feature
@@ -63,9 +58,7 @@ namespace NServiceBus.Features
             context.Container.ConfigureComponent(b => b.Build<BehaviorContextStacker>().GetCurrentOrRootContext(), DependencyLifecycle.InstancePerCall);
 
             //Hack because we can't register as IStartableBus because it would automatically register as IBus and overrode the proper IBus registration.
-            context.Container.ConfigureComponent<IRealBus>(CreateBus, DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => (IStartableBus)b.Build<IRealBus>(), DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => (IBus)b.Build<IRealBus>(), DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent<UnicastBusInternal>(DependencyLifecycle.SingleInstance);
 
             var knownMessages = context.Settings.GetAvailableTypes()
                 .Where(context.Settings.Get<Conventions>().IsMessageType)
@@ -77,8 +70,6 @@ namespace NServiceBus.Features
             {
                 return;
             }
-
-
 
             HardcodedPipelineSteps.RegisterIncomingCoreBehaviors(context.Pipeline);
 
@@ -94,23 +85,7 @@ namespace NServiceBus.Features
             }
         }
 
-        Unicast.UnicastBus CreateBus(IBuilder builder)
-        {
-            return new Unicast.UnicastBus(
-                builder.Build<BehaviorContextStacker>(), 
-                builder.Build<IExecutor>(),
-                builder.Build<CriticalError>(),
-                builder.Build<IMessageMapper>(),
-                builder,
-                builder.Build<Configure>(),
-                builder.Build<IManageSubscriptions>(),
-                builder.Build<ReadOnlySettings>(),
-                builder.Build<TransportDefinition>(),
-                builder.Build<IDispatchMessages>(),
-                builder.Build<StaticMessageRouter>());
-        }
-
-        void ConfigureMessageRegistry(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)
+        static void ConfigureMessageRegistry(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)
         {
             var messageRegistry = new MessageMetadataRegistry(context.Settings.Get<Conventions>());
 

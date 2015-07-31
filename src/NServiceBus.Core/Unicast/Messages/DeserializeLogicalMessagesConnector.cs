@@ -5,21 +5,17 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using Logging;
+    using NServiceBus.Logging;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Scheduling.Messages;
+    using NServiceBus.Serialization;
     using NServiceBus.Unicast.Messages;
     using NServiceBus.Unicast.Transport;
-    using Pipeline;
-    using Pipeline.Contexts;
-    using Scheduling.Messages;
-    using Serialization;
-    using Unicast;
-
 
     class DeserializeLogicalMessagesConnector : StageConnector<PhysicalMessageProcessingStageBehavior.Context, LogicalMessagesProcessingStageBehavior.Context>
     {
         public IMessageSerializer MessageSerializer { get; set; }
-    
-        public UnicastBus UnicastBus { get; set; }
 
         public LogicalMessageFactory LogicalMessageFactory { get; set; }
 

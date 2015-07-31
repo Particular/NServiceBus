@@ -1694,16 +1694,6 @@ namespace NServiceBus.Pipeline
         protected BehaviorContext(NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
     }
-    public class BehaviorContextStacker : System.IDisposable
-    {
-        public BehaviorContextStacker(NServiceBus.ObjectBuilder.IBuilder rootBuilder) { }
-        public NServiceBus.Pipeline.BehaviorContext Current { get; }
-        public NServiceBus.Pipeline.BehaviorContext Root { get; }
-        public void Dispose() { }
-        public NServiceBus.Pipeline.BehaviorContext GetCurrentOrRootContext() { }
-        public void Pop() { }
-        public void Push(NServiceBus.Pipeline.BehaviorContext item) { }
-    }
     public interface IBehavior
     {
         System.Threading.Tasks.Task Cooldown();
@@ -2587,13 +2577,21 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("Please use `DelayDeliveryFor` instead. Will be removed in version 7.0.0.", true)]
         public System.Nullable<System.TimeSpan> DelayDeliveryWith { get; set; }
     }
-    public class UnicastBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, NServiceBus.Unicast.IRealBus, System.IDisposable
+    [System.ObsoleteAttribute("UnicastBus has been made internal. Use either IBus or ISendOnlyBus. Will be remov" +
+        "ed in version 7.0.0.", true)]
+    public class UnicastBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, NServiceBus.IStartableBus, System.IDisposable
     {
+        [System.ObsoleteAttribute("Builder should be accessed inside feature, the pipeline and start/stop infrastruc" +
+            "ture only. Will be removed in version 7.0.0.", true)]
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
+        [System.ObsoleteAttribute("Please use `IBus.CurrentMessageContext` instead. Will be removed in version 7.0.0" +
+            ".", true)]
         public NServiceBus.IMessageContext CurrentMessageContext { get; }
         [System.ObsoleteAttribute("We have introduced a more explicit API to set the host identifier, see busConfigu" +
             "ration.UniquelyIdentifyRunningInstance(). Will be removed in version 7.0.0.", true)]
         public NServiceBus.Hosting.HostInformation HostInformation { get; set; }
+        [System.ObsoleteAttribute("ReadOnlySettings should be accessed inside feature, the pipeline and start/stop i" +
+            "nfrastructure only. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
         [System.ObsoleteAttribute("Please use `SendLocal(object message, SendLocalOptions options)` instead. Will be" +
             " removed in version 7.0.0.", true)]
@@ -2601,18 +2599,31 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("Please use `SendLocal(object message, SendLocalOptions options)` instead. Will be" +
             " removed in version 7.0.0.", true)]
         public NServiceBus.ICallback Defer(System.DateTime processAt, object message) { }
+        [System.ObsoleteAttribute("Please use `IBus.Dispose()` instead. Will be removed in version 7.0.0.", true)]
         public void Dispose() { }
+        [System.ObsoleteAttribute("Please use `IBus.DoNotContinueDispatchingCurrentMessageToHandlers()` instead. Wil" +
+            "l be removed in version 7.0.0.", true)]
         public void DoNotContinueDispatchingCurrentMessageToHandlers() { }
+        [System.ObsoleteAttribute("Please use `IBus.ForwardCurrentMessageTo(string destination)` instead. Will be re" +
+            "moved in version 7.0.0.", true)]
         public void ForwardCurrentMessageTo(string destination) { }
+        [System.ObsoleteAttribute("Please use `IBus.HandleCurrentMessageLater()` instead. Will be removed in version" +
+            " 7.0.0.", true)]
         public void HandleCurrentMessageLater() { }
+        [System.ObsoleteAttribute("Please use `ISendOnlyBus.Publish(object message, PublishOptions options)` instead" +
+            ". Will be removed in version 7.0.0.", true)]
         public void Publish(object message, NServiceBus.PublishOptions options) { }
-        public void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions options) { }
+        [System.ObsoleteAttribute("Please use `ISendOnlyBus.Publish<T>(Action<T> messageConstructor, PublishOptions " +
+            "options)` instead. Will be removed in version 7.0.0.", true)]
+        public void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions) { }
+        [System.ObsoleteAttribute("Please use `IBus.Reply<T>(object message, ReplyOptions options)` instead. Will be" +
+            " removed in version 7.0.0.", true)]
         public void Reply(object message, NServiceBus.ReplyOptions options) { }
+        [System.ObsoleteAttribute("Please use `IBus.Reply<T>(Action<T> messageConstructor, ReplyOptions options)` in" +
+            "stead. Will be removed in version 7.0.0.", true)]
         public void Reply<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options) { }
         [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
         public void Return<T>(T errorEnum) { }
-        public void Send(object message, NServiceBus.SendOptions options) { }
-        public void Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
         [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
             "n version 7.0.0.", true)]
         public NServiceBus.ICallback Send(NServiceBus.Address address, object message) { }
@@ -2631,10 +2642,23 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor, SendOptions options)` instead. " +
             "Will be removed in version 7.0.0.", true)]
         public NServiceBus.ICallback Send<T>(NServiceBus.Address address, string correlationId, System.Action<T> messageConstructor) { }
+        [System.ObsoleteAttribute("Please use `ISendOnlyBus.Send(object message, SendOptions options)` instead. Will" +
+            " be removed in version 7.0.0.", true)]
+        public void Send(object message, NServiceBus.SendOptions options) { }
+        [System.ObsoleteAttribute("Please use `ISendOnlyBus.Send<T>(Action<T> messageConstructor, SendOptions option" +
+            "s)` instead. Will be removed in version 7.0.0.", true)]
+        public void Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
+        [System.ObsoleteAttribute("Please use `IStartableBus.Start()` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.IBus Start() { }
+        [System.ObsoleteAttribute("Please use `IBus.Subscribe(Type messageType)` instead. Will be removed in version" +
+            " 7.0.0.", true)]
         public void Subscribe(System.Type messageType) { }
+        [System.ObsoleteAttribute("Please use `IBus.Subscribe<T>()` instead. Will be removed in version 7.0.0.", true)]
         public void Subscribe<T>() { }
+        [System.ObsoleteAttribute("Please use `IBus.Unsubscribe(Type messageType)` instead. Will be removed in versi" +
+            "on 7.0.0.", true)]
         public void Unsubscribe(System.Type messageType) { }
+        [System.ObsoleteAttribute("Please use `IBus.Unsubscribe<T>()` instead. Will be removed in version 7.0.0.", true)]
         public void Unsubscribe<T>() { }
     }
 }

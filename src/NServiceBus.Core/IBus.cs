@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// Defines a bus to be used with NServiceBus.
     /// </summary>
-    public interface IBus : ISendOnlyBus
+    public partial interface IBus : ISendOnlyBus
     {
         /// <summary>
         /// Subscribes to receive published messages of the specified type.
@@ -47,29 +47,6 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">Options for this reply.</param>
         void Reply<T>(Action<T> messageConstructor, ReplyOptions options);
-
-        /// <summary>
-        /// Returns a completion message with the specified error code to the sender
-        /// of the message being handled. The type T can only be an enum or an integer.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Replaced by NServiceBus.Callbacks package")]
-        void Return<T>(T errorEnum);
-
-        /// <summary>
-        /// Defers the processing of the message for the given delay. This feature is using the timeout manager so make sure that you enable timeouts.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
-        // ReSharper disable UnusedParameter.Global
-        ICallback Defer(TimeSpan delay, object message);
-        // ReSharper restore UnusedParameter.Global
-
-        /// <summary>
-        /// Defers the processing of the message until the specified time. This feature is using the timeout manager so make sure that you enable timeouts.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
-        // ReSharper disable UnusedParameter.Global
-        ICallback Defer(DateTime processAt, object message);
-        // ReSharper restore UnusedParameter.Global
 
         /// <summary>
         /// Moves the message being handled to the back of the list of available 

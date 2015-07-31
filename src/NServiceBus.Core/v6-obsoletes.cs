@@ -137,6 +137,102 @@ namespace NServiceBus
             throw new NotImplementedException();
         }
     }
+
+    public partial interface IBus
+    {
+        /// <summary>
+        /// Returns a completion message with the specified error code to the sender
+        /// of the message being handled. The type T can only be an enum or an integer.
+        /// </summary>
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Replaced by NServiceBus.Callbacks package")]
+        void Return<T>(T errorEnum);
+
+        /// <summary>
+        /// Defers the processing of the message for the given delay. This feature is using the timeout manager so make sure that you enable timeouts.
+        /// </summary>
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+        // ReSharper disable UnusedParameter.Global
+        ICallback Defer(TimeSpan delay, object message);
+        // ReSharper restore UnusedParameter.Global
+
+        /// <summary>
+        /// Defers the processing of the message until the specified time. This feature is using the timeout manager so make sure that you enable timeouts.
+        /// </summary>
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+        // ReSharper disable UnusedParameter.Global
+        ICallback Defer(DateTime processAt, object message);
+        // ReSharper restore UnusedParameter.Global
+    }
+
+    public partial interface ISendOnlyBus
+    {
+        /// <summary>
+        /// Sends the provided message.
+        /// </summary>
+        /// <param name="address">
+        /// The address to which the message will be sent.
+        /// </param>
+        /// <param name="message">The message to send.</param>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Send(object message, SendOptions options)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        ICallback Send(Address address, object message);
+
+        /// <summary>
+        /// Instantiates a message of type T and sends it to the given address.
+        /// </summary>
+        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+        /// <param name="address">The address to which the message will be sent.</param>
+        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        ICallback Send<T>(Address address, Action<T> messageConstructor);
+
+        /// <summary>
+        /// Sends the message to the destination as well as identifying this
+        /// as a response to a message containing the Id found in correlationId.
+        /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Send(object message, SendOptions options)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        ICallback Send(string destination, string correlationId, object message);
+
+        /// <summary>
+        /// Sends the message to the given address as well as identifying this
+        /// as a response to a message containing the Id found in correlationId.
+        /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Send(object message, SendOptions options)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        ICallback Send(Address address, string correlationId, object message);
+
+        /// <summary>
+        /// Instantiates a message of the type T using the given messageConstructor,
+        /// and sends it to the destination identifying it as a response to a message
+        /// containing the Id found in correlationId.
+        /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor);
+
+        /// <summary>
+        /// Instantiates a message of the type T using the given messageConstructor,
+        /// and sends it to the given address identifying it as a response to a message
+        /// containing the Id found in correlationId.
+        /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor);
+    }
 }
 
 
@@ -279,6 +375,9 @@ namespace NServiceBus.MessageMutator
 namespace NServiceBus.Unicast
 {
     using System;
+    using NServiceBus.Hosting;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Settings;
 
     partial class ContextualBus
     {
@@ -364,15 +463,41 @@ namespace NServiceBus.Unicast
         }
     }
 
-    public partial class UnicastBus
+    [ObsoleteEx(Message = "UnicastBus has been made internal. Use either IBus or ISendOnlyBus.", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
+    public class UnicastBus : IStartableBus
     {
-        /// <summary>
-        /// Sends the provided message.
-        /// </summary>
-        /// <param name="address">
-        /// The address to which the message will be sent.
-        /// </param>
-        /// <param name="message">The message to send.</param>
+        UnicastBus()
+        {
+        }
+
+        [ObsoleteEx(Message = "We have introduced a more explicit API to set the host identifier, see busConfiguration.UniquelyIdentifyRunningInstance()", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
+        public HostInformation HostInformation
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(Message = "ReadOnlySettings should be accessed inside feature, the pipeline and start/stop infrastructure only.", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
+        public ReadOnlySettings Settings
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(Message = "Builder should be accessed inside feature, the pipeline and start/stop infrastructure only.", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
+        public IBuilder Builder
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IBus.CurrentMessageContext",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public IMessageContext CurrentMessageContext
+        {
+            get {  throw new NotImplementedException(); } 
+        }
+
         [ObsoleteEx(
             ReplacementTypeOrMember = "Send(object message, SendOptions options)",
             RemoveInVersion = "7.0",
@@ -382,12 +507,6 @@ namespace NServiceBus.Unicast
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Instantiates a message of type T and sends it to the given address.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="address">The address to which the message will be sent.</param>
-        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         [ObsoleteEx(
             ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
             RemoveInVersion = "7.0",
@@ -397,10 +516,6 @@ namespace NServiceBus.Unicast
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Sends the message to the destination as well as identifying this
-        /// as a response to a message containing the Id found in correlationId.
-        /// </summary>
         [ObsoleteEx(
             ReplacementTypeOrMember = "Send(object message, SendOptions options)",
             RemoveInVersion = "7.0",
@@ -410,11 +525,7 @@ namespace NServiceBus.Unicast
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Sends the message to the given address as well as identifying this
-        /// as a response to a message containing the Id found in correlationId.
-        /// </summary>
-        [ObsoleteEx(
+         [ObsoleteEx(
             ReplacementTypeOrMember = "Send(object message, SendOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
@@ -423,11 +534,6 @@ namespace NServiceBus.Unicast
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Instantiates a message of the type T using the given messageConstructor,
-        /// and sends it to the destination identifying it as a response to a message
-        /// containing the Id found in correlationId.
-        /// </summary>
         [ObsoleteEx(
             ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
             RemoveInVersion = "7.0",
@@ -437,16 +543,47 @@ namespace NServiceBus.Unicast
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Instantiates a message of the type T using the given messageConstructor,
-        /// and sends it to the given address identifying it as a response to a message
-        /// containing the Id found in correlationId.
-        /// </summary>
         [ObsoleteEx(
             ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "ISendOnlyBus.Publish(object message, PublishOptions options)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void Publish(object message, NServiceBus.PublishOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "ISendOnlyBus.Publish<T>(Action<T> messageConstructor, PublishOptions options)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void Publish<T>(Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "ISendOnlyBus.Send(object message, SendOptions options)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void Send(object message, NServiceBus.SendOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "ISendOnlyBus.Send<T>(Action<T> messageConstructor, SendOptions options)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
         {
             throw new NotImplementedException();
         }
@@ -463,14 +600,111 @@ namespace NServiceBus.Unicast
             throw new NotImplementedException();
         }
 
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IBus.Subscribe(Type messageType)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void Subscribe(Type messageType)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IBus.Subscribe<T>()",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void Subscribe<T>()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IBus.Unsubscribe(Type messageType)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void Unsubscribe(Type messageType)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IBus.Unsubscribe<T>()",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void Unsubscribe<T>()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IBus.Reply<T>(object message, ReplyOptions options)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void Reply(object message, NServiceBus.ReplyOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IBus.Reply<T>(Action<T> messageConstructor, ReplyOptions options)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void Reply<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IBus.HandleCurrentMessageLater()",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void HandleCurrentMessageLater()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IBus.ForwardCurrentMessageTo(string destination)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void ForwardCurrentMessageTo(string destination)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IBus.DoNotContinueDispatchingCurrentMessageToHandlers()",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void DoNotContinueDispatchingCurrentMessageToHandlers()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IStartableBus.Start()",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public IBus Start()
+        {
+            throw new NotImplementedException();
+        }
+
         [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Replaced by NServiceBus.Callbacks package")]
         public void Return<T>(T errorEnum)
         {
             throw new NotImplementedException();
         }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IBus.Dispose()",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
-
-
 }
 
 

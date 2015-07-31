@@ -1,10 +1,9 @@
-﻿using System;
-
-namespace NServiceBus.Unicast
+﻿namespace NServiceBus.Unicast
 {
-    public partial class UnicastBus
-    {
+    using System;
 
+    partial class UnicastBusInternal
+    {
         /// <inheritdoc />
         public void Publish(object message, NServiceBus.PublishOptions options)
         {

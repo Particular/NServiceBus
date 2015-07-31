@@ -8,7 +8,6 @@ namespace NServiceBus.Unicast
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Features;
-    using NServiceBus.Hosting;
     using NServiceBus.Licensing;
     using NServiceBus.Logging;
     using NServiceBus.MessageInterfaces;
@@ -23,12 +22,12 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public partial class UnicastBus : IStartableBus, IRealBus
+    partial class UnicastBusInternal : IStartableBus
     {
         /// <summary>
         /// Initializes a new instance of <see cref="UnicastBus"/>.
         /// </summary>
-        internal UnicastBus(
+        public UnicastBusInternal(
             BehaviorContextStacker contextStacker,
             IExecutor executor,
             CriticalError criticalError,
@@ -43,8 +42,8 @@ namespace NServiceBus.Unicast
         {
             this.executor = executor;
             this.criticalError = criticalError;
-            Settings = settings;
-            Builder = builder;
+            this.settings = settings;
+            this.builder = builder;
 
             busImpl = new ContextualBus( 
                 contextStacker,
@@ -56,17 +55,6 @@ namespace NServiceBus.Unicast
                 transportDefinition,
                 messageSender,
                 messageRouter);
-        }
-
-        /// <summary>
-        /// Provides access to the current host information.
-        /// </summary>
-        [ObsoleteEx(Message = "We have introduced a more explicit API to set the host identifier, see busConfiguration.UniquelyIdentifyRunningInstance()", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
-        public HostInformation HostInformation
-        {
-            // we should be making the getter and setter throw a NotImplementedException
-            // but some containers try to inject on public properties
-            get; set;
         }
 
         /// <summary>
@@ -99,7 +87,7 @@ namespace NServiceBus.Unicast
             }
 
             ProcessStartupItems(
-                Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList(),
+                builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList(),
                 toRun =>
                 {
                     toRun.Start();
@@ -114,9 +102,9 @@ namespace NServiceBus.Unicast
 
         IEnumerable<TransportReceiver> BuildPipelines()
         {
-            var pipelinesCollection = Settings.Get<PipelineConfiguration>();
+            var pipelinesCollection = settings.Get<PipelineConfiguration>();
 
-            yield return BuildPipelineInstance(pipelinesCollection.MainPipeline, pipelinesCollection.ReceiveBehavior, "Main", Settings.LocalAddress());
+            yield return BuildPipelineInstance(pipelinesCollection.MainPipeline, pipelinesCollection.ReceiveBehavior, "Main", settings.LocalAddress());
 
             foreach (var satellite in pipelinesCollection.SatellitePipelines)
             {
@@ -126,13 +114,13 @@ namespace NServiceBus.Unicast
 
         TransportReceiver BuildPipelineInstance(PipelineModifications modifications, RegisterStep receiveBehavior, string name, string address)
         {
-            var dequeueSettings = new DequeueSettings(address, Settings.GetOrDefault<bool>("Transport.PurgeOnStartup"));
+            var dequeueSettings = new DequeueSettings(address, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"));
 
-            var pipelineInstance = new PipelineBase<IncomingContext>(Builder, Settings, modifications, receiveBehavior);
+            var pipelineInstance = new PipelineBase<IncomingContext>(builder, settings, modifications, receiveBehavior);
             var receiver = new TransportReceiver(
                 name,
-                Builder,
-                Builder.Build<IDequeueMessages>(),
+                builder,
+                builder.Build<IDequeueMessages>(),
                 dequeueSettings,
                 pipelineInstance,
                 executor);
@@ -176,7 +164,7 @@ namespace NServiceBus.Unicast
         {
             InnerShutdown();
             busImpl.Dispose();
-            Builder.Dispose();
+            builder.Dispose();
         }
 
         void InnerShutdown()
@@ -202,7 +190,7 @@ namespace NServiceBus.Unicast
         {
             // Pull the feature  runner singleton out of the container
             // features are always stopped
-            var featureRunner = Builder.Build<FeatureRunner>();
+            var featureRunner = builder.Build<FeatureRunner>();
             featureRunner.Stop();
         }
 
@@ -220,6 +208,9 @@ namespace NServiceBus.Unicast
         ContextualBus busImpl;
         IExecutor executor;
         CriticalError criticalError;
+        ReadOnlySettings settings;
+        IBuilder builder;
+
 
         static void ProcessStartupItems<T>(IEnumerable<T> items, Action<T> iteration, Action<Exception> inCaseOfFault, EventWaitHandle eventToSet)
         {
@@ -236,16 +227,5 @@ namespace NServiceBus.Unicast
                 inCaseOfFault(task.Exception);
             }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.LongRunning);
         }
-
-
-        /// <summary>
-        /// Only for tests.
-        /// </summary>
-        public ReadOnlySettings Settings { get; private set; }
-
-        /// <summary>
-        /// Only for tests.
-        /// </summary>
-        public IBuilder Builder { get; private set; }
     }
 }
