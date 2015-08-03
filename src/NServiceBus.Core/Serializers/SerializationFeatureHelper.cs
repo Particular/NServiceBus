@@ -12,6 +12,7 @@
         {
             Guard.AgainstNull("serializationFeature", serializationFeature);
             Guard.AgainstNull("context", context);
+
             var serializationDefinition = context.Settings.GetSelectedSerializer();
             return serializationDefinition.ProvidedByFeature() == serializationFeature.GetType();
         }
