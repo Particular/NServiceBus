@@ -23,8 +23,9 @@ namespace NServiceBus.InMemory.SagaPersister
             data.TryRemove(saga.Id, out value);
         }
 
-        public void Initialize(SagaMetaModel model)
+        public void Initialize(SagaMetadataCollection allSagas)
         {
+            // No special setup required for in-memory persistence
         }
 
         public TSagaData Get<TSagaData>(SagaMetadata metadata, string propertyName, object propertyValue) where TSagaData : IContainSagaData

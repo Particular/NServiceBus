@@ -19,14 +19,14 @@
 
         public MessageHandlerRegistry MessageHandlerRegistry { get; private set; }
 
-        public SagaMetaModel SagaMetaModel { get; private set; }
+        public SagaMetadataCollection SagaMetadataCollection { get; private set; }
 
-        public SagaPersistenceBehavior(ISagaPersister persister, ICancelDeferredMessages timeoutCancellation, MessageHandlerRegistry handlerRegistry, SagaMetaModel sagaMetaModel)
+        public SagaPersistenceBehavior(ISagaPersister persister, ICancelDeferredMessages timeoutCancellation, MessageHandlerRegistry handlerRegistry, SagaMetadataCollection sagaMetadataCollection)
         {
             this.SagaPersister = persister;
             this.TimeoutCancellation = timeoutCancellation;
             this.MessageHandlerRegistry = handlerRegistry;
-            this.SagaMetaModel = sagaMetaModel;
+            this.SagaMetadataCollection = sagaMetadataCollection;
         }
 
         public override void Invoke(Context context, Action next)
@@ -43,7 +43,7 @@
                 return;
             }
 
-            var sagaMetadata = SagaMetaModel.Find(context.MessageHandler.Instance.GetType());
+            var sagaMetadata = SagaMetadataCollection.Find(context.MessageHandler.Instance.GetType());
             var sagaInstanceState = new ActiveSagaInstance(saga, sagaMetadata);
 
             //so that other behaviors can access the saga

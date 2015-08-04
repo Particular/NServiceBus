@@ -8,7 +8,7 @@ namespace NServiceBus.Saga
     /// <summary>
     /// Sagas metamodel.
     /// </summary>
-    public class SagaMetaModel : IEnumerable<SagaMetadata>
+    public class SagaMetadataCollection : IEnumerable<SagaMetadata>
     {
         /// <summary>
         /// Populates the model with saga metadata from the provided collection of types.

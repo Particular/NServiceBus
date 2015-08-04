@@ -26,7 +26,7 @@
                 }
             });
 
-            Defaults(s => s.Set<SagaMetaModel>(new SagaMetaModel()));
+            Defaults(s => s.Set<SagaMetadataCollection>(new SagaMetadataCollection()));
 
             Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas was found in scanned types");
 
@@ -43,7 +43,7 @@
             context.Pipeline.Register<InvokeSagaNotFoundBehavior.Registration>();
             context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", typeof(AttachSagaDetailsToOutGoingMessageBehavior), "Makes sure that outgoing messages have saga info attached to them");
 
-            var sagaMetaModel = context.Settings.Get<SagaMetaModel>();
+            var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
             sagaMetaModel.Initialize(context.Settings.GetAvailableTypes(), conventions);
 
             RegisterCustomFindersInContainer(context.Container, sagaMetaModel);
@@ -102,9 +102,9 @@
         class CallISagaPersisterInitializeMethod : FeatureStartupTask
         {
             ISagaPersister persister;
-            SagaMetaModel model;
+            SagaMetadataCollection model;
 
-            public CallISagaPersisterInitializeMethod(ISagaPersister persister, SagaMetaModel model)
+            public CallISagaPersisterInitializeMethod(ISagaPersister persister, SagaMetadataCollection model)
             {
                 this.persister = persister;
                 this.model = model;

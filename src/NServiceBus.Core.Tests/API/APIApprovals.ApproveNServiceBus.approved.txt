@@ -1976,7 +1976,7 @@ namespace NServiceBus.Saga
             where TSagaData : NServiceBus.Saga.IContainSagaData;
         TSagaData Get<TSagaData>(NServiceBus.Saga.SagaMetadata metadata, string propertyName, object propertyValue)
             where TSagaData : NServiceBus.Saga.IContainSagaData;
-        void Initialize(NServiceBus.Saga.SagaMetaModel model);
+        void Initialize(NServiceBus.Saga.SagaMetadataCollection allSagas);
         void Save(NServiceBus.Saga.SagaMetadata metadata, NServiceBus.Saga.IContainSagaData saga);
         void Update(NServiceBus.Saga.SagaMetadata metadata, NServiceBus.Saga.IContainSagaData saga);
     }
@@ -2046,9 +2046,9 @@ namespace NServiceBus.Saga
         public bool IsMessageAllowedToStartTheSaga(string messageType) { }
         public bool TryGetFinder(string messageType, out NServiceBus.Saga.SagaFinderDefinition finderDefinition) { }
     }
-    public class SagaMetaModel : System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMetadata>, System.Collections.IEnumerable
+    public class SagaMetadataCollection : System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMetadata>, System.Collections.IEnumerable
     {
-        public SagaMetaModel() { }
+        public SagaMetadataCollection() { }
         public NServiceBus.Saga.SagaMetadata Find(System.Type sagaType) { }
         public NServiceBus.Saga.SagaMetadata FindByEntity(System.Type entityType) { }
         public System.Collections.Generic.IEnumerator<NServiceBus.Saga.SagaMetadata> GetEnumerator() { }

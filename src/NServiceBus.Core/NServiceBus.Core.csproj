@@ -367,7 +367,7 @@
     <Compile Include="Sagas\SagaFinderDefinition.cs" />
     <Compile Include="Sagas\SagaMessage.cs" />
     <Compile Include="Sagas\SagaMetadata.cs" />
-    <Compile Include="Sagas\SagaMetaModel.cs" />
+    <Compile Include="Sagas\SagaMetadataCollection.cs" />
     <Compile Include="Sagas\SagaToMessageMap.cs" />
     <Compile Include="Pipeline\PipelineNotifications.cs" />
     <Compile Include="Pipeline\StepStarted.cs" />

@@ -10,9 +10,9 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
     public class SagaModelTests
     {
 
-        SagaMetaModel GetModel(params Type[] types)
+        SagaMetadataCollection GetModel(params Type[] types)
         {
-            var sagaMetaModel = new SagaMetaModel();
+            var sagaMetaModel = new SagaMetadataCollection();
             sagaMetaModel.Initialize(types.ToList(), new Conventions());
             return sagaMetaModel;
         }

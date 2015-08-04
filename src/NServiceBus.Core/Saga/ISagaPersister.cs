@@ -48,8 +48,8 @@ namespace NServiceBus.Saga
         /// <summary>
         /// Implementers can initialize the persistence with the given meta model.
         /// </summary>
-        /// <param name="model">The sagas meta model.</param>
-        void Initialize(SagaMetaModel model);
+        /// <param name="allSagas">Metadata for all saga types found.</param>
+        void Initialize(SagaMetadataCollection allSagas);
     }
 
 }
