@@ -185,10 +185,41 @@ namespace MessageMapperTests
         {
             return obj.GetType().GetProperty(propertyName).GetCustomAttributes(attributeType,true).Length > 0;
         }
+
+        [Test]
+        public void Should_map_when_deriving_from_another_interface_with_the_same_property_name_but_different_type()
+        {
+            var mapper = new MessageMapper();
+            var genericInterfaceType = typeof(InterfaceWithGenericProperty<IBar>);
+            mapper.Initialize(new[] { genericInterfaceType });
+            Assert.NotNull(mapper.GetMappedTypeFor(genericInterfaceType));
+        }
+
+        public interface InterfaceWithGenericProperty
+        {
+            object Original { get; set; }
+        }
+
+        public interface InterfaceWithGenericProperty<T> : InterfaceWithGenericProperty
+        {
+            new T Original { get; set; }
+        }
+
+        public interface IBar
+        {
+            string Yeah { get; set; }
+        }
+
+        public class FancyMessage : InterfaceWithGenericProperty<IBar>
+        {
+            public IBar Original { get; set; }
+
+            object InterfaceWithGenericProperty.Original
+            {
+                get { return Original; }
+                set { Original = (IBar)value; }
+            }
+        }
     }
-
-
-
-
-    
+ 
 }
