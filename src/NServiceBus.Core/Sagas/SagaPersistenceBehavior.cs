@@ -13,13 +13,21 @@
 
     class SagaPersistenceBehavior : HandlingStageBehavior
     {
-        public ISagaPersister SagaPersister { get; set; }
+        public ISagaPersister SagaPersister { get; private set; }
 
-        public ICancelDeferredMessages TimeoutCancellation { get; set; }
+        public ICancelDeferredMessages TimeoutCancellation { get; private set; }
 
-        public MessageHandlerRegistry MessageHandlerRegistry { get; set; }
+        public MessageHandlerRegistry MessageHandlerRegistry { get; private set; }
 
-        public SagaMetaModel SagaMetaModel { get; set; }
+        public SagaMetaModel SagaMetaModel { get; private set; }
+
+        public SagaPersistenceBehavior(ISagaPersister persister, ICancelDeferredMessages timeoutCancellation, MessageHandlerRegistry handlerRegistry, SagaMetaModel sagaMetaModel)
+        {
+            this.SagaPersister = persister;
+            this.TimeoutCancellation = timeoutCancellation;
+            this.MessageHandlerRegistry = handlerRegistry;
+            this.SagaMetaModel = sagaMetaModel;
+        }
 
         public override void Invoke(Context context, Action next)
         {
@@ -90,7 +98,7 @@
             {
                 if (!sagaInstanceState.IsNew)
                 {
-                    SagaPersister.Complete(saga.Entity);
+                    SagaPersister.Complete(sagaMetadata, saga.Entity);
                 }
 
                 if (saga.Entity.Id != Guid.Empty)
@@ -104,11 +112,11 @@
             {
                 if (sagaInstanceState.IsNew)
                 {
-                    SagaPersister.Save(saga.Entity);
+                    SagaPersister.Save(sagaMetadata, saga.Entity);
                 }
                 else
                 {
-                    SagaPersister.Update(saga.Entity);
+                    SagaPersister.Update(sagaMetadata, saga.Entity);
                 }
             }
         }
@@ -213,7 +221,7 @@
 
                 var loader = (SagaLoader)Activator.CreateInstance(loaderType);
 
-                return loader.Load(SagaPersister, sagaId);
+                return loader.Load(SagaPersister, metadata, sagaId);
             }
 
             SagaFinderDefinition finderDefinition = null;
