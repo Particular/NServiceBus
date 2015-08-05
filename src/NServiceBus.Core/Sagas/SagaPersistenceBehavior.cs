@@ -13,20 +13,17 @@
 
     class SagaPersistenceBehavior : HandlingStageBehavior
     {
-        public ISagaPersister SagaPersister { get; private set; }
-
-        public ICancelDeferredMessages TimeoutCancellation { get; private set; }
-
-        public MessageHandlerRegistry MessageHandlerRegistry { get; private set; }
-
-        public SagaMetadataCollection SagaMetadataCollection { get; private set; }
+        ISagaPersister sagaPersister;
+        ICancelDeferredMessages timeoutCancellation;
+        MessageHandlerRegistry messageHandlerRegistry;
+        SagaMetadataCollection sagaMetadataCollection;
 
         public SagaPersistenceBehavior(ISagaPersister persister, ICancelDeferredMessages timeoutCancellation, MessageHandlerRegistry handlerRegistry, SagaMetadataCollection sagaMetadataCollection)
         {
-            this.SagaPersister = persister;
-            this.TimeoutCancellation = timeoutCancellation;
-            this.MessageHandlerRegistry = handlerRegistry;
-            this.SagaMetadataCollection = sagaMetadataCollection;
+            sagaPersister = persister;
+            this.timeoutCancellation = timeoutCancellation;
+            messageHandlerRegistry = handlerRegistry;
+            this.sagaMetadataCollection = sagaMetadataCollection;
         }
 
         public override void Invoke(Context context, Action next)
@@ -43,7 +40,7 @@
                 return;
             }
 
-            var sagaMetadata = SagaMetadataCollection.Find(context.MessageHandler.Instance.GetType());
+            var sagaMetadata = sagaMetadataCollection.Find(context.MessageHandler.Instance.GetType());
             var sagaInstanceState = new ActiveSagaInstance(saga, sagaMetadata);
 
             //so that other behaviors can access the saga
@@ -83,7 +80,7 @@
 
             if (IsTimeoutMessage(context.Headers))
             {
-                context.MessageHandler.Invocation = MessageHandlerRegistry.InvokeTimeout;
+                context.MessageHandler.Invocation = messageHandlerRegistry.InvokeTimeout;
             }
 
             next();
@@ -98,12 +95,12 @@
             {
                 if (!sagaInstanceState.IsNew)
                 {
-                    SagaPersister.Complete(sagaMetadata, saga.Entity);
+                    sagaPersister.Complete(sagaMetadata, saga.Entity);
                 }
 
                 if (saga.Entity.Id != Guid.Empty)
                 {
-                    TimeoutCancellation.CancelDeferredMessages(saga.Entity.Id.ToString(),context);
+                    timeoutCancellation.CancelDeferredMessages(saga.Entity.Id.ToString(),context);
                 }
 
                 logger.DebugFormat("Saga: '{0}' with Id: '{1}' has completed.", sagaInstanceState.Metadata.Name, saga.Entity.Id);
@@ -112,11 +109,11 @@
             {
                 if (sagaInstanceState.IsNew)
                 {
-                    SagaPersister.Save(sagaMetadata, saga.Entity);
+                    sagaPersister.Save(sagaMetadata, saga.Entity);
                 }
                 else
                 {
-                    SagaPersister.Update(sagaMetadata, saga.Entity);
+                    sagaPersister.Update(sagaMetadata, saga.Entity);
                 }
             }
         }
@@ -221,7 +218,7 @@
 
                 var loader = (SagaLoader)Activator.CreateInstance(loaderType);
 
-                return loader.Load(SagaPersister, metadata, sagaId);
+                return loader.Load(sagaPersister, metadata, sagaId);
             }
 
             SagaFinderDefinition finderDefinition = null;
