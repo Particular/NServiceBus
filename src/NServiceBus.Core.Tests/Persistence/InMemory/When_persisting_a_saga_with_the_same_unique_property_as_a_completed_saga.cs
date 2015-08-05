@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
+    using NServiceBus.Saga;
     using NUnit.Framework;
 
     [TestFixture]
@@ -13,13 +14,14 @@
             var saga2 = new SagaWithUniquePropertyData { Id = Guid.NewGuid(), UniqueString = "whatever" };
 
             var persister = InMemoryPersisterBuilder.Build<SagaWithUniqueProperty>();
+            var metadata = SagaMetadata.Create(typeof(SagaWithUniqueProperty));
 
-            persister.Save(saga1);
-            persister.Complete(saga1);
-            persister.Save(saga2);
-            persister.Complete(saga2);
-            persister.Save(saga1);
-            persister.Complete(saga1);
+            persister.Save(metadata, saga1);
+            persister.Complete(metadata, saga1);
+            persister.Save(metadata, saga2);
+            persister.Complete(metadata, saga2);
+            persister.Save(metadata, saga1);
+            persister.Complete(metadata, saga1);
         }
     }
 }

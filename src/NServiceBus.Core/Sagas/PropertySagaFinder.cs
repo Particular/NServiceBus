@@ -9,10 +9,12 @@ namespace NServiceBus.Saga
     class PropertySagaFinder<TSagaData> : SagaFinder where TSagaData : IContainSagaData
     {
         ISagaPersister sagaPersister;
+        SagaMetadataCollection sagaMetadataCollection;
 
-        public PropertySagaFinder(ISagaPersister sagaPersister)
+        public PropertySagaFinder(ISagaPersister sagaPersister, SagaMetadataCollection sagaMetadataCollection)
         {
             this.sagaPersister = sagaPersister;
+            this.sagaMetadataCollection = sagaMetadataCollection;
         }
 
         internal override IContainSagaData Find(IBuilder builder,SagaFinderDefinition finderDefinition, object message)
@@ -21,13 +23,14 @@ namespace NServiceBus.Saga
             var propertyValue = propertyAccessor(message);
 
             var sagaPropertyName = (string)finderDefinition.Properties["saga-property-name"];
+            var sagaMetadata = sagaMetadataCollection.FindByEntity(typeof(TSagaData));
 
             if (sagaPropertyName.ToLower() == "id")
             {
-                return sagaPersister.Get<TSagaData>((Guid)propertyValue);
+                return sagaPersister.Get<TSagaData>(sagaMetadata, (Guid)propertyValue);
             }
 
-            return sagaPersister.Get<TSagaData>(sagaPropertyName, propertyValue);
+            return sagaPersister.Get<TSagaData>(sagaMetadata, sagaPropertyName, propertyValue);
         }
     }
 }

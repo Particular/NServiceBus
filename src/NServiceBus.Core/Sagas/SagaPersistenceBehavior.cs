@@ -13,13 +13,21 @@
 
     class SagaPersistenceBehavior : HandlingStageBehavior
     {
-        public ISagaPersister SagaPersister { get; set; }
+        public ISagaPersister SagaPersister { get; private set; }
 
-        public ICancelDeferredMessages TimeoutCancellation { get; set; }
+        public ICancelDeferredMessages TimeoutCancellation { get; private set; }
 
-        public MessageHandlerRegistry MessageHandlerRegistry { get; set; }
+        public MessageHandlerRegistry MessageHandlerRegistry { get; private set; }
 
-        public SagaMetaModel SagaMetaModel { get; set; }
+        public SagaMetadataCollection SagaMetadataCollection { get; private set; }
+
+        public SagaPersistenceBehavior(ISagaPersister persister, ICancelDeferredMessages timeoutCancellation, MessageHandlerRegistry handlerRegistry, SagaMetadataCollection sagaMetadataCollection)
+        {
+            this.SagaPersister = persister;
+            this.TimeoutCancellation = timeoutCancellation;
+            this.MessageHandlerRegistry = handlerRegistry;
+            this.SagaMetadataCollection = sagaMetadataCollection;
+        }
 
         public override void Invoke(Context context, Action next)
         {
@@ -35,7 +43,7 @@
                 return;
             }
 
-            var sagaMetadata = SagaMetaModel.FindByName(context.MessageHandler.Instance.GetType().FullName);
+            var sagaMetadata = SagaMetadataCollection.Find(context.MessageHandler.Instance.GetType());
             var sagaInstanceState = new ActiveSagaInstance(saga, sagaMetadata);
 
             //so that other behaviors can access the saga
@@ -90,7 +98,7 @@
             {
                 if (!sagaInstanceState.IsNew)
                 {
-                    SagaPersister.Complete(saga.Entity);
+                    SagaPersister.Complete(sagaMetadata, saga.Entity);
                 }
 
                 if (saga.Entity.Id != Guid.Empty)
@@ -104,11 +112,11 @@
             {
                 if (sagaInstanceState.IsNew)
                 {
-                    SagaPersister.Save(saga.Entity);
+                    SagaPersister.Save(sagaMetadata, saga.Entity);
                 }
                 else
                 {
-                    SagaPersister.Update(saga.Entity);
+                    SagaPersister.Update(sagaMetadata, saga.Entity);
                 }
             }
         }
@@ -213,7 +221,7 @@
 
                 var loader = (SagaLoader)Activator.CreateInstance(loaderType);
 
-                return loader.Load(SagaPersister, sagaId);
+                return loader.Load(SagaPersister, metadata, sagaId);
             }
 
             SagaFinderDefinition finderDefinition = null;

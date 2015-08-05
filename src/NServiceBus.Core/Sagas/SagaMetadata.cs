@@ -163,7 +163,7 @@ namespace NServiceBus.Saga
 
             foreach (var mapping in mapper.Mappings)
             {
-                if (!mapping.HasCustomFinderMap)
+                if (!mapping.HasCustomFinderMap && correlationProperties.All(cp => cp.Name != mapping.SagaPropName))
                 {
                     correlationProperties.Add(new CorrelationProperty(mapping.SagaPropName));
                 }

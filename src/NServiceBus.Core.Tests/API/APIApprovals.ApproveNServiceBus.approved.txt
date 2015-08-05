@@ -1961,14 +1961,14 @@ namespace NServiceBus.Saga
     }
     public interface ISagaPersister
     {
-        void Complete(NServiceBus.Saga.IContainSagaData saga);
-        TSagaData Get<TSagaData>(System.Guid sagaId)
+        void Complete(NServiceBus.Saga.SagaMetadata metadata, NServiceBus.Saga.IContainSagaData saga);
+        TSagaData Get<TSagaData>(NServiceBus.Saga.SagaMetadata metadata, System.Guid sagaId)
             where TSagaData : NServiceBus.Saga.IContainSagaData;
-        TSagaData Get<TSagaData>(string propertyName, object propertyValue)
+        TSagaData Get<TSagaData>(NServiceBus.Saga.SagaMetadata metadata, string propertyName, object propertyValue)
             where TSagaData : NServiceBus.Saga.IContainSagaData;
-        void Initialize(NServiceBus.Saga.SagaMetaModel model);
-        void Save(NServiceBus.Saga.IContainSagaData saga);
-        void Update(NServiceBus.Saga.IContainSagaData saga);
+        void Initialize(NServiceBus.Saga.SagaMetadataCollection allSagas);
+        void Save(NServiceBus.Saga.SagaMetadata metadata, NServiceBus.Saga.IContainSagaData saga);
+        void Update(NServiceBus.Saga.SagaMetadata metadata, NServiceBus.Saga.IContainSagaData saga);
     }
     public abstract class Saga
     {
@@ -2036,11 +2036,11 @@ namespace NServiceBus.Saga
         public bool IsMessageAllowedToStartTheSaga(string messageType) { }
         public bool TryGetFinder(string messageType, out NServiceBus.Saga.SagaFinderDefinition finderDefinition) { }
     }
-    public class SagaMetaModel : System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMetadata>, System.Collections.IEnumerable
+    public class SagaMetadataCollection : System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMetadata>, System.Collections.IEnumerable
     {
-        public SagaMetaModel() { }
-        public NServiceBus.Saga.SagaMetadata FindByEntityName(string name) { }
-        public NServiceBus.Saga.SagaMetadata FindByName(string name) { }
+        public SagaMetadataCollection() { }
+        public NServiceBus.Saga.SagaMetadata Find(System.Type sagaType) { }
+        public NServiceBus.Saga.SagaMetadata FindByEntity(System.Type entityType) { }
         public System.Collections.Generic.IEnumerator<NServiceBus.Saga.SagaMetadata> GetEnumerator() { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes) { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }

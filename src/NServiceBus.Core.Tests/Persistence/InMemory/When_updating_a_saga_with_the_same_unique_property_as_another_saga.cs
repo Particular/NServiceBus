@@ -1,6 +1,7 @@
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
+    using NServiceBus.Saga;
     using NUnit.Framework;
 
     [TestFixture]
@@ -13,14 +14,16 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             var saga2 = new SagaWithUniquePropertyData {Id = Guid.NewGuid(), UniqueString = "whatever"};
 
             var persister = InMemoryPersisterBuilder.Build(typeof(SagaWithUniqueProperty), typeof(SagaWithTwoUniqueProperties));
-            persister.Save(saga1);
-            persister.Save(saga2);
+            var metadata = SagaMetadata.Create(typeof(SagaWithUniqueProperty));
+
+            persister.Save(metadata, saga1);
+            persister.Save(metadata, saga2);
 
             Assert.Throws<InvalidOperationException>(() => 
             {
-                var saga = persister.Get<SagaWithUniquePropertyData>(saga2.Id);
+                var saga = persister.Get<SagaWithUniquePropertyData>(metadata, saga2.Id);
                 saga.UniqueString = "whatever1";
-                persister.Update(saga);
+                persister.Update(metadata, saga);
             });
         }
 
@@ -31,14 +34,16 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             var saga2 = new SagaWithTwoUniquePropertiesData { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 37};
 
             var persister = InMemoryPersisterBuilder.Build(typeof(SagaWithUniqueProperty), typeof(SagaWithTwoUniqueProperties));
-            persister.Save(saga1);
-            persister.Save(saga2);
+            var metadata = SagaMetadata.Create(typeof(SagaWithTwoUniqueProperties));
+
+            persister.Save(metadata, saga1);
+            persister.Save(metadata, saga2);
 
             Assert.Throws<InvalidOperationException>(() =>
             {
-                var saga = persister.Get<SagaWithTwoUniquePropertiesData>(saga2.Id);
+                var saga = persister.Get<SagaWithTwoUniquePropertiesData>(metadata, saga2.Id);
                 saga.UniqueInt = 5;
-                persister.Update(saga);
+                persister.Update(metadata, saga);
             });
         }
     }

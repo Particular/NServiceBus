@@ -18,10 +18,12 @@
                        };
 
             var persister = InMemoryPersisterBuilder.Build<Saga>();
-            persister.Save(saga);
+            var metadata = SagaMetadata.Create(typeof(Saga));
 
-            Assert.AreEqual(sagaId, persister.Get<SagaData>("Property", null).Id);
-            Assert.IsNull(persister.Get<SagaData>("Property", "a value"));
+            persister.Save(metadata, saga);
+
+            Assert.AreEqual(sagaId, persister.Get<SagaData>(metadata, "Property", null).Id);
+            Assert.IsNull(persister.Get<SagaData>(metadata, "Property", "a value"));
         }
 
         class Saga : Saga<SagaData>
